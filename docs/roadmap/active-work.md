@@ -12070,13 +12070,34 @@ the reported failure.
   system such as `mac` can consume that request without moving its intelligence into
   `litai`. The existing generation/lock target concept still converges with the selected
   worker: explicit Flavor constraints and target requirements must agree before dispatch.
+  Dynamic provisioners require a distinct two-stage handoff: send a bounded provisioning
+  request before final worker identity binding, validate the returned exact SSH worker,
+  then construct the canonical lifecycle request for that worker. Cleanup authority is
+  released only after controller-side artifact and evidence import verifies exact bytes,
+  identities, and custody; ambiguous transfer or cleanup retains a recoverable lease.
+- **Static and dynamic configuration boundary (user clarification):** Static machines
+  already provisioned by the user or an administrator are a complete supported mode.
+  The private `workers.json` catalog may contain any number of these, including zero.
+  Dynamic allocation is separately opt-in and disabled by default. Its enabled setting,
+  organization-specific executable/arguments, and user-supplied credential bindings
+  belong only in local user configuration, never project authority or built-in provider
+  code. A configured command must expose `--help` or `help` for usage discovery.
+  Neither a configured command nor missing static capacity implicitly enables it.
+  No provider command, credential acquisition, or allocation may run while disabled.
+  Literate AI delegates allocation and validates the returned worker; it does not know
+  cloud vendors or organization-specific VM APIs. The generic opt-in configuration and
+  provisioning handoff below remain unimplemented acceptance work, independent of the
+  static registration/SSH-test delivery in WORKER-CLI-001.
 - **Scope boundary:** Provide local, SSH, and synchronous command-dispatch adapters plus
   request/result protocols—not an internal capability matcher, provisioner, fleet
   inventory, priority engine, allocator, lease manager, cloud/Kubernetes/VM/GPU API, or
   retry scheduler. Keep hostnames, usernames, credentials, private dispatcher commands,
   and operational task/lease state outside Git. Hardware requirements are declarative
   payload forwarded to the selected dispatcher, not an instruction for Literate AI to
-  choose a machine.
+  choose a machine. The framework may coordinate the two-stage provision/execute/cleanup
+  protocol, but matching, allocation, readiness, lease persistence, and cloud mutation
+  remain external-dispatcher responsibilities. Never rebind a command-worker request to
+  an SSH worker or relabel a result identity.
 - **Depends on:** current exact target/Flavor locking, artifact exports, CodeGraph build
   prerequisite, source-cache identities, and the bounded parallel sample fan-out
 - **GitHub issue:** [#131](https://github.com/NVIDIA-dev/literate-ai/issues/131)
@@ -12127,6 +12148,27 @@ the reported failure.
         execute it synchronously with bounded output and application arguments, and
         successful results must publish immutable artifact references plus observed
         toolchain identities.
+  - [ ] Add a provider-neutral pre-binding provisioning protocol for dynamic workers.
+        First add local-only enablement (default false), provisioner command and
+        credential-reference configuration, with `--help`/`help` discovery. Prove that
+        disabled or missing enablement makes no provider invocation, including when
+        the static catalog is empty. Reject a missing command or required credential bindings
+        before allocation; do not bake provider-specific arguments into Literate AI.
+        A configured provisioner receives exact target profile, declarative requirements,
+        source-authority inputs, total deadline, and an idempotency key before an
+        `ExecutionDispatchRequest` is created. Its bounded response returns one exact
+        SSH worker descriptor plus opaque lease/recovery identity. Validate the returned
+        worker and requirements, then construct and execute the existing canonical SSH
+        lifecycle request without identity rewriting. Persist no private endpoint or
+        lease data in project authority.
+  - [ ] Add verified evidence-custody and cleanup handoff for provisioned workers.
+        Import the out-of-band artifact/evidence manifest and bundle under controller
+        custody, verify declared identities, byte sizes, worker/request binding, and
+        immutable references, and emit a typed custody receipt before authorizing stop.
+        Missing, corrupt, oversized, timed-out, or ambiguous evidence retains the lease
+        and a recoverable operator status; delete remains a separate explicit action.
+        One total timeout budget must cover provisioning, readiness, execution, transfer,
+        verification, and cleanup.
   - [x] Adapt local execution and the current bounded SSH transfer/command lane behind the
         same exact worker interface without duplicating their lifecycle machinery.
         A live `litai test samples/cuda-vector-transform-cpp --worker
@@ -12171,6 +12213,14 @@ the reported failure.
         execute the lifecycle through project source-intelligence synchronization and
         Standard distribution resolution, asserting the exact 16-cell failure classes
         cannot recur; import/bootstrap smoke alone is insufficient.
+  - [ ] Qualify the dynamic-provisioning handoff with a synthetic provider and one
+        authorized live disposable worker. Contract tests must reject mismatched worker,
+        request, lease, artifact, evidence, and custody identities; prove retry does not
+        duplicate allocation or destructive cleanup; prove unknown SSH keys and
+        insufficient observed hardware block execution; and prove evidence is imported
+        and verified before default stop. The installed-wheel public CLI proof must run
+        one LitAI project lifecycle through the provisioned SSH worker and leave no
+        unclassified residual. Synthetic fixtures alone do not establish cloud support.
   - [ ] Repair Windows-native tests and behavior for source executable intent, accepted
         manifest identity, working-tree guard discovery, diagnostic-tail preservation,
         and projected C++ execution without weakening digest, path, or rollback checks.
@@ -23153,3 +23203,174 @@ GitHub CI failure without relaxing identity checks.
   public-mirror qualification branch records the resulting lifecycle-driver and
   documentation authority identities and passes the complete managed Python suite,
   including the absorbed attached update, rollback/custody, and native Bazel cases.
+
+### [x] WORKER-CLI-001 — Manage and test private worker registrations through the CLI
+
+- **Priority:** P0
+- **Owner:** worker catalog, CLI, SSH diagnostics and native qualification
+- **Direction:** Provide worker CRUD and SSH connectivity testing, then use the Linux and Windows pool to qualify Literate AI against current open issue and PR scenarios.
+- **Conclusion:** Local registrations are durable private configuration. Add validated atomic CRUD and independent bounded connectivity results without VM provisioning or host-key policy mutation; integrate relevant current review changes in an isolated test branch and retain truthful per-platform evidence.
+- **Depends on:** WORKER-PROBE-DIAGNOSTICS-001; published PR #513 diagnostic foundation
+- **Implementation:**
+  - [x] Add list/show/add/update/remove commands with canonical validation, private atomic writes, conflict protection, and actionable errors.
+  - [x] Add worker test selection/all with separate DNS, connection, host-key, authentication, timeout and unsupported results; preserve successful peers.
+  - [x] Reconcile all six open issues and four PRs into an explicit qualification matrix, integrating applicable changes and recording unsupported or deferred scope.
+- **Evidence:**
+  - [x] Focused CRUD/concurrency/negative diagnostic regressions and scoped lint, format, layout, skill and authority checks pass; broader gate failures remain explicitly recorded.
+  - [x] Real Linux and Windows worker CLI and issue/PR-derived tests execute the exact changed framework; retain source identities and per-worker outcomes.
+
+
+- **WORKER-CLI-001 progress:** 229 worker-focused tests pass on the isolated
+  PR #513 published baseline plus this change. The first real 20-worker connectivity
+  run returns 18 successful handshakes and independent authentication/changed-key
+  failures; those are readiness findings, not native framework test qualification.
+- **Current tracker qualification matrix (2026-09-30):**
+  - Issue [#505](https://github.com/NVIDIA-dev/literate-ai/issues/505): include its
+    published diagnostic repair from PR #513, extend peer aggregation and SSH-only
+    testing, and exercise actual first-contact and authentication failures.
+  - Issues [#497](https://github.com/NVIDIA-dev/literate-ai/issues/497) and
+    [#498](https://github.com/NVIDIA-dev/literate-ai/issues/498): use native package,
+    scheduling and cache regression suites from PR #513 as real-world worker load.
+    Their full production feature acceptance remains owned by their existing items.
+  - Issue [#492](https://github.com/NVIDIA-dev/literate-ai/issues/492): include
+    native-CLI contract and lifecycle tests; record unsupported cases as such.
+  - Issue [#483](https://github.com/NVIDIA-dev/literate-ai/issues/483): include
+    worktree placement/refresh regressions. The installed location command refuses
+    the current legacy registrations; no cleanup is authorized by this test cycle.
+  - Issue [#512](https://github.com/NVIDIA-dev/literate-ai/issues/512): include
+    project update/merge regression scenarios and retain the unresolved three-way
+    application boundary rather than claiming its feature complete.
+  - PR [#513](https://github.com/NVIDIA-dev/literate-ai/pull/513), published
+    `a1aff322`: integrated as the starting test baseline. Its failing hosted assertion
+    and unpublished follow-ups remain explicit; this branch does not modify its
+    owner's worktree.
+  - PR [#511](https://github.com/NVIDIA-dev/literate-ai/pull/511): include the
+    dynamic-worker roadmap contract; provisioning and VM deletion remain external.
+  - PR [#508](https://github.com/NVIDIA-dev/literate-ai/pull/508): include the pinned
+    CI action update, with no claim that native workers prove GitHub action execution.
+  - PR [#501](https://github.com/NVIDIA-dev/literate-ai/pull/501): conflicting stale
+    export branch overlaps public-export work already on main. The export checker,
+    self-update implementation and export tests are identical at the compared tips;
+    native public-export groups pass on both platforms. Defer the stale branch
+    rather than replaying its historical roadmap over newer authority.
+
+### [x] REFRESH-MODE-001 — Validate refresh against admitted physical permissions
+
+- **Priority:** P1
+- **Owner:** framework core: repository refresh application
+- **Direction:** Use native workers to exercise current issues and PRs; a Linux worker exposed a legitimate group-writable checkout rejected as changed.
+- **Conclusion:** Git tree modes encode executable intent, not exact physical permissions. Compare previous and unchanged files against captured physical modes; newly applied changes retain declared output modes. Preserve race and rollback custody checks.
+- **Depends on:** none
+- **Implementation:**
+  - [x] Use staged member permission observations for previous and unchanged regular files.
+  - [x] Add real-Git regression with group-writable changed and unchanged files.
+- **Evidence:**
+  - [x] Focused repository refresh permission regression suite passes locally and on a native Linux worker with a group-writable checkout.
+
+### [ ] CACHE-WINPATH-001 — Qualify CAS publication beyond Windows path limits
+
+- **Priority:** P1
+- **Owner:** framework storage CAS and cache roundtrip qualification
+- **Direction:** Native Windows testing of the published integration baseline exposed a long-path cache publication failure.
+- **Conclusion:** The portable archive roundtrip fixture exceeds the default Windows path limit at CAS hardlink publication. Preserve the failure as an issue-498 qualification finding; determine whether to support extended paths or bound fixture placement without weakening immutable publication.
+- **Depends on:** none
+- **Implementation:**
+  - [ ] Reproduce test_twelve_published_keys_round_trip_through_portable_archive on Windows without assuming long-path host policy.
+  - [ ] Resolve native path handling or portable fixture bounds under the cache qualification owner.
+- **Evidence:**
+  - [ ] The native Windows cache suite passes with immutable publication and corruption regressions intact.
+
+- **WORKER-CLI-001 native checkpoint:** source `ee78fa0b6cf8ef1d66debebef9f6b8d230268432`,
+  tree `5267127f8d0d1ed464949231c073eeb21dbade16`, passes 232 worker-focused
+  tests on Linux and 232 on Windows (four documented platform skips). An actual
+  twenty-worker SSH test returns nineteen handshakes and one independent
+  authentication failure, with nonzero command status. No host-key verification
+  was disabled. Repository layout, public-export audit, Ruff lint/format, changed
+  skill checks and authority review pass. Full frozen-source qualification remains
+  pending; initial mutable-checkout proof runs were correctly rejected when source
+  changed during execution and are not pass evidence.
+- **Peer survey:** the end-of-cycle CLI survey found no additional green reviews
+  or collectable worktrees. Historical/dirty worktrees and unpublished peer work
+  are retained untouched. The integration baseline remains a draft with red CI;
+  native scenario coverage does not claim completion of its entire 1.2 program.
+
+- **Installed CLI qualification:** the wheel built from `d6d003eb` has SHA-256
+  `db8aa7f28539c44c16927f08ad9b5c60928640b49dc85df01e9b25ec5cf03f5e`.
+  Its embedded distribution origin matches that revision. Eight external-checkout
+  CLI steps pass: empty list, add, update, show, unsupported-transport test exit,
+  remove, empty list, and real Linux/Windows SSH handshakes. The broader frozen
+  `ee78fa0b` installed-wheel smoke also passes; it is evidence for that exact earlier
+  wheel, not a claim that every later refresh edge case passed.
+- **Additional native findings:** the published integration baseline reproduces
+  PR #513's remote-execution call-count assertion on Linux. On Windows, 23 worktree
+  tests pass; the subsequent refresh group reports Git inspection failure in
+  `test_complete_commit_is_manifest_last_and_cleans_terminal_journal` after 19 tests
+  near the configured deadline. The controller wait and remote runner then expire;
+  a separate process inspection confirms no qualification processes remain. This is
+  an incomplete refresh qualification, not a passing Windows refresh result.
+- **REFRESH-MODE-001 repair checkpoint:** the first native repair exposed absent
+  physical inventories for no-op plans. `d6d003eb` admits and retains exact no-op
+  permissions while validating Git executable intent; five focused filesystem tests
+  pass, including file/directory permission drift and foreign content refusal.
+  The repaired source passes 232 worker tests on each native platform (four Windows
+  skips). Its longer Linux real-Git application suite remains in progress.
+
+### [x] WORKER-PROVISION-001 — Configure and invoke a local provider-neutral worker provisioner
+
+- **Priority:** P0
+- **Owner:** framework worker CLI, private configuration and provisioning contracts
+- **Direction:** Implement the generic hook in this change: support static workers independently, and launch an organization-supplied command only when dynamic provisioning is explicitly enabled in local user settings.
+- **Conclusion:** Add local opt-in command configuration, help discovery and explicit on-demand worker provisioning. Use a versioned provider-neutral request/response boundary, user-supplied environment credential bindings, bounded process execution and private recovery state. Validate the returned worker before registration; keep cloud APIs, provider flags and credential acquisition outside Literate AI.
+- **Depends on:** none
+- **Implementation:**
+  - [x] Add local provisioner configuration CRUD, enabled-by-default-false policy, and help/--help discovery.
+  - [x] Add bounded on-demand provisioning with request identity, duplicate-allocation protection, response validation and private registration/recovery.
+  - [x] Document the adapter protocol and the complete static-only and dynamic-enabled CLI flows.
+- **Evidence:**
+  - [x] Disabled/missing configuration and missing credentials invoke no command; malformed output, timeout, identity drift and concurrent requests fail safely without unintended registration or retries.
+  - [x] Public CLI synthetic provisioner flow passes on native Linux and Windows and the returned worker can pass independent SSH testing.
+
+- **Generic-hook implementation:** Added local configuration/show/enable/disable/remove,
+  provider help discovery, bounded explicit provisioning, credential environment
+  bindings, schema-validated SSH registration and durable per-worker recovery state.
+  The 245 worker-focused tests pass locally, including 13 real-process hook tests.
+  Lint, formatting, changed-skill evaluation, layout, public export, lifecycle-driver
+  review and documentation authority review pass. Native hook qualification follows.
+- **Refresh qualification correction:** Final native no-op checks passed before the
+  broad application run reached a new test fixture with mismatched manifest pins.
+  Corrected that fixture to commit both Gitlink and manifest authority together;
+  rerunning its application coverage. No full-suite pass is claimed.
+
+- **Final generic-hook qualification:** Framework code at `bb19f82c` passes 248
+  worker-focused tests on macOS, Linux and Windows (four Windows platform skips),
+  including 16 real-process provisioning regressions. A noneditable wheel with
+  SHA-256 `207a2a600d3efd8f458e5c2346f1595baebcb29f1bd1dad4b9ddfb6804f41c6f`
+  passes 13 CLI smoke steps outside the checkout, including local opt-in settings,
+  a synthetic provider response, private registration/recovery, and real SSH to
+  existing Linux and Windows endpoints. This verifies the generic handoff, not a
+  provider-specific resource allocation. The repeated pool test reports 19/20 SSH
+  successes; the remaining Windows worker independently reports authentication
+  failure. Forty private user-path/configuration tests also pass.
+- **Qualification boundary:** The broad refresh reruns were stopped in favor of
+  the focused physical-permission regression group. Their partial progress is not
+  a full-suite pass. The new Git fixture now adds its unchanged member before the
+  initial root authority/pins are constructed; it does not rewrite an admitted
+  root manifest without its documentation review. No provisioner is enabled in the
+  operator's real local configuration. The unrelated cache path and remote-call
+  count failures, stale receipt, and Windows broad-refresh failure remain reported.
+- **Final peer survey:** No eligible cleanup candidates; stale, dirty or unmerged
+  peer branches remain retained. No peer checkout was removed or rewritten.
+
+- **Focused refresh proof:** Six physical-permission regressions pass on native
+  Linux at `142120a2`, including a complete real-Git refresh with group-writable
+  changed and unchanged members, plus no-op admission and drift rejection. The
+  macOS run of the same focused group also passes (six tests, 168 seconds). Framework runtime source
+  is unchanged from the three-platform worker and installed-wheel proofs above.
+
+- **Completion boundary:** Worker CRUD, SSH diagnostics and the generic local
+  provisioning hook are implemented and qualified in draft PR #514. The six focused
+  refresh permission regressions pass on macOS and native Linux. This closes the
+  implementation/test tasks, not the integration release: `verify` still reports
+  its stale receipt, and broader baseline failures remain owned by their recorded
+  work items. The published wheel proof binds runtime code `bb19f82c`; subsequent
+  commits only reorganize the regression fixture and record this evidence.

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Add opt-in local worker provisioning through an organization-owned command, with
+  credential bindings, help discovery, bounded request/response validation, durable
+  duplicate-allocation protection, and registration recovery. Static worker CRUD
+  and SSH tests remain independent of provisioning.
+
+- Repository refresh: validate existing files against their captured physical
+  permissions so group-writable checkouts remain valid while later permission
+  changes still fail custody checks.
+
+- Worker operations: add private catalog list/show/add/update/remove commands with
+  validated atomic writes and stale-identity protection, plus bounded SSH tests
+  that report each selected worker independently. Failed capability probes retain
+  successful peer results and remove stale observations for failed workers.
+
 - Overlap local consumer source generation with provider build work while preserving
   accepted artifact imports and one shared concurrency limit.
 

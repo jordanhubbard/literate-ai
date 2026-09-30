@@ -2123,3 +2123,111 @@ make release-check
 ```
 
 See [Installation](installation.md) for Python and contributor-tool requirements.
+
+### Private worker registration and connectivity
+
+Static workers are a complete supported mode: register machines the user or an
+administrator has already provisioned. An empty catalog is also valid. These
+operations do not require provisioning rights.
+
+Optional dynamic provisioning uses an organization-owned local command. It is disabled
+by default and must be explicitly enabled in the user's `worker-provisioner.json`
+(`litai config paths` shows its location). Static CRUD, SSH tests, and normal dispatch
+never implicitly allocate a machine. The framework contains no cloud or
+organization-specific provisioning implementation.
+
+Configure the command with a private JSON file:
+
+```json
+{
+  "schema": "urn:literate-ai:schema:v1:worker-provisioner",
+  "command": ["my-worker-adapter"],
+  "enabled": false,
+  "environment": [
+    {
+      "schema": "urn:literate-ai:schema:v1:execution-worker-environment",
+      "name": "PROVIDER_TOKEN",
+      "source_variable": "MY_PROVIDER_TOKEN",
+      "required": true
+    }
+  ],
+  "help_argument": "--help",
+  "timeout_seconds": 300
+}
+```
+
+```sh
+litai worker provisioner configure --file /absolute/private/provisioner.json
+litai worker provisioner show
+litai worker provisioner enable
+litai worker provisioner command-help
+litai worker provision new-linux --request-id allocation-001 --parameter size=small
+litai worker test --worker-id new-linux
+litai worker provisioner disable
+```
+
+`configure` always disables provisioning, even if its input says `enabled: true`;
+`enable` is a separate explicit action. `remove` removes only this local configuration.
+Commands are argument arrays executed without a shell. Put credential values in
+user-supplied environment variables, never command arguments or parameters. The
+child receives basic OS runtime variables and explicit credential bindings, not the
+controller's entire environment. Required missing credentials prevent invocation.
+`help_argument` accepts `--help` or `help`. `command-help` invokes it with a bounded
+deadline and redacts bound values from output. Provisioning also checks that help
+succeeds before submitting a request. The organization command must make help
+side-effect-free.
+
+The organization may wrap any provisioning CLI. The adapter reads one JSON request
+from stdin and writes exactly one JSON response to stdout. See
+[the published protocol schema](../../schemas/v1/worker-provisioning.schema.json).
+Requests contain `schema` (`urn:literate-ai:schema:v1:worker-provision-request`),
+`request_id`, `worker_id`, `target_profile`, versioned `requirements`, and opaque
+string `parameters`. `--requirements FILE` selects execution requirements and
+`--target-profile PROFILE` defaults to `host`. Provider-specific resource options,
+including disk size, belong in `--parameter KEY=VALUE`. Credential acquisition and
+translation to provider commands remain the adapter's responsibility.
+
+Responses contain `schema` (`urn:literate-ai:schema:v1:worker-provision-response`),
+`request_identity`, `worker` (a complete versioned SSH worker descriptor), and an
+opaque nonempty `lease_id` for provider recovery. `request_identity` is `sha256:`
+plus the SHA-256 of canonical request JSON (UTF-8, sorted keys, no insignificant
+whitespace). The worker ID, target profile and authored requirements must match
+exactly. These declarations are not hardware observations: use `worker test` for
+SSH connectivity and `worker probe` for independent hardware evidence afterward.
+The adapter must implement idempotency using the full request identity and never
+return credentials in its response or logs.
+
+Input and each output stream are limited to 64 KiB; allocation deadlines are
+1–3600 seconds. A private durable record is written before allocation, serialized
+per worker ID. Repeating a successful request returns its saved result; a different
+request for that worker, or an uncertain prior result, cannot allocate again.
+`litai worker provisioner status WORKER_ID` inspects the record.
+`litai worker provisioner recover WORKER_ID` registers a previously validated result
+without invoking the provider and works even when provisioning is disabled.
+Registration conflicts preserve the existing worker. Timeouts, invalid responses,
+and interrupted operations remain uncertain; inspect the provider using the saved
+request identity before taking manual recovery action. Removing a registration or
+provisioner configuration does not delete allocation records or remote machines.
+This hook is explicit on-demand provisioning; automatic scheduling and provider
+resource deletion remain separate work under `WORKER-001`.
+
+`litai worker list` and `show WORKER_ID` inspect the private catalog selected by
+`--worker-config`, `LITAI_WORKER_CONFIG`, or `litai config paths`.
+`add WORKER_ID --endpoint user@host --os linux --workspace '~/litai'` registers an
+SSH worker; `--kind local` registers the controller. `--file` accepts a complete
+versioned worker descriptor for advanced command-worker or hardware requirements.
+`update WORKER_ID` changes only supplied fields, while `remove WORKER_ID` removes
+only the local registration. These commands never allocate, stop, or destroy a VM.
+Mutations validate before publication, sort entries, serialize competing CLI writes,
+and atomically replace a private catalog. An empty catalog is valid. Duplicate adds,
+unknown updates/removals, invalid declarations and unsafe paths fail without replacement.
+`--if-identity sha256:...` rejects a stale reviewed catalog. Windows workspace
+paths use the supported home-relative representation, such as `~/litai`.
+
+`litai worker test --all` or repeated `--worker-id ID` runs a bounded,
+noninteractive SSH echo handshake without requiring Python, GPU tooling, or LitAI
+on the worker. Results identify each worker, SSH status, diagnostic and remediation.
+DNS, connection refusal, timeout, unknown/changed host keys and authentication failures
+remain distinct. One failure never suppresses peer results. A nonzero exit status means
+at least one worker failed or was unsupported. Tests do not alter host-key policy,
+install credentials, mutate workspaces, or publish hardware observations.

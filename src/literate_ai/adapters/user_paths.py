@@ -52,6 +52,14 @@ class UserPaths:
         return self.config_root / "workers.json"
 
     @property
+    def worker_provisioner(self) -> PurePath:
+        return self.config_root / "worker-provisioner.json"
+
+    @property
+    def worker_provisioning(self) -> PurePath:
+        return self.state_root / "worker-provisioning"
+
+    @property
     def shared_cache_config(self) -> PurePath:
         return self.config_root / "shared-cache.json"
 

@@ -877,8 +877,8 @@ class ExecutionWorkerCatalog:
     SCHEMA: ClassVar[str] = EXECUTION_WORKER_CATALOG_SCHEMA
 
     def __post_init__(self) -> None:
-        if not self.workers or len(self.workers) > MAX_EXECUTION_WORKERS:
-            fail("ExecutionWorkerCatalog.workers", "must contain 1 to 256 workers")
+        if len(self.workers) > MAX_EXECUTION_WORKERS:
+            fail("ExecutionWorkerCatalog.workers", "must contain 0 to 256 workers")
         worker_ids = tuple(item.worker_id for item in self.workers)
         _sorted_unique(worker_ids, "ExecutionWorkerCatalog.workers")
 

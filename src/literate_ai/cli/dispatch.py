@@ -845,6 +845,12 @@ def _parser() -> JsonArgumentParser:
     worker_commands = worker.add_subparsers(
         dest="worker_command", required=True, parser_class=JsonArgumentParser
     )
+    from .worker_registry import add_registry_arguments
+
+    add_registry_arguments(worker_commands)
+    from .worker_provisioning import add_provisioning_arguments
+
+    add_provisioning_arguments(worker_commands)
     worker_health = worker_commands.add_parser(
         "health", help="inspect bounded storage health without dispatch or cleanup"
     )
@@ -3261,6 +3267,17 @@ def main(
             if isinstance(result, dict) and result.get("coding_cli") is not None:
                 perf_outcome["coding_cli"] = result["coding_cli"]
         renderer = _HUMAN_RENDERERS.get(command)
+        if command in {
+            "worker.list",
+            "worker.show",
+            "worker.add",
+            "worker.update",
+            "worker.remove",
+            "worker.test",
+        }:
+            from .worker_registry import human_registry_result
+
+            renderer = human_registry_result
         if command == "worker.health":
             from .worker_health import human_worker_health
 
