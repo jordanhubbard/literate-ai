@@ -1,13 +1,15 @@
 # HTML5 visual observability — Phase 0 and Phase 1 execution plan
 
-- **Status:** partial
-- **Owning queue item:** [OBSERVE-HTML-001](active-work.md#observe-html-001-generate-single-file-html5-visual-observability-artifacts)
-- **Completion / archival evidence:** Phase 0 passed at main `2f09c295`; Phase 1
+- **Status:** historical
+- **Owning queue item:** [OBSERVE-HTML-001](../../roadmap/active-work.md#observe-html-001-generate-single-file-html5-visual-observability-artifacts)
+- **Completion / archival evidence:** [Scope reconciliation](../../roadmap/html-observability-completion.md). Phase 0 passed at main `2f09c295`; Phase 1
   exit passes locally on wheel `23898155` with post-update browser evidence below.
   Hosted integration passed all 15 checks at `33630a4f` in run `34664827991`,
   and PR #386 merged as `cf71a4fc` on 2026-09-12. The owning queue records
   reverified retained artifacts. [Tracker annotation](https://github.com/NVIDIA-dev/literate-ai/issues/296#issuecomment-5651388557)
-  is complete; archival reconciliation remains, and later phases stay open.
+  is complete. Archived by the scope audit; the
+  [current completion plan](../../roadmap/html-observability-completion.md) owns
+  remaining Phase 2/3 obligations. This audit did not reopen historical artifacts.
 
 This is the executable work breakdown for GitHub
 [#295](https://github.com/NVIDIA-dev/literate-ai/issues/295) (product intent and
@@ -19,7 +21,7 @@ stay readable inside one queue item.
 Each item below is written to be executed by an agent that has not read this
 conversation. It is mirrored into the MAC ledger as one task per item; MAC is the
 execution control plane and this file is the durable project authority, per
-[Literate AI and an agent ledger](../architecture/agent-ledger-boundary.md).
+[Literate AI and an agent ledger](../../architecture/agent-ledger-boundary.md).
 
 ## Standing constraints
 
@@ -812,13 +814,15 @@ passed at `33630a4f` and PR #386 merged as `cf71a4fc`. The retained wheel and
 post-update HTML have been reopened and their above identities verified again;
 the six-scenario browser report is retained with SHA-256
 `56acd588db168be463860b25af323a09bc106fbae08e2f16443deac89360d010`.
-Phase 2–4 and both parent issues stay open.
+At that checkpoint Phase 2–4 and both parent issues remained open. The parent
+issues subsequently closed on 2026-09-17; current obligations are reconciled in the
+[current completion plan](../../roadmap/html-observability-completion.md).
 
 Record evidence against OBSERVE-HTML-001 per the record-user-directed-work skill, add a
 `## Unreleased` changelog outcome, and comment on #296 with a commit-pinned permalink.
 The maintainer's subsequent direction to resolve all open 1.1 roadmap work
-authorizes continuing the later phases. Keep #295 and #296 open while that
-implementation and its acceptance evidence remain incomplete.
+authorizes continuing the later phases. That historical direction did not result in a reconciled completion record when
+#295 and #296 were subsequently closed; do not treat it as a current tracker action.
 
 ## Explicit non-goals for this plan
 

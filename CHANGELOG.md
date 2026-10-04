@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Reconcile HTML observability scope: distinguish delivered graph/health views
+  from remaining run-history, dashboard controls and later-view qualification.
+
 - Require the versioned release line even for historical policies without a
   default branch; refuse arbitrary-branch plans and legacy-plan preparation.
 

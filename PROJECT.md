@@ -229,7 +229,10 @@ HTML observability now passes the real installed-wheel parent-update journey:
 declared artifacts become stale after changed inherited authority, regenerate with
 current provenance, and open as one file in desktop/mobile browsers. The compact
 agent wrapper and read-only verification gate are implemented under OBSERVE-HTML-001.
-Hosted integration, broader observability phases and release qualification remain open.
+Historical graph and health-view hosted qualification is recorded. Remaining HTML
+work is durable build/test-run history, cross-project shell controls and later-view
+installed/browser qualification; the [reconciled umbrella](docs/roadmap/html-observability-completion.md)
+tracks these separately from full release qualification.
 Git-submodule orchestration now exposes read-only plan/check over exact child pins
 and explicit dependency declarations. Its typed modern-manifest binding now separates
 persistent child pins/relationships from local checkout observations and rejects
