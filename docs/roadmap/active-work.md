@@ -5217,12 +5217,27 @@ invalid. Ordinary queue items do not gain separate files merely to satisfy this 
 
 ## Open pull-request landing queue
 
-### Current 1.2 review inventory
+### Retained 1.2 review inventory — repository migrated
 
-The forge currently has six open reviews. RELEASE-INTEGRATION-002 must reconcile
-their current-cycle dispositions before publication; observed CI is not release
-acceptance. PR #513 is an incomplete integration draft and does not authorize a
-merge-only release or defer the remaining 1.2 program.
+NVIDIA-dev/literate-ai is archived. Its integration PR #513 is closed and its
+closure notes identify jordanhubbard/literate-ai#8 as the migrated continuation.
+The migrated repository is public and active. The old integration tip `cbea0ab8`
+and migrated PR #8 tip `2820f853` have the identical tree
+`7ac719ca001c9684ad8ff397c7f6f131dddd7285`. The current local implementation has 85
+additional commits through `fa14d06d`; they must be preserved during reconciliation.
+The publication destination change is awaiting maintainer confirmation. No push,
+branch switch, or release has been performed as part of this migration audit.
+
+Current migrated open reviews are #1, #8, #10, #14, #15 and #16. Three-way merging
+is tracked by issue #2 and production dispatch/shared LAN caches by issue #4, both
+in milestone 1.2. Migrated main is `47be22ea974b654c72bcf1e420e587d65eae08c1`;
+it includes changes absent from the archived main and needs reconciliation before
+landing. The peer-work command in this checkout still fails with
+`project.peer_work_git_failed` because no local `main` ref exists.
+
+The table below retains the earlier source-repository snapshot, including historical
+CI observations; it is not a current landing queue. The full 1.2 program remains
+required before release.
 
 | Review | Observed head | Owner | Remaining acceptance |
 | --- | --- | --- | --- |
@@ -5238,7 +5253,8 @@ merge-only release or defer the remaining 1.2 program.
 That snapshot contained 31 open reviews and 22 open issues. Every review has
 an owner below; newly received issues are cited under REL-442, MATRIX-002, CACHE-007
 CONVERSION-DIAGNOSTICS-002 and RETAINED-READMISSION-001. PR #450 belongs to RELEASE-INTEGRATION-001.
-It is superseded by the current 1.2 inventory above.
+It is superseded by the retained 1.2 inventory above, which itself needs a current
+forge refresh.
 An included stack is not merged or closed until its final head or exact inclusion
 has been qualified. Refresh after scope changes and immediately before release planning.
 
@@ -22906,13 +22922,9 @@ GitHub CI failure without relaxing identity checks.
 
 ### [ ] RELEASE-INTEGRATION-003 — Compose production DAG dispatch and shared LAN caches
 
-- **Release target:** 1.3.0
-- **Priority:** P1
-- **GitHub issue:** [#4](https://github.com/jordanhubbard/literate-ai/issues/4) (migrated from NVIDIA-dev/literate-ai#498)
-
 - **Release target:** 1.2.0
 - **Priority:** P0
-- **GitHub issue:** [#498](https://github.com/NVIDIA-dev/literate-ai/issues/498)
+- **GitHub issue:** [#4](https://github.com/jordanhubbard/literate-ai/issues/4) (migrated from NVIDIA-dev/literate-ai#498)
 - **Owner:** production lifecycle scheduling and shared-cache qualification
 - **Direction:** Route production command and SSH lifecycle actions through the accepted
   DAG, then qualify real cross-worker Bazel/sccache and verified immutable artifact reuse.
@@ -25814,6 +25826,330 @@ later configured-provider child, three-node Standard factory and data-only contr
 changes. It does not establish full sample readiness or explain the hosted hardware
 probe failures. No native job from this qualification remains running.
 
+Controller PACKAGE return verification now reopens LINK proof and imports bytes
+under live admission, then requires private format verification. The deterministic
+verifier reconstructs the result from declared inputs; a forged ZIP with internally
+consistent hashes and metadata is rejected. The actual three-Component command
+LINK/PACKAGE fixture passes for directory and ZIP returns and revoked admission
+during transfer; eleven architecture boundary tests also pass. These are local
+command-process checks, not native-fleet or release qualification. Controller
+PACKAGE scheduling/composition, FINALIZE and the remaining 1.2 gates stay open.
+
+PACKAGE controller now uses shared action capacity, exact packager selection,
+canonical production dispatch records and mandatory independently verified result
+import. Eight controller regression checks cover wire binding, busy capacity,
+profile/worker loss, changed LINK handoff, import failure and worker failure without
+local fallback. These checks use a stubbed dispatcher/importer to isolate controller
+behavior; actual receiver/import coverage remains the separate three-Component
+fixture. Standard package-plan/custody composition and native-fleet qualification
+remain required before the full 1.2 release.
+
+Standard PACKAGE composition now installs the command controller when advertised,
+requires command LINK proof and explicit result transport, and retains exact local
+plan construction and package custody. The bridge bounds and publishes declared
+input bytes and rechecks them after dispatch. Configuration tests pass (32), and
+local command lifecycle tests pass (43 run, two platform skips), including delegated
+directory-package result/custody parity. Controller input tests cover corruption
+before/after dispatch and oversized transfer refusal. The factory test uses admitted
+capability fixtures and the custody parity test a local adapter callback; a complete
+real receiver run through this Standard composition remains to qualify. FINALIZE,
+native fleet, shared-cache and remaining full 1.2 release gates remain open.
+
+Standard command PACKAGE real-process outcome: the three-Component accepted LINK
+chain now runs a privately configured directory PACKAGE child using the same
+controller capacity pool. Standard constructs the package plan, publishes exact
+inputs, dispatches the child, imports/reverifies its result, materializes all linked
+exports, and reopens package custody. Every staged file matches its owned artifact
+bytes and capacity is released. The integration test passes in 75.742 seconds,
+including the existing ZIP forgery, revoked-admission and corrupt-LINK cases.
+The fixture routes public artifact reads to separate real per-Component local
+ports and uses simulated admitted worker facts; it does not establish live fleet
+admission, the entire factory-to-final-acceptance path, native SDK package coverage
+or release readiness. Those qualifications and FINALIZE remain open.
+
+FINALIZE transfer preparation: a closed bounded canonical input now carries the
+lock with its authored definitions, every exact Component build plan, PACKAGE input
+and PACKAGE result reference. Seven descriptor checks pass for roundtrip, changed
+lock/execution, missing/reordered/duplicate plans, substituted manifest, missing
+lock authoring, and noncanonical/unknown fields. The decoder normalizes project-plan
+validation errors to FINALIZE admission failures. This is input admission only;
+PACKAGE/LINK proof reopening, remotely authorized root tests/execution/independent
+acceptance, controller verification and lifecycle composition remain unfinished.
+
+FINALIZE proof reopening now validates the bounded predecessor record set and
+requires exact full-plan equality with accepted LINK inputs before independently
+reopening all LINK acceptance and PACKAGE format/byte evidence. The real three-
+Component LINK/PACKAGE fixture passes with fresh-CAS FINALIZE input transfer,
+changed runtime identity despite identical manifests, missing/extra/corrupt records,
+and admission revocation during transfer. Eight descriptor tests also pass. This
+establishes verified FINALIZE input custody only; remotely authorized root tests,
+packaged execution, independent acceptance, returned final evidence and production
+FINALIZE scheduling remain open along with the rest of the 1.2 program.
+
+FINALIZE dispatch input binding is now implemented: selected receiver, deadline,
+production action and exact PACKAGE predecessor are checked before proof transfer.
+Four wire regression checks cover substitution, closed records and cancellation
+before CAS/verifier access. The real three-Component LINK/PACKAGE fixture also
+passes through FINALIZE dispatch admission and independent proof reopening. This
+remains input custody; the worker-side materialization, authorized root execution,
+independent project acceptance, final-result import and scheduler composition are
+not yet implemented or advertised as worker capabilities.
+
+FINALIZE package materialization now stages exact logical package contents from
+independently reopened LINK/PACKAGE proof. Verified BUILD file tables distinguish
+directory exports from ordinary ZIP files, and byte/mode/path custody is retained
+through a bounded owned temporary tree. Three focused materialization tests pass
+for directory modes, non-expanded regular ZIP bytes and mutation refusal/cleanup.
+The real three-Component command chain passes with FINALIZE materialization,
+byte-for-byte staged inputs and cleanup. Source-suite reconstruction, private
+runtime/SDK composition, execution grants, root tests/execution/independent
+acceptance and returned final evidence remain required; this is not a remotely
+executed FINALIZE or full 1.2 qualification.
+
+FINALIZE runtime inputs now reconstruct exact root source custody and generated
+suite beside the verified package, retaining all accepted Component BUILD inputs
+for private runtime composition. The actual three-Component LINK/PACKAGE chain
+passes source/suite identity checks and cleanup of both staging trees. Six BUILD
+source tests pass, including authority revocation during fetch; source INDEX
+regressions also pass. This is verified runtime input preparation, not remotely
+executed root tests or final acceptance. Private runtime/SDK binding, execution
+authority/supervision, final-result verification and lifecycle scheduling remain
+open, as do the remaining full 1.2 release gates.
+
+FINALIZE stage sequencing now invokes the existing root integration test, packaged
+execution and independent acceptance ports under exact input/custody/contract checks
+and mandatory private execution-authority checks before/after every stage. Seven
+isolated runtime-port tests cover ordering and predecessor identity binding, denied
+or revoked authority, changed package/command custody, invalid stage identities and
+failure without downstream execution. These tests stub runtime IO; they are not a
+real remotely executed FINALIZE qualification. Private runtime construction, grant
+implementation/supervision, final-result transfer and controller verification remain
+open along with the remaining 1.2 program.
+
+FINALIZE runtime custody now scopes verified package/source data into private
+Standard ports, with exact contract checks, occupied-runtime refusal and registration
+cleanup after errors. The real three-Component fixture now executes the ordinary
+root generated tests and packaged invocation and runs a verifier-owned fixed-output
+independent acceptance oracle against that reconstructed package. All three stage
+records are retained, and changed contracts/occupied runtime/exception cleanup are
+covered in the passing integration test. The fixture uses a synthetic authority
+callback and runs final stages in the test process; it does not qualify supervised
+remote FINALIZE, live grants or private SDK/Python bindings. Those qualifications,
+final-result import, scheduling and the remaining full 1.2 work stay open.
+
+FINALIZE now has a private bounded child supervisor with mandatory exact-intent
+authority checks on every poll. Tests exercise real subprocess control transport,
+revocation and cancellation while running, refusal before launch and unsuccessful
+exit. This is process-boundary qualification only: private grant implementation,
+the FINALIZE child entrypoint, result verification and controller dispatch remain
+open, along with the rest of the full 1.2 program.
+
+FINALIZE result descriptor admission now rejects request/package substitutions,
+missing stage records, duplicate or unordered references and oversized evidence.
+The command-chain fixture serializes actual root-stage results and retained records
+through this envelope. Referenced proof verification, private grants, worker
+entrypoint and controller composition remain open; this is not remote FINALIZE
+completion or release qualification.
+
+FINALIZE now has a return-import boundary that reopens upstream custody and verifies
+returned record bytes before invoking a mandatory private stage verifier. Isolated
+transport tests cover corruption, missing verifier, upstream rejection and authority
+loss after fetch or during verification. These tests stub upstream reopening and
+stage semantics; they do not qualify a complete FINALIZE result verifier. Actual
+stage/oracle verification, child entrypoint, private grants and controller composition
+remain open within the full 1.2 program.
+
+Portable FINALIZE stage verification now checks returned generated tests, packaged
+execution and independent oracle results against reopened source/package custody.
+The real command-chain fixture tests valid records and self-consistently rehashed
+missing cases, substituted oracle and wrong expected output. Other runtime kinds,
+SDK evidence, remote execution authority and complete controller/worker integration
+remain open; the full 1.2 completion requirement is unchanged.
+
+FINALIZE execution composition now connects input reconstruction, private runtime,
+root-stage execution and bounded result capture. The real command-chain fixture
+exercises this composition and denied-authority cleanup. Its authority callback is
+still synthetic and execution remains in the test process. The supervised child
+entrypoint, private grant integration, non-portable verification and full controller
+scheduling remain open within the unchanged full 1.2 release requirement.
+
+FINALIZE has a bounded private child entrypoint with required startup dependencies,
+supervisor path checks, admitted-input proof lookup and result validation before
+stdout. Boundary tests isolate IO/configuration with domain execution stubbed; they
+cover refusal, sanitized exceptions, diagnostic separation and post-execution
+revocation. Complete supervised worker execution, private proof-loader composition,
+live grants and controller dispatch remain open, as do other runtime verifiers and
+the full 1.2 program.
+
+FINALIZE proof loading from staged CAS now follows the exact planned predecessor
+identities with per-record/aggregate/count bounds and live guards. The real chain
+fixture covers unrelated-cache isolation, missing/corrupt records, refusal before
+reading oversized records and revoked admission. Supervised child startup still
+needs to compose this loader with private runtime/grant configuration; full remote
+FINALIZE qualification and the remaining 1.2 program stay open.
+
+Portable FINALIZE qualification now includes an isolated supervised child using the
+production entrypoint, staged-CAS proof loader, reconstructed runtime and actual
+root tests/execution/independent oracle. The controller independently reopens and
+verifies returned evidence and checks workspace cleanup. Authority callbacks remain
+synthetic test permissions; live grants, configured worker selection/dispatch,
+non-portable verifiers and full 1.2 completion remain open.
+
+FINALIZE now has an exact execute-project request and private live grant adapter.
+Unit tests cover reread/revocation, validity times, substituted package/runtime,
+classification/request/revision/privilege mismatch and blocked profiles. These
+are synthetic issued-grant fixtures. Production grant issuance/lookup and measured
+private runtime-profile composition remain open; the supervised chain has not yet
+been changed from synthetic authority callbacks. Full 1.2 scope remains unchanged.
+
+Portable FINALIZE runtime measurement now observes actual private ports and oracle
+cases. The local-stage integration uses a test-issued project grant with live
+measurement and checks environment/provider changes, unsupported runtime refusal
+and same-identity oracle case substitution. The isolated child still uses synthetic
+callbacks; production issuance/lookup, exact worker startup-profile composition and
+other runtime observers remain open within the full 1.2 program.
+
+The configured FINALIZE worker now composes actual dispatch admission, owned
+preflight/source/package staging, supervised child execution and semantic return
+verification. The command-chain fixture uses this path and checks pre-launch
+cancellation/cleanup. Its worker runtime-profile and authority callbacks are still
+synthetic; production profile/grant composition, capability/controller selection
+and scheduling, non-portable runtime verification and full 1.2 completion remain open.
+
+FINALIZE dispatch now enters through action_worker.main with an explicit private
+configured worker. The integration fixture sends encoded request/response envelopes
+through this receiver, verifies unconfigured refusal and continues through actual
+supervised child execution and semantic return import. Receiver IO is in-process
+in this fixture; the FINALIZE child is a real isolated subprocess. Capability
+advertisement, controller selection, production grants and full 1.2 work remain open.
+
+FINALIZE capability encoding/decoding and exact private-profile eligibility are
+implemented, including configured receiver discovery. Tests cover closed fields,
+phase/profile pairing and profile drift. An existing PACKAGE admission regression
+test found below unittest.main() was moved into its class so discovery executes it.
+Controller FINALIZE composition, production grant wiring, scheduling and the rest
+of the full 1.2 program remain open.
+
+The FINALIZE controller now builds production dispatch requests and shares worker
+capacity with existing phases. Isolated controller tests cover exact wire admission,
+busy slots, worker/profile loss, handoff drift, import failure and no local fallback.
+These tests stub transport and return import; Standard lifecycle/factory composition
+and real command-controller qualification remain open, along with production grants,
+non-portable support and the remaining full 1.2 program.
+
+StandardProjectLifecycleService now exposes the optional project-finalizer port
+implemented by the command controller. Focused service tests cover exact evidence
+receipt integration, untyped/foreign evidence and finalizer failure without local
+fallback. These tests use fixture lifecycle ports; factory/runtime wiring and real
+Standard remote-finalization qualification remain open together with production
+grants, broader runtime support and the full 1.2 release program.
+
+The Standard rebuild factory now connects FINALIZE-capable workers to the project
+finalizer with explicit private profile/verifier inputs and result transport.
+Factory tests cover missing LINK/authority refusal and controller/transport wiring.
+Persisted CLI configuration does not yet supply these private verifier inputs;
+production grant/profile configuration, real complete Standard rebuild qualification
+and the remaining full 1.2 work stay open.
+
+FINALIZE controller qualification now connects actual capability discovery, command
+dispatch, private action receiver, supervised child and controller result import.
+The three-Component fixture retains synthetic hardware admission and execution
+authority; it does not attest production grants or a full factory-driven Standard
+rebuild. Those integrations and the remaining full 1.2 scope stay open.
+
+FINALIZE discovery/execution profile parity now excludes the receiver protocol
+marker from private runtime configuration, matching the other configured workers.
+Three focused tests cover protocol/case parity, ordinary environment identity and
+immutable custody, and malformed environment refusal. Production configuration
+and the remaining full 1.2 qualification and release gates remain open.
+
+Persisted FINALIZE policy now pins a configured profile and selects the built-in
+portable verifier in the Standard factory. Controller verification independently
+reconstructs package/source custody and uses the controller's acceptance oracle.
+Verification: 35 configuration tests, eight controller tests, a cleanup/revocation
+test, and the real command-chain fixture passed. The chain initially exceeded its
+300-second deadline because per-read guards reconstructed the full LINK handoff;
+retaining full checks at import boundaries and live admission during reads passed
+in 161 seconds without widening the deadline. Worker hardware/grant admission in
+that fixture remains synthetic. Production private runtime/grant provisioning,
+full CLI rebuild qualification, other runtime verifiers, and the full 1.2 program
+remain open; this is not release attestation.
+
+FINALIZE private authority now has a bounded file-backed grant lookup and a shared
+parent/child-stage adapter. Seven tests cover current and atomically revoked grants,
+missing/malformed/oversized/duplicate/nonobject records, changed directories, unsafe
+file kinds, replacement during a read, wrong scope, and revocation of a running
+supervised process. Grant issuance, protected deployment provisioning, measured
+worker startup and complete CLI qualification remain open with the full 1.2 scope.
+
+The real FINALIZE command-chain fixture passed in 164 seconds with file-backed,
+measured-runtime authority in the direct parent/child path. It also verifies child
+refusal of a revoked grant when the parent check is deliberately bypassed. Grants
+are test-issued; the separate command-controller path retains synthetic authority.
+Production issuance/provisioning and complete CLI/runtime qualification remain
+open with the rest of the full 1.2 program.
+
+Portable FINALIZE private runtime construction moved from fixture code into
+PortableFinalizeRuntimeFactory. The real grant-bearing child chain passed in
+169 seconds using that adapter. Three focused tests verify grant-path separation,
+failed-construction environment/output cleanup and lock release, and changed-workspace
+refusal. Operator worker provisioning, grant issuance, command-controller authority,
+full CLI qualification and remaining runtime/1.2 requirements stay open.
+
+Grouped verification at implementation revision fa14d06d passed 88 FINALIZE-related
+tests in 11 seconds, 49 project-update tests in 22 seconds, and 20 repository-update
+tests in 19 seconds. The update group includes disjoint three-way merges, actual
+conflicts, exact historical base custody, reviewed resolutions and rollback. This
+preserves direct evidence for UPDATE-MERGE-002 while the full 1.2 program continues.
+These groups do not attest the full suite, installed platforms, remote CI, shared
+LAN caches or publication. The migration audit above identifies the active forge and exact preserved baseline;
+contribution reconciliation and destination confirmation remain open. No release
+or landing occurred.
+
+Published-release verification now independently checks the canonical version,
+policy tag prefix and declared release-line policy before consulting remote refs.
+A real local-Git regression rejects rehashed prepared records naming main, a feature
+branch, another version's release branch, or an unrelated annotated tag even when
+those refs select the prepared commit. The valid publication remains verifiable;
+all 83 existing release-core tests and the new regression pass. This addresses one
+RELEASE-INVARIANTS-001 verification gap. Legacy policies without a declared default
+branch and non-SemVer policy admission remain open; it is not complete enforcement
+of migrated main's broader requirement or release attestation. The migration
+proposal must incorporate this later local commit before adoption.
+
+Publication now shares the prepared-name guard with published verification, rejecting
+an unrelated policy tag before any local tag or remote ref is written. Two real
+local-Git regressions cover invalid published names and pre-write publication
+refusal, unchanged local/remote refs after refusal, and successful publication of
+the original checked record. All 83 existing release-core tests pass. The remaining
+legacy-policy and SemVer requirements stay open, as do full 1.2 qualification and
+the pending public-destination decision. This follow-up must accompany the earlier
+local verification fix when the migration proposal is refreshed.
+
+### Release SemVer admission repair
+
+Release planning, preparation, checks, publication, published verification, RC
+publication, default-branch version advancement and release-PR merging now require
+an explicit SemVer policy. Historical PEP 440 policies remain readable; neither
+policy nor bindings are silently migrated. The framework policy now selects SemVer
+explicitly, with unchanged already-valid version bindings. A regression exercises
+both policy schema generations and verifies rejection before authorization or
+release writes. The 83 core release tests pass, including canonical SemVer
+prerelease planning. Legacy policies without a declared default branch still need
+release-line enforcement; RELEASE-INVARIANTS-001 and full 1.2 qualification remain
+open.
+
+### Legacy release-line enforcement repair
+
+Planning, preparation and branch validation no longer bypass release-line ownership
+when a historical policy omits the default branch. Such a project must explicitly
+check out `release/<major>.<minor>.x` before planning; a declared default branch
+still permits planning a new line and cutting it during preparation. A real-Git
+regression refuses main-branch planning and a rehashed historical plan without the
+line field, completes the correct-line plan/prepare/check/publish/verify sequence,
+and rejects altered published branch names. Core release fixtures now model the
+repository-owned default branch. Full 1.2 qualification and release remain open.
+
 ### [x] WORKER-QUAL-002 — Qualify integrated worker and remote PLAN behavior on native hosts
 
 - **Priority:** P1
@@ -26121,3 +26457,26 @@ ZIP provider CI follow-up: review the seven changed lifecycle-driver inputs (ZIP
 - **Next action:** Complete for portable script-tree support and macOS native
   smoke verification. Broader live generation and cross-platform qualification
   remain release gates; no full release receipt is claimed.
+
+### Full 1.2 restart checkpoint — 2026-10-04
+
+The `work/complete-1.2` branch continues from public main `adf9195a`, combining
+the later local lifecycle, scheduling and release repairs with the now-landed ZIP
+provider, repository succession, native-worker fixes and CI/test reorganization.
+It carries file changes onto public history; pre-export Git ancestry is not imported.
+The full existing 1.2 scope remains mandatory, including RELEASE-INTEGRATION-003.
+
+Completed checks on this combined working tree: 86 FINALIZE tests, 104 release
+tests, 28 scheduling tests and 37 package-related tests. These are focused checks,
+not full qualification. The package pattern did not select `test_zip_packaging.py`;
+its independent rerun remains pending. The old-tree complete run failed after
+147 tests at a 10-second isolated interpreter-layout probe during self-hosting replay.
+That failure remains unresolved evidence and must not be described as a pass.
+
+Resume with the four restored admission/transfer/wire regressions, explicit ZIP
+and shared-cache checks, real command LINK/PACKAGE/FINALIZE integration, and a
+complete combined-tree run. Refresh reviewed authority markers after integration
+review. Production grants/provisioning, full CLI scheduling, real shared LAN cache
+qualification, exact platform/installed/hosted CI, collateral and release gates
+remain open. Newly carried regressions and extracted support fixtures still need
+combined-suite review; this restart checkpoint is not ready for release.

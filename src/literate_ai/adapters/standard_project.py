@@ -67,7 +67,6 @@ from literate_ai.adapters.lifecycle.standard_local import (
     LocalComponentToolBinding,
     LocalSourceTreeRegistry,
     LocalStandardLifecyclePorts,
-    RegisteredSourceGenerationRunner,
     required_command_toolchains,
 )
 from literate_ai.adapters.lifecycle.standard_npm import StandardNpmTarget
@@ -104,6 +103,7 @@ from literate_ai.adapters.models.coding_cli import (
 )
 from literate_ai.adapters.multi_entrypoint_build import standalone_driver_source
 from literate_ai.adapters.native_cpp_build import compiler_driver_source
+from literate_ai.adapters.registered_generation import register_source_generator
 from literate_ai.adapters.shared_cache_config import BoundSharedCache
 from literate_ai.adapters.source_generation import (
     CachedCodingCliSourceGenerationRunner,
@@ -3325,7 +3325,7 @@ def assemble_filesystem_standard_project_runtime(
 
     application = assemble_standard_project_application_service(
         ports=ports,
-        generator=RegisteredSourceGenerationRunner(generator, registry),
+        generator=register_source_generator(generator, registry),
         indexer=indexer,
         source_cache_publisher=source_cache_publisher,
         checkpoint_recorder=checkpoint_store,
@@ -3403,7 +3403,7 @@ def compose_filesystem_standard_source_cache(
     )
     application = assemble_standard_project_application_service(
         ports=runtime.lifecycle_ports,
-        generator=RegisteredSourceGenerationRunner(generator, runtime.source_trees),
+        generator=register_source_generator(generator, runtime.source_trees),
         indexer=indexer,
         authorizer=runtime.application.lifecycle.authorizer,
         build_plan_finalizer=runtime.application.lifecycle.build_plan_finalizer,

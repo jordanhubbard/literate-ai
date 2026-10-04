@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- Require the versioned release line even for historical policies without a
+  default branch; refuse arbitrary-branch plans and legacy-plan preparation.
+
+- Require explicit SemVer policy for release operations, including legacy policies;
+  retain historical policy inspection and migrate the framework policy to SemVer.
+
+- Release publication and published verification independently validate
+  policy-bound tag names and declared release-line requirements. Altered prepared
+  records are rejected before tagging or pushing, even when substituted refs
+  select the same prepared commit.
+
+- Provide a portable FINALIZE child startup adapter with private contracts/tools,
+  measured runtime grants, owned output cleanup and stage authority checks.
+  Operator provisioning and full CLI qualification remain pending.
+
+- Add private file-backed FINALIZE grant lookup with live revocation checks for
+  parent supervision and child stages. Grant issuance and deployment provisioning
+  remain separate requirements.
+
+- Add a pinned private FINALIZE policy for Standard rebuild with controller-owned
+  portable package/test/oracle verification. Production worker grant provisioning
+  and complete CLI rebuild qualification remain pending.
+
 ## 1.1.0 - 2026-10-04
 
 [README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.1.0/README.md)

@@ -17,14 +17,14 @@ class ConfiguredToolWorker:
     def __init__(
         self, launcher, tool_bindings, *, phase, environment, standard_tools=None
     ):
-        if phase not in {"BUILD", "TEST", "EXECUTE", "ACCEPT"}:
+        if phase not in {"GENERATE", "BUILD", "TEST", "EXECUTE", "ACCEPT"}:
             raise ValueError("unsupported configured worker phase")
         self._phase = phase
         self.launcher = launcher
         self.launchers = WorkerToolchainRegistry((launcher,))
         self.tools = WorkerToolchainRegistry(tool_bindings)
         private_environment = dict(environment)
-        if (phase != "ACCEPT" and not self.tools.identities) or any(
+        if (phase not in {"GENERATE", "ACCEPT"} and not self.tools.identities) or any(
             not isinstance(key, str)
             or not isinstance(value, str)
             or not key

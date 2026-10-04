@@ -214,7 +214,12 @@ class ProjectReleaseTests(unittest.TestCase):
             root, remote = self.initialize(parent)
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root,
+                    definition=SimpleNamespace(
+                        repository_policy=SimpleNamespace(default_branch="main")
+                    ),
+                ),
             ):
                 plan = create_release_plan(
                     root, transition="patch", explicit_version=None
@@ -224,7 +229,9 @@ class ProjectReleaseTests(unittest.TestCase):
                 self.assertEqual(plan["next_version"], "1.2.4")
                 self.assertEqual(plan["tag"], "v1.2.4")
                 self.assertNotIn("project", plan)
-                self.assertNotIn("release_line", plan)
+                self.assertEqual(
+                    plan["release_line"], {"name": "release/1.2.x", "create": True}
+                )
                 schemas = SchemaCatalog(V2_ROOT)
                 schemas.validate("literate-ai/release-plan@1", plan)
 
@@ -296,7 +303,7 @@ class ProjectReleaseTests(unittest.TestCase):
                     receipt["revision"],
                 )
                 self.assertEqual(
-                    self.git(remote, "rev-parse", "refs/heads/main"),
+                    self.git(remote, "rev-parse", "refs/heads/release/1.2.x"),
                     receipt["revision"],
                 )
                 verified = verify_published_release(root, prepared_path)
@@ -362,7 +369,12 @@ class ProjectReleaseTests(unittest.TestCase):
             with (
                 patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root),
+                    return_value=SimpleNamespace(
+                        root=root,
+                        definition=SimpleNamespace(
+                            repository_policy=SimpleNamespace(default_branch="main")
+                        ),
+                    ),
                 ),
                 patch("literate_ai.project_releases.subprocess.run", side_effect=run),
             ):
@@ -430,7 +442,12 @@ class ProjectReleaseTests(unittest.TestCase):
             with (
                 patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root),
+                    return_value=SimpleNamespace(
+                        root=root,
+                        definition=SimpleNamespace(
+                            repository_policy=SimpleNamespace(default_branch="main")
+                        ),
+                    ),
                 ),
                 patch(
                     "literate_ai.adapters.release_evidence.verify_release_current_evidence",
@@ -493,7 +510,12 @@ class ProjectReleaseTests(unittest.TestCase):
             root, _remote = self.initialize(parent)
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root,
+                    definition=SimpleNamespace(
+                        repository_policy=SimpleNamespace(default_branch="main")
+                    ),
+                ),
             ):
                 plan = create_release_plan(
                     root, transition="patch", explicit_version=None
@@ -533,7 +555,12 @@ class ProjectReleaseTests(unittest.TestCase):
             root, remote = self.initialize(parent)
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root,
+                    definition=SimpleNamespace(
+                        repository_policy=SimpleNamespace(default_branch="main")
+                    ),
+                ),
             ):
                 plan = create_release_plan(
                     root, transition="patch", explicit_version=None
@@ -555,7 +582,7 @@ class ProjectReleaseTests(unittest.TestCase):
                 )
                 self.git(intruder, "add", "remote-change.txt")
                 self.git(intruder, "commit", "-m", "Advance remote independently")
-                self.git(intruder, "push", "origin", "main")
+                self.git(intruder, "push", "origin", "HEAD:refs/heads/release/1.2.x")
 
                 with self.assertRaises(ProjectReleaseError) as raised:
                     publish_release(
@@ -576,7 +603,12 @@ class ProjectReleaseTests(unittest.TestCase):
             root, remote = self.initialize(parent)
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root,
+                    definition=SimpleNamespace(
+                        repository_policy=SimpleNamespace(default_branch="main")
+                    ),
+                ),
             ):
                 plan = create_release_plan(
                     root, transition="patch", explicit_version=None
@@ -654,7 +686,12 @@ class ReleaseBackportTests(unittest.TestCase):
             )
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root,
+                    definition=SimpleNamespace(
+                        repository_policy=SimpleNamespace(default_branch="main")
+                    ),
+                ),
             ):
                 with self.assertRaises(ProjectReleaseError) as raised:
                     project_releases.backport_commits(

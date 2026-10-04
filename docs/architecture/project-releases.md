@@ -62,9 +62,10 @@ versions and publishes the repository authority that can reproduce those artifac
 explicit mirrors, permitted semantic transitions, one shell-free gate command, changelog
 authority, tag policy, Git remote, an optional provider adapter, an optional continuous
 contribution disposition contract, and policy-bound release collateral. Its
-`version_scheme` is explicit: Python distributions can select canonical PEP 440 while
-ordinary initialized projects select Semantic Versioning. Every mirror must contain the
-same canonical spelling under the selected scheme. Derived projects
+`version_scheme` must explicitly select `semver` for release operations. Historical
+PEP 440 policies remain readable, but require an explicit policy and version-binding
+migration before releasing. Every mirror must contain the same canonical SemVer
+spelling. Derived projects
 receive their own policy during `litai init`; they do not inherit this repository's
 version number, remote, or provider.
 
@@ -78,8 +79,7 @@ must use the ordinary unqualified Cargo names; stale version-qualified reference
 are rejected. Missing, ambiguous, sourced or drifted entries
 fail before any planned file is replaced. Dependency collections must be lists of
 strings. Selected package versions and their replacements must be canonical SemVer,
-even under a PEP 440 project policy; no automatic version spelling conversion is
-performed. Preparation changes only selected
+and no automatic version spelling conversion is performed. Preparation changes only selected
 version strings and preserves unrelated dependency versions, comments and line
 endings. Declare every workspace package sharing the release version.
 
@@ -170,18 +170,25 @@ stateDiagram-v2
 - `litai release publish PREPARED --authorize-external-write` revalidates the exact
   commit, policy, contribution state, and collateral, creates an annotated or signed tag,
   performs ordinary non-forced Git pushes, and then calls the optional provider adapter.
-  Its receipt distinguishes Git publication from provider publication.
+  Before tagging or pushing, it independently checks the prepared canonical version,
+  policy tag prefix and declared release-line requirements. Publication and read-only
+  verification share this check; rehashing a prepared record cannot authorize an
+  unrelated tag name. Its receipt distinguishes Git publication from provider publication.
 - `litai release verify-published PREPARED` is read-only. It requires the remote
   annotated tag and named release-line branch to select the prepared revision, and
-  the configured provider release and policy-bound collateral to remain valid. It never
-  retags.
+  the configured provider release and policy-bound collateral to remain valid. It
+  independently checks the canonical version and policy tag prefix and re-applies
+  declared release-line policy before reading remote refs. A self-consistently
+  rehashed record cannot substitute an unrelated tag or bypass a declared release
+  branch requirement merely because those refs select the same commit. It never retags.
 
 `make release RELEASE_PLAN=/path/to/plan.json` is a thin alias for the check phase.
 The Makefile does not contain a second release implementation.
 
-## Release line when `default_branch` is declared
+## Versioned release lines
 
-A policy that names `default_branch` has opted into trunk-based cuts. All product
+Every release belongs on `release/<major>.<minor>.x`, including releases using
+historical policies. When repository policy declares `default_branch`, product
 work lands on that branch. `plan` may run there only to cut a *missing*
 `release/<major>.<minor>.x` line. `prepare` creates that branch from the plan
 revision and checks it out, then writes declared paths. `check` and `publish`
@@ -190,7 +197,10 @@ already exists, planning on the trunk fails with
 `release.default_branch_cut_forbidden` — cherry-pick onto the existing line
 with `litai release backport` and plan there. A per-patch name such as
 `release/0.7.0` fails `release.branch_not_release_line`. Projects that omit
-`default_branch` keep checkout-agnostic planning.
+`default_branch` must check out the matching release line before planning. They
+cannot create a line implicitly from an arbitrary branch. Historical plans without
+a release-line field do not bypass preparation, check, publication, or published
+verification branch requirements.
 
 Use `litai release state` to inspect Free or Pre-release state and `litai release state
 set --mode pre-release --pre-release-version MAJOR.MINOR` for an authorized transition.

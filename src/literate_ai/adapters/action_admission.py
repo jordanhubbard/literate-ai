@@ -8,7 +8,10 @@ from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 
-from literate_ai.adapters.action_capabilities import probe_command_action_capabilities
+from literate_ai.adapters.action_capabilities import (
+    package_profile_identity,
+    probe_command_action_capabilities,
+)
 from literate_ai.adapters.action_dispatch_wire import (
     ActionDispatchDeadline,
     ActionWireError,
@@ -217,6 +220,25 @@ class CommandActionWorkerPool:
     ) -> bool:
         """Read admitted facts; dispatch still revalidates their complete identity."""
         return worker in self.workers and phase in self._facts[worker.worker_id].actions
+
+    def supports_package(
+        self, worker: LifecycleActionWorker, packager_identity: ContentIdentity
+    ) -> bool:
+        """Match the exact private packager before reserving shared capacity."""
+        expected = package_profile_identity(packager_identity)
+        return self.supports_phase(worker, LifecycleActionKind.PACKAGE) and (
+            self._facts[worker.worker_id].package_profile == expected
+        )
+
+    def supports_finalize(
+        self, worker: LifecycleActionWorker, profile_identity: ContentIdentity
+    ) -> bool:
+        """Match exact private FINALIZE configuration before reserving capacity."""
+        if not isinstance(profile_identity, ContentIdentity):
+            raise TypeError("FINALIZE selection requires an exact profile identity")
+        return self.supports_phase(worker, LifecycleActionKind.FINALIZE) and (
+            self._facts[worker.worker_id].finalize_profile == profile_identity
+        )
 
     def supports_build(self, worker: LifecycleActionWorker, toolchains) -> bool:
         """Require every exact BUILD tool before reserving shared capacity."""

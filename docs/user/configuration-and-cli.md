@@ -199,8 +199,10 @@ not duplicates. `spec skills` and `skills evaluate` collide in naming only.
 Do not split `--convert` off `init`. Do not add staging/production CLI verbs;
 those remain project workflow catalogs.
 
-`literate.release.json` selects either canonical `semver` or `pep440` version syntax,
-declares every mirrored version field, and separates read-only planning, local
+`literate.release.json` must select canonical `semver` version syntax for release
+operations. Historical `pep440` policies remain readable but must be explicitly
+migrated before releasing. The policy declares every mirrored version field and
+separates read-only planning, local
 preparation, exact gate evidence, and explicitly authorized publication. See
 [Project release protocol](../architecture/project-releases.md).
 
@@ -660,7 +662,7 @@ under qualification.
 
 Standard rebuild selects worker indexing when the optional private
 `action-execution.json` exists under the user configuration root. Override that path
-with `LITAI_ACTION_EXECUTION_CONFIG`. Every field below is required:
+with `LITAI_ACTION_EXECUTION_CONFIG`. Fields are required unless marked optional:
 
 | Field | Value |
 | --- | --- |
@@ -670,7 +672,8 @@ with `LITAI_ACTION_EXECUTION_CONFIG`. Every field below is required:
 | `duration_seconds` | Whole action-pool lifetime, from 1 through 86400 seconds |
 | `maximum_hardware_age_seconds` | Maximum hardware-observation age, from 1 through 86400 seconds |
 | `health_configurations` | Map of worker IDs to absolute private health-policy file paths |
-| `result_sources` | Optional map of worker IDs to explicit BUILD result transports; required for each admitted BUILD worker |
+| `result_sources` | Optional map of worker IDs to explicit result transports; required for every selected remote phase that returns artifacts or evidence |
+| `finalize` | Optional pinned `profile_identity` and named `verifier` policy for remote project finalization |
 
 A result transport is `{"kind":"shared-cas"}` when worker artifacts are available
 in `source_cas_root`, or `{"kind":"http-cas","endpoint":"https://cache.example/cas"}`
@@ -682,6 +685,20 @@ Configured BUILD is selected automatically, shares INDEX worker capacity, and ve
 result bytes before artifact admission. A worker advertising BUILD without explicit
 result transport is refused. Full remote provider/SDK runtime qualification remains
 unfinished in the current development line.
+
+Remote FINALIZE policy has exactly two fields: `profile_identity` is the reviewed
+configured worker profile's `sha256:` identity, and `verifier` is
+`portable-application@1`. This selects the controller's built-in verifier for a
+single portable application, using the independent acceptance oracle supplied by
+the normal Standard rebuild path. The controller reopens the exact package and
+root generated-test source before checking returned evidence. Other runtime kinds
+require additional verifiers and currently refuse this policy. The profile must
+be pinned from trusted worker configuration; a capability advertisement alone does
+not establish trust. A selected policy without an admitted FINALIZE worker refuses
+instead of switching to local finalization. Command LINK and explicit result
+transport are also required. Changed private configuration invalidates verification.
+This policy does not configure worker startup or issue execution grants; production
+grant wiring and full CLI rebuild qualification remain under development.
 
 The existing worker-catalog path override still applies. Automatic admission collects
 live hardware from matching, explicitly opted-in command or SSH workers with a configured

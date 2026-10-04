@@ -158,6 +158,8 @@ class BoundActionExecution:
         default_factory=dict, repr=False
     )
 
+    finalize_profile: ContentIdentity | None = None
+
     @property
     def identity(self) -> ContentIdentity:
         return canonical_identity(
@@ -184,14 +186,22 @@ class BoundActionExecution:
                 not isinstance(phase, LifecycleActionKind)
                 or phase
                 not in (
+                    LifecycleActionKind.GENERATE,
                     LifecycleActionKind.BUILD,
                     LifecycleActionKind.TEST,
                     LifecycleActionKind.EXECUTE,
+                    LifecycleActionKind.ACCEPT,
+                    LifecycleActionKind.LINK,
+                    LifecycleActionKind.PACKAGE,
+                    LifecycleActionKind.FINALIZE,
                 )
                 for phase in phases
             )
         ):
-            raise ValueError("result transport requires BUILD/TEST/EXECUTE phases")
+            raise ValueError(
+                "result transport requires "
+                "GENERATE/BUILD/TEST/EXECUTE/ACCEPT/LINK/PACKAGE/FINALIZE phases"
+            )
         self.require_unchanged()
         admitted = {
             worker.worker_id: pool.catalog.worker(worker.worker_id)
@@ -402,7 +412,7 @@ def load_action_execution(
         document = _document(original)
         if (
             not isinstance(document, dict)
-            or set(document) - {"result_sources"}
+            or set(document) - {"result_sources", "finalize"}
             != {
                 "schema",
                 "source_cas_root",
@@ -429,6 +439,16 @@ def load_action_execution(
             )
         ):
             raise ValueError("invalid health configuration map")
+        finalize = document.get("finalize")
+        finalize_profile = None
+        if "finalize" in document:
+            if (
+                not isinstance(finalize, dict)
+                or set(finalize) != {"profile_identity", "verifier"}
+                or finalize["verifier"] != "portable-application@1"
+            ):
+                raise ValueError("invalid FINALIZE policy")
+            finalize_profile = ContentIdentity.parse_uri(finalize["profile_identity"])
         return BoundActionExecution(
             path,
             original,
@@ -445,6 +465,7 @@ def load_action_execution(
             ),
             MappingProxyType(configured),
             _result_sources(document.get("result_sources", {}), configured),
+            finalize_profile,
         )
     except ActionExecutionConfigurationError:
         raise

@@ -334,8 +334,11 @@ def capture_qualification_source_records(recorder, *, candidate, cas) -> None:
                 BlobRef.from_dict(manifest["stage_output_record"]).identity
             )
         )
-        document(ContentIdentity.from_dict(stage["stage_request_identity"]))
-        document(ContentIdentity.from_dict(stage["route_decision_identity"]))
+        if stage.get("schema") == "literate-ai/retained-source-input@1":
+            document(canonical_identity(invocation["stage_request"]))
+        else:
+            document(ContentIdentity.from_dict(stage["stage_request_identity"]))
+            document(ContentIdentity.from_dict(stage["route_decision_identity"]))
     except QualificationCaptureError:
         raise
     except (
@@ -407,11 +410,6 @@ def verify_qualification_generation_records(reader, *, source_output) -> None:
             BlobRef.from_dict(manifest["stage_output_record"]).identity
         )
         stage = reader.read_json(stage_id)
-        route_id = ContentIdentity.from_dict(stage["route_decision_identity"])
-        if provenance.model_stage_output_identities != (
-            stage_id,
-        ) or provenance.route_decision_identities != (route_id,):
-            raise QualificationCaptureError("qualification.capture.generation-mismatch")
         invocation_id = ContentIdentity.from_dict(manifest["invocation_identity"])
         invocation = reader.read_json(invocation_id)
         plan_id = ContentIdentity.from_dict(invocation["execution_plan_identity"])
@@ -444,6 +442,39 @@ def verify_qualification_generation_records(reader, *, source_output) -> None:
         ):
             raise QualificationCaptureError("qualification.capture.generation-mismatch")
         ContentIdentity.from_dict(request["input_identity"])
+        if provenance.retained_source_identity is not None:
+            if (
+                provenance.retained_source_identity != stage_id
+                or candidate.planned_coding_cli_request_identity != stage_id
+                or provenance.route_decision_identities
+                or provenance.model_stage_output_identities
+                or provenance.provider_evidence_identities
+                or not isinstance(stage.get("target"), str)
+                or not stage["target"]
+            ):
+                raise QualificationCaptureError(
+                    "qualification.capture.generation-mismatch"
+                )
+            project = ContentIdentity.from_dict(stage["project_authority_identity"])
+            same(
+                stage_id,
+                {
+                    "schema": "literate-ai/retained-source-input@1",
+                    "origin": "operator-retained-source",
+                    "tree_identity": candidate.tree_identity.to_dict(),
+                    "component_lock_identity": (
+                        provenance.component_lock_identity.to_dict()
+                    ),
+                    "project_authority_identity": project.to_dict(),
+                    "target": stage["target"],
+                },
+            )
+            return
+        route_id = ContentIdentity.from_dict(stage["route_decision_identity"])
+        if provenance.model_stage_output_identities != (
+            stage_id,
+        ) or provenance.route_decision_identities != (route_id,):
+            raise QualificationCaptureError("qualification.capture.generation-mismatch")
         route = ModelRouteDecision.from_dict(reader.read_json(route_id))
         same(route_id, route.to_dict())
         if canonical_json_bytes(routes[-1]) != canonical_json_bytes(

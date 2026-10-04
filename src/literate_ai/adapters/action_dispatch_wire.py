@@ -160,7 +160,11 @@ def _worker_document(worker: LifecycleActionWorker) -> dict:
 def _validate_records(
     request: LifecycleActionDispatchRequest, records: Mapping[ContentIdentity, bytes]
 ) -> None:
-    required = {request.action.payload_identity, *request.predecessor_result_identities}
+    required = {
+        request.action.payload_identity,
+        *request.predecessor_result_identities,
+        *request.input_record_identities,
+    }
     if set(records) != required or len(records) > MAX_ACTION_RECORDS:
         raise ActionWireError(
             "action_wire.inputs_mismatch",
@@ -208,6 +212,7 @@ def encode_action_request(
             request.action.eligible_worker_ids,
             request.action.cache_affinity_worker_ids,
             request.predecessor_result_identities,
+            request.input_record_identities,
         )
     ):
         raise ActionWireError(
@@ -215,7 +220,18 @@ def encode_action_request(
         )
     return _dump(
         {
-            "schema": _REQUEST_SCHEMA,
+            "schema": _REQUEST_SCHEMA.replace("@1", "@2")
+            if request.input_record_identities
+            else _REQUEST_SCHEMA,
+            **(
+                {
+                    "input_record_identities": [
+                        item.uri for item in request.input_record_identities
+                    ]
+                }
+                if request.input_record_identities
+                else {}
+            ),
             "request_identity": request.identity.uri,
             "schedule_identity": request.schedule_identity.uri,
             "action": _action_document(request.action),
@@ -242,12 +258,19 @@ def decode_action_request(
     LifecycleActionDispatchRequest, ActionDispatchDeadline, dict[ContentIdentity, bytes]
 ]:
     try:
+        loaded = _load(content)
+        extended = isinstance(loaded, dict) and loaded.get(
+            "schema"
+        ) == _REQUEST_SCHEMA.replace("@1", "@2")
         value = _fields(
-            _load(content),
+            loaded,
             "schema request_identity schedule_identity action worker slot "
-            "predecessor_result_identities deadline records",
+            "predecessor_result_identities deadline records"
+            + (" input_record_identities" if extended else ""),
         )
-        if value["schema"] != _REQUEST_SCHEMA:
+        if value["schema"] != (
+            _REQUEST_SCHEMA.replace("@1", "@2") if extended else _REQUEST_SCHEMA
+        ):
             _invalid()
         action = _fields(
             value["action"],
@@ -269,6 +292,7 @@ def decode_action_request(
             action["cache_affinity_worker_ids"],
             value["predecessor_result_identities"],
             value["records"],
+            value.get("input_record_identities", []),
         ):
             if not isinstance(items, list) or len(items) > MAX_ACTION_RECORDS:
                 _invalid()
@@ -296,7 +320,13 @@ def decode_action_request(
                 for item in value["predecessor_result_identities"]
             ),
             deadline.identity,
+            tuple(
+                ContentIdentity.parse_uri(item)
+                for item in value.get("input_record_identities", [])
+            ),
         )
+        if extended and not request.input_record_identities:
+            _invalid()
         if request.identity.uri != value["request_identity"]:
             raise ActionWireError(
                 "action_wire.request_mismatch",

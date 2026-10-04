@@ -1,0 +1,199 @@
+"""FINALIZE controller shares worker slots and independently verifies returned proof."""
+
+from contextlib import nullcontext
+from functools import partial
+
+from literate_ai.adapters.action_dispatch_wire import ActionWireError, record_identity
+from literate_ai.adapters.action_finalize import admit_finalize_action
+from literate_ai.adapters.action_finalize_record import FinalizeWorkerInput
+from literate_ai.adapters.action_finalize_result import import_finalize_result
+from literate_ai.adapters.action_package_execution import PackageWorkerResult
+from literate_ai.application.action_dag_planning import (
+    lifecycle_action_payload,
+    plan_lifecycle_action_dag,
+)
+from literate_ai.application.action_dag_scheduler import (
+    LifecycleActionDispatchRequest,
+    LifecycleActionKind,
+)
+from literate_ai.contracts import (
+    ContentIdentity,
+    canonical_identity,
+    canonical_json_bytes,
+)
+
+
+class CommandProjectFinalizer:
+    def __init__(
+        self,
+        linker,
+        *,
+        profile_identity,
+        verify_package,
+        result_source,
+        verify_stages=None,
+        stage_verifier_context=None,
+    ):
+        if not isinstance(profile_identity, ContentIdentity) or not all(
+            callable(item) for item in (verify_package, result_source)
+        ):
+            raise TypeError(
+                "FINALIZE requires exact profile, private verifiers and transport"
+            )
+        if (verify_stages is None) == (stage_verifier_context is None) or not callable(
+            verify_stages if stage_verifier_context is None else stage_verifier_context
+        ):
+            raise TypeError("FINALIZE requires exactly one private stage verifier")
+        self.stage_verifier_context = stage_verifier_context
+        self.linker = linker
+        self.indexer, self.admission = linker.indexer, linker.admission
+        self.profile_identity = profile_identity
+        self.verify_package, self.verify_stages = verify_package, verify_stages
+        self.result_source = result_source
+
+    def _handoff(self, lock, project, graph, plan, package):
+        packaged, proof = self.linker.package_handoff(graph, plan)
+        package_raw = PackageWorkerResult(
+            record_identity(packaged.to_bytes()), package
+        ).to_bytes()
+        package_id = record_identity(package_raw)
+        value = FinalizeWorkerInput(lock, project, packaged, package_id)
+        raw = value.to_bytes()
+        FinalizeWorkerInput.admit(raw, record_identity(raw), self.indexer.deadline)
+        if packaged.execution_plan != self.indexer.execution_plan:
+            raise ActionWireError(
+                "action_finalize.authority_changed", "execution plan differs"
+            )
+        return value, dict(proof) | {package_id: package_raw}
+
+    def _eligible(self):
+        workers = tuple(
+            worker.worker_id
+            for worker in self.indexer.workers
+            if self.admission.supports_finalize(worker, self.profile_identity)
+        )
+        if not workers:
+            raise ActionWireError(
+                "action_finalize.unavailable",
+                "no admitted worker for exact FINALIZE profile",
+            )
+        return workers
+
+    def try_reserve_finalize(self, lock, project, graph, plan, package):
+        self._handoff(lock, project, graph, plan, package)
+        return self.indexer.slots.try_reserve(
+            partial(self._execute, lock, project, graph, plan, package),
+            eligible_worker_ids=self._eligible(),
+        )
+
+    def finalize(self, lock, project, graph, plan, package):
+        self._handoff(lock, project, graph, plan, package)
+        with self.indexer.slots.acquire(eligible_worker_ids=self._eligible()) as (
+            worker,
+            slot,
+        ):
+            return self._execute(lock, project, graph, plan, package, worker, slot)
+
+    def _execute(self, lock, project, graph, plan, package, worker, slot):
+        value, proof = self._handoff(lock, project, graph, plan, package)
+        proof = dict(proof)
+
+        def current():
+            self.indexer.deadline.remaining()
+            self.indexer.revalidate_worker(worker)
+            if not self.admission.supports_finalize(worker, self.profile_identity):
+                raise ActionWireError(
+                    "action_finalize.authority_changed",
+                    "FINALIZE worker profile changed",
+                )
+
+        def current_handoff():
+            current()
+            if self._handoff(lock, project, graph, plan, package) != (value, proof):
+                raise ActionWireError(
+                    "action_finalize.authority_changed", "FINALIZE LINK handoff changed"
+                )
+
+        current_handoff()
+        raw = value.to_bytes()
+        input_id = record_identity(raw)
+        node = next(
+            node
+            for node in plan_lifecycle_action_dag(
+                self.indexer.execution_plan, worker_ids=self._eligible()
+            )
+            if node.kind is LifecycleActionKind.FINALIZE
+        )
+        payload = canonical_json_bytes(
+            lifecycle_action_payload(
+                self.indexer.execution_plan.identity,
+                self.indexer.execution_plan.root_revision,
+                LifecycleActionKind.FINALIZE,
+            )
+        )
+        predecessors = (value.package_result_identity,)
+        request = LifecycleActionDispatchRequest(
+            canonical_identity(
+                {
+                    "schema": "literate-ai/command-finalize-schedule@1",
+                    "execution_plan": self.indexer.execution_plan.identity.uri,
+                    "admission": self.admission.identity.uri,
+                    "input": input_id.uri,
+                    "profile": self.profile_identity.uri,
+                }
+            ),
+            node,
+            worker,
+            slot,
+            predecessors,
+            self.indexer.deadline.identity,
+            (
+                input_id,
+                *sorted(set(proof) - set(predecessors), key=lambda item: item.uri),
+            ),
+        )
+        records = proof | {input_id: raw, record_identity(payload): payload}
+        admit_finalize_action(
+            request,
+            self.indexer.deadline,
+            records,
+            expected_worker_identity=worker.worker_identity,
+        )
+        returned = {}
+        outcome = self.indexer._dispatcher(records, returned).dispatch(request)
+        if outcome.failure_code is not None:
+            raise ActionWireError(outcome.failure_code, "worker FINALIZE failed")
+        content = returned.get(outcome.result_identity)
+        if content is None:
+            raise ActionWireError(
+                "action_finalize.result_missing", "worker FINALIZE result missing"
+            )
+        current_handoff()
+        import_inputs = dict(
+            input_record=raw,
+            input_identity=input_id,
+            records=proof,
+            cas=self.indexer.cas,
+            deadline=self.indexer.deadline,
+            admission_guard=current,
+            verify_package=self.verify_package,
+            blob_source=partial(
+                self.result_source, self.indexer.catalog.worker(worker.worker_id)
+            ),
+        )
+        verification = (
+            nullcontext(self.verify_stages)
+            if self.stage_verifier_context is None
+            else self.stage_verifier_context(**import_inputs)
+        )
+        with verification as verify_stages:
+            result = import_finalize_result(
+                content=content,
+                result_identity=outcome.result_identity,
+                verify_stages=verify_stages,
+                **import_inputs,
+            )
+        current_handoff()
+        for record in (*records.values(), content):
+            self.indexer.remember_action_result(record)
+        return result

@@ -1500,6 +1500,7 @@ def _service(
     checkpoint_recorder=None,
     context_evidence_recorder=_DEFAULT_CONTEXT_RECORDER,
     candidate_repair_port=None,
+    project_finalizer=None,
 ):
     return StandardProjectLifecycleService(
         validator=ports,
@@ -1520,6 +1521,7 @@ def _service(
         independent_project_acceptor=ports,
         admitter=ports,
         receipt_issuer=ports,
+        project_finalizer=project_finalizer,
         checkpoint_recorder=checkpoint_recorder,
         context_evidence_recorder=(
             _ContextEvidenceRecorder()

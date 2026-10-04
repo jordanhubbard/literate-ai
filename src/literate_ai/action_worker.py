@@ -25,11 +25,15 @@ from literate_ai.adapters.action_dispatch_wire import (
     encode_action_response,
 )
 from literate_ai.adapters.action_execute_worker import ConfiguredExecuteWorker
+from literate_ai.adapters.action_finalize_worker import ConfiguredFinalizeWorker
+from literate_ai.adapters.action_generate_worker import ConfiguredGenerateWorker
 from literate_ai.adapters.action_hardware import (
     decode_hardware_request,
     encode_hardware_response,
 )
+from literate_ai.adapters.action_link import execute_link_action
 from literate_ai.adapters.action_observation_failure import encode_observation_failure
+from literate_ai.adapters.action_package_worker import ConfiguredPackageWorker
 from literate_ai.adapters.action_plan import execute_plan_action
 from literate_ai.adapters.action_source_index import execute_source_index_action
 from literate_ai.adapters.action_test_worker import ConfiguredTestWorker
@@ -61,6 +65,9 @@ def main(
     test_worker: ConfiguredTestWorker | None = None,
     execute_worker: ConfiguredExecuteWorker | None = None,
     accept_worker: ConfiguredAcceptWorker | None = None,
+    generate_worker: ConfiguredGenerateWorker | None = None,
+    package_worker: ConfiguredPackageWorker | None = None,
+    finalize_worker: ConfiguredFinalizeWorker | None = None,
 ) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker-identity-env", default="LITAI_ACTION_WORKER_IDENTITY")
@@ -101,6 +108,18 @@ def main(
             accept_worker, ConfiguredAcceptWorker
         ):
             raise ValueError("invalid private ACCEPT configuration")
+        if generate_worker is not None and not isinstance(
+            generate_worker, ConfiguredGenerateWorker
+        ):
+            raise ValueError("invalid private GENERATE configuration")
+        if package_worker is not None and not isinstance(
+            package_worker, ConfiguredPackageWorker
+        ):
+            raise ValueError("invalid private PACKAGE configuration")
+        if finalize_worker is not None and not isinstance(
+            finalize_worker, ConfiguredFinalizeWorker
+        ):
+            raise ValueError("invalid private FINALIZE configuration")
         expected_worker = ContentIdentity.parse_uri(
             os.environ.get(args.worker_identity_env, "")
         )
@@ -157,6 +176,9 @@ def main(
             sys.stdout.buffer.write(response)
             return 0
         if args.describe:
+            finalize_profile = finalize_worker.identity if finalize_worker else None
+            if package_worker is not None:
+                package_worker.require_current()
             response = encode_capability_response(
                 request,
                 deadline,
@@ -169,6 +191,9 @@ def main(
                 else None,
                 execute_profile=execute_worker.identity if execute_worker else None,
                 accept_profile=accept_worker.identity if accept_worker else None,
+                generate_profile=generate_worker.identity if generate_worker else None,
+                package_profile=package_worker.identity if package_worker else None,
+                finalize_profile=finalize_profile,
                 execute_toolchains=execute_worker.tools.identities
                 if execute_worker
                 else (),
@@ -181,6 +206,15 @@ def main(
                 if build_worker
                 else None,
             )
+            if package_worker is not None:
+                package_worker.require_current()
+            if (
+                finalize_worker is not None
+                and finalize_worker.identity != finalize_profile
+            ):
+                raise ActionWireError(
+                    "action_finalize.profile_changed", "private startup changed"
+                )
             sys.stdout.buffer.write(response)
             return 0
         if args.verify_tool_selectors:
@@ -192,6 +226,7 @@ def main(
                 test_worker=test_worker,
                 execute_worker=execute_worker,
                 accept_worker=accept_worker,
+                generate_worker=generate_worker,
                 http_source=source is not None,
             )
             sys.stdout.buffer.write(response)
@@ -205,6 +240,7 @@ def main(
                 test_worker=test_worker,
                 execute_worker=execute_worker,
                 accept_worker=accept_worker,
+                generate_worker=generate_worker,
                 http_source=source is not None,
             )
             sys.stdout.buffer.write(response)
@@ -218,6 +254,7 @@ def main(
                 test_worker=test_worker,
                 execute_worker=execute_worker,
                 accept_worker=accept_worker,
+                generate_worker=generate_worker,
                 http_source=source is not None,
             )
             sys.stdout.buffer.write(response)
@@ -276,6 +313,95 @@ def main(
                 expected_worker_identity=expected_worker,
                 cas=cas,
                 workspace_root=args.workspace,
+                blob_source=None if source is None else source.fetch,
+            )
+        elif request.action.kind is LifecycleActionKind.GENERATE:
+            if generate_worker is None:
+                raise ActionWireError(
+                    "action_generate.not_configured", "GENERATE is not configured"
+                )
+            result = generate_worker.execute(
+                request,
+                deadline,
+                records,
+                expected_worker_identity=expected_worker,
+                cas=cas,
+                workspace_root=args.workspace,
+                blob_source=None if source is None else source.fetch,
+            )
+        elif request.action.kind is LifecycleActionKind.PACKAGE:
+            if package_worker is None:
+                raise ActionWireError(
+                    "action_package.not_configured", "PACKAGE is not configured"
+                )
+
+            def package_current():
+                if (
+                    ContentIdentity.parse_uri(
+                        os.environ.get(args.worker_identity_env, "")
+                    )
+                    != expected_worker
+                ):
+                    raise ActionWireError(
+                        "action_package.worker_mismatch", "receiver binding changed"
+                    )
+
+            result = package_worker.execute(
+                request,
+                deadline,
+                records,
+                expected_worker_identity=expected_worker,
+                cas=cas,
+                admission_guard=package_current,
+                blob_source=None if source is None else source.fetch,
+            )
+        elif request.action.kind is LifecycleActionKind.FINALIZE:
+            if finalize_worker is None:
+                raise ActionWireError(
+                    "action_finalize.not_configured", "FINALIZE is not configured"
+                )
+
+            def finalize_current():
+                if (
+                    ContentIdentity.parse_uri(
+                        os.environ.get(args.worker_identity_env, "")
+                    )
+                    != expected_worker
+                ):
+                    raise ActionWireError(
+                        "action_finalize.worker_mismatch", "receiver binding changed"
+                    )
+
+            result = finalize_worker.execute(
+                request,
+                deadline,
+                records,
+                expected_worker_identity=expected_worker,
+                cas=cas,
+                workspace_root=args.workspace,
+                admission_guard=finalize_current,
+                blob_source=None if source is None else source.fetch,
+            )
+        elif request.action.kind is LifecycleActionKind.LINK:
+
+            def link_current():
+                if (
+                    ContentIdentity.parse_uri(
+                        os.environ.get(args.worker_identity_env, "")
+                    )
+                    != expected_worker
+                ):
+                    raise ActionWireError(
+                        "action_link.worker_mismatch", "receiver binding changed"
+                    )
+
+            result = execute_link_action(
+                request,
+                deadline,
+                records,
+                expected_worker_identity=expected_worker,
+                cas=cas,
+                admission_guard=link_current,
                 blob_source=None if source is None else source.fetch,
             )
         elif request.action.kind is LifecycleActionKind.AUTHORIZE:

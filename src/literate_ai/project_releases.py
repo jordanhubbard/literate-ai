@@ -667,6 +667,16 @@ def load_release_policy(project: Path) -> tuple[Path, ReleasePolicy]:
     return root, policy
 
 
+def _require_semver_release(policy: ReleasePolicy) -> None:
+    """Historical policies remain readable but cannot select release semantics."""
+    if policy.version_scheme != "semver":
+        raise ProjectReleaseError(
+            "release.semver_required",
+            "release operations require version_scheme 'semver'; migrate the "
+            "policy and declared version bindings before releasing",
+        )
+
+
 def _release_engineers(root: Path) -> tuple[str, ...]:
     repository_policy = _repository_policy(root)
     source = getattr(
@@ -1203,7 +1213,7 @@ def _release_line_exists(root: Path, policy: ReleasePolicy, name: str) -> bool:
 def _resolve_release_line_plan(
     root: Path, policy: ReleasePolicy, *, branch: str, version: str
 ) -> dict[str, object] | None:
-    """Bind the cut line for a read-only plan when policy names ``default_branch``.
+    """Bind the cut line for every read-only release plan.
 
     A missing line is recorded with ``create: true`` so ``prepare`` can cut it.
     An existing line cannot be recut from the default branch.
@@ -1211,8 +1221,6 @@ def _resolve_release_line_plan(
 
     repository_policy = _repository_policy(root)
     default_branch = getattr(repository_policy, "default_branch", policy.default_branch)
-    if default_branch is None:
-        return None
     expected = release_line_for_version(version, scheme=policy.version_scheme)
     if branch == expected:
         return {"name": expected, "create": False}
@@ -1291,14 +1299,8 @@ def _require_stable_cut_contains_default_branch(
 
 
 def _require_release_line(policy: ReleasePolicy, *, branch: str, version: str) -> None:
-    """Refuse prepare/check/publish on ``default_branch`` or any non-line name.
+    """Require the version's release line, including for historical policies."""
 
-    Policies that omit ``default_branch`` keep checkout-agnostic planning so
-    initialized projects without a trunk/release-line split still work.
-    """
-
-    if policy.default_branch is None:
-        return
     expected = release_line_for_version(version, scheme=policy.version_scheme)
     if branch == policy.default_branch:
         raise ProjectReleaseError(
@@ -1314,6 +1316,21 @@ def _require_release_line(policy: ReleasePolicy, *, branch: str, version: str) -
         )
 
 
+def _require_prepared_release_names(
+    policy: ReleasePolicy, prepared: dict[str, Any]
+) -> None:
+    version = _canonical_version(str(prepared["version"]), policy.version_scheme)
+    _require_release_line(policy, branch=str(prepared["branch"]), version=version)
+    if (
+        prepared["version"] != version
+        or prepared["tag"] != f"{policy.tag_prefix}{version}"
+    ):
+        raise ProjectReleaseError(
+            "release.prepared_tag_mismatch",
+            "prepared tag does not match the policy's canonical release version",
+        )
+
+
 def _ensure_release_line_checkout(
     root: Path,
     policy: ReleasePolicy,
@@ -1323,8 +1340,6 @@ def _ensure_release_line_checkout(
 ) -> str | None:
     """Create and check out a planned new line. Return its name, or ``None``."""
 
-    if policy.default_branch is None:
-        return None
     expected = release_line_for_version(
         str(plan["next_version"]), scheme=policy.version_scheme
     )
@@ -1431,6 +1446,7 @@ def create_release_plan(
     explicit_version: str | None,
 ) -> dict[str, object]:
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     current = current_release_version(root, policy)
     if (
         transition == "explicit"
@@ -1819,6 +1835,7 @@ def advance_default_branch_version(
     """
 
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     snapshot = _git_snapshot(root)
     if not snapshot["clean"]:
         raise ProjectReleaseError(
@@ -2307,6 +2324,7 @@ def prepare_release(
 ) -> dict[str, object]:
     plan = _load_record(plan_path, RELEASE_PLAN_SCHEMA)
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
         _require_pre_release_target(root, policy, str(plan["next_version"]))
@@ -3080,6 +3098,7 @@ def _check_release(
 ) -> dict[str, object]:
     plan = _load_record(plan_path, RELEASE_PLAN_SCHEMA)
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
         _require_pre_release_target(root, policy, str(plan["next_version"]))
@@ -3401,6 +3420,7 @@ def create_release_candidate(
             "rc requires --authorize-external-write",
         )
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     authorization = _authorize(
         root, policy, actor=actor, operation="release candidate publication"
     )
@@ -3408,16 +3428,13 @@ def create_release_candidate(
     syntax = (
         r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\."
         r"(?:0|[1-9][0-9]*)-rc\.[1-9][0-9]*"
-        if policy.version_scheme == "semver"
-        else r"(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\."
-        r"(?:0|[1-9][0-9]*)rc[1-9][0-9]*"
     )
     if not _is_prerelease(canonical, policy.version_scheme) or not re.fullmatch(
         syntax, canonical
     ):
         raise ProjectReleaseError(
             "release.rc_version_invalid",
-            "RC version must be canonical x.y.z-rc.N (semver) or x.y.zrcN (pep440)",
+            "RC version must be canonical x.y.z-rc.N (semver)",
         )
     _require_pre_release_target(root, policy, canonical)
     snapshot = _git_snapshot(root)
@@ -3598,6 +3615,7 @@ def merge_release_pull_request(
             "release-line PR merge requires --authorize-external-write",
         )
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     if policy.provider_kind != "github" or not policy.provider_repository:
         raise ProjectReleaseError(
             "release.target_unconfigured", "release-line PR merge requires GitHub"
@@ -4273,6 +4291,7 @@ def publish_release(
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
         _require_pre_release_target(root, policy, str(prepared["version"]))
@@ -4312,6 +4331,7 @@ def publish_release(
         raise ProjectReleaseError(
             "release.prepared_stale", "release policy differs from check"
         )
+    _require_prepared_release_names(policy, prepared)
     authenticated_receipt = _require_authenticated_release_receipt(root, policy)
     if authenticated_receipt != prepared.get("authenticated_receipt_identity"):
         raise ProjectReleaseError(
@@ -4325,11 +4345,6 @@ def publish_release(
         prepared,
         revision=str(snapshot["head"]),
         require_default_branch_ancestry=True,
-    )
-    _require_release_line(
-        policy,
-        branch=str(snapshot["branch"]),
-        version=str(prepared["version"]),
     )
     tag = str(prepared["tag"])
     if current_release_version(root, policy) != prepared["version"]:
@@ -4515,10 +4530,13 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
+    _require_semver_release(policy)
     if policy.identity != prepared["policy_identity"]:
         raise ProjectReleaseError(
             "release.prepared_stale", "release policy differs from check"
         )
+    _require_prepared_release_names(policy, prepared)
+    branch = str(prepared["branch"])
     artifacts = _qualified_release_files(root, policy, prepared, check_bytes=False)
     tag = str(prepared["tag"])
     expected = str(prepared["prepared_revision"])
@@ -4529,7 +4547,6 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
         revision=expected,
         require_default_branch_ancestry=False,
     )
-    branch = str(prepared["branch"])
     remote_tag, remote_annotated = _remote_tag_revision(root, policy.remote, tag)
     if remote_tag is None:
         raise ProjectReleaseError(
