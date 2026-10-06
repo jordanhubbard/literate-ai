@@ -26066,3 +26066,19 @@ review. Production grants/provisioning, full CLI scheduling, real shared LAN cac
 qualification, exact platform/installed/hosted CI, collateral and release gates
 remain open. Newly carried regressions and extracted support fixtures still need
 combined-suite review; this restart checkpoint is not ready for release.
+
+Restart progress, 2026-10-05: merged current main (Windows installer fixes and
+manual 1.0.x migration guidance) into this branch. All 69 branch-added or changed
+test modules plus `test_zip_packaging` and `test_shared_artifact_cache` ran: 555 of
+556 passed, two skipped. The one error exposed ten modules the carry had restored
+whole under `tests/critical` although the October 2026 test audit had deleted
+(five) or trimmed (five) them. Those copies are removed, applying the audit
+decisions to pre-existing cases. Behavior that 1.2 changed or added is retained:
+the kept smoke/E2E cases now expect LINK in capability probes, configure the
+`result_sources` return transport and check remote PACKAGE dispatch equality; the
+SemVer prerelease case joins the release E2E module; and four minimal critical
+modules name their invariants (reserved ACCEPT admission, ACCEPT runtime custody,
+FINALIZE execution policy and retained source-cache trust). New capability-profile
+wire round trips and mock-composed factory wiring cases were not kept, matching
+the audit's treatment of the equivalent ACCEPT cases. The remaining 54 new 1.2
+test modules have not yet been reviewed against the test policy.

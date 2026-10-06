@@ -1,31 +1,29 @@
-"""Private automatic INDEX selection reaches real health and command receivers."""
+"""Configured FINALIZE policy stays pinned, live and never falls back to local execution."""
 
 from __future__ import annotations
 
 import os
 import sys
 import unittest
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
 from unittest.mock import patch
 
+import tests.support.fixtures_test_cli_worker_health as health_fixture
+import tests.support.fixtures_test_standard_action_indexing as factory_fixture
 from literate_ai import worker_storage_probe
 from literate_ai.adapters.action_dispatch_wire import (
     ActionDispatchDeadline,
 )
 from literate_ai.adapters.action_execution_config import (
     ActionExecutionConfigurationError,
+    BoundActionExecution,
     load_action_execution,
 )
-from literate_ai.adapters.command_indexer import CommandGenerationIndexer
 from literate_ai.adapters.standard_rebuild import FilesystemStandardRebuildError
 from literate_ai.contracts.execution_dispatch import ExecutionWorkerCatalog
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.worker_capabilities import WorkerHardwareObservationCatalog
-from tests.support import fixtures_test_cli_worker_health as health_fixture
-from tests.support import fixtures_test_standard_action_indexing as factory_fixture
-from tests.support.action_deadline import ACTION_TEST_DEADLINE
-from tests.support.fixtures_test_action_blob_source import source_cas_server
 
 
 class ActionExecutionConfigurationTests(unittest.TestCase):
@@ -100,46 +98,52 @@ class ActionExecutionConfigurationTests(unittest.TestCase):
             catalog=ExecutionWorkerCatalog((worker,)),
             workers=(worker,),
             supports_phase=lambda worker, phase: True,
-            deadline=ActionDispatchDeadline(datetime.now(UTC) + ACTION_TEST_DEADLINE),
+            deadline=ActionDispatchDeadline(datetime.now(UTC) + timedelta(minutes=1)),
         )
 
-    def test_source_cas_cannot_overlap_project_authority(self):
-        for root in (self.project, self.project / "cas", self.project.parent):
-            with self.subTest(root=root):
-                self.configuration["source_cas_root"] = str(root)
-                with self.assertRaisesRegex(
-                    ActionExecutionConfigurationError, "outside project"
-                ):
-                    self.admit()
-
-    def test_public_factory_automatically_uses_private_configuration(self):
-        with source_cas_server(self.factory.admission.fixture.blobs) as (url, requests):
-            self.configure(url)
-            self.configuration["source_handoff"] = "http-cas"
-            self.configuration["result_sources"] = {
-                "index": {"kind": "http-cas", "endpoint": url, "allow_http": True}
-            }
-            self.load()
-            with patch.dict(os.environ, self.environment, clear=True):
-                adapter = self.factory.assemble()
-                indexer = adapter.runtime.application.lifecycle.indexer
-                self.assertIsInstance(indexer, CommandGenerationIndexer)
-                self.assertIsNotNone(adapter.action_execution)
-                candidate = self.factory.register(adapter.runtime)
-                result = indexer.index(
-                    candidate.component_revision, candidate.tree_identity
+    def test_persisted_finalize_policy_is_closed_pinned_and_live(self):
+        profile = canonical_identity("configured-finalize-profile")
+        policy = {"profile_identity": profile.uri, "verifier": "portable-application@1"}
+        self.configuration["finalize"] = policy
+        bound = self.load()
+        self.assertEqual(bound.finalize_profile, profile)
+        bound.require_unchanged()
+        self.configuration["finalize"] = policy | {
+            "profile_identity": canonical_identity("changed-profile").uri
+        }
+        self.load()
+        with self.assertRaises(ActionExecutionConfigurationError) as error:
+            bound.require_unchanged()
+        self.assertEqual(error.exception.code, "action_execution.configuration_changed")
+        for invalid in (
+            None,
+            {},
+            policy | {"verifier": "arbitrary.module:callback"},
+            policy | {"profile_identity": "invalid"},
+            policy | {"extra": True},
+        ):
+            with self.subTest(policy=invalid):
+                self.configuration["finalize"] = invalid
+                with self.assertRaises(ActionExecutionConfigurationError) as error:
+                    self.load()
+                self.assertEqual(
+                    error.exception.code, "action_execution.configuration_invalid"
                 )
-                self.assertIsNotNone(result)
-                self.assertTrue(requests)
-                self.path.write_bytes(b"{}")
-                with self.assertRaises(FilesystemStandardRebuildError):
-                    adapter._require_action_configuration()
 
-    def test_public_factory_rejects_invalid_configuration_without_local_fallback(self):
-        self.path.write_bytes(b"{}")
-        with patch.dict(os.environ, self.environment, clear=True):
-            with self.assertRaises(FilesystemStandardRebuildError):
-                self.factory.assemble()
+    def test_configured_finalize_policy_cannot_silently_use_local_execution(self):
+        pool, cas = self.admit()
+        self.configuration["finalize"] = {
+            "profile_identity": canonical_identity("finalize-profile").uri,
+            "verifier": "portable-application@1",
+        }
+        self.load()
+        with (
+            patch.dict(os.environ, self.environment, clear=True),
+            patch.object(BoundActionExecution, "admit", return_value=(pool, cas)),
+            self.assertRaises(FilesystemStandardRebuildError) as error,
+        ):
+            self.factory.assemble()
+        self.assertEqual(error.exception.code, "standard_rebuild.finalize_unavailable")
 
 
 if __name__ == "__main__":

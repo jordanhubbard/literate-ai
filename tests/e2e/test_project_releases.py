@@ -637,6 +637,39 @@ class ProjectReleaseTests(unittest.TestCase):
                 self.assertEqual(raised.exception.code, "release.remote_tag_conflict")
                 self.assertEqual(self.git(root, "tag", "--list", "v1.2.4"), "")
 
+    def test_semver_prerelease_is_classified_and_canonical(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            root, _remote = self.initialize(parent)
+            policy_path = root / "literate.release.json"
+            policy = json.loads(policy_path.read_text(encoding="utf-8"))
+            policy["version_scheme"] = "semver"
+            policy["allowed_transitions"] = ["patch", "prerelease"]
+            policy_path.write_text(
+                json.dumps(policy, indent=2) + "\n", encoding="utf-8"
+            )
+            self.git(root, "add", "literate.release.json")
+            self.git(root, "commit", "-m", "select SemVer releases")
+            with patch(
+                "literate_ai.project_releases.discover_project",
+                return_value=SimpleNamespace(
+                    root=root,
+                    definition=SimpleNamespace(
+                        repository_policy=SimpleNamespace(default_branch="main")
+                    ),
+                ),
+            ):
+                plan = create_release_plan(
+                    root, transition="explicit", explicit_version="1.2.4-rc.1"
+                )
+                self.assertEqual(plan["transition"], "prerelease")
+                self.assertEqual(plan["next_version"], "1.2.4-rc.1")
+                with self.assertRaises(ProjectReleaseError) as noncanonical:
+                    create_release_plan(
+                        root, transition="explicit", explicit_version="1.2.4-rc.01"
+                    )
+                self.assertEqual(noncanonical.exception.code, "release.binding_invalid")
+
 
 class ReleaseBackportTests(unittest.TestCase):
     """litai release backport / backport-status: cherry-pick onto a release branch.
