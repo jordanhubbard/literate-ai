@@ -22400,6 +22400,36 @@ GitHub CI failure without relaxing identity checks.
   - [ ] Qualify a Linux worker from a non-Linux controller and reject drift, corruption,
         replay, changed routes, cancellation, timeout, and missing compatible workers.
 
+### [ ] TEST-POLICY-1.2-001 — Reconcile new 1.2 test modules with the test policy
+
+- **Release target:** 1.2.0
+- **Priority:** P1
+- **Owner:** 1.2 lifecycle test suite and `tests/support` fixtures
+- **Detailed roadmap:** [1.2 test-policy review](1.2-test-policy-review.md)
+- **Direction:** The 1.2 restart branch adds 54 modules under `tests/critical`
+  that predate the October 2026 test audit. Bring them under the policy in
+  `CONTRIBUTING.md` before release.
+- **Conclusion:** Four modules were reconciled with the restored audit decisions.
+  A read-only review of the other 50 (291 tests) recommends keeping about 56
+  invariant cases, moving 14 real-process cases to E2E/smoke, folding 130
+  per-phase repeats into subTest tables, and dropping 83 wire/schema round trips,
+  mock replicas and validation checks. The maintainer chose to record the review
+  and defer applying it.
+- **Depends on:** none; apply after a passing complete combined-tree run so the
+  baseline is clean.
+- **Next action:** Review the recommendations, then apply them in batches by
+  pattern (F1–F12), rerunning affected modules after each batch and committing each
+  batch separately. Keep every test that drives a real receiver, child process or
+  Git repository. Fix the unused `_WORKER` script in `test_explicit_action_inputs`,
+  the two wrong module docstrings, and per-test fixture chain rebuilding.
+- **Implementation:**
+  - [x] Record the per-module review and its repeated patterns
+  - [ ] Apply maintainer-approved keep/move/merge/drop decisions
+  - [ ] Build expensive support fixtures once per class
+- **Evidence:**
+  - [ ] Affected modules and the complete combined-tree run pass after reduction
+  - [ ] `docs/testing/test-suite-audit.json` records the 1.2 module decisions
+
 ### [ ] RELEASE-INTEGRATION-003 — Compose production DAG dispatch and shared LAN caches
 
 - **Release target:** 1.2.0
@@ -26081,4 +26111,12 @@ modules name their invariants (reserved ACCEPT admission, ACCEPT runtime custody
 FINALIZE execution policy and retained source-cache trust). New capability-profile
 wire round trips and mock-composed factory wiring cases were not kept, matching
 the audit's treatment of the equivalent ACCEPT cases. The remaining 54 new 1.2
-test modules have not yet been reviewed against the test policy.
+test modules have not yet been reviewed against the test policy; the read-only
+review is recorded under TEST-POLICY-1.2-001 and deliberately not yet applied.
+
+Complete combined-tree run, 2026-10-05, at `32b6cb9f` on macOS/Python 3.13 via
+`make python-check`: 632 modules completed with one error and 11 skips. The
+10-second interpreter-layout probe failure from the old tree did not recur. The
+error was `test_standard_action_authorization` setup: its planning fixture
+assembled the factory without the explicit result transport that LINK-advertising
+workers now require. The fixture now supplies it and both dependent modules pass.
