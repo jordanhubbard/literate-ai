@@ -1695,3 +1695,21 @@ A process-wide nonblocking lock prevents overlapping environment-mutating child
 runtimes. The full execution adapter still reopens transferred proof and binds
 exact runtime custody before running stages. This is a private composition API;
 it does not issue grants, select configuration from requests, or provision workers.
+
+PortableFinalizeParentAuthority is the receiver-side counterpart. Private
+receiver startup supplies the grant path, tools and oracle; ConfiguredFinalizeWorker
+supplies the exact child environment it will launch with. Before inputs are
+staged, admit() requires a current, unrevoked grant scoped to the exact input
+record, root revision and execute-project privilege, so an unauthorized request
+causes no staging I/O. Once inputs are staged, require() builds measurement-only
+portable ports from them in an owned directory, measures the same runtime the
+child will measure, and applies the complete grant guard on every later poll,
+including supervision of the running child. The parent therefore never relies on
+the child's own check. PortableFinalizeRuntimeFactory accepts no startup runtime
+pin for long-lived receivers, which cannot know per-project runtimes in advance;
+the operator grant then names the measured runtime on both sides. The real
+command-controller chain now uses this composition with a file grant: no grant,
+a grant for another runtime, and an atomically revoked grant are each refused by
+the receiver parent, and the exactly planned grant succeeds. Grant issuance
+remains an operator action; computing the exact request needs both the
+controller's records and the worker's private runtime.
