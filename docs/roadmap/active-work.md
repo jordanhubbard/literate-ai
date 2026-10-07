@@ -26224,3 +26224,11 @@ and before a receiver emits a response, which it withholds if a tool changed
 executable metadata only. A describe falls from about 3.1 s to 1.5 s (84 tool
 subprocesses to 19). Remaining cost: the dispatcher's two full probes per action
 and four cold dependency observations.
+
+Dependency fact cache, 2026-10-07: the receiver's optional `dependency_cache`
+persists the macOS `dyld_info` fact memo across receiver processes, keyed as in
+process (inspector digest, image content digest and symlink chain, or boot
+session). It must lie outside the workspace and CAS; a malformed file is ignored.
+A warm observation of the Python closure falls from about 4.5 s to 0.2 s with an
+identical result, and the one-Component remote rebuild from about 174 s to 141 s.
+Linux and Windows observers have no memo yet.

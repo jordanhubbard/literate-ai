@@ -12,6 +12,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tempfile
 from collections import deque
 from collections.abc import Callable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -618,6 +619,133 @@ def _remember_dyld_fact(key: tuple[object, ...], fact: object) -> None:
     _DYLD_FACTS[key] = fact
 
 
+# Optional operator-private file that carries the memo across worker processes.
+# Each receiver action or observation is a new process, so without it every
+# dependency observation re-inspects the whole closure. The file is trusted like
+# the worker's own configuration: it must live outside anything an action can
+# write. A missing, unreadable or malformed file is ignored and rewritten.
+DYLD_FACTS_SCHEMA = "literate-ai/macos-dyld-facts@1"
+_MAX_DYLD_FACTS_BYTES = 64 * 1024 * 1024
+_PERSISTED: dict[str, object] = {}
+
+
+def use_persistent_dyld_facts(path: Path) -> None:
+    """Load and later save this process's dyld facts at one private path."""
+
+    path = Path(path)
+    if not path.is_absolute():
+        raise ValueError("dependency fact cache path must be absolute")
+    _PERSISTED.clear()
+    _PERSISTED["path"] = path
+    if sys.platform != "darwin":
+        return
+    try:
+        if path.stat().st_size > _MAX_DYLD_FACTS_BYTES:
+            raise ValueError("dependency fact cache is oversized")
+        document = json.loads(path.read_bytes())
+        if (
+            not isinstance(document, dict)
+            or set(document) != {"schema", "boot_session", "entries"}
+            or document["schema"] != DYLD_FACTS_SCHEMA
+            or not isinstance(document["entries"], list)
+            or len(document["entries"]) > _DYLD_FACTS_LIMIT
+        ):
+            raise ValueError("dependency fact cache is malformed")
+        session = _macos_boot_session()
+        loaded = {}
+        for entry in document["entries"]:
+            key, fact = _decoded_dyld_entry(entry)
+            if key[3][0] == "shared-cache" and (
+                session is None or key[3][1] != session
+            ):
+                continue
+            loaded[key] = fact
+    except (OSError, ValueError, TypeError, KeyError, IndexError, RecursionError):
+        return
+    _DYLD_FACTS.update(loaded)
+    _PERSISTED["saved"] = len(_DYLD_FACTS)
+
+
+def _decoded_dyld_entry(entry):
+    kind, digest, path, identity = entry["key"]
+    fact = entry["fact"]
+    if (
+        kind not in {"inspect", "validate"}
+        or not isinstance(digest, str)
+        or not isinstance(path, str)
+    ):
+        raise ValueError("invalid dependency fact key")
+    if identity[0] == "shared-cache" and len(identity) == 2:
+        if not isinstance(identity[1], str):
+            raise ValueError("invalid boot session")
+        bound = ("shared-cache", identity[1])
+    elif identity[0] == "file" and len(identity) == 2:
+        resolved, content, chain = identity[1]
+        if not isinstance(resolved, str) or not isinstance(content, str):
+            raise ValueError("invalid image binding")
+        bound = (
+            "file",
+            _MachOMaterializedFile(
+                resolved,
+                content,
+                tuple(
+                    (str(link), str(target), tuple(int(item) for item in status))
+                    for link, target, status in chain
+                ),
+            ),
+        )
+    else:
+        raise ValueError("invalid image identity")
+    if kind == "validate":
+        if not isinstance(fact, bool):
+            raise ValueError("invalid validation fact")
+    else:
+        uuids, linked, rpaths = fact
+        fact = (
+            tuple((str(arch), str(uuid)) for arch, uuid in uuids),
+            tuple((str(load), bool(weak)) for load, weak in linked),
+            tuple(str(item) for item in rpaths),
+        )
+    return (kind, digest, path, bound), fact
+
+
+def _save_persistent_dyld_facts() -> None:
+    path = _PERSISTED.get("path")
+    if not isinstance(path, Path) or _PERSISTED.get("saved") == len(_DYLD_FACTS):
+        return
+    entries = []
+    for (kind, digest, image, identity), fact in list(_DYLD_FACTS.items()):
+        if identity[0] == "file":
+            binding = identity[1]
+            identity = (
+                "file",
+                (
+                    binding.resolved_path,
+                    binding.content_identity,
+                    binding.symlink_chain,
+                ),
+            )
+        entries.append({"key": [kind, digest, image, identity], "fact": fact})
+    document = {
+        "schema": DYLD_FACTS_SCHEMA,
+        "boot_session": _macos_boot_session(),
+        "entries": entries,
+    }
+    try:
+        descriptor, temporary = tempfile.mkstemp(prefix=".dyld-facts-", dir=path.parent)
+        try:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+                json.dump(document, stream, separators=(",", ":"))
+            os.replace(temporary, path)
+        except BaseException:
+            Path(temporary).unlink(missing_ok=True)
+            raise
+    except OSError:
+        # The cache only saves work; failing to write it never fails observation.
+        return
+    _PERSISTED["saved"] = len(_DYLD_FACTS)
+
+
 def _macos_boot_session() -> str | None:
     """Return this boot's session UUID, or ``None`` when it cannot be proven."""
 
@@ -947,6 +1075,7 @@ class MacOsMachODependencyObserver:
                 launcher_runtime_edges=launcher_runtime_edges,
             )
         )
+        _save_persistent_dyld_facts()
         return _normalized_observation(components, edges)
 
     def _closure(

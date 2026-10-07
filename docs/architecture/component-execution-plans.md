@@ -1739,6 +1739,19 @@ the grant path and a verifier-owned oracle copy. The document's byte identity is
 part of every measured child launcher's authority; a phase child re-enters the
 module with `--child PHASE` and refuses a changed document.
 
+Receiver tools follow the action-boundary rule. Python, Make and the receiver's
+own interpreter are fully measured (live probes and executable digests) when any
+receiver or child process starts, whenever executable metadata changes, and
+before the receiver emits a response, which it withholds if a tool changed. Reads
+in between compare executable metadata only. The optional `dependency_cache`
+names an operator-private file that carries macOS `dyld_info` facts across
+receiver processes, so each dependency observation does not re-inspect the whole
+closure. Facts are keyed exactly as in the in-process memo (inspector digest,
+image path, and the image's content digest and symlink chain, or the boot
+session for shared-cache images). Because cached facts decide what a closure
+contains, the path must lie outside the workspace and CAS that actions write. A
+missing or malformed file is ignored and rewritten.
+
 Contracts arrive in the admitted request, as they do for FINALIZE. The
 `portable-starter@1` policy admits a contract only when its BUILD argv is exactly
 the packaged Make driver for this worker's own Make and Python, its TEST and

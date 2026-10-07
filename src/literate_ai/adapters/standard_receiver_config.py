@@ -74,6 +74,7 @@ class StandardReceiverConfig:
     source_cas_url: str | None
     source_token_env: str | None
     allow_http: bool
+    dependency_cache: Path | None = None
 
     def require_unchanged(self):
         """Refuse a configuration file that changed after startup."""
@@ -102,7 +103,7 @@ def load_standard_receiver_config(path):
         "child_environment",
         "contract_policy",
     }
-    optional = {"finalize", "source"}
+    optional = {"finalize", "source", "dependency_cache"}
     if (
         not isinstance(document, dict)
         or not required <= set(document) <= required | optional
@@ -159,6 +160,15 @@ def load_standard_receiver_config(path):
     workspace = _absolute(document["workspace"], "workspace")
     if finalize is not None and finalize.grant_path.is_relative_to(workspace):
         raise StandardReceiverConfigError("grants must be outside the workspace")
+    # Cached dependency facts decide what a closure contains, so no action may
+    # be able to write them: like grants, they stay outside action storage.
+    dependency_cache = document.get("dependency_cache")
+    if dependency_cache is not None:
+        dependency_cache = _absolute(dependency_cache, "dependency_cache")
+        if any(dependency_cache.is_relative_to(root) for root in (workspace, cas)):
+            raise StandardReceiverConfigError(
+                "dependency_cache must be outside the workspace and CAS"
+            )
     return StandardReceiverConfig(
         path=path,
         identity=canonical_identity(
@@ -176,4 +186,5 @@ def load_standard_receiver_config(path):
         source_cas_url=None if source is None else source["url"],
         source_token_env=None if source is None else source.get("token_env") or None,
         allow_http=False if source is None else source.get("allow_http", False),
+        dependency_cache=dependency_cache,
     )

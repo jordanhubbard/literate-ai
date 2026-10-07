@@ -208,6 +208,12 @@ def main(argv=None):
     except StandardReceiverConfigError as exc:
         print(f"standard receiver refused: {exc}", file=sys.stderr)
         return 2
+    if config.dependency_cache is not None:
+        from literate_ai.adapters.dependencies.observation import (
+            use_persistent_dyld_facts,
+        )
+
+        use_persistent_dyld_facts(config.dependency_cache)
     if args.print_profiles:
         import json
 

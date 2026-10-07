@@ -1,7 +1,9 @@
-"""Invariant: a reference receiver never emits a result after its tools changed.
+"""Invariants: a reference receiver never emits a result after its tools changed,
+and its cached dependency facts never live where an action can write.
 
 Reads between boundaries check only executable metadata, so the receiver must
-fully re-measure its tools before any response leaves the process.
+fully re-measure its tools before any response leaves the process. Cached facts
+decide what a tool's dependency closure contains.
 """
 
 from __future__ import annotations
@@ -17,6 +19,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai import standard_receiver
+from literate_ai.adapters.standard_receiver_config import (
+    StandardReceiverConfigError,
+    load_standard_receiver_config,
+)
 
 
 @unittest.skipIf(os.name == "nt" or shutil.which("make") is None, "POSIX make")
@@ -61,6 +67,40 @@ class StandardReceiverCustodyTests(unittest.TestCase):
                 self.assertEqual(
                     stdout.buffer.getvalue(), b"" if changed else b"result"
                 )
+
+    def test_dependency_cache_must_be_outside_action_storage(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            for cache, refused in (
+                (root / "workspace" / "facts.json", True),
+                (root / "cas" / "facts.json", True),
+                (root / "private" / "facts.json", False),
+            ):
+                with self.subTest(cache=cache.parent.name):
+                    config = root / "receiver.json"
+                    config.write_text(
+                        json.dumps(
+                            {
+                                "schema": "literate-ai/standard-receiver@1",
+                                "cas": str(root / "cas"),
+                                "workspace": str(root / "workspace"),
+                                "phases": ["PACKAGE"],
+                                "tools": {
+                                    "python": [sys.executable],
+                                    "make": ["/usr/bin/make"],
+                                },
+                                "child_environment": {},
+                                "contract_policy": "portable-starter@1",
+                                "dependency_cache": str(cache),
+                            }
+                        )
+                    )
+                    if refused:
+                        with self.assertRaises(StandardReceiverConfigError):
+                            load_standard_receiver_config(config)
+                    else:
+                        loaded = load_standard_receiver_config(config)
+                        self.assertEqual(loaded.dependency_cache, cache)
 
 
 if __name__ == "__main__":

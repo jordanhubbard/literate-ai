@@ -304,6 +304,8 @@ class ModelFreeRebuildTests(unittest.TestCase):
                 },
                 "child_environment": environment,
                 "contract_policy": "portable-starter@1",
+                # Operator-private, outside the workspace and CAS actions write.
+                "dependency_cache": str(config.parent / "dependency-facts.json"),
             }
             if finalize is not None:
                 document["finalize"] = finalize
