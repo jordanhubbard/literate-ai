@@ -26196,3 +26196,17 @@ disabled, the operator grants the described request mid-run, and the receipt is
 committed. Remaining for this item: cross-host toolchain identities, a `litai`
 surface for operators beyond the receiver module, multi-Component plans, shared
 LAN cache qualification, and the platform/CI release gates.
+
+Cross-host toolchains, 2026-10-07: done for fully remote command phases. The
+factory projects the closure from the admitted BUILD worker when BUILD, TEST,
+EXECUTE and FINALIZE are remote; the reference receiver's BUILD worker advertises
+its Standard tool inventory. `test_controller_without_the_tools_uses_the_worker_toolchain`
+runs the full CLI rebuild with a failing controller `make` and commits a receipt.
+Defects fixed on the way: tool-mode capabilities omitted PACKAGE/FINALIZE
+profiles; configured tool profiles re-captured observations per read; worker
+dependency capture re-probed each tool per dependency (55 s to 9 s). Remaining
+cost: about 50 full capability probes at action boundaries (~3.5 s each under
+load) make a one-Component remote rebuild take about seven minutes; record for
+QUALIFICATION-ECONOMY-001. Still open: real separate-host qualification, mixed
+local/remote phases with a remote closure, multi-Component plans, an operator
+`litai` surface, shared LAN caches and release gates.

@@ -346,6 +346,12 @@ def _standard_root_product_result(
 
     command_contract = lifecycle_ports.contracts[root_build_plan.component_revision.uri]
     if not command_contract.is_library:
+        from literate_ai.contracts import ComponentCommandPhase
+
+        if ComponentCommandPhase.EXECUTE not in lifecycle_ports.command_phases:
+            # Admitted workers ran every command; this host has no runtime from
+            # which to project a local invocation, so none is claimed.
+            return None, None
         return (
             lifecycle_ports.execution_command(root_build_plan, root_exports),
             None,

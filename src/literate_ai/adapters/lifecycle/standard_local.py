@@ -2663,6 +2663,11 @@ class LocalStandardLifecyclePorts:
             self._record_evidence(plan.to_dict())
             return result
 
+    @property
+    def command_phases(self) -> tuple[ComponentCommandPhase, ...]:
+        """Component command phases this host may run; empty when workers run them."""
+        return tuple(sorted(self._command_phases, key=lambda item: item.value))
+
     def _require_command_phase(self, phase: ComponentCommandPhase) -> None:
         if phase not in self._command_phases:
             raise LocalStandardLifecycleError(

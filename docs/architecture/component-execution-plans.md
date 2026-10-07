@@ -1770,6 +1770,31 @@ its result is admitted. Qualification: `tests/e2e/test_cli_model_free_rebuild.py
 runs real `litai rebuild --update-receipt` with a deterministic coding-CLI
 stand-in, every Component phase disabled on the controller, and BUILD, TEST,
 EXECUTE, ACCEPT, PACKAGE and FINALIZE on the reference receiver, including the
-described-request, operator grant and receipt commit. Workers on another host
-remain ineligible until the controller derives toolchain identities from the
-worker (`project_remote_standard_toolchain_closure`).
+described-request, operator grant and receipt commit.
+
+Cross-host toolchains: when BUILD, TEST, EXECUTE and FINALIZE all run on admitted
+workers, no Component or root command runs on the controller, so the Standard
+rebuild factory projects the locked toolchain closure from the first admitted
+BUILD worker (`project_remote_standard_toolchain_closure`) instead of the
+controller's host. That worker's BUILD configuration advertises its exact
+Standard tool inventory; locked tool identities, command paths, versions and
+native dependency graphs therefore describe the worker, and the reference
+receiver's contract policy compares requests against those same tools. The
+closure projects no local command phases: runtime assembly follows the closure's
+own scope, readiness takes command authority from the closure's live worker
+guard instead of local tool bindings, and the CLI omits a local
+`execution_command` because this host has no runtime to invoke. Mixed
+configurations (any of those phases local) keep the controller-local closure.
+Qualification runs the full CLI rebuild with a controller whose `make` fails, so
+local discovery cannot succeed.
+
+Making that path usable exposed three defects, now fixed: worker tool-observation,
+dependency and selector responses omitted the PACKAGE and FINALIZE profiles from
+their capability record, so any worker serving those phases advertised two
+different capability identities and was refused; configured tool workers
+re-captured Standard tool observations whenever their profile identity was read,
+including inside per-item guards (the profile now uses the startup observation;
+tool bytes stay live-checked through the registry and `observe_tools()` still
+re-captures at boundaries); and worker dependency capture re-measured each tool
+once per inspected dependency (about 1,400 interpreter probes), now once per
+tool with the existing checks before and after each observation.

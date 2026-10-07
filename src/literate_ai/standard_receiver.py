@@ -85,6 +85,13 @@ def _workers(config):
                     _launcher(config, phase, code),
                     tools.bindings,
                     environment=environment,
+                    # BUILD advertises the exact tools so a controller on another
+                    # host derives locked toolchain identities from this worker.
+                    standard_tools=(
+                        {"python": tools.python, "make": tools.make}
+                        if phase == "BUILD"
+                        else None
+                    ),
                 )
         if "ACCEPT" in command_phases:
             workers["accept_worker"] = ConfiguredAcceptWorker(

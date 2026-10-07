@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Cross-host workers: when BUILD, TEST, EXECUTE and FINALIZE all run on admitted
+  workers, `litai rebuild` derives locked toolchain identities, commands and
+  native dependencies from the worker instead of the controller host, which then
+  needs none of the project's tools. Workers serving PACKAGE or FINALIZE are no
+  longer refused for tool observation, and worker dependency observation is
+  several times faster.
+
 - Add `python -m literate_ai.standard_receiver`, a reference action receiver for
   portable Standard projects configured by one private operator document. It
   runs BUILD, TEST, EXECUTE, ACCEPT, PACKAGE and FINALIZE for single-Component

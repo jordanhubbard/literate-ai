@@ -126,11 +126,14 @@ class ConfiguredToolWorker:
                 "launcher": self.launchers.identity.uri,
                 "tools": self.tools.identity.uri,
                 "environment": dict(self.environment),
+                # The startup observation, not a re-capture: this profile is read
+                # by per-read guards. Tool bytes stay live-checked through
+                # self.tools above, and observe_tools() re-captures at boundaries.
                 **(
                     {
-                        "standard_tools": self.observe_tools(
-                            require_current=lambda: None
-                        ).identity.uri
+                        "standard_tools": (
+                            self._standard_observations.initial.identity.uri
+                        )
                     }
                     if self._standard_observations is not None
                     else {}

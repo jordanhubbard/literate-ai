@@ -275,12 +275,18 @@ class ModelFreeRebuildTests(unittest.TestCase):
             any("--describe" not in line for line in invocations), invocations
         )
 
-    def reference_receiver(self, phases, *, finalize=None):
-        """Write the operator's private receiver config; return its command."""
+    def reference_receiver(self, phases, *, finalize=None, worker_host=False):
+        """Write the operator's private receiver config; return its command.
+
+        With `worker_host`, the worker keeps its own environment and tools, as a
+        separate host would, instead of mirroring the controller's PATH.
+        """
         from literate_ai.adapters.builders.make import discover_make_toolchain
         from literate_ai.adapters.builders.python import discover_python_toolchain
 
-        environment = {**os.environ, **self.environment}
+        environment = (
+            dict(os.environ) if worker_host else {**os.environ, **self.environment}
+        )
         config = self.root / "receiver" / "standard-receiver.json"
         config.parent.mkdir(exist_ok=True)
 
@@ -346,8 +352,8 @@ class ModelFreeRebuildTests(unittest.TestCase):
         self.assertTrue(envelope["result"]["passed"], envelope)
         self.assertTrue(envelope["result"]["receipt_committed"], envelope)
 
-    def test_finalize_waits_for_the_operator_to_grant_the_described_request(self):
-        """FINALIZE describes its exact request and continues once it is granted."""
+    def rebuild_with_operator_grant(self, *, worker_host=False):
+        """Run every phase on the receiver; an operator grants FINALIZE mid-run."""
         import subprocess
         import threading
         import time
@@ -367,6 +373,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
                 "grant_path": str(grant),
                 "oracle": {"component": "hello-component", "path": str(oracle)},
             },
+            worker_host=worker_host,
         )
 
         def receiver(*arguments):
@@ -426,6 +433,23 @@ class ModelFreeRebuildTests(unittest.TestCase):
         thread.join(timeout=60)
         self.assertTrue(issued, "FINALIZE never described a grant request")
         self.assertTrue(grant.exists())
+        return status, envelope
+
+    def test_finalize_waits_for_the_operator_to_grant_the_described_request(self):
+        """FINALIZE describes its exact request and continues once it is granted."""
+        status, envelope = self.rebuild_with_operator_grant()
+        self.assertEqual(status, 0, envelope)
+        self.assertTrue(envelope["result"]["passed"], envelope)
+        self.assertTrue(envelope["result"]["receipt_committed"], envelope)
+
+    def test_controller_without_the_tools_uses_the_worker_toolchain(self):
+        """Locked tool identities come from the worker, not the controller host."""
+        # This controller cannot run Make: local toolchain discovery would fail,
+        # so only a closure derived from the admitted worker can succeed.
+        fake_make = self.root / "tools" / "make"
+        fake_make.write_text("#!/bin/sh\necho controller make >&2\nexit 97\n")
+        fake_make.chmod(0o755)
+        status, envelope = self.rebuild_with_operator_grant(worker_host=True)
         self.assertEqual(status, 0, envelope)
         self.assertTrue(envelope["result"]["passed"], envelope)
         self.assertTrue(envelope["result"]["receipt_committed"], envelope)

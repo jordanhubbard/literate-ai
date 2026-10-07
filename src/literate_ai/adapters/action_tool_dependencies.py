@@ -108,6 +108,8 @@ def encode_dependency_response(
     execute_worker=None,
     accept_worker=None,
     generate_worker=None,
+    package_worker=None,
+    finalize_worker=None,
 ):
     request, deadline = decode_dependency_request(canonical_json_bytes(request))
     if (
@@ -123,6 +125,9 @@ def encode_dependency_response(
     execute_profile = None if execute_worker is None else execute_worker.identity
     accept_profile = None if accept_worker is None else accept_worker.identity
     generate_profile = None if generate_worker is None else generate_worker.identity
+    # The capability must equal the one plain --describe advertises.
+    package_profile = None if package_worker is None else package_worker.identity
+    finalize_profile = None if finalize_worker is None else finalize_worker.identity
     inventory = build_worker.observe_tools(require_current=deadline.remaining)
     graph = build_worker.observe_tool_dependencies(
         tuple(ContentIdentity.parse_uri(item) for item in request["tools"]),
@@ -145,6 +150,8 @@ def encode_dependency_response(
         execute_profile=execute_profile,
         accept_profile=accept_profile,
         generate_profile=generate_profile,
+        package_profile=package_profile,
+        finalize_profile=finalize_profile,
         execute_toolchains=execute_worker.tools.identities if execute_worker else (),
         execute_standard_tools=execute_worker.standard_tools_identity
         if execute_worker

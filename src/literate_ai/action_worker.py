@@ -229,6 +229,8 @@ def main(
                 execute_worker=execute_worker,
                 accept_worker=accept_worker,
                 generate_worker=generate_worker,
+                package_worker=package_worker,
+                finalize_worker=finalize_worker,
                 http_source=source is not None,
             )
             sys.stdout.buffer.write(response)
@@ -243,6 +245,8 @@ def main(
                 execute_worker=execute_worker,
                 accept_worker=accept_worker,
                 generate_worker=generate_worker,
+                package_worker=package_worker,
+                finalize_worker=finalize_worker,
                 http_source=source is not None,
             )
             sys.stdout.buffer.write(response)
@@ -257,6 +261,8 @@ def main(
                 execute_worker=execute_worker,
                 accept_worker=accept_worker,
                 generate_worker=generate_worker,
+                package_worker=package_worker,
+                finalize_worker=finalize_worker,
                 http_source=source is not None,
             )
             sys.stdout.buffer.write(response)

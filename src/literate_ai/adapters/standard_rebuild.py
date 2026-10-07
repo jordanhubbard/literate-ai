@@ -811,11 +811,38 @@ def assemble_filesystem_standard_rebuild_adapter(
     candidate_cas = FileSystemCAS(candidate_cas_root)
     assets = admit_locked_authored_assets(snapshot, cas=candidate_cas)
     planned = planning.plan(snapshot, assets=assets)
-    closure = project_locked_standard_toolchain_closure(
-        snapshot,
-        planned.execution_plan,
-        native_sdk_inputs=prepared.native_sdk_inputs,
-    )
+    if remote_build and remote_test and remote_execute and remote_finalize:
+        # No Component or root command runs on this host, so derive every locked tool
+        # identity, command and dependency from the admitted worker that will
+        # build; a controller on another host need not have those tools.
+        from .remote_standard_toolchains import (
+            project_remote_standard_toolchain_closure,
+        )
+
+        builder = next(
+            worker
+            for worker in action_workers.workers
+            if action_workers.supports_phase(worker, LifecycleActionKind.BUILD)
+        )
+        try:
+            closure = project_remote_standard_toolchain_closure(
+                snapshot,
+                planned.execution_plan,
+                action_workers,
+                builder,
+                native_sdk_inputs=prepared.native_sdk_inputs,
+            )
+        except (ActionWireError, ValueError) as exc:
+            raise FilesystemStandardRebuildError(
+                getattr(exc, "code", "standard_rebuild.remote_toolchains_invalid"),
+                str(exc),
+            ) from exc
+    else:
+        closure = project_locked_standard_toolchain_closure(
+            snapshot,
+            planned.execution_plan,
+            native_sdk_inputs=prepared.native_sdk_inputs,
+        )
     generator, _local_cache = source_generation.runner(
         snapshot,
         planned.execution_plan,

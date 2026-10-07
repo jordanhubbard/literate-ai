@@ -3122,7 +3122,12 @@ class FilesystemStandardProjectRuntime:
         blockers: set[str] = set()
         if configured_revisions != planned_revisions:
             blockers.add("component-command-contract-coverage-incomplete")
-        if not self.lifecycle_ports.locked_command_authority_is_current():
+        # A worker-projected closure runs no command here; its admitted worker
+        # tools are the command authority and are checked with the closure below.
+        if (
+            self.toolchain_closure.command_phases
+            and not self.lifecycle_ports.locked_command_authority_is_current()
+        ):
             blockers.add("component-command-tool-binding-invalid")
         try:
             self.toolchain_closure.require_unchanged()
@@ -3273,6 +3278,8 @@ def assemble_filesystem_standard_project_runtime(
     composition = assemble_standard_lifecycle_ports(
         object_root=object_root,
         toolchain_closure=toolchain_closure,
+        # A worker-projected closure runs no Component command on this host.
+        command_phases=toolchain_closure.command_phases,
         source_trees=registry,
         python_wheelhouse=python_wheelhouse,
         independent_acceptance_oracle=independent_acceptance_oracle,
