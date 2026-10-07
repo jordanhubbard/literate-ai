@@ -472,6 +472,9 @@ class FilesystemStandardRebuildAdapter:
 
 
 _RUNTIME_TARGET_ID = "standard-local"
+# Same bounds as filesystem qualification capture.
+_ACTION_EVIDENCE_MAX_BYTES = 256 * 1024 * 1024
+_ACTION_EVIDENCE_MAX_RECORDS = 100_000
 
 
 def _resolved_source_cache(
@@ -881,6 +884,18 @@ def assemble_filesystem_standard_rebuild_adapter(
         runtime,
         checkpoint_root=checkpoint_root,
     )
+    if action_workers is not None:
+        # Remote phases hand verified evidence back to local ports, which retain
+        # it only in a bounded recorder installed before any build. Qualification
+        # may replace this recorder with its own before building.
+        from .qualification_capture import QualificationEvidenceRecorder
+
+        runtime.lifecycle_ports.retain_evidence_with(
+            QualificationEvidenceRecorder(
+                max_bytes=_ACTION_EVIDENCE_MAX_BYTES,
+                max_records=_ACTION_EVIDENCE_MAX_RECORDS,
+            )
+        )
     if action_workers is not None and any(
         action_workers.supports_phase(worker, LifecycleActionKind.BUILD_INTENT)
         for worker in action_workers.workers

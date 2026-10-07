@@ -26137,3 +26137,19 @@ action by design (ADR 0044: the controller is not a fleet provisioner). Remainin
 a `litai` command that drives the describe step once full CLI rebuild scheduling
 exists, operator-side signing and placement guidance, and the rest of the 1.2
 scope listed above.
+
+CLI rebuild qualification, 2026-10-07: `tests/e2e/test_cli_model_free_rebuild.py`
+runs real `litai rebuild --update-receipt` on a freshly initialized starter with a
+deterministic `claude` stand-in at the model-provider boundary; admission, Make
+build, generated tests, packaged execution, independent acceptance and receipt
+commit are real. A second case adds private action-execution configuration and
+an admitted command worker running the built-in receiver: the CLI admits it
+through hardware and capability probes and dispatches the controller-side actions
+to it. That case exposed a composition defect: remote phases retain evidence in
+local ports, but only qualification installed the bounded recorder, so every CLI
+rebuild with admitted workers failed at BUILD. The factory now installs the same
+bounded recorder whenever action workers are composed. Observed cost: one rebuild
+issued 89 capability probes for 5 dispatches because admission re-probes on every
+revalidation; record for QUALIFICATION-ECONOMY-001. Remaining: phases beyond the
+controller-side actions need a private receiver startup that composes configured
+BUILD/TEST/EXECUTE/ACCEPT/PACKAGE/FINALIZE workers for real projects.

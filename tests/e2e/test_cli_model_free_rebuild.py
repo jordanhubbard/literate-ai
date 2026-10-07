@@ -140,6 +140,125 @@ class ModelFreeRebuildTests(unittest.TestCase):
         self.assertTrue(result["passed"], result)
         self.assertTrue(result["receipt_committed"], result)
 
+    def test_rebuild_routes_lifecycle_actions_through_an_admitted_worker(self):
+        """The CLI admits a private command worker and dispatches actions to it."""
+        from datetime import UTC, datetime
+
+        from literate_ai import worker_storage_probe
+        from literate_ai.contracts.execution_dispatch import (
+            LIFECYCLE_ACTION_WIRE_PROTOCOL,
+            ExecutionWorker,
+            ExecutionWorkerCatalog,
+            ExecutionWorkerEnvironment,
+            ExecutionWorkerKind,
+        )
+        from literate_ai.contracts.identity import canonical_json_bytes
+        from literate_ai.contracts.worker_capabilities import (
+            NvidiaProbeStatus,
+            WorkerHardwareObservation,
+            WorkerHardwareObservationCatalog,
+        )
+        from literate_ai.storage import FileSystemCAS
+        from tests.support import fixtures_test_cli_worker_health as health_fixture
+
+        private = self.root / "private"
+        cas = private / "source-cas"
+        workspace = private / "worker-jobs"
+        workspace.mkdir(parents=True)
+        FileSystemCAS(cas)  # the operator initializes the shared CAS layout
+        log = private / "receiver.log"
+        receiver = (
+            "import runpy,sys;"
+            f"open({str(log)!r},'a').write(' '.join(sys.argv[1:])+'\\n');"
+            "sys.argv[0]='action_worker';"
+            "runpy.run_module('literate_ai.action_worker',run_name='__main__')"
+        )
+        worker = ExecutionWorker(
+            "cli-worker",
+            ExecutionWorkerKind.COMMAND,
+            command=(
+                sys.executable,
+                "-I",
+                "-c",
+                receiver,
+                "--cas",
+                str(cas),
+                "--workspace",
+                str(workspace),
+            ),
+            environment=(
+                ExecutionWorkerEnvironment(
+                    "LITAI_ACTION_WORKER_IDENTITY", "CLI_WORKER_IDENTITY", True
+                ),
+            ),
+            action_protocol=LIFECYCLE_ACTION_WIRE_PROTOCOL,
+        )
+        catalog = private / "workers.json"
+        catalog.write_bytes(
+            canonical_json_bytes(ExecutionWorkerCatalog((worker,)).to_dict())
+        )
+        family = {"darwin": "macos", "linux": "linux"}[sys.platform]
+        observations = private / "worker-observations.json"
+        observations.write_bytes(
+            canonical_json_bytes(
+                WorkerHardwareObservationCatalog(
+                    (
+                        WorkerHardwareObservation(
+                            "cli-worker",
+                            datetime.now(UTC).isoformat(),
+                            family,
+                            family,
+                            "1",
+                            "arm64" if os.uname().machine == "arm64" else "x86_64",
+                            os.cpu_count() or 1,
+                            os.cpu_count() or 1,
+                            16384,
+                            (),
+                            NvidiaProbeStatus.NOT_APPLICABLE,
+                        ),
+                    )
+                ).to_dict()
+            )
+        )
+        health = health_fixture.WorkerHealthCliTests()
+        health.setUp()
+        self.addCleanup(health.doCleanups)
+        health.config["worker_id"] = "cli-worker"
+        health.config["health_command"] = {
+            "schema": "literate-ai/private-worker-storage-command@1",
+            "command": [sys.executable, "-B", worker_storage_probe.__file__],
+            "environment": [],
+        }
+        health.write_config()
+        configuration = private / "action-execution.json"
+        configuration.write_bytes(
+            canonical_json_bytes(
+                {
+                    "schema": "literate-ai/private-action-execution@1",
+                    "source_cas_root": str(cas),
+                    "source_handoff": "filesystem-cas",
+                    "duration_seconds": 600,
+                    "maximum_hardware_age_seconds": 600,
+                    "health_configurations": {"cli-worker": str(health.config_file)},
+                    "result_sources": {"cli-worker": {"kind": "shared-cas"}},
+                }
+            )
+        )
+        self.environment |= {
+            "LITAI_ACTION_EXECUTION_CONFIG": str(configuration),
+            "LITAI_WORKER_CONFIG": str(catalog),
+            "LITAI_WORKER_OBSERVATIONS": str(observations),
+            "CLI_WORKER_IDENTITY": worker.identity.uri,
+        }
+        status, envelope = self.rebuild()
+        self.assertEqual(status, 0, envelope)
+        self.assertTrue(envelope["result"]["passed"], envelope)
+        invocations = log.read_text("utf-8").splitlines()
+        self.assertTrue(any("--describe" in line for line in invocations))
+        self.assertTrue(
+            any("--describe" not in line for line in invocations), invocations
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
