@@ -1,8 +1,9 @@
 """Private startup for the real portable FINALIZE child integration fixture.
 
 The authorized entrypoint uses test-issued file grants and measured runtime checks.
-The command receiver still uses synthetic permission callbacks. Commands, oracle
-and input proof verification use production adapters; deployment issuance is open.
+The command receiver composes production parent authority from a private startup
+directory holding the pinned child environment and the operator grant. Commands,
+oracle and input proof verification use production adapters.
 """
 
 import os
@@ -85,7 +86,11 @@ def run_authorized(grant_path, runtime_identity):
             oracle=ExactOutputOracle(),
             startup=WorkerToolchainRegistry(tools),
             grant_path=Path(grant_path),
-            runtime_identity=ContentIdentity.parse_uri(runtime_identity),
+            runtime_identity=(
+                ContentIdentity.parse_uri(runtime_identity)
+                if runtime_identity
+                else None
+            ),
             admission_guard=lambda: None,
         )
         active["runtime"] = configured
@@ -108,9 +113,18 @@ def run_authorized(grant_path, runtime_identity):
     )
 
 
-def receiver():
-    """Private fixture action receiver with real PACKAGE and FINALIZE adapters."""
+def receiver(private):
+    """Private fixture action receiver with real PACKAGE and FINALIZE adapters.
+
+    The private directory holds environment.json (the exact child environment)
+    and grant.json (the operator grant). Requests select neither.
+    """
+    import json
+
     from literate_ai.action_worker import main as receive
+    from literate_ai.adapters.action_finalize_parent import (
+        PortableFinalizeParentAuthority,
+    )
     from literate_ai.adapters.action_finalize_portable import (
         verify_portable_finalize_stages,
     )
@@ -118,13 +132,22 @@ def receiver():
     from literate_ai.adapters.action_package_worker import ConfiguredPackageWorker
     from literate_ai.adapters.builders.python import discover_python_toolchain
 
+    private = Path(private)
+    grant_path = private / "grant.json"
+    environment = json.loads((private / "environment.json").read_text("utf-8"))
     repository = Path(__file__).resolve().parents[2]
     startup = (
         f"import sys; sys.path[:0]=[{str(repository)!r},{str(repository / 'src')!r}]; "
-        "from tests.support.finalize_child_fixture import run; raise SystemExit(run())"
+        "from tests.support.finalize_child_fixture import run_authorized; "
+        f"raise SystemExit(run_authorized({str(grant_path)!r}, ''))"
     )
     runtime = discover_python_toolchain(pinned_command=(sys.executable,))
     profile = canonical_identity("finalize-command-fixture")
+    authority = PortableFinalizeParentAuthority(
+        grant_path=grant_path,
+        tool_bindings=(LocalComponentToolBinding(sys.executable),),
+        oracle=ExactOutputOracle(),
+    )
     finalizer = ConfiguredFinalizeWorker(
         LocalComponentToolBinding(
             sys.executable,
@@ -134,10 +157,11 @@ def receiver():
             ),
             _authority_guard=runtime.require_unchanged,
         ),
-        environment=dict(os.environ),
+        environment=environment,
         runtime_identity=profile,
         observe_runtime=lambda: profile,
-        require_execution_authority=lambda value: None,
+        require_execution_authority=authority.admit,
+        require_prepared_authority=authority.require,
         verify_package=partial(
             verify_deterministic_package, adapter_factory=DirectoryPackageAdapter
         ),

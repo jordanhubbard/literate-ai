@@ -1,5 +1,6 @@
 """Real accepted Components cross the command LINK boundary in dependency order."""
 
+import json
 import os
 import sys
 import tempfile
@@ -176,6 +177,13 @@ class CommandLinkDependencyTests(unittest.TestCase):
             controller_cas = FileSystemCAS(root / "return-cas")
             jobs = root / "jobs"
             jobs.mkdir()
+            # Private receiver startup: the operator pins the child environment
+            # and later places the FINALIZE grant here. Requests select neither.
+            private = root / "finalize-private"
+            private.mkdir()
+            (private / "environment.json").write_text(
+                json.dumps(dict(os.environ)), "utf-8"
+            )
             for reference in source_cas.iter_refs():
                 blobs[blob_path(reference)] = source_cas.get_bytes(reference)
             with source_cas_server(blobs) as (url, reads):
@@ -197,7 +205,7 @@ class CommandLinkDependencyTests(unittest.TestCase):
                         "import sys; sys.path.insert(0, "
                         f"{str(Path(__file__).resolve().parents[2])!r}); "
                         "from tests.support.finalize_child_fixture import receiver; "
-                        "raise SystemExit(receiver())",
+                        f"raise SystemExit(receiver({str(private)!r}))",
                         "--cas",
                         str(worker_cas.root),
                         "--workspace",

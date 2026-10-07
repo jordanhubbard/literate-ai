@@ -18,6 +18,24 @@ from literate_ai.contracts import canonical_identity
 from literate_ai.security import BuildAuthorization, SecurityProfile
 
 
+def issue_finalize_grant(value, request, *, revoked=False):
+    """Stand in for the operator: authorize exactly the planned FINALIZE request."""
+    now = datetime.now(UTC)
+    return BuildAuthorization(
+        "fixture-operator-finalize",
+        record_identity(value.to_bytes()).uri,
+        canonical_identity(request.to_dict()).uri,
+        value.component_lock.root_revision.uri,
+        "fixture",
+        "test-issued project grant",
+        SecurityProfile.CONSTRAINED,
+        request.requested_privileges,
+        now,
+        now + timedelta(minutes=5),
+        revoked=revoked,
+    )
+
+
 def assert_finalize_profile(case, value, ports):
     startup = WorkerToolchainRegistry(tuple(ports.tool_bindings.values()))
     observe = partial(

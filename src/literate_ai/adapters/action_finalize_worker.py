@@ -10,6 +10,7 @@ from literate_ai.adapters.action_build_result import _remove_owned_stage
 from literate_ai.adapters.action_dispatch_wire import ActionWireError, record_identity
 from literate_ai.adapters.action_finalize import admit_finalize_action
 from literate_ai.adapters.action_finalize_inputs import materialize_finalize_inputs
+from literate_ai.adapters.action_finalize_parent import portable_child_environment
 from literate_ai.adapters.action_finalize_process import run_finalize_worker_process
 from literate_ai.adapters.action_finalize_result import import_finalize_result
 from literate_ai.adapters.action_toolchains import WorkerToolchainRegistry
@@ -22,6 +23,10 @@ class ConfiguredFinalizeWorker:
 
     verify_stages receives prepared inputs followed by intent, evidence and records.
     The launcher must configure the child with the same private runtime/grant policy.
+    require_execution_authority checks the exact intent before inputs are staged.
+    The optional require_prepared_authority receives staged inputs, an owned
+    measurement directory and the exact child environment, and is checked on every
+    later poll; PortableFinalizeParentAuthority.require fits it.
     This adapter alone neither advertises capability nor selects a worker.
     """
 
@@ -35,7 +40,12 @@ class ConfiguredFinalizeWorker:
         require_execution_authority,
         verify_package,
         verify_stages,
+        require_prepared_authority=None,
     ):
+        if require_prepared_authority is not None and not callable(
+            require_prepared_authority
+        ):
+            raise TypeError("FINALIZE prepared authority must be callable")
         if not isinstance(runtime_identity, ContentIdentity) or not all(
             callable(item)
             for item in (
@@ -70,6 +80,7 @@ class ConfiguredFinalizeWorker:
         self.require_execution_authority = require_execution_authority
         self.verify_package = verify_package
         self.verify_stages = verify_stages
+        self.require_prepared_authority = require_prepared_authority
 
     @property
     def identity(self):
@@ -163,20 +174,31 @@ class ConfiguredFinalizeWorker:
             with materialize_finalize_inputs(
                 **args, workspace_root=preflight
             ) as prepared:
-                for identity, raw in proof.items():
+                child_environment = portable_child_environment(
+                    self.environment, self.launcher.environment
+                )
+
+                def staged():
                     current()
+                    if self.require_prepared_authority is not None:
+                        self.require_prepared_authority(
+                            prepared, job / "authority", child_environment
+                        )
+
+                for identity, raw in proof.items():
+                    staged()
                     if cas.put_bytes(raw).identity != identity.uri:
                         raise ActionWireError(
                             "action_finalize.record_invalid", "CAS custody differs"
                         )
-                current()
+                staged()
 
                 def authorize(intent):
                     if intent != value:
                         raise ActionWireError(
                             "action_finalize.authority_mismatch", "child intent differs"
                         )
-                    current()
+                    staged()
 
                 result = run_finalize_worker_process(
                     launcher=self.launcher,
@@ -190,7 +212,7 @@ class ConfiguredFinalizeWorker:
                     cas_root=cas.root,
                     workspace_root=child,
                 )
-                current()
+                staged()
                 import_finalize_result(
                     content=result,
                     result_identity=record_identity(result),

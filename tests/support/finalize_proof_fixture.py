@@ -4,6 +4,7 @@ import io
 import json
 import os
 import sys
+import tempfile
 from contextlib import contextmanager
 from dataclasses import replace
 from functools import partial
@@ -596,13 +597,81 @@ def assert_finalize_proof(
         ),
         result_source=linker.result_source,
     )
-    reservation = controller.try_reserve_finalize(
-        value.component_lock, value.project_plan, graph, plan, result
+    from literate_ai.adapters.action_finalize_parent import (
+        PortableFinalizeParentAuthority,
+        portable_child_environment,
     )
-    case.assertIsNotNone(reservation)
-    case.assertEqual(reservation.run(), finalized)
-    case.assertGreater(configuration_guard.call_count, 2)
+    from tests.support.finalize_profile_fixture import issue_finalize_grant
+
+    private = parent / "finalize-private"
+    grant_file = private / "grant.json"
+
+    def run_controller():
+        reservation = controller.try_reserve_finalize(
+            value.component_lock, value.project_plan, graph, plan, result
+        )
+        case.assertIsNotNone(reservation)
+        try:
+            return reservation.run()
+        finally:
+            case.assertEqual(list(workspace.iterdir()), [])
+
+    # The receiver refuses before staging any input when no grant exists.
+    with case.assertRaises(ActionWireError) as refused:
+        run_controller()
+    case.assertEqual(refused.exception.code, "action_finalize.grant_unavailable")
+    # The operator plans the exact request the receiver parent will measure.
+    planner = PortableFinalizeParentAuthority(
+        grant_path=grant_file,
+        tool_bindings=(LocalComponentToolBinding(sys.executable),),
+        oracle=ExactOutputOracle(),
+    )
+    child_environment = portable_child_environment(
+        json.loads((private / "environment.json").read_text("utf-8"))
+    )
+    with (
+        materialize_finalize_inputs(**args, workspace_root=workspace) as staged,
+        tempfile.TemporaryDirectory() as measured,
+    ):
+        request_to_grant = planner.grant_request(
+            staged, Path(measured).resolve(), child_environment
+        )
     case.assertEqual(list(workspace.iterdir()), [])
+    # A grant naming another runtime passes scope admission, but the receiver
+    # parent's own measurement refuses it. A child refusal would surface as a
+    # process failure, so this code proves the parent guard decided.
+    with (
+        materialize_finalize_inputs(**args, workspace_root=workspace) as staged,
+        tempfile.TemporaryDirectory() as measured,
+    ):
+        other_runtime = planner.grant_request(
+            staged,
+            Path(measured).resolve(),
+            dict(child_environment, LITAI_FIXTURE_PROFILE="other"),
+        )
+    case.assertNotEqual(other_runtime, request_to_grant)
+    grant_file.write_bytes(
+        canonical_json_bytes(issue_finalize_grant(value, other_runtime).to_dict())
+    )
+    with case.assertRaises(ActionWireError) as refused:
+        run_controller()
+    case.assertEqual(refused.exception.code, "action_finalize.authority_invalid")
+    grant_file.write_bytes(
+        canonical_json_bytes(issue_finalize_grant(value, request_to_grant).to_dict())
+    )
+    case.assertEqual(run_controller(), finalized)
+    case.assertGreater(configuration_guard.call_count, 2)
+    # Atomic revocation stops the next dispatch at the receiver.
+    revoked_grant = private / "grant.next"
+    revoked_grant.write_bytes(
+        canonical_json_bytes(
+            issue_finalize_grant(value, request_to_grant, revoked=True).to_dict()
+        )
+    )
+    os.replace(revoked_grant, grant_file)
+    with case.assertRaises(ActionWireError) as refused:
+        run_controller()
+    case.assertEqual(refused.exception.code, "action_finalize.authority_invalid")
     released = linker.indexer.slots.try_reserve(lambda worker, slot: None)
     case.assertIsNotNone(released)
     released.release()

@@ -43,6 +43,8 @@ class PortableFinalizeRuntimeFactory:
     runs. They are removed from the actual project-command environment while the
     runtime is active, then restored. Parallel in-process runtime use is refused.
     The deployment must protect grant storage from generated host code.
+    runtime_identity may be None when startup cannot know the per-project runtime;
+    the grant must then name the runtime this child actually measures.
     """
 
     def __init__(
@@ -59,7 +61,10 @@ class PortableFinalizeRuntimeFactory:
     ):
         if (
             not isinstance(startup, WorkerToolchainRegistry)
-            or not isinstance(runtime_identity, ContentIdentity)
+            or not (
+                runtime_identity is None
+                or isinstance(runtime_identity, ContentIdentity)
+            )
             or not callable(admission_guard)
         ):
             raise TypeError("FINALIZE requires measured private startup and admission")
@@ -126,16 +131,18 @@ class PortableFinalizeRuntimeFactory:
                 tool_bindings=self.tool_bindings,
                 independent_acceptance_oracle=self.oracle,
             )
+            observe = partial(
+                portable_finalize_runtime_identity,
+                prepared.intent,
+                ports,
+                startup=self.startup,
+                environment=os.environ,
+            )
+            # Without a startup pin, the operator grant alone names the runtime.
             authority = FileFinalizeExecutionAuthority(
                 grant_path=self.grant_path,
-                runtime_identity=self.runtime_identity,
-                observe_runtime=partial(
-                    portable_finalize_runtime_identity,
-                    prepared.intent,
-                    ports,
-                    startup=self.startup,
-                    environment=os.environ,
-                ),
+                runtime_identity=self.runtime_identity or observe(),
+                observe_runtime=observe,
             )
             authority(prepared.intent)
             self._active = (prepared, authority)
