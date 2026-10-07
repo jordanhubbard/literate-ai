@@ -26210,3 +26210,17 @@ load) make a one-Component remote rebuild take about seven minutes; record for
 QUALIFICATION-ECONOMY-001. Still open: real separate-host qualification, mixed
 local/remote phases with a remote closure, multi-Component plans, an operator
 `litai` surface, shared LAN caches and release gates.
+
+Probe cost, 2026-10-07: the one-Component remote rebuild drops from about 421 s
+to 174 s. The remote toolchain closure's discovery reads use the cheap admission
+check (full capability probes 56 to 33; selector and dependency observations
+still probe the worker directly). Receivers import jsonschema only to validate,
+and macOS Mach-O closure levels are inspected concurrently with identical
+results (cold observation about 10 s to 5 s). Maintainer decision: receiver tool
+custody follows the action-boundary rule. `ReceiverTools` fully measures Python,
+Make and the receiver interpreter at process start, after any metadata change,
+and before a receiver emits a response, which it withholds if a tool changed
+(`tests/critical/test_standard_receiver_custody.py`); reads in between compare
+executable metadata only. A describe falls from about 3.1 s to 1.5 s (84 tool
+subprocesses to 19). Remaining cost: the dispatcher's two full probes per action
+and four cold dependency observations.

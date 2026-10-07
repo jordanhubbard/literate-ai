@@ -8,6 +8,8 @@ not choose. Provider edges, native SDKs and multi-Component plans are refused.
 """
 
 import json
+import os
+import sys
 import tempfile
 from contextlib import contextmanager
 from pathlib import Path
@@ -39,10 +41,28 @@ from literate_ai.contracts import (
 _SOURCE_ENTRYPOINT = "source/main.py"
 
 
-class ReceiverTools:
-    """The worker's private Python and Make, observed once at startup."""
+def _file_metadata(path, *, follow):
+    status = os.stat(path, follow_symlinks=follow)
+    return (
+        status.st_dev,
+        status.st_ino,
+        status.st_mode,
+        status.st_size,
+        status.st_mtime_ns,
+        status.st_ctime_ns,
+    )
 
-    def __init__(self, config):
+
+class ReceiverTools:
+    """The worker's private Python and Make, fully measured at each boundary.
+
+    Discovery at process startup is a full measurement, and `measure()` repeats
+    it before a receiver returns any result. Reads in between (binding and
+    authority guards) compare executable metadata only; any difference forces
+    a full re-measurement, which refuses a tool whose observation changed.
+    """
+
+    def __init__(self, config, *, launcher=False):
         environment = dict(config.child_environment)
         self.python = discover_python_toolchain(
             environment, pinned_command=config.tools["python"]
@@ -50,18 +70,76 @@ class ReceiverTools:
         self.make = discover_make_toolchain(
             environment, pinned_command=config.tools["make"]
         )
-        self.python_binding = LocalComponentToolBinding.from_observed_toolchain(
-            self.python
+        # Phase children run on this receiver's own interpreter.
+        self.launcher = (
+            discover_python_toolchain(pinned_command=(sys.executable,))
+            if launcher
+            else None
         )
-        self.make_binding = LocalComponentToolBinding.from_observed_toolchain(self.make)
+        self._toolchains = tuple(
+            tool for tool in (self.python, self.make, self.launcher) if tool
+        )
+        self._metadata = self._current_metadata()
+        self.python_binding = LocalComponentToolBinding.from_observed_toolchain(
+            self.python, guard=self.check
+        )
+        self.make_binding = LocalComponentToolBinding.from_observed_toolchain(
+            self.make, guard=self.check
+        )
 
     @property
     def bindings(self):
         return (self.python_binding, self.make_binding)
 
-    def require_unchanged(self):
-        for tool in (self.python, self.make):
+    def authorities(self):
+        return tuple(
+            LocalObservedToolchainAuthority.from_observed_toolchain(
+                tool, guard=self.check
+            )
+            for tool in (self.python, self.make)
+        )
+
+    def _current_metadata(self):
+        paths = []
+        for tool in self._toolchains:
+            paths += [tool.command[0], tool.launcher_executable]
+            paths.append(getattr(tool, "runtime_executable", None))
+        # The resolved path covers every link in the chain; lstat covers the
+        # named link itself and stat the executable bytes it selects.
+        return tuple(
+            (
+                path,
+                os.path.realpath(path, strict=True),
+                _file_metadata(path, follow=False),
+                _file_metadata(path, follow=True),
+            )
+            for path in paths
+            if path is not None
+        )
+
+    def check(self):
+        """Cheap per-read guard between full boundary measurements."""
+        try:
+            current = self._current_metadata()
+        except OSError:
+            current = None
+        if current != self._metadata:
+            self.measure()
+
+    def measure(self):
+        """Full boundary measurement: launcher bytes and live tool probes."""
+        before = self._current_metadata()
+        for tool in self._toolchains:
             tool.require_unchanged()
+        if self._current_metadata() != before:
+            raise ActionWireError(
+                "standard_receiver.tools_changed",
+                "receiver tools changed during measurement",
+            )
+        self._metadata = before
+
+    def require_unchanged(self):
+        self.measure()
 
 
 def _refuse(reason):
@@ -187,10 +265,7 @@ def portable_runtime_factory(tools, phase):
                     "adapter": "standard-receiver@1",
                 }
             ),
-            toolchain_authorities=tuple(
-                LocalObservedToolchainAuthority.from_observed_toolchain(tool)
-                for tool in (tools.python, tools.make)
-            ),
+            toolchain_authorities=tools.authorities(),
             command_phases=(phase,),
         )
         composition = assemble_standard_lifecycle_ports(

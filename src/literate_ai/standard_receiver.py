@@ -13,6 +13,7 @@ operator still owns provisioning, placement and grants (ADR 0044).
 """
 
 import argparse
+import io
 import sys
 
 from literate_ai.contracts import ComponentCommandPhase, canonical_identity
@@ -20,13 +21,13 @@ from literate_ai.contracts import ComponentCommandPhase, canonical_identity
 _CHILD_PHASES = ("BUILD", "TEST", "EXECUTE", "ACCEPT", "FINALIZE")
 
 
-def _launcher(config, phase, code_identity, runtime):
+def _launcher(config, phase, code_identity, tools):
     from literate_ai.adapters.lifecycle.standard_local import (
         LocalComponentToolBinding,
     )
 
     def guard():
-        runtime.require_unchanged()
+        tools.check()
         config.require_unchanged()
 
     return LocalComponentToolBinding(
@@ -46,7 +47,7 @@ def _launcher(config, phase, code_identity, runtime):
         authority_identity=canonical_identity(
             {
                 "schema": "literate-ai/standard-receiver-child@1",
-                "runtime": runtime.identity,
+                "runtime": tools.launcher.identity,
                 "code": code_identity.uri,
                 "config": config.identity.uri,
                 "phase": phase,
@@ -63,18 +64,16 @@ def _workers(config):
     from literate_ai.adapters.action_execute_worker import ConfiguredExecuteWorker
     from literate_ai.adapters.action_package_worker import ConfiguredPackageWorker
     from literate_ai.adapters.action_test_worker import ConfiguredTestWorker
-    from literate_ai.adapters.builders.python import discover_python_toolchain
     from literate_ai.adapters.packaging import DirectoryPackageAdapter
     from literate_ai.adapters.standard_receiver_runtime import ReceiverTools
 
     workers = {}
+    tools = None
     environment = dict(config.child_environment)
     command_phases = {"BUILD", "TEST", "EXECUTE", "ACCEPT", "FINALIZE"} & config.phases
     if command_phases:
         code = receiver_code_identity()
-        tools = ReceiverTools(config)
-        # Every phase child runs this receiver's own interpreter, observed once.
-        runtime = discover_python_toolchain(pinned_command=(sys.executable,))
+        tools = ReceiverTools(config, launcher=True)
         for phase, keyword, worker_type in (
             ("BUILD", "build_worker", ConfiguredBuildWorker),
             ("TEST", "test_worker", ConfiguredTestWorker),
@@ -82,7 +81,7 @@ def _workers(config):
         ):
             if phase in command_phases:
                 workers[keyword] = worker_type(
-                    _launcher(config, phase, code, runtime),
+                    _launcher(config, phase, code, tools),
                     tools.bindings,
                     environment=environment,
                     # BUILD advertises the exact tools so a controller on another
@@ -95,7 +94,7 @@ def _workers(config):
                 )
         if "ACCEPT" in command_phases:
             workers["accept_worker"] = ConfiguredAcceptWorker(
-                _launcher(config, "ACCEPT", code, runtime), environment=environment
+                _launcher(config, "ACCEPT", code, tools), environment=environment
             )
         if "FINALIZE" in command_phases:
             from literate_ai.adapters.standard_receiver_finalize import (
@@ -103,7 +102,7 @@ def _workers(config):
             )
 
             workers["finalize_worker"] = configured_finalize_worker(
-                config, _launcher(config, "FINALIZE", code, runtime), code, tools
+                config, _launcher(config, "FINALIZE", code, tools), code, tools
             )
     if "PACKAGE" in config.phases:
         workers["package_worker"] = ConfiguredPackageWorker(
@@ -111,7 +110,7 @@ def _workers(config):
             DirectoryPackageAdapter,
             config.require_unchanged,
         )
-    return workers
+    return workers, tools
 
 
 def _receive(config, passthrough):
@@ -124,7 +123,27 @@ def _receive(config, passthrough):
             argv += ["--source-token-env", config.source_token_env]
         if config.allow_http:
             argv.append("--allow-http")
-    return receive([*argv, *passthrough], **_workers(config))
+    workers, tools = _workers(config)
+    # Hold the response until one full measurement shows the receiver's tools
+    # and config are still what every cheaper read in this process assumed.
+    real_stdout = sys.stdout
+    sys.stdout = io.TextIOWrapper(io.BytesIO(), encoding="utf-8")
+    try:
+        status = receive([*argv, *passthrough], **workers)
+        sys.stdout.flush()
+        response = sys.stdout.buffer.getvalue()
+    finally:
+        sys.stdout = real_stdout
+    if status == 0:
+        try:
+            if tools is not None:
+                tools.measure()
+            config.require_unchanged()
+        except Exception:
+            print("standard receiver tools changed during the action", file=sys.stderr)
+            return 2
+    sys.stdout.buffer.write(response)
+    return status
 
 
 def _child(config, phase):
@@ -192,7 +211,7 @@ def main(argv=None):
     if args.print_profiles:
         import json
 
-        workers = _workers(config)
+        workers, _tools = _workers(config)
         finalize = workers.get("finalize_worker")
         print(
             json.dumps(
