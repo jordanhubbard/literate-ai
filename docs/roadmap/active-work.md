@@ -26153,3 +26153,20 @@ issued 89 capability probes for 5 dispatches because admission re-probes on ever
 revalidation; record for QUALIFICATION-ECONOMY-001. Remaining: phases beyond the
 controller-side actions need a private receiver startup that composes configured
 BUILD/TEST/EXECUTE/ACCEPT/PACKAGE/FINALIZE workers for real projects.
+
+Reference receiver, 2026-10-07: `python -I -m literate_ai.standard_receiver
+--config PRIVATE.json` composes configured BUILD/TEST/EXECUTE/ACCEPT/PACKAGE
+workers from one bounded `literate-ai/standard-receiver@1` operator config whose
+byte identity binds every measured child launcher. Contracts come from the
+admitted request but must pass the `portable-starter@1` policy: exactly the
+packaged Make/Python argv for this worker's own private tools, single-Component
+plans only, no providers, entrypoint variants, libraries or native layouts.
+Through `litai rebuild` with the controller's local phases disabled, BUILD, TEST,
+EXECUTE and ACCEPT all completed on the worker. The run then failed at the LINK
+handoff with `security.authorization_expired`: admission revalidation (storage
+health plus a full capability-probe subprocess, about two seconds) runs inside
+guard callbacks on every record and blob read, roughly 18 probes per action and
+about 160 here, so a one-Component rebuild took about 7.5 minutes and outlived
+its 5-minute execution grants. The CLI case is skipped with that reason. This
+needs a reviewed revalidation-economy design under QUALIFICATION-ECONOMY-001
+before the remaining FINALIZE steps can be qualified end to end.

@@ -140,8 +140,13 @@ class ModelFreeRebuildTests(unittest.TestCase):
         self.assertTrue(result["passed"], result)
         self.assertTrue(result["receipt_committed"], result)
 
-    def test_rebuild_routes_lifecycle_actions_through_an_admitted_worker(self):
-        """The CLI admits a private command worker and dispatches actions to it."""
+    def admit_worker(self, command):
+        """Register one private command worker the CLI must admit and use.
+
+        `command(cas, workspace)` returns the worker argv. The operator-owned
+        state written here (catalog, hardware observation, storage health and
+        action-execution configuration) is what a deployment provisions.
+        """
         from datetime import UTC, datetime
 
         from literate_ai import worker_storage_probe
@@ -166,26 +171,10 @@ class ModelFreeRebuildTests(unittest.TestCase):
         workspace = private / "worker-jobs"
         workspace.mkdir(parents=True)
         FileSystemCAS(cas)  # the operator initializes the shared CAS layout
-        log = private / "receiver.log"
-        receiver = (
-            "import runpy,sys;"
-            f"open({str(log)!r},'a').write(' '.join(sys.argv[1:])+'\\n');"
-            "sys.argv[0]='action_worker';"
-            "runpy.run_module('literate_ai.action_worker',run_name='__main__')"
-        )
         worker = ExecutionWorker(
             "cli-worker",
             ExecutionWorkerKind.COMMAND,
-            command=(
-                sys.executable,
-                "-I",
-                "-c",
-                receiver,
-                "--cas",
-                str(cas),
-                "--workspace",
-                str(workspace),
-            ),
+            command=command(cas, workspace),
             environment=(
                 ExecutionWorkerEnvironment(
                     "LITAI_ACTION_WORKER_IDENTITY", "CLI_WORKER_IDENTITY", True
@@ -250,6 +239,29 @@ class ModelFreeRebuildTests(unittest.TestCase):
             "LITAI_WORKER_OBSERVATIONS": str(observations),
             "CLI_WORKER_IDENTITY": worker.identity.uri,
         }
+        return private
+
+    def test_rebuild_routes_lifecycle_actions_through_an_admitted_worker(self):
+        """The CLI admits a private command worker and dispatches actions to it."""
+        log = self.root / "receiver.log"
+        receiver = (
+            "import runpy,sys;"
+            f"open({str(log)!r},'a').write(' '.join(sys.argv[1:])+'\\n');"
+            "sys.argv[0]='action_worker';"
+            "runpy.run_module('literate_ai.action_worker',run_name='__main__')"
+        )
+        self.admit_worker(
+            lambda cas, workspace: (
+                sys.executable,
+                "-I",
+                "-c",
+                receiver,
+                "--cas",
+                str(cas),
+                "--workspace",
+                str(workspace),
+            )
+        )
         status, envelope = self.rebuild()
         self.assertEqual(status, 0, envelope)
         self.assertTrue(envelope["result"]["passed"], envelope)
@@ -258,6 +270,72 @@ class ModelFreeRebuildTests(unittest.TestCase):
         self.assertTrue(
             any("--describe" not in line for line in invocations), invocations
         )
+
+    @unittest.skip(
+        "admission re-probes the worker on every guarded read, so this rebuild "
+        "outlives its 5-minute execution grants; see QUALIFICATION-ECONOMY-001"
+    )
+    def test_reference_receiver_runs_component_phases_on_the_worker(self):
+        """BUILD, TEST, EXECUTE and ACCEPT run in the reference receiver only."""
+        from literate_ai.adapters.builders.make import discover_make_toolchain
+        from literate_ai.adapters.builders.python import discover_python_toolchain
+        from literate_ai.adapters.lifecycle.standard_local import (
+            LocalStandardLifecyclePorts,
+        )
+
+        environment = {**os.environ, **self.environment}
+        receiver_config = self.root / "receiver" / "standard-receiver.json"
+        receiver_config.parent.mkdir()
+
+        def command(cas, workspace):
+            receiver_config.write_text(
+                json.dumps(
+                    {
+                        "schema": "literate-ai/standard-receiver@1",
+                        "cas": str(cas),
+                        "workspace": str(workspace),
+                        "phases": ["BUILD", "TEST", "EXECUTE", "ACCEPT"],
+                        "tools": {
+                            # The operator pins the same tools the controller
+                            # observes, so locked toolchain identities match.
+                            "python": list(
+                                discover_python_toolchain(environment).command
+                            ),
+                            "make": list(discover_make_toolchain(environment).command),
+                        },
+                        "child_environment": environment,
+                        "contract_policy": "portable-starter@1",
+                    }
+                ),
+                "utf-8",
+            )
+            return (
+                sys.executable,
+                "-I",
+                "-m",
+                "literate_ai.standard_receiver",
+                "--config",
+                str(receiver_config),
+            )
+
+        self.admit_worker(command)
+
+        def local(phase):
+            def refuse(*_args, **_kwargs):
+                raise AssertionError(f"controller ran {phase} locally")
+
+            return refuse
+
+        with (
+            patch.object(LocalStandardLifecyclePorts, "build", local("BUILD")),
+            patch.object(LocalStandardLifecyclePorts, "test", local("TEST")),
+            patch.object(LocalStandardLifecyclePorts, "execute", local("EXECUTE")),
+            patch.object(LocalStandardLifecyclePorts, "accept", local("ACCEPT")),
+        ):
+            status, envelope = self.rebuild()
+        self.assertEqual(status, 0, envelope)
+        self.assertTrue(envelope["result"]["passed"], envelope)
+        self.assertTrue(envelope["result"]["receipt_committed"], envelope)
 
 
 if __name__ == "__main__":
