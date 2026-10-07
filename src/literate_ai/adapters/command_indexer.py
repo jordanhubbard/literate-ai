@@ -83,6 +83,7 @@ class CommandGenerationIndexer:
             admission.deadline,
             cwd=admission.cwd,
             revalidate_worker=admission.revalidate,
+            require_worker_current=admission.require_current,
             environment=admission.environment,
         )
 
@@ -99,6 +100,7 @@ class CommandGenerationIndexer:
         cwd: Path,
         revalidate_worker: Callable[[LifecycleActionWorker], None],
         environment: Mapping[str, str] | None = None,
+        require_worker_current: Callable[[LifecycleActionWorker], None] | None = None,
     ) -> None:
         if not isinstance(cas, FileSystemCAS) or not callable(source_candidate):
             raise TypeError(
@@ -113,6 +115,8 @@ class CommandGenerationIndexer:
         self.deadline = deadline
         self.cwd = cwd
         self.revalidate_worker = revalidate_worker
+        # Per-read guards use the cheap check; dispatch boundaries revalidate fully.
+        self.require_worker_current = require_worker_current or revalidate_worker
         self.environment = dict(os.environ if environment is None else environment)
         # Reuse the transport's exact admission checks before creating any work.
         self._dispatcher({}, {})

@@ -167,7 +167,7 @@ class CommandSourceGenerator:
 
         def current():
             self.indexer.deadline.remaining()
-            self.indexer.revalidate_worker(worker)
+            self.indexer.require_worker_current(worker)
             if self.planned_cache_key(prepared) != cache_key:
                 raise ActionWireError(
                     "action_generate.cache_key_changed",

@@ -188,7 +188,7 @@ class CommandComponentLinker:
 
         def current():
             self.indexer.deadline.remaining()
-            self.indexer.revalidate_worker(worker)
+            self.indexer.require_worker_current(worker)
             if not self.admission.supports_phase(worker, LifecycleActionKind.LINK):
                 raise ActionWireError(
                     "action_link.authority_changed", "LINK authority changed"

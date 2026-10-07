@@ -38,6 +38,7 @@ class CommandPackagerTests(unittest.TestCase):
             deadline=f.fixture.deadline,
             slots=CommandActionSlots((self.worker,), f.fixture.deadline),
             revalidate_worker=Mock(),
+            require_worker_current=Mock(),
             catalog=SimpleNamespace(worker=lambda name: name),
             cas=object(),
             remember_action_result=Mock(),

@@ -26167,6 +26167,13 @@ handoff with `security.authorization_expired`: admission revalidation (storage
 health plus a full capability-probe subprocess, about two seconds) runs inside
 guard callbacks on every record and blob read, roughly 18 probes per action and
 about 160 here, so a one-Component rebuild took about 7.5 minutes and outlived
-its 5-minute execution grants. The CLI case is skipped with that reason. This
-needs a reviewed revalidation-economy design under QUALIFICATION-ECONOMY-001
-before the remaining FINALIZE steps can be qualified end to end.
+its 5-minute execution grants. Maintainer decision: run the full storage-health
+and capability probe once per action boundary (before dispatch and before any
+result is admitted, both already in the command dispatcher); per-read guards
+keep the cheap deadline, route, private catalog and hardware-observation checks
+through `CommandActionWorkerPool.require_current`. A worker change during an
+action is still refused before its result is admitted. The reference-receiver
+CLI rebuild now passes in about 160 seconds with every local Component phase
+disabled, and the admission/controller regression (93 cases) passes after two
+controller-test stubs gained the new indexer attribute. FINALIZE in the
+reference receiver and the operator grant flow are next.

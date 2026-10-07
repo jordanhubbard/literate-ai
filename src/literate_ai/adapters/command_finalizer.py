@@ -104,7 +104,7 @@ class CommandProjectFinalizer:
 
         def current():
             self.indexer.deadline.remaining()
-            self.indexer.revalidate_worker(worker)
+            self.indexer.require_worker_current(worker)
             if not self.admission.supports_finalize(worker, self.profile_identity):
                 raise ActionWireError(
                     "action_finalize.authority_changed",

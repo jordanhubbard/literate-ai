@@ -271,10 +271,6 @@ class ModelFreeRebuildTests(unittest.TestCase):
             any("--describe" not in line for line in invocations), invocations
         )
 
-    @unittest.skip(
-        "admission re-probes the worker on every guarded read, so this rebuild "
-        "outlives its 5-minute execution grants; see QUALIFICATION-ECONOMY-001"
-    )
     def test_reference_receiver_runs_component_phases_on_the_worker(self):
         """BUILD, TEST, EXECUTE and ACCEPT run in the reference receiver only."""
         from literate_ai.adapters.builders.make import discover_make_toolchain

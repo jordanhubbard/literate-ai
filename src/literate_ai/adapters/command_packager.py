@@ -96,7 +96,7 @@ class CommandProjectPackager:
 
         def current():
             self.indexer.deadline.remaining()
-            self.indexer.revalidate_worker(worker)
+            self.indexer.require_worker_current(worker)
             if not self.admission.supports_package(worker, plan.packager_identity):
                 raise ActionWireError(
                     "action_package.authority_changed", "PACKAGE worker profile changed"

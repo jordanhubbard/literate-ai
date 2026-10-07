@@ -258,7 +258,13 @@ class CommandActionWorkerPool:
             toolchains
         ).issubset(self._facts[worker.worker_id].execute_toolchains)
 
-    def revalidate(self, worker: LifecycleActionWorker) -> None:
+    def require_current(self, worker: LifecycleActionWorker) -> None:
+        """Cheap per-read admission: deadline, route, catalog and hardware.
+
+        Guards that run on every record or blob read use this. The full
+        storage-health and capability probe in revalidate() runs at each action
+        boundary, before dispatch and before any result is admitted.
+        """
         self.deadline.remaining()
         if (
             worker not in self.workers
@@ -282,6 +288,10 @@ class CommandActionWorkerPool:
                 "hardware observation is no longer the admitted observation",
             )
         self.hardware_observations = hardware
+        self.deadline.remaining()
+
+    def revalidate(self, worker: LifecycleActionWorker) -> None:
+        self.require_current(worker)
         selected = self.catalog.worker(worker.worker_id)
         self._health(selected)
         if (
