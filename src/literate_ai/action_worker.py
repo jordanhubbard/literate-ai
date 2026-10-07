@@ -82,6 +82,8 @@ def main(
     observations.add_argument("--describe-tools", action="store_true")
     observations.add_argument("--describe-tool-dependencies", action="store_true")
     observations.add_argument("--verify-tool-selectors", action="store_true")
+    # Read-only: stage a FINALIZE request and report the grant it needs.
+    observations.add_argument("--describe-finalize-grant", action="store_true")
     parser.add_argument("--request-file", type=Path)
     args = parser.parse_args(argv)
     describing = (
@@ -259,6 +261,13 @@ def main(
             )
             sys.stdout.buffer.write(response)
             return 0
+        if (
+            args.describe_finalize_grant
+            and request.action.kind is not LifecycleActionKind.FINALIZE
+        ):
+            raise ActionWireError(
+                "action_transport.mode_invalid", "grant description is FINALIZE only"
+            )
         if request.action.kind is LifecycleActionKind.BUILD:
             if build_worker is None:
                 raise ActionWireError(
@@ -372,7 +381,11 @@ def main(
                         "action_finalize.worker_mismatch", "receiver binding changed"
                     )
 
-            result = finalize_worker.execute(
+            result = (
+                finalize_worker.describe_grant
+                if args.describe_finalize_grant
+                else finalize_worker.execute
+            )(
                 request,
                 deadline,
                 records,

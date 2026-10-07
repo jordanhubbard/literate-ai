@@ -637,6 +637,15 @@ def assert_finalize_proof(
             staged, Path(measured).resolve(), child_environment
         )
     case.assertEqual(list(workspace.iterdir()), [])
+    # The operator obtains the same request from the receiver itself through a
+    # describe-only dispatch that stages and measures but executes nothing.
+    case.assertEqual(
+        controller.describe_grant(
+            value.component_lock, value.project_plan, graph, plan, result
+        ),
+        request_to_grant,
+    )
+    case.assertFalse(grant_file.exists())
     # A grant naming another runtime passes scope admission, but the receiver
     # parent's own measurement refuses it. A child refusal would surface as a
     # process failure, so this code proves the parent guard decided.

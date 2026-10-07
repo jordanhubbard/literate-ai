@@ -1713,3 +1713,17 @@ a grant for another runtime, and an atomically revoked grant are each refused by
 the receiver parent, and the exactly planned grant succeeds. Grant issuance
 remains an operator action; computing the exact request needs both the
 controller's records and the worker's private runtime.
+
+CommandProjectFinalizer.describe_grant obtains that request without executing.
+It builds the same dispatch request as execution and sends it with the
+read-only `--describe-finalize-grant` receiver mode. ConfiguredFinalizeWorker
+admits the request and checks live admission and profile, but no grant, since
+none exists yet. It stages the inputs, measures the runtime through
+plan_prepared_grant, removes everything it staged, and returns a bounded
+`literate-ai/finalize-grant-request@1` record as the action result. The
+dispatcher returns that record without recording it as a FINALIZE result. The
+controller accepts it only when the request reconstructs exactly from the planned
+intent with the reported runtime identity, so a receiver cannot obtain a grant for
+another input, revision, privilege set or builder. Whether the measured runtime
+is acceptable remains the operator's judgement. A `litai` command surface awaits
+full CLI rebuild scheduling.

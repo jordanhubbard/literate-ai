@@ -5,6 +5,9 @@ from functools import partial
 
 from literate_ai.adapters.action_dispatch_wire import ActionWireError, record_identity
 from literate_ai.adapters.action_finalize import admit_finalize_action
+from literate_ai.adapters.action_finalize_grant_request import (
+    decode_finalize_grant_request,
+)
 from literate_ai.adapters.action_finalize_record import FinalizeWorkerInput
 from literate_ai.adapters.action_finalize_result import import_finalize_result
 from literate_ai.adapters.action_package_execution import PackageWorkerResult
@@ -94,7 +97,8 @@ class CommandProjectFinalizer:
         ):
             return self._execute(lock, project, graph, plan, package, worker, slot)
 
-    def _execute(self, lock, project, graph, plan, package, worker, slot):
+    def _request(self, lock, project, graph, plan, package, worker, slot):
+        """Build the exact FINALIZE dispatch shared by execution and description."""
         value, proof = self._handoff(lock, project, graph, plan, package)
         proof = dict(proof)
 
@@ -158,6 +162,39 @@ class CommandProjectFinalizer:
             self.indexer.deadline,
             records,
             expected_worker_identity=worker.worker_identity,
+        )
+        return value, proof, raw, input_id, request, records, current, current_handoff
+
+    def describe_grant(self, lock, project, graph, plan, package):
+        """Ask the selected receiver for the exact grant request; execute nothing.
+
+        The receiver stages and measures the planned inputs. The returned request
+        is accepted only when it reconstructs from this planned intent; whether
+        its private runtime is acceptable is the operator's decision.
+        """
+        self._handoff(lock, project, graph, plan, package)
+        with self.indexer.slots.acquire(eligible_worker_ids=self._eligible()) as (
+            worker,
+            slot,
+        ):
+            value, _, _, _, request, records, _, current_handoff = self._request(
+                lock, project, graph, plan, package, worker, slot
+            )
+            described = self.indexer._dispatcher(records, {}).describe(
+                request, mode="--describe-finalize-grant"
+            )
+            if not isinstance(described, bytes):
+                raise ActionWireError(
+                    described.failure_code or "action_finalize.grant_request_invalid",
+                    "worker FINALIZE grant description failed",
+                )
+            planned = decode_finalize_grant_request(described, value)
+            current_handoff()
+            return planned
+
+    def _execute(self, lock, project, graph, plan, package, worker, slot):
+        value, proof, raw, input_id, request, records, current, current_handoff = (
+            self._request(lock, project, graph, plan, package, worker, slot)
         )
         returned = {}
         outcome = self.indexer._dispatcher(records, returned).dispatch(request)

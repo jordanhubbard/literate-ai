@@ -26050,7 +26050,7 @@ ZIP provider CI follow-up: review the seven changed lifecycle-driver inputs (ZIP
   report `project.peer_work_tracker_unavailable` because `gh` is absent. No
   branches, worktrees or external reviews are collected or merged.
 
-### [ ] WINDOWS-INTEGRATION-001 — Integrate Windows fixes with manual migration documentation
+### [x] WINDOWS-INTEGRATION-001 — Integrate Windows fixes with manual migration documentation
 
 - **Priority:** P1
 - **Owner:** framework documentation integration and reviewed authority
@@ -26061,7 +26061,7 @@ ZIP provider CI follow-up: review the seven changed lifecycle-driver inputs (ZIP
   - [x] Resolve changelog and documentation marker conflicts while preserving both contributions.
 - **Evidence:**
   - [x] Focused Windows regressions, authority validation and review pins pass locally.
-  - [ ] The integrated pull request passes required CI before landing.
+  - [x] The integrated pull request passes required CI before landing.
 - **Integration evidence:** Merge `origin/main` at `7d897be` without rewriting
   history. Preserve the manual 1.0.x reinstall guidance and succession ADR,
   together with the Windows diagnostic and POSIX fixture changelog entries.
@@ -26070,9 +26070,12 @@ ZIP provider CI follow-up: review the seven changed lifecycle-driver inputs (ZIP
   POSIX-only case explicitly skipped; Ruff checks and formatting pass.
   Project validation and the supported documentation review pass; lifecycle
   driver and test-runner review pins remain current.
-- **Next action:** Push the integration commit, verify its required CI, and land
-  through the authorized writer using merge semantics. Integration CI remains
-  pending until evidence is observed.
+- **Landing evidence:** PR #35 merged to main. The first main push run
+  [37365769181](https://github.com/jordanhubbard/literate-ai/actions/runs/37365769181)
+  reported failure only because hosted runners were never acquired for `profile`
+  and four macOS jobs during a capacity shortage; no test ran or failed. Rerunning
+  the failed jobs completed all 20 jobs successfully at merge commit `44b690ae`.
+- **Next action:** Complete.
 
 ### Full 1.2 restart checkpoint — 2026-10-04
 
@@ -26120,3 +26123,17 @@ Complete combined-tree run, 2026-10-05, at `32b6cb9f` on macOS/Python 3.13 via
 error was `test_standard_action_authorization` setup: its planning fixture
 assembled the factory without the explicit result transport that LINK-advertising
 workers now require. The fixture now supplies it and both dependent modules pass.
+
+FINALIZE command-controller authority, 2026-10-07: the real LINK/PACKAGE/FINALIZE
+command chain no longer uses synthetic permission callbacks. The receiver parent
+checks file grants before staging (scope, revision, privilege, revocation) and,
+after staging, measures the same portable runtime the child measures. No grant, a
+grant naming another runtime, and an atomically revoked grant are each refused by
+the parent; the exactly planned grant succeeds. A describe-only FINALIZE dispatch
+returns the exact grant request from the receiver without executing, matching the
+independently computed request, and the controller refuses descriptions for any
+other input, revision, privilege set or builder. Grant issuance stays an operator
+action by design (ADR 0044: the controller is not a fleet provisioner). Remaining:
+a `litai` command that drives the describe step once full CLI rebuild scheduling
+exists, operator-side signing and placement guidance, and the rest of the 1.2
+scope listed above.

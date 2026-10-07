@@ -164,6 +164,22 @@ class CommandLifecycleActionDispatcher:
     def dispatch(
         self, request: LifecycleActionDispatchRequest
     ) -> LifecycleActionDispatchOutcome:
+        return self._exchange(request, mode=None)[0]
+
+    def describe(
+        self, request: LifecycleActionDispatchRequest, *, mode: str
+    ) -> LifecycleActionDispatchOutcome | bytes:
+        """Run a read-only receiver mode; its result is returned, never recorded."""
+        if mode != "--describe-finalize-grant":
+            raise ActionWireError(
+                "action_transport.mode_invalid", "unsupported receiver mode"
+            )
+        outcome, result_record = self._exchange(request, mode=mode)
+        return outcome if result_record is None else result_record
+
+    def _exchange(
+        self, request: LifecycleActionDispatchRequest, *, mode: str | None
+    ) -> tuple[LifecycleActionDispatchOutcome, bytes | None]:
         worker = self._selection(request)
         self.deadline.remaining()
         event = threading.Event()
@@ -184,7 +200,7 @@ class CommandLifecycleActionDispatcher:
             )
             environment = self._environment(worker)
             with tempfile.TemporaryDirectory(prefix="litai-action-") as directory:
-                argv = action_receiver_command(worker, self.deadline)
+                argv = action_receiver_command(worker, self.deadline, mode=mode)
                 stdin = content
                 if "{request_file}" in argv:
                     path = Path(directory) / "request.json"
@@ -204,10 +220,10 @@ class CommandLifecycleActionDispatcher:
                         "action_dispatch.cancelled", "action was cancelled"
                     )
                 self.deadline.remaining()
-                if result_record is not None:
+                if mode is None and result_record is not None:
                     assert outcome.result_identity is not None
                     self.record_result(outcome.result_identity, result_record)
-            return outcome
+            return outcome, result_record
         finally:
             with self._lock:
                 self._active.pop(request.identity, None)

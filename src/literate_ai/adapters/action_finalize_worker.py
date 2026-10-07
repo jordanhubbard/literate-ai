@@ -9,6 +9,9 @@ from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.action_build_result import _remove_owned_stage
 from literate_ai.adapters.action_dispatch_wire import ActionWireError, record_identity
 from literate_ai.adapters.action_finalize import admit_finalize_action
+from literate_ai.adapters.action_finalize_grant_request import (
+    encode_finalize_grant_request,
+)
 from literate_ai.adapters.action_finalize_inputs import materialize_finalize_inputs
 from literate_ai.adapters.action_finalize_parent import portable_child_environment
 from literate_ai.adapters.action_finalize_process import run_finalize_worker_process
@@ -26,7 +29,9 @@ class ConfiguredFinalizeWorker:
     require_execution_authority checks the exact intent before inputs are staged.
     The optional require_prepared_authority receives staged inputs, an owned
     measurement directory and the exact child environment, and is checked on every
-    later poll; PortableFinalizeParentAuthority.require fits it.
+    later poll; PortableFinalizeParentAuthority.require fits it. The optional
+    plan_prepared_grant (PortableFinalizeParentAuthority.grant_request) enables
+    describe_grant, which reports the exact request an operator must authorize.
     This adapter alone neither advertises capability nor selects a worker.
     """
 
@@ -41,9 +46,11 @@ class ConfiguredFinalizeWorker:
         verify_package,
         verify_stages,
         require_prepared_authority=None,
+        plan_prepared_grant=None,
     ):
-        if require_prepared_authority is not None and not callable(
-            require_prepared_authority
+        if any(
+            item is not None and not callable(item)
+            for item in (require_prepared_authority, plan_prepared_grant)
         ):
             raise TypeError("FINALIZE prepared authority must be callable")
         if not isinstance(runtime_identity, ContentIdentity) or not all(
@@ -81,6 +88,7 @@ class ConfiguredFinalizeWorker:
         self.verify_package = verify_package
         self.verify_stages = verify_stages
         self.require_prepared_authority = require_prepared_authority
+        self.plan_prepared_grant = plan_prepared_grant
 
     @property
     def identity(self):
@@ -224,3 +232,87 @@ class ConfiguredFinalizeWorker:
             _remove_owned_stage(job, owned)
         current()
         return result
+
+    def describe_grant(
+        self,
+        request,
+        deadline,
+        records,
+        *,
+        expected_worker_identity,
+        cas,
+        workspace_root,
+        admission_guard,
+        blob_source=None,
+    ):
+        """Stage exact inputs and return the measured grant request; run nothing.
+
+        No grant is checked because none exists yet; the operator signs what this
+        returns. Admission, profile and deadline still bind every step, and the
+        staged inputs and measurement directory are removed before returning.
+        """
+        if self.plan_prepared_grant is None:
+            raise ActionWireError(
+                "action_finalize.grant_plan_unavailable",
+                "FINALIZE grant planning is not configured",
+            )
+        if not callable(admission_guard):
+            raise TypeError("FINALIZE requires live receiver admission")
+        records = dict(records)
+        value = admit_finalize_action(
+            request,
+            deadline,
+            records,
+            expected_worker_identity=expected_worker_identity,
+        )
+        profile = self.identity
+
+        def current():
+            deadline.remaining()
+            admission_guard()
+            if self.identity != profile:
+                raise ActionWireError(
+                    "action_finalize.profile_changed", "private startup changed"
+                )
+            deadline.remaining()
+
+        current()
+        if not workspace_root.is_absolute() or not cas.root.is_absolute():
+            raise ActionWireError(
+                "action_finalize.workspace_invalid", "absolute paths required"
+            )
+        require_safe_directory(workspace_root)
+        input_id = request.input_record_identities[0]
+        proof = {
+            identity: raw
+            for identity, raw in records.items()
+            if identity not in {input_id, request.action.payload_identity}
+        }
+        job = Path(tempfile.mkdtemp(prefix="finalize-plan-", dir=workspace_root))
+        owned = directory_node(job)
+        try:
+            preflight = job / "proof"
+            preflight.mkdir()
+            with materialize_finalize_inputs(
+                input_record=records[input_id],
+                input_identity=input_id,
+                records=proof,
+                cas=cas,
+                deadline=deadline,
+                admission_guard=current,
+                verify_package=self.verify_package,
+                blob_source=blob_source,
+                workspace_root=preflight,
+            ) as prepared:
+                current()
+                planned = self.plan_prepared_grant(
+                    prepared,
+                    job / "authority",
+                    portable_child_environment(
+                        self.environment, self.launcher.environment
+                    ),
+                )
+                current()
+        finally:
+            _remove_owned_stage(job, owned)
+        return encode_finalize_grant_request(value, planned)

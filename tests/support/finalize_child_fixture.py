@@ -162,6 +162,7 @@ def receiver(private):
         observe_runtime=lambda: profile,
         require_execution_authority=authority.admit,
         require_prepared_authority=authority.require,
+        plan_prepared_grant=authority.grant_request,
         verify_package=partial(
             verify_deterministic_package, adapter_factory=DirectoryPackageAdapter
         ),

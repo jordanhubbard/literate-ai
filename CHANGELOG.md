@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- FINALIZE receivers check private grants in the parent as well as the child.
+  Before staging, the grant must be current and scoped to the exact input,
+  revision and privilege; after staging, the parent measures the child's portable
+  runtime and applies the full guard on every poll. The command-controller chain
+  now runs with real file grants instead of synthetic permission callbacks.
+
+- A describe-only FINALIZE dispatch reports the exact grant request a receiver
+  measured, without executing, so an operator can authorize precisely that
+  runtime. The controller refuses descriptions for any other input, revision,
+  privilege set or builder.
+
 - Reconcile HTML observability scope: distinguish delivered graph/health views
   from remaining run-history, dashboard controls and later-view qualification.
 
