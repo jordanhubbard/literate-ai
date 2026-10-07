@@ -20,13 +20,10 @@ from literate_ai.contracts import ComponentCommandPhase, canonical_identity
 _CHILD_PHASES = ("BUILD", "TEST", "EXECUTE", "ACCEPT", "FINALIZE")
 
 
-def _launcher(config, phase, code_identity):
-    from literate_ai.adapters.builders.python import discover_python_toolchain
+def _launcher(config, phase, code_identity, runtime):
     from literate_ai.adapters.lifecycle.standard_local import (
         LocalComponentToolBinding,
     )
-
-    runtime = discover_python_toolchain(pinned_command=(sys.executable,))
 
     def guard():
         runtime.require_unchanged()
@@ -66,6 +63,7 @@ def _workers(config):
     from literate_ai.adapters.action_execute_worker import ConfiguredExecuteWorker
     from literate_ai.adapters.action_package_worker import ConfiguredPackageWorker
     from literate_ai.adapters.action_test_worker import ConfiguredTestWorker
+    from literate_ai.adapters.builders.python import discover_python_toolchain
     from literate_ai.adapters.packaging import DirectoryPackageAdapter
     from literate_ai.adapters.standard_receiver_runtime import ReceiverTools
 
@@ -75,6 +73,8 @@ def _workers(config):
     if command_phases:
         code = receiver_code_identity()
         tools = ReceiverTools(config)
+        # Every phase child runs this receiver's own interpreter, observed once.
+        runtime = discover_python_toolchain(pinned_command=(sys.executable,))
         for phase, keyword, worker_type in (
             ("BUILD", "build_worker", ConfiguredBuildWorker),
             ("TEST", "test_worker", ConfiguredTestWorker),
@@ -82,7 +82,7 @@ def _workers(config):
         ):
             if phase in command_phases:
                 workers[keyword] = worker_type(
-                    _launcher(config, phase, code),
+                    _launcher(config, phase, code, runtime),
                     tools.bindings,
                     environment=environment,
                     # BUILD advertises the exact tools so a controller on another
@@ -95,7 +95,7 @@ def _workers(config):
                 )
         if "ACCEPT" in command_phases:
             workers["accept_worker"] = ConfiguredAcceptWorker(
-                _launcher(config, "ACCEPT", code), environment=environment
+                _launcher(config, "ACCEPT", code, runtime), environment=environment
             )
         if "FINALIZE" in command_phases:
             from literate_ai.adapters.standard_receiver_finalize import (
@@ -103,7 +103,7 @@ def _workers(config):
             )
 
             workers["finalize_worker"] = configured_finalize_worker(
-                config, _launcher(config, "FINALIZE", code), code, tools
+                config, _launcher(config, "FINALIZE", code, runtime), code, tools
             )
     if "PACKAGE" in config.phases:
         workers["package_worker"] = ConfiguredPackageWorker(

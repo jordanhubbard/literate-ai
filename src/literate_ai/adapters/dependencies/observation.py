@@ -14,6 +14,7 @@ import subprocess
 import sys
 from collections import deque
 from collections.abc import Callable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
@@ -603,6 +604,8 @@ def _python_distribution_component(
 # session, because the dyld shared cache cannot change without a reboot.
 _DYLD_FACTS: dict[tuple[object, ...], object] = {}
 _DYLD_FACTS_LIMIT = 65536
+# Concurrent dyld_info inspections within one closure level.
+_INSPECTION_WORKERS = min(8, os.cpu_count() or 1)
 _BOOT_SESSION: list[str | None] = []
 
 
@@ -962,24 +965,18 @@ class MacOsMachODependencyObserver:
             if runtime and "build" in seed_paths[path]:
                 pending.append((path, executable_roots[path], (), False))
         processed: set[tuple[str, str, tuple[str, ...], bool]] = set()
-        while pending:
-            path, executable_dir, inherited_rpaths, runtime = pending.popleft()
-            state = (path, executable_dir, inherited_rpaths, runtime)
-            if state in processed:
-                continue
-            processed.add(state)
-            image = images.get(path)
-            if image is None:
-                image = self._inspect(path)
-                images[path] = image
+
+        def links(state):
+            path, executable_dir, inherited_rpaths, runtime = state
             loader_dir = str(Path(path).parent)
             rpaths = self._expanded_rpaths(
-                image.rpaths,
+                images[path].rpaths,
                 loader_dir=loader_dir,
                 executable_dir=executable_dir,
                 inherited_rpaths=inherited_rpaths,
             )
-            for load_path, weak in image.linked_paths:
+            targets = []
+            for load_path, weak in images[path].linked_paths:
                 target = self._resolve_load_path(
                     load_path,
                     loader_dir=loader_dir,
@@ -988,10 +985,30 @@ class MacOsMachODependencyObserver:
                     weak=weak,
                     loader_paths=loader_paths if runtime else None,
                 )
-                if target is None:
-                    continue
-                edges.add((path, target))
-                pending.append((target, executable_dir, rpaths, runtime))
+                if target is not None:
+                    targets.append((target, executable_dir, rpaths, runtime))
+            return targets
+
+        # Every inspection and link resolution in one breadth-first level is
+        # independent, so each level runs concurrently. Results merge in queue
+        # order, and the first failure in that order is the one raised.
+        _macos_boot_session()
+        with ThreadPoolExecutor(max_workers=_INSPECTION_WORKERS) as pool:
+            while pending:
+                level = []
+                while pending:
+                    state = pending.popleft()
+                    if state not in processed:
+                        processed.add(state)
+                        level.append(state)
+                fresh = tuple(
+                    dict.fromkeys(path for path, *_ in level if path not in images)
+                )
+                images.update(zip(fresh, pool.map(self._inspect, fresh), strict=True))
+                for state, targets in zip(level, pool.map(links, level), strict=True):
+                    for target in targets:
+                        edges.add((state[0], target[0]))
+                        pending.append(target)
         return tuple(images[path] for path in sorted(images)), tuple(sorted(edges))
 
     @staticmethod
