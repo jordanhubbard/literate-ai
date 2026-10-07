@@ -1,5 +1,7 @@
 """FINALIZE controller shares worker slots and independently verifies returned proof."""
 
+import os
+import time
 from contextlib import nullcontext
 from functools import partial
 
@@ -36,6 +38,9 @@ class CommandProjectFinalizer:
         result_source,
         verify_stages=None,
         stage_verifier_context=None,
+        grant_request_path=None,
+        grant_wait_seconds=0,
+        grant_poll_seconds=2.0,
     ):
         if not isinstance(profile_identity, ContentIdentity) or not all(
             callable(item) for item in (verify_package, result_source)
@@ -53,6 +58,9 @@ class CommandProjectFinalizer:
         self.profile_identity = profile_identity
         self.verify_package, self.verify_stages = verify_package, verify_stages
         self.result_source = result_source
+        self.grant_request_path = grant_request_path
+        self.grant_wait_seconds = grant_wait_seconds
+        self.grant_poll_seconds = grant_poll_seconds
 
     def _handoff(self, lock, project, graph, plan, package):
         packaged, proof = self.linker.package_handoff(graph, plan)
@@ -192,12 +200,51 @@ class CommandProjectFinalizer:
             current_handoff()
             return planned
 
+    def _write_grant_request(self, value, request, records, current_handoff):
+        """Describe the refused request on the held slot and hand it to the operator."""
+        described = self.indexer._dispatcher(records, {}).describe(
+            request, mode="--describe-finalize-grant"
+        )
+        if not isinstance(described, bytes):
+            raise ActionWireError(
+                described.failure_code or "action_finalize.grant_request_invalid",
+                "worker FINALIZE grant description failed",
+            )
+        decode_finalize_grant_request(described, value)
+        current_handoff()
+        path = self.grant_request_path
+        temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+        temporary.write_bytes(described)
+        os.replace(temporary, path)
+
     def _execute(self, lock, project, graph, plan, package, worker, slot):
         value, proof, raw, input_id, request, records, current, current_handoff = (
             self._request(lock, project, graph, plan, package, worker, slot)
         )
         returned = {}
         outcome = self.indexer._dispatcher(records, returned).dispatch(request)
+        if (
+            outcome.failure_code == "action_finalize.grant_unavailable"
+            and self.grant_request_path is not None
+        ):
+            # The input is exact to this run, so the operator must grant it
+            # while the run waits; a later rerun would need a new grant.
+            self._write_grant_request(value, request, records, current_handoff)
+            waited_until = time.monotonic() + self.grant_wait_seconds
+            while outcome.failure_code == "action_finalize.grant_unavailable":
+                if (
+                    time.monotonic() + self.grant_poll_seconds > waited_until
+                    or self.indexer.deadline.remaining() <= self.grant_poll_seconds
+                ):
+                    raise ActionWireError(
+                        outcome.failure_code,
+                        "worker FINALIZE has no grant; the exact request to "
+                        f"authorize is in {self.grant_request_path}",
+                    )
+                time.sleep(self.grant_poll_seconds)
+                current_handoff()
+                returned = {}
+                outcome = self.indexer._dispatcher(records, returned).dispatch(request)
         if outcome.failure_code is not None:
             raise ActionWireError(outcome.failure_code, "worker FINALIZE failed")
         content = returned.get(outcome.result_identity)

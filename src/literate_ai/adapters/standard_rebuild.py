@@ -371,6 +371,10 @@ class FilesystemStandardRebuildAdapter:
                 getattr(exc, "code", "standard_rebuild.independent_acceptance_failed"),
                 getattr(exc, "message", str(exc)),
             ) from exc
+        except ActionWireError as exc:
+            # Project-level remote phases (PACKAGE, FINALIZE) run outside the
+            # per-Component failure capture; keep their typed refusal.
+            raise FilesystemStandardRebuildError(exc.code, str(exc)) from exc
         if not execution.lifecycle.successful:
             failures = tuple(
                 item.failure_evidence
@@ -1036,6 +1040,16 @@ def assemble_filesystem_standard_rebuild_adapter(
                 verify_stages=action_finalize_verifier,
                 stage_verifier_context=finalize_verification,
                 result_source=action_result_source,
+                grant_request_path=(
+                    None
+                    if action_execution is None
+                    else action_execution.finalize_grant_request_path
+                ),
+                grant_wait_seconds=(
+                    0
+                    if action_execution is None
+                    else action_execution.finalize_grant_wait_seconds
+                ),
             )
     return FilesystemStandardRebuildAdapter(
         project=project,

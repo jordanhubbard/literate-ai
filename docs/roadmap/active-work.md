@@ -26177,3 +26177,22 @@ CLI rebuild now passes in about 160 seconds with every local Component phase
 disabled, and the admission/controller regression (93 cases) passes after two
 controller-test stubs gained the new indexer attribute. FINALIZE in the
 reference receiver and the operator grant flow are next.
+
+FINALIZE through the CLI, 2026-10-07: the reference receiver now also composes
+PACKAGE and FINALIZE (parent grant authority, oracle copy from private config,
+portable child runtime) and offers `--print-profiles` and
+`--issue-finalize-grant`. The planned "fail, grant, rerun" flow cannot work:
+FINALIZE grants bind the exact input record, and BUILD authorization identities
+carry their issue time into export, artifact-graph, link and package identities,
+so every rebuild produces a new FINALIZE input (verified by diffing two runs).
+Maintainer decision: wait inside the rebuild. On `grant_unavailable` the
+controller describes the exact request on its held slot, writes it to the
+private `grant_request_path`, and re-dispatches every two seconds for up to
+`grant_wait_seconds`; the receiver refuses a missing grant before staging.
+Project-level remote refusals previously escaped `litai rebuild` as tracebacks
+and are now typed CLI errors. `test_finalize_waits_for_the_operator_to_grant_the_described_request`
+passes: all six Component/project phases run on the receiver with local phases
+disabled, the operator grants the described request mid-run, and the receipt is
+committed. Remaining for this item: cross-host toolchain identities, a `litai`
+surface for operators beyond the receiver module, multi-Component plans, shared
+LAN cache qualification, and the platform/CI release gates.

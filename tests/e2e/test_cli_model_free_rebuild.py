@@ -140,7 +140,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
         self.assertTrue(result["passed"], result)
         self.assertTrue(result["receipt_committed"], result)
 
-    def admit_worker(self, command):
+    def admit_worker(self, command, *, finalize=None):
         """Register one private command worker the CLI must admit and use.
 
         `command(cas, workspace)` returns the worker argv. The operator-owned
@@ -171,10 +171,13 @@ class ModelFreeRebuildTests(unittest.TestCase):
         workspace = private / "worker-jobs"
         workspace.mkdir(parents=True)
         FileSystemCAS(cas)  # the operator initializes the shared CAS layout
+        argv = command(cas, workspace)
+        if callable(finalize):
+            finalize = finalize()  # may depend on the receiver config just written
         worker = ExecutionWorker(
             "cli-worker",
             ExecutionWorkerKind.COMMAND,
-            command=command(cas, workspace),
+            command=argv,
             environment=(
                 ExecutionWorkerEnvironment(
                     "LITAI_ACTION_WORKER_IDENTITY", "CLI_WORKER_IDENTITY", True
@@ -230,6 +233,7 @@ class ModelFreeRebuildTests(unittest.TestCase):
                     "maximum_hardware_age_seconds": 600,
                     "health_configurations": {"cli-worker": str(health.config_file)},
                     "result_sources": {"cli-worker": {"kind": "shared-cas"}},
+                    **({} if finalize is None else {"finalize": finalize}),
                 }
             )
         )
@@ -271,50 +275,50 @@ class ModelFreeRebuildTests(unittest.TestCase):
             any("--describe" not in line for line in invocations), invocations
         )
 
-    def test_reference_receiver_runs_component_phases_on_the_worker(self):
-        """BUILD, TEST, EXECUTE and ACCEPT run in the reference receiver only."""
+    def reference_receiver(self, phases, *, finalize=None):
+        """Write the operator's private receiver config; return its command."""
         from literate_ai.adapters.builders.make import discover_make_toolchain
         from literate_ai.adapters.builders.python import discover_python_toolchain
-        from literate_ai.adapters.lifecycle.standard_local import (
-            LocalStandardLifecyclePorts,
-        )
 
         environment = {**os.environ, **self.environment}
-        receiver_config = self.root / "receiver" / "standard-receiver.json"
-        receiver_config.parent.mkdir()
+        config = self.root / "receiver" / "standard-receiver.json"
+        config.parent.mkdir(exist_ok=True)
 
         def command(cas, workspace):
-            receiver_config.write_text(
-                json.dumps(
-                    {
-                        "schema": "literate-ai/standard-receiver@1",
-                        "cas": str(cas),
-                        "workspace": str(workspace),
-                        "phases": ["BUILD", "TEST", "EXECUTE", "ACCEPT"],
-                        "tools": {
-                            # The operator pins the same tools the controller
-                            # observes, so locked toolchain identities match.
-                            "python": list(
-                                discover_python_toolchain(environment).command
-                            ),
-                            "make": list(discover_make_toolchain(environment).command),
-                        },
-                        "child_environment": environment,
-                        "contract_policy": "portable-starter@1",
-                    }
-                ),
-                "utf-8",
-            )
+            document = {
+                "schema": "literate-ai/standard-receiver@1",
+                "cas": str(cas),
+                "workspace": str(workspace),
+                "phases": list(phases),
+                "tools": {
+                    # The operator pins the same tools the controller observes,
+                    # so locked toolchain identities match on this host.
+                    "python": list(discover_python_toolchain(environment).command),
+                    "make": list(discover_make_toolchain(environment).command),
+                },
+                "child_environment": environment,
+                "contract_policy": "portable-starter@1",
+            }
+            if finalize is not None:
+                document["finalize"] = finalize
+            config.write_text(json.dumps(document), "utf-8")
             return (
                 sys.executable,
                 "-I",
                 "-m",
                 "literate_ai.standard_receiver",
                 "--config",
-                str(receiver_config),
+                str(config),
             )
 
-        self.admit_worker(command)
+        return config, command
+
+    @contextlib.contextmanager
+    def without_local_component_phases(self):
+        """The controller must never quietly run a Component phase itself."""
+        from literate_ai.adapters.lifecycle.standard_local import (
+            LocalStandardLifecyclePorts,
+        )
 
         def local(phase):
             def refuse(*_args, **_kwargs):
@@ -328,7 +332,100 @@ class ModelFreeRebuildTests(unittest.TestCase):
             patch.object(LocalStandardLifecyclePorts, "execute", local("EXECUTE")),
             patch.object(LocalStandardLifecyclePorts, "accept", local("ACCEPT")),
         ):
+            yield
+
+    def test_reference_receiver_runs_component_phases_on_the_worker(self):
+        """BUILD, TEST, EXECUTE and ACCEPT run in the reference receiver only."""
+        _config, command = self.reference_receiver(
+            ("BUILD", "TEST", "EXECUTE", "ACCEPT")
+        )
+        self.admit_worker(command)
+        with self.without_local_component_phases():
             status, envelope = self.rebuild()
+        self.assertEqual(status, 0, envelope)
+        self.assertTrue(envelope["result"]["passed"], envelope)
+        self.assertTrue(envelope["result"]["receipt_committed"], envelope)
+
+    def test_finalize_waits_for_the_operator_to_grant_the_described_request(self):
+        """FINALIZE describes its exact request and continues once it is granted."""
+        import subprocess
+        import threading
+        import time
+
+        private = self.root / "operator"
+        (private / "grants").mkdir(parents=True)
+        oracle = private / "hello-component.json"
+        shutil.copyfile(
+            self.project / "verification" / "acceptance" / "hello-component.json",
+            oracle,
+        )
+        grant = private / "grants" / "finalize.json"
+        request = private / "finalize-request.json"
+        config, command = self.reference_receiver(
+            ("BUILD", "TEST", "EXECUTE", "ACCEPT", "PACKAGE", "FINALIZE"),
+            finalize={
+                "grant_path": str(grant),
+                "oracle": {"component": "hello-component", "path": str(oracle)},
+            },
+        )
+
+        def receiver(*arguments):
+            return subprocess.run(
+                (
+                    sys.executable,
+                    "-I",
+                    "-m",
+                    "literate_ai.standard_receiver",
+                    "--config",
+                    str(config),
+                    *arguments,
+                ),
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=120,
+            ).stdout
+
+        self.admit_worker(
+            command,
+            finalize=lambda: {
+                # The operator pins the receiver's printed private profile.
+                "profile_identity": json.loads(receiver("--print-profiles"))[
+                    "finalize_profile"
+                ],
+                "verifier": "portable-application@1",
+                "grant_request_path": str(request),
+                "grant_wait_seconds": 300,
+            },
+        )
+        issued = []
+
+        def operator():
+            # Review happens out of band; here the operator grants what was asked.
+            stop = time.monotonic() + 540
+            while not request.exists() and time.monotonic() < stop:
+                time.sleep(0.5)
+            if request.exists():
+                issued.append(
+                    receiver(
+                        "--issue-finalize-grant",
+                        str(request),
+                        "--actor",
+                        "operator",
+                        "--reason",
+                        "reviewed starter FINALIZE",
+                        "--expires-in",
+                        "1800",
+                    )
+                )
+
+        thread = threading.Thread(target=operator, daemon=True)
+        thread.start()
+        with self.without_local_component_phases():
+            status, envelope = self.rebuild()
+        thread.join(timeout=60)
+        self.assertTrue(issued, "FINALIZE never described a grant request")
+        self.assertTrue(grant.exists())
         self.assertEqual(status, 0, envelope)
         self.assertTrue(envelope["result"]["passed"], envelope)
         self.assertTrue(envelope["result"]["receipt_committed"], envelope)

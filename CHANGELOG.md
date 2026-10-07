@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+- Add `python -m literate_ai.standard_receiver`, a reference action receiver for
+  portable Standard projects configured by one private operator document. It
+  runs BUILD, TEST, EXECUTE, ACCEPT, PACKAGE and FINALIZE for single-Component
+  Make/Python projects and refuses any contract that names a tool, driver or
+  layout other than the packaged profiles for the worker's own tools.
+
+- `litai rebuild` with admitted action workers: install the bounded evidence
+  recorder remote phases need (every such rebuild previously failed at BUILD),
+  report project-level PACKAGE/FINALIZE refusals as typed CLI errors instead of
+  tracebacks, and run the full worker health and capability probe once per
+  action boundary instead of on every guarded read.
+
+- FINALIZE grants: when a worker has no grant, the controller writes the exact
+  request to an operator-owned path and waits a bounded time for the operator to
+  grant it with `--issue-finalize-grant`, then continues in the same run.
+
 - FINALIZE receivers check private grants in the parent as well as the child.
   Before staging, the grant must be current and scoped to the exact input,
   revision and privilege; after staging, the parent measures the child's portable

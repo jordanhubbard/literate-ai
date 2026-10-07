@@ -17,7 +17,7 @@ import sys
 
 from literate_ai.contracts import ComponentCommandPhase, canonical_identity
 
-_CHILD_PHASES = ("BUILD", "TEST", "EXECUTE", "ACCEPT")
+_CHILD_PHASES = ("BUILD", "TEST", "EXECUTE", "ACCEPT", "FINALIZE")
 
 
 def _launcher(config, phase, code_identity):
@@ -71,7 +71,7 @@ def _workers(config):
 
     workers = {}
     environment = dict(config.child_environment)
-    command_phases = {"BUILD", "TEST", "EXECUTE", "ACCEPT"} & config.phases
+    command_phases = {"BUILD", "TEST", "EXECUTE", "ACCEPT", "FINALIZE"} & config.phases
     if command_phases:
         code = receiver_code_identity()
         tools = ReceiverTools(config)
@@ -89,6 +89,14 @@ def _workers(config):
         if "ACCEPT" in command_phases:
             workers["accept_worker"] = ConfiguredAcceptWorker(
                 _launcher(config, "ACCEPT", code), environment=environment
+            )
+        if "FINALIZE" in command_phases:
+            from literate_ai.adapters.standard_receiver_finalize import (
+                configured_finalize_worker,
+            )
+
+            workers["finalize_worker"] = configured_finalize_worker(
+                config, _launcher(config, "FINALIZE", code), code, tools
             )
     if "PACKAGE" in config.phases:
         workers["package_worker"] = ConfiguredPackageWorker(
@@ -124,6 +132,12 @@ def _child(config, phase):
         print("phase is not enabled in this receiver", file=sys.stderr)
         return 2
     tools = ReceiverTools(config)
+    if phase == "FINALIZE":
+        from literate_ai.adapters.standard_receiver_finalize import (
+            run_finalize_child,
+        )
+
+        return run_finalize_child(config, tools)
     if phase == "ACCEPT":
         return accept_worker.main([], runtime_factory=accept_runtime_factory(tools))
     entry = {
@@ -147,6 +161,19 @@ def main(argv=None):
     parser.add_argument("--config", required=True)
     parser.add_argument("--child", choices=_CHILD_PHASES)
     parser.add_argument("--config-identity")
+    parser.add_argument(
+        "--print-profiles",
+        action="store_true",
+        help="print the private profiles to pin in controller configuration",
+    )
+    parser.add_argument(
+        "--issue-finalize-grant",
+        metavar="REQUEST",
+        help="authorize exactly one described FINALIZE grant request",
+    )
+    parser.add_argument("--actor")
+    parser.add_argument("--reason")
+    parser.add_argument("--expires-in", type=int, default=3600)
     args, passthrough = parser.parse_known_args(argv)
     try:
         config = load_standard_receiver_config(args.config)
@@ -155,6 +182,44 @@ def main(argv=None):
     except StandardReceiverConfigError as exc:
         print(f"standard receiver refused: {exc}", file=sys.stderr)
         return 2
+    if args.print_profiles:
+        import json
+
+        workers = _workers(config)
+        finalize = workers.get("finalize_worker")
+        print(
+            json.dumps(
+                {
+                    "finalize_profile": None
+                    if finalize is None
+                    else finalize.identity.uri
+                },
+                sort_keys=True,
+            )
+        )
+        return 0
+    if args.issue_finalize_grant is not None:
+        from literate_ai.adapters.action_finalize_issue import (
+            FinalizeGrantIssueError,
+            issue_finalize_grant,
+        )
+
+        if config.finalize is None:
+            print("FINALIZE is not enabled in this receiver", file=sys.stderr)
+            return 2
+        try:
+            grant = issue_finalize_grant(
+                args.issue_finalize_grant,
+                config.finalize.grant_path,
+                actor=args.actor,
+                reason=args.reason,
+                expires_in_seconds=args.expires_in,
+            )
+        except (FinalizeGrantIssueError, OSError) as exc:
+            print(f"FINALIZE grant refused: {exc}", file=sys.stderr)
+            return 2
+        print(grant.authorization_id)
+        return 0
     if args.child is not None:
         if passthrough:
             print("child mode accepts no extra arguments", file=sys.stderr)

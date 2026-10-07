@@ -1725,5 +1725,51 @@ dispatcher returns that record without recording it as a FINALIZE result. The
 controller accepts it only when the request reconstructs exactly from the planned
 intent with the reported runtime identity, so a receiver cannot obtain a grant for
 another input, revision, privilege set or builder. Whether the measured runtime
-is acceptable remains the operator's judgement. A `litai` command surface awaits
-full CLI rebuild scheduling.
+is acceptable remains the operator's judgement.
+
+### Reference Standard receiver
+
+`python -I -m literate_ai.standard_receiver --config PRIVATE.json` is the
+supported receiver startup for portable Standard projects. The operator still
+provisions hosts, storage and placement (ADR 0044); this module only composes the
+existing configured workers from one bounded `literate-ai/standard-receiver@1`
+document naming worker CAS and workspace, enabled phases, the exact `python` and
+`make` executables, the child environment, the contract policy and, for FINALIZE,
+the grant path and a verifier-owned oracle copy. The document's byte identity is
+part of every measured child launcher's authority; a phase child re-enters the
+module with `--child PHASE` and refuses a changed document.
+
+Contracts arrive in the admitted request, as they do for FINALIZE. The
+`portable-starter@1` policy admits a contract only when its BUILD argv is exactly
+the packaged Make driver for this worker's own Make and Python, its TEST and
+EXECUTE argv are exactly the packaged Python runtime driver, its toolchain
+identities are this worker's, and the plan is a single Component without
+providers, entrypoint variants, library surfaces or native layouts. Anything else
+is refused before a command runs, so the request cannot nominate a host
+executable even through driver arguments. Multi-Component plans, provider edges,
+wheelhouses and native SDKs are out of scope for this policy.
+
+`--print-profiles` prints the private FINALIZE profile an operator pins in the
+controller's action-execution configuration. FINALIZE grants bind the exact
+input record, and that record is unique to one run because BUILD authorization
+identities carry their issue time. The controller therefore cannot be granted in
+advance: when the worker reports `action_finalize.grant_unavailable`, it describes
+the exact request on the slot it holds, writes it to the operator-owned
+`grant_request_path`, and re-dispatches every few seconds for up to
+`grant_wait_seconds` (never past the action deadline). The receiver parent refuses
+a missing grant before staging any input, so waiting costs no transfer. The
+operator reviews the request and runs `--issue-finalize-grant REQUEST --actor A
+--reason R`, which atomically writes a grant for exactly that request.
+
+Admission revalidation is split by cost. The command dispatcher runs the full
+storage-health check and capability probe before each dispatch and before any
+result is admitted; guards that run on every record or blob read use
+`CommandActionWorkerPool.require_current` (deadline, route, private catalog and
+hardware observation). A worker change during an action is still refused before
+its result is admitted. Qualification: `tests/e2e/test_cli_model_free_rebuild.py`
+runs real `litai rebuild --update-receipt` with a deterministic coding-CLI
+stand-in, every Component phase disabled on the controller, and BUILD, TEST,
+EXECUTE, ACCEPT, PACKAGE and FINALIZE on the reference receiver, including the
+described-request, operator grant and receipt commit. Workers on another host
+remain ineligible until the controller derives toolchain identities from the
+worker (`project_remote_standard_toolchain_closure`).

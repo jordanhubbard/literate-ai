@@ -159,6 +159,10 @@ class BoundActionExecution:
     )
 
     finalize_profile: ContentIdentity | None = None
+    # Operator-owned file where a refused FINALIZE writes the exact grant request.
+    finalize_grant_request_path: Path | None = field(default=None, repr=False)
+    # Bounded wait for that grant inside the same rebuild; 0 means fail at once.
+    finalize_grant_wait_seconds: int = 0
 
     @property
     def identity(self) -> ContentIdentity:
@@ -441,14 +445,32 @@ def load_action_execution(
             raise ValueError("invalid health configuration map")
         finalize = document.get("finalize")
         finalize_profile = None
+        grant_request_path = None
+        grant_wait_seconds = 0
         if "finalize" in document:
             if (
                 not isinstance(finalize, dict)
-                or set(finalize) != {"profile_identity", "verifier"}
+                or not {"profile_identity", "verifier"}
+                <= set(finalize)
+                <= {
+                    "profile_identity",
+                    "verifier",
+                    "grant_request_path",
+                    "grant_wait_seconds",
+                }
                 or finalize["verifier"] != "portable-application@1"
             ):
                 raise ValueError("invalid FINALIZE policy")
             finalize_profile = ContentIdentity.parse_uri(finalize["profile_identity"])
+            if "grant_request_path" in finalize:
+                grant_request_path = _path(finalize["grant_request_path"])
+            grant_wait_seconds = finalize.get("grant_wait_seconds", 0)
+            if (
+                type(grant_wait_seconds) is not int
+                or not 0 <= grant_wait_seconds <= 3600
+                or (grant_wait_seconds and grant_request_path is None)
+            ):
+                raise ValueError("invalid FINALIZE grant wait")
         return BoundActionExecution(
             path,
             original,
@@ -466,6 +488,8 @@ def load_action_execution(
             MappingProxyType(configured),
             _result_sources(document.get("result_sources", {}), configured),
             finalize_profile,
+            grant_request_path,
+            grant_wait_seconds,
         )
     except ActionExecutionConfigurationError:
         raise
