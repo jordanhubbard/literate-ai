@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import shutil
@@ -149,6 +150,94 @@ class WorkerAlignmentTests(unittest.TestCase):
             self.assertEqual([item.read_text() for item in backups], ["revoked-key\n"])
             self.assertEqual(backups[0].stat().st_mode & 0o777, 0o600)
             self.assertTrue((home / "bin" / "litai-missing-tool").exists())
+
+
+class WindowsDefenderExclusionTests(unittest.TestCase):
+    def test_missing_exclusion_is_reported_then_added_for_the_workspace(self):
+        """Windows workers exclude the workspace from Defender real-time scans."""
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            template = root / "template.json"
+            template.write_text(
+                json.dumps(
+                    {
+                        "schema": "literate-ai/worker-template@1",
+                        "platforms": {
+                            "windows": {
+                                "commands": ["git"],
+                                "python": {"commands": ["python"], "minimum": "3.11"},
+                                "defender_exclusions": ["{workspace}"],
+                            }
+                        },
+                    }
+                )
+            )
+            scripts = []
+
+            class Runner:
+                """Answers the PowerShell probe as a worker lacking the exclusion."""
+
+                def run(self, argv, *, cwd, timeout_seconds):
+                    script = base64.b64decode(argv[-1].split()[-1]).decode("utf-16-le")
+                    scripts.append(script)
+                    stdout = (
+                        "cmd git C:\\git.exe\npython python 3.12.1\n"
+                        "excl 0 absent\nfree 999999999\n"
+                        if "Get-MpPreference" in script
+                        else ""
+                    )
+                    return SimpleNamespace(
+                        returncode=0, stdout=stdout.encode(), stderr=b""
+                    )
+
+            worker = SimpleNamespace(
+                worker_id="windows-worker",
+                endpoint="worker.invalid",
+                workspace="~/.litai",
+                transport="ssh",
+                requirements=SimpleNamespace(
+                    os_family="windows", cpu_architecture=None
+                ),
+            )
+            aligner = WorkerAligner(
+                WorkerTemplate.load(template),
+                UserAlignment.load(None),
+                coding_cli=None,
+                model=None,
+                cwd=root,
+                runner_factory=Runner,
+            )
+            with patch.object(
+                worker_alignment,
+                "ssh_arguments",
+                lambda _endpoint, command, *_a, **_k: tuple(command.split()),
+            ):
+                inspected = aligner.align((worker,), apply=False)
+                self.assertEqual(
+                    [
+                        (item["kind"], item["name"], item["state"])
+                        for item in inspected["workers"][0]["findings"]
+                    ],
+                    [("defender-exclusion", "{workspace}", "missing")],
+                )
+                self.assertFalse(any("Add-MpPreference" in item for item in scripts))
+                aligner.align((worker,), apply=True)
+            added = [item for item in scripts if "Add-MpPreference" in item]
+            self.assertEqual(len(added), 1)
+            self.assertIn("Join-Path $HOME '.litai'", added[0])
+            # Exclusions are Windows-only and never name home, a root or `..`.
+            original = template.read_text()
+            for broken in (
+                original.replace('"windows"', '"linux"'),
+                *(
+                    original.replace('"{workspace}"', json.dumps(entry))
+                    for entry in ("~/", "~/../..", "C:\\..", "C:\\", "relative")
+                ),
+            ):
+                template.write_text(broken)
+                with self.assertRaises(worker_alignment.WorkerAlignmentError):
+                    WorkerTemplate.load(template)
 
 
 if __name__ == "__main__":

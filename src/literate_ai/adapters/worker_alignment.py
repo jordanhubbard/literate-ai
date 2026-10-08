@@ -81,6 +81,23 @@ class PlatformTemplate:
     python_commands: tuple[str, ...]
     python_minimum: tuple[int, ...]
     minimum_free_gib: int | None = None
+    # Windows only: paths Microsoft Defender must not scan in real time.
+    # ``{workspace}`` is the worker's configured workspace.
+    defender_exclusions: tuple[str, ...] = ()
+
+
+def _narrow_exclusion(entry: str) -> bool:
+    """Whether a Defender exclusion names one directory, never home or a root."""
+
+    if entry == "{workspace}":
+        return True
+    if entry.startswith("~/"):
+        parts = entry[2:].replace("\\", "/").split("/")
+    elif re.fullmatch(r"[A-Za-z]:\\.+", entry):
+        parts = entry[3:].replace("\\", "/").split("/")
+    else:
+        return False
+    return all(part not in {"", ".", ".."} for part in parts)
 
 
 def _commands(value: object, path: str) -> tuple[TemplateCommand, ...]:
@@ -146,8 +163,24 @@ class WorkerTemplate:
                 "commands",
                 "python",
                 "minimum_free_gib",
+                "defender_exclusions",
             }:
                 _fail(path_name, "requires commands and python")
+            exclusions = raw.get("defender_exclusions", [])
+            if (
+                family != "windows"
+                and exclusions
+                or not isinstance(exclusions, list)
+                or any(
+                    not isinstance(item, str) or not _narrow_exclusion(item)
+                    for item in exclusions
+                )
+            ):
+                _fail(
+                    f"{path_name}.defender_exclusions",
+                    "is Windows-only and lists {workspace} or a ~/ or absolute "
+                    "directory below a drive root and home, without . or ..",
+                )
             free = raw.get("minimum_free_gib")
             if free is not None and (type(free) is not int or not 0 < free < 100000):
                 _fail(f"{path_name}.minimum_free_gib", "must be a positive integer")
@@ -170,6 +203,7 @@ class WorkerTemplate:
                 tuple(python["commands"]),
                 tuple(int(part) for part in python["minimum"].split(".")),
                 free,
+                tuple(exclusions),
             )
         return cls(platforms)
 
@@ -320,6 +354,14 @@ def _windows(worker: ExecutionWorker) -> bool:
     return worker.requirements.os_family == "windows"
 
 
+def _exclusion_path(worker: ExecutionWorker, entry: str) -> str:
+    """A PowerShell expression for one declared Defender exclusion."""
+
+    if entry == "{workspace}":
+        entry = worker.workspace or "~/.litai"
+    return f"[IO.Path]::GetFullPath({powershell_home_path(entry)}).TrimEnd('\\')"
+
+
 def _probe_script(
     worker: ExecutionWorker,
     platform: PlatformTemplate | None,
@@ -370,6 +412,33 @@ def _probe_script(
                 "{ 'file " + str(index) + " ' + (Get-FileHash -Algorithm SHA256 "
                 "-LiteralPath $f).Hash.ToLower() } else { 'file " + str(index) + " -' }"
             )
+        exclusions = () if platform is None else platform.defender_exclusions
+        if exclusions:
+            # Without Defender, or with real-time protection off, there is
+            # nothing to exclude; any other error fails closed as unreadable.
+            # Reading exclusions needs administrator rights: Defender then
+            # throws or returns an "N/A: Must be an administrator" placeholder.
+            # Only literal exclusions of the path or a parent count, because
+            # Defender expands %VARIABLES% in its own context.
+            lines.append(
+                "$state = 'unreadable'; if (-not (Get-Command Get-MpComputerStatus "
+                "-ErrorAction SilentlyContinue)) { $state = 'none' } else { try { "
+                "if (-not (Get-MpComputerStatus -ErrorAction Stop)"
+                ".RealTimeProtectionEnabled) { $state = 'none' } else { $mp = "
+                "Get-MpPreference -ErrorAction Stop; $raw = @($mp.ExclusionPath | "
+                "Where-Object { $_ }); if (-not ($raw | Where-Object { $_ -like "
+                "'N/A*' })) { $state = 'readable' } } } catch {} }; $have = @(); "
+                "if ($state -eq 'readable') { $have = @($raw | ForEach-Object { "
+                "$_.TrimEnd('\\').ToLowerInvariant() }) }"
+            )
+            for index, entry in enumerate(exclusions):
+                lines.append(
+                    f"$x = {_exclusion_path(worker, entry)}.ToLowerInvariant(); "
+                    f"if ($state -ne 'readable') {{ 'excl {index} ' + $state }} "
+                    "elseif ($have | Where-Object { $x -eq $_ -or $x.StartsWith($_ "
+                    f"+ '\\') }}) {{ 'excl {index} present' }} else {{ 'excl "
+                    f"{index} absent' }}"
+                )
         lines.append(
             "$d = Get-PSDrive -Name ((Split-Path -Qualifier $HOME).TrimEnd(':')); "
             "'free ' + [int64]($d.Free / 1KB)"
@@ -486,6 +555,7 @@ class WorkerAligner:
         found: dict[str, str | None] = {}
         pythons: dict[str, str] = {}
         hashes: dict[int, str | None] = {}
+        exclusions: dict[int, str] = {}
         free_kib: int | None = None
         for line in output.splitlines():
             if line.startswith("free ") and line[5:].strip().isdigit():
@@ -497,6 +567,8 @@ class WorkerAligner:
                 pythons[parts[1]] = parts[2].strip()
             elif len(parts) == 3 and parts[0] == "file" and parts[1].isdigit():
                 hashes[int(parts[1])] = None if parts[2] == "-" else parts[2].strip()
+            elif len(parts) == 3 and parts[0] == "excl" and parts[1].isdigit():
+                exclusions[int(parts[1])] = parts[2].strip()
         if completed.returncode or not found and commands:
             report.status = "unreachable"
             report.findings.append(
@@ -562,6 +634,25 @@ class WorkerAligner:
                     "`litai worker cleanup`; align never deletes worker data",
                 )
             )
+        if platform is not None and _windows(worker):
+            for index, entry in enumerate(platform.defender_exclusions):
+                state = exclusions.get(index, "unreadable")
+                if state in {"present", "none"}:
+                    continue
+                report.findings.append(
+                    Finding(
+                        "defender-exclusion",
+                        entry,
+                        "missing" if state == "absent" else "unchecked",
+                        "real-time scanning slows builds and test trees here"
+                        if state == "absent"
+                        else "Defender exclusions are unreadable without "
+                        "administrator rights",
+                        "added with --apply"
+                        if state == "absent"
+                        else "connect as an administrator, then rerun",
+                    )
+                )
         for index, item in enumerate(files):
             try:
                 local = _digest(item.source.read_bytes())
@@ -652,6 +743,27 @@ class WorkerAligner:
             )
             report.applied.append(
                 f"install {install.command}: exit {completed.returncode}"
+            )
+        platform = self.template.platforms.get(family or "")
+        excluded = {
+            item.name
+            for item in report.findings
+            if item.kind == "defender-exclusion" and item.state == "missing"
+        }
+        for entry in () if platform is None else platform.defender_exclusions:
+            if entry not in excluded:
+                continue
+            completed = self._run(
+                worker,
+                powershell_command(
+                    "Add-MpPreference -ExclusionPath "
+                    f"({_exclusion_path(worker, entry)}) -ErrorAction Stop; "
+                    "$global:LASTEXITCODE = 0"
+                ),
+                _PROBE_TIMEOUT_SECONDS,
+            )
+            report.applied.append(
+                f"exclude {entry} from Defender: exit {completed.returncode}"
             )
         stamp = self.clock().strftime("%Y%m%dT%H%M%SZ")
         stale = {

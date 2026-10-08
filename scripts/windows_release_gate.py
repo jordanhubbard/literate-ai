@@ -139,6 +139,19 @@ def main(argv: list[str] | None = None) -> int:
         ]
     )
     environment.pop("PYTHONPATH", None)
+    if _windows():
+        # Keep smoke and test trees inside the checkout, under the worker
+        # workspace that the template excludes from Defender scanning.
+        # Each gate starts empty; git never discovers this checkout from them.
+        temporary = ROOT / "_build/tmp"
+        shutil.rmtree(temporary, ignore_errors=True)
+        temporary.mkdir(parents=True, exist_ok=True)
+        environment["TEMP"] = environment["TMP"] = str(temporary)
+        environment["GIT_CEILING_DIRECTORIES"] = os.pathsep.join(
+            item
+            for item in (str(temporary), environment.get("GIT_CEILING_DIRECTORIES"))
+            if item
+        )
     python = _environment_python(args.environment.resolve())
     npm = shutil.which("npm.cmd" if _windows() else "npm", path=environment["PATH"])
     try:

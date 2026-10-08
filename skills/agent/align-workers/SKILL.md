@@ -11,8 +11,10 @@ Never hand-repair a worker from memory. One command compares every configured wo
 with two declared sources of expectations and reports each gap with its remediation:
 
 - **Repository prerequisites**: `literate.worker-template.json` (committed). Commands
-  per OS family, a minimum Python, minimum free disk, and where Windows tools live
-  off `PATH`. The Windows release gate reads the same file, so tools are declared once.
+  per OS family, a minimum Python, minimum free disk, where Windows tools live off
+  `PATH`, and the paths Microsoft Defender must not scan in real time
+  (`defender_exclusions`; `{workspace}` is the worker's workspace). The Windows
+  release gate reads the same file, so tools are declared once.
 - **User expectations** (private, never committed): the coding CLI and model in the
   project-scoped `test.json`, and `worker-alignment.json` in the user configuration
   root (`litai config paths` reports both). It names files every worker must hold, as
@@ -22,13 +24,14 @@ with two declared sources of expectations and reports each gap with its remediat
 ## Workflow
 
 1. `litai worker list`, then `litai worker align --all`. Inspection is read-only. It
-   checks SSH reachability, required commands, Python, free disk, every declared file
-   by content hash, and makes one live model call through the selected coding CLI on
-   each worker. `--worker-id ID` narrows it; `--skip-model` skips the model call.
+   checks SSH reachability, required commands, Python, free disk, Windows Defender
+   exclusions, every declared file by content hash, and makes one live model call
+   through the selected coding CLI on each worker. `--worker-id ID` narrows it; `--skip-model` skips the model call.
 2. Read every finding; each carries a remediation. `aligned: true` with exit status 0
    is the only ready state.
 3. `litai worker align --all --apply` with the user's authorization. It runs only
-   declared installs for missing commands and replaces only files whose bytes differ.
+   declared installs for missing commands, adds missing Defender exclusions (an
+   administrator SSH session is required), and replaces only files whose bytes differ.
    It backs the old copy up as `<file>.bak-<UTC>` and keeps secrets owner-only. It then
    inspects again and reports what is true afterwards.
 4. Gaps that `--apply` does not own:
