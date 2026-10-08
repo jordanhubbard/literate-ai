@@ -6,7 +6,7 @@ import sys
 import tempfile
 import unittest
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -42,6 +42,7 @@ from literate_ai.contracts.execution_dispatch import (
     ExecutionWorkerKind,
 )
 from literate_ai.storage import FileSystemCAS
+from tests.support.action_deadline import ACTION_TEST_DEADLINE
 from tests.support.fixtures_test_action_blob_source import blob_path, source_cas_server
 from tests.support.fixtures_test_component_node_generation_preparation import _fixture
 from tests.support.fixtures_test_standard_local_command_adapter import (
@@ -55,7 +56,8 @@ class CommandLinkDependencyTests(unittest.TestCase):
             root = Path(temporary).resolve()
             snapshot, execution = _fixture(dependency_kind=DependencyKind.PACKAGING)
             source_cas = FileSystemCAS(root / "source-cas")
-            deadline = ActionDispatchDeadline(datetime.now(UTC) + timedelta(minutes=5))
+            # One deadline spans generation through FINALIZE in real receivers.
+            deadline = ActionDispatchDeadline(datetime.now(UTC) + ACTION_TEST_DEADLINE)
             accepted, handoffs, blobs, proof_refs = {}, {}, {}, {}
             local_ports = {}
             for number, generation in enumerate(execution.generation_plans):
