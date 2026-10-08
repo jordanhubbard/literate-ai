@@ -931,9 +931,12 @@ def _environment(candidate_root: Path, dependency_projection: Path) -> dict[str,
 
 
 # A clean replay indexes and qualifies the complete generated framework.
-# Hosted Windows filesystems are materially slower than POSIX runners, so the
-# outer owner must not expire first.
-_CANDIDATE_PROCESS_TIMEOUT_SECONDS = 900 if os.name == "nt" else 300
+# Hosted Windows filesystems are materially slower than POSIX runners, and a
+# Linux worker measured about 480 seconds per candidate, so the outer owner must
+# not expire first.
+_CANDIDATE_PROCESS_TIMEOUT_SECONDS = (
+    900 if os.name == "nt" or sys.platform.startswith("linux") else 300
+)
 _MAX_CANDIDATE_STDOUT_BYTES = 8 * 1024 * 1024
 _MAX_CANDIDATE_STDERR_BYTES = 1024 * 1024
 _CANDIDATE_FAILURE_DIAGNOSTIC_BYTES = 64 * 1024
