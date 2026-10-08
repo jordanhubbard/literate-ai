@@ -377,6 +377,7 @@ _RETRYABLE_MODEL_STAGE_CONTRACT_FAILURE_CODES = frozenset(
         "coding_cli.generated_cpp_bazel_output_collision",
         "coding_cli.generated_cpp_bazel_hdrs_unsupported",
         "coding_cli.generated_cpp_bazel_workspace_include_unsupported",
+        "coding_cli.generated_rust_bazel_crate_root_ambiguous",
         "generated_tests.acceptance_signature_missing",
         "generated_tests.duplicate_arguments",
         "generated_tests.expected_result_shape_mismatch",

@@ -166,6 +166,9 @@ def validate_rust_bazel_source_closure(files: Mapping[str, str]) -> None:
                     f"generated {rule_kind} in {build_path} declares no statically "
                     "verifiable Rust sources",
                 )
+            _require_unambiguous_rust_crate_root(
+                rule_kind, body, declared, build_path=build_path
+            )
             for source in sorted(declared):
                 _require_declared_module_closure(
                     source,
@@ -514,6 +517,49 @@ def _declared_rust_sources(
             ):
                 declared.add(candidate)
     return declared
+
+
+def _require_unambiguous_rust_crate_root(
+    rule_kind: str,
+    body: str,
+    declared: set[PurePosixPath],
+    *,
+    build_path: str,
+) -> None:
+    """Reject a multi-source rules_rust target whose crate root Bazel cannot infer.
+
+    Without ``crate_root`` (or a ``crate`` to test), rules_rust picks the sole
+    source, else a source named ``<crate>.rs`` or the kind's default root
+    (``main.rs`` for binaries, ``lib.rs`` for tests). Anything else fails
+    analysis with "please use `crate_root`", which retry feedback reports only
+    as an opaque Bazel analysis failure.
+    """
+
+    if len(declared) <= 1:
+        return
+    if (
+        _attribute_expression(body, "crate_root") is not None
+        or _attribute_expression(body, "crate") is not None
+    ):
+        return
+    crate_name = _literal_attribute(body, "crate_name")
+    if crate_name is None:
+        name = _literal_attribute(body, "name")
+        if name is None:
+            return
+        crate_name = name.replace("-", "_")
+    default_root = "main.rs" if rule_kind == "rust_binary" else "lib.rs"
+    candidates = {default_root, f"{crate_name}.rs"}
+    if any(source.name in candidates for source in declared):
+        return
+    rule_name = _literal_attribute(body, "name") or crate_name
+    raise GeneratedSourceValidationError(
+        "coding_cli.generated_rust_bazel_crate_root_ambiguous",
+        f"generated {rule_kind} {rule_name!r} in {build_path} lists "
+        f"{len(declared)} Rust srcs but none is {default_root} or "
+        f"{crate_name}.rs, so rules_rust cannot infer the crate root; set "
+        'crate_root explicitly (for example crate_root = "main.rs")',
+    )
 
 
 def _unescape_starlark_string(value: str) -> str:
