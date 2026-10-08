@@ -55,6 +55,7 @@ litai release contributions disposition
 litai release plan
 litai release prepare
 litai release check
+litai release qualify
 litai release publish
 litai release verify-published
 litai release backport
@@ -570,12 +571,13 @@ root-integration acceptance still remain.
 | `release contributions disposition --kind issue\|review --number N --version VERSION --decision include\|defer --milestone NAME --reason TEXT [--branch NAME ...] --authorize-external-write` | Set one tracker milestone and append the matching machine-readable release disposition; this is the explicitly authorized mutating half of the continuous sweep. |
 | `release plan (--bump patch\|minor\|major \| --version VERSION)` | Read the project policy and emit a content-identified release plan without mutation. When the policy names `default_branch`, a plan from that trunk records `release_line.create: true` only if `release/<major>.<minor>.x` for the planned version is absent. |
 | `release prepare PLAN` | Update only the plan's declared version and changelog authority; never commit, tag, push, or publish. When `release_line.create` is true, create that branch from the plan revision, check it out, then write. |
-| `release check PLAN [--output FILE]` | Require one exact clean prepared commit, constrain its diff, and run the declared gate into a compact prepared-release record. |
+| `release check PLAN [--output FILE] [--target local\|github\|tiered]` | Require one exact clean prepared commit, constrain its diff, and run the declared gate into a compact prepared-release record. When the release policy declares `qualification`, every platform x action cell is covered by this host first, then `workers.json` workers, then CI only when needed or mandatory. |
+| `release qualify [--output FILE]` | Cover the release policy's platform x action matrix at exact clean `HEAD`, preferring this host, then workers, then CI, and write a revision-bound qualification record. |
 | `release publish PREPARED --authorize-external-write` | Revalidate the prepared commit, create and push its tag without force, then invoke the optional provider adapter. |
 | `release verify-published PREPARED` | Read-only: require the remote annotated tag, release-line branch, and optional GitHub release to match the prepared identity. Never retags. |
 | `release backport COMMIT... --to BRANCH [--from REF]` | Cherry-pick already-landed commit(s) onto a release branch in an isolated worktree, creating the branch from `--from` first if it doesn't exist yet. Never pushes. |
 | `release backport-status BRANCH [--against REF]` | List commits on `--against` (default `HEAD`) not yet cherry-picked onto `BRANCH`, using patch-id equivalence so already-backported fixes drop off the list even though cherry-pick gives them a new SHA. |
-| `release rc --version VERSION --authorize-external-write` | Create and push an annotated release-candidate tag only from exact green `main` HEAD for the configured Pre-release target. |
+| `release rc --version VERSION [--qualification FILE] --authorize-external-write` | Create and push an annotated release-candidate tag only from exact `main` HEAD for the configured Pre-release target, after green CI or a qualification record that covers every platform and action without CI. |
 | `release state [--project PATH]` | Read Free/Pre-release state, target, branch, writability, release-line lockdown, and patch authorization mode. |
 | `release state set --mode free\|pre-release [--pre-release-version MAJOR.MINOR]` | Atomically set the release state as a README Release Engineer; Pre-release requires the target and Free forbids it. |
 | `rebuild SPECIFICATION --project PATH --runtime-root DIR --candidate-receipt FILE --allow-host-execution [--build-dir DIR] [--obj-dir DIR] [--flavor=+NAME ...] [--model MODEL]` | Run the project-authorized complete SDLC under one enclosing model default and validate its external passing-receipt candidate. |

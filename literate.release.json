@@ -59,6 +59,13 @@
     "argv": ["make", "release-check"],
     "timeout_seconds": 172800
   },
+  "qualification": {
+    "platforms": ["linux", "macos", "windows"],
+    "ci": {
+      "mandatory": false,
+      "platforms": ["linux", "macos", "windows"]
+    }
+  },
   "artifact_gate": {
     "argv": ["make", "release-artifacts"],
     "timeout_seconds": 7200,

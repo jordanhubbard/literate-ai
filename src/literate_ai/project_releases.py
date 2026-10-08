@@ -60,8 +60,17 @@ from literate_ai.projects import (
     ProjectError,
     discover_project,
 )
+from literate_ai.release_qualification import (
+    QUALIFICATION_RECORD_SCHEMA,
+    QualificationRunner,
+    ReleaseQualificationError,
+    ReleaseQualificationPolicy,
+    coverage_cells,
+    plan_qualification,
+    require_qualification_record,
+)
 
-RELEASE_TARGETS = frozenset({"local", "github", "gitlab"})
+RELEASE_TARGETS = frozenset({"local", "github", "gitlab", "tiered"})
 WORKERS_CATALOG_FILE = "workers.json"
 _WORKER_PROBE_TIMEOUT_SECONDS = 60
 _GITHUB_POLL_INTERVAL_SECONDS = 15
@@ -272,6 +281,7 @@ class ReleasePolicy:
     collateral: tuple[ReleaseCollateralPolicy, ...]
     artifact_gate: dict[str, Any] | None = None
     authenticated_receipt: dict[str, Any] | None = None
+    qualification: ReleaseQualificationPolicy | None = None
 
     @classmethod
     def from_dict(cls, value: object) -> ReleasePolicy:
@@ -292,6 +302,9 @@ class ReleasePolicy:
         collateral_raw = data.pop("collateral", None)
         artifact_gate = data.pop("artifact_gate", None)
         authenticated_receipt = data.pop("authenticated_receipt", None)
+        # Optional: the platforms and actions a release must cover, and when CI
+        # is required to cover them (see literate_ai.release_qualification).
+        qualification_raw = data.pop("qualification", None)
         if authenticated_receipt is not None:
             from literate_ai.adapters.release_evidence import (
                 validate_release_evidence_policy,
@@ -496,6 +509,14 @@ class ReleasePolicy:
             names = tuple(item.name for item in collateral)
             if len(names) != len(set(names)):
                 _fail("release_policy.collateral", "deliverable names must be unique")
+        qualification = None
+        if qualification_raw is not None:
+            try:
+                qualification = ReleaseQualificationPolicy.from_dict(
+                    qualification_raw, gate_argv=gate_argv
+                )
+            except ReleaseQualificationError as exc:
+                _fail("release_policy.qualification", str(exc))
         return cls(
             schema,
             version_scheme,
@@ -517,6 +538,7 @@ class ReleasePolicy:
             collateral,
             artifact_gate,
             authenticated_receipt,
+            qualification,
         )
 
     @property
@@ -552,6 +574,11 @@ class ReleasePolicy:
             **(
                 {"artifact_gate": self.artifact_gate}
                 if self.artifact_gate is not None
+                else {}
+            ),
+            **(
+                {"qualification": self.qualification.to_dict()}
+                if self.qualification is not None
                 else {}
             ),
             **(
@@ -2501,11 +2528,14 @@ def _run_release_gate(
     *,
     run: EvidenceRun | None = None,
     parent: str | None = None,
+    argv: tuple[str, ...] | None = None,
+    path: str = "release/gate",
 ) -> tuple[subprocess.CompletedProcess[str], str | None]:
+    argv = policy.gate_argv if argv is None else argv
     try:
         context = (
             run.node(
-                "release/gate",
+                path,
                 operation="release.gate",
                 parent=parent,
                 host={"kind": "legacy-local", "platform": sys.platform},
@@ -2515,11 +2545,11 @@ def _run_release_gate(
         )
         with context as evidence_node:
             completed = record_subprocess(
-                policy.gate_argv,
+                argv,
                 cwd=root,
                 run=run,
                 parent=parent,
-                path="release/gate",
+                path=path,
                 operation="release.gate",
                 timeout=policy.gate_timeout_seconds,
                 environment=_gate_environment(),
@@ -2655,6 +2685,8 @@ def _run_release_gate_on_one_worker(
     *,
     evidence_run: EvidenceRun | None = None,
     evidence_parent: str | None = None,
+    argv: tuple[str, ...] | None = None,
+    path: str | None = None,
 ) -> dict[str, object]:
     """Run the declared gate on one POSIX worker; raise on any failure.
 
@@ -2664,9 +2696,10 @@ def _run_release_gate_on_one_worker(
     """
 
     assert worker.endpoint is not None and worker.workspace is not None
+    argv = policy.gate_argv if argv is None else argv
     context = (
         evidence_run.node(
-            f"release/target/local/{worker.worker_id}",
+            path or f"release/target/local/{worker.worker_id}",
             operation="release.target.local.worker",
             parent=evidence_parent,
             host={"kind": "ssh", "worker_id": worker.worker_id},
@@ -2746,7 +2779,7 @@ def _run_release_gate_on_one_worker(
             posix_export_prefix(overlay)
             + " && "
             + f"cd {workspace} && "
-            + shlex.join(policy.gate_argv)
+            + shlex.join(argv)
         )
         try:
             completed = runner.run(
@@ -2809,7 +2842,7 @@ def _run_release_gate_on_one_worker(
                 else None
             ),
             "gate": {
-                "argv": list(policy.gate_argv),
+                "argv": list(argv),
                 "exit_status": completed.returncode,
                 "stdout_digest": _digest_text(stdout_text),
                 "stderr_digest": _digest_text(stderr_text),
@@ -2905,6 +2938,204 @@ def _run_release_gate_on_workers(
         "kind": "local",
         "workers": per_worker,
         "excluded_workers": list(excluded),
+    }
+    return gate, target
+
+
+# Runner failures that mean "this runner cannot provide the platform", so the
+# platform falls through to the next tier. A failed action never falls through.
+_RUNNER_UNAVAILABLE = frozenset(
+    {
+        "release.worker_unreachable",
+        "release.worker_revision_mismatch",
+        "release.gate_unavailable",
+    }
+)
+
+
+def _host_platform() -> tuple[str | None, str | None] | None:
+    """Probe the host running the coding CLI as a worker probe would."""
+
+    from literate_ai.adapters.worker_capabilities import probe_worker_capabilities
+
+    try:
+        observed = probe_worker_capabilities(
+            ExecutionWorker("release-host", ExecutionWorkerKind.LOCAL)
+        )
+    except Exception:  # noqa: BLE001 - an unprovable host is simply not a tier
+        return None
+    return observed.os_family, observed.cpu_architecture
+
+
+def _qualification_workers(
+    root: Path,
+) -> tuple[tuple[ExecutionWorker, ...], tuple[dict[str, object], ...]]:
+    """Every POSIX SSH worker, or none when no usable fleet is configured."""
+
+    try:
+        return _select_release_workers(root)
+    except ProjectReleaseError:
+        return (), ()
+
+
+def _run_tiered_qualification(
+    root: Path,
+    policy: ReleasePolicy,
+    snapshot: dict[str, object],
+    *,
+    evidence_run: EvidenceRun | None = None,
+    evidence_parent: str | None = None,
+) -> tuple[dict[str, object], dict[str, object]]:
+    """Cover every required platform x action, preferring local, then workers.
+
+    CI runs only when a platform has no left tier or the policy mandates it.
+    """
+
+    qualification = policy.qualification
+    assert qualification is not None
+    host = _host_platform()
+    workers, excluded = _qualification_workers(root)
+    by_id = {worker.worker_id: worker for worker in workers}
+    runners = tuple(
+        QualificationRunner(
+            worker.worker_id,
+            worker.requirements.os_family,
+            worker.requirements.cpu_architecture,
+        )
+        for worker in workers
+    )
+    try:
+        plan = plan_qualification(qualification, host=host, workers=runners)
+    except ReleaseQualificationError as exc:
+        raise ProjectReleaseError(exc.code, str(exc)) from exc
+    covered: dict[str, dict[str, object]] = {}
+    digests: list[str] = []
+    runs: list[dict[str, object]] = []
+    # One host run covers every required platform the host provides.
+    if plan.local:
+        for action in qualification.actions:
+            completed, node_id = _run_release_gate(
+                root,
+                policy,
+                run=evidence_run,
+                parent=evidence_parent,
+                argv=action.argv,
+                path=f"release/qualification/local/{action.name}",
+            )
+            if completed.returncode:
+                raise ProjectReleaseError(
+                    "release.gate_failed",
+                    f"{action.name} failed locally with exit status "
+                    f"{completed.returncode}: "
+                    + _release_gate_failure_detail(completed),
+                )
+            digests.extend(
+                (_digest_text(completed.stdout), _digest_text(completed.stderr))
+            )
+            runs.append(
+                {
+                    "tier": "local",
+                    "action": action.name,
+                    "argv": list(action.argv),
+                    "evidence_node_id": node_id,
+                }
+            )
+        for platform in plan.local:
+            covered[platform] = {"tier": "local"}
+
+    def qualify_on_workers(platform: str) -> dict[str, object] | None:
+        for worker_id in plan.workers.get(platform, ()):
+            worker = by_id[worker_id]
+            results = []
+            try:
+                for action in qualification.actions:
+                    results.append(
+                        _run_release_gate_on_one_worker(
+                            root,
+                            policy,
+                            snapshot,
+                            worker,
+                            evidence_run=evidence_run,
+                            evidence_parent=evidence_parent,
+                            argv=action.argv,
+                            path=(
+                                f"release/qualification/worker/{worker_id}/"
+                                f"{action.name}"
+                            ),
+                        )
+                    )
+            except ProjectReleaseError as exc:
+                if exc.code in _RUNNER_UNAVAILABLE:
+                    continue
+                raise
+            return {"worker_id": worker_id, "results": results}
+        return None
+
+    pending = [
+        platform for platform in qualification.platforms if platform not in covered
+    ]
+    with ThreadPoolExecutor(max_workers=max(1, len(pending))) as executor:
+        outcomes = dict(
+            zip(pending, executor.map(qualify_on_workers, pending), strict=True)
+        )
+    for platform in pending:
+        outcome = outcomes[platform]
+        if outcome is None:
+            continue
+        covered[platform] = {"tier": "worker", "worker_id": outcome["worker_id"]}
+        for action, result in zip(
+            qualification.actions, outcome["results"], strict=True
+        ):
+            gate = result["gate"]
+            assert isinstance(gate, dict)
+            digests.extend((str(gate["stdout_digest"]), str(gate["stderr_digest"])))
+            runs.append(
+                {
+                    "tier": "worker",
+                    "action": action.name,
+                    "worker_id": outcome["worker_id"],
+                    "argv": gate["argv"],
+                    "evidence_node_id": result.get("evidence_node_id"),
+                }
+            )
+    remaining = [
+        platform for platform in qualification.platforms if platform not in covered
+    ]
+    ci_required = qualification.ci_mandatory or bool(remaining)
+    ci: dict[str, object] | None = None
+    if ci_required:
+        missing = [item for item in remaining if item not in qualification.ci_platforms]
+        if missing:
+            raise ProjectReleaseError(
+                "release.qualification_incomplete",
+                "no available local host, worker or declared CI platform can "
+                "provide " + ", ".join(missing),
+            )
+        _, ci = _run_release_gate_via_github(root, policy, snapshot)
+        for platform in remaining:
+            covered[platform] = {"tier": "ci", "run_id": ci.get("run_id")}
+    try:
+        cells = coverage_cells(qualification, covered)
+    except ReleaseQualificationError as exc:
+        raise ProjectReleaseError(exc.code, str(exc)) from exc
+    gate = {
+        "argv": list(policy.gate_argv),
+        "exit_status": 0,
+        # Aggregate of every left-tier run's output digests, in run order.
+        "stdout_digest": canonical_identity(digests).uri,
+        "stderr_digest": canonical_identity(
+            [item["evidence_node_id"] for item in runs]
+        ).uri,
+    }
+    target: dict[str, object] = {
+        "kind": "tiered",
+        "qualification_identity": qualification.identity,
+        "host_platform": None if host is None else list(host),
+        "ci_required": ci_required,
+        "coverage": cells,
+        "runs": runs,
+        "excluded_workers": list(excluded),
+        "ci": ci,
     }
     return gate, target
 
@@ -3214,16 +3445,35 @@ def _check_release(
         raise ProjectReleaseError(
             "release.tag_exists", f"release tag already exists: {plan['tag']}"
         )
-    resolved_target = _resolve_release_target(root, target)
+    # A declared platform x action qualification is satisfied left to right
+    # (host, workers, CI) unless the caller explicitly selects one target.
+    resolved_target = (
+        "tiered"
+        if target is None and policy.qualification is not None
+        else _resolve_release_target(root, target)
+    )
     if evidence_node is not None:
         evidence_node.add_pins(resolved_target=resolved_target)
+    if resolved_target == "tiered" and policy.qualification is None:
+        raise ProjectReleaseError(
+            "release.target_unconfigured",
+            "the tiered target requires release_policy.qualification",
+        )
     if resolved_target == "gitlab":
         raise ProjectReleaseError(
             "release.target_unsupported",
             "the gitlab release-gate target is not yet supported; use "
             "--target local or --target github",
         )
-    if resolved_target == "local":
+    if resolved_target == "tiered":
+        gate, target_evidence = _run_tiered_qualification(
+            root,
+            policy,
+            snapshot,
+            evidence_run=evidence_run,
+            evidence_parent=evidence_node.node_id if evidence_node else None,
+        )
+    elif resolved_target == "local":
         gate, target_evidence = _run_release_gate_on_workers(
             root,
             policy,
@@ -3407,12 +3657,82 @@ def check_release(
             run.close(state)
 
 
+def qualify_release(project: Path, *, output: Path) -> dict[str, object]:
+    """Cover the policy's platform x action matrix at the exact clean HEAD.
+
+    The record lets RC tagging and release-line merges accept left-tier
+    (host and worker) results in place of CI when CI is not required.
+    """
+
+    root, policy = load_release_policy(project)
+    if policy.qualification is None:
+        raise ProjectReleaseError(
+            "release.target_unconfigured",
+            "release qualification requires release_policy.qualification",
+        )
+    snapshot = _git_snapshot(root)
+    if not snapshot["clean"]:
+        raise ProjectReleaseError(
+            "release.check_dirty", "release qualification requires a clean commit"
+        )
+    gate, target = _run_tiered_qualification(root, policy, snapshot)
+    if _git_snapshot(root)["head"] != snapshot["head"]:
+        raise ProjectReleaseError(
+            "release.qualification_stale", "HEAD moved during qualification"
+        )
+    record: dict[str, object] = {
+        "schema": QUALIFICATION_RECORD_SCHEMA,
+        "revision": snapshot["head"],
+        "branch": snapshot["branch"],
+        "policy_identity": policy.qualification.identity,
+        "gate": gate,
+        **{key: value for key, value in target.items() if key != "kind"},
+    }
+    record["identity"] = canonical_identity(record).uri
+    destination = _release_record_destination(root, output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    _atomic_write_text(
+        destination,
+        json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n",
+    )
+    return {**record, "record": str(destination)}
+
+
+def _left_tier_qualification(
+    root: Path,
+    policy: ReleasePolicy,
+    qualification: Path | None,
+    *,
+    revision: str,
+) -> dict[str, object] | None:
+    """Return an exact-revision record that makes CI optional, if one applies."""
+
+    if qualification is None:
+        return None
+    if policy.qualification is None:
+        raise ProjectReleaseError(
+            "release.target_unconfigured",
+            "a qualification record requires release_policy.qualification",
+        )
+    try:
+        record = json.loads(Path(qualification).read_text(encoding="utf-8"))
+        require_qualification_record(record, policy.qualification, revision=revision)
+    except (OSError, ValueError) as exc:
+        if isinstance(exc, ReleaseQualificationError):
+            raise ProjectReleaseError(exc.code, str(exc)) from exc
+        raise ProjectReleaseError(
+            "release.qualification_invalid", "cannot read the qualification record"
+        ) from exc
+    return None if record.get("ci_required") else record
+
+
 def create_release_candidate(
     project: Path,
     *,
     version: str,
     actor: str | None,
     authorize_external_write: bool,
+    qualification: Path | None = None,
 ) -> dict[str, object]:
     if not authorize_external_write:
         raise ProjectReleaseError(
@@ -3447,26 +3767,34 @@ def create_release_candidate(
         raise ProjectReleaseError(
             "release.target_unconfigured", "RC tagging requires a GitHub provider"
         )
-    matches = _github_run_matches(
-        root,
-        policy.provider_repository,
-        str(snapshot["branch"]),
-        str(snapshot["head"]),
-        getattr(_repository_policy(root), "release_ci_workflow", "CI"),
+    left_tiers = _left_tier_qualification(
+        root, policy, qualification, revision=str(snapshot["head"])
     )
-    green = next(
-        (
-            item
-            for item in matches
-            if item.get("status") == "completed" and item.get("conclusion") == "success"
-        ),
-        None,
-    )
-    if green is None:
-        raise ProjectReleaseError(
-            "release.rc_ci_unavailable",
-            "RC tagging requires successful exact-head GitHub CI evidence",
+    green = None
+    if left_tiers is None:
+        matches = _github_run_matches(
+            root,
+            policy.provider_repository,
+            str(snapshot["branch"]),
+            str(snapshot["head"]),
+            getattr(_repository_policy(root), "release_ci_workflow", "CI"),
         )
+        green = next(
+            (
+                item
+                for item in matches
+                if item.get("status") == "completed"
+                and item.get("conclusion") == "success"
+            ),
+            None,
+        )
+        if green is None:
+            raise ProjectReleaseError(
+                "release.rc_ci_unavailable",
+                "RC tagging requires successful exact-head GitHub CI evidence, "
+                "or a qualification record whose host and worker tiers cover "
+                "every platform and action (litai release qualify)",
+            )
     tag = f"{policy.tag_prefix}{canonical}"
     if _local_tag_revision(root, tag) is not None:
         raise ProjectReleaseError(
@@ -3528,11 +3856,18 @@ def create_release_candidate(
         "tag": tag,
         "revision": snapshot["head"],
         "remote": policy.remote,
-        "ci": {
+        "ci": None
+        if green is None
+        else {
             "run_id": green.get("databaseId"),
             "run_url": green.get("url"),
             "conclusion": "success",
         },
+        **(
+            {"qualification_identity": left_tiers["identity"]}
+            if left_tiers is not None
+            else {}
+        ),
         "authorization": authorization,
         "wheel": str(wheel_path) if wheel_path is not None else None,
     }
@@ -3608,6 +3943,7 @@ def merge_release_pull_request(
     number: int,
     actor: str | None,
     authorize_external_write: bool,
+    qualification: Path | None = None,
 ) -> dict[str, object]:
     if not authorize_external_write:
         raise ProjectReleaseError(
@@ -3670,22 +4006,34 @@ def merge_release_pull_request(
         raise ProjectReleaseError(
             "release.pr_not_mergeable", "PR must be open and non-draft"
         )
-    if (
-        not isinstance(checks, list)
-        or not checks
-        or any(
-            not isinstance(check, dict)
-            or check.get("conclusion") not in {"SUCCESS", "NEUTRAL", "SKIPPED"}
-            for check in checks
-        )
-    ):
-        raise ProjectReleaseError(
-            "release.pr_checks_not_green", "all release-line PR checks must be green"
-        )
     head = metadata.get("headRefOid")
     if not isinstance(head, str) or not re.fullmatch(r"[0-9a-f]{40,64}", head):
         raise ProjectReleaseError(
             "release.provider_response_invalid", "PR head is invalid"
+        )
+    left_tiers = _left_tier_qualification(root, policy, qualification, revision=head)
+    if not isinstance(checks, list) or any(
+        not isinstance(check, dict) for check in checks
+    ):
+        raise ProjectReleaseError(
+            "release.provider_response_invalid", "PR checks are invalid"
+        )
+    if left_tiers is not None:
+        # CI is optional here, but a check that completed and failed is still
+        # evidence against this head; only pending or absent checks are waived.
+        if any(
+            check.get("conclusion") not in {None, "", "SUCCESS", "NEUTRAL", "SKIPPED"}
+            for check in checks
+        ):
+            raise ProjectReleaseError(
+                "release.pr_checks_not_green", "a release-line PR check failed"
+            )
+    elif not checks or any(
+        check.get("conclusion") not in {"SUCCESS", "NEUTRAL", "SKIPPED"}
+        for check in checks
+    ):
+        raise ProjectReleaseError(
+            "release.pr_checks_not_green", "all release-line PR checks must be green"
         )
     method = getattr(
         getattr(_repository_policy(root), "merge_method", None), "value", "merge"
@@ -3718,6 +4066,11 @@ def merge_release_pull_request(
         "base": base,
         "head_revision": head,
         "merge_method": method,
+        **(
+            {"qualification_identity": left_tiers["identity"]}
+            if left_tiers is not None
+            else {}
+        ),
         "authorization": authorization,
     }
 

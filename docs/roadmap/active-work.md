@@ -22351,13 +22351,13 @@ GitHub CI failure without relaxing identity checks.
   - [x] Obtain explicit maintainer acceptance of ADR 0044 before implementing its scheduler or shared-cache design.
   - [ ] Specify and implement compatible-worker DAG scheduling with bounded concurrency and fail-closed evidence.
   - [ ] Verify current test-cache behavior and implement provider-neutral Bazel/sccache plus package/container cache integration.
-  - [ ] Finish or explicitly defer every included queue item and land the consolidated change through required CI.
+  - [ ] Finish or explicitly defer every included queue item and land the consolidated change through the tiered qualification below (CI only where required).
   - [ ] Cut `release/1.2.x` from exact main and run plan, prepare, package, check, publish, verify-published, final sweep, and default-branch advance.
 - **Evidence:**
   - [ ] Roadmap projection and contribution sweep are ready with no unclassified or included-open items.
   - [ ] Deterministic tests prove dependency ordering, real safe overlap across multiple compatible workers, cancellation/recovery, and no cross-node evidence borrowing.
   - [ ] Cold/warm/corrupt cache tests prove correct test/build/package/container reuse with local and configured network endpoints.
-  - [ ] All project, package, installed-wheel, platform-worker, documentation, and hosted CI gates pass on one exact main revision.
+  - [ ] All project, package, installed-wheel, platform-worker and documentation gates pass on one exact main revision for every platform in `literate.release.json` `qualification`, covered by the release host first, then `workers.json` workers, then hosted CI only for platforms neither covers (today Windows) or when CI is marked mandatory.
   - [ ] The remote release branch, annotated tag, GitHub release, assets, receipts, and advanced main agree with that prepared identity.
 - **Maintainer direction (2026-09-29):** Complete the full existing 1.2 program
   before release, including production worker scheduling and shared-cache qualification.
@@ -26242,3 +26242,12 @@ receiver measures it in process before and after the action and attests it, and
 an unattested response falls back to full revalidation. Probes in the
 one-Component remote rebuild fall from 29 (38.6 s) to 3 (4.2 s); health checks
 stay at both boundaries (29 checks, about 1.5 s).
+
+Local-first release qualification, 2026-10-07: release policy `qualification`
+declares the platforms (N) and actions (M) a release must provide. `litai release
+check` (by default when declared) and the new `litai release qualify` cover each
+platform x action with the release host, then one `workers.json` worker per
+remaining platform, then CI only for what remains or when `ci.mandatory` is set.
+`rc` and `merge-pr` accept an exact-revision qualification record in place of CI
+when it covers every cell without CI. This repository declares linux, macos and
+windows; Windows has no left tier for the gate yet, so CI stays required for it.

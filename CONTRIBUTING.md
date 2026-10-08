@@ -173,7 +173,10 @@ qualifies all of Python 3.14. Full qualification also retains both Linux Python 
 Windows test shards and Windows packaging gates. `make release-check` remains
 unchanged. Use a manual CI run on a candidate branch when full platform evidence is needed
 before merging. Require full successful exact-commit qualification before release;
-a green ordinary PR smoke job is not a substitute.
+a green ordinary PR smoke job is not a substitute. Qualification means every platform
+and action in `literate.release.json` `qualification` passed on the exact commit,
+covered first by the release host, then by `workers.json` workers, and by CI only for
+what those cannot provide (today, Windows) or when the policy makes CI mandatory.
 
 macOS conformance partitions have a 120-minute step budget and the single-job Linux
 suites 180 minutes, leaving time within the job for

@@ -21,6 +21,7 @@ from literate_ai.project_releases import (
     create_release_plan,
     prepare_release,
     publish_release,
+    qualify_release,
     verify_published_release,
 )
 from tests.support.fixtures_test_schema_catalog import V2_ROOT, SchemaCatalog
@@ -318,6 +319,142 @@ class ProjectReleaseTests(unittest.TestCase):
                     authorize_external_write=True,
                 )
                 self.assertEqual(retried, receipt)
+
+    def test_release_qualification_prefers_host_then_workers_then_ci(self) -> None:
+        """N platforms x M actions are covered left to right; CI only when needed."""
+
+        worker = SimpleNamespace(
+            worker_id="linux-worker",
+            requirements=SimpleNamespace(os_family="linux", cpu_architecture=None),
+        )
+        green = ({"argv": ["ci"], "exit_status": 0}, {"kind": "github", "run_id": 7})
+
+        def worker_gate(outcome):
+            def run(_root, _policy, _snapshot, selected, **options):
+                if outcome != "pass":
+                    raise ProjectReleaseError(outcome, "worker outcome")
+                return {
+                    "worker_id": selected.worker_id,
+                    "evidence_node_id": None,
+                    "gate": {
+                        "argv": list(options["argv"]),
+                        "exit_status": 0,
+                        "stdout_digest": "sha256:" + "0" * 64,
+                        "stderr_digest": "sha256:" + "0" * 64,
+                    },
+                }
+
+            return run
+
+        cases = (
+            # platforms, ci, worker outcome, expected tiers or error code
+            (["macos"], {}, "pass", {"macos": "local"}),
+            (["macos", "linux"], {}, "pass", {"macos": "local", "linux": "worker"}),
+            (
+                ["macos", "linux"],
+                {"platforms": ["linux"]},
+                "release.worker_unreachable",
+                {"macos": "local", "linux": "ci"},
+            ),
+            (
+                ["macos", "linux"],
+                {"platforms": ["linux"]},
+                "release.gate_failed",
+                "release.gate_failed",
+            ),
+            (["macos", "windows"], {}, "pass", "release.qualification_incomplete"),
+            (
+                ["macos"],
+                {"mandatory": True, "platforms": ["linux"]},
+                "pass",
+                {"macos": "local"},
+            ),
+        )
+        schemas = SchemaCatalog(V2_ROOT)
+        for platforms, ci, outcome, expected in cases:
+            with (
+                self.subTest(platforms=platforms, ci=ci, outcome=outcome),
+                tempfile.TemporaryDirectory() as temporary,
+            ):
+                root, _ = self.initialize(Path(temporary))
+                policy = json.loads((root / "literate.release.json").read_text())
+                gate = policy["gate"]["argv"]
+                policy["qualification"] = {
+                    "platforms": platforms,
+                    "actions": [
+                        {"name": "build", "argv": gate},
+                        {"name": "test", "argv": gate},
+                    ],
+                    "ci": ci,
+                }
+                self.write_record(root / "literate.release.json", policy)
+                self.git(root, "commit", "-am", "Declare qualification")
+                github = unittest.mock.Mock(return_value=green)
+                with (
+                    patch(
+                        "literate_ai.project_releases.discover_project",
+                        return_value=SimpleNamespace(root=root, definition=None),
+                    ),
+                    patch.object(
+                        project_releases,
+                        "_host_platform",
+                        return_value=("macos", "arm64"),
+                    ),
+                    patch.object(
+                        project_releases,
+                        "_qualification_workers",
+                        return_value=((worker,), ()),
+                    ),
+                    patch.object(
+                        project_releases,
+                        "_run_release_gate_on_one_worker",
+                        worker_gate(outcome),
+                    ),
+                    patch.object(
+                        project_releases, "_run_release_gate_via_github", github
+                    ),
+                ):
+                    if isinstance(expected, str):
+                        with self.assertRaises(ProjectReleaseError) as refused:
+                            qualify_release(root, output=root / "_build/q.json")
+                        self.assertEqual(refused.exception.code, expected)
+                        continue
+                    record = qualify_release(root, output=root / "_build/q.json")
+                record.pop("record")
+                schemas.validate(record["schema"], record)
+                self.assertEqual(
+                    {
+                        (item["platform"], item["action"]): item["tier"]
+                        for item in record["coverage"]
+                    },
+                    {
+                        (platform, action): tier
+                        for platform, tier in expected.items()
+                        for action in ("build", "test")
+                    },
+                )
+                self.assertEqual(record["ci_required"], github.called)
+                self.assertEqual(
+                    github.called,
+                    "ci" in expected.values() or bool(ci.get("mandatory")),
+                )
+                # The record proves only its exact revision.
+                (root / "later.txt").write_text("later\n", encoding="utf-8")
+                self.git(root, "add", "later.txt")
+                self.git(root, "commit", "-m", "Later")
+                with patch(
+                    "literate_ai.project_releases.discover_project",
+                    return_value=SimpleNamespace(root=root, definition=None),
+                ):
+                    loaded = project_releases.load_release_policy(root)[1]
+                with self.assertRaises(ProjectReleaseError) as stale:
+                    project_releases._left_tier_qualification(
+                        root,
+                        loaded,
+                        root / "_build/q.json",
+                        revision=self.git(root, "rev-parse", "HEAD"),
+                    )
+                self.assertEqual(stale.exception.code, "release.qualification_stale")
 
     def test_artifact_gate_binds_checked_bytes_before_any_publication(self) -> None:
         from literate_ai.contracts import canonical_identity

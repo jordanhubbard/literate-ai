@@ -185,6 +185,42 @@ stateDiagram-v2
 `make release RELEASE_PLAN=/path/to/plan.json` is a thin alias for the check phase.
 The Makefile does not contain a second release implementation.
 
+## Tiered qualification: local first, CI only when needed
+
+A release policy may declare `qualification`: the platforms the release must provide
+(N, each `linux`, `macos` or `windows`, optionally suffixed with a CPU architecture
+such as `linux-x86_64`), the actions that must pass on each (M, named argument
+vectors such as code generation, build and test; the policy `gate` by default), and
+the platforms an exact-revision CI run covers. Every one of the N x M cells is
+covered by the leftmost tier that can run it:
+
+1. the host running the coding CLI covers the platforms it provides;
+2. one configured `workers.json` SSH worker covers each remaining platform, tried in
+   worker-id order; an unreachable worker or one checked out at another revision
+   falls through to the next worker, then to CI;
+3. a successful exact-revision CI run covers its declared platforms.
+
+A runner proves a platform only through facts it declares or observes; a worker
+without a declared architecture cannot satisfy an architecture-qualified platform.
+A failing action is never retried on another tier. CI is optional while the host
+and workers cover every cell. It becomes required only when some platform has no
+left tier (CI must then declare it, or qualification fails closed) or when the
+policy sets `ci.mandatory`.
+
+`litai release check` uses this tiered target whenever the policy declares
+`qualification` and no explicit `--target` is given; the prepared record lists every
+cell, the tier that covered it, and whether CI was required. `litai release qualify`
+runs the same matrix at the exact clean `HEAD` and writes a revision-bound
+`literate-ai/release-qualification@1` record. `litai release rc` and `litai release
+merge-pr` accept that record with `--qualification FILE`: when it covers every cell
+without CI, RC tagging does not require a green CI run, and a release-line merge is
+not blocked by pending or absent checks. A check that completed and failed still
+blocks the merge. Without such a record both commands require CI as before.
+
+This repository declares `linux`, `macos` and `windows`. The release gate has no
+Windows-native equivalent on SSH workers yet, so Windows is covered only by CI and
+CI remains required until a left tier can run the gate on Windows.
+
 ## Versioned release lines
 
 Every release belongs on `release/<major>.<minor>.x`, including releases using
@@ -205,7 +241,8 @@ verification branch requirements.
 Use `litai release state` to inspect Free or Pre-release state and `litai release state
 set --mode pre-release --pre-release-version MAJOR.MINOR` for an authorized transition.
 `litai release rc --version VERSION --authorize-external-write` creates an annotated RC
-tag only after the exact `main` HEAD is green. These commands do not configure forge
+tag only after the exact `main` HEAD is green, or when `--qualification FILE` names a
+tiered record that covers every platform and action without CI. These commands do not configure forge
 protection.
 
 ## Who decides release content
