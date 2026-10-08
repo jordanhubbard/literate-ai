@@ -1,7 +1,7 @@
 """Measure actual portable ports and bind test-issued project execution authority."""
 
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from functools import partial
 
 from literate_ai.adapters.action_dispatch_wire import ActionWireError, record_identity
@@ -17,6 +17,9 @@ from literate_ai.adapters.lifecycle.standard_local import LocalIndependentAccept
 from literate_ai.contracts import canonical_identity
 from literate_ai.security import BuildAuthorization, SecurityProfile
 
+# Operator grants outlive the slowest real-receiver chain, like dispatch.
+from tests.support.action_deadline import ACTION_TEST_DEADLINE
+
 
 def issue_finalize_grant(value, request, *, revoked=False):
     """Stand in for the operator: authorize exactly the planned FINALIZE request."""
@@ -31,7 +34,7 @@ def issue_finalize_grant(value, request, *, revoked=False):
         SecurityProfile.CONSTRAINED,
         request.requested_privileges,
         now,
-        now + timedelta(minutes=5),
+        now + ACTION_TEST_DEADLINE,
         revoked=revoked,
     )
 
@@ -92,7 +95,7 @@ def assert_finalize_profile(case, value, ports):
         SecurityProfile.CONSTRAINED,
         request.requested_privileges,
         now,
-        now + timedelta(minutes=5),
+        now + ACTION_TEST_DEADLINE,
     )
     guard = FinalizeExecutionGuard(
         value, identity, grant_provider=lambda: grant, observe_runtime=observe
