@@ -244,6 +244,35 @@ class CapabilityAttestationTests(unittest.TestCase):
                 self.assertIn(failure, outcome.failure_code)
 
 
+class CustodyFailureCodeTests(unittest.TestCase):
+    def test_refusal_names_the_failure_class_but_never_its_message(self):
+        from literate_ai.adapters.action_observation_failure import (
+            encode_observation_failure,
+            observation_failure_message,
+        )
+        from literate_ai.storage.cas import StorageError
+
+        secret = "/private/secret-path"
+        wrapped = StorageError(secret)
+        wrapped.__cause__ = PermissionError(13, secret)
+        for exc, suffix in (
+            (StorageError(secret), "storage"),
+            (wrapped, "storage.os.eacces"),
+            (FileNotFoundError(2, secret), "os.enoent"),
+            (OSError(secret), "os"),
+            (ValueError(secret), "value"),
+            (RuntimeError(secret), "runtime"),
+        ):
+            with self.subTest(suffix=suffix):
+                code = action_worker._custody_failure_code(exc)
+                self.assertEqual(
+                    code, f"action_capability.custody_unavailable.{suffix}"
+                )
+                message = observation_failure_message(encode_observation_failure(code))
+                self.assertIn(code, message)
+                self.assertNotIn(secret, message)
+
+
 class DependencyFactCacheTests(unittest.TestCase):
     def setUp(self):
         for table in (observation._INSPECTION_FACTS, observation._PERSISTED):

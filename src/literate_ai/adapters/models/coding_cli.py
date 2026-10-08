@@ -4102,8 +4102,13 @@ def lifecycle_driver_environment(
     requested_keys: Sequence[str],
     *,
     workspace: Path,
+    default_coding_cli: str | None = None,
 ) -> dict[str, str]:
-    """Apply the coding-CLI credential and host-tool policy to a lifecycle driver."""
+    """Apply the coding-CLI credential and host-tool policy to a lifecycle driver.
+
+    An unset `CODING_CLI` takes `default_coding_cli`, the caller's live-test
+    selection, before the first coding CLI on PATH.
+    """
 
     unknown = set(requested_keys) - LIFECYCLE_DRIVER_ENVIRONMENT_KEYS
     if unknown:
@@ -4119,6 +4124,8 @@ def lifecycle_driver_environment(
             "LITAI_CODING_PROVIDER must be coding-cli or inherited-session",
         )
     selected = environment.get("CODING_CLI", "").strip()
+    if not selected and coding_provider != "inherited-session":
+        selected = default_coding_cli or ""
     if selected and selected not in CODING_CLIS:
         raise CodingCliError(
             "coding_cli.unsupported",

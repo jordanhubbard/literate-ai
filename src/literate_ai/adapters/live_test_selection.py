@@ -129,6 +129,36 @@ def try_resolve_live_test_selection(
         raise
 
 
+def configured_test_coding_cli(
+    *, environment: Mapping[str, str], project_root: Path | None
+) -> str | None:
+    """Return the test configuration's coding CLI, or None when none is configured.
+
+    Unlike a full selection this applies no environment pins or remote-gate rules;
+    a malformed configuration still refuses with its own code.
+    """
+
+    try:
+        path = default_test_config_path(
+            project_root=project_root, environment=environment
+        )
+        coding_cli, _ = _test_config_pin(path)
+    except CodingCliError as exc:
+        if exc.code in {
+            "coding_cli.test_selection_unconfigured",
+            "user_assets.project_invalid",
+            "user_assets.project_required",
+        }:
+            return None
+        raise
+    if coding_cli is not None and coding_cli not in CODING_CLIS:
+        raise CodingCliError(
+            "coding_cli.unsupported",
+            "CODING_CLI must be codex, claude, cursor-agent, or opencode",
+        )
+    return coding_cli
+
+
 def resolve_live_test_selection(
     *,
     coding_cli: str | None = None,

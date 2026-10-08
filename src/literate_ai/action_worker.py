@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import os
 import secrets
 import sys
@@ -136,6 +137,27 @@ def _require_capability(expected, deadline, expected_worker, **describe):
             "action_admission.runtime_changed",
             "worker runtime or supported capabilities changed",
         )
+
+
+def _custody_failure_code(exc: BaseException) -> str:
+    """Name the failure class and errno symbol, never its message or paths."""
+
+    def os_kind(error: OSError) -> str:
+        code = error.errno if isinstance(error.errno, int) else 0
+        name = errno.errorcode.get(code, "")
+        return "os" + ("." + name.lower() if name else "")
+
+    if isinstance(exc, StorageError):
+        kind = "storage"
+        if isinstance(exc.__cause__, OSError):
+            kind += "." + os_kind(exc.__cause__)
+    elif isinstance(exc, OSError):
+        kind = os_kind(exc)
+    elif isinstance(exc, ValueError):
+        kind = "value"
+    else:
+        kind = "runtime"
+    return f"action_capability.custody_unavailable.{kind}"
 
 
 def main(
@@ -525,10 +547,10 @@ def main(
             print("Action capability request refused", file=sys.stderr)
             return 2
         response = encode_action_response(request, failure_code=exc.code)
-    except (StorageError, OSError, ValueError, RuntimeError):
+    except (StorageError, OSError, ValueError, RuntimeError) as exc:
         if describing:
             sys.stdout.buffer.write(
-                encode_observation_failure("action_capability.custody_unavailable")
+                encode_observation_failure(_custody_failure_code(exc))
             )
             print("Action capability custody unavailable", file=sys.stderr)
             return 2

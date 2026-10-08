@@ -328,6 +328,32 @@ class CodingCliSelectionTests(unittest.TestCase):
         self.assertNotIn("OPENAI_API_KEY", result)
         self.assertNotIn("CURSOR_API_KEY", result)
 
+    def test_lifecycle_driver_defaults_to_the_live_selection_before_path(self):
+        with tempfile.TemporaryDirectory() as tools:
+            codex = Path(tools) / ("codex.exe" if os.name == "nt" else "codex")
+            codex.write_text("")
+            codex.chmod(0o755)
+            for environment, expected in (
+                ({"PATH": tools}, "opencode"),
+                ({"PATH": tools, "CODING_CLI": "claude"}, "claude"),
+            ):
+                with self.subTest(expected=expected):
+                    result = lifecycle_driver_environment(
+                        environment,
+                        tuple(environment),
+                        workspace=Path("/workspace"),
+                        default_coding_cli="opencode",
+                    )
+                    self.assertEqual(result["CODING_CLI"], expected)
+            with self.assertRaises(CodingCliError) as raised:
+                lifecycle_driver_environment(
+                    {"PATH": tools},
+                    ("PATH",),
+                    workspace=Path("/workspace"),
+                    default_coding_cli="bogus",
+                )
+            self.assertEqual(raised.exception.code, "coding_cli.unsupported")
+
     def test_lifecycle_driver_isolates_inherited_session_from_coding_cli(self):
         environment = {
             "LITAI_CODING_PROVIDER": "inherited-session",
