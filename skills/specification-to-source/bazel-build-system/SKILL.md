@@ -18,7 +18,7 @@ limitations:
   - "Always set main explicitly on every rules_python py_binary and py_test target. The path must name an executable Python source also present in srcs; never rely on target-name-based entrypoint inference."
   - "For aspect_rules_js js_binary and js_test, set entry_point to the executable JavaScript source. These rules do not accept srcs; place additional runtime files in data when needed."
   - "For every rules_rust rust_binary or rust_test, declare every Rust source file reachable through mod or #[path] from the crate root in srcs. A Rust module declaration does not make the file visible inside Bazel's sandbox."
-  - "Set crate_root explicitly on every rules_rust rust_binary or rust_test whose srcs list more than one Rust file. Bazel infers a root only from a file named after the crate (crate_name.rs) or the default main.rs (rust_binary) or lib.rs (rust_test); a rust_test compiling main.rs plus tests/litai_test.rs without crate_root fails analysis."
+  - "Set crate_root explicitly on every rules_rust rust_binary or rust_test whose srcs list more than one Rust file. Bazel infers a root only from the default main.rs (rust_binary) or lib.rs (libtest rust_test), or a file named after the target (name.rs or crate_name.rs); a rust_test compiling main.rs plus tests/litai_test.rs without crate_root fails analysis."
   - "Do not treat this preference or its reviewed ruleset baselines as authority over an explicit Component specification or selected Flavor."
   - "Do not claim fine-grained Bazel dependency tracking when Bazel merely wraps a native build."
   - "Treat every literal bazel_dep version as a requested version subject to Bzlmod Minimal Version Selection, not proof of the final selected version."
@@ -88,9 +88,9 @@ declarations and other explicit paths. Bazel does not infer these Rust source fi
 omitting one creates an incomplete sandbox even when direct `rustc` can see the file.
 
 Once `srcs` lists more than one Rust file, rules_rust must be told which one is the
-crate root. It infers the root only from a file named `<crate_name>.rs` (the crate
-name defaults to the target name with `-` replaced by `_`) or the rule's default:
-`main.rs` for `rust_binary` and `lib.rs` for `rust_test`. A `rust_test` named
+crate root. It infers the root only from the rule's default (`main.rs` for
+`rust_binary`, `lib.rs` for a `rust_test` using the libtest harness) or a file named
+after the target, `<name>.rs` or `<crate_name>.rs`. A `rust_test` named
 `behavior_test` with `srcs = ["main.rs", "tests/litai_test.rs"]` therefore fails
 analysis with "Couldn't find lib.rs or behavior_test.rs among `srcs`, please use
 `crate_root`". Set `crate_root` explicitly, for example `crate_root = "main.rs"`, on

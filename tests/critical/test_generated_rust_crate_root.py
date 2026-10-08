@@ -51,21 +51,6 @@ class GeneratedRustCrateRootTests(unittest.TestCase):
 
         validate_rust_bazel_source_closure(_tree(build))
 
-    def test_rust_test_of_a_crate_is_accepted(self) -> None:
-        build = (
-            "rust_binary(\n"
-            '    name = "bin",\n'
-            '    srcs = ["main.rs", "tests/litai_test.rs"],\n'
-            ")\n"
-            "rust_test(\n"
-            '    name = "behavior_test",\n'
-            '    crate = ":bin",\n'
-            '    srcs = ["main.rs", "tests/litai_test.rs"],\n'
-            ")\n"
-        )
-
-        validate_rust_bazel_source_closure(_tree(build))
-
     def test_single_source_is_accepted(self) -> None:
         build = 'rust_test(\n    name = "behavior_test",\n    srcs = ["only.rs"],\n)\n'
 
@@ -83,17 +68,48 @@ class GeneratedRustCrateRootTests(unittest.TestCase):
             _tree(build, **{"lib.rs": "mod helper;\n", "helper.rs": "\n"})
         )
 
-    def test_rust_test_with_crate_named_source_is_accepted(self) -> None:
+    def test_sources_named_after_the_target_are_accepted(self) -> None:
+        for attributes, root in (
+            ('name = "behavior-test"', "behavior-test.rs"),
+            ('name = "t", crate_name = "behavior"', "behavior.rs"),
+            ('name = "t", crate_name = "behavior"', "t.rs"),
+        ):
+            with self.subTest(root=root):
+                build = f'rust_test({attributes}, srcs = ["{root}", "helper.rs"])\n'
+
+                validate_rust_bazel_source_closure(
+                    _tree(build, **{root: "mod helper;\n", "helper.rs": "\n"})
+                )
+
+    def test_dashes_are_not_rewritten_when_inferring_the_root(self) -> None:
+        build = (
+            'rust_test(name = "behavior-test", srcs = ["behavior_test.rs", "h.rs"])\n'
+        )
+
+        with self.assertRaises(GeneratedSourceValidationError) as raised:
+            validate_rust_bazel_source_closure(
+                _tree(build, **{"behavior_test.rs": "mod h;\n", "h.rs": "\n"})
+            )
+
+        self.assertEqual(raised.exception.code, _AMBIGUITY)
+
+    def test_harness_free_rust_test_defaults_to_main_rs(self) -> None:
         build = (
             "rust_test(\n"
-            '    name = "behavior-test",\n'
-            '    srcs = ["behavior_test.rs", "helper.rs"],\n'
+            '    name = "behavior_test",\n'
+            "    use_libtest_harness = False,\n"
+            '    srcs = ["main.rs", "tests/litai_test.rs"],\n'
             ")\n"
         )
 
-        validate_rust_bazel_source_closure(
-            _tree(build, **{"behavior_test.rs": "mod helper;\n", "helper.rs": "\n"})
-        )
+        validate_rust_bazel_source_closure(_tree(build))
+        with self.assertRaises(GeneratedSourceValidationError):
+            validate_rust_bazel_source_closure(_tree(build.replace("False", "True")))
+
+    def test_product_generation_retries_an_ambiguous_crate_root(self) -> None:
+        from literate_ai.adapters.models import coding_cli
+
+        self.assertIn(_AMBIGUITY, coding_cli._TRANSIENT_GENERATION_ERROR_CODES)
 
     def test_rust_binary_with_main_rs_is_accepted(self) -> None:
         build = (

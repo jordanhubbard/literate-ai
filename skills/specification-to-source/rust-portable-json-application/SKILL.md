@@ -16,7 +16,7 @@ dependencies:
     identity:
       schema: "urn:literate-ai:schema:v1:content-identity"
       algorithm: "sha256"
-      digest: "0adaf6c6b6eec3c1fc8f8cb1987b5856bc0258e2ed7a3ed63cc1f54b52cd034a"
+      digest: "5d0ab9ca3d9e7e775cbac5d337c4e1f527a4f5f7209b1368ba5ea395f3018aa0"
 limitations:
   - "Without the selected Cargo build-system Flavor, do not use third-party crates, Cargo, build scripts, proc macros, unsafe Rust, or operating-system-specific APIs. With Cargo selected, defer package layout and registry dependency rules to its exact skills."
   - "Do not place the generated runtime test module behind #[cfg(test)], and do not omit source/tests/litai_test.rs from any Bazel target that compiles the crate root which includes it."

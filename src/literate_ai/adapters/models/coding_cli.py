@@ -236,6 +236,7 @@ _TRANSIENT_GENERATION_ERROR_CODES = frozenset(
     {
         "coding_cli.generated_javascript_bundle_module_missing",
         "coding_cli.generated_metadata_invalid",
+        "coding_cli.generated_rust_bazel_crate_root_ambiguous",
         "coding_cli.generation_failed",
         "coding_cli.non_utf8_source",
         "coding_cli.timeout",

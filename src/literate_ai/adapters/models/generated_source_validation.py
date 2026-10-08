@@ -528,11 +528,12 @@ def _require_unambiguous_rust_crate_root(
 ) -> None:
     """Reject a multi-source rules_rust target whose crate root Bazel cannot infer.
 
-    Without ``crate_root`` (or a ``crate`` to test), rules_rust picks the sole
-    source, else a source named ``<crate>.rs`` or the kind's default root
-    (``main.rs`` for binaries, ``lib.rs`` for tests). Anything else fails
-    analysis with "please use `crate_root`", which retry feedback reports only
-    as an opaque Bazel analysis failure.
+    Without ``crate_root``, rules_rust picks the sole source, else the kind's
+    default root (``main.rs`` for binaries and harness-free tests, ``lib.rs`` for
+    libtest tests), else ``<name>.rs`` or ``<crate_name>.rs``. Anything else fails
+    analysis with "please use `crate_root`", which retry feedback reports only as
+    an opaque Bazel analysis failure. ``crate`` cannot be combined with ``srcs``,
+    so this check leaves that already-invalid shape to Bazel.
     """
 
     if len(declared) <= 1:
@@ -542,23 +543,26 @@ def _require_unambiguous_rust_crate_root(
         or _attribute_expression(body, "crate") is not None
     ):
         return
-    crate_name = _literal_attribute(body, "crate_name")
-    if crate_name is None:
-        name = _literal_attribute(body, "name")
-        if name is None:
+    name = _literal_attribute(body, "name")
+    if name is None:
+        return
+    default_root = "main.rs"
+    if rule_kind == "rust_test":
+        harness = _attribute_expression(body, "use_libtest_harness")
+        if harness is None or harness.strip() == "True":
+            default_root = "lib.rs"
+        elif harness.strip() != "False":
             return
-        crate_name = name.replace("-", "_")
-    default_root = "main.rs" if rule_kind == "rust_binary" else "lib.rs"
-    candidates = {default_root, f"{crate_name}.rs"}
+    crate_name = _literal_attribute(body, "crate_name") or name
+    candidates = sorted({default_root, f"{name}.rs", f"{crate_name}.rs"})
     if any(source.name in candidates for source in declared):
         return
-    rule_name = _literal_attribute(body, "name") or crate_name
     raise GeneratedSourceValidationError(
         "coding_cli.generated_rust_bazel_crate_root_ambiguous",
-        f"generated {rule_kind} {rule_name!r} in {build_path} lists "
-        f"{len(declared)} Rust srcs but none is {default_root} or "
-        f"{crate_name}.rs, so rules_rust cannot infer the crate root; set "
-        'crate_root explicitly (for example crate_root = "main.rs")',
+        f"generated {rule_kind} {name!r} in {build_path} lists "
+        f"{len(declared)} Rust srcs but none is {' or '.join(candidates)}, so "
+        "rules_rust cannot infer the crate root; set crate_root explicitly "
+        '(for example crate_root = "main.rs")',
     )
 
 
