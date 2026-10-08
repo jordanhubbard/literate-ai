@@ -433,7 +433,10 @@ class ModelFreeRebuildTests(unittest.TestCase):
         with self.without_local_component_phases():
             status, envelope = self.rebuild()
         thread.join(timeout=60)
-        self.assertTrue(issued, "FINALIZE never described a grant request")
+        # The rebuild's own result explains why no request was described.
+        self.assertTrue(
+            issued, f"FINALIZE never described a grant request: {status} {envelope}"
+        )
         self.assertTrue(grant.exists())
         return status, envelope
 
