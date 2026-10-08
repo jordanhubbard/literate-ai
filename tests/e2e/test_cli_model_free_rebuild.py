@@ -287,6 +287,12 @@ class ModelFreeRebuildTests(unittest.TestCase):
         environment = (
             dict(os.environ) if worker_host else {**os.environ, **self.environment}
         )
+        # An operator provisions loader paths without empty entries, which the
+        # dynamic loader would read as the current directory and the receiver
+        # refuses. Login shells often leave one, as in "/usr/local/lib:".
+        loader = [p for p in environment.pop("LD_LIBRARY_PATH", "").split(":") if p]
+        if loader:
+            environment["LD_LIBRARY_PATH"] = ":".join(loader)
         config = self.root / "receiver" / "standard-receiver.json"
         config.parent.mkdir(exist_ok=True)
 
