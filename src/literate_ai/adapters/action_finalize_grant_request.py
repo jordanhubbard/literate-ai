@@ -65,9 +65,8 @@ def decode_finalize_grant_request(content, value):
         raise ActionWireError(
             "action_finalize.grant_request_invalid", "FINALIZE grant request invalid"
         ) from exc
-    if (
-        document["input_identity"] != record_identity(value.to_bytes()).uri
-        or request != finalize_execution_request(value, runtime)
-    ):
+    if document["input_identity"] != record_identity(
+        value.to_bytes()
+    ).uri or request != finalize_execution_request(value, runtime):
         _invalid()
     return request

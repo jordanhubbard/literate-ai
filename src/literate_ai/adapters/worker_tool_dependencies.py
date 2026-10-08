@@ -261,9 +261,7 @@ def capture_worker_tool_dependencies(
         # Preserve separate loader contexts even when they contain the same image.
         remap = {
             item["bom-ref"]: "urn:literate-ai:worker-tool-dependency:"
-            + canonical_identity(
-                {"tool": tool_identity.uri, "component": item}
-            ).digest
+            + canonical_identity({"tool": tool_identity.uri, "component": item}).digest
             for item in observed.components
         }
         if len(remap) != len(observed.components) or root_ref in remap:
