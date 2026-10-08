@@ -323,14 +323,19 @@ class ProjectReleaseTests(unittest.TestCase):
     def test_release_qualification_prefers_host_then_workers_then_ci(self) -> None:
         """N platforms x M actions are covered left to right; CI only when needed."""
 
-        worker = SimpleNamespace(
-            worker_id="linux-worker",
-            requirements=SimpleNamespace(os_family="linux", cpu_architecture=None),
+        workers = tuple(
+            SimpleNamespace(
+                worker_id=f"{family}-worker",
+                requirements=SimpleNamespace(os_family=family, cpu_architecture=None),
+            )
+            for family in ("linux", "windows")
         )
+        dispatched = {}
         green = ({"argv": ["ci"], "exit_status": 0}, {"kind": "github", "run_id": 7})
 
         def worker_gate(outcome):
             def run(_root, _policy, _snapshot, selected, **options):
+                dispatched.setdefault(selected.worker_id, []).append(options["argv"])
                 if outcome != "pass":
                     raise ProjectReleaseError(outcome, "worker outcome")
                 return {
@@ -362,7 +367,14 @@ class ProjectReleaseTests(unittest.TestCase):
                 "release.gate_failed",
                 "release.gate_failed",
             ),
+            # Without a windows_argv, a Windows worker cannot run the action.
             (["macos", "windows"], {}, "pass", "release.qualification_incomplete"),
+            (
+                ["macos", "windows"],
+                {"windows_argv": True},
+                "pass",
+                {"macos": "local", "windows": "worker"},
+            ),
             (
                 ["macos"],
                 {"mandatory": True, "platforms": ["linux"]},
@@ -379,14 +391,21 @@ class ProjectReleaseTests(unittest.TestCase):
                 root, _ = self.initialize(Path(temporary))
                 policy = json.loads((root / "literate.release.json").read_text())
                 gate = policy["gate"]["argv"]
+                ci = dict(ci)
+                windows = (
+                    {"windows_argv": ["powershell-gate"]}
+                    if ci.pop("windows_argv", False)
+                    else {}
+                )
                 policy["qualification"] = {
                     "platforms": platforms,
                     "actions": [
-                        {"name": "build", "argv": gate},
-                        {"name": "test", "argv": gate},
+                        {"name": "build", "argv": gate, **windows},
+                        {"name": "test", "argv": gate, **windows},
                     ],
                     "ci": ci,
                 }
+                dispatched.clear()
                 self.write_record(root / "literate.release.json", policy)
                 self.git(root, "commit", "-am", "Declare qualification")
                 github = unittest.mock.Mock(return_value=green)
@@ -403,7 +422,7 @@ class ProjectReleaseTests(unittest.TestCase):
                     patch.object(
                         project_releases,
                         "_qualification_workers",
-                        return_value=((worker,), ()),
+                        return_value=(workers, ()),
                     ),
                     patch.object(
                         project_releases,
@@ -434,6 +453,11 @@ class ProjectReleaseTests(unittest.TestCase):
                     },
                 )
                 self.assertEqual(record["ci_required"], github.called)
+                if "windows" in expected:
+                    # Windows runs each action's own argv, never the POSIX one.
+                    self.assertEqual(
+                        dispatched["windows-worker"], [("powershell-gate",)] * 2
+                    )
                 self.assertEqual(
                     github.called,
                     "ci" in expected.values() or bool(ci.get("mandatory")),

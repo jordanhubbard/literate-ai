@@ -202,6 +202,12 @@ covered by the leftmost tier that can run it:
 
 A runner proves a platform only through facts it declares or observes; a worker
 without a declared architecture cannot satisfy an architecture-qualified platform.
+An action's `argv` runs on Linux and macOS. Windows runners have no POSIX shell, so
+an action runs there only through its own `windows_argv`; a Windows host or worker
+covers a platform only when every action declares one, and otherwise leaves it to
+CI. Windows workers run their command through PowerShell over OpenSSH, from the
+workspace checked out at the exact revision, with the same live-test environment as
+POSIX workers.
 A failing action is never retried on another tier. CI is optional while the host
 and workers cover every cell. It becomes required only when some platform has no
 left tier (CI must then declare it, or qualification fails closed) or when the
@@ -217,9 +223,14 @@ without CI, RC tagging does not require a green CI run, and a release-line merge
 not blocked by pending or absent checks. A check that completed and failed still
 blocks the merge. Without such a record both commands require CI as before.
 
-This repository declares `linux`, `macos` and `windows`. The release gate has no
-Windows-native equivalent on SSH workers yet, so Windows is covered only by CI and
-CI remains required until a left tier can run the gate on Windows.
+This repository declares `linux`, `macos` and `windows`. `make release-check`
+needs a POSIX shell, so its `windows_argv` is `scripts/windows_release_gate.py`,
+which runs exactly the steps hosted CI runs for Windows (the `windows-gates` and
+`windows-tests` jobs): tool preflight, an isolated environment, compilation, lint
+and format, OpenSpec and documentation checks, the installed-wheel smoke test and
+the full test suite. It never installs system tools; a missing MSVC, Rust, LLVM,
+Node or Git is a preflight failure. With a reachable Windows worker at the exact
+revision, the repository's release needs no CI.
 
 ## Versioned release lines
 

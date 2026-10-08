@@ -22357,7 +22357,7 @@ GitHub CI failure without relaxing identity checks.
   - [ ] Roadmap projection and contribution sweep are ready with no unclassified or included-open items.
   - [ ] Deterministic tests prove dependency ordering, real safe overlap across multiple compatible workers, cancellation/recovery, and no cross-node evidence borrowing.
   - [ ] Cold/warm/corrupt cache tests prove correct test/build/package/container reuse with local and configured network endpoints.
-  - [ ] All project, package, installed-wheel, platform-worker and documentation gates pass on one exact main revision for every platform in `literate.release.json` `qualification`, covered by the release host first, then `workers.json` workers, then hosted CI only for platforms neither covers (today Windows) or when CI is marked mandatory.
+  - [ ] All project, package, installed-wheel, platform-worker and documentation gates pass on one exact main revision for every platform in `literate.release.json` `qualification`, covered by the release host first, then `workers.json` workers, then hosted CI only for platforms neither covers or when CI is marked mandatory (Windows workers run `scripts/windows_release_gate.py`).
   - [ ] The remote release branch, annotated tag, GitHub release, assets, receipts, and advanced main agree with that prepared identity.
 - **Maintainer direction (2026-09-29):** Complete the full existing 1.2 program
   before release, including production worker scheduling and shared-cache qualification.
@@ -26250,4 +26250,9 @@ platform x action with the release host, then one `workers.json` worker per
 remaining platform, then CI only for what remains or when `ci.mandatory` is set.
 `rc` and `merge-pr` accept an exact-revision qualification record in place of CI
 when it covers every cell without CI. This repository declares linux, macos and
-windows; Windows has no left tier for the gate yet, so CI stays required for it.
+windows. Windows workers now run the gate natively: actions may declare a
+`windows_argv`, dispatched through PowerShell over OpenSSH, and this repository's
+is `scripts/windows_release_gate.py`, which runs CI's Windows steps (preflight
+passed on both configured Windows workers). With every worker at the exact
+revision, this host, `ubuntu-24.04` and `windows-11` cover the release without CI.
+Workers must still be checked out at that revision by their operator.

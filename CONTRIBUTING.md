@@ -176,7 +176,8 @@ before merging. Require full successful exact-commit qualification before releas
 a green ordinary PR smoke job is not a substitute. Qualification means every platform
 and action in `literate.release.json` `qualification` passed on the exact commit,
 covered first by the release host, then by `workers.json` workers, and by CI only for
-what those cannot provide (today, Windows) or when the policy makes CI mandatory.
+what those cannot provide or when the policy makes CI mandatory. Windows workers run
+`scripts/windows_release_gate.py`, the same steps CI runs for Windows.
 
 macOS conformance partitions have a 120-minute step budget and the single-job Linux
 suites 180 minutes, leaving time within the job for

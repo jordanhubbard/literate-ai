@@ -60,11 +60,31 @@ def _platforms(value: object, path: str, *, minimum: int) -> tuple[str, ...]:
 
 @dataclass(frozen=True, slots=True)
 class QualificationAction:
+    """One required action; ``argv`` runs on Linux and macOS.
+
+    Windows runners have no POSIX shell, so an action runs there only through
+    its own ``windows_argv``; without one, Windows is left to CI.
+    """
+
     name: str
     argv: tuple[str, ...]
+    windows_argv: tuple[str, ...] | None = None
+
+    def argv_for(self, os_family: str | None) -> tuple[str, ...] | None:
+        if os_family == "windows":
+            return self.windows_argv
+        return self.argv if os_family in {"linux", "macos"} else None
 
     def to_dict(self) -> dict[str, object]:
-        return {"name": self.name, "argv": list(self.argv)}
+        return {
+            "name": self.name,
+            "argv": list(self.argv),
+            **(
+                {"windows_argv": list(self.windows_argv)}
+                if self.windows_argv is not None
+                else {}
+            ),
+        }
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,20 +117,33 @@ class ReleaseQualificationPolicy:
             parsed = []
             for index, item in enumerate(raw_actions):
                 path = f"qualification.actions[{index}]"
-                if not isinstance(item, dict) or set(item) != {"name", "argv"}:
-                    _fail(path, "requires exactly name and argv")
+                if not isinstance(item, dict) or not {"name", "argv"} <= set(item) <= {
+                    "name",
+                    "argv",
+                    "windows_argv",
+                }:
+                    _fail(path, "requires name and argv, and optional windows_argv")
                 if not isinstance(item["name"], str) or not _ACTION.fullmatch(
                     item["name"]
                 ):
                     _fail(f"{path}.name", "must be a lowercase action name")
-                argv = item["argv"]
-                if (
-                    not isinstance(argv, list)
-                    or not argv
-                    or any(not isinstance(part, str) or not part for part in argv)
-                ):
-                    _fail(f"{path}.argv", "must be a non-empty argument vector")
-                parsed.append(QualificationAction(item["name"], tuple(argv)))
+                vectors = {}
+                for key in ("argv", "windows_argv"):
+                    argv = item.get(key)
+                    if argv is None and key == "windows_argv":
+                        continue
+                    if (
+                        not isinstance(argv, list)
+                        or not argv
+                        or any(not isinstance(part, str) or not part for part in argv)
+                    ):
+                        _fail(f"{path}.{key}", "must be a non-empty argument vector")
+                    vectors[key] = tuple(argv)
+                parsed.append(
+                    QualificationAction(
+                        item["name"], vectors["argv"], vectors.get("windows_argv")
+                    )
+                )
             if len({item.name for item in parsed}) != len(parsed):
                 _fail("qualification.actions", "action names must be unique")
             actions = tuple(parsed)
@@ -204,10 +237,13 @@ def plan_qualification(
     planning fails closed when CI cannot cover what remains.
     """
 
+    def runnable(os_family: str | None) -> bool:
+        return all(action.argv_for(os_family) for action in policy.actions)
+
     local = tuple(
         platform
         for platform in policy.platforms
-        if host is not None and satisfies(platform, *host)
+        if host is not None and runnable(host[0]) and satisfies(platform, *host)
     )
     candidates = {}
     for platform in policy.platforms:
@@ -217,6 +253,7 @@ def plan_qualification(
             runner.worker_id
             for runner in sorted(workers, key=lambda item: item.worker_id)
             if runner.worker_id not in unavailable_workers
+            and runnable(runner.os_family)
             and satisfies(platform, runner.os_family, runner.cpu_architecture)
         )
         if eligible:

@@ -61,6 +61,13 @@
   },
   "qualification": {
     "platforms": ["linux", "macos", "windows"],
+    "actions": [
+      {
+        "name": "release-gate",
+        "argv": ["make", "release-check"],
+        "windows_argv": ["python", "scripts/windows_release_gate.py"]
+      }
+    ],
     "ci": {
       "mandatory": false,
       "platforms": ["linux", "macos", "windows"]

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import os
@@ -2673,6 +2674,31 @@ def _posix_ssh_path(value: str) -> str:
     return shlex.quote(value)
 
 
+def _powershell_literal(value: str) -> str:
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _powershell_ssh_path(value: str) -> str:
+    if value.startswith(("~/", "~\\")):
+        relative = value[2:].replace("/", "\\")
+        return f"(Join-Path $HOME {_powershell_literal(relative)})"
+    return _powershell_literal(value)
+
+
+def _powershell_ssh_command(script: str) -> str:
+    """Encode one PowerShell script for a Windows OpenSSH worker.
+
+    The script's last native exit status becomes the SSH exit status, and
+    progress records are suppressed so they never reach captured output.
+    """
+
+    body = f"$ProgressPreference = 'SilentlyContinue'; {script}; exit $LASTEXITCODE"
+    encoded = base64.b64encode(body.encode("utf-16-le")).decode("ascii")
+    return (
+        f"powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand {encoded}"
+    )
+
+
 def _redact_worker_dialog(text: str, endpoint: str) -> str:
     return text.replace(endpoint, "<worker-endpoint>")
 
@@ -2715,16 +2741,26 @@ def _run_release_gate_on_one_worker(
     with context if context is not None else nullcontext() as evidence_node:
         runner = BoundedSshProcessRunner()
         revision = str(snapshot["head"])
-        workspace = _posix_ssh_path(worker.workspace.rstrip("/"))
+        # Windows OpenSSH workers have no POSIX shell; they run PowerShell.
+        windows = worker.requirements.os_family == "windows"
+        if windows:
+            workspace = _powershell_ssh_path(worker.workspace.rstrip("/\\"))
+            probe_command = _powershell_ssh_command(
+                f"git -C {workspace} rev-parse HEAD"
+            )
+        else:
+            workspace = _posix_ssh_path(worker.workspace.rstrip("/"))
+            probe_command = f"git -C {workspace} rev-parse HEAD"
         probe_timeout = min(_WORKER_PROBE_TIMEOUT_SECONDS, policy.gate_timeout_seconds)
         started = time.monotonic()
         try:
             probe = runner.run(
                 ssh_arguments(
                     worker.endpoint,
-                    f"git -C {workspace} rev-parse HEAD",
+                    probe_command,
                     probe_timeout,
                     transport=worker.transport,
+                    login_shell=not windows,
                 ),
                 cwd=root,
                 timeout_seconds=probe_timeout,
@@ -2775,12 +2811,26 @@ def _run_release_gate_on_one_worker(
                 require_openai_api_key=False,
             )
         )
-        gate_command = (
-            posix_export_prefix(overlay)
-            + " && "
-            + f"cd {workspace} && "
-            + shlex.join(argv)
-        )
+        if windows:
+            gate_command = _powershell_ssh_command(
+                "; ".join(
+                    (
+                        *(
+                            f"$env:{name} = {_powershell_literal(value)}"
+                            for name, value in overlay.items()
+                        ),
+                        f"Set-Location -LiteralPath {workspace}",
+                        "& " + " ".join(_powershell_literal(item) for item in argv),
+                    )
+                )
+            )
+        else:
+            gate_command = (
+                posix_export_prefix(overlay)
+                + " && "
+                + f"cd {workspace} && "
+                + shlex.join(argv)
+            )
         try:
             completed = runner.run(
                 ssh_arguments(
@@ -2788,6 +2838,7 @@ def _run_release_gate_on_one_worker(
                     gate_command,
                     policy.gate_timeout_seconds,
                     transport=worker.transport,
+                    login_shell=not windows,
                 ),
                 cwd=root,
                 timeout_seconds=policy.gate_timeout_seconds,
@@ -2970,12 +3021,28 @@ def _host_platform() -> tuple[str | None, str | None] | None:
 def _qualification_workers(
     root: Path,
 ) -> tuple[tuple[ExecutionWorker, ...], tuple[dict[str, object], ...]]:
-    """Every POSIX SSH worker, or none when no usable fleet is configured."""
+    """Every configured SSH worker, or none when no usable fleet is configured.
+
+    Unlike the POSIX-only ``local`` target, Windows workers take part: the
+    planner admits them only for actions that declare a ``windows_argv``.
+    """
 
     try:
-        return _select_release_workers(root)
-    except ProjectReleaseError:
+        catalog = load_execution_worker_catalog(
+            resolve_worker_config_path(project_root=root)
+        )
+    except (ExecutionDispatchAdapterError, UserAssetPathError):
         return (), ()
+    return (
+        tuple(
+            worker
+            for worker in catalog.workers
+            if worker.kind is ExecutionWorkerKind.SSH
+            and worker.endpoint is not None
+            and worker.workspace is not None
+        ),
+        (),
+    )
 
 
 def _run_tiered_qualification(
@@ -3013,13 +3080,16 @@ def _run_tiered_qualification(
     runs: list[dict[str, object]] = []
     # One host run covers every required platform the host provides.
     if plan.local:
+        assert host is not None
         for action in qualification.actions:
+            argv = action.argv_for(host[0])
+            assert argv is not None
             completed, node_id = _run_release_gate(
                 root,
                 policy,
                 run=evidence_run,
                 parent=evidence_parent,
-                argv=action.argv,
+                argv=argv,
                 path=f"release/qualification/local/{action.name}",
             )
             if completed.returncode:
@@ -3036,7 +3106,7 @@ def _run_tiered_qualification(
                 {
                     "tier": "local",
                     "action": action.name,
-                    "argv": list(action.argv),
+                    "argv": list(argv),
                     "evidence_node_id": node_id,
                 }
             )
@@ -3057,7 +3127,7 @@ def _run_tiered_qualification(
                             worker,
                             evidence_run=evidence_run,
                             evidence_parent=evidence_parent,
-                            argv=action.argv,
+                            argv=action.argv_for(worker.requirements.os_family),
                             path=(
                                 f"release/qualification/worker/{worker_id}/"
                                 f"{action.name}"
