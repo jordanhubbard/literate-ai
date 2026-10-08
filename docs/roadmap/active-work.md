@@ -26231,4 +26231,7 @@ process (inspector digest, image content digest and symlink chain, or boot
 session). It must lie outside the workspace and CAS; a malformed file is ignored.
 A warm observation of the Python closure falls from about 4.5 s to 0.2 s with an
 identical result, and the one-Component remote rebuild from about 174 s to 141 s.
-Linux and Windows observers have no memo yet.
+Linux and Windows now share the memo and file (schema
+`literate-ai/dependency-facts@1`): ELF image and candidate-header facts and PE
+import lists are keyed by inspector digest, resolved path and content digest.
+Only macOS was measured; Linux and Windows gains await real-worker runs.

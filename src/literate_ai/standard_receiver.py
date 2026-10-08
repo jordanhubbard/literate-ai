@@ -210,10 +210,10 @@ def main(argv=None):
         return 2
     if config.dependency_cache is not None:
         from literate_ai.adapters.dependencies.observation import (
-            use_persistent_dyld_facts,
+            use_persistent_dependency_facts,
         )
 
-        use_persistent_dyld_facts(config.dependency_cache)
+        use_persistent_dependency_facts(config.dependency_cache)
     if args.print_profiles:
         import json
 

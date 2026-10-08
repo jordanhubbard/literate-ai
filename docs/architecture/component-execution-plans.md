@@ -1744,13 +1744,16 @@ own interpreter are fully measured (live probes and executable digests) when any
 receiver or child process starts, whenever executable metadata changes, and
 before the receiver emits a response, which it withholds if a tool changed. Reads
 in between compare executable metadata only. The optional `dependency_cache`
-names an operator-private file that carries macOS `dyld_info` facts across
+names an operator-private file that carries native inspector facts (macOS
+`dyld_info`, Linux `readelf`, Windows `dumpbin` or `llvm-readobj`) across
 receiver processes, so each dependency observation does not re-inspect the whole
-closure. Facts are keyed exactly as in the in-process memo (inspector digest,
-image path, and the image's content digest and symlink chain, or the boot
-session for shared-cache images). Because cached facts decide what a closure
-contains, the path must lie outside the workspace and CAS that actions write. A
-missing or malformed file is ignored and rewritten.
+closure. Facts are keyed exactly as in the in-process memo: the inspector's
+digest, the image path, and the image's content digest (with its symlink chain on
+macOS, or the boot session for dyld shared-cache images). ELF and PE images are
+keyed at their resolved path. Facts recorded while an inspector changed are
+dropped, and a file written on another platform is ignored. Because cached facts
+decide what a closure contains, the path must lie outside the workspace and CAS
+that actions write. A missing or malformed file is ignored and rewritten.
 
 Contracts arrive in the admitted request, as they do for FINALIZE. The
 `portable-starter@1` policy admits a contract only when its BUILD argv is exactly
