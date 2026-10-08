@@ -57,9 +57,14 @@ def run_command(
             "last diagnostic output:\n" + stderr[-8000:]
         ) from exc
     if completed.returncode != expected_exit:
+        # Debug events fill stderr; the result envelope on stdout goes last so
+        # callers keeping only a message tail still see it.
         raise RuntimeError(
-            "installed HTML CLI returned an unexpected exit: "
-            + (completed.stdout + completed.stderr)[-4000:]
+            f"installed HTML CLI {arguments[0]!r} exited {completed.returncode}, "
+            f"expected {expected_exit}; diagnostic tail:\n"
+            + completed.stderr[-2000:]
+            + "\nresult:\n"
+            + completed.stdout[-1500:]
         )
     payload = json.loads(completed.stdout)
     if (
