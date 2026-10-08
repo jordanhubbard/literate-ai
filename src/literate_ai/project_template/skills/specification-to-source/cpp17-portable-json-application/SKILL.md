@@ -12,11 +12,11 @@ stages:
 dependencies:
   - schema: "urn:literate-ai:schema:v1:skill-reference"
     skill_id: "portable-application-implementation"
-    version: "1.8.3"
+    version: "1.8.4"
     identity:
       schema: "urn:literate-ai:schema:v1:content-identity"
       algorithm: "sha256"
-      digest: "3d393c054d241eda78df8789144e75476d3131ae1b2e404fa33c6b02ef66d4af"
+      digest: "0adaf6c6b6eec3c1fc8f8cb1987b5856bc0258e2ed7a3ed63cc1f54b52cd034a"
 limitations:
   - "Do not depend on compiler extensions or operating-system-specific APIs."
   - "Headers under source/tests must be included by their source-root-relative path, such as tests/litai_test.hpp, unless every declared build target explicitly supplies the matching include directory. A same-directory include that passes an ad hoc compiler command but fails the generated Bazel target is not portable."
