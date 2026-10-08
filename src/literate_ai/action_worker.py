@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import secrets
 import sys
 from pathlib import Path
 
@@ -14,14 +15,18 @@ from literate_ai.adapters.action_blob_source import HttpActionBlobSource
 from literate_ai.adapters.action_build_intent import execute_build_intent_action
 from literate_ai.adapters.action_build_worker import ConfiguredBuildWorker
 from literate_ai.adapters.action_capabilities import (
+    CAPABILITY_REQUEST_SCHEMA,
     MAX_CAPABILITY_BYTES,
     decode_capability_request,
+    decode_capability_response,
     encode_capability_response,
+    receiver_code_identity,
 )
 from literate_ai.adapters.action_dispatch_wire import (
     MAX_ACTION_WIRE_BYTES,
     ActionWireError,
-    decode_action_request,
+    attest_action_response,
+    decode_attested_action_request,
     encode_action_response,
 )
 from literate_ai.adapters.action_execute_worker import ConfiguredExecuteWorker
@@ -53,9 +58,84 @@ from literate_ai.adapters.worker_tool_dependencies import (
     WorkerDependencyGraphLimitError,
 )
 from literate_ai.application.action_dag_scheduler import LifecycleActionKind
+from literate_ai.contracts import canonical_json_bytes
 from literate_ai.contracts.identity import ContentIdentity
 from literate_ai.storage import FileSystemCAS
 from literate_ai.storage.cas import StorageError
+
+
+def _describe(request, deadline, expected_worker, *, http_source, workers):
+    """Encode this receiver's capability exactly as ``--describe`` reports it."""
+    build_worker = workers["build_worker"]
+    test_worker = workers["test_worker"]
+    execute_worker = workers["execute_worker"]
+    accept_worker = workers["accept_worker"]
+    generate_worker = workers["generate_worker"]
+    package_worker = workers["package_worker"]
+    finalize_worker = workers["finalize_worker"]
+    finalize_profile = finalize_worker.identity if finalize_worker else None
+    if package_worker is not None:
+        package_worker.require_current()
+    response = encode_capability_response(
+        request,
+        deadline,
+        expected_worker,
+        http_source=http_source,
+        test_profile=test_worker.identity if test_worker else None,
+        test_toolchains=test_worker.tools.identities if test_worker else (),
+        test_standard_tools=test_worker.standard_tools_identity
+        if test_worker
+        else None,
+        execute_profile=execute_worker.identity if execute_worker else None,
+        accept_profile=accept_worker.identity if accept_worker else None,
+        generate_profile=generate_worker.identity if generate_worker else None,
+        package_profile=package_worker.identity if package_worker else None,
+        finalize_profile=finalize_profile,
+        execute_toolchains=execute_worker.tools.identities if execute_worker else (),
+        execute_standard_tools=execute_worker.standard_tools_identity
+        if execute_worker
+        else None,
+        build_profile=build_worker.identity if build_worker else None,
+        build_toolchains=build_worker.tools.identities if build_worker else (),
+        build_standard_tools=build_worker.standard_tools_identity
+        if build_worker
+        else None,
+    )
+    if package_worker is not None:
+        package_worker.require_current()
+    if finalize_worker is not None and finalize_worker.identity != finalize_profile:
+        raise ActionWireError(
+            "action_finalize.profile_changed", "private startup changed"
+        )
+    return response
+
+
+def _require_capability(expected, deadline, expected_worker, **describe):
+    """Measure this receiver as a fresh ``--describe`` would, in process.
+
+    A request that names its worker's admitted capability is refused unless the
+    receiver measures exactly that capability before and after the action, so the
+    controller need not launch separate probes at each action boundary.
+    """
+    request_content = canonical_json_bytes(
+        {
+            "schema": CAPABILITY_REQUEST_SCHEMA,
+            "worker_identity": expected_worker.uri,
+            "nonce": secrets.token_hex(16),
+            "deadline": deadline.to_dict(),
+        }
+    )
+    request, _ = decode_capability_request(request_content)
+    measured = decode_capability_response(
+        _describe(request, deadline, expected_worker, **describe),
+        request_content,
+        receiver_code_identity(deadline=deadline),
+    ).capability_identity
+    if measured != expected:
+        raise ActionWireError(
+            "action_admission.runtime_changed",
+            "worker runtime or supported capabilities changed",
+        )
 
 
 def main(
@@ -86,6 +166,8 @@ def main(
     observations.add_argument("--describe-finalize-grant", action="store_true")
     parser.add_argument("--request-file", type=Path)
     args = parser.parse_args(argv)
+    capability = None
+    measured = False
     describing = (
         args.describe
         or args.describe_hardware
@@ -144,7 +226,9 @@ def main(
         elif args.describe or args.describe_tools:
             request, deadline = decode_capability_request(content)
         else:
-            request, deadline, records = decode_action_request(content)
+            request, deadline, records, capability = decode_attested_action_request(
+                content
+            )
     except (ValueError, OSError, RuntimeError):
         print("Invalid lifecycle-action request or receiver binding", file=sys.stderr)
         return 2
@@ -177,46 +261,20 @@ def main(
             response = encode_hardware_response(request, deadline, expected_worker)
             sys.stdout.buffer.write(response)
             return 0
+        describe = {
+            "http_source": source is not None,
+            "workers": {
+                "build_worker": build_worker,
+                "test_worker": test_worker,
+                "execute_worker": execute_worker,
+                "accept_worker": accept_worker,
+                "generate_worker": generate_worker,
+                "package_worker": package_worker,
+                "finalize_worker": finalize_worker,
+            },
+        }
         if args.describe:
-            finalize_profile = finalize_worker.identity if finalize_worker else None
-            if package_worker is not None:
-                package_worker.require_current()
-            response = encode_capability_response(
-                request,
-                deadline,
-                expected_worker,
-                http_source=source is not None,
-                test_profile=test_worker.identity if test_worker else None,
-                test_toolchains=test_worker.tools.identities if test_worker else (),
-                test_standard_tools=test_worker.standard_tools_identity
-                if test_worker
-                else None,
-                execute_profile=execute_worker.identity if execute_worker else None,
-                accept_profile=accept_worker.identity if accept_worker else None,
-                generate_profile=generate_worker.identity if generate_worker else None,
-                package_profile=package_worker.identity if package_worker else None,
-                finalize_profile=finalize_profile,
-                execute_toolchains=execute_worker.tools.identities
-                if execute_worker
-                else (),
-                execute_standard_tools=execute_worker.standard_tools_identity
-                if execute_worker
-                else None,
-                build_profile=build_worker.identity if build_worker else None,
-                build_toolchains=build_worker.tools.identities if build_worker else (),
-                build_standard_tools=build_worker.standard_tools_identity
-                if build_worker
-                else None,
-            )
-            if package_worker is not None:
-                package_worker.require_current()
-            if (
-                finalize_worker is not None
-                and finalize_worker.identity != finalize_profile
-            ):
-                raise ActionWireError(
-                    "action_finalize.profile_changed", "private startup changed"
-                )
+            response = _describe(request, deadline, expected_worker, **describe)
             sys.stdout.buffer.write(response)
             return 0
         if args.verify_tool_selectors:
@@ -267,6 +325,9 @@ def main(
             )
             sys.stdout.buffer.write(response)
             return 0
+        if capability is not None:
+            _require_capability(capability, deadline, expected_worker, **describe)
+            measured = True
         if (
             args.describe_finalize_grant
             and request.action.kind is not LifecycleActionKind.FINALIZE
@@ -475,6 +536,14 @@ def main(
         response = encode_action_response(
             request, failure_code="action_source.custody_unavailable"
         )
+    if measured:
+        # Attest only when the admitted capability held at both boundaries. An
+        # unattested response makes the controller probe the worker instead.
+        try:
+            _require_capability(capability, deadline, expected_worker, **describe)
+            response = attest_action_response(response, request, capability)
+        except (ActionWireError, StorageError, OSError, ValueError, RuntimeError):
+            pass
     sys.stdout.buffer.write(response)
     return 0
 

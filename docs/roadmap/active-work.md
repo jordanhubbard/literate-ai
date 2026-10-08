@@ -26235,3 +26235,10 @@ Linux and Windows now share the memo and file (schema
 `literate-ai/dependency-facts@1`): ELF image and candidate-header facts and PE
 import lists are keyed by inspector digest, resolved path and content digest.
 Only macOS was measured; Linux and Windows gains await real-worker runs.
+
+In-band capability attestation, 2026-10-07: dispatch boundaries no longer launch
+a separate `--describe` probe. Requests carry the admitted capability; the
+receiver measures it in process before and after the action and attests it, and
+an unattested response falls back to full revalidation. Probes in the
+one-Component remote rebuild fall from 29 (38.6 s) to 3 (4.2 s); health checks
+stay at both boundaries (29 checks, about 1.5 s).

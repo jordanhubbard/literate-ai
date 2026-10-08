@@ -77,6 +77,9 @@ class CommandActionWorkerPool:
         self.target_profile = target_profile
         self.cwd = cwd
         self.environment = dict(os.environ if environment is None else environment)
+        # The receiver's configuration can arrive through this environment, so an
+        # attested boundary is valid only while it is the one admission probed.
+        self._admitted_environment = dict(self.environment)
         self.maximum_hardware_age = maximum_hardware_age
         deadline.remaining()
         self.catalog = catalog_loader()
@@ -289,6 +292,23 @@ class CommandActionWorkerPool:
             )
         self.hardware_observations = hardware
         self.deadline.remaining()
+
+    def attested_boundary(self, worker: LifecycleActionWorker) -> ContentIdentity:
+        """Action-boundary admission whose capability the receiver measures.
+
+        Runs every revalidate() check except the capability probe and returns the
+        admitted capability identity. The caller must send it with the action and
+        accept the action only when the receiver attests that it measured exactly
+        this capability before and after the action; otherwise it must revalidate.
+        """
+        if self.environment != self._admitted_environment:
+            # Dispatchers may hold an older copy, so probe with the current one.
+            self.revalidate(worker)
+        else:
+            self.require_current(worker)
+            self._health(self.catalog.worker(worker.worker_id))
+            self.deadline.remaining()
+        return self._facts[worker.worker_id].capability_identity
 
     def revalidate(self, worker: LifecycleActionWorker) -> None:
         self.require_current(worker)

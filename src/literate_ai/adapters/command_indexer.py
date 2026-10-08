@@ -84,6 +84,7 @@ class CommandGenerationIndexer:
             cwd=admission.cwd,
             revalidate_worker=admission.revalidate,
             require_worker_current=admission.require_current,
+            attested_boundary=admission.attested_boundary,
             environment=admission.environment,
         )
 
@@ -101,6 +102,8 @@ class CommandGenerationIndexer:
         revalidate_worker: Callable[[LifecycleActionWorker], None],
         environment: Mapping[str, str] | None = None,
         require_worker_current: Callable[[LifecycleActionWorker], None] | None = None,
+        attested_boundary: Callable[[LifecycleActionWorker], ContentIdentity]
+        | None = None,
     ) -> None:
         if not isinstance(cas, FileSystemCAS) or not callable(source_candidate):
             raise TypeError(
@@ -115,6 +118,7 @@ class CommandGenerationIndexer:
         self.deadline = deadline
         self.cwd = cwd
         self.revalidate_worker = revalidate_worker
+        self.attested_boundary = attested_boundary
         # Per-read guards use the cheap check; dispatch boundaries revalidate fully.
         self.require_worker_current = require_worker_current or revalidate_worker
         self.environment = dict(os.environ if environment is None else environment)
@@ -163,6 +167,7 @@ class CommandGenerationIndexer:
             record_result=lambda identity, content: results.update({identity: content}),
             revalidate_worker=self.revalidate_worker,
             environment=self.environment,
+            attested_boundary=self.attested_boundary,
         )
 
     def retain_evidence_with(self, recorder):

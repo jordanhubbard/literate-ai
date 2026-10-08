@@ -1,4 +1,4 @@
-"""Configured FINALIZE policy stays pinned, live and never falls back to local execution."""
+"""Configured FINALIZE policy stays pinned, live and never falls back to local runs."""
 
 from __future__ import annotations
 

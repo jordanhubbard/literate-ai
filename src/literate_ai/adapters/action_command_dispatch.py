@@ -13,7 +13,7 @@ from literate_ai.adapters.action_dispatch_wire import (
     MAX_ACTION_WIRE_BYTES,
     ActionDispatchDeadline,
     ActionWireError,
-    decode_action_response,
+    decode_attested_action_response,
     encode_action_request,
 )
 from literate_ai.adapters.action_transport import (
@@ -90,6 +90,8 @@ class CommandLifecycleActionDispatcher:
         record_result: Callable[[ContentIdentity, bytes], None],
         revalidate_worker: Callable[[LifecycleActionWorker], None],
         environment: Mapping[str, str] | None = None,
+        attested_boundary: Callable[[LifecycleActionWorker], ContentIdentity]
+        | None = None,
     ) -> None:
         if not isinstance(catalog, ExecutionWorkerCatalog) or not isinstance(
             deadline, ActionDispatchDeadline
@@ -119,6 +121,10 @@ class CommandLifecycleActionDispatcher:
         self.input_records = input_records
         self.record_result = record_result
         self.revalidate_worker = revalidate_worker
+        # When set, boundaries skip the separate capability probe: the receiver
+        # measures the admitted capability in process and attests it. A response
+        # without that attestation falls back to full revalidation.
+        self.attested_boundary = attested_boundary
         self.environment = dict(os.environ if environment is None else environment)
         self._lock = threading.Lock()
         self._active: dict[ContentIdentity, threading.Event] = {}
@@ -194,9 +200,21 @@ class CommandLifecycleActionDispatcher:
                 )
             self._active[request.identity] = event
         try:
-            self.revalidate_worker(request.worker)
+            capability = None
+            if self.attested_boundary is None:
+                self.revalidate_worker(request.worker)
+            else:
+                capability = self.attested_boundary(request.worker)
+                if not isinstance(capability, ContentIdentity):
+                    raise ActionWireError(
+                        "action_dispatch.admission_mismatch",
+                        "attested boundary returned no admitted capability",
+                    )
             content = encode_action_request(
-                request, self.deadline, self.input_records(request)
+                request,
+                self.deadline,
+                self.input_records(request),
+                capability=capability,
             )
             environment = self._environment(worker)
             with tempfile.TemporaryDirectory(prefix="litai-action-") as directory:
@@ -211,9 +229,19 @@ class CommandLifecycleActionDispatcher:
                     )
                     stdin = None
                 output = self._run(argv, environment, stdin, event)
-            outcome, result_record = decode_action_response(output, request)
+            outcome, result_record, attested = decode_attested_action_response(
+                output, request
+            )
             self.deadline.remaining()
-            self.revalidate_worker(request.worker)
+            if attested is None:
+                self.revalidate_worker(request.worker)
+            elif attested != capability or (
+                self.attested_boundary(request.worker) != capability
+            ):
+                raise ActionWireError(
+                    "action_admission.runtime_changed",
+                    "worker runtime or supported capabilities changed",
+                )
             with self._lock:
                 if event.is_set():
                     raise ActionWireError(

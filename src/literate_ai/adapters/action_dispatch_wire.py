@@ -31,6 +31,10 @@ MAX_ACTION_RECORDS = 4096
 ACTION_WIRE_PROTOCOL = LIFECYCLE_ACTION_WIRE_PROTOCOL
 _REQUEST_SCHEMA = "literate-ai/lifecycle-action-wire-request@1"
 _RESPONSE_SCHEMA = "literate-ai/lifecycle-action-wire-response@1"
+# Requests that carry the worker's admitted capability, and responses in which the
+# receiver attests it measured that capability before and after the action.
+_ATTESTED_REQUEST_SCHEMA = "literate-ai/lifecycle-action-wire-request@3"
+_ATTESTED_RESPONSE_SCHEMA = "literate-ai/lifecycle-action-wire-response@2"
 
 
 class ActionWireError(RuntimeError):
@@ -199,7 +203,11 @@ def encode_action_request(
     request: LifecycleActionDispatchRequest,
     deadline: ActionDispatchDeadline,
     records: Mapping[ContentIdentity, bytes],
+    *,
+    capability: ContentIdentity | None = None,
 ) -> bytes:
+    if capability is not None and not isinstance(capability, ContentIdentity):
+        _invalid()
     if request.deadline_identity != deadline.identity:
         raise ActionWireError(
             "action_wire.deadline_mismatch", "action request binds another deadline"
@@ -218,11 +226,20 @@ def encode_action_request(
         raise ActionWireError(
             "action_wire.oversized", "action fields exceed their item limit"
         )
+    if capability is not None:
+        schema = _ATTESTED_REQUEST_SCHEMA
+    elif request.input_record_identities:
+        schema = _REQUEST_SCHEMA.replace("@1", "@2")
+    else:
+        schema = _REQUEST_SCHEMA
     return _dump(
         {
-            "schema": _REQUEST_SCHEMA.replace("@1", "@2")
-            if request.input_record_identities
-            else _REQUEST_SCHEMA,
+            "schema": schema,
+            **(
+                {"capability_identity": capability.uri}
+                if capability is not None
+                else {}
+            ),
             **(
                 {
                     "input_record_identities": [
@@ -257,21 +274,44 @@ def decode_action_request(
 ) -> tuple[
     LifecycleActionDispatchRequest, ActionDispatchDeadline, dict[ContentIdentity, bytes]
 ]:
+    request, deadline, records, _capability = decode_attested_action_request(
+        content, now=now
+    )
+    return request, deadline, records
+
+
+def decode_attested_action_request(
+    content: bytes, *, now: datetime | None = None
+) -> tuple[
+    LifecycleActionDispatchRequest,
+    ActionDispatchDeadline,
+    dict[ContentIdentity, bytes],
+    ContentIdentity | None,
+]:
+    """Decode a request and the admitted capability it asks the receiver to hold."""
     try:
         loaded = _load(content)
-        extended = isinstance(loaded, dict) and loaded.get(
-            "schema"
-        ) == _REQUEST_SCHEMA.replace("@1", "@2")
+        schema = loaded.get("schema") if isinstance(loaded, dict) else None
+        attested = schema == _ATTESTED_REQUEST_SCHEMA
+        extended = schema == _REQUEST_SCHEMA.replace("@1", "@2") or (
+            attested and "input_record_identities" in loaded
+        )
         value = _fields(
             loaded,
             "schema request_identity schedule_identity action worker slot "
             "predecessor_result_identities deadline records"
-            + (" input_record_identities" if extended else ""),
+            + (" input_record_identities" if extended else "")
+            + (" capability_identity" if attested else ""),
         )
-        if value["schema"] != (
+        if not attested and value["schema"] != (
             _REQUEST_SCHEMA.replace("@1", "@2") if extended else _REQUEST_SCHEMA
         ):
             _invalid()
+        capability = (
+            ContentIdentity.parse_uri(value["capability_identity"])
+            if attested
+            else None
+        )
         action = _fields(
             value["action"],
             "action_id component_revision kind payload_identity predecessor_ids "
@@ -340,7 +380,7 @@ def decode_action_request(
                 _invalid()
             records[identity] = _record(item["content"])
         _validate_records(request, records)
-        return request, deadline, records
+        return request, deadline, records, capability
     except (ValueError, TypeError, AttributeError, ActionDagSchedulingError) as exc:
         raise ActionWireError(
             "action_wire.invalid", "invalid typed action request"
@@ -352,8 +392,12 @@ def encode_action_response(
     *,
     result_record: bytes | None = None,
     failure_code: str | None = None,
+    capability: ContentIdentity | None = None,
 ) -> bytes:
+    """Encode a response; ``capability`` attests the receiver's measurements."""
     if (result_record is None) == (failure_code is None):
+        _invalid()
+    if capability is not None and not isinstance(capability, ContentIdentity):
         _invalid()
     if result_record is not None and (
         not isinstance(result_record, bytes)
@@ -367,7 +411,14 @@ def encode_action_response(
         _invalid()
     return _dump(
         {
-            "schema": _RESPONSE_SCHEMA,
+            "schema": _RESPONSE_SCHEMA
+            if capability is None
+            else _ATTESTED_RESPONSE_SCHEMA,
+            **(
+                {"capability_identity": capability.uri}
+                if capability is not None
+                else {}
+            ),
             "request_identity": request.identity.uri,
             "worker_identity": request.worker.identity.uri,
             "result_identity": None
@@ -381,16 +432,55 @@ def encode_action_response(
     )
 
 
+def attest_action_response(
+    content: bytes,
+    request: LifecycleActionDispatchRequest,
+    capability: ContentIdentity,
+) -> bytes:
+    """Re-encode one unattested response with the receiver's measured capability."""
+    outcome, record, existing = decode_attested_action_response(content, request)
+    if existing is not None:
+        _invalid()
+    return encode_action_response(
+        request,
+        result_record=record,
+        failure_code=outcome.failure_code,
+        capability=capability,
+    )
+
+
 def decode_action_response(
     content: bytes, request: LifecycleActionDispatchRequest
 ) -> tuple[LifecycleActionDispatchOutcome, bytes | None]:
-    value = _fields(
-        _load(content),
-        "schema request_identity worker_identity result_identity result_record "
-        "failure_code",
+    outcome, record, _capability = decode_attested_action_response(content, request)
+    return outcome, record
+
+
+def decode_attested_action_response(
+    content: bytes, request: LifecycleActionDispatchRequest
+) -> tuple[LifecycleActionDispatchOutcome, bytes | None, ContentIdentity | None]:
+    """Decode a response and the capability its receiver attests, if any."""
+    loaded = _load(content)
+    attested = (
+        isinstance(loaded, dict) and loaded.get("schema") == _ATTESTED_RESPONSE_SCHEMA
     )
-    if value["schema"] != _RESPONSE_SCHEMA:
+    value = _fields(
+        loaded,
+        "schema request_identity worker_identity result_identity result_record "
+        "failure_code" + (" capability_identity" if attested else ""),
+    )
+    if not attested and value["schema"] != _RESPONSE_SCHEMA:
         _invalid()
+    try:
+        capability = (
+            ContentIdentity.parse_uri(value["capability_identity"])
+            if attested
+            else None
+        )
+    except (ValueError, TypeError) as exc:
+        raise ActionWireError(
+            "action_wire.invalid", "invalid attested capability"
+        ) from exc
     if (
         value["request_identity"] != request.identity.uri
         or value["worker_identity"] != request.worker.identity.uri
@@ -401,15 +491,22 @@ def decode_action_response(
         )
     record = None if value["result_record"] is None else _record(value["result_record"])
     expected = encode_action_response(
-        request, result_record=record, failure_code=value["failure_code"]
+        request,
+        result_record=record,
+        failure_code=value["failure_code"],
+        capability=capability,
     )
     if _load(expected) != value:
         raise ActionWireError(
             "action_wire.record_corrupt",
             "worker result differs from its content identity",
         )
-    return LifecycleActionDispatchOutcome(
-        request.identity,
-        None if record is None else record_identity(record),
-        value["failure_code"],
-    ), record
+    return (
+        LifecycleActionDispatchOutcome(
+            request.identity,
+            None if record is None else record_identity(record),
+            value["failure_code"],
+        ),
+        record,
+        capability,
+    )

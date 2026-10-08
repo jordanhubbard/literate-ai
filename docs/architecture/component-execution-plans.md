@@ -1755,6 +1755,21 @@ dropped, and a file written on another platform is ignored. Because cached facts
 decide what a closure contains, the path must lie outside the workspace and CAS
 that actions write. A missing or malformed file is ignored and rewritten.
 
+The controller's action boundaries need not launch a separate capability probe.
+Each dispatch still checks route, catalog, hardware and storage health before and
+after the action, and sends the worker's admitted capability identity in the
+request (`lifecycle-action-wire-request@3`). The receiver measures its capability
+in process, exactly as `--describe` would, before running the action and again
+before responding; it refuses a mismatch and otherwise attests the identity in
+the response (`lifecycle-action-wire-response@2`). The controller accepts an
+attestation only when it equals the admitted identity. A response without one
+(from a receiver that does not attest, or one whose closing measurement failed)
+makes the controller fully revalidate the worker, probe included, before it
+admits the result. The reference receiver re-measures its tools before emitting
+any response, so its attestation covers the whole action. If the admission's
+environment, through which receiver configuration can arrive, has changed since
+admission, each boundary probes the worker fully with the current environment.
+
 Contracts arrive in the admitted request, as they do for FINALIZE. The
 `portable-starter@1` policy admits a contract only when its BUILD argv is exactly
 the packaged Make driver for this worker's own Make and Python, its TEST and

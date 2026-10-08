@@ -46,7 +46,8 @@ ACTION_OBSERVATION_TIMEOUT_SECONDS = 300
 CAPABILITY_PROTOCOL = "literate-ai/action-capabilities@1"
 MAX_CAPABILITY_BYTES = 32 * 1024
 _MAX_PROBE_SECONDS = 60
-_REQUEST = "literate-ai/action-capability-request@1"
+CAPABILITY_REQUEST_SCHEMA = "literate-ai/action-capability-request@1"
+_REQUEST = CAPABILITY_REQUEST_SCHEMA
 _RESPONSE = "literate-ai/action-capability-response@1"
 _SUPPORTED = (
     LifecycleActionKind.AUTHORIZE,

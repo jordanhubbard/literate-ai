@@ -1,6 +1,7 @@
 """Invariants: a reference receiver never emits a result after its tools changed,
-and its cached dependency facts never live where an action can write and are
-reused only for the same inspector and image bytes.
+attests only the exact capability it measured around an action, and its cached
+dependency facts never live where an action can write and are reused only for
+the same inspector and image bytes.
 
 Reads between boundaries check only executable metadata, so the receiver must
 fully re-measure its tools before any response leaves the process. Cached facts
@@ -12,19 +13,33 @@ from __future__ import annotations
 import io
 import json
 import os
+import secrets
 import shutil
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
-from literate_ai import standard_receiver
+import tests.support.fixtures_test_action_generate_execution as generate_fixture
+from literate_ai import action_worker, standard_receiver
+from literate_ai.adapters.action_capabilities import (
+    CAPABILITY_REQUEST_SCHEMA,
+    decode_capability_response,
+    receiver_code_identity,
+)
+from literate_ai.adapters.action_dispatch_wire import (
+    decode_attested_action_response,
+    encode_action_request,
+)
 from literate_ai.adapters.dependencies import observation
 from literate_ai.adapters.standard_receiver_config import (
     StandardReceiverConfigError,
     load_standard_receiver_config,
 )
+from literate_ai.contracts import canonical_identity, canonical_json_bytes
+from tests.support.fixtures_test_action_generate_action import make_generate_request
 
 
 @unittest.skipIf(os.name == "nt" or shutil.which("make") is None, "POSIX make")
@@ -103,6 +118,72 @@ class StandardReceiverCustodyTests(unittest.TestCase):
                     else:
                         loaded = load_standard_receiver_config(config)
                         self.assertEqual(loaded.dependency_cache, cache)
+
+
+class CapabilityAttestationTests(unittest.TestCase):
+    def setUp(self):
+        self.fixture = f = generate_fixture.GenerateExecutionTests()
+        self.addCleanup(f.doCleanups)
+        f.setUp()
+        self.request, self.records = make_generate_request(f.value, f.deadline)
+
+    def receive(self, wire, *, describe=False):
+        f = self.fixture
+        output = io.BytesIO()
+        with (
+            patch(
+                "literate_ai.action_worker.sys.stdin",
+                SimpleNamespace(buffer=io.BytesIO(wire)),
+            ),
+            patch(
+                "literate_ai.action_worker.sys.stdout", SimpleNamespace(buffer=output)
+            ),
+            patch.dict(
+                os.environ,
+                {
+                    "LITAI_ACTION_WORKER_IDENTITY": (
+                        self.request.worker.worker_identity.uri
+                    )
+                },
+            ),
+        ):
+            arguments = ["--cas", str(f.cas.root), "--workspace", str(f.jobs)]
+            status = action_worker.main(
+                [*arguments, "--describe"] if describe else arguments
+            )
+        self.assertEqual(status, 0)
+        return output.getvalue()
+
+    def test_receiver_attests_only_the_capability_it_measured(self):
+        probe = canonical_json_bytes(
+            {
+                "schema": CAPABILITY_REQUEST_SCHEMA,
+                "worker_identity": self.request.worker.worker_identity.uri,
+                "nonce": secrets.token_hex(16),
+                "deadline": self.fixture.deadline.to_dict(),
+            }
+        )
+        measured = decode_capability_response(
+            self.receive(probe, describe=True),
+            probe,
+            receiver_code_identity(deadline=self.fixture.deadline),
+        ).capability_identity
+        for expected, attested, failure in (
+            (measured, measured, "action_generate.not_configured"),
+            (canonical_identity("admitted elsewhere"), None, "runtime_changed"),
+        ):
+            with self.subTest(attested=attested is not None):
+                wire = encode_action_request(
+                    self.request,
+                    self.fixture.deadline,
+                    self.records,
+                    capability=expected,
+                )
+                outcome, _, capability = decode_attested_action_response(
+                    self.receive(wire), self.request
+                )
+                self.assertEqual(capability, attested)
+                self.assertIn(failure, outcome.failure_code)
 
 
 class DependencyFactCacheTests(unittest.TestCase):
