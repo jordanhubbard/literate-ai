@@ -1,9 +1,11 @@
 """FINALIZE controller shares worker slots and independently verifies returned proof."""
 
 import os
+import tempfile
 import time
 from contextlib import nullcontext
 from functools import partial
+from pathlib import Path
 
 from literate_ai.adapters.action_dispatch_wire import ActionWireError, record_identity
 from literate_ai.adapters.action_finalize import admit_finalize_action
@@ -213,9 +215,17 @@ class CommandProjectFinalizer:
         decode_finalize_grant_request(described, value)
         current_handoff()
         path = self.grant_request_path
-        temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-        temporary.write_bytes(described)
-        os.replace(temporary, path)
+        # An exclusive, unguessable name never follows a planted symlink.
+        descriptor, temporary = tempfile.mkstemp(
+            prefix=f".{path.name}.", dir=path.parent
+        )
+        try:
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(described)
+            os.replace(temporary, path)
+        except BaseException:
+            Path(temporary).unlink(missing_ok=True)
+            raise
 
     def _execute(self, lock, project, graph, plan, package, worker, slot):
         value, proof, raw, input_id, request, records, current, current_handoff = (

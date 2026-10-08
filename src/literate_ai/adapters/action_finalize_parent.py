@@ -7,6 +7,7 @@ relies on the child's own grant check, and an operator can be told the exact
 runtime a grant must name.
 """
 
+import os
 from datetime import UTC, datetime
 from functools import partial
 from types import MappingProxyType
@@ -24,6 +25,7 @@ from literate_ai.adapters.action_finalize_profile import (
 from literate_ai.adapters.action_finalize_record import FinalizeWorkerInput
 from literate_ai.adapters.action_toolchains import WorkerToolchainRegistry
 from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecyclePorts
+from literate_ai.diagnostics import inherited_verbose_environment
 from literate_ai.security import BuildAuthorization, SecurityProfile
 
 _RESERVED = frozenset(
@@ -37,11 +39,18 @@ _RESERVED = frozenset(
 
 
 def portable_child_environment(environment, launcher_environment=()):
-    """Return the environment a supervised child measures after its controls."""
+    """Return the environment a supervised child measures after its controls.
+
+    The bounded launcher adds run-scoped diagnostics, and Windows reports
+    ``os.environ`` keys upper-cased, so measure exactly what the child sees.
+    """
     merged = dict(environment)
     merged.update(dict(launcher_environment))
     if any(not isinstance(k, str) or not isinstance(v, str) for k, v in merged.items()):
         raise TypeError("runtime environment must contain text pairs")
+    merged = inherited_verbose_environment(merged)
+    if os.name == "nt":
+        merged = {k.upper(): v for k, v in merged.items()}
     return {k: v for k, v in merged.items() if k.casefold() not in _RESERVED}
 
 

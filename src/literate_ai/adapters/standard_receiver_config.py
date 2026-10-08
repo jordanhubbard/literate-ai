@@ -158,14 +158,31 @@ def load_standard_receiver_config(path):
         raise StandardReceiverConfigError("source settings are invalid")
     cas = _absolute(document["cas"], "cas")
     workspace = _absolute(document["workspace"], "workspace")
-    if finalize is not None and finalize.grant_path.is_relative_to(workspace):
-        raise StandardReceiverConfigError("grants must be outside the workspace")
-    # Cached dependency facts decide what a closure contains, so no action may
-    # be able to write them: like grants, they stay outside action storage.
+
+    def inside_action_storage(path: Path) -> bool:
+        # Compare resolved paths too, so a symlink cannot reach action storage.
+        return any(
+            candidate.is_relative_to(root)
+            for candidate in (path, path.resolve())
+            for storage in (workspace, cas)
+            for root in (storage, storage.resolve())
+        )
+
+    # Grants, the acceptance oracle and cached dependency facts decide what runs
+    # and what passes, so no action may be able to write them.
+    if finalize is not None:
+        if inside_action_storage(finalize.grant_path):
+            raise StandardReceiverConfigError(
+                "grants must be outside the workspace and CAS"
+            )
+        if inside_action_storage(finalize.oracle_path):
+            raise StandardReceiverConfigError(
+                "the FINALIZE oracle must be outside the workspace and CAS"
+            )
     dependency_cache = document.get("dependency_cache")
     if dependency_cache is not None:
         dependency_cache = _absolute(dependency_cache, "dependency_cache")
-        if any(dependency_cache.is_relative_to(root) for root in (workspace, cas)):
+        if inside_action_storage(dependency_cache):
             raise StandardReceiverConfigError(
                 "dependency_cache must be outside the workspace and CAS"
             )

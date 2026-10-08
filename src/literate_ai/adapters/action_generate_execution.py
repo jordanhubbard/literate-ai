@@ -167,7 +167,11 @@ def execute_worker_generation(
             content = result.to_bytes()
         current()
     finally:
-        if directory_node(root) == parent:
+        try:
+            same_parent = directory_node(root) == parent
+        except (OSError, ValueError):
+            same_parent = False
+        if same_parent:
             _remove_owned_stage(stage, owned)
     current()
     return content

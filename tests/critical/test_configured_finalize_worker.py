@@ -1,10 +1,13 @@
 """Receiver transport metadata must not change private FINALIZE identity."""
 
+import os
 import sys
 import unittest
+from unittest import mock
 
 from literate_ai.adapters.action_capabilities import CAPABILITY_PROTOCOL
 from literate_ai.adapters.action_dispatch_wire import ACTION_WIRE_PROTOCOL
+from literate_ai.adapters.action_finalize_parent import portable_child_environment
 from literate_ai.adapters.action_finalize_worker import ConfiguredFinalizeWorker
 from literate_ai.adapters.lifecycle import LocalComponentToolBinding
 from literate_ai.contracts import canonical_identity
@@ -46,3 +49,11 @@ class ConfiguredFinalizeWorkerTests(unittest.TestCase):
         for environment in ({1: "value"}, {"LITAI_DISPATCH_PROTOCOL": None}):
             with self.subTest(environment=environment), self.assertRaises(TypeError):
                 self.worker(environment)
+
+    def test_parent_measures_the_environment_the_child_receives(self):
+        # The bounded launcher forwards run-scoped diagnostics to the child.
+        with mock.patch.dict(os.environ, {"LITAI_DEBUG": "1"}):
+            measured = portable_child_environment({"SystemRoot": "C:/Windows"})
+        self.assertEqual(measured.get("LITAI_DEBUG"), "1")
+        key = "SYSTEMROOT" if os.name == "nt" else "SystemRoot"
+        self.assertEqual(measured.get(key), "C:/Windows")

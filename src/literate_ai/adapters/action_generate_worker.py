@@ -143,7 +143,11 @@ class ConfiguredGenerateWorker(ConfiguredToolWorker):
             )
             current()
         finally:
-            if directory_node(root) == parent:
+            try:
+                same_parent = directory_node(root) == parent
+            except (OSError, ValueError):
+                same_parent = False
+            if same_parent:
                 _remove_owned_stage(job, owned)
         current()
         return result

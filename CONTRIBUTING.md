@@ -78,7 +78,10 @@ base. If your change touches anything under `src/literate_ai/` (or another decla
 implementation path), that pin goes stale and `make driver-review` (part of
 `make python-check`) fails with a message naming the drifted files.
 
-Fix it by re-pinning after you've reviewed what changed:
+Fix it by re-pinning after what changed has been reviewed. The review must not be
+the author's own: an independent agent reviewer that did not write the drift is
+sufficient, and no human is required. Name the reviewer and what it covered in the
+re-pin commit, and fix its confirmed findings first:
 
 ```
 make driver-review-record

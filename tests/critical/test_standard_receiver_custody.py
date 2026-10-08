@@ -119,6 +119,64 @@ class StandardReceiverCustodyTests(unittest.TestCase):
                         loaded = load_standard_receiver_config(config)
                         self.assertEqual(loaded.dependency_cache, cache)
 
+    def test_private_inputs_stay_outside_action_storage(self):
+        """The oracle and caches cannot sit in, or link into, action storage."""
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            (root / "workspace").mkdir()
+            (root / "private").mkdir()
+            linked = root / "linked"
+            try:
+                linked.symlink_to(root / "workspace", target_is_directory=True)
+            except OSError:
+                self.skipTest("symlinks are unavailable")
+            base = {
+                "schema": "literate-ai/standard-receiver@1",
+                "cas": str(root / "cas"),
+                "workspace": str(root / "workspace"),
+                "phases": ["PACKAGE"],
+                "tools": {"python": [sys.executable], "make": ["/usr/bin/make"]},
+                "child_environment": {},
+                "contract_policy": "portable-starter@1",
+            }
+            private = str(root / "private" / "file.json")
+            config = root / "receiver.json"
+            for name, extra in (
+                ("linked-cache", {"dependency_cache": str(linked / "facts.json")}),
+                (
+                    "oracle",
+                    {
+                        "finalize": {
+                            "grant_path": private,
+                            "oracle": {
+                                "component": "root",
+                                "path": str(root / "workspace" / "cases.json"),
+                            },
+                        }
+                    },
+                ),
+                (
+                    "linked-grant",
+                    {
+                        "finalize": {
+                            "grant_path": str(linked / "grant.json"),
+                            "oracle": {"component": "root", "path": private},
+                        }
+                    },
+                ),
+            ):
+                with self.subTest(name), self.assertRaises(StandardReceiverConfigError):
+                    config.write_text(json.dumps({**base, **extra}))
+                    load_standard_receiver_config(config)
+            # Storage options come only from the config, even abbreviated.
+            config.write_text(json.dumps(base))
+            for flag in ("--workspace", "--works", f"--cas={root}", "--allow-http"):
+                with self.subTest(flag=flag):
+                    self.assertEqual(
+                        standard_receiver.main(["--config", str(config), flag]), 2
+                    )
+
 
 class CapabilityAttestationTests(unittest.TestCase):
     def setUp(self):

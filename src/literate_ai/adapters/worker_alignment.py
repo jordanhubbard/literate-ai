@@ -672,19 +672,23 @@ class WorkerAligner:
         backup = f"{relative}.bak-{stamp}"
         if _windows(worker):
             target = powershell_home_path(item.destination)
+            # A failed backup must stop the sync before the copy overwrites it.
             prepare = powershell_command(
                 f"$f = {target}; "
                 "New-Item -ItemType Directory -Force -Path (Split-Path -Parent $f) "
-                "| Out-Null; if (Test-Path -LiteralPath $f) { Copy-Item -LiteralPath "
-                f"$f -Destination {powershell_home_path('~/' + backup)} -Force }}; "
+                "-ErrorAction Stop | Out-Null; if (Test-Path -LiteralPath $f) { "
+                f"Copy-Item -LiteralPath $f -Destination "
+                f"{powershell_home_path('~/' + backup)} -Force -ErrorAction Stop }}; "
                 "$global:LASTEXITCODE = 0"
             )
         else:
             target = '"$HOME"/' + shlex.quote(relative)
-            parent = '"$HOME"/' + shlex.quote(str(Path(relative).parent))
+            directory = str(Path(relative).parent)
+            parent = '"$HOME"/' + shlex.quote(directory)
             prepare = (
                 f"set -e; mkdir -p {parent}; "
-                + (f"chmod 700 {parent}; " if item.secret else "")
+                # Restrict a secret's own directory, never $HOME itself.
+                + (f"chmod 700 {parent}; " if item.secret and directory != "." else "")
                 + f"if [ -f {target} ]; then cp -p {target} "
                 + '"$HOME"/'
                 + shlex.quote(backup)
@@ -708,12 +712,33 @@ class WorkerAligner:
                 "worker_alignment.sync_failed",
                 f"cannot copy {item.destination} to {worker.worker_id}",
             )
-        if item.secret and not _windows(worker):
-            self._run(
-                worker,
-                f'chmod 600 "$HOME"/{shlex.quote(relative)} "$HOME"/'
-                f"{shlex.quote(backup)} 2>/dev/null; true",
-                _PROBE_TIMEOUT_SECONDS,
+        if not item.secret:
+            return
+        if _windows(worker):
+            # Owner-only: drop inherited ACEs and grant only the current user.
+            restrict = powershell_command(
+                "; ".join(
+                    f"if (Test-Path -LiteralPath ({path})) {{ icacls ({path}) "
+                    '/inheritance:r /grant:r "${env:USERNAME}:(F)" | Out-Null; '
+                    "if ($LASTEXITCODE) { exit $LASTEXITCODE } }"
+                    for path in (
+                        powershell_home_path(item.destination),
+                        powershell_home_path("~/" + backup),
+                    )
+                )
+                + "; $global:LASTEXITCODE = 0"
+            )
+        else:
+            restrict = (
+                f'chmod 600 "$HOME"/{shlex.quote(relative)} && '
+                f'{{ [ ! -e "$HOME"/{shlex.quote(backup)} ] || '
+                f'chmod 600 "$HOME"/{shlex.quote(backup)}; }}'
+            )
+        if self._run(worker, restrict, _PROBE_TIMEOUT_SECONDS).returncode:
+            raise WorkerAlignmentError(
+                "worker_alignment.sync_failed",
+                f"cannot restrict {item.destination} to its owner on "
+                f"{worker.worker_id}",
             )
 
     def align(

@@ -51,12 +51,17 @@ def admit_package_action(request, deadline, records, *, expected_worker_identity
     input_id = request.input_record_identities[0]
     value = PackageWorkerInput.admit(records[input_id], input_id, deadline)
     expected = next(
-        node
-        for node in plan_lifecycle_action_dag(
-            value.execution_plan, worker_ids=action.eligible_worker_ids
-        )
-        if node.kind is LifecycleActionKind.PACKAGE
+        (
+            node
+            for node in plan_lifecycle_action_dag(
+                value.execution_plan, worker_ids=action.eligible_worker_ids
+            )
+            if node.kind is LifecycleActionKind.PACKAGE
+        ),
+        None,
     )
+    if expected is None:
+        _invalid()
     if (
         action.action_id != expected.action_id
         or action.component_revision != expected.component_revision

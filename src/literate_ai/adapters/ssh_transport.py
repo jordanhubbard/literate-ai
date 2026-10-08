@@ -317,7 +317,12 @@ __all__ = [
 
 
 def powershell_literal(value: str) -> str:
-    return "'" + value.replace("'", "''") + "'"
+    """Quote ``value`` as one verbatim PowerShell string.
+
+    PowerShell also treats U+2018 to U+201B as single quotes, so each is
+    doubled like ``'``; otherwise one could end the literal early.
+    """
+    return "'" + re.sub("(['\u2018-\u201b])", r"\1\1", value) + "'"
 
 
 def powershell_home_path(value: str) -> str:

@@ -2746,8 +2746,9 @@ def _sync_worker_checkout(
             "; ".join(
                 (
                     f"$d = {checkout}",
-                    "New-Item -ItemType Directory -Force -Path $d | Out-Null",
-                    "Set-Location -LiteralPath $d",
+                    "New-Item -ItemType Directory -Force -Path $d -ErrorAction Stop "
+                    "| Out-Null",
+                    "Set-Location -LiteralPath $d -ErrorAction Stop",
                     "if (-not (Test-Path -LiteralPath '.git')) { "
                     + checked("git init -q")
                     + " }",
@@ -2762,7 +2763,7 @@ def _sync_worker_checkout(
         apply = powershell_command(
             "; ".join(
                 (
-                    f"Set-Location -LiteralPath {checkout}",
+                    f"Set-Location -LiteralPath {checkout} -ErrorAction Stop",
                     f"if (Test-Path -LiteralPath '{_SYNC_BUNDLE}') {{ "
                     + checked(
                         f"git fetch -q --no-tags {_SYNC_BUNDLE} "
@@ -2966,7 +2967,7 @@ def _run_release_gate_on_one_worker(
                             f"$env:{name} = {powershell_literal(value)}"
                             for name, value in overlay.items()
                         ),
-                        f"Set-Location -LiteralPath {workspace}",
+                        f"Set-Location -LiteralPath {workspace} -ErrorAction Stop",
                         "& " + " ".join(powershell_literal(item) for item in argv),
                     )
                 )
@@ -2997,8 +2998,14 @@ def _run_release_gate_on_one_worker(
                     _redact_worker_dialog(exc.message, worker.endpoint),
                     role="gate-error",
                 )
+            # A gate that started and then hung or flooded its output failed;
+            # only a gate that never started leaves the runner unavailable.
+            started = exc.code in {
+                "execution.ssh_timed_out",
+                "execution.ssh_output_too_large",
+            }
             raise ProjectReleaseError(
-                "release.gate_unavailable",
+                "release.gate_failed" if started else "release.gate_unavailable",
                 f"release gate dispatch to worker {worker.worker_id!r} failed: "
                 f"{exc.message}",
             ) from exc
@@ -3944,7 +3951,19 @@ def _left_tier_qualification(
         raise ProjectReleaseError(
             "release.qualification_invalid", "cannot read the qualification record"
         ) from exc
-    return None if record.get("ci_required") else record
+    # Whether CI is required is derived from the policy and the coverage cells,
+    # never taken from the record's own flag. The record is local evidence that
+    # anyone able to write this checkout could also forge; it waives only
+    # optional CI, and completed failing CI still blocks.
+    ci_required = (
+        record.get("ci_required") is not False
+        or policy.qualification.ci_mandatory
+        or any(
+            isinstance(cell, dict) and cell.get("tier") == "ci"
+            for cell in record["coverage"]
+        )
+    )
+    return None if ci_required else record
 
 
 def create_release_candidate(
@@ -3992,14 +4011,27 @@ def create_release_candidate(
         root, policy, qualification, revision=str(snapshot["head"])
     )
     green = None
-    if left_tiers is None:
-        matches = _github_run_matches(
-            root,
-            policy.provider_repository,
-            str(snapshot["branch"]),
-            str(snapshot["head"]),
-            getattr(_repository_policy(root), "release_ci_workflow", "CI"),
-        )
+    matches = _github_run_matches(
+        root,
+        policy.provider_repository,
+        str(snapshot["branch"]),
+        str(snapshot["head"]),
+        getattr(_repository_policy(root), "release_ci_workflow", "CI"),
+    )
+    if left_tiers is not None:
+        # CI is optional here, but a run that completed and failed is still
+        # evidence against this head; only pending or absent runs are waived.
+        if any(
+            item.get("status") == "completed"
+            and item.get("conclusion") not in {"success", "neutral", "skipped"}
+            for item in matches
+        ):
+            raise ProjectReleaseError(
+                "release.rc_ci_failed",
+                "an exact-head GitHub CI run failed; a qualification record "
+                "does not waive failing CI",
+            )
+    else:
         green = next(
             (
                 item

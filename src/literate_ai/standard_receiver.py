@@ -257,6 +257,24 @@ def main(argv=None):
             print("child mode accepts no extra arguments", file=sys.stderr)
             return 2
         return _child(config, args.child)
+    # Storage and identity come only from the private config; argparse keeps
+    # the last value, so an appended flag would otherwise override it.
+    owned = (
+        "--cas",
+        "--workspace",
+        "--source-cas-url",
+        "--source-token-env",
+        "--allow-http",
+        "--worker-identity-env",
+    )
+    # argparse also accepts unambiguous prefixes such as --works.
+    if any(
+        item.startswith("--")
+        and any(option.startswith(item.split("=", 1)[0]) for option in owned)
+        for item in passthrough
+    ):
+        print("storage and identity options come from the config", file=sys.stderr)
+        return 2
     return _receive(config, passthrough)
 
 

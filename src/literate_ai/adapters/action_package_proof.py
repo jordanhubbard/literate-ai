@@ -46,10 +46,17 @@ def reopen_package_input(
         )
     bindings = plan_accepted_assembly_dependencies(value.execution_plan, receipts)
     root_exports = next(
-        manifest.exports
-        for manifest in manifests
-        if manifest.component_revision == value.execution_plan.root_revision
+        (
+            manifest.exports
+            for manifest in manifests
+            if manifest.component_revision == value.execution_plan.root_revision
+        ),
+        None,
     )
+    if root_exports is None:
+        raise ActionWireError(
+            "action_package.graph_mismatch", "PACKAGE has no root manifest"
+        )
     root = value.plan.root_artifact_identity
     if root not in {item.identity for item in root_exports}:
         raise ActionWireError(

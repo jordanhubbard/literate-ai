@@ -11,6 +11,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 import literate_ai.project_releases as project_releases
+from literate_ai.adapters.ssh_transport import SshTransportError
 from literate_ai.evidence_ledger import load_run
 from literate_ai.project_releases import (
     PREPARED_RELEASE_SCHEMA,
@@ -462,6 +463,8 @@ class ProjectReleaseTests(unittest.TestCase):
                     github.called,
                     "ci" in expected.values() or bool(ci.get("mandatory")),
                 )
+                if not record["ci_required"]:
+                    self.assert_left_tier_record_never_waives_ci(root)
                 # The record proves only its exact revision.
                 (root / "later.txt").write_text("later\n", encoding="utf-8")
                 self.git(root, "add", "later.txt")
@@ -479,6 +482,63 @@ class ProjectReleaseTests(unittest.TestCase):
                         revision=self.git(root, "rev-parse", "HEAD"),
                     )
                 self.assertEqual(stale.exception.code, "release.qualification_stale")
+
+    def assert_left_tier_record_never_waives_ci(self, root: Path) -> None:
+        """A record waives only optional CI: CI cells and failed runs still bind."""
+
+        from literate_ai.contracts import canonical_identity
+
+        head = self.git(root, "rev-parse", "HEAD")
+        path = root / "_build/q.json"
+        with patch(
+            "literate_ai.project_releases.discover_project",
+            return_value=SimpleNamespace(root=root, definition=None),
+        ):
+            policy = project_releases.load_release_policy(root)[1]
+        left = project_releases._left_tier_qualification
+        self.assertIsNotNone(left(root, policy, path, revision=head))
+        # The record's own flag cannot hide a cell that only CI covered.
+        forged = json.loads(path.read_text(encoding="utf-8"))
+        forged["coverage"][0]["tier"] = "ci"
+        forged.pop("identity")
+        forged["identity"] = canonical_identity(forged).uri
+        forged_path = root / "_build/forged.json"
+        forged_path.write_text(json.dumps(forged), encoding="utf-8")
+        self.assertIsNone(left(root, policy, forged_path, revision=head))
+        # A completed failing exact-head CI run still blocks the RC.
+        github = replace(policy, provider_kind="github", provider_repository="o/r")
+        with (
+            patch.object(
+                project_releases, "load_release_policy", return_value=(root, github)
+            ),
+            patch.object(project_releases, "_authorize", return_value=None),
+            patch.object(project_releases, "_require_pre_release_target"),
+            patch.object(
+                project_releases,
+                "_git_snapshot",
+                return_value={
+                    "clean": True,
+                    "branch": github.default_branch,
+                    "head": head,
+                },
+            ),
+            patch.object(
+                project_releases,
+                "_github_run_matches",
+                return_value=[
+                    {"status": "completed", "conclusion": "failure", "headSha": head}
+                ],
+            ),
+            self.assertRaises(ProjectReleaseError) as refused,
+        ):
+            project_releases.create_release_candidate(
+                root,
+                version="1.2.4-rc.1",
+                actor=None,
+                authorize_external_write=True,
+                qualification=path,
+            )
+        self.assertEqual(refused.exception.code, "release.rc_ci_failed")
 
     def test_worker_release_checkout_syncs_exact_revisions_incrementally(self) -> None:
         """A worker gets the exact revision without touching its own checkout."""
@@ -571,6 +631,48 @@ class ProjectReleaseTests(unittest.TestCase):
                     "operator work\n",
                 )
                 self.assertFalse((checkout / ".git/litai-sync.bundle").exists())
+
+            class HangingGateRunner(LocalRunner):
+                """The sync succeeds; the gate itself then exceeds its deadline."""
+
+                def run(self, argv, *, cwd, timeout_seconds):
+                    if "project.json" in argv[-1]:
+                        raise SshTransportError(
+                            "execution.ssh_timed_out", "gate exceeded its deadline"
+                        )
+                    return super().run(argv, cwd=cwd, timeout_seconds=timeout_seconds)
+
+            # A gate that started and then hung failed; it never falls through.
+            with (
+                patch.dict(project_releases.os.environ, {"HOME": str(home)}),
+                patch(
+                    "literate_ai.project_releases.discover_project",
+                    return_value=SimpleNamespace(root=root, definition=None),
+                ),
+                patch.object(project_releases, "_host_platform", return_value=None),
+                patch.object(
+                    project_releases,
+                    "_qualification_workers",
+                    return_value=((worker,), ()),
+                ),
+                patch.object(
+                    project_releases,
+                    "ssh_arguments",
+                    lambda _endpoint, command, *_a, **_k: ("bash", "-c", command),
+                ),
+                patch.object(project_releases, "scp_arguments", scp),
+                patch.object(
+                    project_releases, "BoundedSshProcessRunner", HangingGateRunner
+                ),
+                patch.object(
+                    project_releases,
+                    "try_resolve_live_test_selection",
+                    return_value=None,
+                ),
+                self.assertRaises(ProjectReleaseError) as hung,
+            ):
+                qualify_release(root, output=root / "_build/q.json")
+            self.assertEqual(hung.exception.code, "release.gate_failed")
 
     def test_artifact_gate_binds_checked_bytes_before_any_publication(self) -> None:
         from literate_ai.contracts import canonical_identity
