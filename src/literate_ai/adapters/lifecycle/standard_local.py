@@ -4685,7 +4685,11 @@ class LocalStandardLifecyclePorts:
             provider_artifacts=providers,
             now=self.clock(),
         )
-        self._require_execution_authority(evidence.execution_authority, providers)
+        self._require_execution_authority(
+            evidence.execution_authority,
+            providers,
+            at=evidence.execution_authorized_at,
+        )
         for identity, content in records:
             self.retain_evidence_record(identity, content)
         admission_guard()
@@ -4698,7 +4702,11 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError("transferred EXECUTE authority changed")
         if scope is None and self._intent_artifacts_for_plan(plan) != providers:
             raise LocalStandardLifecycleError("transferred EXECUTE providers changed")
-        self._require_execution_authority(evidence.execution_authority, providers)
+        self._require_execution_authority(
+            evidence.execution_authority,
+            providers,
+            at=evidence.execution_authorized_at,
+        )
         admission_guard()
         self._execution_evidence[evidence.identity.uri] = evidence
         self.execution_stdout[plan.component_revision.uri] = stdout
@@ -5004,10 +5012,14 @@ class LocalStandardLifecyclePorts:
         self,
         authority: StandardExecutionAuthority | None,
         providers: tuple[ArtifactExport, ...],
-    ) -> None:
+        *,
+        at: datetime | None = None,
+    ) -> datetime | None:
+        """Check the grant at ``at`` (default now); return the time checked."""
         if authority is None:
-            return
-        authority.require_valid(now=self.clock())
+            return None
+        checked = self.clock() if at is None else at
+        authority.require_valid(now=checked)
         if (
             tuple(item.identity for item in providers)
             != authority.input_scope.provider_artifact_identities
@@ -5063,6 +5075,7 @@ class LocalStandardLifecyclePorts:
                         )
                     scheduled.add(identity)
                     pending.append(dependency)
+        return checked
 
     def execute(
         self, plan: StandardComponentBuildPlan, exports: tuple[ArtifactExport, ...]
@@ -5098,7 +5111,7 @@ class LocalStandardLifecyclePorts:
                 export_path=artifact / contract.artifact_export.export_id,
                 providers=providers,
             )
-            self._require_execution_authority(authority, providers)
+            authorized_at = self._require_execution_authority(authority, providers)
         except Exception as error:
             self._record_failure_diagnostic(
                 plan.component_revision.uri, f"{type(error).__name__}: {error}"
@@ -5118,6 +5131,7 @@ class LocalStandardLifecyclePorts:
         ).identity
         evidence = StandardExecutionEvidence(
             execution_authority=authority,
+            execution_authorized_at=authorized_at,
             component_revision=plan.component_revision,
             build_evidence_identity=build.identity,
             provider_artifact_identities=tuple(
@@ -5194,7 +5208,7 @@ class LocalStandardLifecyclePorts:
                     providers=providers,
                     entrypoint_contract=entrypoint,
                 )
-                self._require_execution_authority(authority, providers)
+                authorized_at = self._require_execution_authority(authority, providers)
             except Exception as error:
                 self._record_failure_diagnostic(
                     plan.component_revision.uri,
@@ -5239,6 +5253,7 @@ class LocalStandardLifecyclePorts:
         root_export = by_export_id[contract.artifact_export.export_id]
         evidence = StandardExecutionEvidence(
             execution_authority=authority,
+            execution_authorized_at=authorized_at,
             component_revision=plan.component_revision,
             build_evidence_identity=build.identity,
             provider_artifact_identities=tuple(

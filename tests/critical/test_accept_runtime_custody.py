@@ -59,6 +59,7 @@ class ScopedRuntimePorts(ContractEvidenceLifecyclePorts):
             original,
             provider_artifact_identities=scope.provider_artifact_identities,
             execution_authority=authority,
+            execution_authorized_at=now,
         )
         self.typed_acceptances[plan.component_revision.uri] = replace(
             self.typed_acceptances[plan.component_revision.uri], execution=result
@@ -129,6 +130,32 @@ class AcceptRuntimeCustodyTests(unittest.TestCase):
             {a.identity for r in root_receipts for a in r.build.exports},
             set(root_scope.provider_artifact_identities),
         )
+
+    def test_execution_grant_is_checked_when_the_execution_ran(self):
+        """Reused evidence outlives its grant; only the run must be authorized."""
+
+        ports = ScopedRuntimePorts(self.execution, self.names)
+        self.assertTrue(self.run_lifecycle(ports).successful)
+        evidence = next(
+            item.execution
+            for item in ports.typed_acceptances.values()
+            if getattr(item.execution, "execution_authority", None) is not None
+        )
+        grant = evidence.execution_authority.grant
+        # Long after the grant expired, the recorded execution stays authorized.
+        evidence.require_authorized(now=grant.expires_at + timedelta(hours=6))
+        # Evidence cannot claim a run the grant has yet to authorize.
+        with self.assertRaises(ValueError):
+            evidence.require_authorized(
+                now=evidence.execution_authorized_at - timedelta(seconds=1)
+            )
+        for outside in (
+            grant.issued_at - timedelta(seconds=1),
+            grant.expires_at,
+            None,
+        ):
+            with self.subTest(outside=outside), self.assertRaises(ValueError):
+                replace(evidence, execution_authorized_at=outside)
 
     def test_acceptor_receipt_refusal_prevents_execution(self):
         ports = ScopedRuntimePorts(self.execution, self.names)

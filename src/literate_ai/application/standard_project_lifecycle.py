@@ -3855,7 +3855,7 @@ class StandardProjectLifecycleService:
                         "standard_lifecycle.execution_scope_mismatch",
                         "execution must bind the current admitted runtime scope",
                     )
-                raw_execution.execution_authority.require_valid(now=self.clock())
+                raw_execution.require_authorized(now=self.clock())
             execution_evidence = (
                 raw_execution
                 if isinstance(raw_execution, StandardExecutionEvidence)
