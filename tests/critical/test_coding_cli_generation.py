@@ -354,6 +354,55 @@ class CodingCliSelectionTests(unittest.TestCase):
         self.assertNotIn("CODING_CLI", result)
         self.assertNotIn("ANTHROPIC_API_KEY", result)
 
+    def test_live_selection_never_pairs_a_cli_with_another_clis_model(self):
+        from literate_ai.adapters.live_test_selection import (
+            resolve_live_test_selection,
+        )
+
+        with tempfile.TemporaryDirectory() as raw:
+            config = Path(raw) / "test.json"
+            config.write_text(
+                json.dumps(
+                    {
+                        "schema": "literate-ai/global-test-matrix@3",
+                        "coding_cli": "opencode",
+                        "model": "provider/opencode-model",
+                    }
+                )
+            )
+
+            def resolve(environment, **flags):
+                return resolve_live_test_selection(
+                    environment=environment, test_config_path=config, **flags
+                )
+
+            # An ambient CODING_CLI must not borrow the configured opencode model.
+            with self.assertRaises(CodingCliError) as refused:
+                resolve({"CODING_CLI": "claude"})
+            self.assertEqual(
+                refused.exception.code, "coding_cli.test_selection_mismatch"
+            )
+            with self.assertRaises(CodingCliError):
+                resolve({}, coding_cli="claude")
+            # The configured pair, a matching pin, or a pinned model still bind.
+            for environment, flags, expected in (
+                ({}, {}, ("opencode", "provider/opencode-model")),
+                (
+                    {"CODING_CLI": "opencode"},
+                    {},
+                    ("opencode", "provider/opencode-model"),
+                ),
+                (
+                    {"CODING_CLI": "claude", "LITAI_LIVE_MODEL": "claude-model"},
+                    {},
+                    ("claude", "claude-model"),
+                ),
+                ({}, {"coding_cli": "claude", "model": "m"}, ("claude", "m")),
+            ):
+                with self.subTest(environment=environment, flags=flags):
+                    selection = resolve(environment, **flags)
+                    self.assertEqual((selection.coding_cli, selection.model), expected)
+
 
 class CodingCliInvocationTests(unittest.TestCase):
     def setUp(self) -> None:

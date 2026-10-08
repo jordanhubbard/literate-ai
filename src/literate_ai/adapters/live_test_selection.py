@@ -200,13 +200,34 @@ def resolve_live_test_selection(
             "coding_cli.unsupported",
             "CODING_CLI must be codex, claude, cursor-agent, or opencode",
         )
+    # A model names a model for one coding CLI. A higher-precedence CLI pin
+    # (often an ambient CODING_CLI) never borrows the test config's model when
+    # the config pairs that model with a different CLI.
+    if (
+        model_provenance == PROVENANCE_TEST_CONFIG
+        and cli_provenance != PROVENANCE_TEST_CONFIG
+        and file_cli is not None
+        and file_cli != selected_cli
+    ):
+        raise CodingCliError(
+            "coding_cli.test_selection_mismatch",
+            f"{'--coding-cli' if cli_provenance == PROVENANCE_CLI else 'CODING_CLI'}"
+            f" selects {selected_cli}, but the test configuration's model "
+            f"{selected_model!r} is for {file_cli}; also pin the model (--model "
+            f"or {LIVE_MODEL_ENVIRONMENT})"
+            + (
+                ", or unset CODING_CLI to use the configured pair"
+                if cli_provenance == PROVENANCE_ENVIRONMENT
+                else ""
+            ),
+        )
     remote = live_gate_is_remote(configured)
     enforce_opencode = require_opencode or (remote and cli_provenance != PROVENANCE_CLI)
     if enforce_opencode and selected_cli != "opencode":
         raise CodingCliError(
             "coding_cli.remote_prerequisite",
             "remote live qualification requires coding CLI opencode; pass "
-            "--coding-cli for a one-shot override of that default",
+            "--coding-cli with --model for a one-shot override of that default",
         )
     enforce_openai_key = require_openai_api_key or (
         remote and selected_cli == "opencode"
