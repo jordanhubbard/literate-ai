@@ -74,8 +74,12 @@ sent.
    tests, execution, and independent acceptance pass.
 6. Inverse work is `litai spec …`. Representative proof is `make roundtrip-host`;
    fan-out is `make samples-platform-regression`. Follow
-   `skills/agent/configure-test-workers/SKILL.md`. Never commit hostnames,
-   credentials, or private routing skills.
+   `skills/agent/configure-test-workers/SKILL.md`, then align every worker with
+   `skills/agent/align-workers/SKILL.md` (`litai worker align`) before dispatch.
+   Never commit hostnames, credentials, or private routing skills. For complex
+   projects where minimum turnaround matters, prefer this host, then aligned
+   `workers.json` workers, over hosted CI/CD; use CI/CD only for platform and
+   action cells those cannot cover or when CI is marked mandatory.
 7. Long ladders checkpoint under ignored `OBJ_DIR` via the project's Make/`litai`
    runner. A resumed repair is not release attestation.
 8. For a versioned release, follow `skills/agent/release-project/SKILL.md` and

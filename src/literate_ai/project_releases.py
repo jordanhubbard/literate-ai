@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import os
@@ -35,6 +34,9 @@ from literate_ai.adapters.live_test_selection import (
 from literate_ai.adapters.ssh_transport import (
     BoundedSshProcessRunner,
     SshTransportError,
+    powershell_command,
+    powershell_home_path,
+    powershell_literal,
     scp_arguments,
     ssh_arguments,
 )
@@ -2674,31 +2676,6 @@ def _posix_ssh_path(value: str) -> str:
     return shlex.quote(value)
 
 
-def _powershell_literal(value: str) -> str:
-    return "'" + value.replace("'", "''") + "'"
-
-
-def _powershell_ssh_path(value: str) -> str:
-    if value.startswith(("~/", "~\\")):
-        relative = value[2:].replace("/", "\\")
-        return f"(Join-Path $HOME {_powershell_literal(relative)})"
-    return _powershell_literal(value)
-
-
-def _powershell_ssh_command(script: str) -> str:
-    """Encode one PowerShell script for a Windows OpenSSH worker.
-
-    The script's last native exit status becomes the SSH exit status, and
-    progress records are suppressed so they never reach captured output.
-    """
-
-    body = f"$ProgressPreference = 'SilentlyContinue'; {script}; exit $LASTEXITCODE"
-    encoded = base64.b64encode(body.encode("utf-16-le")).decode("ascii")
-    return (
-        f"powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand {encoded}"
-    )
-
-
 def _redact_worker_dialog(text: str, endpoint: str) -> str:
     return text.replace(endpoint, "<worker-endpoint>")
 
@@ -2760,12 +2737,12 @@ def _sync_worker_checkout(
     # carries no remotes, so mirror the controller's URL; nothing fetches from it.
     origin = _git(root, "remote", "get-url", policy.remote, check=False).stdout.strip()
     if windows:
-        checkout = _powershell_ssh_path(f"{base}/{relative}")
+        checkout = powershell_home_path(f"{base}/{relative}")
 
         def checked(command: str) -> str:
             return f"{command}; if ($LASTEXITCODE) {{ exit $LASTEXITCODE }}"
 
-        prepare = _powershell_ssh_command(
+        prepare = powershell_command(
             "; ".join(
                 (
                     f"$d = {checkout}",
@@ -2782,7 +2759,7 @@ def _sync_worker_checkout(
                 )
             )
         )
-        apply = _powershell_ssh_command(
+        apply = powershell_command(
             "; ".join(
                 (
                     f"Set-Location -LiteralPath {checkout}",
@@ -2801,7 +2778,7 @@ def _sync_worker_checkout(
                         (
                             checked(
                                 "git config remote.origin.url "
-                                + _powershell_literal(origin)
+                                + powershell_literal(origin)
                             ),
                         )
                         if origin
@@ -2982,15 +2959,15 @@ def _run_release_gate_on_one_worker(
         )
         overlay = _remote_live_gate_overlay(root)
         if windows:
-            gate_command = _powershell_ssh_command(
+            gate_command = powershell_command(
                 "; ".join(
                     (
                         *(
-                            f"$env:{name} = {_powershell_literal(value)}"
+                            f"$env:{name} = {powershell_literal(value)}"
                             for name, value in overlay.items()
                         ),
                         f"Set-Location -LiteralPath {workspace}",
-                        "& " + " ".join(_powershell_literal(item) for item in argv),
+                        "& " + " ".join(powershell_literal(item) for item in argv),
                     )
                 )
             )

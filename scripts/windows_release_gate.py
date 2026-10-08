@@ -12,6 +12,7 @@ preflight failure naming what the worker operator must provide.
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shutil
 import subprocess
@@ -42,29 +43,41 @@ def _environment_python(environment: Path) -> Path:
     return environment / ("Scripts/python.exe" if _windows() else "bin/python")
 
 
-def _native_tool_directories() -> list[str]:
-    """Directories CI adds to PATH for the native toolchain, when present."""
+def _template_commands() -> list[dict[str, object]]:
+    """This host's required commands from the repository worker template.
+
+    `literate.worker-template.json` is the one declaration of worker
+    prerequisites; `litai worker align` reads the same entries.
+    """
+
+    family = {"nt": "windows"}.get(os.name) or (
+        "macos" if sys.platform == "darwin" else "linux"
+    )
+    template = json.loads((ROOT / "literate.worker-template.json").read_text())
+    return [
+        item if isinstance(item, dict) else {"name": item}
+        for item in template["platforms"][family]["commands"]
+    ]
+
+
+def _native_tool_directories(commands: list[dict[str, object]]) -> list[str]:
+    """Directories, off PATH, where the template says required tools live."""
 
     if not _windows():
         return []
     candidates = [
-        Path(r"C:\Program Files\LLVM\bin"),
-        Path(r"C:\ProgramData\chocolatey\bin"),
+        Path(str(directory))
+        for item in commands
+        for directory in item.get("extra_paths", [])  # type: ignore[union-attr]
     ]
     program_files = os.environ.get("ProgramFiles(x86)", r"C:\Program Files (x86)")
     vswhere = Path(program_files) / "Microsoft Visual Studio/Installer/vswhere.exe"
-    if vswhere.is_file():
+    for item in commands:
+        pattern = item.get("vswhere")
+        if not pattern or not vswhere.is_file():
+            continue
         found = subprocess.run(
-            (
-                str(vswhere),
-                "-latest",
-                "-products",
-                "*",
-                "-requires",
-                "Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
-                "-find",
-                r"VC\Tools\MSVC\**\bin\Hostx64\x64\cl.exe",
-            ),
+            (str(vswhere), "-latest", "-products", "*", "-find", str(pattern)),
             capture_output=True,
             text=True,
             check=False,
@@ -103,10 +116,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     selected = tuple(args.only or STEPS)
     environment = dict(os.environ)
+    commands = _template_commands()
     environment["PATH"] = os.pathsep.join(
         [
             str(ROOT / "tools/openspec/node_modules/.bin"),
-            *_native_tool_directories(),
+            *_native_tool_directories(commands),
             environment.get("PATH", ""),
         ]
     )
@@ -115,9 +129,7 @@ def main(argv: list[str] | None = None) -> int:
     npm = shutil.which("npm.cmd" if _windows() else "npm", path=environment["PATH"])
     try:
         if "preflight" in selected:
-            required = ["git", "node", "npm"]
-            if _windows():
-                required += ["cl", "rustc", "llvm-readobj"]
+            required = [str(item["name"]) for item in commands]
             missing = [
                 tool
                 for tool in required

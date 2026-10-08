@@ -981,6 +981,33 @@ def _parser() -> JsonArgumentParser:
         "--model",
         help="override the model from project-scoped user config for this check",
     )
+    worker_align = worker_commands.add_parser(
+        "align",
+        help=(
+            "inventory workers against the repository worker template and your "
+            "private expectations; --apply installs and syncs what is missing"
+        ),
+    )
+    worker_align_selection = worker_align.add_mutually_exclusive_group()
+    worker_align_selection.add_argument("--worker-id", action="append", default=[])
+    worker_align_selection.add_argument("--all", action="store_true")
+    worker_align.add_argument("--worker-config", help="absolute worker catalog")
+    worker_align.add_argument(
+        "--template", help="repository worker template (default: project root)"
+    )
+    worker_align.add_argument(
+        "--alignment", help="private worker-alignment.json (default: user config)"
+    )
+    worker_align.add_argument(
+        "--apply",
+        action="store_true",
+        help="install missing declared commands and sync differing files",
+    )
+    worker_align.add_argument(
+        "--skip-model",
+        action="store_true",
+        help="skip the live coding-CLI model call on each worker",
+    )
     worker_wheelhouse = worker_commands.add_parser(
         "wheelhouse",
         help="export one manifest-pinned offline Standard worker dependency closure",

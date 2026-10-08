@@ -129,6 +129,7 @@ litai video plan
 litai video build
 litai video verify
 litai worker verify-model
+litai worker align
 litai worker resolve-nvidia
 litai worker list
 litai worker show
@@ -756,6 +757,21 @@ Before a live qualification run, use `litai worker verify-model` to resolve the
 configured coding CLI and model and execute one bounded, non-source-writing preflight.
 It fails before generation when the model identifier is unavailable. This command is
 explicitly live; ordinary `make python-check` verification does not invoke it.
+
+`litai worker align [--all | --worker-id ID ...] [--apply] [--skip-model]` checks each
+configured worker against two declared sources of expectations. The repository's
+`literate.worker-template.json` declares commands per OS family, a minimum Python and
+free disk, and Windows tool locations off `PATH`. Your private `worker-alignment.json`
+(reported by `litai config paths`) declares files every worker must hold, from source
+paths you choose, with `secret: true` for credentials, and the argv that installs each
+missing command per OS family. It also checks the coding CLI and model from your
+project-scoped test configuration with one live call per worker. Inspection is
+read-only; findings carry remediations and the exit status is nonzero until every
+worker is aligned. `--apply` runs only your declared installs for missing commands
+and replaces only files whose bytes differ, after backing up the previous copy. It
+then inspects again. Secret contents never appear in reports; only hash prefixes do.
+Align never deletes worker data; low disk points to `litai worker health` and
+`litai worker cleanup`.
 
 `BUILD_DIR` defaults to `generated/` beneath the project. `OBJ_DIR` defaults to
 `_build/` beneath the project. Export either to place its cache elsewhere; relative values remain

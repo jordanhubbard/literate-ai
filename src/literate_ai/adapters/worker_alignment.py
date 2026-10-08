@@ -1,0 +1,738 @@
+"""Probe, inventory and align configured workers with one declared template.
+
+A worker is aligned when it satisfies two sources of expectations:
+
+* the repository's prerequisites, declared once in ``literate.worker-template.json``
+  (commands per OS family, a minimum Python, and where Windows tools live); and
+* the user's expectations: the live-test coding CLI and model from project-scoped
+  ``test.json``, plus private ``worker-alignment.json`` naming the files each worker
+  must hold (for example coding-CLI provider configuration and secret files, copied
+  from user-chosen sources) and the commands that install missing tools.
+
+Inspection is read-only. ``apply`` installs only commands that are missing, using
+only commands the user declared, and replaces only files whose bytes differ, after
+backing the old copy up. Secret contents are never printed; reports carry hash
+prefixes only.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+import shlex
+from collections.abc import Callable, Mapping, Sequence
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
+
+from literate_ai.adapters.ssh_transport import (
+    BoundedSshProcessRunner,
+    SshTransportError,
+    powershell_command,
+    powershell_home_path,
+    powershell_literal,
+    scp_arguments,
+    ssh_arguments,
+)
+from literate_ai.contracts.execution_dispatch import ExecutionWorker
+
+TEMPLATE_FILE = "literate.worker-template.json"
+TEMPLATE_SCHEMA = "literate-ai/worker-template@1"
+ALIGNMENT_SCHEMA = "literate-ai/worker-alignment@1"
+REPORT_SCHEMA = "literate-ai/worker-alignment-report@1"
+OS_FAMILIES = ("linux", "macos", "windows")
+_COMMAND = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._+-]{0,63}$")
+_PROBE_TIMEOUT_SECONDS = 120
+_MODEL_TIMEOUT_SECONDS = 300
+_INSTALL_TIMEOUT_SECONDS = 1800
+_MODEL_PROMPT = "Reply with exactly the word: ok"
+
+
+class WorkerAlignmentError(ValueError):
+    def __init__(self, code: str, message: str) -> None:
+        self.code = code
+        self.message = message
+        super().__init__(message)
+
+
+def _fail(path: str, message: str) -> None:
+    raise WorkerAlignmentError("worker_alignment.invalid", f"{path}: {message}")
+
+
+@dataclass(frozen=True, slots=True)
+class TemplateCommand:
+    """One required command and, on Windows, where it may live off ``PATH``."""
+
+    name: str
+    extra_paths: tuple[str, ...] = ()
+    vswhere: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class PlatformTemplate:
+    commands: tuple[TemplateCommand, ...]
+    python_commands: tuple[str, ...]
+    python_minimum: tuple[int, ...]
+    minimum_free_gib: int | None = None
+
+
+def _commands(value: object, path: str) -> tuple[TemplateCommand, ...]:
+    if not isinstance(value, list) or not value:
+        _fail(path, "must list required commands")
+    parsed = []
+    for index, item in enumerate(value):
+        if isinstance(item, str):
+            item = {"name": item}
+        if not isinstance(item, dict) or not {"name"} <= set(item) <= {
+            "name",
+            "extra_paths",
+            "vswhere",
+        }:
+            _fail(
+                f"{path}[{index}]", "is a command name or {name, extra_paths, vswhere}"
+            )
+        name = item["name"]
+        if not isinstance(name, str) or not _COMMAND.fullmatch(name):
+            _fail(f"{path}[{index}].name", "is not a plain command name")
+        extra = item.get("extra_paths", [])
+        vswhere = item.get("vswhere")
+        if not isinstance(extra, list) or any(
+            not isinstance(entry, str) or not entry for entry in extra
+        ):
+            _fail(f"{path}[{index}].extra_paths", "must be directory strings")
+        if vswhere is not None and (not isinstance(vswhere, str) or not vswhere):
+            _fail(f"{path}[{index}].vswhere", "must be a vswhere -find pattern")
+        parsed.append(TemplateCommand(name, tuple(extra), vswhere))
+    return tuple(parsed)
+
+
+@dataclass(frozen=True, slots=True)
+class WorkerTemplate:
+    """The repository's worker prerequisites, per OS family."""
+
+    platforms: Mapping[str, PlatformTemplate]
+
+    @classmethod
+    def load(cls, path: Path) -> WorkerTemplate:
+        try:
+            value = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise WorkerAlignmentError(
+                "worker_alignment.template_unavailable",
+                f"cannot read the repository worker template {path}",
+            ) from exc
+        if (
+            not isinstance(value, dict)
+            or set(value) != {"schema", "platforms"}
+            or value["schema"] != TEMPLATE_SCHEMA
+            or not isinstance(value["platforms"], dict)
+            or not set(value["platforms"]) <= set(OS_FAMILIES)
+        ):
+            _fail("worker_template", f"must be {TEMPLATE_SCHEMA} with OS platforms")
+        platforms = {}
+        for family, raw in value["platforms"].items():
+            path_name = f"worker_template.platforms.{family}"
+            if not isinstance(raw, dict) or not {"commands", "python"} <= set(raw) <= {
+                "commands",
+                "python",
+                "minimum_free_gib",
+            }:
+                _fail(path_name, "requires commands and python")
+            free = raw.get("minimum_free_gib")
+            if free is not None and (type(free) is not int or not 0 < free < 100000):
+                _fail(f"{path_name}.minimum_free_gib", "must be a positive integer")
+            python = raw["python"]
+            if (
+                not isinstance(python, dict)
+                or set(python) != {"commands", "minimum"}
+                or not isinstance(python["commands"], list)
+                or not python["commands"]
+                or any(
+                    not isinstance(item, str) or not _COMMAND.fullmatch(item)
+                    for item in python["commands"]
+                )
+                or not isinstance(python["minimum"], str)
+                or not re.fullmatch(r"\d+(\.\d+){0,2}", python["minimum"])
+            ):
+                _fail(f"{path_name}.python", "requires commands and a minimum version")
+            platforms[family] = PlatformTemplate(
+                _commands(raw["commands"], f"{path_name}.commands"),
+                tuple(python["commands"]),
+                tuple(int(part) for part in python["minimum"].split(".")),
+                free,
+            )
+        return cls(platforms)
+
+
+@dataclass(frozen=True, slots=True)
+class AlignedFile:
+    source: Path
+    destination: str
+    secret: bool
+    os_families: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class InstallCommand:
+    command: str
+    os_family: str
+    argv: tuple[str, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class UserAlignment:
+    """Private user expectations; never committed to a repository."""
+
+    files: tuple[AlignedFile, ...] = ()
+    installs: tuple[InstallCommand, ...] = ()
+
+    @classmethod
+    def load(cls, path: Path | None) -> UserAlignment:
+        if path is None or not Path(path).exists():
+            return cls()
+        try:
+            value = json.loads(Path(path).read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise WorkerAlignmentError(
+                "worker_alignment.user_config_invalid",
+                f"cannot read user worker alignment {path}",
+            ) from exc
+        if (
+            not isinstance(value, dict)
+            or not {"schema"} <= set(value) <= {"schema", "files", "installs"}
+            or value["schema"] != ALIGNMENT_SCHEMA
+        ):
+            _fail("worker_alignment", f"must be {ALIGNMENT_SCHEMA}")
+        files = []
+        for index, item in enumerate(value.get("files", [])):
+            item_path = f"worker_alignment.files[{index}]"
+            if not isinstance(item, dict) or not {"source", "destination"} <= set(
+                item
+            ) <= {"source", "destination", "secret", "os_families"}:
+                _fail(item_path, "requires source and destination")
+            source = item["source"]
+            destination = item["destination"]
+            if not isinstance(source, str) or not (
+                source.startswith("~/") or Path(source).is_absolute()
+            ):
+                _fail(f"{item_path}.source", "must be absolute or home-relative")
+            if (
+                not isinstance(destination, str)
+                or not destination.startswith("~/")
+                or ".." in Path(destination[2:]).parts
+                or "\\" in destination
+                or any(character in destination for character in "\0\r\n'\"$`")
+            ):
+                _fail(
+                    f"{item_path}.destination",
+                    "must be a plain home-relative path such as ~/.config/x",
+                )
+            families = item.get("os_families", list(OS_FAMILIES))
+            if (
+                not isinstance(families, list)
+                or not families
+                or not set(families) <= set(OS_FAMILIES)
+            ):
+                _fail(f"{item_path}.os_families", "must name linux, macos or windows")
+            secret = item.get("secret", False)
+            if type(secret) is not bool:
+                _fail(f"{item_path}.secret", "must be a boolean")
+            files.append(
+                AlignedFile(
+                    Path(source).expanduser(), destination, secret, tuple(families)
+                )
+            )
+        installs = []
+        for index, item in enumerate(value.get("installs", [])):
+            item_path = f"worker_alignment.installs[{index}]"
+            if not isinstance(item, dict) or set(item) != {
+                "command",
+                "os_family",
+                "argv",
+            }:
+                _fail(item_path, "requires command, os_family and argv")
+            if (
+                not isinstance(item["command"], str)
+                or not _COMMAND.fullmatch(item["command"])
+                or item["os_family"] not in OS_FAMILIES
+                or not isinstance(item["argv"], list)
+                or not item["argv"]
+                or any(not isinstance(part, str) or not part for part in item["argv"])
+            ):
+                _fail(item_path, "needs a command name, an OS family and an argv")
+            installs.append(
+                InstallCommand(item["command"], item["os_family"], tuple(item["argv"]))
+            )
+        return cls(tuple(files), tuple(installs))
+
+
+@dataclass(slots=True)
+class Finding:
+    kind: str
+    name: str
+    state: str
+    detail: str = ""
+    remediation: str = ""
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "kind": self.kind,
+            "name": self.name,
+            "state": self.state,
+            **({"detail": self.detail} if self.detail else {}),
+            **({"remediation": self.remediation} if self.remediation else {}),
+        }
+
+
+@dataclass(slots=True)
+class WorkerReport:
+    worker_id: str
+    os_family: str | None
+    status: str = "aligned"
+    findings: list[Finding] = field(default_factory=list)
+    applied: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "worker_id": self.worker_id,
+            "os_family": self.os_family,
+            "status": self.status,
+            "findings": [item.to_dict() for item in self.findings],
+            "applied": list(self.applied),
+        }
+
+
+def _digest(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def _windows(worker: ExecutionWorker) -> bool:
+    return worker.requirements.os_family == "windows"
+
+
+def _probe_script(
+    worker: ExecutionWorker,
+    platform: PlatformTemplate | None,
+    commands: Sequence[str],
+    files: Sequence[AlignedFile],
+) -> str:
+    """One read-only script printing tagged lines: cmd, python, file, os."""
+
+    python = () if platform is None else platform.python_commands
+    if _windows(worker):
+        extras = (
+            {} if platform is None else {item.name: item for item in platform.commands}
+        )
+        lines = ["$ErrorActionPreference = 'SilentlyContinue'"]
+        for name in commands:
+            lines.append(
+                f"$c = Get-Command {powershell_literal(name)} -CommandType "
+                "Application | Select-Object -First 1; $p = $c.Source"
+            )
+            item = extras.get(name)
+            for directory in () if item is None else item.extra_paths:
+                candidate = powershell_literal(f"{directory}\\{name}.exe")
+                lines.append(
+                    f"if (-not $p -and (Test-Path -LiteralPath {candidate})) "
+                    f"{{ $p = {candidate} }}"
+                )
+            if item is not None and item.vswhere:
+                lines.append(
+                    "$vw = Join-Path ${env:ProgramFiles(x86)} "
+                    "'Microsoft Visual Studio\\Installer\\vswhere.exe'; "
+                    "if (-not $p -and (Test-Path -LiteralPath $vw)) { $p = & $vw "
+                    "-latest -products * -find "
+                    f"{powershell_literal(item.vswhere)} | Select-Object -First 1 }}"
+                )
+            lines.append(f"if ($p) {{ 'cmd {name} ' + $p }} else {{ 'cmd {name} -' }}")
+        for name in python:
+            lines.append(
+                f"$v = & {powershell_literal(name)} -c "
+                "\"import sys;print('%d.%d.%d' % sys.version_info[:3])\" 2>$null; "
+                f"if ($v) {{ 'python {name} ' + $v }}"
+            )
+        for index, item in enumerate(files):
+            target = powershell_home_path(item.destination)
+            lines.append(
+                f"$f = {target}; if (Test-Path -LiteralPath $f -PathType Leaf) "
+                "{ 'file " + str(index) + " ' + (Get-FileHash -Algorithm SHA256 "
+                "-LiteralPath $f).Hash.ToLower() } else { 'file " + str(index) + " -' }"
+            )
+        lines.append(
+            "$d = Get-PSDrive -Name ((Split-Path -Qualifier $HOME).TrimEnd(':')); "
+            "'free ' + [int64]($d.Free / 1KB)"
+        )
+        lines.append("'os windows ' + $env:PROCESSOR_ARCHITECTURE")
+        lines.append("$global:LASTEXITCODE = 0")
+        return powershell_command("; ".join(lines))
+    lines = []
+    for name in commands:
+        quoted = shlex.quote(name)
+        lines.append(
+            f'p=$(command -v {quoted} 2>/dev/null) && echo "cmd {name} $p" '
+            f'|| echo "cmd {name} -"'
+        )
+    for name in python:
+        quoted = shlex.quote(name)
+        lines.append(
+            f"v=$({quoted} -c 'import sys;print(\"%d.%d.%d\" % sys.version_info[:3])'"
+            f' 2>/dev/null) && echo "python {name} $v"'
+        )
+    for index, item in enumerate(files):
+        target = '"$HOME"/' + shlex.quote(item.destination[2:])
+        lines.append(
+            f'if [ -f {target} ]; then echo "file {index} $( (sha256sum 2>/dev/null'
+            f' || shasum -a 256) < {target} | cut -c1-64)"; '
+            f'else echo "file {index} -"; fi'
+        )
+    lines.append('echo "free $(df -Pk "$HOME" | awk \'NR==2 {print $4}\')"')
+    lines.append('echo "os $(uname -s) $(uname -m)"')
+    return "; ".join(lines) + "; true"
+
+
+def _remote_command(worker: ExecutionWorker, argv: Sequence[str]) -> str:
+    if _windows(worker):
+        return powershell_command(
+            "& " + " ".join(powershell_literal(item) for item in argv)
+        )
+    return shlex.join(argv)
+
+
+class WorkerAligner:
+    """Inspect and optionally align workers; one runner per transport call."""
+
+    def __init__(
+        self,
+        template: WorkerTemplate,
+        user: UserAlignment,
+        *,
+        coding_cli: str | None,
+        model: str | None,
+        cwd: Path,
+        runner_factory: Callable[[], BoundedSshProcessRunner] = BoundedSshProcessRunner,
+        clock: Callable[[], datetime] = lambda: datetime.now(UTC),
+    ) -> None:
+        self.template = template
+        self.user = user
+        self.coding_cli = coding_cli
+        self.model = model
+        self.cwd = cwd
+        self.runner_factory = runner_factory
+        self.clock = clock
+
+    def _run(self, worker: ExecutionWorker, command: str, timeout: int):
+        assert worker.endpoint is not None
+        return self.runner_factory().run(
+            ssh_arguments(
+                worker.endpoint,
+                command,
+                timeout,
+                transport=worker.transport,
+                login_shell=not _windows(worker),
+            ),
+            cwd=self.cwd,
+            timeout_seconds=timeout,
+        )
+
+    def _commands(self, platform: PlatformTemplate | None) -> list[str]:
+        names = [] if platform is None else [item.name for item in platform.commands]
+        if self.coding_cli and self.coding_cli not in names:
+            names.append(self.coding_cli)
+        return names
+
+    def inspect(
+        self, worker: ExecutionWorker, *, check_model: bool = True
+    ) -> tuple[WorkerReport, dict[str, str | None]]:
+        family = worker.requirements.os_family
+        report = WorkerReport(worker.worker_id, family)
+        platform = self.template.platforms.get(family or "")
+        if platform is None:
+            report.findings.append(
+                Finding(
+                    "platform",
+                    str(family),
+                    "unknown",
+                    "the repository template declares no prerequisites for this "
+                    "OS family; set the worker's os_family requirement",
+                )
+            )
+        files = [item for item in self.user.files if (family or "") in item.os_families]
+        commands = self._commands(platform)
+        try:
+            completed = self._run(
+                worker,
+                _probe_script(worker, platform, commands, files),
+                _PROBE_TIMEOUT_SECONDS,
+            )
+        except SshTransportError as exc:
+            report.status = "unreachable"
+            report.findings.append(
+                Finding("transport", worker.worker_id, "unreachable", exc.message)
+            )
+            return report, {}
+        output = completed.stdout.decode("utf-8", errors="replace")
+        found: dict[str, str | None] = {}
+        pythons: dict[str, str] = {}
+        hashes: dict[int, str | None] = {}
+        free_kib: int | None = None
+        for line in output.splitlines():
+            if line.startswith("free ") and line[5:].strip().isdigit():
+                free_kib = int(line[5:].strip())
+            parts = line.strip().split(" ", 2)
+            if len(parts) == 3 and parts[0] == "cmd":
+                found[parts[1]] = None if parts[2] == "-" else parts[2]
+            elif len(parts) == 3 and parts[0] == "python":
+                pythons[parts[1]] = parts[2].strip()
+            elif len(parts) == 3 and parts[0] == "file" and parts[1].isdigit():
+                hashes[int(parts[1])] = None if parts[2] == "-" else parts[2].strip()
+        if completed.returncode or not found and commands:
+            report.status = "unreachable"
+            report.findings.append(
+                Finding(
+                    "transport",
+                    worker.worker_id,
+                    "probe-failed",
+                    f"inventory probe exited {completed.returncode}",
+                )
+            )
+            return report, found
+        installs = {
+            item.command for item in self.user.installs if item.os_family == family
+        }
+        for name in commands:
+            if found.get(name):
+                continue
+            report.findings.append(
+                Finding(
+                    "command",
+                    name,
+                    "missing",
+                    remediation=(
+                        "declared install runs with --apply"
+                        if name in installs
+                        else "add an install to worker-alignment.json, or run the "
+                        "detect-before-install bootstrap with --install-missing"
+                    ),
+                )
+            )
+        if platform is not None:
+            usable = [
+                (name, version)
+                for name, version in pythons.items()
+                if tuple(int(part) for part in version.split(".")[:3])
+                >= platform.python_minimum
+            ]
+            if not usable:
+                minimum = ".".join(str(part) for part in platform.python_minimum)
+                report.findings.append(
+                    Finding(
+                        "python",
+                        "/".join(platform.python_commands),
+                        "missing",
+                        f"no Python {minimum}+ found (saw {pythons or 'none'})",
+                        "run the detect-before-install bootstrap",
+                    )
+                )
+        if (
+            platform is not None
+            and platform.minimum_free_gib is not None
+            and free_kib is not None
+            and free_kib < platform.minimum_free_gib * 1024 * 1024
+        ):
+            report.findings.append(
+                Finding(
+                    "disk",
+                    "home volume",
+                    "low",
+                    f"{free_kib // (1024 * 1024)} GiB free; the template requires "
+                    f"{platform.minimum_free_gib} GiB",
+                    "inspect with `litai worker health` and free space with "
+                    "`litai worker cleanup`; align never deletes worker data",
+                )
+            )
+        for index, item in enumerate(files):
+            try:
+                local = _digest(item.source.read_bytes())
+            except OSError:
+                report.findings.append(
+                    Finding(
+                        "file",
+                        item.destination,
+                        "source-missing",
+                        f"declared source {item.source} is unreadable",
+                    )
+                )
+                continue
+            remote = hashes.get(index)
+            if remote != local:
+                report.findings.append(
+                    Finding(
+                        "file",
+                        item.destination,
+                        "missing" if remote is None else "stale",
+                        f"worker {(remote or '-')[:12]} source {local[:12]}",
+                        "synced with --apply (old copy backed up)",
+                    )
+                )
+        if (
+            check_model
+            and self.coding_cli
+            and self.model
+            and found.get(self.coding_cli)
+        ):
+            self._check_model(worker, report)
+        if report.findings and report.status == "aligned":
+            report.status = "misaligned"
+        return report, found
+
+    def _check_model(self, worker: ExecutionWorker, report: WorkerReport) -> None:
+        if self.coding_cli != "opencode":
+            report.findings.append(
+                Finding(
+                    "model",
+                    str(self.model),
+                    "unchecked",
+                    f"remote model checks support opencode, not {self.coding_cli}",
+                )
+            )
+            return
+        argv = ("opencode", "run", "-m", str(self.model), _MODEL_PROMPT)
+        try:
+            completed = self._run(
+                worker, _remote_command(worker, argv), _MODEL_TIMEOUT_SECONDS
+            )
+        except SshTransportError as exc:
+            report.findings.append(
+                Finding("model", str(self.model), "failed", exc.message)
+            )
+            return
+        text = re.sub(
+            r"\x1b\[[0-9;]*m", "", completed.stdout.decode("utf-8", errors="replace")
+        )
+        if completed.returncode or not re.search(r"(?m)^\s*ok\s*$", text):
+            report.findings.append(
+                Finding(
+                    "model",
+                    str(self.model),
+                    "failed",
+                    f"{self.coding_cli} exited {completed.returncode} without the "
+                    "expected reply",
+                    "check the provider configuration and secret files, then rerun",
+                )
+            )
+
+    def apply(self, worker: ExecutionWorker, report: WorkerReport) -> None:
+        """Install missing declared commands and sync differing files."""
+
+        family = worker.requirements.os_family
+        missing = {
+            item.name
+            for item in report.findings
+            if item.kind == "command" and item.state == "missing"
+        }
+        for install in self.user.installs:
+            if install.os_family != family or install.command not in missing:
+                continue
+            completed = self._run(
+                worker,
+                _remote_command(worker, install.argv),
+                _INSTALL_TIMEOUT_SECONDS,
+            )
+            report.applied.append(
+                f"install {install.command}: exit {completed.returncode}"
+            )
+        stamp = self.clock().strftime("%Y%m%dT%H%M%SZ")
+        stale = {
+            item.name
+            for item in report.findings
+            if item.kind == "file" and item.state in {"missing", "stale"}
+        }
+        for item in self.user.files:
+            if item.destination not in stale or family not in item.os_families:
+                continue
+            self._sync_file(worker, item, stamp)
+            report.applied.append(
+                f"sync {item.destination}" + (" (secret)" if item.secret else "")
+            )
+
+    def _sync_file(self, worker: ExecutionWorker, item: AlignedFile, stamp: str):
+        relative = item.destination[2:]
+        backup = f"{relative}.bak-{stamp}"
+        if _windows(worker):
+            target = powershell_home_path(item.destination)
+            prepare = powershell_command(
+                f"$f = {target}; "
+                "New-Item -ItemType Directory -Force -Path (Split-Path -Parent $f) "
+                "| Out-Null; if (Test-Path -LiteralPath $f) { Copy-Item -LiteralPath "
+                f"$f -Destination {powershell_home_path('~/' + backup)} -Force }}; "
+                "$global:LASTEXITCODE = 0"
+            )
+        else:
+            target = '"$HOME"/' + shlex.quote(relative)
+            parent = '"$HOME"/' + shlex.quote(str(Path(relative).parent))
+            prepare = (
+                f"set -e; mkdir -p {parent}; "
+                + (f"chmod 700 {parent}; " if item.secret else "")
+                + f"if [ -f {target} ]; then cp -p {target} "
+                + '"$HOME"/'
+                + shlex.quote(backup)
+                + "; fi"
+            )
+        if self._run(worker, prepare, _PROBE_TIMEOUT_SECONDS).returncode:
+            raise WorkerAlignmentError(
+                "worker_alignment.sync_failed",
+                f"cannot prepare {item.destination} on {worker.worker_id}",
+            )
+        assert worker.endpoint is not None
+        copied = self.runner_factory().run(
+            scp_arguments(
+                item.source, worker.endpoint, relative, _PROBE_TIMEOUT_SECONDS
+            ),
+            cwd=self.cwd,
+            timeout_seconds=_PROBE_TIMEOUT_SECONDS,
+        )
+        if copied.returncode:
+            raise WorkerAlignmentError(
+                "worker_alignment.sync_failed",
+                f"cannot copy {item.destination} to {worker.worker_id}",
+            )
+        if item.secret and not _windows(worker):
+            self._run(
+                worker,
+                f'chmod 600 "$HOME"/{shlex.quote(relative)} "$HOME"/'
+                f"{shlex.quote(backup)} 2>/dev/null; true",
+                _PROBE_TIMEOUT_SECONDS,
+            )
+
+    def align(
+        self,
+        workers: Sequence[ExecutionWorker],
+        *,
+        apply: bool,
+        check_model: bool = True,
+    ) -> dict[str, object]:
+        def one(worker: ExecutionWorker) -> dict[str, object]:
+            report, _ = self.inspect(worker, check_model=check_model)
+            if apply and report.status == "misaligned":
+                try:
+                    self.apply(worker, report)
+                except (WorkerAlignmentError, SshTransportError) as exc:
+                    report.applied.append(f"failed: {exc}")
+                applied = report.applied
+                # Report what is true after the changes, not what was planned.
+                report, _ = self.inspect(worker, check_model=check_model)
+                report.applied = applied
+            return report.to_dict()
+
+        with ThreadPoolExecutor(max_workers=max(1, min(8, len(workers)))) as pool:
+            reports = list(pool.map(one, workers))
+        return {
+            "schema": REPORT_SCHEMA,
+            "applied": apply,
+            "coding_cli": self.coding_cli,
+            "model": self.model,
+            "aligned": all(item["status"] == "aligned" for item in reports),
+            "workers": reports,
+        }
