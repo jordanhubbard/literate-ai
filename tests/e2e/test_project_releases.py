@@ -559,6 +559,11 @@ class ProjectReleaseTests(unittest.TestCase):
                         self.git(root, "rev-parse", "HEAD"),
                     )
                     self.assertEqual(self.git(checkout, "status", "--porcelain"), "")
+                    # Gates read origin; it mirrors the controller's remote.
+                    self.assertEqual(
+                        self.git(checkout, "remote", "get-url", "origin"),
+                        self.git(root, "remote", "get-url", "origin"),
+                    )
                 # The second bundle carries only the new commit.
                 self.assertLess(uploads[1], uploads[0])
                 self.assertEqual(

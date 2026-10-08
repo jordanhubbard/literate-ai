@@ -2756,6 +2756,9 @@ def _sync_worker_checkout(
     assert worker.endpoint is not None and worker.workspace is not None
     base = worker.workspace.rstrip("/\\")
     relative = f"release/{_release_checkout_name(root, policy)}"
+    # Gates record the repository's origin (e.g. wheel build metadata). A bundle
+    # carries no remotes, so mirror the controller's URL; nothing fetches from it.
+    origin = _git(root, "remote", "get-url", policy.remote, check=False).stdout.strip()
     if windows:
         checkout = _powershell_ssh_path(f"{base}/{relative}")
 
@@ -2794,6 +2797,16 @@ def _sync_worker_checkout(
                         f"--force {revision}"
                     ),
                     checked("git clean -fdq"),
+                    *(
+                        (
+                            checked(
+                                "git config remote.origin.url "
+                                + _powershell_literal(origin)
+                            ),
+                        )
+                        if origin
+                        else ()
+                    ),
                     checked(f"git update-ref refs/litai/release {revision}"),
                     f"Remove-Item -Force -ErrorAction SilentlyContinue "
                     f"'{_SYNC_BUNDLE}'",
@@ -2814,7 +2827,12 @@ def _sync_worker_checkout(
             f"{_SYNC_BUNDLE} '+HEAD:refs/litai/incoming'; fi; "
             "git -c advice.detachedHead=false checkout -q --detach --force "
             f"{revision}; git clean -fdq; "
-            f"git update-ref refs/litai/release {revision}; "
+            + (
+                f"git config remote.origin.url {shlex.quote(origin)}; "
+                if origin
+                else ""
+            )
+            + f"git update-ref refs/litai/release {revision}; "
             f"rm -f {_SYNC_BUNDLE}; git rev-parse HEAD"
         )
     timeout = min(_WORKER_SYNC_TIMEOUT_SECONDS, policy.gate_timeout_seconds)
