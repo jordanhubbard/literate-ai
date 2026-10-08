@@ -458,7 +458,7 @@ class WorkerAligner:
         family = worker.requirements.os_family
         report = WorkerReport(worker.worker_id, family)
         platform = self.template.platforms.get(family or "")
-        if platform is None:
+        if platform is None and self.template.platforms:
             report.findings.append(
                 Finding(
                     "platform",

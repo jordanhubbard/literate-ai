@@ -1424,6 +1424,7 @@ _TEMPLATE_FILES = {
     "skills/agent/configure-test-workers/SKILL.md": (
         "skills/agent/configure-test-workers/SKILL.md"
     ),
+    "skills/agent/align-workers/SKILL.md": ("skills/agent/align-workers/SKILL.md"),
     "skills/agent/verify-frontend-browser/SKILL.md": (
         "skills/agent/verify-frontend-browser/SKILL.md"
     ),

@@ -226,8 +226,15 @@ def _align_from_args(args: Any) -> tuple[dict[str, object], int]:
             for worker in selected
             if worker.endpoint is not None and worker.workspace is not None
         )
-        template = WorkerTemplate.load(
-            Path(args.template) if args.template else project.root / TEMPLATE_FILE
+        default_template = project.root / TEMPLATE_FILE
+        # A project that declares no worker prerequisites still checks the user's
+        # own expectations; an explicitly named template must exist.
+        template = (
+            WorkerTemplate.load(Path(args.template))
+            if args.template
+            else WorkerTemplate.load(default_template)
+            if default_template.exists()
+            else WorkerTemplate({})
         )
         alignment = UserAlignment.load(
             Path(args.alignment)
