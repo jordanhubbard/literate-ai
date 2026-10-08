@@ -44,6 +44,10 @@ litai worker probe --all
 litai release check PLAN.json --target local --project .
 ```
 
+Each worker gate runs in a dedicated checkout, `<workspace>/release/<repository>`,
+that `litai release` syncs to the exact revision over SSH and SCP before the gate
+starts; you do not need to check out the release on the worker yourself.
+
 Without that catalog the gate fails closed (`release.target_unconfigured`). A JSON pin
 that is not `opencode` fails closed on the controller (`coding_cli.remote_prerequisite`)
 before the gate command is dispatched. Do not put `OPENAI_API_KEY` in

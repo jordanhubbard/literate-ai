@@ -26255,4 +26255,10 @@ windows. Windows workers now run the gate natively: actions may declare a
 is `scripts/windows_release_gate.py`, which runs CI's Windows steps (preflight
 passed on both configured Windows workers). With every worker at the exact
 revision, this host, `ubuntu-24.04` and `windows-11` cover the release without CI.
-Workers must still be checked out at that revision by their operator.
+
+Automatic worker sync, 2026-10-07: each worker gate now runs in a dedicated
+`<workspace>/release/<repository>` checkout that the controller syncs to the exact
+revision with an incremental git bundle over SCP, leaving the operator's checkout
+alone. Measured on real workers: first full sync 30 s (windows-11); re-sync of an
+unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
+2.4 s and 11.3 s.

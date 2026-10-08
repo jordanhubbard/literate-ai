@@ -196,8 +196,8 @@ covered by the leftmost tier that can run it:
 
 1. the host running the coding CLI covers the platforms it provides;
 2. one configured `workers.json` SSH worker covers each remaining platform, tried in
-   worker-id order; an unreachable worker or one checked out at another revision
-   falls through to the next worker, then to CI;
+   worker-id order; a worker that is unreachable or cannot be synced falls through to
+   the next worker, then to CI;
 3. a successful exact-revision CI run covers its declared platforms.
 
 A runner proves a platform only through facts it declares or observes; a worker
@@ -205,9 +205,16 @@ without a declared architecture cannot satisfy an architecture-qualified platfor
 An action's `argv` runs on Linux and macOS. Windows runners have no POSIX shell, so
 an action runs there only through its own `windows_argv`; a Windows host or worker
 covers a platform only when every action declares one, and otherwise leaves it to
-CI. Windows workers run their command through PowerShell over OpenSSH, from the
-workspace checked out at the exact revision, with the same live-test environment as
-POSIX workers.
+CI. Windows workers run their command through PowerShell over OpenSSH, with the
+same live-test environment as POSIX workers.
+
+Release gates never run in an operator's own checkout. Before each worker gate,
+`litai release` syncs a dedicated checkout at `<workspace>/release/<repository>`
+to the exact revision: the worker reports the revision it last synced, the
+controller sends a git bundle of only the commits it lacks over SCP, and the
+worker checks the revision out, removes untracked source files and keeps ignored
+caches such as `_build/`. The first sync sends the full history; later syncs send
+only new commits. The record pins the checkout path and keeps a sync transcript.
 A failing action is never retried on another tier. CI is optional while the host
 and workers cover every cell. It becomes required only when some platform has no
 left tier (CI must then declare it, or qualification fails closed) or when the

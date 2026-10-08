@@ -35,6 +35,7 @@ from literate_ai.adapters.live_test_selection import (
 from literate_ai.adapters.ssh_transport import (
     BoundedSshProcessRunner,
     SshTransportError,
+    scp_arguments,
     ssh_arguments,
 )
 from literate_ai.adapters.user_assets import (
@@ -73,7 +74,6 @@ from literate_ai.release_qualification import (
 
 RELEASE_TARGETS = frozenset({"local", "github", "gitlab", "tiered"})
 WORKERS_CATALOG_FILE = "workers.json"
-_WORKER_PROBE_TIMEOUT_SECONDS = 60
 _GITHUB_POLL_INTERVAL_SECONDS = 15
 
 RELEASE_POLICY_FILE = "literate.release.json"
@@ -2703,6 +2703,192 @@ def _redact_worker_dialog(text: str, endpoint: str) -> str:
     return text.replace(endpoint, "<worker-endpoint>")
 
 
+_WORKER_SYNC_TIMEOUT_SECONDS = 1800
+_SYNC_BUNDLE = ".git/litai-sync.bundle"
+
+
+def _release_checkout_name(root: Path, policy: ReleasePolicy) -> str:
+    name = (policy.provider_repository or "").rpartition("/")[2] or root.name
+    return re.sub(r"[^A-Za-z0-9._-]", "-", name).strip(".-") or "project"
+
+
+def _sync_worker_checkout(
+    root: Path,
+    policy: ReleasePolicy,
+    worker: ExecutionWorker,
+    revision: str,
+    runner: BoundedSshProcessRunner,
+    *,
+    windows: bool,
+    evidence_node: EvidenceNode | None,
+) -> str:
+    """Bring the worker's dedicated release checkout to ``revision``.
+
+    The checkout lives at ``<workspace>/release/<repository>``, apart from any
+    operator checkout and from SSH dispatch's request, work and cache roots.
+    Only commits the worker lacks are sent, as a git bundle over SCP. Ignored
+    caches such as ``_build`` survive; every tracked or untracked source file is
+    reset to the revision. Returns the checkout path as a remote shell
+    expression. A failure leaves the worker unavailable, never half-qualified.
+    """
+
+    assert worker.endpoint is not None and worker.workspace is not None
+    base = worker.workspace.rstrip("/\\")
+    relative = f"release/{_release_checkout_name(root, policy)}"
+    if windows:
+        checkout = _powershell_ssh_path(f"{base}/{relative}")
+
+        def checked(command: str) -> str:
+            return f"{command}; if ($LASTEXITCODE) {{ exit $LASTEXITCODE }}"
+
+        prepare = _powershell_ssh_command(
+            "; ".join(
+                (
+                    f"$d = {checkout}",
+                    "New-Item -ItemType Directory -Force -Path $d | Out-Null",
+                    "Set-Location -LiteralPath $d",
+                    "if (-not (Test-Path -LiteralPath '.git')) { "
+                    + checked("git init -q")
+                    + " }",
+                    checked("git config core.autocrlf false"),
+                    "$known = git rev-parse -q --verify 'refs/litai/release^{commit}' "
+                    "2>$null",
+                    "if ($known) { $known }",
+                    "$global:LASTEXITCODE = 0",
+                )
+            )
+        )
+        apply = _powershell_ssh_command(
+            "; ".join(
+                (
+                    f"Set-Location -LiteralPath {checkout}",
+                    f"if (Test-Path -LiteralPath '{_SYNC_BUNDLE}') {{ "
+                    + checked(
+                        f"git fetch -q --no-tags {_SYNC_BUNDLE} "
+                        "'+HEAD:refs/litai/incoming'"
+                    )
+                    + " }",
+                    checked(
+                        "git -c advice.detachedHead=false checkout -q --detach "
+                        f"--force {revision}"
+                    ),
+                    checked("git clean -fdq"),
+                    checked(f"git update-ref refs/litai/release {revision}"),
+                    f"Remove-Item -Force -ErrorAction SilentlyContinue "
+                    f"'{_SYNC_BUNDLE}'",
+                    "git rev-parse HEAD",
+                )
+            )
+        )
+    else:
+        checkout = _posix_ssh_path(f"{base}/{relative}")
+        prepare = (
+            f"set -e; mkdir -p {checkout}; cd {checkout}; "
+            "[ -d .git ] || git init -q; git config core.autocrlf false; "
+            "git rev-parse -q --verify 'refs/litai/release^{commit}' || true"
+        )
+        apply = (
+            f"set -e; cd {checkout}; "
+            f"if [ -f {_SYNC_BUNDLE} ]; then git fetch -q --no-tags "
+            f"{_SYNC_BUNDLE} '+HEAD:refs/litai/incoming'; fi; "
+            "git -c advice.detachedHead=false checkout -q --detach --force "
+            f"{revision}; git clean -fdq; "
+            f"git update-ref refs/litai/release {revision}; "
+            f"rm -f {_SYNC_BUNDLE}; git rev-parse HEAD"
+        )
+    timeout = min(_WORKER_SYNC_TIMEOUT_SECONDS, policy.gate_timeout_seconds)
+    transcript: list[str] = []
+
+    def remote(command: str, step: str) -> str:
+        try:
+            completed = runner.run(
+                ssh_arguments(
+                    worker.endpoint,
+                    command,
+                    timeout,
+                    transport=worker.transport,
+                    login_shell=not windows,
+                ),
+                cwd=root,
+                timeout_seconds=timeout,
+            )
+        except SshTransportError as exc:
+            transcript.append(f"{step}: {exc.message}")
+            raise ProjectReleaseError(
+                "release.worker_unreachable",
+                f"worker {worker.worker_id!r} is unreachable: {exc.message}",
+            ) from exc
+        stdout = completed.stdout.decode("utf-8", errors="replace")
+        stderr = completed.stderr.decode("utf-8", errors="replace")
+        transcript.append(f"{step} exit={completed.returncode}\n{stdout}{stderr}")
+        if completed.returncode:
+            raise ProjectReleaseError(
+                "release.worker_sync_failed",
+                f"worker {worker.worker_id!r} could not {step} its release checkout",
+            )
+        lines = [line.strip() for line in stdout.splitlines() if line.strip()]
+        return lines[-1] if lines else ""
+
+    try:
+        known = remote(prepare, "prepare")
+        if known != revision:
+            local_head = _git(root, "rev-parse", "HEAD").stdout.strip()
+            if local_head != revision:
+                raise ProjectReleaseError(
+                    "release.check_dirty", "HEAD moved before worker sync"
+                )
+            exclusions = (
+                (f"^{known}",)
+                if re.fullmatch(r"[0-9a-f]{40,64}", known)
+                and _git(
+                    root, "cat-file", "-e", f"{known}^{{commit}}", check=False
+                ).returncode
+                == 0
+                else ()
+            )
+            with tempfile.TemporaryDirectory(prefix="litai-release-sync-") as raw:
+                bundle = Path(raw) / "sync.bundle"
+                _git(root, "bundle", "create", "-q", str(bundle), "HEAD", *exclusions)
+                destination = (
+                    f"{base[2:]}/{relative}/{_SYNC_BUNDLE}"
+                    if base.startswith(("~/", "~\\"))
+                    else f"{base}/{relative}/{_SYNC_BUNDLE}"
+                )
+                try:
+                    uploaded = runner.run(
+                        scp_arguments(bundle, worker.endpoint, destination, timeout),
+                        cwd=root,
+                        timeout_seconds=timeout,
+                    )
+                except SshTransportError as exc:
+                    raise ProjectReleaseError(
+                        "release.worker_sync_failed",
+                        f"worker {worker.worker_id!r} rejected the revision bundle",
+                    ) from exc
+                transcript.append(f"upload exit={uploaded.returncode}")
+                if uploaded.returncode:
+                    raise ProjectReleaseError(
+                        "release.worker_sync_failed",
+                        f"worker {worker.worker_id!r} rejected the revision bundle",
+                    )
+        observed = remote(apply, "check out")
+        if observed != revision:
+            raise ProjectReleaseError(
+                "release.worker_revision_mismatch",
+                f"worker {worker.worker_id!r} release checkout is not at the "
+                f"prepared revision {revision}",
+            )
+    finally:
+        if evidence_node is not None:
+            evidence_node.attach_text(
+                "sync.log",
+                _redact_worker_dialog("\n".join(transcript), worker.endpoint),
+                role="sync",
+            )
+            evidence_node.add_pins(release_checkout=f"{base}/{relative}")
+    return checkout
+
+
 def _run_release_gate_on_one_worker(
     root: Path,
     policy: ReleasePolicy,
@@ -2743,66 +2929,18 @@ def _run_release_gate_on_one_worker(
         revision = str(snapshot["head"])
         # Windows OpenSSH workers have no POSIX shell; they run PowerShell.
         windows = worker.requirements.os_family == "windows"
-        if windows:
-            workspace = _powershell_ssh_path(worker.workspace.rstrip("/\\"))
-            probe_command = _powershell_ssh_command(
-                f"git -C {workspace} rev-parse HEAD"
-            )
-        else:
-            workspace = _posix_ssh_path(worker.workspace.rstrip("/"))
-            probe_command = f"git -C {workspace} rev-parse HEAD"
-        probe_timeout = min(_WORKER_PROBE_TIMEOUT_SECONDS, policy.gate_timeout_seconds)
         started = time.monotonic()
-        try:
-            probe = runner.run(
-                ssh_arguments(
-                    worker.endpoint,
-                    probe_command,
-                    probe_timeout,
-                    transport=worker.transport,
-                    login_shell=not windows,
-                ),
-                cwd=root,
-                timeout_seconds=probe_timeout,
-            )
-        except SshTransportError as exc:
-            if isinstance(evidence_node, EvidenceNode):
-                evidence_node.attach_text(
-                    "probe-error.txt",
-                    _redact_worker_dialog(exc.message, worker.endpoint),
-                    role="probe-error",
-                )
-            raise ProjectReleaseError(
-                "release.worker_unreachable",
-                f"worker {worker.worker_id!r} is unreachable: {exc.message}",
-            ) from exc
-        if isinstance(evidence_node, EvidenceNode):
-            evidence_node.attach_text(
-                "probe-stdout.log",
-                _redact_worker_dialog(
-                    probe.stdout.decode("utf-8", errors="replace"),
-                    worker.endpoint,
-                ),
-                role="probe-stdout",
-            )
-            evidence_node.attach_text(
-                "probe-stderr.log",
-                _redact_worker_dialog(
-                    probe.stderr.decode("utf-8", errors="replace"),
-                    worker.endpoint,
-                ),
-                role="probe-stderr",
-            )
-            evidence_node.add_pins(
-                control_envelope_bytes=len(probe.stdout) + len(probe.stderr)
-            )
-        observed_revision = probe.stdout.decode("utf-8", errors="replace").strip()
-        if probe.returncode != 0 or observed_revision != revision:
-            raise ProjectReleaseError(
-                "release.worker_revision_mismatch",
-                f"worker {worker.worker_id!r} workspace is not checked out at "
-                f"the prepared revision {revision}",
-            )
+        workspace = _sync_worker_checkout(
+            root,
+            policy,
+            worker,
+            revision,
+            runner,
+            windows=windows,
+            evidence_node=(
+                evidence_node if isinstance(evidence_node, EvidenceNode) else None
+            ),
+        )
         overlay = remote_live_gate_overlay(
             try_resolve_live_test_selection(
                 project_root=root,
@@ -2999,6 +3137,7 @@ _RUNNER_UNAVAILABLE = frozenset(
     {
         "release.worker_unreachable",
         "release.worker_revision_mismatch",
+        "release.worker_sync_failed",
         "release.gate_unavailable",
     }
 )

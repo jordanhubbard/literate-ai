@@ -480,6 +480,93 @@ class ProjectReleaseTests(unittest.TestCase):
                     )
                 self.assertEqual(stale.exception.code, "release.qualification_stale")
 
+    def test_worker_release_checkout_syncs_exact_revisions_incrementally(self) -> None:
+        """A worker gets the exact revision without touching its own checkout."""
+
+        class LocalRunner:
+            """SSH and SCP are the network boundary; run them on this host."""
+
+            def run(self, argv, *, cwd, timeout_seconds):
+                completed = subprocess.run(
+                    argv, cwd=cwd, capture_output=True, timeout=timeout_seconds
+                )
+                return SimpleNamespace(
+                    returncode=completed.returncode,
+                    stdout=completed.stdout,
+                    stderr=completed.stderr,
+                )
+
+        with tempfile.TemporaryDirectory() as temporary:
+            parent = Path(temporary)
+            root, _ = self.initialize(parent)
+            home = parent / "worker-home"
+            operator = home / "ws"
+            operator.mkdir(parents=True)
+            self.git(operator, "init", "-q")
+            (operator / "mine.txt").write_text("operator work\n", encoding="utf-8")
+            worker = SimpleNamespace(
+                worker_id="linux-worker",
+                endpoint="worker.invalid",
+                workspace="~/ws",
+                transport="ssh",
+                requirements=SimpleNamespace(os_family="linux", cpu_architecture=None),
+            )
+            uploads = []
+
+            def scp(source, _endpoint, destination, _timeout):
+                uploads.append(Path(source).stat().st_size)
+                return ("cp", str(source), str(home / destination))
+
+            policy = json.loads((root / "literate.release.json").read_text())
+            policy["qualification"] = {"platforms": ["linux"]}
+            self.write_record(root / "literate.release.json", policy)
+            self.git(root, "commit", "-am", "Declare qualification")
+            with (
+                patch.dict(project_releases.os.environ, {"HOME": str(home)}),
+                patch(
+                    "literate_ai.project_releases.discover_project",
+                    return_value=SimpleNamespace(root=root, definition=None),
+                ),
+                patch.object(project_releases, "_host_platform", return_value=None),
+                patch.object(
+                    project_releases,
+                    "_qualification_workers",
+                    return_value=((worker,), ()),
+                ),
+                patch.object(
+                    project_releases,
+                    "ssh_arguments",
+                    lambda _endpoint, command, *_a, **_k: ("bash", "-c", command),
+                ),
+                patch.object(project_releases, "scp_arguments", scp),
+                patch.object(project_releases, "BoundedSshProcessRunner", LocalRunner),
+                patch.object(
+                    project_releases,
+                    "try_resolve_live_test_selection",
+                    return_value=None,
+                ),
+            ):
+                checkout = operator / "release" / root.name
+                for change in ("first", "second"):
+                    if change == "second":
+                        (root / "later.txt").write_text("later\n", encoding="utf-8")
+                        self.git(root, "add", "later.txt")
+                        self.git(root, "commit", "-m", "Later")
+                    record = qualify_release(root, output=root / "_build/q.json")
+                    self.assertEqual(record["coverage"][0]["tier"], "worker")
+                    self.assertEqual(
+                        self.git(checkout, "rev-parse", "HEAD"),
+                        self.git(root, "rev-parse", "HEAD"),
+                    )
+                    self.assertEqual(self.git(checkout, "status", "--porcelain"), "")
+                # The second bundle carries only the new commit.
+                self.assertLess(uploads[1], uploads[0])
+                self.assertEqual(
+                    (operator / "mine.txt").read_text(encoding="utf-8"),
+                    "operator work\n",
+                )
+                self.assertFalse((checkout / ".git/litai-sync.bundle").exists())
+
     def test_artifact_gate_binds_checked_bytes_before_any_publication(self) -> None:
         from literate_ai.contracts import canonical_identity
         from literate_ai.release_files import SCHEMA, file_identity
