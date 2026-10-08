@@ -2703,6 +2703,27 @@ def _redact_worker_dialog(text: str, endpoint: str) -> str:
     return text.replace(endpoint, "<worker-endpoint>")
 
 
+def _remote_live_gate_overlay(root: Path) -> dict[str, str]:
+    """The live-test environment every worker gate runs with, or a release error."""
+
+    from literate_ai.adapters.models.coding_cli import CodingCliError
+
+    try:
+        return remote_live_gate_overlay(
+            try_resolve_live_test_selection(
+                project_root=root,
+                ignore_environment_pins=True,
+                require_opencode=True,
+                require_openai_api_key=False,
+            )
+        )
+    except CodingCliError as exc:
+        raise ProjectReleaseError(
+            "release.live_selection_unavailable",
+            f"worker release gates need a remote live-test selection: {exc}",
+        ) from exc
+
+
 _WORKER_SYNC_TIMEOUT_SECONDS = 1800
 _SYNC_BUNDLE = ".git/litai-sync.bundle"
 
@@ -2941,14 +2962,7 @@ def _run_release_gate_on_one_worker(
                 evidence_node if isinstance(evidence_node, EvidenceNode) else None
             ),
         )
-        overlay = remote_live_gate_overlay(
-            try_resolve_live_test_selection(
-                project_root=root,
-                ignore_environment_pins=True,
-                require_opencode=True,
-                require_openai_api_key=False,
-            )
-        )
+        overlay = _remote_live_gate_overlay(root)
         if windows:
             gate_command = _powershell_ssh_command(
                 "; ".join(
@@ -3214,6 +3228,9 @@ def _run_tiered_qualification(
         plan = plan_qualification(qualification, host=host, workers=runners)
     except ReleaseQualificationError as exc:
         raise ProjectReleaseError(exc.code, str(exc)) from exc
+    if plan.workers:
+        # Fail before any long host gate when no worker gate could start.
+        _remote_live_gate_overlay(root)
     covered: dict[str, dict[str, object]] = {}
     digests: list[str] = []
     runs: list[dict[str, object]] = []
