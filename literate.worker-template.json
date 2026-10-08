@@ -21,7 +21,8 @@
           "vswhere": "VC\\Tools\\MSVC\\**\\bin\\Hostx64\\x64\\cl.exe"
         },
         {"name": "rustc", "extra_paths": ["C:\\ProgramData\\chocolatey\\bin"]},
-        {"name": "llvm-readobj", "extra_paths": ["C:\\Program Files\\LLVM\\bin"]}
+        {"name": "llvm-readobj", "extra_paths": ["C:\\Program Files\\LLVM\\bin"]},
+        {"name": "sh", "extra_paths": ["C:\\Program Files\\Git\\bin"]}
       ],
       "python": {"commands": ["python"], "minimum": "3.11"},
       "minimum_free_gib": 10
