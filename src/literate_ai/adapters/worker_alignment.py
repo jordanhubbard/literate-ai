@@ -63,11 +63,16 @@ def _fail(path: str, message: str) -> None:
 
 @dataclass(frozen=True, slots=True)
 class TemplateCommand:
-    """One required command and, on Windows, where it may live off ``PATH``."""
+    """One required command and, on Windows, where it may live off ``PATH``.
+
+    ``extra_paths`` go before ``PATH``; ``fallback_paths`` go after it, so their
+    tools never shadow a system or compiler tool of the same name.
+    """
 
     name: str
     extra_paths: tuple[str, ...] = ()
     vswhere: str | None = None
+    fallback_paths: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,6 +93,7 @@ def _commands(value: object, path: str) -> tuple[TemplateCommand, ...]:
         if not isinstance(item, dict) or not {"name"} <= set(item) <= {
             "name",
             "extra_paths",
+            "fallback_paths",
             "vswhere",
         }:
             _fail(
@@ -97,14 +103,16 @@ def _commands(value: object, path: str) -> tuple[TemplateCommand, ...]:
         if not isinstance(name, str) or not _COMMAND.fullmatch(name):
             _fail(f"{path}[{index}].name", "is not a plain command name")
         extra = item.get("extra_paths", [])
+        fallback = item.get("fallback_paths", [])
         vswhere = item.get("vswhere")
-        if not isinstance(extra, list) or any(
-            not isinstance(entry, str) or not entry for entry in extra
-        ):
-            _fail(f"{path}[{index}].extra_paths", "must be directory strings")
+        for key, directories in (("extra_paths", extra), ("fallback_paths", fallback)):
+            if not isinstance(directories, list) or any(
+                not isinstance(entry, str) or not entry for entry in directories
+            ):
+                _fail(f"{path}[{index}].{key}", "must be directory strings")
         if vswhere is not None and (not isinstance(vswhere, str) or not vswhere):
             _fail(f"{path}[{index}].vswhere", "must be a vswhere -find pattern")
-        parsed.append(TemplateCommand(name, tuple(extra), vswhere))
+        parsed.append(TemplateCommand(name, tuple(extra), vswhere, tuple(fallback)))
     return tuple(parsed)
 
 
@@ -332,7 +340,9 @@ def _probe_script(
                 "Application | Select-Object -First 1; $p = $c.Source"
             )
             item = extras.get(name)
-            for directory in () if item is None else item.extra_paths:
+            for directory in (
+                () if item is None else (*item.extra_paths, *item.fallback_paths)
+            ):
                 candidate = powershell_literal(f"{directory}\\{name}.exe")
                 lines.append(
                     f"if (-not $p -and (Test-Path -LiteralPath {candidate})) "

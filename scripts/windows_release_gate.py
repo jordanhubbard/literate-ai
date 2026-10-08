@@ -60,6 +60,19 @@ def _template_commands() -> list[dict[str, object]]:
     ]
 
 
+def _fallback_tool_directories(commands: list[dict[str, object]]) -> list[str]:
+    """Directories appended after PATH, so they never shadow system tools."""
+
+    if not _windows():
+        return []
+    return [
+        str(directory)
+        for item in commands
+        for directory in item.get("fallback_paths", [])  # type: ignore[union-attr]
+        if Path(str(directory)).is_dir()
+    ]
+
+
 def _native_tool_directories(commands: list[dict[str, object]]) -> list[str]:
     """Directories, off PATH, where the template says required tools live."""
 
@@ -122,6 +135,7 @@ def main(argv: list[str] | None = None) -> int:
             str(ROOT / "tools/openspec/node_modules/.bin"),
             *_native_tool_directories(commands),
             environment.get("PATH", ""),
+            *_fallback_tool_directories(commands),
         ]
     )
     environment.pop("PYTHONPATH", None)
