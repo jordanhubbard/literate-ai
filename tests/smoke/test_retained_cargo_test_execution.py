@@ -94,6 +94,12 @@ class RetainedCargoNativeTestExecutionTests(unittest.TestCase):
             "CARGO_NET_OFFLINE": "true",
             "CARGO_INCREMENTAL": "0",
         }
+        # An operator provisions loader paths without empty entries, which the
+        # dynamic loader would read as the current directory and the product
+        # refuses. Login shells often leave one, as in "/usr/local/lib:".
+        loader = [p for p in cls.environment.pop("LD_LIBRARY_PATH", "").split(":") if p]
+        if loader:
+            cls.environment["LD_LIBRARY_PATH"] = ":".join(loader)
         cls.run_cargo("generate-lockfile", "--offline")
         cls.metadata = json.loads(
             cls.run_cargo(
