@@ -2698,7 +2698,6 @@ def _remote_live_gate_overlay(root: Path) -> dict[str, str]:
                 project_root=root,
                 ignore_environment_pins=True,
                 require_opencode=True,
-                require_openai_api_key=False,
             )
         )
     except CodingCliError as exc:

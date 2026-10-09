@@ -513,6 +513,53 @@ class CodingCliSelectionTests(unittest.TestCase):
                     selection = resolve(environment, **flags)
                     self.assertEqual((selection.coding_cli, selection.model), expected)
 
+    def test_opencode_missing_provider_key_is_typed_authentication(self):
+        output = (
+            "Error: OpenAI API key is missing. Pass it using the 'apiKey' "
+            "parameter or the OPENAI_API_KEY environment variable."
+        )
+        self.assertTrue(
+            coding_cli_adapter._coding_cli_authentication_required("opencode", output)
+        )
+
+    def test_remote_opencode_selection_requires_no_provider_credential(self):
+        from literate_ai.adapters.live_test_selection import (
+            resolve_live_test_selection,
+        )
+
+        with tempfile.TemporaryDirectory() as raw:
+            config = Path(raw) / "test.json"
+            config.write_text(
+                json.dumps(
+                    {
+                        "schema": "literate-ai/global-test-matrix@3",
+                        "coding_cli": "opencode",
+                        "model": "nvidia-inference/vendor/model",
+                    }
+                )
+            )
+            # opencode resolves the provider's credential from its own
+            # configuration, so a remote gate never demands OPENAI_API_KEY.
+            selection = resolve_live_test_selection(
+                environment={"LITAI_REMOTE_LIVE_GATE": "1"},
+                test_config_path=config,
+            )
+            self.assertEqual(
+                (selection.coding_cli, selection.model),
+                ("opencode", "nvidia-inference/vendor/model"),
+            )
+            # Remote gates still require opencode itself.
+            with self.assertRaises(CodingCliError) as refused:
+                resolve_live_test_selection(
+                    environment={
+                        "LITAI_REMOTE_LIVE_GATE": "1",
+                        "CODING_CLI": "claude",
+                        "LITAI_LIVE_MODEL": "claude-model",
+                    },
+                    test_config_path=config,
+                )
+            self.assertEqual(refused.exception.code, "coding_cli.remote_prerequisite")
+
 
 class CodingCliInvocationTests(unittest.TestCase):
     def setUp(self) -> None:

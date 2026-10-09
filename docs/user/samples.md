@@ -330,8 +330,9 @@ The runner requires a C++17 compiler, a Rust compiler, Node.js 20 or newer, and 
 authenticated coding CLI. Live sample generation does not search `PATH` for the first
 available agent. Set `coding_cli` and `model` in project-scoped user `test.json`, or pass
 `--coding-cli` / `--model` (or `CODING_CLI` / `LITAI_LIVE_MODEL`) for a one-shot
-override. Remote fan-out requires `opencode` plus `OPENAI_API_KEY` in the worker login
-environment. `CXX`, `RUSTC`, and `NODE` can select explicit host commands.
+override. Remote fan-out requires `opencode` on each worker, configured with
+credentials for the pinned model's provider. `CXX`, `RUSTC`, and `NODE` can select
+explicit host commands.
 
 The topology is intentionally uneven because the samples test different things:
 

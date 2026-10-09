@@ -3830,6 +3830,10 @@ _CODING_CLI_AUTHENTICATION_FAILURE_PHRASES = {
         "run 'opencode auth login'",
         "missing api key",
         "no api key found",
+        # The AI SDK's provider loader: "<Provider> API key is missing. Pass it
+        # using the 'apiKey' parameter or the <NAME>_API_KEY environment
+        # variable." Remote gates rely on this, not on a key precheck.
+        "api key is missing",
     ),
 }
 _CODING_CLI_QUOTA_DENIAL_PHRASES = {

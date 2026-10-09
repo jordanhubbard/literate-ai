@@ -103,7 +103,6 @@ def try_resolve_live_test_selection(
     test_config_path: Path | None = None,
     project_root: Path | None = None,
     require_opencode: bool = False,
-    require_openai_api_key: bool = False,
     ignore_environment_pins: bool = False,
 ) -> LiveTestSelection | None:
     """Return a pin when configured; ``None`` when live selection is absent."""
@@ -116,7 +115,6 @@ def try_resolve_live_test_selection(
             test_config_path=test_config_path,
             project_root=project_root,
             require_opencode=require_opencode,
-            require_openai_api_key=require_openai_api_key,
             ignore_environment_pins=ignore_environment_pins,
         )
     except CodingCliError as exc:
@@ -167,7 +165,6 @@ def resolve_live_test_selection(
     test_config_path: Path | None = None,
     project_root: Path | None = None,
     require_opencode: bool = False,
-    require_openai_api_key: bool = False,
     ignore_environment_pins: bool = False,
 ) -> LiveTestSelection:
     """Bind one coding CLI and model for live qualification.
@@ -259,15 +256,9 @@ def resolve_live_test_selection(
             "remote live qualification requires coding CLI opencode; pass "
             "--coding-cli with --model for a one-shot override of that default",
         )
-    enforce_openai_key = require_openai_api_key or (
-        remote and selected_cli == "opencode"
-    )
-    if enforce_openai_key and not str(configured.get("OPENAI_API_KEY", "")).strip():
-        raise CodingCliError(
-            "coding_cli.remote_prerequisite",
-            "remote live qualification with opencode requires OPENAI_API_KEY "
-            "in the worker login environment",
-        )
+    # No provider credential is required here: opencode resolves credentials
+    # for the pinned model's provider from its own configuration and auth
+    # store, which the controller cannot observe.
     return LiveTestSelection(
         selected_cli,
         selected_model,

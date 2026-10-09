@@ -13515,9 +13515,10 @@ the reported failure.
   / [ADR 0018](../decisions/0018-never-empty-per-agent-model-stack.md).
 - **Depends on:** [RELEASE-009](#release-009-qualify-and-publish-070-with-full-gate-fan-out)
   needs this before local fan-out can close.
-- **Next action:** POSIX `--target local` live fan-out still needs `OPENAI_API_KEY`
-  in the worker login environment plus a prepared plan. Fail-closed tests and the
-  exact command are recorded. Do not treat the missing key as a completed live gate.
+- **Next action:** POSIX `--target local` live fan-out needs workers whose `opencode`
+  is configured for the pinned model's provider, plus a prepared plan. **2026-10-09
+  (1.2):** ADR 0017 decision 4 is amended: the `OPENAI_API_KEY` precheck is removed
+  because OpenCode resolves provider credentials itself; `opencode` stays required.
 - **Implementation:**
   - [x] Require `coding_cli` and `model` in `literate.test.json` for live
         generation; extend `literate.test.example.json` with inert placeholders.
@@ -13526,8 +13527,9 @@ the reported failure.
         never `GENERATION-008` fallback on this path. Controller fan-out reads
         the JSON with `ignore_environment_pins` so this session's `CODING_CLI`
         is not injected onto workers.
-  - [x] Fail remote live gates unless the bound CLI is `opencode` and
-        `OPENAI_API_KEY` is present; pass the bound model as OpenCode `--model`.
+  - [x] Fail remote live gates unless the bound CLI is `opencode`; pass the bound
+        model as OpenCode `--model`. (The original `OPENAI_API_KEY` precheck was
+        removed in 1.2; see the ADR 0017 amendment.)
   - [x] Keep attended local generation on the existing `select_coding_cli` path.
   - [x] Session start logs the user-default CLI/model tuple and, when flags
         override it, a distinct `model.session.cli_override` event.
@@ -13543,8 +13545,9 @@ the reported failure.
         `literate.test.json` SHA-256 `2a41cb24…8bdf36b` unchanged. Durable tests:
         `test_cli_override_is_used_by_select_coding_cli_without_rewriting_the_file`,
         `test_live_sample_cli_override_is_used_without_rewriting_test_config`.
-  - [ ] POSIX `--target local` live gates can proceed once workers have
-        `opencode` and `OPENAI_API_KEY` and the JSON names that pair.
+  - [ ] POSIX `--target local` live gates can proceed once workers have a
+        configured `opencode` and the JSON names that pair (the `OPENAI_API_KEY`
+        precheck referenced below was removed in 1.2).
         **2026-08-30:** four POSIX SSH workers have `opencode`; none have
         `OPENAI_API_KEY` in the login environment. Bound
         `LITAI_REMOTE_LIVE_GATE=1` returned `coding_cli.remote_prerequisite`.

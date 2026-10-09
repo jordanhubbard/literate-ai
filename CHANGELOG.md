@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Remote live gates no longer require `OPENAI_API_KEY` in the worker login
+  environment. They still require `opencode`, which resolves credentials for the
+  pinned model's provider from its own configuration (ADR 0017 amendment). A
+  missing provider key reported by OpenCode is now
+  `coding_cli.authentication_required`.
+
 - Retained Cargo receipts report unselected ignored cases as explicit exclusions,
   preserving strict selected-test failures and empty-suite rejection.
 
