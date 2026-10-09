@@ -139,6 +139,20 @@ class ProjectReleaseTests(unittest.TestCase):
                 plan["release_line"], {"name": "release/1.2.x", "create": True}
             )
 
+    def test_wheel_asset_name_uses_pep440_form_or_refuses_typed(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            (root / "pyproject.toml").write_text(
+                '[project]\nname = "example-project"\n', encoding="utf-8"
+            )
+            self.assertEqual(
+                project_releases._expected_wheel_prefix(root, "1.2.4-rc.1"),
+                "example_project-1.2.4rc1-",
+            )
+            with self.assertRaises(ProjectReleaseError) as caught:
+                project_releases._expected_wheel_prefix(root, "1.2.4-draft.1")
+            self.assertEqual(caught.exception.code, "release.package_metadata_invalid")
+
     def test_provider_status_matches_prepared_prerelease_and_refuses_drafts(
         self,
     ) -> None:

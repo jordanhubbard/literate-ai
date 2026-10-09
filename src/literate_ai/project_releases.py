@@ -4702,7 +4702,14 @@ def _expected_wheel_prefix(root: Path, version: str) -> str | None:
     if not isinstance(name, str) or not name.strip():
         return None
     distribution = re.sub(r"[-_.]+", "_", name.strip())
-    normalized_version = str(Version(version))
+    try:
+        normalized_version = str(Version(version))
+    except InvalidVersion as exc:
+        raise ProjectReleaseError(
+            "release.package_metadata_invalid",
+            f"release version {version!r} has no PEP 440 form for the required "
+            "wheel asset",
+        ) from exc
     return f"{distribution}-{normalized_version}-"
 
 
@@ -5023,6 +5030,7 @@ def publish_release(
     provider_release: dict[str, object] | None = None
     if policy.provider_kind == "github":
         assert policy.provider_repository is not None
+        prerelease = _is_prerelease(str(prepared["version"]), policy.version_scheme)
         observed_release = _github_release_evidence(
             root, policy.provider_repository, tag
         )
@@ -5036,9 +5044,7 @@ def publish_release(
                 tag,
                 version=str(prepared["version"]),
                 require_wheel=False,
-                prerelease=_is_prerelease(
-                    str(prepared["version"]), policy.version_scheme
-                ),
+                prerelease=prerelease,
             )
         changelog = _binding_path(root, policy.changelog_path)
         release_notes = _changelog_release_notes(
@@ -5066,13 +5072,7 @@ def publish_release(
                             "--notes-file",
                             notes_path,
                             "--verify-tag",
-                            *(
-                                ("--prerelease",)
-                                if _is_prerelease(
-                                    str(prepared["version"]), policy.version_scheme
-                                )
-                                else ()
-                            ),
+                            *(("--prerelease",) if prerelease else ()),
                         ),
                         cwd=root,
                         check=False,
@@ -5119,7 +5119,7 @@ def publish_release(
             tag,
             version=str(prepared["version"]),
             require_wheel=wheel_path is not None,
-            prerelease=_is_prerelease(str(prepared["version"]), policy.version_scheme),
+            prerelease=prerelease,
         )
         provider_url = str(provider_release["url"])
     result: dict[str, object] = {
