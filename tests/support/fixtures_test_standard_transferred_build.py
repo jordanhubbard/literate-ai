@@ -336,7 +336,7 @@ class StandardTransferredBuildTests(unittest.TestCase):
         )
         _, execution = _fixture()
         intent = producer.create(
-            execution, execution.generation_plans[0], candidate, (), ()
+            execution, _leaf_generation_plan(execution), candidate, (), ()
         )
         authorization = producer.authorize(
             intent,
@@ -356,7 +356,7 @@ class StandardTransferredBuildTests(unittest.TestCase):
         )
         self.assertNotIn(build_tool.toolchain_identity.uri, receiver.tool_bindings)
         received_intent = receiver.create(
-            execution, execution.generation_plans[0], candidate, (), ()
+            execution, _leaf_generation_plan(execution), candidate, (), ()
         )
         receiver.accept_finalized_plan(received_intent, authorization, plan)
         worker_cas = FileSystemCAS(self.root / "scoped-worker-cas")
@@ -371,7 +371,7 @@ class StandardTransferredBuildTests(unittest.TestCase):
         )
         input_record = BuildWorkerInput(
             execution.identity,
-            execution.generation_plans[0].identity,
+            _leaf_generation_plan(execution).identity,
             candidate,
             plan,
             inputs,
@@ -379,7 +379,7 @@ class StandardTransferredBuildTests(unittest.TestCase):
             source.validation_inputs(candidate.tree_identity),
             custody.source_generation_identity,
             custody.identity,
-            execution.generation_plans[0],
+            _leaf_generation_plan(execution),
             execution,
         ).to_bytes()
         input_identity = record_identity(input_record)
