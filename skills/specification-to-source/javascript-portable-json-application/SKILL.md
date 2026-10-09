@@ -16,7 +16,7 @@ dependencies:
     identity:
       schema: "urn:literate-ai:schema:v1:content-identity"
       algorithm: "sha256"
-      digest: "5d0ab9ca3d9e7e775cbac5d337c4e1f527a4f5f7209b1368ba5ea395f3018aa0"
+      digest: "55dece8843519c6ced884d7cd9eb5d8bff04ebccef055c74c5bfcf176ccd06cd"
 limitations:
   - "Do not declare or depend on an npm package unless the `package-npm` Flavor is selected. Without that Flavor, use only Node.js built-in modules; with it, use only the exact package closure admitted by `javascript-ecosystem`."
   - "Do not detect, install, or update Node.js, npm, package dependencies, or any other host tool during generation; tool discovery and dependency replay belong only to the authorized lifecycle."

@@ -16,7 +16,7 @@ dependencies:
     identity:
       schema: "urn:literate-ai:schema:v1:content-identity"
       algorithm: "sha256"
-      digest: "5d0ab9ca3d9e7e775cbac5d337c4e1f527a4f5f7209b1368ba5ea395f3018aa0"
+      digest: "55dece8843519c6ced884d7cd9eb5d8bff04ebccef055c74c5bfcf176ccd06cd"
 limitations:
   - "Do not use npm packages, network access, standard input, a shell, eval, dynamic code loading, timers, locale-sensitive ordering, or operating-system-specific APIs."
   - "Do not emit logs or presentation text alongside the single JSON result on standard output."

@@ -248,6 +248,18 @@ _TRANSIENT_GENERATION_ERROR_CODES = frozenset(
 )
 
 
+def _prompt_json(document: bytes) -> str:
+    """Indent canonical JSON so no prompt line outgrows a coding CLI's file reader.
+
+    Coding CLIs read the prompt file with line-truncating tools (opencode cuts
+    lines at 2000 characters); a minified document past that limit reaches the
+    model cut short. Generated JSON is parsed and canonicalized, so indentation
+    changes nothing the framework compares.
+    """
+
+    return json.dumps(json.loads(document), indent=2, ensure_ascii=False)
+
+
 def _reset_generation_output_root(root: Path) -> None:
     """Clear a coding CLI output root between bounded retry attempts.
 
@@ -941,13 +953,13 @@ class GenerationRecipe:
                     "surface; do not translate a one-object argument into multiple",
                     "positional parameters or vice versa.",
                     "",
-                    canonical_json_bytes(execution_contract).decode("utf-8"),
+                    _prompt_json(canonical_json_bytes(execution_contract)),
                 ]
             )
         if self.managed_sbom_graph is not None:
-            managed_graph = canonical_json_bytes(
-                self.managed_sbom_graph.to_dict()
-            ).decode("utf-8")
+            managed_graph = _prompt_json(
+                canonical_json_bytes(self.managed_sbom_graph.to_dict())
+            )
             authority_components, authority_edges = _recipe_authority_sbom(self)
             minimal_source_bom, _minimal_binding = build_cyclonedx_bom(
                 lifecycle=CycloneDxLifecycle.SOURCE,
@@ -961,14 +973,15 @@ class GenerationRecipe:
                 # ``incomplete_third_party_only``.
                 composition_aggregate="complete",
             )
-            minimal_source_bom_text = minimal_source_bom.decode("utf-8")
+            minimal_source_bom_text = _prompt_json(minimal_source_bom)
             sections.extend(
                 [
                     "",
                     "## Required CycloneDX source SBOM",
                     "",
-                    f"Create `{CYCLONEDX_SOURCE_SBOM_PATH}` as canonical minified",
-                    "JSON conforming strictly to CycloneDX 1.7, with `$schema`",
+                    f"Create `{CYCLONEDX_SOURCE_SBOM_PATH}` as JSON (the framework",
+                    "canonicalizes its whitespace) conforming strictly to",
+                    "CycloneDX 1.7, with `$schema`",
                     f"exactly `{CYCLONEDX_SCHEMA_URI}`, `bomFormat` `CycloneDX`,",
                     "`specVersion` `1.7`, and BOM `version` 1. The metadata must",
                     "contain exactly lifecycle phase `pre-build`, the exact",
@@ -1031,7 +1044,9 @@ class GenerationRecipe:
                     "property, and scope properties. Preserve every managed edge's",
                     "exact source, target, dependency kind, optionality, and",
                     "relationship identity as dependency-edge evidence on its source",
-                    "component. The owner map is total: even a managed Component with",
+                    "component. The `root-component` node is the BOM's",
+                    "`metadata.component` only; never repeat it in `components`.",
+                    "The owner map is total: even a managed Component with",
                     "no repository-source children remains an explicit dependency",
                     "leaf. Additional dependency nodes and edges may connect to this",
                     "subgraph but may not replace, collapse, or alter it:",
@@ -1652,7 +1667,9 @@ def _reconcile_authoritative_source_sbom(
             for component in canonical_document["components"]
         }
         authority_refs = {managed_graph.root_ref, *canonical_components}
-        model_inventory_refs = {managed_graph.root_ref}
+        # A model copy of the root, like a copy of any authority component, is
+        # replaced below rather than refused as a duplicate of metadata.component.
+        model_inventory_refs: set[str] = set()
         third_party_components: dict[str, dict[str, object]] = {}
         reserved_kinds = {
             *(component.kind.value for component in managed_graph.components),

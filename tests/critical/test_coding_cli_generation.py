@@ -308,6 +308,90 @@ class TestSourceIntelligenceProvider:
         )
 
 
+class SourceSbomAuthorityTests(unittest.TestCase):
+    """A model copy of the root is replaced; a repeated model component is not."""
+
+    def reconcile(self, mutate) -> dict:
+        value = recipe(flavor("python"))
+        canonical, _binding = build_cyclonedx_bom(
+            lifecycle=coding_cli_adapter.CycloneDxLifecycle.SOURCE,
+            managed_graph=value.managed_sbom_graph,
+            composition_aggregate="complete",
+        )
+        document = json.loads(canonical)
+        mutate(document)
+        path = coding_cli_adapter.CYCLONEDX_SOURCE_SBOM_PATH
+        files = {path: json.dumps(document)}
+        with tempfile.TemporaryDirectory() as raw:
+            workspace = Path(raw)
+            workspace.joinpath(path).parent.mkdir(parents=True)
+            coding_cli_adapter._reconcile_authoritative_source_sbom(
+                value, workspace, files
+            )
+        return json.loads(files[path])
+
+    def test_root_repeated_in_components_is_replaced(self):
+        def repeat_root(document):
+            document["components"].append(dict(document["metadata"]["component"]))
+
+        repaired = self.reconcile(repeat_root)
+
+        root = repaired["metadata"]["component"]["bom-ref"]
+        self.assertNotIn(root, [item["bom-ref"] for item in repaired["components"]])
+
+    def test_model_root_copy_cannot_alter_the_root(self):
+        canonical = self.reconcile(lambda document: None)
+
+        def altered_root(document):
+            copy = dict(document["metadata"]["component"])
+            copy["version"] = "9.9.9"
+            copy["hashes"] = [{"alg": "SHA-256", "content": "0" * 64}]
+            copy["properties"] = [{"name": "literate-ai:forged", "value": "x"}]
+            document["components"].append(copy)
+
+        self.assertEqual(self.reconcile(altered_root), canonical)
+
+    def test_third_party_component_cannot_claim_the_root_ref(self):
+        canonical = self.reconcile(lambda document: None)
+
+        def claim_root(document):
+            document["components"].append(
+                {
+                    "type": "library",
+                    "bom-ref": document["metadata"]["component"]["bom-ref"],
+                    "name": "impostor",
+                    "version": "1.0.0",
+                }
+            )
+
+        self.assertEqual(self.reconcile(claim_root), canonical)
+
+    def test_model_component_repeated_is_refused(self):
+        third_party = {
+            "type": "library",
+            "bom-ref": "pkg:pypi/example@1.0.0",
+            "name": "example",
+            "version": "1.0.0",
+        }
+
+        def repeat_component(document):
+            document["components"].extend([third_party, dict(third_party)])
+
+        with self.assertRaises(CodingCliError) as raised:
+            self.reconcile(repeat_component)
+        self.assertEqual(raised.exception.code, "coding_cli.generated_metadata_invalid")
+
+    def test_prompt_documents_fit_a_line_truncating_reader(self):
+        document = json.dumps({"items": ["x" * 40] * 200}).encode()
+
+        rendered = coding_cli_adapter._prompt_json(document)
+
+        self.assertEqual(json.loads(rendered), json.loads(document))
+        self.assertLess(max(map(len, rendered.splitlines())), 2000)
+        prompt = recipe(flavor("python")).prompt()
+        self.assertLess(max(map(len, prompt.splitlines())), 2000)
+
+
 class CodingCliSelectionTests(unittest.TestCase):
     def test_lifecycle_driver_receives_only_selected_provider_credentials(self):
         environment = {

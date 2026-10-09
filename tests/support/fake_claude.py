@@ -113,13 +113,13 @@ def generate(workspace):
     entrypoint = re.search(
         r"The required generated entrypoint is\s+`([^`]+)`", request
     ).group(1)
-    sbom = next(
-        line.strip()
-        for line in request.splitlines()
-        if line.strip().startswith(
-            '{"$schema":"http://cyclonedx.org/schema/bom-1.7.schema.json"'
-        )
+    marker = request.index(
+        '"$schema": "http://cyclonedx.org/schema/bom-1.7.schema.json"'
     )
+    document, _end = json.JSONDecoder().raw_decode(
+        request, request.rindex("{", 0, marker)
+    )
+    sbom = json.dumps(document, ensure_ascii=False, separators=(",", ":"))
     cards = "| `messages` |" in request
     references = _citable_paths(request)[:1]
     rows = (
