@@ -5,11 +5,14 @@ from __future__ import annotations
 import hashlib
 import io
 import stat
+import tempfile
 import unittest
 import warnings
 import zipfile
+from pathlib import Path
 
 from literate_ai.adapters.directory_artifacts import (
+    directory_export_bytes,
     read_directory_export,
 )
 from literate_ai.contracts.blobs import BlobRef
@@ -80,3 +83,16 @@ class DirectoryExportReaderTests(unittest.TestCase):
                 _read(_archive(("a",), mode=mode))
         with self.assertRaises(ValueError):
             _read(_archive(("a",), compression=zipfile.ZIP_DEFLATED))
+
+    def test_producer_exports_are_admitted_by_the_shared_reader(self):
+        # A directory sharing a prefix with a sibling ("lib/" and "lib.rs") and
+        # mixed-case names must still produce canonical member order.
+        names = ("lib/x.ex", "lib.rs", "Z.beam", "app.app")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for name in names:
+                path = root / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(name.encode())
+            files = _read(directory_export_bytes(root))
+        self.assertEqual([item.path for item in files], sorted(names))
