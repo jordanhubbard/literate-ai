@@ -4715,6 +4715,17 @@ it includes changes absent from the archived main and needs reconciliation befor
 landing. The peer-work command in this checkout still fails with
 `project.peer_work_git_failed` because no local `main` ref exists.
 
+Migrated open reviews observed 2026-10-09 on jordanhubbard/literate-ai each received
+an independent agent review against the 1.2 branch:
+
+| Review | Observed head | Owner | Disposition |
+| --- | --- | --- | --- |
+| [#37](https://github.com/jordanhubbard/literate-ai/pull/37) — Historical update recovery for GitHub SCP URLs | `76f57cf8` | UPDATE-MERGE-002 | **Included** with a review fix: only the GitHub SCP spelling is rewritten, to `ssh://`, so recorded `ssh://` and `https` locators keep their transport and unusable locators leave the conflict unresolved instead of aborting the plan. |
+| [#39](https://github.com/jordanhubbard/literate-ai/pull/39) — SemVer prerelease planning and GitHub status | `4c858dc8` | RELEASE-INVARIANTS-001 | **Included** with review fixes: the plan test declares the release line, and a SemVer draft with no PEP 440 form refuses wheel naming as `release.package_metadata_invalid` instead of a traceback. |
+| [#41](https://github.com/jordanhubbard/literate-ai/pull/41) — Retained Cargo selected-suite accounting | `61fc2c28` | RETAINED-READMISSION-001 | **Included**; its test imports the shared retained-receipt fixtures instead of another test module. |
+| [#42](https://github.com/jordanhubbard/literate-ai/pull/42) — setup-uv 10.2.0 | `9d480956` | AUD-CI-001 | **Included**; the pinned commit is the upstream `v10.2.0` tag. Supersedes archived #508. |
+| [#45](https://github.com/jordanhubbard/literate-ai/pull/45) — Elixir Mix builds, library graphs, and native qualification | `d2284009` | ELIXIR-002 | **Deferred to 1.3.** New Mix/Hex ecosystem feature outside the 1.2 program (ELIXIR-001 kept Mix as future policy), self-declared incomplete (hosted CI unrun, public retained Mix importer admission unimplemented). A rebase onto 1.2 is required: 48 conflicts including the `ArtifactBuildGraph` contract (`assembly_dependencies` versus `driver_composition`), a multi-driver graph relaxation that needs its own design review, unlocked `mix deps.get` resolution per build, and re-homing its tests under the 1.2 test policy. Its directory-export member-order fix is extracted into 1.2; the Linux custody recheck and CRLF inventory hunks are candidates for separate extraction with tests. |
+
 The table below retains the earlier source-repository snapshot, including historical
 CI observations; it is not a current landing queue. The full 1.2 program remains
 required before release.
