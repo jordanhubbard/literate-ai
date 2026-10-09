@@ -62,8 +62,11 @@
   portable package/test/oracle verification. Production worker grant provisioning
   and complete CLI rebuild qualification remain pending.
 
-- Update: recover digest-verified historical bases from safe GitHub SCP transport
-  aliases while preserving the original repository, revision and provenance (#36).
+- Update: recover digest-verified historical bases recorded with GitHub's SCP
+  spelling (`git@github.com:owner/repository`) over the same SSH transport, while
+  preserving the original repository, revision and provenance. Recorded URLs keep
+  their transport, and an unusable historical locator leaves the conflict
+  unresolved instead of aborting the update (#36).
 
 - Windows installation: report inaccessible declared native-tool search directories
   as actionable host-install errors instead of uncaught tracebacks. Document the

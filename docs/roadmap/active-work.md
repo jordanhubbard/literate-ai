@@ -23545,8 +23545,8 @@ Make, along with lint and format checks. Full CI remains pending.
 
 ### [ ] UPDATE-MERGE-002 — Complete three-way update migration and release it
 
-  Historical transport recovery refinement (**GitHub issue:** [#36](https://github.com/jordanhubbard/literate-ai/issues/36)): normalize safe GitHub SSH/SCP transport aliases when constructing historical fetch references, preserving predecessor coordinates, exact revisions, original provenance and digest-only admission. Focused initialization and catalog fixtures must prove recovery and rejection of wrong bytes. Upstream landing and release qualification remain separate gates.
-  Local proof: 11 focused update/merge tests pass, strict lint and formatting pass. Hosted review and published-wheel qualification are pending; the overall update migration item stays open.
+  Historical transport recovery refinement (**GitHub issue:** [#36](https://github.com/jordanhubbard/literate-ai/issues/36)): spell safe GitHub SCP locators as the equivalent `ssh://git@github.com/owner/repository` URL when constructing historical fetch references, preserving the SSH transport, predecessor coordinates, exact revisions, original provenance and digest-only admission. Recorded URLs keep their transport; an unusable historical locator leaves the conflict unresolved. Focused initialization and catalog fixtures must prove recovery, transport preservation and rejection of wrong bytes. Upstream landing and release qualification remain separate gates.
+  Local proof (1.2 integration, independent review): 8 focused update/merge tests pass, strict lint and formatting pass. Hosted review and published-wheel qualification are pending; the overall update migration item stays open.
 
 
 - **GitHub issue:** [#512](https://github.com/NVIDIA-dev/literate-ai/issues/512)
