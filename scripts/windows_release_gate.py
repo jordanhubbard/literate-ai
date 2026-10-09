@@ -217,8 +217,20 @@ def main(argv: list[str] | None = None) -> int:
         if "wheel" in selected:
             _run([str(python), "scripts/wheel_smoke.py"], environment, step="wheel")
         if "tests" in selected:
+            # A fixed base directory keeps pytest from maintaining numbered
+            # directories behind a `pytest-current` symlink, whose session-end
+            # cleanup raised WinError 1463 on the worker and hid the summary.
+            # The JUnit report keeps per-test results even if the session dies.
             _run(
-                [str(python), "-m", "pytest", "-q", *_TEST_ROOTS],
+                [
+                    str(python),
+                    "-m",
+                    "pytest",
+                    "-q",
+                    f"--basetemp={ROOT / '_build/tmp/pytest'}",
+                    f"--junitxml={ROOT / '_build/windows-tests.xml'}",
+                    *_TEST_ROOTS,
+                ],
                 environment,
                 step="tests",
             )
