@@ -36,14 +36,20 @@ def _node(metadata):
         raise ValueError("grant is not a regular file")
     if not 0 < metadata.st_size <= MAX_FINALIZE_GRANT_BYTES:
         raise ValueError("grant size exceeds bound")
-    return (
+    node = (
         metadata.st_dev,
         metadata.st_ino,
         metadata.st_mode,
         metadata.st_size,
         metadata.st_mtime_ns,
-        metadata.st_ctime_ns,
     )
+    if os.name != "nt":
+        return (*node, metadata.st_ctime_ns)
+    # Windows CPython 3.12 pathname stat reports creation time in st_ctime,
+    # while fstat reports metadata change time, so the grant's lstat and fstat
+    # never agree there. Compare creation time instead; 3.11 has no
+    # st_birthtime_ns, but both of its APIs report creation time in st_ctime.
+    return (*node, getattr(metadata, "st_birthtime_ns", metadata.st_ctime_ns))
 
 
 class PrivateFinalizeGrantProvider:
