@@ -134,7 +134,7 @@
     "runner_identity": {
       "schema": "urn:literate-ai:schema:v1:content-identity",
       "algorithm": "sha256",
-      "digest": "39bb2e44349b3579e4b816bdb5bab75d3f804a3f27e4852c6f7ac90a071e8459"
+      "digest": "e01870cfbccb370a5757852e66d471dcddf8364eee3b345bb176492643cb1815"
     },
     "required_evidence_kinds": [
       "acceptance-result",
