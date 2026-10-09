@@ -21,6 +21,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+TEMPORARY = ROOT.with_name(ROOT.name + ".tmp")
 STEPS = ("preflight", "environment", "compile", "lint", "openspec", "wheel", "tests")
 _COMPILED = (
     "tests/conformance/support/sample_runner.py",
@@ -140,10 +141,12 @@ def main(argv: list[str] | None = None) -> int:
     )
     environment.pop("PYTHONPATH", None)
     if _windows():
-        # Keep smoke and test trees inside the checkout, under the worker
-        # workspace that the template excludes from Defender scanning.
+        # Keep smoke and test trees beside the checkout, under the worker
+        # workspace that the template excludes from Defender scanning, but
+        # outside the checkout: project discovery walks up from test fixtures
+        # and would otherwise adopt this repository's own project manifest.
         # Each gate starts empty; git never discovers this checkout from them.
-        temporary = ROOT / "_build/tmp"
+        temporary = TEMPORARY
         shutil.rmtree(temporary, ignore_errors=True)
         temporary.mkdir(parents=True, exist_ok=True)
         environment["TEMP"] = environment["TMP"] = str(temporary)
@@ -227,7 +230,7 @@ def main(argv: list[str] | None = None) -> int:
                     "-m",
                     "pytest",
                     "-q",
-                    f"--basetemp={ROOT / '_build/tmp/pytest'}",
+                    f"--basetemp={TEMPORARY / 'pytest'}",
                     f"--junitxml={ROOT / '_build/windows-tests.xml'}",
                     *_TEST_ROOTS,
                 ],
