@@ -62,6 +62,9 @@
   portable package/test/oracle verification. Production worker grant provisioning
   and complete CLI rebuild qualification remain pending.
 
+- Update: recover digest-verified historical bases from safe GitHub SCP transport
+  aliases while preserving the original repository, revision and provenance (#36).
+
 - Windows installation: report inaccessible declared native-tool search directories
   as actionable host-install errors instead of uncaught tracebacks. Document the
   PowerShell source-install entry point and activation-free wheel commands.
