@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Retained Cargo receipts report unselected ignored cases as explicit exclusions,
+  preserving strict selected-test failures and empty-suite rejection.
+
 - Cross-host workers: when BUILD, TEST, EXECUTE and FINALIZE all run on admitted
   workers, `litai rebuild` derives locked toolchain identities, commands and
   native dependencies from the worker instead of the controller host, which then
