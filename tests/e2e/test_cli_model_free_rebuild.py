@@ -37,6 +37,7 @@ from literate_ai.contracts import (
     StandardProjectLifecycleDriver,
     load_current_standard_lifecycle_policy,
 )
+from tests.support.loader_environment import without_empty_loader_entries
 
 FAKE_CLAUDE = Path(__file__).resolve().parents[1] / "support" / "fake_claude.py"
 
@@ -284,15 +285,9 @@ class ModelFreeRebuildTests(unittest.TestCase):
         from literate_ai.adapters.builders.make import discover_make_toolchain
         from literate_ai.adapters.builders.python import discover_python_toolchain
 
-        environment = (
-            dict(os.environ) if worker_host else {**os.environ, **self.environment}
+        environment = without_empty_loader_entries(
+            os.environ if worker_host else {**os.environ, **self.environment}
         )
-        # An operator provisions loader paths without empty entries, which the
-        # dynamic loader would read as the current directory and the receiver
-        # refuses. Login shells often leave one, as in "/usr/local/lib:".
-        loader = [p for p in environment.pop("LD_LIBRARY_PATH", "").split(":") if p]
-        if loader:
-            environment["LD_LIBRARY_PATH"] = ":".join(loader)
         config = self.root / "receiver" / "standard-receiver.json"
         config.parent.mkdir(exist_ok=True)
 
