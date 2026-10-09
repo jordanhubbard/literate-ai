@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.harness_test_discovery import observe_test_collection
-from tests.e2e.test_retained_harness_receipts import (
+from tests.support.fixtures_test_retained_harness_receipts import (
     _adapter,
     _invoke,
     _legacy_project,
