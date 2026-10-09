@@ -68,6 +68,9 @@
   their transport, and an unusable historical locator leaves the conflict
   unresolved instead of aborting the update (#36).
 
+- Release: classify SemVer numbered drafts with SemVer precedence and match GitHub
+  prerelease publication/verification to the prepared version without relaxing gates (#38).
+
 - Windows installation: report inaccessible declared native-tool search directories
   as actionable host-install errors instead of uncaught tracebacks. Document the
   PowerShell source-install entry point and activation-free wheel commands.
