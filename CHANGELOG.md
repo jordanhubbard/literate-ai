@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Forge issues and PRs/MRs are the documented default tracker and agent coordination
+  channel (ADR 0050); other trackers or review systems are overrides. Landing now passes
+  the policy target branch (`gh pr create --base`, `glab mr create --target-branch`).
+  `litai prompt translate` recognizes `--external-envelope` / `LITAI_EXTERNAL_TASK_ID`
+  (error `prompt_routing.external_envelope_bypass`, envelope `prompt-task@2`); the MAC
+  spellings remain deprecated aliases. `litai init` no longer installs the opt-in
+  `write-mac-project-contract` skill; `litai update` keeps an existing copy unless the
+  parent does not ship it and it is unedited. Projects whose forge default branch is not
+  `main` must declare `repository_policy.default_branch`, which landing now targets.
+
 - Remote live gates no longer require `OPENAI_API_KEY` in the worker login
   environment. They still require `opencode`, which resolves credentials for the
   pinned model's provider from its own configuration (ADR 0017 amendment). A

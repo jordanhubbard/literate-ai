@@ -1483,12 +1483,6 @@ _TEMPLATE_FILES = {
         "skills/agent/develop-in-production-workflow/staging/dev/"
         "survey-peer-work/SKILL.md"
     ),
-    "skills/agent/write-mac-project-contract/SKILL.md": (
-        "skills/agent/write-mac-project-contract/SKILL.md"
-    ),
-    "skills/agent/write-mac-project-contract/references/mac-repository-contract.md": (
-        "skills/agent/write-mac-project-contract/references/mac-repository-contract.md"
-    ),
     "workflows/production/staging/dev/workflow.md": (
         "workflows/production/staging/dev/workflow.md"
     ),

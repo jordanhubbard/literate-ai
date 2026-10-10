@@ -8999,7 +8999,9 @@ the reported failure.
       ([RELEASE-005](#x-release-005-make-the-release-gates-execution-target-an-explicit-durable-user-choice));
       `--target gitlab` for `litai release check` stays unsupported until that
       provider exists.
-- **Scope boundary:** Do not add Bitbucket, Jira, or a third tracker client. Do not
+- **Scope boundary:** Do not add Bitbucket, Jira, or a third tracker client *as a
+      default*; ADR 0050 admits other trackers and review systems as explicit
+      project or user overrides (TRACKER-DEFAULT-001). Do not
       change repository-lineage resolution. Do not wrap every `gh`/`glab` write
       verb inside `litai`; inspect names the CLI, agents invoke it.
 - **Depends on:** none
@@ -9013,6 +9015,55 @@ the reported failure.
 - **Evidence:**
   - [x] Focused unit tests for URL classification and CLI inspect.
   - [x] Catalog and init-template skill copies remain byte-identical.
+
+### [x] TRACKER-DEFAULT-001 — Make forge issues and reviews the default tracker and coordination channel
+
+- **Priority:** P1
+- **Release target:** 1.2.0
+- **Owner:** `litai project tracker`, `litai project guidance`, `litai prompt`,
+  `skills/agent/record-user-directed-work`, project `SKILL.md`
+- **ADR:** [0050](../decisions/0050-forge-issues-and-reviews-are-the-default-tracker.md)
+  (Accepted 2026-10-09)
+- **Direction:** A project's default task and project-management system is the forge
+  hosting the repository that receives issues and PRs (GitHub or GitLab): problems are
+  issues, changes are PRs/MRs against a target branch, and agents coordinate through
+  issues. Another tracker, external agent ledger, or review system (for example
+  Gerrit) is a user or project override, never a hard-coded default.
+- **Implementation (1.2):**
+  - [x] Generic external task envelope: `LITAI_EXTERNAL_TASK_ID`,
+        `--external-envelope`, `prompt_routing.external_envelope_bypass`,
+        `prompt-task@2`; `LITAI_MAC_TASK_ID` / `--mac-envelope` are deprecated aliases.
+  - [x] `guidance --operation land` passes the policy `default_branch` as
+        `gh pr create --base` / `glab mr create --target-branch`.
+  - [x] `litai init` no longer installs `write-mac-project-contract`; that skill is an
+        opt-in build/test runner contract.
+  - [x] `SKILL.md`, the template `SKILL.md`, `prompt-master`, and the ledger
+        architecture state the forge default and treat MAC as an optional override.
+- **Follow-up:** TRACKER-DEFAULT-002 (1.3.0).
+- **Evidence:**
+  - [x] `tests/smoke/test_prompt_routing.py` covers the generic and deprecated envelope
+        spellings; `tests/smoke/test_project_guidance.py` covers the GitHub and GitLab
+        target-branch argv.
+
+### [ ] TRACKER-DEFAULT-002 — Coordinate through issues and admit tracker overrides
+
+- **Priority:** P1
+- **Release target:** 1.3.0
+- **Owner:** `litai work`, `litai project peer-work`, `litai project tracker`,
+  `skills/agent/record-user-directed-work`
+- **ADR:** [0050](../decisions/0050-forge-issues-and-reviews-are-the-default-tracker.md)
+- **Direction:** Finish ADR 0050 after TRACKER-DEFAULT-001: issues are the default
+  resumable coordination record, GitLab matches GitHub, and a project or user may select
+  another tracker or review system.
+- **Depends on:** TRACKER-DEFAULT-001
+- **Implementation:**
+  - [ ] Make issues the resumable coordination record; demote the Markdown
+        `work_queue` / `litai work record` to a local mirror or override (`cli/work.py`
+        also ignores `repository_policy.work_queue` today).
+  - [ ] GitLab `review_status` / `issue_status` and forge-neutral `peer-work`
+        classification and garbage collection.
+  - [ ] Project (`repository_policy`) and user preference selecting another tracker or
+        review system, with typed refusal when its client is unavailable.
 
 ### [x] PARENT-SUBTREE-001 — Check out parents under `parents/<id>` with submodules and LFS
 

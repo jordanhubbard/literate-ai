@@ -1298,11 +1298,14 @@ def _parser() -> JsonArgumentParser:
     )
     prompt_translate = prompt_commands.add_parser(
         "translate",
-        help="apply prompt-master to a direct request; bypass MAC task envelopes",
+        help=(
+            "apply prompt-master to a direct request; bypass externally translated "
+            "task envelopes"
+        ),
         description=(
-            "Wrap skills/agent/prompt-master as a deterministic command. "
-            "MAC-originated envelopes fail closed so Literate AI does not apply a "
-            "second translation layer."
+            "Wrap skills/agent/prompt-master as a deterministic command. Task "
+            "envelopes already translated by an external task system fail closed "
+            "so Literate AI does not apply a second translation layer."
         ),
     )
     prompt_translate.add_argument("--project", default=".")
@@ -1313,9 +1316,14 @@ def _parser() -> JsonArgumentParser:
         help="provider name recorded in the task envelope (not a model call)",
     )
     prompt_translate.add_argument(
+        "--external-envelope",
         "--mac-envelope",
+        dest="external_envelope",
         action="store_true",
-        help="declare that MAC already translated this task and refuse a second pass",
+        help=(
+            "declare that an external task system already translated this task "
+            "and refuse a second pass (--mac-envelope is a deprecated alias)"
+        ),
     )
     prompt_translate.add_argument(
         "--file",
