@@ -9065,6 +9065,45 @@ the reported failure.
   - [ ] Project (`repository_policy`) and user preference selecting another tracker or
         review system, with typed refusal when its client is unavailable.
 
+### [ ] CANDIDATE-DIAG-001 — Retain bounded build-diagnostic excerpts for rejected generated candidates
+
+- **Priority:** P1
+- **Release target:** 1.3.0
+- **Owner:** `tests/conformance/support/sample_runner.py` (runner-pinned),
+  `literate-ai/generated-candidate-rejection@1`, `src/literate_ai/adapters/builders/`
+- **Direction:** A rejected generated candidate must say why it was rejected, both in
+  retained evidence and in the repair feedback the next attempt receives.
+- **Context:** **2026-10-09:** the Linux `samples` gate at `56163f0b` exhausted three
+  `linux-cgroup-budget` C++ attempts (two `generated-source-build-rejected` with
+  `builder.cpp_generated_source_rejected`, one `generated-test-behavior-mismatch` on
+  `fractional-cpu-floor`). The compiler output exists: `builders/cpp.py` puts the last
+  4000 bytes of stdout and stderr in the `BuildError` message. But the build-rejected
+  record keeps only `build_failure_code`, `candidate_tree_identity`, and
+  `diagnostic_identity`, so `rejections-NN.json`, the evidence ledger, and the gate log
+  cannot show the error. Those same records are the `candidate_feedback` for the next
+  attempt, so attempts 2 and 3 were repaired without the compiler error. Contract
+  rejections already keep `message`.
+- **Conclusion:** Add a bounded, redacted `diagnostic_excerpt` (UTF-8, tail-limited, for
+  example 4 KiB, with the same secret and host-path redaction as coding-CLI failure
+  excerpts) to build-rejected and test-behavior-mismatch records. Keep it inside the
+  hashed diagnostic so `diagnostic_identity` names the bytes shown. Feed it to repair.
+  Keep it outside semantic generation and cache identities other than repair feedback.
+- **Depends on:** none
+- **Implementation:**
+  - [ ] Carry the builder's bounded failure detail on the typed build failure instead of
+        only the message string, for C++ and every builder that emits
+        `*_generated_source_rejected`.
+  - [ ] Record `diagnostic_excerpt` in build-rejected and behavior-mismatch rejection
+        records; bump the record schema if consumers require it.
+  - [ ] Include the excerpt in repair feedback and the candidate-attempts summary in the
+        gate log.
+  - [ ] Runner review and re-pin for `sample_runner.py`; driver review for builder
+        changes.
+- **Evidence:**
+  - [ ] A test rejects a deliberately non-compiling candidate and finds the compiler's
+        error line in `rejections-01.json` and in the second attempt's feedback, with
+        secrets and absolute host paths redacted.
+
 ### [x] PARENT-SUBTREE-001 — Check out parents under `parents/<id>` with submodules and LFS
 
 - **Priority:** P0
