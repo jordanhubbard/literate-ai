@@ -9065,10 +9065,10 @@ the reported failure.
   - [ ] Project (`repository_policy`) and user preference selecting another tracker or
         review system, with typed refusal when its client is unavailable.
 
-### [ ] CANDIDATE-DIAG-001 — Retain bounded build-diagnostic excerpts for rejected generated candidates
+### [x] CANDIDATE-DIAG-001 — Retain bounded build-diagnostic excerpts for rejected generated candidates
 
 - **Priority:** P1
-- **Release target:** 1.3.0
+- **Release target:** 1.2.0
 - **Owner:** `tests/conformance/support/sample_runner.py` (runner-pinned),
   `literate-ai/generated-candidate-rejection@1`, `src/literate_ai/adapters/builders/`
 - **Direction:** A rejected generated candidate must say why it was rejected, both in
@@ -9090,19 +9090,27 @@ the reported failure.
   Keep it outside semantic generation and cache identities other than repair feedback.
 - **Depends on:** none
 - **Implementation:**
-  - [ ] Carry the builder's bounded failure detail on the typed build failure instead of
-        only the message string, for C++ and every builder that emits
-        `*_generated_source_rejected`.
-  - [ ] Record `diagnostic_excerpt` in build-rejected and behavior-mismatch rejection
-        records; bump the record schema if consumers require it.
-  - [ ] Include the excerpt in repair feedback and the candidate-attempts summary in the
-        gate log.
-  - [ ] Runner review and re-pin for `sample_runner.py`; driver review for builder
-        changes.
+  - [x] No builder change: the C++, Swift, Rust and Bazel builders already put a
+        ~4000-byte output tail in the `BuildError` message, so the runner excerpts it.
+  - [x] `_candidate_diagnostic_excerpt` in `sample_runner.py`: secrets redacted, host
+        path directories collapsed to `<host-path>/` (basenames kept), tail-bounded to
+        4096 UTF-8 bytes.
+  - [x] `generated-source-build-rejected` records carry `diagnostic_excerpt` inside the
+        hashed diagnostic. `generated-test-behavior-mismatch` carries the generated
+        expected and observed values. Independent-verifier mismatches carry none,
+        because their expectations are verifier-only. The record schema stays `@1`:
+        the field is additive and no consumer validates keys.
+  - [x] Repair feedback carries the excerpt unchanged through the plan stage's
+        `previous_candidate_rejections`. `rejections-NN.json` and the attempts
+        summary in the gate log include it.
+  - [x] Runner review and re-pin for `sample_runner.py`.
 - **Evidence:**
-  - [ ] A test rejects a deliberately non-compiling candidate and finds the compiler's
-        error line in `rejections-01.json` and in the second attempt's feedback, with
-        secrets and absolute host paths redacted.
+  - [x] `tests/smoke/test_candidate_rejection_diagnostics.py` compiles a deliberately
+        broken C++ source with the host compiler and finds its error in the rejection
+        record, the attempts envelope, and the next plan's
+        `previous_candidate_rejections`. It also checks secret and host-path
+        redaction, the byte bound, and that behavior mismatches expose both generated
+        values.
 
 ### [x] PARENT-SUBTREE-001 — Check out parents under `parents/<id>` with submodules and LFS
 

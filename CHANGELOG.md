@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Rejected generated candidates now record a bounded, redacted `diagnostic_excerpt`
+  (compiler or Bazel output for build rejections; generated expected and observed values
+  for generated-test mismatches) in retained evidence and in the next attempt's repair
+  feedback. Previously only a diagnostic hash was kept, so neither showed the error.
+
 - Forge issues and PRs/MRs are the documented default tracker and agent coordination
   channel (ADR 0050); other trackers or review systems are overrides. Landing now passes
   the policy target branch (`gh pr create --base`, `glab mr create --target-branch`).

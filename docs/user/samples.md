@@ -484,7 +484,11 @@ return code, and stdout/stderr digests to that same built-subject binding. A C++
 record adds
 `builder.cpp_generated_source_rejected` plus candidate-tree, source-bundle, and
 generated-suite identities and has no artifact because the build did not complete.
-No rejection record contains raw diagnostic text.
+Build records and generated-test behavior mismatch records also carry a
+`diagnostic_excerpt`. For builds it is the compiler or Bazel output tail; for
+mismatches it is the generated expected and observed values. It has secrets
+redacted, host paths collapsed to `<host-path>/`, and is capped at 4096 UTF-8
+bytes. Verifier-only mismatch records carry none.
 Exhausting all three attempts writes a compact
 `literate-ai/generated-candidate-attempts@1` envelope with the variant, maximum, ordered
 rejections, and envelope identity beneath the external attempt root, then fails. A

@@ -54,7 +54,7 @@
     "implementation_identity": {
       "schema": "urn:literate-ai:schema:v1:content-identity",
       "algorithm": "sha256",
-      "digest": "26ade636b31bece795e3cc064da9d3b136aac17364e1aca8fc917f6f7bea8835"
+      "digest": "bfafe228d15ef27a50f5574a41234306b6a561447a57266a022ba9ff2a80c2ff"
     },
     "argv": [
       "{python}",
@@ -134,7 +134,7 @@
     "runner_identity": {
       "schema": "urn:literate-ai:schema:v1:content-identity",
       "algorithm": "sha256",
-      "digest": "e01870cfbccb370a5757852e66d471dcddf8364eee3b345bb176492643cb1815"
+      "digest": "3fd1e5cc99a4be8b0635f5e94d0496fbae7018664869379fb26487f4539b2939"
     },
     "required_evidence_kinds": [
       "acceptance-result",
