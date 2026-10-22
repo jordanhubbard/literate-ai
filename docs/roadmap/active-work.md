@@ -30764,7 +30764,7 @@ remains required after composition. No Python production code changes.
         installed bytes stayed unchanged. See [the diagnostic record](../../verification/optional-project-import-development.json).
   - [ ] Renew exact-candidate native wheel/full qualification.
   - [x] Review the sole changed lifecycle-driver TCB file and record its new identity.
-  - [ ] Renew the complete configured host lifecycle and receipt after the pin change.
+  - [x] Renew the complete configured host lifecycle and receipt after the pin change.
 - **Next action:** qualify a wheel built from the exact candidate in a fresh native
   checkout, preserving the previous gate's temporary evidence. Two focused tests and
   seven CycloneDX tests pass through `make python-check`; the fresh-process regression
@@ -30772,6 +30772,8 @@ remains required after composition. No Python production code changes.
 - **CI follow-up:** Linux selected 2179 tests (2090 passes, 89 skips) and rendered
   all documentation before rejecting the stale lifecycle-driver pin. The canonical
   driver review now records `4ec3013bae99` after reviewing the sole import-location
-  change; authority passes and the receipt correctly becomes stale. Full lifecycle
-  renewal remains required. The already-running native Windows gate stays bound
+  change. The exact `191887c0` host lifecycle passes 230 tests with independent
+  acceptance in 1664.006 supervised seconds. Its canonical receipt is promoted;
+  driver review, authority and current receipt verification pass.
+  The already-running native Windows gate stays bound
   to its original `8f1b7df6` inputs; its result cannot qualify later metadata.

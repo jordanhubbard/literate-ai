@@ -52,6 +52,17 @@
     "record_command": "make driver-review-record",
     "subsequent_driver_review": "pass",
     "authority": "pass after documentation review",
-    "receipt": "stale; complete configured lifecycle renewal required"
+    "receipt": "current; 230-test configured host lifecycle and independent acceptance passed"
+  },
+  "host_lifecycle": {
+    "source_revision": "191887c0a57f1f68b6c8e64150dd8264d94efb6f",
+    "exit_code": 0,
+    "seconds": 1664.006,
+    "tests": 230,
+    "independent_acceptance": true,
+    "canonical_receipt_promoted": true,
+    "receipt_identity": "sha256:28593bc24cbad618717640a8ffb0b2d748ef80289e1938c27fd20b76d56478c7",
+    "driver_review": "pass",
+    "verify": "pass; authority and current receipt; locks/source-intelligence/HTML skipped"
   }
 }
