@@ -64,5 +64,55 @@
     "receipt_identity": "sha256:28593bc24cbad618717640a8ffb0b2d748ef80289e1938c27fd20b76d56478c7",
     "driver_review": "pass",
     "verify": "pass; authority and current receipt; locks/source-intelligence/HTML skipped"
+  },
+  "native_full_gate": {
+    "source_revision": "8f1b7df634e0c34ccd55bba1486f2c7e4b2539ad",
+    "terminal": {
+      "exit_code": 1,
+      "timeout": true,
+      "seconds": 5400.328,
+      "source_revision": "8f1b7df634e0c34ccd55bba1486f2c7e4b2539ad",
+      "native_windows": true,
+      "release_authorized": false
+    },
+    "phase": "wheel qualification after preflight, environment, compile, lint and documentation checks passed",
+    "unit_tests_started": false,
+    "owned_process_tree_terminated": true,
+    "temporary_evidence_preserved": true,
+    "later_metadata_qualified": false,
+    "raw_evidence": {
+      "hydration-started.json": {
+        "sha256": "c8006ce4a77cc073624a6013248ca6701ee4480af9321f93cc5bd7d4bde0ef29",
+        "bytes": 64
+      },
+      "hydration-result.json": {
+        "sha256": "78e6fedc6fdee7d7f038bfd004bd61459255df60c51325b5fa4eda1b2fa364c7",
+        "bytes": 207
+      },
+      "primary-before.json": {
+        "sha256": "045b0486959cabe77c99552c767eb6084164f05b7723576816f0c29f0d6c6ea5",
+        "bytes": 158739
+      },
+      "started.json": {
+        "sha256": "1721c711246d409f301131af532b8d21a818ed9932a88de0d646d9a73052e516",
+        "bytes": 540
+      },
+      "terminal.json": {
+        "sha256": "5b8484e2875e675fb613968cb377e3ad744a48afd84fa423019fde7570ec1035",
+        "bytes": 191
+      },
+      "setup.log": {
+        "sha256": "3fbc9dbd4f92b599cd863fb7602a6a40b78d9ee801939b2d1d0b0e6a96478ee2",
+        "bytes": 4091
+      },
+      "gate.stdout": {
+        "sha256": "bb384a2ca5900992e44809c7b60f86d06ebaa7605953dd7cfa3503384b6a44e9",
+        "bytes": 5136
+      },
+      "gate.stderr": {
+        "sha256": "af8b2363acfc15307f498056f727a0123adc5b168bddd5b8f4970f3213cf1406",
+        "bytes": 982
+      }
+    }
   }
 }

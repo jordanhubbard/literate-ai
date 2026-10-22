@@ -30775,5 +30775,8 @@ remains required after composition. No Python production code changes.
   change. The exact `191887c0` host lifecycle passes 230 tests with independent
   acceptance in 1664.006 supervised seconds. Its canonical receipt is promoted;
   driver review, authority and current receipt verification pass.
-  The already-running native Windows gate stays bound
-  to its original `8f1b7df6` inputs; its result cannot qualify later metadata.
+  The native Windows gate on preceding `8f1b7df6` times out after 5400.328 seconds
+  during wheel qualification; unit tests never start. The supervisor terminates its
+  owned process tree, and all temporary evidence is preserved. Its earlier compile,
+  lint and documentation checks pass; it cannot qualify later metadata. Inspect
+  retained wheel-smoke stages before another full gate, keeping the original bound.
