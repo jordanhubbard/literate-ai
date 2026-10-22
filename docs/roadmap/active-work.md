@@ -30724,3 +30724,23 @@ controls and ten installed context controls also pass. Source-built compiler/OS
 SDK admission remains open. Native Windows now refuses critical/high DOMPurify
 advisories after its missing Git object closure is repaired; issue #120 owns the
 compatible transitive update and full gate renewal. No release admission follows.
+
+### [ ] DOC-DEPENDENCIES-002 — Refresh DOMPurify after critical documentation dependency findings
+
+- **GitHub issue:** [#120](https://github.com/jordanhubbard/literate-ai/issues/120)
+
+- **Priority:** P0
+- **Owner:** OpenSpec and Mermaid documentation tooling
+- **Direction:** Resolve newly reported critical and high DOMPurify advisories without weakening the audit gate
+- **Conclusion:** The pinned transitive DOMPurify 3.4.16 is affected by GHSA-cg2g-xh64-v4q7 and GHSA-mrv2-3pqr-j5jr; both identify 3.4.17 as patched. Update only the compatible transitive lock and preserve exact prior qualification scope.
+- **Depends on:** none
+- **Implementation:**
+  - [x] Update the lock with the normal npm resolver; retain audit policy without exceptions
+- **Evidence:**
+  - [ ] Fresh clean install, dependency gate, documentation tool tests and full diagram rendering; renew the native gate after integration
+
+Implementation: the normal npm resolver changes only DOMPurify's version, registry
+URL and integrity, from 3.4.16 to 3.4.17. A clean installation and dependency gate
+pass without exceptions; all 21 documentation-tool tests and all 121 diagrams
+across 625 Markdown files pass on the controller. Native Windows gate renewal
+remains required after composition. No Python production code changes.
