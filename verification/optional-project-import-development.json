@@ -31,5 +31,27 @@
     "Import-only diagnostic; project validation and full wheel/unit gates not renewed",
     "Prior cProfile times include substantial profiler overhead and are not unprofiled latency estimates"
   ],
-  "native_gate_passed": false
+  "native_gate_passed": false,
+  "lifecycle_driver_review": {
+    "gate_failure_run": "https://github.com/jordanhubbard/literate-ai/actions/runs/39854078138",
+    "failing_job": "ubuntu-latest / Python 3.11",
+    "gate": "driver-review",
+    "ci_tests": {
+      "selected": 2179,
+      "passed": 2090,
+      "skipped": 89,
+      "failed": 0,
+      "seconds": 1106.899
+    },
+    "changed_tcb_files": [
+      "src/literate_ai/cli/project.py"
+    ],
+    "review": "Optional MAC import moved from module startup to its existing handler; validation implementation unchanged",
+    "previous_identity": "sha256:ce92ed01826122a9af4b902b480bb4cf9b07ec16b00efbcd6c70914bc6eab43f",
+    "reviewed_identity": "sha256:4ec3013bae99656c0a63b581b8b0e489d93d327aaac94de30106cc635473fe28",
+    "record_command": "make driver-review-record",
+    "subsequent_driver_review": "pass",
+    "authority": "pass after documentation review",
+    "receipt": "stale; complete configured lifecycle renewal required"
+  }
 }
