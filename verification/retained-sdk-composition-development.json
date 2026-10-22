@@ -1,0 +1,130 @@
+{
+  "schema": "literate-ai/retained-sdk-composition-development@1",
+  "source_revision": "c058695048a3a1980e45db977c316a68ee4c868d",
+  "observed_utc": "2026-10-22T18:51:22.954308+00:00",
+  "controller_regression": {
+    "selected": 2206,
+    "passed": 2135,
+    "skipped": 71,
+    "failed": 0,
+    "report_sha256": "519ec9503c35f4fa133fd499e1ed722ecae76281ca622b4a1ee20e9c0fb99c62"
+  },
+  "configured_host_lifecycle": {
+    "passed": true,
+    "seconds": 1595.584,
+    "tests": 228,
+    "independent_acceptance": true,
+    "receipt_identity": "sha256:0e2f897c8b6e6ebc7fe9a609a1037fc1541afab3b9e919bf2fd0760f3f65bd16",
+    "finalized_candidate_identity": "sha256:29ea58c0c17d0328c53319c3c8e26c36c95b877e0b0f7da04f876f089e09c6a9",
+    "supported_promotion": true,
+    "receipt_current": true,
+    "preceding_generated_bigint_failure_retained": true
+  },
+  "installed_freebsd": {
+    "os": "FreeBSD 16.0-CURRENT amd64",
+    "python": "3.12.15",
+    "wheel_identity": "sha256:9002feed89c6d23d22a75ed9cfd3b980a6aee0d346a061aea37c0ee4b42ce953",
+    "distribution_identity": "sha256:36a08d8a67ac21e15d7fb746f2cb7eff842aeb4d177e4d38a1f6a7a176ee8d66",
+    "binding_controls": {
+      "selected": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "module_from_installed_prefix": true,
+      "module_sha256": "118eaf712600436acccd83ac2b69b68cce71c486405ea473330cbe5d50d744ac"
+    },
+    "context_controls": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "supervised_seconds": 625.485,
+      "production_modules_verified": 469,
+      "imports_sha256": "69eb7159fc5fee777b64b02ad7db63ef28f8986d54cb2bc67137dcf135c3c1d0",
+      "scope": "Fixture-supplied project discovery and local Git routing; real source build, grants, custody and acceptance. Not canonical public CLI or actual compiler SDK qualification.",
+      "raw_evidence": {
+        "installed-context-command/started.json": {
+          "sha256": "ad82a5f8d18fd031997f5e9740ecf2ebfde8d052e25358c8854fe6b2d6982124",
+          "bytes": 609
+        },
+        "installed-context-command/terminal.json": {
+          "sha256": "567a288f81af5f62f519d50a73fdc0dab5c8b07cf247147ea562b8f459f08eff",
+          "bytes": 88
+        },
+        "installed-context-command/stdout.log": {
+          "sha256": "3c7ea3212aafd2be5acbf51507e3e49a34c21208ca191eb23b9ed70e7c7e5aa9",
+          "bytes": 885
+        },
+        "installed-context-command/stderr.log": {
+          "sha256": "c2c5aae2c41dfcaf9853631cb0122419a2c4bdaba7a770fcd0cb3a936e85491b",
+          "bytes": 2149
+        },
+        "installed-context-tests/result.json": {
+          "sha256": "1e5526ec324d86c10a7b4f47e7be88c9de6f2f81b95b07629a850a221f151a01",
+          "bytes": 941
+        },
+        "installed-context-tests/production-imports.json": {
+          "sha256": "e7fa67177b02fe92572ecff17957ada263e9393216c8c0ea7dd72c43c110649c",
+          "bytes": 53162
+        }
+      }
+    },
+    "public_cli": {
+      "passed": true,
+      "supervised_total_seconds": 573.597,
+      "exit_code": 0,
+      "authorized_execution_limit_seconds": 3600,
+      "deadline_unchanged": true,
+      "authority_mode": "retained-project",
+      "source_authority": "original",
+      "conversion_advanced": false,
+      "no_discovery_transport_or_producer_mocks": true,
+      "source_files": 9,
+      "source_commit": "5c20dabacf7c03a43ed7b2f9a194c165f3ac0d6d",
+      "source_tree": "sha256:d0115b5cb6226b3c597212668cbb60ef13247800e4dfdadaeb5fd14e7c46bcd2",
+      "source_snapshot": "sha256:cfc84636c065545f0ee25df00d750e7b5bffdcfe824e5794b0d5c163095f1bf8",
+      "authorization_refusals": {
+        "missing-authorization": "rebuild.host_execution_not_acknowledged",
+        "missing-retained-authorization": "retained_project.admission_invalid"
+      },
+      "receipt_identity": "sha256:fb4445f32bbef56cd6716597ac31a4bba9e03a3da21e6376d119d8e92ceda6b0",
+      "receipt_scope": "local-runtime",
+      "original_tests": {
+        "failed": 0,
+        "passed": 3,
+        "skipped": 0
+      },
+      "command_stages": [
+        "build",
+        "test",
+        "docs",
+        "accept"
+      ],
+      "independent_acceptance_cases": 2,
+      "independent_acceptance_exit_codes": [
+        0,
+        2
+      ],
+      "withheld_product_stdout": "10.0\n",
+      "records_reverified": 28,
+      "record_verification_is_inspection_not_reconstructed_live_admission": true,
+      "source_server_terminal": 0,
+      "completed_run_sdk_admitted": false
+    },
+    "loader_control": {
+      "consumer_rpath": false,
+      "reviewed_loader_required": true,
+      "without_loader_exit_code": 1
+    },
+    "source_built_compiler_admitted": false,
+    "actual_os_source_sdk_admitted": false
+  },
+  "windows_native_gate": {
+    "passed": false,
+    "setup_missing_objects_fixed": true,
+    "subsequent_blocker": "Critical/high documentation DOMPurify dependency advisories; issue #120 owns compatible pin repair and native renewal"
+  },
+  "source_sdk_admission": false,
+  "release_authorized": false,
+  "scope": "Exact composed framework development qualification; native Windows and downstream lifecycle/release admission remain open"
+}

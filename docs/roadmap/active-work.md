@@ -30696,3 +30696,15 @@ evidence. No native SDK admission was earned. Profile the installed descriptor
 candidate before another canonical replay. A separate directory-relative
 metadata probe was slower and was not adopted.
 No cached distribution success or expanded execution deadline is authorized.
+
+The [exact composed SDK qualification](../../verification/retained-sdk-composition-development.json)
+now passes the full 2,206-case controller regression (2,135 passes, 71 declared
+skips) and complete 228-test configured host lifecycle with independent acceptance
+in 1,595.584 seconds. Supported candidate promotion yields current receipt
+`0e2f897c8b6e`; the preceding generated BigInt failure remains retained. Its exact
+installed FreeBSD wheel passes the public CLI consumer with three original cases,
+two independent acceptance cases and all 28 records reverified; all six binding
+controls and ten installed context controls also pass. Source-built compiler/OS
+SDK admission remains open. Native Windows now refuses critical/high DOMPurify
+advisories after its missing Git object closure is repaired; issue #120 owns the
+compatible transitive update and full gate renewal. No release admission follows.
