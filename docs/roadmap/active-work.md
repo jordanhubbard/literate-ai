@@ -30780,3 +30780,10 @@ remains required after composition. No Python production code changes.
   owned process tree, and all temporary evidence is preserved. Its earlier compile,
   lint and documentation checks pass; it cannot qualify later metadata. Inspect
   retained wheel-smoke stages before another full gate, keeping the original bound.
+
+Read-only probes of the preserved Windows wheel distinguish an 11.172-second
+stale-review refusal from successful canonical validation in 9.187 seconds
+(6.206 seconds inside the operation). Manifests and installed module bytes stay
+unchanged. These single ordered probes do not establish the aggregate cause.
+[Issue #123](https://github.com/jordanhubbard/literate-ai/issues/123) owns retaining
+existing wheel timing spans through the native gate before further qualification.
