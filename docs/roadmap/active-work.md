@@ -30697,6 +30697,22 @@ candidate before another canonical replay. A separate directory-relative
 metadata probe was slower and was not adopted.
 No cached distribution success or expanded execution deadline is authorized.
 
+The [isolated FreeBSD public CLI qualification](../../verification/native-sdk-isolated-cli-development.json)
+now passes exact wheel code `4ed7e5a1` in 575.845 supervised seconds, without
+changing the 3,600-second authorized execution limit. Three original consumer
+cases, documentation and two withheld acceptance cases pass. The CLI admits
+original source at local-runtime scope; all 28 retained records reverify from
+current CAS bytes. The sealed app fails without the reviewed loader context.
+Both authorization refusals remain intact and the owned source server exits zero.
+Six binding controls pass from this new installed prefix. The primary worker's
+timeouts remain retained. Its bounded diagnostic identifies vnode processing
+latency alongside a root-owned periodic scan; the scan and kernel settings are
+unchanged. The isolated comparison also changes kernel/filesystem/load, so it is
+not a single-variable performance attribution. All ten installed context controls
+now pass with zero skips; 469 production modules resolve from the installed prefix. Compiler SDK, package, product
+receipt and release admission remain unearned. The subsequent exact composition
+qualification is recorded below.
+
 The [exact composed SDK qualification](../../verification/retained-sdk-composition-development.json)
 now passes the full 2,206-case controller regression (2,135 passes, 71 declared
 skips) and complete 228-test configured host lifecycle with independent acceptance
