@@ -59,7 +59,7 @@ def main():
 
         run("cold-import", [sys.executable, "-I", "-X", "importtime",
                             "-m", "literate_ai.action_worker", "--help"])
-        for label, application_only in (("original", False), ("application-only", True)):
+        for label, application_only in (("original-a", False), ("application-a", True), ("application-b", True), ("original-b", False)):
             script = _WINDOWS_SCRIPT
             if application_only:
                 script = script.replace("Get-Command nvidia-smi.exe",
@@ -76,10 +76,10 @@ def main():
                         stage = name
                         break
                 if stage:
-                    lines.append("[Console]::Error.WriteLine('begin=" + stage + "')")
+                    lines.append("[Console]::Error.WriteLine([DateTime]::UtcNow.ToString('o') + ' begin=" + stage + "')")
                 lines.append(line)
                 if stage:
-                    lines.append("[Console]::Error.WriteLine('end=" + stage + "')")
+                    lines.append("[Console]::Error.WriteLine([DateTime]::UtcNow.ToString('o') + ' end=" + stage + "')")
             encoded = base64.b64encode("\n".join(lines).encode("utf-16le")).decode()
             run(label, ["powershell.exe", "-NoLogo", "-NoProfile",
                         "-NonInteractive", "-EncodedCommand", encoded])

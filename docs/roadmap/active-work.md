@@ -30951,3 +30951,11 @@ The resulting CR-CR-LF creates empty RECORD rows, correctly refused by the
 production parser. Write the fixture's exact UTF-8 CSV bytes; retain strict
 production inventory validation. Re-run this owner through the managed runner
 and confirm the same cases on Windows before claiming cross-platform closure.
+
+First isolated hosted trace (39966279564) passes all six inventory owner tests
+with zero skips (0.146 seconds); the corrected fixture is confirmed on Windows.
+Cold receiver import takes 1.485 seconds. Original hardware discovery completes
+in 58.110 seconds; application-only lookup completes in 25.500 seconds, both
+with real absent-GPU results. Order/warm-up is confounded: next diagnostic adds
+per-operation timestamps and reverses order before selecting any production fix.
+The preceding harness import failure remains retained as an invalid diagnostic.
