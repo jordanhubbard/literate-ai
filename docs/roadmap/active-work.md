@@ -30959,3 +30959,11 @@ in 58.110 seconds; application-only lookup completes in 25.500 seconds, both
 with real absent-GPU results. Order/warm-up is confounded: next diagnostic adds
 per-operation timestamps and reverses order before selecting any production fix.
 The preceding harness import failure remains retained as an invalid diagnostic.
+
+The timestamped ABBA trace (39966990258) rejects the initial GPU-lookup
+attribution: both warm lookup modes take about 1.4 seconds. The cold OS CIM
+query takes 56.215 seconds; all warm OS queries take 19.174–19.330 seconds.
+Original total 81.719/22.016 seconds versus application-only 22.078/21.984
+seconds is dominated by warm-up, not a proven selector improvement. Next
+bounded comparison requests only Caption and Version from the same native
+OS provider, preserving the actual observed fields and all validation bounds.

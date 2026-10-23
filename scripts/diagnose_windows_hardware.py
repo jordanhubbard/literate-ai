@@ -59,11 +59,11 @@ def main():
 
         run("cold-import", [sys.executable, "-I", "-X", "importtime",
                             "-m", "literate_ai.action_worker", "--help"])
-        for label, application_only in (("original-a", False), ("application-a", True), ("application-b", True), ("original-b", False)):
+        for label, selected_properties in (("selected-a", True), ("original-a", False), ("original-b", False), ("selected-b", True)):
             script = _WINDOWS_SCRIPT
-            if application_only:
-                script = script.replace("Get-Command nvidia-smi.exe",
-                                        "Get-Command nvidia-smi.exe -CommandType Application")
+            if selected_properties:
+                script = script.replace("Get-CimInstance Win32_OperatingSystem",
+                                        "Get-CimInstance Win32_OperatingSystem -Property Caption,Version")
             lines = []
             for line in script.splitlines():
                 stage = None
