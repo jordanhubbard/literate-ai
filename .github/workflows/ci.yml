@@ -16,10 +16,15 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]'
+      - name: Check installed inventory fixtures through managed runner
+        shell: bash
+        run: make python-check OBJ_DIR=_build/record-fixture PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_standard_lifecycle_binding_adapter.py PYTHON_TEST_WORKERS=1
       - name: Observe actual receiver operations with existing bounds
         run: python scripts/diagnose_windows_hardware.py
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: hardware-stage-trace
-          path: logs/hardware-diagnostic/
+          path: |
+            logs/hardware-diagnostic/
+            _build/record-fixture/python-test-report.json

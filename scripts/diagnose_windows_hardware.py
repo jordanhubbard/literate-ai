@@ -8,6 +8,8 @@ import sys
 import time
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from literate_ai.adapters._processes import create_process_tree_ownership
 from literate_ai.adapters.action_command_dispatch import command_worker_environment
 from literate_ai.adapters.action_hardware import HARDWARE_PROTOCOL
