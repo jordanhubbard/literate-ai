@@ -30932,3 +30932,16 @@ Windows/descriptor regression, wheel and lifecycle qualification before landing.
 **Combined qualification cohort:** Entry-point audit/YAML bounds (#113), retained installed-distribution observation (#117/#118), and HTML/catalog cost (#129) now preserve all source and evidence branch heads in one integration candidate. The combined driver is reviewed and recorded through the supported command. Next: freeze the source for fresh full source, forced-generation lifecycle and clean installed-wheel gates, then renew native evidence and exact review CI. Prior scoped passes retain their original source; the retained receipt is stale until supported promotion of the new passing candidate. Exact-main Windows hardware recurrence (#116) remains separately open.
 
 **Final combined local qualification:** Exact source `28371242` passes all 2,252 selected source checks (2,181 pass, 71 existing skips, zero failures) in 1,245.271 seconds and the complete 131-span installed-wheel gate (`sha256:1e8483682163652f58fec34621a9ea106f83a46d3cc8636100b7c671316fdaf0`). The forced-generation 231-case lifecycle at `d56857cd` has a supported current receipt (`sha256:61cba87b45fd0918b1e69ee05de96a9dedd6e84935e7dbeb862b361e189464ca`); all production/schema/harness bytes remain identical, while the current source suite includes the failure-only hardware diagnostic. Require-current and all-gate verify pass. See `verification/issue-resolution-cohort-local-qualification.json`. The provided native gate preserves its 5,400-second bound; it and exact-head review CI remain pending.
+
+### Windows receiver timeout isolation for issue #116
+
+The PR #130 full matrix repeated a real receiver transport expiry (180.719 seconds),
+while controller code identification completed in 0.328 seconds. Next action in
+progress: trace cold receiver import and each actual Windows hardware discovery
+operation on the same hosted image, using the projected command-worker environment.
+An isolated manual diagnostic branch preserves all healthy PR jobs. Native values,
+existing 180-second bounds and receiver security checks remain authoritative;
+this diagnostic is not lifecycle or release qualification.
+
+- [ ] Retain stage output and select a correction from an observed cause.
+- [ ] Qualify any correction through the normal managed runner and exact CI.
