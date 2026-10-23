@@ -30801,5 +30801,6 @@ existing wheel timing spans through the native gate before further qualification
   - [x] Pass a unique per-attempt timing report to wheel smoke and document its diagnostic scope.
 - **Evidence:**
   - [x] Completed spans survive partial-write failure on macOS and native Windows; the original writer fails the same check. Eight focused tests, lint, format and driver review pass. Two controlled gate attempts keep distinct reports after deliberate stage failure.
-  - [ ] Renew the configured host lifecycle/receipt and exact native wheel/full qualification.
-- **Evidence:** [Timing development record](../../verification/windows-wheel-timing-development.json). The documentation authority review is recorded; the old receipt is stale until complete renewal. Timing artifacts remain diagnostic and never imply a passing wheel or gate.
+  - [x] Renew the complete configured host lifecycle and promote its canonical receipt: 227 tests and independent acceptance pass in 1707.539 supervised seconds on exact `46c14963`.
+  - [ ] Renew exact final native wheel/full qualification.
+- **Evidence:** [Timing development record](../../verification/windows-wheel-timing-development.json). The documentation authority review and driver review are current; canonical receipt `fd5cec349cd2` is promoted after complete renewal. Timing artifacts remain diagnostic and never imply a passing wheel or gate.

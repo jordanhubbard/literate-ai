@@ -48,7 +48,16 @@
     }
   },
   "scope": "Timing-report integrity and gate routing; fixture success is not complete installed-wheel or release qualification",
-  "host_lifecycle": "Renewal required after documentation authority review",
+  "host_lifecycle": {
+    "state": "passed; canonical receipt promoted",
+    "source_revision": "46c14963b5ee48b5f12a9869af2910b21ba1c10a",
+    "seconds": 1707.539,
+    "exit_code": 0,
+    "tests": 227,
+    "independent_acceptance": true,
+    "receipt_identity": "sha256:fd5cec349cd2ba6a8740c544638fd6e03234c9c1d8c4f5c7c6d9415f6245d874",
+    "canonical_receipt_promoted": true
+  },
   "native_full_gate_passed": false,
   "release_acceptance": false
 }
