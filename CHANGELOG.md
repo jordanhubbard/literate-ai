@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add an optional animated onboarding authoring pilot with articulated SVG
+  characters, recorded NVIDIA Magpie voice auditions, an offline Motion companion
+  and deterministic frame/media checks. The local review cut awaits listening and
+  viewing feedback before a full episode or publication.
+
 - Match the native Windows gate to hosted CI's dependency-observation isolation:
   run the live admitted-receiver case serially, then run the remaining suite once
   with normal parallelism. Retain separate JUnit reports and unchanged live deadlines.
