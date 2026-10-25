@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Require every release goal to be explicit in the roadmap and complete before
+  publication. Preserve deferred goals in a machine-checked release ledger and allow
+  a move only with recorded user approval and a named future release.
+
 ## 1.3.0 - 2026-10-25
 
 [README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.0/README.md)
