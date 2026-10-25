@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.3.0 - 2026-10-25
+
+[README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.0/README.md)
+
 - Fail document-pair publication preflight when a stable Google Workspace resource
   has an anonymous or foreign-domain reader grant, preserving the declared
   organization-restricted audience.
