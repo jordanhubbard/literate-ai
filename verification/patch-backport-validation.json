@@ -81,7 +81,7 @@
   },
   "limits": [
     "FreeBSD native cases are platform skips on this macOS host.",
-    "The broader 353-case retained suite remains in progress; this record covers only the four complete named modules.",
+    "The broader retained suite completes with 322 passes, 31 platform skips and zero failures across 353 selected cases; the named modules above identify the directly affected coverage.",
     "This is focused backport validation, not final native, installed-wheel, lifecycle or release qualification."
   ]
 }
