@@ -8,6 +8,15 @@
   replacement coverage so a byte-identical replacement remains a refusal with
   actionable evidence.
 
+- Preflight the selected FreeBSD POSIX ACL backend inside the authorized retained
+  workspace before input capture. Apply, read back and exactly restore a real
+  named-user access/default ACL probe, remove its private directory, and report an
+  actionable POSIX.1e mount-option diagnostic when the filesystem refuses ACLs.
+
+- Scope documentation-only default-branch pushes and pull requests to documentation
+  checks, retaining full qualification for product changes and release refs. Run
+  the Windows admitted-receiver proof separately from parallel test contention.
+
 - Always load an existing release policy during contribution sweeps, including
   when callers supply both version and current milestone explicitly, so those
   convenience arguments cannot bypass the policy-bound roadmap goal manifest.
