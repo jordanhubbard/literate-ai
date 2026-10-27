@@ -31075,6 +31075,38 @@ The first failed directory, source checkout and installed wheel stay retained.
 
 **#129 qualified read-only catalog reuse:** Exact source `74417e1a` passes the full 2,265-case source suite (2,194 passed, 71 existing skips, zero failures), all installed-wheel assertions, 14 focused cases including actual in-operation mutations, and the forced lifecycle with 229 passing checks and no skips. The generated suite count is producer-bound; the declared conformance inventory and minimums are unchanged. Supported receipt update/check/require-current and all-gate verify pass on the metadata-only consolidated tree. The native Windows public lock check returns identical passing reports across both installations and restores its fixture; three-call medians are 35.172 seconds baseline and 28.187 candidate, with cache/order variation. Catalog captures fall from five to two; all ten input revalidations and four current authority-graph observations remain. See `verification/lock-check-catalog-qualification.json`. The next action is ordinary review CI and landing of this scoped improvement, then complete unchanged provided-worker native renewal before closing #129. No generator-diversity exemption, dependency, release, or native admission is claimed.
 
+### [ ] RETAINED-PACKAGE-CONCURRENCY-001 — Diagnose parallel retained-package ancestor replacement
+
+- **GitHub issue:** [#140](https://github.com/jordanhubbard/literate-ai/issues/140)
+- **Release target:** 1.3.1
+- **Priority:** P1
+- **Owner:** Retained package fixture lifecycle and parallel test isolation
+- **Direction:** Determine whether parallel fixture setup or cleanup can retire or replace a test-owned retained temporary ancestor between workspace execution and admission. Preserve fail-closed retained-root verification.
+- **Conclusion:** The first exact 1.3.0 tiered qualification produced one changed-ancestor refusal, while repeated isolated execution, the checkpoint repair pass, the required 2,267-case reset/full rerun and exact-main CI all passed. A one-off green rerun does not explain or close the concurrency risk.
+- **Depends on:** Retained root ancestor verification and parallel package qualification
+- **Implementation:**
+  - [x] Add deterministic concurrent ancestor-replacement coverage and report the exact changed lineage depth, name, reason, and expected/current filesystem identities without weakening the refusal.
+- **Evidence:**
+  - [x] Exercise the exact parallel retained-package path repeatedly with the new coverage or diagnostics and retain the original refusal plus current passing controls.
+  - [ ] Pass focused mutation/refusal checks, full parallel regression, exact installed wheel and exact-head CI with unchanged production guards.
+
+**Current direction:** Extend the existing descriptor-lineage guard rather than changing
+retained-package cleanup or accepting a replacement. A synchronized test will replace
+an intermediate test-owned ancestor with an identical tree between descriptor capture
+and transaction completion. The transaction must still refuse, and its message must
+identify whether the observed ancestor was missing, redirected or replaced plus the
+lineage position and both identities when available. This is diagnostic hardening, not
+a relaxation of root currentness.
+
+**Focused result:** The descriptor-walk group passes 14 tests plus seven subtests,
+including synchronized byte-identical replacement of an intermediate ancestor and
+separate missing, redirected and identity-replaced diagnostics. The original
+retained-package case passes three consecutive exact invocations under the repository's
+parallel test configuration, and its complete file passes nine tests plus two subtests.
+The post-format combined group passes 15 tests plus seven subtests. No retained-root
+comparison, production deadline or package-cleanup behavior is relaxed. Full parallel,
+installed-wheel and exact-head CI gates remain open.
+
 ### [x] DOC-DEPENDENCIES-003 — Refresh vulnerable transitive Zod in documentation tooling
 
 - **GitHub issue:** [#134](https://github.com/jordanhubbard/literate-ai/issues/134)

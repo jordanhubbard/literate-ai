@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Preserve fail-closed retained-root verification while reporting the exact
+  missing, redirected or identity-replaced ancestor, lineage depth and
+  expected/current filesystem identities. Add deterministic concurrent ancestor
+  replacement coverage so a byte-identical replacement remains a refusal with
+  actionable evidence.
+
 - Always load an existing release policy during contribution sweeps, including
   when callers supply both version and current milestone explicitly, so those
   convenience arguments cannot bypass the policy-bound roadmap goal manifest.
