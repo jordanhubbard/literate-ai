@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Match the native Windows gate to hosted CI's dependency-observation isolation:
+  run the live admitted-receiver case serially, then run the remaining suite once
+  with normal parallelism. Retain separate JUnit reports and unchanged live deadlines.
+
 - Preserve fail-closed retained-root verification while reporting the exact
   missing, redirected or identity-replaced ancestor, lineage depth and
   expected/current filesystem identities. Add deterministic concurrent ancestor

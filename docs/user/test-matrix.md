@@ -4,6 +4,26 @@ Private test matrices map the repository's sample and lifecycle gates onto opera
 workers without making hostnames, credentials, or private routing part of project
 authority.
 
+## Documentation feedback and release qualification
+
+Repository CI classifies exact changed paths. Ordinary documentation-only pull
+requests and documentation-only pushes to `main` run documentation and presentation
+checks, without rebuilding unrelated native products. Changes confined to the CI
+selector or its policy add the focused selector tests. Pull requests compare their
+merge base; pushes compare their exact before/after commits, including removals.
+
+Product changes, missing or unreadable comparisons, manual qualification, release
+branches and version tags retain the full applicable qualification matrix. A narrow
+documentation pass does not qualify a software release or renew a product receipt.
+
+The native `scripts/windows_release_gate.py` runner follows hosted CI's isolation
+of the live admitted-receiver dependency observation. Its `tests` phase runs that
+case without xdist first, then runs every remaining test root with the requested
+workers and deselects only the already executed case. Separate
+`_build/windows-admitted-receiver.xml` and `_build/windows-tests.xml` reports retain
+both results. A failure in either command fails the gate; the live observation's
+production deadline and the full qualification requirement are unchanged.
+
 ## FreeBSD workers
 
 FreeBSD workers may be physical machines or virtual guests. Their OS Flavor is
