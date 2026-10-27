@@ -213,9 +213,7 @@ class CiActionPinTests(unittest.TestCase):
             )
         selector = self.selector()
         selected = selector.select_matrix("pull_request", "main")["include"]
-        selected_elixir = [
-            row for row in selected if row["task"] == "elixir-native"
-        ]
+        selected_elixir = [row for row in selected if row["task"] == "elixir-native"]
         self.assertEqual(len(selected_elixir), 1)
         self.assertEqual(selected_elixir[0]["os"], "ubuntu-24.04")
         self.assertEqual(selected_elixir[0]["elixir"], "1.18.0")
