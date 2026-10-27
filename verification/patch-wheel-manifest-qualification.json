@@ -1,0 +1,32 @@
+{
+  "schema": "literate-ai/patch-wheel-manifest-qualification@1",
+  "release_target": "1.3.1",
+  "source_revision": "37dd413b709b1b12825c53d15168da66b00fdcd4",
+  "packaging_backport": "77eaf16194842f507bce4a3e91a5601e7163a81d",
+  "original_failure": {
+    "revision": "14dea5b8334d9ce99dfb1f8b1b59c31f25c72cbb",
+    "job": "https://github.com/jordanhubbard/literate-ai/actions/runs/40585686603/job/122477155881",
+    "reason": "The cold wheel omitted project_template/docs/roadmap/release-goals.json, causing installed onboarding to refuse."
+  },
+  "gate": "make wheel-check with the project-managed Python environment",
+  "exit_status": 0,
+  "wheel": {
+    "name": "literate_ai-1.3.0-py3-none-any.whl",
+    "size": 3809083,
+    "sha256": "f92c3e659d3eecb339c7da821c46b63dcdca250e33ea9e0cc4763d9bbdb28816",
+    "qualified_manifest_identity": "sha256:a220977ed2a61b4ef306320baffe599dd75b5245f8b5aa9fc07e8e907fc974a7",
+    "distribution_identity": "sha256:cc3e9bac067ccd3ef71ea423fab1d1e7c1c2d8826e41d15d01b19f6906556497",
+    "verified_members": 1239
+  },
+  "installed_golden_paths": {
+    "create": {"hello": true, "kind": "created", "validated": true},
+    "adopt": {"receipt": "current", "release_authority": "original-source", "stage": "retained"},
+    "source": "release-candidate-wheel"
+  },
+  "focused_initialization_tests": {"passed": 10, "failed": 0, "skipped": 0},
+  "limits": [
+    "This is qualification of the selective patch source before release preparation; the distribution still correctly reports 1.3.0.",
+    "Final prepared 1.3.1 artifacts, native Windows renewal, lifecycle promotion and release gates remain required.",
+    "The separate native attempt for the known-bad source was explicitly cancelled; it is retained as a failed attempt, not a native pass."
+  ]
+}
