@@ -31399,3 +31399,19 @@ run `40460869302`, including the repaired isolated Windows receiver gate.
         `sha256:6f40bac8e467374e03aaa0fa72b656f8d6a52fff2fb0c0f8c8fe551f24d636d5`;
         `litai project validate`, `make lint repository-layout-check`, and the clean
         full `make python-check` pass (2,332 tests, 70 skipped).
+
+### [ ] RICH-HTML5-PRESENTATIONS-001 — Rich HTML5 presentation authoring and delivery
+
+- **Priority:** P0
+- **Owner:** presentation authoring, browser verification, and release collateral
+- **Direction:** Deliver the current conference deck now as a self-contained browser-native HTML5 presentation, while treating reusable Rich HTML5 presentation authoring as a 1.4 feature alongside PowerPoint and Google Slides.
+- **Conclusion:** Make the checked-in HTML deck the primary conference artifact now: offline, accessible, keyboard/touch navigable, speaker-note capable, printable, and independently browser-verified. Keep the reusable authoring skill open for 1.4 until its routing, component contracts, publication behavior, and cross-browser acceptance are generalized beyond this deck.
+- **Depends on:** DOCS-LABS-001 conference narrative and factual source ledger; current presentation authoring guidance; browser verification
+- **Implementation:**
+  - [x] Build and check in a deterministic single-file HTML5 conference deck from repository-owned content and assets; make it the primary local artifact and retain PowerPoint only as an editable compatibility export.
+  - [ ] Stage the exact accepted HTML file as the 1.3.1 conference release asset and remove the superseded PowerPoint asset only after fresh-download verification.
+  - [ ] Generalize the proven deck architecture into a Rich HTML5 presentation skill for 1.4 and integrate it alongside PowerPoint and Google Slides.
+- **Evidence:**
+  - [x] Fourteen slides and notes, four embedded-only image uses, restrictive offline policy, stable controls, and print behavior pass deterministic structural checks. Real Chrome passes desktop and portrait-mobile layout, keyboard/click navigation, notes, URL state, external-request, console-failure, and viewport-overflow checks; all fourteen desktop slides pass contact-sheet review.
+  - [ ] The staged release asset matches the accepted byte count and SHA-256 after a fresh download; only then is the superseded PowerPoint asset removed.
+  - [ ] Close this roadmap item only after the reusable 1.4 skill, routing, publication contract, and cross-browser acceptance are independently qualified.
