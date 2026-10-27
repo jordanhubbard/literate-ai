@@ -1,0 +1,35 @@
+{
+  "schema": "literate-ai/patch-backport-scope@1",
+  "release": "1.3.1",
+  "base": "43d7ab2b8a8e7d9982a9ac239ba13aab8decaab1",
+  "scope": "Selective governance, retained-workspace reliability, native Windows gate isolation, approved onboarding film and conference documentation",
+  "runtime_backports": [
+    "79903e680e907c2fa297cffa9886323f82abc91f",
+    "2704931a387ba237bbd22bec71d35c744b59b408",
+    "fca5153839bccce665044284c2b818112729516c",
+    "04668ac3d9c5bf1ebb888c74a3eca58c0179ad95",
+    "c3b0c13d1b8c277c9346c4d4f41cdbd1a4011727",
+    "849c5cc7ad2392392b9dd8798c146788ab93e058"
+  ],
+  "ci_policy_source": "7e851122ef370bbf2f783ab377fb23ee7a864ba8",
+  "ci_policy_files": [
+    ".github/ci-matrix.json",
+    ".github/workflows/ci.yml",
+    "scripts/select_ci_profile.py",
+    "tests/critical/test_ci_action_pins.py"
+  ],
+  "ci_policy_reason": "Retain the complete already-landed documentation change-scope policy and serial Windows receiver proof required by the ACL qualification job; preserve exhaustive release qualification.",
+  "test_only_slice": "tests/critical/test_retained_posix_acl.py from b79cf33a0d2996dc7e972b11bce9e0e18dbc88fc",
+  "native_gate_backport": "8f6015f2890ef916062931cedbd7c1e04d43be00",
+  "film_publication_source": "11841cefc49bc62c5b77b6cfcea8900da2c9186b",
+  "film_sources_and_media_match_main": true,
+  "roadmap_goal_count": 18,
+  "roadmap_scope": "All existing 1.3.1 goals retained with their current acceptance criteria; no deferrals or acceptance changes.",
+  "excluded": [
+    "1.4.0 distribution and schema version mirrors",
+    "action resource dispatch and coalescing features",
+    "semantic payload and prior binary adoption features",
+    "historical test receipts and lifecycle pins from different source trees"
+  ],
+  "qualification": "Backport checkpoint only. Final exact-candidate lifecycle, native, installed-wheel and release checks remain required; this record does not authorize publication."
+}

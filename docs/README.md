@@ -9,6 +9,13 @@
 - [Watch the introductory courses](courses/README.md)
 - [Native gRPC oracle declarations and qualification boundary](user/native-grpc-oracles.md)
 - [Independent child repository lifecycle commands](user/repository-lifecycle.md)
+- [Built-in HTML repository explorer and code navigation](user/html-repository-explorer.md)
+
+Conference materials include the [1.3.1 release briefing](presentations/literate-ai-1.3.1-release-briefing/README.md)
+and the [browser-native evolution deck](presentations/literate-ai-evolution-conference/README.md).
+The evolution deck includes separately labeled 1.4 development work. The
+[published attendee website](https://jordanhubbard.github.io/literate-ai/) also
+provides the two-hour presenter guide, interactive demonstrations and offline kit.
 
 Start with [Getting started](user/getting-started.md) for the shortest runnable path,
 then use the [Literate AI user guide](user/README.md) as the task map.

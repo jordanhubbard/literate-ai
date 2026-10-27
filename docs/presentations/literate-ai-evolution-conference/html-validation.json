@@ -1,0 +1,12 @@
+{
+  "schema": "literate-ai/html5-conference-deck-validation@1",
+  "status": "pass",
+  "slide_count": 14,
+  "expected_slide_count": 14,
+  "speaker_notes_count": 14,
+  "embedded_image_count": 4,
+  "sha256": "5243a93edda7a81c4ab93c3fb6268a208eafc3515872086ef95fd0c1b0d9b509",
+  "byte_count": 1353967,
+  "browser_review": "pass",
+  "findings": []
+}

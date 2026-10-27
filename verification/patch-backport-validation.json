@@ -1,0 +1,87 @@
+{
+  "schema": "literate-ai/patch-focused-backport-validation@1",
+  "release": "1.3.1",
+  "runtime_checkpoint": "c0c26ae6d",
+  "retained_tests": {
+    "tests.critical.test_retained_input_walk": {
+      "passed": 14,
+      "skipped": 0
+    },
+    "tests.critical.test_retained_posix_acl": {
+      "passed": 10,
+      "skipped": 11
+    },
+    "tests.critical.test_retained_project_execution": {
+      "passed": 26,
+      "skipped": 1
+    },
+    "tests.critical.test_retained_project_package": {
+      "passed": 9,
+      "skipped": 0
+    }
+  },
+  "source_and_test_sha256": {
+    "src/literate_ai/adapters/retained_project_inputs.py": "aa3e5a2a3d10bc1ce82c91775c91ff2690fb40e0069a9f74cd654d59cf26bd93",
+    "src/literate_ai/adapters/retained_posix_acl.py": "2e7216d7c85dcd715cf6b064a1e98d33112135d8597496d34854a3e71f26a11c",
+    "src/literate_ai/adapters/retained_project_execution.py": "5a9dafc315e44f79743a4c1c47db5ae060ddb07708fbf819938a895876fb8a53",
+    "tests/critical/test_retained_input_walk.py": "5dd507fe4cff5eff33b9ea8e9e6f5288f16897d43ebf80d2294f4764f966877a",
+    "tests/critical/test_retained_posix_acl.py": "9e1f302d77653bf4e8dc67579a553723e7b1083c5061f114c4b2134f6f962871",
+    "tests/critical/test_retained_project_execution.py": "eb5abfc9fe54d855a7210c177911c5119ce412e90c4bf007197e443d2c298c4e",
+    "tests/critical/test_retained_project_package.py": "b6e65ca9603d6c5076998b75fa62afd476ca0f2aef1166a6793fef8ea6bf1857"
+  },
+  "other_focused_suites": {
+    "governance": {
+      "executed": 10,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 10,
+      "selected": 10,
+      "skipped": 0
+    },
+    "release-policy": {
+      "executed": 17,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 17,
+      "selected": 17,
+      "skipped": 0
+    },
+    "initialization": {
+      "executed": 10,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 10,
+      "selected": 10,
+      "skipped": 0
+    },
+    "ci-policy": {
+      "executed": 8,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 8,
+      "selected": 8,
+      "skipped": 0
+    },
+    "windows-controller": {
+      "executed": 4,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 4,
+      "selected": 4,
+      "skipped": 0
+    },
+    "film": {
+      "executed": 4,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 4,
+      "selected": 4,
+      "skipped": 0
+    }
+  },
+  "limits": [
+    "FreeBSD native cases are platform skips on this macOS host.",
+    "The broader 353-case retained suite remains in progress; this record covers only the four complete named modules.",
+    "This is focused backport validation, not final native, installed-wheel, lifecycle or release qualification."
+  ]
+}
