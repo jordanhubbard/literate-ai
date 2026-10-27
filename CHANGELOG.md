@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Restore proportional PR feedback for Elixir/Mix: ordinary changes retain one
+  Ubuntu native smoke cell, Elixir-scoped changes run all six OS/version cells, and
+  main and release qualification remain exhaustive. Treat `PROJECT.md` and
+  `CONTRIBUTING.md` as documentation-only inputs so prose changes do not rebuild the
+  product matrix.
 - Add a version-aware current-feature map, synchronize the main documentation entry
   points with the 1.4.0 development line and separate 1.3.1 patch program, and add a
   reproducible conference evolution deck. Its primary artifact is now a self-contained,
