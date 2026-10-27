@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Always load an existing release policy during contribution sweeps, including
+  when callers supply both version and current milestone explicitly, so those
+  convenience arguments cannot bypass the policy-bound roadmap goal manifest.
+  Explicit-version standalone sweeps remain available only when the policy file
+  is genuinely absent; malformed policy still fails closed.
+
 - Require every release goal to be explicit in the roadmap and complete before
   publication. Preserve deferred goals in a machine-checked release ledger and allow
   a move only with recorded user approval and a named future release.
