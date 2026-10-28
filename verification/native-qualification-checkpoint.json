@@ -1,0 +1,55 @@
+{
+  "schema": "literate-ai/native-qualification-checkpoint@1",
+  "release": "1.3.1",
+  "scope": "Unprepared development source; not release acceptance",
+  "release_goal_count": 18,
+  "unapproved_goal_move_reverted": "6b6f3d576",
+  "freebsd_sdk": {
+    "revision": "0ed46e91eddac3496f110010e059d35b5ae3946c",
+    "harness_revision": "22062a72a3694d6f2a105fd47140bcc88d4e3002",
+    "run": 40749349326,
+    "passed": true,
+    "publication_controls": 5,
+    "installed_controls": 40,
+    "skipped": 0,
+    "production_module_hashes_verified": 506,
+    "guest_inventory_files_verified": 44,
+    "wheel_sha256": "1dd7e7d91691be6ba92e8835efab9977455b01e423e0a9789553729a3e196afe",
+    "result_sha256": "6fab470876818a38b4e5867d333dee6ac44183baf5cf4af82ad246e0a6294bec",
+    "scope": "Installed public CLI SDK microfixture and installed owner controls",
+    "compiler_sdk_admitted": false,
+    "product_release_admission": false
+  },
+  "freebsd_sdk_seconds": 1551.2237862119998,
+  "windows_native": {
+    "revision": "0ed46e91eddac3496f110010e059d35b5ae3946c",
+    "full_gate_passed": false,
+    "timed_out": true,
+    "budget_seconds": 5400,
+    "seconds": 5400.546000000089,
+    "wheel_passed": true,
+    "wheel_seconds": 5073.0,
+    "installed_html_seconds": 2562.234,
+    "native_junit_reports_present": false,
+    "stream_sha256": {
+      "stdout.log": "3e440473b4bcc571e6fd79eb801e628e43d3e6d7bcb52584ddbb340e9028445d",
+      "stderr.log": "58e5c812caaa261b4b79f3debda794102ae1416fe506eda02fb24d86dde30c23"
+    },
+    "next": "Measure installed HTML verification before selecting a performance change; retain all phases and existing deadlines"
+  },
+  "logging_diagnostic": {
+    "scope": "Retained installed baseline only; not current-candidate qualification",
+    "default_seconds": [
+      31.66584949987009,
+      30.023599800188094
+    ],
+    "debug_seconds": [
+      31.97307760035619,
+      33.434272499755025
+    ],
+    "payloads_identical": true,
+    "source_unchanged": true,
+    "conclusion": "Does not support treating debug logging as the main source of the native gate overrun"
+  },
+  "remaining": "Every incomplete goal and final release gate remain required. No 1.3.1 software publication is claimed."
+}
