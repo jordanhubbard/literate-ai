@@ -1,0 +1,63 @@
+{
+  "schema": "literate-ai/sbom-import-alias-qualification@1",
+  "source_revision": "f6bdd12ca0c76de53fcbb55ee33100a1dce154c4",
+  "main_pr": 181,
+  "main_merge": "f8c9218bb311830c82a46b0bf4d6adb32a54f735",
+  "driver_identity": "sha256:09086274e1347c593ee1a300c5388991b9a4eb7fc246da2f1c48903121ffef62",
+  "host_lifecycle": {
+    "passed": true,
+    "tests": 226,
+    "seconds": 1606.8439251249656,
+    "finalized_candidate_identity": "sha256:968d596422a91e67c7b4e199a6888d927ade78dc258dcf12911a2bbd7ba4ca7d",
+    "receipt_identity": "sha256:899797d9167540110f36727fe94cfa58c0571b5b68dda9ba07d740fe79e42a6d",
+    "phases": [
+      "compose-and-plan",
+      "resolve-source-cache",
+      "generate-source-and-tests-or-use-cache",
+      "derive-source-intelligence",
+      "validate-classify-and-authorize",
+      "resolve-and-prepare-dependencies",
+      "native-build",
+      "verify-resolved-sbom",
+      "run-generated-tests",
+      "execute-application",
+      "independent-acceptance",
+      "admit-workspace",
+      "write-candidate-receipt"
+    ],
+    "promotion": "litai project test-receipt update"
+  },
+  "native_macos_source_regression": {
+    "runner": "make python-check through the declared full gate",
+    "summary": {
+      "executed": 2266,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2266,
+      "selected": 2339,
+      "skipped": 73
+    },
+    "report_sha256": "f6c67f263d59d00a4ef29faba3e88ba193035b1a1e119ee36c7c98704ad2b169",
+    "scope": "Full native source regression; not a complete fresh release-check result"
+  },
+  "host_gate_before_receipt_promotion": {
+    "run": "20261028T190000Z-aad441",
+    "passed_stages": 14,
+    "terminal_failure": "test-receipt-current",
+    "reason": "Old committed receipt was retained until the active gate terminated; validated new receipt promoted afterward",
+    "full_gate_passed": false
+  },
+  "linux_samples": {
+    "runner": "make samples with explicit Make-managed CuPy-qualified Python",
+    "passed": true,
+    "checks": 250,
+    "samples": 24,
+    "generated_test_count": 119,
+    "verifier_test_count": 56,
+    "stream_sha256": "00b21a90e97f2237c2cc21a2c58e3b22530018b2fced22af8d82eb86b4f14695",
+    "cuda": "Actual C++ CUDA and CuPy GPU sample routes passed; canonical Bazel bootstrap resolved the missing service-stack prerequisite",
+    "retained_results": "Existing sample results reused only through their normal currentness checks",
+    "full_linux_gate_passed": false
+  },
+  "remaining": "Fresh complete host/Linux/Windows qualification and release execution remain mandatory; no release admission or performance speedup is claimed"
+}
