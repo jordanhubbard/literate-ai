@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Reject cyclic roadmap completion prerequisites before supported work/template
+  imports and during documentation, project and release validation. Report cycle
+  paths through work items and release phases without removing release goals.
+
 - Publish the user-approved 1.3.1 animated onboarding film, *Eight Hours to Make
   Coffee*, with 86 recorded NVIDIA Magpie voice turns, complete SRT/WebVTT captions,
   poster, rebuildable authoring sources, exact review provenance and independently

@@ -54,7 +54,7 @@
     "implementation_identity": {
       "schema": "urn:literate-ai:schema:v1:content-identity",
       "algorithm": "sha256",
-      "digest": "cfee0835237c7957247af4bfde87ec809f54d261988c68a7caf4dc00e941c8bc"
+      "digest": "60584ad4996ec5f6a586b648da6014bbbca22292585b734f8be6eda2b65698ac"
     },
     "argv": [
       "{python}",

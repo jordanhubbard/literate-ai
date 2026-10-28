@@ -13635,7 +13635,7 @@ the reported failure.
   `literate.workers.json`. The runtime cursor those pins become is
   [GENERATION-010](#x-generation-010-keep-an-explicit-never-empty-per-agent-model-stack)
   / [ADR 0018](../decisions/0018-never-empty-per-agent-model-stack.md).
-- **Depends on:** [RELEASE-009](#release-009-qualify-and-publish-070-with-full-gate-fan-out)
+- **Required by:** [RELEASE-009](#release-009-qualify-and-publish-070-with-full-gate-fan-out)
   needs this before local fan-out can close.
 - **Next action:** POSIX `--target local` live fan-out needs workers whose `opencode`
   is configured for the pinned model's provider, plus a prepared plan. **2026-10-09
@@ -31203,15 +31203,18 @@ for maintainer disposition and still participates in the release contribution ga
 
 **#129 / WIN-GATE-001 current native outcome:** Supplied-worker source `2615e568` has the same tracked tree as merged `d17881fa`. The unchanged 5400-second gate reaches 121 completed wheel operations but times out before wheel completion and the test phase. The complete five-stage HTML scenario passes in 2871.062 seconds; default and scoped initialization take 252.563 and 196.578 seconds. These are retained operation observations, not a controlled whole-gate speedup or admission. Existing timing evidence survives the timeout. The last completed graph-export scenario is followed by an uninstrumented missing-CodeGraph run probe and update planning; identify the unfinished operation and remaining initialization/observation costs before another full renewal. Keep #121, #123 and #129 open; do not increase deadlines, skip assertions or promote this failed outcome.
 
-### [ ] RELEASE-019 — Require explicit completion or approved deferral of every release goal
+### [x] RELEASE-019 — Require explicit completion or approved deferral of every release goal
 
 - **Priority:** P0
 - **Release target:** 1.3.1
+- **Completion prerequisites:** COURSE-004
 - **Owner:** release workflow, roadmap authority, and initialized-project template
+- **Cycle prevention follow-up (user directed):** Trace both 1.3.1 cycles and reject self, transitive, cross-release and implicit release-phase cycles at supported write/import and validation/CI boundaries. All 18 goals remain; arbitrary prose still requires explicit modeling and review.
 - **Direction:** For 1.3.1 and every subsequent release, document every release goal in the roadmap and block publication until every goal is complete. An agent may propose moving a goal to a future release, but only explicit user approval authorizes that scope change.
 - **Conclusion:** Make roadmap release scope machine-checkable. A goal assigned to the release remains blocking until complete; deferral requires a recorded proposal, explicit user approval, and an atomic roadmap move to a named future release before the release can become ready. The user's instruction in this session explicitly moves COURSE-004 and its full replacement onboarding film to 1.3.1.
 - **Depends on:** none
 - **Implementation:**
+  - [x] Add shared prerequisite validation to work record/close, template initialization, framework/inherited updates, advisory imports, model-assisted documentation, project/documentation validation and release readiness. Main's 79 focused source checks pass; exact patch renewal remains separate from final installed/native release qualification.
   - [x] Add roadmap goal and approval records to the canonical release contribution policy and CLI.
   - [x] Reject release readiness when a goal is missing from the roadmap, incomplete, or deferred without explicit user approval and a future release target.
   - [x] Update release-project and record-user-directed-work skills plus initialized-project copies with the same approval boundary.
@@ -31225,7 +31228,7 @@ for maintainer disposition and still participates in the release contribution ga
     source suite passed, so no failing run is relabeled green.
   - [x] Reconcile every open GitHub milestone 1.3.1 issue into the release-goal manifest and an explicit roadmap target; keep every incomplete item blocking.
   - [x] Complete WINDOWS-PE-OBSERVE-001 after repairing the exact-main Windows dependency-observation failure without weakening live receiver or dependency-closure checks.
-  - [ ] Move COURSE-004 and all replacement-onboarding production work to 1.3.1, then complete and publish the film before the patch release.
+  - [x] Move COURSE-004 and all replacement-onboarding production work to 1.3.1, then complete and publish the film before the patch release; exact approval and published media evidence are retained under COURSE-004.
 - **Evidence:**
   - [x] Deterministic release-contribution tests reject undocumented, incomplete, and unapproved-deferred goals and accept only completed or explicitly approved future moves; 35 focused release, initialization, and CLI tests plus 33 subtests pass.
   - [x] Root/template skill copies are byte-identical; repository layout, SkillEvaluator, 22 documentation tests, and all 121 Mermaid renders pass.
@@ -31243,8 +31246,13 @@ for maintainer disposition and still participates in the release contribution ga
     `src/literate_ai/cli/release.py` bytes, followed by exact-head and exact-main CI.
   - [x] The 1.3.1 manifest resolves all 18 declared roadmap headings and explicitly covers milestone issues #86, #90, #92, #95, #98, #102, #103, #117, #118, #121, #123, #129, and #140 plus the requested release briefing and symposium documentation/CI-scope goal. Issue #117 spans `SDK-OBSERVATION-COST-001` and `RETAINED-OBSERVATION-PERF-001`; issue #118 is the captured-loader scope of `RETAINED-SDK-PUBLIC-001`. Scope reconciliation inferred no completion; exact-main evidence later completed #90.
   - [x] A focused deadline regression and the exact post-merge Windows partition pass with dependency observations still bounded by the caller deadline.
-  - [ ] The complete replacement onboarding film passes voice, motion, factual, accessibility, media-integrity, and full-playback review gates.
-  - [ ] The 1.3.1 release plan, qualification, publication, verification, and exact post-release synchronization gates pass with no incomplete release goals.
+  - [x] The complete replacement onboarding film passes voice, motion, factual, accessibility, media-integrity, and full-playback review gates; see `verification/onboarding-1.3.1-approval.json`.
+  - [x] Implement and test enforcement and initialized-project controls. Actual release plan, qualification, publication, verification and synchronization remain unchecked mandatory steps in the [same-release execution checklist](1.3.1-release-execution.md).
+
+**Approved cycle correction:** The user explicitly approved clearing the two
+self-dependent checks, with no goals dropped or gates relaxed. All 18 goal IDs
+and exact release targets remain. See `verification/release-goal-cycle-correction.json`
+and [the source-history investigation](../architecture/roadmap-dependencies.md).
 
 **Lifecycle-driver pin repair:** The supported recorder reviewed the sole changed TCB
 file, `src/literate_ai/cli/release.py`, and advanced the driver identity from
@@ -31270,13 +31278,24 @@ coalescing and semantic-payload feature work, the 1.4 version advance, and catal
 version mirrors for that development release. Any copied lifecycle pin must be
 reviewed and regenerated for the selected patch tree with the supported recorder;
 the development-tree digest is not a patch attestation. Qualification and release
-publication remain pending, and the proposed correction to the two self-referential
-goal criteria remains unapplied while awaiting user approval.
+publication remain pending. The user subsequently approved correcting the two
+self-referential goal criteria, retaining final execution in the same release.
 
-### [ ] COURSE-004 — Animated onboarding conversations with auditioned neural voices
+**Cycle-guard backport:** PR #162 lands bounded release-governance correctness
+repair `144345616879e0743f0fef4fde0505c100f6cf46` on main at `f7a4b1483`.
+This preserves the existing goal manifest and does not import unrelated 1.4 code,
+version mirrors or changelog content. Reuse the registered `p131` worktree:
+the current CLI backport helper creates a temporary checkout and cannot attach
+the already checked-out release branch, contrary to the supplied worktree policy.
+Resolve the known queue-order and line-specific evidence conflicts deliberately;
+regenerate patch-specific pins rather than copying main's identity. Repeat the
+scoped checks on this patch; no prior host receipt is current after TCB changes.
+
+### [x] COURSE-004 — Animated onboarding conversations with auditioned neural voices
 
 - **Priority:** P1
 - **Release target:** 1.3.1
+- **Completion prerequisites:** none
 - **Owner:** docs/courses/animated-onboarding, docs/courses/full-onboarding, front-door onboarding documentation, and author-instructional-videos craft
 - **Direction:** Use the approved Motion design for the next onboarding video, with animated Sam and LitAI characters, livelier conversation, and natural speech selected after inspecting NVIDIA inference and codex-ios.
 - **Conclusion:** Implement a project-owned offline Motion/SVG authoring pilot and a short recorded-voice review cut before a full episode. Preserve the existing film and native qualification work. codex-ios supplies live Codex voice discovery, not standalone downloadable model weights. NVIDIA Magpie is an explicitly requested speech provider; retain generated audio, discover voice support, bind source and renderer inputs, and require separate human viewing/listening review before publication.
@@ -31300,7 +31319,7 @@ goal criteria remains unapplied while awaiting user approval.
   - [x] Capture and retain fresh execution evidence for the film's current Literate AI claims, preserving native, retained-source and benchmark boundaries.
   - [x] Render and verify the complete film, captions and media receipts; inspect representative frames and watch the assembled film at normal speed with separate factual, accessibility, listening and visual approval recorded against exact identities.
   - [x] Publish the approved 1.3.1 media and provenance on GitHub, then update README, getting-started, installation, course-index and video-authoring links to the exact asset without removing the prior film. Publication commit `11841cefc49bc62c5b77b6cfcea8900da2c9186b` is on `main`; the remote MP4 hashes to approved `d01ce010654c55d6a1b3de16fa3cd8d640b758fe3559783236cfc9754e7d8e97`, and all five entry points link to it. Final patch qualification remains open.
-  - [ ] Pass the declared 1.3.1 release-goal gate and exact release qualification; do not publish or close the milestone while any item above remains incomplete.
+  - [x] Complete approved film delivery, exact reviews, provenance and published links. Final release-goal readiness and candidate qualification remain mandatory in the [same-release execution checklist](1.3.1-release-execution.md), after feature goals complete.
 - **Pilot result:** [Authoring package](../courses/animated-onboarding/README.md)
   and [QA](../courses/animated-onboarding/QA.md) retain nine unit checks, seven browser
   checks, five repeatable timeline frames, an actual read-only source-CLI adopt
