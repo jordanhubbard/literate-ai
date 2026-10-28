@@ -1,0 +1,21 @@
+{
+  "schema": "literate-ai/patch-windows-portable-fixtures-qualification@1",
+  "release": "1.3.1",
+  "source_revision": "6bbe8e47029b89ed43e25ee0a0296f6737ff8890",
+  "platform": "Windows-11-10.0.26100-SP0",
+  "python": "3.12.10",
+  "default_encoding": "cp1252",
+  "selected": 30,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "passed": true,
+  "native_evidence_run": "20261028T034607Z-ad028f",
+  "controller_clean": true,
+  "cases": [
+    "tests.critical.test_roadmap_dependencies.RoadmapDependencyTests",
+    "tests.critical.test_retained_posix_acl.PosixAclProjectionTests"
+  ],
+  "scope": "Exact patch source fixture/controller portability. Actual FreeBSD descriptor/ACL acceptance is unchanged and separately qualified; full Windows wheel/gate qualification is still required.",
+  "software_release_qualified": false
+}
