@@ -1,0 +1,24 @@
+{
+  "schema": "literate-ai/sbom-import-alias-review@1",
+  "source_revision": "0ed46e91eddac3496f110010e059d35b5ae3946c",
+  "source_sha256": "2fa6561ff666f9e3f95d4423e1adb2496ceb3a29d6bebec847770a8b799d1407",
+  "review": {
+    "change": "Preserve the existing Python import-alias observation property when reconciling third-party SBOM components",
+    "authority_guards": "Reserved component refs, kinds, framework properties, duplicate references and dependency graph checks remain unchanged",
+    "payload_guards": "python_resolution.py still refuses claimed aliases absent from freshly observed installed payloads",
+    "scope": "Source review and focused source controls; not installed-wheel, full native, final release or performance acceptance"
+  },
+  "focused_controls": {
+    "runner": "make python-check",
+    "module": "tests/critical/test_coding_cli_generation.py",
+    "passed": 22,
+    "failures": 0,
+    "skipped": 0
+  },
+  "lifecycle_driver": {
+    "previous": "sha256:83f864a8fc9569e97f499032129d3d75563452de93f68b6a4d6878fa5536574a",
+    "reviewed": "sha256:09086274e1347c593ee1a300c5388991b9a4eb7fc246da2f1c48903121ffef62",
+    "recorded_by": "make driver-review-record and make documentation-review-record",
+    "renewal": "Required; previous lifecycle evidence is retained under its original identity"
+  }
+}
