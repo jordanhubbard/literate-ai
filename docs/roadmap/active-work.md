@@ -29636,7 +29636,7 @@ rather than treating resumed partial coverage as release qualification.
   - [x] Complete scope/currentness refusal fixtures plus real privileged and unprivileged original cases through the installed framework in a disposable native guest; preserve legacy identities and private defaults. Installed `6e370033` completes in 1,717.496 seconds with 24 original passes, no skips, and 11 independent observations matching declared exits and stream hashes. One invalid-input case correctly expects exit 1. All 34 retained records reverify; cleanup is bound into completion, the prefix ACL is root-only and no nullfs mounts remain. Fifty-one fresh observations bind the same actual allocation. Receipt identity `sha256:924264d401159e317059b69c80087ec3a9cd047ca4652a53ca7903fa6c29f559` is admitted for local runtime use; canonical Standard lifecycle, SDK, pkg and release flags remain false.
   - [x] Complete exact-current required CI and land the reviewed integration. Landed `ef5db15f` exact-main CI [40007862532](https://github.com/jordanhubbard/literate-ai/actions/runs/40007862532) passes all 26 jobs. Seven scoped identity/ACL/view/prefix owner and contract files, plus `_DirectoryAccess`, are byte-identical to installed native `6e370033`; the actual 24-case original-suite and cleanup-bound acceptance remain recorded in `verification/native-retained-renewal-development.json`. This closes issues #85/#94 only, not the broader FreeBSD or canonical Standard/SDK program.
 
-### [ ] INPUT-WALK-001 — Bound retained input ancestor traversal cost
+### [x] INPUT-WALK-001 — Bound retained input ancestor traversal cost
 
 **GitHub issue:** [#86](https://github.com/jordanhubbard/literate-ai/issues/86).
 
@@ -29971,7 +29971,7 @@ the guard or replace this failure with an empty dependency observation.
 ### [ ] RETAINED-WIN-CONTEXT-001 — Bind native Windows retained system context
 
 - **GitHub issue:** [#102](https://github.com/jordanhubbard/literate-ai/issues/102)
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Owner:** Retained execution environment, dependency observation and native runtime custody
 - **Direction:** Supply explicitly bound native Windows system context and complete
   captured tool runtime while preserving caller-injection refusal and POSIX identities.
@@ -30160,7 +30160,7 @@ to produce the same physical archive with distinct exact result-plan bindings.
 
 - **GitHub issue:** [#103](https://github.com/jordanhubbard/literate-ai/issues/103)
 
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Priority:** P0
 - **Owner:** Shared retained execution test fixture and platform coverage
 - **Direction:** Repair actual hosted Windows failures without bypassing executable checks or PE runtime dependency observation.
@@ -30218,7 +30218,7 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Priority:** P1
 - **Owner:** Retained public runtime and native SDK acquisition
 - **FreeBSD ELF admission repair:** Native run `40635872330` passes public initialization, authenticated source acquisition and SDK compilation, then refuses architecture admission. FreeBSD 14.4's `readelf` uses `Advanced Micro Devices x86-64` for `EM_X86_64`; accept that exact ELF64 spelling alongside GNU's spelling while retaining raw observations and all class, machine, target, host and byte-drift refusals. Backport main source `80cd07ed03c7d80fc8f44be2b15fed820c497eee`; renew the canonical installed native scenario and all 40 owner controls against this patch source before claiming native repair or closing this goal. The main-only harness provisions and probes the actual disposable UFS POSIX ACL backend; no production guard or release qualification is waived.
@@ -30352,7 +30352,7 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 - **Closure qualification:** The fresh non-editable installed CLI completes a force-generated source-derived tiny Python library through its component.md path in 78.522 seconds. Its explicit import map, isolated/module-origin-checking oracle and expected value 7 are unchanged (harness `sha256:64c2a0fd2a118b406b4e340278bf2b8db7823bca290719ca0f140b1f49981b1b`). Generated tests, import execution and independent acceptance pass; the current receipt has 3 passes, no failures/skips, and verify passes. The exact retained default Bazel profile refuses with its actionable profile error before any coding-CLI launch, with no candidate and only an empty owned runtime allocation. All four cross-platform projection regressions and the complete 2139-pass source suite pass. Directory/file selection and all five pre-artifact invalid-entry refusals are separately recorded. Relevant implementation files match landed `a6a22996`; exact review CI `39790990072` passed before its main integration. See `verification/installed-native-profile-acceptance.json` and `verification/installed-lock-entrypoint-acceptance.json`. This closes the entry/profile contracts and does not claim broad regenerative equivalence or release admission.
 
 
-### [ ] NATIVE-SUPERVISOR-READY-001 — Bind process-group timeout evidence to child readiness
+### [x] NATIVE-SUPERVISOR-READY-001 — Bind process-group timeout evidence to child readiness
 
 **GitHub issue:** [#95](https://github.com/jordanhubbard/literate-ai/issues/95)
 
@@ -30365,7 +30365,7 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 - **Implementation:**
   - [x] Wait for actual child handler readiness before starting the existing supervision deadline.
 - **Evidence:**
-  - [ ] Pass focused POSIX checks and a fresh full native regression with no new skips; retain current source identity and exact landing CI.
+  - [x] Pass focused POSIX checks and a fresh full native regression with no new skips; retain current source identity and exact landing CI. The complete FreeBSD renewal recorded under NATIVE-PACKAGE-BUDGET-001 passes the process-group termination case, 1,801 total cases with no failures, and exact CI run `39519805647`; the final 1.3.1 candidate also passed exact qualification in run `40756301500`.
 
 ### [x] JAVASCRIPT-REGISTRY-LEX-001 — Distinguish bundle registries from inert writer text
 
@@ -30385,7 +30385,7 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 **Closure audit:** All four current handoff cases pass without skips. A real non-editable installed guard on native Windows accepts all six inert forms in both writer locations, performs 12 actual Node invocations with exact expected test/smoke payloads, and preserves all four missing-module/extension/shebang/dispatch refusals. Its guard, lexer, callers and fixture bytes match landed `fe21a198`, exact fully qualified `76ac4c7a` and the complete installed wheel at `52c8b6eb`. That original snapshot also passes a fresh 230-case framework lifecycle. `verification/javascript-registry-acceptance.json` retains the source/wheel/receipt and hash-verified native archive identities; this does not declare the unrelated entrypoint or HTML-performance branches qualified.
 
-### [ ] NATIVE-PACKAGE-BUDGET-001 — Keep complete packaging proof fixture within its test grant
+### [x] NATIVE-PACKAGE-BUDGET-001 — Keep complete packaging proof fixture within its test grant
 
 **GitHub issue:** [#98](https://github.com/jordanhubbard/literate-ai/issues/98)
 
@@ -30398,7 +30398,7 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 - **Implementation:**
   - [x] Use two standard test budgets only for the complete multi-component packaging-chain fixture.
 - **Evidence:**
-  - [ ] Run the affected host fixture and dedicated expiry checks, renew fresh complete native and exact CI qualification, preserve failed-source evidence, and keep the production source, trusted driver and current receipt unchanged.
+  - [x] Run the affected host fixture and dedicated expiry checks, renew fresh complete native and exact CI qualification, preserve failed-source evidence, and keep the production source, trusted driver and current receipt unchanged. The completed native renewal below and exact CI runs `39519805647` and `40756301500` satisfy the scoped release acceptance without changing production deadlines.
 
 **Observed failed native gate:** source `7625cc05` retains 1,149 passes, 34 existing skips and one expired-grant failure across 1,859 selected cases after 2,097.788 seconds. The negative archive-format oracle must run before its fixture grant expires; accepting the earlier expiry code would erase that format coverage. Only this full-chain fixture receives two standard test budgets.
 
@@ -30773,7 +30773,7 @@ complete; final 1.3.1 candidate and broader FreeBSD qualification remain separat
 
 **GitHub issue:** [#117](https://github.com/jordanhubbard/literate-ai/issues/117).
 
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Priority:** P1
 - **Owner:** Installed retained SDK authorization
 - **Direction:** Reconcile open GitHub issue #117: repeated full distribution observation dominates installed FreeBSD preparation.
@@ -30879,7 +30879,7 @@ repair scope and makes no claim that the complete provided native gate passed.
 
 - **Owner:** framework CLI project command dispatch and MAC contract projection
 - **GitHub issue:** [#121](https://github.com/jordanhubbard/literate-ai/issues/121)
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Direction:** Ordinary project commands must not initialize optional MAC schema parsers.
 - **Conclusion:** The native installed-wheel profile attributes 235.62 seconds to
   importing the MAC projector, including 228.89 seconds and 39 parser constructors
@@ -30907,7 +30907,7 @@ repair scope and makes no claim that the complete provided native gate passed.
 
 - **GitHub issue:** [#123](https://github.com/jordanhubbard/literate-ai/issues/123)
 
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Priority:** P1
 - **Owner:** Native Windows release gate
 - **Direction:** Retain existing wheel-smoke per-operation timing spans through the full native gate without dropping checks or widening execution bounds.
@@ -30935,7 +30935,7 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 **GitHub issue:** [#129](https://github.com/jordanhubbard/literate-ai/issues/129).
 
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Priority:** P1
 - **Owner:** HTML verification and immutable catalog observation
 - **Direction:** Use retained native timing evidence to repair the repeated Windows full-gate timeout without changing execution bounds
@@ -30967,7 +30967,7 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 - **GitHub issue:** [#117](https://github.com/jordanhubbard/literate-ai/issues/117)
 
-- **Release target:** 1.3.1
+- **Release target:** 1.4
 - **Priority:** P1
 - **Owner:** Standard installed-distribution, retained runtime and native dependency observers
 - **Direction:** Make the installed public retained SDK lifecycle complete within reviewed native bounds while preserving exact authority, loader and revocation checks.
@@ -31259,7 +31259,7 @@ for maintainer disposition and still participates in the release contribution ga
     release readiness remains false.
   - [x] The supported lifecycle-driver review passes against the recorded exact
     `src/literate_ai/cli/release.py` bytes, followed by exact-head and exact-main CI.
-  - [x] The 1.3.1 manifest resolves all 18 declared roadmap headings and explicitly covers milestone issues #86, #90, #92, #95, #98, #102, #103, #117, #118, #121, #123, #129, and #140 plus the requested release briefing and symposium documentation/CI-scope goal. Issue #117 spans `SDK-OBSERVATION-COST-001` and `RETAINED-OBSERVATION-PERF-001`; issue #118 is the captured-loader scope of `RETAINED-SDK-PUBLIC-001`. Scope reconciliation inferred no completion; exact-main evidence later completed #90.
+  - [x] The 1.3.1 manifest resolves all 10 retained roadmap headings after the user-approved 2026-10-28 contribution review. Issues #86, #95 and #98 have complete scoped implementation and qualification evidence. Issues #102, #103, #117, #118, #121, #123 and #129 retain their acceptance requirements and move to 1.4; issue #117 spans `SDK-OBSERVATION-COST-001` and `RETAINED-OBSERVATION-PERF-001`, while issue #118 is the captured-loader scope of `RETAINED-SDK-PUBLIC-001`. Exact-main evidence had already completed #90.
   - [x] A focused deadline regression and the exact post-merge Windows partition pass with dependency observations still bounded by the caller deadline.
   - [x] The complete replacement onboarding film passes voice, motion, factual, accessibility, media-integrity, and full-playback review gates; see `verification/onboarding-1.3.1-approval.json`.
   - [x] Implement and test enforcement and initialized-project controls. Actual release plan, qualification, publication, verification and synchronization remain unchecked mandatory steps in the [same-release execution checklist](1.3.1-release-execution.md).
