@@ -1,0 +1,24 @@
+{
+  "schema": "literate-ai/patch-roadmap-adoption-cycle-qualification@1",
+  "release": "1.3.1",
+  "source_revision": "f8b6a53d95debd77eadcde8c7ff1041131f34a92",
+  "upstream_source": "643b9e5f3a0c83c942e84d61d6b5a8adc0444423",
+  "upstream_merge": "91c1cc71cb9a484459be182dad097f2afd9f3234",
+  "lifecycle_driver_identity": "sha256:5444a5e77cb9e829b1a7cb4215e3b498bf57fb90b5da919d279c0e447ccc72f3",
+  "documentation_authority_identity": "sha256:a84baca8a8cce85153b0445140ea0b9ab49187ec188b10cd443b4a5a5be80741",
+  "platform": "macos",
+  "runner": "make python-check using the existing patch Make-managed development environment",
+  "focused_suites": [
+    {"pattern": "tests/critical/test_roadmap_dependencies.py", "passed": 20},
+    {"pattern": "tests/e2e/test_harness_inventory.py", "passed": 8}
+  ],
+  "failed": 0,
+  "skipped": 0,
+  "prior_qualification": "verification/patch-roadmap-cycle-qualification.json",
+  "scope": "The native rewrite adoption owner preflights its complete queue proposal before companion writes; rejected proposals preserve the entire existing file snapshot. Valid adoption paths pass.",
+  "goal_count": 18,
+  "open_goals": 11,
+  "release_ready": false,
+  "software_release_qualified": false,
+  "software_release_published": false
+}
