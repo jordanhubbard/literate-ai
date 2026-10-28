@@ -1,0 +1,24 @@
+{
+  "schema": "literate-ai/patch-freebsd-elf-spelling-qualification@1",
+  "release": "1.3.1",
+  "main_source_commit": "80cd07ed03c7d80fc8f44be2b15fed820c497eee",
+  "base_patch_revision": "3586246159ffde785a8447808c82931bd364064c",
+  "lifecycle_driver_identity": "sha256:57c463dfedf5ebfe4efb1f7b1b2dccae3b4fe98ac87e93df41aca6f7342dd7ad",
+  "review": "Author review of the single changed TCB file; patch-specific pin recomputed, not copied from main.",
+  "focused_suite": "tests/critical/test_native_sdk_runtime.py",
+  "runner": "make python-check using the existing Make-managed patch environment",
+  "passed": 7,
+  "failed": 0,
+  "skipped": 0,
+  "scope": "Observer-port source controls accept exactly FreeBSD's known ELF64 EM_X86_64 spelling, retain raw properties, and refuse wrong class, unknown machine, wrong architecture, foreign host and byte drift. These are not native image admission results.",
+  "additional_checks": [
+    "Main and patch runtime/test files are byte-identical after backport",
+    "Roadmap completion graph remains acyclic",
+    "All 18 release goal IDs and their release targets retained",
+    "Patch documentation authority review refreshed"
+  ],
+  "native_renewal_required": true,
+  "native_passed": false,
+  "software_release_qualified": false,
+  "software_release_published": false
+}
