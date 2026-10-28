@@ -1,0 +1,100 @@
+{
+  "schema": "literate-ai/patch-lineage-qualification@1",
+  "release": "1.3.1",
+  "source_revision": "81ce16c6f0667956d7c94bcb9648099d20c0ad60",
+  "landed_main_pr": 175,
+  "landed_main_merge": "01da50a67a155b531a1d4dcd8d4c8da02913abeb",
+  "patch_tcb": "sha256:83f864a8fc9569e97f499032129d3d75563452de93f68b6a4d6878fa5536574a",
+  "source_sha256": {
+    "adapters/legacy_generation_catalog.py": "9fb61678fb657c2cb879b9276c4aec06af9cd1ec04bd28508c2f24e11f848506",
+    "project_authority_graph.py": "33e1d6ceda5976de7fe90ffab49837222a73410234d96095d50e3da55780a06c",
+    "adapters/component_lock_operations.py": "87b5ce9f02cff497d93f20c38a1441acef4bf71f0c3924ecec7ca0121f5c56f5",
+    "adapters/component_lock_commands.py": "03ce4a94f6a6bdbb4a6a625692c011fd998c51a39bf5bc30c5bf4908b9f67494",
+    "adapters/component_lock_planning.py": "f1f769e58bb311239609d098912c4da8af818d2f8fd8b7011d8a6a3146aa055c"
+  },
+  "source_controls": {
+    "runner": "make python-check using Make-managed environment",
+    "selected": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "installed_wheel": {
+    "runner": "make wheel-check in exact isolated checkout",
+    "version": "1.3.0",
+    "identity": "sha256:e7ec008342a6cc34b953f3f51be46b12c6758c8cad495fd8783854294c035038",
+    "passed": true,
+    "scope": "Unprepared patch-line source, not final 1.3.1 software qualification"
+  },
+  "host_lifecycle": {
+    "passed": true,
+    "tests": 230,
+    "driver_identity": "sha256:83f864a8fc9569e97f499032129d3d75563452de93f68b6a4d6878fa5536574a",
+    "started_at": "2026-10-28T08:14:48.374516+00:00",
+    "ended_at": "2026-10-28T08:23:21.960036+00:00",
+    "seconds": 513.58552,
+    "finalized_candidate_identity": "sha256:f22c3a7885f3b16d6bb76ad136820ce2546c1ec1d628f474001233d0925ab338",
+    "promoted_receipt_identity": "sha256:8eac4a912d832d923e1daeefa9b437a640edfa44b1237f4c2356db7b8b31995d",
+    "promotion": "litai project test-receipt update",
+    "phases": "Complete configured lifecycle including native build, generated tests, execution and independent acceptance"
+  },
+  "verify": {
+    "ok": true,
+    "counts": {
+      "fail": 0,
+      "pass": 2,
+      "skipped": 3
+    },
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "committed test receipt is current",
+        "gate": "receipt",
+        "state": "pass"
+      }
+    ]
+  },
+  "prior_failure": {
+    "source_revision": "4298f8e1049293d355062d85f75312431ee07c1a",
+    "host_step": "installed-project-e2e",
+    "error": "coding_cli.test_selection_mismatch",
+    "cause": "Ambient CODING_CLI=claude conflicted with the configured opencode/model pair. Subsequent invocation clears that override and preserves configuration validation.",
+    "retained_evidence_run": "20261028T061924Z-358c69",
+    "retained_node": "n0034",
+    "windows_partial_report": "One admitted receiver test passed; complete-suite report and aggregate qualification record absent. No complete qualification inferred."
+  },
+  "raw_log_sha256": {
+    "p131-staged-wheel-check.private.log": "d5e182888e4c1bdcc908baf67c26b43e44f0f177d496edcce17512d4686f65a8",
+    "p131-lineage-staging-check.private.log": "dc23da8d8f8bb06c3d7841a313604b509acdff6b1dad8a8a5acc408c3ee9027d",
+    "p131-83f-host-lifecycle-execution.private.log": "013f3ffdad63753632c1e3399a8c27c196d2562e7372e69b530ee55e66a0a4db"
+  },
+  "remaining": [
+    "Exact native Windows full gate is running separately with unchanged 5400-second budget.",
+    "FreeBSD canonical SDK and installed owner qualification is still running at prior source 4298f8e10.",
+    "Final current-source regression, every roadmap goal, prepared-candidate qualification and publication remain mandatory."
+  ],
+  "release_goals_total": 18,
+  "release_goals_open": 11,
+  "software_release_qualified": false,
+  "software_release_published": false
+}
