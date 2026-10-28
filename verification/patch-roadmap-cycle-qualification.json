@@ -1,0 +1,29 @@
+{
+  "schema": "literate-ai/patch-roadmap-cycle-qualification@1",
+  "release": "1.3.1",
+  "source_revision": "4da402ad82c01523b9b462ee20d7d9cb84c7b30f",
+  "upstream_source": "144345616879e0743f0fef4fde0505c100f6cf46",
+  "upstream_merge": "f7a4b1483c00a3be1ecdfaf7fc578d01b951e334",
+  "platform": "macos",
+  "lifecycle_driver_identity": "sha256:60584ad4996ec5f6a586b648da6014bbbca22292585b734f8be6eda2b65698ac",
+  "documentation_authority_identity": "sha256:c8b57be85b8f176008f59667eda404f850111cbc6e53ec3c9abdafbca2274dbe",
+  "focused_suites": [
+    {"pattern": "tests/critical/test_roadmap_dependencies.py", "passed": 19},
+    {"pattern": "tests/e2e/test_project_update_merge.py", "passed": 9},
+    {"pattern": "tests/e2e/test_release_contributions*.py", "passed": 10},
+    {"pattern": "tests/e2e/test_project_initialization_adapter.py", "passed": 10},
+    {"pattern": "tests/smoke/test_documentation.py", "passed": 3},
+    {"pattern": "tests/critical/test_documentation_update.py", "passed": 3},
+    {"pattern": "tests/critical/test_ci_action_pins.py", "passed": 8},
+    {"pattern": "tests/e2e/test_project_releases.py", "passed": 17}
+  ],
+  "total_passed": 79,
+  "failed": 0,
+  "skipped": 0,
+  "runner": "make python-check using the patch worktree's existing Make-managed development environment",
+  "scope_preserved": "All 18 manifest IDs, all exact release targets and all final execution gates remain; source/production/schema version mirrors remain 1.3.0 until authorized preparation.",
+  "previous_host_receipt_reusable": false,
+  "software_release_qualified": false,
+  "software_release_published": false,
+  "boundary": "These are scoped source checks after a governance repair. The prior 230-case host result and installed-wheel qualification predate the new TCB and are not current final-candidate evidence. Native/full release qualification remains required."
+}

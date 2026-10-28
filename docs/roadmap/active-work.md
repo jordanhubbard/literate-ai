@@ -31291,6 +31291,13 @@ Resolve the known queue-order and line-specific evidence conflicts deliberately;
 regenerate patch-specific pins rather than copying main's identity. Repeat the
 scoped checks on this patch; no prior host receipt is current after TCB changes.
 
+The exact selective backport `4da402ad82c01523b9b462ee20d7d9cb84c7b30f`
+passes the same 79 focused Make-managed tests with zero failures or skips.
+`verification/patch-roadmap-cycle-qualification.json` records patch-specific
+driver/documentation identities and preserves the requirement to renew final
+host, installed-wheel and native platform evidence. All 18 goals remain and
+readiness is still false with 11 goals open.
+
 ### [x] COURSE-004 — Animated onboarding conversations with auditioned neural voices
 
 - **Priority:** P1
