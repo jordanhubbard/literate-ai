@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.3.1 - 2026-10-29
+
+[README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.1/README.md)
+
 - Keep standard Python bytecode caches out of documentation asset authority and isolate native qualification caches per run; explicit cache links remain invalid.
 
 - Give the isolated native Windows live test its own fixed pytest temporary
