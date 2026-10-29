@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.3.1 - 2026-10-29
+
+[README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.1/README.md)
+
 - Reuse byte-revalidated Flavor graph metadata within a single read-only verify,
   while rebuilding each authority graph and checking current skills independently.
 - Run native Windows wheel checks and the remaining test suite concurrently after
