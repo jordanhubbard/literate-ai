@@ -2,10 +2,6 @@
 
 ## Unreleased
 
-## 1.3.1 - 2026-10-29
-
-[README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.1/README.md)
-
 - Give the isolated native Windows live test its own fixed pytest temporary
   directory, preserving its JUnit report without relying on pytest-current symlinks.
 
