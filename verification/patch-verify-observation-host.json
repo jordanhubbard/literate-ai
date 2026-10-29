@@ -1,0 +1,14 @@
+{
+  "schema": "literate-ai/patch-host-qualification@1",
+  "source_revision": "707108a15e065457573f43fe85f9c755ad879202",
+  "driver_tcb": "sha256:664422d098962a1b3ef7fac4a58eed1a2f97e35991ffce36b59f3c58f1fda7d4",
+  "passed": true,
+  "tests": 228,
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 1848.1608848341275,
+  "candidate_receipt_identity": "sha256:cc83142dd5da7b0a81c4f70b156da106e02b0ebf7716dc97e92dff69f0fc7eba",
+  "source_authority": "sha256:f776a0554c7d8cd163b7fa36896137f3978ca69cfd46cc8a9e4adf4472c8426f",
+  "promotion_current": false,
+  "boundary": "Historical host lifecycle on the pre-reconciliation scope. The newly approved goal ledger changes authority; canonical receipt promotion correctly refuses the old project revision. A fresh receipt must bind the final ten-included/eight-deferred ledger. No release acceptance is claimed."
+}
