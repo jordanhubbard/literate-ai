@@ -6,6 +6,12 @@
 
 [README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.1/README.md)
 
+- Reuse byte-revalidated Flavor graph metadata within a single read-only verify,
+  while rebuilding each authority graph and checking current skills independently.
+- Run native Windows wheel checks and the remaining test suite concurrently after
+  the isolated live dependency control. Preserve every check, existing deadlines,
+  separate durable streams, owned-process cleanup and both JUnit reports.
+
 - Preserve verified Python import aliases in generated third-party SBOMs, including
   CUDA distributions that import under a different name; retain installed payload
   verification and refusal of invented framework authority.
