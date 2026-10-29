@@ -29971,7 +29971,7 @@ the guard or replace this failure with an empty dependency observation.
 ### [ ] RETAINED-WIN-CONTEXT-001 — Bind native Windows retained system context
 
 - **GitHub issue:** [#102](https://github.com/jordanhubbard/literate-ai/issues/102)
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Owner:** Retained execution environment, dependency observation and native runtime custody
 - **Direction:** Supply explicitly bound native Windows system context and complete
   captured tool runtime while preserving caller-injection refusal and POSIX identities.
@@ -30160,7 +30160,7 @@ to produce the same physical archive with distinct exact result-plan bindings.
 
 - **GitHub issue:** [#103](https://github.com/jordanhubbard/literate-ai/issues/103)
 
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Priority:** P0
 - **Owner:** Shared retained execution test fixture and platform coverage
 - **Direction:** Repair actual hosted Windows failures without bypassing executable checks or PE runtime dependency observation.
@@ -30218,7 +30218,7 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Priority:** P1
 - **Owner:** Retained public runtime and native SDK acquisition
 - **FreeBSD ELF admission repair:** Native run `40635872330` passes public initialization, authenticated source acquisition and SDK compilation, then refuses architecture admission. FreeBSD 14.4's `readelf` uses `Advanced Micro Devices x86-64` for `EM_X86_64`; accept that exact ELF64 spelling alongside GNU's spelling while retaining raw observations and all class, machine, target, host and byte-drift refusals. Backport main source `80cd07ed03c7d80fc8f44be2b15fed820c497eee`; renew the canonical installed native scenario and all 40 owner controls against this patch source before claiming native repair or closing this goal. The main-only harness provisions and probes the actual disposable UFS POSIX ACL backend; no production guard or release qualification is waived.
@@ -30773,7 +30773,7 @@ complete; final 1.3.1 candidate and broader FreeBSD qualification remain separat
 
 **GitHub issue:** [#117](https://github.com/jordanhubbard/literate-ai/issues/117).
 
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Priority:** P1
 - **Owner:** Installed retained SDK authorization
 - **Direction:** Reconcile open GitHub issue #117: repeated full distribution observation dominates installed FreeBSD preparation.
@@ -30879,7 +30879,7 @@ repair scope and makes no claim that the complete provided native gate passed.
 
 - **Owner:** framework CLI project command dispatch and MAC contract projection
 - **GitHub issue:** [#121](https://github.com/jordanhubbard/literate-ai/issues/121)
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Direction:** Ordinary project commands must not initialize optional MAC schema parsers.
 - **Conclusion:** The native installed-wheel profile attributes 235.62 seconds to
   importing the MAC projector, including 228.89 seconds and 39 parser constructors
@@ -30928,7 +30928,7 @@ pass locally; a new exact-source full native pass is still required.
 
 - **GitHub issue:** [#123](https://github.com/jordanhubbard/literate-ai/issues/123)
 
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Priority:** P1
 - **Owner:** Native Windows release gate
 - **Direction:** Retain existing wheel-smoke per-operation timing spans through the full native gate without dropping checks or widening execution bounds.
@@ -30956,7 +30956,7 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 **GitHub issue:** [#129](https://github.com/jordanhubbard/literate-ai/issues/129).
 
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Priority:** P1
 - **Owner:** HTML verification and immutable catalog observation
 - **Direction:** Use retained native timing evidence to repair the repeated Windows full-gate timeout without changing execution bounds
@@ -30990,7 +30990,7 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 - **GitHub issue:** [#117](https://github.com/jordanhubbard/literate-ai/issues/117)
 
-- **Release target:** 1.4
+- **Release target:** 1.4.0
 - **Priority:** P1
 - **Owner:** Standard installed-distribution, retained runtime and native dependency observers
 - **Direction:** Make the installed public retained SDK lifecycle complete within reviewed native bounds while preserving exact authority, loader and revocation checks.
@@ -31241,6 +31241,14 @@ for maintainer disposition and still participates in the release contribution ga
 **#129 / WIN-GATE-001 current native outcome:** Supplied-worker source `2615e568` has the same tracked tree as merged `d17881fa`. The unchanged 5400-second gate reaches 121 completed wheel operations but times out before wheel completion and the test phase. The complete five-stage HTML scenario passes in 2871.062 seconds; default and scoped initialization take 252.563 and 196.578 seconds. These are retained operation observations, not a controlled whole-gate speedup or admission. Existing timing evidence survives the timeout. The last completed graph-export scenario is followed by an uninstrumented missing-CodeGraph run probe and update planning; identify the unfinished operation and remaining initialization/observation costs before another full renewal. Keep #121, #123 and #129 open; do not increase deadlines, skip assertions or promote this failed outcome.
 
 ### [x] RELEASE-019 — Require explicit completion or approved deferral of every release goal
+
+**Superseding scope approval:** The user confirmed ten included 1.3.1 goals and
+eight approved deferrals to 1.4.0 after conflicting directions. The original
+18-entry source ledger remains auditable: ten included goals plus eight explicit
+user-approved deferral records and corresponding future entries. See
+[the exact approval](../../verification/1.3.1-approved-deferrals.json). Every
+mandatory release gate and all deferred acceptance criteria remain in force.
+
 
 - **Priority:** P0
 - **Release target:** 1.3.1
