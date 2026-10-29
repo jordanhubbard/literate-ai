@@ -1,0 +1,48 @@
+{
+  "schema": "literate-ai/documentation-cache-repair-qualification@1",
+  "issue": "https://github.com/jordanhubbard/literate-ai/issues/188",
+  "main_pull_request": "https://github.com/jordanhubbard/literate-ai/pull/189",
+  "source_revision": "d7f6bbb750398accdda184421a23a2d44d0d0485",
+  "source_distribution_version": "1.3.0",
+  "platform": "native Windows",
+  "checks": [
+    {
+      "arguments": [
+        "discover",
+        "-s",
+        "tests/smoke",
+        "-p",
+        "test_documentation.py"
+      ],
+      "exit": 0,
+      "seconds": 6.108999999705702,
+      "output_sha256": "1e1529e1d2d48235d1be183f9bf9a3abb7756eb32dd1a216cd95b2a714f7fcf9"
+    },
+    {
+      "arguments": [
+        "discover",
+        "-s",
+        "tests/critical",
+        "-p",
+        "test_windows_gate_isolation.py"
+      ],
+      "exit": 0,
+      "seconds": 12.157000000122935,
+      "output_sha256": "1521e7f2f37a4904c6781e632479e4b45db7ad3e6c163145f5cad27b3111dd7f"
+    },
+    {
+      "arguments": [
+        "test_project_cli.ProjectCliTests.test_repository_is_a_self_describing_canonical_project"
+      ],
+      "exit": 0,
+      "seconds": 27.734000000171363,
+      "output_sha256": "f6fd60627d7db94fb23eb7e2a13de5a293947b0b500506b8cc0154a0b363c68e"
+    }
+  ],
+  "passed_tests": 22,
+  "failed_tests": 0,
+  "skipped_tests": 0,
+  "private_transport_record_sha256": "b67acca78038899f7f11b64576bea6429ab0f567e752d1b712cc645f8b36a997",
+  "scope": "Focused repair controls, including real compiled documentation bytecode and the previously failing repository CLI validation; not full release qualification.",
+  "release_acceptance": false
+}
