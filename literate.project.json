@@ -1,7 +1,7 @@
 {
   "schema": "urn:literate-ai:schema:v2:project-definition",
   "project_id": "literate-ai",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "profile": "canonical",
   "agent_skill": "SKILL.md",
   "component_roots": [
@@ -42,7 +42,7 @@
   "lifecycle_driver": {
     "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
     "driver_id": "sample-host-conformance",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "implementation_paths": [
       "scripts/run_samples.py",
       "src/literate_ai",
@@ -54,7 +54,7 @@
     "implementation_identity": {
       "schema": "urn:literate-ai:schema:v1:content-identity",
       "algorithm": "sha256",
-      "digest": "09086274e1347c593ee1a300c5388991b9a4eb7fc246da2f1c48903121ffef62"
+      "digest": "0283d3ea8185eccd22ccbc229d642866237c11f54ce04dcd80704646ec0a33f0"
     },
     "argv": [
       "{python}",
@@ -130,7 +130,7 @@
   "test_receipt_policy": {
     "schema": "urn:literate-ai:schema:v1:project-test-receipt-policy",
     "suite_id": "sample-host-e2e",
-    "suite_version": "1.3.0",
+    "suite_version": "1.3.1",
     "runner_identity": {
       "schema": "urn:literate-ai:schema:v1:content-identity",
       "algorithm": "sha256",

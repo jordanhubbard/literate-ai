@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.3.1 - 2026-10-28
+
+[README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.1/README.md)
+
 - Preserve verified Python import aliases in generated third-party SBOMs, including
   CUDA distributions that import under a different name; retain installed payload
   verification and refusal of invented framework authority.
