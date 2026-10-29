@@ -61,7 +61,7 @@
     "timeout_seconds": 172800
   },
   "qualification": {
-    "platforms": ["linux", "macos", "windows"],
+    "platforms": ["linux", "macos"],
     "actions": [
       {
         "name": "release-gate",
