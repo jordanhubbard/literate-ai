@@ -6,6 +6,8 @@
 
 [README.md](https://github.com/jordanhubbard/literate-ai/blob/v1.3.1/README.md)
 
+- Distinguish detected installed-payload replacement from ordinary open failures on systems without `O_NOFOLLOW`, preserving fail-closed payload admission.
+
 - Keep standard Python bytecode caches out of documentation asset authority and isolate native qualification caches per run; explicit cache links remain invalid.
 
 - Give the isolated native Windows live test its own fixed pytest temporary
