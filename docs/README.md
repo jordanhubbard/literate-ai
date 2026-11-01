@@ -132,6 +132,7 @@ lists the per-project fields and their defaults.
 - [Accepted forge issues and reviews as the default tracker](decisions/0050-forge-issues-and-reviews-are-the-default-tracker.md)
 - [Proposed per-unit retained tree packages and verified worker transport](decisions/0052-per-unit-retained-tree-packages.md)
 - [Proposed declared rustup host-tool provenance](decisions/0053-declared-rustup-host-provenance.md)
+- [Proposed command-addressed worker reachability](decisions/0055-command-addressed-worker-reachability.md)
 - [User-directed work loop](architecture/user-directed-work-loop.md)
 - [Project release protocol](architecture/project-releases.md)
 - [Skill architecture](architecture/skills.md)
