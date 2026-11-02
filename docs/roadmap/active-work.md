@@ -31974,8 +31974,12 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
-- **Release target:** 1.4.0
+- **Release execution:** 1.4.0 (publication and postpublication closure)
 - **Detailed plan:** [1.4 integration](1.4-integration.md).
+- **Phase boundary:** This umbrella remains open through publication and read-back.
+  All 1.4.0 readiness goals, issue/review closure, native qualification and release
+  checks remain prerequisites through the release policy. Its own publication
+  outcome is recorded after synchronization rather than required before publication.
 - **Next action in progress:** finish current-issue acceptance and native qualification after PRs #237/#238 landed; obtain explicit acceptance for Proposed ADRs before their implementation.
 
 - **Priority:** P0
@@ -31983,7 +31987,7 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 - **Direction:** Resolve all outstanding PRs and issues and release 1.4.
 - **Conclusion:** Include the current four reviews and 51 issues, audit their actual implementation and acceptance, preserve all eight existing 1.4 goals, and publish only the exact completely qualified 1.4.0 candidate. No issue or goal is silently deferred or closed from partial evidence.
 - **Depends on:** none
-- **Completion prerequisites:** none
+- **Completion prerequisites:** release:1.4.0:synchronized
 - **Implementation:**
   - [x] Review and consolidate PRs 198, 228, 232 and 233; preserve all source, authority and roadmap changes and pass exact integration CI. All four reviews are merged; exact head 228c121c passes CI 41282538479 and lands through PR 237 at 48b1e312. Later adoption fixes land through PR 238 at ad979c6e after exact-head CI 41288058754. These are integration results, not release qualification.
   - [ ] Reproduce or audit each issue, implement its owning fix or reviewed resolution, record decisive evidence, and comment and close only after the resolution lands.
