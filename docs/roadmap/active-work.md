@@ -32180,19 +32180,22 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
 - **GitHub issue:** [#203](https://github.com/jordanhubbard/literate-ai/issues/203)
 - **Priority:** P1
 - **Owner:** read-only harness language inventory and project adoption Flavor inference; issue 203
+- **Remaining issue scope:** The original report also names a pnpm workspace omitted from the language union and proposed Flavors. Preserve JavaScript alongside Rust and helper languages without executing source or replacing the primary Cargo build/package selection.
 - **Direction:** A retained Cargo workspace with Python/C++ helpers is inferred as C++/Python and never proposes its Rust/Cargo packaging Flavors.
 - **Conclusion:** Recognize Rust sources in the bounded conventional inventory, preserve the full detected language union, and use a root Cargo manifest as the primary Rust signal unless the existing root CMake driver takes precedence. Propose Cargo packaging only for the detected primary Cargo/Rust workspace; preserve other build selection behavior.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
   - [ ] Exercise the public read-only conversion plan on a mixed Cargo tree and correct source-language/default Flavor inference without executing project source.
+  - [ ] Include root Node package manifests and conventional JavaScript sources in mixed-language discovery; preserve Cargo/CMake precedence and generated/hidden-tree exclusion.
 - **Evidence:**
   - [ ] Reproduce the missing Rust proposal, then verify Rust/Cargo packaging, mixed-language reporting, generated/hidden-tree exclusion, CMake precedence and absence of plan writes.
 
 - **Development evidence:** Three new Rust inventory/plan controls pass, including read-only input preservation, helper-language reporting, hidden/generated exclusion and CMake precedence. The missing Rust marker reproduces before the fix.
+- **Remaining Node scope evidence:** The extended mixed Rust/pnpm plan reproduces missing JavaScript before the correction. Four focused plan/native Cargo controls now pass without skips, including manifest-only and source-only JavaScript discovery, CMake precedence and unchanged input bytes. Independent source review approves the correction; full regression and exact qualification remain pending.
 - **Next action:** finish affected regression and admission, land on green, then comment and close the issue.
 
-### [ ] RETAINED-BUILD-COREQ-001 — Keep retained wrapper locks on their delegation Flavor
+### [x] RETAINED-BUILD-COREQ-001 — Keep retained wrapper locks on their delegation Flavor
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#210](https://github.com/jordanhubbard/literate-ai/issues/210)
@@ -32203,12 +32206,12 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
 - **Depends on:** RUST-ADOPTION-DETECT-001
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Reproduce native Cargo conversion refusal, then select the canonical delegation Flavor for wrapper and refined retained Components without changing original commands.
+  - [x] Reproduce native Cargo conversion refusal, then select the canonical delegation Flavor for wrapper and refined retained Components without changing original commands.
 - **Evidence:**
-  - [ ] Run actual offline Cargo conversion and inspect retained wrapper lock/source/baseline evidence; preserve CMake and Elixir adoption behavior and fail-closed unmatched selectors.
+  - [x] Run actual offline Cargo conversion and inspect retained wrapper lock/source/baseline evidence; preserve CMake and Elixir adoption behavior and fail-closed unmatched selectors.
 
 - **Development evidence:** A native offline Cargo adoption reproduces the original lock refusal, then completes actual baseline and wrapper parity with the existing legacy-shim build Flavor. Root Rust/Cargo defaults and original source remain intact. Six existing retained receipt cases pass.
-- **Next action:** finish affected regression and admission, land on green, then comment and close the issue.
+- **Resolution evidence:** The landed shim selection is byte-identical across the installed runtime, observed main `0d7f0c5` and exact green CI head with all 27 jobs passed. Four installed-runtime controls pass without skips, including actual offline Cargo baseline/parity and the shim lock. Independent review confirms both wrapper and refined-monorepo paths. [Functional closure evidence](../../verification/cargo-adoption-lock-resolution.json); [issue resolution](https://github.com/jordanhubbard/literate-ai/issues/210#issuecomment-6580472246). This is not a separate public CLI journey or completion of latest-main/release qualification.
 
 ### [ ] RETAINED-OUTPUT-DIAG-001 — Distinguish retained command failures from capped diagnostic excerpts
 

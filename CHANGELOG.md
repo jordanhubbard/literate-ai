@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Adoption: include Node manifests and JavaScript sources in mixed-language plans,
+  including Rust/pnpm workspaces, while preserving primary Cargo/CMake selection.
+
 - Retained PACKAGE supervision: check the attempt and private registration during
   frequent parent polls; retain full intent validation before native launch and
   final admission, plus the child's live authority checks. Prelaunch refusals
