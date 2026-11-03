@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Worker capability and hardware probes allow up to five minutes within the caller
+  deadline. Retained receiver startup avoids a redundant full preview while
+  preserving registration custody and full publication and execution checks.
+
 - Windows worker probes preserve unknown NVIDIA memory as null when the device
   reports permission text, matching the POSIX observation behavior.
 

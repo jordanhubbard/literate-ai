@@ -32912,6 +32912,10 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
 
 ### [ ] RETAINED-UNIT-PACKAGE-001 — Deliver per-unit retained tree packages and verified FreeBSD transport
 
+- **2026-11-03 scale probe repair (in progress):** The real installed receiver for the complete 114,929-entry source fixture exceeds the canonical 60-second capability cap and refuses after 60.068 seconds. Preserve that refusal and observe the remote read-only parent through actual exit before another probe. The directing user requires a finite five-minute capability/hardware budget. Remove only the repeated constructor preview immediately after the initial canonical preview and independent authority check; retain registration custody at return and full checks around describe publication, reservation, execution and evidence production. Fresh installed native capability, five-unit PACKAGE, original-byte VERIFY and corruption controls remain required; no scale or release success is claimed.
+
+- **Probe-budget source verification checkpoint:** Independent review covers the finite 300-second capability/hardware caps and the constructor's final private-custody check, with full capability-publication and execution guards retained. The complete contributor Make gate selects 2,666 cases: 2,579 pass, 87 declared platform skips, zero failures and zero known failures. The Python run takes 4,668.614 seconds; lint, formatting, compilation, host-path and canonical authority checks pass. Report SHA-256: `488a7f2a8f271a9b520a7a2335dc47929b8c505653d200631b457c477e81e612`. Real local controls cover startup beyond the old minute, earlier caller expiry/process absence, and authority/registration mutation across configured action-worker capability publication. They do not qualify the full native project preview. The original native 60.068-second refusal and eventual read-only parent exit remain preserved. Corrected installed native probes, five-unit PACKAGE, cold original-byte VERIFY and corruption controls remain pending.
+
 - **Current development status:** At source `33f1e62`, the SDK-bearing two-unit
   native FreeBSD PACKAGE and fresh original-archive VERIFY both pass independent
   controller admission. Verification retains the exact original result index
@@ -32923,9 +32927,11 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   The functional SDK blocker is resolved, and the directing user authorized the
   downstream release to proceed under its own gates independently of framework
   publication. This does not prove downstream acceptance or full issue completion.
-- **Current next action:** Renew full native regression after the separately
-  reproduced orphan-reaping repair, then complete the required real retained-tree
-  case beyond 100,000 members and all remaining installed/integrated qualification.
+- **Current next action:** Install the reviewed probe-budget candidate in fresh
+  native/controller prefixes, renew canonical receipt-policy/profile/manifest and
+  exact plan bindings, then complete the five-unit retained-tree PACKAGE beyond
+  100,000 members, cold original-byte VERIFY and required corruption controls.
+  Full integrated/native and release qualification remain separate required gates.
   Issue #235 and this 1.4 goal remain open. The earlier attempts below retain their
   historical scope and failures; they do not override this two-unit SDK result.
 
