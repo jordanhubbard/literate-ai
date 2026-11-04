@@ -4,6 +4,8 @@
 
 - Worker-alignment and retained-receiver test fixtures use portable declared remote workspaces while preserving native local paths.
 
+- Command workers preserve normal failed RUN diagnostics with the original input artifact reference, while retaining pre-execution failures and rejecting failed build/test artifact exports.
+
 - Windows coding-agent test compilers retain configured temporary/system variables while applying MSVC overrides.
 
 - Composed retained-tree packages apply canonical directory permissions under permissive and restrictive worker umasks. Independent verification still rejects later permission changes.
@@ -51,7 +53,11 @@
 
 - Add owned POSIX fault controls for retained-tree HTML source recapture, index substitution, generation custody and unpublished budget failures.
 
-- Add bounded retained-tree HTML plans and acknowledged initial offline publication. Tree freshness, recovery, per-unit joins and native/browser qualification remain open.
+- Add bounded retained-tree HTML plans and acknowledged initial offline publication. Recovery, per-unit joins and native/browser qualification remain open.
+
+- Published retained-tree HTML can be checked without writable caches or restored
+  publication ownership. Projects can opt into a bounded tree-declaration registry
+  and an additive freshness gate while legacy verification reports stay unchanged.
 
 - Bare Component runs resolve their declared demonstration inputs from the
   Component name even when selected through a project-relative path. Remote
