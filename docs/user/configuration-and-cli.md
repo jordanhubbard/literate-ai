@@ -113,6 +113,7 @@ litai project retained-harness readmit
 litai project retained-cargo check
 litai project retained-cargo materialize
 litai project retained-cargo admit
+litai project test-receipt promote-retained
 litai project test-receipt run-retained
 litai project test-receipt update
 litai project test-receipt check
