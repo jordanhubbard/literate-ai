@@ -11,6 +11,7 @@ import shutil
 import unittest
 from dataclasses import replace
 from types import SimpleNamespace
+from unittest.mock import patch
 
 from literate_ai import test_receipts
 from literate_ai.adapters.retained_project_inputs import (
@@ -195,6 +196,32 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         (self.f.source / "src/main.txt").write_bytes(b"original\x00asset")
         other = replace(self.policy, minimum_test_count=2)
         self.refused("policy_stale", lambda: self.verify(test_receipt_policy=other))
+
+    def test_source_change_during_historical_read_is_refused(self):
+        import literate_ai.adapters.retained_receipt_promotion as promotion
+
+        source_file = self.f.source / "src/main.txt"
+        expected = source_file.read_bytes()
+
+        def require_current():
+            if source_file.read_bytes() != expected:
+                raise ValueError("source changed during historical verification")
+
+        original_inventory = promotion._verify_receipt_record_inventory
+
+        def change_after_inventory(*args, **kwargs):
+            original_inventory(*args, **kwargs)
+            source_file.write_bytes(b"changed after inventory")
+
+        with patch.object(
+            promotion,
+            "_verify_receipt_record_inventory",
+            side_effect=change_after_inventory,
+        ):
+            self.refused(
+                "custody_invalid",
+                lambda: self.verify(require_current=require_current),
+            )
 
     def test_wrong_runner_suite_evidence_and_count_are_refused(self):
         verified = self.verify()

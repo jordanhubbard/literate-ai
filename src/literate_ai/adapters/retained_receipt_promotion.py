@@ -183,9 +183,15 @@ def verify_retained_run(
     original_guard = require_current
     deadline = time.monotonic() + min(300, policy.timeout_seconds)
 
-    def require_current():
+    def poll_deadline():
+        # Native graphs can contain thousands of bounded records. Charge every
+        # record against the deadline, and reopen full project authority at
+        # phase boundaries rather than replanning it for each graph node.
         if time.monotonic() >= deadline:
             raise TimeoutError("retained.promotion.original-300s-verification-deadline")
+
+    def require_current():
+        poll_deadline()
         original_guard()
 
     require_current()
@@ -254,9 +260,8 @@ def verify_retained_run(
             _refuse(
                 "plan_stale", "the selected receipt belongs to a different current plan"
             )
-        _verify_receipt_record_inventory(
-            store, original_receipt, require_current, policy
-        )
+        _verify_receipt_record_inventory(store, original_receipt, poll_deadline, policy)
+        require_current()
         evidence = _document(
             store, evidence_ref, min(MAX_DOCUMENT, policy.max_provider_metadata_bytes)
         )
@@ -295,6 +300,7 @@ def verify_retained_run(
         )
         if inputs.receipt.identity != receipt_identity:
             raise ValueError("retained.promotion.receipt-identity-mismatch")
+        require_current()
         # SDK definitions require the invoking current project context, supplied
         # through the same snapshot owner as original-unit historical inspection.
         snapshots = current_sdk_snapshots
@@ -304,19 +310,21 @@ def verify_retained_run(
             run_ref,
             policy=effective,
             test_receipt_policy=test_receipt_policy,
-            admission_guard=require_current,
+            admission_guard=poll_deadline,
             current_sdk_snapshots=snapshots,
         )
+        require_current()
         workspace_identity = verify_promotion_evidence_context(
             evidence,
             inputs,
             run,
             store=store,
-            guard=require_current,
+            guard=poll_deadline,
             policy=effective,
         )
+        require_current()
         _verify_retained_member_custody(
-            store, inputs, evidence, require_current, effective
+            store, inputs, evidence, poll_deadline, effective
         )
         if inputs.receipt.skipped or any(v.report.skipped for v in run.test_reports):
             _refuse("tests_skipped", "promotion requires passing tests with no skips")
