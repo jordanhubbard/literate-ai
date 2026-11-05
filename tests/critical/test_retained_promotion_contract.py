@@ -22,10 +22,13 @@ from literate_ai.adapters.retained_receipt_promotion import (
     retained_project_runner_identity,
 )
 from literate_ai.cli.errors import CliFailure
+from literate_ai.cli.execution_workers import SelectedExecutionWorker
 from literate_ai.cli.retained_project import promote_retained_receipt_from_args
 from literate_ai.contracts import (
     BlobRef,
     ContentIdentity,
+    ExecutionWorker,
+    ExecutionWorkerKind,
     canonical_identity,
     canonical_json_bytes,
 )
@@ -258,7 +261,12 @@ class CorrectedPromotionContractTests(unittest.TestCase):
         # Real historical reader/candidate publication; mocked only external
         # project authority loader and final receipt-policy validation context.
         f = self.f
-        worker = object()
+        worker = SelectedExecutionWorker(
+            ExecutionWorker("local", ExecutionWorkerKind.LOCAL),
+            (),
+            canonical_identity("owned handler-fixture local catalog"),
+            None,
+        )
         revision = [self.revision]
         project = SimpleNamespace(
             root=f.source,
@@ -445,13 +453,16 @@ class ActualReportBlobControls(unittest.TestCase):
             )
             inputs = SimpleNamespace(members=(member,))
             policy = SimpleNamespace(reports=(("tests", "report.json"),))
-            observed = SimpleNamespace(report=claimed)
+            observed = SimpleNamespace(
+                report=claimed, blob_identity=ContentIdentity.parse_uri(ref.identity)
+            )
             reader = SimpleNamespace(raw=store.get_bytes)
             verify_retained_report_blob(reader, inputs, policy, observed)
             failed = body.replace(b'"passed"', b'"failed"')
             wrong = store.put_bytes(failed)
             member.sha256 = wrong.digest
             member.size = wrong.size
+            observed.blob_identity = ContentIdentity.parse_uri(wrong.identity)
             with self.assertRaisesRegex(ValueError, "actual-test-report-differs"):
                 verify_retained_report_blob(reader, inputs, policy, observed)
             duplicate = body.replace(
@@ -460,6 +471,7 @@ class ActualReportBlobControls(unittest.TestCase):
             duplicate_ref = store.put_bytes(duplicate)
             member.sha256 = duplicate_ref.digest
             member.size = duplicate_ref.size
+            observed.blob_identity = ContentIdentity.parse_uri(duplicate_ref.identity)
             with self.assertRaisesRegex(ValueError, "duplicate-test-report-key"):
                 verify_retained_report_blob(reader, inputs, policy, observed)
 

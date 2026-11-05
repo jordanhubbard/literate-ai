@@ -178,9 +178,10 @@ def verify_retained_run(
     policy = HistoricalReadPolicy() if read_policy is None else read_policy
     if not isinstance(policy, HistoricalReadPolicy):
         raise TypeError("retained.promotion.typed-read-policy-required")
+    MAX_DOCUMENT = min(MAX_DOCUMENT, policy.maximum_document_bytes)
     plan = planning.plan
     original_guard = require_current
-    deadline = time.monotonic() + 300
+    deadline = time.monotonic() + min(300, policy.timeout_seconds)
 
     def require_current():
         if time.monotonic() >= deadline:
@@ -375,7 +376,12 @@ def _verify_receipt_record_inventory(store, receipt, guard, policy):
         if metadata:
             metadata_bytes += reference.size
             if (
-                reference.size > min(MAX_DOCUMENT, policy.max_provider_metadata_bytes)
+                reference.size
+                > min(
+                    MAX_DOCUMENT,
+                    policy.maximum_document_bytes,
+                    policy.max_provider_metadata_bytes,
+                )
                 or metadata_bytes > policy.max_provider_metadata_bytes
             ):
                 raise ValueError("retained.promotion.auxiliary-metadata-budget")
@@ -418,7 +424,7 @@ def _verify_retained_member_custody(store, inputs, evidence, guard, policy):
             nonlocal total
             guard()
             total += len(data)
-            if total > 8 * 1024**3:
+            if total > min(8 * 1024**3, policy.maximum_payload_bytes):
                 raise ValueError("retained.promotion.aggregate-stream-read-budget")
             return len(data)
 

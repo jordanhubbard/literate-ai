@@ -527,16 +527,50 @@ def write_project_test_receipt_finalized_candidate(
     candidate: ProjectTestReceiptFinalizedCandidate,
     *,
     require_current=None,
+    external_project_root: Path | None = None,
 ) -> None:
-    """Atomically expose one finalized candidate at a new external path."""
+    """Atomically expose a new candidate, optionally bracketing current authority."""
 
     if not isinstance(candidate, ProjectTestReceiptFinalizedCandidate):
         raise TypeError("candidate must be a ProjectTestReceiptFinalizedCandidate")
     if require_current is not None and not callable(require_current):
         raise TypeError("candidate currentness guard must be callable")
-    guard = (lambda: None) if require_current is None else require_current
+
+    def current():
+        if require_current is not None:
+            try:
+                require_current()
+            except (OSError, ValueError, TypeError, ProjectError) as exc:
+                raise ProjectError(
+                    "project.test_receipt_candidate_authority_changed",
+                    "current authority refused candidate publication",
+                ) from exc
+
+    current()
     destination = Path(path)
     content = _canonical_finalized_candidate_bytes(candidate)
+    if external_project_root is not None:
+        from literate_ai._filesystem import UnsafeFilesystemPathError
+        from literate_ai.adapters.retained_receipt_candidate_output import (
+            write_external_retained_candidate,
+        )
+
+        if require_current is None:
+            raise TypeError("external candidate requires current project authority")
+        try:
+            write_external_retained_candidate(
+                destination,
+                content,
+                project_root=external_project_root,
+                require_current=current,
+            )
+        except (OSError, ValueError, TypeError, UnsafeFilesystemPathError) as exc:
+            raise ProjectError(
+                "project.test_receipt_candidate_write_failed",
+                "exclusive external candidate publication refused; any owned "
+                "interrupted stage is preserved for operator review",
+            ) from exc
+        return
     temporary: Path | None = None
     committed_identity: tuple[int, int] | None = None
     try:
@@ -548,7 +582,6 @@ def write_project_test_receipt_finalized_candidate(
             or destination.exists()
         ):
             raise OSError
-        guard()
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=".litai-retained-candidate-", dir=parent
         )
@@ -560,7 +593,7 @@ def write_project_test_receipt_finalized_candidate(
         os.chmod(temporary, 0o600)
         observed = temporary.stat()
         committed_identity = (observed.st_dev, observed.st_ino)
-        guard()
+        current()
         if os.name == "nt":
             os.rename(temporary, destination)
         else:
@@ -571,9 +604,9 @@ def write_project_test_receipt_finalized_candidate(
         loaded, canonical = load_project_test_receipt_candidate(destination)
         if loaded != candidate or canonical != content:
             raise OSError
-        guard()
+        current()
         _fsync_directory(parent)
-    except (OSError, ProjectError, ValueError, TypeError) as exc:
+    except (OSError, ProjectError) as exc:
         try:
             if destination.exists() and not destination.is_symlink():
                 observed = destination.stat()

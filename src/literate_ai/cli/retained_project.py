@@ -36,6 +36,12 @@ def retained_project_requested(args: Any) -> bool:
                 "retained_project",
                 "retained_project_profile",
                 "authorize_retained_project",
+                "promotion_maximum_metadata_bytes",
+                "promotion_maximum_memory_bytes",
+                "promotion_maximum_document_bytes",
+                "promotion_maximum_payload_bytes",
+                "promotion_max_closure_steps",
+                "promotion_timeout_seconds",
             )
         )
     )
@@ -54,6 +60,27 @@ def human_retained_project_text(result: dict[str, Any], *, command: str) -> str:
     else:
         lines.append("Review and authorize this exact plan before execution.")
     return "\n".join(lines) + "\n"
+
+
+def _promotion_read_policy(args):
+    """Optional tighter caller limits preserve the original canonical ceilings."""
+    from literate_ai.adapters.retained_promotion_evidence import HistoricalReadPolicy
+
+    fields = {
+        "maximum_metadata_bytes": "max_provider_metadata_bytes",
+        "maximum_memory_bytes": "max_provider_memory_bytes",
+        "maximum_document_bytes": "maximum_document_bytes",
+        "maximum_payload_bytes": "maximum_payload_bytes",
+        "max_closure_steps": "max_closure_steps",
+        "timeout_seconds": "timeout_seconds",
+    }
+    return HistoricalReadPolicy(
+        **{
+            target: value
+            for name, target in fields.items()
+            if (value := getattr(args, "promotion_" + name, None)) is not None
+        }
+    )
 
 
 def _unique_object(items: list[tuple[str, object]]) -> dict[str, object]:
@@ -225,6 +252,9 @@ def _retained_project_from_args(
                     capture_promotion_evidence=getattr(
                         args, "retain_promotion_evidence", False
                     ),
+                    promotion_evidence_policy=_promotion_read_policy(args)
+                    if getattr(args, "retain_promotion_evidence", False)
+                    else None,
                 ),
             )
         except (
@@ -303,6 +333,8 @@ def _promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) -
             )
         current_authority = _current_authority_factory(project, binding, args)
         _manifest, worker, planning = current_authority()
+        if worker.worker.is_remote:
+            raise ValueError("retained.promotion.authenticated-remote-ingress-required")
         locks = current_project_component_locks(project)
         lock_ids = tuple(sorted((lock.identity for lock in locks), key=lambda i: i.uri))
         from literate_ai.adapters.project_validation import (
@@ -367,6 +399,7 @@ def _promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) -
                 args.promotion_evidence
             ),
             require_current=binding.require_unchanged,
+            read_policy=_promotion_read_policy(args),
             current_sdk_snapshots=(
                 current_retained_sdk_snapshots(project, locks)
                 if any(member.role == "sdk-policy" for member in _manifest.members)
@@ -397,6 +430,7 @@ def _promote_retained_receipt_from_args(project: Any, binding: Any, args: Any) -
                 Path(args.candidate),
                 candidate,
                 require_current=require_complete_current,
+                external_project_root=project.root,
             )
     except CliFailure:
         raise

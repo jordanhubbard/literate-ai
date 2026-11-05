@@ -9,6 +9,12 @@
   all direct byte, dependency, SDK, tool, revocation and deadline checks. Custom
   callbacks retain independent replanning; plan values grant no execution.
 
+- Host bootstrap requires Git 2.47 or newer and Git LFS 3.2 or newer for
+  scoped ownership checks and complete JSON LFS inventories. Worker alignment
+  reports incompatible selected Git/LFS tools and rechecks declared repairs.
+
+- Python library qualification retains standard-library imports while preserving isolated startup and exact artifact-origin checks (#306).
+
 - Command workers preserve normal failed RUN diagnostics with the original input artifact reference, while retaining pre-execution failures and rejecting failed build/test artifact exports.
 
 - Windows coding-agent test compilers retain configured temporary/system variables while applying MSVC overrides.

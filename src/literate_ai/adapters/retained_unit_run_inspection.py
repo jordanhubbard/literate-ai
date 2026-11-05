@@ -80,7 +80,9 @@ class _Reader:
     def raw(self, reference):
         self.guard()
         if not isinstance(reference, BlobRef) or reference.size > min(
-            64 * 1024**2, self.policy.max_provider_metadata_bytes
+            64 * 1024**2,
+            getattr(self.policy, "maximum_document_bytes", 64 * 1024**2),
+            self.policy.max_provider_metadata_bytes,
         ):
             raise ValueError("retained.unit.run-document-policy-exceeded")
         known_size = self.seen.get(reference.identity)
@@ -351,8 +353,17 @@ def reopen_retained_unit_run(
         )
         reports.append(observed)
     accepted = []
-    for identity in cases:
+    for identity, case in zip(cases, expected_cases, strict=True):
         value = reader.record(identity)
+        if (
+            value["case_identity"] != case.identity.uri
+            or value["exit_code"] != case.expected_exit
+            or reader.reference(value["stdout_identity"]).size
+            != len(case.expected_stdout)
+            or reader.reference(value["stderr_identity"]).size
+            != len(case.expected_stderr)
+        ):
+            raise ValueError("retained.completion.acceptance-observation-mismatch")
         file_observation = value.get("filesystem_observation")
         files = None
         if file_observation is not None:
@@ -496,8 +507,17 @@ def verify_retained_report_blob(reader, output_manifest, test_policy, observed):
     member = next((m for m in output_manifest.members if m.path == report_path), None)
     if (
         member is None
-        or member.size > 16 * 1024**2
+        or member.size
+        > min(
+            16 * 1024**2,
+            getattr(
+                getattr(reader, "policy", None),
+                "maximum_document_bytes",
+                64 * 1024**2,
+            ),
+        )
         or member.symlink_target is not None
+        or observed.blob_identity.uri != "sha256:" + member.sha256
     ):
         raise ValueError("retained.unit.bounded-actual-test-report-required")
 

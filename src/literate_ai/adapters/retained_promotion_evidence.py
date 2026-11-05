@@ -1,5 +1,6 @@
 """Additive live-captured promotion assertions; readers never restore owners."""
 
+import time
 from dataclasses import dataclass
 from pathlib import PurePosixPath, PureWindowsPath
 
@@ -27,6 +28,9 @@ class HistoricalReadPolicy:
     max_provider_metadata_bytes: int = MAX_METADATA
     max_provider_memory_bytes: int = MAX_MEMORY
     max_closure_steps: int = 1_000_000
+    maximum_document_bytes: int = MAX_DOCUMENT
+    maximum_payload_bytes: int = 8 * 1024**3
+    timeout_seconds: int = 300
 
     def __post_init__(self):
         if (
@@ -36,6 +40,12 @@ class HistoricalReadPolicy:
             or not 1 <= self.max_provider_memory_bytes <= MAX_MEMORY
             or type(self.max_closure_steps) is not int
             or not 1 <= self.max_closure_steps <= 1_000_000
+            or type(self.maximum_document_bytes) is not int
+            or not 1 <= self.maximum_document_bytes <= MAX_DOCUMENT
+            or type(self.maximum_payload_bytes) is not int
+            or not 1 <= self.maximum_payload_bytes <= 8 * 1024**3
+            or type(self.timeout_seconds) is not int
+            or not 1 <= self.timeout_seconds <= 300
         ):
             raise ValueError("retained.promotion.finite-read-policy-required")
 
@@ -66,7 +76,9 @@ def _admission_document(admission, planning_ref, run_ref, contexts_identity):
     }
 
 
-def retain_retained_promotion_evidence(admission, workspace, *, admission_guard=None):
+def retain_retained_promotion_evidence(
+    admission, workspace, *, admission_guard=None, _scope=None, policy=None
+):
     """Capture only inside the original runtime, while genuine scopes are live.
 
     This function accepts live Python owners, never receipt JSON or an admission
@@ -80,6 +92,23 @@ def retain_retained_promotion_evidence(admission, workspace, *, admission_guard=
         workspace, RetainedProjectExecutionWorkspace
     ):
         raise TypeError("retained.promotion.original-live-owners-required")
+    from literate_ai.adapters.retained_receipt_promotion_evidence import _original
+
+    original_admission, original_workspace = _original(_scope)
+    if original_admission is not admission or original_workspace is not workspace:
+        raise ValueError("retained.promotion.live-capture-retargeted")
+    policy = HistoricalReadPolicy() if policy is None else policy
+    if type(policy) is not HistoricalReadPolicy:
+        raise TypeError("retained.promotion.typed-read-policy-required")
+    expires = time.monotonic() + policy.timeout_seconds
+
+    def poll():
+        # Original process/owner bindings and finite time, not saved admission.
+        # The complete live authority checks bracket every subordinate writer.
+        _original(_scope)
+        if time.monotonic() >= expires:
+            raise ValueError("retained.promotion.capture-deadline")
+
     if (
         workspace.source != admission.source
         or workspace.plan != admission.run.source_bom.plan
@@ -92,29 +121,73 @@ def retain_retained_promotion_evidence(admission, workspace, *, admission_guard=
         raise TypeError("retained.promotion.live-currentness-guard-required")
 
     def current():
+        poll()
         guard()
         admission.require_current()
         admission.require_native_package_scope()
         workspace._require_private_current()
+        poll()
 
     current()
     rows = workspace._promotion_contexts
     expected = len(admission.run.observations) + len(
         admission.run.acceptance_observations
     )
-    if len(rows) != expected or 512 * expected > MAX_MEMORY:
+    if len(rows) != expected or 512 * expected > policy.max_provider_memory_bytes:
         raise ValueError("retained.promotion.complete-live-contexts-required")
     contexts = canonical_json_bytes(rows)
-    if len(contexts) > MAX_CONTEXT or 16 * len(contexts) > MAX_MEMORY:
+    if (
+        len(contexts) > min(MAX_CONTEXT, policy.maximum_document_bytes)
+        or 16 * len(contexts) > policy.max_provider_memory_bytes
+    ):
         raise ValueError("retained.promotion.context-budget")
-    planning = retain_retained_unit_planning_evidence(admission)
+    # Reserve the original roots/graphs and additional live context before
+    # subordinate metadata is allocated. This is metadata, not payload RAM.
+    original_bytes = sum(reference.size for _, reference in admission.receipt.roots)
+    # Reserve the COMPLETE final envelope before the subordinate writer, whose
+    # byte cap includes every SDK closure document, not just its returned root.
+    # The remaining fixed fields/references must fit this bounded allowance.
+    sidecar_reserve = min(policy.maximum_document_bytes, len(contexts) + 65536)
+    reserved = original_bytes + sidecar_reserve
+    memory = 16 * (reserved + len(contexts)) + 4096 * (
+        len(admission.receipt.records) + len(admission.receipt.roots) + expected
+    )
+    if (
+        reserved >= policy.max_provider_metadata_bytes
+        or memory >= policy.max_provider_memory_bytes
+        or sum(member.size for member in admission.run.source_bom.manifest.members)
+        + 2 * sum(member.size for member in admission.run.output_manifest.members)
+        > policy.maximum_payload_bytes
+    ):
+        raise ValueError("retained.promotion.capture-metadata-policy-exceeded")
+    planning = retain_retained_unit_planning_evidence(
+        admission,
+        maximum_bytes=min(
+            8 * 1024**2,
+            policy.maximum_document_bytes,
+            policy.max_provider_metadata_bytes - reserved,
+        ),
+        maximum_memory_bytes=policy.max_provider_memory_bytes - memory,
+    )
+    current()
+    if (
+        reserved + planning.size >= policy.max_provider_metadata_bytes
+        or memory + 16 * planning.size >= policy.max_provider_memory_bytes
+    ):
+        raise ValueError("retained.promotion.capture-metadata-policy-exceeded")
     run = retain_retained_unit_run_evidence(
         admission,
-        maximum_bytes=MAX_METADATA - len(contexts),
-        maximum_memory_bytes=MAX_MEMORY - 16 * len(contexts),
-        admission_guard=admission.require_current,
-        metadata_poll_guard=workspace._require_current_plan,
+        maximum_bytes=policy.max_provider_metadata_bytes - reserved - planning.size,
+        maximum_memory_bytes=policy.max_provider_memory_bytes
+        - memory
+        - 16 * planning.size,
+        maximum_document_bytes=policy.maximum_document_bytes,
+        admission_guard=current,
+        metadata_poll_guard=poll,
     )
+    current()
+    if run.size > policy.maximum_document_bytes:
+        raise ValueError("retained.promotion.sidecar-document-budget")
     assertion = _admission_document(admission, planning, run, canonical_identity(rows))
     document = {
         "schema": SCHEMA,
@@ -127,7 +200,7 @@ def retain_retained_promotion_evidence(admission, workspace, *, admission_guard=
         "release_authorized": False,
     }
     raw = canonical_json_bytes(document)
-    if len(raw) > MAX_DOCUMENT or 16 * len(raw) > MAX_MEMORY:
+    if len(raw) > sidecar_reserve:
         raise ValueError("retained.promotion.evidence-budget")
     current()
     reference = admission.store.put_bytes(raw, media_type="application/json")

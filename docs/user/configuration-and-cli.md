@@ -113,8 +113,8 @@ litai project retained-harness readmit
 litai project retained-cargo check
 litai project retained-cargo materialize
 litai project retained-cargo admit
-litai project test-receipt promote-retained
 litai project test-receipt run-retained
+litai project test-receipt promote-retained
 litai project test-receipt update
 litai project test-receipt check
 litai project test-receipt require-current
@@ -583,7 +583,7 @@ root-integration acceptance still remain.
 | `generate COMPONENT --output DIR [--target NAME] [--flavor=+NAME ...] [--model MODEL]` | Generate a complete source tree from the current Component lock and asserted Flavor/model selection. |
 | `build [COMPONENT] [--target NAME] [--model MODEL] [--worker ID] [--worker-param NAME=VALUE ...] [--worker-timeout-seconds N] [--worker-health-config PATH]` | Run the current specification-led lifecycle and retain a runnable artifact bound to the exact generation target, model-scope set, and execution worker. An explicit health policy performs bounded admission before substantial work and rechecks failures. |
 | `test [COMPONENT] [--target NAME] [--model MODEL] [--worker ID] [--worker-param NAME=VALUE ...] [--worker-timeout-seconds N] [--worker-health-config PATH]` | Require the current generated tests and independent acceptance gates through the same build lifecycle and model-scope set, including optional bounded worker-health admission. |
-| `build` or `test --project PATH --retained-project MANIFEST --retained-project-profile PROFILE [--retained-project-plan] [--authorize-retained-project SHA256 --allow-host-execution] [--build-dir DIR] [--obj-dir DIR]` | Use the existing complete original-source retained lifecycle. Planning is read-only; execution preserves retained receipt/custody and does not create a generated runnable export. Profile overrides and partial Component scope refuse. |
+| `build`, `test` or `rebuild --project PATH --retained-project MANIFEST --retained-project-profile PROFILE [--retained-project-plan] [--authorize-retained-project SHA256 --allow-host-execution] [--retain-promotion-evidence] [--build-dir DIR] [--obj-dir DIR]` | Use the existing complete original-source retained lifecycle. Planning is read-only; execution preserves retained receipt/custody and does not create a generated runnable export. With `--retain-promotion-evidence`, an actual authorized run also returns the `promotion_evidence` BlobRef. Pass its digest as `sha256:DIGEST` to `promote-retained --promotion-evidence`, together with that run's `custody_root` and `retained_receipt_identity`; the evidence flag does not authorize execution. Profile overrides and partial Component scope refuse. |
 | `run [COMPONENT] [--entrypoint NAME] [--target NAME] [--worker ID] [--flavor SELECTOR ...] [ARGUMENT ...]` | Execute the selected retained entrypoint only when its target profile, worker, and immutable generation authority match the request; omission selects the first declared entrypoint. |
 | `worker health --worker-id ID --health-config PATH [--worker-config PATH] [--job-identity SHA256] [--alert-state PATH]` | Bounded storage and optional sustained CPU/memory/paging/GPU inspection with explicit unknowns, deficit alerts and proceed/hold/recheck decisions. Disk incidents automatically run the configured read-only cleanup investigation. An alert-state file only deduplicates reporting; it authorizes neither dispatch nor cleanup. |
 | `worker cleanup plan --worker-id ID --health-config PATH [--worker-config PATH]` | Re-run the bounded configured candidate scan and emit only exact proved-inactive target identities, measurements, ownership evidence and recovery cost. Planning is read-only and explicitly reports that deletion is unauthorized. |
@@ -624,6 +624,15 @@ For promotion, explicitly add `--retain-promotion-evidence` to the authorized li
 run and retain its returned `promotion_evidence` identity. Historical runs without
 those genuine captured facts cannot acquire them through promotion. No grant,
 reservation or live admission is reconstructed from saved records.
+
+Promotion capture and historical reads accept optional tighter
+`--promotion-maximum-metadata-bytes`, `--promotion-maximum-memory-bytes`,
+`--promotion-maximum-document-bytes`, `--promotion-maximum-payload-bytes`,
+`--promotion-max-closure-steps` and `--promotion-timeout-seconds` limits. The
+canonical ceilings remain 128 MiB metadata, 2 GiB accounted memory, 64 MiB per
+document, 8 GiB aggregate streamed payload, one million closure steps and 300
+seconds. Source/output manifests and auxiliary custody keep their existing,
+possibly tighter limits. These options grant no execution or new scope.
 
 Retained-project planning and promotion use strict read-only authority observation.
 A required source-intelligence provider without a supported pure-read path refuses
@@ -840,8 +849,13 @@ declared Windows locations outside `PATH`;
 ordinary `PATH` discovery retains priority. Alignment does not change `PATH` or
 reinstall a tool merely to run that check. Inspection is
 read-only; findings carry remediations and the exit status is nonzero until every
-worker is aligned. `--apply` runs only your declared installs for missing commands
-and replaces only files whose bytes differ, after backing up the previous copy. It
+worker is aligned. When a platform declares Git or Git LFS, including `git.exe` or
+`git-lfs.exe`, alignment checks both tools against the packaged os-base requirements:
+Git >=2.47,<3 and Git LFS >=3.2,<4. It probes each selected executable with a five-minute
+budget; failed or unreadable versions remain incompatible. Templates that declare
+only a coding CLI do not add repository tools. `--apply` runs only your declared
+installs for missing commands or incompatible repository tools and replaces only
+files whose bytes differ, after backing up the previous copy. It
 then inspects again. Secret contents never appear in reports; only hash prefixes do.
 Align never deletes worker data; low disk points to `litai worker health` and
 `litai worker cleanup`.
