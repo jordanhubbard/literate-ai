@@ -35,6 +35,7 @@ litai update
 litai reparent
 litai catalog copy
 litai flavor add
+litai shadow plan
 
 # Dev workflow
 litai verify
@@ -207,6 +208,14 @@ litai spec diff
 multi-entrypoint Component. Without `--entrypoint`, the first declared entrypoint is
 the stable default. Single-entrypoint Components keep the original `litai run
 COMPONENT` form and reject a named selector.
+
+`litai shadow plan --upstream PATH --shadow PATH [--branch NAME]` inspects a local
+Git repository without fetching or writing. It defaults to `main` only when that
+local branch exists, binds each selected branch to its exact commit, and reports
+a deterministic plan identity and GitHub origin. The destination must be a new,
+separate path. The command does not create or qualify a shadow repository; see
+[ADR 0063](../decisions/0063-continuous-upstream-shadow-qualification.md) for
+the remaining creation, synchronization, qualification, and repair contract.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with
