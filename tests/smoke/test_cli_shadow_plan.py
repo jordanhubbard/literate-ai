@@ -92,6 +92,28 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_shadow_pr(
+        self, response: dict[str, object]
+    ) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        with patch("literate_ai.cli.shadow._github_pr", return_value=response):
+            status = main(
+                (
+                    "--json",
+                    "shadow",
+                    "pr-plan",
+                    "--shadow",
+                    str(self.root / "shadow"),
+                    "--number",
+                    "17",
+                ),
+                stdout=stdout,
+                stderr=stderr,
+            )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def pr_response(self) -> dict[str, object]:
         return {
             "id": 1717,
@@ -283,6 +305,25 @@ class ShadowPlanCliTests(unittest.TestCase):
         status, envelope = self.invoke_pr(response)
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.forge_invalid")
+
+    def test_pr_plan_binds_created_shadow_and_current_target(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        created = self.invoke_create(planned["plan_identity"], "--acknowledge")[1][
+            "result"
+        ]
+        status, envelope = self.invoke_shadow_pr(self.pr_response())
+        self.assertEqual(status, 0)
+        result = envelope["result"]
+        self.assertEqual(result["shadow_commit"], created["shadow_commit"])
+        self.assertEqual(
+            result["source_bundle_identity"], created["source_bundle_identity"]
+        )
+        self.assertEqual(result["pull_request"]["base_commit"], self.main_commit)
+        response = self.pr_response()
+        response["base"]["sha"] = self.feature_commit
+        status, refused = self.invoke_shadow_pr(response)
+        self.assertEqual(status, 2)
+        self.assertEqual(refused["error"]["code"], "shadow.pr_base_stale")
 
     def test_create_custodies_exact_branches_in_separate_git_repo(self) -> None:
         planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]

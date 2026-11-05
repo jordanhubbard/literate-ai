@@ -190,10 +190,29 @@ def plan_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
         raise CliFailure(
             "shadow.pr_number_invalid", "PR number is outside its finite bound"
         )
-    upstream = _upstream_root(args.upstream)
+    shadow_state = (
+        status_shadow(argparse.Namespace(shadow=args.shadow))
+        if args.shadow is not None
+        else None
+    )
+    registry = (
+        json.loads(
+            _bounded_file(
+                Path(str(shadow_state["shadow"]))
+                / ".literate-shadow"
+                / "registry.json",
+                64 * 1024,
+            )
+        )
+        if shadow_state is not None
+        else None
+    )
+    upstream = _upstream_root(str(registry["upstream"]) if registry else args.upstream)
     forge = _forge_identity(
         _git(upstream, "config", "--local", "--get", "remote.origin.url")
     )
+    if registry is not None and forge != registry["forge"]:
+        raise CliFailure("shadow.forge_changed", "Upstream forge identity changed")
     pr = _github_pr(forge, args.number)
     try:
         base, head = pr["base"], pr["head"]
@@ -221,18 +240,34 @@ def plan_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
         or not _HEX_COMMIT.fullmatch(base_commit)
         or not _HEX_COMMIT.fullmatch(head_commit)
         or not isinstance(base_ref, str)
+        or len(base_ref) > _MAX_REF_CHARS
         or not isinstance(head_ref, str)
         or len(head_ref) > _MAX_REF_CHARS
     ):
         raise CliFailure(
             "shadow.forge_invalid", "Forge PR identity is invalid or closed"
         )
-    local_base = _branch_commit(upstream, base_ref)
-    if local_base != base_commit:
-        raise CliFailure(
-            "shadow.pr_base_stale",
-            "Local target branch differs from the current PR base",
-        )
+    _git(upstream, "check-ref-format", "--branch", base_ref)
+    if shadow_state is None:
+        if _branch_commit(upstream, base_ref) != base_commit:
+            raise CliFailure(
+                "shadow.pr_base_stale",
+                "Local target branch differs from the current PR base",
+            )
+    else:
+        selected = {item["ref"]: item["commit"] for item in shadow_state["branches"]}
+        target_ref = f"refs/heads/{base_ref}"
+        if target_ref not in selected or selected[target_ref] != base_commit:
+            raise CliFailure(
+                "shadow.pr_base_stale",
+                "Shadow target branch differs from the current PR base",
+            )
+        remote = _remote_heads(upstream, [target_ref])
+        if remote.get(target_ref) != base_commit:
+            raise CliFailure(
+                "shadow.pr_base_stale",
+                "Remote target branch changed during PR planning",
+            )
     try:
         head_available = _git(upstream, "cat-file", "-t", head_commit) == "commit"
     except CliFailure as exc:
@@ -255,6 +290,10 @@ def plan_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
         },
         "effect": "read-only; no PR lane was created or qualified",
     }
+    if shadow_state is not None:
+        body["shadow"] = shadow_state["shadow"]
+        body["shadow_commit"] = shadow_state["shadow_commit"]
+        body["source_bundle_identity"] = shadow_state["source_bundle_identity"]
     return _plan_identity(body)
 
 
@@ -1324,9 +1363,9 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     pr = actions.add_parser(
         "pr-plan", help="bind a GitHub PR base and head without fetching or writing"
     )
-    pr.add_argument(
-        "--upstream", required=True, help="local upstream Git repository root"
-    )
+    pr_location = pr.add_mutually_exclusive_group(required=True)
+    pr_location.add_argument("--upstream", help="local upstream Git repository root")
+    pr_location.add_argument("--shadow", help="created shadow Git repository root")
     pr.add_argument(
         "--number", required=True, type=int, help="positive pull request number"
     )

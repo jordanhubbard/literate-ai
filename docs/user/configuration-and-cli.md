@@ -225,6 +225,9 @@ the remaining creation, synchronization, qualification, and repair contract.
 identity and refuses a local target branch whose commit differs from the PR base.
 It reports whether the candidate head object is available locally, without
 fetching it or creating an evaluation lane.
+Use `--shadow PATH` in place of `--upstream PATH` to bind the plan to a created
+shadow's exact commit and source bundle. This form requires the PR target branch
+to be selected in the shadow and equal the current remote PR base.
 `litai shadow create` repeats the creation plan inputs and requires both
 `--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
 bounded Git bundle of their exact history in a new Git repository, and records a
