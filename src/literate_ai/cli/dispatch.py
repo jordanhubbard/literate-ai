@@ -106,6 +106,7 @@ _TOP_LEVEL_COMMANDS = frozenset(
         "prompt",
         "flavor",
         "design",
+        "shadow",
         "video",
     }
 )
@@ -159,6 +160,7 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai component migrate
     litai learn
     litai design refine | explain | accept
+    litai shadow plan
 
   Operator
     litai config paths | migrate [--apply]
@@ -243,6 +245,10 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         from .design import design_from_args
 
         return design_from_args(args)
+    if args.command == "shadow":
+        from .shadow import plan_shadow
+
+        return plan_shadow(args), 0
     if args.command == "release":
         from .release import release_from_args
 
@@ -538,6 +544,7 @@ def _parser() -> JsonArgumentParser:
     from .flavor import add_flavor_parser
     from .package import add_package_parser
     from .release import add_release_parser
+    from .shadow import add_shadow_parser
 
     parser = JsonArgumentParser(
         prog="litai",
@@ -741,6 +748,7 @@ def _parser() -> JsonArgumentParser:
     onboard_adopt.add_argument("--baseline-diagnostic-chars", type=int)
     onboard_adopt.add_argument("--harness-workspace-link", action="append", default=[])
     add_design_parser(commands)
+    add_shadow_parser(commands)
     add_release_parser(commands)
     add_package_parser(commands)
     add_flavor_parser(commands)
