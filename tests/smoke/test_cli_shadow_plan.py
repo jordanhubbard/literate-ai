@@ -135,6 +135,25 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_sync(self, *extra: str) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        status = main(
+            (
+                "--json",
+                "shadow",
+                "sync",
+                "plan",
+                "--shadow",
+                str(self.root / "shadow"),
+                *extra,
+            ),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def test_default_main_is_exact_and_read_only(self) -> None:
         before = _git(self.upstream, "status", "--porcelain=v1")
         status, envelope = self.invoke()
@@ -299,6 +318,38 @@ class ShadowPlanCliTests(unittest.TestCase):
         status, envelope = self.invoke_status()
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.custody_invalid")
+
+    def test_sync_plan_binds_advance_and_explicit_branch_addition(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        _git(self.upstream, "branch", "release", "main")
+        (self.upstream / "README.md").write_text("advanced\n", encoding="utf-8")
+        _git(self.upstream, "commit", "-qam", "advance feature")
+        advanced = _git(self.upstream, "rev-parse", "HEAD")
+        status, envelope = self.invoke_sync("--add-branch", "release")
+        self.assertEqual(status, 0)
+        branches = envelope["result"]["branches"]
+        self.assertEqual(
+            [item["change"] for item in branches], ["unchanged", "advanced", "added"]
+        )
+        self.assertEqual(branches[1]["commit"], advanced)
+        self.assertFalse(
+            (self.root / "shadow" / ".literate-shadow" / "journal.jsonl")
+            .read_text()
+            .count("sync")
+        )
+
+    def test_sync_plan_refuses_rewritten_upstream_branch(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        _git(self.upstream, "reset", "--hard", "main")
+        status, envelope = self.invoke_sync()
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.non_fast_forward")
 
 
 if __name__ == "__main__":

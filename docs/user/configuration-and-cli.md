@@ -39,6 +39,7 @@ litai shadow plan
 litai shadow create
 litai shadow pr-plan
 litai shadow status
+litai shadow sync plan
 
 # Dev workflow
 litai verify
@@ -232,6 +233,11 @@ unqualified; synchronization and mapped lifecycle execution remain separate work
 bundle digest and heads, then compares selected refs and forge identity with the
 current local upstream checkout. It reports stale refs without treating the saved
 result as qualification and does not fetch or write.
+`litai shadow sync plan --shadow PATH [--add-branch NAME]` checks the current
+selected refs against the saved commits and requires each existing branch to
+advance by ancestry. A newly selected branch must be named explicitly. It binds
+the shadow commit and source bundle identity to a read-only plan; applying that
+plan and fetching remote refs are separate, still-open operations.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with

@@ -600,6 +600,94 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
     }
 
 
+def _require_ancestor(upstream: Path, previous: str, current: str) -> None:
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(upstream),
+                "merge-base",
+                "--is-ancestor",
+                previous,
+                current,
+            ],
+            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=10,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise CliFailure(
+            "shadow.ancestry_unavailable", "Git ancestry inspection did not complete"
+        ) from exc
+    if result.returncode == 1:
+        raise CliFailure(
+            "shadow.non_fast_forward", "Selected upstream branch was rewritten"
+        )
+    if result.returncode:
+        raise CliFailure(
+            "shadow.ancestry_invalid", "Selected upstream ancestry is unavailable"
+        )
+
+
+def plan_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
+    state = status_shadow(args)
+    shadow = Path(str(state["shadow"]))
+    registry = json.loads(
+        _bounded_file(shadow / ".literate-shadow" / "registry.json", 64 * 1024)
+    )
+    upstream = _upstream_root(str(registry["upstream"]))
+    forge = _forge_identity(
+        _git(upstream, "config", "--local", "--get", "remote.origin.url")
+    )
+    if forge != registry["forge"]:
+        raise CliFailure("shadow.forge_changed", "Upstream forge identity changed")
+    prior = {str(item["ref"]): str(item["commit"]) for item in state["branches"]}
+    additions = args.add_branch or []
+    if len(prior) + len(additions) > _MAX_BRANCHES:
+        raise CliFailure("shadow.branches_unbounded", "Too many selected branches")
+    if len(set(additions)) != len(additions) or any(
+        f"refs/heads/{branch}" in prior for branch in additions
+    ):
+        raise CliFailure("shadow.branch_duplicate", "A selected branch is repeated")
+    selected = []
+    for ref, previous in prior.items():
+        current = _branch_commit(upstream, ref.removeprefix("refs/heads/"))
+        _require_ancestor(upstream, previous, current)
+        selected.append(
+            {
+                "ref": ref,
+                "previous_commit": previous,
+                "commit": current,
+                "change": "unchanged" if previous == current else "advanced",
+            }
+        )
+    for branch in additions:
+        commit = _branch_commit(upstream, branch)
+        selected.append(
+            {
+                "ref": f"refs/heads/{branch}",
+                "previous_commit": None,
+                "commit": commit,
+                "change": "added",
+            }
+        )
+    body: dict[str, object] = {
+        "schema": "literate-ai/shadow-sync-plan@1",
+        "shadow": str(shadow),
+        "shadow_commit": state["shadow_commit"],
+        "source_bundle_identity": state["source_bundle_identity"],
+        "upstream": str(upstream),
+        "forge": forge,
+        "branches": selected,
+        "effect": "read-only; no upstream refs were fetched or shadow state changed",
+    }
+    return _plan_identity(body)
+
+
 def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     shadow = commands.add_parser(
         "shadow", help="plan a separate upstream shadow repository"
@@ -628,6 +716,13 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
         help="reverify shadow custody and current upstream refs without writing",
     )
     status.add_argument("--shadow", required=True)
+    sync = actions.add_parser(
+        "sync", help="plan exact selected-branch changes without fetching or writing"
+    )
+    sync_actions = sync.add_subparsers(dest="sync_command", required=True)
+    sync_plan = sync_actions.add_parser("plan")
+    sync_plan.add_argument("--shadow", required=True)
+    sync_plan.add_argument("--add-branch", action="append")
     pr = actions.add_parser(
         "pr-plan", help="bind a GitHub PR base and head without fetching or writing"
     )
@@ -644,5 +739,6 @@ __all__ = [
     "create_shadow",
     "plan_shadow",
     "plan_shadow_pr",
+    "plan_shadow_sync",
     "status_shadow",
 ]
