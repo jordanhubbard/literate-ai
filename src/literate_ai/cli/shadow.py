@@ -20,6 +20,7 @@ _MAX_BRANCHES = 32
 _MAX_REF_CHARS = 200
 _MAX_PR_BYTES = 256 * 1024
 _MAX_BUNDLE_BYTES = 128 * 1024 * 1024
+_MAX_FETCH_BYTES = 512 * 1024 * 1024
 _MAX_JOURNAL_EVENTS = 64
 _HEX_COMMIT = re.compile(r"[0-9a-f]{40,64}\Z")
 _GITHUB_SSH = re.compile(
@@ -313,6 +314,100 @@ def _create_bounded_bundle(upstream: Path, bundle: Path, refs: list[str]) -> Non
             process.kill()
         process.wait()
         raise
+
+
+def _directory_bytes(root: Path) -> int:
+    total = 0
+    for directory, _, files in os.walk(root):
+        for name in files:
+            total += (Path(directory) / name).stat().st_size
+            if total > _MAX_FETCH_BYTES:
+                return total
+    return total
+
+
+def _fetch_selected_refs(
+    upstream: Path, destination: Path, selected: list[dict[str, object]]
+) -> Path:
+    refs = [str(item["ref"]) for item in selected]
+    commits = {str(item["ref"]): str(item["commit"]) for item in selected}
+    if len({len(commit) for commit in commits.values()}) != 1:
+        raise CliFailure("shadow.remote_invalid", "Remote object formats disagree")
+    object_format = "sha256" if len(next(iter(commits.values()))) == 64 else "sha1"
+    repository = destination / "remote.git"
+    hooks = destination / "empty-hooks"
+    hooks.mkdir()
+    _git(
+        destination,
+        "-c",
+        "init.templateDir=",
+        "init",
+        "--bare",
+        "-q",
+        f"--object-format={object_format}",
+        str(repository),
+    )
+    remote_url = _git(upstream, "config", "--local", "--get", "remote.origin.url")
+    try:
+        process = subprocess.Popen(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(repository),
+                "-c",
+                f"core.hooksPath={hooks}",
+                "fetch",
+                "--no-tags",
+                "--recurse-submodules=no",
+                "--",
+                remote_url,
+                *(f"+{ref}:{ref}" for ref in refs),
+            ],
+            env={
+                **os.environ,
+                "GIT_OPTIONAL_LOCKS": "0",
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_TERMINAL_PROMPT": "0",
+            },
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError as exc:
+        raise CliFailure(
+            "shadow.fetch_unavailable", "Remote fetch could not start"
+        ) from exc
+    deadline = time.monotonic() + 120
+    try:
+        while process.poll() is None:
+            if time.monotonic() >= deadline:
+                raise CliFailure(
+                    "shadow.fetch_timeout", "Remote fetch exceeded its time bound"
+                )
+            if _directory_bytes(repository) > _MAX_FETCH_BYTES:
+                raise CliFailure(
+                    "shadow.fetch_unbounded", "Remote fetch exceeded its byte bound"
+                )
+            try:
+                process.wait(timeout=0.1)
+            except subprocess.TimeoutExpired:
+                pass
+        if process.returncode:
+            raise CliFailure("shadow.fetch_failed", "Remote fetch did not complete")
+        if _directory_bytes(repository) > _MAX_FETCH_BYTES:
+            raise CliFailure(
+                "shadow.fetch_unbounded", "Remote fetch exceeded its byte bound"
+            )
+    except BaseException:
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+        raise
+    for ref, expected_commit in commits.items():
+        actual = _git(repository, "rev-parse", "--verify", f"{ref}^{{commit}}")
+        if actual != expected_commit:
+            raise CliFailure("shadow.plan_stale", "Remote ref changed during fetch")
+    return repository
 
 
 def create_shadow(args: argparse.Namespace) -> dict[str, object]:
@@ -743,10 +838,25 @@ def plan_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
         f"refs/heads/{branch}" in prior for branch in additions
     ):
         raise CliFailure("shadow.branch_duplicate", "A selected branch is repeated")
+    all_refs = [*prior, *(f"refs/heads/{branch}" for branch in additions)]
+    for branch in additions:
+        if not branch or len(branch) > _MAX_REF_CHARS or branch.startswith("-"):
+            raise CliFailure(
+                "shadow.branch_invalid", "The branch name is outside its finite bound"
+            )
+        _git(upstream, "check-ref-format", "--branch", branch)
+    remote = _remote_heads(upstream, all_refs) if args.remote else None
+    if remote is not None and set(remote) != set(all_refs):
+        raise CliFailure("shadow.remote_missing", "A selected remote branch is missing")
     selected = []
     for ref, previous in prior.items():
-        current = _branch_commit(upstream, ref.removeprefix("refs/heads/"))
-        _require_ancestor(upstream, previous, current)
+        current = (
+            remote[ref]
+            if remote is not None
+            else _branch_commit(upstream, ref.removeprefix("refs/heads/"))
+        )
+        if remote is None:
+            _require_ancestor(upstream, previous, current)
         selected.append(
             {
                 "ref": ref,
@@ -756,7 +866,11 @@ def plan_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
             }
         )
     for branch in additions:
-        commit = _branch_commit(upstream, branch)
+        commit = (
+            remote[f"refs/heads/{branch}"]
+            if remote is not None
+            else _branch_commit(upstream, branch)
+        )
         selected.append(
             {
                 "ref": f"refs/heads/{branch}",
@@ -772,8 +886,9 @@ def plan_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
         "source_bundle_identity": state["source_bundle_identity"],
         "upstream": str(upstream),
         "forge": forge,
+        "source": "remote" if args.remote else "local",
         "branches": selected,
-        "effect": "read-only; no upstream refs were fetched or shadow state changed",
+        "effect": "read-only; no refs were fetched or shadow state changed",
     }
     return _plan_identity(body)
 
@@ -1056,11 +1171,21 @@ def apply_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
     ) as temporary:
         stage = Path(temporary)
         bundle = stage / "source.bundle"
+        source_repo = (
+            _fetch_selected_refs(upstream, stage, plan["branches"])
+            if plan["source"] == "remote"
+            else upstream
+        )
+        if plan["source"] == "remote":
+            for item in plan["branches"]:
+                previous = item["previous_commit"]
+                if previous is not None:
+                    _require_ancestor(source_repo, str(previous), str(item["commit"]))
         _create_bounded_bundle(
-            upstream, bundle, [str(item["ref"]) for item in selected]
+            source_repo, bundle, [str(item["ref"]) for item in selected]
         )
         observed = {}
-        for line in _git(upstream, "bundle", "list-heads", str(bundle)).splitlines():
+        for line in _git(source_repo, "bundle", "list-heads", str(bundle)).splitlines():
             commit, separator, ref = line.partition(" ")
             if not separator or ref in observed:
                 raise CliFailure(
@@ -1069,7 +1194,7 @@ def apply_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
             observed[ref] = commit
         if observed != {str(item["ref"]): str(item["commit"]) for item in selected}:
             raise CliFailure("shadow.plan_stale", "Upstream refs changed during sync")
-        _git(upstream, "bundle", "verify", str(bundle), timeout=90)
+        _git(source_repo, "bundle", "verify", str(bundle), timeout=90)
         if plan_shadow_sync(args)["plan_identity"] != args.expect_plan:
             raise CliFailure(
                 "shadow.plan_stale", "Upstream or shadow changed during sync"
@@ -1188,9 +1313,11 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     sync_plan = sync_actions.add_parser("plan")
     sync_plan.add_argument("--shadow", required=True)
     sync_plan.add_argument("--add-branch", action="append")
+    sync_plan.add_argument("--remote", action="store_true")
     sync_apply = sync_actions.add_parser("apply")
     sync_apply.add_argument("--shadow", required=True)
     sync_apply.add_argument("--add-branch", action="append")
+    sync_apply.add_argument("--remote", action="store_true")
     sync_apply.add_argument("--expect-plan", required=True, metavar="SHA256")
     sync_apply.add_argument("--acknowledge", action="store_true")
     sync_apply.add_argument("--resume", action="store_true")

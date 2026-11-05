@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -11,7 +12,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.cli import main
+from literate_ai.cli import shadow as shadow_module
 from literate_ai.cli.errors import CliFailure
+
+_REAL_REMOTE_HEADS = shadow_module._remote_heads
 
 
 def _git(root: Path, *args: str) -> str:
@@ -446,6 +450,89 @@ class ShadowPlanCliTests(unittest.TestCase):
         self.assertEqual(envelope["error"]["code"], "shadow.plan_stale")
         self.assertFalse(
             (self.root / "shadow" / ".git" / "literate-shadow.pending.json").exists()
+        )
+
+    def test_remote_sync_fetches_without_mutating_local_upstream(self) -> None:
+        remote = self.root / "remote.git"
+        _git(self.root, "init", "--bare", "-q", "-b", "main", str(remote))
+        _git(self.upstream, "push", str(remote), "main", "feature")
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        contributor = self.root / "contributor"
+        _git(self.root, "clone", "-q", str(remote), str(contributor))
+        _git(contributor, "config", "user.name", "Contributor")
+        _git(contributor, "config", "user.email", "contributor@example.test")
+        _git(contributor, "checkout", "-q", "feature")
+        (contributor / "README.md").write_text("remote advance\n", encoding="utf-8")
+        _git(contributor, "commit", "-qam", "remote advance")
+        remote_head = _git(contributor, "rev-parse", "HEAD")
+        _git(contributor, "push", "-q", "origin", "feature")
+        config = self.root / "gitconfig"
+        _git(
+            self.root,
+            "config",
+            "--file",
+            str(config),
+            f"url.file://{remote}.insteadOf",
+            "git@github.com:owner/example.git",
+        )
+        with (
+            patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}),
+            patch(
+                "literate_ai.cli.shadow._remote_heads", side_effect=_REAL_REMOTE_HEADS
+            ),
+        ):
+            status, envelope = self.invoke_sync("--remote")
+            self.assertEqual(status, 0)
+            plan = envelope["result"]
+            self.assertEqual(plan["source"], "remote")
+            self.assertEqual(plan["branches"][1]["commit"], remote_head)
+            status, applied = self.invoke_sync_apply(
+                plan["plan_identity"], "--remote", "--acknowledge"
+            )
+            self.assertEqual(status, 0)
+            self.assertEqual(applied["result"]["branches"][1]["commit"], remote_head)
+            self.assertFalse(applied["result"]["upstream_current"])
+        self.assertEqual(
+            _git(self.upstream, "rev-parse", "feature"), self.feature_commit
+        )
+
+    def test_remote_sync_refuses_force_pushed_branch(self) -> None:
+        remote = self.root / "remote.git"
+        _git(self.root, "init", "--bare", "-q", "-b", "main", str(remote))
+        _git(self.upstream, "push", str(remote), "main", "feature")
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        _git(self.upstream, "push", "--force", str(remote), "main:feature")
+        config = self.root / "gitconfig"
+        _git(
+            self.root,
+            "config",
+            "--file",
+            str(config),
+            f"url.file://{remote}.insteadOf",
+            "git@github.com:owner/example.git",
+        )
+        old_shadow_head = _git(self.root / "shadow", "rev-parse", "HEAD")
+        with (
+            patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}),
+            patch(
+                "literate_ai.cli.shadow._remote_heads", side_effect=_REAL_REMOTE_HEADS
+            ),
+        ):
+            status, envelope = self.invoke_sync("--remote")
+            self.assertEqual(status, 0)
+            status, refused = self.invoke_sync_apply(
+                envelope["result"]["plan_identity"], "--remote", "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(refused["error"]["code"], "shadow.ancestry_invalid")
+        self.assertEqual(
+            _git(self.root / "shadow", "rev-parse", "HEAD"), old_shadow_head
         )
 
     def test_sync_resume_after_ref_publication(self) -> None:
