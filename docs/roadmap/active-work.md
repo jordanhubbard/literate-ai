@@ -4688,30 +4688,6 @@ invalid. Ordinary queue items do not gain separate files merely to satisfy this 
 
 ## Open pull-request landing queue
 
-### Current 1.4 forward-composition intake (2026-11-04)
-
-All reviews below remain in the current 1.4 scope. The completed Linux run at
-`dcb9cc622a3903d981f0cc42b514d04425f13b84` passed the full validation,
-wheel/installed journeys and current-checkout export gates with 2,604 passing
-Python tests and 100 declared skips. Its proof belongs to that exact source;
-it does not qualify the later main/promotion composition or a draft below.
-
-| Review | Retained scope | Current 1.4 disposition |
-| --- | --- | --- |
-| [#297](https://github.com/jordanhubbard/literate-ai/pull/297) | Public retained-receipt promotion history, squashed into main at `2b29c1e621a9e4fee5c4f12d273010a142560cfd` from `99c4edc0c85cb934ccc0f1fe5cca220d429a7b30` | Landed history is preserved. Issue #295 remains open: the accepted corrected ADR 0060 implementation and real consumer acceptance require the forward fix and fresh qualification. |
-| [#303](https://github.com/jordanhubbard/literate-ai/pull/303), [#304](https://github.com/jordanhubbard/literate-ai/pull/304) | Reviewed receiver/SDK-metadata and declared tree-verification slices retained in exact `dcb9cc6` source | Included by ordinary history; current forward source and original native qualification remain separate. |
-| [#308](https://github.com/jordanhubbard/literate-ai/pull/308) | Exact advanced integration head `426b71ec4e56afb5d041df8ed0995c09bb20aae5`, including Rust-harness, Python/Git readiness and published promotion histories | Source collected by ordinary merge while preserving corrected current promotion guards, SDK/HTML controls and accepted ADR 0060. Source-local focused results do not qualify the new full carrier, installed Rust, original native SDK/FreeBSD or real requesting consumer. Proposed ADR 0061 remains unaccepted. |
-| [#309](https://github.com/jordanhubbard/literate-ai/pull/309) | Fresh retained-guard reuse; draft head `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0` | **Current 1.4, draft source collected; combined qualification pending.** Ordinary merge of exact reviewed guard head preserves its history and current promotion, SDK and HTML controls. Separate-head 27-job CI is green, but the new composition still requires focused/source review, supported authority renewal and the full exact-source gates. Receiver-only guard reuse does not repair or qualify the local SDK diagnostic path; original five-unit PACKAGE/cold VERIFY and consumer acceptance remain open. |
-| [#310](https://github.com/jordanhubbard/literate-ai/pull/310) | Python stdlib import preservation and declared worker Git/Git LFS capabilities; draft head `dcd33ba4a31518c4508ef352770072d1869f9976` | **Current 1.4, source collected through exact PR #308 history; combined qualification pending.** Preserve its owner's dirty tree and original qualification evidence. Proposed ADR 0061 remains unaccepted; no retained Python bridge or final native acceptance is inferred. |
-
-**Pending directing-user design intake:** [issue #311](https://github.com/jordanhubbard/literate-ai/issues/311)
-(`SHADOW-001`) explicitly requests 1.4.0 in its body but currently has no tracker
-milestone. Its [ADR 0062 proposal, revision 2](https://github.com/jordanhubbard/literate-ai/issues/311#issuecomment-6644262047)
-remains **Proposed**, with no directing-user acceptance observed. Keep it in
-current 1.4 intake pending design acceptance and tracker reconciliation; this
-record neither authorizes implementation nor defers it to another release.
-No shadow implementation or qualification is included in this candidate.
-
 ### Current consolidation inventory
 
 **Follow-up (2026-10-23):** PR #133 is merged at `d17881fa`; exact-main CI 40031696168 passes all 26 jobs. Scoped issues #91, #84, #85, #94 and #134 are closed against their retained evidence. Twenty-six issues remain open. The provided Windows renewal still times out at its unchanged 5400-second limit after 121 completed wheel spans; #121/#123/#129 remain open, and no complete native or release acceptance follows.
@@ -31092,6 +31068,27 @@ complete; final 1.3.1 candidate and broader FreeBSD qualification remain separat
 - **Direction:** Reconcile open GitHub issue #117: repeated full distribution observation dominates installed FreeBSD preparation.
 - **Conclusion:** Investigate operation-scoped reuse and bounded revalidation while preserving exact member identity, live revocation, source and command custody; do not use process-global success caching.
 - **Depends on:** none
+- **Current action:** Derive only the opening hardlink groups and exact stamps from
+  the first complete retained-input inventory's genuine leaf observations. Preserve
+  every stream/root/descriptor check, final inventory and the independent fresh
+  hardlink topology observation strictly after that final inventory. The bounded
+  lexical LRU proposal is rejected: both full native verifications passed, but its
+  ordered baseline/candidate pair measured 54.744/55.861 seconds, showing no speed
+  improvement. The opening-only source passes 28 focused mutation, incomplete-group
+  and descriptor controls. One full native input-verification pair measures baseline
+  56.436 seconds wall / 56.432 CPU and candidate 45.758 wall / 45.755 CPU (about 18.9%
+  lower), with baseline-first filesystem-cache order uncontrolled. This is mechanism
+  timing evidence only. The fresh integrated source gate stopped after 1,575
+  passes, 87 declared skips and one new custom-observer test failure: that fixture
+  expected three source opens, but the unchanged conservative custom route performs
+  five (two full registration guards, two measurements and an independent authority
+  check). Independent baseline comparison confirmed those unchanged call paths. The
+  test-only correction passes all nine receiver controls, with no skips; its mutation
+  follows the second actual custom measurement so the independent final authority
+  check must reject it. The canonical two-read budget and every strict public refusal
+  assertion remain intact. Next qualify the integrated source, new installed
+  artifact, five-unit PACKAGE and original-byte cold VERIFY; no expired PACKAGE phase
+  or three-hour recovery is inferred from the earlier instrumented plan profile.
 - **Implementation:**
   - [ ] Measure the installed public SDK route and reduce redundant observation without weakening drift detection.
 - **Evidence:**
@@ -31307,21 +31304,9 @@ planning/metadata candidate preserves admission checks but still performs at
 least four original-tree and four captured-tree verifications per workspace
 guard. Its source trace identifies at least 22 complete-tree checks between SDK
 input-descriptor publication and the first command; this is a static lower bound,
-not a measured live call stack. At that historical checkpoint, a bounded native
-descriptor observation reported the original request active with original-project
-source files open. Preserve the original evidence and qualification attempt; this
-is not a current liveness claim or a fabricated terminal result. Any current
-liveness assertion requires a fresh observation of actual PID and creation identity.
-
-The reviewed receiver-guard source is collected in the forward integration. Its
-current managed focused gate passes all 45 selected controls without skips or
-failures: eight receiver-planning, nine platform-policy, ten real public-readonly,
-three typed-CAS, nine SDK-metadata batch and six HTML publication-race methods.
-Every phase retains actual zero exit and observed owned-group cleanup. These
-source-local controls do not complete the original full contributor gate,
-installed/current-wheel native five-unit PACKAGE or cold VERIFY, real requesting
-consumer acceptance, or the separate local SDK positive control. Receiver-only
-guard reuse does not fix that local SDK diagnostic path.
+not a measured live call stack. A bounded native descriptor observation confirms
+the original request remains active and has original-project source files open.
+Keep that original qualification attempt unchanged while developing the repair.
 
 The repair belongs to the existing retained runtime and observation authority.
 Derive the receiver and source-plan assertions from the immutable plan produced
@@ -32202,10 +32187,6 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 <a id="release-integration-005"></a>
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
-
-- **2026-11-04 full-platform acceptance-control maintenance (source-local):** Exact source `6e2da138` full CI `41965479978` fails the same retained acceptance control on macOS/Python 3.11 and Ubuntu/Python 3.11 and 3.14: the test patches the former dependency-identity helper after production moved to before/after dependency documents. Preserve all three original logs. Update only this test to model valid changed external dependency observations at the current adapter seam while wrapping the real bounded native command and requiring exactly one execution before the unchanged drift refusal. Production guards, existing cases and skip conditions remain unchanged. The complete affected module passes all 14 controls with no skips through the managed Make runner; the related completion, dependency, filesystem and FreeBSD-package selection passes 32 controls with one declared platform skip. A bounded static audit finds all 38 module patch targets across 19 related test files declared by the current modules. Lint, format, repository layout, current driver/runner/documentation reviews, roadmap dependencies, project validation and the maintained documentation render gate pass locally. The dependency drift is modeled explicitly at the document-observation seam; the acceptance command itself executes the real owned compiled fixture. No installed-wheel, native full-source or release acceptance follows from this source repair; fresh exact-source platform qualification remains required.
-
-- **2026-11-04 next-frontier integration intent (in progress):** Start from landed foundation `70cf6b2`, whose tree is identical to qualified source `6113047`. Collect #303 history while preserving the already delivered receiver/SDK implementation and corrected remote fixture, then collect #308 including #304. Add bounded read-only published-tree freshness, explicit project declarations and additive verification reports, failed-RUN input-reference compatibility, and the source-bound SDK clock/setgid controls. Preserve the foundation's MSVC and workflow fixes, six publication-race controls, nine metadata-batch controls, original schemas and retained evidence; old driver/documentation pins remain unqualified for the new union until independent review and supported renewal. Imported contributor and native-preparation checkpoints stay historical producer observations, not current-union installed or native results. Require complete source composition review, focused controls, fresh whole-source/installed qualification and exact full platform CI before landing. Native five-unit PACKAGE/LINK, original-byte cold VERIFY/corruption/scale, full tree rerender/recovery/unit/browser acceptance, worktree retirement and separately owned receipt-promotion work remain open; no release qualification or issue closure is claimed.
 
 - **2026-11-04 current-source forward integration (in progress):** Preserve the exact `731c755` Linux validation, installed-wheel and public-export pass (2,581 passed, 100 declared skips, all 5,235 authored inputs unchanged) separately from its full platform CI result: 26 successful jobs and one failing Windows shard, where five model-probe subtests reject a native Windows path as their declared remote SSH workspace. The compiler fixture now builds; do not relabel that source as fully qualified. Collect the independently reviewed receiver-planning and SDK-metadata batches, nine real-CAS contract controls, source-equivalent current MSVC history, the accepted initial retained-tree HTML slice with six POSIX custody controls, and the reviewed setup-uv action pin. Preserve published v1 schemas and both installed catalog/host and tree journeys. Correct only the two test fixtures' declared remote workspace values to explicit home-relative coordinates; preserve native local paths, the strict worker contract, all cases and all guards. A separate native fixture proof stopped before class setup because its isolated existing-Python environment lacked framework dependencies; retain its setup failure and claim no original/corrected native result. Require final source composition review, supported authority records, fresh whole-source qualification and exact required CI before landing. Original native scale/PACKAGE/VERIFY obligations, worktree completeness/retirement and unaccepted ADR decisions remain open; no release publication is claimed.
 
@@ -33712,6 +33693,8 @@ independent review and the complete combined gate from test one.
 
 - **Decisive qualification:** [Exact-route evidence audit](../../verification/gpu-memory-command-route-qualification.json) reopens the retained original `worker.probe_malformed` failure and repaired native probe. Both bind command catalog `sha256:b69352f8581230c398c74abd236d1a6f8f127f0ed75892281aa5a5fc72469fff`; the repaired typed observation catalog independently reconstructs to `sha256:886303967384f0cdc227a2b0eae869aad3bfc2537fa6df94743236a0c6a0be8a`, retaining one NVIDIA device with memory null. Current contract checks accept the observed device without a VRAM minimum and refuse a positive minimum. The Linux serializer is byte-identical to landed implementation `5d785f64728f285b4bf07cbbdb4bd3e287bb576f`, an ancestor of main `072d66e81eff85f58515a09d93d19528499a5ec1`; exact-main CI 41740063437 passes. Fresh managed `make python-check` selection passes all seven worker-capability cases, including actual shell serializer inputs for permission text, unavailable, numeric and failed-query values. This audit reopens original native evidence rather than claiming a fresh native dispatch; it neither guesses physical GPU capacity nor closes COMMAND-WORKER-001, native Component/SDK/package or release qualification.
 
+- **2026-11-04 combined current-main/guard integration preparation (pending review):** Preserve the separately qualified HCI `f146a2d69da2cc3d6e96194ee8a98c6b7f905f69` and GPI `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0` commits and evidence while composing current main `70cf6b20a152953fa01764086ef90b12e3147d94` through normal history. Keep the complete GPI production guard source, HCI installed freshness journey, upstream real-CAS SDK batch and owned HTML publication-race controls, workflow pin renewal and blocker-composition verification record. The new test/document/workflow union still requires independent review, canonical authority checks, one fresh required full gate and exact-head platform checks. The running root Python/Git-readiness branch and its 45-goal union will be added only after its own gate and commit; neither its source nor the immutable P0 GPI artifact is changed here. Prior qualification does not qualify this combined union, native PACKAGE, browser behavior or complete issue scope.
+
 ### [ ] PYTHON-LIBRARY-IMPORT-001 — Preserve isolated standard-library imports in Python library qualification
 
 - **Release target:** 1.4.0
@@ -33779,10 +33762,6 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RUST-HARNESS-DEPS-001 — Execute reviewed offline Rust library verifier dependencies
 
-- **Installed-wheel environment repair (source-local):** Exact PR #308 source `426b71ec` fails Ubuntu/Python 3.11 wheel qualification before any Rust verifier case: pip inherits the parent Make bytecode-cache prefix and records an installed framework `.pyc` outside its fresh environment. The wheel-smoke subprocess environment now filters that parent prefix without changing strict RECORD containment. A real tiny offline pip installation reproduces the same refusal on the original helper; after the filter, all eight selected wheel-smoke controls pass on macOS/Python 3.14 with zero skips. The new control also deliberately bypasses the default environment filter, reinstalls the fixture with an external cache prefix, and confirms the unchanged canonical reader still refuses the escaped RECORD. The original CI failure and local negative are retained. Independent review, fresh full-source qualification and installed/current-head platform acceptance remain required; this fixture is not the actual installed Rust verifier journey or requesting-consumer acceptance.
-
-- **Forward source repair (not native qualification):** The reviewed native-guard composition now separates pure bound-command byte/currentness checks from genuine bounded Cargo/Rust observations under the actual isolated environment and remaining operation deadline. Five whole-adapter protocol controls pass; restoring only the old executor fails with the ambient/default native-guard sentinel, while the new ordinary binding retains its original full native guard. The tests model external native protocols and use real source/CAS custody; they are not executed Cargo/Rust or installed ADR 0056 acceptance. A wheel report with `qualified: false` for missing tools, crates or platform remains unqualified; the final installed journey must produce an actual positive observation before that boundary can close.
-
 - **Release target:** 1.4.0
 - **GitHub issue:** [#217](https://github.com/jordanhubbard/literate-ai/issues/217)
 - **Accepted design:** [ADR 0056](../decisions/0056-reviewed-rust-library-harness-dependencies.md), explicitly accepted on 2026-11-03.
@@ -33804,35 +33783,142 @@ independent review and the complete combined gate from test one.
   - [ ] Refuse changed source/lock/manifest/features/registry/configuration, missing or unexpected dependencies, alias collisions, extracted-source/checksum disagreement and exact/over-budget inputs; retain actual command and output failures.
   - [ ] Obtain independent source review, canonical driver/documentation records, complete local and exact integrated CI gates, and fresh noneditable installed/native qualification before completion.
 
-- **Exact incoming history (source composition only):** The forward carrier collects exact PR #308 head `426b71ec4e56afb5d041df8ed0995c09bb20aae5`, including published promotion, accepted Rust-harness and Python/Git-readiness histories. It preserves the complete current promotion sidecar/context/dependency checks and strict read-only authority path rather than replacing them with the alternate incoming encoder. Incoming producer test/installed claims remain source-specific historical claims, not qualification of this new composition. Proposed ADR 0061 remains unaccepted; no Python bridge implementation or native PACKAGE/cold VERIFY is inferred.
-
 ### [ ] RETAINED-RECEIPT-PROMOTE-001 — Promote a verified retained-project run into the project test receipt
 
-- **Release target:** 1.4.0; the requesting consumer's release is separate.
+- **Release target:** 1.4.0
+- **Release scope:** The current included dispositions on issue #295 and PR #297 govern this framework work; the consumer release number is separate.
 - **GitHub issue:** [#295](https://github.com/jordanhubbard/literate-ai/issues/295)
-- **Decision:** [ADR 0060](../decisions/0060-retained-project-receipt-promotion.md), corrected design explicitly accepted by the directing user on 2026-11-04. The accepted proposed-text identity is `dbdb2a0f30b0d293aeb70e88af49d7cf71887116f718ff36e8eb321bcdf6d0b9`; acceptance is recorded in [PR #297](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548).
-- **Next action:** In progress: independently review the three existing writer-schema registrations and their actual producer/catalog refusal controls, then freeze the repaired source for fresh original full Linux validate/wheel/export gates under the unchanged official test budget. Installed/current-head platform and real requesting-consumer acceptance remain required before marking the corrected contract delivered.
-
+- **Draft review:** [#297](https://github.com/jordanhubbard/literate-ai/pull/297)
+- **Accepted decision:** [ADR 0060](../decisions/0060-retained-project-receipt-promotion.md); the directing user accepted the corrected design on 2026-11-04 ([acceptance](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548)). Draft implementation and qualification remain open.
+- **Next action:** In progress: implement complete retained verification and genuine evidence capture, semantic runner binding and exact output oracles in an isolated correction branch, then obtain independent source review and real public/installed qualification.
 - **Priority:** P1
 - **Owner:** Retained-project lifecycle and project test receipts
-- **Direction:** Provide a supported, verified path from a passed retained-project run to `project test-receipt update` under the consumer's unchanged custom suite and evidence policy.
-- **Conclusion:** The provisional implementation at `6b1f33d8` retains the three confirmed gaps from `421ce0f7`: acceptance streams are not compared, runner identity excludes semantic test policy, and identifier-only workspace/cache assertions overstate historical evidence. Reuse the complete canonical retained-run verification owners, repair missing command/output/dependency joins, and capture an additive historical admission assertion while the genuine original owner is current. The historical reader must not reconstruct live ownership. Refusing every admission-requiring consumer does not complete the requested capability. Existing policy minima, required evidence and update checks remain mandatory.
-- **Source-local checkpoint:** The preceding frozen forward candidate passed independent semantic source review and 51 managed focused controls (27 contract/public-readonly, six receipt, three typed-CAS, nine SDK-metadata-batch, two receiver, two CLI-reference and two schema-catalog methods), with zero skips/failures. The initial mixed editable-origin fixture setup refusal is retained separately; the fresh official managed environment observes the actual current source origin without changing the guard or rebinding the old environment. Lint, format and repository layout also passed. These results do not qualify the subsequently added SDK control, a new combined commit, an installed consumer, original SDK/native scale or release readiness.
-- **Composed SDK proof gap:** One additional control now uses the existing tiny real C/CMake public SDK fixture, actual batched metadata, original live admission capture and pure historical promotion. It must retain the original owners and current source snapshots, refuse any historical live-owner acquisition/build, and preserve CAS bytes. Independent source/delta review passed. Local attempts remain unqualified: the first stopped before production because its temporary fixture inherited the parent project catalog; the diagnosed outside-repository attempt reached its unchanged 300-second deadline, and its escaped owned test worker was separately identified and terminated. A direct serial diagnostic with unchanged assertions also reached its 300-second deadline; its one 120-second stack shows promotion-evidence collection performing an SDK-metadata currentness hardware/capability probe. This observation does not establish a defect, deadlock, positive SDK outcome or timeout repair. All first raw results are retained; subsequent bounded observations found the direct child/group absent. The original full Linux official test budget and all assertions remain unchanged. This control is not original #235 PACKAGE/VERIFY or real requesting-consumer evidence.
-- **Wire-catalog repair in progress:** The exact `23910f3` Python 3.11 CI fails before wheel installation because the strict current catalog allowlist already declares three promotion writer contracts absent from its resources, index and compatibility matrix. Derive and register the actual promotion sidecar, historical admission assertion and runner-v2 wire shapes from the accepted ADR and current serializers; preserve the allowlist, original-owner capture, complete historical joins and refusal flags. Require full catalog consistency, genuine producer-record validation and malformed/unknown-field negatives before fresh exact-source qualification. The earlier wheel-cache fix and historical eq18 packet remain unchanged observations, not qualification for this repair. The original EvidenceRecordTests compatibility failure is reproduced; the first schema draft also exposed an unresolved relative reference, retained before correcting it to the catalog's absolute-URN document convention. On the corrected schema source, five catalog/evidence/genuine-producer methods pass with zero skips, including original-owner captured records, refusal flags, nested unknown/context credentials and circular-policy negatives. Nine existing catalog regressions pass separately. Full lint, formatting, layout, current driver/documentation authority, roadmap dependency and project validation checks pass; independent source review and fresh full qualification remain pending.
-- **Exact 426 convergence and source-local controls:** The private forward carrier keeps the corrected complete promotion sidecar, per-action/native-export facts, strict public read-only authority and existing controls while collecting exact incoming `426b71ec4e56afb5d041df8ed0995c09bb20aae5` history. A process-bound original capture issuer and cheap deadline/identity metadata polling retain full admission/private/source/tool/SDK checks around metadata capture. Optional tighter document limits propagate before SDK metadata reads, and complete final-envelope headroom is reserved before the whole subordinate metadata closure. The genuine capture/resource and full public promotion/update/currentness journeys pass on their recorded source; the subsequent test-only typed-worker correction passes all 68 remaining focused controls with no skips. The parser/help pair and five modeled Rust native-guard protocol controls pass separately; the old executor fails the explicit ambient-guard negative and is restored exactly. These source-specific results do not constitute one exact-head full gate, installed/native SDK or Rust qualification, actual requesting-consumer acceptance, or release readiness. The public fixture observes actual macOS parent/wrapper mode `0700`; it claims no `02700` support. All first setup/oracle failures remain retained privately.
-
+- **Direction:** Satisfy a custom original-source retained-suite project receipt policy from complete verified retained evidence without weakening runner, suite, inventory, output oracles, evidence semantics or existing receipt-update checks.
+- **Conclusion:** Implement a nonexecuting promotion into the existing finalized candidate boundary. Complete bounded historical reopening is required; hashes alone cannot stand in for admission. Missing historical facts may require a fresh explicitly authorized retained run with genuine live-owner evidence capture.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [x] Retain the original draft command and its historical refusal controls as provisional work.
-  - [x] Reconcile the repository ADR with the exact corrected design and its explicit acceptance; include this existing item in framework 1.4.0.
-  - [ ] Reopen exact acceptance streams, command/tool/case context, reports, source/output/payload inventories and dependency evidence through complete canonical historical verification.
-  - [ ] Bind the runner to semantic test policy, complete actions and test definitions while excluding only the actual circular policy field.
-  - [ ] Add genuine live-owner capture and complete historical reopening for required workspace admission; distinguish envelope cache not-applicable bookkeeping from operational cache evidence.
-  - [ ] Bound metadata, streams, inventories and aggregate custody resources; recheck complete current authority before exclusive publication and preserve no-write dry-run/refusal behavior.
+  - [x] Historical draft command and verifier authored in PR #297 at `421ce0f70b8da21e2f0b34eb655d3766269ba67d`; provisional and known incomplete, not an implementation-acceptance claim.
+  - [x] Directing user explicitly accepted the corrected design before correction implementation ([acceptance](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548)).
+  - [ ] Reuse complete retained completion/export/dependency verification and compare exact acceptance stdout, stderr, exit and filesystem expectations.
+  - [ ] Bind the semantic test-policy inventory and reports in the runner identity, omitting only the actual circular policy reference.
+  - [ ] Verify real historical admission evidence; capture missing facts only under the genuine live admission owner, or refuse unsupported requirements. Keep cache not-applicable bookkeeping distinct from operational cache evidence.
+  - [ ] Preserve bounded currentness/custody, dry-run no-write behavior, candidate collision safety and unchanged receipt-update policy checks.
 - **Evidence:**
-  - [x] Historical draft controls cover stale plan, changed inputs/policy, wrong runner/suite, missing evidence kind, custody tampering and minimum count; they do not qualify the corrected contract.
-  - [ ] Public negative controls refuse coherent wrong streams, altered semantic inventories, fabricated admission/context/dependency records and unsupported operational cache evidence without changing consumer policy.
-  - [ ] Canonical independent source/pin review, full regression and a clean committed installed distribution qualify the repaired implementation.
-  - [ ] A genuine requesting-consumer journey proves supported fresh capture, historical promotion, unchanged-policy update, receipt currentness and project verification. The earlier consumer custody store was not retained; synthetic or converted-harness fixtures do not replace this qualification.
+  - [ ] Real public promotion/update/currentness journey plus causal rehashed incorrect-output, inventory, missing/fabricated admission, resolved-output/dependency, cache-semantic, stale-policy and finite-resource refusals.
+  - [ ] Canonical independent source review and supported driver/document records, required full-source gate, exact clean installed distribution and relevant native controls.
+  - [ ] Genuine requesting-consumer retained-evidence policy qualification. The historical requested run's unavailable custody store is not proof; retain a complete fresh run if required.
+
+The draft's earlier critical-test claims cover its earlier subset only. They do not
+resolve the three confirmed findings or qualify the accepted design. No completed
+implementation, policy weakening, qualification or issue closure is recorded here.
+
+- **Combined source preparation (pending independent review and gate):** The current integration retains qualified HCI `f146a2d69da2cc3d6e96194ee8a98c6b7f905f69`, GPI `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0`, root Python/Git-readiness commit `dcd33ba4a31518c4508ef352770072d1869f9976`, current main `70cf6b20a152953fa01764086ef90b12e3147d94`, the complete published receipt-promotion base `09bb4ff9c59798b43360c162d1e98329a4934be0` plus its independently reviewed correction, and the exact reviewed Rust-harness delta from ancestor `072d66e81eff85f58515a09d93d19528499a5ec1`. Both installed tree and Rust journeys remain in the wheel driver. The root branch's source gate passed 2,559 tests with 131 declared skips and no failures; the direct Rust profile passed six native development cases; receipt promotion passed its real public planning and critical journey with complete source custody unchanged. These are separate exact-snapshot results, not qualification of this new union. Preserve all 47 current release-goal IDs, including the existing receipt-promotion queue item missing from its previous manifest. Canonical pin renewal, one fresh complete source gate, exact-head full platform CI, fresh installed qualification and all remaining native/consumer/browser acceptance remain required. Proposed ADR 0061 still requires directing-user design acceptance before implementation.
+
+### [ ] ADOPT-BASELINE-COMMANDS-001 — Select reviewed baseline commands for a single adoption root
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#207](https://github.com/jordanhubbard/literate-ai/issues/207)
+- **Owner:** Framework onboarding root-plan selection and baseline execution; PROJECT Goal 1
+- **Direction:** Issue #207 requests explicit baseline command selection for a Cargo workspace without editing Cargo.toml or splitting one repository into artificial Components. The issue is included in 1.4.0.
+- **Conclusion:** Extend the existing identity-bound root-plan command route to one selected root. Keep complete source ownership, real detected roots, explicit baseline acknowledgement, currentness and honest selected-command evidence; do not infer broader test coverage or invent skipped execution. Existing implicit and multi-root behavior remains supported.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Current action:** Integrate the independently reviewed single-root override and
+  nonempty bundle-reader support into the current source union, preserving all
+  unselected detected phases and their complete planned rows. The fresh focused
+  development run passed all 17 existing onboarding/root-plan, adoption, component
+  and input-read cases without skips; its public Cargo journey used the actual
+  quarantined baseline and canonical baseline/lift-shift artifacts. The coherent
+  empty-bundle refusal and concurrent-source preservation controls remain required.
+  This exact-snapshot focused result does not qualify the combined source or close
+  issue #207. Independent composition review, renewed canonical records, the fresh
+  full source gate and installed/platform qualification remain pending. Earlier
+  failed development attempts remain failure evidence.
+- **Implementation:**
+  - [ ] Support a nonempty explicitly selected root set, including a single repository root, through the existing reviewed plan and transaction.
+  - [ ] Document scoped Cargo baseline commands and unchanged stale-plan, source-ownership and execution requirements.
+- **Evidence:**
+  - [ ] Use a real public Cargo workspace adoption: the default broad test fails, the explicitly reviewed scoped test passes without manifest mutation or artificial splitting, and only selected commands are credited.
+  - [ ] Reject an empty selection, incomplete ownership, invalid or changed commands and stale acknowledgement before execution; renew focused/full/installed qualification and independent review before landing.
+
+### [ ] WHEEL-RUNTIME-ENV-001 — Isolate wheel runtime creation and installation from Python startup policy
+
+- **Priority:** P0
+- **Release target:** 1.4.0
+- **Owner:** scripts/wheel_smoke.py installed-wheel qualification
+- **Direction:** Repair the exact 1.4 core CI installed-wheel failure while retaining strict RECORD containment and genuine noneditable provenance.
+- **Conclusion:** Ambient Python bytecode and startup selectors must not cross the isolated runtime seeding, wheel build or pip installation boundaries. Use the canonical copied-runtime builder in a sanitized child, preserve package-index/proxy policy and verify real pip plus framework RECORD custody; do not weaken canonical bootstrap validation.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Current action:** Freeze the isolated seeding/build/install correction and its
+  real same-wheel safe/unsafe-cache regression for independent review before
+  runtime qualification. Keep strict canonical RECORD containment unchanged.
+- **Failure evidence:** Exact core commit `426b71ec` CI run
+  [41943200622](https://github.com/jordanhubbard/literate-ai/actions/runs/41943200622)
+  rejects recorded framework bytecode under the invoking checkout's `_build/pycache`
+  instead of the temporary installed prefix. Ubuntu 3.11/3.14 and macOS 3.11 expose
+  the same containment refusal. These failures remain unqualified.
+- **Seeding boundary:** CPython 3.14.10's
+  [venv child launcher](https://github.com/python/cpython/blob/v3.14.10/Lib/venv/__init__.py#L411-L428)
+  forwards most caller environment; its
+  [ensurepip subprocess](https://github.com/python/cpython/blob/v3.14.10/Lib/ensurepip/__init__.py#L59-L81)
+  keeps isolation only when already selected. Invoke the unchanged canonical copied
+  runtime builder in a sanitized child instead of mutating process-global state.
+- **Implementation:**
+  - [ ] Sanitize isolated child Python startup selectors consistently without process-global environment mutation.
+  - [ ] Seed copied runtimes through the existing canonical builder under the same sanitized environment.
+  - [ ] Exercise actual candidate wheel install and canonical record reopening with positive and escaping-private-cache controls.
+- **Evidence:**
+  - [ ] Preserve exact 426 CI failure, raw logs, artifact hashes and all remaining original matrix outcomes.
+  - [ ] Independent source review, meaningful actual install/reopen regression and fresh exact-head full qualification must pass before completion.
+
+### [ ] LIBRARY-EXPORT-ORDER-001 — Verify JavaScript export maps without JSON key-order dependence
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#314](https://github.com/jordanhubbard/literate-ai/issues/314)
+- **Owner:** Standard JavaScript library import verifier; PROJECT Goals 1 and 4
+- **Direction:** Accept an exact declared export map regardless of JSON insertion order while rejecting every missing, additional or incorrect mapping.
+- **Conclusion:** Required target and symbol checks already exist; compare exact own-key membership after them, independent of key order. Issue #314 and draft PR #313 contain a candidate, but full integration evidence remains open.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Reconcile the candidate in draft PR #313 with current main, complete independent review and the installed/full evidence, then close the bounded issue only with the required authority.
+- **Implementation:**
+  - [ ] Integrate and independently review the exact own-key comparison and retain all import, dependency and path-custody refusals.
+- **Evidence:**
+  - [ ] Run managed real-import controls, installed non-editable wheel qualification, full required regression and exact-head review/main CI before closing issue #314.
+
+### [ ] LIBRARY-IMPORT-ISOLATION-001 — Isolate generic Python library imports from ambient dependencies
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#316](https://github.com/jordanhubbard/literate-ai/issues/316)
+- **Owner:** Standard generic Python library verifier; PROJECT Goals 1 and 4
+- **Direction:** Reject undeclared Python modules supplied only by ambient PYTHONPATH while preserving standard-library and declared artifact imports.
+- **Conclusion:** Main commit 328261aac already launches the generic Python library verifier with `-I -S -B`; its public command-projection regression rejects an ambient-only dependency while retaining standard-library imports and artifact-origin checks. Reconcile older draft PR #313 without regressing this boundary; keep installed-wheel runtime qualification separate.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Preserve main's isolated generic verifier and ambient-module regression while reconciling draft PR #313, then qualify the integrated result.
+- **Implementation:**
+  - [x] Isolate generic Python verifier startup and add ambient-dependency refusal in main at 328261aac.
+  - [ ] Preserve the isolated launch, standard-library positive, artifact-origin check and ambient-dependency refusal in the integrated candidate.
+- **Evidence:**
+  - [ ] Run managed positive and negative controls, installed wheel and supported-platform qualification, independent review, full required regression and exact-head CI.
+
+### [ ] QUALIFIED-CHILD-ADD-001 — Add a qualified native child to a qualified retained parent atomically
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#315](https://github.com/jordanhubbard/literate-ai/issues/315)
+- **Owner:** Native child registration and conversion authority; PROJECT Goals 1, 4 and 6
+- **Direction:** Provide a public reviewed plan/apply transaction that adds an independently qualified child while retaining the parent receipt and existing children.
+- **Conclusion:** Issue #315 is distinct from updates to a registered child and from Python library delivery. Define atomic registry and qualification-evidence renewal with rollback and stale-plan refusals before implementation.
+- **Depends on:** Review a design under ADR 0006 before implementation
+- **Completion prerequisites:** none
+- **Next action:** Publish a proposed ADR under ADR 0006 for the public transaction, rollback and qualification boundary; request design acceptance before implementation.
+- **Implementation:**
+  - [ ] Propose and obtain design acceptance, then implement a public plan/apply transaction with current authority, registry, child and receipt binding plus recovery.
+- **Evidence:**
+  - [ ] Qualify two dependency-free children through public APIs; reject unqualified, stale, changed, unsafe and duplicate inputs; verify rollback, installed/native behavior, independent review and exact-head CI.
