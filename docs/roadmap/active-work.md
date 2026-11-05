@@ -4688,6 +4688,29 @@ invalid. Ordinary queue items do not gain separate files merely to satisfy this 
 
 ## Open pull-request landing queue
 
+### Current 1.4 forward-composition intake (2026-11-04)
+
+All reviews below remain in the current 1.4 scope. The completed Linux run at
+`dcb9cc622a3903d981f0cc42b514d04425f13b84` passed the full validation,
+wheel/installed journeys and current-checkout export gates with 2,604 passing
+Python tests and 100 declared skips. Its proof belongs to that exact source;
+it does not qualify the later main/promotion composition or a draft below.
+
+| Review | Retained scope | Current 1.4 disposition |
+| --- | --- | --- |
+| [#297](https://github.com/jordanhubbard/literate-ai/pull/297) | Public retained-receipt promotion history, squashed into main at `2b29c1e621a9e4fee5c4f12d273010a142560cfd` from `99c4edc0c85cb934ccc0f1fe5cca220d429a7b30` | Landed history is preserved. Issue #295 remains open: the accepted corrected ADR 0060 implementation and real consumer acceptance require the forward fix and fresh qualification. |
+| [#303](https://github.com/jordanhubbard/literate-ai/pull/303), [#304](https://github.com/jordanhubbard/literate-ai/pull/304), [#308](https://github.com/jordanhubbard/literate-ai/pull/308) | Reviewed receiver/SDK-metadata, declared tree-verification and integrated SDK/tree-custody slices retained in the exact `dcb9cc6` source | Included by ordinary history in the forward composition; the new combined source remains unqualified until its own source review and required gates pass. Original native SDK/FreeBSD acceptance remains separate. |
+| [#309](https://github.com/jordanhubbard/literate-ai/pull/309) | Fresh retained-guard reuse; draft head `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0` | **Current 1.4, draft, unqualified for this composition.** Not merged here. Review the actual guard/currentness changes, reconcile current-main conflicts and qualify the resulting source before collection; its separate-head CI and retained-mirror observations do not complete original five-unit PACKAGE/cold VERIFY. |
+| [#310](https://github.com/jordanhubbard/literate-ai/pull/310) | Python stdlib import preservation and declared worker Git/Git LFS capabilities; draft head `dcd33ba4a31518c4508ef352770072d1869f9976` | **Current 1.4, draft, unqualified for this composition.** Not merged here. Preserve its owner's dirty tree and review/qualify the exact changes separately. Its proposed ADR 0061 is not accepted by this inventory and no retained Python bridge or final native acceptance is inferred. |
+
+**Pending directing-user design intake:** [issue #311](https://github.com/jordanhubbard/literate-ai/issues/311)
+(`SHADOW-001`) explicitly requests 1.4.0 in its body but currently has no tracker
+milestone. Its [ADR 0062 proposal, revision 2](https://github.com/jordanhubbard/literate-ai/issues/311#issuecomment-6644262047)
+remains **Proposed**, with no directing-user acceptance observed. Keep it in
+current 1.4 intake pending design acceptance and tracker reconciliation; this
+record neither authorizes implementation nor defers it to another release.
+No shadow implementation or qualification is included in this candidate.
+
 ### Current consolidation inventory
 
 **Follow-up (2026-10-23):** PR #133 is merged at `d17881fa`; exact-main CI 40031696168 passes all 26 jobs. Scoped issues #91, #84, #85, #94 and #134 are closed against their retained evidence. Twenty-six issues remain open. The provided Windows renewal still times out at its unchanged 5400-second limit after 121 completed wheel spans; #121/#123/#129 remain open, and no complete native or release acceptance follows.
@@ -33636,20 +33659,28 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-RECEIPT-PROMOTE-001 — Promote a verified retained-project run into the project test receipt
 
-- **Release target:** none assigned; requested by Daemonarchy 1.5.1
+- **Release target:** 1.4.0; the requesting consumer's release is separate.
 - **GitHub issue:** [#295](https://github.com/jordanhubbard/literate-ai/issues/295)
-- **Proposed decision:** [ADR 0060](../decisions/0060-retained-project-receipt-promotion.md); **accepted** by the directing user on 2026-11-04.
-- **Next action:** Merge the reviewed implementation, then qualify against a real retained run.
+- **Decision:** [ADR 0060](../decisions/0060-retained-project-receipt-promotion.md), corrected design explicitly accepted by the directing user on 2026-11-04. The accepted proposed-text identity is `dbdb2a0f30b0d293aeb70e88af49d7cf71887116f718ff36e8eb321bcdf6d0b9`; acceptance is recorded in [PR #297](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548).
+- **Next action:** In progress: freeze the independently reviewed forward source with its supported authority records, then run the original full Linux validate/wheel/export gates, including the new genuine SDK capture-to-historical-promotion control under the existing official test budget. Installed/current-head platform and real requesting-consumer acceptance remain required before marking the corrected contract delivered.
 
 - **Priority:** P1
 - **Owner:** Retained-project lifecycle and project test receipts
-- **Direction:** Provide a supported, verified path from a passed retained-project run to `project test-receipt update` under a custom retained-suite policy without weakening any policy check.
-- **Conclusion:** `project test-receipt promote-retained` re-verifies custody, plan, policies, evidence and counts and emits a finalized candidate.
+- **Direction:** Provide a supported, verified path from a passed retained-project run to `project test-receipt update` under the consumer's unchanged custom suite and evidence policy.
+- **Conclusion:** The provisional implementation at `6b1f33d8` retains the three confirmed gaps from `421ce0f7`: acceptance streams are not compared, runner identity excludes semantic test policy, and identifier-only workspace/cache assertions overstate historical evidence. Reuse the complete canonical retained-run verification owners, repair missing command/output/dependency joins, and capture an additive historical admission assertion while the genuine original owner is current. The historical reader must not reconstruct live ownership. Refusing every admission-requiring consumer does not complete the requested capability. Existing policy minima, required evidence and update checks remain mandatory.
+- **Source-local checkpoint:** The preceding frozen forward candidate passed independent semantic source review and 51 managed focused controls (27 contract/public-readonly, six receipt, three typed-CAS, nine SDK-metadata-batch, two receiver, two CLI-reference and two schema-catalog methods), with zero skips/failures. The initial mixed editable-origin fixture setup refusal is retained separately; the fresh official managed environment observes the actual current source origin without changing the guard or rebinding the old environment. Lint, format and repository layout also passed. These results do not qualify the subsequently added SDK control, a new combined commit, an installed consumer, original SDK/native scale or release readiness.
+- **Composed SDK proof gap:** One additional control now uses the existing tiny real C/CMake public SDK fixture, actual batched metadata, original live admission capture and pure historical promotion. It must retain the original owners and current source snapshots, refuse any historical live-owner acquisition/build, and preserve CAS bytes. Independent source/delta review passed. Local attempts remain unqualified: the first stopped before production because its temporary fixture inherited the parent project catalog; the diagnosed outside-repository attempt reached its unchanged 300-second deadline, and its escaped owned test worker was separately identified and terminated. A direct serial diagnostic with unchanged assertions also reached its 300-second deadline; its one 120-second stack shows promotion-evidence collection performing an SDK-metadata currentness hardware/capability probe. This observation does not establish a defect, deadlock, positive SDK outcome or timeout repair. All first raw results are retained; subsequent bounded observations found the direct child/group absent. The original full Linux official test budget and all assertions remain unchanged. This control is not original #235 PACKAGE/VERIFY or real requesting-consumer evidence.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [x] Draft `promote-retained` command and verification owner with refusal tests (provisional on ADR acceptance).
-  - [x] ADR 0060 accepted by the directing user.
+  - [x] Retain the original draft command and its historical refusal controls as provisional work.
+  - [x] Reconcile the repository ADR with the exact corrected design and its explicit acceptance; include this existing item in framework 1.4.0.
+  - [ ] Reopen exact acceptance streams, command/tool/case context, reports, source/output/payload inventories and dependency evidence through complete canonical historical verification.
+  - [ ] Bind the runner to semantic test policy, complete actions and test definitions while excluding only the actual circular policy field.
+  - [ ] Add genuine live-owner capture and complete historical reopening for required workspace admission; distinguish envelope cache not-applicable bookkeeping from operational cache evidence.
+  - [ ] Bound metadata, streams, inventories and aggregate custody resources; recheck complete current authority before exclusive publication and preserve no-write dry-run/refusal behavior.
 - **Evidence:**
-  - [x] Critical tests cover stale plan, changed inputs/policy, wrong runner, wrong suite, missing evidence kind, tampered custody and below-minimum count.
-  - [ ] Qualification against a real retained run (Daemonarchy plan `sha256:2bbd12ac...f607`) is open: its custody store was not retained on the build worker.
+  - [x] Historical draft controls cover stale plan, changed inputs/policy, wrong runner/suite, missing evidence kind, custody tampering and minimum count; they do not qualify the corrected contract.
+  - [ ] Public negative controls refuse coherent wrong streams, altered semantic inventories, fabricated admission/context/dependency records and unsupported operational cache evidence without changing consumer policy.
+  - [ ] Canonical independent source/pin review, full regression and a clean committed installed distribution qualify the repaired implementation.
+  - [ ] A genuine requesting-consumer journey proves supported fresh capture, historical promotion, unchanged-policy update, receipt currentness and project verification. The earlier consumer custody store was not retained; synthetic or converted-harness fixtures do not replace this qualification.

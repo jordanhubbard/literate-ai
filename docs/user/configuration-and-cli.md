@@ -566,7 +566,7 @@ root-integration acceptance still remain.
 | `project agent-entrypoints [PATH]` | Audit owned coding-agent delegates against the declared onboarding skill without writes; exit 1 reports missing, stale or unsafe entries requiring reviewed authored repair. |
 | `project parent-readme [PATH] [--apply] [--browser-url REPOSITORY=URL]` | Plan or reconcile root README links to validated direct parents using the installed framework runtime; preserve authored content and require explicit browser identity for local-only parents. |
 | `spec scxml-review CHART [--trace SIDECAR ...]` | Read-only bounded structural validation and supported-subset trace replay for one exact SCXML 1.0 chart and its explicit JSON sidecars. |
-| `project test-receipt promote-retained CANDIDATE --retained-project MANIFEST --retained-project-profile PROFILE --custody-root DIR --retained-receipt IDENTITY [--plan IDENTITY] [--target ID] [--worker ID] [--dry-run] [--project PATH]` | Re-verify one admitted original-source retained-project run (custody, current plan, inputs, policies, SBOM, test and acceptance observations) against the project's exact `test_receipt_policy` and write a finalized candidate for `project test-receipt update`. Executes nothing. Refuses stale plans, changed inputs or policy, tampered custody, skipped tests, a policy runner that is not the runner derived from the run (the message names it), the retained-harness suite, unsupplyable evidence kinds, and too few tests. |
+| `project test-receipt promote-retained CANDIDATE --retained-project MANIFEST --retained-project-profile PROFILE --custody-root DIR --retained-receipt IDENTITY --promotion-evidence IDENTITY [--plan IDENTITY] [--target ID] [--worker ID] [--dry-run] [--project PATH]` | Reopen one completed original-source retained-project run through the canonical readers and verify its live-captured promotion evidence, exact commands, observations, runner, current inputs, policies and SBOM. Execute nothing; write only an exclusively created finalized candidate after currentness checks. `--dry-run` creates no candidate, locks, caches or temporary files. Refuse missing facts, stale or changed authority, skipped tests, runner/suite mismatches, insufficient evidence/counts and required operational-cache evidence that the run cannot supply. Keep `project test-receipt update` as the separate admission step. |
 | `project test-receipt run-retained CANDIDATE [--project PATH] [--evidence PATH] [--worker-id ID] [--worker-config PATH] [--timeout-seconds N] [--known-failure-report PATH] [--harness-workspace-link DESTINATION=SOURCE ...]` | Execute a qualified converted project's exact admitted harness in a disposable authored-source copy and emit one outer-finalized candidate plus external run evidence. `local` remains controller-local; every other ID must select an exact configured POSIX SSH worker. Explicit Linux, macOS and FreeBSD SSH workers preserve their native OS identity; the receiver checks that OS and any configured CPU architecture before executing commands. Admitted `uv` stages and Ninja declarations in their evidence scripts require a native optional tool provider. The current provider requires Linux with an explicit `x86_64` or `amd64` CPU architecture and supplies pinned, digest-verified binaries without changing the worker installation. Unsupported OS/architecture combinations refuse before transfer, and receivers independently reject foreign tool archives. Source-only harnesses require no optional provider. External sibling projections remain local-only in this first remote slice. |
 | `project test-receipt update CANDIDATE [--project PATH]` | Atomically replace the configured receipt with an exact passing candidate. |
 | `project test-receipt check CANDIDATE [--project PATH]` | Require the configured receipt to equal an exact tested candidate. |
@@ -617,6 +617,18 @@ root-integration acceptance still remain.
 | `attest SOURCE --signer ID --machine ID --key FILE` | Sign the exact local source inventory. |
 | `skills [--skills-root DIR]` | List an explicit inverse-skill catalog, or packaged reviewed skills by default. |
 | `format CORPUS --id-prefix ID [--check\|--write]` | Preview canonical layered-spec formatting by default, check without mutation, or explicitly write canonical Markdown frontmatter and line endings. Supporting JSON remains byte-exact. |
+
+Before the authorized retained-project run, request `--retained-project-plan`
+to inspect the validated runner identity and schema when a test policy is present.
+For promotion, explicitly add `--retain-promotion-evidence` to the authorized live
+run and retain its returned `promotion_evidence` identity. Historical runs without
+those genuine captured facts cannot acquire them through promotion. No grant,
+reservation or live admission is reconstructed from saved records.
+
+Retained-project planning and promotion use strict read-only authority observation.
+A required source-intelligence provider without a supported pure-read path refuses
+before provider execution; an advisory provider remains unavailable and an off
+provider remains off. Ordinary provider synchronization keeps its existing behavior.
 
 
 For source-built SDK inputs, the explicit

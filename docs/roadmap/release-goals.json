@@ -216,6 +216,9 @@
       },
       {
         "id": "WORKER-GPU-MEMORY-002"
+      },
+      {
+        "id": "RETAINED-RECEIPT-PROMOTE-001"
       }
     ]
   }

@@ -85,6 +85,7 @@ def execute_local_retained_project(
     sdk_project=None,
     sdk_binding=None,
     consume_admission=None,
+    capture_promotion_evidence=False,
 ):
     """Run one reviewed local plan and return its live retained admission.
 
@@ -107,6 +108,7 @@ def execute_local_retained_project(
         sdk_project=sdk_project,
         sdk_binding=sdk_binding,
         consume_admission=consume_admission,
+        capture_promotion_evidence=capture_promotion_evidence,
     )
 
 
@@ -149,6 +151,7 @@ def _execute_retained_project(
     sdk_project=None,
     sdk_binding=None,
     consume_admission=None,
+    capture_promotion_evidence=False,
     receiver_context=None,
 ):
     plan = planning.plan
@@ -323,6 +326,7 @@ def _execute_retained_project(
         component_locks=component_locks,
         allocation_owner=allocation,
         receiver_context=receiver_context,
+        capture_promotion_evidence=capture_promotion_evidence,
         **sdk_arguments,
     )
     try:
@@ -332,6 +336,18 @@ def _execute_retained_project(
             workspace, store, worker_evidence=platform.evidence()
         )
         admission.require_current()
+        if capture_promotion_evidence:
+            from literate_ai.adapters.retained_promotion_evidence import (
+                retain_retained_promotion_evidence,
+            )
+
+            admission.promotion_evidence_reference = retain_retained_promotion_evidence(
+                admission,
+                workspace,
+                admission_guard=receiver_context.require_current
+                if receiver_context is not None
+                else None,
+            )
         if consume_admission is not None:
             # Framework composition supplies this callable, never serialized
             # input. Secondary views were finalized by admission; consumers use

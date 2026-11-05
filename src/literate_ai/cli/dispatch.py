@@ -495,6 +495,14 @@ def _add_retained_project_arguments(parser, *, execution_options=False) -> None:
         help="validate retained project and inputs read-only; grants no admission",
     )
     parser.add_argument(
+        "--retain-promotion-evidence",
+        action="store_true",
+        help=(
+            "capture additive historical receipt-promotion facts "
+            "during the authorized live run"
+        ),
+    )
+    parser.add_argument(
         "--authorize-retained-project",
         help="exact reviewed retained-project plan identity",
     )
@@ -2376,6 +2384,11 @@ def _parser() -> JsonArgumentParser:
     receipt_promote.add_argument("--retained-project-profile", required=True)
     receipt_promote.add_argument("--custody-root", required=True)
     receipt_promote.add_argument("--retained-receipt", required=True)
+    receipt_promote.add_argument(
+        "--promotion-evidence",
+        required=True,
+        help="identity of genuine live-captured promotion evidence",
+    )
     receipt_promote.add_argument("--plan", help="expected current plan identity")
     receipt_promote.add_argument("--target", default="host")
     receipt_promote.add_argument("--dry-run", action="store_true")

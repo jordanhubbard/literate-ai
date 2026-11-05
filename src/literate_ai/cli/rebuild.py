@@ -1546,6 +1546,15 @@ def rebuild_from_args(
 ) -> dict[str, object]:
     """Run one project-authorized full lifecycle and validate its external receipt."""
 
+    if getattr(args, "retained_project_plan", False):
+        from literate_ai.adapters.readonly_authority import strict_readonly_authority
+
+        with strict_readonly_authority():
+            return _rebuild_from_args_body(
+                args,
+                cache_directories=cache_directories,
+                standard_observer=standard_observer,
+            )
     from literate_ai.diagnostics import debug_stage
 
     with debug_stage("rebuild", specification=str(getattr(args, "specification", "."))):

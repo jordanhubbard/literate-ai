@@ -10,10 +10,9 @@ import os
 import shutil
 import unittest
 from dataclasses import replace
-from unittest import mock
+from types import SimpleNamespace
 
 from literate_ai import test_receipts
-from literate_ai.adapters import retained_receipt_promotion as retained_promotion
 from literate_ai.adapters.retained_project_inputs import (
     discover_retained_project_inputs,
 )
@@ -75,7 +74,7 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         worker = ExecutionWorker("local", ExecutionWorkerKind.LOCAL)
         # The project policy names the runner derived from the run's own test
         # actions; its bytes reach the manifest through the test-policy member.
-        runner = retained_project_runner_identity(f.plan, f.manifest)
+        runner = retained_project_runner_identity(f.plan, f.manifest, f.test_policy)
         self.policy = ProjectTestReceiptPolicy(
             "retained-fixture", "1.0.0", runner, KINDS, 1
         )
@@ -100,7 +99,9 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         f.plan = replace(f.plan, profile=profile, manifest_identity=f.manifest.identity)
         f.current = f.plan
         f.configured_test_policy = self.policy
-        self.assertEqual(retained_project_runner_identity(f.plan, f.manifest), runner)
+        self.assertEqual(
+            retained_project_runner_identity(f.plan, f.manifest, f.test_policy), runner
+        )
         self.planning = self.planning_for(f.plan)
         directories = CacheDirectories(
             f.source, f.base / "generated", f.base / "objects"
@@ -116,6 +117,7 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
             cache_directories=directories,
             authorization=f.plan.identity.uri,
             allow_host_execution=True,
+            capture_promotion_evidence=True,
         )
         self.admission = admission
         self.store = FileSystemCAS(admission.store.root, create=False)
@@ -137,6 +139,9 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
             "planning": self.planning,
             "component_locks": self.locks,
             "test_receipt_policy": self.policy,
+            "promotion_evidence_identity": type(self.policy.identity).parse_uri(
+                self.admission.promotion_evidence_reference.identity
+            ),
             **changes,
         }
         return verify_retained_run(
@@ -237,18 +242,33 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
         )
         receipt.chmod(0o600)
         receipt.write_bytes(b"{}")
-        self.refused("receipt_unreadable", self.verify)
+        self.refused("custody_invalid", self.verify)
 
     def test_non_object_observation_record_is_refused_cleanly(self):
-        real = retained_promotion._read
+        # Preserve the incoming regression's intent at the canonical actual-CAS
+        # boundary. Mocking the superseded private _read would be vacuous now.
+        from literate_ai.adapters.retained_promotion_evidence import (
+            HistoricalReadPolicy,
+        )
+        from literate_ai.adapters.retained_unit_run_inspection import _Reader
 
-        def read(store, reference, what):
-            if what.startswith("sha256:"):
-                return []
-            return real(store, reference, what)
-
-        with mock.patch.object(retained_promotion, "_read", read):
-            self.refused("run_invalid", self.verify)
+        reference = self.store.put_bytes(
+            canonical_json_bytes([]), media_type="application/json"
+        )
+        records = {item.identity: item for item in self.admission.receipt.records}
+        records[reference.identity] = reference
+        receipt = replace(
+            self.admission.receipt,
+            records=tuple(records[key] for key in sorted(records)),
+        )
+        reader = _Reader(
+            SimpleNamespace(store=self.store, receipt=receipt),
+            HistoricalReadPolicy(),
+            lambda: None,
+        )
+        with self.assertRaisesRegex(ValueError, "canonical-run-document-required"):
+            observation = reader.record(reference.identity)
+            observation.get("filesystem_observation")
 
 
 def canonical_identity_from_bytes(content):

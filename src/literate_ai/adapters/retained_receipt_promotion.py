@@ -16,6 +16,7 @@ finalized candidate, not a cryptographic attestation.
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -23,9 +24,11 @@ from literate_ai.adapters.native_tree_shards import _document
 from literate_ai.adapters.retained_project_acceptance import (
     read_retained_acceptance_policy,
 )
-from literate_ai.adapters.retained_project_boms import RetainedProjectSourceBom
 from literate_ai.adapters.retained_project_inputs import (
     verify_retained_project_inputs,
+)
+from literate_ai.adapters.retained_project_runner import (
+    retained_project_runner_identity,
 )
 from literate_ai.adapters.retained_project_testing import (
     read_retained_project_test_policy,
@@ -43,7 +46,6 @@ from literate_ai.contracts.rebuild_cache import rebuild_project_authority_identi
 from literate_ai.contracts.retained_project import RetainedProjectManifest
 from literate_ai.contracts.retained_project_lifecycle import RetainedProjectPlan
 from literate_ai.contracts.retained_project_receipt import RetainedProjectReceipt
-from literate_ai.contracts.retained_project_tests import RetainedProjectTestReport
 from literate_ai.contracts.testing import (
     PROJECT_TEST_OUTCOME_PASSED,
     PROJECT_TEST_SUITE_KIND,
@@ -57,7 +59,6 @@ from literate_ai.contracts.testing import (
 from literate_ai.storage.cas import FileSystemCAS, StorageError
 
 MAXIMUM_DOCUMENT_BYTES = 64 * 1024 * 1024
-RETAINED_PROJECT_RUNNER_SCHEMA = "literate-ai/retained-project-test-runner@1"
 RETAINED_PROJECT_PROMOTION_EVIDENCE_KINDS = frozenset(
     {
         "acceptance-result",
@@ -67,8 +68,6 @@ RETAINED_PROJECT_PROMOTION_EVIDENCE_KINDS = frozenset(
         "lifecycle-request",
         "observation-result",
         "resolved-sbom",
-        "source-cache-decision",
-        "source-cache-lifecycle",
         "source-sbom",
         "test-report",
         "test-runner",
@@ -106,48 +105,6 @@ def _evidence_set(kind: str, identities) -> ContentIdentity:
     )
 
 
-def retained_project_runner_identity(
-    plan: RetainedProjectPlan, manifest: RetainedProjectManifest
-) -> ContentIdentity:
-    """Name the test runner from the run's own locked test actions and definitions.
-
-    The identity covers each ``test`` action's exact tool identity and argv template
-    plus every reviewed ``test-definition`` input member.  It deliberately excludes
-    the ``test-policy`` member, whose bytes name the project receipt policy (and so
-    this runner) and would make the definition circular.
-    """
-
-    tools = {name: identity.uri for name, _path, identity in plan.profile.tools}
-    actions = [
-        {
-            "id": action.action_id,
-            "tool": action.tool,
-            "tool_identity": tools.get(action.tool),
-            "argv": list(action.argv),
-        }
-        for action in plan.profile.actions
-        if action.stage == "test"
-    ]
-    if not actions:
-        _refuse("runner_missing", "the retained plan declares no test action")
-    if any(item["tool_identity"] is None for item in actions):
-        _refuse("runner_missing", "a test action names a tool without an identity")
-    definitions = sorted(
-        (member.path, member.sha256)
-        for member in manifest.members
-        if member.role == "test-definition"
-    )
-    return canonical_identity(
-        {
-            "schema": RETAINED_PROJECT_RUNNER_SCHEMA,
-            "actions": actions,
-            "definitions": [
-                {"path": path, "sha256": digest} for path, digest in definitions
-            ],
-        }
-    )
-
-
 @dataclass(frozen=True, slots=True)
 class VerifiedRetainedRun:
     """Facts re-derived from custody; a value of this type is never serialized."""
@@ -162,6 +119,7 @@ class VerifiedRetainedRun:
     test_identities: tuple[ContentIdentity, ...]
     acceptance_identities: tuple[ContentIdentity, ...]
     passed: int
+    workspace_admission_identity: ContentIdentity
 
 
 def _read(store, reference, what):
@@ -194,227 +152,294 @@ def verify_retained_run(
     component_locks,
     test_receipt_policy: ProjectTestReceiptPolicy,
     expected_plan_identity: ContentIdentity | None = None,
+    promotion_evidence_identity: ContentIdentity | None = None,
+    require_current=lambda: None,
+    read_policy=None,
+    current_sdk_snapshots=(),
 ) -> VerifiedRetainedRun:
-    """Re-verify one retained receipt against the current project, or refuse."""
+    """Reopen the canonical full completed run; never reconstruct a live owner."""
+    from dataclasses import replace
 
-    if not isinstance(store, FileSystemCAS):
-        raise TypeError("a FileSystemCAS custody store is required")
+    from literate_ai.adapters.retained_promotion_evidence import (
+        MAX_DOCUMENT,
+        HistoricalReadPolicy,
+        verify_promotion_evidence_context,
+    )
+    from literate_ai.adapters.retained_unit_inspection import (
+        read_retained_unit_planning_inputs,
+    )
+    from literate_ai.adapters.retained_unit_run_inspection import (
+        reopen_retained_unit_run,
+    )
+    from literate_ai.contracts import BlobRef
+
+    if not isinstance(store, FileSystemCAS) or not callable(require_current):
+        raise TypeError("retained.promotion.custody-and-currentness-required")
+    policy = HistoricalReadPolicy() if read_policy is None else read_policy
+    if not isinstance(policy, HistoricalReadPolicy):
+        raise TypeError("retained.promotion.typed-read-policy-required")
     plan = planning.plan
-    if expected_plan_identity is not None and expected_plan_identity != plan.identity:
-        _refuse(
-            "plan_stale",
-            "the current retained plan is "
-            f"{plan.identity.uri}, not the requested {expected_plan_identity.uri}",
-        )
-    try:
-        reference = retained_unit_metadata_reference(
-            store, receipt_identity, maximum_bytes=MAXIMUM_DOCUMENT_BYTES
-        )
-        raw = store.get_bytes(reference)
-        receipt = RetainedProjectReceipt.from_dict(_read(store, reference, "receipt"))
-    except RetainedReceiptPromotionError:
-        raise
-    except (StorageError, OSError, ValueError, TypeError) as exc:
-        _refuse("receipt_unreadable", f"the retained receipt is unavailable: {exc}")
-    if (
-        receipt.identity != receipt_identity
-        or canonical_json_bytes(receipt.to_dict()) != raw
-    ):
-        _refuse(
-            "receipt_tampered",
-            "the retained receipt is not the canonical document it is named by",
-        )
-    if receipt.project_id != plan.project_id:
-        _refuse("project_mismatch", "the retained receipt names another project")
-    try:
-        for record in receipt.records:
-            store.verify(record)
-        for _name, root in receipt.roots:
-            store.verify(root)
-    except (StorageError, OSError, ValueError) as exc:
-        _refuse("custody_invalid", f"retained custody failed verification: {exc}")
+    original_guard = require_current
+    deadline = time.monotonic() + 300
 
-    if (
-        receipt.root("plan").identity != plan.identity.uri
-        or receipt.root("input-manifest").identity != manifest.identity.uri
-        or manifest.identity != plan.manifest_identity
-    ):
+    def require_current():
+        if time.monotonic() >= deadline:
+            raise TimeoutError("retained.promotion.original-300s-verification-deadline")
+        original_guard()
+
+    require_current()
+    if expected_plan_identity is not None and expected_plan_identity != plan.identity:
+        _refuse("plan_stale", "the requested retained plan is not current")
+    if promotion_evidence_identity is None:
         _refuse(
-            "plan_stale",
-            "the retained run was admitted under a different plan or input manifest "
-            "than the current project authority",
-        )
-    if _read(store, receipt.root("plan"), "plan") != plan.to_dict():
-        _refuse(
-            "plan_stale", "the retained plan document differs from the current plan"
+            "evidence_missing",
+            "a genuine live-captured promotion evidence sidecar is required",
         )
     try:
         verify_retained_project_inputs(source, manifest)
     except (OSError, ValueError) as exc:
-        _refuse("inputs_changed", f"the current retained inputs differ: {exc}")
-    acceptance = None
+        _refuse("inputs_changed", str(exc))
     try:
+        current_test = read_retained_project_test_policy(
+            source, manifest, plan.profile, test_receipt_policy
+        )
         acceptance = read_retained_acceptance_policy(
             source, plan.profile, plan.component_locks, manifest
         )
-        test_policy = read_retained_project_test_policy(
-            source, manifest, plan.profile, test_receipt_policy
-        )
-    except (OSError, ValueError, TypeError) as exc:
-        _refuse(
-            "policy_stale",
-            "the current verifier or test policy no longer matches the project "
-            f"receipt policy: {exc}",
-        )
-    if (
-        acceptance is None
-        or plan.profile.acceptance_policy_identity is None
-        or receipt.root("acceptance-policy-bytes").identity
-        != plan.profile.acceptance_policy_identity.uri
-    ):
-        _refuse("policy_stale", "the retained verifier policy is not the current one")
-    source_bom = RetainedProjectSourceBom(
-        plan, manifest, planning.managed_sbom_graph, tuple(component_locks)
-    )
+    except (OSError, TypeError, ValueError) as exc:
+        _refuse("policy_stale", str(exc))
+    if acceptance is None:
+        _refuse("policy_stale", "the current independent acceptance policy is required")
     try:
-        source_bom.require_content(store.get_bytes(receipt.root("source-bom")))
-    except (ValueError, OSError, StorageError):
-        _refuse(
-            "sbom_mismatch",
-            "the retained source SBOM is not the one derived from the current plan",
+        # Charge current projections and both first documents BEFORE decoding new
+        # record inventories. Subsequent canonical readers share the remaining cap.
+        current_bytes = sum(
+            len(canonical_json_bytes(value))
+            for value in (
+                manifest.to_dict(),
+                plan.to_dict(),
+                planning.managed_sbom_graph.to_dict(),
+                current_test.to_dict(),
+                acceptance.to_dict(),
+            )
         )
-
-    completed = _read(store, receipt.root("completed-run"), "completed run")
-    output = receipt.root("output-manifest")
-    if (
-        type(completed) is not dict
-        or completed.get("schema") != "literate-ai/retained-project-completed-run@1"
-        or completed.get("authority_mode") != "retained-project"
-        or completed.get("plan_identity") != plan.identity.uri
-        or completed.get("output_manifest_identity") != output.identity
-        or completed.get("test_policy_identity") != test_policy.identity.uri
-        or completed.get("project_test_policy_identity")
-        != test_receipt_policy.identity.uri
-        or completed.get("acceptance_policy_identity") != acceptance.identity.uri
-        or completed.get("source_observation_identity") != source_bom.identity.uri
-        or completed.get("sdk_admitted") is not False
-        or completed.get("lifecycle_receipt") is not False
-        or completed.get("release_authority") != "original-source"
-    ):
-        _refuse(
-            "run_context_mismatch",
-            "the completed run does not bind the current plan, policies and SBOM",
+        receipt_ref = retained_unit_metadata_reference(
+            store,
+            receipt_identity,
+            maximum_bytes=min(MAX_DOCUMENT, policy.max_provider_metadata_bytes),
         )
-    if completed.get("package_inventory") != list(plan.profile.package_inventory):
-        _refuse(
-            "run_context_mismatch",
-            "the completed run package inventory differs from the plan",
+        evidence_ref = retained_unit_metadata_reference(
+            store,
+            promotion_evidence_identity,
+            maximum_bytes=min(MAX_DOCUMENT, policy.max_provider_metadata_bytes),
         )
-    if completed.get("resolved_observation_identity") is None:
-        _refuse("run_incomplete", "the completed run has no resolved observation")
-
-    def record(identity: ContentIdentity):
-        target = next(
-            (item for item in receipt.records if item.identity == identity.uri), None
-        )
-        if target is None:
-            _refuse("run_incomplete", f"{identity.uri} is not a retained record")
-        value = _read(store, target, identity.uri)
-        if type(value) is not dict:
-            _refuse("run_invalid", f"{identity.uri} is not a retained observation")
-        if canonical_identity(value) != identity:
-            _refuse("receipt_tampered", f"{identity.uri} is not its own content")
-        return value
-
-    actions = plan.profile.actions
-    commands = _identities(completed, "command_observations", len(actions))
-    stage_of = {}
-    for action, identity in zip(actions, commands, strict=True):
-        value = record(identity)
+        reserved = current_bytes + receipt_ref.size + evidence_ref.size
         if (
-            value.get("plan_identity") != plan.identity.uri
-            or value.get("action") != action.to_dict()
-            or value.get("exit_code") != 0
+            reserved >= policy.max_provider_metadata_bytes
+            or 16 * reserved >= policy.max_provider_memory_bytes
+        ):
+            raise ValueError("retained.promotion.aggregate-metadata-budget")
+        original_receipt = RetainedProjectReceipt.from_dict(
+            _document(
+                store,
+                receipt_ref,
+                min(MAX_DOCUMENT, policy.max_provider_metadata_bytes),
+            )
+        )
+        if (
+            original_receipt.root("plan").identity != plan.identity.uri
+            or original_receipt.root("input-manifest").identity != manifest.identity.uri
         ):
             _refuse(
-                "run_context_mismatch",
-                f"command observation for {action.action_id} is not a clean run of "
-                "the current plan",
+                "plan_stale", "the selected receipt belongs to a different current plan"
             )
-        stage_of[action.action_id] = identity
-    build = tuple(
-        stage_of[action.action_id] for action in actions if action.stage == "build"
-    )
-
-    reports = []
-    tests = _identities(completed, "test_observations", len(test_policy.reports))
-    for identity in tests:
-        value = record(identity)
-        try:
-            report = RetainedProjectTestReport.from_dict(value["report"])
-        except (KeyError, ValueError, TypeError):
-            _refuse("run_invalid", "a retained test report is malformed")
-        if (
-            value.get("plan_identity") != plan.identity.uri
-            or value.get("policy_identity") != test_policy.identity.uri
-            or value.get("observation_identity")
-            != getattr(stage_of.get(report.action_id), "uri", None)
-        ):
-            _refuse(
-                "run_context_mismatch",
-                "a retained test report is not bound to this plan and its action",
-            )
-        reports.append(report)
-    try:
-        test_policy.require_complete(reports, test_receipt_policy)
-    except ValueError as exc:
-        _refuse("tests_unqualified", str(exc))
-    passed = sum(report.passed for report in reports)
-    skipped = sum(report.skipped for report in reports)
-    if passed != receipt.passed or skipped != receipt.skipped:
-        _refuse(
-            "summary_mismatch",
-            "the retained receipt summary differs from its own test reports",
+        _verify_receipt_record_inventory(
+            store, original_receipt, require_current, policy
         )
-    if skipped:
-        _refuse(
-            "tests_skipped",
-            "a project test receipt accounts for passing tests only; the retained "
-            f"run skipped {skipped} authorized test(s) and cannot be promoted",
+        evidence = _document(
+            store, evidence_ref, min(MAX_DOCUMENT, policy.max_provider_metadata_bytes)
         )
-
-    cases = tuple(
-        case
-        for action in actions
-        if action.stage == "accept"
-        for case in acceptance.cases
-        if case.action_id == action.action_id
-    )
-    accepted = _identities(completed, "acceptance_observations", len(cases))
-    for case, identity in zip(cases, accepted, strict=True):
-        value = record(identity)
+        if canonical_identity(evidence) != promotion_evidence_identity:
+            raise ValueError("retained.promotion.evidence-identity-mismatch")
         if (
-            value.get("plan_identity") != plan.identity.uri
-            or value.get("policy_identity") != acceptance.identity.uri
-            or value.get("case_identity") != case.identity.uri
-            or value.get("exit_code") != case.expected_exit
+            type(evidence) is not dict
+            or evidence.get("retained_receipt_identity") != receipt_identity.uri
         ):
-            _refuse(
-                "run_context_mismatch",
-                f"acceptance observation for {case.case_id} does not match its case",
-            )
-    return VerifiedRetainedRun(
-        receipt,
-        plan,
-        manifest,
-        canonical_identity(completed),
-        retained_project_runner_identity(plan, manifest),
-        commands,
-        build,
-        tuple(tests),
-        accepted,
-        passed,
+            raise ValueError("retained.promotion.receipt-evidence-mismatch")
+        planning_ref = BlobRef.from_dict(evidence["planning_evidence"])
+        run_ref = BlobRef.from_dict(evidence["accepted_run_evidence"])
+        effective = replace(
+            policy,
+            max_provider_metadata_bytes=policy.max_provider_metadata_bytes - reserved,
+            max_provider_memory_bytes=policy.max_provider_memory_bytes - 16 * reserved,
+        )
+        if any(
+            ref.size > min(MAX_DOCUMENT, effective.max_provider_metadata_bytes)
+            for ref in (planning_ref, run_ref)
+        ):
+            raise ValueError("retained.promotion.sidecar-document-budget")
+        inputs = read_retained_unit_planning_inputs(
+            source,
+            manifest,
+            plan,
+            tuple(component_locks),
+            receipt_ref,
+            store,
+            planning_evidence_reference=planning_ref,
+            maximum_document_bytes=min(
+                MAX_DOCUMENT, effective.max_provider_metadata_bytes
+            ),
+            maximum_metadata_bytes=effective.max_provider_metadata_bytes,
+            maximum_metadata_memory_bytes=effective.max_provider_memory_bytes,
+        )
+        if inputs.receipt.identity != receipt_identity:
+            raise ValueError("retained.promotion.receipt-identity-mismatch")
+        # SDK definitions require the invoking current project context, supplied
+        # through the same snapshot owner as original-unit historical inspection.
+        snapshots = current_sdk_snapshots
+        run = reopen_retained_unit_run(
+            inputs,
+            planning,
+            run_ref,
+            policy=effective,
+            test_receipt_policy=test_receipt_policy,
+            admission_guard=require_current,
+            current_sdk_snapshots=snapshots,
+        )
+        workspace_identity = verify_promotion_evidence_context(
+            evidence,
+            inputs,
+            run,
+            store=store,
+            guard=require_current,
+            policy=effective,
+        )
+        _verify_retained_member_custody(
+            store, inputs, evidence, require_current, effective
+        )
+        if inputs.receipt.skipped or any(v.report.skipped for v in run.test_reports):
+            _refuse("tests_skipped", "promotion requires passing tests with no skips")
+        require_current()
+        verify_retained_project_inputs(source, manifest)
+        return VerifiedRetainedRun(
+            inputs.receipt,
+            plan,
+            manifest,
+            run.identity,
+            retained_project_runner_identity(plan, manifest, current_test),
+            tuple(v.identity for v in run.observations),
+            tuple(v.identity for v in run.observations if v.action.stage == "build"),
+            tuple(v.identity for v in run.test_reports),
+            tuple(v.identity for v in run.acceptance_observations),
+            sum(v.report.passed for v in run.test_reports),
+            workspace_identity,
+        )
+    except RetainedReceiptPromotionError:
+        raise
+    except (
+        StorageError,
+        OSError,
+        TypeError,
+        ValueError,
+        KeyError,
+        RecursionError,
+    ) as exc:
+        _refuse("custody_invalid", str(exc))
+
+
+def _verify_receipt_record_inventory(store, receipt, guard, policy):
+    """Reserve every auxiliary reference BEFORE reading any of its bytes.
+
+    Decoded metadata and streamed binary custody have distinct budgets. Large
+    raw references are not JSON simply because they share a receipt inventory.
+    The streaming I/O ceiling is the original live retention owner's ceiling;
+    source/output members use their separate manifest/payload limits below.
+    """
+    from literate_ai.adapters.retained_project_receipt import _METADATA_BYTES
+    from literate_ai.adapters.retained_promotion_evidence import MAX_DOCUMENT
+
+    if 512 * len(receipt.records) > policy.max_provider_memory_bytes:
+        raise ValueError("retained.promotion.receipt-record-memory-budget")
+    roots = {reference.identity for _name, reference in receipt.roots}
+    metadata_bytes = 0
+    stream_bytes = 0
+    for reference in receipt.records:
+        stream_bytes += reference.size
+        if stream_bytes > _METADATA_BYTES:
+            raise ValueError("retained.promotion.auxiliary-custody-IO-budget")
+        metadata = reference.identity in roots or reference.media_type in {
+            "application/json",
+            "application/vnd.literate-ai.manifest+json",
+            "application/vnd.cyclonedx+json",
+        }
+        if metadata:
+            metadata_bytes += reference.size
+            if (
+                reference.size > min(MAX_DOCUMENT, policy.max_provider_metadata_bytes)
+                or metadata_bytes > policy.max_provider_metadata_bytes
+            ):
+                raise ValueError("retained.promotion.auxiliary-metadata-budget")
+    # No body is retained by this sink; only fixed counters plus the CAS owner's
+    # bounded streaming block are simultaneously live. Fresh guards run per block.
+    actual_bytes = 0
+
+    class Sink:
+        def write(self, data):
+            nonlocal actual_bytes
+            guard()
+            actual_bytes += len(data)
+            if actual_bytes > stream_bytes:
+                raise ValueError("retained.promotion.auxiliary-stream-size-changed")
+            return len(data)
+
+    sink = Sink()
+    for reference in receipt.records:
+        guard()
+        store.stream_to(reference, sink)
+        guard()
+    if actual_bytes != stream_bytes:
+        raise ValueError("retained.promotion.auxiliary-stream-incomplete")
+
+
+def _verify_retained_member_custody(store, inputs, evidence, guard, policy):
+    """Stream actual bytes; manifest topology/modes are joined producer assertions."""
+    from literate_ai.adapters.retained_promotion_evidence import (
+        verify_native_export_members,
     )
+    from literate_ai.contracts import BlobRef
+
+    count = len(inputs.source_manifest.members) + len(inputs.output_manifest.members)
+    if count * 512 > policy.max_provider_memory_bytes:
+        raise ValueError("retained.promotion.member-inventory-budget")
+    total = 0
+
+    class VerifyStream:
+        def write(self, data):
+            nonlocal total
+            guard()
+            total += len(data)
+            if total > 8 * 1024**3:
+                raise ValueError("retained.promotion.aggregate-stream-read-budget")
+            return len(data)
+
+    sink = VerifyStream()
+    declared = 0
+    for manifest in (inputs.source_manifest, inputs.output_manifest):
+        if len(manifest.members) > manifest.limits.max_entries:
+            raise ValueError("retained.promotion.member-count-budget")
+        for member in manifest.members:
+            guard()
+            declared += member.size
+            if member.size > manifest.limits.max_file_bytes or declared > min(
+                4 * 1024**3,
+                inputs.source_manifest.limits.max_total_bytes
+                + inputs.output_manifest.limits.max_total_bytes,
+            ):
+                raise ValueError("retained.promotion.payload-stream-budget")
+            reference = BlobRef(member.sha256, member.size)
+            store.stream_to(reference, sink)
+            guard()
+    verify_native_export_members(store, inputs, evidence, guard, charge=sink.write)
 
 
 def promote_retained_run(
@@ -531,19 +556,14 @@ def promote_retained_run(
         "resolved-sbom": ContentIdentity.parse_uri(
             receipt.root("resolved-bom").identity
         ),
+        # Required finalized-envelope bookkeeping only. Operational policies
+        # were explicitly refused above; these do not assert a cache admission.
         "source-cache-decision": decision,
         "source-cache-lifecycle": lifecycle,
         "source-sbom": ContentIdentity.parse_uri(receipt.root("source-bom").identity),
         "test-report": _evidence_set("test-report", verified.test_identities),
         "test-runner": verified.runner_identity,
-        "workspace-admission": canonical_identity(
-            {
-                "schema": "literate-ai/retained-project-workspace-admission@1",
-                "retained_receipt_identity": receipt.identity.uri,
-                "plan_identity": plan.identity.uri,
-                "input_manifest_identity": verified.manifest.identity.uri,
-            }
-        ),
+        "workspace-admission": verified.workspace_admission_identity,
     }
     suite = canonical_identity(
         {

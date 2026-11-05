@@ -890,26 +890,49 @@ class FilesystemProjectValidationAdapter:
                 "project.source_intelligence_provider_unsupported",
             ).to_dict()
         else:
-            try:
-                provider = CodeGraphProjectSourceIntelligence(policy)
-                source_intelligence_observation = (
-                    provider.sync(project.root)
-                    if synchronize_source_intelligence
-                    else provider.check(project.root)
-                )
-                source_intelligence_status = SourceIntelligenceStageStatus(
-                    source_intelligence_stage, mode, "current", policy.provider_id
-                ).to_dict()
-            except ProjectSourceIntelligenceError as exc:
+            from literate_ai.adapters.readonly_authority import (
+                strict_authority_reads_required,
+            )
+
+            if strict_authority_reads_required():
+                # check() also allocates shadow files and invokes the provider;
+                # neither it nor sync() is a pure-read primitive. Preserve the
+                # configured mode: required refuses, preferred is unavailable.
+                code = "project.source_intelligence_readonly_unsupported"
                 if mode is SourceIntelligenceMode.REQUIRED:
-                    raise ProjectValidationError(exc.code, exc.message) from exc
+                    raise ProjectValidationError(
+                        code,
+                        "the configured source-intelligence provider has no "
+                        "supported side-effect-free authority-read operation",
+                    )
                 source_intelligence_status = SourceIntelligenceStageStatus(
                     source_intelligence_stage,
                     mode,
                     "unavailable",
                     policy.provider_id,
-                    exc.code,
+                    code,
                 ).to_dict()
+            else:
+                try:
+                    provider = CodeGraphProjectSourceIntelligence(policy)
+                    source_intelligence_observation = (
+                        provider.sync(project.root)
+                        if synchronize_source_intelligence
+                        else provider.check(project.root)
+                    )
+                    source_intelligence_status = SourceIntelligenceStageStatus(
+                        source_intelligence_stage, mode, "current", policy.provider_id
+                    ).to_dict()
+                except ProjectSourceIntelligenceError as exc:
+                    if mode is SourceIntelligenceMode.REQUIRED:
+                        raise ProjectValidationError(exc.code, exc.message) from exc
+                    source_intelligence_status = SourceIntelligenceStageStatus(
+                        source_intelligence_stage,
+                        mode,
+                        "unavailable",
+                        policy.provider_id,
+                        exc.code,
+                    ).to_dict()
         configured_source_intelligence = layout["source_intelligence"]
         assert isinstance(configured_source_intelligence, dict)
         layout["source_intelligence"] = {

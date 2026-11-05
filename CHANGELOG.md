@@ -38,10 +38,13 @@
 - Worker alignment uses the discovered coding CLI executable for its help and
   model checks, including declared Windows tool locations outside `PATH`.
 
-- `litai project test-receipt promote-retained` re-verifies an admitted
-  retained-project run against the current project and its receipt policy and writes
-  the finalized candidate that `project test-receipt update` accepts (issue #295; ADR
-  0060 accepted). It executes nothing and weakens no policy check.
+- Retained-project runs can explicitly capture genuine receipt-promotion evidence.
+  `project test-receipt promote-retained` reopens the completed run through canonical
+  readers, checks its exact current policy and bounded historical evidence, and
+  writes only a finalized candidate. Planning and promotion avoid lifecycle locks
+  and provider side effects; dry runs write nothing. Receipt admission remains the
+  separate unchanged `project test-receipt update` operation (issue #295; accepted
+  corrected ADR 0060).
 
 - Windows compiler preflight finds native Visual Studio toolsets outside `PATH`
   before acquisition, preserving explicit compiler selections. C++ developer
