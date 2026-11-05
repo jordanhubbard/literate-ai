@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Installed-wheel smoke tests isolate pip bytecode output from the parent cache
+  prefix while preserving strict installed RECORD path containment.
+
 - Worker-alignment and retained-receiver test fixtures use portable declared remote workspaces while preserving native local paths.
 
 - Retained execution guards derive receiver and source-plan checks from the same

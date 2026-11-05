@@ -350,6 +350,7 @@ _COLOR_FORCING_ENVIRONMENT_VARIABLES = (
 _INTERPRETER_RESOLUTION_ENVIRONMENT_VARIABLES = (
     "PYTHONPATH",
     "PYTHONHOME",
+    "PYTHONPYCACHEPREFIX",
     "VIRTUAL_ENV",
 )
 
@@ -372,6 +373,8 @@ def _subprocess_environment() -> dict[str, str]:
     subprocesses. ``PYTHONPATH=src`` from a developer session would otherwise
     make ``observe_installed_framework_distribution`` see both the smoke-test
     wheel and the checkout, failing ``standard_binding.distribution_ambiguous``.
+    The parent's bytecode-cache prefix would also make pip record compiled files
+    outside the installed environment, correctly failing installed-file custody.
     """
 
     sanitized = {
