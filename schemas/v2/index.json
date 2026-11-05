@@ -1147,6 +1147,27 @@
         "literate-ai/retained-tree-html-check-result@1",
         "literate-ai/project-tree-html@1"
       ]
+    },
+    {
+      "file": "retained-project-promotion-evidence.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-promotion-evidence-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-promotion-evidence@1"
+      ]
+    },
+    {
+      "file": "retained-project-historical-admission.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-historical-admission-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-historical-admission@1"
+      ]
+    },
+    {
+      "file": "retained-project-test-runner.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-test-runner-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-test-runner@2"
+      ]
     }
   ]
 }

@@ -5,6 +5,7 @@ loader/authority boundary because this owned fixture is not a converted project;
 none of those controls is installed or requesting-consumer qualification.
 """
 
+import copy
 import os
 import shutil
 import unittest
@@ -76,6 +77,69 @@ class CorrectedPromotionContractTests(unittest.TestCase):
         return self.store.put_bytes(
             canonical_json_bytes(value), media_type="application/json"
         )
+
+    def test_actual_captured_records_conform_and_refuse_authority_forgery(self):
+        from literate_ai.adapters import retained_project_runner
+        from tests.critical.test_retained_promotion_schemas import promotion_validators
+
+        validators = promotion_validators()
+        sidecar = self.evidence()
+        admission = sidecar["historical_admission"]
+        projections = []
+        original = retained_project_runner.canonical_identity
+
+        def observe_projection(value):
+            projections.append(value)
+            return original(value)
+
+        # Observe the real serializer while preserving its actual identity result.
+        with patch.object(
+            retained_project_runner,
+            "canonical_identity",
+            side_effect=observe_projection,
+        ):
+            identity = retained_project_runner.retained_project_runner_identity(
+                self.f.plan, self.f.manifest, self.f.test_policy
+            )
+        self.assertEqual(identity, original(projections[0]))
+        runner = projections[0]
+        self.assertTrue(sidecar["command_contexts"])
+        for document in (sidecar, admission, runner):
+            validators[document["schema"]].validate(document)
+            for mutation in ("unknown", "missing", "future"):
+                invalid = copy.deepcopy(document)
+                if mutation == "unknown":
+                    invalid["unreviewed_authority"] = True
+                elif mutation == "missing":
+                    invalid.pop(next(key for key in invalid if key != "schema"))
+                else:
+                    invalid["schema"] += "-future"
+                self.assertFalse(validators[document["schema"]].is_valid(invalid))
+        for key in ("admission_issued", "release_authorized"):
+            for document in (sidecar, admission):
+                invalid = copy.deepcopy(document)
+                invalid[key] = True
+                self.assertFalse(validators[document["schema"]].is_valid(invalid))
+        for alter in (
+            lambda row: row["context"].update(credential="must-not-appear"),
+            lambda row: row["context"].update(platform="unreviewed-host"),
+            lambda row: row["context"].update(argv=[]),
+            lambda row: row["context"]["environment"].update(BAD=42),
+            lambda row: row["context"]["environment"].update(
+                UNREVIEWED_SECRET="refused"
+            ),
+            lambda row: row["dependency_document"].update(authority=True),
+            lambda row: row.update(observation_identity="sha256:not-a-digest"),
+        ):
+            invalid = copy.deepcopy(sidecar)
+            alter(invalid["command_contexts"][0])
+            self.assertFalse(validators[sidecar["schema"]].is_valid(invalid))
+        invalid = copy.deepcopy(runner)
+        invalid["test_policy"]["project_policy_identity"] = self.policy.identity.uri
+        self.assertFalse(validators[runner["schema"]].is_valid(invalid))
+        invalid = copy.deepcopy(runner)
+        invalid["actions"][0]["action"]["stage"] = "build"
+        self.assertFalse(validators[runner["schema"]].is_valid(invalid))
 
     def test_missing_sidecar_is_not_synthesized_admission(self):
         self.refused(

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Register the existing retained-promotion evidence, historical-admission and
+  runner-v2 wire contracts in the current schema catalog without granting live
+  authority or relaxing complete historical verification.
+
 - Installed-wheel smoke tests isolate pip bytecode output from the parent cache
   prefix while preserving strict installed RECORD path containment.
 
