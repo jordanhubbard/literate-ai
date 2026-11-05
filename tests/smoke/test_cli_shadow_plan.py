@@ -96,6 +96,34 @@ class ShadowPlanCliTests(unittest.TestCase):
             },
         }
 
+    def invoke_create(
+        self, identity: str, *extra: str
+    ) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        status = main(
+            (
+                "--json",
+                "shadow",
+                "create",
+                "--upstream",
+                str(self.upstream),
+                "--shadow",
+                str(self.root / "shadow"),
+                "--branch",
+                "main",
+                "--branch",
+                "feature",
+                "--expect-plan",
+                identity,
+                *extra,
+            ),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def test_default_main_is_exact_and_read_only(self) -> None:
         before = _git(self.upstream, "status", "--porcelain=v1")
         status, envelope = self.invoke()
@@ -189,6 +217,45 @@ class ShadowPlanCliTests(unittest.TestCase):
         status, envelope = self.invoke_pr(response)
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.forge_invalid")
+
+    def test_create_custodies_exact_branches_in_separate_git_repo(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        upstream_before = _git(self.upstream, "status", "--porcelain=v1")
+        status, envelope = self.invoke_create(planned["plan_identity"], "--acknowledge")
+        self.assertEqual(status, 0)
+        self.assertEqual(envelope["result"]["qualification"], "unqualified")
+        shadow = self.root / "shadow"
+        self.assertNotEqual(
+            _git(shadow, "rev-parse", "--git-dir"), str(self.upstream / ".git")
+        )
+        self.assertEqual(_git(shadow, "status", "--porcelain=v1"), "")
+        registry = json.loads(
+            (shadow / ".literate-shadow" / "registry.json").read_text()
+        )
+        self.assertEqual(registry["branches"], planned["branches"])
+        self.assertEqual(registry["create_plan_identity"], planned["plan_identity"])
+        bundle = shadow / ".literate-shadow" / "objects" / registry["source_bundle"]
+        self.assertTrue(bundle.is_file())
+        self.assertIn(
+            "The bundle records a complete history.",
+            _git(self.upstream, "bundle", "verify", str(bundle)),
+        )
+        self.assertEqual(
+            _git(self.upstream, "status", "--porcelain=v1"), upstream_before
+        )
+
+    def test_create_refuses_missing_acknowledgement_and_stale_plan(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        status, envelope = self.invoke_create(planned["plan_identity"])
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.acknowledgement_required")
+        self.assertFalse((self.root / "shadow").exists())
+        (self.upstream / "README.md").write_text("changed\n", encoding="utf-8")
+        _git(self.upstream, "commit", "-qam", "changed")
+        status, envelope = self.invoke_create(planned["plan_identity"], "--acknowledge")
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.plan_stale")
+        self.assertFalse((self.root / "shadow").exists())
 
 
 if __name__ == "__main__":

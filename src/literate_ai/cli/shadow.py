@@ -7,7 +7,11 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
+import tempfile
+import time
+from datetime import UTC, datetime
 from pathlib import Path
 
 from .errors import CliFailure
@@ -15,6 +19,7 @@ from .errors import CliFailure
 _MAX_BRANCHES = 32
 _MAX_REF_CHARS = 200
 _MAX_PR_BYTES = 256 * 1024
+_MAX_BUNDLE_BYTES = 128 * 1024 * 1024
 _HEX_COMMIT = re.compile(r"[0-9a-f]{40,64}\Z")
 _GITHUB_SSH = re.compile(
     r"git@github\.com:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?\Z"
@@ -24,14 +29,14 @@ _GITHUB_HTTPS = re.compile(
 )
 
 
-def _git(root: Path, *arguments: str) -> str:
+def _git(root: Path, *arguments: str, timeout: int = 10) -> str:
     try:
         result = subprocess.run(
             ["git", "--no-optional-locks", "-C", str(root), *arguments],
             env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
             capture_output=True,
             text=True,
-            timeout=10,
+            timeout=timeout,
             check=False,
         )
     except (OSError, UnicodeError, subprocess.TimeoutExpired) as exc:
@@ -241,6 +246,194 @@ def plan_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
     return _plan_identity(body)
 
 
+def _json_bytes(value: object) -> bytes:
+    return (
+        json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+        + "\n"
+    ).encode("utf-8")
+
+
+def _create_bounded_bundle(upstream: Path, bundle: Path, refs: list[str]) -> None:
+    try:
+        process = subprocess.Popen(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(upstream),
+                "bundle",
+                "create",
+                str(bundle),
+                *refs,
+            ],
+            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except OSError as exc:
+        raise CliFailure(
+            "shadow.git_unavailable", "Bundle creation could not start"
+        ) from exc
+    deadline = time.monotonic() + 90
+    try:
+        while process.poll() is None:
+            if time.monotonic() >= deadline:
+                raise CliFailure(
+                    "shadow.bundle_timeout", "Bundle creation exceeded its time bound"
+                )
+            if bundle.exists() and bundle.stat().st_size > _MAX_BUNDLE_BYTES:
+                raise CliFailure(
+                    "shadow.bundle_unbounded", "Upstream bundle exceeds its size bound"
+                )
+            try:
+                process.wait(timeout=0.1)
+            except subprocess.TimeoutExpired:
+                pass
+        if process.returncode or not bundle.is_file():
+            raise CliFailure(
+                "shadow.bundle_invalid", "Git could not create the source bundle"
+            )
+        if bundle.stat().st_size > _MAX_BUNDLE_BYTES:
+            raise CliFailure(
+                "shadow.bundle_unbounded", "Upstream bundle exceeds its size bound"
+            )
+    except BaseException:
+        if process.poll() is None:
+            process.kill()
+        process.wait()
+        raise
+
+
+def create_shadow(args: argparse.Namespace) -> dict[str, object]:
+    """Custody exact initial refs in a separate Git repository after plan review."""
+    if not args.acknowledge:
+        raise CliFailure(
+            "shadow.acknowledgement_required", "Creation requires --acknowledge"
+        )
+    plan = plan_shadow(args)
+    if args.expect_plan != plan["plan_identity"]:
+        raise CliFailure(
+            "shadow.plan_stale", "Current upstream state differs from the reviewed plan"
+        )
+    upstream = Path(str(plan["upstream"]))
+    destination = Path(str(plan["shadow"]))
+    parent = destination.parent
+    if not parent.is_dir() or parent.is_symlink():
+        raise CliFailure(
+            "shadow.parent_invalid",
+            "The shadow parent must be an existing real directory",
+        )
+    with tempfile.TemporaryDirectory(prefix=".shadow-stage-", dir=parent) as temporary:
+        bundle = Path(temporary) / "source.bundle"
+        selected = plan["branches"]
+        refs = [str(item["ref"]) for item in selected]
+        _create_bounded_bundle(upstream, bundle, refs)
+        observed = {}
+        for line in _git(upstream, "bundle", "list-heads", str(bundle)).splitlines():
+            commit, separator, ref = line.partition(" ")
+            if not separator or not _HEX_COMMIT.fullmatch(commit):
+                raise CliFailure(
+                    "shadow.bundle_invalid", "Bundle head identity is invalid"
+                )
+            observed[ref] = commit
+        if observed != {str(item["ref"]): str(item["commit"]) for item in selected}:
+            raise CliFailure(
+                "shadow.plan_stale", "Upstream refs changed while creating the bundle"
+            )
+        _git(upstream, "bundle", "verify", str(bundle), timeout=90)
+        if plan_shadow(args)["plan_identity"] != args.expect_plan:
+            raise CliFailure(
+                "shadow.plan_stale", "Upstream refs changed after bundle creation"
+            )
+        with bundle.open("rb") as source_bundle:
+            digest = hashlib.file_digest(source_bundle, "sha256").hexdigest()
+        object_name = f"sha256-{digest}.bundle"
+        try:
+            destination.mkdir(mode=0o700)
+        except FileExistsError as exc:
+            raise CliFailure(
+                "shadow.destination_exists",
+                "The shadow destination appeared before creation",
+            ) from exc
+        owned = destination / ".literate-shadow"
+        owned.mkdir(mode=0o700)
+        objects = owned / "objects"
+        objects.mkdir(mode=0o700)
+        hooks = owned / "empty-hooks"
+        hooks.mkdir()
+        shutil.copyfile(bundle, objects / object_name)
+        with (objects / object_name).open("rb") as copied_bundle:
+            if hashlib.file_digest(copied_bundle, "sha256").hexdigest() != digest:
+                raise CliFailure(
+                    "shadow.bundle_invalid", "Copied source bundle changed"
+                )
+        registry = {
+            "schema": "literate-ai/shadow-registry@1",
+            "upstream": plan["upstream"],
+            "forge": plan["forge"],
+            "branches": selected,
+            "source_bundle": object_name,
+            "source_bundle_identity": f"sha256:{digest}",
+            "projection_version": 1,
+            "source_layout_mapping": None,
+            "target_capabilities": [],
+            "qualification": "unqualified",
+            "create_plan_identity": args.expect_plan,
+        }
+        (owned / "registry.json").write_bytes(_json_bytes(registry))
+        journal = {
+            "schema": "literate-ai/shadow-journal-event@1",
+            "operation": "create",
+            "plan_identity": args.expect_plan,
+            "source_bundle_identity": f"sha256:{digest}",
+            "recorded_at": datetime.now(UTC).isoformat(),
+        }
+        (owned / "journal.jsonl").write_bytes(_json_bytes(journal))
+        _git(destination, "-c", "init.templateDir=", "init", "-q", "-b", "main")
+        _git(destination, "add", ".literate-shadow")
+        _git(
+            destination,
+            "-c",
+            "user.name=Literate AI Shadow",
+            "-c",
+            "user.email=shadow@literate-ai.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            f"core.hooksPath={hooks}",
+            "commit",
+            "-qm",
+            "Create initial upstream shadow custody",
+        )
+        commit = _git(destination, "rev-parse", "HEAD")
+        if (
+            {item.name for item in destination.iterdir()}
+            != {
+                ".git",
+                ".literate-shadow",
+            }
+            or {item.name for item in owned.iterdir()}
+            != {
+                "objects",
+                "empty-hooks",
+                "registry.json",
+                "journal.jsonl",
+            }
+            or {item.name for item in objects.iterdir()} != {object_name}
+            or tuple(hooks.iterdir())
+            or _git(destination, "status", "--porcelain=v1", "--untracked-files=all")
+        ):
+            raise CliFailure("shadow.foreign_write", "Shadow changed during creation")
+    return {
+        "schema": "literate-ai/shadow-create-result@1",
+        "shadow": str(destination),
+        "shadow_commit": commit,
+        "source_bundle_identity": registry["source_bundle_identity"],
+        "branches": selected,
+        "qualification": "unqualified",
+    }
+
+
 def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     shadow = commands.add_parser(
         "shadow", help="plan a separate upstream shadow repository"
@@ -256,6 +449,14 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     plan.add_argument(
         "--branch", action="append", help="selected upstream branch; defaults to main"
     )
+    create = actions.add_parser(
+        "create", help="create a separate Git shadow with exact initial source custody"
+    )
+    create.add_argument("--upstream", required=True)
+    create.add_argument("--shadow", required=True)
+    create.add_argument("--branch", action="append")
+    create.add_argument("--expect-plan", required=True, metavar="SHA256")
+    create.add_argument("--acknowledge", action="store_true")
     pr = actions.add_parser(
         "pr-plan", help="bind a GitHub PR base and head without fetching or writing"
     )
@@ -267,4 +468,4 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     )
 
 
-__all__ = ["add_shadow_parser", "plan_shadow", "plan_shadow_pr"]
+__all__ = ["add_shadow_parser", "create_shadow", "plan_shadow", "plan_shadow_pr"]
