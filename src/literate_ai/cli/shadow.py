@@ -14,6 +14,7 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+from literate_ai._filesystem import stat_is_link_or_reparse
 from literate_ai.adapters.exclusive_directory import (
     directory_node,
     publish_directory_between_owned_parents_exclusive,
@@ -24,8 +25,9 @@ from .errors import CliFailure
 _MAX_BRANCHES = 32
 _MAX_REF_CHARS = 200
 _MAX_PR_BYTES = 256 * 1024
-_MAX_BUNDLE_BYTES = 128 * 1024 * 1024
+_MAX_BUNDLE_BYTES = 512 * 1024 * 1024
 _MAX_FETCH_BYTES = 512 * 1024 * 1024
+_MAX_FETCH_SECONDS = 600
 _MAX_JOURNAL_EVENTS = 64
 _HEX_COMMIT = re.compile(r"[0-9a-f]{40,64}\Z")
 _GITHUB_SSH = re.compile(
@@ -304,6 +306,171 @@ def plan_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
     return _plan_identity(body)
 
 
+def _pr_lane_result(lane: Path, plan: dict[str, object]) -> dict[str, object]:
+    if lane.is_symlink() or not lane.is_dir():
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane is missing or unsafe")
+    if {item.name for item in lane.iterdir()} != {
+        "remote.git",
+        "empty-hooks",
+        "source.bundle",
+        "lane.json",
+    }:
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane inventory changed")
+    try:
+        metadata = json.loads(_bounded_file(lane / "lane.json", 64 * 1024))
+    except (CliFailure, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.pr_lane_invalid", "PR lane metadata is invalid"
+        ) from exc
+    bundle = lane / "source.bundle"
+    hooks = lane / "empty-hooks"
+    repository = lane / "remote.git"
+    lane_bytes = 0
+
+    def refuse_unreadable(error: OSError) -> None:
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane cannot be read") from error
+
+    for current, directories, files in os.walk(lane, onerror=refuse_unreadable):
+        for name in (*directories, *files):
+            entry = Path(current) / name
+            try:
+                node = entry.lstat()
+            except OSError as exc:
+                raise CliFailure(
+                    "shadow.pr_lane_invalid", "PR lane entry cannot be read"
+                ) from exc
+            if stat_is_link_or_reparse(node):
+                raise CliFailure("shadow.pr_lane_invalid", "PR lane contains a link")
+            if name in files:
+                lane_bytes += node.st_size
+                if lane_bytes > _MAX_FETCH_BYTES + _MAX_BUNDLE_BYTES:
+                    raise CliFailure(
+                        "shadow.pr_lane_invalid", "PR lane exceeds its byte bound"
+                    )
+    if (
+        not isinstance(metadata, dict)
+        or metadata.get("schema") != "literate-ai/shadow-pr-lane@1"
+        or metadata.get("plan") != plan
+        or hooks.is_symlink()
+        or not hooks.is_dir()
+        or tuple(hooks.iterdir())
+        or repository.is_symlink()
+        or not repository.is_dir()
+        or bundle.is_symlink()
+        or not bundle.is_file()
+        or bundle.stat().st_size > _MAX_BUNDLE_BYTES
+        or _git(repository, "rev-parse", "--is-bare-repository") != "true"
+    ):
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane custody is invalid")
+    with bundle.open("rb") as source_bundle:
+        digest = hashlib.file_digest(source_bundle, "sha256").hexdigest()
+    if metadata.get("bundle_identity") != f"sha256:{digest}":
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane bundle changed")
+    pr = plan["pull_request"]
+    expected = {
+        str(pr["base_ref"]): str(pr["base_commit"]),
+        f"refs/pull/{pr['number']}/head": str(pr["head_commit"]),
+    }
+    observed = {}
+    for line in _git(repository, "bundle", "list-heads", str(bundle)).splitlines():
+        commit, separator, ref = line.partition(" ")
+        if not separator or ref in observed:
+            raise CliFailure("shadow.pr_lane_invalid", "PR lane bundle heads changed")
+        observed[ref] = commit
+    if observed != expected:
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane bundle heads changed")
+    _git(repository, "bundle", "verify", str(bundle), timeout=90)
+    for ref, commit in expected.items():
+        if _git(repository, "rev-parse", "--verify", f"{ref}^{{commit}}") != commit:
+            raise CliFailure("shadow.pr_lane_invalid", "PR lane refs changed")
+    return {
+        "schema": "literate-ai/shadow-pr-capture-result@1",
+        "lane": str(lane),
+        "plan_identity": plan["plan_identity"],
+        "shadow_commit": plan["shadow_commit"],
+        "bundle_identity": f"sha256:{digest}",
+        "pull_request": pr,
+        "qualification": "unqualified",
+    }
+
+
+def capture_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
+    """Custody an exact PR base/head in an isolated, unqualified bare Git lane."""
+    if not args.acknowledge:
+        raise CliFailure(
+            "shadow.acknowledgement_required", "PR capture requires --acknowledge"
+        )
+    plan = plan_shadow_pr(args)
+    if plan["plan_identity"] != args.expect_plan:
+        raise CliFailure("shadow.plan_stale", "PR differs from the reviewed plan")
+    shadow = Path(str(plan["shadow"]))
+    git_dir = shadow / ".git"
+    directory_node(git_dir)
+    owner = git_dir / "literate-shadow"
+    if owner.is_symlink():
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane owner is unsafe")
+    if not owner.exists():
+        owner.mkdir(mode=0o700)
+    directory_node(owner)
+    lanes = owner / "pr-lanes"
+    if lanes.is_symlink():
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane parent is unsafe")
+    if not lanes.exists():
+        lanes.mkdir(mode=0o700)
+    directory_node(lanes)
+    lane = lanes / str(plan["plan_identity"])[7:]
+    if lane.exists() or lane.is_symlink():
+        result = _pr_lane_result(lane, plan)
+        result["idempotent"] = True
+        return result
+    pr = plan["pull_request"]
+    selected = [
+        {"ref": pr["base_ref"], "commit": pr["base_commit"]},
+        {"ref": f"refs/pull/{pr['number']}/head", "commit": pr["head_commit"]},
+    ]
+    with tempfile.TemporaryDirectory(prefix=".pr-lane-", dir=lanes) as temporary:
+        stage = Path(temporary) / "lane"
+        stage.mkdir(mode=0o700)
+        repository = _fetch_selected_refs(Path(str(plan["upstream"])), stage, selected)
+        bundle = stage / "source.bundle"
+        refs = [str(item["ref"]) for item in selected]
+        _create_bounded_bundle(repository, bundle, refs)
+        _git(repository, "bundle", "verify", str(bundle), timeout=90)
+        with bundle.open("rb") as source_bundle:
+            digest = hashlib.file_digest(source_bundle, "sha256").hexdigest()
+        (stage / "lane.json").write_bytes(
+            _json_bytes(
+                {
+                    "schema": "literate-ai/shadow-pr-lane@1",
+                    "plan": plan,
+                    "bundle_identity": f"sha256:{digest}",
+                }
+            )
+        )
+        if plan_shadow_pr(args)["plan_identity"] != args.expect_plan:
+            raise CliFailure("shadow.plan_stale", "PR changed during capture")
+        _pr_lane_result(stage, plan)
+        try:
+            publish_directory_between_owned_parents_exclusive(
+                stage,
+                lane,
+                expected_source=directory_node(stage),
+                expected_source_parent=directory_node(Path(temporary)),
+                expected_destination_parent=directory_node(lanes),
+            )
+        except FileExistsError as exc:
+            raise CliFailure(
+                "shadow.pr_lane_exists", "PR lane appeared during capture"
+            ) from exc
+        except CliFailure:
+            raise
+        except (OSError, ValueError) as exc:
+            raise CliFailure(
+                "shadow.pr_lane_publish_failed", "PR lane publication failed"
+            ) from exc
+    return _pr_lane_result(lane, plan)
+
+
 def _json_bytes(value: object) -> bytes:
     return (
         json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
@@ -423,7 +590,7 @@ def _fetch_selected_refs(
         raise CliFailure(
             "shadow.fetch_unavailable", "Remote fetch could not start"
         ) from exc
-    deadline = time.monotonic() + 120
+    deadline = time.monotonic() + _MAX_FETCH_SECONDS
     try:
         while process.poll() is None:
             if time.monotonic() >= deadline:
@@ -1414,11 +1581,19 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     pr.add_argument(
         "--number", required=True, type=int, help="positive pull request number"
     )
+    pr_capture = actions.add_parser(
+        "pr-capture", help="custody an exact PR base and head in an isolated bare lane"
+    )
+    pr_capture.add_argument("--shadow", required=True)
+    pr_capture.add_argument("--number", required=True, type=int)
+    pr_capture.add_argument("--expect-plan", required=True, metavar="SHA256")
+    pr_capture.add_argument("--acknowledge", action="store_true")
 
 
 __all__ = [
     "add_shadow_parser",
     "apply_shadow_sync",
+    "capture_shadow_pr",
     "create_shadow",
     "plan_shadow",
     "plan_shadow_pr",

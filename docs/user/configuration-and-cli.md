@@ -38,6 +38,7 @@ litai flavor add
 litai shadow plan
 litai shadow create
 litai shadow pr-plan
+litai shadow pr-capture
 litai shadow status
 litai shadow sync plan
 litai shadow sync apply
@@ -228,6 +229,13 @@ fetching it or creating an evaluation lane.
 Use `--shadow PATH` in place of `--upstream PATH` to bind the plan to a created
 shadow's exact commit and source bundle. This form requires the PR target branch
 to be selected in the shadow and equal the current remote PR base.
+`litai shadow pr-capture --shadow PATH --number N --expect-plan SHA256
+--acknowledge` rechecks that shadow-bound plan, fetches the exact remote base and
+GitHub PR head into a separate bare Git lane, verifies both commits and a bounded
+complete-history bundle, then publishes the lane exclusively under the shadow's
+Git metadata. Repeating the same capture verifies and returns its existing lane.
+The upstream checkout and shadow commit stay unchanged. The captured lane is
+unqualified source custody; it creates no executable workspace or acceptance.
 `litai shadow create` repeats the creation plan inputs and requires both
 `--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
 bounded Git bundle of their exact history in a new Git repository, and records a
@@ -252,8 +260,8 @@ completed plan preserves its result; `--resume` finishes an interrupted ref or
 working-tree update only when the pending plan and old files still match.
 With `--remote`, apply fetches selected refs into isolated temporary custody,
 verifies their planned SHAs and ancestry, then bundles that fetched state. It
-does not modify the upstream checkout. PR evaluation remains a separate,
-still-open operation.
+does not modify the upstream checkout. Executing mapped PR operations and
+admitting their evidence remain separate, still-open work.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with

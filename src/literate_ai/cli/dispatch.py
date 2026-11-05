@@ -249,6 +249,7 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     if args.command == "shadow":
         from .shadow import (
             apply_shadow_sync,
+            capture_shadow_pr,
             create_shadow,
             plan_shadow,
             plan_shadow_pr,
@@ -258,6 +259,8 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
 
         if args.shadow_command == "pr-plan":
             return plan_shadow_pr(args), 0
+        if args.shadow_command == "pr-capture":
+            return capture_shadow_pr(args), 0
         if args.shadow_command == "create":
             return create_shadow(args), 0
         if args.shadow_command == "status":

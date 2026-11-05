@@ -114,6 +114,31 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_pr_capture(
+        self, response: dict[str, object], identity: str, *extra: str
+    ) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        with patch("literate_ai.cli.shadow._github_pr", return_value=response):
+            status = main(
+                (
+                    "--json",
+                    "shadow",
+                    "pr-capture",
+                    "--shadow",
+                    str(self.root / "shadow"),
+                    "--number",
+                    "17",
+                    "--expect-plan",
+                    identity,
+                    *extra,
+                ),
+                stdout=stdout,
+                stderr=stderr,
+            )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def pr_response(self) -> dict[str, object]:
         return {
             "id": 1717,
@@ -325,6 +350,143 @@ class ShadowPlanCliTests(unittest.TestCase):
         self.assertEqual(status, 2)
         self.assertEqual(refused["error"]["code"], "shadow.pr_base_stale")
 
+    def test_pr_capture_custodies_real_remote_refs_without_touching_shadow(
+        self,
+    ) -> None:
+        remote = self.root / "remote.git"
+        _git(self.root, "init", "--bare", "-q", "-b", "main", str(remote))
+        _git(
+            self.upstream,
+            "push",
+            str(remote),
+            "main:refs/heads/main",
+            "feature:refs/pull/17/head",
+        )
+        config = self.root / "gitconfig"
+        _git(
+            self.root,
+            "config",
+            "--file",
+            str(config),
+            f"url.file://{remote}.insteadOf",
+            "git@github.com:owner/example.git",
+        )
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        shadow = self.root / "shadow"
+        shadow_commit = _git(shadow, "rev-parse", "HEAD")
+        upstream_before = _git(self.upstream, "status", "--porcelain=v1")
+        with (
+            patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}),
+            patch(
+                "literate_ai.cli.shadow._remote_heads", side_effect=_REAL_REMOTE_HEADS
+            ),
+        ):
+            status, envelope = self.invoke_shadow_pr(self.pr_response())
+            self.assertEqual(status, 0, envelope)
+            pr_plan = envelope["result"]
+            status, captured = self.invoke_pr_capture(
+                self.pr_response(), pr_plan["plan_identity"], "--acknowledge"
+            )
+            self.assertEqual(status, 0, captured)
+            status, repeated = self.invoke_pr_capture(
+                self.pr_response(), pr_plan["plan_identity"], "--acknowledge"
+            )
+            self.assertEqual(status, 0, repeated)
+            self.assertTrue(repeated["result"]["idempotent"])
+            lane = Path(captured["result"]["lane"])
+            if os.name != "nt":
+                foreign_link = lane / "remote.git" / "foreign-link"
+                foreign_link.symlink_to(self.upstream / "README.md")
+                status, refused = self.invoke_pr_capture(
+                    self.pr_response(), pr_plan["plan_identity"], "--acknowledge"
+                )
+                self.assertEqual(status, 2)
+                self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
+                foreign_link.unlink()
+            bundle = lane / "source.bundle"
+            bundle.write_bytes(bundle.read_bytes() + b"foreign")
+            status, refused = self.invoke_pr_capture(
+                self.pr_response(), pr_plan["plan_identity"], "--acknowledge"
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
+        lane = Path(captured["result"]["lane"])
+        self.assertTrue(lane.is_relative_to(shadow / ".git"))
+        self.assertEqual(captured["result"]["qualification"], "unqualified")
+        self.assertEqual(
+            _git(lane / "remote.git", "rev-parse", "refs/pull/17/head"),
+            self.feature_commit,
+        )
+        self.assertEqual(_git(shadow, "rev-parse", "HEAD"), shadow_commit)
+        self.assertEqual(_git(shadow, "status", "--porcelain=v1"), "")
+        self.assertEqual(
+            _git(self.upstream, "status", "--porcelain=v1"), upstream_before
+        )
+
+    def test_pr_capture_refuses_changed_forge_head_before_fetch(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        pr_plan = self.invoke_shadow_pr(self.pr_response())[1]["result"]
+        changed = self.pr_response()
+        changed["head"]["sha"] = "a" * 40
+        status, refused = self.invoke_pr_capture(
+            changed, pr_plan["plan_identity"], "--acknowledge"
+        )
+        self.assertEqual(status, 2)
+        self.assertEqual(refused["error"]["code"], "shadow.plan_stale")
+        self.assertFalse((self.root / "shadow" / ".git" / "literate-shadow").exists())
+
+    def test_pr_capture_refuses_remote_head_different_from_forge_plan(self) -> None:
+        remote = self.root / "remote.git"
+        _git(self.root, "init", "--bare", "-q", "-b", "main", str(remote))
+        _git(
+            self.upstream,
+            "push",
+            str(remote),
+            "main:refs/heads/main",
+            "feature:refs/pull/17/head",
+        )
+        config = self.root / "gitconfig"
+        _git(
+            self.root,
+            "config",
+            "--file",
+            str(config),
+            f"url.file://{remote}.insteadOf",
+            "git@github.com:owner/example.git",
+        )
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        response = self.pr_response()
+        response["head"]["sha"] = self.main_commit
+        with (
+            patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(config)}),
+            patch(
+                "literate_ai.cli.shadow._remote_heads", side_effect=_REAL_REMOTE_HEADS
+            ),
+        ):
+            status, envelope = self.invoke_shadow_pr(response)
+            self.assertEqual(status, 0, envelope)
+            status, refused = self.invoke_pr_capture(
+                response, envelope["result"]["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(refused["error"]["code"], "shadow.plan_stale")
+        self.assertFalse(
+            list(
+                (
+                    self.root / "shadow" / ".git" / "literate-shadow" / "pr-lanes"
+                ).iterdir()
+            )
+        )
+
     def test_create_custodies_exact_branches_in_separate_git_repo(self) -> None:
         planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
         upstream_before = _git(self.upstream, "status", "--porcelain=v1")
@@ -362,6 +524,16 @@ class ShadowPlanCliTests(unittest.TestCase):
         status, envelope = self.invoke_create(planned["plan_identity"], "--acknowledge")
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.plan_stale")
+        self.assertFalse((self.root / "shadow").exists())
+
+    def test_create_refuses_bundle_over_configured_bound(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        with patch("literate_ai.cli.shadow._MAX_BUNDLE_BYTES", 1):
+            status, refused = self.invoke_create(
+                planned["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(refused["error"]["code"], "shadow.bundle_unbounded")
         self.assertFalse((self.root / "shadow").exists())
 
     def test_create_retries_after_interruption_before_publication(self) -> None:

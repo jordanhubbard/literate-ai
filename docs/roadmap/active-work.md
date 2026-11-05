@@ -33934,7 +33934,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** The directing user accepted ADR 0063; implement its exact upstream authority and evidence boundaries in 1.4.0 before claiming any shadow qualification.
 - **Depends on:** ADR 0063 accepted design
 - **Completion prerequisites:** none
-- **Next action:** Complete isolated PR lanes and mapped lifecycle planning after the versioned registry, read-only plans, restart-safe synchronization, and atomic initial creation. Keep repair export and acceptance paths as unchecked slices of this same goal.
+- **Next action:** Map supported upstream operations into isolated PR attempt workspaces using the captured exact base/head bundle, then retain execution, gap and acceptance evidence. Repair export and outcome reconciliation remain unchecked slices of this same goal.
 - **Implementation:**
   - [ ] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal.
   - [ ] Map supported upstream operations into isolated lifecycle attempts and report unsupported or unbound operations as explicit gaps.
@@ -33953,3 +33953,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
   destination is preserved and refused. The 24 real Git CLI controls pass
   locally. Isolated PR lanes, mapped lifecycle execution, repair export,
   reconciliation, exact-head platform gates and independent review remain open.
+  The acknowledged `shadow pr-capture` path now fetches a current GitHub PR's
+  base and head into a separate bare Git lane, verifies exact refs and a complete
+  history bundle, and publishes that unqualified source custody exclusively
+  under shadow Git metadata. A real capture of PR #318 bound main `3350cc207`
+  and head `9a73a6809`, retained bundle `sha256:f4fd73ea83fd15eac2de30cfdd9610a6f984cebea4071cfd540e760b67bc9806`,
+  and replayed idempotently without changing either checkout. The actual main
+  bundle measured 295,015,169 bytes; the finite bundle cap is now 512 MiB and
+  the real remote fetch required more than the former 120-second deadline.
+  Mapped execution and independent qualification remain open.
