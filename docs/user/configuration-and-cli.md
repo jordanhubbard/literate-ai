@@ -36,6 +36,7 @@ litai reparent
 litai catalog copy
 litai flavor add
 litai shadow plan
+litai shadow pr-plan
 
 # Dev workflow
 litai verify
@@ -216,6 +217,10 @@ a deterministic plan identity and GitHub origin. The destination must be a new,
 separate path. The command does not create or qualify a shadow repository; see
 [ADR 0063](../decisions/0063-continuous-upstream-shadow-qualification.md) for
 the remaining creation, synchronization, qualification, and repair contract.
+`litai shadow pr-plan --upstream PATH --number N` reads the current GitHub PR
+identity and refuses a local target branch whose commit differs from the PR base.
+It reports whether the candidate head object is available locally, without
+fetching it or creating an evaluation lane.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with
