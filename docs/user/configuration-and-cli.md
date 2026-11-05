@@ -40,6 +40,7 @@ litai shadow create
 litai shadow pr-plan
 litai shadow status
 litai shadow sync plan
+litai shadow sync apply
 
 # Dev workflow
 litai verify
@@ -238,6 +239,13 @@ selected refs against the saved commits and requires each existing branch to
 advance by ancestry. A newly selected branch must be named explicitly. It binds
 the shadow commit and source bundle identity to a read-only plan; applying that
 plan and fetching remote refs are separate, still-open operations.
+`litai shadow sync apply --shadow PATH --expect-plan SHA256 --acknowledge`
+revalidates the plan, captures the selected local refs in a bounded Git bundle,
+and publishes a new shadow commit through an exact old-head compare-and-swap.
+It records the branch set and bundle in the append-only journal. Repeating a
+completed plan preserves its result; `--resume` finishes an interrupted ref or
+working-tree update only when the pending plan and old files still match.
+Remote ref fetching and PR evaluation remain separate, still-open operations.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with

@@ -20,6 +20,7 @@ _MAX_BRANCHES = 32
 _MAX_REF_CHARS = 200
 _MAX_PR_BYTES = 256 * 1024
 _MAX_BUNDLE_BYTES = 128 * 1024 * 1024
+_MAX_JOURNAL_EVENTS = 64
 _HEX_COMMIT = re.compile(r"[0-9a-f]{40,64}\Z")
 _GITHUB_SSH = re.compile(
     r"git@github\.com:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?\Z"
@@ -29,11 +30,21 @@ _GITHUB_HTTPS = re.compile(
 )
 
 
-def _git(root: Path, *arguments: str, timeout: int = 10) -> str:
+def _git(
+    root: Path,
+    *arguments: str,
+    timeout: int = 10,
+    environment: dict[str, str] | None = None,
+) -> str:
     try:
         result = subprocess.run(
             ["git", "--no-optional-locks", "-C", str(root), *arguments],
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
+            env={
+                **os.environ,
+                "GIT_OPTIONAL_LOCKS": "0",
+                "GIT_CONFIG_NOSYSTEM": "1",
+                **(environment or {}),
+            },
             capture_output=True,
             text=True,
             timeout=timeout,
@@ -457,6 +468,8 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
         != shadow
     ):
         raise CliFailure("shadow.root_invalid", "Select the shadow repository root")
+    if _git(shadow, "symbolic-ref", "--short", "HEAD") != "main":
+        raise CliFailure("shadow.root_invalid", "Shadow must be on its main branch")
     owned = shadow / ".literate-shadow"
     if owned.is_symlink() or not owned.is_dir():
         raise CliFailure(
@@ -476,17 +489,42 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
         or registry.get("schema") != "literate-ai/shadow-registry@1"
         or registry.get("qualification") != "unqualified"
         or not isinstance(events, list)
-        or len(events) != 1
+        or not 1 <= len(events) <= _MAX_JOURNAL_EVENTS
         or not isinstance(events[0], dict)
         or events[0].get("schema") != "literate-ai/shadow-journal-event@1"
         or events[0].get("operation") != "create"
         or events[0].get("plan_identity") != registry.get("create_plan_identity")
-        or events[0].get("source_bundle_identity")
-        != registry.get("source_bundle_identity")
     ):
         raise CliFailure(
             "shadow.custody_invalid", "Shadow registry and journal disagree"
         )
+    bundle_identities = []
+    previous_identity = None
+    for index, event in enumerate(events):
+        identity = event.get("source_bundle_identity")
+        if (
+            event.get("schema") != "literate-ai/shadow-journal-event@1"
+            or not isinstance(identity, str)
+            or not re.fullmatch(r"sha256:[0-9a-f]{64}", identity)
+            or (index == 0 and event.get("operation") != "create")
+            or (
+                index > 0
+                and (
+                    event.get("operation") != "sync"
+                    or event.get("previous_bundle_identity") != previous_identity
+                    or not isinstance(event.get("plan_identity"), str)
+                )
+            )
+        ):
+            raise CliFailure(
+                "shadow.custody_invalid", "Shadow journal chain is invalid"
+            )
+        bundle_identities.append(identity)
+        previous_identity = identity
+    if bundle_identities[-1] != registry.get("source_bundle_identity") or (
+        len(events) > 1 and events[-1].get("branches") != registry.get("branches")
+    ):
+        raise CliFailure("shadow.custody_invalid", "Shadow journal tip disagrees")
     digest = registry.get("source_bundle_identity")
     name = registry.get("source_bundle")
     if (
@@ -508,9 +546,24 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
         or bundle.stat().st_size > _MAX_BUNDLE_BYTES
     ):
         raise CliFailure("shadow.custody_invalid", "Shadow bundle is missing or unsafe")
-    with bundle.open("rb") as source_bundle:
-        if hashlib.file_digest(source_bundle, "sha256").hexdigest() != digest[7:]:
-            raise CliFailure("shadow.custody_invalid", "Shadow bundle digest changed")
+    expected_names = {f"sha256-{identity[7:]}.bundle" for identity in bundle_identities}
+    if {item.name for item in objects.iterdir()} != expected_names:
+        raise CliFailure("shadow.custody_invalid", "Shadow bundle inventory changed")
+    for identity in bundle_identities:
+        candidate_bundle = objects / f"sha256-{identity[7:]}.bundle"
+        if (
+            candidate_bundle.is_symlink()
+            or not candidate_bundle.is_file()
+            or candidate_bundle.stat().st_size > _MAX_BUNDLE_BYTES
+        ):
+            raise CliFailure(
+                "shadow.custody_invalid", "Shadow bundle is missing or unsafe"
+            )
+        with candidate_bundle.open("rb") as source_bundle:
+            if hashlib.file_digest(source_bundle, "sha256").hexdigest() != identity[7:]:
+                raise CliFailure(
+                    "shadow.custody_invalid", "Shadow bundle digest changed"
+                )
     _git(shadow, "bundle", "verify", str(bundle), timeout=90)
     selected = registry.get("branches")
     if not isinstance(selected, list) or not 1 <= len(selected) <= _MAX_BRANCHES:
@@ -544,14 +597,14 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
         {item.name for item in shadow.iterdir()} != {".git", ".literate-shadow"}
         or {item.name for item in owned.iterdir()}
         != {"objects", "empty-hooks", "registry.json", "journal.jsonl"}
-        or {item.name for item in objects.iterdir()} != {name}
+        or {item.name for item in objects.iterdir()} != expected_names
         or tuple(hooks.iterdir())
     ):
         raise CliFailure("shadow.custody_invalid", "Shadow custody layout changed")
     for relative in (
         ".literate-shadow/registry.json",
         ".literate-shadow/journal.jsonl",
-        f".literate-shadow/objects/{name}",
+        *(f".literate-shadow/objects/{item}" for item in expected_names),
     ):
         if _git(shadow, "hash-object", relative) != _git(
             shadow, "rev-parse", f"HEAD:{relative}"
@@ -688,6 +741,381 @@ def plan_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
     return _plan_identity(body)
 
 
+def _worktree_matches_old(shadow: Path, old: str, names: list[str]) -> bool:
+    owned = shadow / ".literate-shadow"
+    try:
+        if (
+            {item.name for item in shadow.iterdir()} != {".git", ".literate-shadow"}
+            or {item.name for item in owned.iterdir()}
+            != {"objects", "empty-hooks", "registry.json", "journal.jsonl"}
+            or {item.name for item in (owned / "objects").iterdir()} != set(names)
+            or tuple((owned / "empty-hooks").iterdir())
+        ):
+            return False
+        _git(shadow, "diff", "--quiet", old, "--")
+        _git(shadow, "diff", "--cached", "--quiet", old, "--")
+        return True
+    except (CliFailure, OSError):
+        return False
+
+
+def _worktree_matches_transition(
+    shadow: Path, old: str, new: str, old_names: list[str], new_name: str
+) -> bool:
+    owned = shadow / ".literate-shadow"
+    objects = owned / "objects"
+    hooks = owned / "empty-hooks"
+    try:
+        if (
+            {item.name for item in shadow.iterdir()} != {".git", ".literate-shadow"}
+            or owned.is_symlink()
+            or objects.is_symlink()
+            or hooks.is_symlink()
+            or {item.name for item in owned.iterdir()}
+            != {"objects", "empty-hooks", "registry.json", "journal.jsonl"}
+            or {item.name for item in objects.iterdir()}
+            not in (set(old_names), {*old_names, new_name})
+            or tuple(hooks.iterdir())
+        ):
+            return False
+        index_matches = False
+        for commit in (old, new):
+            try:
+                _git(shadow, "diff", "--cached", "--quiet", commit, "--")
+                index_matches = True
+                break
+            except CliFailure:
+                pass
+        if not index_matches:
+            return False
+        relatives = [
+            ".literate-shadow/registry.json",
+            ".literate-shadow/journal.jsonl",
+            *(f".literate-shadow/objects/{name}" for name in old_names),
+            f".literate-shadow/objects/{new_name}",
+        ]
+        for relative in relatives:
+            path = shadow / relative
+            if not path.exists():
+                if relative != f".literate-shadow/objects/{new_name}":
+                    return False
+                continue
+            if path.is_symlink() or not path.is_file():
+                return False
+            observed = _git(shadow, "hash-object", relative, timeout=90)
+            allowed = set()
+            for commit in (old, new):
+                try:
+                    allowed.add(_git(shadow, "rev-parse", f"{commit}:{relative}"))
+                except CliFailure:
+                    pass
+            if observed not in allowed:
+                return False
+        return True
+    except (CliFailure, OSError):
+        return False
+
+
+def _committed_bytes(shadow: Path, commit: str, relative: str) -> bytes:
+    object_name = f"{commit}:{relative}"
+    try:
+        size = int(_git(shadow, "cat-file", "-s", object_name))
+    except (CliFailure, ValueError) as exc:
+        raise CliFailure(
+            "shadow.pending_invalid", "Pending metadata object is missing"
+        ) from exc
+    if size > 1024 * 1024:
+        raise CliFailure(
+            "shadow.pending_invalid", "Pending metadata object is unbounded"
+        )
+    try:
+        result = subprocess.run(
+            ["git", "--no-optional-locks", "-C", str(shadow), "show", object_name],
+            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
+            capture_output=True,
+            timeout=10,
+            check=False,
+        )
+        if result.returncode or len(result.stdout) != size:
+            raise ValueError("pending metadata read failed")
+        return result.stdout
+    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+        raise CliFailure(
+            "shadow.pending_invalid", "Pending metadata is invalid"
+        ) from exc
+
+
+def _finish_pending_sync(shadow: Path, expected_plan: str) -> dict[str, object]:
+    pending_path = shadow / ".git" / "literate-shadow.pending.json"
+    try:
+        pending = json.loads(_bounded_file(pending_path, 16 * 1024))
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.pending_invalid", "Pending sync record is invalid"
+        ) from exc
+    if (
+        not isinstance(pending, dict)
+        or pending.get("schema") != "literate-ai/shadow-pending-sync@1"
+        or not isinstance(pending.get("old"), str)
+        or not isinstance(pending.get("new"), str)
+        or pending.get("plan_identity") != expected_plan
+        or not _HEX_COMMIT.fullmatch(pending["old"])
+        or not _HEX_COMMIT.fullmatch(pending["new"])
+        or not isinstance(pending.get("old_bundle_names"), list)
+        or not 1 <= len(pending["old_bundle_names"]) <= _MAX_JOURNAL_EVENTS
+        or not all(
+            isinstance(name, str) and re.fullmatch(r"sha256-[0-9a-f]{64}\.bundle", name)
+            for name in pending["old_bundle_names"]
+        )
+        or len(set(pending["old_bundle_names"])) != len(pending["old_bundle_names"])
+    ):
+        raise CliFailure("shadow.pending_invalid", "Pending sync record is invalid")
+    old, new = pending["old"], pending["new"]
+    if (
+        _git(shadow, "symbolic-ref", "--short", "HEAD") != "main"
+        or _git(shadow, "cat-file", "-t", new) != "commit"
+        or _git(shadow, "rev-parse", f"{new}^@") != old
+    ):
+        raise CliFailure("shadow.pending_invalid", "Pending sync commit is invalid")
+    changed = set(
+        _git(
+            shadow, "diff-tree", "--no-commit-id", "--name-only", "-r", old, new
+        ).splitlines()
+    )
+    try:
+        registry = json.loads(
+            _committed_bytes(shadow, new, ".literate-shadow/registry.json")
+        )
+        journal = [
+            json.loads(line)
+            for line in _committed_bytes(
+                shadow, new, ".literate-shadow/journal.jsonl"
+            ).splitlines()
+        ]
+    except (UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.pending_invalid", "Pending registry or journal is invalid"
+        ) from exc
+    if not isinstance(registry, dict):
+        raise CliFailure("shadow.pending_invalid", "Pending registry is invalid")
+    bundle_name = registry.get("source_bundle")
+    if (
+        not isinstance(bundle_name, str)
+        or not re.fullmatch(r"sha256-[0-9a-f]{64}\.bundle", bundle_name)
+        or registry.get("source_bundle_identity")
+        != f"sha256:{bundle_name[len('sha256-') : -len('.bundle')]}"
+        or changed
+        != {
+            ".literate-shadow/registry.json",
+            ".literate-shadow/journal.jsonl",
+            f".literate-shadow/objects/{bundle_name}",
+        }
+        or not journal
+        or not isinstance(journal[-1], dict)
+        or journal[-1].get("operation") != "sync"
+        or journal[-1].get("plan_identity") != expected_plan
+        or journal[-1].get("source_bundle_identity")
+        != registry.get("source_bundle_identity")
+        or journal[-1].get("branches") != registry.get("branches")
+    ):
+        raise CliFailure("shadow.pending_invalid", "Pending commit content is invalid")
+    current = _git(shadow, "rev-parse", "HEAD")
+    if current not in {old, new}:
+        raise CliFailure(
+            "shadow.pending_conflict", "Shadow head changed outside the pending sync"
+        )
+    if current == old:
+        if not _worktree_matches_old(shadow, old, pending["old_bundle_names"]):
+            raise CliFailure(
+                "shadow.pending_conflict",
+                "Shadow worktree changed before sync publication",
+            )
+        _git(shadow, "update-ref", "refs/heads/main", new, old)
+    try:
+        state = status_shadow(argparse.Namespace(shadow=str(shadow)))
+    except CliFailure:
+        if not _worktree_matches_transition(
+            shadow,
+            old,
+            new,
+            pending["old_bundle_names"],
+            bundle_name,
+        ):
+            raise CliFailure(
+                "shadow.pending_conflict", "Shadow worktree has foreign changes"
+            ) from None
+        _git(shadow, "reset", "--hard", new, timeout=90)
+        state = status_shadow(argparse.Namespace(shadow=str(shadow)))
+    pending_path.unlink()
+    return {
+        "schema": "literate-ai/shadow-sync-result@1",
+        "shadow": str(shadow),
+        "shadow_commit": state["shadow_commit"],
+        "source_bundle_identity": state["source_bundle_identity"],
+        "branches": state["branches"],
+        "upstream_current": state["upstream_current"],
+        "qualification": "unqualified",
+    }
+
+
+def apply_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
+    if not args.acknowledge:
+        raise CliFailure(
+            "shadow.acknowledgement_required", "Sync requires --acknowledge"
+        )
+    candidate = Path(args.shadow).expanduser()
+    if candidate.is_symlink() or not candidate.is_dir():
+        raise CliFailure("shadow.root_invalid", "Shadow root must be a real directory")
+    shadow = candidate.resolve(strict=True)
+    pending_path = shadow / ".git" / "literate-shadow.pending.json"
+    if pending_path.exists():
+        if not args.resume:
+            raise CliFailure("shadow.pending_sync", "Resume the existing shadow sync")
+        return _finish_pending_sync(shadow, args.expect_plan)
+    if args.resume:
+        raise CliFailure("shadow.pending_missing", "No shadow sync is pending")
+    state = status_shadow(argparse.Namespace(shadow=str(shadow)))
+    owned = shadow / ".literate-shadow"
+    journal_bytes = _bounded_file(owned / "journal.jsonl", 1024 * 1024)
+    events = [json.loads(line) for line in journal_bytes.splitlines()]
+    if len(events) > 1 and events[-1].get("plan_identity") == args.expect_plan:
+        return {
+            "schema": "literate-ai/shadow-sync-result@1",
+            "shadow": str(shadow),
+            "shadow_commit": state["shadow_commit"],
+            "source_bundle_identity": state["source_bundle_identity"],
+            "branches": state["branches"],
+            "upstream_current": state["upstream_current"],
+            "qualification": "unqualified",
+            "idempotent": True,
+        }
+    plan = plan_shadow_sync(args)
+    if args.expect_plan != plan["plan_identity"]:
+        raise CliFailure(
+            "shadow.plan_stale", "Current sync state differs from the reviewed plan"
+        )
+    if all(item["change"] == "unchanged" for item in plan["branches"]):
+        return {
+            "schema": "literate-ai/shadow-sync-result@1",
+            "shadow": str(shadow),
+            "shadow_commit": state["shadow_commit"],
+            "source_bundle_identity": state["source_bundle_identity"],
+            "branches": state["branches"],
+            "upstream_current": True,
+            "qualification": "unqualified",
+            "idempotent": True,
+        }
+    if len(events) >= _MAX_JOURNAL_EVENTS:
+        raise CliFailure(
+            "shadow.journal_unbounded", "Shadow journal event bound reached"
+        )
+    registry = json.loads(_bounded_file(owned / "registry.json", 64 * 1024))
+    upstream = Path(str(plan["upstream"]))
+    selected = [
+        {"ref": item["ref"], "commit": item["commit"]} for item in plan["branches"]
+    ]
+    with tempfile.TemporaryDirectory(
+        prefix=".shadow-sync-", dir=shadow.parent
+    ) as temporary:
+        stage = Path(temporary)
+        bundle = stage / "source.bundle"
+        _create_bounded_bundle(
+            upstream, bundle, [str(item["ref"]) for item in selected]
+        )
+        observed = {}
+        for line in _git(upstream, "bundle", "list-heads", str(bundle)).splitlines():
+            commit, separator, ref = line.partition(" ")
+            if not separator or ref in observed:
+                raise CliFailure(
+                    "shadow.bundle_invalid", "Bundle head identity is invalid"
+                )
+            observed[ref] = commit
+        if observed != {str(item["ref"]): str(item["commit"]) for item in selected}:
+            raise CliFailure("shadow.plan_stale", "Upstream refs changed during sync")
+        _git(upstream, "bundle", "verify", str(bundle), timeout=90)
+        if plan_shadow_sync(args)["plan_identity"] != args.expect_plan:
+            raise CliFailure(
+                "shadow.plan_stale", "Upstream or shadow changed during sync"
+            )
+        with bundle.open("rb") as source_bundle:
+            digest = hashlib.file_digest(source_bundle, "sha256").hexdigest()
+        name = f"sha256-{digest}.bundle"
+        registry.update(
+            branches=selected,
+            source_bundle=name,
+            source_bundle_identity=f"sha256:{digest}",
+        )
+        event = {
+            "schema": "literate-ai/shadow-journal-event@1",
+            "operation": "sync",
+            "plan_identity": args.expect_plan,
+            "previous_bundle_identity": state["source_bundle_identity"],
+            "source_bundle_identity": f"sha256:{digest}",
+            "branches": selected,
+            "recorded_at": datetime.now(UTC).isoformat(),
+        }
+        registry_file = stage / "registry.json"
+        journal_file = stage / "journal.jsonl"
+        registry_file.write_bytes(_json_bytes(registry))
+        journal_file.write_bytes(journal_bytes + _json_bytes(event))
+        old = str(state["shadow_commit"])
+        index = stage / "index"
+        index_environment = {"GIT_INDEX_FILE": str(index)}
+        _git(shadow, "read-tree", old, environment=index_environment)
+        for relative, content in (
+            (".literate-shadow/registry.json", registry_file),
+            (".literate-shadow/journal.jsonl", journal_file),
+            (f".literate-shadow/objects/{name}", bundle),
+        ):
+            oid = _git(shadow, "hash-object", "-w", str(content), timeout=90)
+            _git(
+                shadow,
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"100644,{oid},{relative}",
+                environment=index_environment,
+            )
+        tree = _git(shadow, "write-tree", environment=index_environment)
+        new = _git(
+            shadow,
+            "commit-tree",
+            tree,
+            "-p",
+            old,
+            "-m",
+            "Synchronize upstream shadow refs",
+            environment={
+                "GIT_AUTHOR_NAME": "Literate AI Shadow",
+                "GIT_AUTHOR_EMAIL": "shadow@literate-ai.invalid",
+                "GIT_COMMITTER_NAME": "Literate AI Shadow",
+                "GIT_COMMITTER_EMAIL": "shadow@literate-ai.invalid",
+            },
+        )
+        pending = {
+            "schema": "literate-ai/shadow-pending-sync@1",
+            "old": old,
+            "new": new,
+            "plan_identity": args.expect_plan,
+            "old_bundle_names": sorted(
+                item.name for item in (owned / "objects").iterdir()
+            ),
+        }
+        if plan_shadow_sync(args)["plan_identity"] != args.expect_plan:
+            raise CliFailure(
+                "shadow.plan_stale",
+                "Upstream or shadow changed before sync publication",
+            )
+        try:
+            with pending_path.open("xb") as pending_file:
+                pending_file.write(_json_bytes(pending))
+                pending_file.flush()
+                os.fsync(pending_file.fileno())
+        except FileExistsError as exc:
+            raise CliFailure("shadow.pending_sync", "Another sync is pending") from exc
+        return _finish_pending_sync(shadow, args.expect_plan)
+
+
 def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     shadow = commands.add_parser(
         "shadow", help="plan a separate upstream shadow repository"
@@ -723,6 +1151,12 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     sync_plan = sync_actions.add_parser("plan")
     sync_plan.add_argument("--shadow", required=True)
     sync_plan.add_argument("--add-branch", action="append")
+    sync_apply = sync_actions.add_parser("apply")
+    sync_apply.add_argument("--shadow", required=True)
+    sync_apply.add_argument("--add-branch", action="append")
+    sync_apply.add_argument("--expect-plan", required=True, metavar="SHA256")
+    sync_apply.add_argument("--acknowledge", action="store_true")
+    sync_apply.add_argument("--resume", action="store_true")
     pr = actions.add_parser(
         "pr-plan", help="bind a GitHub PR base and head without fetching or writing"
     )
@@ -736,6 +1170,7 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
 
 __all__ = [
     "add_shadow_parser",
+    "apply_shadow_sync",
     "create_shadow",
     "plan_shadow",
     "plan_shadow_pr",

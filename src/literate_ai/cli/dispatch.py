@@ -160,7 +160,8 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai component migrate
     litai learn
     litai design refine | explain | accept
-    litai shadow plan | create | pr-plan | status | sync plan
+    litai shadow plan | create | pr-plan | status
+    litai shadow sync plan | apply
 
   Operator
     litai config paths | migrate [--apply]
@@ -247,6 +248,7 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         return design_from_args(args)
     if args.command == "shadow":
         from .shadow import (
+            apply_shadow_sync,
             create_shadow,
             plan_shadow,
             plan_shadow_pr,
@@ -261,6 +263,8 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         if args.shadow_command == "status":
             return status_shadow(args), 0
         if args.shadow_command == "sync":
+            if args.sync_command == "apply":
+                return apply_shadow_sync(args), 0
             return plan_shadow_sync(args), 0
         return plan_shadow(args), 0
     if args.command == "release":

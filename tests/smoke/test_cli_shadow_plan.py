@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.cli import main
+from literate_ai.cli.errors import CliFailure
 
 
 def _git(root: Path, *args: str) -> str:
@@ -145,6 +146,29 @@ class ShadowPlanCliTests(unittest.TestCase):
                 "plan",
                 "--shadow",
                 str(self.root / "shadow"),
+                *extra,
+            ),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
+    def invoke_sync_apply(
+        self, identity: str, *extra: str
+    ) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        status = main(
+            (
+                "--json",
+                "shadow",
+                "sync",
+                "apply",
+                "--shadow",
+                str(self.root / "shadow"),
+                "--expect-plan",
+                identity,
                 *extra,
             ),
             stdout=stdout,
@@ -350,6 +374,113 @@ class ShadowPlanCliTests(unittest.TestCase):
         status, envelope = self.invoke_sync()
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.non_fast_forward")
+
+    def test_sync_apply_commits_advance_and_addition_idempotently(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        _git(self.upstream, "branch", "release", "main")
+        (self.upstream / "README.md").write_text("advanced\n", encoding="utf-8")
+        _git(self.upstream, "commit", "-qam", "advance feature")
+        sync = self.invoke_sync("--add-branch", "release")[1]["result"]
+        old = _git(self.root / "shadow", "rev-parse", "HEAD")
+        status, envelope = self.invoke_sync_apply(
+            sync["plan_identity"], "--add-branch", "release", "--acknowledge"
+        )
+        self.assertEqual(status, 0)
+        self.assertNotEqual(envelope["result"]["shadow_commit"], old)
+        self.assertEqual(len(envelope["result"]["branches"]), 3)
+        self.assertEqual(self.invoke_status()[1]["result"]["upstream_current"], True)
+        status, again = self.invoke_sync_apply(
+            sync["plan_identity"], "--add-branch", "release", "--acknowledge"
+        )
+        self.assertEqual(status, 0)
+        self.assertTrue(again["result"]["idempotent"])
+        self.assertEqual(
+            again["result"]["shadow_commit"], envelope["result"]["shadow_commit"]
+        )
+
+    def test_sync_apply_refuses_stale_plan(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        sync = self.invoke_sync()[1]["result"]
+        (self.upstream / "README.md").write_text("advanced\n", encoding="utf-8")
+        _git(self.upstream, "commit", "-qam", "advance feature")
+        status, envelope = self.invoke_sync_apply(
+            sync["plan_identity"], "--acknowledge"
+        )
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.plan_stale")
+        self.assertFalse(
+            (self.root / "shadow" / ".git" / "literate-shadow.pending.json").exists()
+        )
+
+    def test_sync_resume_after_ref_publication(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        (self.upstream / "README.md").write_text("advanced\n", encoding="utf-8")
+        _git(self.upstream, "commit", "-qam", "advance feature")
+        sync = self.invoke_sync()[1]["result"]
+        shadow = self.root / "shadow"
+
+        def interrupt_after_ref(root: Path, expected_plan: str) -> None:
+            pending = json.loads(
+                (root / ".git" / "literate-shadow.pending.json").read_text()
+            )
+            self.assertEqual(pending["plan_identity"], expected_plan)
+            _git(root, "update-ref", "refs/heads/main", pending["new"], pending["old"])
+            raise CliFailure("shadow.test_interruption", "Simulated interruption")
+
+        with patch(
+            "literate_ai.cli.shadow._finish_pending_sync",
+            side_effect=interrupt_after_ref,
+        ):
+            status, envelope = self.invoke_sync_apply(
+                sync["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.test_interruption")
+        self.assertTrue((shadow / ".git" / "literate-shadow.pending.json").exists())
+        status, mismatch = self.invoke_sync_apply(
+            "sha256:" + "0" * 64, "--acknowledge", "--resume"
+        )
+        self.assertEqual(status, 2)
+        self.assertEqual(mismatch["error"]["code"], "shadow.pending_invalid")
+        pending = json.loads(
+            (shadow / ".git" / "literate-shadow.pending.json").read_text()
+        )
+        registry_from_new = subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(shadow),
+                "show",
+                f"{pending['new']}:.literate-shadow/registry.json",
+            ]
+        )
+        (shadow / ".literate-shadow" / "registry.json").write_bytes(registry_from_new)
+        foreign = shadow / "foreign.txt"
+        foreign.write_text("foreign\n", encoding="utf-8")
+        status, conflict = self.invoke_sync_apply(
+            sync["plan_identity"], "--acknowledge", "--resume"
+        )
+        self.assertEqual(status, 2)
+        self.assertEqual(conflict["error"]["code"], "shadow.pending_conflict")
+        foreign.unlink()
+        status, envelope = self.invoke_sync_apply(
+            sync["plan_identity"], "--acknowledge", "--resume"
+        )
+        self.assertEqual(status, 0)
+        self.assertEqual(
+            envelope["result"]["shadow_commit"], _git(shadow, "rev-parse", "HEAD")
+        )
+        self.assertFalse((shadow / ".git" / "literate-shadow.pending.json").exists())
+        self.assertTrue(self.invoke_status()[1]["result"]["upstream_current"])
 
 
 if __name__ == "__main__":
