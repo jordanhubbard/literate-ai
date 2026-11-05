@@ -487,6 +487,41 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
         )
 
+    def test_pr_capture_refuses_origin_change_before_fetch(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        pr_plan = self.invoke_shadow_pr(self.pr_response())[1]["result"]
+        fetch = shadow_module._fetch_selected_refs
+
+        def change_origin_then_fetch(upstream, destination, selected, forge):
+            _git(
+                self.upstream,
+                "remote",
+                "set-url",
+                "origin",
+                "git@github.com:other/example.git",
+            )
+            return fetch(upstream, destination, selected, forge)
+
+        with patch(
+            "literate_ai.cli.shadow._fetch_selected_refs",
+            side_effect=change_origin_then_fetch,
+        ):
+            status, refused = self.invoke_pr_capture(
+                self.pr_response(), pr_plan["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(refused["error"]["code"], "shadow.forge_changed")
+        self.assertFalse(
+            list(
+                (
+                    self.root / "shadow" / ".git" / "literate-shadow" / "pr-lanes"
+                ).iterdir()
+            )
+        )
+
     def test_create_custodies_exact_branches_in_separate_git_repo(self) -> None:
         planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
         upstream_before = _git(self.upstream, "status", "--porcelain=v1")

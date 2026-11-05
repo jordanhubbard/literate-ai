@@ -431,7 +431,9 @@ def capture_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
     with tempfile.TemporaryDirectory(prefix=".pr-lane-", dir=lanes) as temporary:
         stage = Path(temporary) / "lane"
         stage.mkdir(mode=0o700)
-        repository = _fetch_selected_refs(Path(str(plan["upstream"])), stage, selected)
+        repository = _fetch_selected_refs(
+            Path(str(plan["upstream"])), stage, selected, plan["forge"]
+        )
         bundle = stage / "source.bundle"
         refs = [str(item["ref"]) for item in selected]
         _create_bounded_bundle(repository, bundle, refs)
@@ -540,7 +542,10 @@ def _directory_bytes(root: Path) -> int:
 
 
 def _fetch_selected_refs(
-    upstream: Path, destination: Path, selected: list[dict[str, object]]
+    upstream: Path,
+    destination: Path,
+    selected: list[dict[str, object]],
+    expected_forge: dict[str, str],
 ) -> Path:
     refs = [str(item["ref"]) for item in selected]
     commits = {str(item["ref"]): str(item["commit"]) for item in selected}
@@ -561,6 +566,8 @@ def _fetch_selected_refs(
         str(repository),
     )
     remote_url = _git(upstream, "config", "--local", "--get", "remote.origin.url")
+    if _forge_identity(remote_url) != expected_forge:
+        raise CliFailure("shadow.forge_changed", "Upstream forge identity changed")
     try:
         process = subprocess.Popen(
             [
@@ -1423,7 +1430,7 @@ def apply_shadow_sync(args: argparse.Namespace) -> dict[str, object]:
         stage = Path(temporary)
         bundle = stage / "source.bundle"
         source_repo = (
-            _fetch_selected_refs(upstream, stage, plan["branches"])
+            _fetch_selected_refs(upstream, stage, plan["branches"], plan["forge"])
             if plan["source"] == "remote"
             else upstream
         )
