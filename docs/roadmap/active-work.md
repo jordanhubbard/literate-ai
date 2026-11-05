@@ -33934,7 +33934,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** The directing user accepted ADR 0063; implement its exact upstream authority and evidence boundaries in 1.4.0 before claiming any shadow qualification.
 - **Depends on:** ADR 0063 accepted design
 - **Completion prerequisites:** none
-- **Next action:** Implement the versioned shadow registry and read-only branch/PR plan first, with exact Git and forge identities and a restart-safe synchronization transaction. Keep the mapped lifecycle, repair export and acceptance paths as later unchecked slices of this same goal.
+- **Next action:** Complete isolated PR lanes and mapped lifecycle planning after the versioned registry, read-only plans, restart-safe synchronization, and atomic initial creation. Keep repair export and acceptance paths as unchecked slices of this same goal.
 - **Implementation:**
   - [ ] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal.
   - [ ] Map supported upstream operations into isolated lifecycle attempts and report unsupported or unbound operations as explicit gaps.
@@ -33945,3 +33945,11 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Mapped operation and gap behavior, code/test/environment/timeout/nondeterminism counterexamples and incomplete-green refusals pass.
   - [ ] Actual upstream-layout repair export/rebase and accepted merge-back plus rejected proposal retention pass without unearned admission.
   - [ ] Independent source review, full source and platform gates, and noneditable installed/native qualification pass at the exact head.
+
+  Draft PR #322 now stages initial creation as a complete separate Git repository
+  and publishes it through the exclusive directory primitive. Retrying before
+  publication starts from an absent destination; replay after publication
+  verifies the committed custody and returns the same result. A competing
+  destination is preserved and refused. The 24 real Git CLI controls pass
+  locally. Isolated PR lanes, mapped lifecycle execution, repair export,
+  reconciliation, exact-head platform gates and independent review remain open.

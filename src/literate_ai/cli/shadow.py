@@ -14,6 +14,11 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 
+from literate_ai.adapters.exclusive_directory import (
+    directory_node,
+    publish_directory_between_owned_parents_exclusive,
+)
+
 from .errors import CliFailure
 
 _MAX_BRANCHES = 32
@@ -119,10 +124,12 @@ def _plan_identity(body: dict[str, object]) -> dict[str, object]:
     return body
 
 
-def plan_shadow(args: argparse.Namespace) -> dict[str, object]:
+def plan_shadow(
+    args: argparse.Namespace, *, allow_existing: bool = False
+) -> dict[str, object]:
     upstream = _upstream_root(args.upstream)
     destination = Path(args.shadow).expanduser()
-    if destination.is_symlink() or destination.exists():
+    if destination.is_symlink() or (destination.exists() and not allow_existing):
         raise CliFailure(
             "shadow.destination_exists", "The shadow destination must not exist"
         )
@@ -455,7 +462,7 @@ def create_shadow(args: argparse.Namespace) -> dict[str, object]:
         raise CliFailure(
             "shadow.acknowledgement_required", "Creation requires --acknowledge"
         )
-    plan = plan_shadow(args)
+    plan = plan_shadow(args, allow_existing=True)
     if args.expect_plan != plan["plan_identity"]:
         raise CliFailure(
             "shadow.plan_stale", "Current upstream state differs from the reviewed plan"
@@ -467,6 +474,30 @@ def create_shadow(args: argparse.Namespace) -> dict[str, object]:
         raise CliFailure(
             "shadow.parent_invalid",
             "The shadow parent must be an existing real directory",
+        )
+    if destination.exists() or destination.is_symlink():
+        try:
+            existing = status_shadow(argparse.Namespace(shadow=str(destination)))
+            owned = destination / ".literate-shadow"
+            registry = json.loads(_bounded_file(owned / "registry.json", 64 * 1024))
+            journal = _bounded_file(owned / "journal.jsonl", 1024 * 1024)
+            if (
+                registry.get("create_plan_identity") == args.expect_plan
+                and registry.get("branches") == plan["branches"]
+                and len(journal.splitlines()) == 1
+            ):
+                return {
+                    "schema": "literate-ai/shadow-create-result@1",
+                    "shadow": str(destination),
+                    "shadow_commit": existing["shadow_commit"],
+                    "source_bundle_identity": existing["source_bundle_identity"],
+                    "branches": plan["branches"],
+                    "qualification": "unqualified",
+                }
+        except (CliFailure, ValueError, TypeError, json.JSONDecodeError):
+            pass
+        raise CliFailure(
+            "shadow.destination_exists", "The shadow destination already exists"
         )
     with tempfile.TemporaryDirectory(prefix=".shadow-stage-", dir=parent) as temporary:
         bundle = Path(temporary) / "source.bundle"
@@ -486,21 +517,16 @@ def create_shadow(args: argparse.Namespace) -> dict[str, object]:
                 "shadow.plan_stale", "Upstream refs changed while creating the bundle"
             )
         _git(upstream, "bundle", "verify", str(bundle), timeout=90)
-        if plan_shadow(args)["plan_identity"] != args.expect_plan:
+        if plan_shadow(args, allow_existing=True)["plan_identity"] != args.expect_plan:
             raise CliFailure(
                 "shadow.plan_stale", "Upstream refs changed after bundle creation"
             )
         with bundle.open("rb") as source_bundle:
             digest = hashlib.file_digest(source_bundle, "sha256").hexdigest()
         object_name = f"sha256-{digest}.bundle"
-        try:
-            destination.mkdir(mode=0o700)
-        except FileExistsError as exc:
-            raise CliFailure(
-                "shadow.destination_exists",
-                "The shadow destination appeared before creation",
-            ) from exc
-        owned = destination / ".literate-shadow"
+        staged_shadow = Path(temporary) / "repository"
+        staged_shadow.mkdir(mode=0o700)
+        owned = staged_shadow / ".literate-shadow"
         owned.mkdir(mode=0o700)
         objects = owned / "objects"
         objects.mkdir(mode=0o700)
@@ -534,10 +560,10 @@ def create_shadow(args: argparse.Namespace) -> dict[str, object]:
             "recorded_at": datetime.now(UTC).isoformat(),
         }
         (owned / "journal.jsonl").write_bytes(_json_bytes(journal))
-        _git(destination, "-c", "init.templateDir=", "init", "-q", "-b", "main")
-        _git(destination, "add", ".literate-shadow")
+        _git(staged_shadow, "-c", "init.templateDir=", "init", "-q", "-b", "main")
+        _git(staged_shadow, "add", ".literate-shadow")
         _git(
-            destination,
+            staged_shadow,
             "-c",
             "user.name=Literate AI Shadow",
             "-c",
@@ -550,9 +576,9 @@ def create_shadow(args: argparse.Namespace) -> dict[str, object]:
             "-qm",
             "Create initial upstream shadow custody",
         )
-        commit = _git(destination, "rev-parse", "HEAD")
+        commit = _git(staged_shadow, "rev-parse", "HEAD")
         if (
-            {item.name for item in destination.iterdir()}
+            {item.name for item in staged_shadow.iterdir()}
             != {
                 ".git",
                 ".literate-shadow",
@@ -566,9 +592,28 @@ def create_shadow(args: argparse.Namespace) -> dict[str, object]:
             }
             or {item.name for item in objects.iterdir()} != {object_name}
             or tuple(hooks.iterdir())
-            or _git(destination, "status", "--porcelain=v1", "--untracked-files=all")
+            or _git(staged_shadow, "status", "--porcelain=v1", "--untracked-files=all")
         ):
             raise CliFailure("shadow.foreign_write", "Shadow changed during creation")
+        try:
+            publish_directory_between_owned_parents_exclusive(
+                staged_shadow,
+                destination,
+                expected_source=directory_node(staged_shadow),
+                expected_source_parent=directory_node(Path(temporary)),
+                expected_destination_parent=directory_node(parent),
+            )
+        except FileExistsError as exc:
+            raise CliFailure(
+                "shadow.destination_exists",
+                "The shadow destination appeared before creation",
+            ) from exc
+        except CliFailure:
+            raise
+        except (OSError, ValueError) as exc:
+            raise CliFailure(
+                "shadow.publish_failed", "The verified shadow could not be published"
+            ) from exc
     return {
         "schema": "literate-ai/shadow-create-result@1",
         "shadow": str(destination),

@@ -364,6 +364,72 @@ class ShadowPlanCliTests(unittest.TestCase):
         self.assertEqual(envelope["error"]["code"], "shadow.plan_stale")
         self.assertFalse((self.root / "shadow").exists())
 
+    def test_create_retries_after_interruption_before_publication(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        with patch(
+            "literate_ai.cli.shadow.publish_directory_between_owned_parents_exclusive",
+            side_effect=CliFailure(
+                "shadow.test_interruption", "Simulated interruption"
+            ),
+        ):
+            status, envelope = self.invoke_create(
+                planned["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.test_interruption")
+        self.assertFalse((self.root / "shadow").exists())
+        status, envelope = self.invoke_create(planned["plan_identity"], "--acknowledge")
+        self.assertEqual(status, 0)
+        self.assertEqual(envelope["result"]["branches"], planned["branches"])
+
+    def test_create_replays_completed_publication_after_interruption(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        publish = shadow_module.publish_directory_between_owned_parents_exclusive
+
+        def publish_then_interrupt(*args, **kwargs) -> None:
+            publish(*args, **kwargs)
+            raise CliFailure("shadow.test_interruption", "Simulated interruption")
+
+        with patch(
+            "literate_ai.cli.shadow.publish_directory_between_owned_parents_exclusive",
+            side_effect=publish_then_interrupt,
+        ):
+            status, envelope = self.invoke_create(
+                planned["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.test_interruption")
+        shadow = self.root / "shadow"
+        commit = _git(shadow, "rev-parse", "HEAD")
+        status, envelope = self.invoke_create(planned["plan_identity"], "--acknowledge")
+        self.assertEqual(status, 0, envelope)
+        self.assertEqual(envelope["result"]["shadow_commit"], commit)
+        self.assertEqual(_git(shadow, "status", "--porcelain=v1"), "")
+
+    def test_create_refuses_foreign_destination_at_publish(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        publish = shadow_module.publish_directory_between_owned_parents_exclusive
+
+        def publish_after_foreign_write(*args, **kwargs) -> None:
+            foreign = self.root / "shadow"
+            foreign.mkdir()
+            (foreign / "peer.txt").write_text("keep\n", encoding="utf-8")
+            publish(*args, **kwargs)
+
+        with patch(
+            "literate_ai.cli.shadow.publish_directory_between_owned_parents_exclusive",
+            side_effect=publish_after_foreign_write,
+        ):
+            status, envelope = self.invoke_create(
+                planned["plan_identity"], "--acknowledge"
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.destination_exists")
+        self.assertEqual(
+            (self.root / "shadow" / "peer.txt").read_text(encoding="utf-8"),
+            "keep\n",
+        )
+
     def test_status_reverifies_bundle_and_current_refs(self) -> None:
         planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
         self.assertEqual(
