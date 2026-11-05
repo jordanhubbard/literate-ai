@@ -2,9 +2,6 @@
 
 ## Unreleased
 
-- Historical retained-run verification reuses operation-local parsed Flavor metadata
-  while preserving fresh byte, membership, graph, lock, audit and deadline checks.
-
 - Register the existing retained-promotion evidence, historical-admission and
   runner-v2 wire contracts in the current schema catalog without granting live
   authority or relaxing complete historical verification.

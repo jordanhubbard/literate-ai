@@ -18,7 +18,6 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from functools import wraps
 from pathlib import Path
 
 from literate_ai.adapters.native_tree_shards import _document
@@ -143,28 +142,6 @@ def _identities(document, key, count=None):
     return parsed
 
 
-def _observe_flavor_graphs(operation):
-    """Reuse parsed Flavor metadata, never a cached currentness decision."""
-
-    @wraps(operation)
-    def observed(*args, **kwargs):
-        # Lazy imports avoid the generation/catalog adapter cycle.
-        from literate_ai.adapters.legacy_generation_catalog import (
-            CliFailure,
-            read_only_flavor_graph_observations,
-        )
-        from literate_ai.projects import ProjectError
-
-        try:
-            with read_only_flavor_graph_observations():
-                return operation(*args, **kwargs)
-        except (CliFailure, ProjectError) as exc:
-            _refuse("custody_invalid", str(exc))
-
-    return observed
-
-
-@_observe_flavor_graphs
 def verify_retained_run(
     store: FileSystemCAS,
     receipt_identity: ContentIdentity,
