@@ -124,6 +124,17 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_status(self) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        status = main(
+            ("--json", "shadow", "status", "--shadow", str(self.root / "shadow")),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def test_default_main_is_exact_and_read_only(self) -> None:
         before = _git(self.upstream, "status", "--porcelain=v1")
         status, envelope = self.invoke()
@@ -256,6 +267,38 @@ class ShadowPlanCliTests(unittest.TestCase):
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.plan_stale")
         self.assertFalse((self.root / "shadow").exists())
+
+    def test_status_reverifies_bundle_and_current_refs(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        status, envelope = self.invoke_status()
+        self.assertEqual(status, 0)
+        self.assertTrue(envelope["result"]["upstream_current"])
+        self.assertEqual(envelope["result"]["qualification"], "unqualified")
+        (self.upstream / "README.md").write_text("changed\n", encoding="utf-8")
+        _git(self.upstream, "commit", "-qam", "changed")
+        status, envelope = self.invoke_status()
+        self.assertEqual(status, 0)
+        self.assertFalse(envelope["result"]["upstream_current"])
+        self.assertIn(
+            "upstream-ref-changed:refs/heads/feature",
+            envelope["result"]["currentness_reasons"],
+        )
+
+    def test_status_refuses_tampered_custody(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        owned = self.root / "shadow" / ".literate-shadow"
+        registry = json.loads((owned / "registry.json").read_text())
+        bundle = owned / "objects" / registry["source_bundle"]
+        bundle.write_bytes(bundle.read_bytes() + b"tampered")
+        status, envelope = self.invoke_status()
+        self.assertEqual(status, 2)
+        self.assertEqual(envelope["error"]["code"], "shadow.custody_invalid")
 
 
 if __name__ == "__main__":

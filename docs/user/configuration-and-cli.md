@@ -38,6 +38,7 @@ litai flavor add
 litai shadow plan
 litai shadow create
 litai shadow pr-plan
+litai shadow status
 
 # Dev workflow
 litai verify
@@ -227,6 +228,10 @@ fetching it or creating an evaluation lane.
 bounded Git bundle of their exact history in a new Git repository, and records a
 versioned registry and creation journal. The new repository is explicitly
 unqualified; synchronization and mapped lifecycle execution remain separate work.
+`litai shadow status --shadow PATH` verifies the committed registry, journal,
+bundle digest and heads, then compares selected refs and forge identity with the
+current local upstream checkout. It reports stale refs without treating the saved
+result as qualification and does not fetch or write.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with
