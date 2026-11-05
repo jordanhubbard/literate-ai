@@ -4700,7 +4700,7 @@ it does not qualify the later main/promotion composition or a draft below.
 | --- | --- | --- |
 | [#297](https://github.com/jordanhubbard/literate-ai/pull/297) | Public retained-receipt promotion history, squashed into main at `2b29c1e621a9e4fee5c4f12d273010a142560cfd` from `99c4edc0c85cb934ccc0f1fe5cca220d429a7b30` | Landed history is preserved. Issue #295 remains open: the accepted corrected ADR 0060 implementation and real consumer acceptance require the forward fix and fresh qualification. |
 | [#303](https://github.com/jordanhubbard/literate-ai/pull/303), [#304](https://github.com/jordanhubbard/literate-ai/pull/304), [#308](https://github.com/jordanhubbard/literate-ai/pull/308) | Reviewed receiver/SDK-metadata, declared tree-verification and integrated SDK/tree-custody slices retained in the exact `dcb9cc6` source | Included by ordinary history in the forward composition; the new combined source remains unqualified until its own source review and required gates pass. Original native SDK/FreeBSD acceptance remains separate. |
-| [#309](https://github.com/jordanhubbard/literate-ai/pull/309) | Fresh retained-guard reuse; draft head `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0` | **Current 1.4, draft, unqualified for this composition.** Not merged here. Review the actual guard/currentness changes, reconcile current-main conflicts and qualify the resulting source before collection; its separate-head CI and retained-mirror observations do not complete original five-unit PACKAGE/cold VERIFY. |
+| [#309](https://github.com/jordanhubbard/literate-ai/pull/309) | Fresh retained-guard reuse; draft head `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0` | **Current 1.4, draft source collected; combined qualification pending.** Ordinary merge of exact reviewed guard head preserves its history and current promotion, SDK and HTML controls. Separate-head 27-job CI is green, but the new composition still requires focused/source review, supported authority renewal and the full exact-source gates. Receiver-only guard reuse does not repair or qualify the local SDK diagnostic path; original five-unit PACKAGE/cold VERIFY and consumer acceptance remain open. |
 | [#310](https://github.com/jordanhubbard/literate-ai/pull/310) | Python stdlib import preservation and declared worker Git/Git LFS capabilities; draft head `dcd33ba4a31518c4508ef352770072d1869f9976` | **Current 1.4, draft, unqualified for this composition.** Not merged here. Preserve its owner's dirty tree and review/qualify the exact changes separately. Its proposed ADR 0061 is not accepted by this inventory and no retained Python bridge or final native acceptance is inferred. |
 
 **Pending directing-user design intake:** [issue #311](https://github.com/jordanhubbard/literate-ai/issues/311)
@@ -31300,6 +31300,55 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 ### [ ] RETAINED-OBSERVATION-PERF-001 — Bound retained authority and native observation cost
 
+Current next action (in progress): independently review and qualify one-call
+canonical planning inside a genuine execution guard. The exact integrated
+planning/metadata candidate preserves admission checks but still performs at
+least four original-tree and four captured-tree verifications per workspace
+guard. Its source trace identifies at least 22 complete-tree checks between SDK
+input-descriptor publication and the first command; this is a static lower bound,
+not a measured live call stack. At that historical checkpoint, a bounded native
+descriptor observation reported the original request active with original-project
+source files open. Preserve the original evidence and qualification attempt; this
+is not a current liveness claim or a fabricated terminal result. Any current
+liveness assertion requires a fresh observation of actual PID and creation identity.
+
+The reviewed receiver-guard source is collected in the forward integration. Its
+current managed focused gate passes all 45 selected controls without skips or
+failures: eight receiver-planning, nine platform-policy, ten real public-readonly,
+three typed-CAS, nine SDK-metadata batch and six HTML publication-race methods.
+Every phase retains actual zero exit and observed owned-group cleanup. These
+source-local controls do not complete the original full contributor gate,
+installed/current-wheel native five-unit PACKAGE or cold VERIFY, real requesting
+consumer acceptance, or the separate local SDK positive control. Receiver-only
+guard reuse does not fix that local SDK diagnostic path.
+
+The repair belongs to the existing retained runtime and observation authority.
+Derive the receiver and source-plan assertions from the immutable plan produced
+by the same fresh canonical preparation, bound to the original receiver,
+request, worker, registration, catalog, process and deadline. Every next guard
+prepares and measures a new nonce; custom callbacks keep independent source
+replanning. Preserve all direct original/captured byte verifications, tool, SDK,
+dependency, revocation, deadline and publication checks, including fresh closing
+registration/custody. Do not add a general verification cache. Test a coordinated
+change that is observed and restored before closing; closing bytes alone are
+insufficient. Never reuse observations across calls, restore an owner from JSON,
+or turn a plan value into admission.
+Require real source/profile/catalog/SDK-policy/registration mutation refusals,
+complete regression and an equivalent large native before/after comparison.
+The five-unit PACKAGE, original-byte VERIFY and negative controls remain pending;
+neither a source review nor a diagnostic observation completes those gates.
+
+Development controls pass six actual public-receiver cases on macOS, with no
+skips or failures. They preserve public execution/verification-plan equality,
+before/after publication mutation refusals, changed-then-restored source,
+profile, catalog, SDK-policy and registration refusals, independent replanning
+for cached/custom measurement callbacks, and copy/foreign-process refusal.
+An actual macOS platform observation composes with the same fresh canonical
+plan and refuses a subsequent source change. These are portable guard and local
+host-observation results, not native PACKAGE, SDK or release qualification.
+Independent source review, complete regression and installed large-tree
+comparison remain required; all implementation/evidence checkboxes stay open.
+
 The subsequent exact installed native attempt still reaches the unchanged
 3,600-second deadline before PACKAGE/LINK admission. Its correlated native
 diagnostic proves cleanup, no quarantine and canonical reservation release; the
@@ -31353,7 +31402,8 @@ measurements, not an uninstrumented release benchmark or accepted lifecycle.
 The first dependency-profile attempt refused retired inputs; its replacement
 captures a fresh verified diagnostic snapshot without repairing the retired run.
 
-Next in progress: read the wheel RECORD inventory directly in each fresh
+Earlier next action, completed by the direct-RECORD result below: read the wheel
+RECORD inventory directly in each fresh
 distribution observation, avoiding the metadata library existence prefilter.
 Every selected member still undergoes current byte verification; missing recorded
 members must refuse rather than disappear from the inventory. Keep the existing
@@ -33013,6 +33063,8 @@ PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471f
   selector is still required; choosing an entry by recency is not a repair.
 
 ### [ ] RETAINED-UNIT-PACKAGE-001 — Deliver per-unit retained tree packages and verified FreeBSD transport
+
+- **2026-11-04 observation-guard integration (in progress):** Combine the reviewed operation-local canonical guard refinement with the green SDK/tree integration source. Preserve the SDK metadata batch and original action grant lifetime, receiver startup preparation, complete tree publication/freshness work and all current-main portable fixes. The earlier isolated guard source retained its source pin through an owned-checkout origin repair; all 60 related initialization, onboarding, parent and roadmap controls passed. Its development resume then exposed the already-reviewed composed-package directory-mode defect under permissive umask. The consolidated source includes the real directory normalization and permissive/restrictive mode controls; it does not mask the failure with a worker umask change. Preserve both failures and require a fresh whole-source gate on the new source pin before a new exact wheel. Installed native source-scale PACKAGE, original-byte cold VERIFY, output hardlink/source membership and corruption/refusal controls remain open. Historical deadline diagnostics do not confer new ownership or qualify positive cleanup.
 
 - **2026-11-04 portable permission repair (in progress):** The isolated Linux full gate at source `34fdf1f` stops after 1,566 cases (one error, 82 declared skips): composed package staging creates directories with ambient umask `0002`, yielding mode `0775` where the canonical package projection requires `0755`. A controlled unchanged-source replay reproduces the same mismatch. Normalize only the owned package staging directories to their projected modes before independent verification; exercise permissive and restrictive umasks and preserve refusal of later mode tampering. This repairs portable package construction, not the outstanding native scale/transport acceptance. Retain the original full failure; require independent source review, focused controls, fresh full regression and exact CI before qualification.
 
