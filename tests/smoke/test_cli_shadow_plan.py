@@ -39,6 +39,14 @@ class ShadowPlanCliTests(unittest.TestCase):
         (self.upstream / "README.md").write_text("feature\n", encoding="utf-8")
         _git(self.upstream, "commit", "-qam", "feature")
         self.feature_commit = _git(self.upstream, "rev-parse", "HEAD")
+        remote_patch = patch(
+            "literate_ai.cli.shadow._remote_heads",
+            side_effect=lambda upstream, refs: {
+                ref: _git(upstream, "rev-parse", f"{ref}^{{commit}}") for ref in refs
+            },
+        )
+        remote_patch.start()
+        self.addCleanup(remote_patch.stop)
 
     def invoke(self, *extra: str) -> tuple[int, dict[str, object]]:
         stdout, stderr = StringIO(), StringIO()
@@ -342,6 +350,28 @@ class ShadowPlanCliTests(unittest.TestCase):
         status, envelope = self.invoke_status()
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.custody_invalid")
+
+    def test_status_refuses_local_only_currentness(self) -> None:
+        planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
+        self.assertEqual(
+            self.invoke_create(planned["plan_identity"], "--acknowledge")[0], 0
+        )
+        with patch(
+            "literate_ai.cli.shadow._remote_heads",
+            return_value={
+                "refs/heads/main": "a" * 40,
+                "refs/heads/feature": self.feature_commit,
+            },
+        ):
+            status, envelope = self.invoke_status()
+        self.assertEqual(status, 0)
+        result = envelope["result"]
+        self.assertTrue(result["local_refs_current"])
+        self.assertFalse(result["remote_refs_current"])
+        self.assertFalse(result["upstream_current"])
+        self.assertIn(
+            "remote-ref-changed:refs/heads/main", result["currentness_reasons"]
+        )
 
     def test_sync_plan_binds_advance_and_explicit_branch_addition(self) -> None:
         planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]

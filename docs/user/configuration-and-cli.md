@@ -232,8 +232,9 @@ versioned registry and creation journal. The new repository is explicitly
 unqualified; synchronization and mapped lifecycle execution remain separate work.
 `litai shadow status --shadow PATH` verifies the committed registry, journal,
 bundle digest and heads, then compares selected refs and forge identity with the
-current local upstream checkout. It reports stale refs without treating the saved
-result as qualification and does not fetch or write.
+local upstream checkout and queries the selected remote refs without fetching.
+It reports local and remote currentness separately, treats an unavailable remote
+as unknown, and never turns saved state into qualification or writes either tree.
 `litai shadow sync plan --shadow PATH [--add-branch NAME]` checks the current
 selected refs against the saved commits and requires each existing branch to
 advance by ancestry. A newly selected branch must be named explicitly. It binds

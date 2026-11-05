@@ -458,6 +458,27 @@ def _bounded_file(path: Path, maximum: int) -> bytes:
     return content
 
 
+def _remote_heads(upstream: Path, refs: list[str]) -> dict[str, str]:
+    output = _git(
+        upstream,
+        "ls-remote",
+        "--heads",
+        "origin",
+        *refs,
+        timeout=15,
+        environment={"GIT_TERMINAL_PROMPT": "0"},
+    )
+    observed = {}
+    for line in output.splitlines():
+        commit, separator, ref = line.partition("\t")
+        if not separator or not _HEX_COMMIT.fullmatch(commit) or ref in observed:
+            raise CliFailure("shadow.remote_invalid", "Remote ref response is invalid")
+        observed[ref] = commit
+    if any(ref not in refs for ref in observed):
+        raise CliFailure("shadow.remote_invalid", "Remote returned an unselected ref")
+    return observed
+
+
 def status_shadow(args: argparse.Namespace) -> dict[str, object]:
     candidate = Path(args.shadow).expanduser()
     if candidate.is_symlink() or not candidate.is_dir():
@@ -621,6 +642,8 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
         raise CliFailure("shadow.custody_invalid", "Shadow upstream locator is invalid")
     upstream = Path(upstream_value)
     reasons = []
+    local_current = False
+    remote_current: bool | None = None
     if upstream.is_symlink() or not upstream.is_dir():
         reasons.append("upstream-unavailable")
     else:
@@ -639,6 +662,18 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
             for ref, commit in expected.items():
                 if _branch_commit(upstream, ref.removeprefix("refs/heads/")) != commit:
                     reasons.append(f"upstream-ref-changed:{ref}")
+            local_current = not reasons
+            try:
+                remote = _remote_heads(upstream, list(expected))
+            except CliFailure:
+                reasons.append("remote-inspection-unavailable")
+            else:
+                remote_current = remote == expected
+                for ref, commit in expected.items():
+                    if ref not in remote:
+                        reasons.append(f"remote-ref-missing:{ref}")
+                    elif remote[ref] != commit:
+                        reasons.append(f"remote-ref-changed:{ref}")
         except CliFailure:
             reasons.append("upstream-inspection-failed")
     return {
@@ -647,6 +682,8 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
         "shadow_commit": _git(shadow, "rev-parse", "HEAD"),
         "source_bundle_identity": digest,
         "branches": selected,
+        "local_refs_current": local_current,
+        "remote_refs_current": remote_current,
         "upstream_current": not reasons,
         "currentness_reasons": reasons,
         "qualification": "unqualified",
