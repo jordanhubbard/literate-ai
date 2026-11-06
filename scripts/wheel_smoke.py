@@ -396,6 +396,7 @@ _COLOR_FORCING_ENVIRONMENT_VARIABLES = (
 _INTERPRETER_RESOLUTION_ENVIRONMENT_VARIABLES = (
     "PYTHONPATH",
     "PYTHONHOME",
+    "PYTHONPYCACHEPREFIX",
     "VIRTUAL_ENV",
     "__PYVENV_LAUNCHER__",
 )
@@ -416,9 +417,10 @@ def _runtime_directory():
 def _subprocess_environment() -> dict[str, str]:
     """Keep caller Python startup policy outside the isolated wheel runtime.
 
-    In particular, an inherited bytecode-cache prefix can make pip RECORD name
-    files outside its owned environment. Package-index and proxy policy remain
-    available; build origin is supplied separately by the reviewed caller.
+    An inherited ``PYTHONPATH`` can mix the checkout with the installed wheel;
+    a bytecode-cache prefix can make pip RECORD name files outside its owned
+    environment. Package-index and proxy policy remain available; build origin
+    is supplied separately by the reviewed caller.
     """
 
     sanitized = {

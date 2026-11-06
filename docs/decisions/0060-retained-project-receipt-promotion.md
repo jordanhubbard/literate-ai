@@ -2,9 +2,11 @@
 
 - Status: Accepted
 - Date: 2026-11-04
-- Acceptance: The directing user explicitly accepted this corrected design on
-  2026-11-04, recorded in [PR #297 comment6636036548](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548).
-  This accepts the design under ADR 0006; draft implementation and qualification remain open.
+- Acceptance: The directing user explicitly accepted the corrected design on
+  2026-11-04 ("Accept corrected ADR 0060."). See the
+  [acceptance record](https://github.com/jordanhubbard/literate-ai/pull/297#issuecomment-6636036548). The accepted
+  proposed-text SHA-256 is
+  `dbdb2a0f30b0d293aeb70e88af49d7cf71887116f718ff36e8eb321bcdf6d0b9`.
 - Decision owners: directing user and literate-ai maintainers
 - Release target: 1.4.0, per the included disposition on issue #295 and PR #297;
   the requesting consumer's release is separate.
@@ -29,7 +31,7 @@ inventory, and a derived digest is labeled workspace admission despite incomplet
 resolved-output/dependency verification. This replacement specifies their required
 resolution; source review and real qualification remain open.
 
-## Proposed decision
+## Decision
 
 Add `litai project test-receipt promote-retained CANDIDATE` for an explicitly selected
 original-source retained receipt, manifest, profile and custody source. It executes no

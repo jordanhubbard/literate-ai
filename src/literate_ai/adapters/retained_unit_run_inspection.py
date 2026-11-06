@@ -116,6 +116,9 @@ class _Reader:
         raw = self.raw(reference)
         if reference.identity not in self.documents:
             value = json.loads(raw)
+            # Every selected historical document here is an assertion object.
+            # Raw stdout/stderr use raw(), and may contain arbitrary JSON bytes.
+            # Reject a canonical array/scalar before downstream .get/index calls.
             if type(value) is not dict or canonical_json_bytes(value) != raw:
                 raise ValueError("retained.unit.canonical-run-document-required")
             self.documents[reference.identity] = value
@@ -345,43 +348,9 @@ def reopen_retained_unit_run(
         )
         if observed.to_dict() != value or observed.identity.uri != identity:
             raise ValueError("retained.unit.test-assertion-differs")
-        report_path = dict(test_policy.reports).get(observed.report.action_id)
-        member = next(
-            (
-                member
-                for member in inputs.output_manifest.members
-                if member.path == report_path
-            ),
-            None,
+        verify_retained_report_blob(
+            reader, inputs.output_manifest, test_policy, observed
         )
-        if (
-            member is None
-            or member.symlink_target is not None
-            or observed.blob_identity.uri != "sha256:" + member.sha256
-        ):
-            raise ValueError("retained.unit.test-report-output-member-differs")
-        reference = BlobRef(member.sha256, member.size)
-        if reference.size > min(
-            16 * 1024**2, getattr(policy, "maximum_document_bytes", 64 * 1024**2)
-        ):
-            raise ValueError("retained.unit.test-report-document-policy-exceeded")
-
-        def unique_object(items):
-            result = {}
-            for key, item in items:
-                if key in result:
-                    raise ValueError("retained.unit.test-report-duplicate-key")
-                result[key] = item
-            return result
-
-        # Original reports follow their declared JSON protocol; whitespace and
-        # object key order need not be canonical. Read the SAME named CAS blob
-        # under the shared reader's byte/memory budget before parsing it.
-        actual_report = RetainedProjectTestReport.from_dict(
-            json.loads(reader.raw(reference), object_pairs_hook=unique_object)
-        )
-        if actual_report != observed.report:
-            raise ValueError("retained.unit.test-report-content-differs")
         reports.append(observed)
     accepted = []
     for identity, case in zip(cases, expected_cases, strict=True):
@@ -530,3 +499,39 @@ def reopen_retained_unit_run(
     if workspace_root_observer is not None:
         workspace_root_observer(workspace_roots)
     return reopened
+
+
+def verify_retained_report_blob(reader, output_manifest, test_policy, observed):
+    """Reopen actual retained report bytes, preserving allowed JSON whitespace."""
+    report_path = dict(test_policy.reports).get(observed.report.action_id)
+    member = next((m for m in output_manifest.members if m.path == report_path), None)
+    if (
+        member is None
+        or member.size
+        > min(
+            16 * 1024**2,
+            getattr(
+                getattr(reader, "policy", None),
+                "maximum_document_bytes",
+                64 * 1024**2,
+            ),
+        )
+        or member.symlink_target is not None
+        or observed.blob_identity.uri != "sha256:" + member.sha256
+    ):
+        raise ValueError("retained.unit.bounded-actual-test-report-required")
+
+    def unique_report_pairs(items):
+        result = {}
+        for key, item in items:
+            if key in result:
+                raise ValueError("retained.unit.duplicate-test-report-key")
+            result[key] = item
+        return result
+
+    report_bytes = reader.raw(BlobRef(member.sha256, member.size))
+    actual_report = RetainedProjectTestReport.from_dict(
+        json.loads(report_bytes, object_pairs_hook=unique_report_pairs)
+    )
+    if actual_report != observed.report:
+        raise ValueError("retained.unit.actual-test-report-differs")

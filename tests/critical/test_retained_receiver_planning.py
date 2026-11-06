@@ -160,7 +160,7 @@ class RetainedReceiverPlanningTests(unittest.TestCase):
             "receiver",
             ExecutionWorkerKind.SSH,
             endpoint="fixture@unused.invalid",
-            workspace="~/retained-receiver-planning",
+            workspace="~/litai-receiver-planning",
         )
         self.catalog = self.root.parent / (self.root.name + "-workers.json")
         self.addCleanup(self.catalog.unlink, missing_ok=True)

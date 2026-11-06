@@ -361,12 +361,16 @@ def execute_rust_library_harness(
         or not callable(rustc._authority_guard)
         or cargo.command != cargo_owner.command
         or rustc.command != rust_owner.command
-        or cargo.toolchain_identity != declaration.cargo_toolchain
-        or rustc.toolchain_identity != declaration.rust_toolchain
+        or cargo.authority_identity != declaration.cargo_toolchain
+        or cargo.authority_identity.uri != cargo_owner.identity
+        or rustc.authority_identity != declaration.rust_toolchain
+        or rustc.authority_identity.uri != rust_owner.identity
         or cargo.arguments
         or rustc.arguments
     ):
         _refuse("tool_mismatch")
+    cargo.require_command_unchanged()
+    rustc.require_command_unchanged()
     expires = time.monotonic() + declaration.timeout_seconds
     commands = []
     with capture_loaded_rust_library_verifier_inputs(oracle) as inputs:
@@ -479,10 +483,12 @@ def execute_rust_library_harness(
             )
 
         def current():
+            if time.monotonic() >= expires:
+                _refuse("deadline")
             inputs.require_current()
             require_library_current()
-            cargo.require_unchanged()
-            rustc.require_unchanged()
+            cargo.require_command_unchanged()
+            rustc.require_command_unchanged()
 
             # A route measured under the caller's home can become unusable or
             # select differently under isolated verifier inputs (notably rustup).
@@ -515,6 +521,8 @@ def execute_rust_library_harness(
             # source bracket after them before compiling any reviewed input.
             require_library_current()
             inputs.require_current()
+            cargo.require_command_unchanged()
+            rustc.require_command_unchanged()
             if time.monotonic() >= expires:
                 _refuse("deadline")
 
@@ -623,8 +631,8 @@ def execute_rust_library_harness(
             "lockfile_identity": record_bytes(inputs.lockfile).uri,
             "manifest_identity": record_bytes(manifest).uri,
             "resolution": resolution.to_dict(),
-            "cargo_toolchain_identity": cargo.toolchain_identity.uri,
-            "rust_toolchain_identity": rustc.toolchain_identity.uri,
+            "cargo_toolchain_identity": cargo.authority_identity.uri,
+            "rust_toolchain_identity": rustc.authority_identity.uri,
             "native_verifier_identity": record_bytes(native_bytes).uri,
             "execution_roots": {
                 "harness": str(stage),

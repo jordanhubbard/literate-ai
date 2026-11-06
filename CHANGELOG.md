@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Register the existing retained-promotion evidence, historical-admission and
+  runner-v2 wire contracts in the current schema catalog without granting live
+  authority or relaxing complete historical verification.
+
+- Installed-wheel smoke tests isolate pip bytecode output from the parent cache
+  prefix while preserving strict installed RECORD path containment.
+
+- Worker-alignment and retained-receiver test fixtures use portable declared remote workspaces while preserving native local paths.
+
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,
   slides and linked assets must be refreshed and reviewed with the release source
@@ -19,7 +28,6 @@
 - Python library qualification retains standard-library imports while preserving isolated startup and exact artifact-origin checks (#306).
 
 - Command workers preserve normal failed RUN diagnostics with the original input artifact reference, while retaining pre-execution failures and rejecting failed build/test artifact exports.
-- Worker-alignment and retained-receiver test fixtures use portable declared remote workspaces while preserving native local paths.
 
 - Windows coding-agent test compilers retain configured temporary/system variables while applying MSVC overrides.
 
@@ -53,12 +61,13 @@
 - Worker alignment uses the discovered coding CLI executable for its help and
   model checks, including declared Windows tool locations outside `PATH`.
 
-- `litai project test-receipt promote-retained` re-verifies an admitted
-  retained-project run against the current project and its receipt policy and writes
-  the finalized candidate that `project test-receipt update` accepts (issue #295; ADR
-  0060 accepted). Promotion performs no build, test, acceptance, SDK, model or
-  worker execution; trusted bounded read-only metadata helpers remain permitted.
-  The exact project policy still applies.
+- Retained-project runs can explicitly capture genuine receipt-promotion evidence.
+  `project test-receipt promote-retained` reopens the completed run through canonical
+  readers, checks its exact current policy and bounded historical evidence, and
+  writes only a finalized candidate. Planning and promotion avoid lifecycle locks
+  and provider side effects; dry runs write nothing. Receipt admission remains the
+  separate unchanged `project test-receipt update` operation (issue #295; accepted
+  corrected ADR 0060).
 
 - Windows compiler preflight finds native Visual Studio toolsets outside `PATH`
   before acquisition, preserving explicit compiler selections. C++ developer
@@ -73,12 +82,13 @@
   memory when the device reports permission text. Requirements needing a known
   memory capacity still refuse; no capacity is inferred.
 
-- Published retained-tree HTML can be checked without writable caches or restored
-  publication ownership. Projects can opt into a bounded tree-declaration registry
-  and an additive freshness gate while legacy verification reports stay unchanged.
 - Add owned POSIX fault controls for retained-tree HTML source recapture, index substitution, generation custody and unpublished budget failures.
 
 - Add bounded retained-tree HTML plans and acknowledged initial offline publication. Recovery, per-unit joins and native/browser qualification remain open.
+
+- Published retained-tree HTML can be checked without writable caches or restored
+  publication ownership. Projects can opt into a bounded tree-declaration registry
+  and an additive freshness gate while legacy verification reports stay unchanged.
 
 - Bare Component runs resolve their declared demonstration inputs from the
   Component name even when selected through a project-relative path. Remote

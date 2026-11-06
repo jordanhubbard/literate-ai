@@ -870,11 +870,20 @@ class LocalComponentToolBinding:
     def command(self) -> tuple[str, ...]:
         return (self.executable, *self.arguments)
 
-    def require_unchanged(self) -> None:
+    def require_command_unchanged(self) -> None:
+        """Check this bound command's bytes/arguments/environment without probes.
+
+        This is not native toolchain currentness. Bounded callers must ALSO use
+        their original native owner with actual child values and a remaining
+        deadline; ordinary require_unchanged keeps its full native guard.
+        """
         if self._current_identity() != self._initial_identity:
             raise LocalStandardLifecycleError(
                 "locked local tool executable changed after binding"
             )
+
+    def require_unchanged(self) -> None:
+        self.require_command_unchanged()
         if self._authority_guard is not None:
             try:
                 self._authority_guard()
@@ -8246,7 +8255,10 @@ class LocalStandardLifecyclePorts:
         acceptance_toolchain = contract.library_acceptance_toolchain_identity
         assert acceptance_toolchain is not None
         binding = self.tool_bindings[acceptance_toolchain.uri]
-        binding.require_unchanged()
+        if rust_v2:
+            binding.require_command_unchanged()
+        else:
+            binding.require_unchanged()
         environment = _child_process_environment({})
         environment.pop("PYTHONPATH", None)
         environment.pop("NODE_PATH", None)
@@ -8330,7 +8342,7 @@ class LocalStandardLifecyclePorts:
                         )
 
                     def require_library_current():
-                        binding.require_unchanged()
+                        binding.require_command_unchanged()
                         if local_tree_identity(custody.root) != custody.tree_identity:
                             raise LocalStandardLifecycleError(
                                 "Rust verifier immutable package custody changed"
@@ -8474,7 +8486,10 @@ class LocalStandardLifecyclePorts:
         finally:
             if not rust_v2:
                 shutil.rmtree(temporary, ignore_errors=True)
-        binding.require_unchanged()
+        if rust_v2:
+            binding.require_command_unchanged()
+        else:
+            binding.require_unchanged()
         if completed.returncode != 0:
             raise LocalStandardLifecycleError(
                 "independent library acceptance harness failed: "

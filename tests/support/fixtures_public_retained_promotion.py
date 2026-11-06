@@ -498,13 +498,17 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
             canonical_json_bytes(transform(read(reference))),
             media_type=reference.media_type,
         )
-    reference = BlobRef.from_dict(root["workspace_admission"])
-    replacements[reference.identity] = store.put_bytes(
-        canonical_json_bytes(transform(read(reference))),
-        media_type=reference.media_type,
+    # The converged encoder preserves the complete inline historical assertion
+    # and per-action contexts. Rehash their join too: these negatives must reach
+    # actual report/oracle verification, not merely fail a stale sidecar hash.
+    altered_root = transform(root)
+    from literate_ai.contracts import canonical_identity
+
+    altered_root["historical_admission"]["command_contexts_identity"] = (
+        canonical_identity(altered_root["command_contexts"]).uri
     )
     new_bundle = store.put_bytes(
-        canonical_json_bytes(transform(root)),
+        canonical_json_bytes(altered_root),
         media_type="application/json",
     )
     return new_receipt, new_bundle

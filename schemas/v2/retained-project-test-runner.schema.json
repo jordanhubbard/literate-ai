@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:retained-project-test-runner-contracts",
+  "$ref": "urn:literate-ai:schema:v2:retained-project-test-runner-contracts#/$defs/record",
+  "$defs": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "actions",
+        "definitions",
+        "test_policy"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/retained-project-test-runner@2"
+        },
+        "actions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100000,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "action",
+              "tool_identity"
+            ],
+            "properties": {
+              "action": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "stage",
+                  "tool",
+                  "argv",
+                  "requires",
+                  "inventory",
+                  "outputs",
+                  "timeout_seconds"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[^\\x00-\\x1f]+$"
+                  },
+                  "stage": {
+                    "const": "test"
+                  },
+                  "tool": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[^\\x00-\\x1f]+$"
+                  },
+                  "argv": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 100000,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "pattern": "^[^\\x00-\\x1f]+$"
+                    }
+                  },
+                  "requires": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 100000,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "pattern": "^[^\\x00-\\x1f]+$"
+                    },
+                    "uniqueItems": true
+                  },
+                  "inventory": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 100000,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "pattern": "^[^\\x00-\\x1f]+$"
+                    },
+                    "uniqueItems": true
+                  },
+                  "outputs": {
+                    "type": "array",
+                    "minItems": 0,
+                    "maxItems": 100000,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))[^\\\\\\x00:]+$"
+                    }
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 86400
+                  }
+                }
+              },
+              "tool_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        "definitions": {
+          "type": "array",
+          "minItems": 0,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "size",
+              "mode",
+              "sha256",
+              "role"
+            ],
+            "properties": {
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))[^\\\\\\x00:]+$"
+              },
+              "size": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9223372036854775807
+              },
+              "mode": {
+                "enum": [
+                  420,
+                  493,
+                  40960
+                ]
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "role": {
+                "const": "test-definition"
+              },
+              "symlink_target": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "hardlink_target": {
+                "type": "string",
+                "minLength": 1,
+                "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))[^\\\\\\x00:]+$"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "symlink_target"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "mode": {
+                      "const": 40960
+                    }
+                  },
+                  "not": {
+                    "required": [
+                      "hardlink_target"
+                    ]
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "mode": {
+                      "enum": [
+                        420,
+                        493
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "test_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema",
+            "cases",
+            "reports"
+          ],
+          "properties": {
+            "schema": {
+              "const": "literate-ai/retained-project-test-policy@1"
+            },
+            "cases": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100000,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "action",
+                  "skip_reason"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "action": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[^\\x00-\\x1f]+$"
+                  },
+                  "skip_reason": {
+                    "oneOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256,
+                        "pattern": "^[^\\x00-\\x1f]+$"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "reports": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100000,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "path"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256,
+                    "pattern": "^[^\\x00-\\x1f]+$"
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))[^\\\\\\x00:]+$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "description": "Canonical runner identity input. Only the actual top-level project_policy_identity is excluded from the typed test-policy projection; nested semantic policy and full actions/test-definition members remain bound. Cross-record joins and canonical path checks remain domain validation.",
+      "$id": "literate-ai/retained-project-test-runner@2"
+    }
+  }
+}

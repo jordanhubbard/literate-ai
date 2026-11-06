@@ -138,6 +138,13 @@ Each publication, reservation and execution boundary still reopens current
 project, source, profile, catalog, SDK policy and private registration authority.
 No preparation is cached across calls or grants execution or release permission.
 
+RETAINED-RECEIPT-PROMOTE-001 extends Goals 1, 4 and 6 with verified promotion of
+original-source retained evidence under an unchanged project test-receipt policy.
+The directing user accepted corrected ADR 0060 for framework 1.4.0 on 2026-11-04.
+Complete historical verification, genuine live admission capture and installed
+requesting-consumer qualification remain open; the provisional draft does not yet
+satisfy the corrected contract.
+
 RETAINED-OBSERVATION-PERF-001 permits the canonical receiver and source-plan
 assertions within one validation call to use the immutable plan produced by that
 same fresh canonical preparation. Bind its original receiver, request, worker,
