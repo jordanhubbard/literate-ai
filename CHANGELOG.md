@@ -11,6 +11,11 @@
 
 - Worker-alignment and retained-receiver test fixtures use portable declared remote workspaces while preserving native local paths.
 
+- Generated projects receive the same release-project collateral checklist as the
+  framework: current READMEs, release notes, introductions, videos, captions,
+  slides and linked assets must be refreshed and reviewed with the release source
+  before publication (#340).
+
 - Retained execution guards derive receiver and source-plan checks from the same
   fresh canonical preparation. Each guard still measures a new nonce and keeps
   all direct byte, dependency, SDK, tool, revocation and deadline checks. Custom
