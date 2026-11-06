@@ -183,6 +183,39 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_pr_source(
+        self,
+        action: str,
+        identity: str,
+        destination: Path,
+        *extra: str,
+        response: dict[str, object] | None = None,
+    ) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        with patch(
+            "literate_ai.cli.shadow._github_pr",
+            return_value=self.pr_response() if response is None else response,
+        ):
+            status = main(
+                (
+                    "--json",
+                    "shadow",
+                    action,
+                    "--shadow",
+                    str(self.root / "shadow"),
+                    "--plan-identity",
+                    identity,
+                    "--destination",
+                    str(destination),
+                    *extra,
+                ),
+                stdout=stdout,
+                stderr=stderr,
+            )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def pr_response(self) -> dict[str, object]:
         return {
             "id": 1717,
@@ -375,6 +408,43 @@ class ShadowPlanCliTests(unittest.TestCase):
         self.assertEqual(status, 2)
         self.assertEqual(envelope["error"]["code"], "shadow.forge_invalid")
 
+    def test_pr_source_inventory_refuses_links_submodules_and_case_collisions(
+        self,
+    ) -> None:
+        if os.name == "nt":
+            self.skipTest("native symlink fixture requires POSIX")
+        (self.upstream / "linked").symlink_to("README.md")
+        _git(self.upstream, "add", "linked")
+        _git(self.upstream, "commit", "-qm", "linked")
+        linked_head = _git(self.upstream, "rev-parse", "HEAD")
+        with self.assertRaises(CliFailure) as failure:
+            shadow_module._pr_source_entries(self.upstream, linked_head)
+        self.assertEqual(failure.exception.code, "shadow.stage_unsupported")
+        _git(self.upstream, "rm", "-q", "linked")
+        (self.upstream / "Case.txt").write_text("A")
+        (self.upstream / "case.txt").write_text("a")
+        _git(self.upstream, "add", "Case.txt", "case.txt")
+        _git(self.upstream, "commit", "-qm", "colliding paths")
+        with self.assertRaises(CliFailure) as failure:
+            shadow_module._pr_source_entries(
+                self.upstream, _git(self.upstream, "rev-parse", "HEAD")
+            )
+        self.assertEqual(failure.exception.code, "shadow.stage_unsupported")
+        _git(self.upstream, "rm", "-q", "Case.txt", "case.txt")
+        _git(
+            self.upstream,
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{self.main_commit},vendor",
+        )
+        _git(self.upstream, "commit", "-qm", "gitlink")
+        with self.assertRaises(CliFailure) as failure:
+            shadow_module._pr_source_entries(
+                self.upstream, _git(self.upstream, "rev-parse", "HEAD")
+            )
+        self.assertEqual(failure.exception.code, "shadow.stage_unsupported")
+
     def test_pr_plan_binds_created_shadow_and_current_target(self) -> None:
         planned = self.invoke("--branch", "main", "--branch", "feature")[1]["result"]
         created = self.invoke_create(planned["plan_identity"], "--acknowledge")[1][
@@ -404,6 +474,7 @@ class ShadowPlanCliTests(unittest.TestCase):
             "push",
             str(remote),
             "main:refs/heads/main",
+            "feature:refs/heads/feature",
             "feature:refs/pull/17/head",
         )
         config = self.root / "gitconfig"
@@ -440,6 +511,93 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(status, 0, repeated)
             self.assertTrue(repeated["result"]["idempotent"])
+            staged_source = self.root / "pr-source"
+            status, source_plan = self.invoke_pr_source(
+                "pr-source-plan", pr_plan["plan_identity"], staged_source
+            )
+            self.assertEqual(status, 0, source_plan)
+            source_identity = source_plan["result"]["plan_identity"]
+            self.assertEqual(source_plan["result"]["file_count"], 1)
+            self.assertFalse(staged_source.exists())
+            drifted_pr = self.pr_response()
+            drifted_pr["head"]["sha"] = self.main_commit
+            status, refused = self.invoke_pr_source(
+                "pr-source-plan",
+                pr_plan["plan_identity"],
+                staged_source,
+                response=drifted_pr,
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.plan_stale")
+            status, refused = self.invoke_pr_source(
+                "pr-source-stage",
+                pr_plan["plan_identity"],
+                staged_source,
+                "--expect-plan",
+                source_identity,
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(
+                refused["error"]["code"], "shadow.acknowledgement_required"
+            )
+            status, refused = self.invoke_pr_source(
+                "pr-source-stage",
+                pr_plan["plan_identity"],
+                staged_source,
+                "--expect-plan",
+                "sha256:" + "0" * 64,
+                "--acknowledge",
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.plan_stale")
+            status, staged = self.invoke_pr_source(
+                "pr-source-stage",
+                pr_plan["plan_identity"],
+                staged_source,
+                "--expect-plan",
+                source_identity,
+                "--acknowledge",
+            )
+            self.assertEqual(status, 0, staged)
+            self.assertEqual(
+                (staged_source / "source" / "README.md").read_text(), "feature\n"
+            )
+            self.assertEqual(staged["result"]["qualification"], "unqualified")
+            metadata = json.loads((staged_source / "stage.json").read_text())
+            self.assertEqual(metadata["plan"]["plan_identity"], source_identity)
+            self.assertEqual(
+                metadata["entries"][0]["object"],
+                _git(self.upstream, "rev-parse", f"{self.feature_commit}:README.md"),
+            )
+            status, reopened_source = self.invoke_pr_source(
+                "pr-source-status", pr_plan["plan_identity"], staged_source
+            )
+            self.assertEqual(status, 0, reopened_source)
+            self.assertEqual(
+                reopened_source["result"]["plan_identity"], source_identity
+            )
+            self.assertEqual(reopened_source["result"]["qualification"], "unqualified")
+            source_file = staged_source / "source" / "README.md"
+            source_file.write_text("changed\n")
+            status, refused = self.invoke_pr_source(
+                "pr-source-status", pr_plan["plan_identity"], staged_source
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
+            source_file.write_text("feature\n")
+            foreign = staged_source / "source" / "foreign.txt"
+            foreign.write_text("foreign")
+            status, refused = self.invoke_pr_source(
+                "pr-source-status", pr_plan["plan_identity"], staged_source
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
+            foreign.unlink()
+            status, refused = self.invoke_pr_source(
+                "pr-source-plan", pr_plan["plan_identity"], staged_source
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.destination_exists")
             with patch(
                 "literate_ai.cli.shadow._github_pr",
                 side_effect=AssertionError("PR status must not inspect the forge"),
@@ -620,6 +778,11 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertEqual(status, 0, historical)
             self.assertFalse(historical["result"]["shadow_snapshot_current"])
             self.assertEqual(historical["result"]["qualification"], "unqualified")
+            status, historical_source = self.invoke_pr_source(
+                "pr-source-status", pr_plan["plan_identity"], staged_source
+            )
+            self.assertEqual(status, 0, historical_source)
+            self.assertFalse(historical_source["result"]["shadow_snapshot_current"])
             declaration["operations"][0]["source_inputs"] = ["README.md"]
             operation_manifest.write_text(json.dumps(declaration))
             status, historical_operations = self.invoke_pr_operations(

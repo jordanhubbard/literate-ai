@@ -8,9 +8,11 @@ import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import tempfile
 import time
+import unicodedata
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 
@@ -18,6 +20,7 @@ from literate_ai._filesystem import stat_is_link_or_reparse
 from literate_ai.adapters.exclusive_directory import (
     directory_node,
     publish_directory_between_owned_parents_exclusive,
+    publish_directory_exclusive,
 )
 
 from .errors import CliFailure
@@ -31,6 +34,11 @@ _MAX_FETCH_SECONDS = 600
 _MAX_JOURNAL_EVENTS = 64
 _MAX_OPERATIONS = 32
 _MAX_OPERATION_INPUTS = 256
+_MAX_STAGE_FILES = 8192
+_MAX_STAGE_INVENTORY_BYTES = 8 * 1024 * 1024
+_MAX_STAGE_FILE_BYTES = 32 * 1024 * 1024
+_MAX_STAGE_TOTAL_BYTES = 128 * 1024 * 1024
+_MAX_STAGE_SECONDS = 600
 _HEX_COMMIT = re.compile(r"[0-9a-f]{40,64}\Z")
 _GITHUB_SSH = re.compile(
     r"git@github\.com:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?\Z"
@@ -864,6 +872,453 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
             "effect": "read-only; no source was executed or operation admitted",
         }
     )
+
+
+def _pr_source_entries(
+    repository: Path, head: str
+) -> tuple[list[dict[str, object]], str]:
+    """Inventory exact regular Git blobs; never invoke checkout or archive filters."""
+    try:
+        process = subprocess.run(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(repository),
+                "ls-tree",
+                "--long",
+                "-r",
+                "-z",
+                "--full-tree",
+                head,
+            ],
+            env={
+                **os.environ,
+                "GIT_OPTIONAL_LOCKS": "0",
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_NO_REPLACE_OBJECTS": "1",
+            },
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise CliFailure(
+            "shadow.stage_unavailable", "PR Git tree inventory failed"
+        ) from exc
+    if process.returncode or len(process.stdout) > _MAX_STAGE_INVENTORY_BYTES:
+        raise CliFailure(
+            "shadow.stage_unbounded",
+            "PR Git tree inventory is unavailable or unbounded",
+        )
+    if process.stdout and not process.stdout.endswith(b"\x00"):
+        raise CliFailure("shadow.stage_invalid", "PR Git tree inventory is invalid")
+    entries: list[dict[str, object]] = []
+    total = 0
+    names: dict[tuple[str, str], str] = {}
+    for record in process.stdout[:-1].split(b"\x00"):
+        if len(entries) >= _MAX_STAGE_FILES:
+            raise CliFailure("shadow.stage_unbounded", "PR source has too many files")
+        header, separator, raw_path = record.partition(b"\t")
+        fields = header.split()
+        if not separator or len(fields) != 4:
+            raise CliFailure("shadow.stage_invalid", "PR Git tree entry is invalid")
+        mode, kind, raw_oid, raw_size = fields
+        if mode not in {b"100644", b"100755"} or kind != b"blob":
+            raise CliFailure(
+                "shadow.stage_unsupported",
+                "PR source contains a link, submodule or unsupported mode",
+            )
+        try:
+            path = _operation_path(raw_path.decode("utf-8"))
+            oid = raw_oid.decode("ascii")
+            size = int(raw_size)
+        except (UnicodeError, ValueError) as exc:
+            raise CliFailure(
+                "shadow.stage_invalid", "PR source entry is invalid"
+            ) from exc
+        if (
+            not _HEX_COMMIT.fullmatch(oid)
+            or size < 0
+            or size > _MAX_STAGE_FILE_BYTES
+            or total + size > _MAX_STAGE_TOTAL_BYTES
+        ):
+            raise CliFailure(
+                "shadow.stage_unbounded", "PR source object exceeds its bound"
+            )
+        parent = ""
+        for part in path.split("/"):
+            if (
+                part.casefold() == ".git"
+                or part.endswith((" ", "."))
+                or re.fullmatch(
+                    r"(?i)(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?", part
+                )
+                or any(char in '<>:"|?*' for char in part)
+            ):
+                raise CliFailure(
+                    "shadow.stage_unsupported", "PR source path is not portable"
+                )
+            key = (parent, unicodedata.normalize("NFC", part.casefold()))
+            if key in names and names[key] != part:
+                raise CliFailure("shadow.stage_unsupported", "PR source paths collide")
+            names[key] = part
+            parent = parent + "/" + part
+        entries.append(
+            {"path": path, "mode": mode.decode(), "object": oid, "bytes": size}
+        )
+        total += size
+    digest = hashlib.sha256(_json_bytes(entries)).hexdigest()
+    return entries, "sha256:" + digest
+
+
+def _pr_source_blob(repository: Path, oid: str, size: int, *, timeout: int) -> bytes:
+    try:
+        result = subprocess.run(
+            [
+                "git",
+                "--no-optional-locks",
+                "-C",
+                str(repository),
+                "cat-file",
+                "blob",
+                oid,
+            ],
+            env={
+                **os.environ,
+                "GIT_OPTIONAL_LOCKS": "0",
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_NO_REPLACE_OBJECTS": "1",
+            },
+            capture_output=True,
+            timeout=timeout,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise CliFailure(
+            "shadow.stage_unavailable", "PR source object could not be read"
+        ) from exc
+    blob = result.stdout
+    algorithm = hashlib.sha256 if len(oid) == 64 else hashlib.sha1
+    if (
+        result.returncode
+        or len(blob) != size
+        or algorithm(b"blob " + str(size).encode() + b"\x00" + blob).hexdigest() != oid
+    ):
+        raise CliFailure(
+            "shadow.stage_invalid", "PR source object changed or is invalid"
+        )
+    return blob
+
+
+def _verify_pr_source_files_unchecked(
+    source: Path, entries: list[dict[str, object]]
+) -> None:
+    """Rehash the published bytes and refuse links or foreign entries."""
+    if source.is_symlink() or not source.is_dir():
+        raise CliFailure(
+            "shadow.stage_invalid", "PR source directory is missing or unsafe"
+        )
+    expected_files = {str(entry["path"]): entry for entry in entries}
+    expected_dirs = {"."}
+    for path in expected_files:
+        parts = path.split("/")
+        expected_dirs.update("/".join(parts[:index]) for index in range(1, len(parts)))
+    observed_files: set[str] = set()
+    observed_dirs: set[str] = set()
+    deadline = time.monotonic() + _MAX_STAGE_SECONDS
+
+    def refuse_walk_error(error: OSError) -> None:
+        raise error
+
+    for directory, directories, files in os.walk(
+        source, followlinks=False, onerror=refuse_walk_error
+    ):
+        if time.monotonic() >= deadline:
+            raise CliFailure("shadow.stage_timeout", "PR source verification timed out")
+        root = Path(directory)
+        relative_dir = root.relative_to(source).as_posix()
+        if relative_dir not in expected_dirs or root.is_symlink():
+            raise CliFailure(
+                "shadow.stage_invalid", "PR source contains a foreign directory"
+            )
+        observed_dirs.add(relative_dir)
+        for name in directories:
+            child = root / name
+            node = child.lstat()
+            if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
+                raise CliFailure(
+                    "shadow.stage_invalid", "PR source contains an unsafe directory"
+                )
+        for name in files:
+            target = root / name
+            path = target.relative_to(source).as_posix()
+            entry = expected_files.get(path)
+            node = target.lstat()
+            if (
+                entry is None
+                or stat_is_link_or_reparse(node)
+                or not stat.S_ISREG(node.st_mode)
+                or node.st_size != entry["bytes"]
+            ):
+                raise CliFailure(
+                    "shadow.stage_invalid",
+                    "PR source contains a foreign or changed file",
+                )
+            flags = os.O_RDONLY
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            descriptor = os.open(target, flags)
+            algorithm = (
+                hashlib.sha256 if len(str(entry["object"])) == 64 else hashlib.sha1
+            )
+            digest = algorithm(b"blob " + str(node.st_size).encode() + b"\x00")
+            with os.fdopen(descriptor, "rb") as stream:
+                while chunk := stream.read(1024 * 1024):
+                    if time.monotonic() >= deadline:
+                        raise CliFailure(
+                            "shadow.stage_timeout", "PR source verification timed out"
+                        )
+                    digest.update(chunk)
+            if digest.hexdigest() != entry["object"]:
+                raise CliFailure(
+                    "shadow.stage_invalid", "PR source bytes differ from Git"
+                )
+            observed_files.add(path)
+    if observed_dirs != expected_dirs or observed_files != set(expected_files):
+        raise CliFailure("shadow.stage_invalid", "PR source inventory changed")
+
+
+def _verify_pr_source_files(source: Path, entries: list[dict[str, object]]) -> None:
+    try:
+        _verify_pr_source_files_unchecked(source, entries)
+    except OSError as exc:
+        raise CliFailure(
+            "shadow.stage_invalid", "PR source cannot be read safely"
+        ) from exc
+
+
+def plan_shadow_pr_source(args: argparse.Namespace) -> dict[str, object]:
+    """Plan a bounded, exact-object source projection without executing it."""
+    state = status_shadow_pr(args)
+    shadow = Path(str(args.shadow)).expanduser().resolve(strict=True)
+    lane = Path(str(state["lane"]))
+    captured = json.loads(_bounded_file(lane / "lane.json", 64 * 1024))["plan"]
+    if (
+        not state["shadow_snapshot_current"]
+        or state["shadow_upstream_current"] is not True
+    ):
+        raise CliFailure(
+            "shadow.plan_stale", "Shadow snapshot or upstream branch is not current"
+        )
+    live = plan_shadow_pr(
+        argparse.Namespace(
+            shadow=str(shadow), upstream=None, number=captured["pull_request"]["number"]
+        )
+    )
+    original_pr = dict(captured["pull_request"])
+    current_pr = dict(live["pull_request"])
+    original_pr.pop("head_object_available", None)
+    current_pr.pop("head_object_available", None)
+    if (
+        original_pr != current_pr
+        or captured["shadow_commit"] != live["shadow_commit"]
+        or captured["source_bundle_identity"] != live["source_bundle_identity"]
+    ):
+        raise CliFailure(
+            "shadow.plan_stale", "Live PR differs from the captured source lane"
+        )
+    destination = Path(args.destination).expanduser()
+    if destination.is_symlink() or destination.exists():
+        raise CliFailure(
+            "shadow.destination_exists", "Source stage destination already exists"
+        )
+    destination = destination.resolve(strict=False)
+    upstream = Path(str(captured["upstream"]))
+    if (
+        destination == shadow
+        or destination.is_relative_to(shadow)
+        or shadow.is_relative_to(destination)
+        or destination == upstream
+        or destination.is_relative_to(upstream)
+        or upstream.is_relative_to(destination)
+        or not destination.parent.is_dir()
+        or destination.parent.is_symlink()
+    ):
+        raise CliFailure(
+            "shadow.destination_unsafe", "Source stage needs a separate real parent"
+        )
+    repository = lane / "remote.git"
+    head = str(state["pull_request"]["head_commit"])
+    entries, inventory = _pr_source_entries(repository, head)
+    tree = _git(repository, "rev-parse", f"{head}^{{tree}}")
+    if status_shadow_pr(args) != state:
+        raise CliFailure("shadow.plan_stale", "PR lane changed during source planning")
+    return _plan_identity(
+        {
+            "schema": "literate-ai/shadow-pr-source-plan@1",
+            "pr_plan_identity": args.plan_identity,
+            "shadow_commit": captured["shadow_commit"],
+            "source_bundle_identity": captured["source_bundle_identity"],
+            "head_commit": head,
+            "tree_object": tree,
+            "inventory_identity": inventory,
+            "file_count": len(entries),
+            "total_bytes": sum(int(entry["bytes"]) for entry in entries),
+            "destination": str(destination),
+            "effect": "read-only; no PR source was materialized or executed",
+        }
+    )
+
+
+def stage_shadow_pr_source(args: argparse.Namespace) -> dict[str, object]:
+    """Materialize exact regular blobs after an acknowledged, current plan."""
+    if not args.acknowledge:
+        raise CliFailure(
+            "shadow.acknowledgement_required", "Source staging requires --acknowledge"
+        )
+    plan = plan_shadow_pr_source(args)
+    if args.expect_plan != plan["plan_identity"]:
+        raise CliFailure("shadow.plan_stale", "PR source plan changed before staging")
+    destination = Path(str(plan["destination"]))
+    parent = destination.parent
+    lane = Path(str(status_shadow_pr(args)["lane"]))
+    repository = lane / "remote.git"
+    entries, identity = _pr_source_entries(repository, str(plan["head_commit"]))
+    if identity != plan["inventory_identity"]:
+        raise CliFailure("shadow.plan_stale", "PR source inventory changed")
+    with tempfile.TemporaryDirectory(prefix=".shadow-source-", dir=parent) as temporary:
+        staged = Path(temporary)
+        source = staged / "source"
+        source.mkdir(mode=0o700)
+        deadline = time.monotonic() + _MAX_STAGE_SECONDS
+        for entry in entries:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise CliFailure("shadow.stage_timeout", "PR source staging timed out")
+            target = source / str(entry["path"])
+            target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            content = _pr_source_blob(
+                repository,
+                str(entry["object"]),
+                int(entry["bytes"]),
+                timeout=max(1, min(30, int(remaining))),
+            )
+            flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            descriptor = os.open(target, flags, 0o600)
+            with os.fdopen(descriptor, "wb") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+        (staged / "stage.json").write_bytes(
+            _json_bytes(
+                {
+                    "schema": "literate-ai/shadow-pr-source-stage@1",
+                    "plan": plan,
+                    "entries": entries,
+                    "qualification": "unqualified",
+                    "effect": (
+                        "exact source custody only; no isolated execution or acceptance"
+                    ),
+                }
+            )
+        )
+        _verify_pr_source_files(source, entries)
+        if plan_shadow_pr_source(args)["plan_identity"] != args.expect_plan:
+            raise CliFailure("shadow.plan_stale", "PR or source changed during staging")
+        try:
+            publish_directory_exclusive(
+                staged,
+                destination,
+                expected_source=directory_node(staged),
+                expected_parent=directory_node(parent),
+            )
+        except (OSError, ValueError) as exc:
+            raise CliFailure(
+                "shadow.stage_publish_failed",
+                "Source stage could not be published exclusively",
+            ) from exc
+    if status_shadow_pr_source(args)["plan_identity"] != args.expect_plan:
+        raise CliFailure("shadow.stage_invalid", "Published PR source plan changed")
+    return {
+        "schema": "literate-ai/shadow-pr-source-stage-result@1",
+        "plan_identity": args.expect_plan,
+        "destination": str(destination),
+        "head_commit": plan["head_commit"],
+        "inventory_identity": plan["inventory_identity"],
+        "file_count": plan["file_count"],
+        "total_bytes": plan["total_bytes"],
+        "qualification": "unqualified",
+    }
+
+
+def status_shadow_pr_source(args: argparse.Namespace) -> dict[str, object]:
+    """Reopen exact staged source custody without trusting saved metadata alone."""
+    lane_state = status_shadow_pr(args)
+    destination = Path(args.destination).expanduser()
+    if destination.is_symlink() or not destination.is_dir():
+        raise CliFailure("shadow.stage_invalid", "PR source stage is missing or unsafe")
+    destination = destination.resolve(strict=True)
+    try:
+        metadata = json.loads(
+            _bounded_file(destination / "stage.json", 8 * 1024 * 1024)
+        )
+    except (CliFailure, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.stage_invalid", "PR source stage metadata is invalid"
+        ) from exc
+    plan = metadata.get("plan") if isinstance(metadata, dict) else None
+    entries = metadata.get("entries") if isinstance(metadata, dict) else None
+    if (
+        not isinstance(plan, dict)
+        or not isinstance(entries, list)
+        or set(metadata) != {"schema", "plan", "entries", "qualification", "effect"}
+        or metadata.get("schema") != "literate-ai/shadow-pr-source-stage@1"
+        or metadata.get("qualification") != "unqualified"
+        or plan.get("schema") != "literate-ai/shadow-pr-source-plan@1"
+        or plan.get("destination") != str(destination)
+        or plan.get("pr_plan_identity") != args.plan_identity
+    ):
+        raise CliFailure("shadow.stage_invalid", "PR source stage metadata disagrees")
+    unsigned = {key: value for key, value in plan.items() if key != "plan_identity"}
+    if _plan_identity(unsigned)["plan_identity"] != plan.get("plan_identity"):
+        raise CliFailure("shadow.stage_invalid", "PR source plan identity changed")
+    repository = Path(str(lane_state["lane"])) / "remote.git"
+    captured = json.loads(
+        _bounded_file(Path(str(lane_state["lane"])) / "lane.json", 64 * 1024)
+    )["plan"]
+    actual_entries, identity = _pr_source_entries(
+        repository, str(lane_state["pull_request"]["head_commit"])
+    )
+    if (
+        entries != actual_entries
+        or identity != plan.get("inventory_identity")
+        or plan.get("shadow_commit") != captured["shadow_commit"]
+        or plan.get("source_bundle_identity") != captured["source_bundle_identity"]
+        or plan.get("head_commit") != lane_state["pull_request"]["head_commit"]
+        or plan.get("tree_object")
+        != _git(repository, "rev-parse", f"{plan['head_commit']}^{{tree}}")
+        or plan.get("file_count") != len(entries)
+        or plan.get("total_bytes") != sum(int(entry["bytes"]) for entry in entries)
+        or {item.name for item in destination.iterdir()} != {"source", "stage.json"}
+    ):
+        raise CliFailure(
+            "shadow.stage_invalid", "PR source stage differs from captured Git"
+        )
+    _verify_pr_source_files(destination / "source", actual_entries)
+    return {
+        "schema": "literate-ai/shadow-pr-source-status@1",
+        "plan_identity": plan["plan_identity"],
+        "destination": str(destination),
+        "head_commit": plan["head_commit"],
+        "inventory_identity": identity,
+        "shadow_snapshot_current": lane_state["shadow_snapshot_current"],
+        "shadow_upstream_current": lane_state["shadow_upstream_current"],
+        "qualification": "unqualified",
+        "effect": "read-only; current PR and isolated execution were not checked",
+    }
 
 
 def _json_bytes(value: object) -> bytes:
@@ -2004,6 +2459,26 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
         action="store_true",
         help="recheck the live PR and remote target branch during planning",
     )
+    pr_source_plan = actions.add_parser(
+        "pr-source-plan", help="plan exact PR blob staging without executing source"
+    )
+    pr_source_plan.add_argument("--shadow", required=True)
+    pr_source_plan.add_argument("--plan-identity", required=True, metavar="SHA256")
+    pr_source_plan.add_argument("--destination", required=True)
+    pr_source_stage = actions.add_parser(
+        "pr-source-stage", help="stage exact PR blobs in a separate directory"
+    )
+    pr_source_stage.add_argument("--shadow", required=True)
+    pr_source_stage.add_argument("--plan-identity", required=True, metavar="SHA256")
+    pr_source_stage.add_argument("--destination", required=True)
+    pr_source_stage.add_argument("--expect-plan", required=True, metavar="SHA256")
+    pr_source_stage.add_argument("--acknowledge", action="store_true")
+    pr_source_status = actions.add_parser(
+        "pr-source-status", help="reverify staged PR source against captured Git"
+    )
+    pr_source_status.add_argument("--shadow", required=True)
+    pr_source_status.add_argument("--plan-identity", required=True, metavar="SHA256")
+    pr_source_status.add_argument("--destination", required=True)
 
 
 __all__ = [
@@ -2014,7 +2489,10 @@ __all__ = [
     "plan_shadow",
     "plan_shadow_pr",
     "plan_shadow_pr_operations",
+    "plan_shadow_pr_source",
     "plan_shadow_sync",
     "status_shadow_pr",
+    "stage_shadow_pr_source",
+    "status_shadow_pr_source",
     "status_shadow",
 ]

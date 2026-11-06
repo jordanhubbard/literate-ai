@@ -262,6 +262,20 @@ read-only plan. The result reports `current_pr_current` as true only when the
 captured PR identity, base, head, shadow snapshot and source bundle still
 match. A changed or unavailable PR becomes an explicit gap; it never qualifies
 the operation or runs source.
+`litai shadow pr-source-plan --shadow PATH --plan-identity SHA256 --destination PATH`
+rechecks the live PR and remote target branch, then inventories the captured
+PR head's exact regular Git blobs. It refuses links, submodules, unsafe or
+colliding paths, and source trees beyond the file and byte limits. The plan
+binds the destination, tree, inventory and source custody without writing.
+`litai shadow pr-source-stage` takes the same selectors plus `--expect-plan`
+and `--acknowledge`, repeats those checks, writes exact blobs into a separate
+staging directory, and publishes it exclusively with `stage.json` provenance.
+The stage is unqualified source custody. It does not execute the upstream code,
+provide filesystem or network isolation for a future run, or supply a retained
+harness projection or acceptance result. `litai shadow pr-source-status` reopens
+the stage read-only, rechecks its provenance against the captured Git lane, and
+rehashes every staged file while refusing links and foreign entries. It reports
+historical snapshot currentness without treating saved metadata as authority.
 `litai shadow create` repeats the creation plan inputs and requires both
 `--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
 bounded Git bundle of their exact history in a new Git repository, and records a
