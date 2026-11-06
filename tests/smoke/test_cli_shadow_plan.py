@@ -808,6 +808,11 @@ class ShadowPlanCliTests(unittest.TestCase):
             status, refused = self.invoke_pr_status(forged_plan["plan_identity"])
             self.assertEqual(status, 2)
             self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
+            # Git object copies retain their read-only mode on Windows. Make
+            # this deliberately forged fixture writable before deleting it.
+            for copied in forged_lane.rglob("*"):
+                if copied.is_file():
+                    copied.chmod(stat.S_IREAD | stat.S_IWRITE)
             shutil.rmtree(forged_lane)
             if os.name != "nt":
                 foreign_link = lane / "remote.git" / "foreign-link"
