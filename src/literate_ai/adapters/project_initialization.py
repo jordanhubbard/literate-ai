@@ -1966,6 +1966,7 @@ _STARTER_DOCS = {
 > **Replace this paragraph** with a one-to-three sentence description of your
 > project: what it is, what it does, and who it is for.
 
+Before running LitAI, follow [project bootstrap](user/bootstrap.md).
 Start with [getting started](user/getting-started.md) for installation and usage.
 See [active work](roadmap/active-work.md) for current development status.
 

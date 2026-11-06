@@ -54,6 +54,7 @@ class GeneratedBootstrapTests(unittest.TestCase):
     def test_generated_route_and_missing_cli_are_read_only(self) -> None:
         self.assertTrue(self.script.is_file())
         self.assertTrue((self.root / "docs/user/bootstrap.md").is_file())
+        self.assertIn("user/bootstrap.md", (self.root / "docs/README.md").read_text())
         skill = (self.root / "SKILL.md").read_text()
         self.assertLess(
             skill.index("docs/user/bootstrap.md"), skill.index("`litai doctor`")
@@ -135,6 +136,14 @@ class GeneratedBootstrapTests(unittest.TestCase):
                 for path, resource in project_initialization._TEMPLATE_FILES.items()
                 if path not in {"scripts/bootstrap_litai.py", "docs/user/bootstrap.md"}
             }
+            old_starter_docs = dict(project_initialization._STARTER_DOCS)
+            old_starter_docs["docs/README.md"] = old_starter_docs[
+                "docs/README.md"
+            ].replace(
+                "Before running LitAI, follow "
+                "[project bootstrap](user/bootstrap.md).\n",
+                "",
+            )
             current_template = project_initialization._template_text
 
             def older_template(resource: str) -> str:
@@ -147,6 +156,9 @@ class GeneratedBootstrapTests(unittest.TestCase):
 
             with (
                 mock.patch.object(project_initialization, "_TEMPLATE_FILES", old_files),
+                mock.patch.object(
+                    project_initialization, "_STARTER_DOCS", old_starter_docs
+                ),
                 mock.patch.object(
                     project_initialization,
                     "_template_text",
@@ -177,6 +189,7 @@ class GeneratedBootstrapTests(unittest.TestCase):
             apply_project_update(plan, target, adopt_added=True)
             self.assertTrue((target / "scripts/bootstrap_litai.py").is_file())
             self.assertTrue((target / "docs/user/bootstrap.md").is_file())
+            self.assertIn("user/bootstrap.md", (target / "docs/README.md").read_text())
             updated_skill = (target / "SKILL.md").read_text()
             self.assertLess(
                 updated_skill.index("docs/user/bootstrap.md"),
