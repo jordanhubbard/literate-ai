@@ -653,6 +653,7 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertIn("retained-projection-unavailable", mapped["gaps"])
             self.assertIn("current-pr-unverified", mapped["gaps"])
             self.assertEqual(operations["result"]["qualification"], "unqualified")
+            self.assertNotIn("source_stage", operations["result"])
             status, staged_operations = self.invoke_pr_operations(
                 pr_plan["plan_identity"],
                 operation_manifest,

@@ -886,24 +886,24 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
             raise CliFailure(
                 "shadow.operation_invalid", "Staged source changed during planning"
             )
-    return _plan_identity(
-        {
-            "schema": "literate-ai/shadow-pr-operation-plan@1",
-            "pr_plan_identity": args.plan_identity,
-            "shadow_commit": captured_plan["shadow_commit"],
-            "source_bundle_identity": captured_plan["source_bundle_identity"],
-            "pull_request": lane_status["pull_request"],
-            "head_commit": head,
-            "shadow_snapshot_current": lane_status["shadow_snapshot_current"],
-            "shadow_upstream_current": lane_status["shadow_upstream_current"],
-            "current_pr_current": current_pr_current,
-            "manifest_identity": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
-            "source_stage": source_stage,
-            "operations": planned,
-            "qualification": "unqualified",
-            "effect": "read-only; no source was executed or operation admitted",
-        }
-    )
+    body: dict[str, object] = {
+        "schema": "literate-ai/shadow-pr-operation-plan@1",
+        "pr_plan_identity": args.plan_identity,
+        "shadow_commit": captured_plan["shadow_commit"],
+        "source_bundle_identity": captured_plan["source_bundle_identity"],
+        "pull_request": lane_status["pull_request"],
+        "head_commit": head,
+        "shadow_snapshot_current": lane_status["shadow_snapshot_current"],
+        "shadow_upstream_current": lane_status["shadow_upstream_current"],
+        "current_pr_current": current_pr_current,
+        "manifest_identity": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+        "operations": planned,
+        "qualification": "unqualified",
+        "effect": "read-only; no source was executed or operation admitted",
+    }
+    if source_stage is not None:
+        body["source_stage"] = source_stage
+    return _plan_identity(body)
 
 
 def _pr_source_entries(
