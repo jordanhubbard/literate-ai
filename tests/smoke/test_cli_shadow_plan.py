@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import stat
 import subprocess
 import tempfile
 import unittest
@@ -467,6 +468,13 @@ class ShadowPlanCliTests(unittest.TestCase):
     def test_pr_capture_custodies_real_remote_refs_without_touching_shadow(
         self,
     ) -> None:
+        if os.name != "nt":
+            script = self.upstream / "run.sh"
+            script.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            script.chmod(0o755)
+            _git(self.upstream, "add", "run.sh")
+            _git(self.upstream, "commit", "-qm", "Add executable operation")
+            self.feature_commit = _git(self.upstream, "rev-parse", "HEAD")
         remote = self.root / "remote.git"
         _git(self.root, "init", "--bare", "-q", "-b", "main", str(remote))
         _git(
@@ -517,7 +525,9 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(status, 0, source_plan)
             source_identity = source_plan["result"]["plan_identity"]
-            self.assertEqual(source_plan["result"]["file_count"], 1)
+            self.assertEqual(
+                source_plan["result"]["file_count"], 1 if os.name == "nt" else 2
+            )
             self.assertFalse(staged_source.exists())
             drifted_pr = self.pr_response()
             drifted_pr["head"]["sha"] = self.main_commit
@@ -562,6 +572,16 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertEqual(
                 (staged_source / "source" / "README.md").read_text(), "feature\n"
             )
+            if os.name != "nt":
+                staged_script = staged_source / "source" / "run.sh"
+                self.assertEqual(stat.S_IMODE(staged_script.stat().st_mode), 0o700)
+                staged_script.chmod(0o600)
+                status, refused = self.invoke_pr_source(
+                    "pr-source-status", pr_plan["plan_identity"], staged_source
+                )
+                self.assertEqual(status, 2)
+                self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
+                staged_script.chmod(0o700)
             self.assertEqual(staged["result"]["qualification"], "unqualified")
             metadata = json.loads((staged_source / "stage.json").read_text())
             self.assertEqual(metadata["plan"]["plan_identity"], source_identity)
@@ -578,6 +598,14 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(reopened_source["result"]["qualification"], "unqualified")
             source_file = staged_source / "source" / "README.md"
+            if os.name != "nt":
+                source_file.chmod(0o700)
+                status, refused = self.invoke_pr_source(
+                    "pr-source-status", pr_plan["plan_identity"], staged_source
+                )
+                self.assertEqual(status, 2)
+                self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
+                source_file.chmod(0o600)
             source_file.write_text("changed\n")
             status, refused = self.invoke_pr_source(
                 "pr-source-status", pr_plan["plan_identity"], staged_source

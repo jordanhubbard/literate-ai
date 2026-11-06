@@ -1092,10 +1092,15 @@ def _verify_pr_source_files_unchecked(
                 or stat_is_link_or_reparse(node)
                 or not stat.S_ISREG(node.st_mode)
                 or node.st_size != entry["bytes"]
+                or (
+                    os.name != "nt"
+                    and stat.S_IMODE(node.st_mode)
+                    != (0o700 if entry["mode"] == "100755" else 0o600)
+                )
             ):
                 raise CliFailure(
                     "shadow.stage_invalid",
-                    "PR source contains a foreign or changed file",
+                    "PR source contains a foreign, changed or unsafe file",
                 )
             flags = os.O_RDONLY
             if hasattr(os, "O_NOFOLLOW"):
@@ -1241,6 +1246,11 @@ def stage_shadow_pr_source(args: argparse.Namespace) -> dict[str, object]:
                 flags |= os.O_NOFOLLOW
             descriptor = os.open(target, flags, 0o600)
             with os.fdopen(descriptor, "wb") as stream:
+                if os.name != "nt":
+                    os.fchmod(
+                        stream.fileno(),
+                        0o700 if entry["mode"] == "100755" else 0o600,
+                    )
                 stream.write(content)
                 stream.flush()
                 os.fsync(stream.fileno())

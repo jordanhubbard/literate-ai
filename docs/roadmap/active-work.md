@@ -33972,3 +33972,6 @@ implementation, policy weakening, qualification or issue closure is recorded her
   captured PR head. Missing or linked inputs, unsupported stages, and unproven
   projection, worker, execution and acceptance remain explicit gaps. No mapped
   operation has run or qualified yet.
+  The PR source stage now preserves executable intent for regular Git blobs as
+  owner-only POSIX modes and refuses mode drift when reopened. This prepares
+  operation workspaces without claiming that any upstream command has run.

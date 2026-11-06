@@ -277,6 +277,8 @@ binds the destination, tree, inventory and source custody without writing.
 `litai shadow pr-source-stage` takes the same selectors plus `--expect-plan`
 and `--acknowledge`, repeats those checks, writes exact blobs into a separate
 staging directory, and publishes it exclusively with `stage.json` provenance.
+On POSIX, it retains Git executable intent as owner-only file permissions;
+the read-only status check refuses permission drift as well as byte drift.
 The stage is unqualified source custody. It does not execute the upstream code,
 provide filesystem or network isolation for a future run, or supply a retained
 harness projection or acceptance result. `litai shadow pr-source-status` reopens
