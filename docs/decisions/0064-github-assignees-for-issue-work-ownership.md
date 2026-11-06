@@ -3,6 +3,7 @@
 - Status: Proposed
 - Date: 2026-11-05
 - Decision owners: Literate AI maintainers and the directing user
+- Release target: 1.5.0 planning milestone
 - Roadmap: pending explicit acceptance; requested by [issue #323](https://github.com/jordanhubbard/literate-ai/issues/323)
 
 ## Context
@@ -71,7 +72,7 @@ project templates and CLI guidance together.
 ## Planning and acceptance
 
 After the directing user accepts or amends this ADR, record a linked roadmap
-item for the current development release before implementation. Its evidence
+item for the 1.5.0 planning release before implementation. Its evidence
 must include actual GitHub assignment and readback for an unassigned issue,
 same-member resume in a new session, recommendations for assigned open issues,
 another member's refused claim, explicit handoff and collaboration, and failed
