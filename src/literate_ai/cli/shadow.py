@@ -473,6 +473,59 @@ def capture_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
     return _pr_lane_result(lane, plan)
 
 
+def status_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
+    """Reverify saved PR source custody without requiring the PR to stay open."""
+    state = status_shadow(args)
+    identity = args.plan_identity
+    if not isinstance(identity, str) or not re.fullmatch(
+        r"sha256:[0-9a-f]{64}", identity
+    ):
+        raise CliFailure("shadow.plan_invalid", "PR plan identity is invalid")
+    shadow = Path(str(state["shadow"]))
+    lane = shadow / ".git" / "literate-shadow" / "pr-lanes" / identity[7:]
+    if lane.is_symlink() or not lane.is_dir():
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane is missing or unsafe")
+    try:
+        metadata = json.loads(_bounded_file(lane / "lane.json", 64 * 1024))
+    except (CliFailure, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.pr_lane_invalid", "PR lane metadata is invalid"
+        ) from exc
+    plan = metadata.get("plan") if isinstance(metadata, dict) else None
+    if (
+        not isinstance(plan, dict)
+        or plan.get("schema") != "literate-ai/shadow-pr-plan@1"
+        or plan.get("plan_identity") != identity
+        or plan.get("shadow") != str(shadow)
+        or not isinstance(plan.get("pull_request"), dict)
+    ):
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane plan is invalid")
+    unsigned = {key: value for key, value in plan.items() if key != "plan_identity"}
+    if _plan_identity(unsigned)["plan_identity"] != identity:
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane plan identity changed")
+    try:
+        captured = _pr_lane_result(lane, plan)
+    except (KeyError, TypeError, ValueError) as exc:
+        raise CliFailure(
+            "shadow.pr_lane_invalid", "PR lane plan is incomplete"
+        ) from exc
+    snapshot_current = (
+        captured["shadow_commit"] == state["shadow_commit"]
+        and plan.get("source_bundle_identity") == state["source_bundle_identity"]
+    )
+    return {
+        "schema": "literate-ai/shadow-pr-status@1",
+        "lane": str(lane),
+        "plan_identity": identity,
+        "pull_request": captured["pull_request"],
+        "bundle_identity": captured["bundle_identity"],
+        "shadow_snapshot_current": snapshot_current,
+        "shadow_upstream_current": state["upstream_current"],
+        "qualification": "unqualified",
+        "effect": "read-only; current PR state and execution were not checked",
+    }
+
+
 def _json_bytes(value: object) -> bytes:
     return (
         json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
@@ -1595,6 +1648,11 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     pr_capture.add_argument("--number", required=True, type=int)
     pr_capture.add_argument("--expect-plan", required=True, metavar="SHA256")
     pr_capture.add_argument("--acknowledge", action="store_true")
+    pr_status = actions.add_parser(
+        "pr-status", help="reverify captured PR source custody without writing"
+    )
+    pr_status.add_argument("--shadow", required=True)
+    pr_status.add_argument("--plan-identity", required=True, metavar="SHA256")
 
 
 __all__ = [
@@ -1605,5 +1663,6 @@ __all__ = [
     "plan_shadow",
     "plan_shadow_pr",
     "plan_shadow_sync",
+    "status_shadow_pr",
     "status_shadow",
 ]

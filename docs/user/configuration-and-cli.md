@@ -39,6 +39,7 @@ litai shadow plan
 litai shadow create
 litai shadow pr-plan
 litai shadow pr-capture
+litai shadow pr-status
 litai shadow status
 litai shadow sync plan
 litai shadow sync apply
@@ -236,6 +237,11 @@ complete-history bundle, then publishes the lane exclusively under the shadow's
 Git metadata. Repeating the same capture verifies and returns its existing lane.
 The upstream checkout and shadow commit stay unchanged. The captured lane is
 unqualified source custody; it creates no executable workspace or acceptance.
+`litai shadow pr-status --shadow PATH --plan-identity SHA256` reopens a saved
+lane, verifies its metadata, bundle, refs and shadow custody, and reports whether
+the bound shadow snapshot is still current. It works after the upstream PR
+closes because it does not query the current PR. It does not run source or claim
+qualification; current PR state must be checked separately before evaluation.
 `litai shadow create` repeats the creation plan inputs and requires both
 `--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
 bounded Git bundle of their exact history in a new Git repository, and records a

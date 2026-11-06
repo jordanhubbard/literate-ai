@@ -139,6 +139,25 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_pr_status(self, identity: str) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        status = main(
+            (
+                "--json",
+                "shadow",
+                "pr-status",
+                "--shadow",
+                str(self.root / "shadow"),
+                "--plan-identity",
+                identity,
+            ),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def pr_response(self) -> dict[str, object]:
         return {
             "id": 1717,
@@ -396,6 +415,18 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(status, 0, repeated)
             self.assertTrue(repeated["result"]["idempotent"])
+            with patch(
+                "literate_ai.cli.shadow._github_pr",
+                side_effect=AssertionError("PR status must not inspect the forge"),
+            ):
+                status, reopened = self.invoke_pr_status(pr_plan["plan_identity"])
+            self.assertEqual(status, 0, reopened)
+            self.assertEqual(
+                reopened["result"]["bundle_identity"],
+                captured["result"]["bundle_identity"],
+            )
+            self.assertTrue(reopened["result"]["shadow_snapshot_current"])
+            self.assertEqual(reopened["result"]["qualification"], "unqualified")
             lane = Path(captured["result"]["lane"])
             if os.name != "nt":
                 foreign_link = lane / "remote.git" / "foreign-link"
@@ -407,12 +438,24 @@ class ShadowPlanCliTests(unittest.TestCase):
                 self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
                 foreign_link.unlink()
             bundle = lane / "source.bundle"
-            bundle.write_bytes(bundle.read_bytes() + b"foreign")
+            original_bundle = bundle.read_bytes()
+            bundle.write_bytes(original_bundle + b"foreign")
             status, refused = self.invoke_pr_capture(
                 self.pr_response(), pr_plan["plan_identity"], "--acknowledge"
             )
             self.assertEqual(status, 2)
             self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
+            status, refused = self.invoke_pr_status(pr_plan["plan_identity"])
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
+            bundle.write_bytes(original_bundle)
+            _git(self.upstream, "checkout", "-q", "main")
+            (self.upstream / "README.md").write_text("later\n", encoding="utf-8")
+            _git(self.upstream, "commit", "-qam", "later")
+            status, stale = self.invoke_pr_status(pr_plan["plan_identity"])
+            self.assertEqual(status, 0, stale)
+            self.assertTrue(stale["result"]["shadow_snapshot_current"])
+            self.assertFalse(stale["result"]["shadow_upstream_current"])
         lane = Path(captured["result"]["lane"])
         self.assertTrue(lane.is_relative_to(shadow / ".git"))
         self.assertEqual(captured["result"]["qualification"], "unqualified")
