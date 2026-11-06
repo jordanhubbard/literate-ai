@@ -25,6 +25,16 @@ def _git(root: Path, *args: str) -> str:
 
 
 class ShadowPlanCliTests(unittest.TestCase):
+    def test_fetch_size_ignores_a_disappearing_git_temp_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "retained").write_bytes(b"exact")
+            with patch(
+                "literate_ai.cli.shadow.os.walk",
+                return_value=[(str(root), [], ["retained", "removed.lock"])],
+            ):
+                self.assertEqual(shadow_module._directory_bytes(root), 5)
+
     def setUp(self) -> None:
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -598,6 +608,7 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(reopened_source["result"]["qualification"], "unqualified")
             source_file = staged_source / "source" / "README.md"
+            original_source = source_file.read_bytes()
             if os.name != "nt":
                 source_file.chmod(0o700)
                 status, refused = self.invoke_pr_source(
@@ -612,7 +623,7 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(status, 2)
             self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
-            source_file.write_text("feature\n")
+            source_file.write_bytes(original_source)
             foreign = staged_source / "source" / "foreign.txt"
             foreign.write_text("foreign")
             status, refused = self.invoke_pr_source(
@@ -714,7 +725,7 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertEqual(status, 2)
             self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
-            source_file.write_text("feature\n")
+            source_file.write_bytes(original_source)
             with patch(
                 "literate_ai.cli.shadow._github_pr", return_value=self.pr_response()
             ):
@@ -882,7 +893,7 @@ class ShadowPlanCliTests(unittest.TestCase):
             changed, pr_plan["plan_identity"], "--acknowledge"
         )
         self.assertEqual(status, 2)
-        self.assertEqual(refused["error"]["code"], "shadow.plan_stale")
+        self.assertEqual(refused["error"]["code"], "shadow.plan_stale", refused)
         self.assertFalse((self.root / "shadow" / ".git" / "literate-shadow").exists())
 
     def test_pr_capture_refuses_remote_head_different_from_forge_plan(self) -> None:
@@ -922,7 +933,7 @@ class ShadowPlanCliTests(unittest.TestCase):
                 response, envelope["result"]["plan_identity"], "--acknowledge"
             )
         self.assertEqual(status, 2)
-        self.assertEqual(refused["error"]["code"], "shadow.plan_stale")
+        self.assertEqual(refused["error"]["code"], "shadow.plan_stale", refused)
         self.assertFalse(
             list(
                 (

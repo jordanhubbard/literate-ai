@@ -1425,7 +1425,17 @@ def _directory_bytes(root: Path) -> int:
     total = 0
     for directory, _, files in os.walk(root):
         for name in files:
-            total += (Path(directory) / name).stat().st_size
+            try:
+                total += (Path(directory) / name).stat().st_size
+            except FileNotFoundError:
+                # Git may remove a temporary pack or lock file after os.walk
+                # lists it. A completed fetch is checked again below.
+                continue
+            except OSError as exc:
+                raise CliFailure(
+                    "shadow.fetch_unavailable",
+                    "Remote fetch size could not be inspected",
+                ) from exc
             if total > _MAX_FETCH_BYTES:
                 return total
     return total
