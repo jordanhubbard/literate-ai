@@ -872,7 +872,7 @@ class ShadowPlanCliTests(unittest.TestCase):
                 historical_operations["result"]["operations"][0]["gaps"],
             )
         lane = Path(captured["result"]["lane"])
-        self.assertTrue(lane.is_relative_to(shadow / ".git"))
+        self.assertTrue(lane.resolve().is_relative_to((shadow / ".git").resolve()))
         self.assertEqual(captured["result"]["qualification"], "unqualified")
         self.assertEqual(
             _git(lane / "remote.git", "rev-parse", "refs/pull/17/head"),
