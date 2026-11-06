@@ -33948,3 +33948,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Mapped operation and gap behavior, code/test/environment/timeout/nondeterminism counterexamples and incomplete-green refusals pass.
   - [ ] Actual upstream-layout repair export/rebase and accepted merge-back plus rejected proposal retention pass without unearned admission.
   - [ ] Independent source review, full source and platform gates, and noneditable installed/native qualification pass at the exact head.
+
+## 1.5 preparation
+
+### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
+
+- **Priority:** P1
+- **Release target:** 1.5.0; new work, with no change to recorded 1.4.0 goals
+- **GitHub issue:** [#332](https://github.com/jordanhubbard/literate-ai/issues/332)
+- **Owner:** generated AGENTS.md, CLAUDE.md and SKILL.md entry points, and the project-owned setup route
+- **Direction:** A contributor opening a generated project on a fresh machine must reach a maintained setup path before the first `litai` command. The route must work without LitAI, identify the project's pinned framework requirement, and preserve downstream instructions and lifecycle pins.
+- **Conclusion:** The generated SKILL.md currently starts at `litai doctor`; the existing framework getting-started guide explains installation but is not reachable before that command. Add a small provider-neutral bootstrap route to the generated entry points and carry it through initialization, adoption and update without silently changing an installed runtime or Standard binding.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Add a generated bootstrap document and link it before the first LitAI command; verify missing and incompatible CLI paths on POSIX and native Windows.
+- **Implementation:**
+  - [ ] Route generated agent entry points to bootstrap before invoking LitAI, while preserving custom downstream instructions.
+  - [ ] Provide an isolated installation and current-runtime check that reads the project's pinned framework identity without LitAI and reports unavailable wheel, checksum and access failures clearly.
+- **Evidence:**
+  - [ ] Installed generated-project journeys cover missing CLI and incompatible existing runtime on POSIX and native Windows without mutating project pins.
+  - [ ] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions.
+  - [ ] Independent review, exact-head CI and noneditable installed distribution checks pass before closure.

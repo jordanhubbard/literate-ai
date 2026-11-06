@@ -1155,6 +1155,8 @@ _TEMPLATE_FILES = {
     "SKILL.md": "SKILL.md",
     "AGENTS.md": "AGENTS.md",
     "CLAUDE.md": "CLAUDE.md",
+    "scripts/bootstrap_litai.py": "scripts/bootstrap_litai.py",
+    "docs/user/bootstrap.md": "docs/user/bootstrap.md",
     "agents/openai.yaml": "agents/openai.yaml",
     "docs/roadmap/active-work.md": "docs/roadmap/active-work.md",
     "docs/roadmap/release-goals.json": "docs/roadmap/release-goals.json",
