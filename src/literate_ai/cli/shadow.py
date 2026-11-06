@@ -681,6 +681,25 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
     ):
         raise CliFailure("shadow.operation_invalid", "PR lane plan changed")
     head = lane_status["pull_request"]["head_commit"]
+    source_stage: dict[str, object] | None = None
+    if args.source_stage:
+        staged = status_shadow_pr_source(
+            argparse.Namespace(
+                shadow=args.shadow,
+                plan_identity=args.plan_identity,
+                destination=args.source_stage,
+            )
+        )
+        if staged["head_commit"] != head:
+            raise CliFailure(
+                "shadow.operation_invalid", "Staged source differs from the PR head"
+            )
+        source_stage = {
+            "destination": staged["destination"],
+            "plan_identity": staged["plan_identity"],
+            "head_commit": staged["head_commit"],
+            "inventory_identity": staged["inventory_identity"],
+        }
     currentness_gaps = ["current-pr-unverified"]
     current_pr_current: bool | None = None
     if args.check_forge:
@@ -855,6 +874,18 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
         or status_shadow_pr(args) != lane_status
     ):
         raise CliFailure("shadow.operation_invalid", "PR lane changed during planning")
+    if source_stage is not None:
+        reopened = status_shadow_pr_source(
+            argparse.Namespace(
+                shadow=args.shadow,
+                plan_identity=args.plan_identity,
+                destination=args.source_stage,
+            )
+        )
+        if any(reopened[key] != value for key, value in source_stage.items()):
+            raise CliFailure(
+                "shadow.operation_invalid", "Staged source changed during planning"
+            )
     return _plan_identity(
         {
             "schema": "literate-ai/shadow-pr-operation-plan@1",
@@ -867,6 +898,7 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
             "shadow_upstream_current": lane_status["shadow_upstream_current"],
             "current_pr_current": current_pr_current,
             "manifest_identity": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+            "source_stage": source_stage,
             "operations": planned,
             "qualification": "unqualified",
             "effect": "read-only; no source was executed or operation admitted",
@@ -2454,6 +2486,10 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     pr_operations.add_argument("--shadow", required=True)
     pr_operations.add_argument("--plan-identity", required=True, metavar="SHA256")
     pr_operations.add_argument("--manifest", required=True)
+    pr_operations.add_argument(
+        "--source-stage",
+        help="reverify staged PR-head blobs and bind their exact inventory",
+    )
     pr_operations.add_argument(
         "--check-forge",
         action="store_true",

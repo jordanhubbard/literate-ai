@@ -653,6 +653,39 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertIn("retained-projection-unavailable", mapped["gaps"])
             self.assertIn("current-pr-unverified", mapped["gaps"])
             self.assertEqual(operations["result"]["qualification"], "unqualified")
+            status, staged_operations = self.invoke_pr_operations(
+                pr_plan["plan_identity"],
+                operation_manifest,
+                "--source-stage",
+                str(staged_source),
+            )
+            self.assertEqual(status, 0, staged_operations)
+            self.assertEqual(
+                staged_operations["result"]["source_stage"]["plan_identity"],
+                source_identity,
+            )
+            self.assertEqual(
+                staged_operations["result"]["source_stage"]["inventory_identity"],
+                reopened_source["result"]["inventory_identity"],
+            )
+            self.assertNotEqual(
+                staged_operations["result"]["plan_identity"],
+                operations["result"]["plan_identity"],
+            )
+            self.assertIn(
+                "isolated-execution-and-acceptance-unproven",
+                staged_operations["result"]["operations"][0]["gaps"],
+            )
+            source_file.write_text("changed\n")
+            status, refused = self.invoke_pr_operations(
+                pr_plan["plan_identity"],
+                operation_manifest,
+                "--source-stage",
+                str(staged_source),
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.stage_invalid")
+            source_file.write_text("feature\n")
             with patch(
                 "literate_ai.cli.shadow._github_pr", return_value=self.pr_response()
             ):

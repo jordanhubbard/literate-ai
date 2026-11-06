@@ -265,6 +265,10 @@ read-only plan. The result reports `current_pr_current` as true only when the
 captured PR identity, base, head, shadow snapshot and source bundle still
 match. A changed or unavailable PR becomes an explicit gap; it never qualifies
 the operation or runs source.
+Add `--source-stage PATH` to rehash a previously staged exact PR head and bind
+its destination, source plan and Git inventory to the operation plan. Changed
+stage contents are refused. This binds source custody only; the projection,
+worker, execution and acceptance gaps remain.
 `litai shadow pr-source-plan --shadow PATH --plan-identity SHA256 --destination PATH`
 rechecks the live PR and remote target branch, then inventories the captured
 PR head's exact regular Git blobs. It refuses links, submodules, unsafe or
