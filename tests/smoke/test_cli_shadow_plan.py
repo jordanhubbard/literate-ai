@@ -432,16 +432,21 @@ class ShadowPlanCliTests(unittest.TestCase):
             shadow_module._pr_source_entries(self.upstream, linked_head)
         self.assertEqual(failure.exception.code, "shadow.stage_unsupported")
         _git(self.upstream, "rm", "-q", "linked")
-        (self.upstream / "Case.txt").write_text("A")
-        (self.upstream / "case.txt").write_text("a")
-        _git(self.upstream, "add", "Case.txt", "case.txt")
-        _git(self.upstream, "commit", "-qm", "colliding paths")
+        # Case-insensitive hosts cannot create both names in the working tree.
+        readme = _git(self.upstream, "rev-parse", "HEAD:README.md")
+        collision_tree = subprocess.check_output(
+            ["git", "-C", str(self.upstream), "mktree"],
+            input=(f"100644 blob {readme}\tCase.txt\n100644 blob {readme}\tcase.txt\n"),
+            text=True,
+        ).strip()
+        collision_head = subprocess.check_output(
+            ["git", "-C", str(self.upstream), "commit-tree", collision_tree],
+            input="colliding paths\n",
+            text=True,
+        ).strip()
         with self.assertRaises(CliFailure) as failure:
-            shadow_module._pr_source_entries(
-                self.upstream, _git(self.upstream, "rev-parse", "HEAD")
-            )
+            shadow_module._pr_source_entries(self.upstream, collision_head)
         self.assertEqual(failure.exception.code, "shadow.stage_unsupported")
-        _git(self.upstream, "rm", "-q", "Case.txt", "case.txt")
         _git(
             self.upstream,
             "update-index",
