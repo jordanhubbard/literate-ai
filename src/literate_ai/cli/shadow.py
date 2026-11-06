@@ -43,6 +43,7 @@ def _git(
     *arguments: str,
     timeout: int = 10,
     environment: dict[str, str] | None = None,
+    max_output: int = 4096,
 ) -> str:
     try:
         result = subprocess.run(
@@ -66,7 +67,7 @@ def _git(
         raise CliFailure(
             "shadow.git_invalid", "Git could not resolve the requested upstream state"
         )
-    if len(result.stdout) > 4096:
+    if len(result.stdout) > max_output:
         raise CliFailure(
             "shadow.git_unbounded", "Git inspection exceeded its output bound"
         )
@@ -503,6 +504,48 @@ def status_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
     unsigned = {key: value for key, value in plan.items() if key != "plan_identity"}
     if _plan_identity(unsigned)["plan_identity"] != identity:
         raise CliFailure("shadow.pr_lane_invalid", "PR lane plan identity changed")
+    snapshot = plan.get("shadow_commit")
+    if not isinstance(snapshot, str) or not _HEX_COMMIT.fullmatch(snapshot):
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane shadow commit is invalid")
+    try:
+        _git(
+            shadow, "merge-base", "--is-ancestor", snapshot, str(state["shadow_commit"])
+        )
+        registry_object = f"{snapshot}:.literate-shadow/registry.json"
+        registry_size = int(_git(shadow, "cat-file", "-s", registry_object))
+        if registry_size <= 0 or registry_size > 64 * 1024:
+            raise CliFailure("shadow.pr_lane_invalid", "PR lane registry is unbounded")
+        historical_registry = json.loads(
+            _git(shadow, "show", registry_object, max_output=64 * 1024)
+        )
+    except (CliFailure, ValueError, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.pr_lane_invalid", "PR lane shadow snapshot is unavailable"
+        ) from exc
+    pr = plan["pull_request"]
+    historical_branches = (
+        historical_registry.get("branches")
+        if isinstance(historical_registry, dict)
+        else None
+    )
+    if (
+        not isinstance(historical_registry, dict)
+        or historical_registry.get("schema") != "literate-ai/shadow-registry@1"
+        or historical_registry.get("qualification") != "unqualified"
+        or historical_registry.get("upstream") != plan.get("upstream")
+        or historical_registry.get("forge") != plan.get("forge")
+        or historical_registry.get("source_bundle_identity")
+        != plan.get("source_bundle_identity")
+        or not isinstance(historical_branches, list)
+        or not all(isinstance(item, dict) for item in historical_branches)
+        or not isinstance(pr.get("base_ref"), str)
+        or not isinstance(pr.get("base_commit"), str)
+        or {item.get("ref"): item.get("commit") for item in historical_branches}.get(
+            pr["base_ref"]
+        )
+        != pr["base_commit"]
+    ):
+        raise CliFailure("shadow.pr_lane_invalid", "PR lane shadow snapshot disagrees")
     try:
         captured = _pr_lane_result(lane, plan)
     except (KeyError, TypeError, ValueError) as exc:

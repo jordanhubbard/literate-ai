@@ -238,8 +238,9 @@ Git metadata. Repeating the same capture verifies and returns its existing lane.
 The upstream checkout and shadow commit stay unchanged. The captured lane is
 unqualified source custody; it creates no executable workspace or acceptance.
 `litai shadow pr-status --shadow PATH --plan-identity SHA256` reopens a saved
-lane, verifies its metadata, bundle, refs and shadow custody, and reports whether
-the bound shadow snapshot is still current. It works after the upstream PR
+lane, verifies its metadata, bundle, refs and the historical shadow commit,
+branch and source bundle it was captured against, then reports whether that
+snapshot is still current. It works after the upstream PR
 closes because it does not query the current PR. It does not run source or claim
 qualification; current PR state must be checked separately before evaluation.
 `litai shadow create` repeats the creation plan inputs and requires both

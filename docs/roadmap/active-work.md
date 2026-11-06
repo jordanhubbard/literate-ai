@@ -33964,5 +33964,6 @@ implementation, policy weakening, qualification or issue closure is recorded her
   Mapped execution and independent qualification remain open.
   The read-only `shadow pr-status` path now revalidates a saved PR lane's
   metadata, exact bundle and Git refs after restart, even when the PR has
-  closed, and reports whether its bound shadow snapshot remains current.
+  closed, checks the captured shadow commit against the historical branch and
+  source bundle, and reports whether its bound snapshot remains current.
   It does not treat historical source custody as current PR qualification.

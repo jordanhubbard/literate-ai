@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -428,6 +429,21 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertTrue(reopened["result"]["shadow_snapshot_current"])
             self.assertEqual(reopened["result"]["qualification"], "unqualified")
             lane = Path(captured["result"]["lane"])
+            forged_plan = dict(pr_plan)
+            forged_plan["shadow_commit"] = self.feature_commit
+            forged_plan.pop("plan_identity")
+            forged_plan = shadow_module._plan_identity(forged_plan)
+            forged_lane = lane.parent / forged_plan["plan_identity"][7:]
+            shutil.copytree(lane, forged_lane)
+            forged_metadata = json.loads((forged_lane / "lane.json").read_text())
+            forged_metadata["plan"] = forged_plan
+            (forged_lane / "lane.json").write_bytes(
+                shadow_module._json_bytes(forged_metadata)
+            )
+            status, refused = self.invoke_pr_status(forged_plan["plan_identity"])
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
+            shutil.rmtree(forged_lane)
             if os.name != "nt":
                 foreign_link = lane / "remote.git" / "foreign-link"
                 foreign_link.symlink_to(self.upstream / "README.md")
@@ -449,6 +465,10 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertEqual(status, 2)
             self.assertEqual(refused["error"]["code"], "shadow.pr_lane_invalid")
             bundle.write_bytes(original_bundle)
+            self.assertEqual(_git(shadow, "rev-parse", "HEAD"), shadow_commit)
+            self.assertEqual(
+                _git(self.upstream, "status", "--porcelain=v1"), upstream_before
+            )
             _git(self.upstream, "checkout", "-q", "main")
             (self.upstream / "README.md").write_text("later\n", encoding="utf-8")
             _git(self.upstream, "commit", "-qam", "later")
@@ -456,6 +476,16 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertEqual(status, 0, stale)
             self.assertTrue(stale["result"]["shadow_snapshot_current"])
             self.assertFalse(stale["result"]["shadow_upstream_current"])
+            status, sync_plan = self.invoke_sync()
+            self.assertEqual(status, 0, sync_plan)
+            status, advanced = self.invoke_sync_apply(
+                sync_plan["result"]["plan_identity"], "--acknowledge"
+            )
+            self.assertEqual(status, 0, advanced)
+            status, historical = self.invoke_pr_status(pr_plan["plan_identity"])
+            self.assertEqual(status, 0, historical)
+            self.assertFalse(historical["result"]["shadow_snapshot_current"])
+            self.assertEqual(historical["result"]["qualification"], "unqualified")
         lane = Path(captured["result"]["lane"])
         self.assertTrue(lane.is_relative_to(shadow / ".git"))
         self.assertEqual(captured["result"]["qualification"], "unqualified")
@@ -463,7 +493,9 @@ class ShadowPlanCliTests(unittest.TestCase):
             _git(lane / "remote.git", "rev-parse", "refs/pull/17/head"),
             self.feature_commit,
         )
-        self.assertEqual(_git(shadow, "rev-parse", "HEAD"), shadow_commit)
+        self.assertEqual(
+            _git(shadow, "rev-parse", "HEAD"), advanced["result"]["shadow_commit"]
+        )
         self.assertEqual(_git(shadow, "status", "--porcelain=v1"), "")
         self.assertEqual(
             _git(self.upstream, "status", "--porcelain=v1"), upstream_before
