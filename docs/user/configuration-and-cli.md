@@ -41,6 +41,9 @@ litai shadow pr-plan
 litai shadow pr-capture
 litai shadow pr-status
 litai shadow pr-operations
+litai shadow pr-source-plan
+litai shadow pr-source-stage
+litai shadow pr-source-status
 litai shadow status
 litai shadow sync plan
 litai shadow sync apply
