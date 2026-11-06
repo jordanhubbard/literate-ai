@@ -161,6 +161,7 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai learn
     litai design refine | explain | accept
     litai shadow plan | create | pr-plan | pr-capture | pr-status | status
+    litai shadow pr-operations
     litai shadow sync plan | apply
 
   Operator
@@ -253,6 +254,7 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             create_shadow,
             plan_shadow,
             plan_shadow_pr,
+            plan_shadow_pr_operations,
             plan_shadow_sync,
             status_shadow,
             status_shadow_pr,
@@ -264,6 +266,8 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return capture_shadow_pr(args), 0
         if args.shadow_command == "pr-status":
             return status_shadow_pr(args), 0
+        if args.shadow_command == "pr-operations":
+            return plan_shadow_pr_operations(args), 0
         if args.shadow_command == "create":
             return create_shadow(args), 0
         if args.shadow_command == "status":

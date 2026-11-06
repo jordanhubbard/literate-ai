@@ -40,6 +40,7 @@ litai shadow create
 litai shadow pr-plan
 litai shadow pr-capture
 litai shadow pr-status
+litai shadow pr-operations
 litai shadow status
 litai shadow sync plan
 litai shadow sync apply
@@ -243,6 +244,19 @@ branch and source bundle it was captured against, then reports whether that
 snapshot is still current. It works after the upstream PR
 closes because it does not query the current PR. It does not run source or claim
 qualification; current PR state must be checked separately before evaluation.
+`litai shadow pr-operations --shadow PATH --plan-identity SHA256 --manifest FILE`
+reads a versioned `literate-ai/shadow-operation-declarations@1` JSON document
+whose `pr_plan_identity` equals the captured PR plan. Its `operations` array names each operation's
+unique `id`, `kind` (`build`, `test`, `execute`, `accept`, `package`, or `other`),
+`argv`, `cwd`, `source_inputs`, `dependency_inputs`, `tool_requirements`,
+`outputs`, proposed `acceptance_oracle`, and proposed `shadow_stage`. Only
+`retained-harness` is recognized as a candidate stage today, and its projection
+is not yet available. The
+read-only result binds declared input paths to exact PR-head Git objects and
+reports missing inputs, links, unsupported stages, and unproven projection,
+worker, execution and acceptance as gaps. It also reports stale shadow
+snapshots and that current forge PR state has not been rechecked. A declaration is not evidence that
+the upstream command ran or that its proposed oracle is independent.
 `litai shadow create` repeats the creation plan inputs and requires both
 `--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
 bounded Git bundle of their exact history in a new Git repository, and records a

@@ -33967,3 +33967,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   closed, checks the captured shadow commit against the historical branch and
   source bundle, and reports whether its bound snapshot remains current.
   It does not treat historical source custody as current PR qualification.
+  A read-only `shadow pr-operations` plan now binds an operator-declared command,
+  source/dependency paths and proposed stage to exact Git objects in the
+  captured PR head. Missing or linked inputs, unsupported stages, and unproven
+  projection, worker, execution and acceptance remain explicit gaps. No mapped
+  operation has run or qualified yet.

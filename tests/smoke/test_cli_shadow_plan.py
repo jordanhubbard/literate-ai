@@ -159,6 +159,29 @@ class ShadowPlanCliTests(unittest.TestCase):
             stdout.getvalue() if status == 0 else stderr.getvalue()
         )
 
+    def invoke_pr_operations(
+        self, identity: str, manifest: Path
+    ) -> tuple[int, dict[str, object]]:
+        stdout, stderr = StringIO(), StringIO()
+        status = main(
+            (
+                "--json",
+                "shadow",
+                "pr-operations",
+                "--shadow",
+                str(self.root / "shadow"),
+                "--plan-identity",
+                identity,
+                "--manifest",
+                str(manifest),
+            ),
+            stdout=stdout,
+            stderr=stderr,
+        )
+        return status, json.loads(
+            stdout.getvalue() if status == 0 else stderr.getvalue()
+        )
+
     def pr_response(self) -> dict[str, object]:
         return {
             "id": 1717,
@@ -428,6 +451,81 @@ class ShadowPlanCliTests(unittest.TestCase):
             )
             self.assertTrue(reopened["result"]["shadow_snapshot_current"])
             self.assertEqual(reopened["result"]["qualification"], "unqualified")
+            operation_manifest = self.root / "operations.json"
+            declaration = {
+                "schema": "literate-ai/shadow-operation-declarations@1",
+                "pr_plan_identity": pr_plan["plan_identity"],
+                "operations": [
+                    {
+                        "id": "build",
+                        "kind": "build",
+                        "argv": ["make", "build"],
+                        "cwd": ".",
+                        "source_inputs": ["README.md"],
+                        "dependency_inputs": [],
+                        "tool_requirements": ["make"],
+                        "outputs": ["build/application"],
+                        "acceptance_oracle": "exit-zero",
+                        "shadow_stage": "retained-harness",
+                    }
+                ],
+            }
+            operation_manifest.write_text(json.dumps(declaration))
+            status, operations = self.invoke_pr_operations(
+                pr_plan["plan_identity"], operation_manifest
+            )
+            self.assertEqual(status, 0, operations)
+            self.assertEqual(
+                operations["result"]["shadow_commit"], pr_plan["shadow_commit"]
+            )
+            self.assertEqual(
+                operations["result"]["source_bundle_identity"],
+                pr_plan["source_bundle_identity"],
+            )
+            self.assertEqual(
+                operations["result"]["pull_request"]["base_commit"],
+                self.main_commit,
+            )
+            mapped = operations["result"]["operations"][0]
+            self.assertEqual(
+                mapped["inputs"]["source_inputs"][0]["object"],
+                _git(self.upstream, "rev-parse", f"{self.feature_commit}:README.md"),
+            )
+            self.assertIn("retained-projection-unavailable", mapped["gaps"])
+            self.assertIn("current-pr-unverified", mapped["gaps"])
+            self.assertEqual(operations["result"]["qualification"], "unqualified")
+            declaration["operations"][0]["source_inputs"] = ["missing.txt"]
+            declaration["operations"][0]["shadow_stage"] = "unsupported-stage"
+            operation_manifest.write_text(json.dumps(declaration))
+            status, gaps = self.invoke_pr_operations(
+                pr_plan["plan_identity"], operation_manifest
+            )
+            self.assertEqual(status, 0, gaps)
+            self.assertNotEqual(
+                gaps["result"]["plan_identity"], operations["result"]["plan_identity"]
+            )
+            self.assertIn(
+                "input-missing-or-unsafe", gaps["result"]["operations"][0]["gaps"]
+            )
+            self.assertIn(
+                "shadow-stage-unsupported", gaps["result"]["operations"][0]["gaps"]
+            )
+            declaration["operations"][0]["source_inputs"] = ["../escape"]
+            operation_manifest.write_text(json.dumps(declaration))
+            status, refused = self.invoke_pr_operations(
+                pr_plan["plan_identity"], operation_manifest
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.operation_invalid")
+            declaration["operations"][0]["source_inputs"] = ["README.md"]
+            declaration["operations"].append(dict(declaration["operations"][0]))
+            operation_manifest.write_text(json.dumps(declaration))
+            status, refused = self.invoke_pr_operations(
+                pr_plan["plan_identity"], operation_manifest
+            )
+            self.assertEqual(status, 2)
+            self.assertEqual(refused["error"]["code"], "shadow.operation_invalid")
+            declaration["operations"].pop()
             lane = Path(captured["result"]["lane"])
             forged_plan = dict(pr_plan)
             forged_plan["shadow_commit"] = self.feature_commit
@@ -486,6 +584,16 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertEqual(status, 0, historical)
             self.assertFalse(historical["result"]["shadow_snapshot_current"])
             self.assertEqual(historical["result"]["qualification"], "unqualified")
+            declaration["operations"][0]["source_inputs"] = ["README.md"]
+            operation_manifest.write_text(json.dumps(declaration))
+            status, historical_operations = self.invoke_pr_operations(
+                pr_plan["plan_identity"], operation_manifest
+            )
+            self.assertEqual(status, 0, historical_operations)
+            self.assertIn(
+                "shadow-snapshot-stale",
+                historical_operations["result"]["operations"][0]["gaps"],
+            )
         lane = Path(captured["result"]["lane"])
         self.assertTrue(lane.is_relative_to(shadow / ".git"))
         self.assertEqual(captured["result"]["qualification"], "unqualified")

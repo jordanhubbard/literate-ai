@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import time
 from datetime import UTC, datetime
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from literate_ai._filesystem import stat_is_link_or_reparse
 from literate_ai.adapters.exclusive_directory import (
@@ -29,6 +29,8 @@ _MAX_BUNDLE_BYTES = 512 * 1024 * 1024
 _MAX_FETCH_BYTES = 512 * 1024 * 1024
 _MAX_FETCH_SECONDS = 600
 _MAX_JOURNAL_EVENTS = 64
+_MAX_OPERATIONS = 32
+_MAX_OPERATION_INPUTS = 256
 _HEX_COMMIT = re.compile(r"[0-9a-f]{40,64}\Z")
 _GITHUB_SSH = re.compile(
     r"git@github\.com:([A-Za-z0-9_.-]+)/([A-Za-z0-9_.-]+?)(?:\.git)?\Z"
@@ -567,6 +569,272 @@ def status_shadow_pr(args: argparse.Namespace) -> dict[str, object]:
         "qualification": "unqualified",
         "effect": "read-only; current PR state and execution were not checked",
     }
+
+
+def _operation_path(value: object, *, allow_root: bool = False) -> str:
+    if value == "." and allow_root:
+        return "."
+    if (
+        not isinstance(value, str)
+        or not value
+        or len(value) > 512
+        or value.startswith("-")
+        or "\\" in value
+        or any(ord(character) < 32 or ord(character) == 127 for character in value)
+    ):
+        raise CliFailure("shadow.operation_invalid", "Operation path is unsafe")
+    path = PurePosixPath(value)
+    if (
+        path.is_absolute()
+        or path.as_posix() != value
+        or any(part in {"", ".", ".."} for part in value.split("/"))
+    ):
+        raise CliFailure("shadow.operation_invalid", "Operation path is unsafe")
+    return value
+
+
+def _operation_input(repository: Path, commit: str, path: str) -> dict[str, str]:
+    observed = _git(
+        repository,
+        "--literal-pathspecs",
+        "ls-tree",
+        "-z",
+        "--full-tree",
+        commit,
+        "--",
+        path,
+    )
+    if not observed:
+        return {"path": path, "state": "missing"}
+    entry = observed.removesuffix("\x00")
+    header, separator, observed_path = entry.partition("\t")
+    fields = header.split(" ")
+    if (
+        not separator
+        or observed_path != path
+        or len(fields) != 3
+        or (fields[0], fields[1])
+        not in {
+            ("100644", "blob"),
+            ("100755", "blob"),
+            ("120000", "blob"),
+            ("040000", "tree"),
+            ("160000", "commit"),
+        }
+        or not re.fullmatch(r"[0-9a-f]{40,64}", fields[2])
+    ):
+        raise CliFailure("shadow.operation_invalid", "Git input inventory is invalid")
+    return {
+        "path": path,
+        "state": (
+            "link"
+            if fields[0] == "120000"
+            else "submodule"
+            if fields[0] == "160000"
+            else "bound"
+        ),
+        "mode": fields[0],
+        "object": fields[2],
+    }
+
+
+def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
+    """Bind declared upstream operations to captured PR objects without executing."""
+    lane_status = status_shadow_pr(args)
+    lane = Path(str(lane_status["lane"]))
+    try:
+        manifest_bytes = _bounded_file(Path(args.manifest).expanduser(), 64 * 1024)
+        manifest = json.loads(manifest_bytes)
+    except (CliFailure, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure(
+            "shadow.operation_invalid", "Operation declarations are unavailable"
+        ) from exc
+    operations = manifest.get("operations") if isinstance(manifest, dict) else None
+    if (
+        not isinstance(manifest, dict)
+        or set(manifest) != {"schema", "pr_plan_identity", "operations"}
+        or manifest.get("schema") != "literate-ai/shadow-operation-declarations@1"
+        or manifest.get("pr_plan_identity") != args.plan_identity
+        or not isinstance(operations, list)
+        or not 1 <= len(operations) <= _MAX_OPERATIONS
+    ):
+        raise CliFailure(
+            "shadow.operation_invalid", "Operation declarations are invalid"
+        )
+    repository = lane / "remote.git"
+    lane_metadata = _bounded_file(lane / "lane.json", 64 * 1024)
+    try:
+        captured_plan = json.loads(lane_metadata)["plan"]
+    except (KeyError, TypeError, UnicodeError, json.JSONDecodeError) as exc:
+        raise CliFailure("shadow.operation_invalid", "PR lane plan changed") from exc
+    if (
+        not isinstance(captured_plan, dict)
+        or captured_plan.get("plan_identity") != args.plan_identity
+    ):
+        raise CliFailure("shadow.operation_invalid", "PR lane plan changed")
+    head = lane_status["pull_request"]["head_commit"]
+    currentness_gaps = ["current-pr-unverified"]
+    if not lane_status["shadow_snapshot_current"]:
+        currentness_gaps.append("shadow-snapshot-stale")
+    if not lane_status["shadow_upstream_current"]:
+        currentness_gaps.append("shadow-upstream-stale-or-unknown")
+    planned: list[dict[str, object]] = []
+    names: set[str] = set()
+    input_count = 0
+    for operation in operations:
+        if not isinstance(operation, dict) or set(operation) != {
+            "id",
+            "kind",
+            "argv",
+            "cwd",
+            "source_inputs",
+            "dependency_inputs",
+            "tool_requirements",
+            "outputs",
+            "acceptance_oracle",
+            "shadow_stage",
+        }:
+            raise CliFailure("shadow.operation_invalid", "Operation fields are invalid")
+        name = operation["id"]
+        if (
+            not isinstance(name, str)
+            or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", name)
+            or name in names
+            or not isinstance(operation["kind"], str)
+            or operation["kind"]
+            not in {"build", "test", "execute", "accept", "package", "other"}
+        ):
+            raise CliFailure(
+                "shadow.operation_invalid", "Operation identity is invalid"
+            )
+        names.add(name)
+        argv = operation["argv"]
+        if (
+            not isinstance(argv, list)
+            or not 1 <= len(argv) <= 128
+            or any(
+                not isinstance(part, str)
+                or not part
+                or len(part) > 1024
+                or "\x00" in part
+                for part in argv
+            )
+        ):
+            raise CliFailure("shadow.operation_invalid", "Operation command is invalid")
+        cwd = _operation_path(operation["cwd"], allow_root=True)
+        cwd_input = (
+            {
+                "path": ".",
+                "state": "bound",
+                "mode": "040000",
+                "object": _git(repository, "rev-parse", f"{head}^{{tree}}"),
+            }
+            if cwd == "."
+            else _operation_input(repository, head, cwd)
+        )
+        inputs: dict[str, list[dict[str, str]]] = {}
+        for field in ("source_inputs", "dependency_inputs"):
+            values = operation[field]
+            if not isinstance(values, list) or len(values) > 128:
+                raise CliFailure(
+                    "shadow.operation_invalid", "Operation inputs are unbounded"
+                )
+            input_count += len(values)
+            if input_count > _MAX_OPERATION_INPUTS:
+                raise CliFailure(
+                    "shadow.operation_invalid", "Operation input total is unbounded"
+                )
+            paths = [_operation_path(value) for value in values]
+            if len(set(paths)) != len(paths):
+                raise CliFailure(
+                    "shadow.operation_invalid", "Operation input is repeated"
+                )
+            inputs[field] = [_operation_input(repository, head, path) for path in paths]
+        for field in ("tool_requirements", "outputs"):
+            values = operation[field]
+            if not isinstance(values, list) or len(values) > 128:
+                raise CliFailure(
+                    "shadow.operation_invalid", "Operation declaration is unbounded"
+                )
+            if field == "outputs":
+                for value in values:
+                    _operation_path(value)
+            elif any(
+                not isinstance(value, str)
+                or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.+-]{0,63}", value)
+                for value in values
+            ):
+                raise CliFailure(
+                    "shadow.operation_invalid", "Operation tool is invalid"
+                )
+            if len(set(values)) != len(values):
+                raise CliFailure(
+                    "shadow.operation_invalid", "Operation entry is repeated"
+                )
+        oracle = operation["acceptance_oracle"]
+        stage = operation["shadow_stage"]
+        if (
+            not isinstance(oracle, str)
+            or len(oracle) > 512
+            or any(ord(character) < 32 for character in oracle)
+            or not isinstance(stage, str)
+            or not re.fullmatch(r"[a-z][a-z0-9-]{0,63}", stage)
+        ):
+            raise CliFailure("shadow.operation_invalid", "Operation mapping is invalid")
+        gaps = list(currentness_gaps)
+        if cwd_input["state"] != "bound" or cwd_input.get("mode") != "040000":
+            gaps.append("working-directory-unbound")
+        if not inputs["source_inputs"]:
+            gaps.append("source-inputs-unbound")
+        if any(item["state"] != "bound" for group in inputs.values() for item in group):
+            gaps.append("input-missing-or-unsafe")
+        if not operation["tool_requirements"]:
+            gaps.append("tool-requirements-unbound")
+        if not operation["outputs"]:
+            gaps.append("outputs-unbound")
+        if not oracle:
+            gaps.append("acceptance-oracle-unbound")
+        if stage != "retained-harness":
+            gaps.append("shadow-stage-unsupported")
+        else:
+            gaps.append("retained-projection-unavailable")
+        gaps.append("tool-and-worker-capability-unverified")
+        gaps.append("isolated-execution-and-acceptance-unproven")
+        planned.append(
+            {
+                "id": name,
+                "kind": operation["kind"],
+                "argv": argv,
+                "cwd": cwd_input,
+                "inputs": inputs,
+                "tool_requirements": operation["tool_requirements"],
+                "outputs": operation["outputs"],
+                "acceptance_oracle": oracle,
+                "shadow_stage": stage,
+                "gaps": gaps,
+            }
+        )
+    if (
+        _bounded_file(lane / "lane.json", 64 * 1024) != lane_metadata
+        or status_shadow_pr(args) != lane_status
+    ):
+        raise CliFailure("shadow.operation_invalid", "PR lane changed during planning")
+    return _plan_identity(
+        {
+            "schema": "literate-ai/shadow-pr-operation-plan@1",
+            "pr_plan_identity": args.plan_identity,
+            "shadow_commit": captured_plan["shadow_commit"],
+            "source_bundle_identity": captured_plan["source_bundle_identity"],
+            "pull_request": lane_status["pull_request"],
+            "head_commit": head,
+            "shadow_snapshot_current": lane_status["shadow_snapshot_current"],
+            "shadow_upstream_current": lane_status["shadow_upstream_current"],
+            "manifest_identity": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
+            "operations": planned,
+            "qualification": "unqualified",
+            "effect": "read-only; no source was executed or operation admitted",
+        }
+    )
 
 
 def _json_bytes(value: object) -> bytes:
@@ -1696,6 +1964,12 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     )
     pr_status.add_argument("--shadow", required=True)
     pr_status.add_argument("--plan-identity", required=True, metavar="SHA256")
+    pr_operations = actions.add_parser(
+        "pr-operations", help="bind declared PR operations and report execution gaps"
+    )
+    pr_operations.add_argument("--shadow", required=True)
+    pr_operations.add_argument("--plan-identity", required=True, metavar="SHA256")
+    pr_operations.add_argument("--manifest", required=True)
 
 
 __all__ = [
@@ -1705,6 +1979,7 @@ __all__ = [
     "create_shadow",
     "plan_shadow",
     "plan_shadow_pr",
+    "plan_shadow_pr_operations",
     "plan_shadow_sync",
     "status_shadow_pr",
     "status_shadow",
