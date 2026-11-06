@@ -33978,11 +33978,11 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** The generated SKILL.md currently starts at `litai doctor`; the existing framework getting-started guide explains installation but is not reachable before that command. Add a small provider-neutral bootstrap route to the generated entry points and carry it through initialization, adoption and update without silently changing an installed runtime or Standard binding.
 - **Depends on:** none
 - **Completion prerequisites:** none
-- **Next action:** Add a generated bootstrap document and link it before the first LitAI command; verify missing and incompatible CLI paths on POSIX and native Windows.
+- **Next action:** Complete independent source review and exact-head CI for the current integration commit, then land and verify the generated route before closing #332.
 - **Implementation:**
-  - [ ] Route generated agent entry points to bootstrap before invoking LitAI, while preserving custom downstream instructions.
-  - [ ] Provide an isolated installation and current-runtime check that reads the project's pinned framework identity without LitAI and reports unavailable wheel, checksum and access failures clearly.
+  - [x] Route generated agent entry points to bootstrap before invoking LitAI, while preserving custom downstream instructions. PR #333 at `1ec47f356` adds the route to generated SKILL.md and starter documentation; installed initialization and adoption retain authored AGENTS.md bytes.
+  - [x] Provide an isolated installation and current-runtime check that reads the project's pinned framework identity without LitAI and reports unavailable wheel, checksum and access failures clearly. The standard-library script checks the manifest pin and selected runtime without mutating either and verifies an explicitly supplied wheel SHA-256 before installation.
 - **Evidence:**
-  - [ ] Installed generated-project journeys cover missing CLI and incompatible existing runtime on POSIX and native Windows without mutating project pins.
-  - [ ] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions.
+  - [x] Installed generated-project journeys cover missing CLI and incompatible existing runtime on POSIX and native Windows without mutating project pins. The exact-head `1ec47f356` Linux ARM64 wheel check and full-platform run 42206249606 report route, ready, missing and forged-pin incompatible states; the Windows installed-wheel log reports all four true and verifies unchanged manifest and AGENTS.md bytes.
+  - [x] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions. Focused generated-project and update tests pass at `1ec47f356`, with the installed-wheel adoption check preserving the original AGENTS.md.
   - [ ] Independent review, exact-head CI and noneditable installed distribution checks pass before closure.
