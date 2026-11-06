@@ -33936,7 +33936,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Completion prerequisites:** none
 - **Next action:** Map supported upstream operations into isolated PR attempt workspaces using the captured exact base/head bundle. Before running untrusted upstream source, establish the production containment and authenticated execution evidence required by [SEC-360](#sec-360-establish-production-containment) and ADR 0063; source custody and planning alone remain unqualified. Repair export and outcome reconciliation remain unchecked slices of this same goal.
 - **Implementation:**
-  - [ ] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal.
+  - [x] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal. Real-Git controls cover local and remote advances, explicit addition, stale plans, force-push refusal, idempotence and interrupted publication resume.
   - [ ] Map supported upstream operations into isolated lifecycle attempts and report unsupported or unbound operations as explicit gaps.
   - [ ] Prove causal failures, test targeted repairs in shadow lanes, export into fresh upstream layout and rerun actual upstream gates.
   - [ ] Reconcile accepted and rejected upstream outcomes without duplicate repair or lost rationale; expose read-only current status.
@@ -33951,9 +33951,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
   publication starts from an absent destination; replay after publication
   verifies the committed custody and returns the same result. A competing
   destination is preserved and refused. The 31 managed real-Git shadow CLI
-  controls pass locally at draft head `bc0c8720a`. Mapped lifecycle execution,
-  repair export, reconciliation, exact-head platform gates and independent
-  review remain open.
+  controls pass locally at draft head `bc0c8720a`. At that early slice, mapped
+  lifecycle execution, repair export, reconciliation, platform gates and
+  independent review were open.
   The acknowledged `shadow pr-capture` path now fetches a current GitHub PR's
   base and head into a separate bare Git lane, verifies exact refs and a complete
   history bundle, and publishes that unqualified source custody exclusively
@@ -33979,7 +33979,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   At `bc0c8720a`, the exact-head noneditable Linux ARM64/Python 3.12 wheel
   check passed with wheel `sha256:e7a7bdd390d47c0708ee92510ce29cd3a0395eb840139d1cbf33b566c000b875`
   and installed distribution `sha256:83e6c13ebe92bc60a135ad407d3b45465cd6a8013ebd56dfdcad4d150d91ab68`.
-  Full-platform CI is still active. A fixture that previously failed on
-  case-insensitive macOS now constructs the colliding names in a real Git tree;
-  the hosted macOS result remains pending. No source execution, independent
+  Exact-head PR smoke run `42245364231` and full-platform run `42245409230`
+  completed successfully at `0ffcbf2c5` (11 and 27 passing jobs respectively,
+  no failures). The macOS case-collision fixture passed as part of the latter.
+  No source execution, independent
   acceptance, repair export or outcome reconciliation has been admitted.
