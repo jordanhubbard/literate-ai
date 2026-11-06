@@ -674,6 +674,34 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
         raise CliFailure("shadow.operation_invalid", "PR lane plan changed")
     head = lane_status["pull_request"]["head_commit"]
     currentness_gaps = ["current-pr-unverified"]
+    current_pr_current: bool | None = None
+    if args.check_forge:
+        try:
+            live = plan_shadow_pr(
+                argparse.Namespace(
+                    shadow=args.shadow,
+                    upstream=None,
+                    number=captured_plan["pull_request"]["number"],
+                )
+            )
+        except CliFailure as exc:
+            currentness_gaps = [
+                "current-pr-unavailable"
+                if exc.code == "shadow.forge_unavailable"
+                else "current-pr-stale-or-invalid"
+            ]
+        else:
+            captured_pr = dict(captured_plan["pull_request"])
+            live_pr = dict(live["pull_request"])
+            captured_pr.pop("head_object_available", None)
+            live_pr.pop("head_object_available", None)
+            current_pr_current = (
+                captured_pr == live_pr
+                and captured_plan["shadow_commit"] == live["shadow_commit"]
+                and captured_plan["source_bundle_identity"]
+                == live["source_bundle_identity"]
+            )
+            currentness_gaps = [] if current_pr_current else ["current-pr-changed"]
     if not lane_status["shadow_snapshot_current"]:
         currentness_gaps.append("shadow-snapshot-stale")
     if not lane_status["shadow_upstream_current"]:
@@ -829,6 +857,7 @@ def plan_shadow_pr_operations(args: argparse.Namespace) -> dict[str, object]:
             "head_commit": head,
             "shadow_snapshot_current": lane_status["shadow_snapshot_current"],
             "shadow_upstream_current": lane_status["shadow_upstream_current"],
+            "current_pr_current": current_pr_current,
             "manifest_identity": "sha256:" + hashlib.sha256(manifest_bytes).hexdigest(),
             "operations": planned,
             "qualification": "unqualified",
@@ -1970,6 +1999,11 @@ def add_shadow_parser(commands: argparse._SubParsersAction) -> None:
     pr_operations.add_argument("--shadow", required=True)
     pr_operations.add_argument("--plan-identity", required=True, metavar="SHA256")
     pr_operations.add_argument("--manifest", required=True)
+    pr_operations.add_argument(
+        "--check-forge",
+        action="store_true",
+        help="recheck the live PR and remote target branch during planning",
+    )
 
 
 __all__ = [

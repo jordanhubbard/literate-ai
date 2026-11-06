@@ -160,7 +160,7 @@ class ShadowPlanCliTests(unittest.TestCase):
         )
 
     def invoke_pr_operations(
-        self, identity: str, manifest: Path
+        self, identity: str, manifest: Path, *extra: str
     ) -> tuple[int, dict[str, object]]:
         stdout, stderr = StringIO(), StringIO()
         status = main(
@@ -174,6 +174,7 @@ class ShadowPlanCliTests(unittest.TestCase):
                 identity,
                 "--manifest",
                 str(manifest),
+                *extra,
             ),
             stdout=stdout,
             stderr=stderr,
@@ -494,6 +495,41 @@ class ShadowPlanCliTests(unittest.TestCase):
             self.assertIn("retained-projection-unavailable", mapped["gaps"])
             self.assertIn("current-pr-unverified", mapped["gaps"])
             self.assertEqual(operations["result"]["qualification"], "unqualified")
+            with patch(
+                "literate_ai.cli.shadow._github_pr", return_value=self.pr_response()
+            ):
+                status, checked = self.invoke_pr_operations(
+                    pr_plan["plan_identity"], operation_manifest, "--check-forge"
+                )
+            self.assertEqual(status, 0, checked)
+            self.assertTrue(checked["result"]["current_pr_current"])
+            self.assertNotIn(
+                "current-pr-unverified", checked["result"]["operations"][0]["gaps"]
+            )
+            drifted_pr = self.pr_response()
+            drifted_pr["head"]["sha"] = self.main_commit
+            with patch("literate_ai.cli.shadow._github_pr", return_value=drifted_pr):
+                status, drifted = self.invoke_pr_operations(
+                    pr_plan["plan_identity"], operation_manifest, "--check-forge"
+                )
+            self.assertEqual(status, 0, drifted)
+            self.assertFalse(drifted["result"]["current_pr_current"])
+            self.assertIn(
+                "current-pr-changed", drifted["result"]["operations"][0]["gaps"]
+            )
+            with patch(
+                "literate_ai.cli.shadow._github_pr",
+                side_effect=CliFailure("shadow.forge_unavailable", "forge unavailable"),
+            ):
+                status, unavailable = self.invoke_pr_operations(
+                    pr_plan["plan_identity"], operation_manifest, "--check-forge"
+                )
+            self.assertEqual(status, 0, unavailable)
+            self.assertIsNone(unavailable["result"]["current_pr_current"])
+            self.assertIn(
+                "current-pr-unavailable",
+                unavailable["result"]["operations"][0]["gaps"],
+            )
             declaration["operations"][0]["source_inputs"] = ["missing.txt"]
             declaration["operations"][0]["shadow_stage"] = "unsupported-stage"
             operation_manifest.write_text(json.dumps(declaration))

@@ -257,6 +257,11 @@ reports missing inputs, links, unsupported stages, and unproven projection,
 worker, execution and acceptance as gaps. It also reports stale shadow
 snapshots and that current forge PR state has not been rechecked. A declaration is not evidence that
 the upstream command ran or that its proposed oracle is independent.
+Add `--check-forge` to recheck the live PR and remote target branch in the
+read-only plan. The result reports `current_pr_current` as true only when the
+captured PR identity, base, head, shadow snapshot and source bundle still
+match. A changed or unavailable PR becomes an explicit gap; it never qualifies
+the operation or runs source.
 `litai shadow create` repeats the creation plan inputs and requires both
 `--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
 bounded Git bundle of their exact history in a new Git repository, and records a
