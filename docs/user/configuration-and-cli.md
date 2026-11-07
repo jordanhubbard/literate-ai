@@ -35,6 +35,18 @@ litai update
 litai reparent
 litai catalog copy
 litai flavor add
+litai shadow plan
+litai shadow create
+litai shadow pr-plan
+litai shadow pr-capture
+litai shadow pr-status
+litai shadow pr-operations
+litai shadow pr-source-plan
+litai shadow pr-source-stage
+litai shadow pr-source-status
+litai shadow status
+litai shadow sync plan
+litai shadow sync apply
 
 # Dev workflow
 litai verify
@@ -207,6 +219,104 @@ litai spec diff
 multi-entrypoint Component. Without `--entrypoint`, the first declared entrypoint is
 the stable default. Single-entrypoint Components keep the original `litai run
 COMPONENT` form and reject a named selector.
+
+`litai shadow plan --upstream PATH --shadow PATH [--branch NAME]` inspects a local
+Git repository without fetching or writing. It defaults to `main` only when that
+local branch exists, binds each selected branch to its exact commit, and reports
+a deterministic plan identity and GitHub origin. The destination must be a new,
+separate path. The command does not create or qualify a shadow repository; see
+[ADR 0063](../decisions/0063-continuous-upstream-shadow-qualification.md) for
+the remaining creation, synchronization, qualification, and repair contract.
+`litai shadow pr-plan --upstream PATH --number N` reads the current GitHub PR
+identity and refuses a local target branch whose commit differs from the PR base.
+It reports whether the candidate head object is available locally, without
+fetching it or creating an evaluation lane.
+Git and forge inspections enforce live stdout/stderr byte limits before decoding,
+with finite deadlines and owned process-tree cleanup. A multibyte Git response
+cannot exceed its declared byte budget by fitting a character count. Source blob,
+inventory and recovery reads use the same bounded owner. Fetch and bundle byte
+refusals retire descendants before releasing the attempt; local Git replacement
+refs cannot substitute the recorded Git objects.
+Use `--shadow PATH` in place of `--upstream PATH` to bind the plan to a created
+shadow's exact commit and source bundle. This form requires the PR target branch
+to be selected in the shadow and equal the current remote PR base.
+`litai shadow pr-capture --shadow PATH --number N --expect-plan SHA256
+--acknowledge` rechecks that shadow-bound plan, fetches the exact remote base and
+GitHub PR head into a separate bare Git lane, verifies both commits and a bounded
+complete-history bundle, then publishes the lane exclusively under the shadow's
+Git metadata. Repeating the same capture verifies and returns its existing lane.
+The upstream checkout and shadow commit stay unchanged. The captured lane is
+unqualified source custody; it creates no executable workspace or acceptance.
+`litai shadow pr-status --shadow PATH --plan-identity SHA256` reopens a saved
+lane, verifies its metadata, bundle, refs and the historical shadow commit,
+branch and source bundle it was captured against, then reports whether that
+snapshot is still current. It works after the upstream PR
+closes because it does not query the current PR. It does not run source or claim
+qualification; current PR state must be checked separately before evaluation.
+`litai shadow pr-operations --shadow PATH --plan-identity SHA256 --manifest FILE`
+reads a versioned `literate-ai/shadow-operation-declarations@1` JSON document
+whose `pr_plan_identity` equals the captured PR plan. Its `operations` array names each operation's
+unique `id`, `kind` (`build`, `test`, `execute`, `accept`, `package`, or `other`),
+`argv`, `cwd`, `source_inputs`, `dependency_inputs`, `tool_requirements`,
+`outputs`, proposed `acceptance_oracle`, and proposed `shadow_stage`. Only
+`retained-harness` is recognized as a candidate stage today, and its projection
+is not yet available. The
+read-only result binds declared input paths to exact PR-head Git objects and
+reports missing inputs, links, unsupported stages, and unproven projection,
+worker, execution and acceptance as gaps. It also reports stale shadow
+snapshots and that current forge PR state has not been rechecked. A declaration is not evidence that
+the upstream command ran or that its proposed oracle is independent.
+Add `--check-forge` to recheck the live PR and remote target branch in the
+read-only plan. The result reports `current_pr_current` as true only when the
+captured PR identity, base, head, shadow snapshot and source bundle still
+match. A changed or unavailable PR becomes an explicit gap; it never qualifies
+the operation or runs source.
+Add `--source-stage PATH` to rehash a previously staged exact PR head and bind
+its destination, source plan and Git inventory to the operation plan. Changed
+stage contents are refused. This binds source custody only; the projection,
+worker, execution and acceptance gaps remain.
+`litai shadow pr-source-plan --shadow PATH --plan-identity SHA256 --destination PATH`
+rechecks the live PR and remote target branch, then inventories the captured
+PR head's exact regular Git blobs. It refuses links, submodules, unsafe or
+colliding paths, and source trees beyond the file and byte limits. The plan
+binds the destination, tree, inventory and source custody without writing.
+`litai shadow pr-source-stage` takes the same selectors plus `--expect-plan`
+and `--acknowledge`, repeats those checks, writes exact blobs into a separate
+staging directory, and publishes it exclusively with `stage.json` provenance.
+On POSIX, it retains Git executable intent as owner-only file permissions;
+the read-only status check refuses permission drift as well as byte drift.
+The stage is unqualified source custody. It does not execute the upstream code,
+provide filesystem or network isolation for a future run, or supply a retained
+harness projection or acceptance result. `litai shadow pr-source-status` reopens
+the stage read-only, rechecks its provenance against the captured Git lane, and
+rehashes every staged file while refusing links and foreign entries. It reports
+historical snapshot currentness without treating saved metadata as authority.
+`litai shadow create` repeats the creation plan inputs and requires both
+`--expect-plan SHA256` and `--acknowledge`. It rechecks the selected refs, saves a
+bounded Git bundle of their exact history in a new Git repository, and records a
+versioned registry and creation journal. The new repository is explicitly
+unqualified; synchronization and mapped lifecycle execution remain separate work.
+`litai shadow status --shadow PATH` verifies the committed registry, journal,
+bundle digest and heads, then compares selected refs and forge identity with the
+local upstream checkout and queries the selected remote refs without fetching.
+It reports local and remote currentness separately, treats an unavailable remote
+as unknown, and never turns saved state into qualification or writes either tree.
+`litai shadow sync plan --shadow PATH [--add-branch NAME]` checks the current
+selected refs against the saved commits and requires each existing branch to
+advance by ancestry. A newly selected branch must be named explicitly. It binds
+the shadow commit and source bundle identity to a read-only plan. `--remote`
+binds current remote branch SHAs without fetching them; without it, the plan
+uses selected local refs and remains a local custody operation.
+`litai shadow sync apply --shadow PATH --expect-plan SHA256 --acknowledge`
+revalidates the plan, captures the selected local refs in a bounded Git bundle,
+and publishes a new shadow commit through an exact old-head compare-and-swap.
+It records the branch set and bundle in the append-only journal. Repeating a
+completed plan preserves its result; `--resume` finishes an interrupted ref or
+working-tree update only when the pending plan and old files still match.
+With `--remote`, apply fetches selected refs into isolated temporary custody,
+verifies their planned SHAs and ancestry, then bundles that fetched state. It
+does not modify the upstream checkout. Executing mapped PR operations and
+admitting their evidence remain separate, still-open work.
 
 Recommended later combinable verbs (not implemented; do not treat as aliases
 today): `catalog graph` with `graph`; `project validate` with

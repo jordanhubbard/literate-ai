@@ -33930,6 +33930,10 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SHADOW-001 — Continuously qualify upstream branches through a separate shadow repository
 
+- **2026-11-07 finite inspection and transfer repair:** Git/forge planning used post-capture limits and Git counted decoded characters instead of UTF-8 bytes. Source inventory, binary blob and recovery readers also captured output before bounding it; fetch/bundle budget interruption killed only direct Git. Route every Git path through the canonical bounded process owner, preserve exact binary/empty bytes and prior finite transfer budgets, and retire descendants on budget refusal. Disable Git replacement-object substitution for custody reads. The actual replacement-ref counterexample fails against the original installed wheel and passes with the correction; 37 development controls include binary reads, genuine Git flows and a scripted transport whose live child listener must retire on fetch/bundle byte refusal. The scripted transport is not live network-failure qualification. Full successor qualification remains required.
+
+- **Frozen installed/forge evidence:** Exact source `d38fd24b9c89da0e712563080216fa4098149cc2` passes canonical noneditable wheel-check; retained wheel SHA-256 `66d61daab0470024cd0bba0cca713a8d4da8d55446a7d14c3a70b1252e21860d`. Those exact bytes pass all 34 prior controls without skips on Linux ARM64 and native macOS ARM64/Python 3.14.7. The installed public CLI creates a real two-branch shadow and idempotently captures/reopens actual GitHub PR #353 base `576296d4f` and head `45b0555cd`, preserving upstream state. Source staging correctly refuses that complete 282,927,142-byte repository against its unchanged 128 MiB budget; preserve the refusal and captured bundle. This qualifies frozen planning/custody paths only, does not relabel the process-custody successor, and does not qualify isolated execution, repair export or outcome reconciliation.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#311](https://github.com/jordanhubbard/literate-ai/issues/311)
@@ -33939,9 +33943,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** The directing user accepted ADR 0063; implement its exact upstream authority and evidence boundaries in 1.4.0 before claiming any shadow qualification.
 - **Depends on:** ADR 0063 accepted design
 - **Completion prerequisites:** none
-- **Next action:** Implement the versioned shadow registry and read-only branch/PR plan first, with exact Git and forge identities and a restart-safe synchronization transaction. Keep the mapped lifecycle, repair export and acceptance paths as later unchecked slices of this same goal.
+- **Next action:** Map supported upstream operations into isolated PR attempt workspaces using the captured exact base/head bundle. Before running untrusted upstream source, establish the production containment and authenticated execution evidence required by [SEC-360](#sec-360-establish-production-containment) and ADR 0063; source custody and planning alone remain unqualified. Repair export and outcome reconciliation remain unchecked slices of this same goal.
 - **Implementation:**
-  - [ ] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal.
+  - [x] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal. Real-Git controls cover local and remote advances, explicit addition, stale plans, force-push refusal, idempotence and interrupted publication resume.
   - [ ] Map supported upstream operations into isolated lifecycle attempts and report unsupported or unbound operations as explicit gaps.
   - [ ] Prove causal failures, test targeted repairs in shadow lanes, export into fresh upstream layout and rerun actual upstream gates.
   - [ ] Reconcile accepted and rejected upstream outcomes without duplicate repair or lost rationale; expose read-only current status.
@@ -33951,6 +33955,44 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Actual upstream-layout repair export/rebase and accepted merge-back plus rejected proposal retention pass without unearned admission.
   - [ ] Independent source review, full source and platform gates, and noneditable installed/native qualification pass at the exact head.
 
+  Draft PR #322 now stages initial creation as a complete separate Git repository
+  and publishes it through the exclusive directory primitive. Retrying before
+  publication starts from an absent destination; replay after publication
+  verifies the committed custody and returns the same result. A competing
+  destination is preserved and refused. The 31 managed real-Git shadow CLI
+  controls pass locally at draft head `bc0c8720a`. At that early slice, mapped
+  lifecycle execution, repair export, reconciliation, platform gates and
+  independent review were open.
+  The acknowledged `shadow pr-capture` path now fetches a current GitHub PR's
+  base and head into a separate bare Git lane, verifies exact refs and a complete
+  history bundle, and publishes that unqualified source custody exclusively
+  under shadow Git metadata. A real capture of PR #318 bound main `3350cc207`
+  and head `9a73a6809`, retained bundle `sha256:f4fd73ea83fd15eac2de30cfdd9610a6f984cebea4071cfd540e760b67bc9806`,
+  and replayed idempotently without changing either checkout. The actual main
+  bundle measured 295,015,169 bytes; the finite bundle cap is now 512 MiB and
+  the real remote fetch required more than the former 120-second deadline.
+  Mapped execution and independent qualification remain open.
+  The read-only `shadow pr-status` path now revalidates a saved PR lane's
+  metadata, exact bundle and Git refs after restart, even when the PR has
+  closed, checks the captured shadow commit against the historical branch and
+  source bundle, and reports whether its bound snapshot remains current.
+  It does not treat historical source custody as current PR qualification.
+  A read-only `shadow pr-operations` plan now binds an operator-declared command,
+  source/dependency paths and proposed stage to exact Git objects in the
+  captured PR head. Missing or linked inputs, unsupported stages, and unproven
+  projection, worker, execution and acceptance remain explicit gaps. No mapped
+  operation has run or qualified yet.
+  The PR source stage now preserves executable intent for regular Git blobs as
+  owner-only POSIX modes and refuses mode drift when reopened. This prepares
+  operation workspaces without claiming that any upstream command has run.
+  At `bc0c8720a`, the exact-head noneditable Linux ARM64/Python 3.12 wheel
+  check passed with wheel `sha256:e7a7bdd390d47c0708ee92510ce29cd3a0395eb840139d1cbf33b566c000b875`
+  and installed distribution `sha256:83e6c13ebe92bc60a135ad407d3b45465cd6a8013ebd56dfdcad4d150d91ab68`.
+  Exact-head PR smoke run `42245364231` and full-platform run `42245409230`
+  completed successfully at `0ffcbf2c5` (11 and 27 passing jobs respectively,
+  no failures). The macOS case-collision fixture passed as part of the latter.
+  No source execution, independent
+  acceptance, repair export or outcome reconciliation has been admitted.
 ### [ ] RELEASE-COLLATERAL-001 — Refresh all user-facing documentation and collateral for each release
 
 - **Priority:** P0

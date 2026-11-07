@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Shadow planning, source reads and recovery enforce live Git/forge byte limits. Fetch and bundle budget refusals retire the owned process tree, and local Git replacement refs cannot substitute custodied content (#311).
+
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,
   slides and linked assets must be refreshed and reviewed with the release source
