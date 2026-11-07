@@ -702,6 +702,8 @@ def plan_convert(
     )
     placement: dict[str, object] | None = None
     if selected_placement:
+        from .harness_inventory import HARNESS_WRAPPER_FILENAME
+
         selected_wrapper = (
             LEGACY_WRAPPER_COMPONENT if wrapper_component is None else wrapper_component
         )
@@ -719,13 +721,26 @@ def plan_convert(
                 "project.convert_layout_invalid",
                 "selected retained implementation or wrapper coordinate is invalid",
             ) from exc
+        # A selected layout must reserve the framework's actual output files
+        # before source custody changes.  A shared parent directory is fine;
+        # an original file at an owned coordinate is not.
+        reserved = {
+            selected.wrapper_component,
+            PROJECT_FILENAME,
+            ".literate",
+            HARNESS_WRAPPER_FILENAME,
+            REPOSITORY_PARENT_FILE,
+            REPOSITORY_LINEAGE_FILE,
+            *(_TEMPLATE_FILES),
+            *(_STARTER_DOCS),
+        }
         placement = {
             "wrapper_component": selected.wrapper_component,
             "implementation_directory": selected.implementation_directory,
-            "source_collisions": (
-                [selected.wrapper_component]
-                if original_source_occupies_coordinate(root, selected.wrapper_component)
-                else []
+            "source_collisions": sorted(
+                coordinate
+                for coordinate in reserved
+                if original_source_occupies_coordinate(root, coordinate)
             ),
         }
     inventory = inspect_harness(root)

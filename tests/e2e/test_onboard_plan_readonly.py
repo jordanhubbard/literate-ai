@@ -136,11 +136,11 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
                 "components/scheduler-wrapper",
             )
             self.assertEqual(status, 0, envelope)
-            self.assertEqual(
+            self.assertIn(
+                "components/scheduler-wrapper",
                 envelope["result"]["conversion"]["retained_placement"][
                     "source_collisions"
                 ],
-                ["components/scheduler-wrapper"],
             )
             self.assertIn(
                 {
@@ -149,6 +149,28 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
                 },
                 envelope["result"]["blockers"],
             )
+            self.assertEqual(self.snapshot(), before)
+
+    def test_selected_layout_reports_existing_framework_file_collisions(self):
+        (self.root / "AGENTS.md").write_text(
+            "Original instructions\n", encoding="utf-8"
+        )
+        (self.root / "docs").mkdir()
+        (self.root / "docs/README.md").write_text("Original guide\n", encoding="utf-8")
+        (self.root / ".literate").mkdir()
+        with chdir(self.root):
+            before = self.snapshot()
+            status, envelope = invoke(
+                "onboard", "adopt", ".", "--implementation-directory", "scheduler"
+            )
+            self.assertEqual(status, 0, envelope)
+            self.assertEqual(
+                envelope["result"]["conversion"]["retained_placement"][
+                    "source_collisions"
+                ],
+                [".literate", "AGENTS.md", "docs/README.md"],
+            )
+            self.assertFalse(envelope["result"]["apply_supported"])
             self.assertEqual(self.snapshot(), before)
 
     @unittest.skipUnless(
