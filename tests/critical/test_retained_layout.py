@@ -9,6 +9,8 @@ from pathlib import Path
 
 from literate_ai.adapters.retained_layout import (
     LEGACY_WRAPPER_COMPONENT,
+    RETAINED_LAYOUT_SCHEMA,
+    RetainedLayoutDeclaration,
     RetainedLayoutError,
     resolve_legacy_implementation,
     resolve_legacy_layout,
@@ -16,6 +18,71 @@ from literate_ai.adapters.retained_layout import (
 
 
 class RetainedLayoutTests(unittest.TestCase):
+    def test_declared_plain_and_root_layouts_keep_distinct_ownership(self) -> None:
+        plain = {
+            "schema": RETAINED_LAYOUT_SCHEMA,
+            "wrapper_component": "components/scheduler-wrapper",
+            "implementation_directory": "scheduler",
+            "framework_owned_paths": [],
+            "lineage": {"kind": "initial"},
+        }
+        declared = RetainedLayoutDeclaration.from_dict(plain)
+        self.assertEqual(declared.to_dict(), plain)
+        root = {
+            **plain,
+            "implementation_directory": ".",
+            "framework_owned_paths": [
+                ".literate/retained-layout.json",
+                "components/scheduler-wrapper/component.md",
+                "literate.project.json",
+            ],
+            "lineage": {
+                "kind": "relocation",
+                "previous_layout_identity": declared.identity,
+            },
+        }
+        relocated = RetainedLayoutDeclaration.from_dict(root)
+        self.assertEqual(relocated.previous_layout_identity, declared.identity)
+        self.assertEqual(relocated.to_dict(), root)
+        self.assertNotEqual(relocated.identity, declared.identity)
+
+    def test_declaration_refuses_aliases_and_ambiguous_ownership(self) -> None:
+        base = {
+            "schema": RETAINED_LAYOUT_SCHEMA,
+            "wrapper_component": "components/scheduler-wrapper",
+            "implementation_directory": ".",
+            "framework_owned_paths": [
+                ".literate/retained-layout.json",
+                "components/scheduler-wrapper/component.md",
+                "literate.project.json",
+            ],
+            "lineage": {"kind": "initial"},
+        }
+        variants = (
+            {**base, "wrapper_component": "components/CON"},
+            {**base, "wrapper_component": "components/scheduler-wrapper/child"},
+            {**base, "implementation_directory": "components"},
+            {**base, "implementation_directory": "components/scheduler-wrapper"},
+            {**base, "framework_owned_paths": base["framework_owned_paths"][:-1]},
+            {
+                **base,
+                "framework_owned_paths": [
+                    *base["framework_owned_paths"],
+                    "COMPONENTS/SCHEDULER-WRAPPER/component.md",
+                ],
+            },
+            {
+                **base,
+                "lineage": {
+                    "kind": "relocation",
+                    "previous_layout_identity": "bad",
+                },
+            },
+        )
+        for variant in variants:
+            with self.subTest(variant=variant), self.assertRaises(RetainedLayoutError):
+                RetainedLayoutDeclaration.from_dict(variant)
+
     def test_preserves_legacy_coordinate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

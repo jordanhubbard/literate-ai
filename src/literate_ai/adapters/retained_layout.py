@@ -12,7 +12,11 @@ from pathlib import Path
 from typing import Any
 
 from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
-from literate_ai.contracts.paths import canonical_relative_posix_path
+from literate_ai.contracts import ContentIdentity, canonical_identity
+from literate_ai.contracts.paths import (
+    canonical_relative_posix_path,
+    canonical_relative_posix_paths,
+)
 
 
 class RetainedLayoutError(ValueError):
@@ -20,6 +24,103 @@ class RetainedLayoutError(ValueError):
 
 
 LEGACY_WRAPPER_COMPONENT = "components/legacy-project-wrapper"
+RETAINED_LAYOUT_SCHEMA = "literate-ai/retained-layout@1"
+
+
+@dataclass(frozen=True, slots=True)
+class RetainedLayoutDeclaration:
+    """Validated layout intent; creation still requires an authorized transition."""
+
+    wrapper_component: str
+    implementation_directory: str
+    framework_owned_paths: tuple[str, ...]
+    previous_layout_identity: str | None
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> RetainedLayoutDeclaration:
+        if not isinstance(value, dict) or value.get("schema") != RETAINED_LAYOUT_SCHEMA:
+            raise RetainedLayoutError("retained layout schema is invalid")
+        if set(value) != {
+            "schema",
+            "wrapper_component",
+            "implementation_directory",
+            "framework_owned_paths",
+            "lineage",
+        }:
+            raise RetainedLayoutError(
+                "retained layout fields are incomplete or unknown"
+            )
+        wrapper = value["wrapper_component"]
+        implementation = value["implementation_directory"]
+        owned = value["framework_owned_paths"]
+        lineage = value["lineage"]
+        try:
+            wrapper_path = canonical_relative_posix_path(
+                wrapper, label="retained wrapper Component"
+            )
+            if len(wrapper_path.parts) != 2 or wrapper_path.parts[0] != "components":
+                raise ValueError("wrapper must be one Component under components/")
+            if implementation != ".":
+                implementation_path = canonical_relative_posix_path(
+                    implementation, label="retained implementation"
+                )
+                if implementation_path == wrapper_path or wrapper_path.is_relative_to(
+                    implementation_path
+                ):
+                    raise ValueError("implementation overlaps wrapper authority")
+            if not isinstance(owned, list) or not all(
+                isinstance(item, str) for item in owned
+            ):
+                raise TypeError("framework ownership must be a path list")
+            canonical_relative_posix_paths(owned, label="framework-owned path")
+            if owned != sorted(owned):
+                raise ValueError("framework ownership paths must be sorted")
+            if implementation == ".":
+                required = {
+                    ".literate/retained-layout.json",
+                    "literate.project.json",
+                    f"{wrapper}/component.md",
+                }
+                if not required.issubset(owned):
+                    raise ValueError("root ownership omits required framework files")
+            elif owned:
+                raise ValueError("explicit framework partition requires root placement")
+            if not isinstance(lineage, dict):
+                raise TypeError("layout lineage must be one object")
+            if lineage == {"kind": "initial"}:
+                previous = None
+            elif (
+                set(lineage) == {"kind", "previous_layout_identity"}
+                and lineage.get("kind") == "relocation"
+            ):
+                previous = ContentIdentity.parse_uri(
+                    lineage["previous_layout_identity"]
+                ).uri
+            else:
+                raise ValueError("layout lineage is invalid")
+        except (TypeError, ValueError) as exc:
+            raise RetainedLayoutError("retained layout declaration is invalid") from exc
+        return cls(wrapper, implementation, tuple(owned), previous)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema": RETAINED_LAYOUT_SCHEMA,
+            "wrapper_component": self.wrapper_component,
+            "implementation_directory": self.implementation_directory,
+            "framework_owned_paths": list(self.framework_owned_paths),
+            "lineage": (
+                {"kind": "initial"}
+                if self.previous_layout_identity is None
+                else {
+                    "kind": "relocation",
+                    "previous_layout_identity": self.previous_layout_identity,
+                }
+            ),
+        }
+
+    @property
+    def identity(self) -> str:
+        return canonical_identity(self.to_dict()).uri
 
 
 @dataclass(frozen=True, slots=True)
