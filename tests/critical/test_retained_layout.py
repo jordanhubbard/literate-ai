@@ -104,7 +104,7 @@ class RetainedLayoutTests(unittest.TestCase):
 
     def test_structural_resolution_checks_wrapper_role_and_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             (root / "scheduler").mkdir()
             document = {
                 "schema": RETAINED_LAYOUT_SCHEMA,
@@ -139,7 +139,7 @@ class RetainedLayoutTests(unittest.TestCase):
 
     def test_root_layout_requires_current_framework_file_partition(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             previous_identity = canonical_identity({"previous_layout": "scheduler"}).uri
             document = {
                 "schema": RETAINED_LAYOUT_SCHEMA,
@@ -201,7 +201,7 @@ class RetainedLayoutTests(unittest.TestCase):
 
     def test_direct_declaration_refuses_legacy_qualification(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             (root / ".literate").mkdir()
             (root / "scheduler").mkdir()
             self.assertIsNone(read_retained_layout_declaration(root))
@@ -226,7 +226,7 @@ class RetainedLayoutTests(unittest.TestCase):
     @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
     def test_declaration_reader_refuses_redirected_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             (root / ".literate").mkdir()
             target = root / "other.json"
             target.write_text("{}\n", encoding="utf-8")
@@ -306,7 +306,7 @@ class RetainedLayoutTests(unittest.TestCase):
 
     def test_preserves_legacy_coordinate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             coordinate = "components/legacy-project-wrapper/implementation"
             implementation = root.joinpath(*coordinate.split("/"))
             implementation.mkdir(parents=True)
@@ -325,7 +325,7 @@ class RetainedLayoutTests(unittest.TestCase):
 
     def test_rejects_cross_host_aliases_and_root_without_declaration(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             (root / "source").mkdir()
             for coordinate in (
                 ".",
@@ -347,11 +347,18 @@ class RetainedLayoutTests(unittest.TestCase):
     @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
     def test_rejects_redirected_ancestor_and_final_directory(self) -> None:
         coordinate = "components/legacy-project-wrapper/implementation"
-        for redirected in ("ancestor", "final"):
+        for redirected in ("root", "ancestor", "final"):
             with tempfile.TemporaryDirectory() as directory:
-                root = Path(directory)
+                root = Path(directory).resolve()
+                selected_root = root
                 try:
-                    if redirected == "ancestor":
+                    if redirected == "root":
+                        (root / "real" / coordinate).mkdir(parents=True)
+                        selected_root = root / "alias"
+                        selected_root.symlink_to(
+                            root / "real", target_is_directory=True
+                        )
+                    elif redirected == "ancestor":
                         (root / "real/legacy-project-wrapper/implementation").mkdir(
                             parents=True
                         )
@@ -372,5 +379,5 @@ class RetainedLayoutTests(unittest.TestCase):
                     self.assertRaises(RetainedLayoutError),
                 ):
                     resolve_legacy_implementation(
-                        root, {"implementation_directory": coordinate}
+                        selected_root, {"implementation_directory": coordinate}
                     )

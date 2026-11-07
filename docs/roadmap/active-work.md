@@ -33539,6 +33539,8 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Portable fixture repair (2026-11-07):** PR #349's exact Windows/macOS fixture failures used an unresolved temporary directory before the intended roadmap-cycle assertion. The same refusal reproduces on Linux with a symbolic TMPDIR parent. Canonicalize the positive fixture roots before creating retained authority; keep redirected-root and descendant refusal intact. Requalify the corrected source on all supported platforms; this does not complete selected-placement apply, relocation or receipt renewal.
+
 - **Priority:** P1
 - **Owner:** Framework core: adopted-project layout, inventory, updates, retained receipts and readmission
 - **Release target:** 1.4.0

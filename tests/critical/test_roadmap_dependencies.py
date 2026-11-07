@@ -362,7 +362,7 @@ class RoadmapDependencyTests(unittest.TestCase):
         )
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             retained = "components/legacy-project-wrapper/implementation"
             (root / retained).mkdir(parents=True)
             (root / "docs/decisions").mkdir(parents=True)
