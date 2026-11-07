@@ -6,9 +6,9 @@ linked roadmap documents. Follow
 direction. Check an item only when its evidence is
 recorded; Git preserves prior states.
 
-**Current development release: 1.4.0.** The latest published release is 1.3.0;
-1.3.1 is a separately governed patch program with explicit goals in
-[`release-goals.json`](release-goals.json). [RELEASE-INTEGRATION-004](#release-integration-004-reconcile-and-execute-the-13-release-backlog)
+**Current development release: 1.4.0.** The latest published release is 1.3.1.
+[`release-goals.json`](release-goals.json) retains the 1.3.1 patch program and
+its explicitly carried-forward 1.4 obligations. [RELEASE-INTEGRATION-004](#release-integration-004-reconcile-and-execute-the-13-release-backlog)
 and the [1.3 integration plan](1.3-integration.md) are retained as 1.3.0 history.
 Existing unchecked acceptance remains open; evidence from an older release does not
 establish readiness for either the patch line or 1.4.0.
@@ -32188,6 +32188,8 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **2026-11-07 reviewed fix integration:** The combined Go runtime-test, bounded library-import, module-source inventory and Git 2.43 staging repairs are retained at runtime source `308f98efd7ec9a04075f0907415ab49ce0055725`. A fresh managed full run independently accounts for all 2,739 selected cases: 2,621 passed, 118 explicit skips and zero missing outcomes. The canonical noneditable wheel journey passes, and all 15 focused controls pass against the exact installed wheel outside the checkout with no skips. The accepted ADR 0062/0066 main integration changes only documentation and roadmap authority; runtime, tests, Flavors, skills and template bytes remain identical. See [the bounded source/artifact review](../../verification/1.4-fix-integration-review.json). Exact combined-head platform CI, main verification, remaining milestone features/native gates and publication remain open.
+
 - **2026-11-04 current-source forward integration (in progress):** Preserve the exact `731c755` Linux validation, installed-wheel and public-export pass (2,581 passed, 100 declared skips, all 5,235 authored inputs unchanged) separately from its full platform CI result: 26 successful jobs and one failing Windows shard, where five model-probe subtests reject a native Windows path as their declared remote SSH workspace. The compiler fixture now builds; do not relabel that source as fully qualified. Collect the independently reviewed receiver-planning and SDK-metadata batches, nine real-CAS contract controls, source-equivalent current MSVC history, the accepted initial retained-tree HTML slice with six POSIX custody controls, and the reviewed setup-uv action pin. Preserve published v1 schemas and both installed catalog/host and tree journeys. Correct only the two test fixtures' declared remote workspace values to explicit home-relative coordinates; preserve native local paths, the strict worker contract, all cases and all guards. A separate native fixture proof stopped before class setup because its isolated existing-Python environment lacked framework dependencies; retain its setup failure and claim no original/corrected native result. Require final source composition review, supported authority records, fresh whole-source qualification and exact required CI before landing. Original native scale/PACKAGE/VERIFY obligations, worktree completeness/retirement and unaccepted ADR decisions remain open; no release publication is claimed.
 
 - **2026-11-04 Windows fixture correction (in progress):** Retain failed full-source Windows job `126518187197` at `bd535fd` (819 passes, 164 skips, one setup error). The native coding-agent fixture replaces the complete process environment with nonempty MSVC compiler overrides, dropping temporary/system variables; actual `cl` reports D8037. Reuse the production compiler-environment merger, preserve configured temporary/system variables and vendor override precedence, and qualify deterministic nonempty-override controls plus actual Windows compilation before a new full source/matrix run. This is a fixture repair; production compiler policy and genuine missing-tool skips remain unchanged.
@@ -33741,7 +33743,7 @@ independent review and the complete combined gate from test one.
   - [ ] Supported tools pass genuine checkout/LFS JSON and foreign-ownership controls.
   - [ ] Independent source review, full python-check and installed worker readiness pass.
 
-- **Baseline source progress:** Both canonical and packaged-template SBOMs now require Git >=2.47,<3 and Git LFS >=3.2,<4; independent source review passed. Existing host-install controls pass all nine cases, and the unchanged native scoped-ownership module passes all twelve cases with Git 2.54. The exact minimum Git version is supported by upstream source inspection, not native qualification of 2.47. Canonical bootstrap composes and enforces these version constraints. The authored worker repair reads the same packaged baseline, checks the exact selected Git/LFS executables when repository tools are declared, and reports incompatible versions with a declared-install remedy. Public CLI controls pass all six tests, including real version-probe processes and a declared repair followed by fresh inspection. The version responders prove the probe protocol, not native qualification of the displayed tool versions. Independent review of this new alignment integration, complete source and installed-worker proof remain open; previous installed versions still perform only presence checks.
+- **Baseline source progress:** Both canonical and packaged-template SBOMs now require Git >=2.43,<3 and Git LFS >=3.2,<4. Native Git 2.43 passes the foreign-owned framework staging control with a disposable config carrying exact source and `.git` trust into the child Git process. An unrelated source remains refused and operator config remains unchanged. Aligned FreeBSD Git 2.56 and Git LFS 3.8.1 pass genuine checkout and LFS JSON controls. Canonical bootstrap enforces these constraints; the authored worker repair checks the selected executables and reports incompatible versions with a declared-install remedy. Host-install and public CLI controls pass. Independent review, full python-check, and installed-worker readiness proof remain open; previous installed versions still perform only presence checks.
 - **Direct-checkout progress:** The checkout skill now probes `git lfs ls-files --json` in an empty local repository before adding a remote or fetching. A real subprocess wrapper that returns the unsupported-flag error is refused with an alignment instruction before source acquisition; the existing exact object/size and unresolved-pointer checks remain in place. Four local Git/LFS controls pass. After `litai worker align --all`, the aligned `mudflap-freebsd` worker reported Git 2.56.0 and Git LFS 3.8.1 and passed the same four native checkout controls plus the exact command-scoped foreign-ownership case. Local Git 2.43.0 fails that foreign-ownership case, confirming the selected tool matters. Changed-skill admission, documentation and lint checks pass. Independent review, complete source gates and installed-wheel worker proof remain open.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
@@ -33912,6 +33914,27 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Run managed positive and negative controls, independent integration review, noneditable installed-wheel journey and exact-tree PR CI through PRs #308 and #318.
   - [x] Verify post-merge main CI at `be1bf57b8` (run `42124478195`) before closing issue #316.
 
+### [ ] LIBRARY-IMPORT-COMMAND-001 — Fit complete library import authority in bounded verifier commands
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#330](https://github.com/jordanhubbard/literate-ai/issues/330)
+- **Owner:** Standard library command projection; PROJECT Goals 1 and 4
+- **Direction:** Project every declared library import mapping and the complete typed surface identity within the finite verifier command, without dropping a capability or weakening import, export, dependency, path or artifact custody checks.
+- **Conclusion:** Current main refuses a valid 51-capability library before checking its package because the repeated typed authority records exceed the 4,096-character command limit. Draft PR #313 has a candidate but conflicts with newer main code; extract only this bounded repair.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Qualify the focused projection through a noneditable installed wheel, then obtain independent review and exact-head platform CI before merging and closing #330.
+- **Implementation:**
+  - [x] Retain every capability, module and symbol mapping and bind the complete surface identity; preserve the finite oversized refusal.
+  - [x] Preserve newer main's Python import isolation, Rust harness compiler authority and other lifecycle guards while extracting only the projection from PR #313.
+- **Evidence:**
+  - [x] Reproduce current-main failure and pass complete 51-capability, interface-change and oversized controls.
+  - [ ] Run real import positive and negative checks, managed regressions and a noneditable installed-wheel journey.
+  - [ ] Obtain independent source review, canonical pins and full exact-head supported-platform CI.
+
+- **Source development evidence:** The 51-capability fixture on main `dbe7eeb4b` raises `standard_command.library_import_surface_oversized` before package verification. The focused projection passes four managed import-command controls, including a real 51-module JavaScript package with missing, wrong, extra, dependency and escaped-target refusals; five existing Standard command-projection smoke controls pass across Python, JavaScript and Rust. Ruff lint and format checks pass. The reviewed lifecycle-driver pin is `sha256:2e4a0c67e49629db37789e746f96d8443c062d0450fa6a502df2ad74a3e01e1c`. This is an import-command projection failure, not evidence that the library's own tests fail.
+
 ### [ ] QUALIFIED-CHILD-ADD-001 — Add a qualified native child to a qualified retained parent atomically
 
 - **Priority:** P1
@@ -33930,6 +33953,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SHADOW-001 — Continuously qualify upstream branches through a separate shadow repository
 
+- **2026-11-07 finite inspection and transfer repair:** Git/forge planning used post-capture limits and Git counted decoded characters instead of UTF-8 bytes. Source inventory, binary blob and recovery readers also captured output before bounding it; fetch/bundle budget interruption killed only direct Git. Route every Git path through the canonical bounded process owner, preserve exact binary/empty bytes and prior finite transfer budgets, and retire descendants on budget refusal. Disable Git replacement-object substitution for custody reads. The actual replacement-ref counterexample fails against the original installed wheel and passes with the correction; 37 development controls include binary reads, genuine Git flows and a scripted transport whose live child listener must retire on fetch/bundle byte refusal. The scripted transport is not live network-failure qualification. Full successor qualification remains required.
+
+- **Frozen installed/forge evidence:** Exact source `d38fd24b9c89da0e712563080216fa4098149cc2` passes canonical noneditable wheel-check; retained wheel SHA-256 `66d61daab0470024cd0bba0cca713a8d4da8d55446a7d14c3a70b1252e21860d`. Those exact bytes pass all 34 prior controls without skips on Linux ARM64 and native macOS ARM64/Python 3.14.7. The installed public CLI creates a real two-branch shadow and idempotently captures/reopens actual GitHub PR #353 base `576296d4f` and head `45b0555cd`, preserving upstream state. Source staging correctly refuses that complete 282,927,142-byte repository against its unchanged 128 MiB budget; preserve the refusal and captured bundle. This qualifies frozen planning/custody paths only, does not relabel the process-custody successor, and does not qualify isolated execution, repair export or outcome reconciliation.
+
+- **Combined source qualification renewal:** Full Linux source at `b090bab6035133872fb94689bd94719336793ab7` selected 2,759 cases and stopped at the known Git 2.43 source-staging ownership failure: 800 passed, one failed, 30 explicitly skipped, and 1,928 unexecuted. Preserve that report; it is not broad qualification. Integrate PR #353's exact qualified fix batch by normal merge, retaining all 68 combined release-goal IDs and every shadow obligation. Recompute lifecycle/documentation authority and require fresh complete source, installed/native and exact-head platform qualification for the union. The still-running b090 wheel/macOS attempts retain that frozen revision.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#311](https://github.com/jordanhubbard/literate-ai/issues/311)
@@ -33939,9 +33968,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** The directing user accepted ADR 0063; implement its exact upstream authority and evidence boundaries in 1.4.0 before claiming any shadow qualification.
 - **Depends on:** ADR 0063 accepted design
 - **Completion prerequisites:** none
-- **Next action:** Implement the versioned shadow registry and read-only branch/PR plan first, with exact Git and forge identities and a restart-safe synchronization transaction. Keep the mapped lifecycle, repair export and acceptance paths as later unchecked slices of this same goal.
+- **Next action:** Map supported upstream operations into isolated PR attempt workspaces using the captured exact base/head bundle. Before running untrusted upstream source, establish the production containment and authenticated execution evidence required by [SEC-360](#sec-360-establish-production-containment) and ADR 0063; source custody and planning alone remain unqualified. Repair export and outcome reconciliation remain unchecked slices of this same goal.
 - **Implementation:**
-  - [ ] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal.
+  - [x] Add reviewed shadow creation, branch addition and synchronization with versioned registry, exact upstream refs and restart-safe journal. Real-Git controls cover local and remote advances, explicit addition, stale plans, force-push refusal, idempotence and interrupted publication resume.
   - [ ] Map supported upstream operations into isolated lifecycle attempts and report unsupported or unbound operations as explicit gaps.
   - [ ] Prove causal failures, test targeted repairs in shadow lanes, export into fresh upstream layout and rerun actual upstream gates.
   - [ ] Reconcile accepted and rejected upstream outcomes without duplicate repair or lost rationale; expose read-only current status.
@@ -33950,6 +33979,82 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Mapped operation and gap behavior, code/test/environment/timeout/nondeterminism counterexamples and incomplete-green refusals pass.
   - [ ] Actual upstream-layout repair export/rebase and accepted merge-back plus rejected proposal retention pass without unearned admission.
   - [ ] Independent source review, full source and platform gates, and noneditable installed/native qualification pass at the exact head.
+
+  Draft PR #322 now stages initial creation as a complete separate Git repository
+  and publishes it through the exclusive directory primitive. Retrying before
+  publication starts from an absent destination; replay after publication
+  verifies the committed custody and returns the same result. A competing
+  destination is preserved and refused. The 31 managed real-Git shadow CLI
+  controls pass locally at draft head `bc0c8720a`. At that early slice, mapped
+  lifecycle execution, repair export, reconciliation, platform gates and
+  independent review were open.
+  The acknowledged `shadow pr-capture` path now fetches a current GitHub PR's
+  base and head into a separate bare Git lane, verifies exact refs and a complete
+  history bundle, and publishes that unqualified source custody exclusively
+  under shadow Git metadata. A real capture of PR #318 bound main `3350cc207`
+  and head `9a73a6809`, retained bundle `sha256:f4fd73ea83fd15eac2de30cfdd9610a6f984cebea4071cfd540e760b67bc9806`,
+  and replayed idempotently without changing either checkout. The actual main
+  bundle measured 295,015,169 bytes; the finite bundle cap is now 512 MiB and
+  the real remote fetch required more than the former 120-second deadline.
+  Mapped execution and independent qualification remain open.
+  The read-only `shadow pr-status` path now revalidates a saved PR lane's
+  metadata, exact bundle and Git refs after restart, even when the PR has
+  closed, checks the captured shadow commit against the historical branch and
+  source bundle, and reports whether its bound snapshot remains current.
+  It does not treat historical source custody as current PR qualification.
+  A read-only `shadow pr-operations` plan now binds an operator-declared command,
+  source/dependency paths and proposed stage to exact Git objects in the
+  captured PR head. Missing or linked inputs, unsupported stages, and unproven
+  projection, worker, execution and acceptance remain explicit gaps. No mapped
+  operation has run or qualified yet.
+  The PR source stage now preserves executable intent for regular Git blobs as
+  owner-only POSIX modes and refuses mode drift when reopened. This prepares
+  operation workspaces without claiming that any upstream command has run.
+  At `bc0c8720a`, the exact-head noneditable Linux ARM64/Python 3.12 wheel
+  check passed with wheel `sha256:e7a7bdd390d47c0708ee92510ce29cd3a0395eb840139d1cbf33b566c000b875`
+  and installed distribution `sha256:83e6c13ebe92bc60a135ad407d3b45465cd6a8013ebd56dfdcad4d150d91ab68`.
+  Exact-head PR smoke run `42245364231` and full-platform run `42245409230`
+  completed successfully at `0ffcbf2c5` (11 and 27 passing jobs respectively,
+  no failures). The macOS case-collision fixture passed as part of the latter.
+  No source execution, independent
+  acceptance, repair export or outcome reconciliation has been admitted.
+
+### [ ] GO-001 — Restore buildable Go runtime tests and source custody
+
+- **Native macOS fixture correction (2026-11-07):** The exact `c072d74a3` full source run on macOS ARM64/Python 3.14.7 stopped after 744 started cases (35 reported skips) at the direct Go graph control. Its fixture supplied a raw temporary path while Go reported the canonical `/private/var` path, so the unchanged source-boundary guard correctly refused. Canonicalize the fixture root before creating its source and caches. Preserve the failed native run and exact unchanged 5,286-input source snapshot; the corrected seven-case native replay passed against the frozen production source with the original snapshot unchanged. Renewed full current-head qualification remains required before closure.
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#324](https://github.com/jordanhubbard/literate-ai/issues/324)
+- **Review:** [#325](https://github.com/jordanhubbard/literate-ai/pull/325)
+- **Owner:** Go Flavor, generation prompt, Standard commands, and guarded Go builder
+- **Direction:** Generate a normal compiled Go runtime-test source file and keep its real assertions in the native artifact.
+- **Conclusion:** The required _test.go file cannot be imported by go build; make the local test package buildable and verify its actual compiler consumption without external packages or dependency downloads.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Align the Go specification, skill, command profile, generation prompt, template, and copied lab projects on one buildable runtime-test file.
+  - [x] Verify the guarded builder compiles and records the declared local test package under offline Go toolchain settings, refusing hidden or unsafe source.
+  - [x] Exercise the locked Standard command path and the ordinary Make build-system path.
+- **Evidence:**
+  - [x] Retain the real _test.go compiler failure, positive native build, mutation failures, missing or hidden source refusal, and external-package refusal.
+  - [x] Validate source indexing, compiler-consumed files, artifact provenance, project/template authority, and noneditable installed-wheel execution after source removal.
+  - [ ] Pass exact-head platform CI and independent source review before merging and closing issue #324.
+
+  PR #325 at `aed471d4` carries the implementation. Seven repository-managed
+  compiler controls and the locked Standard command journey pass; eight Go
+  controls pass against a noneditable installed wheel outside the checkout.
+  Root and six copied lab projects validate, and `make wheel-check` passed from
+  clean `aed471d4` with Python 3.12 selected consistently. The exact-head
+  hosted matrix and independent review remain open. A real Standard Go+Make
+  command journey compiles and runs the artifact with the native assertions.
+  Full-platform run `42245813631` at `86a8caf4` exposed two Windows conformance
+  harness failures in tests shard 2/3: the isolated cold Go build exceeded the
+  test's 60-second process deadline and left its temporary artifact locked during
+  cleanup, and the Make fixture passed an unquoted Windows Go path through Bash.
+  The focused repair bounds Go conformance builds at five minutes and quotes the
+  fixture's language tool path; both affected real Go journeys pass locally on
+  Linux ARM64. The Windows rerun and independent review remain required.
 
 ### [ ] RELEASE-COLLATERAL-001 — Refresh all user-facing documentation and collateral for each release
 
@@ -33967,6 +34072,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Refresh all current material from the final 1.4 candidate source and preserve prior release or event material only as labeled history.
 - **Evidence:**
   - [ ] Review inventory and changes against final 1.4 source; verify rendered docs, media, slides, captions, links, installation commands and published assets on the exact release candidate; reject stale current-release or AI Unprompted claims; retain only clearly labeled historical 1.3.1 artifacts and complete the post-publication README/provider readback.
+### [ ] SOURCE-MODULE-VARIANTS-001 — Preserve JavaScript and TypeScript module source in inert conversion
+
+- **Priority:** P1
+- **Release target:** 1.4.0
+- **GitHub issue:** [#328](https://github.com/jordanhubbard/literate-ai/issues/328)
+- **Owner:** source-to-specification inventory and static derivation; PROJECT Goals 1 and 4
+- **Direction:** Recognize `.mjs`, `.cjs`, `.jsx`, `.mts`, `.cts` and `.tsx` as language source without executing or rewriting input; preserve safety and test classifications.
+- **Conclusion:** Current main `be1bf57b8` inventories a real `.mjs` source as `other` with no language. Mixed draft PR #313 contains a candidate correction, but its unrelated changes require separate review.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Qualify the current-main integration at its exact head, complete independent source review, then land and verify main before closing #328.
+- **Implementation:**
+  - [x] Admit the six module and JSX suffixes under their JavaScript or TypeScript language while preserving input paths and bytes. PR #329 at `b49c8652` exercises all six through an installed noneditable wheel outside this checkout.
+  - [x] Preserve sensitive, binary, generated, large, minified and test precedence. Repository-managed conversion custody and negative inventory controls pass at `b49c8652`.
+- **Evidence:**
+  - [x] Run managed source inventory and real inert derivation controls, including refusal to execute source. The exact wheel from `b49c8652` classified and derived all six variants with original bytes unchanged; local Linux ARM64 wheel check and full-platform run 42245817943 passed.
+  - [ ] Verify independent source review, noneditable installed qualification, exact-head CI and post-merge main CI.
+
 
 ### [ ] QUALIFIED-CHILD-REVISION-001 — Revise a qualified native child through a recoverable public transaction
 

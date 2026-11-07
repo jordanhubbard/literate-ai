@@ -106,6 +106,7 @@ _TOP_LEVEL_COMMANDS = frozenset(
         "prompt",
         "flavor",
         "design",
+        "shadow",
         "video",
     }
 )
@@ -159,6 +160,9 @@ SDLC catalog (verbs unchanged; grouped for flow):
     litai component migrate
     litai learn
     litai design refine | explain | accept
+    litai shadow plan | create | pr-plan | pr-capture | pr-status | status
+    litai shadow pr-operations | pr-source-plan | pr-source-stage | pr-source-status
+    litai shadow sync plan | apply
 
   Operator
     litai config paths | migrate [--apply]
@@ -243,6 +247,45 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         from .design import design_from_args
 
         return design_from_args(args)
+    if args.command == "shadow":
+        from .shadow import (
+            apply_shadow_sync,
+            capture_shadow_pr,
+            create_shadow,
+            plan_shadow,
+            plan_shadow_pr,
+            plan_shadow_pr_operations,
+            plan_shadow_pr_source,
+            plan_shadow_sync,
+            stage_shadow_pr_source,
+            status_shadow,
+            status_shadow_pr,
+            status_shadow_pr_source,
+        )
+
+        if args.shadow_command == "pr-plan":
+            return plan_shadow_pr(args), 0
+        if args.shadow_command == "pr-capture":
+            return capture_shadow_pr(args), 0
+        if args.shadow_command == "pr-status":
+            return status_shadow_pr(args), 0
+        if args.shadow_command == "pr-operations":
+            return plan_shadow_pr_operations(args), 0
+        if args.shadow_command == "pr-source-plan":
+            return plan_shadow_pr_source(args), 0
+        if args.shadow_command == "pr-source-stage":
+            return stage_shadow_pr_source(args), 0
+        if args.shadow_command == "pr-source-status":
+            return status_shadow_pr_source(args), 0
+        if args.shadow_command == "create":
+            return create_shadow(args), 0
+        if args.shadow_command == "status":
+            return status_shadow(args), 0
+        if args.shadow_command == "sync":
+            if args.sync_command == "apply":
+                return apply_shadow_sync(args), 0
+            return plan_shadow_sync(args), 0
+        return plan_shadow(args), 0
     if args.command == "release":
         from .release import release_from_args
 
@@ -538,6 +581,7 @@ def _parser() -> JsonArgumentParser:
     from .flavor import add_flavor_parser
     from .package import add_package_parser
     from .release import add_release_parser
+    from .shadow import add_shadow_parser
 
     parser = JsonArgumentParser(
         prog="litai",
@@ -741,6 +785,7 @@ def _parser() -> JsonArgumentParser:
     onboard_adopt.add_argument("--baseline-diagnostic-chars", type=int)
     onboard_adopt.add_argument("--harness-workspace-link", action="append", default=[])
     add_design_parser(commands)
+    add_shadow_parser(commands)
     add_release_parser(commands)
     add_package_parser(commands)
     add_flavor_parser(commands)
