@@ -48,6 +48,10 @@ from literate_ai.adapters.harness_workspace import (
     materialize_harness_workspace_links,
     require_harness_workspace_link_evidence,
 )
+from literate_ai.adapters.retained_layout import (
+    RetainedLayoutError,
+    resolve_legacy_implementation,
+)
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.diagnostics import redact_secrets, trace_subprocess
 
@@ -2333,12 +2337,14 @@ def prepare_native_rewrite_program(
 ) -> dict[str, object]:
     """Create Phase 2 decision and roadmap authority without rewriting source."""
 
-    implementation = lift_shift.get("implementation_directory")
-    if (
-        not isinstance(implementation, str)
-        or not (project_root / implementation).is_dir()
-    ):
+    if lift_shift.get("state") != "passed":
         raise ValueError("native rewrite requires a completed lift-and-shift")
+    try:
+        implementation, _ = resolve_legacy_implementation(project_root, lift_shift)
+    except RetainedLayoutError as exc:
+        raise ValueError(
+            "native rewrite requires a direct, recorded retained implementation"
+        ) from exc
     lift_shift_identity = (
         "sha256:"
         + hashlib.sha256(
