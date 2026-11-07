@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- Shadow planning bounds Git and forge output as bytes while the tool runs, with finite deadlines and owned descendant cleanup. UTF-8 payloads cannot pass a byte budget through character counting (#311).
+- Shadow planning, source reads and recovery enforce live Git/forge byte limits. Fetch and bundle budget refusals retire the owned process tree, and local Git replacement refs cannot substitute custodied content (#311).
 
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import socket
 import stat
 import subprocess
 import sys
@@ -26,6 +27,162 @@ def _git(root: Path, *args: str) -> str:
 
 
 class ShadowPlanCliTests(unittest.TestCase):
+    def test_transfer_budget_or_timeout_retires_the_owned_descendant(self) -> None:
+        from literate_ai.adapters.builders._process import run_bounded_process
+
+        child_script = (
+            "import socket; s=socket.socket(); s.bind(('127.0.0.1',0));"
+            "s.listen(); print(s.getsockname()[1],flush=True)\n"
+            "while True:\n"
+            " c,_=s.accept(); message=c.recv(16); c.sendall(b'alive'); c.close()\n"
+            " if message==b'stop': break\n"
+        )
+        for operation, limit in (
+            ("bundle", "budget"),
+            ("fetch", "budget"),
+            ("fetch", "timeout"),
+        ):
+            with self.subTest(operation=operation, limit=limit):
+                workspace = self.root / f"{operation}-{limit}"
+                workspace.mkdir()
+                marker = workspace / "descendant-port"
+                payload = (
+                    workspace / "source.bundle"
+                    if operation == "bundle"
+                    else workspace / "remote.git" / "oversized"
+                )
+                payload_bytes = 1024 * 1024 + 1 if limit == "budget" else 0
+                refusal = "unbounded" if limit == "budget" else "timeout"
+                script = (
+                    "import socket,subprocess,sys,time; from pathlib import Path;"
+                    f"child=subprocess.Popen([sys.executable,'-c',{child_script!r}],"
+                    "stdout=subprocess.PIPE,text=True);"
+                    "port=int(child.stdout.readline());"
+                    "probe=socket.create_connection(('127.0.0.1',port),timeout=2);"
+                    "probe.sendall(b'probe'); assert probe.recv(16)==b'alive';"
+                    "probe.close(); Path(sys.argv[1]).write_text(str(port));"
+                    f"Path(sys.argv[2]).write_bytes(b'x'*{payload_bytes});"
+                    "time.sleep(60)"
+                )
+
+                def fixture(
+                    command,
+                    operation=operation,
+                    script=script,
+                    marker=marker,
+                    payload=payload,
+                    **kwargs,
+                ):
+                    if (operation == "fetch" and "fetch" in command) or (
+                        operation == "bundle" and "bundle" in command
+                    ):
+                        return run_bounded_process(
+                            [sys.executable, "-c", script, str(marker), str(payload)],
+                            **kwargs,
+                        )
+                    return run_bounded_process(command, **kwargs)
+
+                with (
+                    patch.object(shadow_module, "_MAX_BUNDLE_BYTES", 1024 * 1024),
+                    patch.object(shadow_module, "_MAX_FETCH_BYTES", 1024 * 1024),
+                    patch.object(shadow_module, "_MAX_FETCH_SECONDS", 3),
+                    patch(
+                        "literate_ai.adapters.builders._process.run_bounded_process",
+                        side_effect=fixture,
+                    ),
+                    self.assertRaises(CliFailure) as caught,
+                ):
+                    if operation == "bundle":
+                        shadow_module._create_bounded_bundle(
+                            self.upstream, payload, ["refs/heads/main"]
+                        )
+                    else:
+                        shadow_module._fetch_selected_refs(
+                            self.upstream,
+                            workspace,
+                            [{"ref": "refs/heads/main", "commit": self.main_commit}],
+                            {
+                                "host": "github.com",
+                                "owner": "owner",
+                                "repository": "example",
+                            },
+                        )
+                self.assertEqual(
+                    caught.exception.code,
+                    f"shadow.{operation}_{refusal}",
+                )
+                port = int(marker.read_text())
+                try:
+                    with self.assertRaises(OSError):
+                        with socket.create_connection(("127.0.0.1", port), timeout=1):
+                            pass
+                finally:
+                    # A failed cleanup assertion must still retire its test server.
+                    try:
+                        with socket.create_connection(
+                            ("127.0.0.1", port), timeout=1
+                        ) as peer:
+                            peer.sendall(b"stop")
+                    except OSError:
+                        pass
+
+    def test_source_blob_reader_preserves_binary_empty_and_whitespace_bytes(
+        self,
+    ) -> None:
+        for content in (b"", b"\x00\xff\r\n ", b" \nsource\n\t"):
+            with self.subTest(content=content):
+                oid = (
+                    subprocess.check_output(
+                        [
+                            "git",
+                            "-C",
+                            str(self.upstream),
+                            "hash-object",
+                            "-w",
+                            "--stdin",
+                        ],
+                        input=content,
+                    )
+                    .decode()
+                    .strip()
+                )
+                self.assertEqual(
+                    shadow_module._pr_source_blob(
+                        self.upstream, oid, len(content), timeout=5
+                    ),
+                    content,
+                )
+                if content:
+                    with self.assertRaises(CliFailure) as caught:
+                        shadow_module._pr_source_blob(
+                            self.upstream, oid, len(content) - 1, timeout=5
+                        )
+                    self.assertEqual(caught.exception.code, "shadow.stage_invalid")
+
+    def test_git_replacement_cannot_substitute_custodied_content(self) -> None:
+        original = _git(self.upstream, "rev-parse", "HEAD:README.md")
+        replacement = (
+            subprocess.check_output(
+                ["git", "-C", str(self.upstream), "hash-object", "-w", "--stdin"],
+                input=b"foreign replacement\n",
+            )
+            .decode()
+            .strip()
+        )
+        _git(self.upstream, "replace", original, replacement)
+        self.assertEqual(
+            _git(self.upstream, "show", "HEAD:README.md"), "foreign replacement"
+        )
+        self.assertEqual(
+            shadow_module._git(self.upstream, "show", "HEAD:README.md"), "feature"
+        )
+        self.assertEqual(
+            shadow_module._committed_bytes(
+                self.upstream, self.feature_commit, "README.md"
+            ),
+            b"feature\n",
+        )
+
     def test_forge_inspection_accepts_only_bounded_successful_json(self) -> None:
         from literate_ai.adapters.builders._process import run_bounded_process
 

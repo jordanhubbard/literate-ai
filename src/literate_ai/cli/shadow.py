@@ -9,12 +9,16 @@ import os
 import re
 import shutil
 import stat
-import subprocess
 import tempfile
 import time
 import unicodedata
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from literate_ai.adapters.builders._process import BoundedProcessResult
 
 from literate_ai._filesystem import stat_is_link_or_reparse
 from literate_ai.adapters.exclusive_directory import (
@@ -48,18 +52,26 @@ _GITHUB_HTTPS = re.compile(
 )
 
 
-def _git(
+def _bounded_git(
     root: Path,
     *arguments: str,
-    timeout: int = 10,
+    timeout: float,
+    stdout_limit: int,
+    failure_code: str,
+    failure_message: str,
+    stderr_limit: int = 4096,
+    overflow_code: str | None = None,
+    timeout_code: str | None = None,
+    launch_code: str | None = None,
+    interrupt_guard: Callable[[], None] | None = None,
     environment: dict[str, str] | None = None,
-    max_output: int = 4096,
-) -> str:
+) -> BoundedProcessResult:
+    """Own Git's streams and descendants throughout inspection and transfer."""
     from literate_ai.adapters.builders._process import run_bounded_process
     from literate_ai.adapters.builders.python import BuildError
 
     try:
-        result = run_bounded_process(
+        return run_bounded_process(
             ["git", "--no-optional-locks", "-C", str(root), *arguments],
             cwd=None,
             environment={
@@ -67,22 +79,45 @@ def _git(
                 "GIT_OPTIONAL_LOCKS": "0",
                 "GIT_CONFIG_NOSYSTEM": "1",
                 **(environment or {}),
+                "GIT_NO_REPLACE_OBJECTS": "1",
             },
             timeout_seconds=timeout,
-            stdout_limit_bytes=max_output,
-            stderr_limit_bytes=min(max_output, 4096),
-            error_prefix="shadow.git",
+            stdout_limit_bytes=max(1, stdout_limit),
+            stderr_limit_bytes=stderr_limit,
+            error_prefix="shadow.command",
+            interrupt_guard=interrupt_guard,
             terminate_descendants=True,
             trace=False,
         )
     except BuildError as exc:
-        if exc.code == "shadow.git_output_limit":
-            raise CliFailure(
-                "shadow.git_unbounded", "Git inspection exceeded its output bound"
-            ) from exc
-        raise CliFailure(
-            "shadow.git_unavailable", "Git inspection did not complete"
-        ) from exc
+        code = failure_code
+        if exc.code == "shadow.command_output_limit" and overflow_code:
+            code = overflow_code
+        elif exc.code == "shadow.command_timeout" and timeout_code:
+            code = timeout_code
+        elif exc.code == "shadow.command_launch_failed" and launch_code:
+            code = launch_code
+        raise CliFailure(code, failure_message) from exc
+
+
+def _git(
+    root: Path,
+    *arguments: str,
+    timeout: int = 10,
+    environment: dict[str, str] | None = None,
+    max_output: int = 4096,
+) -> str:
+    result = _bounded_git(
+        root,
+        *arguments,
+        timeout=timeout,
+        stdout_limit=max_output,
+        stderr_limit=min(max_output, 4096),
+        failure_code="shadow.git_unavailable",
+        overflow_code="shadow.git_unbounded",
+        failure_message="Git inspection did not complete within its bounds",
+        environment=environment,
+    )
     if result.returncode:
         raise CliFailure(
             "shadow.git_invalid", "Git could not resolve the requested upstream state"
@@ -929,34 +964,20 @@ def _pr_source_entries(
     repository: Path, head: str
 ) -> tuple[list[dict[str, object]], str]:
     """Inventory exact regular Git blobs; never invoke checkout or archive filters."""
-    try:
-        process = subprocess.run(
-            [
-                "git",
-                "--no-optional-locks",
-                "-C",
-                str(repository),
-                "ls-tree",
-                "--long",
-                "-r",
-                "-z",
-                "--full-tree",
-                head,
-            ],
-            env={
-                **os.environ,
-                "GIT_OPTIONAL_LOCKS": "0",
-                "GIT_CONFIG_NOSYSTEM": "1",
-                "GIT_NO_REPLACE_OBJECTS": "1",
-            },
-            capture_output=True,
-            timeout=30,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise CliFailure(
-            "shadow.stage_unavailable", "PR Git tree inventory failed"
-        ) from exc
+    process = _bounded_git(
+        repository,
+        "ls-tree",
+        "--long",
+        "-r",
+        "-z",
+        "--full-tree",
+        head,
+        timeout=30,
+        stdout_limit=_MAX_STAGE_INVENTORY_BYTES,
+        failure_code="shadow.stage_unavailable",
+        overflow_code="shadow.stage_unbounded",
+        failure_message="PR Git tree inventory failed or exceeded its bounds",
+    )
     if process.returncode or len(process.stdout) > _MAX_STAGE_INVENTORY_BYTES:
         raise CliFailure(
             "shadow.stage_unbounded",
@@ -1024,31 +1045,17 @@ def _pr_source_entries(
 
 
 def _pr_source_blob(repository: Path, oid: str, size: int, *, timeout: int) -> bytes:
-    try:
-        result = subprocess.run(
-            [
-                "git",
-                "--no-optional-locks",
-                "-C",
-                str(repository),
-                "cat-file",
-                "blob",
-                oid,
-            ],
-            env={
-                **os.environ,
-                "GIT_OPTIONAL_LOCKS": "0",
-                "GIT_CONFIG_NOSYSTEM": "1",
-                "GIT_NO_REPLACE_OBJECTS": "1",
-            },
-            capture_output=True,
-            timeout=timeout,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise CliFailure(
-            "shadow.stage_unavailable", "PR source object could not be read"
-        ) from exc
+    result = _bounded_git(
+        repository,
+        "cat-file",
+        "blob",
+        oid,
+        timeout=timeout,
+        stdout_limit=size,
+        failure_code="shadow.stage_unavailable",
+        overflow_code="shadow.stage_invalid",
+        failure_message="PR source object could not be read within its bounds",
+    )
     blob = result.stdout
     algorithm = hashlib.sha256 if len(oid) == 64 else hashlib.sha1
     if (
@@ -1390,54 +1397,32 @@ def _json_bytes(value: object) -> bytes:
 
 
 def _create_bounded_bundle(upstream: Path, bundle: Path, refs: list[str]) -> None:
-    try:
-        process = subprocess.Popen(
-            [
-                "git",
-                "--no-optional-locks",
-                "-C",
-                str(upstream),
-                "bundle",
-                "create",
-                str(bundle),
-                *refs,
-            ],
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-    except OSError as exc:
-        raise CliFailure(
-            "shadow.git_unavailable", "Bundle creation could not start"
-        ) from exc
-    deadline = time.monotonic() + 90
-    try:
-        while process.poll() is None:
-            if time.monotonic() >= deadline:
-                raise CliFailure(
-                    "shadow.bundle_timeout", "Bundle creation exceeded its time bound"
-                )
-            if bundle.exists() and bundle.stat().st_size > _MAX_BUNDLE_BYTES:
-                raise CliFailure(
-                    "shadow.bundle_unbounded", "Upstream bundle exceeds its size bound"
-                )
-            try:
-                process.wait(timeout=0.1)
-            except subprocess.TimeoutExpired:
-                pass
-        if process.returncode or not bundle.is_file():
-            raise CliFailure(
-                "shadow.bundle_invalid", "Git could not create the source bundle"
-            )
-        if bundle.stat().st_size > _MAX_BUNDLE_BYTES:
+    def check_bundle_budget() -> None:
+        if bundle.exists() and bundle.stat().st_size > _MAX_BUNDLE_BYTES:
             raise CliFailure(
                 "shadow.bundle_unbounded", "Upstream bundle exceeds its size bound"
             )
-    except BaseException:
-        if process.poll() is None:
-            process.kill()
-        process.wait()
-        raise
+
+    process = _bounded_git(
+        upstream,
+        "bundle",
+        "create",
+        str(bundle),
+        *refs,
+        timeout=90,
+        stdout_limit=4096,
+        stderr_limit=64 * 1024,
+        failure_code="shadow.bundle_invalid",
+        timeout_code="shadow.bundle_timeout",
+        launch_code="shadow.git_unavailable",
+        failure_message="Git could not create the source bundle within its bounds",
+        interrupt_guard=check_bundle_budget,
+    )
+    if process.returncode or not bundle.is_file():
+        raise CliFailure(
+            "shadow.bundle_invalid", "Git could not create the source bundle"
+        )
+    check_bundle_budget()
 
 
 def _directory_bytes(root: Path) -> int:
@@ -1487,61 +1472,36 @@ def _fetch_selected_refs(
     remote_url = _git(upstream, "config", "--local", "--get", "remote.origin.url")
     if _forge_identity(remote_url) != expected_forge:
         raise CliFailure("shadow.forge_changed", "Upstream forge identity changed")
-    try:
-        process = subprocess.Popen(
-            [
-                "git",
-                "--no-optional-locks",
-                "-C",
-                str(repository),
-                "-c",
-                f"core.hooksPath={hooks}",
-                "fetch",
-                "--no-tags",
-                "--recurse-submodules=no",
-                "--",
-                remote_url,
-                *(f"+{ref}:{ref}" for ref in refs),
-            ],
-            env={
-                **os.environ,
-                "GIT_OPTIONAL_LOCKS": "0",
-                "GIT_CONFIG_NOSYSTEM": "1",
-                "GIT_TERMINAL_PROMPT": "0",
-            },
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-    except OSError as exc:
-        raise CliFailure(
-            "shadow.fetch_unavailable", "Remote fetch could not start"
-        ) from exc
-    deadline = time.monotonic() + _MAX_FETCH_SECONDS
-    try:
-        while process.poll() is None:
-            if time.monotonic() >= deadline:
-                raise CliFailure(
-                    "shadow.fetch_timeout", "Remote fetch exceeded its time bound"
-                )
-            if _directory_bytes(repository) > _MAX_FETCH_BYTES:
-                raise CliFailure(
-                    "shadow.fetch_unbounded", "Remote fetch exceeded its byte bound"
-                )
-            try:
-                process.wait(timeout=0.1)
-            except subprocess.TimeoutExpired:
-                pass
-        if process.returncode:
-            raise CliFailure("shadow.fetch_failed", "Remote fetch did not complete")
+
+    def check_fetch_budget() -> None:
         if _directory_bytes(repository) > _MAX_FETCH_BYTES:
             raise CliFailure(
                 "shadow.fetch_unbounded", "Remote fetch exceeded its byte bound"
             )
-    except BaseException:
-        if process.poll() is None:
-            process.kill()
-        process.wait()
-        raise
+
+    process = _bounded_git(
+        repository,
+        "-c",
+        f"core.hooksPath={hooks}",
+        "fetch",
+        "--no-tags",
+        "--recurse-submodules=no",
+        "--",
+        remote_url,
+        *(f"+{ref}:{ref}" for ref in refs),
+        timeout=_MAX_FETCH_SECONDS,
+        stdout_limit=4096,
+        stderr_limit=64 * 1024,
+        failure_code="shadow.fetch_failed",
+        timeout_code="shadow.fetch_timeout",
+        launch_code="shadow.fetch_unavailable",
+        failure_message="Remote fetch did not complete within its bounds",
+        interrupt_guard=check_fetch_budget,
+        environment={"GIT_TERMINAL_PROMPT": "0"},
+    )
+    if process.returncode:
+        raise CliFailure("shadow.fetch_failed", "Remote fetch did not complete")
+    check_fetch_budget()
     for ref, expected_commit in commits.items():
         actual = _git(repository, "rev-parse", "--verify", f"{ref}^{{commit}}")
         if actual != expected_commit:
@@ -1963,28 +1923,17 @@ def status_shadow(args: argparse.Namespace) -> dict[str, object]:
 
 
 def _require_ancestor(upstream: Path, previous: str, current: str) -> None:
-    try:
-        result = subprocess.run(
-            [
-                "git",
-                "--no-optional-locks",
-                "-C",
-                str(upstream),
-                "merge-base",
-                "--is-ancestor",
-                previous,
-                current,
-            ],
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=10,
-            check=False,
-        )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise CliFailure(
-            "shadow.ancestry_unavailable", "Git ancestry inspection did not complete"
-        ) from exc
+    result = _bounded_git(
+        upstream,
+        "merge-base",
+        "--is-ancestor",
+        previous,
+        current,
+        timeout=10,
+        stdout_limit=4096,
+        failure_code="shadow.ancestry_unavailable",
+        failure_message="Git ancestry inspection did not complete",
+    )
     if result.returncode == 1:
         raise CliFailure(
             "shadow.non_fast_forward", "Selected upstream branch was rewritten"
@@ -2158,17 +2107,19 @@ def _committed_bytes(shadow: Path, commit: str, relative: str) -> bytes:
             "shadow.pending_invalid", "Pending metadata object is unbounded"
         )
     try:
-        result = subprocess.run(
-            ["git", "--no-optional-locks", "-C", str(shadow), "show", object_name],
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0", "GIT_CONFIG_NOSYSTEM": "1"},
-            capture_output=True,
+        result = _bounded_git(
+            shadow,
+            "show",
+            object_name,
             timeout=10,
-            check=False,
+            stdout_limit=size,
+            failure_code="shadow.pending_invalid",
+            failure_message="Pending metadata could not be read within its bounds",
         )
         if result.returncode or len(result.stdout) != size:
             raise ValueError("pending metadata read failed")
         return result.stdout
-    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+    except (OSError, ValueError) as exc:
         raise CliFailure(
             "shadow.pending_invalid", "Pending metadata is invalid"
         ) from exc
