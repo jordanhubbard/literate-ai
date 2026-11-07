@@ -1,8 +1,8 @@
-"""One physical retained-implementation resolver for legacy lift-and-shift evidence.
+"""Physical retained-layout resolution with a distinct qualification boundary.
 
-The legacy record remains the layout authority for projects that have not entered a
-reviewed layout transition. The future versioned declaration and relocation flow
-can extend this boundary without asking receipt callers to reconstruct paths.
+Legacy projects keep their recorded coordinate. A versioned declaration can be
+resolved structurally for evidence renewal, while qualified execution continues to
+require the supported transition, current locks and fresh retained evidence.
 """
 
 from __future__ import annotations
@@ -37,7 +37,7 @@ class RetainedLayoutError(ValueError):
 LEGACY_WRAPPER_COMPONENT = "components/legacy-project-wrapper"
 RETAINED_LAYOUT_SCHEMA = "literate-ai/retained-layout@1"
 RETAINED_LAYOUT_PATH = ".literate/retained-layout.json"
-_MAX_LAYOUT_BYTES = 1024 * 1024
+_MAX_LAYOUT_BYTES = 16 * 1024 * 1024
 
 
 @dataclass(frozen=True, slots=True)
@@ -90,6 +90,7 @@ class RetainedLayoutDeclaration:
                 raise ValueError("framework ownership paths must be sorted")
             if implementation == ".":
                 required = {
+                    ".literate/initialization-baseline.json",
                     ".literate/retained-layout.json",
                     "literate.project.json",
                     f"{wrapper}/component.md",
@@ -248,5 +249,103 @@ def resolve_legacy_layout(
         wrapper_component=LEGACY_WRAPPER_COMPONENT,
         wrapper_root=wrapper_root,
         implementation_directory=implementation_directory,
+        implementation_root=implementation_root,
+    )
+
+
+def resolve_structural_layout(
+    project_root: Path, lift_shift: dict[str, Any]
+) -> ResolvedRetainedLayout:
+    """Locate one declared or legacy layout without asserting execution qualification.
+
+    This is available to evidence-renewal planners after a relocation. Receipt
+    admission must separately require current locks and renewed harness evidence.
+    """
+
+    declaration = read_retained_layout_declaration(project_root)
+    if declaration is None:
+        return resolve_legacy_layout(project_root, lift_shift)
+    if (
+        lift_shift.get("implementation_directory")
+        != declaration.implementation_directory
+        or lift_shift.get("wrapper_component") != declaration.wrapper_component
+        or lift_shift.get("layout_identity") != declaration.identity
+        or lift_shift.get("previous_layout_identity")
+        != declaration.previous_layout_identity
+    ):
+        raise RetainedLayoutError(
+            "lift-and-shift evidence disagrees with the declared layout"
+        )
+    root = Path(project_root).absolute()
+    wrapper_root = root.joinpath(*declaration.wrapper_component.split("/"))
+    implementation_root = (
+        root
+        if declaration.implementation_directory == "."
+        else root.joinpath(*declaration.implementation_directory.split("/"))
+    )
+    try:
+        require_safe_directory(root)
+        require_safe_directory(wrapper_root)
+        require_safe_directory(implementation_root)
+        if (
+            wrapper_root.resolve(strict=True) != wrapper_root
+            or implementation_root.resolve(strict=True) != implementation_root
+        ):
+            raise ValueError("physical layout is redirected")
+        component = wrapper_root / "component.md"
+        if path_is_link_or_reparse(component) or not component.is_file():
+            raise ValueError("selected wrapper Component is unavailable")
+        from literate_ai.adapters.component_markdown import parse_component_markdown
+
+        authoring = parse_component_markdown(
+            component, component.read_text(encoding="utf-8"), project_root=root
+        )
+        if "adoption-shim" not in authoring.profiles or not any(
+            item.name == "legacy.pipeline" for item in authoring.provides
+        ):
+            raise ValueError("selected Component lacks the retained-harness role")
+        if declaration.implementation_directory == ".":
+            from literate_ai.contracts import ProjectInitializationBaseline
+
+            baseline_path = root / ".literate/initialization-baseline.json"
+            if path_is_link_or_reparse(baseline_path) or not baseline_path.is_file():
+                raise ValueError("root ownership lacks initialization baseline")
+            baseline_bytes = baseline_path.read_bytes()
+            if len(baseline_bytes) > _MAX_LAYOUT_BYTES:
+                raise ValueError("root initialization baseline exceeds byte limit")
+            baseline = ProjectInitializationBaseline.from_dict(
+                json.loads(baseline_bytes)
+            )
+            owned_paths = set(declaration.framework_owned_paths)
+            if not {item.path for item in baseline.files}.issubset(owned_paths):
+                raise ValueError("root ownership omits initialized framework files")
+            metadata_root = root / ".literate"
+            for metadata in metadata_root.rglob("*"):
+                if metadata.is_file() or path_is_link_or_reparse(metadata):
+                    if metadata.relative_to(root).as_posix() not in owned_paths:
+                        raise ValueError("root ownership omits current metadata")
+            for relative in declaration.framework_owned_paths:
+                owned = root.joinpath(*relative.split("/"))
+                require_safe_directory(owned.parent)
+                if path_is_link_or_reparse(owned) or not owned.is_file():
+                    raise ValueError(
+                        "root ownership names a missing or redirected file"
+                    )
+        require_safe_directory(wrapper_root)
+        require_safe_directory(implementation_root)
+    except (
+        OSError,
+        TypeError,
+        UnicodeError,
+        ValueError,
+        UnsafeFilesystemPathError,
+    ) as exc:
+        raise RetainedLayoutError(
+            "declared retained layout is unavailable or redirected"
+        ) from exc
+    return ResolvedRetainedLayout(
+        wrapper_component=declaration.wrapper_component,
+        wrapper_root=wrapper_root,
+        implementation_directory=declaration.implementation_directory,
         implementation_root=implementation_root,
     )

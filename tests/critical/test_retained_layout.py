@@ -7,6 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from literate_ai.adapters.harness_inventory import legacy_shim_authority
 from literate_ai.adapters.retained_layout import (
     LEGACY_WRAPPER_COMPONENT,
     RETAINED_LAYOUT_SCHEMA,
@@ -15,11 +16,126 @@ from literate_ai.adapters.retained_layout import (
     read_retained_layout_declaration,
     resolve_legacy_implementation,
     resolve_legacy_layout,
+    resolve_structural_layout,
 )
-from literate_ai.contracts import canonical_json_bytes
+from literate_ai.contracts import (
+    ProjectInitializationBaseline,
+    ProjectInitializationBaselineFile,
+    canonical_identity,
+    canonical_json_bytes,
+)
 
 
 class RetainedLayoutTests(unittest.TestCase):
+    def _declared_project(self, root: Path, document: dict) -> None:
+        wrapper = root / document["wrapper_component"]
+        wrapper.mkdir(parents=True)
+        component = legacy_shim_authority(
+            {"commands": {}, "stages": []}, {"phases": []}
+        )["components/legacy-project-wrapper/component.md"]
+        (wrapper / "component.md").write_text(component, encoding="utf-8")
+        (root / ".literate").mkdir(exist_ok=True)
+        (root / ".literate/retained-layout.json").write_bytes(
+            canonical_json_bytes(document) + b"\n"
+        )
+
+    def test_structural_resolution_checks_wrapper_role_and_evidence(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "scheduler").mkdir()
+            document = {
+                "schema": RETAINED_LAYOUT_SCHEMA,
+                "wrapper_component": "components/scheduler-wrapper",
+                "implementation_directory": "scheduler",
+                "framework_owned_paths": [],
+                "lineage": {"kind": "initial"},
+            }
+            self._declared_project(root, document)
+            lift_shift = {
+                "implementation_directory": "scheduler",
+                "wrapper_component": "components/scheduler-wrapper",
+                "layout_identity": RetainedLayoutDeclaration.from_dict(
+                    document
+                ).identity,
+            }
+            layout = resolve_structural_layout(root, lift_shift)
+            self.assertEqual(layout.implementation_root, root / "scheduler")
+            self.assertEqual(layout.wrapper_root, root / "components/scheduler-wrapper")
+            with self.assertRaises(RetainedLayoutError):
+                resolve_structural_layout(
+                    root, {**lift_shift, "layout_identity": "bad"}
+                )
+            (layout.wrapper_root / "component.md").write_text(
+                (layout.wrapper_root / "component.md")
+                .read_text(encoding="utf-8")
+                .replace("  - adoption-shim\n", ""),
+                encoding="utf-8",
+            )
+            with self.assertRaises(RetainedLayoutError):
+                resolve_structural_layout(root, lift_shift)
+
+    def test_root_layout_requires_current_framework_file_partition(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            previous_identity = canonical_identity({"previous_layout": "scheduler"}).uri
+            document = {
+                "schema": RETAINED_LAYOUT_SCHEMA,
+                "wrapper_component": "components/scheduler-wrapper",
+                "implementation_directory": ".",
+                "framework_owned_paths": [
+                    ".literate/initialization-baseline.json",
+                    ".literate/retained-layout.json",
+                    "components/scheduler-wrapper/component.md",
+                    "docs/framework.md",
+                    "literate.project.json",
+                ],
+                "lineage": {
+                    "kind": "relocation",
+                    "previous_layout_identity": previous_identity,
+                },
+            }
+            self._declared_project(root, document)
+            lift_shift = {
+                "implementation_directory": ".",
+                "wrapper_component": "components/scheduler-wrapper",
+                "layout_identity": RetainedLayoutDeclaration.from_dict(
+                    document
+                ).identity,
+                "previous_layout_identity": previous_identity,
+            }
+            with self.assertRaises(RetainedLayoutError):
+                resolve_structural_layout(root, lift_shift)
+            framework = root / "docs/framework.md"
+            framework.parent.mkdir()
+            framework.write_text("framework\n", encoding="utf-8")
+            baseline = ProjectInitializationBaseline(
+                origin_identity=canonical_identity({"origin": "test"}),
+                template_protocol="literate-ai/project-template@1",
+                files=(
+                    ProjectInitializationBaselineFile(
+                        path="docs/framework.md",
+                        size=len(framework.read_bytes()),
+                        identity=canonical_identity({"framework": "test"}),
+                    ),
+                ),
+            )
+            (root / ".literate/initialization-baseline.json").write_bytes(
+                canonical_json_bytes(baseline.to_dict()) + b"\n"
+            )
+            (root / "literate.project.json").write_text("{}\n", encoding="utf-8")
+            self.assertEqual(
+                resolve_structural_layout(root, lift_shift).implementation_root, root
+            )
+            with self.assertRaises(RetainedLayoutError):
+                resolve_structural_layout(
+                    root, {**lift_shift, "previous_layout_identity": "bad"}
+                )
+            (root / ".literate/new-framework-file.json").write_text(
+                "{}\n", encoding="utf-8"
+            )
+            with self.assertRaises(RetainedLayoutError):
+                resolve_structural_layout(root, lift_shift)
+
     def test_direct_declaration_refuses_legacy_qualification(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -72,6 +188,7 @@ class RetainedLayoutTests(unittest.TestCase):
             **plain,
             "implementation_directory": ".",
             "framework_owned_paths": [
+                ".literate/initialization-baseline.json",
                 ".literate/retained-layout.json",
                 "components/scheduler-wrapper/component.md",
                 "literate.project.json",
@@ -92,6 +209,7 @@ class RetainedLayoutTests(unittest.TestCase):
             "wrapper_component": "components/scheduler-wrapper",
             "implementation_directory": ".",
             "framework_owned_paths": [
+                ".literate/initialization-baseline.json",
                 ".literate/retained-layout.json",
                 "components/scheduler-wrapper/component.md",
                 "literate.project.json",
