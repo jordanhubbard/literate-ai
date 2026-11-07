@@ -1471,11 +1471,21 @@ def assert_installed_agent_bootstrap(
     script = project / "scripts/bootstrap_litai.py"
     guide = project / "docs/user/bootstrap.md"
     skill = (project / "SKILL.md").read_text(encoding="utf-8")
+    entrypoints = [
+        (project / name).read_text(encoding="utf-8")
+        for name in ("AGENTS.md", "CLAUDE.md")
+    ]
     if (
         not script.is_file()
         or not guide.is_file()
         or "docs/user/bootstrap.md" not in skill
         or skill.index("docs/user/bootstrap.md") > skill.index("`litai doctor`")
+        or any(
+            "docs/user/bootstrap.md" not in entrypoint
+            or "SKILL.md" not in entrypoint
+            or entrypoint.index("docs/user/bootstrap.md") > entrypoint.index("SKILL.md")
+            for entrypoint in entrypoints
+        )
     ):
         raise RuntimeError("installed project omitted its pre-CLI bootstrap route")
 
