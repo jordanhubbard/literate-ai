@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import py_compile
+import shlex
 import subprocess
 import sys
 from dataclasses import replace
@@ -81,7 +82,11 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
         # The expected bytecode is compiled below with this interpreter. Pin
         # the public build's discovered tool to the same runtime on hosts whose
         # first PATH python3 has a different bytecode format.
-        PYTHON=sys.executable,
+        PYTHON=(
+            subprocess.list2cmdline([sys.executable])
+            if os.name == "nt"
+            else shlex.quote(sys.executable)
+        ),
         CODING_CLI="no-generation-provider",
         LITAI_CODING_PROVIDER="coding-cli",
     )
