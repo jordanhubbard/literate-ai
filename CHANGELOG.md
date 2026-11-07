@@ -4,6 +4,11 @@
 
 - Shadow planning, source reads and recovery enforce live Git/forge byte limits. Fetch and bundle budget refusals retire the owned process tree, and local Git replacement refs cannot substitute custodied content (#311).
 
+- Go applications compile their native behavior tests from `source/tests/litai_runtime.go`; the guarded builder binds the actual offline compiler-consumed source graph (#324).
+- Inert conversion recognizes JavaScript/TypeScript module and JSX suffixes while preserving sensitive, binary, generated, large, minified and test precedence (#328).
+- Large library import commands retain every declared mapping and bind the complete typed surface identity within the finite argument limit (#330).
+- Repository checkout checks Git LFS JSON-inventory support before configuring a remote. FreeBSD SDK staging propagates exact source-only Git trust to the clone child through a disposable config (#305).
+
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,
   slides and linked assets must be refreshed and reviewed with the release source
@@ -14,7 +19,7 @@
   all direct byte, dependency, SDK, tool, revocation and deadline checks. Custom
   callbacks retain independent replanning; plan values grant no execution.
 
-- Host bootstrap requires Git 2.47 or newer and Git LFS 3.2 or newer for
+- Host bootstrap requires Git 2.43 or newer and Git LFS 3.2 or newer for
   scoped ownership checks and complete JSON LFS inventories. Worker alignment
   reports incompatible selected Git/LFS tools and rechecks declared repairs.
 
