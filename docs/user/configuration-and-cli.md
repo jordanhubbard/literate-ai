@@ -231,6 +231,9 @@ the remaining creation, synchronization, qualification, and repair contract.
 identity and refuses a local target branch whose commit differs from the PR base.
 It reports whether the candidate head object is available locally, without
 fetching it or creating an evaluation lane.
+Git and forge inspections enforce live stdout/stderr byte limits before decoding,
+with finite deadlines and owned process-tree cleanup. A multibyte Git response
+cannot exceed its declared byte budget by fitting a character count.
 Use `--shadow PATH` in place of `--upstream PATH` to bind the plan to a created
 shadow's exact commit and source bundle. This form requires the PR target branch
 to be selected in the shadow and equal the current remote PR base.

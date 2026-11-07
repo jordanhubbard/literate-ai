@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Shadow planning bounds Git and forge output as bytes while the tool runs, with finite deadlines and owned descendant cleanup. UTF-8 payloads cannot pass a byte budget through character counting (#311).
+
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,
   slides and linked assets must be refreshed and reviewed with the release source

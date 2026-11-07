@@ -7,6 +7,7 @@ import os
 import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import unittest
 from io import StringIO
@@ -25,6 +26,72 @@ def _git(root: Path, *args: str) -> str:
 
 
 class ShadowPlanCliTests(unittest.TestCase):
+    def test_forge_inspection_accepts_only_bounded_successful_json(self) -> None:
+        from literate_ai.adapters.builders._process import run_bounded_process
+
+        forge = {"host": "github.com", "owner": "owner", "repository": "example"}
+        for output, errors, status, code in (
+            (b'{"number":17}', b"", 0, None),
+            (b"{", b"", 0, "shadow.forge_invalid"),
+            (b"x" * 1025, b"", 0, "shadow.forge_unavailable"),
+            (b'{"number":17}', b"x" * 4097, 0, "shadow.forge_unavailable"),
+            (b'{"number":17}', b"", 1, "shadow.forge_unavailable"),
+        ):
+            with self.subTest(
+                code=code, status=status, bytes=len(output) + len(errors)
+            ):
+
+                def fixture(
+                    command, output=output, errors=errors, status=status, **kwargs
+                ):
+                    self.assertEqual(
+                        command,
+                        [
+                            "gh",
+                            "api",
+                            "--method",
+                            "GET",
+                            "repos/owner/example/pulls/17",
+                        ],
+                    )
+                    self.assertEqual(kwargs["environment"]["GH_PROMPT_DISABLED"], "1")
+                    script = (
+                        "import sys;"
+                        f"sys.stdout.buffer.write({output!r});"
+                        f"sys.stderr.buffer.write({errors!r});"
+                        f"sys.exit({status})"
+                    )
+                    return run_bounded_process([sys.executable, "-c", script], **kwargs)
+
+                with (
+                    patch.object(shadow_module, "_MAX_PR_BYTES", 1024),
+                    patch(
+                        "literate_ai.adapters.builders._process.run_bounded_process",
+                        side_effect=fixture,
+                    ),
+                ):
+                    if code is None:
+                        self.assertEqual(
+                            shadow_module._github_pr(forge, 17), {"number": 17}
+                        )
+                    else:
+                        with self.assertRaises(CliFailure) as caught:
+                            shadow_module._github_pr(forge, 17)
+                        self.assertEqual(caught.exception.code, code)
+
+    def test_git_inspection_enforces_utf8_byte_budget(self) -> None:
+        (self.upstream / "large.txt").write_text("\u00e9" * 1024, encoding="utf-8")
+        _git(self.upstream, "add", "large.txt")
+        _git(self.upstream, "commit", "-qm", "multibyte input")
+        with self.assertRaises(CliFailure) as caught:
+            shadow_module._git(self.upstream, "show", "HEAD:large.txt", max_output=1024)
+        self.assertEqual(caught.exception.code, "shadow.git_unbounded")
+
+    def test_git_inspection_bounds_error_diagnostics(self) -> None:
+        with self.assertRaises(CliFailure) as caught:
+            shadow_module._git(self.upstream, "show", "x" * 8192, max_output=1024)
+        self.assertEqual(caught.exception.code, "shadow.git_unbounded")
+
     def test_fetch_size_ignores_a_disappearing_git_temp_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

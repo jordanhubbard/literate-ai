@@ -55,21 +55,31 @@ def _git(
     environment: dict[str, str] | None = None,
     max_output: int = 4096,
 ) -> str:
+    from literate_ai.adapters.builders._process import run_bounded_process
+    from literate_ai.adapters.builders.python import BuildError
+
     try:
-        result = subprocess.run(
+        result = run_bounded_process(
             ["git", "--no-optional-locks", "-C", str(root), *arguments],
-            env={
+            cwd=None,
+            environment={
                 **os.environ,
                 "GIT_OPTIONAL_LOCKS": "0",
                 "GIT_CONFIG_NOSYSTEM": "1",
                 **(environment or {}),
             },
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-            check=False,
+            timeout_seconds=timeout,
+            stdout_limit_bytes=max_output,
+            stderr_limit_bytes=min(max_output, 4096),
+            error_prefix="shadow.git",
+            terminate_descendants=True,
+            trace=False,
         )
-    except (OSError, UnicodeError, subprocess.TimeoutExpired) as exc:
+    except BuildError as exc:
+        if exc.code == "shadow.git_output_limit":
+            raise CliFailure(
+                "shadow.git_unbounded", "Git inspection exceeded its output bound"
+            ) from exc
         raise CliFailure(
             "shadow.git_unavailable", "Git inspection did not complete"
         ) from exc
@@ -77,11 +87,13 @@ def _git(
         raise CliFailure(
             "shadow.git_invalid", "Git could not resolve the requested upstream state"
         )
-    if len(result.stdout) > max_output:
+    try:
+        output = result.stdout.decode("utf-8")
+    except UnicodeError as exc:
         raise CliFailure(
-            "shadow.git_unbounded", "Git inspection exceeded its output bound"
-        )
-    return result.stdout.strip()
+            "shadow.git_unavailable", "Git inspection did not return UTF-8 output"
+        ) from exc
+    return output.strip()
 
 
 def _forge_identity(remote: str) -> dict[str, str]:
@@ -176,20 +188,27 @@ def plan_shadow(
 
 
 def _github_pr(forge: dict[str, str], number: int) -> dict[str, object]:
+    from literate_ai.adapters.builders._process import run_bounded_process
+    from literate_ai.adapters.builders.python import BuildError
+
     route = f"repos/{forge['owner']}/{forge['repository']}/pulls/{number}"
     try:
-        result = subprocess.run(
+        result = run_bounded_process(
             ["gh", "api", "--method", "GET", route],
-            env={**os.environ, "GH_PROMPT_DISABLED": "1"},
-            capture_output=True,
-            timeout=15,
-            check=False,
+            cwd=None,
+            environment={**os.environ, "GH_PROMPT_DISABLED": "1"},
+            timeout_seconds=15,
+            stdout_limit_bytes=_MAX_PR_BYTES,
+            stderr_limit_bytes=4096,
+            error_prefix="shadow.forge",
+            terminate_descendants=True,
+            trace=False,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
+    except BuildError as exc:
         raise CliFailure(
             "shadow.forge_unavailable", "Forge PR inspection did not complete"
         ) from exc
-    if result.returncode or len(result.stdout) > _MAX_PR_BYTES:
+    if result.returncode:
         raise CliFailure(
             "shadow.forge_unavailable",
             "Forge PR inspection failed or exceeded its bound",

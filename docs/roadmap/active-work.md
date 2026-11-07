@@ -33929,6 +33929,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SHADOW-001 — Continuously qualify upstream branches through a separate shadow repository
 
+- **2026-11-07 finite inspection repair:** Git/forge planning currently collects complete subprocess output before checking its limit, and Git counts decoded characters rather than UTF-8 bytes. Reproduce a multibyte Git blob exceeding the byte budget and oversized Git diagnostics; reuse the canonical bounded process owner for live stream limits and descendant cleanup. Preserve read-only planning, stale/foreign-state refusals and every later execution/acceptance obligation. This is a prerequisite repair within accepted ADR 0063, not completion of shadow qualification. The real-Git byte and diagnostic controls fail on the original source and pass with the bounded owner. All 34 shadow controls pass after the repair, including a scripted forge transport exercised through the actual bounded subprocess runner for valid, malformed, oversized and failed responses; that fixture is not a live forge qualification.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#311](https://github.com/jordanhubbard/literate-ai/issues/311)
