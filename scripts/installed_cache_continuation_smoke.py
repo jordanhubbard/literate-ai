@@ -78,6 +78,10 @@ def scenario(root: Path, *, declared: bool, author_fixture) -> dict:
     os.environ.update(
         BUILD_DIR=str(root / "build"),
         OBJ_DIR=str(root / "obj"),
+        # The expected bytecode is compiled below with this interpreter. Pin
+        # the public build's discovered tool to the same runtime on hosts whose
+        # first PATH python3 has a different bytecode format.
+        PYTHON=sys.executable,
         CODING_CLI="no-generation-provider",
         LITAI_CODING_PROVIDER="coding-cli",
     )
