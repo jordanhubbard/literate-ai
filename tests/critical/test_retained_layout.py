@@ -47,11 +47,14 @@ class RetainedLayoutTests(unittest.TestCase):
         selected = rendered("scheduler")
         self.assertIn("- `scheduler/` is intentionally load-bearing", selected)
         self.assertNotIn("legacy-project-wrapper/implementation/", selected)
+        root_adr = rendered(".")
         self.assertIn(
             "- the retained source partition at the repository root is "
             "intentionally load-bearing",
-            rendered("."),
+            root_adr,
         )
+        self.assertIn("No root rename or quarantine move is claimed", root_adr)
+        self.assertNotIn("Move the complete original tree", root_adr)
 
     def test_initial_selection_keeps_default_and_refuses_portable_overlap(self) -> None:
         self.assertEqual(

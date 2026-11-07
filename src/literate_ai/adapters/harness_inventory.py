@@ -2209,6 +2209,46 @@ def render_lift_shift_adr(
     baseline_identity: str,
     parity_identity: str,
 ) -> str:
+    if implementation_directory == ".":
+        placement = (
+            "Keep the original retained source at the repository root under an "
+            "explicit source/framework ownership partition. The wrapper Component "
+            "keeps its specifications separate from that source, and "
+            "`litai.harness.mk` invokes the original pipeline at the root. "
+            "Framework-owned files are excluded only through the reviewed "
+            "partition; the remaining root namespace is retained source."
+        )
+        admission = (
+            "Root placement is admitted only when the wrapper workflow has the "
+            "same successful exit and source-authority tree identity as the "
+            "Phase 1 direct baseline. No root rename or quarantine move is "
+            "claimed. The retained implementation is not generated source, "
+            "not a cache, and not a specification; it remains release authority "
+            "until a separate Phase 2 ADR qualifies native Components, Flavors, "
+            "skills, and assets."
+        )
+    else:
+        placement = (
+            "Move the complete original tree, preserving its internal taxonomy, "
+            "from quarantine to\n"
+            f"`{implementation_directory}`. The wrapper Component owns this "
+            "retained implementation\n"
+            "and `litai.harness.mk` invokes it at its new location. Each move "
+            "uses `git mv` when the\n"
+            "entry is tracked and plain filesystem move otherwise."
+        )
+        admission = (
+            "The move is admitted only when the post-move wrapper workflow has "
+            "the same successful\n"
+            "exit and source-authority tree identity as the Phase 1 direct "
+            "baseline. Only then is\n"
+            "the empty quarantine directory removed. The retained implementation "
+            "is not generated\n"
+            "source, not a cache, and not a specification; it remains release "
+            "authority until a\n"
+            "separate Phase 2 ADR qualifies native Components, Flavors, skills, "
+            "and assets."
+        )
     retained_source = (
         "the retained source partition at the repository root"
         if implementation_directory == "."
@@ -2230,16 +2270,9 @@ source-to-specification transfer has occurred.
 
 ## Decision
 
-Move the complete original tree, preserving its internal taxonomy, from quarantine to
-`{implementation_directory}`. The wrapper Component owns this retained implementation
-and `litai.harness.mk` invokes it at its new location. Each move uses `git mv` when the
-entry is tracked and plain filesystem move otherwise.
+{placement}
 
-The move is admitted only when the post-move wrapper workflow has the same successful
-exit and source-authority tree identity as the Phase 1 direct baseline. Only then is
-the empty quarantine directory removed. The retained implementation is not generated
-source, not a cache, and not a specification; it remains release authority until a
-separate Phase 2 ADR qualifies native Components, Flavors, skills, and assets.
+{admission}
 
 ## Consequences
 
