@@ -25,7 +25,12 @@ from literate_ai.adapters.project_initialization import (
     discover_installed_initialization_origin,
     render_starter_document,
 )
-from literate_ai.adapters.retained_layout import resolve_legacy_implementation
+from literate_ai.adapters.retained_layout import (
+    LEGACY_WRAPPER_COMPONENT,
+    RetainedLayoutError,
+    read_retained_layout_declaration,
+    resolve_structural_layout,
+)
 from literate_ai.contracts import (
     CatalogImportsFile,
     ContentIdentity,
@@ -235,9 +240,8 @@ def _project_owned_generation_input_paths(
     return frozenset(protected)
 
 
-_LEGACY_SHIM_AUTHORITY_PATHS = frozenset(
+_LEGACY_SHIM_FLAVOR_PATHS = frozenset(
     {
-        "components/legacy-project-wrapper/component.md",
         "flavors/legacy-project-shim/flavor.md",
         "flavors/legacy-project-shim/openspec/spec.md",
     }
@@ -272,7 +276,8 @@ def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
     if inventory_path.is_symlink() or not inventory_path.is_file():
         return frozenset()
     lift_shift_path = _project_path(root, ".literate/legacy-lift-shift.json")
-    implementation = "components/legacy-project-wrapper/implementation"
+    wrapper_component = LEGACY_WRAPPER_COMPONENT
+    implementation = f"{LEGACY_WRAPPER_COMPONENT}/implementation"
     if lift_shift_path.is_file():
         try:
             content = lift_shift_path.read_bytes()
@@ -281,19 +286,37 @@ def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
             lift_shift = json.loads(content)
             if not isinstance(lift_shift, dict):
                 raise ValueError("lift-and-shift evidence must be an object")
-            implementation, _ = resolve_legacy_implementation(root, lift_shift)
+            layout = resolve_structural_layout(root, lift_shift)
+            wrapper_component = layout.wrapper_component
+            implementation = layout.implementation_directory
         except (OSError, UnicodeError, ValueError) as exc:
             raise ProjectUpdateError(
                 "project.update_retained_layout_invalid",
                 "retained lift-and-shift layout is invalid or redirected",
             ) from exc
+    else:
+        try:
+            if read_retained_layout_declaration(root) is not None:
+                raise RetainedLayoutError(
+                    "declared layout lacks lift-and-shift evidence"
+                )
+        except RetainedLayoutError as exc:
+            raise ProjectUpdateError(
+                "project.update_retained_layout_invalid",
+                "retained layout declaration is invalid or lacks "
+                "lift-and-shift evidence",
+            ) from exc
     for relative in (implementation, *_LEGACY_SHIM_DEPENDENT_PATHS):
         candidate = root.joinpath(*Path(relative).parts)
         if candidate.is_symlink() or not candidate.exists():
             return frozenset()
+    authority_paths = {
+        f"{wrapper_component}/component.md",
+        *_LEGACY_SHIM_FLAVOR_PATHS,
+    }
     return frozenset(
         path
-        for path in _LEGACY_SHIM_AUTHORITY_PATHS
+        for path in authority_paths
         if (candidate := root.joinpath(*Path(path).parts)).is_file()
         and not candidate.is_symlink()
     )

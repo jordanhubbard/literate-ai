@@ -7,10 +7,16 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from literate_ai.adapters.harness_inventory import legacy_shim_authority
 from literate_ai.adapters.project_updates import (
     ProjectUpdateError,
     _retained_legacy_shim_authority_paths,
 )
+from literate_ai.adapters.retained_layout import (
+    RETAINED_LAYOUT_SCHEMA,
+    RetainedLayoutDeclaration,
+)
+from literate_ai.contracts import canonical_json_bytes
 
 
 class RetainedUpdateLayoutTests(unittest.TestCase):
@@ -67,3 +73,71 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
                         captured.exception.code,
                         "project.update_retained_layout_invalid",
                     )
+
+    def test_update_preserves_selected_wrapper_shim(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            wrapper = "components/scheduler-wrapper"
+            document = {
+                "schema": RETAINED_LAYOUT_SCHEMA,
+                "wrapper_component": wrapper,
+                "implementation_directory": "scheduler",
+                "framework_owned_paths": [],
+                "lineage": {"kind": "initial"},
+            }
+            (root / "scheduler").mkdir()
+            (root / ".literate").mkdir()
+            (root / ".literate/retained-layout.json").write_bytes(
+                canonical_json_bytes(document) + b"\n"
+            )
+            (root / ".literate/legacy-lift-shift.json").write_text(
+                json.dumps(
+                    {
+                        "implementation_directory": "scheduler",
+                        "wrapper_component": wrapper,
+                        "layout_identity": RetainedLayoutDeclaration.from_dict(
+                            document
+                        ).identity,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            (root / ".literate/harness-inventory.json").write_text(
+                "{}\n", encoding="utf-8"
+            )
+            shim = legacy_shim_authority(
+                {"commands": {}, "stages": []},
+                {"phases": []},
+                wrapper_component=wrapper,
+            )
+            for relative, content in shim.items():
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(content, encoding="utf-8")
+            for relative in (
+                "workflows/legacy-adoption/workflow.md",
+                "routing/legacy-adoption.json",
+                "skills/specification-to-source/legacy-project-shim/SKILL.md",
+            ):
+                path = root / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("retained\n", encoding="utf-8")
+            self.assertEqual(
+                _retained_legacy_shim_authority_paths(root),
+                frozenset(
+                    {
+                        f"{wrapper}/component.md",
+                        "flavors/legacy-project-shim/flavor.md",
+                        "flavors/legacy-project-shim/openspec/spec.md",
+                    }
+                ),
+            )
+            (root / ".literate/legacy-lift-shift.json").write_text(
+                json.dumps({"implementation_directory": "scheduler"}),
+                encoding="utf-8",
+            )
+            with self.assertRaises(ProjectUpdateError) as captured:
+                _retained_legacy_shim_authority_paths(root)
+            self.assertEqual(
+                captured.exception.code, "project.update_retained_layout_invalid"
+            )
