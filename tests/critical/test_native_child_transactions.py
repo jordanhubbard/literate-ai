@@ -79,6 +79,7 @@ class NativeChildTransactionTests(unittest.TestCase):
         for name, callback in (
             ("plan_qualified_native_child", lambda *a, **kw: copy.deepcopy(self.plan)),
             ("require_parent_sources", lambda *a: self.parent.project),
+            ("membership_composition_supported", lambda *a: True),
             ("read_current_child", self.read_child),
             ("read_current_parent", self.read_parent),
         ):
@@ -237,6 +238,32 @@ class NativeChildTransactionTests(unittest.TestCase):
                 finish=True,
                 attempt_name=attempt,
             )
+        self.assert_original()
+
+        result = transactions.recover_qualified_native_child(
+            self.root,
+            publication_identity=identity,
+            acknowledgement=self.plan["identity"],
+            finish=False,
+            attempt_name=attempt,
+        )
+        self.assertEqual(result["state"], "rolled-back")
+        self.assertTrue(result["current_state_verified"])
+        self.assert_original()
+
+    def test_saved_supported_claim_cannot_override_actual_current_policy(self):
+        identity, attempt = self.prepare()
+        with mock.patch.object(
+            transactions, "membership_composition_supported", return_value=False
+        ):
+            with self.assertRaisesRegex(QualifiedNativeChildError, "actual current"):
+                transactions.recover_qualified_native_child(
+                    self.root,
+                    publication_identity=identity,
+                    acknowledgement=self.plan["identity"],
+                    finish=True,
+                    attempt_name=attempt,
+                )
         self.assert_original()
         result = transactions.recover_qualified_native_child(
             self.root,

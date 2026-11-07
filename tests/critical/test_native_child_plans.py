@@ -350,7 +350,9 @@ class NativeChildCurrentReaderTests(unittest.TestCase):
         shutil.copytree(self.fixture.root, self.child)
         self.selector = ChildQualificationSelection(
             self.relative,
-            self.fixture.fixture.component.relative_to(self.fixture.root).as_posix(),
+            self.fixture.fixture.component.resolve()
+            .relative_to(self.fixture.root)
+            .as_posix(),
             _TARGET,
             "codex",
             "profile.json",

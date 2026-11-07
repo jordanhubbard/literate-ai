@@ -44,7 +44,12 @@ from literate_ai.adapters.retained_provider_authority import (
     RetainedProviderAuthority,
     read_retained_provider_authority,
 )
+from literate_ai.application.flavor_selection import (
+    apply_flavor_selectors,
+    parse_scoped_flavor_selector,
+)
 from literate_ai.application.generation_preparation import GenerationPreparationRequest
+from literate_ai.contracts.flavors import FlavorSelectionCandidate
 from literate_ai.contracts.identity import (
     ContentIdentity,
     canonical_identity,
@@ -95,6 +100,70 @@ def _platform_key(value: list[dict[str, object]]) -> str:
             key=lambda item: (item["axis"], tuple(item["targets"])),
         )
     ).uri
+
+
+def _parent_platform_constraints(project: LoadedProject, catalog) -> list[dict]:
+    """Retained wrappers have no OS slot; use their declared project target.
+
+    Resolve the actual current Flavor catalog and normal ordered selectors. The
+    retained receipt separately binds the executed harness and source authority.
+    """
+    revisions = {flavor.identity.uri: flavor for flavor in catalog.flavor_revisions}
+    candidates = tuple(
+        FlavorSelectionCandidate(
+            candidate_identity=flavor.identity.uri,
+            flavor_id=flavor.definition.coordinate.name,
+            axis=flavor.definition.primary_axis.value,
+            value=flavor.definition.supported_targets[0],
+            conflicts=flavor.definition.conflicts,
+            coordinate_uri=flavor.definition.coordinate.uri,
+        )
+        for flavor in revisions.values()
+    )
+    coordinate = catalog.root_authoring.coordinate.uri
+    selectors = []
+    for raw in (
+        *project.definition.default_flavor_selectors,
+        *project.flavor_selectors_for(catalog.root),
+    ):
+        scope, effective = parse_scoped_flavor_selector(raw)
+        if scope is None or scope == coordinate:
+            selectors.append(effective)
+    selected = apply_flavor_selectors(candidates, selectors)
+    result = [
+        {
+            "axis": item.axis,
+            "targets": list(
+                revisions[item.candidate_identity].definition.supported_targets
+            ),
+            "revision": item.candidate_identity,
+        }
+        for item in selected
+        if item.axis in {"platform.os", "platform.architecture"}
+    ]
+    if not any(item["axis"] == "platform.os" for item in result):
+        refuse(
+            "target_unsupported",
+            "the retained parent requires explicit platform authority",
+        )
+    return sorted(result, key=lambda item: (item["axis"], item["revision"]))
+
+
+def _parent_wrapper(project: LoadedProject):
+    wrapper = project.root / "components/legacy-project-wrapper"
+    lock = current_component_lock(wrapper)
+    reader = FilesystemLockedGenerationAuthorityReader()
+    catalog = reader.load_catalog(wrapper, flavor_roots=(project.root / "flavors",))
+    snapshot = reader.resolve(
+        catalog,
+        target_name=lock.target_name,
+        # Conversion explicitly selects its shim over the detected build default.
+        flavor_selectors=project.flavor_selectors_for(
+            wrapper, ("+flavor://legacy-adoption/build-legacy-shim",)
+        ),
+    )
+    snapshot.require_unchanged()
+    return snapshot, catalog
 
 
 def _metadata(path: Path) -> tuple[bytes, tuple[int, ...]]:
@@ -282,9 +351,9 @@ def require_parent_sources(root: Path, expected: dict) -> LoadedProject:
     base = validated_project_authority_identity(
         root, synchronize_source_intelligence=False
     )
+    wrapper, _catalog = _parent_wrapper(project)
     if (
-        current_component_lock(root / "components/legacy-project-wrapper").identity.uri
-        != expected["wrapper_lock"]
+        wrapper.authority.lock.identity.uri != expected["wrapper_lock"]
         or base.uri != expected["authority"]
         or retained_harness_project_authority_identity(project, base).uri
         != expected["retained_source_authority"]
@@ -294,6 +363,13 @@ def require_parent_sources(root: Path, expected: dict) -> LoadedProject:
     ):
         refuse("parent_changed", "parent retained source, receipt or authority changed")
     return project
+
+
+def membership_composition_supported(project: LoadedProject) -> bool:
+    documents = _load_retained_documents(project)
+    return project.definition.test_receipt_policy == retained_harness_receipt_policy(
+        documents["inventory"]["value"]
+    )
 
 
 def read_current_parent(root: Path) -> CurrentParent:
@@ -320,20 +396,11 @@ def read_current_parent(root: Path) -> CurrentParent:
     require_native_project_path(project, receipt_path)
     receipt_bytes = _read(receipt_path, maximum_bytes=16 * 1024 * 1024)
     receipt_node = physical_node(receipt_path.lstat())
-    wrapper = root / "components/legacy-project-wrapper"
-    wrapper_lock = current_component_lock(wrapper)
-    wrapper_snapshot = FilesystemLockedGenerationAuthorityReader().read(
-        wrapper,
-        target_name=wrapper_lock.target_name,
-        flavor_selectors=project.flavor_selectors_for(wrapper, ()),
-    )
-    platform_constraints = _platform_constraints(wrapper_snapshot.authority)
+    wrapper_snapshot, catalog = _parent_wrapper(project)
+    wrapper_lock = wrapper_snapshot.authority.lock
+    platform_constraints = _parent_platform_constraints(project, catalog)
     wrapper_snapshot.require_unchanged()
-    documents = _load_retained_documents(project)
-    supported = (
-        project.definition.test_receipt_policy
-        == retained_harness_receipt_policy(documents["inventory"]["value"])
-    )
+    supported = membership_composition_supported(project)
     summary = {
         "project_id": project.definition.project_id,
         "platform": platform_constraints,

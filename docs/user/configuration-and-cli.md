@@ -91,6 +91,11 @@ litai render dashboard
 litai render tree
 litai project validate
 litai project lifecycle rebind-standard
+litai project native-child plan-add
+litai project native-child plan-revise
+litai project native-child apply
+litai project native-child status
+litai project native-child recover
 litai project documentation-update
 litai project documentation-review
 litai project agent-entrypoints

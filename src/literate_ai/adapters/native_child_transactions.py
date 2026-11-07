@@ -20,6 +20,7 @@ from literate_ai.adapters.native_child_inputs import (
 )
 from literate_ai.adapters.native_child_plans import (
     PLAN_SCHEMA,
+    membership_composition_supported,
     plan_qualified_native_child,
     read_current_child,
     read_current_parent,
@@ -84,6 +85,11 @@ def require_child_plan(plan: dict, acknowledgement: str | None = None) -> dict:
 
 def _current_inputs(root: Path, plan: dict, *, finish: bool) -> None:
     project = require_parent_sources(root, plan["parent"])
+    if not membership_composition_supported(project):
+        refuse(
+            "renewal_execution_required",
+            "the actual current parent policy requires separately authorized execution",
+        )
     selections, limits = read_qualification_selection(plan["selections"])
     expected = list(plan["children"])
     if finish:
@@ -102,6 +108,11 @@ def _current_inputs(root: Path, plan: dict, *, finish: bool) -> None:
 def _validate_published(root: Path, plan: dict, *, finish: bool) -> None:
     _current_inputs(root, plan, finish=finish)
     current = read_current_parent(root)
+    if not current.composition_supported:
+        refuse(
+            "renewal_execution_required",
+            "the reopened parent policy refuses composition",
+        )
     if finish:
         if (
             current.registry != plan["proposed_registry"]
