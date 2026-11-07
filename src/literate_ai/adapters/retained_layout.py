@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import stat
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -41,6 +42,79 @@ _MAX_LAYOUT_BYTES = 16 * 1024 * 1024
 
 
 @dataclass(frozen=True, slots=True)
+class RetainedLayoutSelection:
+    """Portable initial coordinates before any retained source is moved."""
+
+    wrapper_component: str
+    implementation_directory: str
+
+    @classmethod
+    def from_values(
+        cls, wrapper_component: str, implementation_directory: str
+    ) -> RetainedLayoutSelection:
+        try:
+            wrapper = canonical_relative_posix_path(
+                wrapper_component, label="retained wrapper Component"
+            )
+            if len(wrapper.parts) != 2 or wrapper.parts[0] != "components":
+                raise ValueError("wrapper must be one Component under components/")
+            if implementation_directory != ".":
+                implementation = canonical_relative_posix_path(
+                    implementation_directory, label="retained implementation"
+                )
+                wrapper_alias = tuple(
+                    unicodedata.normalize("NFC", part.casefold())
+                    for part in wrapper.parts
+                )
+                implementation_alias = tuple(
+                    unicodedata.normalize("NFC", part.casefold())
+                    for part in implementation.parts
+                )
+                if wrapper_alias[: len(implementation_alias)] == implementation_alias:
+                    raise ValueError("implementation overlaps wrapper authority")
+                if (
+                    implementation_alias[: len(wrapper_alias)] == wrapper_alias
+                    and implementation.parts[: len(wrapper.parts)] != wrapper.parts
+                ):
+                    raise ValueError("implementation aliases wrapper authority")
+        except (TypeError, ValueError) as exc:
+            raise RetainedLayoutError("retained layout selection is invalid") from exc
+        return cls(wrapper_component, implementation_directory)
+
+
+def original_source_occupies_coordinate(project_root: Path, coordinate: str) -> bool:
+    """Find an original-source collision, including a portable spelling alias."""
+
+    relative = canonical_relative_posix_path(
+        coordinate, label="framework authority reservation"
+    )
+    current = Path(project_root)
+    try:
+        for index, part in enumerate(relative.parts):
+            alias = unicodedata.normalize("NFC", part.casefold())
+            with os.scandir(current) as entries:
+                matches = [
+                    entry.name
+                    for entry in entries
+                    if unicodedata.normalize("NFC", entry.name.casefold()) == alias
+                ]
+            if not matches:
+                return False
+            if len(matches) != 1 or matches[0] != part:
+                return True
+            current /= part
+            if index == len(relative.parts) - 1:
+                return True
+            if path_is_link_or_reparse(current) or not current.is_dir():
+                return True
+    except OSError as exc:
+        raise RetainedLayoutError(
+            "original source collision cannot be inspected"
+        ) from exc
+    return False
+
+
+@dataclass(frozen=True, slots=True)
 class RetainedLayoutDeclaration:
     """Validated layout intent; creation still requires an authorized transition."""
 
@@ -68,19 +142,7 @@ class RetainedLayoutDeclaration:
         owned = value["framework_owned_paths"]
         lineage = value["lineage"]
         try:
-            wrapper_path = canonical_relative_posix_path(
-                wrapper, label="retained wrapper Component"
-            )
-            if len(wrapper_path.parts) != 2 or wrapper_path.parts[0] != "components":
-                raise ValueError("wrapper must be one Component under components/")
-            if implementation != ".":
-                implementation_path = canonical_relative_posix_path(
-                    implementation, label="retained implementation"
-                )
-                if implementation_path == wrapper_path or wrapper_path.is_relative_to(
-                    implementation_path
-                ):
-                    raise ValueError("implementation overlaps wrapper authority")
+            RetainedLayoutSelection.from_values(wrapper, implementation)
             if not isinstance(owned, list) or not all(
                 isinstance(item, str) for item in owned
             ):

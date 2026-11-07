@@ -13,6 +13,7 @@ from literate_ai.adapters.retained_layout import (
     RETAINED_LAYOUT_SCHEMA,
     RetainedLayoutDeclaration,
     RetainedLayoutError,
+    RetainedLayoutSelection,
     read_retained_layout_declaration,
     resolve_legacy_implementation,
     resolve_legacy_layout,
@@ -27,6 +28,28 @@ from literate_ai.contracts import (
 
 
 class RetainedLayoutTests(unittest.TestCase):
+    def test_initial_selection_keeps_default_and_refuses_portable_overlap(self) -> None:
+        self.assertEqual(
+            RetainedLayoutSelection.from_values(
+                "components/legacy-project-wrapper",
+                "components/legacy-project-wrapper/implementation",
+            ).implementation_directory,
+            "components/legacy-project-wrapper/implementation",
+        )
+        for implementation in (
+            "components",
+            "COMPONENTS",
+            "components/SCHEDULER-WRAPPER",
+            "components/SCHEDULER-WRAPPER/implementation",
+            "COMPONENTS/scheduler-wrapper/implementation",
+            "../scheduler",
+        ):
+            with self.subTest(implementation=implementation):
+                with self.assertRaises(RetainedLayoutError):
+                    RetainedLayoutSelection.from_values(
+                        "components/scheduler-wrapper", implementation
+                    )
+
     def test_shim_authority_uses_selected_wrapper_component(self) -> None:
         inventory = {"commands": {}, "stages": []}
         baseline = {"phases": []}
@@ -37,9 +60,7 @@ class RetainedLayoutTests(unittest.TestCase):
         self.assertNotIn("components/legacy-project-wrapper/component.md", selected)
         for invalid in ("components", "components/wrapper/child", "../wrapper"):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
-                legacy_shim_authority(
-                    inventory, baseline, wrapper_component=invalid
-                )
+                legacy_shim_authority(inventory, baseline, wrapper_component=invalid)
 
     def _declared_project(self, root: Path, document: dict) -> None:
         wrapper = root / document["wrapper_component"]
