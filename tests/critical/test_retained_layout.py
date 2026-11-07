@@ -7,7 +7,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from literate_ai.adapters.harness_inventory import legacy_shim_authority
+from literate_ai.adapters.harness_inventory import (
+    legacy_shim_authority,
+    render_lift_shift_adr,
+)
 from literate_ai.adapters.retained_layout import (
     LEGACY_WRAPPER_COMPONENT,
     RETAINED_LAYOUT_SCHEMA,
@@ -28,6 +31,28 @@ from literate_ai.contracts import (
 
 
 class RetainedLayoutTests(unittest.TestCase):
+    def test_lift_shift_adr_names_selected_retained_source(self) -> None:
+        def rendered(implementation: str) -> str:
+            return render_lift_shift_adr(
+                implementation_directory=implementation,
+                baseline_identity="sha256:" + "a" * 64,
+                parity_identity="sha256:" + "b" * 64,
+            )
+
+        self.assertIn(
+            "- `components/legacy-project-wrapper/implementation/` is "
+            "intentionally load-bearing",
+            rendered("components/legacy-project-wrapper/implementation"),
+        )
+        selected = rendered("scheduler")
+        self.assertIn("- `scheduler/` is intentionally load-bearing", selected)
+        self.assertNotIn("legacy-project-wrapper/implementation/", selected)
+        self.assertIn(
+            "- the retained source partition at the repository root is "
+            "intentionally load-bearing",
+            rendered("."),
+        )
+
     def test_initial_selection_keeps_default_and_refuses_portable_overlap(self) -> None:
         self.assertEqual(
             RetainedLayoutSelection.from_values(

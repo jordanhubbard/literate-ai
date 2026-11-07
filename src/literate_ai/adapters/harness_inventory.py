@@ -2209,6 +2209,11 @@ def render_lift_shift_adr(
     baseline_identity: str,
     parity_identity: str,
 ) -> str:
+    retained_source = (
+        "the retained source partition at the repository root"
+        if implementation_directory == "."
+        else f"`{implementation_directory}/`"
+    )
     return f"""# ADR 0001: Retain Legacy Source Authority During Lift-and-Shift
 
 - Status: Accepted for adoption
@@ -2238,7 +2243,7 @@ separate Phase 2 ADR qualifies native Components, Flavors, skills, and assets.
 
 ## Consequences
 
-- `components/legacy-project-wrapper/implementation/` is intentionally load-bearing
+- {retained_source} is intentionally load-bearing
   retained source and may not be cleaned as a build product.
 - Build products still belong outside authority and remain fungible.
 - Future migration items replace one retained surface at a time, prove parity, then
