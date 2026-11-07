@@ -1,0 +1,123 @@
+{
+  "kind": "qualified-native-child-development-verification",
+  "release_attestation": false,
+  "source_revision": "249fbcc2a07b296939901ee095df9129635b10a9",
+  "linux_full_summary": {
+    "executed": 2685,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2685,
+    "selected": 2804,
+    "skipped": 119
+  },
+  "linux_event_audit": {
+    "source_revision": "249fbcc2a07b296939901ee095df9129635b10a9",
+    "selected": 2804,
+    "outcomes": {
+      "passed": 2685,
+      "skipped": 119
+    },
+    "starts": 2775,
+    "module_groups": 600,
+    "event_counts": {
+      "start": 2775,
+      "success": 2685,
+      "done": 600,
+      "fixture_skip": 8,
+      "skip": 90
+    },
+    "report_matches": true,
+    "release_attestation": false,
+    "report_sha256": "34e6a69f2a197e9aa32d266b123b477b8a0f1149dbf0ed94320bbe8a75a01385",
+    "worker_event_inventory_sha256": "8bbde01de45cc958e6cc9a7a30cfa56dae8f0aaacef299324c731db38bbd0555"
+  },
+  "native_macos": {
+    "platform": {
+      "system": "Darwin",
+      "machine": "arm64",
+      "os_version": "27.0.1",
+      "python": "3.14.7"
+    },
+    "summary": {
+      "executed": 57,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 57,
+      "selected": 57,
+      "skipped": 0
+    },
+    "event_audit": {
+      "source_revision": "249fbcc2a07b296939901ee095df9129635b10a9",
+      "selected": 57,
+      "outcomes": {
+        "passed": 57
+      },
+      "starts": 57,
+      "module_groups": 5,
+      "event_counts": {
+        "start": 57,
+        "success": 57,
+        "done": 5
+      },
+      "report_matches": true,
+      "release_attestation": false,
+      "report_sha256": "cd6899ad767c17dccd752f28b29ae0c16a9a7097481de866a85ba580f5039ff9",
+      "worker_event_inventory_sha256": "87771467f653896e5e48b04f625672e7ef8433c689a5a9027d3e3ab2620ca617"
+    },
+    "tracked_inputs_unchanged": 5302,
+    "source_inventory_sha256": "f65598207c55603582b519eca9980974a4c81ce1176a983e05ed5dc6f8973aab"
+  },
+  "original_failures_retained": {
+    "source_revision": "5e1374b5232ddd5ea078dba845ede6574acfadae",
+    "linux_full_report_sha256": "3d3aa0ef3e810d5447d6a5f7822f7b6dd5b7938d003a0e275f114662150e4a58",
+    "linux_failure": "command-reference omitted the five newly public native-child verbs; incomplete fail-fast run",
+    "macos_report_sha256": "f761aaacd1ca1985317b1de4cceb675902dcc402af78a8973fd5f821d7c5dfbd",
+    "macos_failure": "test fixture compared unresolved /var with canonical /private/var; incomplete fail-fast run",
+    "macos_tracked_inputs_unchanged": 5301
+  },
+  "scope": [
+    "Current child lock/generation/verifier/policy readers reopen actual persisted qualification in controlled protocol fixtures; missing qualification refuses.",
+    "Whole physical child captures include ignored/untracked files, portable aliases, explicit bounds and original physical nodes.",
+    "Read-only addition/revision plans preserve complete membership, distinct accepted intent/new qualification runs and separate consumer acceptance.",
+    "Public apply/status/recovery wiring uses explicit qualification-reader seams around real filesystem transactions; these do not execute genuine child builds.",
+    "Three controls execute the existing retained Make harness and reopen its actual current receipt and complete parent through normal readers; child qualification remains a protocol fixture.",
+    "Journal v2 retains complete plans, original activation inode custody, no-replace moves, input guards before mutation, scoped normal verification and terminal-before-marker-cleanup recovery.",
+    "Native macOS executes all selected filesystem and protocol controls with no skips; tracked source bytes and recorded metadata stay unchanged."
+  ],
+  "remaining_required": [
+    "Public lost-response discovery and acknowledged apply retry using retained plans, plus final status journal revalidation under concurrent drift.",
+    "Genuine independent signed child acceptance and two-build qualification through installed public APIs/CLI.",
+    "Installed public v1/v2 plus unchanged sibling, fresh-process reopening and actual consumer v2 behavior with fresh application acceptance.",
+    "Native Windows and other supported-target qualification of the actual complete public operations.",
+    "Independent source review, full consolidated exact-head remote CI and post-merge main verification.",
+    "Parent-local promoted Component composition is unsupported; other receipt policies must renew under separately authorized execution.",
+    "Release scope completion and ordinary release authorization/publication."
+  ],
+  "installed_linux_wheel": {
+    "source_revision": "249fbcc2a07b296939901ee095df9129635b10a9",
+    "wheel": {
+      "identity": "sha256:5e1d64268805566575cef35c8394878c67503c1faf76edc9855b868acb852be1",
+      "path": "literate_ai-1.4.0-py3-none-any.whl",
+      "role": "wheel",
+      "size": 4272236
+    },
+    "manifest_identity": "sha256:31e68e616a12928f9d637057c3a1da04517d56257bfc3793f727376fd8e89e9b",
+    "standard_binding": {
+      "distribution": "sha256:16bc65474b394e555be1b46064148b7a205d0a6c70a9bf16e095877272ca9254",
+      "members": 1375,
+      "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    },
+    "canonical_smoke_passed": true,
+    "native_child_journey_qualified": false,
+    "windows_cpu_result": {
+      "case": "test_native_windows_local_and_receiver_cpu_satisfy_required_policy",
+      "installed_module_origins_verified": true,
+      "platform": "linux",
+      "receiver_transport": "local-child",
+      "skip_reasons": [
+        "requires the actual Windows API"
+      ],
+      "status": "skipped"
+    }
+  }
+}
