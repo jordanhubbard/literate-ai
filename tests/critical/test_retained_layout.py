@@ -8,8 +8,10 @@ import unittest
 from pathlib import Path
 
 from literate_ai.adapters.retained_layout import (
+    LEGACY_WRAPPER_COMPONENT,
     RetainedLayoutError,
     resolve_legacy_implementation,
+    resolve_legacy_layout,
 )
 
 
@@ -26,6 +28,12 @@ class RetainedLayoutTests(unittest.TestCase):
             )
             self.assertEqual(spelling, coordinate)
             self.assertEqual(resolved, implementation)
+            layout = resolve_legacy_layout(
+                root, {"implementation_directory": coordinate}
+            )
+            self.assertEqual(layout.wrapper_component, LEGACY_WRAPPER_COMPONENT)
+            self.assertEqual(layout.wrapper_root, implementation.parent)
+            self.assertEqual(layout.implementation_root, implementation)
 
     def test_rejects_cross_host_aliases_and_root_without_declaration(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

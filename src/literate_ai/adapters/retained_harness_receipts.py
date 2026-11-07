@@ -45,6 +45,7 @@ from literate_ai.adapters.retained_harness_remote import (
 from literate_ai.adapters.retained_layout import (
     RetainedLayoutError,
     resolve_legacy_implementation,
+    resolve_legacy_layout,
 )
 from literate_ai.contracts import (
     ContentIdentity,
@@ -75,7 +76,6 @@ _BASELINE_PATH = ".literate/legacy-harness-baseline.json"
 _PARITY_PATH = ".literate/legacy-wrapper-parity.json"
 _LIFT_SHIFT_PATH = ".literate/legacy-lift-shift.json"
 _WRAPPER_PATH = "litai.harness.mk"
-_WRAPPER_COMPONENT_PATH = "components/legacy-project-wrapper"
 _MAX_EVIDENCE_DOCUMENT_BYTES = 16 * 1024 * 1024
 _BASE_EVIDENCE_KINDS = frozenset(
     {
@@ -260,7 +260,7 @@ def run_retained_harness_receipt(
             project.root, synchronize_source_intelligence=False
         )
         component_locks = current_project_component_lock_identities(project)
-        wrapper_lock_identity = _current_wrapper_lock_identity(project)
+        wrapper_lock_identity = _current_wrapper_lock_identity(project, documents)
         if wrapper_lock_identity not in component_locks:
             _error(
                 "retained_receipt.wrapper_lock_changed",
@@ -827,14 +827,20 @@ def _require_project_unchanged(
         )
 
 
-def _current_wrapper_lock_identity(project: LoadedProject) -> ContentIdentity:
+def _current_wrapper_lock_identity(
+    project: LoadedProject, documents: dict[str, dict[str, Any]] | None = None
+) -> ContentIdentity:
     """Require the converted project's own wrapper lock, not an ambient catalog lock."""
 
-    component = project.root.joinpath(*Path(_WRAPPER_COMPONENT_PATH).parts)
-    if component.is_symlink() or not component.is_dir():
+    selected = documents or _load_retained_documents(project)
+    lift_shift = selected["lift_shift"]["value"]
+    assert isinstance(lift_shift, dict)
+    try:
+        component = resolve_legacy_layout(project.root, lift_shift).wrapper_root
+    except RetainedLayoutError:
         _error(
             "retained_receipt.wrapper_component_missing",
-            "retained execution requires the canonical legacy wrapper Component",
+            "retained execution requires its recorded direct wrapper Component",
         )
     try:
         return current_component_lock_identity(component)
