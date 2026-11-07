@@ -63,7 +63,11 @@ class GeneratedBootstrapTests(unittest.TestCase):
             skill.index("docs/user/bootstrap.md"), skill.index("`litai doctor`")
         )
         for name in ("AGENTS.md", "CLAUDE.md"):
-            self.assertIn("SKILL.md", (self.root / name).read_text())
+            entrypoint = (self.root / name).read_text()
+            self.assertLess(
+                entrypoint.index("docs/user/bootstrap.md"),
+                entrypoint.index("SKILL.md"),
+            )
         before = (self.root / "literate.project.json").read_bytes()
         process = subprocess.run(
             [sys.executable, "-I", str(self.script), "--json"],
@@ -174,6 +178,12 @@ class GeneratedBootstrapTests(unittest.TestCase):
                     prefix, rest = text.split("Before any `litai` command", 1)
                     _, suffix = rest.split("Treat specifications", 1)
                     return prefix + "Treat specifications" + suffix
+                if resource in {"AGENTS.md", "CLAUDE.md"}:
+                    return text.replace(
+                        "Before the first `litai` command, follow "
+                        "[project bootstrap](docs/user/bootstrap.md).\n\n",
+                        "",
+                    )
                 return text
 
             with (
@@ -218,4 +228,8 @@ class GeneratedBootstrapTests(unittest.TestCase):
                 updated_skill.index("`litai doctor`"),
             )
             self.assertEqual((target / "AGENTS.md").read_bytes(), custom)
+            self.assertLess(
+                (target / "CLAUDE.md").read_text().index("docs/user/bootstrap.md"),
+                (target / "CLAUDE.md").read_text().index("SKILL.md"),
+            )
             self.assertEqual((target / "literate.project.json").read_bytes(), before)
