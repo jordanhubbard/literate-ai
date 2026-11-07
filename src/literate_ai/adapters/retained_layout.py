@@ -7,12 +7,23 @@ can extend this boundary without asking receipt callers to reconstruct paths.
 
 from __future__ import annotations
 
+import json
+import os
+import stat
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
-from literate_ai.contracts import ContentIdentity, canonical_identity
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    path_is_link_or_reparse,
+    require_safe_directory,
+)
+from literate_ai.contracts import (
+    ContentIdentity,
+    canonical_identity,
+    canonical_json_bytes,
+)
 from literate_ai.contracts.paths import (
     canonical_relative_posix_path,
     canonical_relative_posix_paths,
@@ -25,6 +36,8 @@ class RetainedLayoutError(ValueError):
 
 LEGACY_WRAPPER_COMPONENT = "components/legacy-project-wrapper"
 RETAINED_LAYOUT_SCHEMA = "literate-ai/retained-layout@1"
+RETAINED_LAYOUT_PATH = ".literate/retained-layout.json"
+_MAX_LAYOUT_BYTES = 1024 * 1024
 
 
 @dataclass(frozen=True, slots=True)
@@ -133,6 +146,53 @@ class ResolvedRetainedLayout:
     implementation_root: Path
 
 
+def read_retained_layout_declaration(
+    project_root: Path,
+) -> RetainedLayoutDeclaration | None:
+    """Read a direct declaration, or report that legacy authority applies."""
+
+    root = Path(project_root).absolute()
+    path = root / RETAINED_LAYOUT_PATH
+    try:
+        require_safe_directory(root)
+        require_safe_directory(path.parent, allow_missing=True)
+        before = path.lstat()
+    except FileNotFoundError:
+        return None
+    except (OSError, UnsafeFilesystemPathError) as exc:
+        raise RetainedLayoutError("retained layout path is unsafe") from exc
+    if path_is_link_or_reparse(path) or not stat.S_ISREG(before.st_mode):
+        raise RetainedLayoutError("retained layout must be one direct regular file")
+    if before.st_size > _MAX_LAYOUT_BYTES:
+        raise RetainedLayoutError("retained layout exceeds its byte limit")
+    try:
+        flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
+        if os.name != "nt":
+            flags |= getattr(os, "O_NOFOLLOW", 0)
+        descriptor = os.open(path, flags)
+        try:
+            content = os.read(descriptor, _MAX_LAYOUT_BYTES + 1)
+            opened = os.fstat(descriptor)
+        finally:
+            os.close(descriptor)
+        after = path.lstat()
+        if (
+            (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
+            != (opened.st_dev, opened.st_ino, opened.st_size, opened.st_mtime_ns)
+            or (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
+            != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
+            or path_is_link_or_reparse(path)
+        ):
+            raise RetainedLayoutError("retained layout changed during inspection")
+        document = json.loads(content)
+        declaration = RetainedLayoutDeclaration.from_dict(document)
+        if content != canonical_json_bytes(declaration.to_dict()) + b"\n":
+            raise RetainedLayoutError("retained layout bytes are not canonical")
+        return declaration
+    except (OSError, UnicodeError, ValueError) as exc:
+        raise RetainedLayoutError("retained layout is invalid or unavailable") from exc
+
+
 def resolve_legacy_implementation(
     project_root: Path, lift_shift: dict[str, Any]
 ) -> tuple[str, Path]:
@@ -142,6 +202,10 @@ def resolve_legacy_implementation(
     with a path derived from the host's current filesystem spelling.
     """
 
+    if read_retained_layout_declaration(project_root) is not None:
+        raise RetainedLayoutError(
+            "declared layout requires a supported transition and requalification"
+        )
     raw = lift_shift.get("implementation_directory")
     try:
         coordinate = canonical_relative_posix_path(raw, label="retained implementation")

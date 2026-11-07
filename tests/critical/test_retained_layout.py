@@ -12,12 +12,52 @@ from literate_ai.adapters.retained_layout import (
     RETAINED_LAYOUT_SCHEMA,
     RetainedLayoutDeclaration,
     RetainedLayoutError,
+    read_retained_layout_declaration,
     resolve_legacy_implementation,
     resolve_legacy_layout,
 )
+from literate_ai.contracts import canonical_json_bytes
 
 
 class RetainedLayoutTests(unittest.TestCase):
+    def test_direct_declaration_refuses_legacy_qualification(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".literate").mkdir()
+            (root / "scheduler").mkdir()
+            self.assertIsNone(read_retained_layout_declaration(root))
+            document = {
+                "schema": RETAINED_LAYOUT_SCHEMA,
+                "wrapper_component": "components/scheduler-wrapper",
+                "implementation_directory": "scheduler",
+                "framework_owned_paths": [],
+                "lineage": {"kind": "initial"},
+            }
+            path = root / ".literate/retained-layout.json"
+            path.write_bytes(canonical_json_bytes(document) + b"\n")
+            self.assertEqual(read_retained_layout_declaration(root).to_dict(), document)
+            with self.assertRaises(RetainedLayoutError):
+                resolve_legacy_implementation(
+                    root, {"implementation_directory": "scheduler"}
+                )
+            path.write_text("{}\n", encoding="utf-8")
+            with self.assertRaises(RetainedLayoutError):
+                read_retained_layout_declaration(root)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
+    def test_declaration_reader_refuses_redirected_file(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / ".literate").mkdir()
+            target = root / "other.json"
+            target.write_text("{}\n", encoding="utf-8")
+            try:
+                (root / ".literate/retained-layout.json").symlink_to(target)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"symlinks unavailable: {exc}")
+            with self.assertRaises(RetainedLayoutError):
+                read_retained_layout_declaration(root)
+
     def test_declared_plain_and_root_layouts_keep_distinct_ownership(self) -> None:
         plain = {
             "schema": RETAINED_LAYOUT_SCHEMA,
