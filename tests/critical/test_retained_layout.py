@@ -27,6 +27,20 @@ from literate_ai.contracts import (
 
 
 class RetainedLayoutTests(unittest.TestCase):
+    def test_shim_authority_uses_selected_wrapper_component(self) -> None:
+        inventory = {"commands": {}, "stages": []}
+        baseline = {"phases": []}
+        selected = legacy_shim_authority(
+            inventory, baseline, wrapper_component="components/scheduler-wrapper"
+        )
+        self.assertIn("components/scheduler-wrapper/component.md", selected)
+        self.assertNotIn("components/legacy-project-wrapper/component.md", selected)
+        for invalid in ("components", "components/wrapper/child", "../wrapper"):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                legacy_shim_authority(
+                    inventory, baseline, wrapper_component=invalid
+                )
+
     def _declared_project(self, root: Path, document: dict) -> None:
         wrapper = root / document["wrapper_component"]
         wrapper.mkdir(parents=True)

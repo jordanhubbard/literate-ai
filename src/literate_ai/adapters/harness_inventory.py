@@ -48,6 +48,7 @@ from literate_ai.adapters.harness_workspace import (
     materialize_harness_workspace_links,
     require_harness_workspace_link_evidence,
 )
+from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.diagnostics import redact_secrets, trace_subprocess
 
 HARNESS_INVENTORY_SCHEMA = "urn:literate-ai:schema:v1:harness-inventory"
@@ -1866,8 +1867,16 @@ def execute_harness_wrapper_parity(
 def legacy_shim_authority(
     inventory: dict[str, object],
     baseline: dict[str, object],
+    *,
+    wrapper_component: str = "components/legacy-project-wrapper",
 ) -> dict[str, str]:
     """Render the minimal first-class authority wrapping one proven legacy pipeline."""
+
+    wrapper_path = canonical_relative_posix_path(
+        wrapper_component, label="retained wrapper Component"
+    )
+    if len(wrapper_path.parts) != 2 or wrapper_path.parts[0] != "components":
+        raise ValueError("wrapper must be one Component under components/")
 
     commands = inventory.get("commands")
     if not isinstance(commands, dict):
@@ -2042,7 +2051,7 @@ their resulting tree identities with the direct baseline before adoption proceed
         + "\n"
     )
     return {
-        "components/legacy-project-wrapper/component.md": component,
+        f"{wrapper_component}/component.md": component,
         "skills/specification-to-source/legacy-project-shim/SKILL.md": skill,
         "flavors/legacy-project-shim/flavor.md": flavor,
         "flavors/legacy-project-shim/openspec/spec.md": flavor_spec,

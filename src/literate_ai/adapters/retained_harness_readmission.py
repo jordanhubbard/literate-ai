@@ -317,6 +317,7 @@ def plan_retained_harness_readmission(
             "state": "passed",
             "phases": expected_phases,
         },
+        wrapper_component=layout.wrapper_component,
     )
     review = FilesystemProjectValidationAdapter().documentation_review(root)
     document = review.get("document")
@@ -712,7 +713,9 @@ def apply_retained_harness_readmission(
             project_id=project.definition.project_id,
             executor=executor,
         )
-        shim = legacy_shim_authority(inventory, baseline)
+        shim = legacy_shim_authority(
+            inventory, baseline, wrapper_component=plan["wrapper_component"]
+        )
         paths = {
             INVENTORY: _safe_path(root, INVENTORY),
             BASELINE: _safe_path(root, BASELINE),
