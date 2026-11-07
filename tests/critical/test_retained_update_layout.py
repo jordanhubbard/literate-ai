@@ -34,10 +34,10 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
             encoding="utf-8",
         )
 
-    def test_update_preserves_shim_when_recorded_source_moved(self) -> None:
+    def test_update_preserves_shim_at_historical_coordinate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            self._project(root, "scheduler")
+            self._project(root, "components/legacy-project-wrapper/implementation")
             protected = _retained_legacy_shim_authority_paths(root)
             self.assertEqual(
                 protected,
@@ -53,13 +53,17 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
     def test_invalid_recorded_source_refuses_update_classification(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            self._project(root, "scheduler")
-            (root / ".literate/legacy-lift-shift.json").write_text(
-                json.dumps({"implementation_directory": "scheduler/../scheduler"}),
-                encoding="utf-8",
-            )
-            with self.assertRaises(ProjectUpdateError) as captured:
-                _retained_legacy_shim_authority_paths(root)
-            self.assertEqual(
-                captured.exception.code, "project.update_retained_layout_invalid"
-            )
+            self._project(root, "components/legacy-project-wrapper/implementation")
+            (root / "scheduler").mkdir()
+            for changed in ("scheduler", "scheduler/../scheduler"):
+                with self.subTest(changed=changed):
+                    (root / ".literate/legacy-lift-shift.json").write_text(
+                        json.dumps({"implementation_directory": changed}),
+                        encoding="utf-8",
+                    )
+                    with self.assertRaises(ProjectUpdateError) as captured:
+                        _retained_legacy_shim_authority_paths(root)
+                    self.assertEqual(
+                        captured.exception.code,
+                        "project.update_retained_layout_invalid",
+                    )
