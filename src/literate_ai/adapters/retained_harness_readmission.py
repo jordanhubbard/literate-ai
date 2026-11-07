@@ -48,6 +48,10 @@ from literate_ai.adapters.retained_harness_remote import (
     RetainedHarnessSshExecutor,
     retained_harness_runtime_requirements,
 )
+from literate_ai.adapters.retained_layout import (
+    RetainedLayoutError,
+    resolve_legacy_implementation,
+)
 from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
 from literate_ai.contracts import (
     ContentIdentity,
@@ -118,29 +122,12 @@ def _implementation(root: Path) -> tuple[str, Path]:
     lift_shift = _load_json(_safe_path(root, LIFT_SHIFT))
     if lift_shift.get("state") != "passed":
         _fail("lift_shift_unqualified", "retained lift-and-shift has not passed")
-    relative = lift_shift.get("implementation_directory")
-    if not isinstance(relative, str):
-        _fail("lift_shift_invalid", "lift-and-shift omits the implementation path")
-    raw = PurePosixPath(relative)
-    if (
-        raw.is_absolute()
-        or raw.as_posix() != relative
-        or any(part in {"", ".", ".."} for part in raw.parts)
-    ):
-        _fail("lift_shift_invalid", "retained implementation path is unsafe")
-    path = root
-    for part in raw.parts:
-        path = path / part
-        if path.is_symlink():
-            _fail("lift_shift_invalid", "retained implementation traverses a link")
     try:
-        resolved = path.resolve(strict=True)
-        resolved.relative_to(root)
-    except (OSError, ValueError):
-        _fail("lift_shift_invalid", "retained implementation escapes the project")
-    if path.is_symlink() or not resolved.is_dir():
-        _fail("lift_shift_invalid", "retained implementation must be one directory")
-    return relative, resolved
+        return resolve_legacy_implementation(root, lift_shift)
+    except RetainedLayoutError:
+        _fail(
+            "lift_shift_invalid", "retained implementation path is unsafe or redirected"
+        )
 
 
 def _conversion(root: Path, project_id: str) -> dict[str, Any]:

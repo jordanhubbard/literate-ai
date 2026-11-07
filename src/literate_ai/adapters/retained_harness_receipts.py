@@ -8,10 +8,9 @@ import json
 import os
 import platform
 import tempfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
-from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
 from literate_ai.adapters.component_lock_application import (
     ProjectComponentLockSetError,
     current_component_lock_identity,
@@ -42,6 +41,10 @@ from literate_ai.adapters.project_validation import (
 from literate_ai.adapters.retained_harness_remote import (
     RetainedHarnessRemoteError,
     RetainedHarnessSshExecutor,
+)
+from literate_ai.adapters.retained_layout import (
+    RetainedLayoutError,
+    resolve_legacy_implementation,
 )
 from literate_ai.contracts import (
     ContentIdentity,
@@ -697,39 +700,12 @@ def _implementation_root(
 ) -> Path:
     lift_shift = documents["lift_shift"]["value"]
     assert isinstance(lift_shift, dict)
-    raw = lift_shift.get("implementation_directory")
-    if not isinstance(raw, str):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "lift-and-shift evidence omits the retained implementation",
-        )
-    relative = PurePosixPath(raw)
-    if (
-        relative.is_absolute()
-        or relative.as_posix() != raw
-        or any(part in {"", ".", ".."} for part in relative.parts)
-    ):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation path is unsafe",
-        )
-    candidate = project.root.joinpath(*relative.parts)
     try:
-        require_safe_directory(candidate)
-        resolved = candidate.resolve(strict=True)
-        resolved.relative_to(project.root)
-        if resolved != candidate:
-            raise ValueError("redirected implementation")
-        require_safe_directory(candidate)
-    except (OSError, ValueError, UnsafeFilesystemPathError):
+        _, resolved = resolve_legacy_implementation(project.root, lift_shift)
+    except RetainedLayoutError:
         _error(
             "retained_receipt.lift_shift_invalid",
-            "retained implementation path is redirected or escapes the project",
-        )
-    if candidate.is_symlink() or not resolved.is_dir():
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation must be one project directory",
+            "retained implementation path is unsafe, unavailable or redirected",
         )
     return resolved
 
