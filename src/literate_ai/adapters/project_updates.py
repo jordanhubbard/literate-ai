@@ -25,6 +25,7 @@ from literate_ai.adapters.project_initialization import (
     discover_installed_initialization_origin,
     render_starter_document,
 )
+from literate_ai.adapters.retained_layout import resolve_legacy_implementation
 from literate_ai.contracts import (
     CatalogImportsFile,
     ContentIdentity,
@@ -242,7 +243,6 @@ _LEGACY_SHIM_AUTHORITY_PATHS = frozenset(
     }
 )
 _LEGACY_SHIM_DEPENDENT_PATHS = (
-    "components/legacy-project-wrapper/implementation",
     "workflows/legacy-adoption/workflow.md",
     "routing/legacy-adoption.json",
     "skills/specification-to-source/legacy-project-shim/SKILL.md",
@@ -271,7 +271,23 @@ def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
     inventory_path = root.joinpath(*Path(_LEGACY_HARNESS_INVENTORY_PATH).parts)
     if inventory_path.is_symlink() or not inventory_path.is_file():
         return frozenset()
-    for relative in _LEGACY_SHIM_DEPENDENT_PATHS:
+    lift_shift_path = _project_path(root, ".literate/legacy-lift-shift.json")
+    implementation = "components/legacy-project-wrapper/implementation"
+    if lift_shift_path.is_file():
+        try:
+            content = lift_shift_path.read_bytes()
+            if len(content) > _MAXIMUM_UPDATE_INPUT_BYTES:
+                raise ValueError("lift-and-shift evidence exceeds update input limit")
+            lift_shift = json.loads(content)
+            if not isinstance(lift_shift, dict):
+                raise ValueError("lift-and-shift evidence must be an object")
+            implementation, _ = resolve_legacy_implementation(root, lift_shift)
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise ProjectUpdateError(
+                "project.update_retained_layout_invalid",
+                "retained lift-and-shift layout is invalid or redirected",
+            ) from exc
+    for relative in (implementation, *_LEGACY_SHIM_DEPENDENT_PATHS):
         candidate = root.joinpath(*Path(relative).parts)
         if candidate.is_symlink() or not candidate.exists():
             return frozenset()
