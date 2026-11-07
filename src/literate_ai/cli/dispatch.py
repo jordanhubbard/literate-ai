@@ -392,6 +392,10 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return project_ci_plan_from_args(args), 0
         if args.project_command == "guidance":
             return project_guidance_from_args(args), 0
+        if args.project_command == "native-child":
+            from .native_child import native_child_from_args
+
+            return native_child_from_args(args), 0
         if args.project_command == "lifecycle":
             return project_lifecycle_from_args(args), 0
         if args.project_command == "source-intelligence":
@@ -2012,6 +2016,42 @@ def _parser() -> JsonArgumentParser:
         choices=("develop", "land", "release", "backport", "gc", "issue-close"),
     )
     project_guidance.add_argument("path", nargs="?", default=".")
+    native_child = project_commands.add_parser(
+        "native-child", help="plan and publish qualified native child membership"
+    )
+    child_commands = native_child.add_subparsers(
+        dest="native_child_command", required=True, parser_class=JsonArgumentParser
+    )
+    for operation in ("plan-add", "plan-revise"):
+        child_plan = child_commands.add_parser(operation)
+        if operation == "plan-revise":
+            child_plan.add_argument("active_child")
+        child_plan.add_argument("child")
+        child_plan.add_argument("--project", default=".")
+        child_plan.add_argument(
+            "--selection",
+            required=True,
+            help="current per-child qualification profile/provider selections",
+        )
+        child_plan.add_argument(
+            "--output", help="new plan file outside the bound project trees"
+        )
+    child_apply = child_commands.add_parser("apply")
+    child_apply.add_argument("plan")
+    child_apply.add_argument("--project", default=".")
+    child_apply.add_argument("--acknowledge", required=True)
+    for operation in ("status", "recover"):
+        child_operation = child_commands.add_parser(operation)
+        child_operation.add_argument("publication")
+        child_operation.add_argument("--project", default=".")
+        child_operation.add_argument(
+            "--attempt", help="retained attempt handle, including after completion"
+        )
+        if operation == "recover":
+            child_operation.add_argument("--acknowledge", required=True)
+            child_operation.add_argument(
+                "--action", required=True, choices=("finish", "rollback")
+            )
     project_lifecycle = project_commands.add_parser(
         "lifecycle",
         help="review and update project lifecycle authority",

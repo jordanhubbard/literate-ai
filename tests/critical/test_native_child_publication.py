@@ -388,3 +388,133 @@ p.recover_native_child_publication(Path(sys.argv[1]),publication_identity=sys.ar
         publication.require_no_native_child_publication(fresh)
         self.assertEqual(list(fresh.iterdir()), [])
         self.assertEqual(fresh.stat().st_mtime_ns, before.st_mtime_ns)
+
+    def test_equal_byte_foreign_activation_is_preserved_before_any_move(self):
+        identity = self.prepare()
+        active = self.metadata / publication._ACTIVE
+        content = active.read_bytes()
+        replacement = self.metadata / "foreign-active"
+        replacement.write_bytes(content)
+        os.replace(replacement, active)
+        inode = active.stat().st_ino
+        with self.assertRaises(publication.NativeChildPublicationError):
+            self.recover(identity)
+        self.assertEqual(active.stat().st_ino, inode)
+        self.assertEqual(active.read_bytes(), content)
+        self.assertEqual(
+            {n: (self.metadata / n).read_bytes() for n in self.old}, self.old
+        )
+        self.assertEqual((self.attempt / "activation.json").read_bytes(), content)
+
+    def test_additional_activation_hard_link_refuses_recovery(self):
+        identity = self.prepare()
+        os.link(self.metadata / publication._ACTIVE, self.root / "foreign-link")
+        with self.assertRaises(publication.NativeChildPublicationError):
+            self.recover(identity)
+        self.assertEqual(
+            {n: (self.metadata / n).read_bytes() for n in self.old}, self.old
+        )
+
+    def test_equal_byte_foreign_activation_pair_cannot_replace_reserved_inode(self):
+        identity = self.prepare()
+        active = self.metadata / publication._ACTIVE
+        replacement = self.metadata / "foreign-active"
+        companion = self.metadata / "foreign-companion"
+        replacement.write_bytes(active.read_bytes())
+        os.link(replacement, companion)
+        os.replace(replacement, active)
+        os.replace(companion, self.attempt / "activation.json")
+        inode = active.stat().st_ino
+        self.assertEqual(active.stat().st_nlink, 2)
+        with self.assertRaisesRegex(
+            publication.NativeChildPublicationError, "foreign_activation"
+        ):
+            self.recover(identity)
+        self.assertEqual(active.stat().st_ino, inode)
+        self.assertEqual(
+            {n: (self.metadata / n).read_bytes() for n in self.old}, self.old
+        )
+
+    def test_reviewed_plan_is_retained_and_replacement_refuses(self):
+        content = b'{"complete":"reviewed body"}\n'
+        identity = publication.prepare_native_child_publication(
+            self.root,
+            plan_identity=self.plan,
+            previous=self.old,
+            proposed=self.new,
+            reviewed_plan=content,
+        )
+        active = json.loads((self.metadata / publication._ACTIVE).read_bytes())
+        self.attempt = self.metadata / publication._HISTORY / active["attempt"]
+        plan = self.attempt / "plan.json"
+        self.assertEqual(plan.read_bytes(), content)
+        replacement = self.attempt / "foreign-plan"
+        replacement.write_bytes(content)
+        os.replace(replacement, plan)
+        inode = plan.stat().st_ino
+        with self.assertRaisesRegex(
+            publication.NativeChildPublicationError, "foreign_plan"
+        ):
+            self.recover(identity)
+        self.assertEqual(plan.stat().st_ino, inode)
+        self.assertEqual(
+            {n: (self.metadata / n).read_bytes() for n in self.old}, self.old
+        )
+
+    def test_prepare_validation_runs_under_lock_before_staging_and_activation(self):
+        calls = []
+
+        def refuse_before_activation():
+            calls.append(1)
+            self.verify(self.old)
+            if len(calls) == 2:
+                raise ValueError("qualification changed before activation")
+
+        with self.assertRaisesRegex(ValueError, "qualification changed"):
+            publication.prepare_native_child_publication(
+                self.root,
+                plan_identity=self.plan,
+                previous=self.old,
+                proposed=self.new,
+                validate=refuse_before_activation,
+            )
+        self.assertEqual(len(calls), 2)
+        self.assertFalse((self.metadata / publication._ACTIVE).exists())
+        self.verify(self.old)
+
+    def test_source_change_between_moves_stops_before_companion_mutation(self):
+        identity = self.prepare()
+        source = self.root / "qualified-child-input"
+        source.write_bytes(b"current")
+        rename = publication._move_exclusive
+
+        def change_after_first_move(origin, destination, expected, guard):
+            rename(origin, destination, expected, guard)
+            source.write_bytes(b"changed")
+
+        def current_inputs():
+            if source.read_bytes() != b"current":
+                raise ValueError("qualified child changed")
+
+        with mock.patch.object(
+            publication, "_move_exclusive", side_effect=change_after_first_move
+        ):
+            with self.assertRaisesRegex(ValueError, "qualified child changed"):
+                publication.recover_native_child_publication(
+                    self.root,
+                    publication_identity=identity,
+                    finish=True,
+                    before_mutation=current_inputs,
+                    validate=lambda: self.verify(self.new),
+                )
+        self.assertFalse((self.metadata / "native-projects.json").exists())
+        self.assertEqual(
+            (self.attempt / "0.before").read_bytes(), self.old["native-projects.json"]
+        )
+        self.assertEqual(
+            (self.metadata / "conversion-authority.json").read_bytes(),
+            self.old["conversion-authority.json"],
+        )
+        self.assertEqual(source.read_bytes(), b"changed")
+        self.recover(identity, finish=False)
+        self.verify(self.old)

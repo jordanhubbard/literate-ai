@@ -181,10 +181,42 @@ def advance_conversion_authority(
     )
 
 
+def renew_qualified_conversion_authority(
+    current: ConversionAuthorityState,
+    *,
+    evidence_identities: tuple[ContentIdentity, ...],
+) -> ConversionAuthorityState:
+    """Renew verified membership without advancing or changing source authority.
+
+    This constructor does not verify evidence. Only the reviewed child transaction
+    may publish it after current qualification/policy readers accept the complete
+    old and prospective membership. It never creates a test receipt or execution.
+    """
+    if (
+        not isinstance(current, ConversionAuthorityState)
+        or current.stage is not ConversionAuthorityStage.QUALIFIED
+    ):
+        raise ValueError(
+            "qualification membership renewal requires an already qualified parent"
+        )
+    replacement = ConversionAuthorityState(
+        project_id=current.project_id,
+        stage=current.stage,
+        evidence_identities=tuple(
+            sorted(evidence_identities, key=lambda value: value.uri)
+        ),
+        prior_state_identity=current.identity,
+    )
+    if replacement.evidence_identities == current.evidence_identities:
+        raise ValueError("qualification membership renewal requires changed evidence")
+    return replacement
+
+
 __all__ = [
     "CONVERSION_AUTHORITY_SCHEMA",
     "ONBOARD_PLAN_SCHEMA",
     "ConversionAuthorityStage",
     "ConversionAuthorityState",
     "advance_conversion_authority",
+    "renew_qualified_conversion_authority",
 ]

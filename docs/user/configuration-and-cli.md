@@ -1661,6 +1661,88 @@ before/after metadata as history, and rolls back both if validation or retention
 An uncoordinated registered-child rebind refuses. Concurrent metadata changes are never
 silently registered or overwritten during rollback.
 
+#### Qualified child addition and revision (development)
+
+Draft PR #359 implements `project native-child` for the accepted designs in
+[ADR 0062](../decisions/0062-qualified-native-child-addition.md) and
+[ADR 0066](../decisions/0066-qualified-native-child-revision.md). Installed native,
+genuine two-build, consumer and independent-review acceptance remain open. These
+commands are unavailable in the published 1.3.1 wheel.
+
+The retained parent must already be qualified with a current retained-harness
+receipt and canonical wrapper lock. Every active child and the candidate must
+have current independently qualified Component evidence. Select each Component's
+actual current provider, target, qualification profile, model and Flavors explicitly:
+
+```json
+{
+  "schema": "literate-ai/native-child-qualification-selection@1",
+  "components": [
+    {
+      "project": ".literate/native-projects/a",
+      "component": "components/library",
+      "target": "host",
+      "provider": "codex",
+      "profile": "qualification.json",
+      "model": null,
+      "flavors": []
+    },
+    {
+      "project": ".literate/native-projects/b",
+      "component": "components/library",
+      "target": "host",
+      "provider": "codex",
+      "profile": "qualification.json",
+      "model": null,
+      "flavors": []
+    }
+  ],
+  "limits": {}
+}
+```
+
+Profile and Component paths are relative to their child. Repeat entries for every
+qualified Component; selection must cover exactly the full active membership and
+candidate. Capture includes ignored and untracked child files under finite budgets;
+exceeding a budget refuses the plan rather than omitting files. Plans bind these
+physical trees as well as their reopened locks, verifier, policy and evidence.
+
+```console
+litai project native-child plan-add .literate/native-projects/b \
+  --project PARENT --selection selection.json --output /outside/parent/add.json
+# Review the complete plan, including renewal.required_work and identity.
+litai project native-child apply /outside/parent/add.json \
+  --project PARENT --acknowledge PLAN_ID
+litai project native-child status PUBLICATION_ID --project PARENT --attempt ATTEMPT
+```
+
+Revision uses `plan-revise ACTIVE_CHILD CANDIDATE` with the same options. Its
+selection also includes the old active tree. The candidate must preserve logical
+project identity and Component coordinates at a distinct direct physical path,
+with changed accepted intent and independent new qualification runs. Both trees
+remain intact. Store the publication identity and attempt handle from the result.
+
+```console
+litai project native-child recover PUBLICATION_ID --project PARENT \
+  --attempt ATTEMPT --acknowledge PLAN_ID --action finish
+# Choose --action rollback instead to restore an incomplete attempt's old state.
+```
+
+Apply reopens the complete plan under the parent lock before activation. Recovery
+reopens the retained full plan and current evidence before each move, then verifies
+the complete parent through normal readers. Incomplete publication blocks ordinary
+registry, conversion and receipt readers. Recovery preserves foreign changes and
+refuses ambiguous custody; a completed transition cannot be reversed by recovery.
+A repeated recovery of the same completed outcome verifies the current state
+without replaying writes. Inspection refuses if a later transition replaced its
+bound metadata. The journal alone never establishes current qualification.
+
+Only the built-in retained-harness policy currently supports receipt-preserving
+membership composition. Other policies report required renewed execution in the
+plan and refuse apply before publication. Parent-local promoted Components are
+currently unsupported. Publication preserves the actual retained receipt; consumer
+behavior, fresh application acceptance and release authorization remain separate.
+
 For a custom (non-Standard) receipt suite, rebind preserves its suite ID/version,
 required evidence kinds, and minimum test count. An independent harness runner stays
 unchanged; a runner exactly bound to the old Standard driver advances to the new

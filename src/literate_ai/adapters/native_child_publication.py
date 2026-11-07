@@ -34,7 +34,8 @@ _ACTIVE = "native-child-publication.json"
 _HISTORY = "native-child-publications"
 _MAXIMUM_BYTES = 1024 * 1024
 _MAXIMUM_RECORD_BYTES = 64 * 1024
-_SCHEMA = "literate-ai/native-child-publication@1"
+_MAXIMUM_PLAN_BYTES = 64 * 1024 * 1024
+_SCHEMA = "literate-ai/native-child-publication@2"
 
 
 @dataclass(slots=True)
@@ -90,13 +91,15 @@ def _directory(path: Path, *, allow_missing: bool = False) -> list[int]:
     return [node.st_dev, node.st_ino, node.st_mode]
 
 
-def _read(path: Path, limit: int = _MAXIMUM_BYTES) -> tuple[bytes, list[int]]:
+def _read(
+    path: Path, limit: int = _MAXIMUM_BYTES, *, links: int = 1
+) -> tuple[bytes, list[int]]:
     _directory(path.parent)
     named = path.lstat()
     if (
         stat_is_link_or_reparse(named)
         or not stat.S_ISREG(named.st_mode)
-        or named.st_nlink != 1
+        or named.st_nlink != links
         or named.st_size > limit
     ):
         _refuse("unsafe_file")
@@ -175,8 +178,8 @@ def _write_new(path: Path, content: bytes, mode: int = 0o600) -> list[int]:
     return _read(path, max(_MAXIMUM_BYTES, len(content)))[1]
 
 
-def _json(path: Path) -> tuple[dict, bytes, list[int]]:
-    content, node = _read(path, _MAXIMUM_RECORD_BYTES)
+def _json(path: Path, *, links: int = 1) -> tuple[dict, bytes, list[int]]:
+    content, node = _read(path, _MAXIMUM_RECORD_BYTES, links=links)
 
     def unique(pairs):
         result = {}
@@ -215,7 +218,7 @@ def require_no_native_child_publication(root: Path) -> None:
     active = metadata / _ACTIVE
     if not active.exists() and not active.is_symlink():
         return
-    value, _content, _node = _json(active)
+    value, _content, _node = _json(active, links=2)
     identity = canonical_identity(value).uri
     lease = _INSPECTION.get()
     if (
@@ -228,11 +231,27 @@ def require_no_native_child_publication(root: Path) -> None:
         _refuse("pending")
 
 
-def _observe(root: Path) -> tuple[Path, dict, Callable[[], None]]:
+def _observe(
+    root: Path, *, attempt_name: str | None = None
+) -> tuple[Path, dict, Callable[[], None]]:
     root = Path(root).absolute()
     metadata = root / ".literate"
     root_node, metadata_node = _directory(root), _directory(metadata)
-    active, active_bytes, active_node = _json(metadata / _ACTIVE)
+    if attempt_name is not None:
+        if (
+            not isinstance(attempt_name, str)
+            or len(attempt_name) != 32
+            or any(c not in "0123456789abcdef" for c in attempt_name)
+        ):
+            _refuse("record_invalid")
+        activation = metadata / _HISTORY / attempt_name / "activation.json"
+        links = activation.lstat().st_nlink
+        if links not in (1, 2):
+            _refuse("foreign_activation")
+        active, active_bytes, active_node = _json(activation, links=links)
+    else:
+        links = 2
+        active, active_bytes, active_node = _json(metadata / _ACTIVE, links=links)
     if (
         set(active) != {"schema", "attempt", "intent_identity"}
         or active["schema"] != _SCHEMA
@@ -243,6 +262,7 @@ def _observe(root: Path) -> tuple[Path, dict, Callable[[], None]]:
         not isinstance(name, str)
         or len(name) != 32
         or any(c not in "0123456789abcdef" for c in name)
+        or (attempt_name is not None and name != attempt_name)
     ):
         _refuse("record_invalid")
     history = metadata / _HISTORY
@@ -259,6 +279,8 @@ def _observe(root: Path) -> tuple[Path, dict, Callable[[], None]]:
             "metadata_node",
             "targets",
             "terminals",
+            "activation_node",
+            "reviewed_plan",
         }
         or intent["schema"] != _SCHEMA
         or canonical_identity(intent).uri != active["intent_identity"]
@@ -266,6 +288,27 @@ def _observe(root: Path) -> tuple[Path, dict, Callable[[], None]]:
         or intent["metadata_node"] != metadata_node
         or not isinstance(intent["targets"], list)
         or len(intent["targets"]) != 2
+    ):
+        _refuse("record_invalid")
+    activation_node = intent["activation_node"]
+    if (
+        not isinstance(activation_node, list)
+        or len(activation_node) != 5
+        or any(type(n) is not int for n in activation_node)
+        or activation_node != [*active_node[:3], *active_node[6:]]
+        or _read(attempt / "activation.json", _MAXIMUM_RECORD_BYTES, links=links)
+        != (active_bytes, active_node)
+    ):
+        _refuse("foreign_activation")
+    plan = intent["reviewed_plan"]
+    if plan is not None and (
+        not isinstance(plan, dict)
+        or set(plan) != {"node", "identity"}
+        or not isinstance(plan["node"], list)
+        or len(plan["node"]) != 8
+        or any(type(n) is not int for n in plan["node"])
+        or plan["node"][3] != 1
+        or not 0 < plan["node"][4] <= _MAXIMUM_PLAN_BYTES
     ):
         _refuse("record_invalid")
     for index, item in enumerate(intent["targets"]):
@@ -335,13 +378,28 @@ def _observe(root: Path) -> tuple[Path, dict, Callable[[], None]]:
             or _directory(metadata) != metadata_node
             or _directory(history) != history_node
             or _directory(attempt) != attempt_node
-            or _read(metadata / _ACTIVE, _MAXIMUM_RECORD_BYTES)
+            or (
+                links == 2
+                and _read(metadata / _ACTIVE, _MAXIMUM_RECORD_BYTES, links=links)
+                != (active_bytes, active_node)
+            )
+            or _read(attempt / "activation.json", _MAXIMUM_RECORD_BYTES, links=links)
             != (active_bytes, active_node)
             or _read(attempt / "intent.json", _MAXIMUM_RECORD_BYTES)
             != (intent_bytes, intent_node)
         ):
             _refuse("changed")
-        allowed = {"intent.json", "committed.json", "rolled-back.json"}
+        allowed = {
+            "intent.json",
+            "committed.json",
+            "rolled-back.json",
+            "activation.json",
+        }
+        if plan is not None:
+            allowed.add("plan.json")
+            content, node = _read(attempt / "plan.json", _MAXIMUM_PLAN_BYTES)
+            if node != plan["node"] or _digest(content) != plan["identity"]:
+                _refuse("foreign_plan")
         allowed.update(
             f"{index}.{side}" for index in range(2) for side in ("before", "after")
         )
@@ -352,9 +410,64 @@ def _observe(root: Path) -> tuple[Path, dict, Callable[[], None]]:
         for index, item in enumerate(intent["targets"]):
             _locations(metadata, attempt, index, item)
         terminal_state()
+        if links == 1 and not any(
+            _read(attempt / name, _MAXIMUM_RECORD_BYTES)[0]
+            for name in ("committed.json", "rolled-back.json")
+        ):
+            _refuse("incomplete")
 
     guard()
     return attempt, intent, guard
+
+
+def inspect_native_child_publication(
+    root: Path, *, publication_identity: str, attempt_name: str | None = None
+) -> dict[str, object]:
+    """Read a current or completed owned journal; never grant qualification.
+
+    A retained attempt name permits inspection after the active marker is removed.
+    Later replacement of its bound metadata refuses this historical inspection.
+    """
+    root = Path(root).absolute()
+    if ".." in root.parts:
+        _refuse("unsafe_root")
+    attempt, intent, guard = _observe(root, attempt_name=attempt_name)
+    active, _, _ = _json(
+        attempt / "activation.json",
+        links=(attempt / "activation.json").lstat().st_nlink,
+    )
+    if canonical_identity(active).uri != publication_identity:
+        _refuse("acknowledgement_mismatch")
+    state = "prepared"
+    for terminal, terminal_state in (
+        ("committed.json", "committed"),
+        ("rolled-back.json", "rolled-back"),
+    ):
+        expected = {
+            "schema": _SCHEMA,
+            "publication_identity": publication_identity,
+            "plan_identity": intent["plan_identity"],
+            "state": terminal_state,
+        }
+        if _read(attempt / terminal, _MAXIMUM_RECORD_BYTES)[0] == (
+            canonical_json_bytes(expected) + b"\n"
+        ):
+            state = terminal_state
+    plan = (
+        _read(attempt / "plan.json", _MAXIMUM_PLAN_BYTES)[0]
+        if intent["reviewed_plan"] is not None
+        else None
+    )
+    guard()
+    return {
+        "schema": _SCHEMA,
+        "publication_identity": publication_identity,
+        "attempt": attempt.name,
+        "plan_identity": intent["plan_identity"],
+        "state": state,
+        "pending": (attempt / "activation.json").lstat().st_nlink == 2,
+        "reviewed_plan": plan,
+    }
 
 
 def _matches(path: Path, expected: dict) -> bool:
@@ -446,11 +559,21 @@ def prepare_native_child_publication(
     plan_identity: str,
     previous: Mapping[str, bytes],
     proposed: Mapping[str, bytes],
+    reviewed_plan: bytes | None = None,
+    validate: Callable[[], None] | None = None,
 ) -> str:
     """Stage exact reviewed metadata; this does not verify qualification or publish."""
     from literate_ai.contracts.identity import ContentIdentity
 
     ContentIdentity.parse_uri(plan_identity)
+    if (
+        reviewed_plan is not None
+        and (
+            type(reviewed_plan) is not bytes
+            or not 0 < len(reviewed_plan) <= _MAXIMUM_PLAN_BYTES
+        )
+    ) or (validate is not None and not callable(validate)):
+        _refuse("inputs_invalid")
     if (
         set(previous) != set(_TARGETS)
         or set(proposed) != set(_TARGETS)
@@ -466,6 +589,8 @@ def prepare_native_child_publication(
     _directory(root)
     with _locked(root):
         require_no_native_child_publication(root)
+        if validate is not None:
+            validate()
         metadata = root / ".literate"
         root_node, metadata_node = _directory(root), _directory(metadata)
         captured = []
@@ -502,6 +627,14 @@ def prepare_native_child_publication(
         for terminal in ("committed.json", "rolled-back.json"):
             node = _write_new(attempt / terminal, b"")
             terminals[terminal] = [*node[:4], *node[6:]]
+        activation = attempt / "activation.json"
+        activation_node = _write_new(activation, b"")
+        plan_record = None
+        if reviewed_plan is not None:
+            plan_record = {
+                "node": _write_new(attempt / "plan.json", reviewed_plan),
+                "identity": _digest(reviewed_plan),
+            }
         intent = {
             "schema": _SCHEMA,
             "plan_identity": plan_identity,
@@ -509,6 +642,8 @@ def prepare_native_child_publication(
             "metadata_node": metadata_node,
             "targets": targets,
             "terminals": terminals,
+            "activation_node": [*activation_node[:3], *activation_node[6:]],
+            "reviewed_plan": plan_record,
         }
         _write_new(attempt / "intent.json", canonical_json_bytes(intent) + b"\n")
         _sync(attempt)
@@ -524,29 +659,78 @@ def prepare_native_child_publication(
             "attempt": name,
             "intent_identity": canonical_identity(intent).uri,
         }
-        _write_new(metadata / _ACTIVE, canonical_json_bytes(active) + b"\n")
+        # Bind the active pointer to the original reserved inode in the intent.
+        # Equal bytes at a foreign inode never authorize recovery or unlinking.
+        content = canonical_json_bytes(active) + b"\n"
+        fd = os.open(
+            activation,
+            os.O_WRONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0),
+        )
+        try:
+            if _key(os.fstat(fd)) != activation_node:
+                _refuse("changed")
+            remaining = memoryview(content)
+            while remaining:
+                count = os.write(fd, remaining)
+                if count <= 0:
+                    raise OSError("short activation write")
+                remaining = remaining[count:]
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        named_content, named_node = _read(activation, _MAXIMUM_RECORD_BYTES)
+        if (
+            named_content != content
+            or [*named_node[:3], *named_node[6:]] != intent["activation_node"]
+        ):
+            _refuse("changed")
+        if validate is not None:
+            validate()
+        for target, original, node, ctime in captured:
+            if (
+                _read(metadata / target) != (original, node)
+                or (metadata / target).stat().st_ctime_ns != ctime
+            ):
+                _refuse("changed")
+        os.link(activation, metadata / _ACTIVE, follow_symlinks=False)
         _sync(metadata)
         _observe(root)
         return canonical_identity(active).uri
 
 
 def recover_native_child_publication(
-    root: Path, *, publication_identity: str, finish: bool, validate: Callable[[], None]
+    root: Path,
+    *,
+    publication_identity: str,
+    finish: bool,
+    validate: Callable[[], None],
+    before_mutation: Callable[[], None] | None = None,
 ) -> dict[str, object]:
     """Finish or roll back only owned nodes, then reopen through caller's verifier.
 
     The caller must supply the actual canonical qualification/policy verifier.
     Neither this callback nor a terminal record grants qualification by itself.
     """
-    if type(finish) is not bool or not callable(validate):
+    if (
+        type(finish) is not bool
+        or not callable(validate)
+        or (before_mutation is not None and not callable(before_mutation))
+    ):
         _refuse("inputs_invalid")
     root = Path(root).absolute()
     if ".." in root.parts:
         _refuse("unsafe_root")
     _directory(root)
     with _locked(root):
-        attempt, intent, guard = _observe(root)
-        active = _json(root / ".literate" / _ACTIVE)[0]
+        attempt, intent, metadata_guard = _observe(root)
+
+        def guard():
+            metadata_guard()
+            if before_mutation is not None:
+                before_mutation()
+            metadata_guard()
+
+        active = _json(root / ".literate" / _ACTIVE, links=2)[0]
         if canonical_identity(active).uri != publication_identity:
             _refuse("acknowledgement_mismatch")
         terminal = "committed.json" if finish else "rolled-back.json"
