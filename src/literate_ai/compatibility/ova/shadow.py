@@ -215,7 +215,7 @@ class OvaShadowComparator:
     """Build and compare side-effect-free projections of known OVA records."""
 
     _SKIPPED_DIRECTORIES = frozenset(
-        {".git", ".hg", ".svn", ".venv", "__pycache__", "node_modules"}
+        {".git", ".hg", ".svn", ".venv", ".litai-venv", "__pycache__", "node_modules"}
     )
 
     def __init__(self, reader: OvaCompatibilityReader | None = None) -> None:

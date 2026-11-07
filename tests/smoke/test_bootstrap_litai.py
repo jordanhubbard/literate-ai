@@ -54,6 +54,9 @@ class GeneratedBootstrapTests(unittest.TestCase):
     def test_generated_route_and_missing_cli_are_read_only(self) -> None:
         self.assertTrue(self.script.is_file())
         self.assertTrue((self.root / "docs/user/bootstrap.md").is_file())
+        self.assertIn(
+            ".litai-venv/", (self.root / ".gitignore").read_text(encoding="utf-8")
+        )
         self.assertIn("user/bootstrap.md", (self.root / "docs/README.md").read_text())
         skill = (self.root / "SKILL.md").read_text()
         self.assertLess(
@@ -75,6 +78,25 @@ class GeneratedBootstrapTests(unittest.TestCase):
         self.assertEqual(report["state"], "missing")
         self.assertEqual(report["required_distribution"], "sha256:" + "a" * 64)
         self.assertEqual((self.root / "literate.project.json").read_bytes(), before)
+
+    def test_bootstrap_environment_is_not_source_without_git(self) -> None:
+        from literate_ai.adapters.harness_tree import capture_retained_source_scope
+        from literate_ai.source_to_specification.inventory import inventory_source
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            environment = root / ".litai-venv/lib"
+            environment.mkdir(parents=True)
+            (environment / "foreign.py").write_text("print('tooling')\n")
+            (root / "app.py").write_text("print('application')\n")
+
+            scope = capture_retained_source_scope(root)
+            self.assertEqual(scope["policy"], "filesystem-pruned@1")
+            self.assertEqual(scope["paths"], ["app.py"])
+            self.assertEqual(scope["excluded_roots"], [".litai-venv"])
+            self.assertEqual(
+                [entry.path for entry in inventory_source(root).entries], ["app.py"]
+            )
 
     def test_incompatible_and_ready_runtime_checks_preserve_custom_rules(self) -> None:
         module = self.module()

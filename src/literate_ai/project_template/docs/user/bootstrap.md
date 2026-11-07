@@ -46,8 +46,10 @@ library and does not install or change anything in this project.
 
    If pip cannot resolve dependencies, preserve the environment and report the
    package-index error. Do not install into a shared Python or silently upgrade
-   an existing LitAI installation. Keep `.litai-venv/` out of version control;
-   a local `.git/info/exclude` entry works for a Git checkout.
+   an existing LitAI installation. The generated `.gitignore` excludes
+   `.litai-venv/`, and LitAI treats that environment as local tooling output
+   during source inventory. For an older checkout without the ignore entry,
+   add it to `.git/info/exclude` before creating the environment.
 5. Continue only when the check reports `ready`. Use the isolated environment's
    `litai` executable for `doctor`, `status`, and subsequent project commands.
    If a newly installed wheel still reports `incompatible`, obtain the wheel
