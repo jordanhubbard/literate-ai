@@ -88,9 +88,25 @@ def require_native_project_path(project: LoadedProject, path: Path) -> None:
         ) from exc
 
 
+def _require_no_child_publication(root: Path) -> None:
+    from literate_ai.adapters.native_child_publication import (
+        NativeChildPublicationError,
+        require_no_native_child_publication,
+    )
+
+    try:
+        require_no_native_child_publication(root)
+    except (NativeChildPublicationError, OSError, ValueError) as exc:
+        raise ConversionAuthorityError(
+            "conversion_authority.native_publication_pending",
+            "native child metadata is in transition or its recovery state is unsafe",
+        ) from exc
+
+
 def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
     """Return exact registered source-free child projects for an adopted root."""
 
+    _require_no_child_publication(project.root)
     registry = project.root / NATIVE_PROJECTS_FILE
     require_native_project_path(project, registry)
     if not registry.exists():
@@ -176,6 +192,7 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
 def register_native_project(project: LoadedProject, child_root: Path) -> None:
     """Atomically register one exact promoted child with an adopted project."""
 
+    _require_no_child_publication(project.root)
     registry = project.root / NATIVE_PROJECTS_FILE
     require_native_project_path(project, registry)
     try:
@@ -208,6 +225,7 @@ def _register_native_project(project: LoadedProject, child_root: Path) -> None:
         "project_id": child.definition.project_id,
         "project_definition_identity": canonical_identity(definition_value).uri,
     }
+    _require_no_child_publication(project.root)
     registry = project.root / NATIVE_PROJECTS_FILE
     current_entries: list[dict[str, str]] = []
     if registry.exists():
@@ -265,6 +283,7 @@ class FilesystemConversionAuthorityStore:
         self.lock_path = self.root.joinpath(*Path(_CONVERSION_AUTHORITY_LOCK).parts)
 
     def load_optional(self) -> ConversionAuthorityState | None:
+        _require_no_child_publication(self.root)
         if not self.path.exists() and not self.path.is_symlink():
             return None
         return self._read()
@@ -311,6 +330,7 @@ class FilesystemConversionAuthorityStore:
         return state
 
     def _read(self) -> ConversionAuthorityState:
+        _require_no_child_publication(self.root)
         descriptor: int | None = None
         try:
             descriptor = os.open(
