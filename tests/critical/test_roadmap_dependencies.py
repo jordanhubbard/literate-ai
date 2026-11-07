@@ -363,7 +363,8 @@ class RoadmapDependencyTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "retained").mkdir()
+            retained = "components/legacy-project-wrapper/implementation"
+            (root / retained).mkdir(parents=True)
             (root / "docs/decisions").mkdir(parents=True)
             _, queue = self.project(root, item("AAA-001", "AAA-001"))
             decision = root / "docs/decisions/0002-native-literate-ai-rewrite.md"
@@ -375,7 +376,7 @@ class RoadmapDependencyTests(unittest.TestCase):
             }
             with self.assertRaises(RoadmapDependencyError) as caught:
                 prepare_native_rewrite_program(
-                    {"state": "passed", "implementation_directory": "retained"},
+                    {"state": "passed", "implementation_directory": retained},
                     project_root=root,
                 )
             self.assertEqual(caught.exception.code, "roadmap.dependency_cycle")
