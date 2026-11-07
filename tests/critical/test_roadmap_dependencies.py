@@ -363,7 +363,8 @@ class RoadmapDependencyTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            (root / "retained").mkdir()
+            retained = "components/legacy-project-wrapper/implementation"
+            (root / retained).mkdir(parents=True)
             (root / "docs/decisions").mkdir(parents=True)
             _, queue = self.project(root, item("AAA-001", "AAA-001"))
             decision = root / "docs/decisions/0002-native-literate-ai-rewrite.md"
@@ -375,7 +376,8 @@ class RoadmapDependencyTests(unittest.TestCase):
             }
             with self.assertRaises(RoadmapDependencyError) as caught:
                 prepare_native_rewrite_program(
-                    {"implementation_directory": "retained"}, project_root=root
+                    {"state": "passed", "implementation_directory": retained},
+                    project_root=root,
                 )
             self.assertEqual(caught.exception.code, "roadmap.dependency_cycle")
             self.assertEqual(
@@ -389,3 +391,23 @@ class RoadmapDependencyTests(unittest.TestCase):
                     if path.is_file()
                 },
             )
+
+    def test_native_rewrite_refuses_unsafe_retained_path_before_writing(self):
+        from literate_ai.adapters.harness_inventory import (
+            prepare_native_rewrite_program,
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "project"
+            (root / "retained").mkdir(parents=True)
+            (root / "docs/roadmap").mkdir(parents=True)
+            queue = root / "docs/roadmap/active-work.md"
+            queue.write_bytes(b"# Active work\n")
+            before = queue.read_bytes()
+            with self.assertRaises(ValueError):
+                prepare_native_rewrite_program(
+                    {"state": "passed", "implementation_directory": "../project"},
+                    project_root=root,
+                )
+            self.assertEqual(queue.read_bytes(), before)
+            self.assertFalse((root / "docs/decisions").exists())
