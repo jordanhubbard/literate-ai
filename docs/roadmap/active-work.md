@@ -33966,3 +33966,26 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Refresh all current material from the final 1.4 candidate source and preserve prior release or event material only as labeled history.
 - **Evidence:**
   - [ ] Review inventory and changes against final 1.4 source; verify rendered docs, media, slides, captions, links, installation commands and published assets on the exact release candidate; reject stale current-release or AI Unprompted claims; retain only clearly labeled historical 1.3.1 artifacts and complete the post-publication README/provider readback.
+
+### [ ] NATIVE-CARGO-001 — Project qualified Rust library provider graphs into Cargo builds
+
+- **GitHub issue:** [#345](https://github.com/jordanhubbard/literate-ai/issues/345)
+- **Detailed contract:** [Native Cargo provider projection](native-cargo-provider-projection.md)
+- **Completion prerequisites:** none
+- **Priority:** P1
+- **Owner:** Standard Cargo lifecycle, Rust generation and portable native library packages; PROJECT goals 4 and 5
+- **Direction:** Issue #345: a declared native Rust library edge must materialize the exact qualified provider crate without copying nominal types or mutating admitted source.
+- **Conclusion:** Bind provider revision, export, package/import identity and transitive graph in a disposable projection and sealed relocatable package. Registry-only generation currently leaves consumer imports unresolved; environment paths alone are insufficient.
+- **Depends on:** none
+- **Development checkpoint:** The exact `d31e8f09` successor passes the canonical full Python source gate on native macOS: 2,628 passed, 129 skipped, zero failures or known failures, 2,757 selected. All 5,291 tracked input representations and native tool hashes remain unchanged; owned controller and temporary root are independently absent. Earlier Git2.43 and `cb50ad43` failures remain historical. Standard builder, graph/cache and managed-SBOM controls remain source-bound. An exact private noneditable wheel also passes the unchanged actual installed-public single-library Rust journey, with real initialization, public CLI, independent v2 oracle and committed receipt; its separate terminal wrapper assertion failed and is retained. Controlled external source generation is not model generation. Actual two-library lifecycle, both independent graph verifier paths and retained-product consumption remain pending; see the detailed contract.
+- **Next action:** Prepare the bounded public beta/Event, alpha/read and direct-plus-transitive consumer fixture from the exact installed wheel, then qualify both independent graph verifier paths and actual model-free retained consumption. The passing single-library baseline supplies no graph or retained admission; keep the contribution draft until these remaining gates pass.
+- **Historical current-main reconciliation intent:** Merge upstream `32411a81` through ordinary history before continuing qualification. Its changes from the previous `64415762` base are documentation only; the sole conflict is the independently reviewed documentation-authority marker. Preserve both histories, resolve that marker through the supported review recorder, and keep all prior failed/full and focused results source-bound. The import-working-directory correction still requires a fresh full successor gate; real Standard/independent verifier/retained-consumer acceptance remains separate. Use an admitted independent macOS worker while the other worker's heavy slot is occupied; no installed-framework or release pin changes.
+- **Import-verifier qualification intent:** The exact `cb50ad43` full attempt records 2,519 passed, one failed and 104 skipped of 2,756 selected; 132 did not run. Actual nested Cargo observation identifies the independent IMPORT driver inheriting the framework checkout directory despite its temporary consumer manifest, while TEST runs from the export directory. Correct only IMPORT to enter its real fresh consumer root, preserve exact manifest/target/offline/import authority and add a hostile caller configuration tripwire regression. Do not suppress configuration globally, alter operator files or relabel this failed run as qualification.
+- **Import-verifier focused evidence:** The original driver causally trips the synthetic caller wrapper (exit86); the single `cwd=temporary` correction passes all six actual Standard command projection cases with zero skips in the canonical Linux Make gate. Caller configuration and admitted library source remain unchanged. This does not rebind the failed `cb50ad43` full run or complete lifecycle/import qualification.
+- **Implementation:**
+  - [ ] Author the provider graph/projection contract and preserve dependency-free behavior.
+  - [ ] Implement qualified graph admission, disposable Cargo projection and generation guidance without in-place sealed-source edits.
+  - [ ] Retain identity-bound lock, metadata, SBOM and portable package graph for independent acceptance and retained consumption.
+- **Evidence:**
+  - [ ] Exercise real two-library and shared-nominal-type consumer builds, clean regeneration, sealed relocation and model-free consumption.
+  - [ ] Refuse missing, substituted, duplicate, cyclic, escaping or modified providers; run the canonical project Python gate and required PR checks.
