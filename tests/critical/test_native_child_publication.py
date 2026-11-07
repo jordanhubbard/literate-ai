@@ -380,3 +380,11 @@ p.recover_native_child_publication(Path(sys.argv[1]),publication_identity=sys.ar
             contexts[0].run(publication.require_no_native_child_publication, self.root)
         self.recover(identity, finish=False)
         self.verify(self.old)
+
+    def test_new_project_read_guard_does_not_create_metadata(self):
+        fresh = self.root / "fresh"
+        fresh.mkdir()
+        before = fresh.stat()
+        publication.require_no_native_child_publication(fresh)
+        self.assertEqual(list(fresh.iterdir()), [])
+        self.assertEqual(fresh.stat().st_mtime_ns, before.st_mtime_ns)

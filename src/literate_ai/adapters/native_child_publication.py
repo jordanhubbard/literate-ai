@@ -20,7 +20,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from literate_ai._cache_lock import exclusive_cache_lock
-from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    require_safe_directory,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.exclusive_directory import _native_rename
 from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
@@ -75,9 +79,14 @@ def _key(node: os.stat_result) -> list[int]:
     ]
 
 
-def _directory(path: Path) -> list[int]:
-    require_safe_directory(path)
+def _directory(path: Path, *, allow_missing: bool = False) -> list[int]:
+    try:
+        require_safe_directory(path, allow_missing=allow_missing)
+    except UnsafeFilesystemPathError as exc:
+        raise NativeChildPublicationError("unsafe_directory") from exc
     node = path.lstat()
+    if not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(node):
+        _refuse("unsafe_directory")
     return [node.st_dev, node.st_ino, node.st_mode]
 
 
@@ -200,7 +209,7 @@ def require_no_native_child_publication(root: Path) -> None:
     """Refuse a pending transition; a live validation context is narrowly scoped."""
     metadata = Path(root) / ".literate"
     try:
-        _directory(metadata)
+        _directory(metadata, allow_missing=True)
     except FileNotFoundError:
         return
     active = metadata / _ACTIVE
