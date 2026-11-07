@@ -301,6 +301,7 @@ class RetainedLayoutTests(unittest.TestCase):
             (root / "source").mkdir()
             for coordinate in (
                 ".",
+                "source",
                 "source/../source",
                 "source//",
                 "C:/source",
@@ -317,19 +318,29 @@ class RetainedLayoutTests(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
     def test_rejects_redirected_ancestor_and_final_directory(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "real" / "implementation").mkdir(parents=True)
-            try:
-                (root / "alias").symlink_to(root / "real", target_is_directory=True)
-                (root / "final").symlink_to(
-                    root / "real" / "implementation", target_is_directory=True
-                )
-            except (OSError, NotImplementedError) as exc:
-                self.skipTest(f"symlinks unavailable: {exc}")
-            for coordinate in ("alias/implementation", "final"):
+        coordinate = "components/legacy-project-wrapper/implementation"
+        for redirected in ("ancestor", "final"):
+            with tempfile.TemporaryDirectory() as directory:
+                root = Path(directory)
+                try:
+                    if redirected == "ancestor":
+                        (root / "real/legacy-project-wrapper/implementation").mkdir(
+                            parents=True
+                        )
+                        (root / "components").symlink_to(
+                            root / "real", target_is_directory=True
+                        )
+                    else:
+                        (root / "real/implementation").mkdir(parents=True)
+                        wrapper = root / LEGACY_WRAPPER_COMPONENT
+                        wrapper.mkdir(parents=True)
+                        (wrapper / "implementation").symlink_to(
+                            root / "real/implementation", target_is_directory=True
+                        )
+                except (OSError, NotImplementedError) as exc:
+                    self.skipTest(f"symlinks unavailable: {exc}")
                 with (
-                    self.subTest(coordinate=coordinate),
+                    self.subTest(redirected=redirected),
                     self.assertRaises(RetainedLayoutError),
                 ):
                     resolve_legacy_implementation(

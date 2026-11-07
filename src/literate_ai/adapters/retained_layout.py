@@ -274,6 +274,10 @@ def resolve_legacy_implementation(
         coordinate = canonical_relative_posix_path(raw, label="retained implementation")
     except (TypeError, ValueError) as exc:
         raise RetainedLayoutError("retained implementation path is unsafe") from exc
+    if raw != f"{LEGACY_WRAPPER_COMPONENT}/implementation":
+        raise RetainedLayoutError(
+            "legacy implementation requires its historical coordinate"
+        )
     root = Path(project_root).absolute()
     candidate = root.joinpath(*coordinate.parts)
     try:
