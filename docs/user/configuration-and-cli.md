@@ -233,7 +233,10 @@ It reports whether the candidate head object is available locally, without
 fetching it or creating an evaluation lane.
 Git and forge inspections enforce live stdout/stderr byte limits before decoding,
 with finite deadlines and owned process-tree cleanup. A multibyte Git response
-cannot exceed its declared byte budget by fitting a character count.
+cannot exceed its declared byte budget by fitting a character count. Source blob,
+inventory and recovery reads use the same bounded owner. Fetch and bundle byte
+refusals retire descendants before releasing the attempt; local Git replacement
+refs cannot substitute the recorded Git objects.
 Use `--shadow PATH` in place of `--upstream PATH` to bind the plan to a created
 shadow's exact commit and source bundle. This form requires the PR target branch
 to be selected in the shadow and equal the current remote PR base.
