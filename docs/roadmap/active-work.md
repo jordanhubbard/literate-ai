@@ -33966,3 +33966,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Refresh all current material from the final 1.4 candidate source and preserve prior release or event material only as labeled history.
 - **Evidence:**
   - [ ] Review inventory and changes against final 1.4 source; verify rendered docs, media, slides, captions, links, installation commands and published assets on the exact release candidate; reject stale current-release or AI Unprompted claims; retain only clearly labeled historical 1.3.1 artifacts and complete the post-publication README/provider readback.
+## 1.5 preparation
+
+### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
+
+- **Priority:** P1
+- **Release target:** 1.5.0; new work, with no change to recorded 1.4.0 goals
+- **GitHub issue:** [#332](https://github.com/jordanhubbard/literate-ai/issues/332)
+- **Owner:** generated AGENTS.md, CLAUDE.md and SKILL.md entry points, and the project-owned setup route
+- **Direction:** A contributor opening a generated project on a fresh machine must reach a maintained setup path before the first `litai` command. The route must work without LitAI, identify the project's pinned framework requirement, and preserve downstream instructions and lifecycle pins.
+- **Conclusion:** The generated SKILL.md currently starts at `litai doctor`; the existing framework getting-started guide explains installation but is not reachable before that command. Add a small provider-neutral bootstrap route to the generated entry points and carry it through initialization, adoption and update without silently changing an installed runtime or Standard binding.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Next action:** Complete independent source review and exact-head CI for the current integration commit, then land and verify the generated route before closing #332.
+- **Implementation:**
+  - [x] Route generated agent entry points to bootstrap before invoking LitAI, while preserving custom downstream instructions. PR #333 at `1ec47f356` adds the route to generated SKILL.md and starter documentation; installed initialization and adoption retain authored AGENTS.md bytes.
+  - [x] Provide an isolated installation and current-runtime check that reads the project's pinned framework identity without LitAI and reports unavailable wheel, checksum and access failures clearly. The standard-library script checks the manifest pin and selected runtime without mutating either and verifies an explicitly supplied wheel SHA-256 before installation.
+  - [x] Keep the recommended `.litai-venv/` outside project source authority. A no-Git project previously inventoried `.litai-venv/bin/litai` as retained source; generated Git ignore rules and the retained, source-to-specification, source-index, materialization and OVA inventories now exclude this local tooling directory. The no-Git regression verifies the application file remains included.
+- **Evidence:**
+  - [x] Installed generated-project journeys cover missing CLI and incompatible existing runtime on POSIX and native Windows without mutating project pins. The exact-head `1ec47f356` Linux ARM64 wheel check and full-platform run 42206249606 report route, ready, missing and forged-pin incompatible states; the Windows installed-wheel log reports all four true and verifies unchanged manifest and AGENTS.md bytes.
+  - [x] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions. Focused generated-project and update tests pass at `1ec47f356`, with the installed-wheel adoption check preserving the original AGENTS.md.
+  - [x] Bootstrap-environment custody controls pass locally: 26 bootstrap/source-inventory/conversion tests and six project-index/materialization/OVA tests, including the no-Git source exclusion. This source change still needs exact-head installed and platform qualification.
+  - [ ] Independent review, exact-head CI and noneditable installed distribution checks pass before closure.

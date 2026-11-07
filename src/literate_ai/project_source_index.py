@@ -60,6 +60,7 @@ _IGNORED_DIRECTORIES = frozenset(
         "__pycache__",
         "__pypackages__",
         ".venv",
+        ".litai-venv",
         "venv",
         ".pytest_cache",
         ".ruff_cache",

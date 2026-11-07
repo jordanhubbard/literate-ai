@@ -1462,6 +1462,101 @@ def bootstrap_uv_tool_worker_runtime(
     }
 
 
+@_timed("scenario.assert_installed_agent_bootstrap")
+def assert_installed_agent_bootstrap(
+    python: Path, litai: Path, project: Path
+) -> dict[str, bool]:
+    """Exercise the generated bootstrap with the noneditable wheel on this host."""
+
+    script = project / "scripts/bootstrap_litai.py"
+    guide = project / "docs/user/bootstrap.md"
+    skill = (project / "SKILL.md").read_text(encoding="utf-8")
+    entrypoints = [
+        (project / name).read_text(encoding="utf-8")
+        for name in ("AGENTS.md", "CLAUDE.md")
+    ]
+    if (
+        not script.is_file()
+        or not guide.is_file()
+        or "docs/user/bootstrap.md" not in skill
+        or skill.index("docs/user/bootstrap.md") > skill.index("`litai doctor`")
+        or any(
+            "docs/user/bootstrap.md" not in entrypoint
+            or "SKILL.md" not in entrypoint
+            or entrypoint.index("docs/user/bootstrap.md") > entrypoint.index("SKILL.md")
+            for entrypoint in entrypoints
+        )
+    ):
+        raise RuntimeError("installed project omitted its pre-CLI bootstrap route")
+
+    manifest_path = project / "literate.project.json"
+    original_manifest = manifest_path.read_bytes()
+    original_agents = (project / "AGENTS.md").read_bytes()
+
+    def probe(*, executable: Path | None, missing_path: bool = False) -> dict:
+        arguments = [
+            str(python),
+            "-I",
+            str(script),
+            "--project",
+            str(project),
+            "--json",
+        ]
+        if executable is not None:
+            arguments.extend(("--litai", str(executable)))
+        environment = _subprocess_environment()
+        if missing_path:
+            environment["PATH"] = ""
+        completed = subprocess.run(
+            arguments,
+            cwd=project,
+            capture_output=True,
+            text=True,
+            env=environment,
+            timeout=45,
+            check=False,
+        )
+        try:
+            report = json.loads(completed.stdout)
+        except json.JSONDecodeError as exc:
+            raise RuntimeError(
+                "installed bootstrap did not return JSON: " + completed.stderr[-1000:]
+            ) from exc
+        if not isinstance(report, dict):
+            raise RuntimeError("installed bootstrap returned a non-object result")
+        report["exit_code"] = completed.returncode
+        return report
+
+    ready = probe(executable=litai)
+    missing = probe(executable=None, missing_path=True)
+    manifest = json.loads(original_manifest)
+    driver = manifest["lifecycle_driver"]
+    driver["framework_distribution_identity"]["digest"] = "0" * 64
+    try:
+        manifest_path.write_text(
+            json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        incompatible = probe(executable=litai)
+    finally:
+        manifest_path.write_bytes(original_manifest)
+    if (
+        ready.get("state") != "ready"
+        or ready.get("ok") is not True
+        or ready.get("exit_code") != 0
+        or missing.get("state") != "missing"
+        or missing.get("ok") is not False
+        or missing.get("exit_code") != 1
+        or incompatible.get("state") != "incompatible"
+        or incompatible.get("ok") is not False
+        or incompatible.get("exit_code") != 1
+        or manifest_path.read_bytes() != original_manifest
+        or (project / "AGENTS.md").read_bytes() != original_agents
+    ):
+        raise RuntimeError("installed bootstrap did not preserve pin and state gates")
+    return {"ready": True, "missing": True, "incompatible": True, "route": True}
+
+
 def assert_standard_project_version_check(
     litai: Path, project: Path
 ) -> dict[str, object]:
@@ -2390,6 +2485,9 @@ def _main() -> int:
         standard_project_version_check = assert_standard_project_version_check(
             litai, project
         )
+        installed_agent_bootstrap = assert_installed_agent_bootstrap(
+            python, litai, project
+        )
         source_intelligence = manifest.get("source_intelligence")
         if source_intelligence != {
             "schema": ("urn:literate-ai:schema:v1:project-source-intelligence-policy"),
@@ -2768,6 +2866,7 @@ def _main() -> int:
                     "project_reparent_noop": True,
                     "project_standard_binding": lifecycle_driver,
                     "project_standard_version_check": standard_project_version_check,
+                    "installed_agent_bootstrap": installed_agent_bootstrap,
                     "starter_lock_current": locked["result"]["current"],
                     "starter_lock_flavors": starter_lock_flavors,
                     "selected_flavor_packaging_provider": {

@@ -7,6 +7,12 @@ metadata:
 
 # Literate AI
 
+Before any `litai` command, follow [project bootstrap](docs/user/bootstrap.md).
+Run its standard-library check on a fresh machine or after changing the LitAI
+runtime; it reports this project's pinned framework requirement without
+installing, upgrading, or rebinding anything. Continue below only when the
+check reports `ready`.
+
 Treat specifications as application authority and generated source as replaceable
 derived output. The operator front door is `litai doctor`, then
 `litai onboard create` for a new tree or `litai onboard adopt` for an existing
