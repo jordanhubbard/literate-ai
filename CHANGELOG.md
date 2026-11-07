@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Source promotion exposes explicit `authorized-policy` reviews and a separate
+  operator acceptance opt-in while preserving human-only defaults and signed
+  source/graph/authority binding. These choices grant intent review, not host
+  execution or regenerative qualification.
+
 - Develop acknowledged qualified-child addition/revision plans, retained-plan status
   and recoverable registry/evidence publication. Genuine installed two-build and
   consumer acceptance remain open (#315, #350; draft #359).

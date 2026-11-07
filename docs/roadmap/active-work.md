@@ -34135,6 +34135,10 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#358](https://github.com/jordanhubbard/literate-ai/issues/358)
+- **Contribution:** Draft [PR #360](https://github.com/jordanhubbard/literate-ai/pull/360), exact `382cf69ceeb4f4460330d63dae311d9f799ba9d5`, exposes the existing policy authority through the public CLI. Preserve its independent review and source-bound validation; installed public and complete successor-source qualification remain open.
+- **Focused checkpoint:** All three new public CLI controls pass in the canonical managed Make Python gate with zero skips; the same controls fail on unchanged original CLI because the authority selector is unavailable. The tests cover default human identity/policy, explicit actor and authority binding, denial without a separate acceptance opt-in, honest signed policy acceptance, and signature refusal after authority tampering. This is disposable test-fixture intent promotion only, not actual retained-provider acceptance or full source qualification.
+- **Existing inverse regression:** The canonical Make gate passes all nine selected existing source/admission/inverse CLI tests with zero failures or skips in 49.578 seconds. An earlier run using another checkout's editable Python environment failed origin admission; the unchanged original CLI reproduces that refusal. A fresh task-owned Make environment resolves the setup mismatch without changing source or origin policy. Both failed observations remain historical.
+
 - **Active contribution claim:** [NVShawn's explicit implementation claim](https://github.com/jordanhubbard/literate-ai/issues/358#issuecomment-6713835521). No human-labeled review has been signed or accepted for the automated fixture. Preserve this work separately from native-Cargo provider qualification and the qualified-child publication mechanism.
 
 - **Priority:** P1
