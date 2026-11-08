@@ -1,0 +1,141 @@
+{
+  "kind": "qualified-native-child-recovery-development-verification",
+  "release_attestation": false,
+  "source_revision": "a2330b325ab25be5038c9a03a232fc293deb7599",
+  "included_review_cli_contribution": "382cf69ceeb4f4460330d63dae311d9f799ba9d5",
+  "linux_full_summary": {
+    "executed": 2694,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2694,
+    "selected": 2813,
+    "skipped": 119
+  },
+  "linux_event_audit": {
+    "source_revision": "a2330b325ab25be5038c9a03a232fc293deb7599",
+    "selected": 2813,
+    "outcomes": {
+      "passed": 2694,
+      "skipped": 119
+    },
+    "starts": 2784,
+    "module_groups": 601,
+    "event_counts": {
+      "start": 2784,
+      "success": 2694,
+      "done": 601,
+      "fixture_skip": 8,
+      "skip": 90
+    },
+    "report_matches": true,
+    "release_attestation": false,
+    "report_sha256": "c073651d14da3bbce515521e1f98bdfeebbac3b18d72c3d3c259863f2ed2ff4e",
+    "worker_event_inventory_sha256": "14142448a5f4a9d9792835422336167e0826fa65f8c514366e11069208ef5f33"
+  },
+  "native_macos": {
+    "platform": {
+      "system": "Darwin",
+      "machine": "arm64",
+      "os_version": "27.0.1",
+      "python": "3.14.7"
+    },
+    "child_summary": {
+      "executed": 63,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 63,
+      "selected": 63,
+      "skipped": 0
+    },
+    "child_event_audit": {
+      "source_revision": "a2330b325ab25be5038c9a03a232fc293deb7599",
+      "selected": 63,
+      "outcomes": {
+        "passed": 63
+      },
+      "starts": 63,
+      "module_groups": 5,
+      "event_counts": {
+        "start": 63,
+        "success": 63,
+        "done": 5
+      },
+      "report_matches": true,
+      "release_attestation": false,
+      "report_sha256": "514704a43d318116b719aa195851c19793340fcd88182ab930bf87027d9d2c21",
+      "worker_event_inventory_sha256": "0288bade720fecfa8f03ce2b740c3a458bf131d143ab0847884ad6b5a2a87755"
+    },
+    "review_cli_summary": {
+      "executed": 3,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 3,
+      "selected": 3,
+      "skipped": 0
+    },
+    "review_cli_event_audit": {
+      "source_revision": "a2330b325ab25be5038c9a03a232fc293deb7599",
+      "selected": 3,
+      "outcomes": {
+        "passed": 3
+      },
+      "starts": 3,
+      "module_groups": 1,
+      "event_counts": {
+        "start": 3,
+        "success": 3,
+        "done": 1
+      },
+      "report_matches": true,
+      "release_attestation": false,
+      "report_sha256": "a7df6ea5f7cc6f4f8419ccda2b571d3699ab78005e15f18cc8bf182c46c9ad36",
+      "worker_event_inventory_sha256": "cbeeda44ea6f62bfeadeee83a8ce513cdd9af13661ab4c52f341f137a9e33001"
+    },
+    "tracked_inputs_unchanged": 5304,
+    "source_inventory_sha256": "c9e9601354efebd631a228d21c414935035f1da84bc7271c6fcfd441cd2df377"
+  },
+  "installed_linux_wheel": {
+    "wheel": {
+      "identity": "sha256:1951055e28ed28e6b3f129b9826b0de57d361ff83363b07c84a56d67b2416b1f",
+      "path": "literate_ai-1.4.0-py3-none-any.whl",
+      "role": "wheel",
+      "size": 4273476
+    },
+    "manifest_identity": "sha256:a4dc84618ad96c44e7ace629a9c2e901a0125355d1ff9650daea44e3b3cfdf12",
+    "standard_binding": {
+      "distribution": "sha256:5e779e8dc1918bd634638f1ad1a171f98febe9e7e72f8fcb44e3f559ea8e4d9c",
+      "members": 1375,
+      "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    },
+    "canonical_smoke_passed": true,
+    "genuine_native_child_journey_qualified": false,
+    "windows_cpu_result": {
+      "case": "test_native_windows_local_and_receiver_cpu_satisfy_required_policy",
+      "installed_module_origins_verified": true,
+      "platform": "linux",
+      "receiver_transport": "local-child",
+      "skip_reasons": [
+        "requires the actual Windows API"
+      ],
+      "status": "skipped"
+    }
+  },
+  "scope": [
+    "Preserves the separate 249fbcc2a checkpoint and its original failed antecedents; no old receipt is rebound.",
+    "Discovers an owned pending publication without its lost handle, or a completed exact plan through bounded history.",
+    "A real public CLI abrupt process exit and subsequent discovery/apply retry complete the owned transition under inherited controlled qualification-reader seams on fork platforms.",
+    "Completed retry performs no writes; status reopens qualification then rechecks journal custody and rejects equal-byte foreign node replacement.",
+    "All child qualification fixtures remain development protocol evidence, not genuine independent builds or application acceptance.",
+    "Truthful review CLI retains human defaults, requires a separate explicit policy-acceptance opt-in and refuses signed authority tampering; native tests use disposable fixtures.",
+    "Canonical generic installed-wheel regression passes; it does not qualify the actual installed child or consumer journey."
+  ],
+  "remaining_required": [
+    "Genuine signed acceptance and independent two-build qualification through noneditable installed public CLI.",
+    "Public retained parent plus unchanged sibling and v1/v2 physical-revision journey from a fresh process.",
+    "Actual consumer v2 behavior and fresh application acceptance, independently from metadata publication.",
+    "Supported native target qualification, including Windows; fork-seam public CLI interruption tests explicitly do not cover Windows.",
+    "Independent source review of the child implementation, consolidated exact-head remote CI and post-merge main.",
+    "Unknown-policy execution and parent-local promoted Component composition remain unsupported and refuse publication.",
+    "All current release goals and ordinary publication gates remain required."
+  ]
+}

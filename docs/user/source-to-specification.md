@@ -352,8 +352,6 @@ litai spec qualify path/to/new-project/components/APP \
   --profile path/to/new-project/components/APP/qualification/profile.json \
   --target host \
   --output /tmp/literate-ai-qualification.json \
-  --key local-source.key \
-  --signer local-user \
   --allow-host-execution
 ```
 
