@@ -33840,6 +33840,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] ADOPT-BASELINE-COMMANDS-001 — Select reviewed baseline commands for a single adoption root
 
+- **Separate renewal design gate:** Included issue [#366](https://github.com/jordanhubbard/literate-ai/issues/366) also requests changing reviewed commands after adoption. [Proposed ADR 0070](../decisions/0070-reviewed-retained-command-renewal.md) extends the existing readmission owner with an exact acknowledged selection while preserving prior receipts and distinguishing command success from compilation. The installed Make diagnostic confirms help-only default success and existing read-only initial selection; it does not qualify post-adoption renewal. This proposal awaits explicit design acceptance before renewal implementation or a new execution work item. The original #207 scope and its qualification remain separate.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#207](https://github.com/jordanhubbard/literate-ai/issues/207)
