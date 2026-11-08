@@ -518,3 +518,69 @@ p.recover_native_child_publication(Path(sys.argv[1]),publication_identity=sys.ar
         self.assertEqual(source.read_bytes(), b"changed")
         self.recover(identity, finish=False)
         self.verify(self.old)
+
+    def test_discovery_reopens_pending_and_completed_plan_without_writes(self):
+        identity = self.prepare()
+        found = publication.find_native_child_publication(self.root)
+        self.assertEqual(found["publication_identity"], identity)
+        self.assertEqual(found["state"], "prepared")
+        self.recover(identity)
+        before = {
+            p: (p.read_bytes(), publication._key(p.stat()))
+            for p in self.root.rglob("*")
+            if p.is_file()
+        }
+        found = publication.find_native_child_publication(
+            self.root, plan_identity=self.plan
+        )
+        self.assertEqual(found["publication_identity"], identity)
+        self.assertEqual(found["state"], "committed")
+        self.assertFalse(found["pending"])
+        self.assertEqual(
+            before,
+            {
+                p: (p.read_bytes(), publication._key(p.stat()))
+                for p in self.root.rglob("*")
+                if p.is_file()
+            },
+        )
+
+    def test_history_discovery_is_bounded_and_preserves_unknown_attempts(self):
+        identity = self.prepare()
+        self.recover(identity)
+        extra = self.metadata / publication._HISTORY / ("f" * 32)
+        extra.mkdir()
+        with mock.patch.object(publication, "_MAXIMUM_HISTORY_ATTEMPTS", 1):
+            with self.assertRaisesRegex(
+                publication.NativeChildPublicationError, "history_limit"
+            ):
+                publication.find_native_child_publication(
+                    self.root, plan_identity=self.plan
+                )
+        self.assertTrue(extra.is_dir())
+        self.verify(self.new)
+
+    def test_discovery_does_not_activate_or_adopt_incomplete_staging(self):
+        calls = []
+
+        def stop():
+            calls.append(1)
+            if len(calls) == 2:
+                raise OSError("before activation")
+
+        with self.assertRaisesRegex(OSError, "before activation"):
+            publication.prepare_native_child_publication(
+                self.root,
+                plan_identity=self.plan,
+                previous=self.old,
+                proposed=self.new,
+                validate=stop,
+            )
+        with self.assertRaisesRegex(
+            publication.NativeChildPublicationError, "incomplete"
+        ):
+            publication.find_native_child_publication(
+                self.root, plan_identity=self.plan
+            )
+        self.verify(self.old)
+        self.assertFalse((self.metadata / publication._ACTIVE).exists())

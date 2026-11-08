@@ -27,6 +27,7 @@ from literate_ai.adapters.native_child_plans import (
     require_parent_sources,
 )
 from literate_ai.adapters.native_child_publication import (
+    find_native_child_publication,
     inspect_native_child_publication,
     prepare_native_child_publication,
     recover_native_child_publication,
@@ -69,7 +70,7 @@ def require_child_plan(plan: dict, acknowledgement: str | None = None) -> dict:
     _, limits = read_qualification_selection(plan["selections"])
     if (
         plan["limits"] != limits.to_dict()
-        or len(canonical_json_bytes(plan)) > limits.maximum_plan_bytes
+        or len(canonical_json_bytes(plan)) + 1 > limits.maximum_plan_bytes
         or not isinstance(plan["parent"], dict)
         or not isinstance(plan["children"], list)
         or len(plan["children"]) + 1 > limits.maximum_children
@@ -161,6 +162,17 @@ def apply_qualified_native_child(
     plan = require_child_plan(plan, acknowledgement)
     _supported(plan)
     root = Path(root).absolute()
+    retained = find_native_child_publication(root, plan_identity=plan["identity"])
+    if retained is not None:
+        if retained["reviewed_plan"] != canonical_json_bytes(plan) + b"\n":
+            refuse("plan_invalid", "the retained operation binds a different plan body")
+        return recover_qualified_native_child(
+            root,
+            publication_identity=retained["publication_identity"],
+            acknowledgement=acknowledgement,
+            finish=True,
+            attempt_name=retained["attempt"],
+        )
 
     def revalidate():
         current = plan_qualified_native_child(
@@ -226,9 +238,26 @@ def apply_qualified_native_child(
 
 
 def qualified_native_child_status(
-    root: Path, *, publication_identity: str, attempt_name: str | None = None
+    root: Path,
+    *,
+    publication_identity: str | None = None,
+    attempt_name: str | None = None,
+    plan_identity: str | None = None,
 ) -> dict:
     """Inspect a retained operation; a terminal record alone is never success."""
+    if publication_identity is None and attempt_name is not None:
+        refuse("inputs_invalid", "an attempt handle requires its publication identity")
+    if publication_identity is None:
+        found = find_native_child_publication(root, plan_identity=plan_identity)
+        if found is None:
+            refuse(
+                "publication_not_found",
+                "no matching owned child publication is available",
+            )
+        publication_identity, attempt_name = (
+            found["publication_identity"],
+            found["attempt"],
+        )
     status = inspect_native_child_publication(
         root, publication_identity=publication_identity, attempt_name=attempt_name
     )
@@ -238,6 +267,8 @@ def qualified_native_child_status(
             "reviewed_plan_missing", "this metadata attempt has no qualified-child plan"
         )
     plan = require_child_plan(json.loads(raw))
+    if plan_identity is not None and plan["identity"] != plan_identity:
+        refuse("plan_mismatch", "the publication does not bind the selected plan")
     if (
         canonical_json_bytes(plan) + b"\n" != raw
         or plan["identity"] != status["plan_identity"]
@@ -247,6 +278,13 @@ def qualified_native_child_status(
     verified = not status["pending"] and status["state"] in {"committed", "rolled-back"}
     if verified:
         _validate_published(root, plan, finish=status["state"] == "committed")
+    latest = inspect_native_child_publication(
+        root, publication_identity=publication_identity, attempt_name=status["attempt"]
+    )
+    if latest.pop("reviewed_plan") != raw or latest != status:
+        refuse(
+            "publication_changed", "the publication changed during status verification"
+        )
     return {
         **status,
         "current_state_verified": verified,

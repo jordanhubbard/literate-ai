@@ -2042,7 +2042,14 @@ def _parser() -> JsonArgumentParser:
     child_apply.add_argument("--acknowledge", required=True)
     for operation in ("status", "recover"):
         child_operation = child_commands.add_parser(operation)
-        child_operation.add_argument("publication")
+        if operation == "status":
+            child_operation.add_argument("publication", nargs="?")
+            child_operation.add_argument(
+                "--plan-identity",
+                help="discover the retained operation for an exact plan",
+            )
+        else:
+            child_operation.add_argument("publication")
         child_operation.add_argument("--project", default=".")
         child_operation.add_argument(
             "--attempt", help="retained attempt handle, including after completion"

@@ -1719,6 +1719,7 @@ litai project native-child plan-add .literate/native-projects/b \
 litai project native-child apply /outside/parent/add.json \
   --project PARENT --acknowledge PLAN_ID
 litai project native-child status PUBLICATION_ID --project PARENT --attempt ATTEMPT
+litai project native-child status --project PARENT --plan-identity PLAN_ID
 ```
 
 Revision uses `plan-revise ACTIVE_CHILD CANDIDATE` with the same options. Its
@@ -1726,6 +1727,12 @@ selection also includes the old active tree. The candidate must preserve logical
 project identity and Component coordinates at a distinct direct physical path,
 with changed accepted intent and independent new qualification runs. Both trees
 remain intact. Store the publication identity and attempt handle from the result.
+If apply stops before returning its handle, `status --project PARENT` discovers
+the owned pending operation. After completion, `--plan-identity PLAN_ID` finds its
+retained record through a bounded scan of at most 4,096 attempts. Repeating apply
+with the same reviewed plan finishes its owned pending publication or verifies
+its completed result without replaying writes. A rolled-back operation requires
+a fresh plan before another apply.
 
 ```console
 litai project native-child recover PUBLICATION_ID --project PARENT \
@@ -1740,7 +1747,10 @@ registry, conversion and receipt readers. Recovery preserves foreign changes and
 refuses ambiguous custody; a completed transition cannot be reversed by recovery.
 A repeated recovery of the same completed outcome verifies the current state
 without replaying writes. Inspection refuses if a later transition replaced its
-bound metadata. The journal alone never establishes current qualification.
+bound metadata, and rechecks journal custody after reopening qualification.
+Corrupt, ambiguous and incomplete unactivated attempts require operator review;
+discovery preserves them and does not turn staging into an active publication.
+The journal alone never establishes current qualification.
 
 Only the built-in retained-harness policy currently supports receipt-preserving
 membership composition. Other policies report required renewed execution in the

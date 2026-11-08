@@ -35,6 +35,7 @@ _HISTORY = "native-child-publications"
 _MAXIMUM_BYTES = 1024 * 1024
 _MAXIMUM_RECORD_BYTES = 64 * 1024
 _MAXIMUM_PLAN_BYTES = 64 * 1024 * 1024
+_MAXIMUM_HISTORY_ATTEMPTS = 4096
 _SCHEMA = "literate-ai/native-child-publication@2"
 
 
@@ -352,6 +353,8 @@ def _observe(
             )
             if not expected.startswith(content):
                 _refuse("terminal_conflict")
+            if links == 1 and content and content != expected:
+                _refuse("incomplete")
             if content:
                 seen.append(state)
         if len(seen) > 1:
@@ -468,6 +471,77 @@ def inspect_native_child_publication(
         "pending": (attempt / "activation.json").lstat().st_nlink == 2,
         "reviewed_plan": plan,
     }
+
+
+def find_native_child_publication(
+    root: Path, *, plan_identity: str | None = None
+) -> dict[str, object] | None:
+    """Discover a pending operation or one exact reviewed plan without writing.
+
+    Scan only a bounded private history when the operator supplies a plan identity.
+    Ambiguous, corrupt or replaced matching records refuse automatic adoption.
+    Unactivated partial attempts remain retained for explicit operator review.
+    """
+    from literate_ai.contracts.identity import ContentIdentity
+
+    if plan_identity is not None:
+        ContentIdentity.parse_uri(plan_identity)
+    root = Path(root).absolute()
+    if ".." in root.parts:
+        _refuse("unsafe_root")
+    metadata = root / ".literate"
+    try:
+        _directory(metadata, allow_missing=True)
+    except FileNotFoundError:
+        return None
+    active_path = metadata / _ACTIVE
+    if active_path.exists() or active_path.is_symlink():
+        attempt, intent, guard = _observe(root)
+        if plan_identity is not None and intent["plan_identity"] != plan_identity:
+            _refuse("pending")
+        active = _json(attempt / "activation.json", links=2)[0]
+        guard()
+        return inspect_native_child_publication(
+            root, publication_identity=canonical_identity(active).uri
+        )
+    if plan_identity is None:
+        return None
+    history = metadata / _HISTORY
+    try:
+        history_node = _directory(history, allow_missing=True)
+    except FileNotFoundError:
+        return None
+    found = None
+    with os.scandir(history) as entries:
+        for index, entry in enumerate(entries):
+            if index >= _MAXIMUM_HISTORY_ATTEMPTS:
+                _refuse("history_limit")
+            name = entry.name
+            if len(name) != 32 or any(c not in "0123456789abcdef" for c in name):
+                _refuse("foreign_member")
+            attempt = history / name
+            _directory(attempt)
+            try:
+                intent = _json(attempt / "intent.json")[0]
+            except FileNotFoundError:
+                continue  # A crash before writing intent grants no journal authority.
+            if intent.get("plan_identity") != plan_identity:
+                continue
+            _owned, _intent, guard = _observe(root, attempt_name=name)
+            activation = attempt / "activation.json"
+            links = activation.lstat().st_nlink
+            active = _json(activation, links=links)[0]
+            guard()
+            if found is not None:
+                _refuse("ambiguous_history")
+            found = inspect_native_child_publication(
+                root,
+                publication_identity=canonical_identity(active).uri,
+                attempt_name=name,
+            )
+    if _directory(history) != history_node:
+        _refuse("changed")
+    return found
 
 
 def _matches(path: Path, expected: dict) -> bool:

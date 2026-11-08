@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import copy
 import json
+import multiprocessing
+import os
 import tempfile
 import unittest
 from dataclasses import replace
@@ -348,3 +350,130 @@ class NativeChildTransactionTests(unittest.TestCase):
         )
         self.assertFalse(active.exists())
         self.assertTrue(result["current_state_verified"])
+
+    def test_completed_apply_retry_discovers_exact_plan_without_replaying_writes(self):
+        result = transactions.apply_qualified_native_child(
+            self.root, self.plan, acknowledgement=self.plan["identity"]
+        )
+        before = {
+            p: (p.read_bytes(), publication._key(p.stat()))
+            for p in self.root.rglob("*")
+            if p.is_file()
+        }
+        repeated = transactions.apply_qualified_native_child(
+            self.root, self.plan, acknowledgement=self.plan["identity"]
+        )
+        self.assertEqual(result, repeated)
+        status, envelope = invoke(
+            "--json",
+            "project",
+            "native-child",
+            "status",
+            "--project",
+            str(self.root),
+            "--plan-identity",
+            self.plan["identity"],
+        )
+        self.assertEqual(status, 0, envelope)
+        self.assertEqual(envelope["result"], result)
+        self.assertEqual(
+            before,
+            {
+                p: (p.read_bytes(), publication._key(p.stat()))
+                for p in self.root.rglob("*")
+                if p.is_file()
+            },
+        )
+
+    @unittest.skipUnless(
+        hasattr(os, "fork"), "requires native fork for inherited reader seams"
+    )
+    def test_public_apply_abrupt_exit_discovers_and_finishes_without_old_handle(self):
+        plan_path = self.write_plan()
+        rename = publication._move_exclusive
+
+        def abrupt_apply():
+            count = 0
+
+            def interrupt(*args):
+                nonlocal count
+                rename(*args)
+                count += 1
+                if count == 2:
+                    os._exit(73)
+
+            with mock.patch.object(
+                publication, "_move_exclusive", side_effect=interrupt
+            ):
+                invoke(
+                    "--json",
+                    "project",
+                    "native-child",
+                    "apply",
+                    str(plan_path),
+                    "--project",
+                    str(self.root),
+                    "--acknowledge",
+                    self.plan["identity"],
+                )
+            os._exit(74)
+
+        process = multiprocessing.get_context("fork").Process(target=abrupt_apply)
+        process.start()
+        process.join(30)
+        if process.is_alive():
+            process.kill()
+            process.join(10)
+            self.fail("public apply did not reach the bounded interruption")
+        self.assertEqual(process.exitcode, 73)
+        status, envelope = invoke(
+            "--json", "project", "native-child", "status", "--project", str(self.root)
+        )
+        self.assertEqual(status, 0, envelope)
+        self.assertEqual(envelope["result"]["plan_identity"], self.plan["identity"])
+        self.assertFalse(envelope["result"]["current_state_verified"])
+        self.assertTrue(envelope["result"]["pending"])
+        status, envelope = invoke(
+            "--json",
+            "project",
+            "native-child",
+            "apply",
+            str(plan_path),
+            "--project",
+            str(self.root),
+            "--acknowledge",
+            self.plan["identity"],
+        )
+        self.assertEqual(status, 0, envelope)
+        self.assertEqual(envelope["result"]["state"], "committed")
+        self.assertTrue(envelope["result"]["current_state_verified"])
+        self.fixture.a.require_unchanged()
+        self.fixture.b.require_unchanged()
+
+    def test_status_refuses_equal_byte_foreign_replacement_during_verification(self):
+        result = transactions.apply_qualified_native_child(
+            self.root, self.plan, acknowledgement=self.plan["identity"]
+        )
+        validate = transactions._validate_published
+        target = self.root / ".literate/conversion-authority.json"
+        old_inode = target.stat().st_ino
+
+        def substitute(*args, **kwargs):
+            validate(*args, **kwargs)
+            replacement = target.with_name("foreign-replacement")
+            replacement.write_bytes(target.read_bytes())
+            os.replace(replacement, target)
+
+        with mock.patch.object(
+            transactions, "_validate_published", side_effect=substitute
+        ):
+            with self.assertRaisesRegex(
+                publication.NativeChildPublicationError, "foreign_node"
+            ):
+                transactions.qualified_native_child_status(
+                    self.root,
+                    publication_identity=result["publication_identity"],
+                    attempt_name=result["attempt"],
+                )
+        self.assertNotEqual(target.stat().st_ino, old_inode)
+        self.assertEqual(target.read_bytes(), self.new[target.name])

@@ -58,6 +58,7 @@ def native_child_from_args(args) -> dict[str, object]:
                 root,
                 publication_identity=args.publication,
                 attempt_name=args.attempt,
+                plan_identity=args.plan_identity,
             )
         if args.native_child_command == "recover":
             return recover_qualified_native_child(

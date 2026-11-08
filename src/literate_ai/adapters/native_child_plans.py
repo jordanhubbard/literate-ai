@@ -673,6 +673,6 @@ def plan_qualified_native_child(
         refuse(
             "parent_changed", "parent registry or qualification changed while planning"
         )
-    if len(canonical_json_bytes(result)) > limits.maximum_plan_bytes:
+    if len(canonical_json_bytes(result)) + 1 > limits.maximum_plan_bytes:
         refuse("plan_limit", "complete plan exceeds its reviewed serialization budget")
     return result
