@@ -33785,6 +33785,7 @@ independent review and the complete combined gate from test one.
 - **Accepted design:** [ADR 0056](../decisions/0056-reviewed-rust-library-harness-dependencies.md), explicitly accepted on 2026-11-03.
 - **Next action:** Run the complete source gate and fresh noneditable installed qualification after the reviewed native six-case development gate passed; verify ordinary Rustup-shim tool selection separately. FreeBSD SDK work retains execution priority.
 
+- **Promotion authoring design gate:** Included issue [#379](https://github.com/jordanhubbard/literate-ai/issues/379) reports that explicit host lineage selects inherited authoring that differs from the independently reviewed native-child preparation. [Proposed ADR 0067](../decisions/0067-independent-promotion-authoring-selection.md) separates a new promotion's authoring selection from unchanged lineage and signed intent. Explicit design acceptance precedes implementation. Preserve the existing refusal and sealed audits; this planning record grants no model invocation or native qualification.
 - **Priority:** P1
 - **Owner:** Framework library acceptance, native Cargo source custody and qualification capture; PROJECT goals 1, 4 and 5
 - **Direction:** Implement accepted ADR 0056 and included issue #217 without weakening independent acceptance or changing v1 behavior.
