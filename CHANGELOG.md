@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Source promotion exposes explicit `authorized-policy` reviews and a separate
+  operator acceptance opt-in while preserving human-only defaults and signed
+  source/graph/authority binding. These choices grant intent review, not host
+  execution or regenerative qualification.
+
+- Develop acknowledged qualified-child addition/revision plans, retained-plan status
+  and recoverable registry/evidence publication. Genuine installed two-build and
+  consumer acceptance remain open (#315, #350; draft #359).
+
 - Wheel qualification reuses the native Windows CPU acceptance case with installed local and standalone-receiver modules; unsupported platforms remain explicit skips (#348).
 - Initial tree HTML publication retains bounded private transaction records before output mutation and through index commit, preserving interrupted attempts and foreign journal changes (#279). Recovery and rerender remain unfinished.
 - Cross-platform worker wheelhouse export considers compatible older glibc-2 floors for an explicit PEP 600 target, preserving architecture, target identity and offline closure verification (#356).

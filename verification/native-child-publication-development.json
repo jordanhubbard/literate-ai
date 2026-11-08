@@ -1,0 +1,83 @@
+{
+  "kind": "native-child-publication-development-verification",
+  "release_attestation": false,
+  "source_revision": "272ff79638bc0bd192a256d66b8c5e8a4d3968fb",
+  "linux_full_summary": {
+    "executed": 2654,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2654,
+    "selected": 2773,
+    "skipped": 119
+  },
+  "linux_event_audit": {
+    "source_revision": "272ff79638bc0bd192a256d66b8c5e8a4d3968fb",
+    "selected": 2773,
+    "outcomes": {
+      "passed": 2654,
+      "skipped": 119
+    },
+    "starts": 2744,
+    "module_groups": 597,
+    "event_counts": {
+      "start": 2744,
+      "success": 2654,
+      "done": 597,
+      "fixture_skip": 8,
+      "skip": 90
+    },
+    "report_matches": true,
+    "release_attestation": false
+  },
+  "linux_full_report_sha256": "deb04c6772f284e8973a26834a8db9bdef9e2cdc6a3f46c3417f6f38a4e01713",
+  "native_macos": {
+    "platform": {
+      "system": "Darwin",
+      "machine": "arm64",
+      "os_version": "27.0.1",
+      "python": "3.14.7"
+    },
+    "summary": {
+      "executed": 15,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 15,
+      "selected": 15,
+      "skipped": 0
+    },
+    "event_audit": {
+      "source_revision": "272ff79638bc0bd192a256d66b8c5e8a4d3968fb",
+      "selected": 15,
+      "outcomes": {
+        "passed": 15
+      },
+      "starts": 15,
+      "module_groups": 1,
+      "event_counts": {
+        "start": 15,
+        "success": 15,
+        "done": 1
+      },
+      "report_matches": true,
+      "release_attestation": false
+    },
+    "report_sha256": "aa60be85fb00112f3caf9e448ee62d58c94f93587ec557f807bb432265e90b5d",
+    "tracked_inputs_unchanged": 5294,
+    "source_inventory_sha256": "c105b6624cfae8f6f4f982522e62fffa89f5113a4b2e1b78318b13549491d7e3"
+  },
+  "preserved_antecedent": {
+    "revision": "b30591621518d3aec3f3f4e10fc57d7b101d1667",
+    "failure": "Fresh-project status incorrectly required an existing .literate directory.",
+    "report_sha256": "8c1196901020211bd5f43f36ae3bea1043853019f78229388d468837cd064965",
+    "fixed_cache_custody_cases_passed": 10
+  },
+  "scope": {
+    "metadata_protocol_only": true,
+    "public_qualified_child_add_revision_status_recovery_complete": false,
+    "current_qualification_policy_planning_complete": false,
+    "genuine_qualified_child_consumer_acceptance_complete": false,
+    "installed_candidate_qualified": false,
+    "native_windows_qualified": false,
+    "independent_source_review_complete": false
+  }
+}
