@@ -1,4 +1,4 @@
-# ADR 0067: Select Promotion Authoring Independently of Repository Lineage
+# ADR 0069: Select Promotion Authoring Independently of Repository Lineage
 
 - Status: Proposed
 - Date: 2026-11-08
