@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from literate_ai.contracts.component_locking.authoring import ComponentAssetSelector
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
 from literate_ai.source_to_specification import (
     V3_COMPONENT_GRAPH_DRAFT_SCHEMA,
@@ -93,6 +94,25 @@ def _statement(value: Any) -> DraftStatement:
 
 def component_graph_from_wire(value: Any) -> ComponentGraphDraft:
     graph_data = _mapping(value, "component graph draft")
+    allowed = {
+        "coordinate",
+        "title",
+        "kind",
+        "profiles",
+        "provided_capabilities",
+        "capability_contracts",
+        "entrypoints",
+        "build_needs",
+        "source_paths",
+        "observation_ids",
+        "evidence_ids",
+        "library_imports",
+        "assets",
+    }
+    for raw in _items(graph_data["nodes"], "component graph nodes"):
+        node = _mapping(raw, "component graph node")
+        if set(node) - allowed:
+            raise ValueError("component graph node contains unsupported fields")
     return ComponentGraphDraft(
         source_snapshot_id=graph_data["source_snapshot_id"],
         root_coordinate=graph_data["root_coordinate"],
@@ -137,6 +157,10 @@ def component_graph_from_wire(value: Any) -> ComponentGraphDraft:
                         node.get("library_imports", []), "library imports"
                     )
                 ),
+                assets=tuple(
+                    ComponentAssetSelector.from_dict(item)
+                    for item in _items(node.get("assets", []), "reviewed assets")
+                ),
                 build_needs=_strings(node.get("build_needs", []), "build needs"),
                 source_paths=_strings(node["source_paths"], "source_paths"),
                 observation_ids=_strings(node["observation_ids"], "observation_ids"),
@@ -180,6 +204,7 @@ def result_to_wire(result: SourceToSpecificationResult) -> dict[str, Any]:
     document = canonical_value(result)
     graph = document.get("component_graph_draft")
     if graph is not None:
+        _encode_graph_assets(graph, result.component_graph_draft)
         legacy = any(
             node.kind == "unknown" for node in result.component_graph_draft.nodes
         )
@@ -327,8 +352,25 @@ def result_from_wire(value: Any) -> SourceToSpecificationResult:
     )
 
 
+def _encode_graph_assets(document: dict[str, Any], graph: ComponentGraphDraft) -> None:
+    for node, typed in zip(document["nodes"], graph.nodes, strict=True):
+        if typed.assets:
+            node["assets"] = [asset.to_dict() for asset in typed.assets]
+
+
+def component_graph_to_wire(graph: ComponentGraphDraft) -> dict[str, Any]:
+    document = canonical_value(graph)
+    _encode_graph_assets(document, graph)
+    return document
+
+
 def review_to_wire(review: SpecificationReviewDecision) -> dict[str, Any]:
-    return canonical_value(review)
+    document = canonical_value(review)
+    if review.component_graph_draft is not None:
+        _encode_graph_assets(
+            document["component_graph_draft"], review.component_graph_draft
+        )
+    return document
 
 
 def review_from_wire(value: Any) -> SpecificationReviewDecision:

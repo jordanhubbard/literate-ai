@@ -29,6 +29,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from literate_ai.adapters.conversion_authority import (
+    ConversionAuthorityError,
+    FilesystemConversionAuthorityStore,
+    require_current_qualified_conversion_authority,
+)
 from literate_ai.adapters.project_lock_health import observe_project_locks
 from literate_ai.adapters.project_validation import (
     ProjectValidationError,
@@ -37,7 +42,11 @@ from literate_ai.adapters.project_validation import (
 from literate_ai.adapters.project_validation import (
     validated_project_authority_identity as _authority_identity,
 )
-from literate_ai.contracts import SourceIntelligenceMode, SourceIntelligenceStage
+from literate_ai.contracts import (
+    ConversionAuthorityStage,
+    SourceIntelligenceMode,
+    SourceIntelligenceStage,
+)
 from literate_ai.contracts.html_observability import (
     HtmlRenderRefusal,
     HtmlStalenessReport,
@@ -97,7 +106,19 @@ def _authority(root: Path) -> GateResult:
         validate_project(
             root, require_authority_review=True, synchronize_source_intelligence=False
         )
-    except ProjectValidationError as exc:
+        project = discover_project(root)
+        if project is None:
+            return GateResult("authority", FAIL, "project not found")
+        conversion = FilesystemConversionAuthorityStore(project.root).load_optional()
+        if conversion is not None:
+            if conversion.project_id != project.definition.project_id:
+                raise ConversionAuthorityError(
+                    "conversion_authority.project_mismatch",
+                    "conversion authority identifies another project",
+                )
+            if conversion.stage is ConversionAuthorityStage.QUALIFIED:
+                require_current_qualified_conversion_authority(project, conversion)
+    except (ConversionAuthorityError, ProjectError, ProjectValidationError) as exc:
         return GateResult("authority", FAIL, f"{exc.code}: {exc.message}")
     return GateResult("authority", PASS, "project authority and documentation review")
 

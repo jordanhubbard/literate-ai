@@ -10,6 +10,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from literate_ai.adapters.conversion_authority import register_native_project
 from literate_ai.adapters.harness_inventory import (
     HARNESS_PARITY_SCHEMA,
     execute_retained_harness,
@@ -41,7 +42,12 @@ from literate_ai.contracts import (
     canonical_identity,
     canonical_json_bytes,
 )
-from literate_ai.projects import PROJECT_FILENAME
+from literate_ai.projects import (
+    PROJECT_FILENAME,
+    ProjectConfigurationStore,
+    load_project,
+)
+from tests.support.fixtures_test_project_agent_development_workflow import _definition
 from tests.support.root_parent_adapter import (
     RootParentProjectInitializationAdapter as FilesystemProjectInitializationAdapter,
 )
@@ -115,6 +121,93 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
             source_intelligence_provider="none",
             convert=True,
         )
+
+    def _registered_cache(self, project: Path) -> Path:
+        child = project / ".literate/native-projects/library"
+        ProjectConfigurationStore(child).create(_definition(project_id="library"))
+        register_native_project(load_project(project), child)
+        cache = child / "generated/committed-source-cache/module.js"
+        cache.parent.mkdir(parents=True)
+        cache.write_bytes(b"export const value = 1;\n")
+        return cache
+
+    def test_local_native_cache_bytes_are_copied_and_bound_to_request(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            project = root / "converted"
+            shutil.copytree(self.template, project, symlinks=True)
+            cache = self._registered_cache(project)
+            identities = []
+            for version in (1, 2):
+                expected = f"export const value = {version};\n".encode()
+                cache.write_bytes(expected)
+
+                def execute(inventory, *, legacy_root, expected=expected, **arguments):
+                    copied = legacy_root.parent / cache.relative_to(project)
+                    self.assertEqual(copied.read_bytes(), expected)
+                    return execute_retained_harness(
+                        inventory, legacy_root=legacy_root, **arguments
+                    )
+
+                candidate = root / f"candidate-{version}.json"
+                with mock.patch(
+                    "literate_ai.adapters.retained_harness_receipts.execute_retained_harness",
+                    side_effect=execute,
+                ) as executed:
+                    status, run = _invoke(
+                        "project",
+                        "test-receipt",
+                        "run-retained",
+                        str(candidate),
+                        "--project",
+                        str(project),
+                        "--worker-id",
+                        "local",
+                    )
+                self.assertEqual(status, 0, run)
+                executed.assert_called_once()
+                receipt = json.loads(candidate.read_bytes())["receipt"]
+                identities.append(receipt["evidence"]["lifecycle-request"])
+            self.assertNotEqual(*identities)
+
+    def test_remote_native_caches_refuse_before_dispatch_or_candidate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            project = root / "converted"
+            shutil.copytree(self.template, project, symlinks=True)
+            self._registered_cache(project)
+            worker = ExecutionWorker(
+                "native-cache-worker",
+                ExecutionWorkerKind.SSH,
+                endpoint="runner@worker.example",
+                workspace="~/literate-ai",
+                requirements=ExecutionRequirements(os_family="linux"),
+            )
+            catalog = root / "workers.json"
+            _write_workers(catalog, worker)
+            candidate = root / "candidate.json"
+            with mock.patch(
+                "literate_ai.adapters.retained_harness_receipts.RetainedHarnessSshExecutor.execute"
+            ) as dispatched:
+                status, run = _invoke(
+                    "project",
+                    "test-receipt",
+                    "run-retained",
+                    str(candidate),
+                    "--project",
+                    str(project),
+                    "--worker-id",
+                    worker.worker_id,
+                    "--worker-config",
+                    str(catalog),
+                )
+            self.assertEqual(status, 2, run)
+            self.assertEqual(
+                run["error"]["code"],
+                "retained_receipt.remote_native_caches_unsupported",
+            )
+            dispatched.assert_not_called()
+            self.assertFalse(candidate.exists())
 
     def test_retained_receipt_refuses_redirected_implementation_ancestor(self):
         with tempfile.TemporaryDirectory() as directory:

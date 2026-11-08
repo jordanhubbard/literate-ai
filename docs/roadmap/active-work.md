@@ -33942,7 +33942,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Source development evidence:** The 51-capability fixture on main `dbe7eeb4b` raises `standard_command.library_import_surface_oversized` before package verification. The focused projection passes four managed import-command controls, including a real 51-module JavaScript package with missing, wrong, extra, dependency and escaped-target refusals; five existing Standard command-projection smoke controls pass across Python, JavaScript and Rust. Ruff lint and format checks pass. The reviewed lifecycle-driver pin is `sha256:2e4a0c67e49629db37789e746f96d8443c062d0450fa6a502df2ad74a3e01e1c`. This is an import-command projection failure, not evidence that the library's own tests fail.
 
-### [ ] QUALIFIED-CHILD-ADD-001 — Add a qualified native child to a qualified retained parent atomically
+<a id="native-qualified-addition-001"></a>
+<a id="qualified-child-add-001-add-a-qualified-native-child-to-a-qualified-retained-parent-atomically"></a>
+### [ ] QUALIFIED-CHILD-ADD-001 - Add a qualified native child to a qualified retained parent atomically
 
 - **Priority:** P1
 - **Release target:** 1.4.0
@@ -34142,3 +34144,92 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Expose the existing review authority choice with an explicit actor and independently acknowledged policy acceptance; preserve all signed intent, graph, uncertainty, source and lifecycle bindings.
 - **Evidence:**
   - [ ] Qualify public CLI serialization and signing, unchanged human defaults, refusal without operator opt-in, explicit opt-in success and tampered-authority refusal; require independent review, installed/native and exact integration gates.
+
+The local contribution records below preserve the operator-directed work from
+commit `6f3c2237391bf3c3e8f5778ff85b1e2ec3655ef2`. Current upstream dispositions
+above remain authoritative for previously shared issue records. Prior local
+source and installed verification details remain in that commit history.
+
+<a id="native-qualified-revision-001"></a>
+### [ ] NATIVE-QUALIFIED-REVISION-001 - Revise a qualified native child through a reviewed registration transaction
+
+- **GitHub issue:** [#350](https://github.com/jordanhubbard/literate-ai/issues/350)
+- **ADR:** [0065](../decisions/0065-qualified-native-child-revisions.md), explicitly accepted before implementation.
+- **Release target:** 1.4.0
+- **Next action:** Finish quality checks, obtain the separate local-commit approval, and qualify the public operation from a clean non-editable wheel before consumer transfer.
+
+- **Priority:** P1
+- **Owner:** framework core public project application and conversion-authority adapters
+- **Direction:** Follow accepted ADR 0065 to revise an already-qualified logical child without private registry or projection edits.
+- **Conclusion:** Issue #350 records the measured public-command gap. Switch one registration to a separately qualified physical child with the same logical identity, preserve both trees and all unrelated evidence, and retain guarded rollback and recovery. Consumer transfer and full application acceptance remain separate.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Implement canonical typed revision plans and public plan/apply/recover services.
+  - [x] Expose read-only planning, acknowledged application and guarded recovery through CLI commands.
+  - [x] Bind both qualified child trees, admitted receipts, exact definitions, coordinates, registry and parent evidence; preserve both trees and other children.
+  - [x] Document the accepted revision boundary and supported operator flow.
+- **Evidence:**
+  - [x] Pass public API and CLI controls for identities, drift, collisions, unqualified candidates, concurrency, rollback and interrupted recovery.
+  - [x] Pass existing addition, replacement, rebind and conversion-authority regressions through managed checks.
+  - [ ] Prove the real v1-to-v2 operation and actual consumer behavior from a clean non-editable wheel, without manual generated or qualification edits.
+
+The managed Make checks pass all 118 selected tests with zero failures or skips: 60
+addition and revision transaction controls, 11 existing unqualified-replacement
+controls, 18 registered-update controls, 18 Standard rebind controls, seven project
+verification controls and four operator-adoption controls. The transaction tests
+use explicit qualification-reader fixtures and actual filesystem mutations; they
+do not establish clean installed qualification. Both old and replacement child
+trees remain untouched in success, rollback and guarded recovery. Independent
+source qualification and an actual installed v1-to-v2 consumer run remain separate
+acceptance, with the latter still open.
+
+<a id="source-asset-promotion-001"></a>
+### [ ] SOURCE-ASSET-PROMOTION-001 - Preserve reviewed immutable assets through source promotion
+
+- **GitHub issue:** [#363](https://github.com/jordanhubbard/literate-ai/issues/363)
+- **ADR:** [0067](../decisions/0067-reviewed-source-assets.md), accepted before implementation.
+- **Release target:** 1.4.0
+- **Next action:** Verify a clean non-editable wheel, then prove the normal data-backed library generation, overlay and qualification route.
+
+- **Priority:** P1
+- **Owner:** source review, promotion materialization and existing immutable asset lifecycle
+- **Direction:** Carry explicitly reviewed source-backed assets through signed graph identity, normal promotion and the existing immutable overlay.
+- **Conclusion:** Issue #363 reproduces normal review and promotion losing an asset declaration and its changed pin. Follow accepted ADR 0067 without broadening source admission or release authority.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Add canonical optional reviewed asset selectors and strict compatible graph wire handling.
+  - [x] Validate exact admitted source membership, pin, size and safe collision-free paths before promotion.
+  - [x] Promote immutable bytes through typed provenance into authored Component assets and normal locks.
+  - [ ] Preserve metadata-only generation and existing overlay, qualification, admission and cache ownership.
+- **Evidence:**
+  - [x] Normal CLI reviews bind asset changes and preserve asset-free identities; malformed declarations and unknown fields fail closed.
+  - [x] Missing, changed, symbolic, unsafe or colliding assets fail before project writes; normal promotion retains exact data and lock metadata.
+  - [ ] Actual generation-request metadata excludes asset payload; ordinary overlay, independent acceptance and cache reuse preserve exact bytes.
+  - [ ] Managed source, promotion and existing compatibility checks pass; a clean non-editable wheel proves the public data-backed library route.
+
+Managed source checks pass seven new asset tests, eight source-translation tests,
+13 existing promotion controls and three existing public CLI journeys. Large JSON
+and binary assets retain exact bytes and lock metadata. The four-language graph
+merge preserves the reviewed selector. Normal installed generation, independent
+qualification, admission and cache reuse remain open.
+### [ ] REVIEW-AUTHORITY-001 — Expose truthful policy review with explicit acceptance opt-in
+
+- **GitHub issue:** [#358](https://github.com/jordanhubbard/literate-ai/issues/358)
+- **Next action:** Review the isolated public CLI successor, finish existing inverse regressions and current source qualification, then execute a fresh installed public policy-review/acceptance fixture. Keep native-Cargo/retained qualification and prior full-source results independently bound.
+
+- **Priority:** P1
+- **Owner:** Public inverse CLI and promotion policy; PROJECT goals 2 and 4
+- **Direction:** Issue358: an automated actor must not be labeled human; expose an honest authorized-policy review and independently explicit operator acceptance choice.
+- **Conclusion:** Keep human-only defaults and signed source/graph binding. Review artifacts cannot grant their own acceptance policy. Core already represents authorized-policy but the public review and acceptance paths hardcode human authority.
+- **Focused checkpoint:** All three new public CLI controls pass in the canonical managed Make Python gate with zero skips; the same controls fail on unchanged original CLI because the authority selector is unavailable. The tests cover default human identity/policy, explicit actor and authority binding, denial without a separate acceptance opt-in, honest signed policy acceptance, and signature refusal after authority tampering. This is disposable test-fixture intent promotion only, not actual retained-provider acceptance or full source qualification.
+- **Existing inverse regression:** The canonical Make gate passes all nine selected existing source/admission/inverse CLI tests with zero failures or skips in 49.578 seconds. An earlier run using another checkout's editable Python environment failed origin admission; the unchanged original CLI reproduces that refusal. A fresh task-owned Make environment resolves the setup mismatch without changing source or origin policy. Both failed observations remain historical.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Add explicit review authority with mandatory explicit policy actor and identity binding, plus separate acceptance opt-in and truthful accepted policy identity.
+  - [ ] Document the distinction between actor identity, signed review authority, operator acceptance policy, and execution authorization.
+- **Evidence:**
+  - [ ] Public CLI causal old-source regression, unchanged human default, policy denial without opt-in, opted-in acceptance, authority tamper refusal, and existing inverse regression gates.
+  - [ ] Independent source review and qualified successor wheel/public path; keep native Cargo and retained acceptance source-bound and unfinished until actual execution.

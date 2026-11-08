@@ -14,8 +14,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from literate_ai.adapters.conversion_authority import (
+    FilesystemConversionAuthorityStore,
+)
 from literate_ai.cli import main
 from literate_ai.cli.verify import GATES
+from literate_ai.contracts import ConversionAuthorityStage, canonical_identity
+from literate_ai.projects import load_project
 from tests.support.root_parent_adapter import root_parent_for_fixture_project
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -69,16 +74,26 @@ class VerifyCommandTests(unittest.TestCase):
         self.project = self.directory / "derived"
         shutil.copytree(self.template, self.project, symlinks=True)
 
-    def test_a_fresh_project_verifies(self) -> None:
+    def test_a_fresh_project_checks_all_declared_gates(self) -> None:
         status, envelope = invoke("verify", str(self.project))
-        self.assertEqual(status, 0, envelope)
         result = envelope["result"]
-        self.assertTrue(result["ok"])
-        self.assertEqual(result["counts"]["fail"], 0)
+        definition = load_project(self.project).definition
+        requires_receipt = definition.test_receipt_policy is not None
+        self.assertFalse((self.project / definition.test_receipt).exists())
+        self.assertEqual(status, int(requires_receipt), envelope)
+        self.assertEqual(result["ok"], not requires_receipt)
+        self.assertEqual(result["counts"]["fail"], int(requires_receipt))
         self.assertEqual(
             [item["gate"] for item in result["gates"]],
             list(GATES),
         )
+        gates = {item["gate"]: item for item in result["gates"]}
+        self.assertEqual(gates["authority"]["state"], "pass")
+        if requires_receipt:
+            self.assertEqual(gates["receipt"]["state"], "fail")
+            self.assertIn("project.test_receipt_missing:", gates["receipt"]["detail"])
+        else:
+            self.assertEqual(gates["receipt"]["state"], "skipped")
 
     def test_verify_changes_nothing(self) -> None:
         before = tree_snapshot(self.project)
@@ -97,6 +112,70 @@ class VerifyCommandTests(unittest.TestCase):
         gates = {item["gate"]: item for item in result["gates"]}
         self.assertEqual(gates["authority"]["state"], "fail")
         self.assertFalse(result["ok"])
+
+    def test_qualified_record_requires_current_component_evidence(self) -> None:
+        store = FilesystemConversionAuthorityStore(self.project)
+        evidence = canonical_identity({"fixture": "unearned-qualification-claim"})
+        store.initialize(
+            project_id=load_project(self.project).definition.project_id,
+            evidence_identity=evidence,
+        )
+        for stage in (
+            ConversionAuthorityStage.RETAINED,
+            ConversionAuthorityStage.DRAFTED,
+            ConversionAuthorityStage.QUALIFIED,
+        ):
+            store.advance(stage, evidence_identities=(evidence,))
+        before = tree_snapshot(self.project)
+        status, envelope = invoke("verify", str(self.project))
+        self.assertEqual(status, 1, envelope)
+        authority = next(
+            item for item in envelope["result"]["gates"] if item["gate"] == "authority"
+        )
+        self.assertEqual(authority["state"], "fail")
+        self.assertIn(
+            "conversion_authority.component_evidence_missing", authority["detail"]
+        )
+        self.assertEqual(tree_snapshot(self.project), before)
+
+    def test_conversion_record_for_another_project_fails_without_writes(self) -> None:
+        store = FilesystemConversionAuthorityStore(self.project)
+        store.initialize_original(
+            project_id="another-project",
+            evidence_identity=canonical_identity({"fixture": "foreign-project"}),
+        )
+        before = tree_snapshot(self.project)
+        status, envelope = invoke("verify", str(self.project), "--gate", "authority")
+        self.assertEqual(status, 1, envelope)
+        self.assertIn(
+            "conversion_authority.project_mismatch",
+            envelope["result"]["gates"][0]["detail"],
+        )
+        self.assertEqual(tree_snapshot(self.project), before)
+
+    def test_malformed_conversion_record_fails_without_writes(self) -> None:
+        store = FilesystemConversionAuthorityStore(self.project)
+        store.path.parent.mkdir(exist_ok=True)
+        store.path.write_bytes(b"{}\n")
+        before = tree_snapshot(self.project)
+        status, envelope = invoke("verify", str(self.project), "--gate", "authority")
+        self.assertEqual(status, 1, envelope)
+        self.assertIn(
+            "conversion_authority.state_invalid",
+            envelope["result"]["gates"][0]["detail"],
+        )
+        self.assertEqual(tree_snapshot(self.project), before)
+
+    def test_wrapped_conversion_does_not_claim_qualification(self) -> None:
+        store = FilesystemConversionAuthorityStore(self.project)
+        store.initialize(
+            project_id=load_project(self.project).definition.project_id,
+            evidence_identity=canonical_identity({"fixture": "wrapped"}),
+        )
+        before = tree_snapshot(self.project)
+        status, envelope = invoke("verify", str(self.project), "--gate", "authority")
+        self.assertEqual(status, 0, envelope)
+        self.assertEqual(tree_snapshot(self.project), before)
 
 
 if __name__ == "__main__":

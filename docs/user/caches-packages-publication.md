@@ -178,6 +178,16 @@ the cache directory names alone do not provide reuse or authority.
 
 ## Two derivation caches, two authority boundaries
 
+Retained local harness execution currently has a separate cache transport patch:
+registered native children's committed source-cache files are copied beside the
+disposable `implementation/` tree. The request binds the exact captured file paths
+and SHA-256 digests, and copying uses those same captured bytes. The ordinary
+consumer harness must still pass. This path neither publishes a package nor
+extends cache trust. Remote retained execution with these inputs refuses before
+transport. Portable delivery remains tracked in
+[#307](https://github.com/jordanhubbard/literate-ai/issues/307); see the
+[retained execution guide](configuration-and-cli.md) for the command boundary.
+
 Ordinary lifecycle commands also retain one target- and worker-bound artifact export.
 For local execution it identifies the admitted runnable artifact. A synchronous command
 worker returns the same versioned export contract with an immutable artifact URI; the

@@ -37,7 +37,8 @@
             "forward-skill",
             "workflow",
             "routing-policy",
-            "project-configuration"
+            "project-configuration",
+            "authored-asset"
           ]
         },
         "source_root_label": {
@@ -204,6 +205,153 @@
               },
               "path": {
                 "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/path"
+              }
+            }
+          }
+        }
+      }
+    },
+    "provenanceV4": {
+      "$id": "urn:literate-ai:schema:v4:source-promotion-provenance",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "source_snapshot_identity",
+        "specification_set_identity",
+        "review_identity",
+        "component_graph_identity",
+        "translation_identity",
+        "inverse_evidence_reference",
+        "generation_input_audit_references",
+        "authored_asset_bindings"
+      ],
+      "properties": {
+        "schema": {
+          "const": "urn:literate-ai:schema:v4:source-promotion-provenance"
+        },
+        "source_snapshot_identity": {
+          "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+        },
+        "specification_set_identity": {
+          "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+        },
+        "review_identity": {
+          "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+        },
+        "component_graph_identity": {
+          "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+        },
+        "translation_identity": {
+          "oneOf": [
+            {
+              "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "inverse_evidence_reference": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "identity",
+                "path"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "inverse-evidence-custody"
+                },
+                "identity": {
+                  "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+                },
+                "path": {
+                  "const": "inverse-evidence.json"
+                }
+              }
+            }
+          ]
+        },
+        "generation_input_audit_references": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "identity",
+              "path"
+            ],
+            "properties": {
+              "kind": {
+                "const": "generation-input-audit"
+              },
+              "identity": {
+                "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+              },
+              "path": {
+                "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/path"
+              }
+            }
+          }
+        },
+        "authored_asset_bindings": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "component_coordinate",
+              "asset_id",
+              "role",
+              "media_type",
+              "source_path",
+              "project_path",
+              "runtime_path",
+              "content_identity",
+              "byte_count"
+            ],
+            "properties": {
+              "component_coordinate": {
+                "type": "string",
+                "minLength": 1
+              },
+              "asset_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "role": {
+                "type": "string",
+                "minLength": 1
+              },
+              "media_type": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_path": {
+                "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/path"
+              },
+              "project_path": {
+                "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/path"
+              },
+              "runtime_path": {
+                "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/path"
+              },
+              "content_identity": {
+                "$ref": "urn:literate-ai:schema:v2:source-promotion-contracts#/$defs/identity"
+              },
+              "byte_count": {
+                "type": "integer",
+                "minimum": 0
               }
             }
           }

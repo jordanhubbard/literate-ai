@@ -2,6 +2,44 @@
 
 ## Unreleased
 
+- Reviewed source-backed assets retain their declarations and exact pins through
+  source promotion into Component assets and normal locks. Immutable JSON and
+  binary data stay separate from generated text. Missing or changed inputs,
+  unsafe paths and unbound asset provenance refuse promotion or qualification.
+
+- Qualified native child revisions have a reviewed plan, acknowledged apply and
+  guarded recovery path. The transaction preserves both child trees, switches
+  one registration and updates its exact qualification evidence while retaining
+  unrelated children. Stale inputs and concurrent publication refuse.
+
+- Qualified retained parents can review, apply and recover addition of an already
+  qualified native child through public commands. Plans bind exact current inputs;
+  locked metadata updates preserve prior registrations and guarded recovery.
+- Project verification checks qualified conversion claims against current Component
+  evidence and rejects malformed or foreign-project conversion records. A
+  child addition interrupted between registry and authority publication fails
+  its authority gate.
+- The retained native cache transport patch remains local-only. Local requests
+  bind exact cache bytes; remote selection refuses before dispatch while portable
+  package delivery remains open in #307.
+
+- Generic Python library import checks ignore ambient module paths and startup
+  hooks while retaining standard-library imports and exact artifact-origin checks.
+  The separate verified-wheel dependency closure keeps its existing behavior.
+
+- JavaScript library import checks accept exact export maps regardless of JSON
+  property insertion order while still rejecting undeclared and missing keys.
+
+- Library import checks fit larger reviewed interfaces into the existing bounded
+  command while retaining every import and the complete authority identity.
+- Source conversion recognizes JavaScript and TypeScript module and JSX filename
+  extensions while preserving test, minified and sensitive-content classifications.
+- Retained wrapper file membership can be refreshed beside independently qualified
+  native children. The reviewed plan pins their registry and current qualification;
+  promoted source, stale evidence and overlapping ownership still refuse. A new
+  complete retained receipt remains required.
+
+- Source generation permits read-only access to its request file, including chunked reads, while retaining source-only writes and independent lifecycle checks.
 - Wheel qualification reuses the native Windows CPU acceptance case with installed local and standalone-receiver modules; unsupported platforms remain explicit skips (#348).
 - Initial tree HTML publication retains bounded private transaction records before output mutation and through index commit, preserving interrupted attempts and foreign journal changes (#279). Recovery and rerender remain unfinished.
 - Cross-platform worker wheelhouse export considers compatible older glibc-2 floors for an explicit PEP 600 target, preserving architecture, target identity and offline closure verification (#356).
@@ -12,6 +50,11 @@
 - Repository checkout checks Git LFS JSON-inventory support before configuring a remote. FreeBSD SDK staging propagates exact source-only Git trust to the clone child through a disposable config (#305).
 
 - Measure native Windows CPU pressure with bounded timing counters while preserving required-metric refusal for unavailable or uncovered systems.
+- Source promotion exposes explicit `authorized-policy` reviews and a separate
+  operator acceptance opt-in while preserving human-only defaults and signed
+  source/graph/authority binding. These choices grant intent review, not host
+  execution or regenerative qualification.
+
 
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,

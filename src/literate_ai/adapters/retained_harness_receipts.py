@@ -98,6 +98,102 @@ class RetainedHarnessReceiptError(RuntimeError):
         super().__init__(message)
 
 
+# LOCAL PATCH (not upstream; see jordanhubbard/literate-ai#307): local
+# retained-library cache transport. A retained project that imports qualified
+# native children needs their committed caches inside its sealed workspace.
+# Each registered child's `generated/committed-source-cache/` is copied from
+# the exact bytes hashed into the lifecycle request, beside `implementation/`
+# under the same child path. Links and non-regular files refuse.
+_NATIVE_REGISTRY_PATH = ".literate/native-projects.json"
+_NATIVE_PROJECTS_PREFIX = ".literate/native-projects/"
+_NATIVE_CACHE_SCHEMA = "literate-ai/local-retained-native-caches@1"
+
+
+def _native_child_cache_files(project_root: Path) -> list[tuple[str, bytes, str]]:
+    """Return sorted (workspace-relative path, bytes, sha256) cache entries."""
+
+    registry = project_root / _NATIVE_REGISTRY_PATH
+    if not registry.exists():
+        return []
+    if registry.is_symlink() or not registry.is_file():
+        _error(
+            "retained_receipt.native_cache_unsafe",
+            "native-project registry is not a regular file",
+        )
+    try:
+        projects = json.loads(registry.read_bytes())["projects"]
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise RetainedHarnessReceiptError(
+            "retained_receipt.native_cache_unsafe",
+            "native-project registry is unreadable",
+        ) from exc
+    files: list[tuple[str, bytes, str]] = []
+    for item in projects:
+        relative = PurePosixPath(str(item.get("path", "")))
+        text = relative.as_posix()
+        if (
+            relative.is_absolute()
+            or ".." in relative.parts
+            or not text.startswith(_NATIVE_PROJECTS_PREFIX)
+            or len(relative.parts) != 3
+        ):
+            _error(
+                "retained_receipt.native_cache_unsafe",
+                f"native-project path is unsafe: {text}",
+            )
+        cache = project_root.joinpath(
+            *relative.parts, "generated", "committed-source-cache"
+        )
+        if not cache.exists():
+            continue
+        if cache.is_symlink() or not cache.is_dir():
+            _error(
+                "retained_receipt.native_cache_unsafe",
+                f"committed cache is not a directory: {text}",
+            )
+        for path in sorted(cache.rglob("*")):
+            if path.is_symlink():
+                _error(
+                    "retained_receipt.native_cache_unsafe",
+                    f"committed cache holds a link: {text}",
+                )
+            if path.is_dir():
+                continue
+            if not path.is_file():
+                _error(
+                    "retained_receipt.native_cache_unsafe",
+                    f"committed cache holds a non-file: {text}",
+                )
+            data = path.read_bytes()
+            rel = (
+                f"{text}/generated/committed-source-cache/"
+                f"{path.relative_to(cache).as_posix()}"
+            )
+            files.append((rel, data, hashlib.sha256(data).hexdigest()))
+    return sorted(files, key=lambda entry: entry[0])
+
+
+def _native_child_cache_identity(
+    files: list[tuple[str, bytes, str]],
+) -> ContentIdentity:
+    return canonical_identity(
+        {
+            "schema": _NATIVE_CACHE_SCHEMA,
+            "files": [{"path": p, "sha256": s} for p, _d, s in files],
+        }
+    )
+
+
+def _materialize_native_child_caches(
+    workspace_root: Path, files: list[tuple[str, bytes, str]]
+) -> None:
+    for rel, data, _sha in files:
+        destination = workspace_root.joinpath(*PurePosixPath(rel).parts)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        with open(destination, "xb") as handle:
+            handle.write(data)
+
+
 def retained_harness_runner_identity(
     inventory: dict[str, object],
 ) -> ContentIdentity:
@@ -294,18 +390,29 @@ def run_retained_harness_receipt(
     workspace_runtime_identity = harness_workspace_runtime_identity(
         harness_workspace_links
     )
-    lifecycle_request_identity = canonical_identity(
-        {
-            "schema": "literate-ai/retained-harness-request@1",
-            "project_id": project.definition.project_id,
-            "project_revision_identity": project_revision.uri,
-            "runner_identity": retained_harness_runner_identity(inventory).uri,
-            "worker_identity": worker_identity.uri,
-            "lifecycle_plan_identity": lifecycle_plan_identity.uri,
-            "timeout_seconds": timeout_seconds,
-            "workspace_runtime_identity": workspace_runtime_identity.uri,
-        }
-    )
+    request_document = {
+        "schema": "literate-ai/retained-harness-request@1",
+        "project_id": project.definition.project_id,
+        "project_revision_identity": project_revision.uri,
+        "runner_identity": retained_harness_runner_identity(inventory).uri,
+        "worker_identity": worker_identity.uri,
+        "lifecycle_plan_identity": lifecycle_plan_identity.uri,
+        "timeout_seconds": timeout_seconds,
+        "workspace_runtime_identity": workspace_runtime_identity.uri,
+    }
+    # LOCAL PATCH (#307): bind registered children's caches into the request.
+    native_cache_files = _native_child_cache_files(project.root)
+    if native_cache_files:
+        if execution_worker is not None:
+            _error(
+                "retained_receipt.remote_native_caches_unsupported",
+                "remote retained execution does not transport native child caches "
+                "(local patch)",
+            )
+        request_document["native_child_cache_identity"] = _native_child_cache_identity(
+            native_cache_files
+        ).uri
+    lifecycle_request_identity = canonical_identity(request_document)
     lifecycle_command_identity = canonical_identity(
         {
             "schema": "literate-ai/retained-harness-command-set@1",
@@ -344,6 +451,9 @@ def run_retained_harness_receipt(
             workspace_root = Path(temporary_directory)
             execution_root = workspace_root / "implementation"
             copy_retained_source_tree(implementation, execution_root, source_scope)
+            _materialize_native_child_caches(
+                workspace_root, native_cache_files
+            )  # LOCAL PATCH (#307)
             if execution_worker is None:
                 platform_observation = _platform_observation()
                 with materialize_harness_workspace_links(

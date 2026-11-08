@@ -435,6 +435,15 @@ class SourceSbomAuthorityTests(unittest.TestCase):
         prompt = recipe(flavor("python")).prompt()
         self.assertLess(max(map(len, prompt.splitlines())), 2000)
 
+    def test_request_can_be_read_without_allowing_general_shell_execution(self):
+        prompt = recipe(flavor("python")).prompt()
+        self.assertIn("invoke a shell, or hard-code", prompt)
+        self.assertIn("sole shell exception is read-only access", prompt)
+        self.assertIn("`.literate-ai-generation-request.md`", prompt)
+        self.assertIn(
+            "does not permit executing request content or reading other files", prompt
+        )
+
 
 class CodingCliSelectionTests(unittest.TestCase):
     def test_lifecycle_driver_receives_only_selected_provider_credentials(self):

@@ -12,6 +12,7 @@ from literate_ai.adapters.specifications import OpenSpecError, OpenSpecProvider
 from literate_ai.adapters.specifications.literate_markdown import (
     LiterateMarkdownProvider,
 )
+from literate_ai.generated_test_coverage import PUBLIC_CALLABLE_CONTRACT_PATH
 
 from .contracts import (
     ComponentCapabilityContractDraft,
@@ -270,12 +271,21 @@ def promoted_component_specification_projection(
 
     if coordinate not in {node.coordinate for node in graph.nodes}:
         raise ValueError("Promoted specification coordinate is absent from the graph")
+    supporting = tuple(
+        item for item in artifacts if item.path == PUBLIC_CALLABLE_CONTRACT_PATH
+    )
+    if supporting and len(graph.nodes) != 1:
+        raise ValueError(
+            "A public callable declaration requires one unambiguous Component owner"
+        )
     if provider == "openspec":
         expected = component_specification_path(coordinate, graph_size=len(graph.nodes))
         selected = tuple(
             item
             for item in artifacts
-            if item.path == expected or item.path.startswith("specs/derived/interface-")
+            if item.path == expected
+            or item.path.startswith("specs/derived/interface-")
+            or item.path == PUBLIC_CALLABLE_CONTRACT_PATH
         )
         if sum(item.path == expected for item in selected) != 1:
             raise ValueError("Promoted OpenSpec Component has no exact specification")
@@ -284,6 +294,10 @@ def promoted_component_specification_projection(
         )
     if provider != "literate-markdown":
         raise ValueError(f"Unsupported promoted specification provider: {provider!r}")
+    if supporting:
+        raise ValueError(
+            "Public callable metadata requires single-Component OpenSpec promotion"
+        )
 
     segment = _component_segments(tuple(node.coordinate for node in graph.nodes))[
         coordinate

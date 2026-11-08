@@ -183,6 +183,9 @@ lists the per-project fields and their defaults.
 - [Prefix-installed CLI self-update](decisions/0037-prefix-installed-cli-self-update.md)
 - [Continuous upstream shadow qualification](decisions/0063-continuous-upstream-shadow-qualification.md)
 - [Qualified native child revision](decisions/0066-qualified-native-child-revision.md)
+- [Earlier local qualified-child addition decision](decisions/0064-qualified-native-child-addition.md)
+- [Earlier local qualified-child revision decision](decisions/0065-qualified-native-child-revisions.md)
+- [Reviewed source-backed immutable assets](decisions/0067-reviewed-source-assets.md)
 - [Source trust and build-security plan](security/source-trust-and-build-policy.md)
 
 ## Migration and roadmap

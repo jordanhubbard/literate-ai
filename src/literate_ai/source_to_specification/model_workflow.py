@@ -11,6 +11,7 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 from literate_ai.contracts._validation import ContractValidationError
+from literate_ai.contracts.component_locking.authoring import ComponentAssetSelector
 from literate_ai.contracts.executable_components._common import portable_name
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
 from literate_ai.diagnostics import log_operation
@@ -62,6 +63,7 @@ from .literal_data import (
     python_literal_tables,
 )
 from .model_ports import InverseLanguageTranslator, SourceIntelligenceCollector
+from .reviewed_assets import validate_asset_selectors
 from .skills import builtin_skill_set, resolve_skill_set
 from .synthesis import (
     benefits_from_literate_markdown,
@@ -1096,6 +1098,7 @@ def _merge_component_graphs(
                     "provided_capabilities": set(),
                     "capability_contracts": {},
                     "library_imports": {},
+                    "assets": {},
                     "entrypoints": {},
                     "build_needs": node.build_needs,
                     "source_paths": set(),
@@ -1138,6 +1141,15 @@ def _merge_component_graphs(
                     raise SourceToSpecificationError(
                         "model_translation.component_graph_semantics_conflict",
                         "language translators disagree on native import names",
+                    )
+            assets = current["assets"]
+            assert isinstance(assets, dict)
+            for item in node.assets:
+                previous = assets.setdefault(item.asset_id, item)
+                if previous != item:
+                    raise SourceToSpecificationError(
+                        "model_translation.component_graph_semantics_conflict",
+                        "language translators disagree on an immutable asset",
                     )
             entrypoints = current["entrypoints"]
             assert isinstance(entrypoints, dict)
@@ -1223,6 +1235,7 @@ def _merge_component_graphs(
                 library_imports=tuple(
                     item for _key, item in sorted(value["library_imports"].items())
                 ),
+                assets=tuple(item for _key, item in sorted(value["assets"].items())),
                 build_needs=value["build_needs"],  # type: ignore[arg-type]
                 source_paths=tuple(sorted(value["source_paths"])),  # type: ignore[arg-type]
                 observation_ids=tuple(
@@ -1512,6 +1525,25 @@ def _model_library_imports(value: object) -> tuple[AuthoredLibraryImport, ...]:
         ) from exc
 
 
+def _model_asset_selectors(value: object) -> tuple[ComponentAssetSelector, ...]:
+    try:
+        if not isinstance(value, list) or len(value) > 4096:
+            raise ValueError("expected bounded asset array")
+        assets = tuple(
+            sorted(
+                (ComponentAssetSelector.from_dict(item) for item in value),
+                key=lambda item: item.asset_id,
+            )
+        )
+        validate_asset_selectors(assets)
+        return assets
+    except (TypeError, ValueError) as exc:
+        raise SourceToSpecificationError(
+            "model_translation.component_graph_assets_invalid",
+            "assets must be bounded reviewed source-backed declarations",
+        ) from exc
+
+
 def parse_model_component_graph(
     *,
     response: Mapping[str, object],
@@ -1575,7 +1607,10 @@ def parse_model_component_graph(
             "observation_indexes",
             "evidence_ids",
         }
-        if not isinstance(raw, dict) or set(raw) - {"library_imports"} != expected:
+        if (
+            not isinstance(raw, dict)
+            or set(raw) - {"library_imports", "assets"} != expected
+        ):
             raise SourceToSpecificationError(
                 "model_translation.component_graph_node_invalid",
                 f"model Component graph node {index} has missing or unknown fields",
@@ -1813,6 +1848,7 @@ def parse_model_component_graph(
                 ),
                 entrypoints=tuple(sorted(entrypoints, key=lambda item: item.name)),
                 library_imports=_model_library_imports(raw.get("library_imports", [])),
+                assets=_model_asset_selectors(raw.get("assets", [])),
                 build_needs=tuple(sorted(build_needs)),
                 source_paths=source_paths,
                 observation_ids=tuple(

@@ -10,9 +10,17 @@ from pathlib import Path, PurePosixPath
 from typing import Any
 
 from literate_ai._filesystem import stat_is_link_or_reparse
+from literate_ai.adapters.authority import (
+    AuthorityProjectionStoreError,
+    FileAuthorityProjectionStore,
+)
 from literate_ai.adapters.conversion_authority import (
     CONVERSION_AUTHORITY_FILE,
+    NATIVE_PROJECTS_FILE,
+    ConversionAuthorityError,
     FilesystemConversionAuthorityStore,
+    _component_projection_identities,
+    _native_project_roots,
 )
 from literate_ai.adapters.harness_tree import (
     _validated_scope,
@@ -30,8 +38,11 @@ from literate_ai.adapters.retained_harness_receipts import (
 )
 from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
-from literate_ai.contracts.operator_adoption import ConversionAuthorityStage
-from literate_ai.projects import ProjectConfigurationStore, load_project
+from literate_ai.contracts.operator_adoption import (
+    ConversionAuthorityStage,
+    ConversionAuthorityState,
+)
+from literate_ai.projects import LoadedProject, ProjectConfigurationStore, load_project
 
 PLAN_SCHEMA = "literate-ai/retained-scope-refresh-plan@1"
 INVENTORY = ".literate/harness-inventory.json"
@@ -123,6 +134,47 @@ def _members(root: Path, paths: tuple[str, ...]) -> list[dict[str, Any]]:
     return result
 
 
+def _qualified_child_basis(
+    project: LoadedProject,
+    state: ConversionAuthorityState,
+    implementation: Path,
+) -> dict[str, Any]:
+    """Separate retained wrapper authority from independent child qualification."""
+
+    try:
+        # A promotion in this project could own the wrapper's retained source.
+        # Only independently registered, disjoint children can justify this path.
+        if FileAuthorityProjectionStore(project.root).coordinates():
+            _fail("source_not_authoritative", "refresh cannot change promoted source")
+        children = _native_project_roots(project)
+        if not children or any(
+            child.is_relative_to(implementation) or implementation.is_relative_to(child)
+            for child in children
+        ):
+            _fail(
+                "source_not_authoritative",
+                "qualified refresh requires native children outside retained source",
+            )
+        current = _component_projection_identities(project, qualified=True)
+    except (AuthorityProjectionStoreError, ConversionAuthorityError) as exc:
+        raise RetainedScopeRefreshError(
+            "retained_scope.native_qualification_invalid",
+            "registered native qualification is missing, stale, or invalid",
+        ) from exc
+    if current != state.evidence_identities:
+        _fail(
+            "native_qualification_stale",
+            "qualified claim does not match current native child projections",
+        )
+    registry = _safe_path(project.root, NATIVE_PROJECTS_FILE)
+    if not stat.S_ISREG(registry.stat().st_mode):
+        _fail("unsafe_path", "native project registry must be a regular file")
+    return {
+        "registry_identity": _identity(registry.read_bytes()),
+        "qualified_projection_identities": [item.uri for item in current],
+    }
+
+
 def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
     """Inspect exact old/new scope without running commands or writing files."""
 
@@ -155,15 +207,15 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         _fail(
             "not_adopted", "refresh requires the adopted project's conversion authority"
         )
-    if state.stage is ConversionAuthorityStage.QUALIFIED:
-        _fail(
-            "source_not_authoritative",
-            "refresh cannot change specification-authoritative source",
-        )
     documents = _load_retained_documents(project)
     _require_qualified_parity(documents)
     implementation = _implementation_root(project, documents)
     _safe_path(root, implementation.relative_to(root).as_posix())
+    qualified_children = (
+        _qualified_child_basis(project, state, implementation)
+        if state.stage is ConversionAuthorityStage.QUALIFIED
+        else None
+    )
     inventory = documents["inventory"]["value"]
     old_paths, _ = _validated_scope(inventory.get("source_scope"))
     new_scope = capture_retained_source_scope(
@@ -219,6 +271,8 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         "execution_performed": False,
         "requalification_required": True,
     }
+    if qualified_children is not None:
+        value["qualified_native_children"] = qualified_children
     value["plan_identity"] = canonical_identity(value).uri
     return value
 
@@ -340,6 +394,21 @@ def apply_retained_scope_refresh(
                     "source_changed",
                     "source changed during refresh; no new evidence was earned",
                 )
+            if "qualified_native_children" in plan:
+                current_project = load_project(root)
+                current_state = FilesystemConversionAuthorityStore(root).load_optional()
+                if (
+                    current_state is None
+                    or current_state.stage is not ConversionAuthorityStage.QUALIFIED
+                    or _qualified_child_basis(
+                        current_project, current_state, implementation
+                    )
+                    != plan["qualified_native_children"]
+                ):
+                    _fail(
+                        "metadata_changed",
+                        "native child authority changed during retained refresh",
+                    )
         except BaseException:
             # Ordinary failures restore only bytes still owned by this operation.
             # An abrupt process exit leaves policy/review mismatches fail-closed;

@@ -222,6 +222,7 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "urn:literate-ai:schema:v2:generation-input-audit",
         "urn:literate-ai:schema:v2:source-promotion-provenance",
         "urn:literate-ai:schema:v3:source-promotion-provenance",
+        "urn:literate-ai:schema:v4:source-promotion-provenance",
         "urn:literate-ai:schema:v1:inverse-evidence-custody",
         "urn:literate-ai:schema:v1:semantic-requirement-graph",
         "urn:literate-ai:schema:v1:semantic-comparison-model-output",
