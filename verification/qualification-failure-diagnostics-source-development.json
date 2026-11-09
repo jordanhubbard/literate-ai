@@ -87,5 +87,6 @@
   ],
   "goal_complete": false,
   "release_attestation": false,
-  "evidence_update_scope": "Source and test bytes match the frozen candidate packet; subsequent roadmap and verification-record updates do not relabel the original source-gate subject."
+  "evidence_update_scope": "Source and test bytes match the frozen candidate packet; subsequent roadmap and verification-record updates do not relabel the original source-gate subject.",
+  "review": 391
 }
