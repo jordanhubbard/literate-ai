@@ -1,0 +1,136 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "QUALIFICATION-DIAGNOSTICS-001",
+  "issue": 389,
+  "classification": "Native installed-wheel negative-path qualification; author evidence, independent source review pending",
+  "platform": "linux-aarch64",
+  "wheel": {
+    "name": "literate_ai-1.4.0-py3-none-any.whl",
+    "sha256": "e1cc08464797cc3bd82da3f3317e55359e100465bd5769e8904d4667987cb382",
+    "bytes": 4239195,
+    "installation": "noneditable isolated wheel"
+  },
+  "production_modules": [
+    {
+      "module": "literate_ai.adapters.qualification",
+      "sha256": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9",
+      "installed_origin_verified": true
+    },
+    {
+      "module": "literate_ai.adapters.qualification_capture",
+      "sha256": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1",
+      "installed_origin_verified": true
+    },
+    {
+      "module": "literate_ai.adapters.qualification_diagnostics",
+      "sha256": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9",
+      "installed_origin_verified": true
+    },
+    {
+      "module": "literate_ai.cli.source_to_specification",
+      "sha256": "cad6b0e6cfbdcb3cc8991da7f9cd97630773e11a0250862df0df68d3b3f2f81b",
+      "installed_origin_verified": true
+    }
+  ],
+  "fixture": {
+    "source": "tiny.api.value(integer) returns integer plus one, four declared capabilities",
+    "authority": "Actual signed static spec attest/derive/review/accept with inherited published parent; actual component lock, interfaces and library import surface",
+    "selectors": "Native Python/Linux project defaults; Bazel deselected",
+    "model": "gpt-6-sol",
+    "coding_cli": "codex",
+    "acceptance": "Independent verifier imports only the sealed native export/source package and evaluates all sixteen original cases",
+    "deliberate_parity_failure": "Real generated-side subprocess emits original-native-parity-marker followed by newline and exits7; baseline imports original source and exits0"
+  },
+  "native_attempt": {
+    "exit": 2,
+    "elapsed_seconds": 181.97011985300196,
+    "error_code": "qualification_lifecycle.parity_failed",
+    "model_generation_build_generated_tests_independent_acceptance": "Passed the actual Standard lifecycle before reaching parity; corresponding original records retained in diagnostic archive",
+    "generated_test_cases": 5,
+    "parity_case_records": 16,
+    "case_bound_process_observations": 32,
+    "unique_process_records": 8,
+    "content_addressed_sharing": "Identical process payloads share records; all 16 case/run bindings verified",
+    "all_baseline_exits": 0,
+    "all_generated_exits": 7,
+    "all_generated_stderr_exact": true,
+    "diagnostic_archive": {
+      "algorithm": "sha256",
+      "digest": "e6af6b60bf8df000553d417b4cf09598cfef40cfa6af78707027b326c9b27de0",
+      "size": 289742,
+      "media_type": "application/zip"
+    },
+    "qualified_archive_reader_refusal": "qualification.archive.member-invalid",
+    "qualified_output_absent": true,
+    "schema_inventory": {
+      "literate-ai/qualification-failure-diagnostic@1": 1,
+      "literate-ai/qualification-process-observation@1": 8,
+      "urn:literate-ai:schema:v2:standard-project-lifecycle-membership": 1,
+      "urn:literate-ai:schema:v2:standard-execution-authority": 1,
+      "null": 30,
+      "literate-ai/standard-project-build-plan@1": 1,
+      "literate-ai/qualification-diagnostic-case@1": 16,
+      "literate-ai/local-generated-test-custody@1": 1,
+      "urn:literate-ai:schema:v2:standard-build-authorization": 1,
+      "urn:literate-ai:schema:v2:component-context-benchmark-record": 1,
+      "urn:literate-ai:schema:v2:standard-source-cache-membership": 1,
+      "literate-ai/local-process-observation@1": 5,
+      "urn:literate-ai:schema:v2:standard-execution-input-scope": 1,
+      "literate-ai/standard-project-lifecycle-result@4": 1,
+      "urn:literate-ai:schema:v2:standard-component-execution-evidence": 1,
+      "literate-ai/generated-test-case@1": 5,
+      "urn:literate-ai:schema:v2:package-plan": 1,
+      "urn:literate-ai:schema:v3:source-generation-schedule-result": 1,
+      "literate-ai/local-generated-source-custody@1": 1,
+      "urn:literate-ai:schema:v2:standard-generated-test-execution-evidence": 1,
+      "literate-ai/local-build-observation@1": 1,
+      "urn:literate-ai:schema:v2:standard-component-build-intent": 1,
+      "urn:literate-ai:schema:v2:model-route-decision": 1,
+      "urn:literate-ai:schema:v2:standard-aggregate-receipt": 1,
+      "urn:literate-ai:schema:v2:exact-link-plan": 1,
+      "literate-ai/local-standard-acceptance-policy@1": 1,
+      "urn:literate-ai:schema:v2:build-authorization": 1,
+      "urn:literate-ai:schema:v2:component-lifecycle-command": 3,
+      "urn:literate-ai:schema:v2:standard-component-build-evidence": 1,
+      "urn:literate-ai:schema:v2:cyclonedx-managed-graph": 1,
+      "urn:literate-ai:schema:v1:project-test-receipt": 1,
+      "literate-ai/generated-test-case-observation@1": 5,
+      "urn:literate-ai:schema:v2:candidate-attempt-chain": 1,
+      "literate-ai/library-acceptance-oracle@1": 1,
+      "literate-ai/local-source-tree@1": 2,
+      "literate-ai/local-independent-library-acceptance@1": 1,
+      "literate-ai/local-artifact-custody@1": 1,
+      "urn:literate-ai:schema:v2:standard-component-build-plan": 1,
+      "urn:literate-ai:schema:v2:component-command-contract": 1,
+      "urn:literate-ai:schema:v2:qualification-verifier-case-map": 1,
+      "urn:literate-ai:schema:v1:standard-root-integration-evidence": 1,
+      "literate-ai/disabled-source-index@1": 1,
+      "urn:literate-ai:schema:v2:build-request": 1,
+      "urn:literate-ai:schema:v2:artifact-build-graph": 1,
+      "literate-ai/generated-source-tree-record@1": 1,
+      "literate-ai/generated-source-manifest-record@1": 1,
+      "urn:literate-ai:schema:v1:generated-test-suite": 1,
+      "urn:literate-ai:schema:v2:library-import-surface@1": 1,
+      "urn:literate-ai:schema:v2:local-regenerative-qualification-profile": 1,
+      "urn:literate-ai:schema:v4:generated-source-candidate": 1,
+      "urn:literate-ai:schema:v2:package-result": 1,
+      "literate-ai/coding-cli-stage-output-record@1": 1,
+      "urn:literate-ai:schema:v2:standard-component-acceptance-evidence": 1,
+      "literate-ai/standard-node-lifecycle-result@4": 1,
+      "urn:literate-ai:schema:v2:forward-generation-context-cache-report": 1
+    }
+  },
+  "preserved_earlier_failures": [
+    "Unsupported competing single-file build profile refused",
+    "Fixture library acceptance import path failed; its original diagnostic archive remains retained",
+    "Model-backed standalone inverse refuses unconditionally; three fresh original-domain native application cases pass, but representative inverse roundtrip remains unresolved"
+  ],
+  "scope_limits": [
+    "A supported signed static inverse fixture is used to test the actual model-forward diagnostic path; no model-backed inverse acceptance is claimed",
+    "One Linux ARM64 native negative path; not cross-platform release qualification",
+    "Independent source review and driver repin pending",
+    "Full unchanged 1.4 release scope and exact updated candidate/resulting-main gates remain"
+  ],
+  "goal_complete": false,
+  "release_attestation": false
+}

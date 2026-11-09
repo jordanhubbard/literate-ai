@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retain bounded original qualification-failure observations in a separate
+  diagnostic archive/store, preserving the failing CLI result and keeping failed
+  product captures empty (#389).
+
 - Complete current-main native qualification of retained Windows system context,
   base/private interpreter DLL capture, and the five-minute C++ discovery bound;
   preserve command drift, missing-sidecar and guarded native build refusals (#102, #103).

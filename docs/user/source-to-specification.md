@@ -372,6 +372,18 @@ qualified projection; retained-source authority is never exposed as current. Use
 returned archive reference for the reviewed retained-library binding. Archive
 publication alone does not authorize importer admission.
 
+With `--retained-evidence-store`, a failed qualification retains available bounded
+process observations in a separate `diagnostics` store beneath that root. The
+failing CLI result keeps its error code and reports the diagnostic archive reference;
+it does not print the captured streams. The archive binds the attempted plan and
+recorded run/case observations and cannot be read as a qualified-product archive.
+Earlier passing cases remain observations of that failed attempt. If diagnostic
+publication fails, the original qualification error remains and reports that
+diagnostics are unavailable. A replay cannot recover the original failed execution.
+Interrupted parity commands retain their active run/case context and any available timeout
+streams within the existing output and retention limits. Missing or oversized
+streams remain explicitly unavailable; the original refusal is preserved.
+
 If the capture command was introduced by a newer Standard wheel, preserve the exact
 pre-rebind `literate.project.json` before applying the reviewed Standard rebind. Pass
 that file with `--prior-project-configuration PATH`. Literate AI requires its bytes to
