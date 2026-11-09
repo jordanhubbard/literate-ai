@@ -34285,7 +34285,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] QUALIFICATION-DIAGNOSTICS-001 — Retain original bounded observations when native qualification fails
 
-- **Implementation review:** [PR #391](https://github.com/jordanhubbard/literate-ai/pull/391), draft pending independent source review before driver repin and remaining installed/native qualification.
+- **Implementation review:** [PR #391](https://github.com/jordanhubbard/literate-ai/pull/391), draft pending native model-backed qualification and updated exact-head integration. Independent source review and installed adapter/CLI controls pass; the reviewed driver identity is recorded.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#389](https://github.com/jordanhubbard/literate-ai/issues/389)
@@ -34325,8 +34325,15 @@ implementation, policy weakening, qualification or issue closure is recorded her
   2,666 cases with 120 explicit skips across 2,786 selected; all 598 worker groups
   match the report and every frozen candidate file retains its exact bytes and
   mode. See the [source development record](../../verification/qualification-failure-diagnostics-source-development.json).
-  Independent review before driver repin, installed/native generation and exact
-  integration remain open.
+  A separate release-continuation reviewer inspected all four changed production
+  modules and recorded the driver pin. Thirty focused cases pass both from source
+  and from a noneditable wheel in a fresh venv with isolated Python, copied test
+  fixtures and verified installed module origins/hashes. The installed cases use
+  real parity subprocesses but mocked Standard generation/lifecycle fixtures;
+  they do not prove native model-backed qualification. See the
+  [installed review record](../../verification/qualification-failure-diagnostics-installed-review.json).
+  Next action: qualify actual native model-backed failure evidence, then require
+  updated exact candidate and resulting-main integration gates.
 
 - **Implementation:**
   - [x] Retain plan/run/case/process identities and available bounded stdout/stderr blobs on failed qualification through a diagnostic-only path.
