@@ -380,7 +380,7 @@ recorded run/case observations and cannot be read as a qualified-product archive
 Earlier passing cases remain observations of that failed attempt. If diagnostic
 publication fails, the original qualification error remains and reports that
 diagnostics are unavailable. A replay cannot recover the original failed execution.
-Interrupted commands retain their active run/case context and any available timeout
+Interrupted parity commands retain their active run/case context and any available timeout
 streams within the existing output and retention limits. Missing or oversized
 streams remain explicitly unavailable; the original refusal is preserved.
 
