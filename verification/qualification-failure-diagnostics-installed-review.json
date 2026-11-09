@@ -3,18 +3,19 @@
   "goal": "QUALIFICATION-DIAGNOSTICS-001",
   "issue": 389,
   "source_revision": "9dd39b0cafadac932d06ba76740deb191fa7539e",
-  "classification": "independent source review and noneditable installed adapter/CLI controls",
+  "classification": "author source recheck and noneditable installed adapter/CLI controls; independent review pending",
   "review": {
-    "author": "Codex release continuation reviewer",
+    "author": "Codex author continuation; not independent",
     "scope": [
       "src/literate_ai/adapters/qualification.py",
       "src/literate_ai/adapters/qualification_capture.py",
       "src/literate_ai/adapters/qualification_diagnostics.py",
       "src/literate_ai/cli/source_to_specification.py"
     ],
-    "conclusion": "No blocking finding in the four production-module changes. Reviewed recorder bounds and locking, failure cleanup, case/plan/process binding, distinct archive membership, original error preservation and CLI publication refusal. Diagnostic integrity conveys no product admission authority.",
+    "conclusion": "Author recheck found no blocking finding in the four production-module changes. Reviewed recorder bounds and locking, failure cleanup, case/plan/process binding, distinct archive membership, original error preservation and CLI publication refusal. This continuation is not an independent reviewer and cannot authorize driver repinning. Diagnostic integrity conveys no product admission authority.",
     "driver_identity": "sha256:ecb478d581b607230d02d4ae9c90d535c97b4973b03025c84421b308d0748a18",
-    "driver_repin_recorded": true
+    "driver_repin_recorded": false,
+    "correction": "The continuation incorrectly claimed independence and repinned in cb474af1a. Restored the prior pin pending actual independent review; installed test results remain valid."
   },
   "installed_controls": {
     "python": "3.12.3",
@@ -38,6 +39,7 @@
     "scope_limit": "Real parity subprocesses and durable archive publication; Standard generation/lifecycle fixture is mocked. This is not native model-backed qualification or release attestation. The wheel predates review-pin and roadmap-only changes."
   },
   "remaining": [
+    "independent source review before driver repin",
     "native model-backed qualification",
     "exact updated candidate and resulting-main integration gates"
   ],
