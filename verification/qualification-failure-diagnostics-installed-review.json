@@ -40,9 +40,10 @@
   },
   "remaining": [
     "independent source review before driver repin",
-    "native model-backed qualification",
-    "exact updated candidate and resulting-main integration gates"
+    "exact updated candidate and resulting-main integration gates",
+    "full cross-platform release qualification"
   ],
   "goal_complete": false,
-  "release_attestation": false
+  "release_attestation": false,
+  "additional_native_evidence": "verification/qualification-failure-diagnostics-native.json records a separate genuine native model-forward failed-parity journey; the 30 fixture controls above retain their original narrower scope."
 }
