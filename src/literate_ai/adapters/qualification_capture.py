@@ -49,6 +49,7 @@ from literate_ai.source_to_specification.qualification_lifecycle import (
     QualificationLifecycleResult,
     QualificationLifecycleRunEvidence,
     QualificationLifecycleRunner,
+    QualificationParityCaseEvidence,
 )
 
 
@@ -69,6 +70,7 @@ class QualificationEvidenceRecorder:
         self._retained_bytes = 0
         self._lock = Lock()
         self._records: dict[ContentIdentity, bytes] = {}
+        self._diagnostic_cases: set[ContentIdentity] = set()
 
     def remember_json(self, value: object) -> ContentIdentity:
         payload = canonical_json_bytes(value)
@@ -83,7 +85,33 @@ class QualificationEvidenceRecorder:
         self._remember(identity, payload)
         return identity
 
-    def _remember(self, identity: ContentIdentity, payload: bytes) -> None:
+    def remember_diagnostic_case(
+        self, run_identity: ContentIdentity, case: QualificationParityCaseEvidence
+    ) -> ContentIdentity:
+        if not isinstance(run_identity, ContentIdentity) or not isinstance(
+            case, QualificationParityCaseEvidence
+        ):
+            raise QualificationCaptureError("qualification.diagnostic.case-invalid")
+        payload = canonical_json_bytes(
+            {
+                "schema": "literate-ai/qualification-diagnostic-case@1",
+                "run_identity": run_identity.uri,
+                "case": case.to_dict(),
+            }
+        )
+        identity = ContentIdentity.parse_uri(
+            "sha256:" + hashlib.sha256(payload).hexdigest()
+        )
+        self._remember(identity, payload, diagnostic_case=True)
+        return identity
+
+    def _remember(
+        self,
+        identity: ContentIdentity,
+        payload: bytes,
+        *,
+        diagnostic_case: bool = False,
+    ) -> None:
         # Component builds run concurrently. Deduplication, both bounds and the
         # insertion must be one operation across every producer in this run.
         with self._lock:
@@ -93,6 +121,8 @@ class QualificationEvidenceRecorder:
                     raise QualificationCaptureError(
                         "qualification.capture.identity-conflict"
                     )
+                if diagnostic_case:
+                    self._diagnostic_cases.add(identity)
                 return
             if len(self._records) >= self.max_records:
                 raise QualificationCaptureError("qualification.capture.record-limit")
@@ -100,6 +130,13 @@ class QualificationEvidenceRecorder:
                 raise QualificationCaptureError("qualification.capture.byte-limit")
             self._records[identity] = payload
             self._retained_bytes += len(payload)
+            if diagnostic_case:
+                self._diagnostic_cases.add(identity)
+
+    @property
+    def diagnostic_case_record_identities(self) -> tuple[ContentIdentity, ...]:
+        with self._lock:
+            return tuple(sorted(self._diagnostic_cases, key=lambda item: item.uri))
 
     @property
     def retained_bytes(self) -> int:

@@ -34294,9 +34294,41 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** Add a separate bounded provenance-bound diagnostic result/store for failed qualification. Preserve nonzero refusal, empty qualified product captures, private custody, stream limits and timeout cleanup; a replay cannot replace the original observation.
 - **Depends on:** none
 - **Completion prerequisites:** none
+- **Current action:** Retain the original per-case process observations through a
+  distinct diagnostic archive and immutable local store under the explicitly
+  selected retained-evidence root. Bind the exact plan, run and case alongside
+  process/stream identities, preserve the failing CLI code, and expose only the
+  diagnostic reference in its error. Keep failed qualified-product captures empty;
+  diagnostic archives must refuse the qualified-product archive reader. Preserve
+  all current byte/record limits and name diagnostic-publication failures without
+  replacing the original qualification error.
+
+- **Development evidence:** Real parity subprocess controls retain nonzero exit 7,
+  invalid JSON, and a later clean-run failure after an earlier passing case. The
+  separate archive rejects the qualified archive reader and rehashed success or
+  cross-plan labels. Public CLI controls preserve the original failure code,
+  expose only the archive reference and preserve a foreign diagnostic path. An
+  isolated counterfactual executes the old qualification module at `a42e27392`
+  with actual subprocesses: original stream/process facts exist before cleanup
+  but become unavailable afterward. This is an adapter-boundary source control,
+  not full native generation. The first complete prototype source gate passes
+  2,662 cases with 120 explicit skips across 2,782 selected; all 598 worker groups
+  finish and case events match the report with unchanged source. Later helper-
+  import and interrupted-command refinements remain separate from that result.
+  The refined Python 3.12 source selects 68 related cases: 50 pass and 18 retain
+  existing platform/tool skips. Actual timeout controls retain within-bound stdout
+  and stderr plus the active run/case and verify process cleanup; absent executables,
+  rehashed partial context, output/retention limits and an unavailable diagnostic
+  helper retain the original refusal. The refined complete source gate passes
+  2,666 cases with 120 explicit skips across 2,786 selected; all 598 worker groups
+  match the report and every frozen candidate file retains its exact bytes and
+  mode. See the [source development record](../../verification/qualification-failure-diagnostics-source-development.json).
+  Independent review before driver repin, installed/native generation and exact
+  integration remain open.
+
 - **Implementation:**
-  - [ ] Retain plan/run/case/process identities and available bounded stdout/stderr blobs on failed qualification through a diagnostic-only path.
-  - [ ] Keep failed diagnostic evidence separate from qualified library products and clear stale success across later failed clean runs.
+  - [x] Retain plan/run/case/process identities and available bounded stdout/stderr blobs on failed qualification through a diagnostic-only path.
+  - [x] Keep failed diagnostic evidence separate from qualified library products and clear stale success across later failed clean runs.
 - **Evidence:**
-  - [ ] Reproduce nonzero parity exit and invalid JSON, verify original marker/exit identities and private durable diagnostics, and reject diagnostic evidence as qualified products.
+  - [x] Reproduce nonzero parity exit and invalid JSON, verify original marker/exit identities and private durable diagnostics, and reject diagnostic evidence as qualified products.
   - [ ] Exercise a later failure after an earlier success; renew independent review, full source, installed/native and exact-head integration gates.
