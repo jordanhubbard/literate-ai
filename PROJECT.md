@@ -124,8 +124,7 @@ issues #404 and #405 in 1.4 under Goals 1 and 4. Typed native acceptance rejecti
 must remain distinct from archive I/O failure. Generated native-library repair
 requires an explicitly reviewed package-to-attempt custody boundary and the existing
 shared finite retry budget; source custody and private verifier authority remain
-unchanged. PR #406 is under qualification; root-repair design and acceptance remain
-open.
+unchanged. PR #406 is under qualification. [ADR 0073](docs/decisions/0073-native-root-acceptance-repair.md) proposes the single generated-root continuation; explicit directing-user acceptance and implementation remain open.
 
 CUDA-SIGNAL-001 records issue #396 as blocking 1.4.0 work under Goals 1, 2, 4
 and 5. Inert source inventory must preserve original bytes and propose CUDA only
