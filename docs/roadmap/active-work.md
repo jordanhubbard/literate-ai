@@ -34435,3 +34435,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Installed evidence:** [Retained repair proof](../../verification/wheel-continuation-python-binding.json) binds the original Python 3.12 oracle (`cb0d0d0a`) and discovered 3.15 artifact (`520e0d0a`) mismatch. With the unchanged original PATH, the repaired fixture passes both default and project-relative cache scenarios against the same noneditable framework: four distinct admissions, four exact builds, four public runs, immutable historical cache bytes, and unchanged distribution identity. Seven maintained wheel-smoke methods pass without skips. The original failure and one missing-output-parent setup error remain preserved.
 - **Next action:** Land through confirming CI; the separate whole-wheel run and consuming release lifecycle remain required and are not claimed by this fixture result.
+
+### [ ] QUALIFICATION-ERROR-001 — Preserve native acceptance failure codes in qualification CLI
+
+- **GitHub issue:** [#404](https://github.com/jordanhubbard/literate-ai/issues/404)
+
+- **Priority:** P1
+- **Owner:** Framework qualification CLI; PROJECT Goals1and4
+- **Direction:** Issue404: report typed independent native acceptance rejection truthfully when retained evidence is requested.
+- **Conclusion:** Preserve known acceptance error code/message through the public CLI; retain existing archive I/O failure classification and all authority refusal.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Handle typed acceptance failure separately from archive publication errors.
+- **Evidence:**
+  - [x] Public CLI controls with and without retained store preserve mismatch code, no output/admission; genuine archive write failure remains unchanged. The maintained module passes all16tests after the original public-code failure is preserved.
+  - [ ] Complete independent source review, full contributor/installed gates and exact-head/main integration before closing.
