@@ -1147,6 +1147,15 @@
         "literate-ai/retained-tree-html-check-result@1",
         "literate-ai/project-tree-html@1"
       ]
+    },
+    {
+      "file": "worker-telemetry.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:worker-telemetry-contracts",
+      "public_ids": [
+        "literate-ai/worker-telemetry-request@1",
+        "literate-ai/worker-telemetry-observation@1",
+        "literate-ai/worker-telemetry-response@1"
+      ]
     }
   ]
 }

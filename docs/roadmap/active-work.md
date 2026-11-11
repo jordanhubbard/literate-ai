@@ -33731,7 +33731,7 @@ independent review and the complete combined gate from test one.
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
-- **Next action:** Complete the draft telemetry response/sample schemas and live observation permission/action-owner boundary, then compose existing authenticated transport, bounded collection and the installed/native journeys. The initial request/metric/progress contracts below grant no observation or execution authority; the full accepted feed remains required.
+- **Next action:** Complete the live observation permission/action-owner boundary, then compose existing authenticated transport, bounded collection and the installed/native journeys. The draft now includes response/sample framing and additive schemas, but no receiver or live feed. The initial request/metric/progress contracts below grant no observation or execution authority; the full accepted feed remains required.
 
 - **Planning verification:** Proposed ADR 0059 and this intake have independent source/design approval. The previous two-design, pre-integration checkpoint and passing fresh consolidated gate are recorded under [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards). The current source audit distinguishes pressure probes and discrete action attestations from the missing telemetry feed; it claims no live telemetry or job-attribution qualification. The directing user explicitly accepted ADR 0059 on 2026-11-03; every implementation/evidence item remains open.
 
@@ -33742,9 +33742,17 @@ independent review and the complete combined gate from test one.
   command, environment, output or display-text selector is admitted. Metrics retain
   explicit measurement scope, closed status, fixed units and counter/gauge meaning;
   unmeasured values are null. Progress requires actual completed/total work or a
-  closed indeterminate reason. Nine focused controls pass. These types are not
-  receiver authentication, a live action owner, published schema support or an
-  implemented telemetry route. Response framing, expiry/replay enforcement,
+  closed indeterminate reason. Twenty-five focused contract/wire/schema controls pass, plus the existing catalog
+  structure and schema-check-scope controls. Additive request/observation/response
+  header schemas resolve in the current runtime catalog. The codec checks the
+  aggregate 1 MiB bound and newline count before allocating a frame list, then
+  enforces 16 KiB per record including framing before parsing. It refuses duplicate
+  fields, nonfinite values, missing/duplicate/substituted action samples and changed
+  request/worker/scope/expiry bindings. Unsupported, denied and unavailable responses
+  remain explicit. Owner/process-start/reservation/counter epochs and observer
+  epoch/sequence remain untrusted data; terminal references do not authenticate a
+  result. These types and codecs are not receiver authentication, a live action
+  owner or an implemented telemetry route. Freshness/replay enforcement, live
   epoch/sequence custody, rate/coalescing/concurrency, native collection and every
   installed/independent/integrated acceptance requirement remain open. No lifecycle
   driver pin or release acceptance is advanced by this foundation.
