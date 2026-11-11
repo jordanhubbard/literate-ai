@@ -12,8 +12,14 @@
   file-size ceilings, including zero limits (#372).
 - Source inventory no longer infers CUDA from NVIDIA copyright/vendor attribution; explicit CUDA source, compiler, headers and runtime/driver API signals remain detectable (#396).
 
+- Remote evidence transfer preserves stricter inherited POSIX soft and hard
+  file-size ceilings, including zero limits (#372).
+
 - Preserve independent library-acceptance error codes in `spec qualify`, including
   retained-evidence runs, while keeping archive I/O failures distinct (#404).
+
+- Installed continuation qualification binds native builds to its installed Python,
+  preserving exact bytecode checks when PATH contains a different supported runtime.
 
 - Installed-wheel qualification exercises lazy project startup and strict MAC BOM
   rejection, verifying installed module origins and exact candidate bytes (#121).
@@ -40,6 +46,12 @@
 - Repository checkout checks Git LFS JSON-inventory support before configuring a remote. FreeBSD SDK staging propagates exact source-only Git trust to the clone child through a disposable config (#305).
 
 - Measure native Windows CPU pressure with bounded timing counters while preserving required-metric refusal for unavailable or uncovered systems.
+
+- Source promotion exposes explicit `authorized-policy` reviews and a separate
+  operator acceptance opt-in while preserving human-only defaults and signed
+  source/graph/authority binding. These choices grant intent review, not host
+  execution or regenerative qualification.
+
 
 - Generated projects receive the same release-project collateral checklist as the
   framework: current READMEs, release notes, introductions, videos, captions,
