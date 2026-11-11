@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Coding CLI tasks and source generation keep Codex SQLite and diagnostic logs in private invocation state, preserving authentication, selected models and finite file limits (#365).
+
 - Add reviewed identity migration for original-source converted projects, preserving immutable rename lineage and requiring fresh qualification under the new project ID.
 
 - Wheel qualification reuses the native Windows CPU acceptance case with installed local and standalone-receiver modules; unsupported platforms remain explicit skips (#348).

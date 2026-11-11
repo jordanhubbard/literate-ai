@@ -1,0 +1,137 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "CODEX-STATE-001",
+  "issue": 365,
+  "classification": "development proof; actual model-backed provider generation and release qualification pending",
+  "source_sha256": {
+    "src/literate_ai/adapters/models/coding_cli.py": "85097761ce8601e9496301e9e8db2a987fb97504fa5ec14063f94a5a5061c9ba",
+    "tests/critical/test_codex_runtime_state.py": "2dd36a035a8cd485c6ff808ef15a7df986a5779a6e83aa2df8db768aeaa30c61"
+  },
+  "official_configuration_reference": "https://learn.chatgpt.com/docs/config-file/config-reference",
+  "managed_vendor_compatibility": {
+    "version": "codex-cli 0.153.0",
+    "archive_sha256": "27b0d7a753ac190c343918541a42067be307cc88a32b1a9feaf6f93648a0e9ea",
+    "binary_sha256": "fce635028842bfe9257140e8b7d53162732945e2f356fc35225be0702b4974be",
+    "settings": [
+      {
+        "key": "sqlite_home",
+        "exit": 1,
+        "diagnostic": "Error: failed to load bootstrap configuration\n\nCaused by:\n    invalid type: integer `7`, expected path string\n    in `sqlite_home`\n    \n",
+        "recognized_path_setting": true
+      },
+      {
+        "key": "log_dir",
+        "exit": 1,
+        "diagnostic": "Error: failed to load bootstrap configuration\n\nCaused by:\n    invalid type: integer `7`, expected path string\n    in `log_dir`\n    \n",
+        "recognized_path_setting": true
+      }
+    ],
+    "method": "Canonical managed-archive installation into task-owned private state; native features-list bootstrap probes",
+    "model_invoked": false,
+    "global_installation_changed": false,
+    "installed_framework_distribution_unchanged": "sha256:c10c24467a314433feb002e5c71f1b56cdf635502e196b23d628038dfb577e74"
+  },
+  "new_maintained_controls": {
+    "summary": {
+      "executed": 3,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 3,
+      "selected": 3,
+      "skipped": 0
+    },
+    "report_sha256": "477f8f8465e61ad260790e2522a2db04f2900cce3d5031ffb1d0ee96852117ff",
+    "scope": "Actual native SQLite and real OS 64 KiB file limit with fixture provider transport; actual directory lifetime and TOML parsing on task/generation/status paths",
+    "native_vendor_generation": false
+  },
+  "existing_generation_controls": {
+    "summary": {
+      "executed": 22,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 22,
+      "selected": 22,
+      "skipped": 0
+    },
+    "report_sha256": "3f634c9d5f7d9a2cf64d5ff76c380a4b4216f78387725f6fadb8d5d16a68215a"
+  },
+  "preserved_failed_test_run": {
+    "report": "codex-state-controls-report.json",
+    "summary": {
+      "executed": 2,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 1,
+      "selected": 3,
+      "skipped": 0
+    },
+    "cause": "Test assumed exactly one failed generation attempt; existing bounded timeout retries require cleanup verification for every attempt",
+    "production_retry_policy_changed": false
+  },
+  "full_source_gate": {
+    "fresh": true,
+    "root_exit": 0,
+    "summary": {
+      "executed": 2658,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2658,
+      "selected": 2777,
+      "skipped": 119
+    },
+    "report_sha256": "2d7a5280e5806e56c86472f4594f83cda78776f1020d6e9cf3b886b80582d2c4",
+    "worker_groups": 598,
+    "all_groups_done": true,
+    "all_indexed_case_events_match_report": true,
+    "duplicate_raw_test_ids": {
+      "tests.e2e.test_retained_scope_refresh.RetainedScopeRefreshTests.test_failed_policy_update_rolls_back_inventory_and_preserves_source": 2,
+      "tests.e2e.test_retained_scope_refresh.RetainedScopeRefreshTests.test_git_tracked_additions_are_captured_but_ignored_files_are_not": 2,
+      "tests.e2e.test_retained_scope_refresh.RetainedScopeRefreshTests.test_refresh_is_read_only_until_acknowledged_and_invalidates_old_receipt": 2
+    },
+    "duplicates_preserved": "The report gives occurrence suffixes to repeated raw test names; the event audit joins all unique global discovery indices without collapsing executions."
+  },
+  "driver_pin_advanced": false,
+  "independent_review_pending": true,
+  "release_attestation": false,
+  "native_valid_settings_prerequisite": {
+    "version": "0.153.0",
+    "model_invoked": false,
+    "results": [
+      {
+        "action": [
+          "features",
+          "list"
+        ],
+        "exit": 1,
+        "valid_path_configuration_accepted": true,
+        "authentication_ready": null,
+        "HOME_unchanged": true,
+        "private_state_exists_during_call": true,
+        "private_state_entries": [
+          "state",
+          "log"
+        ],
+        "private_state_removed_after_child": true
+      },
+      {
+        "action": [
+          "login",
+          "status"
+        ],
+        "exit": 0,
+        "valid_path_configuration_accepted": true,
+        "authentication_ready": true,
+        "HOME_unchanged": true,
+        "private_state_exists_during_call": true,
+        "private_state_entries": [
+          "state",
+          "log"
+        ],
+        "private_state_removed_after_child": true
+      }
+    ],
+    "global_installation_changed": false,
+    "scope": "Authentication status succeeded under private settings. The features-list command exited1 and is not counted as a successful feature check. No model or source generation was invoked."
+  },
+  "native_generation_blocker": "Explicit live-test model selection required; project test.json absent and LITAI_LIVE_MODEL unset. Operator question pending."
+}
