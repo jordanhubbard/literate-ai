@@ -26,6 +26,27 @@ class SourceInventoryTargetTests(unittest.TestCase):
                 "/* SPDX-FileCopyrightText: Copyright (c) 2026 "
                 "NVIDIA CORPORATION & AFFILIATES. */\n",
             ),
+            (
+                "portable.rs",
+                "// SPDX-FileCopyrightText: Copyright (c) 2026 "
+                "CUDA documentation contributors.\n",
+            ),
+            (
+                "portable.rs",
+                "// SPDX-License-Identifier: LicenseRef-CUDA-Attribution\n",
+            ),
+            (
+                "portable.rs",
+                "\ufeff/* SPDX-FileCopyrightText: Copyright (c) 2026 CUDA */\n",
+            ),
+            (
+                "portable.rs",
+                "/*\n * SPDX-FileCopyrightText: Copyright (c) 2026 CUDA\n */\n",
+            ),
+            (
+                "portable.rs",
+                "/*\nSPDX-License-Identifier: LicenseRef-CUDA-Attribution\n*/\n",
+            ),
             ("portable.rs", 'const VENDOR: &str = "NVIDIA";\n'),
             ("nvidia.rs", "// Portable vendor integration without an accelerator.\n"),
         )
@@ -73,6 +94,19 @@ class SourceInventoryTargetTests(unittest.TestCase):
             ("host.cpp", "#include <cuda_runtime_api.h>\n"),
             ("host.cpp", "void allocate() { cudaMalloc(&buffer, 64); }\n"),
             ("host.cpp", "void initialize() { cuInit(0); }\n"),
+            (
+                "host.cpp",
+                "/* SPDX-License-Identifier: MIT */ cudaMalloc(&buffer, 64);\n",
+            ),
+            ("host.cpp", "*Copyright = cudaMalloc(&buffer, 64);\n"),
+            ("host.cpp", "--Copyright; cudaMalloc(&buffer, 64);\n"),
+            ("host.cpp", ";Copyright = cudaMalloc(&buffer, 64);\n"),
+            (
+                "host.cpp",
+                "/*\n * SPDX-License-Identifier: LicenseRef-CUDA\n"
+                " * Build with nvcc for this translation unit.\n */\n",
+            ),
+            ("kernel.cuh", "// SPDX-License-Identifier: LicenseRef-CUDA\n"),
             ("Cargo.toml", "[features]\ncuda = []\n"),
         )
         for name, text in cases:

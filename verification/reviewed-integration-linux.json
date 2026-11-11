@@ -168,5 +168,6 @@
     "resulting-main integration",
     "configured final lifecycle and receipt",
     "remaining full 1.4 scope and release qualification/publication"
-  ]
+  ],
+  "coverage_limit": "Historical passing development gates do not establish CUDA attribution exclusion: separately reproduced SPDX-only CUDA signals remain in this candidate. Current repair requires independent review and fresh qualification."
 }
