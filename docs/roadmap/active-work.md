@@ -33814,9 +33814,19 @@ independent review and the complete combined gate from test one.
   controls include a real scripted command receiver and a concurrent observation
   while the control Condition is held; five dispatch-wire and five unknown-ownership
   regressions pass. These are controller provenance checks, not a remote reservation
-  attestation or public telemetry feed. The retained wheel/native record remains
-  bound to earlier source `77353a8d6`; the new handoff requires its own installed,
-  independent, complete-source and exact integration acceptance.
+  attestation or public telemetry feed. The earlier wheel/native record remains
+  bound to source `77353a8d6`. A [separate current handoff record](../../verification/worker-telemetry-controller-linux.json)
+  binds software `7078bc96b`, the complete fresh source gate (2,873 selected,
+  2,773 passed, 100 declared skips, no failed or known-failed cases), all 606
+  reconciled worker groups and its whole noneditable Python 3.12 wheel. All thirteen
+  maintained controller controls and all eleven native process controls pass without
+  skips from that exact artifact outside the checkout, with respectively 248 and 241
+  installed framework origins matching source/archive and unchanged distribution
+  identity. These installed controls use a real scripted command receiver for
+  controller provenance; they do not establish a negotiated telemetry session or
+  actual remote action/subtree ownership. Independent review and exact integrated
+  acceptance remain open, along with the full ADR 0059 feed. Issue #418 retains
+  the separate Python 3.15 dependency-closure failure.
 
 - **Priority:** P1
 - **Owner:** Worker process/action observations, shared transport and versioned telemetry contracts
