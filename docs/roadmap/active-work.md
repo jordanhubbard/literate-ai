@@ -34385,6 +34385,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
+- **Release target:** 1.4.0
+
 - **GitHub issue:** [#402](https://github.com/jordanhubbard/literate-ai/issues/402).
 
 - **Priority:** P1
@@ -34398,4 +34400,50 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Evidence:**
   - [x] Six public-CLI controls pass, including actual root external acceptance and its locks/audit/lineage, default-parent failure, invalid public combinations, and direct namespace defense before target effects; twelve related controls and strict lint/format/layout/public-export gates pass.
   - [x] The maintained checkpointed Python gate passes with 2,777 selected cases, 2,613 passed, 164 declared skips and no failures or known failures. Independent controller-agent source review precedes the lifecycle-driver repin; runner and documentation authority remain current. The ordinary worker documentation gate passes 22 tooling controls and renders 181 diagrams from 1,950 Markdown files with normal browser sandboxing; four strict OpenSpec items pass.
-  - [ ] Complete exact-candidate noneditable installed-wheel qualification and confirming CI before upstream landing. No generated-provider or downstream source-retirement authority is claimed.
+  - [x] Complete exact-candidate noneditable installed-wheel qualification and confirming CI before upstream landing. No generated-provider or downstream source-retirement authority is claimed.
+
+- **Installed and landing evidence:** [Native Linux qualification](../../verification/source-promotion-root-installed-linux.json) binds the exact noneditable wheel, all 513 imported framework-module origins, both maintained root-option methods with zero skips, and the complete passed wheel gate at `e7a96c269`. PR #403 is merged as `274b35f9d`; issue #402 is closed by that reviewed landing. Earlier Python 3.15 dependency-download and mixed-interpreter fixture failures remain preserved.
+- **Next action:** Observe exact resulting-main qualification to terminal and retain its outcome before closing this deliverable; final release lifecycle and cross-platform release qualification remain separate.
+- **Evidence still required:**
+  - [ ] Pass exact resulting-main integration and record its outcome.
+
+### [ ] QUALIFICATION-ERROR-001 — Preserve native acceptance failure codes in qualification CLI
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#404](https://github.com/jordanhubbard/literate-ai/issues/404)
+
+- **Priority:** P1
+- **Owner:** Framework qualification CLI; PROJECT Goals 1 and 4
+- **Direction:** Include issue 404: typed independent native acceptance rejection must not become a retained archive publication error.
+- **Conclusion:** PR406 preserves known ComponentAcceptanceError codes and messages while leaving actual archive I/O failure handling unchanged. Admission, source custody and repair eligibility remain unchanged; contributor full/installed and resulting-main qualification remain open.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Review and integrate PR406 without changing native acceptance or archive authority.
+- **Evidence:**
+  - [ ] Pass maintained public qualification CLI controls with and without retention, actual archive write failure, whole candidate source/installed checks and exact-head/resulting-main integration.
+
+- **QUALIFICATION-ERROR-001 review progress:** Independent release-controller source review approves PR406 `a5fc16c3f`: only the typed acceptance failure mapping changes. The maintained public CLI module passes all 16 methods from source and again from its exact noneditable Linux wheel, with zero skips, all 544 imported framework-module origins verified, and the CLI module matched to candidate bytes. [Installed diagnostic proof](../../verification/qualification-error-installed-linux.json) retains the exact wheel and module identities. Full contributor/installed and exact-main qualification remain open; no native-result repair is inferred.
+
+
+### [ ] NATIVE-ACCEPTANCE-REPAIR-001 — Bind generated native-library acceptance rejection to bounded candidate repair
+
+- **Proposed design:** [ADR 0073](../decisions/0073-native-root-acceptance-repair.md); directing-user acceptance pending before implementation.
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)
+
+- **Priority:** P1
+- **Owner:** Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4
+- **Direction:** Include issue 405: a generated native-library root result mismatch occurs outside the existing bounded candidate-repair loop.
+- **Conclusion:** Review the minimal typed boundary joining exact rejected-package custody to its generated root candidate and existing attempt chain before enabling repair. Reuse the shared finite budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. Read-only source review confirms that frozen v2 diagnostics permit retries only in build/test, and root packaged acceptance occurs after the node loop returns. ADR 0073 proposes the missing typed package-to-attempt continuation; do not implement it before explicit design acceptance.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Audit existing accepted repair authority and specify/review exact root package-to-attempt custody before implementation.
+  - [ ] Implement only the reviewed generated native-library root route with sanitized feedback, preserved rejected evidence and the existing shared finite retry budget.
+- **Evidence:**
+  - [ ] Prove same-authority fresh-request/workspace repair, complete validation/build/test/execution/acceptance replay, retry exhaustion, terminal custody/original-source failures and no admission on failure through installed public qualification.
+
+- **Read-only design audit:** `application/standard_project_lifecycle.py` assembles and independently accepts the root package after `_run_complete_node_with_repairs_steps` returns its accepted node chain. The v2 `CandidateRepairDiagnostic` contract and production repair adapter restrict retryable phases to BUILD/TEST. The Rust verifier's existing result-mismatch code also covers case inventory/capability mismatch, so a code whitelist cannot establish value-only behavioral rejection. ADR 0073 keeps these distinctions, immutable history, the shared three-attempt budget and private-oracle custody explicit. No runtime behavior or schema has changed.
+- **Next action:** Obtain directing-user acceptance or amendments to ADR 0073, then implement its typed boundary and installed/native evidence contract.
