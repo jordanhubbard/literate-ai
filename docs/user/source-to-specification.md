@@ -113,6 +113,12 @@ Sensitive, binary and generated files remain excluded; `.test` and `.spec` names
 remain tests, and `.min` names remain minified inputs. Inventory and static
 derivation never execute these files.
 
+Copyright, `SPDX-FileCopyrightText` and `SPDX-License-Identifier` comment
+records do not by themselves propose a CUDA requirement. Actual CUDA source suffixes, compiler references, headers and runtime
+or driver calls remain target evidence. These are inert proposals for review;
+metadata stays in the original captured bytes and security observations, and the
+inventory neither executes nor rewrites source.
+
 The bundle includes the exact source inventory, attributed observations, provider-valid
 draft artifacts, a coverage map, an uncertainty ledger, skill-stage provenance, proposed
 Flavor drafts, and security metadata. Model mode additionally records runtime,

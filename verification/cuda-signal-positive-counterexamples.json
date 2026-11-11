@@ -1,0 +1,71 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "CUDA-SIGNAL-001",
+  "candidate": "96e065ad2b77a8b98ed935b0c326197125a4e92d",
+  "scope": "Inert public inventory only; no source execution, compiler/GPU/provider qualification or source approval",
+  "cases": [
+    {
+      "case": "attribution",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "matches": true,
+      "input_sha256": "d062f0530ef18bb9b73be4b851defc59a8c6b0c37199fefb51b335081b0cedd2",
+      "source_unchanged": true
+    },
+    {
+      "case": "toolkit",
+      "expected_cuda": true,
+      "observed_cuda": false,
+      "matches": false,
+      "input_sha256": "f5d7fd24b31c174c17ec11c6000e724e8a1dd1dc92b746e978b01363695927db",
+      "source_unchanged": true
+    },
+    {
+      "case": "runtime_type",
+      "expected_cuda": true,
+      "observed_cuda": false,
+      "matches": false,
+      "input_sha256": "e8e014d2e63cb2bb73244534249f186a7b7320796e4c335026585e43d96692d9",
+      "source_unchanged": true
+    },
+    {
+      "case": "driver_module",
+      "expected_cuda": true,
+      "observed_cuda": false,
+      "matches": false,
+      "input_sha256": "8712712c39568adcabc888e963930f619bf85ad64eceb8eac686bcd00f78a74d",
+      "source_unchanged": true
+    }
+  ],
+  "primary_references": [
+    "https://cmake.org/cmake/help/latest/module/FindCUDAToolkit.html",
+    "https://docs.nvidia.com/cuda/cuda-runtime-api/cuda_runtime_api/group__CUDART__TYPES.html",
+    "https://docs.nvidia.com/cuda/cuda-driver-api/cuda_driver_api/group__CUDA__MODULE.html"
+  ],
+  "review_status": "Existing visible review requests changes; original or author-added code is not certified by passing partial controls or prior author metadata.",
+  "focused_repair": {
+    "inventory_module_sha256": "95259c5f5f0b0a6a361fff47239fafff68da148aeb41b566c7ff52f8876b39e0",
+    "maintained_target_methods": {
+      "executed": 2,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2,
+      "selected": 2,
+      "skipped": 0
+    },
+    "target_input_subcases": {
+      "test_vendor_attribution_does_not_imply_cuda_or_mutate_source": 12,
+      "test_cuda_source_compiler_headers_and_apis_remain_detectable": 20
+    },
+    "broader_inventory_controls": {
+      "executed": 11,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 11,
+      "selected": 11,
+      "skipped": 0
+    },
+    "scope": "Source-preserving inert inventory and static derivation only; no compiler/GPU/provider execution or independent approval",
+    "driver_pin": "unchanged; independent non-author review remains required"
+  }
+}

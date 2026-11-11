@@ -1,0 +1,41 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "CUDA-SIGNAL-001",
+  "classification": "historical source counterexample matching the earlier qualified wheel; attribution repair review and full qualification pending",
+  "candidate": "7c6b0ed46abeb337dae6767e6788d33e8fbb7314",
+  "cases": [
+    {
+      "header": "// SPDX-FileCopyrightText: Copyright (c) 2026 CUDA documentation contributors.",
+      "payload_sha256": "aa20e8e3b3775ad7bf9348e8a35347c9355ebc6064db5e591cf2ab00414dfd1a",
+      "actual_flavor_signals": [
+        "cuda",
+        "rust"
+      ],
+      "expected_cuda_signal": false,
+      "source_unchanged": true
+    },
+    {
+      "header": "// SPDX-License-Identifier: LicenseRef-CUDA-Attribution",
+      "payload_sha256": "b34de883cd406d0294909a6a4553665e1843ecfa395509050b712f1d44e71ac1",
+      "actual_flavor_signals": [
+        "cuda",
+        "rust"
+      ],
+      "expected_cuda_signal": false,
+      "source_unchanged": true
+    }
+  ],
+  "focused_repair": {
+    "methods": 2,
+    "input_subcases": 25,
+    "skipped": 0,
+    "module_report_sha256": "5114829a9bf72aadae5103af744af5629f4c194a23c694ca6e94354b7126e227",
+    "original_focused_module_failed": true,
+    "independent_review": "pending",
+    "driver_pin": "not renewed pending independent review",
+    "repair_source_sha256": "e1aafe2cac616cb94315c79cc24b88fe72d4048771a6fca9d19ca6391920d848",
+    "inventory_regression_methods": 11,
+    "inventory_regression_skipped": 0,
+    "inventory_regression_report_sha256": "4a91f70e49c0cb3cc424715c2ab3891a00699a4516325783442840ed9e7ba766"
+  }
+}

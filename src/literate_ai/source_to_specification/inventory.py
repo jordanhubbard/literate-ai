@@ -109,11 +109,27 @@ _GENERIC_SYMBOL = re.compile(
     r"(?m)^\s*(?:export\s+)?(?:pub\s+)?(?:async\s+)?"
     r"(?:class|def|fn|func|function|interface|struct)\s+([A-Za-z_]\w*)"
 )
+_CUDA_ATTRIBUTION_RECORD = re.compile(
+    r"(?i)^(?:SPDX-(?:FileCopyrightText|License-Identifier)\s*:|Copyright\b)"
+)
 _TARGET_PATTERNS = (
     ("linux", "platform.os", re.compile(r"(?i)\blinux\b")),
     ("macos", "platform.os", re.compile(r"(?i)\b(?:macos|darwin)\b")),
     ("windows", "platform.os", re.compile(r"(?i)\bwindows\b|\bwin32\b")),
-    ("cuda", "accelerator", re.compile(r"(?i)\b(?:cuda|nvidia|nvcc)\b")),
+    # A vendor name (including SPDX copyright attribution) is not a CUDA
+    # requirement. Keep explicit toolkit, header and runtime/driver API evidence.
+    (
+        "cuda",
+        "accelerator",
+        re.compile(
+            r"(?i)\b(?:cuda|nvcc|CUDAToolkit)\b|"
+            r"\bcuda(?:_runtime(?:_api)?)?\.h\b|"
+            # Runtime identifiers include types; driver calls use SDK casing.
+            # A lowercase portable call such as cube() is not driver evidence.
+            r"\b(?-i:cuda[A-Z]\w*)\b|\b(?-i:cu[A-Z]\w*)\s*\(|"
+            r"\b(?:cuda[A-Z]\w*|cuInit|cuDeviceGet|cuMemAlloc|cuLaunchKernel)\s*\("
+        ),
+    ),
     ("metal", "accelerator", re.compile(r"(?i)\b(?:metal|metalperformance)\b")),
 )
 
@@ -303,13 +319,48 @@ def _python_symbols(text: str) -> tuple[str, ...]:
     return tuple(sorted(names))
 
 
+def _cuda_signal_text(path: str, text: str) -> str:
+    """Omit comment attribution records only from the bounded CUDA proposal."""
+
+    suffix = PurePosixPath(path).suffix.lower()
+    prefixes = ["//", "#"]
+    if suffix in {".sql", ".lua", ".luau", ".hs", ".lhs", ".ads", ".adb"}:
+        prefixes.append("--")
+    if suffix in {".lisp", ".cl", ".scm", ".ss", ".el", ".ini"}:
+        prefixes.append(";")
+    lines = []
+    in_block = False
+    for original in text[:131072].splitlines():
+        comment = original.lstrip("\ufeff \t")
+        if in_block or comment.startswith("/*"):
+            body = comment[2:] if comment.startswith("/*") else comment
+            body, closed, trailing = body.partition("*/")
+            in_block = not bool(closed)
+            if _CUDA_ATTRIBUTION_RECORD.match(body.lstrip("*! \t")):
+                # Code after a closed header is still real target evidence.
+                original = trailing if closed else ""
+        else:
+            for prefix in prefixes:
+                if comment.startswith(prefix):
+                    record = comment[len(prefix) :]
+                    record = record.lstrip("/!" if prefix == "//" else prefix)
+                    if _CUDA_ATTRIBUTION_RECORD.match(record.lstrip(" \t")):
+                        original = ""
+                    break
+        lines.append(original)
+    return path + "\n" + "\n".join(lines)
+
+
 def _signals(path: str, text: str, language: str | None) -> tuple[FlavorSignal, ...]:
     searchable = f"{path}\n{text[:131072]}"
+    cuda_searchable = _cuda_signal_text(path, text)
     result = {
         FlavorSignal(flavor_id, axis)
         for flavor_id, axis, pattern in _TARGET_PATTERNS
-        if pattern.search(searchable)
+        if pattern.search(cuda_searchable if flavor_id == "cuda" else searchable)
     }
+    if PurePosixPath(path).suffix.lower() in {".cu", ".cuh"}:
+        result.add(FlavorSignal("cuda", "accelerator"))
     if language is not None:
         result.add(FlavorSignal(language, "implementation.language-ecosystem"))
     return tuple(sorted(result, key=lambda item: (item.axis, item.flavor_id)))

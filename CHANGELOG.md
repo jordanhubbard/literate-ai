@@ -5,6 +5,12 @@
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
   retained-host integration remain unchanged (#402).
+- Installed continuation qualification binds native builds to its installed Python,
+  preserving exact bytecode checks when PATH contains a different supported runtime.
+
+- Remote evidence transfer preserves stricter inherited POSIX soft and hard
+  file-size ceilings, including zero limits (#372).
+- Source inventory no longer infers CUDA from NVIDIA copyright/vendor attribution; explicit CUDA source, compiler, headers and runtime/driver API signals remain detectable (#396). Explicit CUDAToolkit requirements, runtime types and driver module calls also remain detectable after filtering attribution.
 
 - Remote evidence transfer preserves stricter inherited POSIX soft and hard
   file-size ceilings, including zero limits (#372).
