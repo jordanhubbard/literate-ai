@@ -1,0 +1,169 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "CODEX-STATE-001",
+  "candidate": "70faed86866d26cf737b5dceff377839ee0d9ee4",
+  "platform": "linux-aarch64",
+  "python": "3.12.3",
+  "classification": "complete native Linux development source/wheel plus installed/native generation controls; independent source review and final integration/release qualification pending",
+  "source": {
+    "schema": "literate-ai/verification-record@1",
+    "candidate": "70faed86866d26cf737b5dceff377839ee0d9ee4",
+    "summary": {
+      "executed": 2680,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2680,
+      "selected": 2780,
+      "skipped": 100
+    },
+    "report_sha256": "3edb3011ef0bd08bcba73f20f8797c5b2e10f023257732850c3179f31e276bda",
+    "worker_groups": 598,
+    "event_kind_counts": {
+      "start": 2771,
+      "success": 2680,
+      "done": 598,
+      "skip": 91,
+      "fixture_skip": 1
+    },
+    "individual_started_cases": 2771,
+    "selected_instances_accounted": 2780,
+    "every_request_index_and_occurrence_qualified_report_key_matches_raw_terminal_event": true,
+    "duplicate_discovered_names": {
+      "tests.e2e.test_retained_scope_refresh.RetainedScopeRefreshTests.test_failed_policy_update_rolls_back_inventory_and_preserves_source": 2,
+      "tests.e2e.test_retained_scope_refresh.RetainedScopeRefreshTests.test_git_tracked_additions_are_captured_but_ignored_files_are_not": 2,
+      "tests.e2e.test_retained_scope_refresh.RetainedScopeRefreshTests.test_refresh_is_read_only_until_acknowledged_and_invalidates_old_receipt": 2
+    },
+    "declared_skip_reasons": {
+      "set LITERATE_AI_LIVE_SAMPLES=1 to invoke the authenticated coding CLI": 5,
+      "set LITERATE_AI_RUN_LIVE_ROUNDTRIP=1 for live coding-agent round-trip": 1,
+      "Elixir is unavailable": 9,
+      "Actual FreeBSD native proof": 1,
+      "requires native FreeBSD root": 2,
+      "requires native FreeBSD root and POSIX ACLs": 13,
+      "requires privileged FreeBSD POSIX ACL fixture": 9,
+      "requires explicit FreeBSD UFS ACL-disabled and ACL-enabled mounts": 2,
+      "Requires native Windows command": 1,
+      "Requires actual Windows PE imports": 1,
+      "native Elixir/OTP runtime is unavailable": 1,
+      "Native pkg requires FreeBSD": 2,
+      "requires actual native FreeBSD pkg-static": 1,
+      "Playwright Chromium is not installed": 2,
+      "requires native FreeBSD": 1,
+      "set LITAI_OPENCODE_V1_BINARY to an exact native OpenCode binary": 1,
+      "set LITAI_OPENCODE_V2_BINARY to an exact native OpenCode binary": 1,
+      "requires native FreeBSD reaper": 4,
+      "set LITERATE_AI_ELIXIR_QUALIFICATION=1 for native proof": 6,
+      "no supported C++ compiler was found through CXX or PATH": 3,
+      "requires an explicitly selected Git source corpus": 1,
+      "pinned doc-toolchain is not installed; run make doc-toolchain-bootstrap": 1,
+      "requires the macOS sandbox runtime": 1,
+      "set LITERATE_AI_ELIXIR_MIX_QUALIFICATION=1 for authorized native Mix proof": 12,
+      "set LITERATE_AI_ELIXIR_QUALIFICATION=1 for native Mix proof": 1,
+      "Windows portable mode contract": 1,
+      "requires native FreeBSD pkg-static": 1,
+      "set LITERATE_AI_NATIVE_TOOLCHAIN_TESTS=1 with Bazel on PATH": 2,
+      "set LITERATE_AI_RUN_LIVE_COMPOSED_ROUNDTRIP=1 for composed live round-trip": 1,
+      "requires native FreeBSD pkg-static and C compiler": 3,
+      "Requires actual Windows API": 1,
+      "fixture selects actual macOS host": 1,
+      "requires the actual Windows API": 1,
+      "native FreeBSD retained receiver entry point": 7
+    }
+  },
+  "wheel": {
+    "state": "passed",
+    "manifest_identity": "sha256:d3cc7903bae511a8a0277bd4825a7ee75fc4272b1a478c37628662172590fe83",
+    "manifest_sha256": "71fbf607868ddc3ea32acd72c6195ace362b47ff76b0dc210bea80031fce25be",
+    "wheel_sha256": "85b8e1b2253d654a9e47d929a41a61433307bac29cb996f14565d5d2dc25eae5",
+    "archive_bytes": 4235335,
+    "distribution": "sha256:c77ff2c08887f9d8eb09e88b5d891f7c0f84e0c799a800cded0aa89905cae30a",
+    "full_result_log_sha256": "fca9a9baaf23b8d178af8e4739c62583def67504320216613aa7316021cc403b",
+    "cache_continuation": {
+      "distribution": "sha256:c77ff2c08887f9d8eb09e88b5d891f7c0f84e0c799a800cded0aa89905cae30a",
+      "platform": "linux",
+      "qualified": true,
+      "scenarios": {
+        "default": {
+          "admissions": 2,
+          "exact_builds": 2,
+          "history_unchanged": true,
+          "runs": 2
+        },
+        "project-relative": {
+          "admissions": 2,
+          "exact_builds": 2,
+          "history_unchanged": true,
+          "runs": 2
+        }
+      }
+    }
+  },
+  "installed_maintained_controls": {
+    "schema": "literate-ai/verification-record@1",
+    "candidate": "70faed86866d26cf737b5dceff377839ee0d9ee4",
+    "distribution": "sha256:c77ff2c08887f9d8eb09e88b5d891f7c0f84e0c799a800cded0aa89905cae30a",
+    "wheel_sha256": "85b8e1b2253d654a9e47d929a41a61433307bac29cb996f14565d5d2dc25eae5",
+    "methods": 25,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "framework_modules_checked": 282,
+    "all_framework_origins_noneditable": true,
+    "module_sha256": "e8572f3a1fd5a4dfc00c10066efd6c3d2217e4b8c6b130620a04cd6ffa52c95f",
+    "module_matches_source_and_archive": true,
+    "distribution_unchanged": true
+  },
+  "installed_native_generation": {
+    "scope": "Native source-generation adapter with authored fixture authority, actual Codex and model; no lifecycle admission or independent application acceptance claimed.",
+    "version": "0.166.0",
+    "model": "gpt-6-sol",
+    "elapsed_seconds": 97.44,
+    "finite_file_size_soft_hard": [
+      67108864,
+      67108864
+    ],
+    "HOME_unchanged": true,
+    "generation_succeeded": true,
+    "generated_files": [
+      "source/.literate/sbom.cdx.json",
+      "source/Makefile",
+      "source/main.py",
+      "source/tests/manifest.json",
+      "source/tests/test_main.py"
+    ],
+    "generated_source_sha256": "62a6ac5c542bb67af825e8c1f3df44213e1c09259b4804349116893a4258cc4a",
+    "distribution": "sha256:c77ff2c08887f9d8eb09e88b5d891f7c0f84e0c799a800cded0aa89905cae30a",
+    "distribution_unchanged": true,
+    "framework_modules_checked": 241,
+    "all_framework_origins_noneditable": true,
+    "module_sha256": "e8572f3a1fd5a4dfc00c10066efd6c3d2217e4b8c6b130620a04cd6ffa52c95f",
+    "module_matches_current_source": true
+  },
+  "installed_native_private_state": {
+    "runtime_allocations": 1,
+    "all_removed": true,
+    "observed_sqlite_write_descriptors": 22,
+    "all_observed_sqlite_write_descriptors_private": true,
+    "raw_result_sha256": "0d8942444ee272a72c8503694617c2fec3ed48bf77c0be3295430d55fe898587"
+  },
+  "documentation": {
+    "tooling_methods": 22,
+    "openspec_items": 4,
+    "mermaid_diagrams": 181,
+    "markdown_files": 1950,
+    "full_fast_docs_log_sha256": "453a2ba1de4dbabb41ddfe6c99895529e4446d5e2322cfd551f9ea25a1385c8f"
+  },
+  "preserved_failures": [
+    "native0.166precedingremote-catalogEFBIG/SIGXFSZ; originalSQLite failure remains linked inissue365",
+    "maintained remote catalog regression on preceding command projection",
+    "managed0.153selectedmodelpreflight model_not_found; setting acceptance passes but minimum-version generation is not claimed",
+    "two diagnostic harness setup errors occurred before model invocation"
+  ],
+  "driver_pin_advanced": false,
+  "pending": [
+    "independent non-author source review",
+    "supported driver renewal and review of resulting composition",
+    "exact-head and resulting-main platform integration",
+    "all remaining1.4goals and final release lifecycle/publication/readback"
+  ]
+}

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Automated Codex invocations avoid optional remote catalog downloads that can
+  exceed a caller's finite file-size limit (#412).
+
+- Coding CLI tasks and source generation keep Codex SQLite and diagnostic logs in private invocation state, preserving authentication, selected models and finite file limits (#365).
+
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
   retained-host integration remain unchanged (#402).
