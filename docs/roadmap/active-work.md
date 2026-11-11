@@ -34462,6 +34462,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **QUALIFICATION-ERROR-001 review progress:** Independent release-controller source review approves PR406 `a5fc16c3f`: only the typed acceptance failure mapping changes. The maintained public CLI module passes all 16 methods from source and again from its exact noneditable Linux wheel, with zero skips, all 544 imported framework-module origins verified, and the CLI module matched to candidate bytes. [Installed diagnostic proof](../../verification/qualification-error-installed-linux.json) retains the exact wheel and module identities. Full contributor/installed and exact-main qualification remain open; no native-result repair is inferred.
 
+<a id="candidate-native-repair-001"></a>
+<a id="candidate-native-repair-001-bind-native-library-rejection-to-existing-bounded-candidate-repair"></a>
+
 ### [ ] NATIVE-ACCEPTANCE-REPAIR-001 — Bind generated native-library acceptance rejection to bounded candidate repair
 
 - **Release target:** 1.4.0
@@ -34470,11 +34473,15 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Priority:** P1
 - **Owner:** Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4
 - **Direction:** Include issue 405: a generated native-library root result mismatch occurs outside the existing bounded candidate-repair loop.
-- **Conclusion:** Review the minimal typed boundary joining exact rejected-package custody to its generated root candidate and existing attempt chain before enabling repair. Reuse the shared finite budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. New capability design requires ADR review under ADR0006 if the existing accepted repair authority does not cover that boundary.
+- **Contributor alias and history:** `CANDIDATE-NATIVE-REPAIR-001` was the contributor's original work ID in [PR #414](https://github.com/jordanhubbard/literate-ai/pull/414). It is an alias of this current release-goal owner, not a second issue or independently scheduled deliverable. Both IDs retain the same issue #405 scope; the release-goal manifest continues to include NATIVE-ACCEPTANCE-REPAIR-001.
+- **Conclusion:** The reviewed implementation joins exact rejected-package custody to the existing attempt chain only for a fresh single-node Rust-v2 generated root. Reuse the shared three-total-candidate budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. Final packaged independent acceptance remains required. Source implementation, candidate qualification and resulting-main delivery remain separate states.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Audit existing accepted repair authority and specify/review exact root package-to-attempt custody before implementation.
-  - [ ] Implement only the reviewed generated native-library root route with sanitized feedback, preserved rejected evidence and the existing shared finite retry budget.
+  - [x] Specify and independently review the exact fresh generated root package-to-attempt custody boundary in the existing repair authority.
+  - [x] Implement only the reviewed generated native-library root route with sanitized feedback, preserved rejected evidence and the existing shared finite retry budget; join actual export bytes to the sealed build blob and close original native executable/tool pins on rejection.
 - **Evidence:**
-  - [ ] Prove same-authority fresh-request/workspace repair, complete validation/build/test/execution/acceptance replay, retry exhaustion, terminal custody/original-source failures and no admission on failure through installed public qualification.
+  - [x] Seven real native public-CLI source controls prove same-authority fresh repair, the shared generated-test/native budget, exhaustion, command refusal and physical export-before/export-during/native-executable mutation refusal. Twelve focused contract/lifecycle controls pass; independent review covers both custody fixes and prompt privacy. The full local source gate passes 2,640 tests with 144 declared skips and no failures.
+  - [ ] Complete exact final integration source/noneditable-wheel qualification, maintained installed public repair/final-package acceptance and normal exact-head/resulting-main delivery before this release-goal owner closes.
+
+- **Candidate qualification:** The exact reviewed integration `88fd979250a5257bc265aa3cf05fc628315cb986` retains unchanged native repair implementation/test bodies plus the earlier inventory and typed-diagnostic fixes. Its full noneditable-wheel gate and genuine installed Rust acceptance pass; an additional isolated installation passes all sixteen typed-diagnostic boundary controls separately from the actual native-result repair journey. That journey executes two actual fresh source requests/workspaces, observes one native ACCEPT result rejection, repairs within the original budget and commits the final packaged receipt. Original runtime, source authority, custody and private verifier data remain unchanged. The normal merge of newer main's qualified transport/diagnostic cohort is a separate source composition awaiting its overlap checks and supported authority renewal; these candidate results do not claim that resulting-main integration is complete.
