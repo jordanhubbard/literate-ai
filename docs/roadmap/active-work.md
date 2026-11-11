@@ -34534,7 +34534,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)
-- **Next action (in progress):** Restore late aliases from the already sealed execution plan and current provider custody in the shared local/runtime factory. Keep the existing serialized toolchain closure and generic environment bindings unchanged.
+- **Next action (in progress):** Independently review the four changed TCB files before driver pin renewal, then finish native Windows/macOS and exact published-head/resulting-main qualification. Preserve the completed native Linux development evidence and full curriculum scope.
 
 
 - **Priority:** P0
@@ -34542,6 +34542,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Direction:** Restore the existing LITAI_CAPABILITY process contract for genuine generated multi-Component consumers on every supported native platform.
 - **Conclusion:** The actual installed two-node JavaScript run accepts the provider and builds/tests the consumer, then execution refuses its missing declared money capability variable. Derive runtime aliases from the exact held execution plan and current accepted provider artifacts, retain generic bindings and closed wire contracts, and reject stale or ambiguous bindings. Do not change the consumer to search arbitrary environment variables or widen retained-source admission.
 - **Additional installed counterexample:** [Packaged execution record](../../verification/runtime-capability-packaged-counterexample.json) binds software `a0a17eca5d43e50e14866db2c0fa71b5509b51c1`. Genuine force-regeneration now reaches accepted checkpoints for both nodes, but final packaged execution still lacks the declared variable; all three original private oracles remain unchanged. The repair must also project aliases from immutable package custody for packaged execution and independent acceptance. This failed development observation does not qualify the final graph or renew the driver review pin.
+- **Complete native Linux development qualification:** [Installed graph and Python 3.12/3.15 evidence](../../verification/runtime-capability-installed-linux.json) binds software `c41d9985b7a418a5ddd7cd6350a6aa01c9c16f8f`. Python 3.12 and 3.15 each reconcile all 2,792 selected source cases: 2,692 passed, 100 declared skips and no failures across 600 raw groups. Both complete noneditable wheel gates pass for the same exact artifact. Its actual configured-Codex two-node generation reaches both original acceptance checkpoints, final packaged execution/independent acceptance and source-cache publication; nine generated tests pass without skips, the committed receipt is current and all three original oracles are unchanged. Independent review, other native platforms, exact integration and the full LAB curriculum remain open; the driver pin is unchanged.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**

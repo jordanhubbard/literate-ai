@@ -1,0 +1,146 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "RUNTIME-CAPABILITY-ENV-001",
+  "issue": 422,
+  "software_subject": "c41d9985b7a418a5ddd7cd6350a6aa01c9c16f8f",
+  "platform": "native Linux ARM64 / Python 3.12",
+  "source_suite": {
+    "summary": {
+      "executed": 2692,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2692,
+      "selected": 2792,
+      "skipped": 100
+    },
+    "raw_groups": 600,
+    "report_sha256": "c6990e01eca59139c2ac2014a94eb44c60f84b5eb9df94caa65f1f2e8e5e40fc",
+    "all_request_instances_reconciled": true
+  },
+  "whole_wheel": {
+    "wheel_identity": "sha256:93b2f08545bae4e56b2aea026fcace0d4099e74404f031b74d0e506cd5ead5f0",
+    "standard_binding": {
+      "distribution": "sha256:c0aa2b2ca18a05e6c3e7bd45809c00117c59fd3936517924726884ef57d8b3d5",
+      "members": 1371,
+      "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    },
+    "manifest": "_build/ci-wheels/run-un3b6_bd/manifest.json",
+    "same_exact_artifact_as_genuine_graph": true,
+    "ordinary_and_uv_worker_bootstrap_passed": true
+  },
+  "genuine_graph": {
+    "nodes": [
+      {
+        "component_revision": {
+          "algorithm": "sha256",
+          "digest": "bb84266645a791824f49ffd3696cae82dbb956b2363cf317a29cee616522b59c",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "terminal_stage": "source-cache-publication",
+        "outcome": "passed",
+        "terminal_checkpoint_sha256": "0d27c06ae50bd5b5ca0b1db558dd9230dbff174e707d7c57a242d1b760866034",
+        "accepted_checkpoint_sha256": "c589ee544a274c06c0d4229db02e2aa37e4de5ceab2f38c24ae089027bde5232",
+        "provenance_identity": {
+          "algorithm": "sha256",
+          "digest": "0f2f2785aca9546b6ac904167ec927ce6df6a9ff652b3dfa9e47d74f5cd79e96",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "model_observation": {
+          "cost_microunits": null,
+          "model_attempts": null,
+          "model_tokens": null,
+          "schema": "urn:literate-ai:schema:v2:component-generation-runtime-observation",
+          "wall_time_ms": null
+        }
+      },
+      {
+        "component_revision": {
+          "algorithm": "sha256",
+          "digest": "cc970f334bd749994c1b514e51ff24a7330a4c34654563565f7d34670945bd18",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "terminal_stage": "source-cache-publication",
+        "outcome": "passed",
+        "terminal_checkpoint_sha256": "7a09da650c38f60779e7a901509b2c16a9a284df113712cd5aa339204419a43c",
+        "accepted_checkpoint_sha256": "5deea5c6f960bdc36f83641369628814a445b9a4dc955d7e62075a110d6acba7",
+        "provenance_identity": {
+          "algorithm": "sha256",
+          "digest": "82b76f6cfa4ec6ea2329c2b99e519a57e894cb4a168e352d15fc2d0595397be0",
+          "schema": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "model_observation": {
+          "cost_microunits": null,
+          "model_attempts": null,
+          "model_tokens": null,
+          "schema": "urn:literate-ai:schema:v2:component-generation-runtime-observation",
+          "wall_time_ms": null
+        }
+      }
+    ],
+    "passed": true,
+    "test_summary": {
+      "failed": 0,
+      "passed": 9,
+      "skipped": 0,
+      "total": 9
+    },
+    "receipt_committed": true,
+    "receipt_identity": "sha256:db4a1e60da7522c1543f3dca1f0a93a84f9372fdafe50493d9d7d03cadbab2a0",
+    "receipt_current": true,
+    "finalized_candidate_identity": "sha256:b45ad95e45ff6fab0474d34046a4956adea4183192f7cccc1e75a9a87359d229",
+    "framework_distribution_identity": "sha256:c0aa2b2ca18a05e6c3e7bd45809c00117c59fd3936517924726884ef57d8b3d5",
+    "consumer_uses_declared_variable": "LITAI_CAPABILITY_MONEY_CALCULATION",
+    "consumer_artifact_sha256": "ee20031623af6ddfd98bcf7585de4b0940e21f18ddbec56ac8ddd8a6486fd30e",
+    "packaged_consumer_bytes_equal": true,
+    "private_oracles_unchanged": 3,
+    "configured_coding_cli": "codex",
+    "model_selection": "Existing operator host configuration",
+    "scope": "Actual installed normal-route force-regeneration, both nodes and final packaged execution/independent acceptance; no injected source/grants/receipts"
+  },
+  "controlled_regressions": {
+    "focused_passed": 9,
+    "broader_package_sdk_passed": 25,
+    "broader_declared_skips": 1,
+    "predecessor_positive_failed": true,
+    "original_build_paths_removed_in_package_positive": true,
+    "closed_toolchain_record_and_identity_unchanged": "sha256:5b748430132a9058c7e54d524f9ff9cdc55494007002bf1d8e15357a22d8952c"
+  },
+  "required_remaining": [
+    "Independent non-author review before changing the driver pin",
+    "Native Windows/macOS qualification and exact review/resulting-main gates",
+    "Full LAB curriculum graphs and remaining parent release goals"
+  ],
+  "qualification_limits": [
+    "Development qualification of the named software subject, not a completed release or parent goal",
+    "Provider default workspace-write execution does not establish OS-hermetic generation or oracle secrecy",
+    "No authored-graph admission, Rust v2 environment expansion or widened retained-source authority",
+    "Usage metrics remain unknown when the original CLI reports null",
+    "The separate litai run front door requires a litai build artifact export; this record qualifies public Standard rebuild"
+  ],
+  "native_python315_source": {
+    "summary": {
+      "executed": 2692,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2692,
+      "selected": 2792,
+      "skipped": 100
+    },
+    "raw_groups": 600,
+    "report_sha256": "c6990e01eca59139c2ac2014a94eb44c60f84b5eb9df94caa65f1f2e8e5e40fc",
+    "all_request_instances_reconciled": true
+  },
+  "native_python315_wheel": {
+    "wheel_identity": "sha256:93b2f08545bae4e56b2aea026fcace0d4099e74404f031b74d0e506cd5ead5f0",
+    "standard_binding": {
+      "distribution": "sha256:c0aa2b2ca18a05e6c3e7bd45809c00117c59fd3936517924726884ef57d8b3d5",
+      "members": 1371,
+      "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+    },
+    "manifest": "_build/ci-wheels/run-ln9_zpzg/manifest.json",
+    "reviewed_dependency_input_count": 36,
+    "ordinary_worker_dependency_closure": "sha256:7e1848e39035eab7023f0b8f6493fbea58fe1a907d0d843ffd8e9a7fed425f0c",
+    "uv_worker_dependency_closure": "sha256:7e1848e39035eab7023f0b8f6493fbea58fe1a907d0d843ffd8e9a7fed425f0c",
+    "ok": true
+  }
+}
