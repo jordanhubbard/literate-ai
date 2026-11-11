@@ -33731,9 +33731,23 @@ independent review and the complete combined gate from test one.
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
-- **Next action:** Implement the accepted bounded authenticated telemetry feed and its job/source attribution controls. Implementation and installed/native qualification remain open.
+- **Next action:** Complete the draft telemetry response/sample schemas and live observation permission/action-owner boundary, then compose existing authenticated transport, bounded collection and the installed/native journeys. The initial request/metric/progress contracts below grant no observation or execution authority; the full accepted feed remains required.
 
 - **Planning verification:** Proposed ADR 0059 and this intake have independent source/design approval. The previous two-design, pre-integration checkpoint and passing fresh consolidated gate are recorded under [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards). The current source audit distinguishes pressure probes and discrete action attestations from the missing telemetry feed; it claims no live telemetry or job-attribution qualification. The directing user explicitly accepted ADR 0059 on 2026-11-03; every implementation/evidence item remains open.
+
+- **Contract foundation in progress:** `contracts/worker_telemetry.py` adds a closed
+  data-only request binding controller/catalog/registration/worker/observation-scope
+  identities, a 32-byte nonce, a finite 30-second window and at most 64 uniquely
+  sorted action identities; aggregate scope is distinct. No arbitrary PID, path,
+  command, environment, output or display-text selector is admitted. Metrics retain
+  explicit measurement scope, closed status, fixed units and counter/gauge meaning;
+  unmeasured values are null. Progress requires actual completed/total work or a
+  closed indeterminate reason. Nine focused controls pass. These types are not
+  receiver authentication, a live action owner, published schema support or an
+  implemented telemetry route. Response framing, expiry/replay enforcement,
+  epoch/sequence custody, rate/coalescing/concurrency, native collection and every
+  installed/independent/integrated acceptance requirement remain open. No lifecycle
+  driver pin or release acceptance is advanced by this foundation.
 
 - **Priority:** P1
 - **Owner:** Worker process/action observations, shared transport and versioned telemetry contracts
