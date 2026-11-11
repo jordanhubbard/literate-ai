@@ -1,0 +1,53 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "CUDA-SIGNAL-001",
+  "source_subject": "562ef581a98a9d703d6e6c92b383eed56e9614bb",
+  "scope": "Source-preserving CUDA inventory and static derivation; no compiler, GPU or provider execution and no independent approval",
+  "source_suite": {
+    "summary": {
+      "executed": 2685,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2685,
+      "selected": 2785,
+      "skipped": 100
+    },
+    "report_sha256": "c1a857997492a03704d2ca794dbd74394bd4204f1f0f14fae8c03511d4874d5c",
+    "worker_groups": 600,
+    "selected_instances_accounted": 2785,
+    "every_request_index_and_occurrence_qualified_report_key_matches_raw_terminal_event": true
+  },
+  "whole_wheel": {
+    "wheel_sha256": "c2c1519d8dfbc6bc28cd6154fb7e08999211f7f194252aa42481c10549c6849f",
+    "distribution_identity": "sha256:393bd2b07a874de2c74ad1c7b99b5c3c1bf30efdb11f009ad70a54dc2ad5c1ff",
+    "gate_passed": true
+  },
+  "installed_controls": {
+    "python": "3.12.3",
+    "selected": 2,
+    "passed": 2,
+    "skipped": 0,
+    "errors": 0,
+    "failures": 0,
+    "source_test_sha256": "01ffb97853937c2bb650f52dae4ab6e8d09229b4311ce5b537ec195735e7a875",
+    "module_origin_count": 194,
+    "all_framework_modules_are_installed_and_match_source_and_archive": true,
+    "distribution_identity_before": "sha256:393bd2b07a874de2c74ad1c7b99b5c3c1bf30efdb11f009ad70a54dc2ad5c1ff",
+    "distribution_identity_after": "sha256:393bd2b07a874de2c74ad1c7b99b5c3c1bf30efdb11f009ad70a54dc2ad5c1ff"
+  },
+  "maintained_input_subcases": 32,
+  "qualification_limits": [
+    "Native Linux ARM64 Python 3.12 only for this candidate",
+    "Inert inventory/static derivation does not execute input sources",
+    "Full hosted matrix remains pending source review and reviewed driver-pin renewal",
+    "Earlier visible contributor reviews requested changes; no approval inferred"
+  ],
+  "driver_review": {
+    "pin_renewed": false,
+    "independent_non_author_review": "required"
+  },
+  "source_files": {
+    "src/literate_ai/source_to_specification/inventory.py": "95259c5f5f0b0a6a361fff47239fafff68da148aeb41b566c7ff52f8876b39e0",
+    "tests/critical/test_source_inventory_targets.py": "01ffb97853937c2bb650f52dae4ab6e8d09229b4311ce5b537ec195735e7a875"
+  }
+}
