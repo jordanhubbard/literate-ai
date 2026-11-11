@@ -32228,8 +32228,10 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Combined qualification:** The clean reviewed runtime candidate `7c6b0ed46` passes a fresh complete native Linux ARM64/Python 3.12 source gate: 2,782 selected, 2,682 passed, 100 declared skips, zero failures or known failures. Every indexed instance, including duplicate discovery names and nine class-fixture skips, reconciles against raw terminal events from all 599 successful worker groups. Its complete noneditable wheel gate and all 28 maintained installed controls pass; 568 imported framework modules remain inside the installation and the changed runtime modules match source/archive bytes. [Combined proof](../../verification/reviewed-integration-linux.json) retains exact identities and preserved prerequisite failures. Strict fast gates, four OpenSpec items, roadmap dependencies and rendering of 181 diagrams across 1,950 Markdown files pass. Confirming combined-head/resulting-main CI, final lifecycle/receipt and the entire remaining release scope remain open.
+
 - **2026-11-11 reviewed integration candidate:** Normal merges retain main `274b35f9d`, CUDA PR398 `4b051a9af`, inherited-ceiling PR400 `4f6af379c`, typed-diagnostic PR406 `a5fc16c3f`, fixture PR407 `0fac3a08b` and the current release-intake records. The independent release controller reviewed the complete combined TCB diff: the same soft/hard clamp, inert CUDA evidence correction and typed acceptance-error branch already reviewed separately. Conflict resolution changes authored bookkeeping only; the contributed detector, limiter, diagnostic changes and maintained controls are preserved. Canonical driver review renews `sha256:c7ea706fe7a8921b0a36fcc0db94bbe47a90bbe2d5419b60716f184c61261bba`, followed by documentation-authority renewal. The system Bazel probe reports invalid `no_version`; the existing cached Bazel 9.3.1 binary is independently rehashed to its metadata digest for the fresh source run. The explicit pip 26.2.1 fixture remains subject to the existing pinned-digest check.
-- **Current batch action (in progress):** Run a fresh complete source suite and whole noneditable wheel gate on the clean combined revision, then require confirming combined-head and resulting-main acceptance. Preserve original runs, all included goals and source/installed/platform evidence boundaries; this batch does not complete native root repair, project containment or the release.
+- **Current batch action (in progress):** Open the qualified combined review, require confirming combined-head CI, then land and verify resulting-main acceptance. Preserve original runs, all included goals and source/installed/platform evidence boundaries; this batch does not complete native root repair, project containment or the release.
 
 - **2026-11-07 reviewed fix integration:** The combined Go runtime-test, bounded library-import, module-source inventory and Git 2.43 staging repairs are retained at runtime source `308f98efd7ec9a04075f0907415ab49ce0055725`. A fresh managed full run independently accounts for all 2,739 selected cases: 2,621 passed, 118 explicit skips and zero missing outcomes. The canonical noneditable wheel journey passes, and all 15 focused controls pass against the exact installed wheel outside the checkout with no skips. The accepted ADR 0062/0066 main integration changes only documentation and roadmap authority; runtime, tests, Flavors, skills and template bytes remain identical. See [the bounded source/artifact review](../../verification/1.4-fix-integration-review.json). Exact combined-head platform CI, main verification, remaining milestone features/native gates and publication remain open.
 
@@ -34278,6 +34280,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] REMOTE-FILE-CEILING-001 — Preserve inherited file-size ceilings in remote evidence transport
 
+- **Combined qualification:** Both native inherited-ceiling cases and all six unchanged transport controls pass without skips against the complete qualified combined wheel at `7c6b0ed46`. The limiter bytes remain identical to independently reviewed PR400. The [combined source/installed proof](../../verification/reviewed-integration-linux.json) records the fresh full gate and exact installed origins; confirming combined-head/resulting-main integration and final lifecycle remain open.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#372](https://github.com/jordanhubbard/literate-ai/issues/372)
 
@@ -34382,6 +34386,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CUDA-SIGNAL-001 — Keep vendor-only source attribution out of CUDA requirements
 
+- **Combined qualification:** Both maintained inventory methods and their thirteen input subcases pass without skips against the qualified combined noneditable wheel at `7c6b0ed46`. Detector and regression bytes remain identical to reviewed PR398; complete source/wheel checks pass in the [combined proof](../../verification/reviewed-integration-linux.json). Confirming combined-head/resulting-main integration remains open; no generated-provider or GPU qualification is inferred.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#396](https://github.com/jordanhubbard/literate-ai/issues/396)
 - **Next action:** Qualify the integrated contributor PR [#398](https://github.com/jordanhubbard/literate-ai/pull/398) on current main, preserving its original source/test bytes and all predecessor failures; complete installed and resulting-main acceptance before closing this release goal.
@@ -34430,6 +34436,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] WHEEL-PYTHON-BINDING-001 — Bind installed continuation bytecode expectations to the selected Python
 
+- **Combined qualification:** The exact combined `7c6b0ed46` wheel gate passes both retained continuation scenarios with four distinct admissions, four exact builds, four runs and unchanged historical cache bytes. The [combined proof](../../verification/reviewed-integration-linux.json) joins that whole-gate result to source and installed identities; confirming exact-head/resulting-main integration remains open.
+
 - **Release target:** 1.4.0
 
 - **Priority:** P1
@@ -34448,6 +34456,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Next action:** Land through confirming CI; the separate whole-wheel run and consuming release lifecycle remain required and are not claimed by this fixture result.
 
 ### [ ] QUALIFICATION-ERROR-001 — Preserve native acceptance failure codes in qualification CLI
+
+- **Combined qualification:** All 16 maintained public CLI diagnostic methods pass without skips against the combined noneditable wheel at `7c6b0ed46`, including actual archive-write-failure classification and no-admission controls. Complete source/wheel gates pass in the [combined proof](../../verification/reviewed-integration-linux.json). The diagnostic fixture retains its injected lifecycle/authority boundaries; exact-head/resulting-main integration remains open and this does not implement issue #405.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#404](https://github.com/jordanhubbard/literate-ai/issues/404)
