@@ -6,6 +6,10 @@
   artifacts during node and packaged execution, refusing missing or ambiguous
   providers, escaped package paths and ambient capability overrides (#422).
 
+- Identify the published 1.3.1 lab curriculum as historical at its front door and
+  route current readers to current setup guidance while retaining the open 1.4
+  multi-Component curriculum requirements.
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.
