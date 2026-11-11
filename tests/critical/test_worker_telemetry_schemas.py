@@ -8,6 +8,13 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+from literate_ai.adapters.worker_telemetry_authentication import (
+    AUTHENTICATED_TELEMETRY_REQUEST,
+    AUTHENTICATED_TELEMETRY_RESPONSE,
+    TelemetryObservationCredential,
+    sign_telemetry_request,
+    sign_telemetry_response,
+)
 from literate_ai.contracts.worker_telemetry import WorkerTelemetryRequest
 from literate_ai.contracts.worker_telemetry_observations import (
     WorkerTelemetryObservation,
@@ -116,8 +123,29 @@ class WorkerTelemetrySchemaTests(unittest.TestCase):
             WorkerTelemetryRequest.SCHEMA,
             WorkerTelemetryObservation.SCHEMA,
             WorkerTelemetryResponse.SCHEMA,
+            AUTHENTICATED_TELEMETRY_REQUEST,
+            AUTHENTICATED_TELEMETRY_RESPONSE,
         }
         self.assertEqual(set(entry["public_ids"]), expected)
         self.assertEqual(entry["root_id"], self.document["$id"])
         matrix = json.loads((self.root / "schemas/v2/compatibility.json").read_text())
         self.assertTrue(expected <= set(matrix["write_contracts"]))
+
+    def test_authenticated_headers_validate_without_conferring_scope_authority(self):
+        request = telemetry_request()
+        response = telemetry_response(request)
+        controller = TelemetryObservationCredential(
+            request.controller_identity, b"c" * 32
+        )
+        worker = TelemetryObservationCredential(request.worker_identity, b"w" * 32)
+        for identifier, raw in (
+            (
+                AUTHENTICATED_TELEMETRY_REQUEST,
+                sign_telemetry_request(request, controller),
+            ),
+            (
+                AUTHENTICATED_TELEMETRY_RESPONSE,
+                sign_telemetry_response(response, request, worker),
+            ),
+        ):
+            self.validate(identifier, json.loads(raw.split(b"\n", 1)[0]))

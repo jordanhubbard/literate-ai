@@ -33742,7 +33742,7 @@ independent review and the complete combined gate from test one.
   command, environment, output or display-text selector is admitted. Metrics retain
   explicit measurement scope, closed status, fixed units and counter/gauge meaning;
   unmeasured values are null. Progress requires actual completed/total work or a
-  closed indeterminate reason. Twenty-five focused contract/wire/schema controls pass, plus the existing catalog
+  closed indeterminate reason. Thirty-seven focused contract/wire/schema/authentication controls pass, plus the existing catalog
   structure and schema-check-scope controls. Additive request/observation/response
   header schemas resolve in the current runtime catalog. The codec checks the
   aggregate 1 MiB bound and newline count before allocating a frame list, then
@@ -33751,8 +33751,12 @@ independent review and the complete combined gate from test one.
   request/worker/scope/expiry bindings. Unsupported, denied and unavailable responses
   remain explicit. Owner/process-start/reservation/counter epochs and observer
   epoch/sequence remain untrusted data; terminal references do not authenticate a
-  result. These types and codecs are not receiver authentication, a live action
-  owner or an implemented telemetry route. Freshness/replay enforcement, live
+  result. Telemetry-only HMAC-SHA256 envelopes now use explicit private observation
+  credentials, bind principal/key identity and exact framed body, separate
+  request/response domains, and reject expired/future messages. The bounded reader
+  caps each read before retaining bytes and keeps framing inside the aggregate
+  budget. These are message authentication primitives, not observation scope
+  authorization, replay acceptance, a live action owner or an implemented route. Freshness/replay enforcement, live
   epoch/sequence custody, rate/coalescing/concurrency, native collection and every
   installed/independent/integrated acceptance requirement remain open. No lifecycle
   driver pin or release acceptance is advanced by this foundation.

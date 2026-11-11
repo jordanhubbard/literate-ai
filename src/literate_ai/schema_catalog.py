@@ -44,6 +44,8 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "literate-ai/worker-telemetry-request@1",
         "literate-ai/worker-telemetry-observation@1",
         "literate-ai/worker-telemetry-response@1",
+        "literate-ai/authenticated-worker-telemetry-request@1",
+        "literate-ai/authenticated-worker-telemetry-response@1",
         "literate-ai/public-callable-signature@1",
         "literate-ai/generated-test-coverage-authority@1",
         "urn:literate-ai:schema:v2:evidence-signer-rule",
