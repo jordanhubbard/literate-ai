@@ -33796,7 +33796,14 @@ independent review and the complete combined gate from test one.
   not subtree/action/worker aggregates. Original action/reservation joins, complete
   native tree attribution, Windows/macOS collectors, public transport, installed
   qualification and independent/integrated acceptance remain required. No lifecycle
-  driver pin or release acceptance is advanced by this foundation.
+  driver pin or release acceptance is advanced by this foundation. The
+  [native Linux development record](../../verification/worker-telemetry-native-linux.json)
+  binds source `77353a8d6`, the successful Python3.12 whole-wheel gate and all eleven
+  maintained native controls from a fresh noneditable installation outside the
+  checkout. All 241 imported framework modules match both archive and source; the
+  installed distribution identity is unchanged before/after. Both Python3.12 and
+  Python3.15 pass the 80 focused source controls. The earlier Python3.15 whole-wheel
+  dependency-download failure remains recorded separately, not upgraded to a pass.
 
 - **Priority:** P1
 - **Owner:** Worker process/action observations, shared transport and versioned telemetry contracts
