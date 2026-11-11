@@ -33742,7 +33742,7 @@ independent review and the complete combined gate from test one.
   command, environment, output or display-text selector is admitted. Metrics retain
   explicit measurement scope, closed status, fixed units and counter/gauge meaning;
   unmeasured values are null. Progress requires actual completed/total work or a
-  closed indeterminate reason. Fifty-one focused contract/wire/schema/authentication/authorization controls pass, plus the existing catalog
+  closed indeterminate reason. Sixty-nine focused contract/wire/schema/authentication/authorization/polling controls pass, plus the existing catalog
   structure and schema-check-scope controls. Additive request/observation/response
   header schemas resolve in the current runtime catalog. The codec checks the
   aggregate 1 MiB bound and newline count before allocating a frame list, then
@@ -33764,9 +33764,22 @@ independent review and the complete combined gate from test one.
   regression refuses, and full replay windows refuse without evicting live claims.
   Reconstructing identical policy creates a fresh scope and cannot restore prior
   permits. These authorization controls use real message MACs with injected policy
-  and clock ports; they do not prove native configuration custody or process ownership. Freshness/replay enforcement, live
-  epoch/sequence custody, rate/coalescing/concurrency, native collection and every
-  installed/independent/integrated acceptance requirement remain open. No lifecycle
+  and clock ports; they do not prove native configuration custody or process ownership.
+  The original scope now binds exactly one finite polling admission owner: a one-second
+  minimum between new collections, at most four collectors by default (hard ceiling
+  sixteen), and at most 64 participants per collection. Equivalent active selectors
+  coalesce without another collector or extension of the first deadline; shorter
+  participant expiries remain independent. Nonces are authenticated and claimed before
+  admission, busy/rate/capacity excess refuses without a queue, and no samples/history
+  are retained. Cancelled or expired collectors keep their slots until their original
+  finally hook retires them, preventing uncooperative collection from creating capacity.
+  Clock regression closes this observation owner; slow policy checks cannot backdate
+  a collection start or return an expired ticket. These are process-local admission
+  controls with real MACs and injected policy/clocks, not running native collectors,
+  transport cancellation or verified job isolation. Freshness/replay enforcement, live
+  epoch/sequence custody, production wiring of rate/coalescing/concurrency and deadlines,
+  native collection and every installed/independent/integrated acceptance requirement
+  remain open. No lifecycle
   driver pin or release acceptance is advanced by this foundation.
 
 - **Priority:** P1

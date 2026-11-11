@@ -139,7 +139,7 @@ class TelemetryObservationPermit:
         return self._proof.request
 
     def require_current(self):
-        self._authority._validate(self._proof)
+        return self._authority._validate(self._proof)
 
 
 class TelemetryScopeAuthority:
@@ -158,6 +158,7 @@ class TelemetryScopeAuthority:
         self._closed = False
         self._clock_lock = threading.Lock()
         self._last_now = 0
+        self._poll_owner_claimed = False
         self._policy = self._load()
         self._replay = (
             TelemetryReplayWindow() if replay_window is None else replay_window
@@ -193,6 +194,19 @@ class TelemetryScopeAuthority:
     def close(self):
         # Revokes only this observation namespace; it has no selected-job handle.
         self._closed = True
+
+    def claim_polling_owner(self):
+        """One process-local polling owner for this scope's entire lifetime."""
+        if not self._clock_lock.acquire(blocking=False):
+            _fail("busy")
+        try:
+            if self._closed:
+                _fail("owner_closed")
+            if self._poll_owner_claimed:
+                _fail("poll_owner_claimed")
+            self._poll_owner_claimed = True
+        finally:
+            self._clock_lock.release()
 
     def _validate(self, proof):
         request, key = require_telemetry_authentication(proof)
@@ -262,4 +276,4 @@ class TelemetryScopeAuthority:
             or getattr(permit, "_authority", None) is not self
         ):
             _fail("foreign_permit")
-        permit.require_current()
+        return permit.require_current()
