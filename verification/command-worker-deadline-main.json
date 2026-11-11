@@ -1,0 +1,47 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "issue": 420,
+  "main_subject": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+  "review_head": "d840a78dedd8767254721e92bed4b0776356d5d8",
+  "review_ci": {
+    "run": 43016945880,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/43016945880",
+    "successful_jobs": 27
+  },
+  "main_ci": {
+    "run": 43038760305,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/43038760305",
+    "successful_jobs": 27
+  },
+  "current_source315": {
+    "summary": {
+      "executed": 2683,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2683,
+      "selected": 2783,
+      "skipped": 100
+    },
+    "raw_worker_groups": 599,
+    "report_sha256": "97ffd331adf63e569f754fcce188b840355af3b233b3e091b0fc3cc4983fc7e2",
+    "every_case_instance_reconciled": true
+  },
+  "current_review_gates": {
+    "driver_pin_unchanged": "sha256:0086cc0a419753fccae6f85b47c44a71ad1b01edba192bec635b64827a7aa1ed",
+    "runner_pin_unchanged": "sha256:421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1"
+  },
+  "original_failed_ci": {
+    "run": 42991863968,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/42991863968",
+    "preserved": true
+  },
+  "current_original_child_cleanup_control": {
+    "case": "tests.smoke.test_action_capabilities.ActionCapabilityTests.test_slow_real_receiver_respects_caller_deadline_and_reaps_on_expiry",
+    "status": "passed",
+    "caller_budget_extended": false,
+    "real_runner_or_cleanup_replaced": false,
+    "observer": "Existing bounded process_factory seam observes original Popen owner; absent child accepted only for typed prelaunch expiry; receiver PID consistency retained when present"
+  },
+  "production_runtime_behavior_changed": false,
+  "scope": "Existing command-worker deadline qualification control only. COMMAND-WORKER-001 and full release acceptance remain open."
+}
