@@ -34268,12 +34268,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Completion prerequisites:** none
 - **Implementation:**
   - [x] Own private Codex runtime-state directories across command, generation and diagnostic child lifetime.
-  - [ ] Bind supported sqlite_home and log_dir settings; preserve provider isolation, finite limits and cleanup.
+  - [x] Bind supported sqlite_home and log_dir settings; preserve provider isolation, finite limits and cleanup.
 - **Evidence:**
   - [ ] Retain the original finite-file-limit failure and prove supported CLI configuration, native private state routing, process lifetime and unchanged parent environment.
   - [ ] Pass focused and full source gates, independent review before driver repin, installed/native finite-profile generation with an explicit operator model, and current-head integration gates.
 
 - **Focused development evidence:** All 22 existing coding CLI generation controls and three new runtime-state controls pass without skips. The native SQLite transport fixture fails when private settings are omitted under an actual 64 KiB file ceiling, then succeeds under the same ceiling using private state; caller limits and the ambient database remain unchanged by the fixed invocation. Other controls cover task/generation/status success and failure cleanup, retry isolation, unchanged HOME/provider/model routing, spaces and non-ASCII paths, workspace-overlap refusal and unaffected provider allocation. These maintained tests exercise command/lifetime behavior; their provider transport is a fixture, not actual Codex model-backed generation. Exact digest-pinned Codex 0.153.0 was staged by the canonical native installer and recognizes both documented path settings; no model call or global installation change was made. See [the development record](../../verification/codex-private-runtime-development.json). The fresh Python 3.12 whole-source gate passes 2,658 cases with 119 declared skips and no failures: all 598 worker groups and 2,777 indexed outcomes match, preserving repeated imported test names as distinct executions. Actual model-backed native, installed/platform and independent review gates remain open. Live qualification requires an explicit model pin. The configure-test-workers skill permits an agent-selected resolvable CLI/model; use a private one-shot selection and the canonical verify-model preflight before native generation. No durable user default is changed.
+
+
+- **GitHub issue:** [#412](https://github.com/jordanhubbard/literate-ai/issues/412) (finite remote-catalog prerequisite).
+
+- **Native remote-catalog blocker:** [Issue #412](https://github.com/jordanhubbard/literate-ai/issues/412) records a separate actual SIGXFSZ during Codex 0.166.0 generation under the unchanged 64 MiB ceiling. All observed writable SQLite descriptors use private invocation state and all six runtime allocations clean up, but syscall tracing identifies an oversized atomic remote-plugin-catalog download. The explicit Codex/model preflight passes under that same limit.
+- **Additional implementation:**
+  - [x] Exclude the unrequested optional remote plugin catalog through supported per-call configuration on task, generation and diagnostic paths; preserve the managed minimum CLI, HOME/authentication, model/provider selection, sandbox and limits.
+- **Additional evidence:**
+  - [ ] Retain the failed native generation and syscall cause, prove the current and managed minimum provider accept the setting, pass maintained command/lifetime controls, and complete actual finite-profile source generation before independent review and final integration.
+
+
+- **Current native correction:** [Native catalog/state evidence](../../verification/codex-catalog-native-development.json) retains the original three-attempt generation failure and a single-attempt EFBIG trace, plus three passing maintained state controls and 22 unchanged generation controls. With the documented per-call remote catalog flag, actual Codex 0.166.0 and the explicit validated model generate four adapter-validated files in 95.523 seconds under unchanged 64 MiB soft/hard limits; all 22 observed writable SQLite descriptors are private and the runtime directory is removed. Codex 0.153.0 accepts the setting (`remote_plugin stable false`, exit zero), but rejects the chosen model for this account; no minimum-version generation is claimed. The earlier complete source gate belongs to its original source hashes and does not qualify this repaired subject. Next action: obtain independent source review before driver renewal and fresh whole-source/noneditable installed/platform integration.
 
 ### [ ] REMOTE-FILE-CEILING-001 — Preserve inherited file-size ceilings in remote evidence transport
 

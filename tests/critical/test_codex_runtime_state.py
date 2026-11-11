@@ -55,6 +55,7 @@ class CodexRuntimeStateTests(unittest.TestCase):
 
             def execute(command, **kwargs):
                 settings = configuration(command)
+                self.assertIs(settings["features"]["remote_plugin"], False)
                 state = Path(settings["sqlite_home"])
                 log = Path(settings["log_dir"])
                 workspace = Path(kwargs["cwd"])

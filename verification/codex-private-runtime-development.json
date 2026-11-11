@@ -2,7 +2,7 @@
   "schema": "literate-ai/verification-record@1",
   "goal": "CODEX-STATE-001",
   "issue": 365,
-  "classification": "development proof; actual model-backed provider generation and release qualification pending",
+  "classification": "historical development proof at the original recorded source hashes; current catalog correction and native evidence are separate",
   "source_sha256": {
     "src/literate_ai/adapters/models/coding_cli.py": "85097761ce8601e9496301e9e8db2a987fb97504fa5ec14063f94a5a5061c9ba",
     "tests/critical/test_codex_runtime_state.py": "2dd36a035a8cd485c6ff808ef15a7df986a5779a6e83aa2df8db768aeaa30c61"
@@ -133,5 +133,5 @@
     "global_installation_changed": false,
     "scope": "Authentication status succeeded under private settings. The features-list command exited1 and is not counted as a successful feature check. No model or source generation was invoked."
   },
-  "native_generation_blocker": "Explicit live-test model selection required; project test.json absent and LITAI_LIVE_MODEL unset. Operator question pending."
+  "native_generation_blocker": "The previously inferred model-selection approval requirement is resolved by configure-test-workers skill authority. Native source generation at the original runtime subject failed on the remote catalog; the correction and actual current-provider result are recorded in codex-catalog-native-development.json. Independent review and fresh full integration remain open."
 }

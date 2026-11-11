@@ -2543,7 +2543,17 @@ The invocation flags follow the official [Codex CLI reference](https://developer
 [Claude Code CLI reference](https://docs.anthropic.com/en/docs/claude-code/cli-usage),
 [Cursor Agent parameters](https://docs.cursor.com/en/cli/reference/parameters), and
 [OpenCode v1 CLI reference](https://opencode.ai/docs/cli/) and
-[v2 CLI reference](https://opencode.ai/v2/docs/cli/commands/). OpenCode runs in a
+[v2 CLI reference](https://opencode.ai/v2/docs/cli/commands/).
+
+Codex tasks, source generation and authentication diagnostics use private SQLite
+and log directories outside generated outputs. Each directory remains owned through
+bounded child completion and is removed afterward. Optional remote-plugin catalog
+loading is disabled per invocation; automated generation uses its bound recipe
+authority. HOME, authentication, selected models, sandboxing and finite resource
+limits are preserved. These overrides use the official
+[configuration settings](https://learn.chatgpt.com/docs/config-file/config-reference).
+
+OpenCode runs in a
 detached temporary workspace with the detected major's isolated invocation.
 V1 uses pure-plugin mode and its legacy permission map; v2 uses a private server,
 native ordered permissions, and policies denying external plugins, skills, and MCP.

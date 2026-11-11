@@ -2915,6 +2915,10 @@ def _codex_runtime_arguments(runtime_state: Path | None) -> tuple[str, ...]:
         "sqlite_home=" + json.dumps(str(runtime_state / "state"), ensure_ascii=False),
         "--config",
         "log_dir=" + json.dumps(str(runtime_state / "log"), ensure_ascii=False),
+        # Automated bound tasks do not consume the optional remote catalog; its
+        # ambient download can exceed the caller's unchanged file-size ceiling.
+        "--config",
+        "features.remote_plugin=false",
     )
 
 
