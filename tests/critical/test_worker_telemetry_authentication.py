@@ -43,7 +43,7 @@ class WorkerTelemetryAuthenticationTests(unittest.TestCase):
         self.assertEqual(
             authenticate_telemetry_request(
                 self.signed_request, self.controller, now_ms=2000
-            ),
+            ).request,
             self.request,
         )
         self.assertEqual(
@@ -171,9 +171,10 @@ class WorkerTelemetryAuthenticationTests(unittest.TestCase):
         second = authenticate_telemetry_request(
             self.signed_request, self.controller, now_ms=2000
         )
-        self.assertEqual(first, second)
+        self.assertEqual(first.request, second.request)
         self.assertEqual(
-            first.observation_scope_identity, self.request.observation_scope_identity
+            first.request.observation_scope_identity,
+            self.request.observation_scope_identity,
         )
         foreign = replace(
             self.request,
@@ -184,7 +185,7 @@ class WorkerTelemetryAuthenticationTests(unittest.TestCase):
                 sign_telemetry_request(foreign, self.controller),
                 self.controller,
                 now_ms=2000,
-            ),
+            ).request,
             foreign,
         )
         # A real receiver must reject that scope using its separate current owner;

@@ -21,6 +21,10 @@ from literate_ai.adapters.worker_telemetry_wire import (
     encode_telemetry_request,
     encode_telemetry_response,
 )
+from literate_ai.application.worker_telemetry_authentication import (
+    AuthenticatedTelemetryRequest,
+    _authenticated_telemetry_request,
+)
 from literate_ai.contracts._validation import contract_fields, int_value
 from literate_ai.contracts.identity import (
     ContentIdentity,
@@ -180,7 +184,7 @@ def sign_telemetry_request(
 
 def authenticate_telemetry_request(
     raw: bytes, credential: TelemetryObservationCredential, *, now_ms: int
-) -> WorkerTelemetryRequest:
+) -> AuthenticatedTelemetryRequest:
     body = _open(
         raw, credential, AUTHENTICATED_TELEMETRY_REQUEST, MAX_TELEMETRY_SAMPLE_BYTES
     )
@@ -188,7 +192,7 @@ def authenticate_telemetry_request(
     if request.controller_identity != credential.principal_identity:
         _fail("principal_mismatch")
     _current(request, now_ms)
-    return request
+    return _authenticated_telemetry_request(request, credential.key_identity)
 
 
 def sign_telemetry_response(

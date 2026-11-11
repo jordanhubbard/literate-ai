@@ -33742,7 +33742,7 @@ independent review and the complete combined gate from test one.
   command, environment, output or display-text selector is admitted. Metrics retain
   explicit measurement scope, closed status, fixed units and counter/gauge meaning;
   unmeasured values are null. Progress requires actual completed/total work or a
-  closed indeterminate reason. Thirty-seven focused contract/wire/schema/authentication controls pass, plus the existing catalog
+  closed indeterminate reason. Fifty-one focused contract/wire/schema/authentication/authorization controls pass, plus the existing catalog
   structure and schema-check-scope controls. Additive request/observation/response
   header schemas resolve in the current runtime catalog. The codec checks the
   aggregate 1 MiB bound and newline count before allocating a frame list, then
@@ -33756,7 +33756,15 @@ independent review and the complete combined gate from test one.
   request/response domains, and reject expired/future messages. The bounded reader
   caps each read before retaining bytes and keeps framing inside the aggregate
   budget. These are message authentication primitives, not observation scope
-  authorization, replay acceptance, a live action owner or an implemented route. Freshness/replay enforcement, live
+  authorization, a live action owner or an implemented route. Message verification
+  now yields an immutable, nonserializable in-process proof. A private current-policy
+  port checks controller/catalog/registration/worker/key/action or explicit aggregate
+  permission under an original scope epoch; authorization claims a bounded nonce
+  atomically. Changed policy closes the owner, retained permits revalidate, clock
+  regression refuses, and full replay windows refuse without evicting live claims.
+  Reconstructing identical policy creates a fresh scope and cannot restore prior
+  permits. These authorization controls use real message MACs with injected policy
+  and clock ports; they do not prove native configuration custody or process ownership. Freshness/replay enforcement, live
   epoch/sequence custody, rate/coalescing/concurrency, native collection and every
   installed/independent/integrated acceptance requirement remain open. No lifecycle
   driver pin or release acceptance is advanced by this foundation.
