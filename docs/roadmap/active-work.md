@@ -34529,3 +34529,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Dependency development evidence:** [Source/build/installed and canonical offline bootstrap record](../../verification/python315-worker-dependency-development.json) retains exact artifact identities. Its existing framework artifact is bound to `7078bc96b`; it does not qualify the later new wheel-gate projection or a final release candidate.
 
 - **Current complete local qualification:** [Minimum/current Python source and whole-wheel record](../../verification/python-worker-wheel-inputs-linux.json) binds software `c733d96f80cd80b802e7aa4387cab2d7740e219a`. Both native Python 3.11.14 and 3.15.2 select 2,783 source cases: 2,683 pass, 100 retain declared skips, and all 599 raw groups reconcile with no failed or known-failed cases. Both complete noneditable wheel gates pass with the same framework distribution identity and exact reviewed pure PyYAML bytes; ordinary and uv worker paths install respectively 38 and 37 distributions with matching framework identities. Real empty/redirected input refusals precede installation. The earlier source-prefix failure and unconfigured binary-export failure remain preserved separately. Parent completion and issue closure await independent/exact integrated acceptance; no release acceptance is claimed.
+
+### [ ] RUNTIME-CAPABILITY-ENV-001 — Bind declared runtime capability variables to accepted provider artifacts
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)
+- **Next action (in progress):** Restore late aliases from the already sealed execution plan and current provider custody in the shared local/runtime factory. Keep the existing serialized toolchain closure and generic environment bindings unchanged.
+
+
+- **Priority:** P0
+- **Owner:** Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001
+- **Direction:** Restore the existing LITAI_CAPABILITY process contract for genuine generated multi-Component consumers on every supported native platform.
+- **Conclusion:** The actual installed two-node JavaScript run accepts the provider and builds/tests the consumer, then execution refuses its missing declared money capability variable. Derive runtime aliases from the exact held execution plan and current accepted provider artifacts, retain generic bindings and closed wire contracts, and reject stale or ambiguous bindings. Do not change the consumer to search arbitrary environment variables or widen retained-source admission.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Project late runtime capability aliases from exact locked runtime edges while preserving original source, artifact and execution authority.
+  - [ ] Preserve existing generic bindings, phase separation, portable names and collision/currentness refusals without adding permissions or changing closed wire records.
+- **Evidence:**
+  - [ ] Retain the real installed force-regeneration counterexample and unchanged verifier oracles; generated consumer uses the exact declared variable.
+  - [ ] Pass focused collision, ambient-variable, phase/consumer scoping and stale-authority controls, complete source gates, independent non-author review before driver repin, and an actual corrected installed generated graph journey plus native/exact-head/main verification.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Bind declared runtime capability variables to the consumer's locked provider
+  artifacts during execution, refusing missing or ambiguous providers and ambient
+  capability overrides (#422).
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.
