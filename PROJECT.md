@@ -77,6 +77,14 @@ disposable output. The framework's own goals are:
    1.4 Rich HTML5 presentation goal will generalize browser-native, self-contained,
    component-aware decks from the qualified conference-deck reference implementation.
 
+8. Keep all Literate AI-owned files for each derived project beneath that project's
+   `litai/` subdirectory, including framework configuration, specifications, skills,
+   workflow/routing authority, locks, receipts, framework documentation and managed
+   runtime/cache/build state. Application-owned files retain their native layout;
+   externally required root discovery files are minimal delegates into `litai/`.
+   Existing derived projects require a supported migration that preserves custom
+   content and source custody and renews affected lifecycle evidence.
+
 ## Dependencies
 
 None. Literate AI is the root framework; other repositories depend on its released
@@ -106,6 +114,25 @@ development (2026-09-10):
 | Samples | Non-inheritable demos under `samples/`, except `hello-component` (the inheritable starter `litai init` seeds). | See the open taxonomy question in `docs/roadmap/active-work.md`. |
 
 ## Current work
+
+CUDA-SIGNAL-001 records issue #396 as blocking 1.4.0 work under Goals 1, 2, 4
+and 5. Inert source inventory must preserve original bytes and propose CUDA only
+from CUDA-specific evidence; vendor attribution alone must not add an accelerator
+dependency. Source repair and installed/integration qualification remain open.
+
+QUALIFICATION-CASE-INVENTORY-001 and AUTHORED-GRAPH-QUALIFICATION-001 record
+issues #392 and #393 as blocking 1.4.0 work under Goals 1, 2, 4 and 6. Shared raw
+case inventory must preserve every actual node execution; genuinely authored graph
+qualification must not manufacture source-promotion or inverse evidence. The first
+fix is contributor-owned; [ADR 0072](docs/decisions/0072-authored-native-graph-qualification.md)
+was accepted by the directing user on 2026-11-10 for authored admission.
+Implementation and both acceptance gates remain open.
+
+PROJECT-LAYOUT-001 extends Goals 1, 4, 6 and 8 as a blocking 1.4.0 requirement.
+[ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is proposed;
+canonical `litai/` containment, supported migration and installed cross-platform
+qualification remain unimplemented and unchecked in the
+[owning queue item](docs/roadmap/active-work.md#project-layout-001-contain-derived-project-literate-ai-files-under-litai).
 
 [WORKER-CPU-001](docs/roadmap/active-work.md#worker-cpu-001) qualifies bounded native Windows CPU observations for the existing worker-health goal; unavailable or incomplete processor-group evidence remains a hold under required-metric policy.
 

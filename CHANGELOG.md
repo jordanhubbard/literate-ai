@@ -4,9 +4,26 @@
 
 - Coding CLI tasks and source generation keep Codex SQLite and diagnostic logs in private invocation state, preserving authentication, selected models and finite file limits (#365).
 
+- Standalone source promotion can explicitly select root repository lineage with
+  `spec accept --project-target ... --root-project`; default inheritance and
+  retained-host integration remain unchanged (#402).
+
+- Installed-wheel qualification exercises lazy project startup and strict MAC BOM
+  rejection, verifying installed module origins and exact candidate bytes (#121).
+
+- Complete current-main native qualification of retained Windows system context,
+  base/private interpreter DLL capture, and the five-minute C++ discovery bound;
+  preserve command drift, missing-sidecar and guarded native build refusals (#102, #103).
+
+- Record the included Codex runtime-state and remote file-ceiling work as explicit
+  1.4 roadmap and release-manifest gates; both remain incomplete pending their
+  existing implementation, review and native qualification.
+- Retain standalone Windows MSVC setup and C++ discovery timings in native qualification while preserving the five-minute default and caller-selected bounds.
+- Renew retained Windows command, source/context drift and missing native sidecar checks through the noneditable wheel on base and private interpreters (#102, #103).
+
 - Add reviewed identity migration for original-source converted projects, preserving immutable rename lineage and requiring fresh qualification under the new project ID.
 
-- Wheel qualification reuses the native Windows CPU acceptance case with installed local and standalone-receiver modules; unsupported platforms remain explicit skips (#348).
+- Qualify native Windows CPU pressure with all eight native controls and the noneditable local/standalone-receiver acceptance case; preserve required-pressure refusal and explicit unsupported processor groups (#348).
 - Initial tree HTML publication retains bounded private transaction records before output mutation and through index commit, preserving interrupted attempts and foreign journal changes (#279). Recovery and rerender remain unfinished.
 - Cross-platform worker wheelhouse export considers compatible older glibc-2 floors for an explicit PEP 600 target, preserving architecture, target identity and offline closure verification (#356).
 
@@ -47,7 +64,8 @@
 - Add installed-wheel adoption coverage for retained third-party Component-shaped
   files, using real unittest, build, package and parity controls. Exercise public
   status with an explicitly selected local shim and preserve native/Python
-  requirements and adopted-project inputs.
+  requirements and adopted-project inputs. Installed macOS and Linux adoption
+  journeys preserve retained dependency files named like framework authority (#212).
 
 - Native x64 MSVC setup preserves the selected toolset's complete version option
   across CMD argument parsing, while retaining required compiler variables.
@@ -137,6 +155,8 @@
 - Adopted-project status resolves selected project-local Flavors by canonical
   identity. Toolchain-free shims add no requirements; custom local observation
   probes refuse explicitly, and copied framework Flavors retain their host tools.
+  Installed macOS, Linux and Windows status journeys preserve actual host-readiness
+  results (#268).
 
 - C++ toolchain discovery, including MSVC environment initialization, now defaults
   to a finite five-minute budget instead of one minute.
