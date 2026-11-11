@@ -33742,7 +33742,7 @@ independent review and the complete combined gate from test one.
   command, environment, output or display-text selector is admitted. Metrics retain
   explicit measurement scope, closed status, fixed units and counter/gauge meaning;
   unmeasured values are null. Progress requires actual completed/total work or a
-  closed indeterminate reason. Sixty-nine focused contract/wire/schema/authentication/authorization/polling controls pass, plus the existing catalog
+  closed indeterminate reason. Eighty focused contract/wire/schema/authentication/authorization/polling/native-process controls pass, plus the existing catalog
   structure and schema-check-scope controls. Additive request/observation/response
   header schemas resolve in the current runtime catalog. The codec checks the
   aggregate 1 MiB bound and newline count before allocating a frame list, then
@@ -33779,7 +33779,23 @@ independent review and the complete combined gate from test one.
   transport cancellation or verified job isolation. Freshness/replay enforcement, live
   epoch/sequence custody, production wiring of rate/coalescing/concurrency and deadlines,
   native collection and every installed/independent/integrated acceptance requirement
-  remain open. No lifecycle
+  remain open. The bounded process launcher now has an opt-in original-launch hook.
+  Its finite process-local registry captures Linux pidfd/proc directory guards before
+  the original child is published to waiters; it reads no counter files on the launch
+  thread. Collectors read only bounded `stat`/`io` records through that original
+  descriptor, bind native start ticks and a fresh launch epoch, and expose typed
+  single-process CPU time, RSS estimate and storage accounting. Task names, PID/path
+  selectors and command/environment data are excluded. Descriptor-only observation
+  close is nonblocking and defers release during a read; actual slow-collector and
+  registration/close-race controls preserve original job completion and output.
+  Eleven Linux process/launcher controls pass, including positive CPU/RSS and
+  4 MiB storage-write accounting. Existing launcher regressions pass (two builder
+  controls and two process-tree controls; four native platform cases explicitly skip).
+  Storage accounting retains cancelled writes separately and does not claim completed
+  physical writeout; RSS remains an estimate. These direct-launch process values are
+  not subtree/action/worker aggregates. Original action/reservation joins, complete
+  native tree attribution, Windows/macOS collectors, public transport, installed
+  qualification and independent/integrated acceptance remain required. No lifecycle
   driver pin or release acceptance is advanced by this foundation.
 
 - **Priority:** P1
