@@ -33742,7 +33742,7 @@ independent review and the complete combined gate from test one.
   command, environment, output or display-text selector is admitted. Metrics retain
   explicit measurement scope, closed status, fixed units and counter/gauge meaning;
   unmeasured values are null. Progress requires actual completed/total work or a
-  closed indeterminate reason. Eighty focused contract/wire/schema/authentication/authorization/polling/native-process controls pass, plus the existing catalog
+  closed indeterminate reason. Ninety-three focused contract/wire/schema/authentication/authorization/polling/native-process/controller-reservation controls pass, plus the existing catalog
   structure and schema-check-scope controls. Additive request/observation/response
   header schemas resolve in the current runtime catalog. The codec checks the
   aggregate 1 MiB bound and newline count before allocating a frame list, then
@@ -33804,6 +33804,19 @@ independent review and the complete combined gate from test one.
   installed distribution identity is unchanged before/after. Both Python3.12 and
   Python3.15 pass the 80 focused source controls. The earlier Python3.15 whole-wheel
   dependency-download failure remains recorded separately, not upgraded to a pass.
+  A later opt-in controller handoff now publishes immutable liveness from the actual
+  `CommandActionSlots` reservation after its real slot claim. Both `run` and `acquire`
+  join that original owner, and the configured dispatcher binds its exact current
+  request before input transfer. Exchange cleanup retires the observation binding
+  without releasing held capacity; quarantine, release, changed binding and expired
+  observation clocks cannot restore an old view. Consumers never take the slot's
+  mutation Condition or receive execution/cancel/release controls. Thirteen additional
+  controls include a real scripted command receiver and a concurrent observation
+  while the control Condition is held; five dispatch-wire and five unknown-ownership
+  regressions pass. These are controller provenance checks, not a remote reservation
+  attestation or public telemetry feed. The retained wheel/native record remains
+  bound to earlier source `77353a8d6`; the new handoff requires its own installed,
+  independent, complete-source and exact integration acceptance.
 
 - **Priority:** P1
 - **Owner:** Worker process/action observations, shared transport and versioned telemetry contracts
