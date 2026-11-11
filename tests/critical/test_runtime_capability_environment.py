@@ -4,14 +4,21 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
+import sys
 import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from literate_ai.adapters.lifecycle import LocalSourceTreeRegistry
-from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecycleError
+from literate_ai.adapters.lifecycle.standard_local import (
+    LocalProjectPackageCustody,
+    LocalStandardLifecycleError,
+    local_tree_identity,
+)
 from literate_ai.adapters.standard_project import (
     assemble_standard_lifecycle_ports,
     project_standard_toolchain_closure,
@@ -162,6 +169,77 @@ class RuntimeCapabilityEnvironmentTests(unittest.TestCase):
         result = self.invoke("service")
         self.assertEqual(result["outputs"], [{"provider": "storage"}])
         self.assertIsNone(result["LITAI_CAPABILITY_SERVICE_API"])
+
+    def package_fixture(self):
+        """Controlled package-path fixture, without a lifecycle authority claim."""
+        root = self.root / "package"
+        root.mkdir()
+        paths = {}
+        for export in self.exports:
+            source = self.ports._artifact_paths[export.identity.uri]
+            destination = root / export.export_id
+            shutil.copytree(source, destination)
+            paths[export.identity.uri] = destination / export.export_id
+        return LocalProjectPackageCustody(
+            package_plan=None,
+            package_result=None,
+            root=root,
+            artifact_paths=paths,
+            root_plan=SimpleNamespace(
+                component_revision=self.contract("application").component_revision
+            ),
+            generated_test_suite=None,
+            tree_identity=local_tree_identity(root),
+        )
+
+    def test_packaged_runtime_uses_only_relocated_package_paths(self):
+        custody = self.package_fixture()
+        for export in self.exports:
+            shutil.rmtree(self.ports._artifact_paths[export.identity.uri])
+        environment = self.ports._packaged_environment(custody)
+        environment["LITAI_CAPABILITY_SERVICE_API"] = "/ambient/provider"
+        environment["LITAI_CAPABILITY_GHOST"] = "/ambient/ghost"
+        environment = self.ports._packaged_runtime_environment(
+            environment, custody, ComponentCommandPhase.EXECUTE
+        )
+        completed = self.ports._run_with_environment(
+            (sys.executable, "-c", READ_CAPABILITIES),
+            cwd=custody.root,
+            environment=environment,
+        )
+        result = json.loads(completed.stdout)
+        self.assertEqual(result["outputs"], [{"provider": "service"}])
+        self.assertTrue(
+            Path(result["LITAI_CAPABILITY_SERVICE_API"]).is_relative_to(custody.root)
+        )
+        self.assertIsNone(result["LITAI_CAPABILITY_STORAGE_API"])
+        self.assertIsNone(result["LITAI_CAPABILITY_GHOST"])
+
+    def test_packaged_runtime_rejects_changed_tree_or_escaped_provider(self):
+        custody = self.package_fixture()
+        with self.subTest("changed package"):
+            (custody.root / "unexpected").write_text("changed")
+            with self.assertRaisesRegex(
+                LocalStandardLifecycleError, "runtime package custody changed"
+            ):
+                self.ports._packaged_runtime_environment(
+                    {}, custody, ComponentCommandPhase.EXECUTE
+                )
+            (custody.root / "unexpected").unlink()
+        with self.subTest("escaped provider"):
+            paths = dict(custody.artifact_paths)
+            export = self.exports[0]
+            paths[export.identity.uri] = (
+                self.ports._artifact_paths[export.identity.uri] / export.export_id
+            )
+            with self.assertRaisesRegex(
+                LocalStandardLifecycleError, "escaped package custody"
+            ):
+                self.ports._packaged_runtime_environment(
+                    {},
+                    replace(custody, artifact_paths=paths),
+                    ComponentCommandPhase.EXECUTE,
+                )
 
     def test_ambient_alias_cannot_override_or_add_a_runtime_input(self):
         with mock.patch.dict(

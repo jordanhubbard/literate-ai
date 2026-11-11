@@ -34541,6 +34541,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Owner:** Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001
 - **Direction:** Restore the existing LITAI_CAPABILITY process contract for genuine generated multi-Component consumers on every supported native platform.
 - **Conclusion:** The actual installed two-node JavaScript run accepts the provider and builds/tests the consumer, then execution refuses its missing declared money capability variable. Derive runtime aliases from the exact held execution plan and current accepted provider artifacts, retain generic bindings and closed wire contracts, and reject stale or ambiguous bindings. Do not change the consumer to search arbitrary environment variables or widen retained-source admission.
+- **Additional installed counterexample:** [Packaged execution record](../../verification/runtime-capability-packaged-counterexample.json) binds software `a0a17eca5d43e50e14866db2c0fa71b5509b51c1`. Genuine force-regeneration now reaches accepted checkpoints for both nodes, but final packaged execution still lacks the declared variable; all three original private oracles remain unchanged. The repair must also project aliases from immutable package custody for packaged execution and independent acceptance. This failed development observation does not qualify the final graph or renew the driver review pin.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
