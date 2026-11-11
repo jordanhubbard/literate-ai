@@ -37,6 +37,10 @@ class SourceInventoryTargetTests(unittest.TestCase):
             ),
             (
                 "portable.rs",
+                "/*! SPDX-License-Identifier: LicenseRef-CUDA-Attribution */\n",
+            ),
+            (
+                "portable.rs",
                 "\ufeff/* SPDX-FileCopyrightText: Copyright (c) 2026 CUDA */\n",
             ),
             (

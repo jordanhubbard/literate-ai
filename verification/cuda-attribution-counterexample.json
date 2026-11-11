@@ -27,11 +27,15 @@
   ],
   "focused_repair": {
     "methods": 2,
-    "input_subcases": 24,
+    "input_subcases": 25,
     "skipped": 0,
-    "module_report_sha256": "5a5dee009429c9dac0a09bc6e148157e73a0d6ccb197713d9dddadbf2c2703a4",
+    "module_report_sha256": "5114829a9bf72aadae5103af744af5629f4c194a23c694ca6e94354b7126e227",
     "original_focused_module_failed": true,
     "independent_review": "pending",
-    "driver_pin": "not renewed pending independent review"
+    "driver_pin": "not renewed pending independent review",
+    "repair_source_sha256": "e1aafe2cac616cb94315c79cc24b88fe72d4048771a6fca9d19ca6391920d848",
+    "inventory_regression_methods": 11,
+    "inventory_regression_skipped": 0,
+    "inventory_regression_report_sha256": "4a91f70e49c0cb3cc424715c2ab3891a00699a4516325783442840ed9e7ba766"
   }
 }

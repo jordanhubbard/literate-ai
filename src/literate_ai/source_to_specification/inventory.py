@@ -332,7 +332,7 @@ def _cuda_signal_text(path: str, text: str) -> str:
             body = comment[2:] if comment.startswith("/*") else comment
             body, closed, trailing = body.partition("*/")
             in_block = not bool(closed)
-            if _CUDA_ATTRIBUTION_RECORD.match(body.lstrip("* \t")):
+            if _CUDA_ATTRIBUTION_RECORD.match(body.lstrip("*! \t")):
                 # Code after a closed header is still real target evidence.
                 original = trailing if closed else ""
         else:
