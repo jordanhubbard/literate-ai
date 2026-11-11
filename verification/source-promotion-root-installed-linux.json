@@ -21,9 +21,125 @@
   "cli_module_sha256": "f08fcbd99e34bafdf3aa84b671ad9379073a3e5788e8d341b579d19e3ad01b0f",
   "fixture_sha256": "887b643b82571b3ce0ac68653cf8a702670aba21a01d5695688ed2bf149dd1df",
   "merge_revision": "274b35f9d6e05d51650ba0a9d567c43d02ae1fd0",
-  "classification": "native Linux candidate and landed source qualification; resulting-main and final release qualification pending",
+  "classification": "native Linux candidate and exact resulting-main development qualification passed; final release qualification remains separate",
   "preserved_failures": [
     "Python 3.15 binary dependency wheel download failure",
     "mixed Python 3.12 oracle and Python 3.15 native artifact mismatch; fixture repair in PR407"
-  ]
+  ],
+  "resulting_main": {
+    "revision": "274b35f9d6e05d51650ba0a9d567c43d02ae1fd0",
+    "run_url": "https://github.com/jordanhubbard/literate-ai/actions/runs/42954597539",
+    "run_id": 42954597539,
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "profile",
+        "conclusion": "success"
+      },
+      {
+        "name": "FreeBSD POSIX.1e ACL preflight",
+        "conclusion": "success"
+      },
+      {
+        "name": "macos-latest / Python 3.11 (3 of 4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "macos-latest / Python 3.14 (smoke)",
+        "conclusion": "success"
+      },
+      {
+        "name": "macos-latest / Python 3.11 (1 of 4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "macos-latest / Python 3.11 (2 of 4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "macos-latest / Python 3.11 (4 of 4)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Sample composition / macos-latest",
+        "conclusion": "success"
+      },
+      {
+        "name": "macOS / Python 3.14 / PR smoke (not release qualification)",
+        "conclusion": "success"
+      },
+      {
+        "name": "ubuntu-latest / Python 3.11",
+        "conclusion": "success"
+      },
+      {
+        "name": "Windows / Python 3.12 / tests (1 of 3)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native C++ library / windows-latest",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elixir 1.18.0 / OTP 27.0 / ubuntu-24.04",
+        "conclusion": "success"
+      },
+      {
+        "name": "Sample composition / windows-latest",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elixir 1.20.4 / OTP 29.1.1 / windows-2022",
+        "conclusion": "success"
+      },
+      {
+        "name": "Native C++ library / ubuntu-latest",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elixir 1.20.4 / OTP 29.1.1 / macos-15",
+        "conclusion": "success"
+      },
+      {
+        "name": "Changed skill admission",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elixir 1.20.4 / OTP 29.1.1 / ubuntu-24.04",
+        "conclusion": "success"
+      },
+      {
+        "name": "Windows / Python 3.12 / tests (3 of 3)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Windows / Python 3.12 / PR smoke (not release qualification)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Windows / Python 3.12 / lint, OpenSpec, wheel",
+        "conclusion": "success"
+      },
+      {
+        "name": "Windows / Python 3.12 / tests (2 of 3)",
+        "conclusion": "success"
+      },
+      {
+        "name": "Sample composition / ubuntu-latest",
+        "conclusion": "success"
+      },
+      {
+        "name": "ubuntu-latest / Python 3.14",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elixir 1.18.0 / OTP 27.0 / windows-2022",
+        "conclusion": "success"
+      },
+      {
+        "name": "Elixir 1.18.0 / OTP 27.0 / macos-15",
+        "conclusion": "success"
+      }
+    ]
+  }
 }

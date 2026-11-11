@@ -34414,7 +34414,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Attribution repair under review:** The maintained inventory module fails against the original detector on the newly added SPDX case. The repaired module passes both methods and all 25 input subcases, including multiline/BOM attribution, unchanged source hashes and static derivation, real code after a closed header, pointer/decrement/semicolon statements, mixed build documentation and CUDA suffix evidence. The filter changes only the bounded CUDA proposal text; original security/classification inputs and the contributor detector remain intact. Independent review is required before a new driver pin, fresh full source/wheel and installed qualification. The previous 7c6b0ed46 evidence is preserved and does not establish this repaired candidate.
 
-### [ ] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
+### [x] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
 - **Release target:** 1.4.0
 
@@ -34434,9 +34434,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Complete exact-candidate noneditable installed-wheel qualification and confirming CI before upstream landing. No generated-provider or downstream source-retirement authority is claimed.
 
 - **Installed and landing evidence:** [Native Linux qualification](../../verification/source-promotion-root-installed-linux.json) binds the exact noneditable wheel, all 513 imported framework-module origins, both maintained root-option methods with zero skips, and the complete passed wheel gate at `e7a96c269`. PR #403 is merged as `274b35f9d`; issue #402 is closed by that reviewed landing. Earlier Python 3.15 dependency-download and mixed-interpreter fixture failures remain preserved.
-- **Next action:** Observe exact resulting-main qualification to terminal and retain its outcome before closing this deliverable; final release lifecycle and cross-platform release qualification remain separate.
-- **Evidence still required:**
-  - [ ] Pass exact resulting-main integration and record its outcome.
+- **Resulting-main evidence:** [Exact main CI run 42954597539](https://github.com/jordanhubbard/literate-ai/actions/runs/42954597539) passes all 27 jobs at landed revision `274b35f9d6e05d51650ba0a9d567c43d02ae1fd0`, including Linux, macOS and Windows development coverage. The installed proof retains the exact revision and every job outcome. This completes this implementation deliverable; the consuming final 1.4 lifecycle and release qualification remain required.
+- **Evidence:**
+  - [x] Pass exact resulting-main integration and record its outcome.
 
 ### [ ] WHEEL-PYTHON-BINDING-001 — Bind installed continuation bytecode expectations to the selected Python
 
