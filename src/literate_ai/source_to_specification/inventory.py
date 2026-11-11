@@ -122,7 +122,11 @@ _TARGET_PATTERNS = (
         "cuda",
         "accelerator",
         re.compile(
-            r"(?i)\b(?:cuda|nvcc)\b|\bcuda(?:_runtime(?:_api)?)?\.h\b|"
+            r"(?i)\b(?:cuda|nvcc|CUDAToolkit)\b|"
+            r"\bcuda(?:_runtime(?:_api)?)?\.h\b|"
+            # Runtime identifiers include types; driver calls use SDK casing.
+            # A lowercase portable call such as cube() is not driver evidence.
+            r"\b(?-i:cuda[A-Z]\w*)\b|\b(?-i:cu[A-Z]\w*)\s*\(|"
             r"\b(?:cuda[A-Z]\w*|cuInit|cuDeviceGet|cuMemAlloc|cuLaunchKernel)\s*\("
         ),
     ),

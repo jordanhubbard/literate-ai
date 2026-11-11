@@ -16,6 +16,8 @@ from literate_ai.source_to_specification.static_workflow import derive_static_ch
 class SourceInventoryTargetTests(unittest.TestCase):
     def test_vendor_attribution_does_not_imply_cuda_or_mutate_source(self):
         cases = (
+            ("portable.cpp", "int cube(int x) { return x*x*x; }\n"),
+            ("portable.cpp", "int cuda_counter = 2;\n"),
             (
                 "portable.rs",
                 "// SPDX-FileCopyrightText: Copyright (c) 2026 "
@@ -93,6 +95,11 @@ class SourceInventoryTargetTests(unittest.TestCase):
             ("kernel.cu", "__global__ void add() {}\n"),
             ("kernel.cuh", "__device__ int value();\n"),
             ("build.sh", "nvcc -c kernel.cc\n"),
+            ("CMakeLists.txt", "find_package(CUDAToolkit REQUIRED)\n"),
+            ("host.cpp", "cudaError_t status;\n"),
+            ("host.cpp", "cudaStream_t stream;\n"),
+            ("host.cpp", "cuModuleLoadData(&module, image);\n"),
+            ("host.cpp", "cuModuleLoadDataEx(&module, image, 0, 0, 0);\n"),
             ("host.cpp", "#include <cuda.h>\n"),
             ("host.cpp", "#include <cuda_runtime.h>\n"),
             ("host.cpp", "#include <cuda_runtime_api.h>\n"),
