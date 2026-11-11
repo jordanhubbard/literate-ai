@@ -10,7 +10,7 @@
 
 - Remote evidence transfer preserves stricter inherited POSIX soft and hard
   file-size ceilings, including zero limits (#372).
-- Source inventory no longer infers CUDA from NVIDIA copyright/vendor attribution; explicit CUDA source, compiler, headers and runtime/driver API signals remain detectable (#396).
+- Source inventory no longer infers CUDA from NVIDIA copyright/vendor attribution; explicit CUDA source, compiler, headers and runtime/driver API signals remain detectable (#396). Explicit CUDAToolkit requirements, runtime types and driver module calls also remain detectable after filtering attribution.
 
 - Remote evidence transfer preserves stricter inherited POSIX soft and hard
   file-size ceilings, including zero limits (#372).
