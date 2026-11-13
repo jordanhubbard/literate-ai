@@ -33761,6 +33761,27 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Recovery canonical-role composition (source reviewed; endpoint recovery unfinished):** Bind the actual current
+  project/conversion roles and registered Git inputs under the recovered real
+  descriptors. Require a fresh acknowledged proposal before publishing absent
+  canonical controls through the existing known-node staging owner. Preserve
+  retired tokens and relinquish only their exact former public observations when
+  a separate real staged descriptor owner takes those coordinates. Distinguish
+  completed reservation generations so subsequent interruptions remain inspectable.
+  Hold one descriptor per canonical advisory mutex, reject foreign controls and
+  changed roles, and revoke the combined lease before descriptor teardown. Complete
+  exact source/metadata endpoint recovery afterward; this step grants neither
+  source effects nor public/full-feature acceptance.
+  Initial type, post-read native closure, direct-construction and live-reference
+  regressions fail their preserved source lineages. Share normal role validation,
+  independently require complete canonical path/type coverage and keep the actual
+  Git/catalog references immutable through the context. Approved [canonical-role
+  evidence](../../verification/retained-layout-recovery-roles-development.json)
+  binds exact source and independent native closing/lifetime controls. All
+  two hundred fifty-three affected methods pass without skips, including all
+  twenty-nine current role methods. Next classify actual source/metadata endpoints
+  and implement acknowledged exact recovery under these current canonical roles.
+
 - **Fresh recovery control ownership (source reviewed; transaction recovery unfinished):** Reopen the bounded journal
   with explicit recovery, classify actual retained marker endpoints and bind that
   read-only proposal to a fresh acknowledgement and host-execution authority.

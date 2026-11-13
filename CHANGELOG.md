@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout development binds recovery to current project/Git control roles
+  and reacquires released native controls through acknowledged staged publication;
+  source/metadata and public transaction recovery remain pending (#265).
+
 - Retained-layout development can reacquire retained control descriptors after
   interruption with exact acknowledgement and fresh native locks, preserving
   unresolved state; source/metadata and public recovery remain pending (#265).

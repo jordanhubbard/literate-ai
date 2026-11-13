@@ -12,7 +12,7 @@ import os
 import stat
 import unicodedata
 from contextlib import ExitStack, contextmanager
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, fields, replace
 from pathlib import Path
 
 from literate_ai._cache_lock import _acquire
@@ -31,7 +31,11 @@ from .repository_refresh_reservations import _custody_wire
 from .retained_layout_control_publication import _ControlPool, _pinned_directory
 from .retained_layout_journal import _file as _journal_file
 from .retained_layout_partition import _lineage, _physical_wire
-from .retained_layout_reservations import _HeldDirectories, _portable_name
+from .retained_layout_reservations import (
+    _HeldDirectories,
+    _portable_name,
+    _StagedReservationSet,
+)
 
 
 def _fail(message):
@@ -110,34 +114,44 @@ class _ControlRecoveryPlan:
     retirement_root: Path | None
     retirement_names: tuple[str, ...]
     public_nodes: tuple
+    group: str
 
     @property
     def identity(self):
         return canonical_identity(_custody_wire(self))
 
 
-def _records(journal, targets):
+def _records(journal, targets, reservation_group):
     events = journal.events
-    complete = [e["data"] for e in events if e["kind"] == "reservation-set-acquired"]
-    if len(complete) != 1:
-        _fail("one complete original reservation set required; retain incomplete state")
-    acquired = complete[0]
-    leases = [
-        e["data"]
-        for e in events
-        if e["kind"] == "reservation-lease-intent"
-        and e["data"].get("group") == acquired["group"]
-    ]
-    leases.sort(key=lambda item: item["ordinal"])
     by_path = {str(target.path): target for target in targets}
-    if (
-        len(by_path) != len(targets)
-        or len(leases) != acquired["count"]
-        or len(leases) != len(targets)
-        or [item["ordinal"] for item in leases] != list(range(len(leases)))
-        or {item["path"] for item in leases} != set(by_path)
-    ):
+    if len(by_path) != len(targets):
         _fail("complete actual target coordinates required")
+    candidates = []
+    for event in events:
+        if event["kind"] != "reservation-set-acquired":
+            continue
+        acquired = event["data"]
+        if reservation_group is not None and acquired["group"] != reservation_group:
+            continue
+        leases = [
+            entry["data"]
+            for entry in events
+            if entry["kind"] == "reservation-lease-intent"
+            and entry["data"].get("group") == acquired["group"]
+        ]
+        leases.sort(key=lambda item: item["ordinal"])
+        if (
+            len(leases) == acquired["count"] == len(targets)
+            and [item["ordinal"] for item in leases] == list(range(len(leases)))
+            and {item["path"] for item in leases} == set(by_path)
+        ):
+            candidates.append((event["sequence"], acquired, leases))
+    if len(candidates) != 1:
+        _fail(
+            "complete actual target coordinates and one unambiguous completed "
+            "generation required; retain incomplete state"
+        )
+    sequence, acquired, leases = candidates[0]
     ordered = [by_path[item["path"]] for item in leases]
     identity = (
         "sha256:"
@@ -162,21 +176,30 @@ def _records(journal, targets):
         for item, target in zip(leases, ordered, strict=True)
     ):
         _fail("recorded acquisition disagrees with actual targets")
-    return events, leases, ordered
+    # Events from earlier generations cannot describe this acquisition's effects.
+    actions = tuple(event for event in events if event["sequence"] > sequence)
+    return actions, leases, ordered, acquired["group"]
 
 
-def _one(events, kind, key, value):
+def _one(events, kind, key, value, original, *, observed=False):
     found = [
         event["data"]
         for event in events
-        if event["kind"] == kind and event["data"].get(key) == value
+        if event["kind"] == kind
+        and event["data"].get(key) == value
+        and (
+            (_node(event["data"]["node"]).device, _node(event["data"]["node"]).inode)
+            == (original.device, original.inode)
+            if observed
+            else _node(event["data"]["node"]) == original
+        )
     ]
     if len(found) > 1:
         _fail("ambiguous repeated control history")
     return found[0] if found else None
 
 
-def plan_layout_control_recovery(pool, targets):
+def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
     """Observe existing endpoints; no OS mutex, marker mutation or role grant."""
     if (
         os.name != "posix"
@@ -193,11 +216,21 @@ def plan_layout_control_recovery(pool, targets):
     ):
         _fail("target coordinates alias or overlap")
     journal = pool._journal
-    events, leases, ordered = _records(journal, targets)
+    events, leases, ordered, group = _records(journal, targets, reservation_group)
     finalization = [
         event["data"]
         for event in events
         if event["kind"] == "control-finalization-intent"
+        and {item["path"] for item in event["data"]["controls"]}
+        == {item["path"] for item in leases}
+        and all(
+            any(
+                item["path"] == lease["path"]
+                and _node(item["node"]) == _node(lease["node"])
+                for item in event["data"]["controls"]
+            )
+            for lease in leases
+        )
     ]
     if len(finalization) > 1:
         _fail("ambiguous finalization history")
@@ -245,15 +278,31 @@ def plan_layout_control_recovery(pool, targets):
         if not 1 <= len(content) <= 256:
             _fail("invalid original marker payload")
         current, named = _optional_node(target.path), target.path
-        normal = _one(events, "advisory-normalization-intent", "path", str(target.path))
+        normal = _one(
+            events, "advisory-normalization-intent", "path", str(target.path), original
+        )
         normal_observed = _one(
-            events, "advisory-normalization-observed", "path", str(target.path)
+            events,
+            "advisory-normalization-observed",
+            "path",
+            str(target.path),
+            original,
+            observed=True,
         )
         retire = _one(
-            events, "native-control-retirement-intent", "source", str(target.path)
+            events,
+            "native-control-retirement-intent",
+            "source",
+            str(target.path),
+            original,
         )
         retired = _one(
-            events, "native-control-retirement-observed", "source", str(target.path)
+            events,
+            "native-control-retirement-observed",
+            "source",
+            str(target.path),
+            original,
+            observed=True,
         )
         if retire:
             destination = Path(retire["destination"])
@@ -359,6 +408,7 @@ def plan_layout_control_recovery(pool, targets):
         retirement_root,
         names,
         tuple(public_nodes),
+        group,
     )
     _require_inputs(pool, plan)
     return plan
@@ -452,11 +502,14 @@ class _RecoveredControlSet(WriteReservationSet):
         self._held.current()
 
     def verify_all(self):
+        self._verify_view(self._plan)
+
+    def _verify_view(self, plan):
         self._live()
         if not self._complete:
             _fail("recovered descriptor acquisition incomplete")
-        _require_inputs(self._pool, self._plan)
-        for marker, expected in zip(self._markers, self._plan.markers, strict=True):
+        _require_inputs(self._pool, plan)
+        for marker, expected in zip(self._markers, plan.markers, strict=True):
             if (
                 _from_stat(os.fstat(marker.descriptor)) != expected.node
                 or os.pread(marker.descriptor, len(expected.content) + 1, 0)
@@ -466,10 +519,69 @@ class _RecoveredControlSet(WriteReservationSet):
             ):
                 _fail("actual recovered descriptor changed")
         self._pool.require_current()
-        _close_inputs(self._plan)
+        _close_inputs(plan)
         _close_dependencies(self._pool)
-        _close_retirement(self._plan)
+        _close_retirement(plan)
         self._live()
+
+    def relinquish_public_observations(self, incoming):
+        """A real staged owner takes exact released names; old private rights stay.
+
+        This never grants ownership at those public names to this raw owner.
+        The separately composed canonical owner must verify incoming FDs itself.
+        """
+        self._live()
+        if (
+            type(incoming) is not _StagedReservationSet
+            or incoming._pool is not self._pool
+        ):
+            _fail("actual same-producer staged descriptor owner required")
+        incoming.verify_all()
+        previous = dict(self._plan.public_nodes)
+        selected = [m for m in incoming._markers if m.target.path in previous]
+        if not selected:
+            return ()
+        if any(
+            previous[m.target.path] is not None or not m.created or m.target.advisory
+            for m in selected
+        ):
+            _fail(
+                "only actually staged formerly absent native coordinates may hand off"
+            )
+        paths = {m.target.path for m in selected}
+        view = replace(
+            self._plan,
+            public_nodes=tuple(
+                (path, node)
+                for path, node in self._plan.public_nodes
+                if path not in paths
+            ),
+        )
+        self._verify_view(view)
+        incoming.verify_all()
+        self._pool._journal.append(
+            "control-recovery-public-handoff",
+            canonical_json_bytes(
+                {
+                    "old_recovery_identity": self._plan.identity.uri,
+                    "old_group": self._plan.group,
+                    "incoming_nodes": _custody_wire(
+                        tuple(
+                            (m.target.path, incoming._expected[m.target.path])
+                            for m in selected
+                        )
+                    ),
+                    "grants_canonical_roles": False,
+                }
+            ),
+        )
+        self._verify_view(view)
+        incoming.verify_all()
+        incoming._close_currentness()
+        _close_dependencies(self._pool)
+        _close_retirement(view)
+        self._plan = view
+        return tuple(sorted(paths, key=str))
 
     def owns(self, path):
         self.verify_all()
@@ -483,7 +595,9 @@ def acquire_layout_recovery_controls(
     """Hold new exact FDs/OS locks; never infer canonical roles or recover data."""
     if type(plan) is not _ControlRecoveryPlan or allow_host_execution is not True:
         _fail("explicit current recovery execution authority required")
-    current = plan_layout_control_recovery(pool, tuple(m.target for m in plan.markers))
+    current = plan_layout_control_recovery(
+        pool, tuple(m.target for m in plan.markers), reservation_group=plan.group
+    )
     if current != plan or acknowledged_recovery_identity != current.identity:
         _fail("exact fresh recovery proposal acknowledgement required")
     journal = pool._journal

@@ -534,3 +534,93 @@ review identities. All two hundred twenty-four affected methods pass without ski
 Next compose actual canonical project/Git role binding, missing control publication
 and exact current
 source/metadata endpoint recovery; all full-program acceptance remains open.
+
+## Canonical recovery roles and absent controls (source reviewed; endpoint recovery unfinished)
+
+Compose actual recovered descriptor sets, not saved role labels. Re-derive project
+and original-source conversion authority from the actual loaded project and Git
+roles from actual registered administration/current critical inputs. The canonical
+project controls must already correspond to recorded/recovered project targets;
+do not use a different root to mint unrelated project controls. Current canonical
+advisory mutexes must be held exactly once. A retired private token does not own
+its old public coordinate; foreign live controls refuse. Newly required native
+coordinates must be absent and finite before any publication.
+
+Under those actual descriptors, prepare a fresh proposal binding current roles,
+Git inputs, old recovery sets, missing targets and current immutable journal.
+Require its exact acknowledgement and execution authority. Publish absent controls
+using the existing staged known-node owner with durable native intents, then verify
+its actual FDs and every recovered old endpoint. Only that actual separate owner
+may take an old released public observation; the original raw owner continues to
+own its retained private inode and never gains a public claim by relabeling.
+Revoke combined canonical role rights before any constituent FD can close.
+
+Select a complete reservation generation explicitly when needed. Associate its
+normalization/retirement history with that generation's original native nodes,
+retaining all other groups and all immutable history. Subsequent interrupted
+native-control reacquisition can be reopened as another actual descriptor set;
+ambiguous or incomplete groups report retained unresolved state. Do not infer
+ownership from a group ID, completion flag or recorded successful handoff.
+
+Prove actual Git exclusion/re-entry, released native control reacquisition, foreign
+and stale/forged proposal refusal, multiple generation reopening, interruption and
+late closing changes under native FD/PID/context checks. Complete independent
+review and affected checks. Current source/metadata endpoint classification and
+journaled recovery effects, root/mixed layouts, public recovery and all broader
+acceptance remain required afterward.
+
+Initial independent review confirms two further construction/closing defects even
+though all twenty-three role and twenty-eight generic methods pass. Same-byte
+actual manifest and Git HEAD replacements after the last seed read cross role
+yield: project drift can escape entirely and HEAD drift refuses only on exit.
+A directly constructed private role lease can also validate while the required
+pending descriptor is absent, without field edits. This is an internal
+construction invariant defect, not an external process security boundary or data
+recovery effect. Preserve initial bytes and report. Share the established normal
+role owner's post-read native validation, then close aggregate dependencies;
+factory-guard construction and independently require actual canonical target/type
+coverage in each lease validation. Add native manifest/HEAD and constructor/coverage
+controls before exact source rereview and admission.
+
+All three new maintained regressions fail the exact initially reviewed role source
+(two actual final-read replacements and unkeyed construction). Share the existing
+normal role owner’s complete post-read project/Git native validation, then close
+the aggregate descriptor dependencies. Construction now requires its acquisition
+factory, and every role validation independently requires actual canonical
+target/type coverage; even the actual internal key cannot validate absent pending.
+Normal finalization refuses because recovery effects need their separate owner.
+All twenty-seven repaired methods pass without skips. The initial
+247-method affected result belongs to earlier reviewed bytes, not this repair;
+exact rereview and the repaired affected scope remain pending.
+
+The repaired 251-method neighborhood passes, and exact rereview approves the
+construction/closing repairs. A later author native probe identifies a separate
+live-binding defect: replacing the public Git observation with a real non-Git
+observation can waive the acknowledged project's changed HEAD while actual
+control FDs remain held. This changes the selected input view without a new
+acknowledgement; it is not a data-recovery or external privilege claim. Bind the
+lease's public Git and reservation references to its actual construction inputs
+before shared native validation. Preserve the earlier approval as historical and
+require the new native regression plus exact narrow rereview before admission.
+
+An entry-only reference check passes its focused controls but independent review
+reproduces public Git reassignment during the second actual shared project read,
+waiving the later Git native close. A maintained native regression fails exact
+entry-check source. Store construction references before normal role initialization
+and expose Git/catalog references with immutable setters (same-object constructor
+assignment only). The normal validation path then consistently uses the original
+actual references throughout current/initial checking. Both native reassignment
+controls and an ordinary complete project-role path pass; final targeted rereview
+and the final affected scope remain pending. Preserve the earlier 252-method result
+at entry-check bytes; it does not qualify immutable-binding source.
+
+Immutable-reference source is independently approved at the internal canonical
+POSIX role scope. Five exact targeted maintained methods and two supplementary
+native controls pass, including catching a setter refusal inside the final input
+read and still proving the actual original Git close rejects the changed HEAD.
+The [canonical-role record](../../verification/retained-layout-recovery-roles-development.json)
+preserves all source/review lineages and binds current helper/test subjects. The
+final affected scope passes all 253 methods without skips, including twenty-nine
+current canonical role methods. Next classify current source and metadata
+endpoints under this actual owner and implement exact journaled recovery; no
+public, platform, receipt/admission or full-feature acceptance follows here.
