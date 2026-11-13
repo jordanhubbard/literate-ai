@@ -65,6 +65,11 @@
 - Capability deadline qualification observes actual original child cleanup, including
   expiry before a receiver writes its PID file, without extending caller budgets (#420).
 
+- Fresh single-node Rust libraries can replace a candidate after an exact native
+  public-result rejection within the existing three-candidate budget. Private
+  oracle content stays out of feedback, custody drift remains terminal, and final
+  packaged acceptance still runs (#405).
+
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
   retained-host integration remain unchanged (#402).
