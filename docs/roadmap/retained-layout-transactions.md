@@ -974,3 +974,42 @@ immutable review identities and the final affected run are retained in
 [development evidence](../../verification/retained-layout-program-consumers-development.json).
 Full namespace ownership, placement, public recovery and platform/program acceptance
 remain open.
+
+## Complete live initializer/source/control composition (in progress)
+
+Join the actual initializer's file roles, held project/Git controls, registered
+independent native children and original retained source inside the acknowledged
+source phase. Capture the complete raw namespace under explicit byte, entry and
+metadata budgets. Keep unknown entries and shared ancestors visible; refuse
+aliases and hardlinks across distinct roles. Bind the immutable live composition
+to original physical facts and metadata inputs, journal its observation and consume
+it before the actual normal source move. Saved documents convey no authority.
+
+The first independent review reproduced mutable public role assignments and a
+private journal mutation after the final project inventory. Make public bindings
+read-only and close the actual external reservation dependencies after all project
+payload and membership reads, including on the existing source-only path. Keep
+meaningful regressions for new private members, rewritten journal records and
+fresh recovery after a joined source interruption.
+
+A further actual initializer counterexample adds a forged baseline record for an
+inactive Windows Flavor on a macOS/Python project. The complete template catalog
+is broader than the selected initializer's production. Recover the original
+manifest from its identity-bound retained update-base bytes and use the real
+initializer selection rules. Current profile changes must neither legitimize a
+forged original role nor erase a genuinely initialized role. Missing or changed
+original bytes must refuse; preserve all source on refusal. Join further actual
+metadata providers before root movement or exclusions. Full L1, root/shared/initial
+and wrapper placement, public recovery and installed/native/full-program
+acceptance remain open.
+
+Protocol and original selector agreement alone cannot establish an older
+provider's exact path roster: a later revision can add a template endpoint without
+changing the protocol. This optional join currently requires the actual observed
+framework origin to equal the initialization origin, including its exact Git
+revision, and rechecks that provider while live. It refuses historical providers
+whose original rosters have not been joined. Canonical resolution-audit names are
+also insufficient: initial conversion emits only the `host` target, and never
+emits the hello starter. Metadata self-consistency is not historical attestation.
+Original-provider history, update/import/authored metadata roles and immutable
+installed/native qualification remain required before full ownership acceptance.

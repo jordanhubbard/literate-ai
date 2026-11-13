@@ -33796,9 +33796,19 @@ independent review and the complete combined gate from test one.
   review approves the exact local consumer scope and eighteen maintained methods.
   The final 163-method affected run and reviewed subjects are recorded in
   [development evidence](../../verification/retained-layout-program-consumers-development.json).
-  Next join actual
-  role-owned complete source partitions and finish root/shared/initial/wrapper
-  placement, full public recovery and installed/native/full-program acceptance.
+  The live source phase now composes current-provider initializer roles, held
+  canonical project/Git controls and registered independent children with a complete
+  explicitly bounded namespace. Unknown entries and shared ancestors remain visible;
+  cross-role links refuse. The immutable live owner closes original project and
+  external private facts after payload reads, journals its observation and is spent
+  before a normal source move. Original retained manifest bytes select initializer
+  templates; inactive endpoints, unproduced starters and foreign audit targets refuse.
+  Provider-origin changes revoke the join; historical providers without their
+  original rosters refuse. Saved labels grant no rights. Next join original-provider
+  history and actual update/import/authored metadata roles before root effects,
+  then finish root/shared/initial/wrapper placement, full public recovery and
+  installed/native/full-program acceptance. Local checks and independent review
+  are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).
 
 - **Recovery control disposition (source reviewed; internal nonroot scope verified):** Join fresh verified data with
   the actual original/supplemental descriptor owners. Preflight a complete bounded

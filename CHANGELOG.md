@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained-layout development joins complete live initializer, source, control and
+  independent-child roles before a normal source move, preserving unknown entries
+  and refusing changed private state. Historical initializer providers and root
+  placement remain pending (#265).
+
 - Native rewrite planning uses genuinely readmitted declared source while preserving
   custom progress. Monorepo refresh reruns retained Components after a layout change
   and binds their installation to the current declaration (#265).

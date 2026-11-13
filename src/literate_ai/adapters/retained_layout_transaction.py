@@ -43,6 +43,7 @@ from .retained_layout import (
 )
 from .retained_layout_control_publication import _pinned_directory
 from .retained_layout_control_roles import (
+    _ControlRolesLease,
     _project_roles,
     acquire_retained_layout_control_roles,
     layout_pending_control_path,
@@ -158,9 +159,14 @@ def _native_tree(tree):
     return tuple(records)
 
 
-def _close_tree(tree, native):
+def _close_tree(tree, native, *, controls=None):
     # Namespace and native facts only, after the last journal/logical input reads.
     # Full directory stamps close insertion/removal, not just directory identity.
+    if controls is not None and type(controls) is not _ControlRolesLease:
+        _fail("actual live controls required for dependency closure")
+    close_private_nodes = (
+        None if controls is None else controls.reservations._native_dependency_closer()
+    )
     with _directory_access(tree.root) as access:
         roots = []
         with os.scandir(tree.root) as entries:
@@ -179,6 +185,12 @@ def _close_tree(tree, native):
         )
         if observed != dict(native[1:]):
             _fail("source native namespace changed")
+        if controls is not None:
+            # This can enumerate the external journal and private stages. Close
+            # their original facts, and all project nodes, after those reads.
+            controls.reservations._close_currentness()
+            controls.git.close_native_inputs(controls.reservations)
+            controls._seed.close_native_inputs()
         # Read files first, deepest directories before their ancestors, root last.
         ordered = sorted(
             native,
@@ -192,6 +204,8 @@ def _close_tree(tree, native):
             )
             if _from_stat(node) != expected:
                 _fail("source native facts changed during final closure")
+        if close_private_nodes is not None:
+            close_private_nodes()
 
 
 @dataclass(frozen=True, slots=True)
@@ -467,7 +481,7 @@ def _close_before_effect(plan, controls):
     _absence(plan.destination, plan.tree.budget.maximum_entries)
     if _lineage(plan.tree.root) != plan.source_lineage:
         _fail("prepared source ancestry changed")
-    _close_tree(plan.tree, plan.native)
+    _close_tree(plan.tree, plan.native, controls=controls)
 
 
 def _close_effect_parents(plan):
@@ -588,6 +602,7 @@ class _SourcePhase:
         self._committed = False
         self._finalized = False
         self._retirement_area = None
+        self._partition_owner = None
 
     def _live(self):
         if not self._active or self._pid != os.getpid():
@@ -1053,14 +1068,43 @@ class _SourcePhase:
         )
         self._require_moved()
 
+    @contextmanager
+    def complete_partition(self, *, budget, maximum_metadata_bytes):
+        """Join actual initializer/control/source owners inside this acknowledged phase.
+
+        Unclaimed metadata remains visible; this grants neither root effects nor
+        ownership of a shared ancestor. The live observation is spent before use.
+        """
+        from .retained_layout_ownership import _owned_partition
+
+        with _owned_partition(
+            self, budget=budget, maximum_metadata_bytes=maximum_metadata_bytes
+        ) as owner:
+            yield owner
+
     def move_source(self):
         self._live()
         if not self._active or self._pid != os.getpid() or self._attempted:
             _fail("source phase ended or was already attempted")
         self.controls.require_initial_inputs()
         _require_prepared(self.plan, self.controls.reservations)
+        partition = self._partition_owner
+        partition_record = None if partition is None else partition.document
         self._attempted = True
         journal = self.pool._journal
+        if partition_record is not None:
+            journal.append(
+                "source-partition-observed",
+                canonical_json_bytes(
+                    {
+                        "source_phase_identity": self.plan.identity.uri,
+                        "partition_identity": partition_record["identity"],
+                        "partition_payload_digest": journal.store_payload(
+                            canonical_json_bytes(partition_record)
+                        ),
+                    }
+                ),
+            )
         prepared_plan = journal.store_payload(canonical_json_bytes(self.plan.document))
         payloads = []
         for name, content in self.plan.prospective:
@@ -1109,6 +1153,8 @@ class _SourcePhase:
                     _fail("original effect parent identity changed")
                 held.append((descriptor, guard))
             _close_before_effect(self.plan, self.controls)
+            if partition is not None:
+                partition._consume()
             move_layout_entry_exclusive(
                 self.plan.tree.root,
                 self.plan.destination,

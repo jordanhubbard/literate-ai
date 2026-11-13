@@ -1,0 +1,474 @@
+"""Live initializer/source/control ownership joined to a complete namespace.
+
+An initializer record is checked against actual provider roles, never accepted as
+an arbitrary exclusion list. Unknown entries remain explicit. This dependency
+supplies no root movement, qualified execution, or recoverable saved permission.
+"""
+
+from __future__ import annotations
+
+import base64
+import hashlib
+import json
+import os
+from contextlib import contextmanager
+from pathlib import Path
+
+from literate_ai.contracts import (
+    ProjectDefinition,
+    ProjectInitializationBaseline,
+    ProjectInitializationOrigin,
+)
+from literate_ai.contracts.identity import canonical_identity
+from literate_ai.contracts.native_sdk_trees import NativeSdkTree, _ResolutionBudget
+from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
+from literate_ai.projects import PROJECT_FILENAME, load_project
+
+from .component_locks import ComponentLockStore
+from .component_resolution_audits import ComponentResolutionAuditStore
+from .conversion_authority import (
+    CONVERSION_AUTHORITY_FILE,
+    NATIVE_PROJECTS_FILE,
+    _native_project_roots,
+)
+from .harness_inventory import legacy_shim_authority
+from .project_initialization import (
+    _FLAVOR_DIRECTORY_BY_CANONICAL,
+    _STARTER_DOCS,
+    _TEMPLATE_FILES,
+    FLAVOR_SELECTOR_CANONICAL_NAMES,
+    _include_template_file,
+    discover_installed_initialization_origin,
+)
+from .repository_refresh import _file, _signature
+from .retained_layout import RETAINED_LAYOUT_PATH
+from .retained_layout_partition import capture_retained_layout_partition
+from .update_merge import CHECKPOINT
+from .update_merge import SCHEMA as UPDATE_BASES_SCHEMA
+
+_KEY = object()
+_ORIGIN = ".literate/initialization-origin.json"
+_BASELINE = ".literate/initialization-baseline.json"
+_INVENTORY = ".literate/harness-inventory.json"
+_REPORT = ".literate/legacy-harness-baseline.json"
+
+
+def _fail(message):
+    raise ValueError("layout.ownership: " + message)
+
+
+def _beneath(name, root):
+    return name == root or name.startswith(root + "/")
+
+
+def _initializer_roles(phase, budget, metadata_limit):
+    root = phase.plan.root
+    maximum_entries = budget.maximum_entries
+    cache = {}
+    charged = 0
+    payload_bytes = 0
+
+    def snapshot(path, *, optional=False):
+        nonlocal charged, payload_bytes
+        if path in cache:
+            return cache[path]
+        cost = 4096 + 64 * len(str(path).encode("utf-8"))
+        remaining = min(
+            budget.maximum_file_bytes,
+            budget.maximum_total_bytes - payload_bytes,
+            (metadata_limit - charged - cost) // 64,
+        )
+        if len(cache) >= maximum_entries or remaining < 1:
+            _fail("ownership input metadata exceeds its explicit budget")
+        item = _file(path, optional=optional, maximum_bytes=remaining)
+        size = len(item.content or b"")
+        charged += cost + 64 * size
+        payload_bytes += size
+        cache[path] = item
+        return item
+
+    inputs = tuple(
+        snapshot(
+            root / name, optional=name in {NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH}
+        )
+        for name in (
+            _ORIGIN,
+            _BASELINE,
+            _INVENTORY,
+            _REPORT,
+            NATIVE_PROJECTS_FILE,
+            RETAINED_LAYOUT_PATH,
+        )
+    )
+    values = {item.path.relative_to(root).as_posix(): item for item in inputs}
+    origin = ProjectInitializationOrigin.from_dict(json.loads(values[_ORIGIN].content))
+    baseline = ProjectInitializationBaseline.from_dict(
+        json.loads(values[_BASELINE].content)
+    )
+    if (
+        baseline.origin_identity != origin.identity
+        or len(baseline.files) > maximum_entries
+    ):
+        _fail("initialization origin, file inventory or bound disagrees")
+    if origin != discover_installed_initialization_origin():
+        _fail("historical initializer requires its original provider roster")
+    baseline_paths = {item.path for item in baseline.files}
+    # Bind selection to the original initialized manifest, not today's mutable
+    # selectors or every possible endpoint in the installed template catalog.
+    manifest = next(
+        (item for item in baseline.files if item.path == PROJECT_FILENAME), None
+    )
+    if manifest is None:
+        _fail("original initializer manifest is missing")
+    bases = json.loads(snapshot(root / CHECKPOINT).content)
+    if (
+        not isinstance(bases, dict)
+        or set(bases) != {"schema", "blobs", "framework", "catalog", "sources"}
+        or bases["schema"] != UPDATE_BASES_SCHEMA
+        or not isinstance(bases["blobs"], dict)
+    ):
+        _fail("original initializer manifest requires canonical update bases")
+    encoded = bases["blobs"].get(manifest.identity.uri)
+    if not isinstance(encoded, str):
+        _fail("original initializer manifest bytes are missing")
+    original = base64.b64decode(encoded, validate=True)
+    if (
+        len(original) != manifest.size
+        or "sha256:" + hashlib.sha256(original).hexdigest() != manifest.identity.uri
+    ):
+        _fail("original initializer manifest bytes disagree with their identity")
+    definition = ProjectDefinition.from_dict(json.loads(original))
+    active_flavors = set()
+    for selector in definition.default_flavor_selectors:
+        selector = selector.removeprefix("+")
+        canonical = FLAVOR_SELECTOR_CANONICAL_NAMES.get(selector, selector)
+        directory = _FLAVOR_DIRECTORY_BY_CANONICAL.get(canonical)
+        if directory is None:
+            _fail("original initializer Flavor lacks its actual provider")
+        active_flavors.add(directory)
+    allowed = {
+        name
+        for name in _TEMPLATE_FILES
+        if _include_template_file(name, frozenset(active_flavors))
+    } | set(_STARTER_DOCS)
+    # This owner requires real conversion inventory/baseline inputs. Conversion
+    # never emits the hello starter, even when its caller requested one.
+    allowed.update(
+        legacy_shim_authority(
+            json.loads(values[_INVENTORY].content),
+            json.loads(values[_REPORT].content),
+            wrapper_component=phase.plan.layout.wrapper_component,
+        )
+    )
+    allowed.update(
+        {
+            PROJECT_FILENAME,
+            _ORIGIN,
+            _BASELINE,
+            _INVENTORY,
+            _REPORT,
+            ".literate/legacy-wrapper-parity.json",
+            ".literate/legacy-lift-shift.json",
+            ".literate/repository-parent.json",
+            ".literate/repository-lineage.json",
+            "docs/decisions/0001-legacy-project-lift-and-shift.md",
+            "docs/decisions/0002-native-literate-ai-rewrite.md",
+            "docs/roadmap/native-rewrite-program.md",
+            "litai.harness.mk",
+        }
+    )
+    # Canonical store endpoints are metadata roles even while their evidence is
+    # stale. This does not qualify that lock or invent a selected Component.
+    component_paths = {
+        name for name in baseline_paths & allowed if name.endswith("/component.md")
+    } | {phase.plan.layout.wrapper_component + "/component.md"}
+    for name in component_paths:
+        component = root / Path(name).parent
+        lock = ComponentLockStore(component)
+        if lock.path.is_relative_to(root):
+            allowed.add(lock.path.relative_to(root).as_posix())
+        # Initial conversion produces host locks/audits only. A baseline-named
+        # arbitrary target cannot turn the store's naming API into a producer.
+        audit = ComponentResolutionAuditStore(component, "host")
+        if audit.path.is_relative_to(root):
+            allowed.add(audit.path.relative_to(root).as_posix())
+    if not baseline_paths <= allowed:
+        _fail("initialization record claims files outside actual initializer roles")
+    framework = baseline_paths | {_BASELINE, CONVERSION_AUTHORITY_FILE}
+    # These endpoints have distinct actual owners; their contents cannot label
+    # any additional files as framework-owned.
+    for name in (CHECKPOINT, NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH):
+        if os.path.lexists(root / name):
+            framework.add(name)
+    project = load_project(root)
+    children = _native_project_roots(project)
+    child_inputs = tuple(snapshot(child / PROJECT_FILENAME) for child in children)
+    framework_inputs = tuple(snapshot(root / name) for name in sorted(framework))
+    return framework, children, (*inputs, *child_inputs, *framework_inputs), origin
+
+
+def _partition_roles(phase, census, framework, children):
+    root = phase.plan.root
+    source = phase.plan.tree.root.relative_to(root).as_posix()
+    controls = {
+        marker.target.path.relative_to(root).as_posix()
+        for marker in phase.controls.reservations._markers
+        if marker.target.path.is_relative_to(root)
+    }
+    git_roots = tuple(
+        path.relative_to(root).as_posix()
+        for path in phase.controls.protected_admin_entries
+        if path.is_relative_to(root)
+    )
+    child_roots = tuple(child.relative_to(root).as_posix() for child in children)
+    files = {name for name, _, _ in census.tree.files}
+    aliases = {item.path: item for item in census.tree.aliases}
+    leaves = files | aliases.keys()
+    if not framework <= files | {
+        name for name, alias in aliases.items() if alias.kind == "hardlink"
+    }:
+        _fail("framework roles require exact observed regular files")
+
+    def role(name):
+        if name in controls or any(_beneath(name, path) for path in git_roots):
+            return "control"
+        child = next((path for path in child_roots if _beneath(name, path)), None)
+        if child is not None:
+            return "independent:" + child
+        if name in framework:
+            if _beneath(name, source):
+                _fail("framework ownership overlaps the actual retained source")
+            return "framework"
+        return "source" if _beneath(name, source) else "unclaimed"
+
+    for name in leaves:
+        if (
+            Path(name).name == PROJECT_FILENAME
+            and name != PROJECT_FILENAME
+            and not any(_beneath(name, child) for child in child_roots)
+        ):
+            _fail("independent project candidate lacks its registered actual owner")
+    roles = {name: role(name) for name in leaves}
+    directories = {name: set() for name in (".", *census.tree.directories)}
+
+    def ancestors(name):
+        path = Path(name).parent
+        while path.as_posix() != ".":
+            yield path.as_posix()
+            path = path.parent
+        yield "."
+
+    for name, value in roles.items():
+        for parent in ancestors(name):
+            directories[parent].add(value)
+    for name in sorted(
+        census.tree.directories, key=lambda item: item.count("/"), reverse=True
+    ):
+        if not directories[name]:
+            directories[name].add(role(name))
+        for parent in ancestors(name):
+            directories[parent].update(directories[name])
+    resolution = _ResolutionBudget(
+        remaining=max(1048576, census.tree.budget.maximum_entries * 128)
+    )
+    for name in aliases:
+        expected = roles[name]
+
+        def observe(candidate, expected=expected):
+            if candidate in aliases and roles[candidate] != expected:
+                _fail("alias traverses another actual ownership role")
+
+        target = NativeSdkTree._resolve(
+            name,
+            set(census.tree.directories),
+            files,
+            aliases,
+            resolution,
+            observe=observe,
+        )
+        actual = directories[target] if target in directories else {roles[target]}
+        if actual != {expected}:
+            _fail("alias or hardlink crosses actual ownership roles")
+    return tuple(sorted(roles.items())), tuple(
+        sorted((name, tuple(sorted(values))) for name, values in directories.items())
+    )
+
+
+class _OwnedPartition:
+    __slots__ = (
+        "_phase",
+        "_census",
+        "_native",
+        "_inputs",
+        "_provider_origin",
+        "_roles",
+        "_directories",
+        "_active",
+        "_spent",
+        "_pid",
+        "_identity",
+    )
+
+    def __init__(self, key, phase, census, native, inputs, roles, directories, origin):
+        if key is not _KEY:
+            raise TypeError("layout.ownership.live-source-phase-required")
+        self._phase, self._census, self._native, self._inputs = (
+            phase,
+            census,
+            native,
+            inputs,
+        )
+        self._roles, self._directories = roles, directories
+        self._provider_origin = origin
+        self._active, self._spent, self._pid = True, False, os.getpid()
+        self._identity = canonical_identity(
+            {
+                "schema": "literate-ai/layout-owned-partition@1",
+                "phase": phase.plan.identity.uri,
+                "namespace": census.identity.uri,
+                "controls": phase.controls.identity.uri,
+                "roles": roles,
+                "directories": directories,
+                "inputs": [
+                    {
+                        "path": str(item.path),
+                        "sha256": None
+                        if item.content is None
+                        else hashlib.sha256(item.content).hexdigest(),
+                    }
+                    for item in inputs
+                ],
+            }
+        )
+
+    @property
+    def census(self):
+        return self._census
+
+    @property
+    def roles(self):
+        return self._roles
+
+    @property
+    def directories(self):
+        return self._directories
+
+    def require_current(self):
+        from .retained_layout_transaction import _close_tree, _require_prepared
+
+        if not self._active or self._spent or self._pid != os.getpid():
+            _fail("partition owner ended or was spent")
+        self._phase._live()
+        self._phase.controls.require_initial_inputs()
+        _require_prepared(self._phase.plan, self._phase.controls.reservations)
+        if self._provider_origin != discover_installed_initialization_origin():
+            _fail("original initializer provider changed")
+        self.census.require_unchanged()
+        self._phase.controls.git.close_native_inputs(self._phase.controls.reservations)
+        self._phase.controls.reservations._close_currentness()
+        self._phase.controls._seed.close_native_inputs()
+        for item in self._inputs:
+            try:
+                current = _signature(item.path)
+            except FileNotFoundError:
+                current = None
+            if current != item.signature:
+                _fail("original ownership inputs changed")
+        _close_tree(self.census.tree, self._native, controls=self._phase.controls)
+
+    @property
+    def document(self):
+        self.require_current()
+        return {
+            "schema": "literate-ai/layout-owned-partition-observation@1",
+            "identity": self._identity.uri,
+            "source_phase_identity": self._phase.plan.identity.uri,
+            "namespace_identity": self.census.identity.uri,
+            "roles": self.roles,
+            "directories": self.directories,
+        }
+
+    @property
+    def identity(self):
+        self.require_current()
+        return self._identity
+
+    def _consume(self):
+        self.require_current()
+        self._spent = True
+
+
+@contextmanager
+def _owned_partition(phase, *, budget, maximum_metadata_bytes):
+    from .retained_layout_transaction import (
+        _native_tree,
+        _require_prepared,
+        _SourcePhase,
+    )
+
+    if type(phase) is not _SourcePhase:
+        raise TypeError("layout.ownership.live-source-phase-required")
+
+    if type(budget) is not RetainedCargoInputBudget:
+        _fail("explicit complete-namespace budget required")
+    phase._live()
+    if phase._attempted or phase._partition_owner is not None:
+        _fail("partition observation requires one original live source phase")
+    if phase.pool.root.is_relative_to(phase.plan.root):
+        _fail("complete namespace requires private journal/stages outside the project")
+    _require_prepared(phase.plan, phase.controls.reservations)
+    if (
+        type(maximum_metadata_bytes) is not int
+        or not 64 * 1024**2 <= maximum_metadata_bytes <= 16 * 1024**3
+    ):
+        _fail("complete ownership metadata budget must be explicit and bounded")
+    quarter = maximum_metadata_bytes // 4
+    before = capture_retained_layout_partition(
+        phase.plan.root,
+        framework_files=(),
+        budget=budget,
+        maximum_metadata_bytes=quarter,
+    )
+    private_nodes = {
+        (item.st_dev, item.st_ino)
+        for item in (
+            os.fstat(phase.pool._descriptor),
+            os.fstat(phase.pool._journal._descriptor),
+        )
+    }
+    if (
+        any(node[:2] in private_nodes for _name, node in before.tree._physical[1])
+        or before.tree._physical[0][:2] in private_nodes
+    ):
+        _fail(
+            "private journal/stages physically overlap the complete project namespace"
+        )
+    framework, children, inputs, origin = _initializer_roles(phase, budget, quarter)
+    census = capture_retained_layout_partition(
+        phase.plan.root,
+        framework_files=tuple(sorted(framework)),
+        budget=budget,
+        maximum_metadata_bytes=quarter,
+    )
+    if census.tree != before.tree or census.tree._physical != before.tree._physical:
+        _fail("complete namespace changed while actual roles were joined")
+    native = _native_tree(census.tree)
+    roles, directories = _partition_roles(phase, census, framework, children)
+    # Charge the actual serialized role inventory, not only its digest.
+    from literate_ai.contracts.identity import canonical_json_bytes
+
+    wire_size = len(canonical_json_bytes({"roles": roles, "directories": directories}))
+    if wire_size * 64 > quarter:
+        _fail("actual role inventory exceeds ownership metadata budget")
+    owner = _OwnedPartition(
+        _KEY, phase, census, native, inputs, roles, directories, origin
+    )
+    phase._partition_owner = owner
+    try:
+        owner.require_current()
+        yield owner
+        if not owner._spent:
+            owner.require_current()
+    finally:
+        owner._active = False
+        phase._partition_owner = None

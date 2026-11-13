@@ -333,6 +333,46 @@ class _StagedReservationSet(WriteReservationSet):
         self._pool._require_private_close()
         journal._guard()
 
+    def _native_dependency_closer(self):
+        """Bind original private facts for a later stat-only closing pass.
+
+        The enclosing reader must check dependency membership after its last
+        namespace traversal. This closer then checks known files and directory
+        stamps without starting another payload or membership read.
+        """
+        self._live()
+        pool, journal = self._pool, self._pool._journal
+        directories = tuple(
+            (descriptor, _from_stat(os.fstat(descriptor)))
+            for descriptor in (pool._descriptor, journal._descriptor)
+        )
+        records = tuple((name, value[0]) for name, value in journal._known.items())
+        stages = tuple(pool._entries.values())
+
+        def close():
+            self._live()
+            if pool._poisoned or journal._poisoned:
+                _fail("changed", "private dependency writer was interrupted")
+            self._close_marker_inputs()
+            for name, expected in records:
+                current = os.stat(
+                    name, dir_fd=journal._descriptor, follow_symlinks=False
+                )
+                if _journal_file(current) != expected:
+                    _fail("changed", "original journal native facts changed")
+            for stage in stages:
+                current = os.stat(
+                    stage.name, dir_fd=pool._descriptor, follow_symlinks=False
+                )
+                if _from_stat(current) != stage.node:
+                    _fail("changed", "original private stage changed")
+            for descriptor, expected in directories:
+                if _from_stat(os.fstat(descriptor)) != expected:
+                    _fail("changed", "private dependency namespace changed")
+            self._live()
+
+        return close
+
     def owns(self, path):
         self._unhanded()
         self.verify_all()
