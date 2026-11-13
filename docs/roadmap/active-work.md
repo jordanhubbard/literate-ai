@@ -34534,6 +34534,62 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Current complete local qualification:** [Minimum/current Python source and whole-wheel record](../../verification/python-worker-wheel-inputs-linux.json) binds software `c733d96f80cd80b802e7aa4387cab2d7740e219a`. Both native Python 3.11.14 and 3.15.2 select 2,783 source cases: 2,683 pass, 100 retain declared skips, and all 599 raw groups reconcile with no failed or known-failed cases. Both complete noneditable wheel gates pass with the same framework distribution identity and exact reviewed pure PyYAML bytes; ordinary and uv worker paths install respectively 38 and 37 distributions with matching framework identities. Real empty/redirected input refusals precede installation. The earlier source-prefix failure and unconfigured binary-export failure remain preserved separately. Parent completion and issue closure await independent/exact integrated acceptance; no release acceptance is claimed.
 
+### [ ] WINDOWS-JOB-FALLBACK-001 — Avoid redundant Windows tree fallback after successful Job termination
+
+- **Priority:** P1
+- **Owner:** framework core process ownership
+- **GitHub issue:** [#426](https://github.com/jordanhubbard/literate-ai/issues/426)
+- **Direction:** Fix confirmed redundant taskkill in native bounded Windows dependency inspection.
+- **Conclusion:** Propagate only confirmed native Job termination success; preserve missing/failed ownership fallback, root cleanup, descendants and budgets.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Propagate native Job success with a synchronized completed result; pending
+        claims never grant success. Repeated cleanup avoids fallback only after
+        confirmed termination; missing, failed or released ownership and the final
+        root kill remain unchanged.
+- **Evidence:**
+  - [x] The named old-source regression fails on redundant `taskkill`; four corrected
+        pure ownership controls pass. Shared process checks pass 22 cases with four
+        declared FreeBSD skips; targeted lint/format and host-path checks pass.
+  - [x] Native Windows cleanup passes seven cases without skips in 12.422 seconds.
+        The unchanged original focused case passes in 353.062 seconds under its
+        unchanged 360-second cap. Qualification `28a55320` changes only the
+        process helper on original `53724d2e`; its fixed production bytes and
+        direct builder/observer callers match candidate `7e3b8e5c`.
+        [Source-bound native proof](../../verification/windows-job-fallback-native.json)
+        records five zero-taskkill samples and independent source/tool/actor
+        closure. The earlier timeout and unattributed diagnostic access violation
+        remain preserved; the complete 17-case selection remains separate.
+  - [x] The first PR CI attempt ran 2,759 Python cases with zero failures and
+        113 declared skips, passed the documentation gate, then correctly refused
+        a stale lifecycle-driver TCB pin for the process helper. The independently
+        reviewed pin is recorded through the maintained workflow; contributor
+        instructions
+        now explicitly name driver/documentation review and lint/format gates
+        instead of incorrectly attributing them to `make python-check`.
+  - [ ] Final local gates, independent review and the required PR CI pass.
+
+### [ ] PUBLIC-EXPORT-SCAN-001 — Bound suffix-free public-export reference matching
+
+- **Priority:** P1
+- **Owner:** framework public-export guard
+- **GitHub issue:** [#427](https://github.com/jordanhubbard/literate-ai/issues/427)
+- **Direction:** Repair measured quadratic deny-reference scan exposed by normal source qualification.
+- **Conclusion:** A single preceding class character preserves boolean existence language of the unanchored fixed-suffix matcher; retain every scanned byte and denied label.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Replace only the greedy unanchored prefix with its last character;
+        every previously matching prefix still contains that match. Preserve
+        every denied label, fixed suffix and scanned input.
+- **Evidence:**
+  - [x] The old actual 65,536-byte negative times out at five seconds; the
+        corrected four tests pass in 0.159 seconds, including 116 boundary/parity
+        inputs. The unchanged complete audit passes in 34.50 seconds. The earlier
+        complete audit passed after an observed 215 CPU seconds; its exact total
+        duration was not captured and is not inferred.
+  - [ ] Final independent review and required PR CI pass.
 ## 1.5 preparation
 
 ### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
