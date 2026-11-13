@@ -1,0 +1,50 @@
+{
+  "baseline": "6797a3cdce02305d3564f0df2cbd6e65308ed4f1",
+  "classification": "development evidence; independent review and broader qualification pending",
+  "complete_source": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "8ca735712d5a4ec3fd483787b4871b3cad14ea1886b20b8c41c41ecf32e3bd9b",
+    "source_commit": "7f3486fd5",
+    "summary": {
+      "executed": 2725,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2725,
+      "selected": 2817,
+      "skipped": 92
+    }
+  },
+  "driver_pin_renewed": false,
+  "files": {
+    "_build/cuda-metadata-focused-final-report.json": "a5802127d3664ec1d1fbe136de874f09033883c533e22815454dd31db645e994",
+    "_build/cuda-metadata-predecessor.log": "36519f2bd236ce548831d01dffd6afe5763933f72fd3e8b9f8bc399d67a79dc4",
+    "src/literate_ai/source_to_specification/inventory.py": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da",
+    "tests/critical/test_source_inventory_targets.py": "b25457efc1ea264e0e19e028ec98e3cfb88d825df7bd86ef606120876b69ae38"
+  },
+  "focused": {
+    "failed": 0,
+    "passed": 15,
+    "release_evidence": false,
+    "selected": 15,
+    "skipped": 0
+  },
+  "goal": "CUDA-SIGNAL-001",
+  "goal_complete": false,
+  "pending": [
+    "independent review before driver pin renewal",
+    "noneditable installed/native controls for the new attribution correction",
+    "exact-head and resulting-main integration"
+  ],
+  "predecessor": {
+    "failing_assertions": 9,
+    "methods": 5
+  },
+  "preservation": [
+    "source bytes and content digests",
+    "other flavor detectors and classification",
+    "original prompt-injection observation",
+    "explicit CUDA suffix/compiler/header/API evidence"
+  ],
+  "schema": "literate-ai/verification-record@1"
+}
