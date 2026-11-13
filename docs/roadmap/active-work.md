@@ -32230,6 +32230,37 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Resolved layout composition and harness source review:** Actual merge
+  `add6b0a62` preserves all reviewed runtime, schema, fixture and prior harness
+  bytes from the preview. The new literal installed-layout scope has independent
+  [source approval](../../verification/layout-installed-harness-independent-review.json),
+  with missing-case, byte-mismatch and skip validator controls refusing. All 18
+  maintained layout/update methods pass against the composed source with no skips.
+  Renew supported pins, freeze this candidate, and require fresh installed/full
+  source and exact platform/integration evidence; prior F1 proof keeps its scope.
+
+- **Installed retained-layout acceptance refinement (in progress):** Add all
+  18 maintained declaration/layout/update methods as one fixed required installed
+  scope, preserving the existing 170 applicable macOS controls and 181 Linux
+  controls. Verify all nine composed runtime modules against source and archive,
+  keep exact case inventory and unchanged fixture/Python-input checks, and reject
+  skips in an applicable scope. Native alias fixtures require the target's actual
+  link facilities; do not relabel missing platform proof as a positive. Require
+  review of the extended harness before supported pin renewal.
+
+- **Earlier guard acceptance recorded:** At exact `d2dfad220`, the complete macOS
+  [whole-wheel gate](../../verification/reviewed-guard-whole-wheel-macos.json)
+  passed with 170 maintained installed controls. The identical artifact passed
+  all 181 [native Linux installed controls](../../verification/reviewed-guard-installed-linux.json)
+  with zero skips, including eleven real-process observations. The first Linux
+  attempt retained one storage-accounting assertion on tmpfs; a real-filesystem
+  control measured zero accounted bytes there and 4 MiB on the backed job volume.
+  The full unchanged cohort passed with job-scoped backed temporary files. No
+  runtime, test or metric semantics changed. [Documentation and static skill admission](../../verification/reviewed-guard-documentation-skills.json)
+  passed four OpenSpec items, 181 diagrams across 1,953 Markdown files and 164 skills.
+  These are exact earlier-candidate results and do not qualify this larger union,
+  a complete Linux wheel gate, native Windows, the public feed or the release.
+
 - **Layout and reviewed guard composition (in progress):** Preserve the frozen
   `d2dfad220` source gate and exact wheel/native development evidence. Compose
   independently reviewed retained-layout structural resolution and read-only

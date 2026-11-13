@@ -347,6 +347,40 @@ _CASE_SETS = {
             ],
         }
     ],
+    "retained-layout": [
+        {
+            "fixture": "tests/critical/test_retained_layout.py",
+            "module": "tests.critical.test_retained_layout",
+            "class": "RetainedLayoutTests",
+            "methods": [
+                "test_declaration_reader_refuses_direct_ancestry_replacement",
+                "test_declaration_reader_refuses_redirected_file",
+                "test_declaration_reader_refuses_symlink_ancestry_changes",
+                "test_declaration_refuses_aliases_and_ambiguous_ownership",
+                "test_declared_plain_and_root_layouts_keep_distinct_ownership",
+                "test_direct_declaration_refuses_legacy_qualification",
+                "test_initial_selection_keeps_default_and_refuses_portable_overlap",
+                "test_lift_shift_adr_names_selected_retained_source",
+                "test_preserves_legacy_coordinate",
+                "test_rejects_cross_host_aliases_and_root_without_declaration",
+                "test_rejects_redirected_ancestor_and_final_directory",
+                "test_root_layout_requires_current_framework_file_partition",
+                "test_shim_authority_uses_selected_wrapper_component",
+                "test_short_read_cannot_hide_a_noncanonical_declaration_suffix",
+                "test_structural_resolution_checks_wrapper_role_and_evidence",
+            ],
+        },
+        {
+            "fixture": "tests/critical/test_retained_update_layout.py",
+            "module": "tests.critical.test_retained_update_layout",
+            "class": "RetainedUpdateLayoutTests",
+            "methods": [
+                "test_invalid_recorded_source_refuses_update_classification",
+                "test_update_preserves_selected_wrapper_shim",
+                "test_update_preserves_shim_at_historical_coordinate",
+            ],
+        },
+    ],
 }
 
 _SUBJECTS = {
@@ -389,6 +423,17 @@ _SUBJECTS = {
     "telemetry-linux-processes": (
         "literate_ai.adapters.worker_telemetry_processes",
         "literate_ai.adapters.builders._process",
+    ),
+    "retained-layout": (
+        "literate_ai.adapters.harness_inventory",
+        "literate_ai.adapters.project_initialization",
+        "literate_ai.adapters.project_updates",
+        "literate_ai.adapters.retained_evidence_migration",
+        "literate_ai.adapters.retained_harness_readmission",
+        "literate_ai.adapters.retained_harness_receipts",
+        "literate_ai.adapters.retained_layout",
+        "literate_ai.cli.dispatch",
+        "literate_ai.cli.operator",
     ),
 }
 
