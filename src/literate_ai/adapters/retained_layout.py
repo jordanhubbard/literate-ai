@@ -247,6 +247,8 @@ def read_retained_layout_declaration(
             or path_is_link_or_reparse(path)
         ):
             raise RetainedLayoutError("retained layout changed during inspection")
+        if len(content) != opened.st_size:
+            raise RetainedLayoutError("retained layout was not read completely")
         document = json.loads(content)
         declaration = RetainedLayoutDeclaration.from_dict(document)
         if content != canonical_json_bytes(declaration.to_dict()) + b"\n":

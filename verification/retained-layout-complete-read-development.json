@@ -1,0 +1,44 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "ADOPT-RELOCATE-001",
+  "classification": "source development evidence only",
+  "base": "3c37247492937063604312907daae51c56b00975",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_layout.py": "b3d48421b6ef202facd9adb6e81ceab496fb17014dd9e4d65e10b07b0ba66445",
+    "tests/critical/test_retained_layout.py": "172704802f4299cc58fb4a9c6ffa3c5412bcd64b7d1d86010e2bbe8b6888e73e",
+    "tests/critical/test_retained_update_layout.py": "88461f57d211713a102b95517c519e929cd1a9073f19ef90d04adef43b9d1bc2"
+  },
+  "regression": {
+    "original_source_subtest_failures": 2,
+    "actual_file_unchanged": true,
+    "descriptor_port": "actual os.read capped to canonical prefix; no native filesystem-short-read claim",
+    "suffixes": [
+      "noncanonical JSON whitespace",
+      "invalid unread bytes"
+    ],
+    "repair": "Require exact read byte length equal to already revalidated opened descriptor size before parsing; unchanged byte ceiling and direct path guards"
+  },
+  "fixture_compatibility": {
+    "original_source_cases": 3,
+    "original_source_errors": 1,
+    "cause": "selected-wrapper positive uses unresolved temporary-parent alias before declaration parsing",
+    "repair": "resolve temporary fixture roots; production redirection guards unchanged"
+  },
+  "focused_summary": {
+    "executed": 16,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 16,
+    "selected": 16,
+    "skipped": 0
+  },
+  "focused_report_sha256": "448dfdf4b2e75804495452001b912f53c10d3020bbc2bd066f44f34371d9c13e",
+  "independent_review": "pending",
+  "driver_pin_renewed": false,
+  "release_attestation": false,
+  "remaining": [
+    "Independent review of reader repair and underlying partial PR349 context before pin renewal",
+    "Full combined source, noneditable installed, native platforms and exact integration",
+    "Accepted relocation plan/apply, rollback, receipt invalidation and renewal remain unfinished"
+  ]
+}

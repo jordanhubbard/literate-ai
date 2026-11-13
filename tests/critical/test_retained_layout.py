@@ -6,6 +6,7 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from literate_ai.adapters.harness_inventory import (
     legacy_shim_authority,
@@ -222,6 +223,60 @@ class RetainedLayoutTests(unittest.TestCase):
             path.write_text("{}\n", encoding="utf-8")
             with self.assertRaises(RetainedLayoutError):
                 read_retained_layout_declaration(root)
+
+    def test_short_read_cannot_hide_a_noncanonical_declaration_suffix(self) -> None:
+        document = {
+            "schema": RETAINED_LAYOUT_SCHEMA,
+            "wrapper_component": "components/scheduler-wrapper",
+            "implementation_directory": "scheduler",
+            "framework_owned_paths": [],
+            "lineage": {"kind": "initial"},
+        }
+        prefix = canonical_json_bytes(document) + b"\n"
+        real_read = os.read
+        for suffix in (b"  \n", b"unread invalid suffix"):
+            with (
+                self.subTest(suffix=suffix),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory).resolve()
+                (root / ".literate").mkdir()
+                path = root / ".literate/retained-layout.json"
+                payload = prefix + suffix
+                path.write_bytes(payload)
+                before = path.stat()
+                with self.assertRaises(RetainedLayoutError):
+                    read_retained_layout_declaration(root)
+                with mock.patch(
+                    "literate_ai.adapters.retained_layout.os.read",
+                    side_effect=lambda descriptor, size: real_read(
+                        descriptor, min(size, len(prefix))
+                    ),
+                ):
+                    with self.assertRaises(RetainedLayoutError):
+                        read_retained_layout_declaration(root)
+                self.assertEqual(path.read_bytes(), payload)
+                after = path.stat()
+                self.assertEqual(
+                    (
+                        after.st_dev,
+                        after.st_ino,
+                        after.st_mode,
+                        after.st_size,
+                        after.st_mtime_ns,
+                    ),
+                    (
+                        before.st_dev,
+                        before.st_ino,
+                        before.st_mode,
+                        before.st_size,
+                        before.st_mtime_ns,
+                    ),
+                )
+                path.write_bytes(prefix)
+                self.assertEqual(
+                    read_retained_layout_declaration(root).to_dict(), document
+                )
 
     @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
     def test_declaration_reader_refuses_redirected_file(self) -> None:

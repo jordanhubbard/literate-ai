@@ -33539,6 +33539,36 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Complete declaration read development evidence:** The maintained causal
+  method fails in both suffix subtests against unchanged PR349 reader bytes.
+  After the two-line length fence and temporary-root fixture correction, all
+  16 declaration/layout/update methods pass with no skips. Full reads preserve
+  canonical positives and refuse noncanonical suffixes; short-read refusals leave
+  file bytes and physical identity/mode/size/mtime unchanged. [Development proof](../../verification/retained-layout-complete-read-development.json)
+  retains the controlled-port scope and separate pre-existing fixture failure.
+  Independent peer-context review, trusted-driver renewal and full source,
+  installed/native and relocation acceptance remain open.
+
+- **Selected-wrapper fixture refinement:** The adjacent update compatibility
+  selection exposes another unresolved temporary-root fixture: the selected
+  wrapper positive follows the host temporary-parent alias and refuses before
+  declaration reading. The same test fails against unchanged PR349 production
+  bytes. Canonicalize these fixtures' temporary roots, retaining the original
+  invalid-coordinate and redirected-root refusals. This is test portability,
+  separate from declaration completeness; requalify both modules together.
+
+- **Complete declaration read refinement (in progress):** Controlled inspection
+  of PR349 `3c3724749` reproduces acceptance of a canonical JSON prefix from an
+  actual longer, unchanged file when the descriptor read returns short. Matching
+  before/open/after metadata alone does not prove all declaration bytes were read.
+  Refuse any bounded read whose length differs from the descriptor's measured
+  file size before parsing, preserving the existing finite byte ceiling, direct
+  no-follow path guards and canonical encoding. Add causal real-descriptor short
+  read controls with noncanonical whitespace and invalid suffixes, preserving
+  exact input bytes and normal complete canonical reads. Keep the trusted driver
+  pin held pending independent review and full source/installed integration;
+  this reader repair does not implement relocation or qualify PR349 as a whole.
+
 - **Portable fixture repair (2026-11-07):** PR #349's exact Windows/macOS fixture failures used an unresolved temporary directory before the intended roadmap-cycle assertion. The same refusal reproduces on Linux with a symbolic TMPDIR parent. Canonicalize the positive fixture roots before creating retained authority; keep redirected-root and descendant refusal intact. Requalify the corrected source on all supported platforms; this does not complete selected-placement apply, relocation or receipt renewal.
 
 - **Priority:** P1

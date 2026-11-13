@@ -42,7 +42,7 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
 
     def test_update_preserves_shim_at_historical_coordinate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             self._project(root, "components/legacy-project-wrapper/implementation")
             protected = _retained_legacy_shim_authority_paths(root)
             self.assertEqual(
@@ -58,7 +58,7 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
 
     def test_invalid_recorded_source_refuses_update_classification(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             self._project(root, "components/legacy-project-wrapper/implementation")
             (root / "scheduler").mkdir()
             for changed in ("scheduler", "scheduler/../scheduler"):
@@ -76,7 +76,7 @@ class RetainedUpdateLayoutTests(unittest.TestCase):
 
     def test_update_preserves_selected_wrapper_shim(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             wrapper = "components/scheduler-wrapper"
             document = {
                 "schema": RETAINED_LAYOUT_SCHEMA,
