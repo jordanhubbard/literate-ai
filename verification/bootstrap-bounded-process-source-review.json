@@ -71,5 +71,13 @@
     "Exact-head and resulting-main CI; security finding dispositions",
     "All remaining roadmap and release acceptance"
   ],
-  "feature_or_release_complete": false
+  "feature_or_release_complete": false,
+  "subsequent_fixture_class_partition": {
+    "review": "verification/bootstrap-installed-harness-source-review.json",
+    "method_bodies_unchanged": true,
+    "new_test_content_identity": {
+      "algorithm": "sha256",
+      "digest": "fef2a172ca6918340843ef991ff2e1264c132463234e7951867d9fcb3f1fe122"
+    }
+  }
 }

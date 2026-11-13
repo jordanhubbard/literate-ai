@@ -35102,6 +35102,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
 
+- **Installed harness correction reviewed:** The exact [harness/class/package
+  revision](../../verification/bootstrap-installed-harness-source-review.json)
+  is independently approved. Complete class inventories now contain ten portable
+  methods and three POSIX methods with unchanged bodies/decorators; bundled scripts
+  have a direct package origin. Thirteen methods pass without skips and all six
+  missing-case, byte-mismatch and skip controls refuse. Ordinary merge `ffff7fe40`
+  retains published PR437 metadata without any runtime/test/harness changes. Renew
+  supported pins and qualify this exact integrated candidate; no earlier artifact
+  is relabeled as repaired bootstrap or final release evidence.
+
 - **Bounded probe source repair reviewed:** The independent non-author review
   approves the exact [bootstrap and adjacent fixture repair](../../verification/bootstrap-bounded-process-source-review.json).
   All 24 focused methods pass without skips, including thirteen bootstrap methods.
