@@ -1,0 +1,24 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "revision": "d2dfad2203f3537921cd5391b959e9f598aa6150",
+  "openspec": {
+    "passed": 4,
+    "failed": 0,
+    "strict": true
+  },
+  "roadmap_dependencies": "acyclic",
+  "documentation": {
+    "rendered_mermaid": 181,
+    "markdown_files": 1953
+  },
+  "skills": {
+    "base": "f34debb73b62f9fff59a138f86b3640d7be65183",
+    "validated": 164,
+    "unique": 164,
+    "static_no_llm_no_dedup": true
+  },
+  "combined_make_exit": 0,
+  "documentation_log_sha256": "0eb7e24ec371af190c3b1704f7ab00ca9f812c6ba184def0348e5b0ba927b81a",
+  "skills_log_sha256": "21aeedec2c71e8651fbc00020e44de0013077d9b122e9a1178ca005be19ec2e0",
+  "release_attestation": false
+}

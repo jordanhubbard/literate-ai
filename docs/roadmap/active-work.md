@@ -32230,6 +32230,26 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Reviewed guard batch qualification:** Exact source `d2dfad220` accounts for
+  all 3,001 unique outcomes: 2,898 passed, 103 declared skips, no failures or known
+  failures, with original wrapper and evidence owner terminal passed. Its complete
+  noneditable macOS wheel gate passes with 170 maintained installed controls; the
+  identical wheel passes all 181 native Linux installed controls, including eleven
+  original-process observations. All applicable scopes have zero skips. Source,
+  installed and archived bytes match across 26 unique selected modules; the three
+  telemetry schema resources match source and archive. The initial Linux tmpfs
+  storage-assertion failure remains retained; the full unchanged cohort passes
+  with backed job-local temporary files after a real filesystem counter control.
+  Four OpenSpec items, 181 diagrams over 1,953 Markdown files and 164 static skill
+  admissions pass. [Source](../../verification/reviewed-guard-source-macos.json),
+  [wheel](../../verification/reviewed-guard-whole-wheel-macos.json),
+  [Linux controls](../../verification/reviewed-guard-installed-linux.json) and
+  [documentation/skills](../../verification/reviewed-guard-documentation-skills.json)
+  retain exact scope. Publish this independently reviewed batch through PR437 and
+  require exact-head/resulting-main checks. Larger retained-layout composition,
+  complete public telemetry, real selected-model/native Windows and all remaining
+  release/feature requirements stay open; no release attestation is claimed.
+
 - **Installed harness source review:** [Independent review](../../verification/installed-guard-harness-independent-review.json)
   approves the exact fixed-inventory extension. Missing-case, installed/source
   byte-mismatch and injected-skip reports refuse; synthetic report controls prove
