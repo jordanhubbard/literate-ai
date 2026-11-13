@@ -4,6 +4,20 @@
   "contributor": "58bc138109c5358a0c74d39fe03eacddfbb5272a",
   "driver_pin_log_sha256": "25f6530cc415b5bf2754297c9e6fff1ffac45cdda7fa6143e4320c4e5dd98de0",
   "driver_pin_renewed": true,
+  "focused": {
+    "candidate": "e654c9a0acb86481ba24edb5d25d525f040f04c3",
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "04e92f648f15cbc55e5354fddfe94d7eccb952bd6aa95cfa2fd3d0a48281daa0",
+    "summary": {
+      "executed": 19,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 19,
+      "selected": 19,
+      "skipped": 0
+    }
+  },
   "goal": "NATIVE-ACCEPTANCE-REPAIR-001",
   "goal_complete": false,
   "independent_source_review": {

@@ -7,6 +7,7 @@ import ast
 import hashlib
 import json
 import os
+import runpy
 import shutil
 import subprocess
 import sys
@@ -656,6 +657,63 @@ def qualify_installed_project_command_imports(repository, python, cwd):
         if observed["modules"][name]["sha256"] != expected:
             raise RuntimeError("installed startup module differs from candidate source")
     return observed
+
+
+def qualify_installed_maintained_controls(repository, python, cwd):
+    script = repository / "scripts/installed_maintained_controls.py"
+    script_digest = hashlib.sha256(script.read_bytes()).hexdigest()
+    probe = runpy.run_path(str(script))
+    expected_inputs = probe["_test_python_hashes"](repository)
+    expected_input_identity = probe["_input_identity"](expected_inputs)
+    results = {}
+    for scope, entries in probe["_CASE_SETS"].items():
+        expected_cases = sorted(
+            f"{entry['module']}.{entry['class']}.{method}"
+            for entry in entries
+            for method in entry["methods"]
+        )
+        observed = json.loads(
+            run(
+                str(python),
+                "-I",
+                str(script),
+                "--repository",
+                str(repository),
+                "--scope",
+                scope,
+                cwd=cwd,
+            ).stdout
+        )
+        fixtures = {
+            entry["fixture"]: hashlib.sha256(
+                (repository / entry["fixture"]).read_bytes()
+            ).hexdigest()
+            for entry in entries
+        }
+        if (
+            observed["schema"] != "literate-ai/installed-maintained-controls@1"
+            or observed["status"] != "passed"
+            or observed["scope"] != scope
+            or observed["selected"] != len(expected_cases)
+            or observed["passed"] != len(expected_cases)
+            or observed["skipped"] != 0
+            or observed["cases"] != expected_cases
+            or observed["fixtures"] != fixtures
+            or observed["test_python_input_identity"] != expected_input_identity
+            or observed["test_python_members"] != len(expected_inputs)
+            or observed["installed_module_origins_verified"] is not True
+            or observed["framework_module_count"] < len(probe["_SUBJECTS"][scope])
+            or set(observed["modules"]) != set(probe["_SUBJECTS"][scope])
+            or hashlib.sha256(script.read_bytes()).hexdigest() != script_digest
+            or probe["_test_python_hashes"](repository) != expected_inputs
+        ):
+            raise RuntimeError("installed maintained-control evidence mismatch")
+        for name, relative in probe["_subject_paths"](scope).items():
+            expected = hashlib.sha256((repository / relative).read_bytes()).hexdigest()
+            if observed["modules"][name]["sha256"] != expected:
+                raise RuntimeError("installed maintained module differs from candidate")
+        results[scope] = observed
+    return results
 
 
 def qualify_installed_windows_retained_context(repository, installation, python, cwd):
@@ -2430,6 +2488,9 @@ def _main() -> int:
         project_command_imports = qualify_installed_project_command_imports(
             repository, python, root
         )
+        maintained_controls = qualify_installed_maintained_controls(
+            repository, python, root
+        )
         installed_worker_cpu = json.loads(
             run(
                 str(python),
@@ -3330,6 +3391,7 @@ def _main() -> int:
                     "runtime_environment": runtime_environment,
                     "evidence_signature_primitives": installed_evidence_signatures,
                     "project_command_imports": project_command_imports,
+                    "maintained_controls": maintained_controls,
                     "worker_cpu": installed_worker_cpu,
                     "windows_retained_context": windows_retained_context,
                     "schema_catalog_versions": sorted(

@@ -34367,6 +34367,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] QUALIFICATION-DIAGNOSTICS-001 — Retain original bounded observations when native qualification fails
 
+- **Installed control coverage (in progress):** Add the maintained capture, failure-diagnostic and public CLI controls to the complete wheel gate through an isolated installed interpreter. Require their closed case inventories, zero skips, unchanged test Python inputs, every framework module to originate inside the installation and selected production bytes to match the candidate. Qualify the actual installed run and a managed-editable counterexample. These injected-boundary controls do not replace genuine generated/native acceptance or exact integration.
+
 - **Implementation review:** [PR #391](https://github.com/jordanhubbard/literate-ai/pull/391), draft pending independent source review before driver repin, native model-backed qualification and updated exact-head integration. Installed adapter/CLI controls pass.
 
 - **Release target:** 1.4.0
@@ -34736,6 +34738,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
         duration was not captured and is not inferred.
   - [ ] Final independent review and required PR CI pass.
 ### [ ] RUNTIME-CAPABILITY-ENV-001 — Bind declared runtime capability variables to accepted provider artifacts
+
+- **Installed control coverage (in progress):** Run all nine maintained runtime capability cases from the canonical noneditable wheel installation with the same origin, candidate-byte and fixed-inventory checks as diagnostic controls. Keep actual fixture provider execution distinct from the separately required generated graph, other native platforms and exact integration.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)

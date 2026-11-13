@@ -1,0 +1,40 @@
+{
+  "actual_editable_counterexample": {
+    "exit_code": 1,
+    "refused_before_cases": true,
+    "stderr_sha256": "579d6d7954bb9d33a85c8b2d1d2e573c8bd2496ab19d67358f629a45a1d90114"
+  },
+  "author_review": {
+    "checked": [
+      "isolated non-base interpreter and noneditable installation",
+      "all imported framework module origins and source-import refusal",
+      "fixed exact case inventories and zero skipped cases",
+      "unchanged test Python source inventory",
+      "selected installed production bytes match candidate before and after controls",
+      "parent independently checks case/fixture/source/report identities"
+    ],
+    "independent_review_claimed": false,
+    "production_runtime_changed": false
+  },
+  "classification": "qualification harness development; positive noneditable execution pending",
+  "files": {
+    "scripts/installed_maintained_controls.py": "32c96d66633ca675a6574d21c1c8ede89d9a7767884087d6ca9b97879ead4cb1",
+    "scripts/wheel_smoke.py": "c1a8ca0cc8b1c8b83faa77247d78ef40261a663c8f13effe2e841496b9ab9f27"
+  },
+  "goal_complete": false,
+  "goals": [
+    "QUALIFICATION-DIAGNOSTICS-001",
+    "RUNTIME-CAPABILITY-ENV-001"
+  ],
+  "pending": [
+    "actual complete noneditable wheel with both maintained scopes",
+    "complete final source and exact integration qualification"
+  ],
+  "release_attestation": false,
+  "schema": "literate-ai/verification-record@1",
+  "scope": {
+    "diagnostics_methods": 31,
+    "runtime_methods": 9
+  },
+  "static_checks_exit": 0
+}
