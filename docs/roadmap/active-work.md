@@ -32230,6 +32230,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Layout and reviewed guard composition (in progress):** Preserve the frozen
+  `d2dfad220` source gate and exact wheel/native development evidence. Compose
+  independently reviewed retained-layout structural resolution and read-only
+  planning at `e6dfaa4f0`, including complete-read and ancestry custody repairs,
+  through ordinary history in a separate candidate. Independent runtime preview
+  review approves tree `8f09a0ed8`; revalidate actual resolved runtime hashes before
+  supported pin renewal. Preserve all current goals and three metadata-conflict
+  inputs. Add the 18 maintained layout/update controls to installed qualification,
+  then require fresh complete combined source/wheel/native/exact integration.
+  This includes a partial foundation, not completed placement apply or relocation.
+
 - **Installed harness source review:** [Independent review](../../verification/installed-guard-harness-independent-review.json)
   approves the exact fixed-inventory extension. Missing-case, installed/source
   byte-mismatch and injected-skip reports refuse; synthetic report controls prove
