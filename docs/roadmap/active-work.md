@@ -33539,6 +33539,31 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Declaration ancestry source evidence:** Both new methods produce 12 failing
+  subtests against predecessor `6fc67588e`, covering redirect and direct replacement
+  at metadata, project and higher ancestors during open and encoding. The repaired
+  reader captures original ancestry identities and rechecks them after canonical
+  encoding, then closes final-file custody. All 18 layout/update controls pass
+  without skips. [Development proof](../../verification/retained-layout-ancestry-development.json)
+  preserves exact bytes and controlled scheduling scope. [Independent source review](../../verification/retained-layout-independent-review.json)
+  approves the repaired reader and all nine peer-context production files; all
+  18 focused methods and five supplementary controls pass independently. Renew
+  supported pins after this review; installed/native and relocation acceptance
+  remain open.
+
+- **Declaration ancestry refinement:** Independent peer-context
+  review approves the complete-read fence but reproduces accepted declaration
+  reads through redirected or replaced metadata parents. The original file inode
+  and bytes stay unchanged, so closing file checks alone cannot bind structural
+  authority. Retain the full original directory ancestry identities and recheck
+  direct safe ancestry through read, parse and canonical encoding before return.
+  Require deterministic symlink and direct-directory replacement controls at
+  metadata, project and higher ancestors, including changes during encoding;
+  preserve complete-read, absent-legacy, canonical positive and no-write behavior.
+  Trusted-driver renewal stays held until this broader context is approved.
+  Correct the retained original-source fixture count from one to two errors;
+  all 16 repaired compatibility controls remain independently passing.
+
 - **Complete declaration read development evidence:** The maintained causal
   method fails in both suffix subtests against unchanged PR349 reader bytes.
   After the two-line length fence and temporary-root fixture correction, all
@@ -33557,7 +33582,7 @@ independent review and the complete combined gate from test one.
   invalid-coordinate and redirected-root refusals. This is test portability,
   separate from declaration completeness; requalify both modules together.
 
-- **Complete declaration read refinement (in progress):** Controlled inspection
+- **Complete declaration read refinement:** Controlled inspection
   of PR349 `3c3724749` reproduces acceptance of a canonical JSON prefix from an
   actual longer, unchanged file when the descriptor read returns short. Matching
   before/open/after metadata alone does not prove all declaration bytes were read.

@@ -1,0 +1,96 @@
+{
+  "decision": "approved",
+  "findings": [],
+  "base_head": "6fc67588e0ce2755dec4dcb186b9b88639a35351",
+  "classification": "Source approval for partial PR349 structural resolver/read-only initial-placement plan plus complete-read/ancestry repair. No selected apply, relocation, installed/native or release attestation.",
+  "production_schema_manifest": {
+    "src/literate_ai/adapters/harness_inventory.py": {
+      "sha256": "1d5fb4405cc67f5feb81bd09900da04eef25df196de75f5232f7f99ca9b417d3",
+      "git_blob": "53292394914d37127f49ddd35cd87194f5e6b6f9",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/adapters/project_initialization.py": {
+      "sha256": "744408b9f68d8d8c9b404a42b489b73f3a1c351531230c4ec05deca68c81c0ca",
+      "git_blob": "6d64d8f051078f2f5078024f916d502658f1e3d8",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/adapters/project_updates.py": {
+      "sha256": "a011760559771a097a1b561a0815e5e324e096b42900ab7eccaecda43e2c68e5",
+      "git_blob": "7c2971838d4701f57670ca656d896aa7c93d92e5",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/adapters/retained_evidence_migration.py": {
+      "sha256": "860450d53d086f3a83a620506bad853adeb41cc4823e11f21ddc333c1a6168ca",
+      "git_blob": "7de214ebd2bfbc0abef001c010239976d5343fee",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/adapters/retained_harness_readmission.py": {
+      "sha256": "bb8f56a0313dfeb589fd1ba67d084e6486ec0af4794d80dd0ced17b0a3097b50",
+      "git_blob": "7da835c77f82ff72255bf2a0eb09f909ec1f9a60",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/adapters/retained_harness_receipts.py": {
+      "sha256": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47",
+      "git_blob": "94ccec9719341b030e20dc22a6670a414eb46f31",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/adapters/retained_layout.py": {
+      "sha256": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e",
+      "git_blob": "64d57251f43d337cfa2b3e7d215de750292859e1",
+      "unchanged_from_prior_independent_review": false
+    },
+    "src/literate_ai/cli/dispatch.py": {
+      "sha256": "fa2285c684356cb7fd093394c0a63c438a0eb530d2851d5e0e10a3ac90331990",
+      "git_blob": "e58aa6bbdacba5ba86dc4c701da030ec1715e84e",
+      "unchanged_from_prior_independent_review": true
+    },
+    "src/literate_ai/cli/operator.py": {
+      "sha256": "0cb2441a69c93f2f775cf7c75aa724d0aeaaca9c7ed3a45f1a37ddee849951d8",
+      "git_blob": "273f4241f3deaf5f24b89f5d4e46833e04945890",
+      "unchanged_from_prior_independent_review": true
+    }
+  },
+  "schema_changes": [],
+  "test_sha256": {
+    "tests/critical/test_retained_layout.py": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+    "tests/critical/test_retained_update_layout.py": "88461f57d211713a102b95517c519e929cd1a9073f19ef90d04adef43b9d1bc2"
+  },
+  "resolved_findings": [
+    {
+      "id": "RETAINED-LAYOUT-ANCESTRY-001",
+      "status": "resolved for exact reviewed bytes",
+      "basis": "Initial safe-ancestry observation precedes file lstat. Snapshots include root anchor and every directory through project root and .literate, recording each path/dev/ino after directory and link/reparse validation. Closing full observation follows parsing/canonical encoding and must equal initial tuple. This refuses direct-parent replacement with unchanged hardlinked declaration as well as redirects at metadata/project/above-project levels. Final file dev/ino/size/mtime and link checks close after encoding."
+    },
+    {
+      "id": "RETAINED-LAYOUT-EVIDENCE-COUNT-001",
+      "status": "resolved",
+      "basis": "Development metadata now records two original-source errors across three fixture methods, distinguishes earlier fail-fast observation, and agrees with retained full-run log."
+    }
+  ],
+  "repair_assessment": [
+    "Safe directory validation plus lstat directory/reparse checks cover ancestors above the project through filesystem anchor. Identity comparison adds direct-directory replacement detection; rerunning no-link checks alone is not treated as sufficient.",
+    "Initial regular-file and finite16MiB byte checks, no-follow open, before/open/after file metadata checks, complete-read length equality and exact canonical bytes remain intact. Closing file checks run after encoding, and filesystem-path errors normalize to RetainedLayoutError.",
+    "Missing .literate and missing declaration preserve None legacy behavior after original root safety validation. Declaration presence still refuses qualified legacy resolution.",
+    "Eight other production files are freshly hash-verified byte-identical to prior independent context review; declaration/selection contracts, read-only CLI collision plan, structural update protection and separate qualified receipt/readmission/migration/native-rewrite boundaries retain prior inspected behavior."
+  ],
+  "acceptance_limits": [
+    "All nine manifest paths are approved only for explicitly partial source scope; do not broaden to complete ADR0057 or roadmap acceptance.",
+    "Supported pin renewal must match actual combined source identity; reviewer did not change or assert freshness of any pin.",
+    "Complete source, exact integration/resulting-main, noneditable installed and native supported-platform qualification remain open.",
+    "Selected initial-placement apply, transactional relocation/recovery/rollback, ownership partition movement, alias/hardlink/native custody and receipt invalidation/renewal journeys remain unfinished.",
+    "No full feature or release attestation is implied."
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "goal": "ADOPT-RELOCATE-001",
+  "reviewer_role": "same separately authorized non-author reviewer",
+  "independent_focused": {
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "independent_supplementary_controls": {
+    "passed": 5,
+    "scope": "absence and final-file currentness during encoding; actual local filesystem, controlled scheduling"
+  },
+  "release_attestation": false
+}

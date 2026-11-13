@@ -19,6 +19,7 @@ from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     path_is_link_or_reparse,
     require_safe_directory,
+    stat_is_link_or_reparse,
 )
 from literate_ai.contracts import (
     ContentIdentity,
@@ -209,6 +210,18 @@ class ResolvedRetainedLayout:
     implementation_root: Path
 
 
+def _declaration_directory_ancestry(directory: Path) -> tuple:
+    """Observe direct directory identities, including ancestors above the project."""
+    require_safe_directory(directory, allow_missing=True)
+    nodes = []
+    for ancestor in (*reversed(directory.parents), directory):
+        metadata = ancestor.lstat()
+        if not stat.S_ISDIR(metadata.st_mode) or stat_is_link_or_reparse(metadata):
+            raise RetainedLayoutError("retained layout ancestry is unsafe")
+        nodes.append((ancestor, metadata.st_dev, metadata.st_ino))
+    return tuple(nodes)
+
+
 def read_retained_layout_declaration(
     project_root: Path,
 ) -> RetainedLayoutDeclaration | None:
@@ -218,7 +231,7 @@ def read_retained_layout_declaration(
     path = root / RETAINED_LAYOUT_PATH
     try:
         require_safe_directory(root)
-        require_safe_directory(path.parent, allow_missing=True)
+        ancestry = _declaration_directory_ancestry(path.parent)
         before = path.lstat()
     except FileNotFoundError:
         return None
@@ -253,8 +266,20 @@ def read_retained_layout_declaration(
         declaration = RetainedLayoutDeclaration.from_dict(document)
         if content != canonical_json_bytes(declaration.to_dict()) + b"\n":
             raise RetainedLayoutError("retained layout bytes are not canonical")
+        # Parsing and encoding must not expose a declaration through a different
+        # directory, even when a hardlink preserves the exact original file.
+        if _declaration_directory_ancestry(path.parent) != ancestry:
+            raise RetainedLayoutError("retained layout ancestry changed")
+        closing = path.lstat()
+        if (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns) != (
+            closing.st_dev,
+            closing.st_ino,
+            closing.st_size,
+            closing.st_mtime_ns,
+        ) or path_is_link_or_reparse(path):
+            raise RetainedLayoutError("retained layout changed during inspection")
         return declaration
-    except (OSError, UnicodeError, ValueError) as exc:
+    except (OSError, UnicodeError, ValueError, UnsafeFilesystemPathError) as exc:
         raise RetainedLayoutError("retained layout is invalid or unavailable") from exc
 
 

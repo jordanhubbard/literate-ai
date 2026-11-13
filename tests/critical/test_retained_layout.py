@@ -278,6 +278,113 @@ class RetainedLayoutTests(unittest.TestCase):
                     read_retained_layout_declaration(root).to_dict(), document
                 )
 
+    def _assert_changed_declaration_ancestry_refuses(self, level, kind, phase):
+        with tempfile.TemporaryDirectory() as directory:
+            base = Path(directory).resolve()
+            outer = base / "holder"
+            root = outer / "project"
+            parent = root / ".literate"
+            parent.mkdir(parents=True)
+            path = parent / "retained-layout.json"
+            document = {
+                "schema": RETAINED_LAYOUT_SCHEMA,
+                "wrapper_component": "components/scheduler-wrapper",
+                "implementation_directory": "scheduler",
+                "framework_owned_paths": [],
+                "lineage": {"kind": "initial"},
+            }
+            payload = canonical_json_bytes(document) + b"\n"
+            path.write_bytes(payload)
+            self.assertEqual(read_retained_layout_declaration(root).to_dict(), document)
+            before_file = path.stat()
+            selected = {"metadata": parent, "project": root, "ancestor": outer}[level]
+            before_directory = selected.lstat()
+            saved = selected.with_name(selected.name + "-saved")
+            changed = []
+
+            def replace_ancestor():
+                if changed:
+                    return
+                selected.rename(saved)
+                if kind == "symlink":
+                    try:
+                        selected.symlink_to(saved, target_is_directory=True)
+                    except (OSError, NotImplementedError) as exc:
+                        self.skipTest(f"symlinks unavailable: {exc}")
+                else:
+                    selected.mkdir()
+                    if level == "metadata":
+                        os.link(saved / path.name, path)
+                    elif level == "project":
+                        (saved / ".literate").rename(parent)
+                    else:
+                        (saved / "project").rename(root)
+                changed.append(True)
+
+            real_open, real_encode = os.open, canonical_json_bytes
+
+            def scheduled_open(selected_path, *args, **kwargs):
+                if phase == "open" and selected_path in (path, path.name):
+                    replace_ancestor()
+                return real_open(selected_path, *args, **kwargs)
+
+            def scheduled_encode(value):
+                encoded = real_encode(value)
+                if phase == "encode":
+                    replace_ancestor()
+                return encoded
+
+            with (
+                mock.patch(
+                    "literate_ai.adapters.retained_layout.os.open",
+                    side_effect=scheduled_open,
+                ),
+                mock.patch(
+                    "literate_ai.adapters.retained_layout.canonical_json_bytes",
+                    side_effect=scheduled_encode,
+                ),
+            ):
+                with self.assertRaises(RetainedLayoutError):
+                    read_retained_layout_declaration(root)
+            self.assertTrue(changed)
+            after_file, after_directory = path.stat(), selected.lstat()
+            self.assertEqual(path.read_bytes(), payload)
+            self.assertEqual(
+                (
+                    after_file.st_dev,
+                    after_file.st_ino,
+                    after_file.st_size,
+                    after_file.st_mtime_ns,
+                ),
+                (
+                    before_file.st_dev,
+                    before_file.st_ino,
+                    before_file.st_size,
+                    before_file.st_mtime_ns,
+                ),
+            )
+            self.assertNotEqual(
+                (after_directory.st_dev, after_directory.st_ino),
+                (before_directory.st_dev, before_directory.st_ino),
+            )
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
+    def test_declaration_reader_refuses_symlink_ancestry_changes(self) -> None:
+        for level in ("metadata", "project", "ancestor"):
+            for phase in ("open", "encode"):
+                with self.subTest(level=level, phase=phase):
+                    self._assert_changed_declaration_ancestry_refuses(
+                        level, "symlink", phase
+                    )
+
+    def test_declaration_reader_refuses_direct_ancestry_replacement(self) -> None:
+        for level in ("metadata", "project", "ancestor"):
+            for phase in ("open", "encode"):
+                with self.subTest(level=level, phase=phase):
+                    self._assert_changed_declaration_ancestry_refuses(
+                        level, "directory", phase
+                    )
+
     @unittest.skipUnless(hasattr(os, "symlink"), "symlinks unavailable")
     def test_declaration_reader_refuses_redirected_file(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

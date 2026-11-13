@@ -20,9 +20,10 @@
   },
   "fixture_compatibility": {
     "original_source_cases": 3,
-    "original_source_errors": 1,
+    "original_source_errors": 2,
     "cause": "selected-wrapper positive uses unresolved temporary-parent alias before declaration parsing",
-    "repair": "resolve temporary fixture roots; production redirection guards unchanged"
+    "repair": "resolve temporary fixture roots; production redirection guards unchanged",
+    "evidence_correction": "Full unmodified-source direct run reports two fixture errors in three methods; initial fail-fast run reported one before stopping."
   },
   "focused_summary": {
     "executed": 16,
