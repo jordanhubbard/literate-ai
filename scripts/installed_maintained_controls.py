@@ -205,6 +205,7 @@ _CASE_SETS = {
             "class": "CodexRuntimeStateTests",
             "methods": [
                 "test_native_sqlite_limit_refuses_ambient_state_but_private_state_succeeds",
+                "test_restricted_linux_policy_is_required_before_provider_execution",
                 "test_task_generation_and_status_own_state_through_success_and_failure",
                 "test_workspace_overlap_refuses_and_other_providers_allocate_no_codex_state",
             ],

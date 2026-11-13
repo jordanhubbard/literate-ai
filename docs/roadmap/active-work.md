@@ -32230,6 +32230,22 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Complete maintained inventory successor reviewed:** Independent review
+  approves the [single-case literal correction](../../verification/bootstrap-installed-inventory-successor-review.json).
+  All 24 class/list pairs match exactly, every earlier subject and case remains,
+  and all 27 coding CLI controls pass without skips. Runtime, schema, fixture and
+  validator code remains unchanged. Require fresh exact successor wheel/source
+  and native/integration evidence; the original failed gate remains retained.
+
+- **Complete installed fixture-inventory repair (in progress):** The actual
+  noneditable gate at `50a06b692` rejects the coding-CLI class inventory because
+  its new AppArmor missing-policy control was not added to the literal maintained
+  list. Preserve that failed run and the still-live original source gate. Add
+  the exact missing case, audit every class/list pair, and require independent
+  review plus fresh whole-wheel acceptance. No validator is relaxed and all
+  existing bootstrap/layout cases remain required. Applicable installed totals
+  become 202 macOS, 213 Linux and 172 Windows; prior counts retain their revisions.
+
 - **Current review security findings classified, still pending disposition:**
   PR437 at `6f807b2a0` reports six GitGuardian occurrences. Independent review
   recomputes each referenced source module from the exact commit and confirms
