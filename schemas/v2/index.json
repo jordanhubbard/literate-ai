@@ -1147,6 +1147,72 @@
         "literate-ai/retained-tree-html-check-result@1",
         "literate-ai/project-tree-html@1"
       ]
+    },
+    {
+      "file": "qualification-origin.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:qualification-origin",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-origin",
+        "urn:literate-ai:schema:v2:source-derived-qualification-origin"
+      ]
+    },
+    {
+      "file": "authored-qualification-profile.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-profile",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-oracle-selection"
+      ]
+    },
+    {
+      "file": "authored-qualification-acceptance.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-graph-independent-acceptance",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-node-independent-acceptance"
+      ]
+    },
+    {
+      "file": "authored-qualification-request.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-lifecycle-request",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-plan.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-plan",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-project-review"
+      ]
+    },
+    {
+      "file": "authored-qualification-comparison.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-comparison",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-node-run.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-node-run",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-run.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-run",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-result",
+      "public_ids": []
+    },
+    {
+      "file": "authored-qualification-products.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-products",
+      "public_ids": [
+        "urn:literate-ai:schema:v2:authored-qualification-run-products"
+      ]
+    },
+    {
+      "file": "authored-qualification-reference.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:authored-qualification-reference",
+      "public_ids": []
     }
   ]
 }

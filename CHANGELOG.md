@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+- Add acknowledged `project qualify apply` with bounded authored archive capture,
+  transaction-owned run retirement and atomic reference publication. Interrupted
+  staged archives can be replayed under fresh authority without restoring cleanup
+  rights from saved paths. Genuine native and receiving qualification remain in
+  progress (#393).
+
+- Derive authored qualification recipes and commands from live canonical project,
+  model and native-tool owners, with bounded scopes that reject copied or expired
+  projections before reopening. Receiving admission remains in progress (#393).
+
+- Reopen authored run evidence through shared Standard provenance, authorization,
+  native-stage, receipt and generated-case checks before reading retained products.
+  Genuine native qualification and receiving admission remain in progress (#393).
+
+- Capture authored clean-run library bytes under original execution custody,
+  retaining bounded run/product membership for integrity-only archive reopening.
+  Full genuine authored qualification remains in progress (#393).
+
+- Bind authored qualification to the current complete plan before generation and
+  retain original verifier and run-directory ownership through capture (#393).
+
+- Retain truthful authored all-node clean-run observations and derived per-node
+  test counts, with closed run/result records under accepted ADR 0072. Genuine
+  qualification and complete authored retained admission remain in progress (#393).
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.

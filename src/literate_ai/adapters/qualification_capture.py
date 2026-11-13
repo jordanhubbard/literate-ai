@@ -147,6 +147,7 @@ class QualificationEvidenceReader:
                 raise QualificationCaptureError("qualification.capture.record-mismatch")
         self._records = dict(entries)
         self.max_bytes = max_bytes
+        self.max_records = max_records
 
     def read_bytes(self, identity: ContentIdentity) -> bytes:
         if not isinstance(identity, ContentIdentity):
@@ -240,6 +241,47 @@ def capture_qualification_run(
     ):
         raise QualificationCaptureError("qualification.capture.run-mismatch")
 
+    retained = capture_qualification_product_blobs(
+        exports,
+        acceptances,
+        target_profile_identity=run.target_profile_identity,
+        read_blob=read_blob,
+        max_bytes=max_bytes,
+    )
+    return QualificationRunCapture(run, exports, acceptances, retained)
+
+
+def capture_qualification_product_blobs(
+    exports: RetainedLibraryExportSet,
+    acceptances: tuple[StandardComponentAcceptanceEvidence, ...],
+    *,
+    target_profile_identity: ContentIdentity,
+    read_blob: Callable[[BlobRef], bytes],
+    max_bytes: int,
+) -> tuple[tuple[BlobRef, bytes], ...]:
+    """Shared product integrity after origin-specific run membership admission.
+
+    This supplies no qualification, source history or importer authorization.
+    Original source-derived callers retain their complete run checks above.
+    """
+
+    if type(max_bytes) is not int or max_bytes <= 0:
+        raise QualificationCaptureError("qualification.capture.limit-invalid")
+    if (
+        not isinstance(exports, RetainedLibraryExportSet)
+        or not isinstance(target_profile_identity, ContentIdentity)
+        or not isinstance(acceptances, tuple)
+        or not acceptances
+        or any(
+            not isinstance(a, StandardComponentAcceptanceEvidence) for a in acceptances
+        )
+    ):
+        raise QualificationCaptureError("qualification.capture.records-invalid")
+    identities = tuple(a.identity.uri for a in acceptances)
+    if identities != tuple(sorted(set(identities))) or len(
+        {a.component_revision for a in acceptances}
+    ) != len(acceptances):
+        raise QualificationCaptureError("qualification.capture.run-mismatch")
     built = {
         export.identity: export for item in acceptances for export in item.build.exports
     }
@@ -249,7 +291,7 @@ def capture_qualification_run(
         for export in manifest.exports
     }
     if built != graph_exports or any(
-        item.target_identity != run.target_profile_identity
+        item.target_identity != target_profile_identity
         for item in graph_exports.values()
     ):
         raise QualificationCaptureError("qualification.capture.export-mismatch")
@@ -269,7 +311,7 @@ def capture_qualification_run(
         ):
             raise QualificationCaptureError("qualification.capture.blob-mismatch")
         retained.append((reference, content))
-    return QualificationRunCapture(run, exports, acceptances, tuple(retained))
+    return tuple(retained)
 
 
 def capture_qualification_source_records(recorder, *, candidate, cas) -> None:
@@ -2391,15 +2433,10 @@ def reopen_qualification_run(
     independent stage observations and importer trust remain required.
     """
 
-    from literate_ai.application.standard_project_lifecycle import (
-        StandardAcceptedSourcePublication,
-        StandardProjectLifecycleError,
-    )
-
     if not isinstance(run, QualificationLifecycleRunEvidence):
         raise QualificationCaptureError("qualification.capture.records-invalid")
     lifecycle = reopen_qualification_lifecycle(reader, run.lifecycle_result_identity)
-    root = reopen_qualification_root(reader, run)
+    reopen_qualification_root(reader, run)
     receipt = ProjectTestReceipt.from_dict(
         reader.read_json(run.project_receipt_identity)
     )
@@ -2412,6 +2449,55 @@ def reopen_qualification_run(
         run.lifecycle_policy_identity,
         run.framework_distribution_identity,
     )
+    derived = verify_qualification_standard_execution(
+        reader,
+        execution=execution,
+        component_lock_identity=run.component_lock_identity,
+        current_commands=current_commands,
+    )
+    fields = (
+        "source_tree_identities",
+        "source_index_identities",
+        "build_evidence_identities",
+        "resolved_sbom_identities",
+        "generated_test_suite_identities",
+        "generated_test_evidence_identities",
+        "generated_test_case_identities",
+        "acceptance_evidence_identities",
+        "cache_decision_identities",
+        "node_workspace_identities",
+    )
+    if derived != tuple(getattr(run, name) for name in fields):
+        raise QualificationCaptureError("qualification.capture.run-mismatch")
+    return execution
+
+
+def verify_qualification_standard_execution(
+    reader: QualificationEvidenceReader,
+    *,
+    execution: QualificationLifecycleExecution,
+    component_lock_identity: ContentIdentity,
+    current_commands: Mapping | None = None,
+):
+    """Reopen common Standard stage observations without asserting an origin.
+
+    Origin-specific callers still join their exact run/receipt and original
+    current authority. This check grants no publication or importer authority.
+    """
+
+    from literate_ai.application.standard_project_lifecycle import (
+        StandardAcceptedSourcePublication,
+        StandardProjectLifecycleError,
+    )
+
+    if (
+        not isinstance(reader, QualificationEvidenceReader)
+        or not isinstance(execution, QualificationLifecycleExecution)
+        or not isinstance(component_lock_identity, ContentIdentity)
+    ):
+        raise QualificationCaptureError("qualification.capture.records-invalid")
+    lifecycle = execution.lifecycle
+    root = lifecycle.root_integration
     try:
         derived = QualificationLifecycleRunner._derive_standard(execution)
         for node in lifecycle.node_results:
@@ -2457,7 +2543,7 @@ def reopen_qualification_run(
                 != candidate.source_bom_identity
                 or node.generated_test_evidence.generated_test_suite_identity
                 != candidate.generated_test_suite_identity
-                or provenance.component_lock_identity != run.component_lock_identity
+                or provenance.component_lock_identity != component_lock_identity
                 or provenance.application_root_revision_identity
                 != root.package_plan.root_component_revision
             ):
@@ -2500,21 +2586,7 @@ def reopen_qualification_run(
             execution=node.execution_evidence,
             expected_execution_plan_identity=root.execution_plan_identity,
         )
-    fields = (
-        "source_tree_identities",
-        "source_index_identities",
-        "build_evidence_identities",
-        "resolved_sbom_identities",
-        "generated_test_suite_identities",
-        "generated_test_evidence_identities",
-        "generated_test_case_identities",
-        "acceptance_evidence_identities",
-        "cache_decision_identities",
-        "node_workspace_identities",
-    )
-    if derived != tuple(getattr(run, name) for name in fields):
-        raise QualificationCaptureError("qualification.capture.run-mismatch")
-    return execution
+    return derived
 
 
 def reopen_qualification_root(
@@ -2532,7 +2604,54 @@ def reopen_qualification_root(
         run, QualificationLifecycleRunEvidence
     ):
         raise QualificationCaptureError("qualification.capture.records-invalid")
-    lifecycle = reader.read_json(run.lifecycle_result_identity)
+    return reopen_standard_qualification_root(
+        reader,
+        lifecycle_result_identity=run.lifecycle_result_identity,
+        project_receipt_identity=run.project_receipt_identity,
+        component_lock_identity=run.component_lock_identity,
+        target_profile_identity=run.target_profile_identity,
+        lifecycle_policy_identity=run.lifecycle_policy_identity,
+        generated_test_total=run.generated_test_total,
+        lifecycle_invocation_identity=run.lifecycle_invocation_identity,
+        lifecycle_request_identity=run.lifecycle_request_identity,
+        evidence_sets={
+            "acceptance-result": run.acceptance_evidence_identities,
+            "build-result": run.build_evidence_identities,
+            "source-intelligence": run.source_index_identities,
+            "resolved-sbom": run.resolved_sbom_identities,
+            "test-report": run.generated_test_evidence_identities,
+        },
+    )
+
+
+def reopen_standard_qualification_root(
+    reader: QualificationEvidenceReader,
+    *,
+    lifecycle_result_identity: ContentIdentity,
+    project_receipt_identity: ContentIdentity,
+    component_lock_identity: ContentIdentity,
+    target_profile_identity: ContentIdentity,
+    lifecycle_policy_identity: ContentIdentity,
+    generated_test_total: int,
+    lifecycle_invocation_identity: ContentIdentity,
+    lifecycle_request_identity: ContentIdentity,
+    evidence_sets: Mapping[str, tuple[ContentIdentity, ...]],
+) -> StandardRootIntegrationEvidence:
+    """Join exact Standard root/receipt fields without source-history fields.
+
+    These are integrity commitments derived by the origin-specific run reader,
+    never a decoded authority grant or permission to execute archive content.
+    """
+
+    if not isinstance(reader, QualificationEvidenceReader) or set(evidence_sets) != {
+        "acceptance-result",
+        "build-result",
+        "source-intelligence",
+        "resolved-sbom",
+        "test-report",
+    }:
+        raise QualificationCaptureError("qualification.capture.records-invalid")
+    lifecycle = reader.read_json(lifecycle_result_identity)
     if not isinstance(lifecycle, dict) or lifecycle.get("schema") != (
         "literate-ai/standard-project-lifecycle-result@4"
     ):
@@ -2552,12 +2671,10 @@ def reopen_qualification_root(
     aggregate = StandardAggregateReceipt.from_dict(
         reader.read_json(identity("aggregate_receipt_identity"))
     )
-    receipt = ProjectTestReceipt.from_dict(
-        reader.read_json(run.project_receipt_identity)
-    )
+    receipt = ProjectTestReceipt.from_dict(reader.read_json(project_receipt_identity))
     if (
-        root.component_lock_identity != run.component_lock_identity
-        or root.package_plan.target_identity != run.target_profile_identity
+        root.component_lock_identity != component_lock_identity
+        or root.package_plan.target_identity != target_profile_identity
         or root.execution_plan_identity != identity("execution_plan_identity")
         or root.project_build_plan_identity != identity("project_build_plan_identity")
         or aggregate.execution_plan_identity != root.execution_plan_identity
@@ -2573,10 +2690,10 @@ def reopen_qualification_root(
         != lifecycle.get("context_prompt_journal_identities")
         or [item.uri for item in aggregate.context_benchmark_record_identities]
         != lifecycle.get("context_benchmark_record_identities")
-        or receipt.result_identity != run.lifecycle_result_identity
+        or receipt.result_identity != lifecycle_result_identity
         or receipt.subject_identity != aggregate.identity
-        or receipt.suite.content_identity != run.lifecycle_policy_identity
-        or receipt.summary.total != run.generated_test_total
+        or receipt.suite.content_identity != lifecycle_policy_identity
+        or receipt.summary.total != generated_test_total
     ):
         raise QualificationCaptureError("qualification.capture.root-mismatch")
     # The producer projects these exact existing evidence-set identities. They
@@ -2584,19 +2701,13 @@ def reopen_qualification_root(
     # standalone record for every digest in a receipt.
     evidence = {item.kind: item.identity for item in receipt.evidence}
     expected = {
-        "lifecycle-command": run.lifecycle_invocation_identity,
-        "lifecycle-request": run.lifecycle_request_identity,
+        "lifecycle-command": lifecycle_invocation_identity,
+        "lifecycle-request": lifecycle_request_identity,
         "lifecycle-plan": root.execution_plan_identity,
         "source-cache-lifecycle": aggregate.lifecycle_membership_identity,
         "workspace-admission": aggregate.admission_identity,
     }
-    for kind, members in (
-        ("acceptance-result", run.acceptance_evidence_identities),
-        ("build-result", run.build_evidence_identities),
-        ("source-intelligence", run.source_index_identities),
-        ("resolved-sbom", run.resolved_sbom_identities),
-        ("test-report", run.generated_test_evidence_identities),
-    ):
+    for kind, members in evidence_sets.items():
         expected[kind] = canonical_identity(
             {
                 "schema": "literate-ai/standard-project-evidence-set@1",
@@ -2667,6 +2778,27 @@ def verify_qualification_library_acceptance(
         raise QualificationCaptureError(
             "qualification.capture.oracle-authority-mismatch"
         )
+    _verify_library_acceptance_observation(
+        reader,
+        root=root,
+        export=export,
+        surface=surface,
+        oracle=oracle,
+        observation_identity=root.independent_acceptance_identity,
+    )
+
+
+def _verify_library_acceptance_observation(
+    reader, *, root, export, surface, oracle, observation_identity
+):
+    """Reopen native records after the origin-specific caller admits authority.
+
+    Reuse exact Python/SDK/Rust case, process and compiler evidence checks. An
+    authored provider supplies its own exact native observation while retaining
+    the real whole-graph root/package context; no root or lock is rewritten.
+    This integrity predicate itself grants no execution or importer trust.
+    """
+
     oracle_bytes = product_json_bytes(oracle.identity_document())
     oracle_identity = ContentIdentity.parse_uri(
         "sha256:" + hashlib.sha256(oracle_bytes).hexdigest()
@@ -2688,7 +2820,7 @@ def verify_qualification_library_acceptance(
         or any(case["capability"] not in capabilities for case in cases)
     ):
         raise QualificationCaptureError("qualification.capture.oracle-cases-invalid")
-    actual = reader.read_json(root.independent_acceptance_identity)
+    actual = reader.read_json(observation_identity)
     observed = actual.get("observations") if isinstance(actual, dict) else None
     if not isinstance(observed, list) or len(observed) != len(cases):
         raise QualificationCaptureError(
