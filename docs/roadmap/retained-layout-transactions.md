@@ -685,3 +685,64 @@ interruption must classify actual native endpoints and partial advisory bytes
 without reviving an old writer. The original locks must outlive handoff, with
 honest post-decision failure outcomes and no receipt renewal. Public recovery and
 fresh ordinary project reentry require their own maintained acceptance afterward.
+
+## Recovery control disposition (source reviewed; internal nonroot scope verified)
+
+Require a fresh closed data plan with no remaining data actions or unresolved
+inputs. Bind its identity, actual complete original/supplemental descriptor
+inventory, original acquisition generations, preserved private retirement areas,
+public observations and one new empty private retirement root. Preflight bounded
+journal resources and actual same-filesystem parents before handoff. Ordinary
+canonical writers expire after the durable disposition intent; their descriptor
+contexts retain their actual FDs and provide only typed read-only currentness
+checks against the separate effect owner until teardown.
+
+Preserve unrelated existing advisory bytes. Normalize only an original acquired
+reservation token or its validated interrupted normalization through the same held
+FD; synchronize it and require exact native/byte observations before recording
+success. Retire only currently public native markers, exclusively into the known
+new private root, preserving previously retired private nodes and complete shared
+retirement namespaces. The pending marker is last, after a durable restored or
+committed recovery decision. Attempted decision writes and failures after that
+decision must retain their precise outcome and original cause; interrupts remain
+interrupts. The effect writer expires before any descriptor can close, while
+read-only teardown checks remain bound to each original live descriptor context.
+
+Fresh raw recovery joins the original acquisition generation with exact recovery
+normalization/retirement intents and observed nodes, complete actual private
+namespaces and held parent identities. A same-byte foreign inode, unknown private
+entry or changed ancestry remains unresolved. Historical records alone grant no
+canonical role, descriptor ownership or deletion. After full descriptor teardown,
+fresh ordinary planning and a new real source/metadata/control transaction must
+be possible without removing retained evidence. These internal nonroot behaviors
+are independently reviewed and pass the complete affected local source scope. Public recover,
+root/shared/mixed placement, genuine admission, installed/native platforms and
+full-program release acceptance remain open.
+
+The closing pass observes all complete source, control, private retirement and
+journal/staging namespaces before its final known-fact checks. Capture coherent
+directory stamps around those observations, then close the original known source,
+metadata, held/named markers, private entries, directory stamps and producer file
+facts without enumerating directories or reading payloads again. Final Git
+owned-lock queries use a frozen view of actual descriptor facts, not another full
+catalog traversal. Directory stamps detect later membership changes while known
+file facts detect payload replacement. The source native pass uses the original
+capture's `lstat` representation, preserving valid symbolic links as well as their
+independently validated targets and hardlink topology.
+
+Native predecessor cases reproduce late advisory, canonical Git, cold raw
+descriptor, source and producer-read consistency gaps, plus loss of the durable
+decision on actual descriptor-close errors. Preserve every exact predecessor and
+review record; no earlier passing subset establishes the final composition. The
+final independent review approves the exact production and test subjects. All
+307 methods in nineteen affected modules pass without skips in 754.322 seconds,
+including all 26 disposition methods. The [development evidence](../../verification/retained-layout-recovery-disposition-development.json)
+binds those source identities, review lineage, causal failures and final log
+identity. The configured full-source receipt remains stale; these checks do not
+renew it or establish installed, cross-platform or release acceptance.
+
+The internal caller still owns the outer journal and staging-pool lifetimes.
+Control disposition verifies those live producers and classifies the original
+control stacks through directory teardown. It does not declare completion of a
+public recovery command spanning every caller-owned producer context; that
+front door and its complete error/reentry boundary remain required acceptance.

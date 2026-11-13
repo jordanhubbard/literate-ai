@@ -23,7 +23,9 @@ from .retained_layout_git_controls import observe_layout_git_controls
 from .retained_layout_journal import _directory
 from .retained_layout_recovery_controls import (
     _close_dependencies,
+    _close_dependency_facts,
     _close_retirement,
+    _close_retirement_facts,
     _RecoveredControlSet,
 )
 from .retained_layout_reservations import (
@@ -130,6 +132,25 @@ class _RecoveryReservations:
 
     def _close_currentness(self):
         self._live()
+        retirements = []
+        for owner in self._recovered:
+            retirements.extend(_close_retirement(owner._plan))
+        if self._incoming is not None:
+            self._incoming._close_currentness()
+        producers = _close_dependencies(self._pool)
+        self._close_marker_inputs()
+        _close_retirement_facts(tuple(retirements))
+        _close_dependency_facts(self._pool, producers)
+        for owner in self._recovered:
+            owner._live()
+        self._live()
+        return tuple(retirements)
+
+    def _close_marker_inputs(self):
+        """Close actual bindings/FDs without revisiting retirement namespaces."""
+        self._live()
+        if self._current_inventory() != self._inventory:
+            _fail("actual canonical descriptor inventory changed during closure")
         for owner in self._recovered:
             for marker, record in zip(owner._markers, owner._plan.markers, strict=True):
                 fd = owner._held.nodes[record.named.parent][0]
@@ -142,16 +163,29 @@ class _RecoveryReservations:
                 ):
                     _fail("recovered native descriptor changed during role closure")
         if self._incoming is not None:
-            self._incoming._close_currentness()
-        _close_dependencies(self._pool)
-        for owner in self._recovered:
-            _close_retirement(owner._plan)
-            owner._live()
-        self._live()
+            self._incoming._close_marker_inputs()
 
     def owns(self, path):
         self.verify_all()
         return any(item[0] == path for item in self._inventory)
+
+    @property
+    def native_inputs(self):
+        self._live()
+        return _NativeMarkerInputs(self)
+
+
+@dataclass(frozen=True, slots=True)
+class _NativeMarkerInputs:
+    """Only current existing descriptor facts, never roles or writer authority."""
+
+    catalog: _RecoveryReservations
+
+    def owns(self, path):
+        if type(self.catalog) is not _RecoveryReservations:
+            _fail("actual catalog descriptor facts required")
+        self.catalog._close_marker_inputs()
+        return any(item[0] == path == item[4].path for item in self.catalog._inventory)
 
 
 @dataclass(frozen=True, slots=True)
@@ -302,16 +336,31 @@ class _RecoveryRoleLease(_ControlRolesLease):
         # Share the normal owner's actual project/Git post-read native guards.
         # A key or proposal alone cannot satisfy missing canonical descriptors.
         super().require_current()
+        current = self._seed.require_roles_current()
         targets = tuple(dict.fromkeys(self._seed.targets() + self.git.targets()))
         self.reservations._require_coverage(targets, complete=True)
-        self.reservations._close_currentness()
+        retirements = self.reservations._close_currentness()
+        producers = _close_dependencies(self._pool)
+        self.git.close_native_inputs(self.reservations.native_inputs)
+        current.close_native_inputs()
+        self.reservations._close_marker_inputs()
+        _close_retirement_facts(retirements)
+        _close_dependency_facts(self._pool, producers)
 
     def require_initial_inputs(self):
         super().require_initial_inputs()
+        current = self._seed.require_initial_inputs()
         targets = tuple(dict.fromkeys(self._seed.targets() + self.git.targets()))
         self.reservations._require_coverage(targets, complete=True)
-        # Close dependencies after the last captured project/Git native checks.
-        self.reservations._close_currentness()
+        # Complete retirement observations precede final Git/project facts; the
+        # final descriptor-only pass must not reopen those observations.
+        retirements = self.reservations._close_currentness()
+        producers = _close_dependencies(self._pool)
+        self.git.close_native_inputs(self.reservations.native_inputs)
+        current.close_native_inputs()
+        self.reservations._close_marker_inputs()
+        _close_retirement_facts(retirements)
+        _close_dependency_facts(self._pool, producers)
 
     def begin_finalization(self, retirement_root):
         _fail("recovery control dispositions require the recovery effect owner")
@@ -370,11 +419,29 @@ def acquire_recovered_layout_roles(
                 journal.append("recovery-canonical-roles-observed", data)
                 lease.require_initial_inputs()
                 yield lease
-                lease.require_current()
+                disposition = getattr(lease, "_disposition", None)
+                if disposition is None:
+                    lease.require_current()
+                else:
+                    from .retained_layout_recovery_disposition import (
+                        _RecoveryDisposition,
+                    )
+
+                    if type(disposition) is not _RecoveryDisposition:
+                        _fail("actual disposition owner required")
+                    disposition.verify_role_exit(lease)
             finally:
                 # Revoke the composed grant before the first new FD can close.
                 lease._active = False
                 catalog._active = False
+    except BaseException as error:
+        disposition = getattr(lease, "_disposition", None)
+        if disposition is not None:
+            from .retained_layout_recovery_disposition import _RecoveryDisposition
+
+            if type(disposition) is _RecoveryDisposition and disposition.roles is lease:
+                disposition.raise_outcome(error)
+        raise
     finally:
         if lease is not None:
             lease._active = False

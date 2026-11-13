@@ -218,6 +218,8 @@ class _StagedReservationSet(WriteReservationSet):
         self._finishing = False
         self._finalized = False
         self._retirement_root = None
+        self._disposition = None
+        self._group = None
         # This internal acquisition factory retains even a partial preparation.
         self._retain_for_recovery = True
 
@@ -252,6 +254,12 @@ class _StagedReservationSet(WriteReservationSet):
         self._live()
 
     def verify_all(self):
+        if self._disposition is not None:
+            from .retained_layout_recovery_disposition import _RecoveryDisposition
+
+            if type(self._disposition) is not _RecoveryDisposition:
+                _fail("inactive", "actual disposition owner required")
+            return self._disposition.verify_descriptor_owner(self)
         self._live()
         if not self._complete:
             _fail("inactive", "staged reservations are not complete")
@@ -276,8 +284,8 @@ class _StagedReservationSet(WriteReservationSet):
             )
         self._close_currentness()
 
-    def _close_currentness(self):
-        """Close already-read native/dependency facts without payload traversal."""
+    def _close_marker_inputs(self):
+        """Only held/named marker facts; no payload or namespace traversal."""
         self._live()
         if not self._complete:
             _fail("inactive", "staged reservations are not complete")
@@ -293,6 +301,10 @@ class _StagedReservationSet(WriteReservationSet):
                 or _from_stat(os.fstat(marker.descriptor)) != expected
             ):
                 _fail("changed", "staged reservation set changed during final closure")
+
+    def _close_currentness(self):
+        """Close already-read native/dependency facts without payload traversal."""
+        self._close_marker_inputs()
         self._close_dependencies()
         if self._retirement_root is not None:
             expected_names = {path.name for path in self._locations.values()}
@@ -322,6 +334,7 @@ class _StagedReservationSet(WriteReservationSet):
         journal._guard()
 
     def owns(self, path):
+        self._unhanded()
         self.verify_all()
         return path not in self._locations and any(
             marker.target.path == path for marker in self._markers
@@ -329,6 +342,7 @@ class _StagedReservationSet(WriteReservationSet):
 
     def begin_finalization(self, retirement_root):
         """One-way live control handoff, never a source/commit authorization."""
+        self._unhanded()
         self.verify_all()
         if self._finishing:
             _fail("inactive", "control finalization already started")
@@ -382,6 +396,7 @@ class _StagedReservationSet(WriteReservationSet):
         self._finishing = True
 
     def normalize_advisory(self, path):
+        self._unhanded()
         self.verify_all()
         if not self._finishing or self._finalized:
             _fail("inactive", "live finalization required")
@@ -430,6 +445,7 @@ class _StagedReservationSet(WriteReservationSet):
 
     def retire_native(self, path):
         """Quarantine one exact native marker; never delete or replace it."""
+        self._unhanded()
         self.verify_all()
         if not self._finishing or self._finalized or path in self._locations:
             _fail("inactive", "live unspent native control required")
@@ -496,10 +512,36 @@ class _StagedReservationSet(WriteReservationSet):
         self._finalized = True
 
     def owns_directory(self, path):
+        self._unhanded()
         self._live()
         result = super().owns_directory(path)
         self._live()
         return result
+
+    def _unhanded(self):
+        if self._disposition is not None:
+            _fail("inactive", "ordinary staged writer handed off")
+
+
+def _raise_disposition_outcome(owner, error):
+    disposition = getattr(owner, "_disposition", None)
+    if disposition is not None:
+        from .retained_layout_recovery_disposition import _RecoveryDisposition
+
+        if type(disposition) is _RecoveryDisposition and any(
+            item is owner for item in disposition.owners
+        ):
+            disposition.raise_outcome(error)
+
+
+@contextmanager
+def _disposition_exit_boundary(owner):
+    """Keep decision information through the original complete resource stack."""
+    try:
+        yield
+    except BaseException as error:
+        _raise_disposition_outcome(owner, error)
+        raise
 
 
 @contextmanager
@@ -514,9 +556,10 @@ def acquire_staged_layout_reservations(pool, targets):
         raise TypeError("layout.reservations.live-posix-pool-required")
     pool.require_current()
     body_error, body_traceback = None, None
-    with ExitStack() as stack:
-        held = _HeldDirectories(stack)
-        owned = _StagedReservationSet(pool, held)
+    stack = ExitStack()
+    held = _HeldDirectories(stack)
+    owned = _StagedReservationSet(pool, held)
+    with _disposition_exit_boundary(owned), stack:
         try:
             plans, directories = _preflight(pool, targets, held)
             group = uuid4().hex
@@ -634,17 +677,22 @@ def acquire_staged_layout_reservations(pool, targets):
                 ),
             )
             owned.verify_all()
+            owned._group = group
             yield owned
             owned.verify_all()
         except BaseException as exc:
             body_error, body_traceback = exc, exc.__traceback__
+            _raise_disposition_outcome(owned, exc)
             raise
         finally:
             try:
                 owned._release()
             except BaseException as release_error:
                 if body_error is not None:
-                    raise combine_body_and_release_errors(
+                    combined = combine_body_and_release_errors(
                         "staged reservation", body_error, body_traceback, release_error
-                    ) from None
+                    )
+                    _raise_disposition_outcome(owned, combined)
+                    raise combined from None
+                _raise_disposition_outcome(owned, release_error)
                 raise

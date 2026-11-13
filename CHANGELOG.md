@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout development releases recovery controls through their original
+  descriptors, preserving evidence and permitting a fresh ordinary layout transaction;
+  public recovery and full relocation acceptance remain pending (#265).
+
 - Retained-layout development restores still-owned source and metadata after
   interruption, preserving foreign files and durable committed layouts;
   recovery control release and public transaction recovery remain pending (#265).

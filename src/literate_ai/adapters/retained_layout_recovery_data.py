@@ -24,7 +24,7 @@ from literate_ai.projects import PROJECT_FILENAME
 
 from .component_markdown import parse_component_markdown
 from .conversion_authority import CONVERSION_AUTHORITY_FILE
-from .exclusive_entry import layout_entry_node, move_layout_entry_exclusive
+from .exclusive_entry import _from_stat, layout_entry_node, move_layout_entry_exclusive
 from .repository_refresh import RefreshFileObservation, _file
 from .repository_refresh_reservations import _custody_wire
 from .retained_cargo_tree_v2 import capture_retained_cargo_tree_v2
@@ -38,7 +38,12 @@ from .retained_layout import (
 from .retained_layout_control_publication import _pinned_directory
 from .retained_layout_control_roles import layout_pending_control_path
 from .retained_layout_partition import _lineage
-from .retained_layout_recovery_controls import _close_dependencies, _node
+from .retained_layout_recovery_controls import (
+    _close_dependencies,
+    _close_dependency_facts,
+    _close_retirement_facts,
+    _node,
+)
 from .retained_layout_recovery_roles import _RecoveryRoleLease
 from .retained_layout_transaction import (
     _BASELINE,
@@ -719,8 +724,8 @@ def plan_layout_data_recovery(pool, roles, private_root):
     return plan
 
 
-def _verify(pool, roles, state):
-    roles.require_current()
+def _observe_data(state):
+    """Observe data only; this helper grants no control or mutation authority."""
     for path, ancestry in state.parents:
         if _lineage(path) != ancestry:
             _fail("current recovery parent ancestry changed")
@@ -734,10 +739,16 @@ def _verify(pool, roles, state):
     for area in state.areas:
         if _area(area.root) != area:
             _fail("current private metadata namespace changed")
-    pool.require_current()
-    roles.require_current()
-    roles.reservations._close_currentness()
-    _close_dependencies(pool)
+
+
+def _close_data(state):
+    """Close already captured native data facts without adopting new inputs."""
+    private = []
+    for area in state.areas:
+        before = layout_entry_node(area.root)
+        if _area(area.root) != area or layout_entry_node(area.root) != before:
+            _fail("private state changed during closing observations")
+        private.append((area, before))
     for path, node in state.endpoints:
         if _optional_node(path) != node:
             _fail("current source endpoint changed")
@@ -746,19 +757,58 @@ def _verify(pool, roles, state):
     for item in state.files:
         if _optional_node(item.path) != item.node:
             _fail("metadata native facts changed during closing observations")
-    for area in state.areas:
-        if _area(area.root) != area:
-            _fail("private state changed during closing observations")
     for path, ancestry in state.parents:
         if _lineage(path) != ancestry:
             _fail("recovery ancestry changed during closing observations")
+    _close_data_native(state, tuple(private))
+    return tuple(private)
+
+
+def _close_data_native(state, private):
+    """Known facts only, after every source/control/producer namespace read."""
+    # All namespace observations precede this final pass over known native
+    # facts. Directory stamps also close late membership changes without another
+    # scan that could reopen an already closed source/file observation.
+    if state.source_tree is not None:
+        for name, node in state.source_native:
+            if _from_stat((state.source_tree.root / name).lstat()) != node:
+                _fail("source native facts changed after namespace observations")
+    for item in state.files:
+        if _optional_node(item.path) != item.node:
+            _fail("metadata changed after namespace observations")
+    for area, before in private:
+        if layout_entry_node(area.root) != before:
+            _fail("private namespace changed after data observations")
+        for name, node in area.entries:
+            if layout_entry_node(area.root / name) != node:
+                _fail("private node changed after data observations")
+    for path, node in state.endpoints:
+        if _optional_node(path) != node:
+            _fail("source endpoint changed after data observations")
+    for path, ancestry in state.parents:
+        if _lineage(path) != ancestry:
+            _fail("data ancestry changed after namespace observations")
+
+
+def _verify(pool, roles, state):
+    roles.require_current()
+    _observe_data(state)
+    pool.require_current()
+    roles.require_current()
+    roles.reservations._close_currentness()
+    _close_dependencies(pool)
     # Data namespace observations can themselves block. Close actual canonical
     # inputs and producer/descriptor facts after their last read, before effects;
     # none of these closing checks may resample or adopt payload bytes.
-    roles.git.close_native_inputs(roles.reservations)
+    retirements = roles.reservations._close_currentness()
+    private = _close_data(state)
+    producers = _close_dependencies(pool)
+    roles.git.close_native_inputs(roles.reservations.native_inputs)
     roles._seed.close_native_inputs()
-    roles.reservations._close_currentness()
-    _close_dependencies(pool)
+    _close_data_native(state, private)
+    roles.reservations._close_marker_inputs()
+    _close_retirement_facts(retirements)
+    _close_dependency_facts(pool, producers)
     pool._guard()
     if not roles._active or roles._receiver != os.getpid():
         _fail("actual data recovery role context ended")

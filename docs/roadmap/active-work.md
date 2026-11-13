@@ -33761,7 +33761,24 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
-- **Source/metadata recovery effects (source reviewed; control disposition unfinished):** Under the real canonical
+- **Recovery control disposition (source reviewed; internal nonroot scope verified):** Join fresh verified data with
+  the actual original/supplemental descriptor owners. Preflight a complete bounded
+  disposition plan, require its exact acknowledgement, journal handoff and revoke
+  ordinary canonical writers before any marker mutation. Keep the same advisory
+  FDs locked while normalizing only owned reservation tokens; preserve existing
+  unrelated advisory bytes and retired private nodes. Journal exact exclusive
+  native quarantine moves and release pending last after a durable recovery
+  decision. Track only observed owned effects and retain all ambiguous/foreign
+  state. Reopen interrupted normalization and retirement from actual facts, then
+  prove fresh ordinary project reentry after descriptor teardown. This does not
+  complete public/root/shared/installed/native/full-program acceptance.
+  Approved [control-disposition evidence](../../verification/retained-layout-recovery-disposition-development.json)
+  binds the final independent source review and native outcome/currentness controls.
+  All 307 affected methods pass without skips, including all 26 disposition
+  methods. Next join the actual role-owned source partition and complete genuine
+  structural renewal and qualified admission before public/root/custom placement.
+
+- **Source/metadata recovery effects (source reviewed; public recovery unfinished):** Under the real canonical
   recovery owner, join the validated original plan/raw payloads with complete
   current source bytes/topology/native custody and exact public/private metadata
   endpoints. Require a fresh acknowledgement before journaled exclusive moves.
@@ -33769,15 +33786,16 @@ independent review and the complete combined gate from test one.
   files privately instead of deleting them. A durable commit decision forbids
   rollback and must close over the actual committed outputs. Preserve concurrent
   or unsupported state with explicit unresolved diagnostics. Native data recovery
-  alone leaves control disposition, public recovery and full-program acceptance
-  pending; do not manufacture receipts or qualification.
+  alone leaves public recovery and full-program acceptance pending; control
+  disposition is qualified separately above. Do not manufacture receipts or qualification.
   Approved [data-recovery evidence](../../verification/retained-layout-data-recovery-development.json)
   binds exact source and independent native closing, post-move cleanup and fresh
   retry controls. Five causal methods fail the frozen initial source; final
   Git/project and descriptor/producer closure repairs their pre-effect gap. All
   two hundred eighty-one affected methods pass without skips, including all
-  twenty-eight data-recovery methods. Next implement the real control-disposition
-  handoff, normalization, native retirement and fresh ordinary project reentry.
+  twenty-eight data-recovery methods. The subsequent control-disposition step
+  above adds actual handoff, normalization, native retirement and fresh ordinary
+  project reentry under its separately reviewed scope.
 
 - **Recovery canonical-role composition (source reviewed; endpoint recovery unfinished):** Bind the actual current
   project/conversion roles and registered Git inputs under the recovered real

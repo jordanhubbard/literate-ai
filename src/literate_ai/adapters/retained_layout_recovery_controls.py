@@ -32,8 +32,10 @@ from .retained_layout_control_publication import _ControlPool, _pinned_directory
 from .retained_layout_journal import _file as _journal_file
 from .retained_layout_partition import _lineage, _physical_wire
 from .retained_layout_reservations import (
+    _disposition_exit_boundary,
     _HeldDirectories,
     _portable_name,
+    _raise_disposition_outcome,
     _StagedReservationSet,
 )
 
@@ -105,6 +107,203 @@ class _RecoveryMarker:
 
 
 @dataclass(frozen=True, slots=True)
+class _RecoveryArea:
+    root: Path
+    lineage: tuple
+    entries: tuple
+
+
+def _recovery_area(root):
+    lineage = _lineage(root)
+    node = layout_entry_node(root)
+    if node.uid != os.geteuid() or stat.S_IMODE(node.mode) != 0o700:
+        _fail("owned private recovery retirement directory required")
+    entries = tuple(
+        (name, layout_entry_node(root / name)) for name in _names(root, 1024)
+    )
+    if _lineage(root) != lineage:
+        _fail("recovery retirement ancestry changed")
+    return _RecoveryArea(root, lineage, entries)
+
+
+def _recovery_observation(events, intent):
+    matches = [
+        e["data"]
+        for e in events
+        if e["kind"] == intent["kind"].removesuffix("-intent") + "-observed"
+        and e["sequence"] > intent["sequence"]
+        and e["data"].get("operation") == intent["data"]["operation"]
+    ]
+    if len(matches) > 1:
+        _fail("ambiguous recovery control observation")
+    if matches:
+        if {k: v for k, v in matches[0].items() if k != "observed_node"} != intent[
+            "data"
+        ]:
+            _fail("recovery control observation contradicts intent")
+        return _node(matches[0]["observed_node"])
+    return None
+
+
+def _disposition_areas(journal):
+    """Validate whole shared retirement namespaces, without granting their rights."""
+    events = journal.events
+    declarations = [
+        e["data"] for e in events if e["kind"] == "recovery-control-disposition-intent"
+    ]
+    leases = {
+        (e["data"]["group"], e["data"]["path"]): e["data"]
+        for e in events
+        if e["kind"] == "reservation-lease-intent"
+    }
+    result = []
+    for declaration in declarations:
+        root = Path(declaration["retirement_root"])
+        if not root.is_absolute() or ".." in root.parts:
+            _fail("invalid recovery retirement coordinate")
+        area = _recovery_area(root)
+        if (
+            layout_entry_node(root).directory_identity
+            != _node(declaration["retirement_node"]).directory_identity
+        ):
+            _fail("recovery retirement root replaced")
+        expected = {}
+        for event in events:
+            if event["kind"] != "recovery-control-retirement-intent":
+                continue
+            data = event["data"]
+            if Path(data["destination"]).parent != root:
+                continue
+            lease = leases.get((data["group"], data["path"]))
+            if (
+                lease is None
+                or lease["advisory"] is not False
+                or _node(lease["node"]) != _node(data["original_node"])
+                or data["source"] != data["path"]
+                or journal.read_payload(lease["payload_digest"])
+                != journal.read_payload(data["before_payload"])
+            ):
+                _fail("recovery retirement lacks original native acquisition")
+            before = _node(data["node"])
+            if before != _node(lease["node"]):
+                _fail("recovery retirement substitutes original native node")
+            destination = Path(data["destination"])
+            if (
+                layout_entry_node(root).directory_identity
+                != _node(data["destination_parent"]).directory_identity
+                or layout_entry_node(Path(data["source"]).parent).directory_identity
+                != _node(data["source_parent"]).directory_identity
+            ):
+                _fail("recovery control retirement parents changed")
+            actual = _optional_node(destination)
+            observed = _recovery_observation(events, event)
+            if actual is None:
+                if observed is not None:
+                    _fail("observed recovery retirement missing")
+                continue
+            if (
+                actual.after_rename() != before.after_rename()
+                or (observed is not None and actual != observed)
+                or _read_marker(destination)
+                != (actual, journal.read_payload(data["before_payload"]))
+            ):
+                _fail("recovery retirement node changed")
+            if destination.name in expected:
+                _fail("ambiguous repeated recovery retirement destination")
+            expected[destination.name] = actual
+        if dict(area.entries) != expected:
+            _fail("recovery retirement contains foreign or missing nodes")
+        if any(existing.root == area.root for existing in result):
+            _fail("recovery retirement root reused")
+        result.append(area)
+    return tuple(result)
+
+
+def _recovery_endpoint(journal, events, group, target, original, content, areas):
+    selected = [
+        e
+        for e in events
+        if e["kind"]
+        in {
+            "recovery-control-normalization-intent",
+            "recovery-control-retirement-intent",
+        }
+        and e["data"].get("group") == group
+        and e["data"].get("path") == str(target.path)
+        and _node(e["data"]["original_node"]) == original
+    ]
+    if not selected:
+        return None
+    if not target.advisory and len(selected) != 1:
+        # A retry before the native effect can record another intent. Only one
+        # actual private destination may contain the original inode.
+        actuals = [
+            e
+            for e in selected
+            if _optional_node(Path(e["data"]["destination"])) is not None
+        ]
+        if len(actuals) > 1:
+            _fail("multiple actual recovery retirement endpoints")
+        if actuals:
+            selected = actuals
+    for event in selected:
+        data = event["data"]
+        before, payload = (
+            _node(data["node"]),
+            journal.read_payload(data["before_payload"]),
+        )
+        if target.advisory:
+            immutable = ("device", "inode", "mode", "links", "uid", "gid")
+            if (
+                event["kind"] != "recovery-control-normalization-intent"
+                or not content.startswith(b"literate-ai-refresh-reservation\n")
+                or payload not in (content, b"\0" + content[1:])
+                or before.size != len(payload)
+                or any(getattr(before, k) != getattr(original, k) for k in immutable)
+            ):
+                _fail("invalid recovery advisory normalization provenance")
+        elif (
+            event["kind"] != "recovery-control-retirement-intent"
+            or before != original
+            or payload != content
+        ):
+            _fail("invalid recovery native retirement provenance")
+    event = selected[-1]
+    data = event["data"]
+    observed = _recovery_observation(events, event)
+    if target.advisory:
+        actual, value = _read_marker(target.path)
+        before = _node(data["node"])
+        payload = journal.read_payload(data["before_payload"])
+        immutable = ("device", "inode", "mode", "links", "uid", "gid")
+        if (
+            any(getattr(actual, k) != getattr(original, k) for k in immutable)
+            or value not in (payload, b"\0" + payload[1:], b"\0")
+            or (observed is not None and (actual != observed or value != b"\0"))
+            or (actual == before and value != payload)
+        ):
+            _fail("recovery advisory bytes/native facts changed")
+        return _RecoveryMarker(target, target.path, actual, value), None
+    destination = Path(data["destination"])
+    if destination.parent not in {area.root for area in areas}:
+        _fail("undeclared recovery retirement root")
+    actual = _optional_node(destination)
+    if actual is None:
+        if observed is not None:
+            _fail("observed recovery native retirement missing")
+        actual, value = _read_marker(target.path)
+        if actual != original or value != content:
+            _fail("unmoved recovery native marker changed")
+        return _RecoveryMarker(target, target.path, actual, value), None
+    if _optional_node(target.path) == original:
+        _fail("original native control occupies both endpoints")
+    return _RecoveryMarker(target, destination, actual, content), (
+        target.path,
+        _optional_node(target.path),
+    )
+
+
+@dataclass(frozen=True, slots=True)
 class _ControlRecoveryPlan:
     pool_root: Path
     header: bytes
@@ -115,6 +314,7 @@ class _ControlRecoveryPlan:
     retirement_names: tuple[str, ...]
     public_nodes: tuple
     group: str
+    recovery_areas: tuple = ()
 
     @property
     def identity(self):
@@ -266,6 +466,11 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         for fd in (pool._descriptor, journal._descriptor)
     }
     markers, public_nodes, lineages = [], [], {}
+    recovery_areas = _disposition_areas(journal)
+    for area in recovery_areas:
+        if any(record[1:3] in protected for record in area.lineage):
+            _fail("recovery retirement overlaps current producer")
+        lineages[area.root] = area.lineage
     if retirement_root is not None:
         ancestry = _lineage(retirement_root)
         if any(record[1:3] in protected for record in ancestry):
@@ -277,6 +482,23 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         content = journal.read_payload(lease["payload_digest"])
         if not 1 <= len(content) <= 256:
             _fail("invalid original marker payload")
+        recovered = _recovery_endpoint(
+            journal, events, group, target, original, content, recovery_areas
+        )
+        if recovered is not None:
+            marker, public = recovered
+            markers.append(marker)
+            if public is not None:
+                public_nodes.append(public)
+            for parent in (target.anchor, target.path.parent, marker.named.parent):
+                ancestry = _lineage(parent)
+                if any(record[1:3] in protected for record in ancestry):
+                    _fail("recovered control overlaps current private producer")
+                lineages[parent] = ancestry
+            with _pinned_directory(marker.named.parent) as (fd, guard):
+                _portable_name(marker.named, fd, present=True)
+                guard()
+            continue
         current, named = _optional_node(target.path), target.path
         normal = _one(
             events, "advisory-normalization-intent", "path", str(target.path), original
@@ -393,7 +615,9 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
     ):
         _fail("retirement directory changed during observation")
     names = _names(retirement_root, len(targets)) if retirement_root else ()
-    if set(names) != {m.named.name for m in markers if m.named != m.target.path}:
+    if set(names) != {
+        m.named.name for m in markers if m.named.parent == retirement_root
+    }:
         _fail("retirement namespace contains foreign or missing entries")
     if len({(m.node.device, m.node.inode) for m in markers}) != len(markers):
         _fail("control native identities alias")
@@ -409,6 +633,7 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         names,
         tuple(public_nodes),
         group,
+        recovery_areas,
     )
     _require_inputs(pool, plan)
     return plan
@@ -430,16 +655,22 @@ def _require_inputs(pool, plan):
     for marker in plan.markers:
         if _read_marker(marker.named) != (marker.node, marker.content):
             _fail("prepared recovery marker changed")
+    retirements = _close_retirement(plan)
     _close_inputs(plan)
-    # Marker/portable-name observations can be the last blocking reads. Close
-    # immutable producer facts afterwards, before granting any descriptor lease.
-    _close_dependencies(pool)
-    _close_retirement(plan)
+    # Complete private-area observations precede final marker and producer
+    # native facts. No payload is traversed after this closing pass.
+    producers = _close_dependencies(pool)
+    _close_marker_facts(plan)
+    _close_retirement_facts(retirements)
+    _close_dependency_facts(pool, producers)
 
 
 def _close_dependencies(pool):
     journal = pool._journal
     journal._guard()
+    roots = tuple(
+        _from_stat(os.fstat(fd)) for fd in (journal._descriptor, pool._descriptor)
+    )
     expected = set(journal._known)
     if journal._names() != expected:
         _fail("journal namespace changed during recovery observation")
@@ -450,6 +681,38 @@ def _close_dependencies(pool):
     if journal._names() != expected:
         _fail("journal namespace changed during closing observations")
     pool._require_private_close()
+    journal._guard()
+    _close_dependency_facts(pool, roots)
+    return roots
+
+
+def _close_dependency_facts(pool, roots):
+    """Only captured producer root/file facts; no payload or namespace reads."""
+    journal = pool._journal
+    pool._guard()
+    if type(roots) is not tuple or len(roots) != 2:
+        _fail("actual producer native roots required")
+    for fd, expected in zip(
+        (journal._descriptor, pool._descriptor), roots, strict=True
+    ):
+        if _from_stat(os.fstat(fd)) != expected:
+            _fail("producer namespace changed after closing observations")
+    for name, (signature, _) in journal._known.items():
+        if (
+            _journal_file(
+                os.stat(name, dir_fd=journal._descriptor, follow_symlinks=False)
+            )
+            != signature
+        ):
+            _fail("journal native facts changed after namespace observations")
+    for item in pool._entries.values():
+        if (
+            _from_stat(
+                os.stat(item.name, dir_fd=pool._descriptor, follow_symlinks=False)
+            )
+            != item.node
+        ):
+            _fail("private producer node changed after namespace observations")
     journal._guard()
 
 
@@ -477,15 +740,64 @@ def _close_inputs(plan):
 
 
 def _close_retirement(plan):
-    # Preserve the exact retired namespace and physical ancestry after producer
-    # closure; do not traverse payloads or reinitialize any control afterwards.
+    # Observe complete retirement namespaces before final marker/dependency
+    # native closure; never traverse payloads or initialize controls here.
+    roots = []
+    for area in plan.recovery_areas:
+        before = layout_entry_node(area.root)
+        if _recovery_area(area.root) != area or layout_entry_node(area.root) != before:
+            _fail("recovery retirement namespace changed during closing observations")
+        roots.append((area, before))
     if plan.retirement_root and (
         _names(plan.retirement_root, len(plan.markers)) != plan.retirement_names
     ):
         _fail("retirement namespace changed after dependency closure")
+    if plan.retirement_root is not None:
+        root = plan.retirement_root
+        before = layout_entry_node(root)
+        expected = _RecoveryArea(
+            root,
+            dict(plan.lineages)[root],
+            tuple(
+                sorted(
+                    (m.named.name, m.node)
+                    for m in plan.markers
+                    if m.named.parent == root
+                )
+            ),
+        )
+        if _recovery_area(root) != expected or layout_entry_node(root) != before:
+            _fail("original retirement graph changed during closing observations")
+        roots.append((expected, before))
     for path, ancestry in plan.lineages:
         if _lineage(path) != ancestry:
             _fail("recovery ancestry changed after dependency closure")
+    return tuple(roots)
+
+
+def _close_retirement_facts(roots):
+    """Close known private nodes and directory stamps without enumerating names."""
+    for area, before in roots:
+        if (
+            layout_entry_node(area.root) != before
+            or _lineage(area.root) != area.lineage
+        ):
+            _fail("retirement namespace or ancestry changed after observations")
+        for name, node in area.entries:
+            if layout_entry_node(area.root / name) != node:
+                _fail("retired native node changed after observations")
+
+
+def _close_marker_facts(plan):
+    for marker in plan.markers:
+        if layout_entry_node(marker.named) != marker.node:
+            _fail("named marker changed after namespace observations")
+    for path, node in plan.public_nodes:
+        if _optional_node(path) != node:
+            _fail("public coordinate changed after namespace observations")
+    for path, lineage in plan.lineages:
+        if _lineage(path) != lineage:
+            _fail("marker ancestry changed after namespace observations")
 
 
 class _RecoveredControlSet(WriteReservationSet):
@@ -494,6 +806,7 @@ class _RecoveredControlSet(WriteReservationSet):
         self._pool, self._plan, self._held = pool, plan, held
         self._receiver = os.getpid()
         self._retain_for_recovery = True
+        self._disposition = None
 
     def _live(self):
         if not self._active or self._receiver != os.getpid():
@@ -502,6 +815,12 @@ class _RecoveredControlSet(WriteReservationSet):
         self._held.current()
 
     def verify_all(self):
+        if self._disposition is not None:
+            from .retained_layout_recovery_disposition import _RecoveryDisposition
+
+            if type(self._disposition) is not _RecoveryDisposition:
+                _fail("actual disposition owner required")
+            return self._disposition.verify_descriptor_owner(self)
         self._verify_view(self._plan)
 
     def _verify_view(self, plan):
@@ -519,9 +838,16 @@ class _RecoveredControlSet(WriteReservationSet):
             ):
                 _fail("actual recovered descriptor changed")
         self._pool.require_current()
+        retirements = _close_retirement(plan)
         _close_inputs(plan)
-        _close_dependencies(self._pool)
-        _close_retirement(plan)
+        producers = _close_dependencies(self._pool)
+        self._live()
+        for marker, expected in zip(self._markers, plan.markers, strict=True):
+            if _from_stat(os.fstat(marker.descriptor)) != expected.node:
+                _fail("held marker changed during retirement-area observations")
+        _close_marker_facts(plan)
+        _close_retirement_facts(retirements)
+        _close_dependency_facts(self._pool, producers)
         self._live()
 
     def relinquish_public_observations(self, incoming):
@@ -530,6 +856,8 @@ class _RecoveredControlSet(WriteReservationSet):
         This never grants ownership at those public names to this raw owner.
         The separately composed canonical owner must verify incoming FDs itself.
         """
+        if self._disposition is not None:
+            _fail("ordinary recovery writer handed off")
         self._live()
         if (
             type(incoming) is not _StagedReservationSet
@@ -584,6 +912,8 @@ class _RecoveredControlSet(WriteReservationSet):
         return tuple(sorted(paths, key=str))
 
     def owns(self, path):
+        if self._disposition is not None:
+            _fail("ordinary recovery writer handed off")
         self.verify_all()
         return any(marker.named == path for marker in self._plan.markers)
 
@@ -608,9 +938,10 @@ def acquire_layout_recovery_controls(
     ):
         _fail("recovery acquisition exceeds remaining journal budget")
     error, trace = None, None
-    with ExitStack() as stack:
-        held = _HeldDirectories(stack)
-        owned = _RecoveredControlSet(pool, plan, held)
+    stack = ExitStack()
+    held = _HeldDirectories(stack)
+    owned = _RecoveredControlSet(pool, plan, held)
+    with _disposition_exit_boundary(owned), stack:
         try:
             for path, _ in plan.lineages:
                 held.pin(path)
@@ -661,13 +992,17 @@ def acquire_layout_recovery_controls(
             owned.verify_all()
         except BaseException as exc:
             error, trace = exc, exc.__traceback__
+            _raise_disposition_outcome(owned, exc)
             raise
         finally:
             try:
                 owned._release()
             except BaseException as release_error:
                 if error is not None:
-                    raise combine_body_and_release_errors(
+                    combined = combine_body_and_release_errors(
                         "recovered control", error, trace, release_error
-                    ) from None
+                    )
+                    _raise_disposition_outcome(owned, combined)
+                    raise combined from None
+                _raise_disposition_outcome(owned, release_error)
                 raise
