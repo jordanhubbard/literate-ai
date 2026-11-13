@@ -109,54 +109,59 @@ class _ReservationObserver:
             {"original_capacity_reservation": secrets.token_hex(32)}
         )
         self.published = _Published()
+        self._publication_lock = threading.Lock()
         self._clock_lock = threading.Lock()
         self._last_now = 0
         self._clock_closed = False
 
     def enter(self):
-        if not self.published.retired and not self.published.unknown:
-            self.published = replace(self.published, active=True)
+        with self._publication_lock:
+            if not self.published.retired and not self.published.unknown:
+                self.published = replace(self.published, active=True)
 
     def leave(self):
-        self.published = replace(self.published, active=False)
+        with self._publication_lock:
+            self.published = replace(self.published, active=False)
 
     def retire(self):
-        self.published = replace(self.published, active=False, retired=True)
+        with self._publication_lock:
+            self.published = replace(self.published, active=False, retired=True)
 
     def quarantine(self):
-        self.published = replace(self.published, unknown=True)
+        with self._publication_lock:
+            self.published = replace(self.published, unknown=True)
 
     def bind(self, request):
-        current = self.published
         if (
-            not current.active
-            or current.retired
-            or current.unknown
-            or not isinstance(request, LifecycleActionDispatchRequest)
+            not isinstance(request, LifecycleActionDispatchRequest)
             or request.worker != self.worker
             or request.slot != self.slot
             or request.deadline_identity != self.deadline_identity
         ):
             _fail("binding_mismatch")
-        if (
-            current.binding is None
-            or current.binding.request_identity != request.identity
-        ):
-            binding = ActionReservationSnapshot(
-                self.identity,
-                canonical_identity(
-                    {"original_dispatch_binding": secrets.token_hex(32)}
-                ),
-                request.identity,
-                request.action.identity,
-                self.worker.worker_identity,
-                self.worker.catalog_identity,
-                self.deadline_identity,
-                self.slot,
-                self.expires_at_ms,
-            )
-            self.published = replace(current, binding=binding)
-        return self.view()
+        # Request identities may do external work. Prepare them without holding
+        # publication ownership, then revalidate the actual live state below.
+        request_identity = request.identity
+        candidate = ActionReservationSnapshot(
+            self.identity,
+            canonical_identity({"original_dispatch_binding": secrets.token_hex(32)}),
+            request_identity,
+            request.action.identity,
+            self.worker.worker_identity,
+            self.worker.catalog_identity,
+            self.deadline_identity,
+            self.slot,
+            self.expires_at_ms,
+        )
+        with self._publication_lock:
+            current = self.published
+            if not current.active or current.retired or current.unknown:
+                _fail("binding_mismatch")
+            binding = current.binding
+            if binding is None or binding.request_identity != request_identity:
+                binding = candidate
+                self.published = replace(current, binding=binding)
+        return ActionReservationObservation(self, binding, _issuer=_ISSUER)
 
     def view(self):
         binding = self.published.binding
@@ -165,8 +170,9 @@ class _ReservationObserver:
         return ActionReservationObservation(self, binding, _issuer=_ISSUER)
 
     def finish_binding(self, binding):
-        if self.published.binding is binding:
-            self.published = replace(self.published, binding=None)
+        with self._publication_lock:
+            if self.published.binding is binding:
+                self.published = replace(self.published, binding=None)
 
     def require_observation_time(self):
         if not self._clock_lock.acquire(blocking=False):

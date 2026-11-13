@@ -52,6 +52,111 @@ class WorkerTelemetryReservationTests(unittest.TestCase):
         self.assertEqual(self.slots._reservation_observations, {})
         self.assertEqual(self.slots._occupied, set())
 
+    def _binding_during_owner_transition(self, transition):
+        entered, proceed = threading.Event(), threading.Event()
+        real_identity = observation.canonical_identity
+
+        def pause_identity(value):
+            if isinstance(value, dict) and "original_dispatch_binding" in value:
+                entered.set()
+                if not proceed.wait(timeout=10):
+                    raise TimeoutError("bounded binding fixture wait")
+            return real_identity(value)
+
+        def execute(*_):
+            view = observation.bind_current_action_reservation(self.request)
+            if view is not None:
+                with self.assertRaises(observation.ReservationObservationError):
+                    view.require_current(self.request)
+            return "original operation result"
+
+        reserved = self.slots.try_reserve(execute)
+        owner = reserved._observation_owner
+        with mock.patch.object(
+            observation, "canonical_identity", side_effect=pause_identity
+        ):
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                action = pool.submit(reserved.run)
+                try:
+                    self.assertTrue(entered.wait(timeout=10))
+                    if transition == "quarantine":
+                        self.slots.quarantine(self.request)
+                        self.assertTrue(owner.published.unknown)
+                    else:
+                        # Exercise the actual capacity-created publication owner;
+                        # release() correctly refuses to retire a running action.
+                        owner.retire()
+                        self.assertTrue(owner.published.retired)
+                    self.assertIsNone(self.slots.try_reserve(lambda *_: None))
+                finally:
+                    proceed.set()
+                self.assertEqual(action.result(timeout=15), "original operation result")
+        self.assertTrue(owner.published.retired)
+        self.assertFalse(owner.published.active)
+        self.assertEqual(self.slots._held, set())
+        if transition == "quarantine":
+            self.assertTrue(owner.published.unknown)
+            self.assertEqual(self.slots.unresolved_ownership, (self.request,))
+            self.assertIsNone(self.slots.try_reserve(lambda *_: None))
+        else:
+            self.assertEqual(self.slots.unresolved_ownership, ())
+            self.assertEqual(self.slots.try_reserve(lambda *_: "fresh").run(), "fresh")
+        owner.enter()
+        self.assertFalse(owner.published.active)
+
+    def test_binding_cannot_overwrite_concurrent_capacity_quarantine(self):
+        self._binding_during_owner_transition("quarantine")
+
+    def test_binding_cannot_overwrite_concurrent_owner_retirement(self):
+        self._binding_during_owner_transition("retire")
+
+    def test_publication_lock_and_slow_sample_do_not_block_reads_or_job_completion(
+        self,
+    ):
+        bound, finish_job = threading.Event(), threading.Event()
+        sampling, finish_sample = threading.Event(), threading.Event()
+        views = []
+
+        def execute(*_):
+            views.append(observation.bind_current_action_reservation(self.request))
+            bound.set()
+            if not finish_job.wait(timeout=10):
+                raise TimeoutError("bounded original operation wait")
+            return "completed while sampling"
+
+        def slow_clock():
+            sampling.set()
+            if not finish_sample.wait(timeout=10):
+                raise TimeoutError("bounded observation wait")
+            return real_clock()
+
+        real_clock = observation.time.time_ns
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            action = pool.submit(self.slots.try_reserve(execute).run)
+            try:
+                self.assertTrue(bound.wait(timeout=10))
+                view = views[0]
+                with view._holder._publication_lock:
+                    pool.submit(view.require_current, self.request).result(timeout=2)
+                with mock.patch.object(
+                    observation.time, "time_ns", side_effect=slow_clock
+                ):
+                    sample = pool.submit(view.require_current, self.request)
+                    try:
+                        self.assertTrue(sampling.wait(timeout=10))
+                        finish_job.set()
+                        self.assertEqual(
+                            action.result(timeout=2), "completed while sampling"
+                        )
+                        self.assertEqual(self.slots._occupied, set())
+                    finally:
+                        finish_sample.set()
+                    with self.assertRaises(observation.ReservationObservationError):
+                        sample.result(timeout=2)
+            finally:
+                finish_sample.set()
+                finish_job.set()
+
     def test_acquire_context_joins_the_original_slot_and_retires_its_view(self):
         with self.slots.acquire() as (worker, slot):
             self.assertEqual((worker, slot), (self.request.worker, 0))

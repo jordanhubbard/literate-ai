@@ -33728,9 +33728,33 @@ independent review and the complete combined gate from test one.
 
 ### [ ] WORKER-TELEMETRY-001 — Expose bounded authenticated read-only worker telemetry
 
-- **Currentness repair evidence:** The original 18 polling methods pass before repair, while all three added closing-boundary regressions fail against that same source. After the two-line closing clock check, all 22 polling methods pass with no skips, and the complete telemetry selection passes 86 methods with 11 declared Linux-only skips on macOS. [Source evidence](../../verification/worker-telemetry-polling-currentness.json) retains the expired-ticket/coalesced-deadline/regressed-clock refusals and collector-slot/leader preservation. Independent review of this new guard is pending; the existing driver pin remains unchanged. Full source, installed/native/public-feed and exact integration requirements remain open.
+- **Reservation publication source evidence:** Both added owner-transition controls
+  fail against predecessor `0a8f7a885`; after serialization, all 16 reservation
+  methods pass. The complete telemetry selection passes 89 methods with 11
+  declared Linux-only skips on macOS. Slow observation-clock sampling does not
+  delay the original operation's result or capacity release, and readers succeed
+  while publication ownership is held. [Source evidence](../../verification/worker-telemetry-publication-currentness.json)
+  retains these scopes. [Independent review](../../verification/worker-telemetry-independent-review.json)
+  approves the exact repaired source and unchanged peer context; all 16 reservation
+  methods pass independently. Renew the driver pin through the supported command;
+  full source/installed/native/public-feed acceptance stays open.
 
-- **Ticket currentness refinement (in progress):** Independent source inspection and a controlled correlated-clock reproduction at PR416 head `6e42b7ef3` show that `require_current` can enter before its monotonic ticket deadline, reload current policy, and return after that deadline while the separate wall expiry is still valid. Recheck the original monotonic clock after policy validation, refuse expired/regressed observations, and preserve the original collector slot until its finally hook retires it. Add causal regression controls for slow policy reads, coalesced participant deadlines and deadline regression; this pure admission repair does not establish native transport or complete the feed.
+- **Reservation publication refinement:** Independent review of the
+  PR416 context deterministically reproduced binding overwriting concurrent
+  quarantine through the actual capacity owner. The old snapshot restored a
+  readable view while the original request remained unresolved. Serialize all
+  immutable reservation publications under a short dedicated owner lock; construct
+  identities outside it and revalidate live flags before publishing. Retirement
+  and quarantine stay sticky, stale completion cannot clear a successor, and
+  observation readers must remain independent of publication and capacity locks.
+  Require deterministic bind/quarantine and bind/retire predecessor failures,
+  preserved original operation results and capacity lifetime, then renewed review
+  before advancing the driver pin. This repairs an implemented primitive and
+  leaves the public feed and full native/installed acceptance open.
+
+- **Currentness repair evidence:** The original 18 polling methods pass before repair, while all three added closing-boundary regressions fail against that same source. After the two-line closing clock check, all 22 polling methods pass with no skips, and the complete telemetry selection passes 86 methods with 11 declared Linux-only skips on macOS. [Source evidence](../../verification/worker-telemetry-polling-currentness.json) retains the expired-ticket/coalesced-deadline/regressed-clock refusals and collector-slot/leader preservation. Independent review approved this narrow polling guard; the broader reservation-publication repair and peer context also have independent source approval. Full source, installed/native/public-feed and exact integration requirements remain open.
+
+- **Ticket currentness refinement:** Independent source inspection and a controlled correlated-clock reproduction at PR416 head `6e42b7ef3` show that `require_current` can enter before its monotonic ticket deadline, reload current policy, and return after that deadline while the separate wall expiry is still valid. Recheck the original monotonic clock after policy validation, refuse expired/regressed observations, and preserve the original collector slot until its finally hook retires it. Add causal regression controls for slow policy reads, coalesced participant deadlines and deadline regression; this pure admission repair does not establish native transport or complete the feed.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)

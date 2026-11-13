@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Worker reservation observations preserve concurrent quarantine and retirement,
+  while slow observation reads leave original job completion independent (#280).
+
 - Worker telemetry polling rechecks its monotonic deadline after current-policy
   validation and refuses clock regression while retaining live collector slots (#280).
 
