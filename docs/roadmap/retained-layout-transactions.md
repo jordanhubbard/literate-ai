@@ -123,3 +123,37 @@ retains exact subjects and the unchanged shared helpers. Native Windows durabili
 actual project/Git/control binding,
 canonical project reservations, endpoint classification and every public L4-L6
 placement/relocation/recovery/renewal cell remain required before feature acceptance.
+
+## Retaining live reservation controls (source reviewed)
+
+The existing descriptor-backed reservation owner gains an explicit, one-way
+retention request for a complete live reservation set. A transaction selects it
+before effects whose recovery needs the controls. Both normal and failed context
+exit keep every marker and created parent while attempting to close every held
+descriptor and release its OS lock. The owner becomes inactive. A currentness
+conflict during retention also keeps all other controls; it cannot fall back to
+ordinary cleanup. When both the body and descriptor release fail, retain both
+errors. Callers that do not select retention keep their existing cleanup contract.
+
+Retention neither journals acquisition nor authorizes later cleanup or source
+effects. Existing generic acquisition still creates public parent/marker inodes
+before they can be recorded, so it cannot implement the complete crash-recoverable
+layout preparation. The layout owner must first stage known nodes privately and
+persist exact publication intent before creating any public control. It must bind
+actual canonical lifecycle and Git writer roles, retain ambiguous controls and
+freshly classify endpoints under new descriptors for acknowledged recovery.
+The initial seven controls and seventy-one-case neighborhood pass, but independent
+review reproduces an interruption during release that leaves a later descriptor
+open. Two new causal controls fail that exact source. The repair catches each
+release failure, attempts every remaining descriptor exactly once, and preserves a
+single interruption or a bounded mixed failure group. OS-only failures keep their
+typed cleanup diagnostic with underlying causes; body and release errors remain
+visible together. A reported failed close is not retried, since its native outcome
+may be ambiguous and the descriptor number may have been reused. Nine retention
+controls and the three existing critical marker controls pass after repair.
+Independent re-review reproduces both original failures, passes all twelve methods
+and six supplementary controls, and confirms unchanged default cleanup and shared
+helpers. The seventy-nine-case selected neighborhood also covers actual Git writer
+reservations, object installation and Cargo materialization. The [retention evidence](../../verification/retained-layout-reservation-retention-development.json)
+binds exact source and fault-scheduling limits. Native and integrated qualification,
+staged acquisition and the complete transaction/recovery owner remain required.

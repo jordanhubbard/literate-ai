@@ -33761,6 +33761,27 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Live reservation retention (source reviewed):** The existing descriptor-backed
+  owner has a one-way request to retain every marker and created parent on both normal
+  and failed context exit, while closing descriptors and invalidating the live
+  owner. Select retention before currentness checks so conflicts also preserve the
+  other controls; retain both body and release errors. Existing callers keep their
+  cleanup contract. This does not journal acquisition or grant recovery ownership:
+  complete layout preparation still requires privately staged known nodes and
+  durable intents before any public control creation, actual project/Git/control
+  role binding and fresh endpoint classification. Seven maintained native source
+  controls and the seventy-one-case neighborhood pass. Independent review found
+  release stopped on an interruption before attempting later descriptors. Two
+  maintained causal controls fail that exact source. Bounded per-descriptor error
+  collection attempts every remaining close once and preserves interruption/body/
+  release diagnostics. Nine retention controls and the three existing critical
+  marker controls pass after repair. The approved [retention dependency](../../verification/retained-layout-reservation-retention-development.json)
+  independently reproduces both original failures and passes twelve methods plus
+  six supplementary controls. The seventy-nine-case neighborhood passes without
+  skips, including actual Git reservations/object installation and retained Cargo
+  materialization. Staged durable acquisition, the full transaction/recovery owner
+  and all complete-program acceptance remain required.
+
 - **Durable journal dependency (source reviewed):** The journal stores bounded
   private raw payloads and hash-linked present events under actual writer mutexes,
   original ancestry/descriptor/process custody, exclusive native publication and

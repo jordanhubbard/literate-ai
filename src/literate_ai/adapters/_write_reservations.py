@@ -94,6 +94,7 @@ class WriteReservationSet:
         ] = []
         self._active = True
         self._complete = False
+        self._retain_for_recovery = False
 
     @staticmethod
     def _guard(target: WriteReservationTarget) -> None:
@@ -244,6 +245,24 @@ class WriteReservationSet:
         except (OSError, ValueError, UnsafeFilesystemPathError):
             _fail("changed", "write reservation ownership is unavailable or changed")
 
+    def retain_for_explicit_recovery(self) -> None:
+        """Keep every marker and created parent when this live context ends.
+
+        This is a one-way request; every descriptor close is still attempted on
+        exit. Close failures are reported without retrying retired descriptors.
+        Call before transaction effects whose recovery needs these exact controls.
+        It does not persist intent, authorize effects, or grant a future process
+        ownership. The transaction owner must journal known controls before effects
+        and freshly classify them during explicitly acknowledged recovery.
+
+        Select retention before checking currentness so a discovered conflict also
+        preserves every remaining node. Existing callers keep ordinary cleanup.
+        """
+        if not self._active or not self._complete:
+            _fail("inactive", "write reservations are not live and complete")
+        self._retain_for_recovery = True
+        self.verify_all()
+
     def prepare_committed_directory_transfer(
         self, paths: tuple[Path, ...]
     ) -> tuple[tuple[Path, tuple[int, int, int], WriteReservationTarget], ...]:
@@ -283,6 +302,27 @@ class WriteReservationSet:
 
     def _release(self) -> None:
         self._active = False
+        if self._retain_for_recovery:
+            errors: list[BaseException] = []
+            for marker in reversed(self._markers):
+                try:
+                    os.close(marker.descriptor)
+                except BaseException as exc:
+                    errors.append(exc)
+                finally:
+                    marker.descriptor = -1
+            if errors:
+                if any(not isinstance(exc, OSError) for exc in errors):
+                    if len(errors) == 1:
+                        raise errors[0]
+                    raise BaseExceptionGroup(
+                        "recovery reservation descriptor closes failed", errors
+                    )
+                raise OrchestrationInventoryError(
+                    "reservation_cleanup_incomplete",
+                    "recovery controls retained; reservation descriptor close failed",
+                ) from BaseExceptionGroup("reservation close failures", errors)
+            return
         retained = False
         for marker in reversed(self._markers):
             removed = False
@@ -366,6 +406,8 @@ def acquire_write_reservations(
         aliases.add(alias)
         unique[spelling] = target
     owned = WriteReservationSet(_CREATION_KEY)
+    body_error = None
+    body_traceback = None
     try:
         try:
             for path in sorted(unique, key=str):
@@ -381,5 +423,15 @@ def acquire_write_reservations(
         # Execution failures belong to the caller, not reservation acquisition.
         yield owned
         owned.verify_all()
+    except BaseException as exc:
+        body_error, body_traceback = exc, exc.__traceback__
+        raise
     finally:
-        owned._release()
+        try:
+            owned._release()
+        except BaseException as release_error:
+            if owned._retain_for_recovery and body_error is not None:
+                raise combine_body_and_release_errors(
+                    "recovery reservation", body_error, body_traceback, release_error
+                ) from None
+            raise
