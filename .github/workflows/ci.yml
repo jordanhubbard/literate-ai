@@ -395,6 +395,7 @@ jobs:
           tests.critical.test_host_self_update
           tests.e2e.test_cli_build_identity
           tests.critical.test_guarded_builder.GuardedCppBuilderTests
+          tests.smoke.test_bootstrap_litai.GeneratedBootstrapTests
       - name: Upload smoke diagnostics (not release evidence)
         if: matrix.task == 'platform-smoke' && (always())
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

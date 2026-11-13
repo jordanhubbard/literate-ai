@@ -81,7 +81,9 @@ _STORAGE_FAILURE_PATTERN = re.compile(
 _MAKEFILES = ("Makefile", "GNUMakefile", "GNUmakefile", "makefile")
 _REPO_DRIVERS = ("repo.sh", "repo.bat")
 _REPO_BUILD_WRAPPERS = {"nt": "build.bat", "posix": "build.sh"}
-_SKIP_DIR_NAMES = frozenset({".git", "_build", "_legacy", "node_modules"})
+_SKIP_DIR_NAMES = frozenset(
+    {".git", ".venv", ".litai-venv", "_build", "_legacy", "node_modules"}
+)
 CONVERT_BASELINE_EXCLUDED_NAMES = EXCLUDED_DIRECTORY_NAMES
 _ENV_BOUND_FRAGMENTS = (
     ".venv/",

@@ -39,6 +39,7 @@ _EXCLUDED_NAMES = frozenset(
         ".pytest_cache",
         ".ruff_cache",
         ".venv",
+        ".litai-venv",
         "__pycache__",
         "_build",
         "node_modules",
