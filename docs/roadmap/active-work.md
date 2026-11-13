@@ -34588,6 +34588,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Evidence:**
   - [ ] Portable actual filesystem mutation/refusal controls and deterministic before/after stat/hash/identity counts.
   - [ ] Measured genuine currentness comparison, complete affected regression and installed/native source qualification before downstream use.
+
+- **Combined macOS fixture refusal:** The first 57-case combined focused run exits1 with six errors and three declared native Windows skips. The new Cargo fixture supplies the platform temporary directory through macOS's redirected `/var` spelling, so the unchanged production no-redirection guard refuses before intended positive captures and can make mutation-only negative cases refuse too early. Next: canonicalize only the freshly owned test root before creating its payloads, then rerun the real capture/mutation cases. Do not change production path admission or claim the failed run as acceptance.
+
+
+- **Fixture correction verified:** Canonicalizing only the owned temporary root with `Path.resolve()` makes all eight actual Cargo capture/currentness controls run on their intended payloads. The complete combined focused gate selects57, passes54 and retains three native-Windows-only skips, with no failures and exit0 in15.959seconds. Production source and no-redirection admission remain byte-identical to the reviewed contributors; the first six-error fixture run remains retained. Complete combined qualification is still required.
+
 ### [ ] WINDOWS-JOB-FALLBACK-001 — Avoid redundant Windows tree fallback after successful Job termination
 
 - **Priority:** P1

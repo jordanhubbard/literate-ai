@@ -17,7 +17,7 @@ class CargoTreeCurrentnessTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         self.directory = self.root / "source"
         self.directory.mkdir()
         self.payload = self.directory / "input.txt"

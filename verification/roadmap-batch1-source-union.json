@@ -15,6 +15,25 @@
     "cuda_signal_pr398": "4b051a9af074e4255789370922cd98bb874c70fc",
     "windows_and_export_pr428": "6f060715206a54b45ab0eed9353cb444eed1993b"
   },
+  "fixture_correction": {
+    "change": "canonicalize the freshly owned temporary test root before creating payloads; retain production redirected-root refusal",
+    "corrected_combined_focused": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 54,
+      "selected": 57,
+      "skipped": 3
+    },
+    "corrected_sha256": "8323b51cb73a619b7ab511f982b81a6fa258d2868a2ad53181e956fbf2fc18bd",
+    "original_combined_focused": {
+      "errors": 6,
+      "exit_code": 1,
+      "selected": 57,
+      "skipped": 3
+    },
+    "original_sha256": "942aa13fababd033d9a576225bae7da49d29ef3b8795b2e2170a6f04995a1c8d",
+    "path": "tests/smoke/test_retained_cargo_tree_currentness.py"
+  },
   "goal_complete": false,
   "inventory_union_preserves_cuda_and_bootstrap_exclusion": true,
   "precursor_bootstrap": {
