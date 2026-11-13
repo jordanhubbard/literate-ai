@@ -1067,7 +1067,39 @@ and later-endpoint forgery refusal also pass with an explicit 4096-entry allowan
 the earlier 2048-entry allowance correctly refuses under complete accounting.
 Exact subjects and scope are retained in
 [development evidence](../../verification/retained-layout-provider-development.json).
-Helper fingerprints use the development runtime's AST serialization; canonical
-profile compatibility across supported Python runtimes remains a required
-qualification step alongside additional metadata owners and installed/native
-acceptance. These observations do not complete L1 or enable root/public effects.
+The first provider checkpoint used the development runtime's AST serialization.
+The portable encoding below removes that syntax-fingerprint dependency; additional
+metadata owners and installed/native acceptance remain required. These observations
+do not complete L1 or enable root/public effects.
+
+### Portable producer fingerprints (source reviewed)
+
+Installed Python 3.12 emits a different `ast.dump()` representation of the same
+helper than Python 3.13/3.14; Python 3.11 also lacks the empty `type_params` field.
+The stored compatibility pairs therefore require a versioned structural encoding.
+Ignore source positions and absent/empty optional AST fields, while retaining node
+kinds, nonempty fields, statement order and typed literal values. Preserve the
+same five reviewed helper transitions; changing serialization grants no new code
+profile or source rights. Keep module comparisons within their native parser.
+
+Retain the original helper text as nonexecuting test data from the exact reviewed
+revision. Check old/current helper identities and semantic-change controls using
+the actual installed Python 3.11, 3.12, 3.13 and 3.14 runtimes. Continue to require
+the existing full object/namespace/input budgets and source-movement controls.
+These isolated syntax probes do not replace installed framework/native acceptance.
+
+The versioned structural codec now produces identical old/current fingerprints
+for all five exact reviewed helper pairs on native Python 3.11.14, 3.12.16,
+3.13.18 and 3.14.7. The committed legacy codec rejects the known transitions on
+3.11/3.12 and accepts them on 3.13/3.14. Six maintained controls preserve source
+positions/comments, empty optional defaults, literal types, decorators, annotations,
+names, body order and unknown-value refusal. The frozen original helper text is
+data parsed from the exact original Git sources, never executed.
+
+The affected managed-runtime run covers those six methods and the existing 82
+provider/ownership/transaction/reservation methods. Independent review checks the
+same five transitions, native probe matrix and actual older-revision move/refusal
+cases. Exact source, fixture provenance and scope are retained in
+[development evidence](../../verification/retained-layout-ast-development.json).
+Cross-runtime syntax identity is separate from installed framework execution,
+native Windows, complete metadata ownership and root/public relocation acceptance.

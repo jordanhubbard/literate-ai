@@ -19,6 +19,7 @@ from . import harness_inventory, project_initialization
 from .builders._process import run_bounded_process
 from .flavor_markdown import parse_flavor_markdown
 from .repository_refresh import _file, _signature
+from .retained_layout_ast import initializer_ast_fingerprint
 
 _INITIALIZER = "src/literate_ai/adapters/project_initialization.py"
 _HARNESS = "src/literate_ai/adapters/harness_inventory.py"
@@ -28,24 +29,24 @@ _RESOURCES = "src/literate_ai/project_template/"
 # pre-bootstrap producer. Arbitrary changes to these helpers are not ignored.
 _HELPER_PAIRS = {
     "_atomic_replace": (
-        "1003828c5bb22454c055fa1413113e9d0706a3f4b9db32e1692c0b0e13b13cd1",
-        "a590432c2bedba4aa985dec20ce2361e7b8ae78c37fc3474c3c10b685b01da59",
+        "fa7d3a8ff78202115c3a73941760a3993b28e4729925650a6162ba02621f4176",
+        "bf35a9eda50c6f1fc60cbde970de8443306e37a22546a6c6806eea6e64f406d1",
     ),
     "record_authority_review": (
-        "ffdba4ce16eb9a3b8f66857ebe0337640f3267c165deacdea4fe7fd17b0cc080",
-        "2ac92ee6f9f877e66efe349e39ce1402821f761f840201a612d57563f91166b7",
+        "c6965bf989fdfdbabe170e7868f5cf1214d81b43f89737fcc170e2a71c4e8045",
+        "544676dc1435c88a364e63ef1d16505f5e38a841a70807716ab43a883cfc2f71",
     ),
     "_record_authority_review": (
-        "8cd00d2adcdcc068b899a31336ccdb307b923e448807d679673a4ab6cd36d73f",
-        "2c5d79bca6d4d7aebb6405e836e885bfed1ba05f5262b01c94db7674212a71f7",
+        "1f8e150ea3154ee6bef60393d0eff05b38332c653885fd71fe18364de7ab5b31",
+        "e4af97fdba51837d8f6e88ebafa25e14f0ce3aecc86b08482fed7dc9407b7f16",
     ),
     "prepare_native_rewrite_program": (
-        "eaf099b90c2229ce778cfc590f48d937916b69f45f351e21e1a2904c0c451c75",
-        "18a74b961203856717dadb18f1a6f2ddcb4a181fa3dd3e41ea585717b748caaf",
+        "14e1b47fad68c75c4c2f6d4477271fb042ac4355e24dc329ff63eddd11d14470",
+        "0daa476af5335b0f5ba5cb1c8ab131fa47f99cc9807e01b819acaeb2276bb9f0",
     ),
     "record_project_authority_review": (
-        "d4d2cb1c56c3faec64a5cc0e03488aab400b17a3a3a64455f806e73fe6b497ec",
-        "5c63be8302fe8c4d6880a7f9e33c539abba9d72cda5374afc37a9371b6617d7d",
+        "411504527dc140ff33e63c0c8c888464aadf950ff6c515083d348426121072dd",
+        "de80b293e659fd69a798644948a7b13a352017398a92422729d10bde23d98ec5",
     ),
 }
 
@@ -466,9 +467,7 @@ def _shape(content, *, initializer, maximum_nodes, charge_path=None):
         if isinstance(node, ast.FunctionDef) and node.name in _HELPER_PAIRS:
             if node.name in helpers:
                 _fail("ambiguous original producer helper")
-            helpers[node.name] = hashlib.sha256(
-                ast.dump(node, include_attributes=False).encode("utf-8")
-            ).hexdigest()
+            helpers[node.name] = initializer_ast_fingerprint(node)
     for node in module.body:
         if (
             initializer

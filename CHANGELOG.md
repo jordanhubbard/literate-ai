@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Retained-layout producer fingerprints use a versioned structural encoding so
+  the same reviewed helper transitions work across Python 3.11 through 3.14 (#265).
+
 - Retained-layout development can verify supported historical initializer roles
   from exact local Git objects without fetching or executing historical code.
   Unsupported producers, forged later endpoints and changed provider inputs refuse

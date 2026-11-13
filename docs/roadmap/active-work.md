@@ -33812,7 +33812,11 @@ independent review and the complete combined gate from test one.
   through a separately reserved buffer. The original provider configuration and
   interpreter facts close after final project inventory. Original-provider
   [development evidence](../../verification/retained-layout-provider-development.json)
-  retains the exact supported producer scope. Next join actual
+  retains the exact supported producer scope. Versioned structural helper
+  fingerprints now preserve those same five reviewed transitions across native
+  Python 3.11/3.12/3.13/3.14 syntax probes; this does not qualify the full framework
+  on those runtimes. Exact [portable-profile evidence](../../verification/retained-layout-ast-development.json)
+  retains the source checks and unchanged transition set. Next join actual
   update/import/authored metadata roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
