@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add optional guidance for suitable A2A peers already connected through the agent
+  host, preserving delegation limits, tracker ownership and independent acceptance.
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.
