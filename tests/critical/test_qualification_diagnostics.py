@@ -81,11 +81,12 @@ class QualificationDiagnosticTests(unittest.TestCase):
                 else (
                     "import json,os,sys,time\n"
                     'print(json.dumps({"pid":os.getpid()}),flush=True)\n'
-                    'sys.stderr.write("original-timeout-marker\\n")\nsys.stderr.flush()\ntime.sleep(10)\n'
+                    'sys.stderr.buffer.write(b"original-timeout-marker\\n")\nsys.stderr.buffer.flush()\ntime.sleep(10)\n'
                 )
                 if timeout
                 else (
-                    'import sys\nsys.stderr.write("original-parity-marker\\n")\n'
+                    "import sys\n"
+                    'sys.stderr.buffer.write(b"original-parity-marker\\n")\n'
                     + (
                         'print("invalid JSON")\n'
                         if invalid_json

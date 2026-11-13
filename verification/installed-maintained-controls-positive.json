@@ -1,0 +1,72 @@
+{
+  "candidate": "17cabcd2dede80c59a440c5f527475c8e1347f53",
+  "module_checks": [
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.qualification",
+      "sha256": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.qualification_capture",
+      "sha256": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.qualification_diagnostics",
+      "sha256": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.cli.source_to_specification",
+      "sha256": "e5ba1bda33d77e4d1bb8b5af7a73b154cfb9f82801030a1bafbfca69a8a6169d"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.lifecycle.standard_bazel",
+      "sha256": "97da31699d4818c47df47882f13cfb13f13513c2cba64278edbf874b87de619a"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.lifecycle.standard_cargo",
+      "sha256": "d46998af694d08470b2278f7bb8ce105d603014270a203bce1dedede1ea38a78"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.lifecycle.standard_local",
+      "sha256": "bc23f41eb250f1ef621f82308e4b87421a606f1563313b51069ef371e9611a78"
+    },
+    {
+      "matches_archive_and_source": true,
+      "module": "literate_ai.adapters.standard_project",
+      "sha256": "73abd209b9ddeb8bec82999f3c52fead988ff79068ace341a72a82cb48e0468a"
+    }
+  ],
+  "release_attestation": false,
+  "remaining": [
+    "fixture portability renewal",
+    "complete final source",
+    "exact integration",
+    "genuine generated/native coverage outside these controlled fixtures"
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "scope": {
+    "diagnostics": {
+      "framework_module_count": 548,
+      "installed_module_origins_verified": true,
+      "passed": 31,
+      "selected": 31,
+      "skipped": 0
+    },
+    "runtime-capabilities": {
+      "framework_module_count": 363,
+      "installed_module_origins_verified": true,
+      "passed": 9,
+      "selected": 9,
+      "skipped": 0
+    }
+  },
+  "wheel_bytes": 4294086,
+  "wheel_identity": "sha256:2caf9c35923559cc5cdae51af763644386dfabad850d2eb4034329f11026411c",
+  "whole_wheel_exit": 0
+}
