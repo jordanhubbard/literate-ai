@@ -1,6 +1,20 @@
 {
   "baseline": "6797a3cdce02305d3564f0df2cbd6e65308ed4f1",
   "classification": "development evidence; independent review and broader qualification pending",
+  "complete_source": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "8ca735712d5a4ec3fd483787b4871b3cad14ea1886b20b8c41c41ecf32e3bd9b",
+    "source_commit": "7f3486fd5",
+    "summary": {
+      "executed": 2725,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2725,
+      "selected": 2817,
+      "skipped": 92
+    }
+  },
   "driver_pin_renewed": false,
   "files": {
     "_build/cuda-metadata-focused-final-report.json": "a5802127d3664ec1d1fbe136de874f09033883c533e22815454dd31db645e994",
@@ -19,8 +33,7 @@
   "goal_complete": false,
   "pending": [
     "independent review before driver pin renewal",
-    "complete source gate",
-    "noneditable installed/native controls",
+    "noneditable installed/native controls for the new attribution correction",
     "exact-head and resulting-main integration"
   ],
   "predecessor": {
