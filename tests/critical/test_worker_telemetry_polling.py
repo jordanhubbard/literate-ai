@@ -345,3 +345,87 @@ class WorkerTelemetryPollingTests(unittest.TestCase):
         with self.assertRaisesRegex(TelemetryPollingError, "expired"):
             self.window.begin(self.proof())
         self.assertEqual(self.window.retained_counts, (0, 0))
+
+    def _install_slow_policy_port(self):
+        def current():
+            self.advance(10)
+            return self.current[0]
+
+        self.authority = TelemetryScopeAuthority(current, lambda: self.wall[0])
+        self.window = TelemetryPollWindow(
+            self.authority, monotonic_ns=lambda: self.monotonic[0]
+        )
+
+    def test_currentness_refuses_a_deadline_crossed_during_policy_validation(self):
+        self._install_slow_policy_port()
+        proof = self.proof()
+        ticket = self.window.begin(proof)
+        self.advance((ticket.deadline_ns - self.monotonic[0]) // 1_000_000 - 5)
+        self.assertLess(self.monotonic[0], ticket.deadline_ns)
+        try:
+            with self.assertRaisesRegex(TelemetryPollingError, "inactive"):
+                ticket.require_current()
+            self.assertGreaterEqual(self.monotonic[0], ticket.deadline_ns)
+            self.assertLess(self.wall[0], proof.request.expires_at_ms)
+            self.assertTrue(ticket.cancellation_requested)
+            self.assertEqual(self.window.retained_counts, (1, 1))
+        finally:
+            ticket.finish()
+        self.assertEqual(self.window.retained_counts, (0, 0))
+
+    def test_slow_currentness_preserves_a_fresh_ticket(self):
+        self._install_slow_policy_port()
+        ticket = self.window.begin(self.proof())
+        try:
+            ticket.require_current()
+            self.assertFalse(ticket.cancellation_requested)
+            self.assertEqual(self.window.retained_counts, (1, 1))
+        finally:
+            ticket.finish()
+
+    def test_slow_coalesced_validation_cannot_extend_its_participant_deadline(self):
+        self._install_slow_policy_port()
+        first = self.window.begin(self.proof())
+        proof = self.proof(expires_at_ms=self.wall[0] + 100)
+        second = self.window.begin(proof)
+        self.assertLess(second.deadline_ns, first.deadline_ns)
+        self.advance((second.deadline_ns - self.monotonic[0]) // 1_000_000 - 5)
+        try:
+            with self.assertRaisesRegex(TelemetryPollingError, "inactive"):
+                second.require_current()
+            self.assertLess(self.wall[0], proof.request.expires_at_ms)
+            first.require_current()
+            self.assertFalse(first.cancellation_requested)
+            self.assertEqual(self.window.retained_counts, (1, 2))
+            second.release()
+            self.assertEqual(self.window.retained_counts, (1, 1))
+        finally:
+            first.finish()
+        self.assertEqual(self.window.retained_counts, (0, 0))
+
+    def test_clock_regression_during_currentness_closes_the_polling_owner(self):
+        regress = False
+
+        def current():
+            if regress:
+                self.monotonic[0] -= 1
+            return self.current[0]
+
+        self.authority = TelemetryScopeAuthority(current, lambda: self.wall[0])
+        self.window = TelemetryPollWindow(
+            self.authority, monotonic_ns=lambda: self.monotonic[0]
+        )
+        ticket = self.window.begin(self.proof())
+        regress = True
+        try:
+            with self.assertRaisesRegex(TelemetryPollingError, "clock_regressed"):
+                ticket.require_current()
+            regress = False
+            self.monotonic[0] += 2
+            with self.assertRaisesRegex(TelemetryPollingError, "closed"):
+                self.window.begin(self.proof())
+            self.assertTrue(ticket.cancellation_requested)
+            self.assertEqual(self.window.retained_counts, (1, 1))
+        finally:
+            ticket.finish()
+        self.assertEqual(self.window.retained_counts, (0, 0))

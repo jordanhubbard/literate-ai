@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Worker telemetry polling rechecks its monotonic deadline after current-policy
+  validation and refuses clock regression while retaining live collector slots (#280).
+
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
   retained-host integration remain unchanged (#402).

@@ -240,6 +240,8 @@ class TelemetryPollWindow:
             ):
                 _fail("inactive")
             self._authority.require_permit(ticket._permit)
+            if self._now() >= ticket.deadline_ns:
+                _fail("inactive")
 
     def release(self, ticket):
         with self._guard():

@@ -33728,6 +33728,10 @@ independent review and the complete combined gate from test one.
 
 ### [ ] WORKER-TELEMETRY-001 — Expose bounded authenticated read-only worker telemetry
 
+- **Currentness repair evidence:** The original 18 polling methods pass before repair, while all three added closing-boundary regressions fail against that same source. After the two-line closing clock check, all 22 polling methods pass with no skips, and the complete telemetry selection passes 86 methods with 11 declared Linux-only skips on macOS. [Source evidence](../../verification/worker-telemetry-polling-currentness.json) retains the expired-ticket/coalesced-deadline/regressed-clock refusals and collector-slot/leader preservation. Independent review of this new guard is pending; the existing driver pin remains unchanged. Full source, installed/native/public-feed and exact integration requirements remain open.
+
+- **Ticket currentness refinement (in progress):** Independent source inspection and a controlled correlated-clock reproduction at PR416 head `6e42b7ef3` show that `require_current` can enter before its monotonic ticket deadline, reload current policy, and return after that deadline while the separate wall expiry is still valid. Recheck the original monotonic clock after policy validation, refuse expired/regressed observations, and preserve the original collector slot until its finally hook retires it. Add causal regression controls for slow policy reads, coalesced participant deadlines and deadline regression; this pure admission repair does not establish native transport or complete the feed.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
