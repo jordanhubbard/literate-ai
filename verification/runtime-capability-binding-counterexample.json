@@ -1,0 +1,63 @@
+{
+  "source_subject": "d840a78dedd8767254721e92bed4b0776356d5d8",
+  "framework_distribution": "sha256:c2031c632c9755e4a2c9e0037c2fe2d06fcbd46595ade890b7e9a9a605ba8b38",
+  "scope": "Actual installed public force-regeneration through the configured native coding CLI; no injected model output or runtime bindings",
+  "nodes": [
+    {
+      "component_revision": {
+        "algorithm": "sha256",
+        "digest": "bb84266645a791824f49ffd3696cae82dbb956b2363cf317a29cee616522b59c",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "stage": "execute",
+      "outcome": "failed",
+      "failure_code": "execute.failed",
+      "model_observation": {
+        "cost_microunits": null,
+        "model_attempts": null,
+        "model_tokens": null,
+        "schema": "urn:literate-ai:schema:v2:component-generation-runtime-observation",
+        "wall_time_ms": null
+      },
+      "provenance_identity": {
+        "algorithm": "sha256",
+        "digest": "7813beb635d19f0ed55c5f17ede0bdc517f6d2a555d6a4aed82f236bf4ab2ffd",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "checkpoint_sha256": "3b523069087d9b0e686b92bc3f9ac2c3a97ec606e126c9b5594089a096ddb437"
+    },
+    {
+      "component_revision": {
+        "algorithm": "sha256",
+        "digest": "cc970f334bd749994c1b514e51ff24a7330a4c34654563565f7d34670945bd18",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "stage": "accept",
+      "outcome": "passed",
+      "failure_code": null,
+      "model_observation": {
+        "cost_microunits": null,
+        "model_attempts": null,
+        "model_tokens": null,
+        "schema": "urn:literate-ai:schema:v2:component-generation-runtime-observation",
+        "wall_time_ms": null
+      },
+      "provenance_identity": {
+        "algorithm": "sha256",
+        "digest": "a13ed9af0162295a9ee7498c06926a627dfaf2bc7cc9d0ce5e9b4701c809e588",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "checkpoint_sha256": "78a1fac971912c155ed6b35f09cd6acd096cd553386984963e9ca03feb1cfebd"
+    }
+  ],
+  "consumer_error": "money-calculation capability is unavailable",
+  "declared_variable": "LITAI_CAPABILITY_MONEY_CALCULATION",
+  "generated_consumer_artifact_sha256": "d0d7a05028297c159e79302ce6c3755bdde5a8c9f9beeb97d735d4d7f9d50415",
+  "consumer_uses_exact_declared_variable": true,
+  "private_oracles_unchanged": true,
+  "retained_source_multi_graph_refusal_is_separate": true,
+  "schema": "literate-ai/verification-record@1",
+  "goal": "RUNTIME-CAPABILITY-ENV-001",
+  "issue": 422,
+  "qualification_limit": "Failed baseline runtime composition; null model-usage telemetry stays unknown. No authored-graph qualification, repair acceptance or source approval is claimed."
+}

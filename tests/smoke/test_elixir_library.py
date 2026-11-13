@@ -432,7 +432,10 @@ class ElixirLibraryNativeTests(unittest.TestCase):
             },
         )
         ports._exports_by_identity[library.identity.uri] = library
-        custody = SimpleNamespace(artifact_paths={library.identity.uri: provider})
+        custody = SimpleNamespace(
+            root=self.custody_root,
+            artifact_paths={library.identity.uri: provider},
+        )
         environment = ports._packaged_environment(custody)
         before = local_tree_identity(self.custody_root)
         executed = self.command(ComponentCommandPhase.EXECUTE, environment=environment)

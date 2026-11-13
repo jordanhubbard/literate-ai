@@ -345,8 +345,19 @@ class ProjectedStandardToolchainClosure:
     rust_harness_compilers: _RustHarnessCompilerObservations | None = field(
         default=None, repr=False, compare=False
     )
+    # Derived naming context, not a new serialized field or permission.
+    execution_plan: ComponentExecutionPlan | None = field(
+        default=None, repr=False, compare=False
+    )
 
     def require_unchanged(self) -> None:
+        if self.execution_plan is not None and (
+            not isinstance(self.execution_plan, ComponentExecutionPlan)
+            or self.execution_plan.identity != self.record.execution_plan_identity
+            or self.execution_plan.component_lock_identity
+            != self.record.component_lock_identity
+        ):
+            raise ValueError("Standard runtime execution plan changed after projection")
         if self.rust_harness_compilers is not None:
             if (
                 type(self.rust_harness_compilers)
@@ -3107,6 +3118,7 @@ def project_standard_toolchain_closure(
         command_phases,
         dependency_guard,
         mix_targets,
+        execution_plan=execution_plan,
     )
 
 
@@ -3650,6 +3662,7 @@ def assemble_standard_lifecycle_ports(
         "python_targets": toolchain_closure.python_targets,
         "python_wheelhouse": python_wheelhouse,
         "provider_environment": provider_environment,
+        "execution_plan": toolchain_closure.execution_plan,
         "dependency_observation": toolchain_closure.dependency_observation,
         "independent_acceptance_oracle": independent_acceptance_oracle,
         "browser_driver": browser_driver,
