@@ -1,0 +1,496 @@
+"""Bounded durable layout records, never project ownership or move authority.
+
+The caller selects a private framework-state directory and separately owns actual
+project/Git/control reservations. This POSIX journal dependency does not enable
+CLI apply. Windows durability and the surrounding recovery owner remain required.
+Interrupted private stages are retained as diagnostics, never interpreted as intent.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import stat
+from contextlib import ExitStack, contextmanager
+from dataclasses import dataclass
+from pathlib import Path
+from uuid import uuid4
+
+from literate_ai._cache_lock import _acquire, _release
+from literate_ai._filesystem import require_safe_directory
+from literate_ai.contracts.identity import canonical_json_bytes
+
+from .exclusive_directory import _native_rename
+
+_SCHEMA = "literate-ai/retained-layout-journal@1"
+_DOCUMENT_LIMIT = 64 * 1024
+_RECORD_LIMIT = 2 * _DOCUMENT_LIMIT
+_LABEL = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
+_DIGEST = re.compile(r"[0-9a-f]{64}\Z")
+_STAGE = re.compile(r"s-[0-9a-f]{32}\Z")
+
+
+@dataclass(frozen=True, slots=True)
+class LayoutJournalBudget:
+    maximum_events: int = 256
+    maximum_payload_bytes: int = 16 * 1024 * 1024
+    maximum_storage_bytes: int = 64 * 1024 * 1024
+    maximum_stages: int = 32
+
+    def validate(self):
+        for value, ceiling in (
+            (self.maximum_events, 256),
+            (self.maximum_payload_bytes, 16 * 1024 * 1024),
+            (self.maximum_storage_bytes, 64 * 1024 * 1024),
+            (self.maximum_stages, 32),
+        ):
+            if type(value) is not int or not 1 <= value <= ceiling:
+                raise ValueError("layout.journal.budget-invalid")
+
+    def to_dict(self):
+        return {
+            "maximum_events": self.maximum_events,
+            "maximum_payload_bytes": self.maximum_payload_bytes,
+            "maximum_storage_bytes": self.maximum_storage_bytes,
+            "maximum_stages": self.maximum_stages,
+        }
+
+
+def _document(raw):
+    if type(raw) is not bytes or len(raw) > _DOCUMENT_LIMIT:
+        raise ValueError("layout.journal.document-limit")
+    try:
+        value = json.loads(raw)
+        if not isinstance(value, dict) or canonical_json_bytes(value) != raw:
+            raise ValueError("layout.journal.document-not-canonical")
+    except (RecursionError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ValueError("layout.journal.document-invalid") from exc
+    return value
+
+
+def _directory(node):
+    if not stat.S_ISDIR(node.st_mode):
+        raise ValueError("layout.journal.directory-required")
+    return node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid
+
+
+def _file(node):
+    if (
+        not stat.S_ISREG(node.st_mode)
+        or node.st_uid != os.geteuid()
+        or stat.S_IMODE(node.st_mode) != 0o600
+        or node.st_nlink != 1
+    ):
+        raise ValueError("layout.journal.private-single-file-required")
+    return (
+        node.st_dev,
+        node.st_ino,
+        node.st_mode,
+        node.st_uid,
+        node.st_gid,
+        node.st_size,
+        node.st_mtime_ns,
+        node.st_ctime_ns,
+        node.st_nlink,
+    )
+
+
+@contextmanager
+def _writer_lock(descriptor, path, *, create, timeout_seconds):
+    # Recovery must never create or initialize a foreign/incomplete lock. Opening
+    # relative to the held journal also avoids re-following an ancestor pathname.
+    flags = os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
+    if create:
+        flags |= os.O_CREAT | os.O_EXCL
+    fd = os.open("writer.lock", flags, 0o600, dir_fd=descriptor)
+    locked = False
+    try:
+        original = _file(os.fstat(fd))
+        if create:
+            if os.write(fd, b"\0") != 1:
+                raise OSError("layout.journal.lock-write-incomplete")
+            os.fsync(fd)
+        node = _file(os.fstat(fd))
+        if (
+            node[:5] != original[:5]
+            or node[5] != 1
+            or os.pread(fd, 2, 0) != b"\0"
+            or _file(os.stat("writer.lock", dir_fd=descriptor, follow_symlinks=False))
+            != node
+        ):
+            raise ValueError("layout.journal.lock-invalid")
+        _acquire(fd, path / "writer.lock", timeout_seconds=timeout_seconds)
+        locked = True
+        if (
+            _file(os.fstat(fd)) != node
+            or _file(os.stat("writer.lock", dir_fd=descriptor, follow_symlinks=False))
+            != node
+        ):
+            raise ValueError("layout.journal.lock-changed")
+        yield fd, node
+    finally:
+        try:
+            if locked:
+                _release(fd)
+        finally:
+            os.close(fd)
+
+
+class _LayoutJournalWriter:
+    """A process/context-bound writer; serialized records cannot recreate it."""
+
+    def __init__(self, descriptor, guard, budget):
+        self._descriptor = descriptor
+        self._guard = guard
+        self._budget = budget
+        self._known = {}
+        self._events = []
+        self._payloads = set()
+        self._stages = set()
+        self._poisoned = False
+
+    def _read(self, name):
+        fd = os.open(
+            name,
+            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+            dir_fd=self._descriptor,
+        )
+        try:
+            before = _file(os.fstat(fd))
+            limit = max(_RECORD_LIMIT, self._budget.maximum_payload_bytes)
+            if before[5] > limit:
+                raise ValueError("layout.journal.file-limit")
+            chunks, size = [], 0
+            while True:
+                chunk = os.read(fd, min(65536, limit + 1 - size))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                size += len(chunk)
+                if size > limit:
+                    raise ValueError("layout.journal.file-limit")
+            after = _file(os.fstat(fd))
+            named = _file(os.stat(name, dir_fd=self._descriptor, follow_symlinks=False))
+            if before != after or before != named or size != before[5]:
+                raise ValueError("layout.journal.file-changed")
+            return before, b"".join(chunks)
+        finally:
+            os.close(fd)
+
+    def _names(self):
+        names = set()
+        limit = 2 + 2 * self._budget.maximum_events + self._budget.maximum_stages
+        with os.scandir(self._descriptor) as entries:
+            for entry in entries:
+                if len(names) >= limit:
+                    raise ValueError("layout.journal.membership-limit")
+                names.add(entry.name)
+        return names
+
+    def require_current(self):
+        self._guard()
+        if self._poisoned:
+            raise ValueError("layout.journal.writer-interrupted")
+        if self._names() != set(self._known):
+            raise ValueError("layout.journal.membership-changed")
+        for name, expected in self._known.items():
+            if self._read(name) != expected:
+                raise ValueError("layout.journal.record-changed")
+        if self._names() != set(self._known):
+            raise ValueError("layout.journal.membership-changed")
+        self._guard()
+
+    @property
+    def events(self):
+        self.require_current()
+        # Return fresh documents, not mutable aliases into the live writer.
+        return tuple(json.loads(self._known[name][1]) for name in self._events)
+
+    def read_payload(self, digest):
+        self.require_current()
+        if digest not in self._payloads:
+            raise ValueError("layout.journal.payload-not-recorded")
+        return self._known[f"p-{digest}.bin"][1]
+
+    def _publish(self, name, content):
+        self.require_current()
+        if (
+            name in self._known
+            or len(self._stages) >= self._budget.maximum_stages
+            or sum(len(item[1]) for item in self._known.values()) + len(content)
+            > self._budget.maximum_storage_bytes
+        ):
+            raise ValueError("layout.journal.storage-limit-or-occupied")
+        stage = "s-" + uuid4().hex
+        self._poisoned = True
+        fd = os.open(
+            stage,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+            0o600,
+            dir_fd=self._descriptor,
+        )
+        try:
+            original = _file(os.fstat(fd))
+            remaining = memoryview(content)
+            while remaining:
+                count = os.write(fd, remaining)
+                if count <= 0:
+                    raise OSError("layout.journal.short-write")
+                remaining = remaining[count:]
+            os.fsync(fd)
+            observed = self._read(stage)
+            if observed[0][:5] != original[:5] or observed[1] != content:
+                raise ValueError("layout.journal.stage-changed")
+            self._known[stage] = observed
+        finally:
+            os.close(fd)
+        # No application effect is authorized until this complete operation returns.
+        self._poisoned = False
+        self.require_current()
+        self._poisoned = True
+        _native_rename(self._descriptor, stage.encode("ascii"), name.encode("ascii"))
+        os.fsync(self._descriptor)
+        published = self._read(name)
+        if published[0][:5] != observed[0][:5] or published[1] != content:
+            raise ValueError("layout.journal.publication-changed")
+        del self._known[stage]
+        self._known[name] = published
+        self._poisoned = False
+        self.require_current()
+
+    def store_payload(self, content):
+        self.require_current()
+        if (
+            type(content) is not bytes
+            or len(content) > self._budget.maximum_payload_bytes
+        ):
+            raise ValueError("layout.journal.payload-limit")
+        digest = hashlib.sha256(content).hexdigest()
+        if digest not in self._payloads:
+            if len(self._payloads) >= self._budget.maximum_events:
+                raise ValueError("layout.journal.payload-count-limit")
+            self._publish(f"p-{digest}.bin", content)
+            self._payloads.add(digest)
+        return digest
+
+    def append(self, kind, canonical_data):
+        self.require_current()
+        if (
+            type(kind) is not str
+            or not _LABEL.fullmatch(kind)
+            or len(self._events) >= self._budget.maximum_events
+        ):
+            raise ValueError("layout.journal.event-invalid-or-limit")
+        previous = None
+        if self._events:
+            previous = hashlib.sha256(self._known[self._events[-1]][1]).hexdigest()
+        raw = canonical_json_bytes(
+            {
+                "schema": _SCHEMA,
+                "sequence": len(self._events),
+                "previous": previous,
+                "kind": kind,
+                "data": _document(canonical_data),
+                "grants_move_authority": False,
+            }
+        )
+        name = f"e-{len(self._events):04d}.json"
+        self._publish(name, raw)
+        self._events.append(name)
+        return hashlib.sha256(raw).hexdigest()
+
+    def _load(self, header):
+        self._guard()
+        total = 0
+        for name in sorted(self._names()):
+            observed = self._read(name)
+            total += len(observed[1])
+            if total > self._budget.maximum_storage_bytes:
+                raise ValueError("layout.journal.storage-limit")
+            self._known[name] = observed
+            if name == "writer.lock":
+                if observed[1] != b"\0":
+                    raise ValueError("layout.journal.lock-invalid")
+            elif name == "header.json":
+                if observed[1] != header:
+                    raise ValueError("layout.journal.binding-mismatch")
+            elif _STAGE.fullmatch(name):
+                self._stages.add(name)
+            elif name.startswith("p-") and name.endswith(".bin"):
+                digest = name[2:-4]
+                if (
+                    not _DIGEST.fullmatch(digest)
+                    or hashlib.sha256(observed[1]).hexdigest() != digest
+                    or len(observed[1]) > self._budget.maximum_payload_bytes
+                ):
+                    raise ValueError("layout.journal.payload-invalid")
+                self._payloads.add(digest)
+            elif name == f"e-{len(self._events):04d}.json":
+                raw = observed[1]
+                if len(raw) > _RECORD_LIMIT:
+                    raise ValueError("layout.journal.event-limit")
+                document = json.loads(raw)
+                previous = (
+                    None
+                    if not self._events
+                    else hashlib.sha256(self._known[self._events[-1]][1]).hexdigest()
+                )
+                if (
+                    not isinstance(document, dict)
+                    or set(document)
+                    != {
+                        "schema",
+                        "sequence",
+                        "previous",
+                        "kind",
+                        "data",
+                        "grants_move_authority",
+                    }
+                    or canonical_json_bytes(document) != raw
+                    or document["schema"] != _SCHEMA
+                    or type(document["sequence"]) is not int
+                    or document["sequence"] != len(self._events)
+                    or document["previous"] != previous
+                    or document["grants_move_authority"] is not False
+                    or type(document["kind"]) is not str
+                    or not _LABEL.fullmatch(document["kind"])
+                ):
+                    raise ValueError("layout.journal.chain-invalid")
+                _document(canonical_json_bytes(document["data"]))
+                self._events.append(name)
+            else:
+                raise ValueError("layout.journal.foreign-entry")
+        if (
+            not {"header.json", "writer.lock"} <= self._known.keys()
+            or len(self._events) > self._budget.maximum_events
+            or len(self._payloads) > self._budget.maximum_events
+            or len(self._stages) > self._budget.maximum_stages
+        ):
+            raise ValueError("layout.journal.incomplete-or-limit")
+        self.require_current()
+
+
+@contextmanager
+def retained_layout_journal(
+    path: Path,
+    *,
+    canonical_binding: bytes,
+    budget: LayoutJournalBudget,
+    recover: bool = False,
+    lock_timeout_seconds: float = 1.0,
+):
+    """Hold the actual private writer mutex through preparation or recovery.
+
+    Reopening requires explicit recovery and the identical bounded binding/budget.
+    Recovery validates the full immutable chain and all payloads; it grants no
+    project reservations, effects, deletion rights or acceptance. Every stage is
+    retained, including partial writes. Callers must freshly classify real project
+    endpoints before recovery effects. Storage may reside inside framework state.
+    """
+    path = Path(path)
+    if (
+        os.name != "posix"
+        or not path.is_absolute()
+        or ".." in path.parts
+        or type(budget) is not LayoutJournalBudget
+        or type(recover) is not bool
+        or type(lock_timeout_seconds) not in (int, float)
+        or not 0 < lock_timeout_seconds <= 30
+    ):
+        raise ValueError("layout.journal.native-context-required")
+    budget.validate()
+    header = canonical_json_bytes(
+        {
+            "schema": _SCHEMA,
+            "binding": _document(canonical_binding),
+            "budget": budget.to_dict(),
+            "grants_move_authority": False,
+        }
+    )
+    require_safe_directory(path.parent)
+    parent = path.parent.lstat()
+    if parent.st_uid != os.geteuid() or stat.S_IMODE(parent.st_mode) != 0o700:
+        raise ValueError("layout.journal.private-parent-required")
+    receiver_pid, active = os.getpid(), True
+    flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC
+    with ExitStack() as stack:
+        pinned = []
+        for ancestor in reversed((path.parent, *path.parent.parents)):
+            fd = os.open(ancestor, flags)
+            stack.callback(os.close, fd)
+            identity = _directory(ancestor.lstat())
+            if _directory(os.fstat(fd)) != identity:
+                raise ValueError("layout.journal.parent-changed")
+            pinned.append((ancestor, fd, identity))
+        parent_fd = pinned[-1][1]
+        if not recover:
+            os.mkdir(path.name, 0o700, dir_fd=parent_fd)
+        descriptor = os.open(path.name, flags, dir_fd=parent_fd)
+        stack.callback(os.close, descriptor)
+        identity = _directory(os.fstat(descriptor))
+        if identity[3] != os.geteuid() or stat.S_IMODE(identity[2]) != 0o700:
+            raise ValueError("layout.journal.private-directory-required")
+
+        def guard():
+            if not active or receiver_pid != os.getpid():
+                raise ValueError("layout.journal.writer-context-ended")
+            for ancestor, fd, expected in pinned:
+                if (
+                    _directory(ancestor.lstat()) != expected
+                    or _directory(os.fstat(fd)) != expected
+                ):
+                    raise ValueError("layout.journal.parent-changed")
+            if (
+                _directory(os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False))
+                != identity
+                or _directory(os.fstat(descriptor)) != identity
+            ):
+                raise ValueError("layout.journal.directory-changed")
+
+        guard()
+        held_lock = []
+
+        original_guard = guard
+
+        def guard():
+            original_guard()
+            for fd, node in held_lock:
+                if (
+                    _file(os.fstat(fd)) != node
+                    or _file((path / "writer.lock").lstat()) != node
+                ):
+                    raise ValueError("layout.journal.lock-changed")
+
+        try:
+            with _writer_lock(
+                descriptor,
+                path,
+                create=not recover,
+                timeout_seconds=lock_timeout_seconds,
+            ) as held:
+                held_lock.append(held)
+                guard()
+                writer = _LayoutJournalWriter(descriptor, guard, budget)
+                if recover:
+                    writer._load(header)
+                else:
+                    writer._known["writer.lock"] = writer._read("writer.lock")
+                    if writer._known["writer.lock"][1] != b"\0":
+                        raise ValueError("layout.journal.lock-invalid")
+                    writer._publish("header.json", header)
+                # Recovered completed records are flushed before allowing effects.
+                for name in writer._known:
+                    fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=descriptor)
+                    try:
+                        os.fsync(fd)
+                    finally:
+                        os.close(fd)
+                os.fsync(descriptor)
+                os.fsync(parent_fd)
+                writer.require_current()
+                yield writer
+                writer.require_current()
+        finally:
+            active = False

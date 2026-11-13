@@ -33,7 +33,7 @@ Structural lookup and a read-only proposal alone do not complete the feature.
    post-effect conflicts retain all observed nodes for the future journal owner.
    This helper alone does not hash a complete subtree or authorize any movement.
    The transaction caller must establish full source custody and durable intent
-   before invoking it. Then Bind actual project/conversion authority,
+   before invoking it. Then bind actual project/conversion authority,
    current source/partition, exact affected authored bytes and destination absence.
    Hold canonical lifecycle locks and descriptor reservations. Bind actual Git
    administration/index and lifecycle control nodes as protected, nonmoving
@@ -85,3 +85,41 @@ remain shared; empty directories remain non-framework namespace entries.
 No new CLI apply cell is enabled by this first primitive. Git/control-owner
 binding, actual transition/journal/recovery, renewal consumers, initial/root/custom
 apply and all installed/native/full-feature acceptance remain required work.
+
+## Durable journal dependency (source reviewed)
+
+The POSIX private journal holds an actual writer mutex across preparation and
+explicit reopening, pins its original ancestry and descriptors, and invalidates
+the writer after context exit or process inheritance. Callers provide canonical
+bounded project/plan binding bytes and a finite storage/event/payload/stage budget.
+The storage parent is caller-selected private framework state and may be inside
+the project's framework partition; no external-home or legacy metadata location
+is prescribed. This dependency does not implement the pending containment migration.
+
+Raw before/prospective payloads and hash-linked events publish from exclusive
+private stages using native no-replace rename and file/directory synchronization.
+Before any caller can perform an effect, the completed write closes over the
+complete private namespace, original ancestors, held mutex and stored bytes.
+Failed writes poison the current writer. Explicit fresh reopening validates the
+same binding/budget and every present record/payload, preserves partial stages as
+diagnostics, and obtains a fresh actual OS mutex. No record or saved phase grants
+movement, deletion, control ownership or successful recovery. Missing historical
+intent cannot prove that an external effect did not occur: the surrounding owner
+must freshly classify every actual endpoint and refuse unknown state.
+
+The fifteen maintained controls cover actual process death, competing
+writer refusal, process/context lifetime, raw payloads, present hash chains,
+interrupted staging/synchronization, foreign namespace and physical replacement,
+finite input bounds and storage inside the framework partition. Three controls
+fail the original journal: existing and race-inserted foreign empty locks gain a
+placeholder byte, and currentness returns across a newly inserted foreign entry.
+The repair uses existing-only, non-initializing recovery lock acquisition and
+closes namespace membership after reading all records. Independent re-review
+reproduces all three original failures and passes the repaired fifteen methods
+plus seven supplementary controls, including actual storage/stage exhaustion and
+acquisition/closing faults. The seventy-method affected neighborhood passes with
+no skips. The [source evidence](../../verification/retained-layout-journal-development.json)
+retains exact subjects and the unchanged shared helpers. Native Windows durability,
+actual project/Git/control binding,
+canonical project reservations, endpoint classification and every public L4-L6
+placement/relocation/recovery/renewal cell remain required before feature acceptance.

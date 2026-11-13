@@ -33761,6 +33761,24 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Durable journal dependency (source reviewed):** The journal stores bounded
+  private raw payloads and hash-linked present events under actual writer mutexes,
+  original ancestry/descriptor/process custody, exclusive native publication and
+  file/directory synchronization. Explicit reopening requires the same project/plan
+  binding and budget, retains incomplete stages as diagnostics and grants no
+  project/Git/control/move/deletion authority. Caller-selected framework state may
+  be inside the project; preserve PROJECT goal 8 and the pending containment ADR.
+  Fifteen actual macOS controls pass. Initial independent review identified that
+  cache-lock initialization mutated an empty foreign recovery lock before
+  refusing, and currentness missed foreign insertion during record reads. Three
+  maintained causal controls fail the original bytes; existing-only acquisition
+  and closing membership checks repair both defects. The approved [journal dependency](../../verification/retained-layout-journal-development.json)
+  independently reproduces all three original failures, passes all fifteen repaired
+  methods and seven additional quota/acquisition/closing controls. The seventy-case
+  affected neighborhood passes without skips; the shared helpers remain unchanged.
+  Windows durability, the actual owner, complete placement/relocation/recovery/
+  renewal and release acceptance stay open.
+
 - **Native entry source dependency reviewed:** The separate [entry dependency](../../verification/retained-layout-native-entry-development.json)
   preserves file/directory/link nodes through actual macOS moves, retains foreign
   conflicts, and closes held parents after all endpoint observations. The new
@@ -33772,27 +33790,28 @@ independent review and the complete combined gate from test one.
   project/Git/control owner, durable journal/recovery, public apply and all other
   complete-program acceptance remain required before this dependency is consumed.
 
-- **Native integer identity refinement (in progress):** Physical node facts may
-  exceed the canonical JSON signed-64-bit integer domain. Preserve their exact
-  values with tagged decimal encoding for local custody hashing, following the
-  existing repository-refresh encoding contract. Add a controlled wide-ID encoding
-  regression, without claiming actual wider-ID host or Windows qualification.
+- **Native integer identity refinement (source reviewed):** Physical node facts
+  beyond the canonical JSON signed-64-bit integer domain retain their exact values
+  through tagged decimal local custody hashing, following repository-refresh.
+  The controlled wide-ID regression is included in the reviewed entry dependency;
+  actual wider-ID host and Windows qualification remain open.
 
-- **Native entry movement dependency (in progress):** Implement a separate
-  exclusive move primitive for individual regular files, directories and symbolic
-  links; preserve existing directory-only APIs. Bind expected source facts and
-  pinned source/destination parent ancestry, refuse occupied/portable-alias or
+- **Native entry movement dependency (source reviewed):** The separate exclusive
+  move primitive supports regular files, directories and symbolic links while
+  preserving existing directory-only APIs. Expected source facts and pinned
+  source/destination parent ancestry refuse occupied/portable-alias or
   cross-device destinations and unsupported native operations before fallback can
-  copy or overwrite anything. Use actual native exclusive rename and Windows
-  file identities/parent handles, preserve link text and inode/topology, and
+  copy or overwrite anything. Actual native exclusive rename and Windows
+  file-identity/parent-handle adapters preserve link text and inode/topology and
   report ambiguous post-effect conflicts without deleting or rolling back foreign
   state. The future transaction caller must own full source hashes/topology,
   lifecycle/reservations and durable journal intent before using the primitive;
   this dependency does not expose public apply or grant those missing authorities.
-  Independent review reproduces a destination-parent replacement during the final
-  destination-node observation that still reports success. Add a closing parent
-  guard after all endpoint observations and a maintained actual-native regression;
-  retain every affected node and re-review before pin renewal.
+  Independent review reproduced a destination-parent replacement during the final
+  endpoint observation that reported success. The closing parent guard and causal
+  native regression repair that defect; the approved re-review and supported pin
+  renewal are recorded in the entry dependency above. Actual Windows execution and
+  the complete transaction owner remain required.
 
 
 - **Complete partition census source evidence:** The new [read-only census](../../verification/retained-layout-partition-census-development.json)
@@ -33807,17 +33826,14 @@ independent review and the complete combined gate from test one.
 
 - **Full transaction continuation (in progress):** Follow the
   [execution contract](retained-layout-transactions.md), retaining every accepted placement,
-  relocation/recovery and renewal cell. First implement a complete read-only raw
-  namespace/partition census using the reviewed streaming reader without exclusions,
-  exact-file framework labels and fresh physical custody; refuse cross-partition
-  aliases/hardlinks and discover new/ignored-looking files. Labels grant no move
-  authority. Actual Git/control binding, descriptor-owned effects, recovery and all
-  remaining steps stay required; keep unsupported public apply cells guarded.
-  The initial descriptive census passes nine controls and limited source review,
-  but an actual higher-parent replacement preserving root/file inodes still passes
-  currentness. Strengthen the census itself with persistent full ancestry and bind
-  physical custody to its identity before a later planner can consume it. Require
-  causal native parent-swap and identical-byte replacement identity controls.
+  relocation/recovery and renewal cell. The read-only complete census and separate
+  native entry dependency are reviewed; their evidence does not grant live source
+  or control ownership. Continue the durable journal, then bind actual current
+  project/Git/control authority and descriptor-backed canonical reservations before
+  any source effect. Recovery must freshly classify real endpoints, preserve every
+  foreign node and refuse unknown state. Complete structural renewal, initial
+  plain/root/custom placement, every relocation cell and genuine evidence renewal;
+  keep unsupported public apply cells guarded until that owner is complete.
 
 
 - **Declaration ancestry source evidence:** Both new methods produce 12 failing
