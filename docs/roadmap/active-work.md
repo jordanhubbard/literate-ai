@@ -33761,6 +33761,31 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Complete partition census source evidence:** The new [read-only census](../../verification/retained-layout-partition-census-development.json)
+  captures complete raw namespace facts and exact proposed file labels without
+  exclusions. It rejects cross-partition and mixed-target links, preserves complete
+  hardlink groups, and binds original ancestry plus physical nodes into its identity.
+  Both new custody controls fail the prior primitive; all eleven census controls,
+  four independent closing controls and the 37-method neighborhood pass without
+  skips. Independent review approves exact source and unchanged reused helpers.
+  Observations confer no live descriptor or movement authority; actual control/Git
+  ownership, L2-L6 transactions/renewal and all integrated acceptance stay open.
+
+- **Full transaction continuation (in progress):** Follow the
+  [execution contract](retained-layout-transactions.md), retaining every accepted placement,
+  relocation/recovery and renewal cell. First implement a complete read-only raw
+  namespace/partition census using the reviewed streaming reader without exclusions,
+  exact-file framework labels and fresh physical custody; refuse cross-partition
+  aliases/hardlinks and discover new/ignored-looking files. Labels grant no move
+  authority. Actual Git/control binding, descriptor-owned effects, recovery and all
+  remaining steps stay required; keep unsupported public apply cells guarded.
+  The initial descriptive census passes nine controls and limited source review,
+  but an actual higher-parent replacement preserving root/file inodes still passes
+  currentness. Strengthen the census itself with persistent full ancestry and bind
+  physical custody to its identity before a later planner can consume it. Require
+  causal native parent-swap and identical-byte replacement identity controls.
+
+
 - **Declaration ancestry source evidence:** Both new methods produce 12 failing
   subtests against predecessor `6fc67588e`, covering redirect and direct replacement
   at metadata, project and higher ancestors during open and encoding. The repaired

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a read-only retained-layout partition census for transactional placement
+  and relocation, with raw source and physical-custody checks (#265).
+
 - Generated bootstrap checks cap stdout and stderr while reading and retire
   owned helpers on completion, timeout or overflow, preserving runtime pins (#332).
 
