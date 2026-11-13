@@ -34581,6 +34581,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] NATIVE-ACCEPTANCE-REPAIR-001 — Bind generated native-library acceptance rejection to bounded candidate repair
 
+- **Current combined integration (in progress):** Normal history composes independently reviewed PR414 `58bc1381` with the current bootstrap/diagnostic/Cargo/runtime batch. The eight non-assembly native-repair production files remain byte-identical to the contributor; Standard project assembly retains both the held runtime execution plan and the native candidate verifier, while runtime environment port bytes remain unchanged. Independent review covers the original three-candidate budget, exact fresh single-root Rust-v2 custody, fixed-category feedback, private oracle boundaries, sealed export hashes and executable/tool closure even after rejection. `verification/native-candidate-repair-integration-review.json` binds those source comparisons. Run current native/contract/runtime coupling controls, canonical driver/documentation renewal and the complete final source/installed/exact integration gates before advancing completion. Earlier contributor qualification remains scoped to its original candidate.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)
 

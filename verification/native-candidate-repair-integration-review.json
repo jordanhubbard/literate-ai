@@ -1,0 +1,111 @@
+{
+  "baseline": "94036ab84e8906fea67acacf7d1dcc4aa86ee9b0",
+  "composition": "Standard project assembly retains both the reviewed held runtime execution plan and the contributed native candidate verifier. The other eight native-repair production files exactly match PR414; the three runtime environment port files remain unchanged.",
+  "contributor": "58bc138109c5358a0c74d39fe03eacddfbb5272a",
+  "driver_pin_log_sha256": "25f6530cc415b5bf2754297c9e6fff1ffac45cdda7fa6143e4320c4e5dd98de0",
+  "driver_pin_renewed": true,
+  "goal": "NATIVE-ACCEPTANCE-REPAIR-001",
+  "goal_complete": false,
+  "independent_source_review": {
+    "blocking_findings": [],
+    "scope": [
+      "exact ACCEPT mismatch code within existing three-total-candidate loop",
+      "fresh single-node Rust-v2 root and genuine prepared/oracle/compiler owners",
+      "fixed-category model feedback excludes original oracle/streams",
+      "sealed export re-encoding/hash comparison and live library/native/tool closure",
+      "physical drift overrides semantic mismatch on error paths",
+      "cache/checkpoint composition forwards verifier; final package acceptance remains mandatory"
+    ]
+  },
+  "integration": "6a546ff0152f69e068c1d32943e7dbb808b30e95",
+  "next_action": "Run native/contract/candidate-budget and runtime coupling controls, then one complete final source/installed gate and exact review/resulting-main acceptance.",
+  "qualification_claim": "source inspection only; contributor native/installed claims retained separately, not independently rerun",
+  "release_attestation": false,
+  "reviewed_source_files": [
+    {
+      "path": "src/literate_ai/adapters/candidate_repair.py",
+      "sha256": "78e46a566635b42288856150b832dc0e77d11da6a8da8cdbd86e788336068ab5"
+    },
+    {
+      "path": "src/literate_ai/adapters/native_candidate_verification.py",
+      "sha256": "e69363e9af16b9c9d9524da79b8816529d7378e0256328f98a95cca952c3059b"
+    },
+    {
+      "path": "src/literate_ai/adapters/rust_library_harness_execution.py",
+      "sha256": "5bc0b5cf549c521af98d57720c71c80c28c7aebef425e64e19ef7bbc928e52dd"
+    },
+    {
+      "path": "src/literate_ai/adapters/standard_project.py",
+      "sha256": "45a60800c40a082b38e660f0272e2a2b9b9c467aaeed3fea98ea0ba4569702dc"
+    },
+    {
+      "path": "src/literate_ai/adapters/standard_rebuild.py",
+      "sha256": "36daf232f8cf6315b1530cb42f1d00aa948e4a7322e259dfc145974416816ea0"
+    },
+    {
+      "path": "src/literate_ai/application/standard_lifecycle_ports.py",
+      "sha256": "d26590ff73b5030a88569d8c05a2c47e8ece6437f5ce2f6fe9d2eea297128288"
+    },
+    {
+      "path": "src/literate_ai/application/standard_project_lifecycle.py",
+      "sha256": "c1c64ccef78d7814fd078f027fd520f9206f21c7e41724f1ecebdc16269fb2fd"
+    },
+    {
+      "path": "src/literate_ai/application/standard_project_services.py",
+      "sha256": "0e21e106f1aead60c5873fa798b5118179a8f27a55fc5f3eab7336d13dfa2d50"
+    },
+    {
+      "path": "src/literate_ai/contracts/executable_components/candidate_repair.py",
+      "sha256": "e353e2b12c0d919b3ba5935016d21c629d930244ab215be0ebd016c837247573"
+    }
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "source_comparisons": [
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/candidate_repair.py",
+      "sha256": "78e46a566635b42288856150b832dc0e77d11da6a8da8cdbd86e788336068ab5"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/native_candidate_verification.py",
+      "sha256": "e69363e9af16b9c9d9524da79b8816529d7378e0256328f98a95cca952c3059b"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/rust_library_harness_execution.py",
+      "sha256": "5bc0b5cf549c521af98d57720c71c80c28c7aebef425e64e19ef7bbc928e52dd"
+    },
+    {
+      "matches_contributor": false,
+      "path": "src/literate_ai/adapters/standard_project.py",
+      "sha256": "73abd209b9ddeb8bec82999f3c52fead988ff79068ace341a72a82cb48e0468a"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/standard_rebuild.py",
+      "sha256": "36daf232f8cf6315b1530cb42f1d00aa948e4a7322e259dfc145974416816ea0"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/application/standard_lifecycle_ports.py",
+      "sha256": "d26590ff73b5030a88569d8c05a2c47e8ece6437f5ce2f6fe9d2eea297128288"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/application/standard_project_lifecycle.py",
+      "sha256": "c1c64ccef78d7814fd078f027fd520f9206f21c7e41724f1ecebdc16269fb2fd"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/application/standard_project_services.py",
+      "sha256": "0e21e106f1aead60c5873fa798b5118179a8f27a55fc5f3eab7336d13dfa2d50"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/contracts/executable_components/candidate_repair.py",
+      "sha256": "e353e2b12c0d919b3ba5935016d21c629d930244ab215be0ebd016c837247573"
+    }
+  ],
+  "static_checks_exit": 0
+}
