@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Native rewrite planning uses genuinely readmitted declared source while preserving
+  custom progress. Monorepo refresh reruns retained Components after a layout change
+  and binds their installation to the current declaration (#265).
+
 - Retained source-scope refresh and schema migration can locate declared nonroot
   source before readmission, preserve historical evidence, and refuse pending or
   changed inputs without granting execution admission (#265).

@@ -33784,8 +33784,19 @@ independent review and the complete combined gate from test one.
   review approves this local structural-consumer scope and all seventeen maintained
   methods, including actual nested publication refusals; the final 114-method
   affected run is recorded in [development evidence](../../verification/retained-layout-structural-consumers-development.json).
-  Next complete native rewrite and monorepo discovery. Native rewrite authority
-  still requires genuine qualified evidence. Then join actual
+  Native rewrite planning now uses genuinely readmitted declared nonroot source
+  and its current selected wrapper, preserving custom progress while reconciling
+  recognized generated locations. Its complete actual selected pinned inputs close
+  after final lock/layout reads. Monorepo inspection refuses old installation/layout
+  bindings; acknowledged refresh runs every retained Component at the current source
+  after a layout change and publishes a new declaration-bound installation. Legacy
+  projects keep schema @1 and reuse current Component evidence. Complete original
+  installed file and parent facts remain bound across final reads and writer handoff;
+  pending and foreign changes refuse while preserving unresolved state. Independent
+  review approves the exact local consumer scope and eighteen maintained methods.
+  The final 163-method affected run and reviewed subjects are recorded in
+  [development evidence](../../verification/retained-layout-program-consumers-development.json).
+  Next join actual
   role-owned complete source partitions and finish root/shared/initial/wrapper
   placement, full public recovery and installed/native/full-program acceptance.
 

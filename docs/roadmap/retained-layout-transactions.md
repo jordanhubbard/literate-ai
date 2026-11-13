@@ -923,3 +923,54 @@ subjects belong in [development evidence](../../verification/retained-layout-str
 Native rewrite and monorepo discovery, complete
 source partition ownership, root/shared/mixed/initial/wrapper placement, public
 recovery and installed/native/full-program qualification remain open.
+
+
+## Native rewrite and installed monorepo consumers (in progress)
+
+Declared native rewrite planning must require genuine current readmission and the
+selected wrapper's current lock before updating program locations. Reconcile only
+recognized generated references in the existing ADR, program and ADOPT-002 item;
+retain custom progress and refuse ambiguous customized location fields before any
+write. Legacy initialization still prepares its original program before a wrapper
+lock exists. Structural location observation never grants qualified admission.
+
+Installed monorepo discovery resolves declared source independently of historical
+installation coordinates. Layout-bound installations use a distinct version and
+must match the current declaration and source coordinate. Acknowledged refresh can
+use the actual structurally current source before overall readmission, but must
+rerun all selected retained harnesses after a layout change and publish a fresh
+layout binding. Unchanged source bytes alone cannot make a historical installation
+current. Undeclared installation identities and schemas remain unchanged.
+
+Bind original parsed/native metadata and source facts across final payload reads;
+close layout, actual project/conversion and known source/output facts before
+publication and success. Preserve foreign edits and pending state, keep ordinary
+rollback limited to owned writes, and retain full transaction/recovery boundaries.
+Independent review approves the exact local consumer source scope; final affected
+checks and exact subjects are retained in development evidence. L1 complete source/metadata ownership,
+L4 placement, public recovery and installed/native/full-program acceptance remain
+open after these local consumers are implemented.
+
+
+Initial program-consumer review reproduced two gaps despite the 149-method affected
+pass: a selected workflow could change during native planning's final actual lock
+read, and an installed binding could change during the check's final layout read
+while success was returned. The second gap also affected initial installation.
+Retain the actual selected lock/catalog context, its complete pinned leaf set and
+ancestry through every later read. Retain the complete consumed installed payload
+set from original observation through the final layout/source check. Initial
+publication must close its known written files after validation inside rollback;
+refresh must transfer original planning facts into its writer instead of sampling
+intervening edits as a new baseline. Maintained regressions retain foreign edits,
+restore only still-owned output bytes and require refusal before positive results.
+A further review confirmed those repairs but found that original parent ancestry
+was lost at the refresh writer handoff. Preserve that same original ancestry in a
+separate closing callback while per-file signatures evolve under the writer. A
+maintained native control substitutes a parent using preexisting hardlinks that
+preserve child inode/time facts; refresh must refuse and preserve both directories.
+The final independent source review approves all eighteen maintained consumer
+methods, including this refusal and unchanged legacy refresh reuse. Exact subjects,
+immutable review identities and the final affected run are retained in
+[development evidence](../../verification/retained-layout-program-consumers-development.json).
+Full namespace ownership, placement, public recovery and platform/program acceptance
+remain open.

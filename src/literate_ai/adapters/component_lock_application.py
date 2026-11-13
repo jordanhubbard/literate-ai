@@ -134,9 +134,16 @@ def current_component_lock_identity(component_root: Path) -> ContentIdentity:
 def current_component_lock(component_root: Path) -> ComponentLock:
     """Read one exact current lock and its complete pinned input closure."""
 
+    return current_component_lock_binding(component_root)[0]
+
+
+def current_component_lock_binding(
+    component_root: Path,
+) -> tuple[ComponentLock, ComponentCatalogSnapshot]:
+    """Expose the same verified selection with its actual pinned-input context."""
     return _read_current_component_lock(
         component_root, FilesystemLockedGenerationAuthorityReader(), None
-    )[0]
+    )
 
 
 def _read_current_component_lock(

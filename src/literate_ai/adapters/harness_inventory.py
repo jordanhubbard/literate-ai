@@ -2377,6 +2377,12 @@ def prepare_native_rewrite_program(
 ) -> dict[str, object]:
     """Create Phase 2 decision and roadmap authority without rewriting source."""
 
+    from .retained_layout import RETAINED_LAYOUT_PATH
+
+    if os.path.lexists(project_root / RETAINED_LAYOUT_PATH):
+        from .retained_native_rewrite import prepare_declared_native_rewrite
+
+        return prepare_declared_native_rewrite(lift_shift, project_root=project_root)
     if lift_shift.get("state") != "passed":
         raise ValueError("native rewrite requires a completed lift-and-shift")
     try:
