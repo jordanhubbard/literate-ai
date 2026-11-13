@@ -32230,6 +32230,27 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Current review security findings classified, still pending disposition:**
+  PR437 at `6f807b2a0` reports six GitGuardian occurrences. Independent review
+  recomputes each referenced source module from the exact commit and confirms
+  all six values are three repeated source-byte SHA-256 digests in verification
+  metadata. The [classification](../../verification/reviewed-guard-scanner-digest-classification.json)
+  retains exact occurrence/source references. No credential role is found in
+  these fields. The scanner remains failed pending its supported disposition;
+  no detector exclusion, check override or published-history rewrite is made.
+  This does not resolve the separate historical PR421 findings.
+
+- **Qualification fixture repairs (in progress):** The frozen layout candidate's
+  complete source gate stops at the legacy-evidence migration fixture: its macOS
+  temporary path includes the operating system's `/var` link, which the physical
+  retained-layout resolver correctly refuses. Canonicalize the fixture's owned
+  root before invoking migration; preserve redirected-ancestor refusal in source.
+  PR437's Linux Python 3.11 gate separately reaches the host AppArmor guard during
+  a mocked provider-state journey. Give that fixture explicit owned prerequisite
+  files, exercise the real guard, and retain a separate missing-policy refusal.
+  Reproduce both failures before changing the fixtures, then rerun their complete
+  affected cohorts. No production guard or platform prerequisite is relaxed.
+
 - **Resolved layout composition and harness source review:** Actual merge
   `add6b0a62` preserves all reviewed runtime, schema, fixture and prior harness
   bytes from the preview. The new literal installed-layout scope has independent
@@ -35061,6 +35082,42 @@ implementation, policy weakening, qualification or issue closure is recorded her
 ## 1.5 preparation
 
 ### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
+
+- **Bounded probe source repair reviewed:** The independent non-author review
+  approves the exact [bootstrap and adjacent fixture repair](../../verification/bootstrap-bounded-process-source-review.json).
+  All 24 focused methods pass without skips, including thirteen bootstrap methods.
+  Original output/descendant counterexamples fail five subtests; a separate setup
+  error control reproduces unreleased ownership before the fix. Both paths now
+  refuse or retire under bounded cleanup. Controlled Linux policy ports pass four
+  state methods, without claiming actual Linux/AppArmor execution. Final installed
+  harness review, supported pin renewal and integrated platform gates remain open.
+
+- **Bounded version-probe refinement (in progress):** Independent source audit
+  reproduces `ready` with valid small stdout and stderr exceeding the intended
+  1 MiB cap. Full capture before checking also leaves retained output unbounded.
+  Replace that probe with standard-library streaming, enforce each stream's byte
+  cap before retaining its next chunk, and retire the original process group/Job
+  on success, timeout, overflow and exceptions before joining readers. Preserve
+  the 30-second command deadline, original status interpretation, read-only pins,
+  manual-install policy and operation before framework installation. Reuse the
+  reviewed standard-library process-ownership implementation as a pinned generated
+  helper; refuse unavailable ownership instead of reporting readiness. Require
+  real child-process overflow/timeout/helper-retirement counterexamples and an
+  exact helper-content control, then independent review before pin renewal.
+  Independent review additionally reproduces an unreleased created owner when
+  deadline setup raises before entering the cleanup boundary. Keep that setup
+  inside the owner lifetime and add a maintained causal refusal control.
+  Carry all 13 maintained bootstrap methods into the noneditable wheel gate as
+  ten portable cases and three actual POSIX process-group cases. Bind the core
+  helper, generated helper, generated bootstrap and initializer bytes to source
+  and installed distribution; retain fixed inventories and zero applicable skips.
+  The unchanged earlier installed controls remain required. Harness review found
+  that splitting one test class violates its complete-class inventory and that
+  importing scripts resources creates an origin-less namespace. Split the fixture
+  into portable and POSIX classes sharing only setup helpers, and give the bundled
+  scripts package a direct initializer; preserve all inventory/origin validators.
+
+  PR437 stays draft while this source-admission blocker remains unresolved.
 
 - **Priority:** P1
 - **Release target:** 1.5.0; new work, with no change to recorded 1.4.0 goals

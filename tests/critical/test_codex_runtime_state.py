@@ -50,6 +50,14 @@ class CodexRuntimeStateTests(unittest.TestCase):
             original = dict(caller)
             parent_home = os.environ.get("HOME")
             value = recipe(flavor("python"))
+            restriction = root / "userns-restricted"
+            restriction.write_text("1")
+            profile = root / "bwrap-userns-restrict"
+            profile.write_text("owned policy fixture")
+            host_paths = SimpleNamespace(
+                apparmor_user_namespace_restriction_file=restriction,
+                apparmor_bwrap_profile_file=profile,
+            )
             observed = []
             fail = False
 
@@ -93,6 +101,9 @@ class CodexRuntimeStateTests(unittest.TestCase):
                 mock.patch.object(tempfile, "tempdir", str(state_parent)),
                 mock.patch.object(cli.shutil, "which", return_value=sys.executable),
                 mock.patch.object(cli, "_run_bounded", side_effect=execute),
+                mock.patch.object(
+                    cli, "resolve_host_system_paths", return_value=host_paths
+                ),
             ):
                 for failed in (False, True):
                     fail = failed
@@ -141,6 +152,31 @@ class CodexRuntimeStateTests(unittest.TestCase):
             self.assertTrue(all(path.parent == state_parent for path in observed))
             self.assertEqual(caller, original)
             self.assertEqual(os.environ.get("HOME"), parent_home)
+
+    def test_restricted_linux_policy_is_required_before_provider_execution(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            restriction = root / "userns-restricted"
+            restriction.write_text("1")
+            profile = root / "bwrap-userns-restrict"
+            selection = SimpleNamespace(
+                name="codex", effective_codex_sandbox_mode="workspace-write"
+            )
+            with mock.patch.object(cli.sys, "platform", "linux"):
+                with self.assertRaises(cli.CodingCliError) as caught:
+                    cli._require_codex_linux_workspace_write_prerequisite(
+                        selection,
+                        restriction_path=restriction,
+                        bwrap_profile_path=profile,
+                    )
+                self.assertEqual(
+                    caught.exception.code,
+                    "coding_cli.workspace_write_prerequisite_missing",
+                )
+                profile.write_text("owned policy fixture")
+                cli._require_codex_linux_workspace_write_prerequisite(
+                    selection, restriction_path=restriction, bwrap_profile_path=profile
+                )
 
     @unittest.skipUnless(os.name == "posix", "native POSIX file limits required")
     def test_native_sqlite_limit_refuses_ambient_state_but_private_state_succeeds(self):

@@ -1213,6 +1213,7 @@ _TEMPLATE_FILES = {
     "AGENTS.md": "AGENTS.md",
     "CLAUDE.md": "CLAUDE.md",
     "scripts/bootstrap_litai.py": "scripts/bootstrap_litai.py",
+    "scripts/_bootstrap_processes.py": "scripts/_bootstrap_processes.py",
     "docs/user/bootstrap.md": "docs/user/bootstrap.md",
     "agents/openai.yaml": "agents/openai.yaml",
     "docs/roadmap/active-work.md": "docs/roadmap/active-work.md",

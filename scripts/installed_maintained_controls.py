@@ -14,6 +14,37 @@ import unittest
 from pathlib import Path
 
 _CASE_SETS = {
+    "bootstrap": [
+        {
+            "fixture": "tests/smoke/test_bootstrap_litai.py",
+            "module": "tests.smoke.test_bootstrap_litai",
+            "class": "GeneratedBootstrapTests",
+            "methods": [
+                "test_bootstrap_environment_is_not_source_without_git",
+                "test_generated_route_and_missing_cli_are_read_only",
+                "test_incompatible_and_ready_runtime_checks_preserve_custom_rules",
+                "test_private_probe_accepts_exact_byte_bounds_before_installation",
+                "test_private_probe_enforces_real_deadline",
+                "test_probe_setup_error_releases_created_owner_before_returning",
+                "test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch",
+                "test_reader_setup_error_acquires_no_process_owner",
+                "test_update_adds_bootstrap_files_without_replacing_custom_rules",
+                "test_wheel_checksum_and_missing_file_fail_closed",
+            ],
+        }
+    ],
+    "bootstrap-posix": [
+        {
+            "fixture": "tests/smoke/test_bootstrap_litai.py",
+            "module": "tests.smoke.test_bootstrap_litai",
+            "class": "GeneratedBootstrapPosixTests",
+            "methods": [
+                "test_probe_bounds_both_streams_and_retires_overflow_writer",
+                "test_probe_launcher_result_keeps_status_and_retires_helpers",
+                "test_probe_timeout_retires_original_helper",
+            ],
+        }
+    ],
     "diagnostics": [
         {
             "fixture": "tests/critical/test_qualification_capture.py",
@@ -384,6 +415,18 @@ _CASE_SETS = {
 }
 
 _SUBJECTS = {
+    "bootstrap": (
+        "literate_ai.adapters._processes",
+        "literate_ai.adapters.project_initialization",
+        "literate_ai.project_template.scripts.bootstrap_litai",
+        "literate_ai.project_template.scripts._bootstrap_processes",
+    ),
+    "bootstrap-posix": (
+        "literate_ai.adapters._processes",
+        "literate_ai.adapters.project_initialization",
+        "literate_ai.project_template.scripts.bootstrap_litai",
+        "literate_ai.project_template.scripts._bootstrap_processes",
+    ),
     "diagnostics": (
         "literate_ai.adapters.qualification",
         "literate_ai.adapters.qualification_capture",
@@ -439,7 +482,7 @@ _SUBJECTS = {
 
 
 def unavailable_reason(scope: str) -> str | None:
-    if scope == "coding-cli-posix" and os.name != "posix":
+    if scope in {"coding-cli-posix", "bootstrap-posix"} and os.name != "posix":
         return "requires actual POSIX process groups and native file limits"
     if scope == "telemetry-linux-processes" and sys.platform != "linux":
         return "requires actual Linux pidfd and proc descriptor ownership"

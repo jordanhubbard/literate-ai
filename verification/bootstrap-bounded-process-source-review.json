@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Bootstrap bounded process ownership and qualification fixture source repair",
+  "base_revision": "37991bbf6f3ace535657a92646dedce7752af718",
+  "independent_review": {
+    "decision": "approved",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "0428e1d6b6938cc3e06a6f7478556ba936ff7632974c005c84c6b09796672079"
+    },
+    "source_test_manifest": {
+      "src/literate_ai/project_template/scripts/bootstrap_litai.py": {
+        "algorithm": "sha256",
+        "digest": "0c4aed31ed610a704f0f1fc78d64989e1f5e87de28935c3a9f82d25ac5575494"
+      },
+      "src/literate_ai/project_template/scripts/_bootstrap_processes.py": {
+        "algorithm": "sha256",
+        "digest": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c"
+      },
+      "src/literate_ai/adapters/project_initialization.py": {
+        "algorithm": "sha256",
+        "digest": "bc574594881ef31c30fe76532ee459cc3ea2159ca5b56f698424a5a1a0a5abd7"
+      },
+      "tests/smoke/test_bootstrap_litai.py": {
+        "algorithm": "sha256",
+        "digest": "87b43105b25cf1c90729ff960b38f2547d78560431f7cd1963f937438a96226e"
+      },
+      "tests/critical/test_codex_runtime_state.py": {
+        "algorithm": "sha256",
+        "digest": "f2fa4e1a59c87ba97177b6cc9adf9f836d3e3d9a87becb9dc2f504e2fd707608"
+      },
+      "tests/e2e/test_retained_harness_receipts.py": {
+        "algorithm": "sha256",
+        "digest": "8d2eab16d057ca567161ed9382593951b7e410b3ce43501bfa1df75d1104c351"
+      }
+    }
+  },
+  "causal_predecessor": {
+    "bootstrap_methods": 3,
+    "bootstrap_failed_subtests": 5,
+    "setup_owner_control_failed": 1,
+    "legacy_migration_case_failed": 1,
+    "restricted_linux_fixture_reproduced": true
+  },
+  "focused_source": {
+    "platform": "macOS",
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "bootstrap": 13,
+    "private_state": 4,
+    "retained_receipts": 7
+  },
+  "controlled_linux_platform_ports": {
+    "passed": 4,
+    "actual_linux_or_loaded_apparmor_proof": false
+  },
+  "preserved_contract": [
+    "Read-only runtime and manifest pins; installation remains manual",
+    "Thirty-second version-probe deadline and original launcher exit interpretation",
+    "One MiB cap for each binary stream before retention",
+    "Owned original process group or Job retired before bounded reader cleanup",
+    "Exact generated helper bytes equal reviewed standard-library core",
+    "Physical ancestor and AppArmor production refusals unchanged"
+  ],
+  "remaining": [
+    "Independent installed-harness source review",
+    "Supported driver and documentation pin renewal",
+    "Final integrated full-source and noneditable whole-wheel qualification",
+    "Native Windows ownership/handshake and actual Linux qualification",
+    "Exact-head and resulting-main CI; security finding dispositions",
+    "All remaining roadmap and release acceptance"
+  ],
+  "feature_or_release_complete": false
+}

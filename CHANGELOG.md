@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Generated bootstrap checks cap stdout and stderr while reading and retire
+  owned helpers on completion, timeout or overflow, preserving runtime pins (#332).
+
 - Retained-layout declaration reads refuse incomplete bytes and changed directory
   ancestry through parsing, preserving file custody and canonical encoding (#265).
 

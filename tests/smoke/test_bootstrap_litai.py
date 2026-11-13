@@ -9,6 +9,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -23,7 +24,7 @@ from literate_ai.contracts import (
 from tests.smoke.test_project_reparenting import initialize_root
 
 
-class GeneratedBootstrapTests(unittest.TestCase):
+class GeneratedBootstrapFixture(unittest.TestCase):
     def setUp(self) -> None:
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
@@ -51,6 +52,28 @@ class GeneratedBootstrapTests(unittest.TestCase):
         spec.loader.exec_module(module)
         return module
 
+    def _scripted_cli(self, body: str) -> Path:
+        executable = self.root / "fixture-litai"
+        executable.write_text("#!" + sys.executable + "\n" + body, encoding="utf-8")
+        executable.chmod(0o700)
+        return executable
+
+    @staticmethod
+    def _ready_envelope() -> str:
+        return json.dumps(
+            {
+                "ok": True,
+                "result": {
+                    "ok": True,
+                    "project": {
+                        "derived_identities": {"driver_identity_matches": True}
+                    },
+                },
+            }
+        )
+
+
+class GeneratedBootstrapTests(GeneratedBootstrapFixture):
     def test_generated_route_and_missing_cli_are_read_only(self) -> None:
         self.assertTrue(self.script.is_file())
         self.assertTrue((self.root / "docs/user/bootstrap.md").is_file())
@@ -131,14 +154,106 @@ class GeneratedBootstrapTests(unittest.TestCase):
                 ),
             )
 
-        with mock.patch.object(module.subprocess, "run", return_value=completed(False)):
+        with mock.patch.object(
+            module, "_run_version_probe", return_value=completed(False)
+        ):
             incompatible = module.check(self.root, "litai")
         self.assertEqual(incompatible["state"], "incompatible")
-        with mock.patch.object(module.subprocess, "run", return_value=completed(True)):
+        with mock.patch.object(
+            module, "_run_version_probe", return_value=completed(True)
+        ):
             ready = module.check(self.root, "litai")
         self.assertEqual(ready["state"], "ready")
         self.assertEqual((self.root / "literate.project.json").read_bytes(), before)
         self.assertEqual((self.root / "AGENTS.md").read_bytes(), custom)
+
+    def test_process_helper_is_exact_reviewed_core_and_tampering_refuses_launch(
+        self,
+    ) -> None:
+        from literate_ai.adapters import _processes
+
+        module = self.module()
+        helper = self.root / "scripts/_bootstrap_processes.py"
+        reviewed = Path(_processes.__file__).read_bytes()
+        self.assertEqual(helper.read_bytes(), reviewed)
+        self.assertEqual(hashlib.sha256(reviewed).hexdigest(), module._OWNER_DIGEST)
+        helper.write_bytes(reviewed + b"\n# unreviewed change\n")
+        with mock.patch.object(module.subprocess, "Popen") as launch:
+            result = module.check(self.root, "litai")
+        self.assertEqual(result["state"], "check-unavailable")
+        launch.assert_not_called()
+
+    def test_private_probe_accepts_exact_byte_bounds_before_installation(self) -> None:
+        module = self.module()
+        payload = self._ready_envelope()
+        # No LitAI import in either generated file; exercise the owner loader
+        # with an actual isolated Python child and a full stderr allowance.
+        completed = module._run_version_probe(
+            [
+                sys.executable,
+                "-I",
+                "-c",
+                "import sys; sys.stdout.write(" + repr(payload) + "); "
+                "sys.stderr.buffer.write(b'x' * (1024 * 1024))",
+            ],
+            cwd=self.root,
+        )
+        self.assertEqual(completed.returncode, 0)
+        self.assertEqual(completed.stdout, payload)
+        self.assertEqual(len(completed.stderr), 1024 * 1024)
+        with self.assertRaises(ValueError):
+            module._run_version_probe(
+                [
+                    sys.executable,
+                    "-I",
+                    "-c",
+                    "import sys; "
+                    "sys.stdout.buffer.write(('é' * (524288 + 1)).encode())",
+                ],
+                cwd=self.root,
+            )
+
+    def test_probe_setup_error_releases_created_owner_before_returning(self) -> None:
+        module = self.module()
+        owner_module = mock.Mock()
+        ownership = owner_module.create_process_tree_ownership.return_value
+        with (
+            mock.patch.object(module, "_process_owner", return_value=owner_module),
+            mock.patch.object(
+                module, "_probe_now", side_effect=OSError("clock unavailable")
+            ),
+            mock.patch.object(module.subprocess, "Popen") as launch,
+        ):
+            result = module.check(self.root, "litai")
+        self.assertEqual(result["state"], "check-unavailable")
+        ownership.release.assert_called_once_with()
+        launch.assert_not_called()
+
+    def test_reader_setup_error_acquires_no_process_owner(self) -> None:
+        module = self.module()
+        owner_module = mock.Mock()
+        with (
+            mock.patch.object(module, "_process_owner", return_value=owner_module),
+            mock.patch.object(
+                module.threading, "Event", side_effect=OSError("reader unavailable")
+            ),
+            mock.patch.object(module.subprocess, "Popen") as launch,
+        ):
+            result = module.check(self.root, "litai")
+        self.assertEqual(result["state"], "check-unavailable")
+        owner_module.create_process_tree_ownership.assert_not_called()
+        launch.assert_not_called()
+
+    def test_private_probe_enforces_real_deadline(self) -> None:
+        module = self.module()
+        started = time.monotonic()
+        with self.assertRaises(subprocess.TimeoutExpired):
+            module._run_version_probe(
+                [sys.executable, "-I", "-c", "import time; time.sleep(10)"],
+                cwd=self.root,
+                timeout=0.1,
+            )
+        self.assertLess(time.monotonic() - started, 5)
 
     def test_wheel_checksum_and_missing_file_fail_closed(self) -> None:
         module = self.module()
@@ -160,7 +275,12 @@ class GeneratedBootstrapTests(unittest.TestCase):
             old_files = {
                 path: resource
                 for path, resource in project_initialization._TEMPLATE_FILES.items()
-                if path not in {"scripts/bootstrap_litai.py", "docs/user/bootstrap.md"}
+                if path
+                not in {
+                    "scripts/bootstrap_litai.py",
+                    "scripts/_bootstrap_processes.py",
+                    "docs/user/bootstrap.md",
+                }
             }
             old_starter_docs = dict(project_initialization._STARTER_DOCS)
             old_starter_docs["docs/README.md"] = old_starter_docs[
@@ -211,7 +331,11 @@ class GeneratedBootstrapTests(unittest.TestCase):
                 origin_provider=lambda: successor
             ).plan(target)
             by_path = {item.path: item.classification for item in plan.files}
-            for path in ("scripts/bootstrap_litai.py", "docs/user/bootstrap.md"):
+            for path in (
+                "scripts/bootstrap_litai.py",
+                "scripts/_bootstrap_processes.py",
+                "docs/user/bootstrap.md",
+            ):
                 self.assertEqual(
                     by_path[path], ProjectUpdateClassification.UPSTREAM_ADDED
                 )
@@ -233,3 +357,117 @@ class GeneratedBootstrapTests(unittest.TestCase):
                 (target / "CLAUDE.md").read_text().index("SKILL.md"),
             )
             self.assertEqual((target / "literate.project.json").read_bytes(), before)
+
+
+class GeneratedBootstrapPosixTests(GeneratedBootstrapFixture):
+    @unittest.skipUnless(os.name == "posix", "actual POSIX executable fixture")
+    def test_probe_bounds_both_streams_and_retires_overflow_writer(self) -> None:
+        module = self.module()
+        for stream in ("stdout", "stderr"):
+            with self.subTest(stream=stream):
+                marker = self.root / (stream + "-survived")
+                executable = self._scripted_cli(
+                    "import sys,time\nfrom pathlib import Path\n"
+                    + "sys.stdout.write("
+                    + repr(self._ready_envelope())
+                    + ");sys.stdout.flush()\n"
+                    + "sys."
+                    + stream
+                    + ".buffer.write(b'x' * (1024*1024+1));sys."
+                    + stream
+                    + ".flush()\n"
+                    + "time.sleep(0.5)\nPath("
+                    + repr(str(marker))
+                    + ").write_text('survived')\n"
+                )
+                before = (self.root / "literate.project.json").read_bytes()
+                result = module.check(self.root, str(executable))
+                self.assertEqual(result["state"], "check-unavailable")
+                self.assertFalse(marker.exists())
+                self.assertEqual(
+                    (self.root / "literate.project.json").read_bytes(), before
+                )
+
+    @unittest.skipUnless(os.name == "posix", "actual POSIX process group fixture")
+    def test_probe_timeout_retires_original_helper(self) -> None:
+        module = self.module()
+        ready, marker = self.root / "helper-ready", self.root / "helper-survived"
+        helper = (
+            "import sys,time;from pathlib import Path;"
+            "Path(sys.argv[1]).write_text('ready');time.sleep(0.5);"
+            "Path(sys.argv[2]).write_text('survived')"
+        )
+        executable = self._scripted_cli(
+            "import subprocess,sys,time\nfrom pathlib import Path\n"
+            + "subprocess.Popen([sys.executable,'-I','-c',"
+            + repr(helper)
+            + ","
+            + repr(str(ready))
+            + ","
+            + repr(str(marker))
+            + "],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,"
+            "stderr=subprocess.DEVNULL)\n"
+            + "deadline=time.monotonic()+5\n"
+            + "while not Path("
+            + repr(str(ready))
+            + ").exists():\n"
+            + " if time.monotonic()>deadline: "
+            "raise RuntimeError('fixture helper unavailable')\n"
+            + " time.sleep(0.01)\n"
+            + "time.sleep(1)\nprint("
+            + repr(self._ready_envelope())
+            + ")\n"
+        )
+        started = time.monotonic()
+
+        def clock():
+            return started + 31 if ready.exists() else started
+
+        with mock.patch.object(module, "_probe_now", side_effect=clock, create=True):
+            result = module.check(self.root, str(executable))
+        self.assertTrue(ready.exists())
+        self.assertEqual(result["state"], "check-unavailable")
+        time.sleep(0.6)
+        self.assertFalse(marker.exists())
+
+    @unittest.skipUnless(os.name == "posix", "actual POSIX process group fixture")
+    def test_probe_launcher_result_keeps_status_and_retires_helpers(self) -> None:
+        module = self.module()
+        for status, expected in ((0, "ready"), (7, "check-failed")):
+            with self.subTest(status=status):
+                ready = self.root / (str(status) + "-ready")
+                marker = self.root / (str(status) + "-survived")
+                helper = (
+                    "import sys,time;from pathlib import Path;"
+                    "Path(sys.argv[1]).write_text('ready');time.sleep(0.5);"
+                    "Path(sys.argv[2]).write_text('survived')"
+                )
+                executable = self._scripted_cli(
+                    "import subprocess,sys,time\nfrom pathlib import Path\n"
+                    + "subprocess.Popen([sys.executable,'-I','-c',"
+                    + repr(helper)
+                    + ","
+                    + repr(str(ready))
+                    + ","
+                    + repr(str(marker))
+                    + "],stdin=subprocess.DEVNULL,stdout=subprocess.DEVNULL,"
+                    "stderr=subprocess.DEVNULL)\n"
+                    + "deadline=time.monotonic()+5\n"
+                    + "while not Path("
+                    + repr(str(ready))
+                    + ").exists():\n"
+                    + " if time.monotonic()>deadline: "
+                    "raise RuntimeError('fixture helper unavailable')\n"
+                    + " time.sleep(0.01)\n"
+                    + "print("
+                    + repr(self._ready_envelope())
+                    + ",flush=True)\n"
+                    + "raise SystemExit("
+                    + str(status)
+                    + ")\n"
+                )
+                result = module.check(self.root, str(executable))
+                self.assertTrue(ready.exists())
+                self.assertEqual(result["state"], expected)
+                time.sleep(0.6)
+                self.assertFalse(marker.exists())
