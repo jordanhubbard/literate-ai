@@ -32230,6 +32230,34 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Installed harness source review:** [Independent review](../../verification/installed-guard-harness-independent-review.json)
+  approves the exact fixed-inventory extension. Missing-case, installed/source
+  byte-mismatch and injected-skip reports refuse; synthetic report controls prove
+  validator behavior only. Actual editable invocation refuses before cases.
+  All 24 reviewed runtime/schema/test entries stay unchanged. Renew supported
+  pins, freeze this combined candidate, and run complete source and whole-wheel
+  qualification; actual installed and platform results remain pending.
+
+- **Installed guard acceptance refinement (in progress):** Extend the existing
+  fixed maintained-control harness to cover all 15 CUDA inventory controls, the
+  26 reviewed POSIX coding-CLI/state controls, and the 89 telemetry controller
+  controls from this union. Linux process controls run separately on Linux;
+  POSIX process/file-limit fixtures stay explicitly unavailable on Windows.
+  Require noneditable isolated imports, exact production/source/archive bytes,
+  fixed full case inventories and unchanged maintained Python inputs, with no
+  silent skips inside an applicable scope. Schema tests exercise maintained
+  schema inputs; they do not alone qualify installed schema resources. Retain
+  complete whole-wheel resource checks and all remaining native platform gates.
+
+- **Frozen source gate completed:** Original revision `79af4dfce` accounts for
+  all 2,893 unique outcomes: 2,801 passed, 92 declared skips, no failures or known
+  failures. Its original wrapper step and evidence owner both closed passed;
+  no suite restart was needed after disk recovery. [Terminal source proof](../../verification/pre-guard-combined-source-pass.json)
+  preserves its exact scope. [Independent composition review](../../verification/reviewed-guard-composition.json)
+  separately approves the later guard union at `146a8ca46` with 24 matching
+  reviewed path entries and no unreviewed production/schema changes. This does
+  not yet qualify the new union or its expanded installed harness.
+
 - **Reviewed guard composition (in progress):** Compose the independently reviewed
   CUDA attribution repair at `09a7bc7c0`, Codex owned-process cleanup at
   `ad2550a30`, and telemetry deadline/publication repair at `cb866f11c` through

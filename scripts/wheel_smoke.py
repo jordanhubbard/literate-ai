@@ -667,6 +667,10 @@ def qualify_installed_maintained_controls(repository, python, cwd):
     expected_input_identity = probe["_input_identity"](expected_inputs)
     results = {}
     for scope, entries in probe["_CASE_SETS"].items():
+        reason = probe["unavailable_reason"](scope)
+        if reason is not None:
+            results[scope] = {"status": "skipped", "scope": scope, "reason": reason}
+            continue
         expected_cases = sorted(
             f"{entry['module']}.{entry['class']}.{method}"
             for entry in entries

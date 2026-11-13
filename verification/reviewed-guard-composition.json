@@ -1,0 +1,310 @@
+{
+  "decision": "approved",
+  "findings": [],
+  "head": "146a8ca46ab4677e2a0960de5b392217c1a7b8df",
+  "parents": {
+    "base_cx": "ad2550a3074776ee0ae4e2029aa91e498408ca1d",
+    "cuda": "09a7bc7c08a7aaa701bf3648074a6997e6977a44",
+    "cuda_merge": "058e5747d21d0c3bcaa6835b4ea25f4e0fb7f87f",
+    "telemetry": "cb866f11c3df869c69b0bd2eb2e11155bae35bb7"
+  },
+  "scope": "Committed composition of previously independently reviewed CUDA metadata, coding CLI lifetime/private-state and telemetry primitive/deadline/publication bytes. Source/schema union approval only.",
+  "compared_entries": 24,
+  "mismatches": [],
+  "production_schema_paths_changed_since_base_cx": [
+    "schemas/v2/compatibility.json",
+    "schemas/v2/index.json",
+    "schemas/v2/worker-telemetry.schema.json",
+    "src/literate_ai/adapters/action_command_dispatch.py",
+    "src/literate_ai/adapters/action_slots.py",
+    "src/literate_ai/adapters/builders/_process.py",
+    "src/literate_ai/adapters/worker_telemetry_authentication.py",
+    "src/literate_ai/adapters/worker_telemetry_processes.py",
+    "src/literate_ai/adapters/worker_telemetry_wire.py",
+    "src/literate_ai/application/worker_telemetry_authentication.py",
+    "src/literate_ai/application/worker_telemetry_authorization.py",
+    "src/literate_ai/application/worker_telemetry_polling.py",
+    "src/literate_ai/application/worker_telemetry_reservations.py",
+    "src/literate_ai/contracts/worker_telemetry.py",
+    "src/literate_ai/contracts/worker_telemetry_observations.py",
+    "src/literate_ai/schema_catalog.py",
+    "src/literate_ai/source_to_specification/inventory.py"
+  ],
+  "unreviewed_production_schema_paths": [],
+  "all_added_runtime_schema_test_bytes_equal_reviewed_branch_subjects": {
+    "schemas/v2/compatibility.json": {
+      "branch_subject": "cb866f11c",
+      "sha256": "a42a9e5579fd4ba0f89439534440518980abbc249be8f9eaa1bdc1d115a4fa6e"
+    },
+    "schemas/v2/index.json": {
+      "branch_subject": "cb866f11c",
+      "sha256": "d9dcefabfad9fec7388a98b28874696a1a09167bad13e62c13a2e032c7d2e649"
+    },
+    "schemas/v2/worker-telemetry.schema.json": {
+      "branch_subject": "cb866f11c",
+      "sha256": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37"
+    },
+    "src/literate_ai/adapters/action_command_dispatch.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff"
+    },
+    "src/literate_ai/adapters/action_slots.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87"
+    },
+    "src/literate_ai/adapters/builders/_process.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29"
+    },
+    "src/literate_ai/adapters/worker_telemetry_authentication.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4"
+    },
+    "src/literate_ai/adapters/worker_telemetry_processes.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90"
+    },
+    "src/literate_ai/adapters/worker_telemetry_wire.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518"
+    },
+    "src/literate_ai/application/worker_telemetry_authentication.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee"
+    },
+    "src/literate_ai/application/worker_telemetry_authorization.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe"
+    },
+    "src/literate_ai/application/worker_telemetry_polling.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d"
+    },
+    "src/literate_ai/application/worker_telemetry_reservations.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c"
+    },
+    "src/literate_ai/contracts/worker_telemetry.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8"
+    },
+    "src/literate_ai/contracts/worker_telemetry_observations.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed"
+    },
+    "src/literate_ai/schema_catalog.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9"
+    },
+    "src/literate_ai/source_to_specification/inventory.py": {
+      "branch_subject": "09a7bc7c0",
+      "sha256": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da"
+    },
+    "tests/critical/test_source_inventory_targets.py": {
+      "branch_subject": "09a7bc7c0",
+      "sha256": "b25457efc1ea264e0e19e028ec98e3cfb88d825df7bd86ef606120876b69ae38"
+    },
+    "tests/critical/test_worker_telemetry_authentication.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "50a3af309b94e37d5a741572806321d3c6797ff12222fb148b757e73c28f0637"
+    },
+    "tests/critical/test_worker_telemetry_authorization.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "3552450fdc341f405b62dc3ae22c750fbe15ac63b6f94882efc79b2257cdaa2b"
+    },
+    "tests/critical/test_worker_telemetry_contracts.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "2f6d145a62c67b2ca954d3152935896ca61899d59599fd2ad2c114bc17d48b29"
+    },
+    "tests/critical/test_worker_telemetry_polling.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669"
+    },
+    "tests/critical/test_worker_telemetry_processes.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "bbcb9938d78c3365a719894451dbdc2118c97342f2da456df598ea1764f848ed"
+    },
+    "tests/critical/test_worker_telemetry_reservations.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1"
+    },
+    "tests/critical/test_worker_telemetry_schemas.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "b03d4041e5877ccec7b8303d2b795ef5059756bb1e2d98cbba17579b12977a6d"
+    },
+    "tests/critical/test_worker_telemetry_wire.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "75ae5c83186bc3117a8389684317d549611f54cf35eec9d00ddb328712d4404e"
+    },
+    "tests/support/fixtures_worker_telemetry.py": {
+      "branch_subject": "cb866f11c",
+      "sha256": "986193f4d89f64ed3773ea2a0f53d29664ac0a14e8cd2ae620ecc949f79dc81e"
+    }
+  },
+  "conflict_resolution_files": {
+    "CHANGELOG.md": {
+      "sha256": "f14f8a292678e55259e007805c3dbca21aa91e6fe66a16ea91b312c97579380f",
+      "identical_to_base_cx": false
+    },
+    "docs/architecture/design-traceability.md": {
+      "sha256": "e2d8465aad243aebdb4c070db20fb3ae8083c5ec4fe44b8ca305c5d979a21183",
+      "identical_to_base_cx": true
+    },
+    "docs/roadmap/active-work.md": {
+      "sha256": "ca415fe18557c538342570dbc5fc75dd8c3379d0b4575170a392e1e9ff95353d",
+      "identical_to_base_cx": false
+    },
+    "literate.project.json": {
+      "sha256": "cf2eef4497208c092b8cdae3fa20adaeb01d1442f70ce1f8ecb9f4c14104808e",
+      "identical_to_base_cx": true
+    }
+  },
+  "conflict_resolution_assessment": [
+    "CHANGELOG preserves all reviewed guard entries without runtime changes.",
+    "Roadmap identifies the CUDA gap as historical and records the correction now included; installed/integration/release acceptance stays open.",
+    "Design traceability body and authority marker equal base CX. Marker currentness/renewal not validated here.",
+    "literate.project.json equals base CX, preserving implementation paths, argv and intentionally stale digest. No pin renewal performed or accepted by this review."
+  ],
+  "caller_and_shared_dependency_assessment": [
+    "CUDA filtering remains isolated to bounded CUDA evidence; original hash/classification/other-detector/prompt-injection paths remain unchanged. No coupling to telemetry or subprocess lifetime.",
+    "Task/generation/authentication runtime contexts still enclose original coding_cli._run_bounded; its tree retirement precedes pipe joins and context teardown. Telemetry uses distinct builders._process.run_bounded_process hook.",
+    "The common adapters._processes helper is byte-identical to approved coding CLI review. Relative to telemetry branch it adds confirmed repeated Windows Job termination semantics; create/bind/release and terminate_process_tree calling interfaces remain compatible, POSIX behavior unchanged.",
+    "Telemetry spawn/register and finally-retire callers preserve original job owner. Opt-in reservation/dispatch scopes use repaired publication transitions and separate nonblocking clock/sample reads; polling uses original participant and collector deadlines/capacity.",
+    "Action DAG request, identity/validation support and builder export interfaces remain unchanged relative to telemetry branch. Every src/schema path added or modified since base CX is covered by approved byte manifests."
+  ],
+  "remaining_acceptance": [
+    "Supported driver/documentation pin renewal against actual combined identity; this review does not renew pins or claim marker currentness.",
+    "Complete exact combined source and noneditable installed qualification.",
+    "CUDA correction installed/native and resulting-main acceptance.",
+    "Coding CLI native Windows Job/private-state lifecycle and genuine selected Codex model acceptance; POSIX fixtures are not real Codex product evidence.",
+    "Telemetry remains partial primitives: configured private-policy custody, negotiated SSH/command transport, response replay/epoch/sequence receiver acceptance, actual action/reservation/process/subtree joins, native platform metrics and installed downstream live-action journeys remain open.",
+    "Exact integrated/resulting-main, all roadmap and release requirements remain open."
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "reviewer_role": "separate explicitly authorized non-author reviewer",
+  "approved_byte_manifest": {
+    "src/literate_ai/source_to_specification/inventory.py": {
+      "sha256": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da",
+      "review_manifest": "verification/cuda-metadata-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "tests/critical/test_source_inventory_targets.py": {
+      "sha256": "b25457efc1ea264e0e19e028ec98e3cfb88d825df7bd86ef606120876b69ae38",
+      "review_manifest": "verification/cuda-metadata-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/_processes.py": {
+      "sha256": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c",
+      "review_manifest": "verification/codex-state-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/models/coding_cli.py": {
+      "sha256": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5",
+      "review_manifest": "verification/codex-state-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "tests/critical/test_codex_runtime_state.py": {
+      "sha256": "d547860907f73931ed96df42ca6b12e35a06b6cdf2c7dcb74e1df2db2b3dc20a",
+      "review_manifest": "verification/codex-state-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "tests/critical/test_coding_cli_generation.py": {
+      "sha256": "b40841aa92d7b0a9178b1ff3c97c9959caeabea8b0919d68e1a6ad8e0905431e",
+      "review_manifest": "verification/codex-state-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "tests/critical/test_coding_cli_success_cleanup.py": {
+      "sha256": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4",
+      "review_manifest": "verification/codex-state-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "schemas/v2/compatibility.json": {
+      "sha256": "a42a9e5579fd4ba0f89439534440518980abbc249be8f9eaa1bdc1d115a4fa6e",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "schemas/v2/index.json": {
+      "sha256": "d9dcefabfad9fec7388a98b28874696a1a09167bad13e62c13a2e032c7d2e649",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "schemas/v2/worker-telemetry.schema.json": {
+      "sha256": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/action_command_dispatch.py": {
+      "sha256": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/action_slots.py": {
+      "sha256": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/builders/_process.py": {
+      "sha256": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_authentication.py": {
+      "sha256": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_processes.py": {
+      "sha256": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_wire.py": {
+      "sha256": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/application/worker_telemetry_authentication.py": {
+      "sha256": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/application/worker_telemetry_authorization.py": {
+      "sha256": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/application/worker_telemetry_polling.py": {
+      "sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/application/worker_telemetry_reservations.py": {
+      "sha256": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/contracts/worker_telemetry.py": {
+      "sha256": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/contracts/worker_telemetry_observations.py": {
+      "sha256": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "src/literate_ai/schema_catalog.py": {
+      "sha256": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    },
+    "tests/critical/test_worker_telemetry_reservations.py": {
+      "sha256": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+      "review_manifest": "verification/worker-telemetry-independent-review.json",
+      "matches_private_independent_review": true
+    }
+  },
+  "harness_changes_excluded": true,
+  "tests_run_this_review": false,
+  "release_attestation": false
+}
