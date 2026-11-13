@@ -33761,6 +33761,20 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Journaled control publication (source reviewed):** Privately stage known marker
+  files and empty directories, persist exact native source/destination/parent and
+  raw payload intent, then publish with exclusive rename and directory synchronization.
+  Hold original ancestry and journal writer custody, reject token replay, protect
+  the journal namespace by descriptor identity and retain all ambiguous outcomes.
+  Three maintained closing regressions fail the original bytes; the final private
+  namespace/native-fact snapshot repairs success across final-read mutations. The
+  approved [publication dependency](../../verification/retained-layout-control-publication-development.json)
+  passes fifteen methods and five independent supplementary mutations; ninety-four
+  neighborhood cases pass without skips. Returned facts are point-in-time data,
+  not actual project/Git roles, live reservations or recovery authorization. Bind
+  those actual owners and complete every retained-layout acceptance cell before
+  public apply or feature closure.
+
 - **Live reservation retention (source reviewed):** The existing descriptor-backed
   owner has a one-way request to retain every marker and created parent on both normal
   and failed context exit, while closing descriptors and invalidating the live

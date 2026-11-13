@@ -157,3 +157,29 @@ helpers. The seventy-nine-case selected neighborhood also covers actual Git writ
 reservations, object installation and Cargo materialization. The [retention evidence](../../verification/retained-layout-reservation-retention-development.json)
 binds exact source and fault-scheduling limits. Native and integrated qualification,
 staged acquisition and the complete transaction/recovery owner remain required.
+
+## Journaled control publication (source reviewed)
+
+Create marker files and empty control directories in caller-selected private
+framework state, bind actual nodes and bounded bytes, and persist exact source,
+destination and parent intent before any public publication. Hold original parent
+descriptors and actual journal writer custody through exclusive native movement,
+file/directory synchronization and closing endpoint checks. A spent private entry
+cannot be replayed; failures retain every observed node and stop further effects.
+This supplies known nodes for the actual reservation owner to reopen under fresh
+FD/byte/native-identity checks. It does not infer canonical lifecycle or Git roles,
+grant source movement or turn journal records into recovery ownership. Complete
+role binding, staged acquisition/recovery, platform and installed acceptance remain
+required before public apply is enabled.
+
+The first twelve controls pass, but independent review reproduces private
+insertion after the final journal read and consumed-source repopulation after the
+final destination read, both returning success before context exit. Three maintained
+regressions also cover a known private-stage mutation at the journal boundary;
+all three fail the exact original bytes. The repair closes bounded private names,
+every remaining stage's full native facts and names again after the last journal
+and endpoint/name reads, before final ancestor guards and poison clearing. Approved
+independent re-review passes fifteen methods and five supplementary final mutations;
+the ninety-four-case neighborhood passes without skips. The [publication evidence](../../verification/retained-layout-control-publication-development.json)
+binds exact source, unchanged helpers and point-in-time/native proof limits. It
+does not qualify the full transaction, recovery, native Windows or installed flows.

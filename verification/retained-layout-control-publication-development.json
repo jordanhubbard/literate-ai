@@ -1,0 +1,88 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Journaled private control staging and exclusive publication, actual macOS source development with controlled fault scheduling",
+  "base_revision": "6a7caff06b89f302243e4719d5526bad9cce30cf",
+  "independent_review": {
+    "decision": "approved within point-in-time POSIX publication dependency source scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "e6075741a3f97ced5f7de3563767ebdc06e36de8fbf70e0ff31823afcc16f8f9"
+    },
+    "prior_changes_requested_report_identity": {
+      "algorithm": "sha256",
+      "digest": "482a7b8f56f05361cb84f6b392ca90a1ce4ef8b4cfe1b8856856dbf4758a209e"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "01c10715e44d9289f899e5d77fa68d4348eb9943590fc5f30e2b51c914738c83"
+      },
+      "tests/critical/test_retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "5f9dddd1bb025e6532af16e258aef85328fa51975ba06d2219eeb3f909c6da56"
+      },
+      "src/literate_ai/adapters/exclusive_entry.py": {
+        "algorithm": "sha256",
+        "digest": "3910b3bf8c6a6391b40b291dd871c70145ff4d7f8dd76202e2e7e5f9913a178f"
+      },
+      "src/literate_ai/adapters/retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "a2f2bb5467ef005e3933208400190052da0989a22ed3ce06715bad2904e2078f"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "src/literate_ai/adapters/exclusive_directory.py": {
+        "algorithm": "sha256",
+        "digest": "0bf6808090c65da613a8421df7a9f411d971a2fccb5a21f6b091bcacff35376a"
+      },
+      "src/literate_ai/_filesystem.py": {
+        "algorithm": "sha256",
+        "digest": "48372e2df82da255222607c4e916fb60cff11ccdcf303cfaadd4961a31e1f1c6"
+      },
+      "src/literate_ai/contracts/identity.py": {
+        "algorithm": "sha256",
+        "digest": "730437c1a4ac356474b45d6b260dbf16b76a42bff3125d1674d0627fc4b2fb3b"
+      },
+      "src/literate_ai/contracts/paths.py": {
+        "algorithm": "sha256",
+        "digest": "5f459e789f9f32069afbaf16cbbb5a421e6fa3ac9202b919d9f08262e252adf7"
+      }
+    }
+  },
+  "native_macos_source_cases": {
+    "maintained_passed": 15,
+    "independent_supplementary_passed": 5,
+    "selected_neighborhood_passed": 94,
+    "skipped": 0,
+    "causal_predecessor_failures": 3
+  },
+  "preserved": [
+    "Caller-selected fresh private framework-state staging directory, held original ancestor descriptors and process/context lifetime",
+    "Finite private entry count and 256-byte markers; actual new nodes and raw payloads bind durable source/destination/parent intent before public effects",
+    "Native exclusive publication preserves exact inodes/bytes/modes without copy, replacement, implicit rollback or deletion; file/directory synchronization precedes completion",
+    "Unknown private/destination nodes and ambiguous post-effect outcomes stay intact; consumed tokens cannot replay and post-intent failures leave the pool poisoned",
+    "Actual journal directory is protected by descriptor identity rather than a name exclusion",
+    "Closing bounded private names and full immutable native metadata follow final journal and endpoint reads before success or poison clearing",
+    "The seven reused helpers remain byte-exact to the reviewed base"
+  ],
+  "causal_repairs": [
+    "Final journal reads formerly admitted private insertion or known-stage mutation after the full stage read",
+    "Final destination inspection formerly admitted consumed-source repopulation before publication returned success",
+    "All three maintained regressions fail verified original bytes and pass the cheap final private snapshot closure"
+  ],
+  "limits": [
+    "PublishedLayoutControl is descriptive point-in-time data, not continuous endpoint custody or live reservation ownership",
+    "Cooperative private state and native rename/fault scheduling are exercised on macOS; no hostile same-user atomic snapshot, power-loss experiment, native Windows or other-host proof is inferred",
+    "The actual project/conversion/Git/control owner must select real targets, reopen exact reservation descriptors, acquire canonical mutexes once and retain ambiguous controls",
+    "Journal intent or a saved observed event never grants source movement, recovery ownership, cleanup or acceptance"
+  ],
+  "remaining": [
+    "Integrate actual canonical lifecycle/Git/control roles with staged acquisition, complete source custody and explicit fresh endpoint recovery",
+    "Native Windows durability and actual multi-host, installed, full-source and integration qualification",
+    "All structural renewal, initial plain/root/custom placement, relocation and genuine lock/baseline/parity/readmission/receipt renewal acceptance"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}
