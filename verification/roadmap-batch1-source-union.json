@@ -15,6 +15,38 @@
     "cuda_signal_pr398": "4b051a9af074e4255789370922cd98bb874c70fc",
     "windows_and_export_pr428": "6f060715206a54b45ab0eed9353cb444eed1993b"
   },
+  "environment_correction": {
+    "exact_receiver_comparison": {
+      "observations": [
+        {
+          "environment": "other_worktree_editable",
+          "exit_code": 1,
+          "receiver_mismatch": true
+        },
+        {
+          "environment": "owned_worktree_editable",
+          "exit_code": 0,
+          "receiver_mismatch": false
+        }
+      ],
+      "production_guards_changed": false,
+      "same_source_both_runs": true,
+      "source_revision": "ff1c5c4e2"
+    },
+    "first_full_gate": {
+      "exit_code": 2,
+      "report": {
+        "executed": 215,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 214,
+        "selected": 2813,
+        "skipped": 29
+      }
+    },
+    "production_guards_changed": false,
+    "repair": "provision this checkout through make dev-install with its own session environment; preserve the old failure and use new checkpoint/report paths for one clean full run"
+  },
   "fixture_correction": {
     "change": "canonicalize the freshly owned temporary test root before creating payloads; retain production redirected-root refusal",
     "corrected_combined_focused": {
@@ -36,6 +68,16 @@
   },
   "goal_complete": false,
   "inventory_union_preserves_cuda_and_bootstrap_exclusion": true,
+  "precursor_a2a": {
+    "candidate": "ddc70ac5bf0d4a81952ea11ef1f0bf89930950c1",
+    "canonical_skill_in_wheel_matches": true,
+    "exit_code": 0,
+    "initializer_module_in_wheel_matches": true,
+    "live_a2a_execution_claimed": false,
+    "ordinary_installed_initialization_completed": true,
+    "retained_manifest": "_build/ci-wheels/run-30sbf32a/manifest.json",
+    "wheel_sha256": "1bff32f1fa6ef72c90901f68da35b31e3c653a26e30de00c19e531e10e281243"
+  },
   "precursor_bootstrap": {
     "revision": "770140dc9",
     "source": {
