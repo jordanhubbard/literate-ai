@@ -1,6 +1,24 @@
 {
   "baseline_main": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
-  "classification": "reviewed source composition; combined qualification pending",
+  "baseline_qualification": {
+    "candidate": "6797a3cdce02305d3564f0df2cbd6e65308ed4f1",
+    "noneditable_macos_wheel": {
+      "bootstrap": true,
+      "cache_continuation": true,
+      "exit_code": 0,
+      "project_identity_migration": true,
+      "wheel_identity": "sha256:20430c219e758548d7acf42da2ef361de4d8e7eb9b299f57eb81e4e5781a0be8"
+    },
+    "source": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 2721,
+      "release_evidence": false,
+      "selected": 2813,
+      "skipped": 92
+    }
+  },
+  "classification": "baseline source and macOS installed gates passed; expanded diagnostics union qualification pending",
   "composition_before_pin_renewal": "2e2df050e866b5893c1e7991516bef1102e4e98c",
   "conflict_resolution": {
     "changelog": "all contributor outcomes retained",
@@ -100,8 +118,8 @@
   },
   "release_attestation": false,
   "remaining": [
-    "combined focused and full source gates",
-    "combined complete noneditable wheel gate",
+    "new diagnostic source union complete source/installed qualification",
+    "independent review of separate CUDA metadata correction before its driver pin renewal",
     "native Windows and exact review/resulting-main integration"
   ],
   "schema": "literate-ai/verification-record@1",

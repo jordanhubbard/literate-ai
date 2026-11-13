@@ -34406,6 +34406,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Reproduce nonzero parity exit and invalid JSON, verify original marker/exit identities and private durable diagnostics, and reject diagnostic evidence as qualified products.
   - [ ] Exercise a later failure after an earlier success; renew independent review, full source, installed/native and exact-head integration gates.
 
+- **Current integration review:** Independent review of contributor `2b4b88381` covers diagnostic archive separation, canonical plan/run/case/process custody, byte/record limits, partial timeout retention, stale-success clearing and original failure preservation. The normal merge with current main and the qualified bootstrap/Cargo/Windows batch preserves current-main typed library-acceptance errors as a separate preceding catch: their exact code/message and absence of retained publication remain covered by the existing regression. Production recorder/adapter/diagnostic modules remain byte-identical to the contributor. See `verification/qualification-diagnostics-integration-review.json`. Combined canonical qualification controls pass 51 methods with 18 declared skips and no failures. After that independent review, the canonical driver command renews exactly the four reviewed diagnostic/integration modules; documentation authority, strict lint/format, layout, public export and runner review remain required before the frozen combined gate. Full source/installed and exact integration gates remain open; no release qualification is claimed.
+
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
 - **Release target:** 1.4.0
@@ -34475,7 +34477,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [x] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
+  - [ ] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
   - [x] Add original portable-source and genuine-CUDA regressions with exact byte/digest preservation and unchanged sensitive, generated, binary and test classification precedence.
 - **Evidence:**
   - [x] Reconcile the retained predecessor failure and source-preserving negative/positive inventory controls with the actual corrected PR398 candidate. A locally qualified development variant remains on `fix/cuda-source-signals`; its passing suite is not contributor-head acceptance.
@@ -34486,6 +34488,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 
 - **Integrated source checks:** On the normal current-main merge, both maintained inventory methods and their thirteen input subcases pass through `make python-check`, with zero skips. Detector and regression files are byte-identical to contributor `68049ea1b`; driver, runner and documentation reviews remain current, and strict lint plus formatting pass across all 1,890 files. No new driver repin was needed for the roadmap-only conflict resolution. Confirming integrated CI, installed acceptance and resulting-main qualification remain open.
+- **Discovered metadata gap:** The separately retained correction `7f3486fd5` removes explicit CUDA wording in recognized SPDX/copyright metadata from the CUDA evidence view while preserving original bytes. The current union does not include it: its 15 focused inventory methods pass, but independent review before trusted-driver renewal and complete qualification remain pending. Vendor-only removal alone does not complete the metadata-exclusion requirement.
+
 ### [x] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
 - **Release target:** 1.4.0

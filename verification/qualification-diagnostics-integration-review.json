@@ -1,0 +1,65 @@
+{
+  "contributor": "2b4b883816de8145b54298f25f437d15a67c7588",
+  "driver_pin": {
+    "identity": "sha256:07c564b60cd702402bd417c80067fb8cb6e67b51c53c9cfcc4fc0c24bb8bc775",
+    "renewed_after_independent_contributor_review": true
+  },
+  "focused": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "2f54d8fa16408047396154b269a22439f8d5b7737f06d25367bd78d4979be929",
+    "summary": {
+      "executed": 51,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 51,
+      "selected": 69,
+      "skipped": 18
+    }
+  },
+  "goal": "QUALIFICATION-DIAGNOSTICS-001",
+  "goal_complete": false,
+  "integration": "e58b57123f7cb95523e6c8137a738ab5d535d2d9",
+  "pending": [
+    "complete combined source and noneditable wheel gates",
+    "fresh installed diagnostic controls",
+    "exact PR and resulting-main integration"
+  ],
+  "release_attestation": false,
+  "review": {
+    "blocking_findings": [],
+    "independent_of_contributor": true,
+    "integration_resolution": "Preserve current-main ComponentAcceptanceError mapping as a separate preceding catch, including exact message and no retained publication. Contributor diagnostic handling applies to its existing filesystem/qualification error cases.",
+    "reviewed": [
+      "diagnostic-only member and qualified-reader separation",
+      "plan/run/case/process provenance and canonical rehash on reopen",
+      "bounded bytes/record metadata and partial timeout stream retention",
+      "failed later-run capture clearing",
+      "private store publication and original failure preservation",
+      "no source promotion or library admission from diagnostics"
+    ]
+  },
+  "schema": "literate-ai/verification-record@1",
+  "source_comparisons": [
+    {
+      "byte_identical_to_contributor": true,
+      "path": "src/literate_ai/adapters/qualification.py",
+      "sha256": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9"
+    },
+    {
+      "byte_identical_to_contributor": true,
+      "path": "src/literate_ai/adapters/qualification_capture.py",
+      "sha256": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1"
+    },
+    {
+      "byte_identical_to_contributor": true,
+      "path": "src/literate_ai/adapters/qualification_diagnostics.py",
+      "sha256": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9"
+    },
+    {
+      "byte_identical_to_contributor": false,
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "sha256": "e5ba1bda33d77e4d1bb8b5af7a73b154cfb9f82801030a1bafbfca69a8a6169d"
+    }
+  ]
+}
