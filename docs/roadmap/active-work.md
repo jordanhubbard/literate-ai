@@ -33761,6 +33761,40 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Native entry source dependency reviewed:** The separate [entry dependency](../../verification/retained-layout-native-entry-development.json)
+  preserves file/directory/link nodes through actual macOS moves, retains foreign
+  conflicts, and closes held parents after all endpoint observations. The new
+  causal closing-parent test fails old bytes and passes the repair. Controlled
+  wide physical-ID values retain exact custody hashes instead of exceeding the
+  canonical signed-64-bit domain. Independent review passes 24 focused methods
+  and two closing controls; the full 55-method neighborhood passes without skips.
+  Existing directory-only APIs and reused helpers stay unchanged. The actual
+  project/Git/control owner, durable journal/recovery, public apply and all other
+  complete-program acceptance remain required before this dependency is consumed.
+
+- **Native integer identity refinement (in progress):** Physical node facts may
+  exceed the canonical JSON signed-64-bit integer domain. Preserve their exact
+  values with tagged decimal encoding for local custody hashing, following the
+  existing repository-refresh encoding contract. Add a controlled wide-ID encoding
+  regression, without claiming actual wider-ID host or Windows qualification.
+
+- **Native entry movement dependency (in progress):** Implement a separate
+  exclusive move primitive for individual regular files, directories and symbolic
+  links; preserve existing directory-only APIs. Bind expected source facts and
+  pinned source/destination parent ancestry, refuse occupied/portable-alias or
+  cross-device destinations and unsupported native operations before fallback can
+  copy or overwrite anything. Use actual native exclusive rename and Windows
+  file identities/parent handles, preserve link text and inode/topology, and
+  report ambiguous post-effect conflicts without deleting or rolling back foreign
+  state. The future transaction caller must own full source hashes/topology,
+  lifecycle/reservations and durable journal intent before using the primitive;
+  this dependency does not expose public apply or grant those missing authorities.
+  Independent review reproduces a destination-parent replacement during the final
+  destination-node observation that still reports success. Add a closing parent
+  guard after all endpoint observations and a maintained actual-native regression;
+  retain every affected node and re-review before pin renewal.
+
+
 - **Complete partition census source evidence:** The new [read-only census](../../verification/retained-layout-partition-census-development.json)
   captures complete raw namespace facts and exact proposed file labels without
   exclusions. It rejects cross-partition and mixed-target links, preserves complete

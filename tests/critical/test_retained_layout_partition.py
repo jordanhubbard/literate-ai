@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from literate_ai.adapters.retained_layout import RetainedLayoutError
@@ -220,3 +221,23 @@ class RetainedLayoutPartitionTests(unittest.TestCase):
         after = capture()
         self.assertEqual(before.tree.identity, after.tree.identity)
         self.assertNotEqual(before.identity, after.identity)
+
+    def test_wide_native_node_ids_keep_exact_custody_identity_precision(self):
+        self.write("source")
+        census = self.capture()
+
+        # Encoding-port control only: these immutable facts grant no authority
+        # and do not assert actual native Windows or other-host execution.
+        def with_inode(inode):
+            original_root, entries = census.tree._physical
+            root = (original_root[0], inode, *original_root[2:])
+            tree = replace(census.tree, _physical=(root, entries))
+            last = census._lineage[-1]
+            lineage = (*census._lineage[:-1], (last[0], last[1], inode, *last[3:]))
+            return replace(census, tree=tree, _lineage=lineage)
+
+        first = with_inode(2**100)
+        second = with_inode(2**100 + 1)
+        self.assertEqual(first.identity, first.identity)
+        self.assertNotEqual(first.identity, second.identity)
+        self.assertNotEqual(first.identity, census.identity)

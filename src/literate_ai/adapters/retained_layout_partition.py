@@ -28,6 +28,20 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
 from .retained_layout import RetainedLayoutError
 
 
+def _physical_wire(value):
+    # Local filesystem facts need not fit canonical JSON's signed64 domain.
+    # Match repository-refresh custody encoding; never truncate through floats.
+    if isinstance(value, int) and not isinstance(value, bool):
+        return (
+            value if -(2**63) <= value <= 2**63 - 1 else {"integer_decimal": str(value)}
+        )
+    if isinstance(value, dict):
+        return {key: _physical_wire(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_physical_wire(item) for item in value]
+    return value
+
+
 def _lineage(root: Path) -> tuple:
     try:
         require_safe_directory(root)
@@ -68,10 +82,12 @@ class RetainedLayoutPartitionCensus:
                 "schema": "literate-ai/retained-layout-partition-census@1",
                 "namespace_identity": self.tree.identity.to_dict(),
                 "physical_custody_identity": canonical_identity(
-                    {
-                        "ancestry": self._lineage,
-                        "namespace_nodes": self.tree._physical,
-                    }
+                    _physical_wire(
+                        {
+                            "ancestry": self._lineage,
+                            "namespace_nodes": self.tree._physical,
+                        }
+                    )
                 ).to_dict(),
                 "framework_files": list(self.framework_files),
                 "other_files": list(self.other_files),

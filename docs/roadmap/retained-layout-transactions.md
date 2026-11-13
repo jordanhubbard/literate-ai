@@ -26,7 +26,14 @@ Structural lookup and a read-only proposal alone do not complete the feature.
    monorepo discovery. Renewal must locate structurally current unqualified source;
    admission must refuse historical locks/receipts. Keep the unsupported apply
    guard until the transaction owner is complete.
-3. **Transaction and recovery owner.** Bind actual project/conversion authority,
+3. **Transaction and recovery owner.** First provide separate exclusive native
+   entry movement for files/directories/symlinks with expected source facts and
+   pinned parents. Directory-only publication contracts stay unchanged. Occupancy,
+   portable aliases, cross-device moves and unsupported native calls refuse;
+   post-effect conflicts retain all observed nodes for the future journal owner.
+   This helper alone does not hash a complete subtree or authorize any movement.
+   The transaction caller must establish full source custody and durable intent
+   before invoking it. Then Bind actual project/conversion authority,
    current source/partition, exact affected authored bytes and destination absence.
    Hold canonical lifecycle locks and descriptor reservations. Bind actual Git
    administration/index and lifecycle control nodes as protected, nonmoving

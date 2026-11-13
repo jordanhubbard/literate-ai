@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add exclusive native entry movement for retained-layout transactions, preserving
+  nodes and retaining closing conflicts for explicit recovery (#265).
+
 - Add a read-only retained-layout partition census for transactional placement
   and relocation, with raw source and physical-custody checks (#265).
 
