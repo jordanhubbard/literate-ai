@@ -34318,6 +34318,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CODEX-STATE-001 — Own per-invocation Codex SQLite and log state under finite limits
 
+- **Independent integration review in progress:** Compose contributor PR413 head `7ad91075d` with the qualified bootstrap/native-custody/diagnostics/runtime-capability stack through normal history. The non-author source inspection covers all three Codex invocation paths, private state lifetime through bounded process cleanup, TOML-safe path arguments, untouched HOME/authentication/provider/model selection and resource ceilings, and per-call optional remote-catalog isolation. Preserve non-Codex behavior and state/workspace separation. Recheck focused controls and all production bytes before supported driver renewal; full combined source, installed/native and exact integration evidence remain required.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#365](https://github.com/jordanhubbard/literate-ai/issues/365)
 
