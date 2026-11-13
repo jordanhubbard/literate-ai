@@ -33761,6 +33761,26 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Fresh recovery control ownership (source reviewed; transaction recovery unfinished):** Reopen the bounded journal
+  with explicit recovery, classify actual retained marker endpoints and bind that
+  read-only proposal to a fresh acknowledgement and host-execution authority.
+  Acquire new no-follow descriptors and advisory OS mutexes without initializing,
+  rewriting or deleting any marker. Recognize exact durable native-retirement
+  intents and bounded in-place normalization states, but never turn history or a
+  saved success flag into current canonical roles. Preserve private namespaces,
+  foreign public occupants and ambiguous outcomes. This prerequisite must compose
+  with actual project/Git roles and complete source/metadata recovery before public
+  recovery or feature acceptance; those full obligations remain open.
+  Independent review reproduces three native late journal/private-stage changes
+  crossing yield. Final dependency closure after marker observations repairs them;
+  all three causal methods fail the preserved initial review source. Approved
+  [descriptor evidence](../../verification/retained-layout-recovery-controls-development.json)
+  binds exact source and twenty-eight independently passing methods plus four
+  supplementary lifetime/retirement controls. All two hundred twenty-four affected
+  methods pass without skips. Next compose actual canonical roles, absent-control
+  staging and full
+  source/metadata endpoint recovery under these fresh descriptors.
+
 - **Normal control finalization (source reviewed; recovery unfinished):** Keep one actual canonical pending
   transaction control under `litai/` until every other control is finalized, so
   partial advisory normalization cannot admit another apply. Bind its absence in

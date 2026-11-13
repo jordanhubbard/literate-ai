@@ -458,3 +458,79 @@ complete fresh acknowledged recovery with actual new descriptor ownership and
 current endpoint classification, including unknown or committed-but-incomplete
 outcomes; preserve all ambiguous nodes and original receipts. Public guards and
 all broader layout, lifecycle renewal and platform/installed acceptance stay open.
+
+## Fresh recovery descriptor ownership (source reviewed; transaction recovery unfinished)
+
+Full recovery must restore exact original bytes/custody or report precise retained
+unresolved state, and must reconcile committed/unknown decisions without automatic
+rollback. Start with acknowledged fresh descriptor acquisition for the completed
+original reservation set. Read the actual reopened, validated bounded journal;
+match the complete target coordinates/anchors to original acquisition identity,
+then freshly observe every named inode, bounded raw token, recorded anchor and
+current full physical ancestry. Original source custody remains the full
+transaction recovery owner's separate obligation.
+Classify observed native retirement (including a move whose observed event was
+interrupted) using both actual endpoints and the recorded original inode. Treat
+only original bytes, the first-byte-NUL intermediate, and exact NUL as supported
+in-place normalization states when a matching durable intent exists. Bind actual
+current native facts and bytes in the new proposal. Foreign same-byte inodes,
+unknown bytes, missing/both endpoints, private insertions or redirected ancestry
+refuse without changing controls. Existing foreign public occupants after an old
+marker retired are descriptive facts and never owned by that old marker.
+
+Application requires the exact fresh proposal and current execution authority
+before private recovery intent or advisory mutex acquisition. Open only existing
+no-follow nodes; no cache-lock initializer, token rewrite, unlink or implicit new
+marker creation is permitted. Journal acquisition before yielding, recheck exact
+named/descriptor/byte/ancestry/private/journal facts and retire every FD on normal,
+failed or interrupted exit. Inherited or expired owners cannot grant ownership.
+The recovered descriptor set owns only its actual present named nodes; a private
+retired token does not satisfy its former public canonical control.
+
+The complete transaction recovery owner must next derive current project/Git roles
+under those actual descriptors, acquire any missing canonical controls through the
+known staged publisher, classify all source/metadata endpoints and implement
+journaled exact recovery effects. Incomplete original acquisitions and unsupported
+frontiers must remain explicit incomplete results, with all observed state retained.
+No source/metadata effect, cleanup, qualification or public recovery is implemented
+by descriptor reacquisition alone. Native crash, concurrent-owner, stale/forged
+proposal, interrupted normalization/retirement, replacement/foreign namespace and
+PID/context/descriptor-release controls are required before source admission.
+
+The first eighteen descriptor methods pass seventeen and expose an incorrect test
+assumption about close order; the shared owner correctly closes in reverse order.
+Correct the test to inject on the first actual close and prove every remaining
+attempt. Native ASCII and expanding Unicode aliases on this host address the same
+inode, so keep their fixture refusals separate from actual distinct-alias proof.
+A labeled projected namespace control checks the closing portable-name guard;
+its first fixture selected the wrong parent and was corrected to the real mutex
+parent. An actual empty-retirement-root replacement also crosses the initial
+implementation, and setup failure can leak its just-opened unregistered FD. Pin
+empty retirement ancestry, close portable names after blocking writes and explicitly
+close/retire setup FDs before rethrowing. Three current causal controls fail the
+preserved initial source; twenty-five repaired methods pass without skips,
+including real SIGKILL of the prior journal/control owner and real completed and
+metadata-interrupted transaction composition. Independent source review and the
+full affected neighborhood remain pending before admission.
+
+Initial independent review passes all twenty-five maintained methods but reproduces
+three actual closing counterexamples: a foreign journal node, a foreign private
+stage node and mutation of a known staged file during the last marker observation
+all cross the lease yield and refuse only on context exit. Three maintained native
+regressions fail those exact bytes. Close actual journal membership/native facts
+and private producer membership/native facts after all final marker/native/name
+observations; then close exact retirement membership and current physical ancestry
+without further payload reads. All twenty-eight methods pass after repair. The
+initial two-hundred-twenty-one-case neighborhood passes at earlier source bytes;
+retain it as historical, with repaired neighborhood and exact rereview pending.
+
+Exact repaired descriptor source is independently approved at the limited generic
+POSIX scope. All twenty-eight maintained methods and four supplementary controls
+pass: late retirement insertion/root replacement refuse after dependency closure,
+setup interrupt and actual-close errors remain visible together, and expired
+operations refuse before any native FD access. The [descriptor record](../../verification/retained-layout-recovery-controls-development.json)
+binds exact code/test/helper subjects, both causal source lineages and immutable
+review identities. All two hundred twenty-four affected methods pass without skips.
+Next compose actual canonical project/Git role binding, missing control publication
+and exact current
+source/metadata endpoint recovery; all full-program acceptance remains open.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout development can reacquire retained control descriptors after
+  interruption with exact acknowledgement and fresh native locks, preserving
+  unresolved state; source/metadata and public recovery remain pending (#265).
+
 - Retained-layout development adds normal control handoff with a durable,
   unqualified commit decision and explicit post-commit error outcomes; public
   relocation and fresh recovery remain pending (#265).
