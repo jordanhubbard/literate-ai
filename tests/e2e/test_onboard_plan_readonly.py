@@ -42,6 +42,137 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
         self.assertFalse(envelope["result"]["writes"])
         return envelope["result"]
 
+    def test_selected_retained_placement_is_read_only_and_cannot_apply_yet(self):
+        with chdir(self.root):
+            before = self.snapshot()
+            status, envelope = invoke(
+                "onboard",
+                "adopt",
+                ".",
+                "--implementation-directory",
+                "scheduler",
+                "--wrapper-component",
+                "components/scheduler-wrapper",
+            )
+            self.assertEqual(status, 0, envelope)
+            plan = envelope["result"]
+            self.assertEqual(self.snapshot(), before)
+            self.assertEqual(
+                plan["conversion"]["retained_placement"],
+                {
+                    "wrapper_component": "components/scheduler-wrapper",
+                    "implementation_directory": "scheduler",
+                    "source_collisions": [],
+                },
+            )
+            self.assertFalse(plan["apply_supported"])
+            self.assertIn(
+                "retained-layout.initial-placement-not-yet-supported",
+                plan["blockers"],
+            )
+            status, refused = invoke(
+                "onboard",
+                "adopt",
+                ".",
+                "--implementation-directory",
+                "scheduler",
+                "--wrapper-component",
+                "components/scheduler-wrapper",
+                "--apply",
+                "--acknowledge",
+                "--expect-plan",
+                plan["plan_identity"],
+            )
+            self.assertEqual(status, 2, refused)
+            self.assertEqual(refused["error"]["code"], "operator.onboard_plan_blocked")
+            self.assertEqual(self.snapshot(), before)
+            status, invalid = invoke(
+                "onboard",
+                "adopt",
+                ".",
+                "--implementation-directory",
+                "COMPONENTS",
+                "--wrapper-component",
+                "components/scheduler-wrapper",
+            )
+            self.assertEqual(status, 2, invalid)
+            self.assertEqual(invalid["error"]["code"], "project.convert_layout_invalid")
+            status, empty_wrapper = invoke(
+                "onboard", "adopt", ".", "--wrapper-component", ""
+            )
+            self.assertEqual(status, 2, empty_wrapper)
+            self.assertEqual(
+                empty_wrapper["error"]["code"], "project.convert_layout_invalid"
+            )
+            status, root_envelope = invoke(
+                "onboard", "adopt", ".", "--implementation-directory", "."
+            )
+            self.assertEqual(status, 0, root_envelope)
+            self.assertEqual(
+                root_envelope["result"]["conversion"]["retained_placement"],
+                {
+                    "wrapper_component": "components/legacy-project-wrapper",
+                    "implementation_directory": ".",
+                    "source_collisions": [],
+                },
+            )
+            self.assertFalse(root_envelope["result"]["apply_supported"])
+            self.assertNotEqual(
+                root_envelope["result"]["plan_identity"], plan["plan_identity"]
+            )
+            self.assertEqual(self.snapshot(), before)
+
+    def test_selected_wrapper_source_collision_is_reported_without_writes(self):
+        (self.root / "Components/scheduler-wrapper").mkdir(parents=True)
+        with chdir(self.root):
+            before = self.snapshot()
+            status, envelope = invoke(
+                "onboard",
+                "adopt",
+                ".",
+                "--implementation-directory",
+                "scheduler",
+                "--wrapper-component",
+                "components/scheduler-wrapper",
+            )
+            self.assertEqual(status, 0, envelope)
+            self.assertIn(
+                "components/scheduler-wrapper",
+                envelope["result"]["conversion"]["retained_placement"][
+                    "source_collisions"
+                ],
+            )
+            self.assertIn(
+                {
+                    "code": "retained-layout.source-collision",
+                    "path": "components/scheduler-wrapper",
+                },
+                envelope["result"]["blockers"],
+            )
+            self.assertEqual(self.snapshot(), before)
+
+    def test_selected_layout_reports_existing_framework_file_collisions(self):
+        (self.root / "AGENTS.md").write_text(
+            "Original instructions\n", encoding="utf-8"
+        )
+        (self.root / "docs").mkdir()
+        (self.root / "docs/README.md").write_text("Original guide\n", encoding="utf-8")
+        (self.root / ".literate").mkdir()
+        with chdir(self.root):
+            before = self.snapshot()
+            status, envelope = invoke(
+                "onboard", "adopt", ".", "--implementation-directory", "scheduler"
+            )
+            self.assertEqual(status, 0, envelope)
+            self.assertEqual(
+                envelope["result"]["conversion"]["retained_placement"][
+                    "source_collisions"
+                ],
+                [".literate", "AGENTS.md", "docs/README.md"],
+            )
+            self.assertFalse(envelope["result"]["apply_supported"])
+            self.assertEqual(self.snapshot(), before)
+
     @unittest.skipUnless(
         shutil.which("cargo") and shutil.which("make"),
         "native Cargo and Make are not installed",

@@ -734,6 +734,8 @@ def _parser() -> JsonArgumentParser:
         "--refine", metavar="REQUEST", help="refine this mission Markdown before apply"
     )
     onboard_adopt.add_argument("--default-branch")
+    onboard_adopt.add_argument("--implementation-directory")
+    onboard_adopt.add_argument("--wrapper-component")
     onboard_adopt.add_argument(
         "--root-plan",
         metavar="SELECTION.json",

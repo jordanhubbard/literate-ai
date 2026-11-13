@@ -308,12 +308,16 @@ def _adopt_plan(args: Namespace) -> dict[str, Any]:
         )
     path = configured.resolve(strict=True)
     root_plan = getattr(args, "root_plan", None)
+    implementation_directory = getattr(args, "implementation_directory", None)
+    wrapper_component = getattr(args, "wrapper_component", None)
     conversion = plan_convert(
         path,
         default_branch=args.default_branch,
         **(
             {"root_plan": Path(root_plan).expanduser()} if root_plan is not None else {}
         ),
+        implementation_directory=implementation_directory,
+        wrapper_component=wrapper_component,
     )
     detected = detect_repo_flavors(path)
     selectors = apply_init_flavor_defaults(tuple(args.flavors or detected))
@@ -339,6 +343,18 @@ def _adopt_plan(args: Namespace) -> dict[str, Any]:
         apply_supported = (
             apply_supported and refinement_supported and bool(args.run_baseline)
         )
+    if "retained_placement" in conversion:
+        placement = conversion["retained_placement"]
+        if isinstance(placement, dict):
+            blockers.extend(
+                {
+                    "code": "retained-layout.source-collision",
+                    "path": relative,
+                }
+                for relative in placement.get("source_collisions", [])
+            )
+        blockers.append("retained-layout.initial-placement-not-yet-supported")
+        apply_supported = False
     return {
         "path": str(path),
         "writes": False,

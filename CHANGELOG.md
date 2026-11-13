@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Retained-layout declaration reads refuse incomplete bytes and changed directory
+  ancestry through parsing, preserving file custody and canonical encoding (#265).
+
 - Worker reservation observations preserve concurrent quarantine and retirement,
   while slow observation reads leave original job completion independent (#280).
 

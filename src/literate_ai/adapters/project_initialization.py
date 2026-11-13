@@ -72,6 +72,12 @@ from literate_ai.adapters.repository_lineage import (
     RepositoryLineageStoreError,
     repository_parent_reference,
 )
+from literate_ai.adapters.retained_layout import (
+    LEGACY_WRAPPER_COMPONENT,
+    RetainedLayoutError,
+    RetainedLayoutSelection,
+    original_source_occupies_coordinate,
+)
 from literate_ai.adapters.standard_lifecycle_binding import (
     StandardLifecycleBindingError,
     observe_installed_framework_distribution,
@@ -681,6 +687,8 @@ def plan_convert(
     *,
     default_branch: str | None = None,
     root_plan: Path | None = None,
+    implementation_directory: str | None = None,
+    wrapper_component: str | None = None,
 ) -> dict[str, object]:
     """Inspect a live tree and report convert readiness without writing files."""
 
@@ -689,6 +697,52 @@ def plan_convert(
             "project.init_target_invalid",
             "convert plan target must be an existing project directory",
         )
+    selected_placement = (
+        implementation_directory is not None or wrapper_component is not None
+    )
+    placement: dict[str, object] | None = None
+    if selected_placement:
+        from .harness_inventory import HARNESS_WRAPPER_FILENAME
+
+        selected_wrapper = (
+            LEGACY_WRAPPER_COMPONENT if wrapper_component is None else wrapper_component
+        )
+        selected_implementation = (
+            implementation_directory
+            if implementation_directory is not None
+            else f"{selected_wrapper}/implementation"
+        )
+        try:
+            selected = RetainedLayoutSelection.from_values(
+                selected_wrapper, selected_implementation
+            )
+        except RetainedLayoutError as exc:
+            raise ProjectInitializationError(
+                "project.convert_layout_invalid",
+                "selected retained implementation or wrapper coordinate is invalid",
+            ) from exc
+        # A selected layout must reserve the framework's actual output files
+        # before source custody changes.  A shared parent directory is fine;
+        # an original file at an owned coordinate is not.
+        reserved = {
+            selected.wrapper_component,
+            PROJECT_FILENAME,
+            ".literate",
+            HARNESS_WRAPPER_FILENAME,
+            REPOSITORY_PARENT_FILE,
+            REPOSITORY_LINEAGE_FILE,
+            *(_TEMPLATE_FILES),
+            *(_STARTER_DOCS),
+        }
+        placement = {
+            "wrapper_component": selected.wrapper_component,
+            "implementation_directory": selected.implementation_directory,
+            "source_collisions": sorted(
+                coordinate
+                for coordinate in reserved
+                if original_source_occupies_coordinate(root, coordinate)
+            ),
+        }
     inventory = inspect_harness(root)
     languages = source_language_markers(root)
     language_flavors = detected_language_flavors(root, languages=languages)
@@ -731,7 +785,7 @@ def plan_convert(
     quarantine_entries = sorted(
         item.name for item in root.iterdir() if item.name != ".git"
     )
-    return {
+    plan = {
         "schema": CONVERT_PLAN_SCHEMA,
         "readiness": readiness,
         "findings": findings,
@@ -763,6 +817,9 @@ def plan_convert(
         "landing_stage": "wrapped",
         "writes": False,
     }
+    if placement is not None:
+        plan["retained_placement"] = placement
+    return plan
 
 
 CONVERT_QUARANTINE_SCHEMA = "literate-ai/project-convert-quarantine@1"

@@ -8,10 +8,9 @@ import json
 import os
 import platform
 import tempfile
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
-from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
 from literate_ai.adapters.component_lock_application import (
     ProjectComponentLockSetError,
     current_component_lock_identity,
@@ -43,6 +42,11 @@ from literate_ai.adapters.retained_harness_remote import (
     RetainedHarnessRemoteError,
     RetainedHarnessSshExecutor,
 )
+from literate_ai.adapters.retained_layout import (
+    RetainedLayoutError,
+    resolve_legacy_implementation,
+    resolve_legacy_layout,
+)
 from literate_ai.contracts import (
     ContentIdentity,
     ExecutionWorker,
@@ -72,7 +76,6 @@ _BASELINE_PATH = ".literate/legacy-harness-baseline.json"
 _PARITY_PATH = ".literate/legacy-wrapper-parity.json"
 _LIFT_SHIFT_PATH = ".literate/legacy-lift-shift.json"
 _WRAPPER_PATH = "litai.harness.mk"
-_WRAPPER_COMPONENT_PATH = "components/legacy-project-wrapper"
 _MAX_EVIDENCE_DOCUMENT_BYTES = 16 * 1024 * 1024
 _BASE_EVIDENCE_KINDS = frozenset(
     {
@@ -257,7 +260,7 @@ def run_retained_harness_receipt(
             project.root, synchronize_source_intelligence=False
         )
         component_locks = current_project_component_lock_identities(project)
-        wrapper_lock_identity = _current_wrapper_lock_identity(project)
+        wrapper_lock_identity = _current_wrapper_lock_identity(project, documents)
         if wrapper_lock_identity not in component_locks:
             _error(
                 "retained_receipt.wrapper_lock_changed",
@@ -697,39 +700,12 @@ def _implementation_root(
 ) -> Path:
     lift_shift = documents["lift_shift"]["value"]
     assert isinstance(lift_shift, dict)
-    raw = lift_shift.get("implementation_directory")
-    if not isinstance(raw, str):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "lift-and-shift evidence omits the retained implementation",
-        )
-    relative = PurePosixPath(raw)
-    if (
-        relative.is_absolute()
-        or relative.as_posix() != raw
-        or any(part in {"", ".", ".."} for part in relative.parts)
-    ):
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation path is unsafe",
-        )
-    candidate = project.root.joinpath(*relative.parts)
     try:
-        require_safe_directory(candidate)
-        resolved = candidate.resolve(strict=True)
-        resolved.relative_to(project.root)
-        if resolved != candidate:
-            raise ValueError("redirected implementation")
-        require_safe_directory(candidate)
-    except (OSError, ValueError, UnsafeFilesystemPathError):
+        _, resolved = resolve_legacy_implementation(project.root, lift_shift)
+    except RetainedLayoutError:
         _error(
             "retained_receipt.lift_shift_invalid",
-            "retained implementation path is redirected or escapes the project",
-        )
-    if candidate.is_symlink() or not resolved.is_dir():
-        _error(
-            "retained_receipt.lift_shift_invalid",
-            "retained implementation must be one project directory",
+            "retained implementation path is unsafe, unavailable or redirected",
         )
     return resolved
 
@@ -851,14 +827,20 @@ def _require_project_unchanged(
         )
 
 
-def _current_wrapper_lock_identity(project: LoadedProject) -> ContentIdentity:
+def _current_wrapper_lock_identity(
+    project: LoadedProject, documents: dict[str, dict[str, Any]] | None = None
+) -> ContentIdentity:
     """Require the converted project's own wrapper lock, not an ambient catalog lock."""
 
-    component = project.root.joinpath(*Path(_WRAPPER_COMPONENT_PATH).parts)
-    if component.is_symlink() or not component.is_dir():
+    selected = documents or _load_retained_documents(project)
+    lift_shift = selected["lift_shift"]["value"]
+    assert isinstance(lift_shift, dict)
+    try:
+        component = resolve_legacy_layout(project.root, lift_shift).wrapper_root
+    except RetainedLayoutError:
         _error(
             "retained_receipt.wrapper_component_missing",
-            "retained execution requires the canonical legacy wrapper Component",
+            "retained execution requires its recorded direct wrapper Component",
         )
     try:
         return current_component_lock_identity(component)
