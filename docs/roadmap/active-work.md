@@ -33761,6 +33761,23 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Structural renewal and qualified admission (in progress):** The committed
+  nonroot transaction produces `requalification-required` at the selected current
+  location. Structural readmission now binds that actual layout in its exact
+  acknowledged plan, executes fresh direct baseline and wrapper parity, and
+  regenerates the selected current wrapper lock. Prior lift/layout evidence stays
+  intact and the fresh reports record the actual layout, lineage, inventory,
+  source and wrapper binding. Two causal late-pending controls fail the preserved
+  intermediate source; the repaired fifteen-method neighborhood passes without
+  skips, including nine actual-layout renewal controls. Independent re-review
+  approves this exact nonroot renewal scope. [Development evidence](../../verification/retained-layout-structural-renewal-development.json)
+  records this scope and the still-stale full-source receipt. Existing admission
+  continues to refuse even these fresh reports until its consumer is implemented.
+  Next wire qualified receipt/Cargo admission and the remaining scope refresh,
+  native rewrite and monorepo consumers to current selected authority, proving
+  genuine fresh execution and old-evidence refusal. Complete the actual root/shared
+  partition owner and the other placement cells before full feature acceptance.
+
 - **Recovery control disposition (source reviewed; internal nonroot scope verified):** Join fresh verified data with
   the actual original/supplemental descriptor owners. Preflight a complete bounded
   disposition plan, require its exact acknowledgement, journal handoff and revoke

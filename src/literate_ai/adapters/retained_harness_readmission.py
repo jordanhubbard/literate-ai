@@ -39,6 +39,7 @@ from literate_ai.adapters.project_initialization import (
     record_project_authority_review,
 )
 from literate_ai.adapters.project_validation import FilesystemProjectValidationAdapter
+from literate_ai.adapters.repository_refresh import _signature
 from literate_ai.adapters.retained_harness_receipts import (
     retained_harness_receipt_policy,
     retained_harness_runner_identity,
@@ -49,10 +50,13 @@ from literate_ai.adapters.retained_harness_remote import (
     retained_harness_runtime_requirements,
 )
 from literate_ai.adapters.retained_layout import (
+    RETAINED_LAYOUT_PATH,
     ResolvedRetainedLayout,
     RetainedLayoutError,
-    resolve_legacy_layout,
+    read_retained_layout_declaration,
+    resolve_structural_layout,
 )
+from literate_ai.adapters.retained_layout_partition import _lineage
 from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
 from literate_ai.contracts import (
     ContentIdentity,
@@ -121,10 +125,20 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _layout(root: Path) -> ResolvedRetainedLayout:
     lift_shift = _load_json(_safe_path(root, LIFT_SHIFT))
-    if lift_shift.get("state") != "passed":
-        _fail("lift_shift_unqualified", "retained lift-and-shift has not passed")
+    if os.path.lexists(root / "litai/layout.pending"):
+        _fail("layout_pending", "pending relocation requires explicit recovery")
     try:
-        return resolve_legacy_layout(root, lift_shift)
+        declaration = read_retained_layout_declaration(root)
+        allowed = {"passed", "requalification-required"} if declaration else {"passed"}
+        if lift_shift.get("state") not in allowed:
+            _fail("lift_shift_unqualified", "retained lift-and-shift has not passed")
+        layout = resolve_structural_layout(root, lift_shift)
+        if layout.implementation_directory == ".":
+            _fail(
+                "root_partition_unavailable",
+                "root renewal requires the complete partition owner",
+            )
+        return layout
     except RetainedLayoutError:
         _fail(
             "lift_shift_invalid", "retained implementation path is unsafe or redirected"
@@ -274,6 +288,7 @@ def plan_retained_harness_readmission(
     root = project.root
     conversion = _conversion(root, project.definition.project_id)
     layout = _layout(root)
+    declaration = read_retained_layout_declaration(root)
     implementation_relative = layout.implementation_directory
     implementation = layout.implementation_root
     inventory_path = _safe_path(root, INVENTORY)
@@ -334,6 +349,10 @@ def plan_retained_harness_readmission(
         LIFT_SHIFT: _identity(_safe_path(root, LIFT_SHIFT).read_bytes()),
         document: _identity(review_path.read_bytes()),
     }
+    if declaration is not None:
+        old_documents[RETAINED_LAYOUT_PATH] = _identity(
+            _safe_path(root, RETAINED_LAYOUT_PATH).read_bytes()
+        )
     for relative in shim:
         old_documents[relative] = _identity(_safe_path(root, relative).read_bytes())
     component_root = layout.wrapper_root
@@ -397,8 +416,76 @@ def plan_retained_harness_readmission(
         ),
         "authority_review": document,
     }
+    if declaration is not None:
+        plan["layout_readmission"] = {
+            "schema": "literate-ai/retained-layout-readmission@1",
+            "layout_identity": declaration.identity,
+            "implementation_directory": implementation_relative,
+            "wrapper_component": layout.wrapper_component,
+            "lift_shift_identity": _identity(_load_json(_safe_path(root, LIFT_SHIFT))),
+            "inventory_identity": _identity(new_inventory),
+            "source_tree_identity": source_tree["identity"],
+            "wrapper_identity": _identity(wrapper),
+        }
+        plan["changes_required"] = plan["changes_required"] or any(
+            _load_json(path).get("layout_readmission") != plan["layout_readmission"]
+            for path in (baseline_path, parity_path)
+        )
+    # Re-open structural inputs after every inventory/document read. This closes
+    # stale location, declaration and pending-state changes before exposing a plan.
+    _require_layout_current(root, plan)
     plan["plan_identity"] = _identity(plan)
     return plan
+
+
+def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
+    # Capture known native inputs before parsing any layout/history payloads.
+    # The final pass below reads no payloads and never accepts resampled facts.
+    ancestry = _lineage(root / ".literate")
+    nodes = []
+    for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT, RETAINED_LAYOUT_PATH):
+        path = root / relative
+        try:
+            node = _signature(path)
+        except FileNotFoundError:
+            node = None
+        nodes.append((path, node))
+    layout = _layout(root)
+    if (
+        layout.implementation_directory != plan["implementation"]
+        or layout.wrapper_component != plan["wrapper_component"]
+    ):
+        _fail("layout_changed", "retained layout changed during readmission")
+    declaration = read_retained_layout_declaration(root)
+    expected = plan.get("layout_readmission")
+    if (declaration is None) != (expected is None) or (
+        declaration is not None and declaration.identity != expected["layout_identity"]
+    ):
+        _fail("layout_changed", "retained declaration changed during readmission")
+    for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT, RETAINED_LAYOUT_PATH):
+        if relative in plan["old_documents"] and (
+            _identity(_safe_path(root, relative).read_bytes())
+            != plan["old_documents"][relative]
+        ):
+            _fail("layout_changed", "retained layout inputs changed during readmission")
+    if _lineage(root / ".literate") != ancestry:
+        _fail("layout_changed", "retained layout ancestry changed during readmission")
+    # Pending absence is observed after all payload reads, then original known
+    # file facts close changes made during that observation. No payload follows.
+    if os.path.lexists(root / "litai/layout.pending"):
+        _fail("layout_pending", "pending relocation requires explicit recovery")
+    for path, expected_node in nodes:
+        try:
+            current_node = _signature(path)
+        except FileNotFoundError:
+            current_node = None
+        if current_node != expected_node:
+            _fail(
+                "layout_changed",
+                "retained layout native inputs changed during readmission",
+            )
+    if _lineage(root / ".literate") != ancestry:
+        _fail("layout_changed", "retained layout ancestry changed during readmission")
 
 
 def _baseline_report(
@@ -713,6 +800,12 @@ def apply_retained_harness_readmission(
             project_id=project.definition.project_id,
             executor=executor,
         )
+        _require_layout_current(root, plan)
+        if "layout_readmission" in plan:
+            if baseline.get("state") != "passed" or parity.get("state") != "passed":
+                _fail("layout_unqualified", "fresh baseline and parity must pass")
+            baseline["layout_readmission"] = plan["layout_readmission"]
+            parity["layout_readmission"] = plan["layout_readmission"]
         shim = legacy_shim_authority(
             inventory, baseline, wrapper_component=plan["wrapper_component"]
         )
@@ -738,6 +831,11 @@ def apply_retained_harness_readmission(
             for name, content in before.items()
         ):
             _fail("plan_stale", "project metadata changed before publication")
+        for relative in (LIFT_SHIFT, RETAINED_LAYOUT_PATH):
+            if relative in plan["old_documents"]:
+                before[relative] = _safe_path(root, relative).read_bytes()
+                if _identity(before[relative]) != plan["old_documents"][relative]:
+                    _fail("layout_changed", "layout changed before history publication")
         history = _safe_path(
             root,
             f"{HISTORY}/{plan_identity.digest}.json",
@@ -773,6 +871,7 @@ def apply_retained_harness_readmission(
                 },
             }
             for name, content in replacements.items():
+                _require_layout_current(root, plan)
                 FilesystemConversionAuthorityStore._atomic_write(paths[name], content)
                 written[name] = content
             store = ProjectConfigurationStore(root)
@@ -845,6 +944,7 @@ def apply_retained_harness_readmission(
                         "historical_evidence_changed",
                         "conversion authority or lift-and-shift evidence changed",
                     )
+            _require_layout_current(root, plan)
         except BaseException:
             for name, content in reversed(tuple(written.items())):
                 if paths[name].read_bytes() == content:

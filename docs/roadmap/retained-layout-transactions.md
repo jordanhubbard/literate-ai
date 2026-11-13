@@ -746,3 +746,43 @@ Control disposition verifies those live producers and classifies the original
 control stacks through directory teardown. It does not declare completion of a
 public recovery command spanning every caller-owned producer context; that
 front door and its complete error/reentry boundary remain required acceptance.
+
+## Structural renewal after relocation (in progress)
+
+The actual internal nonroot transaction invalidates admission by publishing a
+`requalification-required` lift-and-shift record. Ordinary readmission must
+locate that structurally current implementation and selected wrapper even while
+historical evidence is unqualified. Bind the declaration and current lineage in
+its fresh acknowledged plan. Complete real direct baseline and wrapper parity,
+regenerate the selected current Component lock, and publish a current readmission
+binding to those exact fresh documents and the unchanged declaration. Retain the
+prior lift-and-shift evidence in readmission history. Read-only lookup, schema
+migration and source-scope refresh cannot promote admission. Old receipts stay
+invalid; qualified readers must resolve the selected wrapper and require fresh
+current admission. Changes to layout or pending relocation state before or during
+execution refuse publication. Initial/root/shared placement and their full source
+partition owners remain separate unfinished requirements.
+
+The first actual-move regression fails the committed readmission predecessor at
+its obsolete `lift_shift_unqualified` check. Structural renewal then passes the
+initial thirteen-method neighborhood, but a maintained late-read control inserts
+a real pending marker after the helper's final declaration read without refusal.
+Independent execution also observes a returned plan and an applied result across
+late pending insertions. These are failing development observations, not qualified
+renewal. Close all remaining historical input reads before the final layout and
+pending checks, then rerun the maintained and independent cases before approval.
+
+The repaired closing helper captures original known layout/conversion file facts
+and ancestry before reading inputs. It compares current layout and historical
+bytes, observes pending absence after those payload reads, then closes the
+original native facts without further payload reads. Apply performs its final
+helper check after its historical reads. Both maintained late-pending methods
+fail the exact intermediate source; all fifteen current affected methods pass
+without skips, including nine actual-layout renewal controls. Independent
+re-review approves the exact changed source and tests, passes all nine maintained
+renewal methods and two additional native replacement controls, and reproduces
+both causal failures on the preserved intermediate source. The [development
+evidence](../../verification/retained-layout-structural-renewal-development.json)
+binds the source subjects, immutable report identities and final fifteen-method
+run. Qualified admission and the other L2 consumers remain
+unfinished, and the configured full-source receipt is still stale.

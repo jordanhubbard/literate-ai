@@ -1,0 +1,164 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Local POSIX nonroot structural readmission renewal after an actual committed relocation; not qualified admission or full ADOPT-RELOCATE acceptance",
+  "base_revision": "fa7492d67423bda7f6414fe1467935ed31ce8709",
+  "subjects": {
+    "src/literate_ai/adapters/retained_harness_readmission.py": {
+      "algorithm": "sha256",
+      "digest": "21ed797ea9b6fccf42eeda82baf5129295857232e7c698d0c78b17d761a16725"
+    },
+    "tests/critical/test_retained_layout_renewal.py": {
+      "algorithm": "sha256",
+      "digest": "cd57457bf09ec4d7c3ffa33671fae00b0c75c1363ef2ccb379bfdbe62df091cb"
+    }
+  },
+  "native_macos_source_cases": {
+    "renewal_methods": 9,
+    "existing_readmission_methods": 6,
+    "total_passed": 15,
+    "seconds": 34.196,
+    "skipped": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "2506acf941cf156acdc33b3c9368cd11f583f670a63618156be7db5e483146fc"
+    },
+    "modules": [
+      "tests.critical.test_retained_layout_renewal",
+      "tests.e2e.test_retained_harness_readmission"
+    ]
+  },
+  "causal_history": [
+    {
+      "source": "committed readmission at base_revision",
+      "actual_move_regression_errors": 1,
+      "seconds": 3.284,
+      "reason": "Old passed-only legacy resolver rejects actual committed requalification-required layout before renewal."
+    },
+    {
+      "source_identity": "sha256:22e5eda577feaf10d964bff21ce49f8ba9ee91111b32d3c9164a083e48851936",
+      "maintained_late_pending_methods_failed": 2,
+      "seconds": 6.921,
+      "reason": "Helper final declaration read and actual apply final historical read can insert a pending marker before returning success.",
+      "repair": "Close payload/history reads before final pending and original known input facts; final apply check occurs after historical inputs."
+    }
+  ],
+  "actual_behavior": [
+    "Resolve the actual current nonroot structural source and selected wrapper for fresh acknowledged readmission, including requalification-required layouts.",
+    "Run genuine direct baseline and wrapper parity, regenerate the selected current wrapper lock, and bind the fresh reports to current declaration, lift lineage, inventory, source tree and wrapper bytes.",
+    "Preserve prior lift/layout evidence in history without rewriting their current bytes or creating a positive test receipt.",
+    "Reject pending relocation and changed layout inputs before planning/publication and after final historical reads; ordinary failures restore only still-written current evidence and preserve the foreign pending marker."
+  ],
+  "independent_review": {
+    "decision": "approved_at_limited_scope",
+    "initial_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "c8b1007c64aa0e10e17480006fbeebe71fe53acc9a62f4886b2e36af7279143a"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "c897b5a747c0c944fb40febd678d41cb9ed012c5c07846977fa3ba1dd970d479"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/retained_harness_readmission.py": {
+        "sha256": "21ed797ea9b6fccf42eeda82baf5129295857232e7c698d0c78b17d761a16725"
+      },
+      "tests/critical/test_retained_layout_renewal.py": {
+        "sha256": "cd57457bf09ec4d7c3ffa33671fae00b0c75c1363ef2ccb379bfdbe62df091cb"
+      },
+      "tests/e2e/test_retained_harness_readmission.py": {
+        "sha256": "897d04d60b7dd2fe4be873e4366df83df481dfb161573d0d2344a287560408b9"
+      },
+      "src/literate_ai/adapters/retained_layout.py": {
+        "sha256": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "sha256": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "src/literate_ai/adapters/repository_refresh.py": {
+        "sha256": "4aa4b18744e079bd4800181582b69cc31325ac46e88a3717d5e0a79a6f8c3d1f"
+      },
+      "src/literate_ai/adapters/retained_harness_receipts.py": {
+        "sha256": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47"
+      },
+      "src/literate_ai/adapters/component_lock_application.py": {
+        "sha256": "4c18c51b433214db04609c1e3437541d09e753f178110c10dcfabce71092a681"
+      },
+      "src/literate_ai/adapters/lifecycle_lock.py": {
+        "sha256": "0075643b160fce0563e42b566ecb63043ba3d7bd4b0ed2988dad0922345706ce"
+      },
+      "docs/decisions/0057-retained-implementation-layout-and-relocation.md": {
+        "sha256": "9499d259afd7ee5c173073f298ed1d83cee99b7eeedfc713db637b2dabaf8589"
+      }
+    },
+    "qualification": "Exact nonroot selected-layout structural readmission renewal producer; not full L2 or receipt/admission consumption",
+    "resolved_findings": [
+      "LAYOUT-RENEWAL-FINAL-PENDING-CLOSE-001"
+    ],
+    "current_renewal_methods_passed": 9,
+    "current_renewal_seconds": 22.449,
+    "causal_pending_methods_failed": 2,
+    "causal_pending_seconds": 6.981,
+    "native_replacement_supplements_passed": 2,
+    "native_replacement_supplements_seconds": 5.138
+  },
+  "repository_checks": {
+    "driver_review": "passed",
+    "runner_review": "passed",
+    "lint": "passed",
+    "format_check": "passed",
+    "repository_layout_check": "passed",
+    "public_export_check": "passed",
+    "project_validate_ok": true
+  },
+  "limits": [
+    "Qualified admission readers remain guarded and are the next implementation action; these fresh report bindings do not by themselves admit retained execution.",
+    "Actual root/shared/mixed/nested ownership, initial/custom/wrapper placement and the complete public recovery span remain unfinished.",
+    "Local source tests do not establish installed/native Windows/Linux, full-source, exact-head CI/integration/main or release acceptance. The configured full-source receipt remains stale."
+  ],
+  "all_gates_read_only_verify": {
+    "ok": false,
+    "counts": {
+      "fail": 1,
+      "pass": 1,
+      "skipped": 3
+    },
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "qualification": "Authority passes; configured full-source receipt remains stale and is not renewed by this scoped development record."
+  },
+  "admission_guard_supplement": {
+    "methods_passed": 1,
+    "seconds": 5.236,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "dd1248ebb13ca3d69fe9fbdb97a235e19a0c06c0ea89b40fa90376d5f0592204"
+    },
+    "behavior": "Actual move and genuine readmission followed by retained receipt execution still refuse with retained_receipt.lift_shift_unqualified; no candidate/evidence outputs published. Existing admission is deliberately unchanged pending the next implementation action."
+  }
+}

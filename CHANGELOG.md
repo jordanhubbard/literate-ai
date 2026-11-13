@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout development can rerun direct harness and wrapper parity at a
+  relocated nonroot source location, retaining prior evidence and refusing changed
+  layout or pending transaction state; qualified admission remains pending (#265).
+
 - Retained-layout development releases recovery controls through their original
   descriptors, preserving evidence and permitting a fresh ordinary layout transaction;
   public recovery and full relocation acceptance remain pending (#265).
