@@ -278,7 +278,12 @@
     "literate-ai/retained-tree-html-freshness@1",
     "literate-ai/retained-tree-html-check-result@1",
     "literate-ai/project-verify@2",
-    "literate-ai/project-tree-html@1"
+    "literate-ai/project-tree-html@1",
+    "literate-ai/worker-telemetry-request@1",
+    "literate-ai/worker-telemetry-observation@1",
+    "literate-ai/worker-telemetry-response@1",
+    "literate-ai/authenticated-worker-telemetry-request@1",
+    "literate-ai/authenticated-worker-telemetry-response@1"
   ],
   "read_paths": [
     {

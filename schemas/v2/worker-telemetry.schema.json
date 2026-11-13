@@ -1,0 +1,889 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:worker-telemetry-contracts",
+  "oneOf": [
+    {
+      "$ref": "literate-ai/worker-telemetry-request@1"
+    },
+    {
+      "$ref": "literate-ai/worker-telemetry-observation@1"
+    },
+    {
+      "$ref": "literate-ai/worker-telemetry-response@1"
+    },
+    {
+      "$ref": "literate-ai/authenticated-worker-telemetry-request@1"
+    },
+    {
+      "$ref": "literate-ai/authenticated-worker-telemetry-response@1"
+    }
+  ],
+  "$defs": {
+    "metric": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "scope",
+        "status",
+        "value",
+        "unit",
+        "cumulative"
+      ],
+      "properties": {
+        "name": {
+          "enum": [
+            "network-in-bytes",
+            "network-out-bytes",
+            "disk-read-bytes",
+            "disk-written-bytes",
+            "cpu-time-ns",
+            "cpu-utilization-basis-points",
+            "memory-bytes"
+          ]
+        },
+        "scope": {
+          "enum": [
+            "process-subtree",
+            "container",
+            "worker-host"
+          ]
+        },
+        "status": {
+          "enum": [
+            "measured",
+            "unavailable",
+            "unsupported",
+            "denied"
+          ]
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9223372036854775807
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unit": {
+          "enum": [
+            "bytes",
+            "nanoseconds",
+            "basis-points"
+          ]
+        },
+        "cumulative": {
+          "type": "boolean"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "measured"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "network-in-bytes"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "bytes"
+              },
+              "cumulative": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "network-out-bytes"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "bytes"
+              },
+              "cumulative": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "disk-read-bytes"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "bytes"
+              },
+              "cumulative": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "disk-written-bytes"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "bytes"
+              },
+              "cumulative": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "cpu-time-ns"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "nanoseconds"
+              },
+              "cumulative": {
+                "const": true
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "cpu-utilization-basis-points"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "basis-points"
+              },
+              "cumulative": {
+                "const": false
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 10000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "name": {
+                "const": "memory-bytes"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "bytes"
+              },
+              "cumulative": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "progress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "completed",
+        "total",
+        "reason"
+      ],
+      "properties": {
+        "completed": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9223372036854775807
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "total": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "enum": [
+                "unknown",
+                "opaque-work",
+                "not-started",
+                "unsupported"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "completed": {
+              "type": "null"
+            },
+            "total": {
+              "type": "null"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "properties": {
+            "completed": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9223372036854775807
+            },
+            "total": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            "reason": {
+              "type": "null"
+            }
+          }
+        }
+      ],
+      "description": "Known completed <= total is additionally enforced by the typed reader; no elapsed-time percentage inference."
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "controller_identity",
+        "catalog_identity",
+        "registration_identity",
+        "worker_identity",
+        "observation_scope_identity",
+        "nonce",
+        "issued_at_ms",
+        "expires_at_ms",
+        "scope",
+        "action_identities"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/worker-telemetry-request@1"
+        },
+        "controller_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "catalog_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "registration_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "worker_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observation_scope_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "issued_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "expires_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "scope": {
+          "enum": [
+            "actions",
+            "worker-aggregate"
+          ]
+        },
+        "action_identities": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          }
+        }
+      },
+      "$id": "literate-ai/worker-telemetry-request@1",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "actions"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "action_identities": {
+                "minItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "action_identities": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ],
+      "description": "Data only. Typed reader additionally enforces sorted identities and a positive expiry window <= 30000ms. No identity or decoded request grants observation permission."
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "action_identity",
+        "reservation_identity",
+        "process_start_identity",
+        "terminal_result_identity",
+        "owner_epoch",
+        "counter_epoch",
+        "observed_at_ms",
+        "stage",
+        "state",
+        "progress",
+        "metrics"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/worker-telemetry-observation@1"
+        },
+        "action_identity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reservation_identity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "process_start_identity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "terminal_result_identity": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "owner_epoch": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "counter_epoch": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observed_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "stage": {
+          "enum": [
+            "unknown",
+            "queued",
+            "generate",
+            "validate",
+            "build",
+            "test",
+            "execute",
+            "accept",
+            "publish"
+          ]
+        },
+        "state": {
+          "enum": [
+            "unknown",
+            "queued",
+            "running",
+            "blocked",
+            "finished"
+          ]
+        },
+        "progress": {
+          "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/progress"
+        },
+        "metrics": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "cpu-time-ns"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "cpu-utilization-basis-points"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "disk-read-bytes"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "disk-written-bytes"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "memory-bytes"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "network-in-bytes"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "urn:literate-ai:schema:v2:worker-telemetry-contracts#/$defs/metric"
+                },
+                {
+                  "properties": {
+                    "name": {
+                      "const": "network-out-bytes"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "$id": "literate-ai/worker-telemetry-observation@1",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "action_identity": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "reservation_identity": {
+                "type": "null"
+              },
+              "process_start_identity": {
+                "type": "null"
+              },
+              "terminal_result_identity": {
+                "type": "null"
+              },
+              "stage": {
+                "const": "unknown"
+              },
+              "state": {
+                "const": "unknown"
+              },
+              "metrics": {
+                "items": {
+                  "properties": {
+                    "scope": {
+                      "const": "worker-host"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "reservation_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "process_start_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "state": {
+                "const": "finished"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "terminal_result_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "terminal_result_identity": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ],
+      "description": "Untrusted observation; live process/reservation/epoch and terminal-result owners must be independently reopened by the authenticated receiver. Host counters are never implicitly job counters."
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "request_identity",
+        "worker_identity",
+        "observation_scope_identity",
+        "observer_epoch",
+        "sequence",
+        "observed_at_ms",
+        "expires_at_ms",
+        "status",
+        "sample_count"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/worker-telemetry-response@1"
+        },
+        "request_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "worker_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observation_scope_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "observer_epoch": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "sequence": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "observed_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "expires_at_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "unsupported",
+            "unavailable",
+            "denied"
+          ]
+        },
+        "sample_count": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 64
+        }
+      },
+      "$id": "literate-ai/worker-telemetry-response@1",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "observed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sample_count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 64
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "sample_count": {
+                "const": 0
+              }
+            }
+          }
+        }
+      ],
+      "description": "One newline-terminated response header followed by sample_count observation JSON lines. Entire framed response <=1MiB; every record including newline <=16KiB. Typed codec enforces exact request/action membership and temporal bounds. Authentication, live ownership and replay/freshness acceptance are separate and mandatory."
+    },
+    "authenticated_request": {
+      "$id": "literate-ai/authenticated-worker-telemetry-request@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "principal_identity",
+        "key_identity",
+        "body_bytes",
+        "signature"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/authenticated-worker-telemetry-request@1"
+        },
+        "principal_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "key_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "body_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16384
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "description": "One telemetry-only authenticated envelope header, followed by exactly body_bytes of framed telemetry data. Header including newline <=1024 bytes. Entire request <=16KiB or response <=1MiB including this header. HMAC-SHA256 binds the schema-specific observation-only domain, canonical header without signature, and exact body. Configured credentials must be selected independently of untrusted header fields. Message authentication is not observation permission, replay acceptance or a live action owner; current receiver scope and owner checks remain mandatory."
+    },
+    "authenticated_response": {
+      "$id": "literate-ai/authenticated-worker-telemetry-response@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "principal_identity",
+        "key_identity",
+        "body_bytes",
+        "signature"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/authenticated-worker-telemetry-response@1"
+        },
+        "principal_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "key_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "body_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1048576
+        },
+        "signature": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      },
+      "description": "One telemetry-only authenticated envelope header, followed by exactly body_bytes of framed telemetry data. Header including newline <=1024 bytes. Entire request <=16KiB or response <=1MiB including this header. HMAC-SHA256 binds the schema-specific observation-only domain, canonical header without signature, and exact body. Configured credentials must be selected independently of untrusted header fields. Message authentication is not observation permission, replay acceptance or a live action owner; current receiver scope and owner checks remain mandatory."
+    }
+  }
+}

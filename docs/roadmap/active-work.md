@@ -33735,9 +33735,102 @@ independent review and the complete combined gate from test one.
 - **Release target:** 1.4.0
 - **GitHub issue:** [#280](https://github.com/jordanhubbard/literate-ai/issues/280)
 - **Accepted decision:** [ADR 0059](../decisions/0059-authenticated-read-only-worker-telemetry.md); explicit directing-user acceptance on 2026-11-03.
-- **Next action:** Implement the accepted bounded authenticated telemetry feed and its job/source attribution controls. Implementation and installed/native qualification remain open.
+- **Next action:** Complete the live observation permission/action-owner boundary, then compose existing authenticated transport, bounded collection and the installed/native journeys. The draft now includes response/sample framing and additive schemas, but no receiver or live feed. The initial request/metric/progress contracts below grant no observation or execution authority; the full accepted feed remains required.
 
 - **Planning verification:** Proposed ADR 0059 and this intake have independent source/design approval. The previous two-design, pre-integration checkpoint and passing fresh consolidated gate are recorded under [RETAINED-TREE-EXPLORER-001](#retained-tree-explorer-001-publish-hierarchical-retained-tree-html-information-cards). The current source audit distinguishes pressure probes and discrete action attestations from the missing telemetry feed; it claims no live telemetry or job-attribution qualification. The directing user explicitly accepted ADR 0059 on 2026-11-03; every implementation/evidence item remains open.
+
+- **Contract foundation in progress:** `contracts/worker_telemetry.py` adds a closed
+  data-only request binding controller/catalog/registration/worker/observation-scope
+  identities, a 32-byte nonce, a finite 30-second window and at most 64 uniquely
+  sorted action identities; aggregate scope is distinct. No arbitrary PID, path,
+  command, environment, output or display-text selector is admitted. Metrics retain
+  explicit measurement scope, closed status, fixed units and counter/gauge meaning;
+  unmeasured values are null. Progress requires actual completed/total work or a
+  closed indeterminate reason. Ninety-three focused contract/wire/schema/authentication/authorization/polling/native-process/controller-reservation controls pass, plus the existing catalog
+  structure and schema-check-scope controls. Additive request/observation/response
+  header schemas resolve in the current runtime catalog. The codec checks the
+  aggregate 1 MiB bound and newline count before allocating a frame list, then
+  enforces 16 KiB per record including framing before parsing. It refuses duplicate
+  fields, nonfinite values, missing/duplicate/substituted action samples and changed
+  request/worker/scope/expiry bindings. Unsupported, denied and unavailable responses
+  remain explicit. Owner/process-start/reservation/counter epochs and observer
+  epoch/sequence remain untrusted data; terminal references do not authenticate a
+  result. Telemetry-only HMAC-SHA256 envelopes now use explicit private observation
+  credentials, bind principal/key identity and exact framed body, separate
+  request/response domains, and reject expired/future messages. The bounded reader
+  caps each read before retaining bytes and keeps framing inside the aggregate
+  budget. These are message authentication primitives, not observation scope
+  authorization, a live action owner or an implemented route. Message verification
+  now yields an immutable, nonserializable in-process proof. A private current-policy
+  port checks controller/catalog/registration/worker/key/action or explicit aggregate
+  permission under an original scope epoch; authorization claims a bounded nonce
+  atomically. Changed policy closes the owner, retained permits revalidate, clock
+  regression refuses, and full replay windows refuse without evicting live claims.
+  Reconstructing identical policy creates a fresh scope and cannot restore prior
+  permits. These authorization controls use real message MACs with injected policy
+  and clock ports; they do not prove native configuration custody or process ownership.
+  The original scope now binds exactly one finite polling admission owner: a one-second
+  minimum between new collections, at most four collectors by default (hard ceiling
+  sixteen), and at most 64 participants per collection. Equivalent active selectors
+  coalesce without another collector or extension of the first deadline; shorter
+  participant expiries remain independent. Nonces are authenticated and claimed before
+  admission, busy/rate/capacity excess refuses without a queue, and no samples/history
+  are retained. Cancelled or expired collectors keep their slots until their original
+  finally hook retires them, preventing uncooperative collection from creating capacity.
+  Clock regression closes this observation owner; slow policy checks cannot backdate
+  a collection start or return an expired ticket. These are process-local admission
+  controls with real MACs and injected policy/clocks, not running native collectors,
+  transport cancellation or verified job isolation. Freshness/replay enforcement, live
+  epoch/sequence custody, production wiring of rate/coalescing/concurrency and deadlines,
+  native collection and every installed/independent/integrated acceptance requirement
+  remain open. The bounded process launcher now has an opt-in original-launch hook.
+  Its finite process-local registry captures Linux pidfd/proc directory guards before
+  the original child is published to waiters; it reads no counter files on the launch
+  thread. Collectors read only bounded `stat`/`io` records through that original
+  descriptor, bind native start ticks and a fresh launch epoch, and expose typed
+  single-process CPU time, RSS estimate and storage accounting. Task names, PID/path
+  selectors and command/environment data are excluded. Descriptor-only observation
+  close is nonblocking and defers release during a read; actual slow-collector and
+  registration/close-race controls preserve original job completion and output.
+  Eleven Linux process/launcher controls pass, including positive CPU/RSS and
+  4 MiB storage-write accounting. Existing launcher regressions pass (two builder
+  controls and two process-tree controls; four native platform cases explicitly skip).
+  Storage accounting retains cancelled writes separately and does not claim completed
+  physical writeout; RSS remains an estimate. These direct-launch process values are
+  not subtree/action/worker aggregates. Original action/reservation joins, complete
+  native tree attribution, Windows/macOS collectors, public transport, installed
+  qualification and independent/integrated acceptance remain required. No lifecycle
+  driver pin or release acceptance is advanced by this foundation. The
+  [native Linux development record](../../verification/worker-telemetry-native-linux.json)
+  binds source `77353a8d6`, the successful Python3.12 whole-wheel gate and all eleven
+  maintained native controls from a fresh noneditable installation outside the
+  checkout. All 241 imported framework modules match both archive and source; the
+  installed distribution identity is unchanged before/after. Both Python3.12 and
+  Python3.15 pass the 80 focused source controls. The earlier Python3.15 whole-wheel
+  dependency-download failure remains recorded separately, not upgraded to a pass.
+  A later opt-in controller handoff now publishes immutable liveness from the actual
+  `CommandActionSlots` reservation after its real slot claim. Both `run` and `acquire`
+  join that original owner, and the configured dispatcher binds its exact current
+  request before input transfer. Exchange cleanup retires the observation binding
+  without releasing held capacity; quarantine, release, changed binding and expired
+  observation clocks cannot restore an old view. Consumers never take the slot's
+  mutation Condition or receive execution/cancel/release controls. Thirteen additional
+  controls include a real scripted command receiver and a concurrent observation
+  while the control Condition is held; five dispatch-wire and five unknown-ownership
+  regressions pass. These are controller provenance checks, not a remote reservation
+  attestation or public telemetry feed. The earlier wheel/native record remains
+  bound to source `77353a8d6`. A [separate current handoff record](../../verification/worker-telemetry-controller-linux.json)
+  binds software `7078bc96b`, the complete fresh source gate (2,873 selected,
+  2,773 passed, 100 declared skips, no failed or known-failed cases), all 606
+  reconciled worker groups and its whole noneditable Python 3.12 wheel. All thirteen
+  maintained controller controls and all eleven native process controls pass without
+  skips from that exact artifact outside the checkout, with respectively 248 and 241
+  installed framework origins matching source/archive and unchanged distribution
+  identity. These installed controls use a real scripted command receiver for
+  controller provenance; they do not establish a negotiated telemetry session or
+  actual remote action/subtree ownership. Independent review and exact integrated
+  acceptance remain open, along with the full ADR 0059 feed. Issue #418 retains
+  the separate Python 3.15 dependency-closure failure.
 
 - **Priority:** P1
 - **Owner:** Worker process/action observations, shared transport and versioned telemetry contracts
