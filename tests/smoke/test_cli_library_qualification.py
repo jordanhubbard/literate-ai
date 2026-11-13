@@ -300,6 +300,93 @@ class PublicLibraryQualificationTests(unittest.TestCase):
         self.assertFalse(self.output.exists())
         self.assertFalse(self.retained_scratch.exists())
 
+    def failed_runs(self, adapter, plan):
+        from literate_ai.adapters.qualification import FilesystemQualificationError
+        from literate_ai.adapters.qualification_capture import (
+            QualificationEvidenceRecorder,
+        )
+
+        recorder = QualificationEvidenceRecorder(max_bytes=100_000, max_records=100)
+        self.failure_stream_identity = recorder.remember_bytes(
+            b"private-failure-stream"
+        )
+        adapter.diagnostic_evidence_blobs = recorder.entries
+        adapter.diagnostic_case_record_identities = ()
+        self.failed_plan = plan
+        self.retained_scratch = adapter.workspaces.session_root.parent
+        raise FilesystemQualificationError(
+            "qualification_lifecycle.parity_failed",
+            "every pinned independent parity case must pass",
+        )
+
+    def test_failed_public_qualification_retains_only_a_diagnostic_reference(self):
+        from literate_ai.adapters.evidence_storage import FileSystemEvidenceStore
+        from literate_ai.adapters.qualification_diagnostics import (
+            reopen_qualification_failure_diagnostic,
+        )
+        from literate_ai.contracts.blobs import BlobRef
+
+        self.qualify.side_effect = self.failed_runs
+        store = self.fixture.root / "failure-evidence"
+        status, document = self.invoke("--retained-evidence-store", str(store))
+        self.assertEqual(status, 2, document)
+        error = document["error"]
+        self.assertEqual(error["code"], "qualification_lifecycle.parity_failed")
+        self.assertNotIn("private-failure-stream", error["message"])
+        self.assertIn(
+            "failure diagnostic in retained-store/diagnostics:", error["message"]
+        )
+        value, _ = json.JSONDecoder().raw_decode(
+            error["message"][error["message"].index("{") :]
+        )
+        ref = BlobRef.from_dict(value)
+        content = FileSystemEvidenceStore(store / "diagnostics").get_bytes(ref)
+        diagnostic = reopen_qualification_failure_diagnostic(
+            content, ref, max_bytes=100_000, max_records=100_000
+        )
+        self.assertEqual(diagnostic.plan, self.failed_plan)
+        self.assertEqual(
+            diagnostic.records.read_bytes(self.failure_stream_identity),
+            b"private-failure-stream",
+        )
+        self.authority_store.append_qualified.assert_not_called()
+        self.assertFalse(self.output.exists())
+        self.assertFalse(self.retained_scratch.exists())
+
+    def test_foreign_diagnostic_path_preserves_original_public_failure(self):
+        self.qualify.side_effect = self.failed_runs
+        store = self.fixture.root / "failure-evidence"
+        store.mkdir()
+        foreign = store / "diagnostics"
+        foreign.write_bytes(b"foreign original bytes")
+        status, document = self.invoke("--retained-evidence-store", str(store))
+        self.assertEqual(status, 2, document)
+        self.assertEqual(
+            document["error"]["code"], "qualification_lifecycle.parity_failed"
+        )
+        self.assertIn("failure diagnostics unavailable", document["error"]["message"])
+        self.assertEqual(foreign.read_bytes(), b"foreign original bytes")
+        self.authority_store.append_qualified.assert_not_called()
+        self.assertFalse(self.output.exists())
+        self.assertFalse(self.retained_scratch.exists())
+
+    def test_unavailable_diagnostic_helper_preserves_original_public_failure(self):
+        self.qualify.side_effect = self.failed_runs
+        with patch.dict(
+            "sys.modules", {"literate_ai.adapters.qualification_diagnostics": None}
+        ):
+            status, document = self.invoke(
+                "--retained-evidence-store", str(self.fixture.root / "failure-evidence")
+            )
+        self.assertEqual(status, 2, document)
+        self.assertEqual(
+            document["error"]["code"], "qualification_lifecycle.parity_failed"
+        )
+        self.assertIn("failure diagnostics unavailable", document["error"]["message"])
+        self.authority_store.append_qualified.assert_not_called()
+        self.assertFalse(self.output.exists())
+        self.assertFalse(self.retained_scratch.exists())
+
     def test_public_qualification_uses_library_oracle_and_projects_accepted_result(
         self,
     ):

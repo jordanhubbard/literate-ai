@@ -2,6 +2,75 @@
 
 ## Unreleased
 
+- Generated bootstrap checks cap stdout and stderr while reading and retire
+  owned helpers on completion, timeout or overflow, preserving runtime pins (#332).
+
+- Retained-layout declaration reads refuse incomplete bytes and changed directory
+  ancestry through parsing, preserving file custody and canonical encoding (#265).
+
+- Worker reservation observations preserve concurrent quarantine and retirement,
+  while slow observation reads leave original job completion independent (#280).
+
+- Worker telemetry polling rechecks its monotonic deadline after current-policy
+  validation and refuses clock regression while retaining live collector slots (#280).
+
+- Bounded coding CLI invocations retire descendant helpers before removing private
+  state, retaining the launcher exit code and captured streams (#365).
+
+- Source inventory excludes recognized SPDX and copyright attribution from CUDA
+  evidence without changing input bytes; explicit CUDA source, compiler, headers
+  and runtime/driver API signals remain detectable (#396).
+- Generated project agent instructions lead to a standard-library bootstrap check
+  before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
+- Add optional guidance for suitable A2A peers already connected through the agent
+  host, preserving delegation limits, tracker ownership and independent acceptance.
+- Public-export reference checking avoids quadratic backtracking on long ASCII
+  runs while preserving the same denied labels and complete scanned inputs (#427).
+
+- Windows bounded tools reuse confirmed Job Object termination during repeated
+  cleanup, avoiding redundant `taskkill` enumeration while retaining fallback
+  cleanup when Job ownership or termination is unavailable (#426).
+- Accepted-source export qualification uses the actual admitted Python compiler
+  for independent expected bytecode when the test interpreter differs (#424).
+
+- Avoid redundant initial Cargo census metadata and semantic JSON work during
+  fresh input-currentness checks, retaining every payload hash and closing
+  namespace, physical-node and lineage check (#432).
+- Reuse bounded project/Flavor parsing within one native currentness check while
+  retaining every member guard, fresh graph and byte check, and closing Flavor
+  membership validation; each independent call gets a fresh observation (#432).
+
+- Retained Cargo v2 can explicitly review finite native executable, runtime and
+  build-output byte budgets with fresh streaming custody instead of retaining
+  multi-GiB payload copies; defaults and complete membership checks remain (#433).
+
+- Retained Cargo v2 composition keeps independently measured consumer Cargo/Rust
+  tools separate from the provider's guarded native observations (#430).
+
+- Retained Cargo v2 can explicitly reserve secondary build outputs under the same
+  live ownership and source-input fences, preserving unchanged full gates (#429).
+
+- Native retained-Cargo integration tests use the existing finite API deadline
+  default on slower workers while preserving production bounds and input checks.
+
+- Native retained-Cargo fixtures preserve the caller's implicit Rustup toolchain root
+  before isolating HOME, while retaining explicit values and discovery refusals.
+
+- Accepted-source export qualification compiles independent expected bytecode with
+  the actual admitted Python compiler when the test interpreter differs (#424).
+
+- Add a public Python v2 retained-Cargo receiving transaction with live scratch
+  publication, patch-aware consumer gates, honest typed test outcomes and strict
+  already-retired source admission; preserve v1 contracts (#222–#226).
+
+- Bind declared runtime capability variables to the consumer's locked provider
+  artifacts during node and packaged execution, refusing missing or ambiguous
+  providers, escaped package paths and ambient capability overrides (#422).
+
+- Identify the published 1.3.1 lab curriculum as historical at its front door and
+  route current readers to current setup guidance while retaining the open 1.4
+  multi-Component curriculum requirements.
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.
@@ -12,6 +81,16 @@
 
 - Capability deadline qualification observes actual original child cleanup, including
   expiry before a receiver writes its PID file, without extending caller budgets (#420).
+
+- Fresh single-node Rust libraries can replace a candidate after an exact native
+  public-result rejection within the existing three-candidate budget. Private
+  oracle content stays out of feedback, custody drift remains terminal, and final
+  packaged acceptance still runs (#405).
+
+- Automated Codex invocations avoid optional remote catalog downloads that can
+  exceed a caller's finite file-size limit (#412).
+
+- Coding CLI tasks and source generation keep Codex SQLite and diagnostic logs in private invocation state, preserving authentication, selected models and finite file limits (#365).
 
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
@@ -28,6 +107,10 @@
 
 - Installed-wheel qualification exercises lazy project startup and strict MAC BOM
   rejection, verifying installed module origins and exact candidate bytes (#121).
+
+- Retain bounded original qualification-failure observations in a separate
+  diagnostic archive/store, preserving the failing CLI result and keeping failed
+  product captures empty (#389).
 
 - Complete current-main native qualification of retained Windows system context,
   base/private interpreter DLL capture, and the five-minute C++ discovery bound;

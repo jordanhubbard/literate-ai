@@ -1,0 +1,263 @@
+{
+  "decision": "approved",
+  "findings": [],
+  "base_head": "add6b0a6228be6a6162d80bc60e99a2eeb9b1cd1",
+  "preview_tree": "8f09a0ed88d91fbfeaa2f208ee695d48907ec847",
+  "committed_subtree_comparison": {
+    "src": {
+      "actual_committed_tree": "97923353a1470811b7e17161aaefe97b4ab0815e",
+      "preview_tree": "97923353a1470811b7e17161aaefe97b4ab0815e",
+      "equal_before_working_harness_addition": true
+    },
+    "tests": {
+      "actual_committed_tree": "f76fa57c14c5da1042090fbc8f189d0a96e7e32f",
+      "preview_tree": "f76fa57c14c5da1042090fbc8f189d0a96e7e32f",
+      "equal_before_working_harness_addition": true
+    },
+    "scripts": {
+      "actual_committed_tree": "7c3854974be4f73ff1156631cb508f223eb7c940",
+      "preview_tree": "7c3854974be4f73ff1156631cb508f223eb7c940",
+      "equal_before_working_harness_addition": true
+    },
+    "schemas": {
+      "actual_committed_tree": "3678f0e7ef6f08a929782000e195a2ef676e59f2",
+      "preview_tree": "3678f0e7ef6f08a929782000e195a2ef676e59f2",
+      "equal_before_working_harness_addition": true
+    }
+  },
+  "approved_preview_runtime_test_manifest": {
+    "src/literate_ai/adapters/harness_inventory.py": {
+      "sha256": "ee67287daa69ef6dd323b8fbb4f1a27f8af4f03816f814b72e3cc3debd3da2ce",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/project_initialization.py": {
+      "sha256": "356b01d2912a5217c59fd03518a31615cd796a9368f8cbe355a753d8982d01c1",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/project_updates.py": {
+      "sha256": "a011760559771a097a1b561a0815e5e324e096b42900ab7eccaecda43e2c68e5",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/retained_evidence_migration.py": {
+      "sha256": "860450d53d086f3a83a620506bad853adeb41cc4823e11f21ddc333c1a6168ca",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/retained_harness_readmission.py": {
+      "sha256": "bb8f56a0313dfeb589fd1ba67d084e6486ec0af4794d80dd0ced17b0a3097b50",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/retained_harness_receipts.py": {
+      "sha256": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/retained_layout.py": {
+      "sha256": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/cli/dispatch.py": {
+      "sha256": "4b0412d6dc3021affdb4aa1cb4ba9b77c79c36eac3bfc3b88fe903764c9f0632",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/cli/operator.py": {
+      "sha256": "b08d50d83a317609d5ad14672b62c497d2c4b94b8a3368df6249ae92ab6dc80f",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/source_to_specification/inventory.py": {
+      "sha256": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_source_inventory_targets.py": {
+      "sha256": "b25457efc1ea264e0e19e028ec98e3cfb88d825df7bd86ef606120876b69ae38",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/_processes.py": {
+      "sha256": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/models/coding_cli.py": {
+      "sha256": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_codex_runtime_state.py": {
+      "sha256": "d547860907f73931ed96df42ca6b12e35a06b6cdf2c7dcb74e1df2db2b3dc20a",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_coding_cli_generation.py": {
+      "sha256": "b40841aa92d7b0a9178b1ff3c97c9959caeabea8b0919d68e1a6ad8e0905431e",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_coding_cli_success_cleanup.py": {
+      "sha256": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4",
+      "matches_approved_preview": true
+    },
+    "schemas/v2/compatibility.json": {
+      "sha256": "a42a9e5579fd4ba0f89439534440518980abbc249be8f9eaa1bdc1d115a4fa6e",
+      "matches_approved_preview": true
+    },
+    "schemas/v2/index.json": {
+      "sha256": "d9dcefabfad9fec7388a98b28874696a1a09167bad13e62c13a2e032c7d2e649",
+      "matches_approved_preview": true
+    },
+    "schemas/v2/worker-telemetry.schema.json": {
+      "sha256": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/action_command_dispatch.py": {
+      "sha256": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/action_slots.py": {
+      "sha256": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/builders/_process.py": {
+      "sha256": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_authentication.py": {
+      "sha256": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_processes.py": {
+      "sha256": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_wire.py": {
+      "sha256": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/application/worker_telemetry_authentication.py": {
+      "sha256": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/application/worker_telemetry_authorization.py": {
+      "sha256": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/application/worker_telemetry_polling.py": {
+      "sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/application/worker_telemetry_reservations.py": {
+      "sha256": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/contracts/worker_telemetry.py": {
+      "sha256": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/contracts/worker_telemetry_observations.py": {
+      "sha256": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+      "matches_approved_preview": true
+    },
+    "src/literate_ai/schema_catalog.py": {
+      "sha256": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_worker_telemetry_reservations.py": {
+      "sha256": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_retained_layout.py": {
+      "sha256": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+      "matches_approved_preview": true
+    },
+    "tests/critical/test_retained_update_layout.py": {
+      "sha256": "88461f57d211713a102b95517c519e929cd1a9073f19ef90d04adef43b9d1bc2",
+      "matches_approved_preview": true
+    }
+  },
+  "compared_entries": 35,
+  "mismatches": [],
+  "harness_source_manifest": {
+    "scripts/installed_maintained_controls.py": {
+      "sha256": "ce578f2160183c692eb045a92a963e2d3f0a5474177b7e57343bfa4577a01202",
+      "git_blob": "b90b493f6341067754a6c178bc3043584d34e5ba"
+    },
+    "scripts/wheel_smoke.py": {
+      "sha256": "b434c8e1a35fee515ac976d91f4403f072ac2b91e2cd724534c99ed949ed9517",
+      "unchanged_from_approved_harness": true
+    }
+  },
+  "new_fixed_scope": {
+    "scope": "retained-layout",
+    "case_inventory": [
+      {
+        "fixture": "tests/critical/test_retained_layout.py",
+        "module": "tests.critical.test_retained_layout",
+        "class": "RetainedLayoutTests",
+        "methods": [
+          "test_declaration_reader_refuses_direct_ancestry_replacement",
+          "test_declaration_reader_refuses_redirected_file",
+          "test_declaration_reader_refuses_symlink_ancestry_changes",
+          "test_declaration_refuses_aliases_and_ambiguous_ownership",
+          "test_declared_plain_and_root_layouts_keep_distinct_ownership",
+          "test_direct_declaration_refuses_legacy_qualification",
+          "test_initial_selection_keeps_default_and_refuses_portable_overlap",
+          "test_lift_shift_adr_names_selected_retained_source",
+          "test_preserves_legacy_coordinate",
+          "test_rejects_cross_host_aliases_and_root_without_declaration",
+          "test_rejects_redirected_ancestor_and_final_directory",
+          "test_root_layout_requires_current_framework_file_partition",
+          "test_shim_authority_uses_selected_wrapper_component",
+          "test_short_read_cannot_hide_a_noncanonical_declaration_suffix",
+          "test_structural_resolution_checks_wrapper_role_and_evidence"
+        ]
+      },
+      {
+        "fixture": "tests/critical/test_retained_update_layout.py",
+        "module": "tests.critical.test_retained_update_layout",
+        "class": "RetainedUpdateLayoutTests",
+        "methods": [
+          "test_invalid_recorded_source_refuses_update_classification",
+          "test_update_preserves_selected_wrapper_shim",
+          "test_update_preserves_shim_at_historical_coordinate"
+        ]
+      }
+    ],
+    "selected_methods": 18,
+    "subject_modules": [
+      "literate_ai.adapters.harness_inventory",
+      "literate_ai.adapters.project_initialization",
+      "literate_ai.adapters.project_updates",
+      "literate_ai.adapters.retained_evidence_migration",
+      "literate_ai.adapters.retained_harness_readmission",
+      "literate_ai.adapters.retained_harness_receipts",
+      "literate_ai.adapters.retained_layout",
+      "literate_ai.cli.dispatch",
+      "literate_ai.cli.operator"
+    ],
+    "required_on_all_platforms": true,
+    "permitted_skips": 0
+  },
+  "platform_applicable_counts": {
+    "darwin": 188,
+    "linux": 199,
+    "win32": 162
+  },
+  "assessment": [
+    "Actual committed src/tests/scripts/schemas subtrees equal approved preview before the sole working code addition. All nine merged layout runtime, all24 earlier guard entries and both layout tests match exact preview hashes; wheel_smoke remains unchanged.",
+    "Helper change consists only of additive literal18method case inventory and nine subject module names. Existing scopes, subject maps, unavailable_reason and qualify validation bodies are unchanged.",
+    "New scope is available on every platform. Symlink/hardlink/native facility absence is not bypassed: applicable test skips/errors fail the existing zero-skip acceptance gate. Windows162 is a required inventory, not Windows execution evidence.",
+    "Existing exact class inventory, fixture origin/hash, all-test-Python input hash, isolated/noneditable module-origin and before/after source/installed byte checks remain intact.",
+    "Resolved committed metadata has no conflict markers; literate.project remains byte-identical to held F1 pin. This review neither renews pins nor claims documentation marker currentness."
+  ],
+  "evidence_scope": "Copied source/documentation/wheel/Linux records explicitly bind d2dfad220 parent.170macOS/181Linux results and the corrected backed-filesystem TMPDIR remain historical parent qualification, not newF2 layout/harness installation or complete feature/release acceptance.",
+  "remaining_acceptance": [
+    "Supported combined driver/documentation identity renewal after exact source-byte validation remains separate; pins not changed by reviewer.",
+    "Full F2 source, whole-wheel/noneditable installed188macOS/199Linux/162Windows applicable control qualification and exact integrated/resulting-main gates remain open.",
+    "Prior F1 source gate still running; no terminal result or F2 coverage inferred.",
+    "ADR0057 selected apply/relocation/recovery and receipt invalidation/renewal remain unfinished; telemetry full feed and genuine selected Codex model/platform acceptance remain separately open.",
+    "No roadmap or release acceptance implied."
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "reviewer_role": "same separately authorized non-author reviewer",
+  "negative_validator_controls": [
+    "missing case refused",
+    "source-installed byte mismatch refused",
+    "injected skip refused"
+  ],
+  "case_suites_rerun_by_reviewer": false,
+  "actual_installed_acceptance_performed": false,
+  "release_attestation": false
+}

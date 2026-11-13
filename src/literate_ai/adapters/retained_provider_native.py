@@ -1,19 +1,31 @@
 """Resolve current native commands and independent oracle before archive admission."""
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 from types import MappingProxyType
 
 from literate_ai.adapters.component_acceptance import LibraryAcceptance
+from literate_ai.adapters.dependencies import HostDependencyObservation
+from literate_ai.adapters.legacy_generation_catalog import (
+    read_only_flavor_graph_observations,
+)
 from literate_ai.adapters.qualification import _qualification_acceptance_oracle
 from literate_ai.adapters.retained_provider_authority import RetainedProviderAuthority
 from literate_ai.adapters.standard_project import (
     ProjectedStandardToolchainClosure,
     project_locked_standard_toolchain_closure,
 )
-from literate_ai.contracts import ComponentCommandContract, ContentIdentity
-from literate_ai.projects import PinnedInputClosure
+from literate_ai.contracts import (
+    ComponentCommandContract,
+    ComponentCommandPhase,
+    ContentIdentity,
+    ToolchainConstraint,
+)
+from literate_ai.projects import (
+    PinnedInputClosure,
+    read_only_project_configuration_parses,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,36 +43,70 @@ class RetainedProviderNative:
         )
 
     def require_unchanged(self) -> None:
-        self.provider.require_unchanged()
-        self._inputs.require_unchanged()
-        self.toolchain.require_unchanged()
-        if self.oracle.identity != self._oracle_identity:
-            raise ValueError("retained.provider.oracle-changed")
-        self.provider.require_unchanged()
-        self._inputs.require_unchanged()
-        self.toolchain.require_unchanged()
+        # Reuse only existing read-only parsing observations in this one guard.
+        # Every callback, complete graph and fresh byte check still runs; Flavor
+        # observations additionally close their membership/bytes on scope exit.
+        # The next independent guard creates its own observation again.
+        with (
+            read_only_project_configuration_parses(),
+            read_only_flavor_graph_observations(),
+        ):
+            self.provider.require_unchanged()
+            self._inputs.require_unchanged()
+            self.toolchain.require_unchanged()
+            if self.oracle.identity != self._oracle_identity:
+                raise ValueError("retained.provider.oracle-changed")
+            self.provider.require_unchanged()
+            self._inputs.require_unchanged()
+            self.toolchain.require_unchanged()
 
 
 def read_retained_provider_native(
     provider: RetainedProviderAuthority,
     *,
     environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
 ) -> RetainedProviderNative:
     """Measure native tools and bind the current verifier-owned library oracle.
 
     Tool discovery may invoke installed host tools. This never invokes a coding
     CLI, allocates a rebuild runtime, executes generated code or admits an archive.
     Importer review, store selection and retained consumer gates remain separate.
+    Explicit observers use the existing locked projection contract. Custody-only
+    projection (command_phases=()) requires its explicit platform, discovery,
+    dependency observation and observer identity; guards must revalidate the real
+    provider observations, even when its tools are on a different host.
     """
     if not isinstance(provider, RetainedProviderAuthority):
         raise TypeError("retained native inputs require current provider authority")
+    if command_phases == () and not callable(dependency_guard):
+        raise TypeError("retained.provider.live-dependency-guard-required")
     provider.require_unchanged()
     generation = provider.generation
     snapshot = generation.prepared.locked_authority_snapshot
     if snapshot.authority.root_authoring.resolved_kind != "library":
         raise ValueError("retained.provider.library-required")
     toolchain = project_locked_standard_toolchain_closure(
-        snapshot, generation.execution, environment=environment
+        snapshot,
+        generation.execution,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        dependency_observer=dependency_observer,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
     )
     inputs = PinnedInputClosure(
         maximum_files=2,

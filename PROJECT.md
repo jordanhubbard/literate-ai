@@ -94,7 +94,7 @@ goals require a specific unreleased Literate AI capability.
 
 ## Completeness
 
-The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
+The [task-oriented skill catalog](docs/user/skills.md) enumerates all 89 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
 composition lessons and proposed adaptations separately from delivered capabilities.
@@ -115,6 +115,12 @@ development (2026-09-10):
 
 ## Current work
 
+AGENT-BOOTSTRAP-001 prepares generated-project setup for 1.5 under Goal 1.
+The contributor bootstrap route is composed with current main, preserving
+project pins, custom instructions and local-tooling exclusions. Forty-one
+focused bootstrap, agent-entrypoint, inventory and update controls pass locally;
+complete installed and integrated acceptance remain open in the active queue.
+
 WHEEL-PYTHON-BINDING-001 closes a qualification-fixture gap under Goals 1 and 4:
 installed continuation must bind its bytecode oracle and native build to the same
 explicit interpreter even when PATH contains another supported Python. Mixed-runtime
@@ -130,8 +136,18 @@ issues #404 and #405 in 1.4 under Goals 1 and 4. Typed native acceptance rejecti
 must remain distinct from archive I/O failure. Generated native-library repair
 requires an explicitly reviewed package-to-attempt custody boundary and the existing
 shared finite retry budget; source custody and private verifier authority remain
-unchanged. PR #406 is under qualification; root-repair design and acceptance remain
-open.
+unchanged. The earlier PR #406 qualification intake is historical: its typed diagnostic
+fix is merged through the transport/diagnostic integration at `25bf1547`.
+NATIVE-ACCEPTANCE-REPAIR-001 is the single current owner for PR #414 and its
+contributor alias CANDIDATE-NATIVE-REPAIR-001. Its reviewed source implementation,
+full source suite and exact candidate's installed native repair pass; final integration
+qualification and resulting-main delivery remain open.
+
+CODEX-STATE-001 includes the SQLite-state and optional remote-catalog finite-limit
+failures in issues #365 and #412 under Goals 3 and 4. Actual Codex 0.166.0 source
+generation now passes under the unchanged 64 MiB ceiling with private state and
+cleanup. Independent source review, whole installed/platform integration and final
+release qualification remain open.
 
 CUDA-SIGNAL-001 records issue #396 as blocking 1.4.0 work under Goals 1, 2, 4
 and 5. Inert source inventory must preserve original bytes and propose CUDA only
@@ -248,7 +264,10 @@ A2A agents already connected through the coding-agent host, when delegation is
 permitted. Connections and agent communication remain host/orchestrator-owned;
 Literate AI retains pinned authority, execution authorization, artifact verification,
 and acceptance. The [roadmap item](docs/roadmap/active-work.md#a2a-001-guide-agents-to-use-connected-a2a-peers-without-adding-framework-orchestration)
-is open, with no release assigned or native A2A implementation implied.
+is in development: optional host-peer guidance, template routing and a bounded
+scenario review are authored. Skill admission, real initialized-project distribution
+and integrated qualification remain open; no release is assigned or native A2A
+implementation implied.
 
 LAB-AUTHORITY-001 extends Goals 2 and 4 with an independent, progressively richer
 canonical lab curriculum. Each lab must use actual Components, selected Flavors,

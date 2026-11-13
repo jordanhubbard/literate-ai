@@ -1,0 +1,26 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Original frozen source union before reviewed CUDA/Codex/telemetry guard composition",
+  "revision": "79af4dfcec98af8621a8be486ebf1b5d704ffb2a",
+  "command": "make python-check PYTHON_TEST_WORKERS=2 PYTHON_TEST_REPORT=_build/combined-roadmap-final-source-report.json",
+  "summary": {
+    "executed": 2801,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2801,
+    "selected": 2893,
+    "skipped": 92
+  },
+  "unique_outcomes": 2893,
+  "report_sha256": "ade0ceb64f05ece081d7d347de8988e6aec227ee24a9bb11e1268144d04b99e3",
+  "terminal_ledger_sha256": "4435dc03b4d03ecb6079ef6172b8d0d10cc2b82002e221bfe58bb1947ac28ec5",
+  "step_terminal": "passed",
+  "owner_terminal": "passed",
+  "original_run_preserved": true,
+  "release_attestation": false,
+  "limits": [
+    "Does not qualify the later reviewed-guard source union or expanded installed harness",
+    "Declared platform skips remain; native receiving tests use synthetic producer contract facts with actual Cargo/Rust consumers",
+    "Final combined source, installed/native, exact integration and release requirements remain open"
+  ]
+}

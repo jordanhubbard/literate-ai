@@ -1,0 +1,25 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "revision": "d2dfad2203f3537921cd5391b959e9f598aa6150",
+  "scope": "Complete source gate for reviewed guard union, before retained-layout composition",
+  "summary": {
+    "executed": 2898,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2898,
+    "selected": 3001,
+    "skipped": 103
+  },
+  "unique_outcomes": 3001,
+  "report_sha256": "5c3d8b412d74ccab6b9a32c067776288f6d8f22084ac84340b3588577c69808a",
+  "terminal_step": "passed",
+  "terminal_owner": "passed",
+  "terminal_ledger_sha256": "43ee93bb8aa89a02d0253edb75ac900159bf73cb01c7b08d1b48d85e838af498",
+  "original_run_preserved": true,
+  "make_exit": 0,
+  "release_attestation": false,
+  "limits": [
+    "Does not qualify later retained-layout union37991bbf6",
+    "Declared platform skips remain; exact CI/main and all remaining release/feature requirements stay open"
+  ]
+}

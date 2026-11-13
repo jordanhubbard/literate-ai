@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, replace
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
 from literate_ai.contracts import canonical_json_bytes
@@ -41,6 +41,7 @@ from literate_ai.projects import ProjectConfigurationStore, ProjectError
 
 from .harness_inventory import HARNESS_PARITY_SCHEMA
 from .harness_tree import SOURCE_SCOPE_SCHEMA, capture_retained_source_scope
+from .retained_layout import RetainedLayoutError, resolve_legacy_implementation
 
 LEGACY_WRAPPER_PARITY_SCHEMA_V1 = "literate-ai/legacy-wrapper-parity@1"
 
@@ -104,24 +105,9 @@ def _resolve_implementation_root(
     project_root: Path, lift_shift_document: dict[str, Any]
 ) -> Path | None:
     """Resolve lift-shift's recorded implementation directory, fail closed."""
-
-    raw = lift_shift_document.get("implementation_directory")
-    if not isinstance(raw, str):
-        return None
-    relative = PurePosixPath(raw)
-    if (
-        relative.is_absolute()
-        or relative.as_posix() != raw
-        or any(part in {"", ".", ".."} for part in relative.parts)
-    ):
-        return None
-    candidate = project_root.joinpath(*relative.parts)
     try:
-        resolved = candidate.resolve(strict=True)
-        resolved.relative_to(project_root.resolve())
-    except (OSError, ValueError):
-        return None
-    if candidate.is_symlink() or not resolved.is_dir():
+        _, resolved = resolve_legacy_implementation(project_root, lift_shift_document)
+    except RetainedLayoutError:
         return None
     return resolved
 

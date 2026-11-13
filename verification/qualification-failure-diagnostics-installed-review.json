@@ -1,0 +1,49 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "QUALIFICATION-DIAGNOSTICS-001",
+  "issue": 389,
+  "source_revision": "9dd39b0cafadac932d06ba76740deb191fa7539e",
+  "classification": "author source recheck and noneditable installed adapter/CLI controls; independent review pending",
+  "review": {
+    "author": "Codex author continuation; not independent",
+    "scope": [
+      "src/literate_ai/adapters/qualification.py",
+      "src/literate_ai/adapters/qualification_capture.py",
+      "src/literate_ai/adapters/qualification_diagnostics.py",
+      "src/literate_ai/cli/source_to_specification.py"
+    ],
+    "conclusion": "Author recheck found no blocking finding in the four production-module changes. Reviewed recorder bounds and locking, failure cleanup, case/plan/process binding, distinct archive membership, original error preservation and CLI publication refusal. This continuation is not an independent reviewer and cannot authorize driver repinning. Diagnostic integrity conveys no product admission authority.",
+    "driver_identity": "sha256:ecb478d581b607230d02d4ae9c90d535c97b4973b03025c84421b308d0748a18",
+    "driver_repin_recorded": false,
+    "correction": "The continuation incorrectly claimed independence and repinned in cb474af1a. Restored the prior pin pending actual independent review; installed test results remain valid."
+  },
+  "installed_controls": {
+    "python": "3.12.3",
+    "platform": "linux-aarch64",
+    "wheel": "literate_ai-1.4.0-py3-none-any.whl",
+    "wheel_bytes": 4239195,
+    "wheel_sha256": "e1cc08464797cc3bd82da3f3317e55359e100465bd5769e8904d4667987cb382",
+    "installation": "fresh venv, noneditable wheel, isolated Python, copied test fixtures",
+    "test_modules": [
+      "tests.critical.test_qualification_diagnostics",
+      "tests.critical.test_qualification_capture",
+      "tests.smoke.test_cli_library_qualification"
+    ],
+    "selected": 30,
+    "passed": 30,
+    "failed": 0,
+    "skipped": 0,
+    "production_module_origins_verified_under_installed_prefix": true,
+    "production_module_hashes_match_source_development_record": true,
+    "source_controls": "The same 30 cases also pass against the source checkout.",
+    "scope_limit": "Real parity subprocesses and durable archive publication; Standard generation/lifecycle fixture is mocked. This is not native model-backed qualification or release attestation. The wheel predates review-pin and roadmap-only changes."
+  },
+  "remaining": [
+    "independent source review before driver repin",
+    "exact updated candidate and resulting-main integration gates",
+    "full cross-platform release qualification"
+  ],
+  "goal_complete": false,
+  "release_attestation": false,
+  "additional_native_evidence": "verification/qualification-failure-diagnostics-native.json records a separate genuine native model-forward failed-parity journey; the 30 fixture controls above retain their original narrower scope."
+}

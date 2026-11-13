@@ -1,0 +1,158 @@
+{
+  "baseline_main": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+  "baseline_qualification": {
+    "candidate": "6797a3cdce02305d3564f0df2cbd6e65308ed4f1",
+    "noneditable_macos_wheel": {
+      "bootstrap": true,
+      "cache_continuation": true,
+      "exit_code": 0,
+      "project_identity_migration": true,
+      "wheel_identity": "sha256:20430c219e758548d7acf42da2ef361de4d8e7eb9b299f57eb81e4e5781a0be8"
+    },
+    "source": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 2721,
+      "release_evidence": false,
+      "selected": 2813,
+      "skipped": 92
+    }
+  },
+  "classification": "baseline source and macOS installed gates passed; expanded diagnostics union qualification pending",
+  "composition_before_pin_renewal": "2e2df050e866b5893c1e7991516bef1102e4e98c",
+  "conflict_resolution": {
+    "changelog": "all contributor outcomes retained",
+    "production_source_conflicts": false,
+    "review_markers": "renewed using canonical commands after source review",
+    "roadmap": "newer source/installed closure records retained; new 1.4 repairs precede the retained 1.5 preparation heading"
+  },
+  "contributors": {
+    "a2a_guidance": "ddc70ac5bf0d4a81952ea11ef1f0bf89930950c1",
+    "bootstrap_pr333": "a35983bb912d6dd0ca0dd2a04dfd77f8fd401420",
+    "cargo_custody_pr435": "e6edc3614f4a98ec85b3a6ba510271464b4c30ba",
+    "cuda_signal_pr398": "4b051a9af074e4255789370922cd98bb874c70fc",
+    "windows_and_export_pr428": "6f060715206a54b45ab0eed9353cb444eed1993b"
+  },
+  "environment_correction": {
+    "exact_receiver_comparison": {
+      "observations": [
+        {
+          "environment": "other_worktree_editable",
+          "exit_code": 1,
+          "receiver_mismatch": true
+        },
+        {
+          "environment": "owned_worktree_editable",
+          "exit_code": 0,
+          "receiver_mismatch": false
+        }
+      ],
+      "production_guards_changed": false,
+      "same_source_both_runs": true,
+      "source_revision": "ff1c5c4e2"
+    },
+    "first_full_gate": {
+      "exit_code": 2,
+      "report": {
+        "executed": 215,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 214,
+        "selected": 2813,
+        "skipped": 29
+      }
+    },
+    "production_guards_changed": false,
+    "repair": "provision this checkout through make dev-install with its own session environment; preserve the old failure and use new checkpoint/report paths for one clean full run"
+  },
+  "fixture_correction": {
+    "change": "canonicalize the freshly owned temporary test root before creating payloads; retain production redirected-root refusal",
+    "corrected_combined_focused": {
+      "exit_code": 0,
+      "failed": 0,
+      "passed": 54,
+      "selected": 57,
+      "skipped": 3
+    },
+    "corrected_sha256": "8323b51cb73a619b7ab511f982b81a6fa258d2868a2ad53181e956fbf2fc18bd",
+    "original_combined_focused": {
+      "errors": 6,
+      "exit_code": 1,
+      "selected": 57,
+      "skipped": 3
+    },
+    "original_sha256": "942aa13fababd033d9a576225bae7da49d29ef3b8795b2e2170a6f04995a1c8d",
+    "path": "tests/smoke/test_retained_cargo_tree_currentness.py"
+  },
+  "goal_complete": false,
+  "inventory_union_preserves_cuda_and_bootstrap_exclusion": true,
+  "precursor_a2a": {
+    "candidate": "ddc70ac5bf0d4a81952ea11ef1f0bf89930950c1",
+    "canonical_skill_in_wheel_matches": true,
+    "exit_code": 0,
+    "initializer_module_in_wheel_matches": true,
+    "live_a2a_execution_claimed": false,
+    "ordinary_installed_initialization_completed": true,
+    "retained_manifest": "_build/ci-wheels/run-30sbf32a/manifest.json",
+    "wheel_sha256": "1bff32f1fa6ef72c90901f68da35b31e3c653a26e30de00c19e531e10e281243"
+  },
+  "precursor_bootstrap": {
+    "revision": "770140dc9",
+    "source": {
+      "exit_code": 0,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2699,
+      "selected": 2788,
+      "skipped": 89
+    },
+    "whole_wheel": {
+      "bootstrap_states": [
+        "ready",
+        "missing",
+        "incompatible"
+      ],
+      "exit_code": 0,
+      "wheel_identity": "sha256:f67496fae669a6e36020288da5ad8418b8f6fad33a6a63fa913a313407287a8a"
+    }
+  },
+  "release_attestation": false,
+  "remaining": [
+    "new diagnostic source union complete source/installed qualification",
+    "independent review of separate CUDA metadata correction before its driver pin renewal",
+    "native Windows and exact review/resulting-main integration"
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "source_byte_comparisons": [
+    {
+      "byte_identical": true,
+      "contributor": "review/pr428",
+      "path": "src/literate_ai/adapters/_processes.py",
+      "sha256": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr428",
+      "path": "scripts/check_public_export.py",
+      "sha256": "f09fffabf8f0f2cda27f14185a9a8839345b00dfe71f0952410508c3246fb12e"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr435",
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "dbd724a86dbb4a25e172cc89b3907b6bc6c9f31822694ef70fe03c4730c3d3fa"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr435",
+      "path": "src/literate_ai/adapters/retained_provider_native.py",
+      "sha256": "6da7bda4a26ef73dc1c94e8d3f44450f62b6769550b25632d064afbe4469f99c"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr398",
+      "path": "tests/critical/test_source_inventory_targets.py",
+      "sha256": "8593fa90424798f101e204ac1bfbd4f04e4a4ee667ddb42ec83caa5845b99d5d"
+    }
+  ]
+}

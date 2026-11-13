@@ -48,6 +48,11 @@ from literate_ai.adapters.harness_workspace import (
     materialize_harness_workspace_links,
     require_harness_workspace_link_evidence,
 )
+from literate_ai.adapters.retained_layout import (
+    RetainedLayoutError,
+    resolve_legacy_implementation,
+)
+from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.diagnostics import redact_secrets, trace_subprocess
 
 HARNESS_INVENTORY_SCHEMA = "urn:literate-ai:schema:v1:harness-inventory"
@@ -81,7 +86,9 @@ _STORAGE_FAILURE_PATTERN = re.compile(
 _MAKEFILES = ("Makefile", "GNUMakefile", "GNUmakefile", "makefile")
 _REPO_DRIVERS = ("repo.sh", "repo.bat")
 _REPO_BUILD_WRAPPERS = {"nt": "build.bat", "posix": "build.sh"}
-_SKIP_DIR_NAMES = frozenset({".git", "_build", "_legacy", "node_modules"})
+_SKIP_DIR_NAMES = frozenset(
+    {".git", ".venv", ".litai-venv", "_build", "_legacy", "node_modules"}
+)
 CONVERT_BASELINE_EXCLUDED_NAMES = EXCLUDED_DIRECTORY_NAMES
 _ENV_BOUND_FRAGMENTS = (
     ".venv/",
@@ -1866,8 +1873,16 @@ def execute_harness_wrapper_parity(
 def legacy_shim_authority(
     inventory: dict[str, object],
     baseline: dict[str, object],
+    *,
+    wrapper_component: str = "components/legacy-project-wrapper",
 ) -> dict[str, str]:
     """Render the minimal first-class authority wrapping one proven legacy pipeline."""
+
+    wrapper_path = canonical_relative_posix_path(
+        wrapper_component, label="retained wrapper Component"
+    )
+    if len(wrapper_path.parts) != 2 or wrapper_path.parts[0] != "components":
+        raise ValueError("wrapper must be one Component under components/")
 
     commands = inventory.get("commands")
     if not isinstance(commands, dict):
@@ -2042,7 +2057,7 @@ their resulting tree identities with the direct baseline before adoption proceed
         + "\n"
     )
     return {
-        "components/legacy-project-wrapper/component.md": component,
+        f"{wrapper_component}/component.md": component,
         "skills/specification-to-source/legacy-project-shim/SKILL.md": skill,
         "flavors/legacy-project-shim/flavor.md": flavor,
         "flavors/legacy-project-shim/openspec/spec.md": flavor_spec,
@@ -2196,6 +2211,51 @@ def render_lift_shift_adr(
     baseline_identity: str,
     parity_identity: str,
 ) -> str:
+    if implementation_directory == ".":
+        placement = (
+            "Keep the original retained source at the repository root under an "
+            "explicit source/framework ownership partition. The wrapper Component "
+            "keeps its specifications separate from that source, and "
+            "`litai.harness.mk` invokes the original pipeline at the root. "
+            "Framework-owned files are excluded only through the reviewed "
+            "partition; the remaining root namespace is retained source."
+        )
+        admission = (
+            "Root placement is admitted only when the wrapper workflow has the "
+            "same successful exit and source-authority tree identity as the "
+            "Phase 1 direct baseline. No root rename or quarantine move is "
+            "claimed. The retained implementation is not generated source, "
+            "not a cache, and not a specification; it remains release authority "
+            "until a separate Phase 2 ADR qualifies native Components, Flavors, "
+            "skills, and assets."
+        )
+    else:
+        placement = (
+            "Move the complete original tree, preserving its internal taxonomy, "
+            "from quarantine to\n"
+            f"`{implementation_directory}`. The wrapper Component owns this "
+            "retained implementation\n"
+            "and `litai.harness.mk` invokes it at its new location. Each move "
+            "uses `git mv` when the\n"
+            "entry is tracked and plain filesystem move otherwise."
+        )
+        admission = (
+            "The move is admitted only when the post-move wrapper workflow has "
+            "the same successful\n"
+            "exit and source-authority tree identity as the Phase 1 direct "
+            "baseline. Only then is\n"
+            "the empty quarantine directory removed. The retained implementation "
+            "is not generated\n"
+            "source, not a cache, and not a specification; it remains release "
+            "authority until a\n"
+            "separate Phase 2 ADR qualifies native Components, Flavors, skills, "
+            "and assets."
+        )
+    retained_source = (
+        "the retained source partition at the repository root"
+        if implementation_directory == "."
+        else f"`{implementation_directory}/`"
+    )
     return f"""# ADR 0001: Retain Legacy Source Authority During Lift-and-Shift
 
 - Status: Accepted for adoption
@@ -2212,20 +2272,13 @@ source-to-specification transfer has occurred.
 
 ## Decision
 
-Move the complete original tree, preserving its internal taxonomy, from quarantine to
-`{implementation_directory}`. The wrapper Component owns this retained implementation
-and `litai.harness.mk` invokes it at its new location. Each move uses `git mv` when the
-entry is tracked and plain filesystem move otherwise.
+{placement}
 
-The move is admitted only when the post-move wrapper workflow has the same successful
-exit and source-authority tree identity as the Phase 1 direct baseline. Only then is
-the empty quarantine directory removed. The retained implementation is not generated
-source, not a cache, and not a specification; it remains release authority until a
-separate Phase 2 ADR qualifies native Components, Flavors, skills, and assets.
+{admission}
 
 ## Consequences
 
-- `components/legacy-project-wrapper/implementation/` is intentionally load-bearing
+- {retained_source} is intentionally load-bearing
   retained source and may not be cleaned as a build product.
 - Build products still belong outside authority and remain fungible.
 - Future migration items replace one retained surface at a time, prove parity, then
@@ -2324,12 +2377,14 @@ def prepare_native_rewrite_program(
 ) -> dict[str, object]:
     """Create Phase 2 decision and roadmap authority without rewriting source."""
 
-    implementation = lift_shift.get("implementation_directory")
-    if (
-        not isinstance(implementation, str)
-        or not (project_root / implementation).is_dir()
-    ):
+    if lift_shift.get("state") != "passed":
         raise ValueError("native rewrite requires a completed lift-and-shift")
+    try:
+        implementation, _ = resolve_legacy_implementation(project_root, lift_shift)
+    except RetainedLayoutError as exc:
+        raise ValueError(
+            "native rewrite requires a direct, recorded retained implementation"
+        ) from exc
     lift_shift_identity = (
         "sha256:"
         + hashlib.sha256(

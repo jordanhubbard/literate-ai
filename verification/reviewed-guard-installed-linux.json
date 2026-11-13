@@ -1,0 +1,90 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Native Linux development qualification of fixed maintained installed controls; not a complete Linux whole-wheel run",
+  "revision": "d2dfad2203f3537921cd5391b959e9f598aa6150",
+  "platform": "linux",
+  "machine": "x86_64",
+  "python": [
+    3,
+    14,
+    7
+  ],
+  "wheel_identity": "sha256:4e15d36ac49f79034b0b9af57a9a2bd56756faf83fb99fcb759021d28042e90e",
+  "snapshot_sha256": "b5dca62f0aba54ad32597c4ab6b9c69f1fdead18ad698dd3787ee9cf41aecadc",
+  "helper_sha256": "6e4f947aa95c10b5b81d6e416860c70f9784d3bf9b0e74ae14fb392b4013e972",
+  "selected": 181,
+  "passed": 181,
+  "skipped": 0,
+  "source_installed_module_comparisons": 28,
+  "unique_module_count": 26,
+  "module_sha256": {
+    "literate_ai.adapters.qualification": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9",
+    "literate_ai.adapters.qualification_capture": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1",
+    "literate_ai.adapters.qualification_diagnostics": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9",
+    "literate_ai.cli.source_to_specification": "e5ba1bda33d77e4d1bb8b5af7a73b154cfb9f82801030a1bafbfca69a8a6169d",
+    "literate_ai.adapters.lifecycle.standard_local": "bc23f41eb250f1ef621f82308e4b87421a606f1563313b51069ef371e9611a78",
+    "literate_ai.adapters.lifecycle.standard_bazel": "97da31699d4818c47df47882f13cfb13f13513c2cba64278edbf874b87de619a",
+    "literate_ai.adapters.lifecycle.standard_cargo": "d46998af694d08470b2278f7bb8ce105d603014270a203bce1dedede1ea38a78",
+    "literate_ai.adapters.standard_project": "73abd209b9ddeb8bec82999f3c52fead988ff79068ace341a72a82cb48e0468a",
+    "literate_ai.source_to_specification.inventory": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da",
+    "literate_ai.source_to_specification.skills": "17dbd629745fbfdb1f30ad4c1b7bc90db3def4373c91c9264675a4e3a22a67bc",
+    "literate_ai.source_to_specification.static_workflow": "4f14ecacbcecfcfa3ccce6f245eb4b24fc6cabfd281b6f5d2d3fefc74921cc5d",
+    "literate_ai.adapters.models.coding_cli": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5",
+    "literate_ai.adapters._processes": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c",
+    "literate_ai.adapters.action_command_dispatch": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff",
+    "literate_ai.adapters.action_slots": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87",
+    "literate_ai.adapters.builders._process": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29",
+    "literate_ai.adapters.worker_telemetry_authentication": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+    "literate_ai.adapters.worker_telemetry_processes": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90",
+    "literate_ai.adapters.worker_telemetry_wire": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+    "literate_ai.application.worker_telemetry_authentication": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee",
+    "literate_ai.application.worker_telemetry_authorization": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe",
+    "literate_ai.application.worker_telemetry_polling": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d",
+    "literate_ai.application.worker_telemetry_reservations": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c",
+    "literate_ai.contracts.worker_telemetry": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+    "literate_ai.contracts.worker_telemetry_observations": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+    "literate_ai.schema_catalog": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9"
+  },
+  "test_python_members": 878,
+  "test_python_input_identity": "sha256:031f6be2709d06da9948747d6cd466e2160aca7fea7ed95986ffeed41a42ab70",
+  "scope_counts": {
+    "diagnostics": 31,
+    "runtime-capabilities": 9,
+    "cuda-inventory": 15,
+    "coding-cli-posix": 26,
+    "telemetry-controller": 89,
+    "telemetry-linux-processes": 11
+  },
+  "default_temporary_failure": {
+    "passed": 180,
+    "failed": 1,
+    "cause": "storage-accounting positive fixture used tmpfs; logical4MiBwrite caused0accounted storage bytes",
+    "unchanged_runtime_and_fixture_bytes": true
+  },
+  "filesystem_control": [
+    {
+      "role": "system-temporary",
+      "filesystem": "tmpfs",
+      "logical_bytes": 4194304,
+      "accounted_bytes_delta": 0
+    },
+    {
+      "role": "owned-job",
+      "filesystem": "ext2/ext3",
+      "logical_bytes": 4194304,
+      "accounted_bytes_delta": 4194304
+    }
+  ],
+  "corrected_execution_environment": "TMPDIR/TMP/TEMP point to fresh owned job temporary directory on block-backed home filesystem; all181casesrerunwithoutskips",
+  "documentation_sources": [
+    "https://www.kernel.org/doc/html/latest/filesystems/proc.html#proc-pid-io-display-the-io-accounting-fields",
+    "https://docs.kernel.org/filesystems/tmpfs.html"
+  ],
+  "result_sha256": "5d07a4c04ad65fc8dfcf64957f260fab6dbec14537ada69591444680d451ca23",
+  "release_attestation": false,
+  "remaining": [
+    "Complete source gate for same candidate",
+    "Full Linux whole-wheel/nativeWindows and exact integration qualification",
+    "Real Codex generation and complete public telemetry feed remain separate requirements"
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "schema": "literate-ai/scanner-source-digest-classification@1",
+  "repository": "jordanhubbard/literate-ai",
+  "head": "6f807b2a025a4d3d128667946180723d64bd9112",
+  "check_run_id": 131749829109,
+  "scanner": "GitGuardian Security Checks",
+  "scanner_state_at_read": "completed/failure; finding rows Triggered",
+  "classification": "All6occurrences are3repeated ordinary SHA256 module-source byte hashes. Exact source bytes recomputed from the reported commit equal each flagged value. No credential use or authentication token role appears in these module_sha256 JSON fields.",
+  "occurrences": [
+    {
+      "incident_id": "40026323",
+      "occurrence_id": "312395543",
+      "path": "verification/reviewed-guard-installed-linux.json",
+      "line_numbers": [
+        37
+      ],
+      "source_link_path": "/jordanhubbard/literate-ai/commit/6f807b2a025a4d3d128667946180723d64bd9112",
+      "source_line_fragment_numbers": [
+        37
+      ],
+      "module": "literate_ai.adapters.worker_telemetry_authentication",
+      "source_path": "src/literate_ai/adapters/worker_telemetry_authentication.py",
+      "source_blob_git_oid": "15c85341751282807b15505a49ef7fe80e8e9754",
+      "source_bytes": 9242,
+      "recomputed_sha256_equals_flagged_value": true,
+      "classification": "SHA256 source-file byte digest in module_sha256 evidence map; not a credential in inspected source context",
+      "alleged_value_omitted": true
+    },
+    {
+      "incident_id": "40026325",
+      "occurrence_id": "312395544",
+      "path": "verification/reviewed-guard-whole-wheel-macos.json",
+      "line_numbers": [
+        30
+      ],
+      "source_link_path": "/jordanhubbard/literate-ai/commit/6f807b2a025a4d3d128667946180723d64bd9112",
+      "source_line_fragment_numbers": [
+        30
+      ],
+      "module": "literate_ai.application.worker_telemetry_authorization",
+      "source_path": "src/literate_ai/application/worker_telemetry_authorization.py",
+      "source_blob_git_oid": "c0eaffa217d09f39aed7197ac0e4ec8e336336d3",
+      "source_bytes": 10136,
+      "recomputed_sha256_equals_flagged_value": true,
+      "classification": "SHA256 source-file byte digest in module_sha256 evidence map; not a credential in inspected source context",
+      "alleged_value_omitted": true
+    },
+    {
+      "incident_id": "40026324",
+      "occurrence_id": "312395545",
+      "path": "verification/reviewed-guard-whole-wheel-macos.json",
+      "line_numbers": [
+        29
+      ],
+      "source_link_path": "/jordanhubbard/literate-ai/commit/6f807b2a025a4d3d128667946180723d64bd9112",
+      "source_line_fragment_numbers": [
+        29
+      ],
+      "module": "literate_ai.application.worker_telemetry_authentication",
+      "source_path": "src/literate_ai/application/worker_telemetry_authentication.py",
+      "source_blob_git_oid": "c26c6b3912db28385be610fe7e311be13b2f9095",
+      "source_bytes": 1887,
+      "recomputed_sha256_equals_flagged_value": true,
+      "classification": "SHA256 source-file byte digest in module_sha256 evidence map; not a credential in inspected source context",
+      "alleged_value_omitted": true
+    },
+    {
+      "incident_id": "40026324",
+      "occurrence_id": "312395546",
+      "path": "verification/reviewed-guard-installed-linux.json",
+      "line_numbers": [
+        40
+      ],
+      "source_link_path": "/jordanhubbard/literate-ai/commit/6f807b2a025a4d3d128667946180723d64bd9112",
+      "source_line_fragment_numbers": [
+        40
+      ],
+      "module": "literate_ai.application.worker_telemetry_authentication",
+      "source_path": "src/literate_ai/application/worker_telemetry_authentication.py",
+      "source_blob_git_oid": "c26c6b3912db28385be610fe7e311be13b2f9095",
+      "source_bytes": 1887,
+      "recomputed_sha256_equals_flagged_value": true,
+      "classification": "SHA256 source-file byte digest in module_sha256 evidence map; not a credential in inspected source context",
+      "alleged_value_omitted": true
+    },
+    {
+      "incident_id": "40026323",
+      "occurrence_id": "312395547",
+      "path": "verification/reviewed-guard-whole-wheel-macos.json",
+      "line_numbers": [
+        26
+      ],
+      "source_link_path": "/jordanhubbard/literate-ai/commit/6f807b2a025a4d3d128667946180723d64bd9112",
+      "source_line_fragment_numbers": [
+        26
+      ],
+      "module": "literate_ai.adapters.worker_telemetry_authentication",
+      "source_path": "src/literate_ai/adapters/worker_telemetry_authentication.py",
+      "source_blob_git_oid": "15c85341751282807b15505a49ef7fe80e8e9754",
+      "source_bytes": 9242,
+      "recomputed_sha256_equals_flagged_value": true,
+      "classification": "SHA256 source-file byte digest in module_sha256 evidence map; not a credential in inspected source context",
+      "alleged_value_omitted": true
+    },
+    {
+      "incident_id": "40026325",
+      "occurrence_id": "312395548",
+      "path": "verification/reviewed-guard-installed-linux.json",
+      "line_numbers": [
+        41
+      ],
+      "source_link_path": "/jordanhubbard/literate-ai/commit/6f807b2a025a4d3d128667946180723d64bd9112",
+      "source_line_fragment_numbers": [
+        41
+      ],
+      "module": "literate_ai.application.worker_telemetry_authorization",
+      "source_path": "src/literate_ai/application/worker_telemetry_authorization.py",
+      "source_blob_git_oid": "c0eaffa217d09f39aed7197ac0e4ec8e336336d3",
+      "source_bytes": 10136,
+      "recomputed_sha256_equals_flagged_value": true,
+      "classification": "SHA256 source-file byte digest in module_sha256 evidence map; not a credential in inspected source context",
+      "alleged_value_omitted": true
+    }
+  ],
+  "unique_source_paths": [
+    "src/literate_ai/adapters/worker_telemetry_authentication.py",
+    "src/literate_ai/application/worker_telemetry_authentication.py",
+    "src/literate_ai/application/worker_telemetry_authorization.py"
+  ],
+  "unique_incident_ids": [
+    "40026323",
+    "40026324",
+    "40026325"
+  ],
+  "disposition": "Evidence supplied for authorized scanner review. No incident dismissed, detector excluded, check bypassed, history rewritten, or remote metadata changed. Scanner failure remains unresolved until its supported review disposition or a fresh passing check.",
+  "limits": [
+    "Classification is for these exact6occurrences at6f807b2a0 only, not blanket repository credential clearance.",
+    "No release/human/CI-green attestation; no inference that scanner accepted this classification."
+  ]
+}

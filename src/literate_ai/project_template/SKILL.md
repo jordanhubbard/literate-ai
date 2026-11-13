@@ -7,6 +7,12 @@ metadata:
 
 # Literate AI
 
+Before any `litai` command, follow [project bootstrap](docs/user/bootstrap.md).
+Run its standard-library check on a fresh machine or after changing the LitAI
+runtime; it reports this project's pinned framework requirement without
+installing, upgrading, or rebinding anything. Continue below only when the
+check reports `ready`.
+
 Treat specifications as application authority and generated source as replaceable
 derived output. The operator front door is `litai doctor`, then
 `litai onboard create` for a new tree or `litai onboard adopt` for an existing
@@ -33,6 +39,10 @@ Follow `skills/agent/configure-operator-mcp/SKILL.md` for the operator catalog;
 `skills/agent/ingest-channel-work/SKILL.md` when those MCPs apply. Mutagenic posts
 are `litai`'s job after journal success; do not re-post envelopes the CLI already
 sent.
+
+When the host exposes A2A peers and delegation is permitted, follow
+`skills/agent/use-connected-a2a-peers/SKILL.md` for optional bounded handoffs.
+The host owns connections and task operations; local work needs no A2A setup.
 
 ## Follow the project flow
 

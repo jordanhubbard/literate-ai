@@ -1,0 +1,71 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "RUNTIME-CAPABILITY-ENV-001",
+  "source_subject": "a0a17eca5d43e50e14866db2c0fa71b5509b51c1",
+  "framework_distribution": "sha256:c60cb216f1c3b4edba5205161bb92b89eb7c78ee18364f4ce0fe5262fc72837f",
+  "scope": "Actual installed public force-regeneration through the configured native coding CLI; no injected model output or runtime bindings",
+  "nodes": [
+    {
+      "component_revision": {
+        "algorithm": "sha256",
+        "digest": "bb84266645a791824f49ffd3696cae82dbb956b2363cf317a29cee616522b59c",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "stage": "accept",
+      "outcome": "passed",
+      "failure_code": null,
+      "checkpoint_sha256": "d57f0c06686ffa40e870235388115b78f5798604057a68d5568e784147844e29",
+      "generation_output_identity": {
+        "algorithm": "sha256",
+        "digest": "65e7e38f995fec8582973215419f9c2cda85ea28357a9606ba4637b3d704657f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "provenance_identity": {
+        "algorithm": "sha256",
+        "digest": "ba65d577f9580bd887e112267c98e032f5c4c1cf216a509c90e581108e5a1936",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "model_observation": {
+        "cost_microunits": null,
+        "model_attempts": null,
+        "model_tokens": null,
+        "schema": "urn:literate-ai:schema:v2:component-generation-runtime-observation",
+        "wall_time_ms": null
+      }
+    },
+    {
+      "component_revision": {
+        "algorithm": "sha256",
+        "digest": "cc970f334bd749994c1b514e51ff24a7330a4c34654563565f7d34670945bd18",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "stage": "accept",
+      "outcome": "passed",
+      "failure_code": null,
+      "checkpoint_sha256": "5eec908c2eeea164a40e032c66c78b27f852103e8e0d574f18dcd975648b616b",
+      "generation_output_identity": {
+        "algorithm": "sha256",
+        "digest": "cfd39753fdb9f20f5e4cf3c30becafd05d986103045ea58023623773926f1ab9",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "provenance_identity": {
+        "algorithm": "sha256",
+        "digest": "cdf9a206399288e7aa45e3b18c559449536349f524117556846e8a548e2a2089",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "model_observation": {
+        "cost_microunits": null,
+        "model_attempts": null,
+        "model_tokens": null,
+        "schema": "urn:literate-ai:schema:v2:component-generation-runtime-observation",
+        "wall_time_ms": null
+      }
+    }
+  ],
+  "final_error": {
+    "code": "standard_rebuild.independent_acceptance_failed",
+    "message": "packaged execute failed (1): Money calculation capability is not bound"
+  },
+  "private_oracles_unchanged": true,
+  "qualification_limit": "Both nodes accepted; final packaged process lacks declared capability alias. Not successful graph qualification. Repair and fresh installed/native/exact-head/main acceptance remain open."
+}

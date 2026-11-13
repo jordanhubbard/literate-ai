@@ -133,10 +133,31 @@ def _observe(
             timeout=timeout_seconds,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
-        raise FilesystemQualificationError(
+        error = FilesystemQualificationError(
             "qualification.parity_command_failed",
             "independent parity command could not be executed within its bound",
-        ) from exc
+        )
+        error.diagnostic_process_status = (
+            "timeout" if isinstance(exc, subprocess.TimeoutExpired) else "launch_failed"
+        )
+        error.diagnostic_streams = {}
+        error.diagnostic_capture_status = "available"
+        if recorder is not None:
+            for name in ("stdout", "stderr"):
+                payload = getattr(exc, name, None)
+                if not isinstance(payload, bytes):
+                    continue
+                if len(payload) > maximum_output_bytes:
+                    error.diagnostic_capture_status = "output_limit"
+                    continue
+                try:
+                    identity = recorder.remember_bytes(payload)
+                except Exception:
+                    # Retaining partial timeout bytes must not replace its refusal.
+                    error.diagnostic_capture_status = "retention_unavailable"
+                else:
+                    error.diagnostic_streams[name] = identity.uri
+        raise error from exc
     if (
         len(process.stdout) > maximum_output_bytes
         or len(process.stderr) > maximum_output_bytes
@@ -564,6 +585,7 @@ class FilesystemQualificationParityVerifier:
         generated_tree_identities: tuple[ContentIdentity, ...],
         case_map: QualificationVerifierCaseMap,
     ) -> QualificationParityEvidence:
+        self.lifecycle.diagnostic_active_case = None
         if (
             source_snapshot_identity != self.source_snapshot_identity
             or inventory_source(self.source_root).identity
@@ -621,6 +643,16 @@ class FilesystemQualificationParityVerifier:
             argument = _json_argument(
                 self._case_values[binding.case_identity].arguments
             )
+            active_case = {
+                "run_identity": run_identity.uri,
+                "case_id": binding.case_id,
+                "case_identity": binding.case_identity.uri,
+                "process_role": "baseline",
+                "baseline_observation_identity": None,
+                "generated_observation_identity": None,
+            }
+            if recorder is not None:
+                self.lifecycle.diagnostic_active_case = active_case
             source_value, source_observation, source_valid = _observe(
                 (*self.profile.source_command, argument),
                 cwd=self.source_root,
@@ -629,6 +661,8 @@ class FilesystemQualificationParityVerifier:
                 maximum_output_bytes=self.profile.maximum_output_bytes,
                 recorder=recorder,
             )
+            active_case["baseline_observation_identity"] = source_observation.uri
+            active_case["process_role"] = "generated"
             generated_value, generated_observation, generated_valid = _observe(
                 (
                     *_expand(
@@ -645,6 +679,7 @@ class FilesystemQualificationParityVerifier:
                 identity_command=(*self.profile.generated_command, argument),
                 recorder=recorder,
             )
+            active_case["generated_observation_identity"] = generated_observation.uri
             cases.append(
                 QualificationParityCaseEvidence(
                     binding.case_id,
@@ -657,6 +692,9 @@ class FilesystemQualificationParityVerifier:
                     == canonical_digest(generated_value),
                 )
             )
+            if recorder is not None:
+                recorder.remember_diagnostic_case(run_identity, cases[-1])
+                self.lifecycle.diagnostic_active_case = None
         if (
             inventory_source(self.source_root).identity
             != self.source_inventory_identity
@@ -716,6 +754,9 @@ class FilesystemStandardQualificationAdapter:
         self.max_capture_bytes = max_capture_bytes
         self.library_captures: tuple[QualificationRunCapture, ...] = ()
         self.evidence_blobs: tuple[tuple[ContentIdentity, bytes], ...] = ()
+        self.diagnostic_evidence_blobs: tuple[tuple[ContentIdentity, bytes], ...] = ()
+        self.diagnostic_case_record_identities: tuple[ContentIdentity, ...] = ()
+        self.diagnostic_active_case: dict[str, object] | None = None
         workspaces = FilesystemQualificationWorkspaceAllocator(scratch_root)
         lifecycle = FilesystemStandardQualificationLifecyclePort(
             project=project,
@@ -746,6 +787,10 @@ class FilesystemStandardQualificationAdapter:
     def qualify(self, plan: QualificationLifecyclePlan) -> QualificationLifecycleResult:
         self.library_captures = ()
         self.evidence_blobs = ()
+        self.diagnostic_evidence_blobs = ()
+        self.diagnostic_case_record_identities = ()
+        self.diagnostic_active_case = None
+        self.lifecycle.diagnostic_active_case = None
         self.lifecycle.product_sources.clear()
         if plan.case_map != self.parity.case_map:
             raise FilesystemQualificationError(
@@ -855,11 +900,35 @@ class FilesystemStandardQualificationAdapter:
                 self.library_captures = tuple(captures)
                 self.evidence_blobs = recorder.entries
             return result
+        except BaseException as exc:
+            self.library_captures = ()
+            self.evidence_blobs = ()
+            if recorder is not None:
+                self.diagnostic_evidence_blobs = recorder.entries
+                self.diagnostic_case_record_identities = (
+                    recorder.diagnostic_case_record_identities
+                )
+                context = self.lifecycle.diagnostic_active_case
+                if context is not None:
+                    streams = getattr(exc, "diagnostic_streams", {})
+                    self.diagnostic_active_case = {
+                        **context,
+                        "process_status": getattr(
+                            exc, "diagnostic_process_status", "observation_failed"
+                        ),
+                        "capture_status": getattr(
+                            exc, "diagnostic_capture_status", "not_recorded"
+                        ),
+                        "partial_stdout_identity": streams.get("stdout"),
+                        "partial_stderr_identity": streams.get("stderr"),
+                    }
+            raise
         finally:
             # Captures contain immutable bytes, not runtimes or scratch paths.
             # A failed later run cannot leave an earlier run exposed as qualified.
             self.lifecycle.product_sources.clear()
             self.lifecycle.evidence_recorder = None
+            self.lifecycle.diagnostic_active_case = None
 
 
 __all__ = [

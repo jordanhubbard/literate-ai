@@ -2603,6 +2603,9 @@ class CodingCliTaskRunner:
                 log_operation(
                     "coding_task", cli=self.selection.name, model=model or ""
                 ),
+                _coding_cli_runtime_state(
+                    self.selection, workspace=workspace
+                ) as runtime_state,
                 _coding_cli_process_environment(
                     self.environment,
                     self.selection,
@@ -2624,6 +2627,7 @@ class CodingCliTaskRunner:
                         model=model,
                         prompt=instruction,
                         opencode_interface=interface,
+                        runtime_state=runtime_state,
                     )
                     completed = _run_bounded(
                         command,
@@ -2900,6 +2904,24 @@ def _select_fallback_coding_cli(
     return None
 
 
+def _codex_runtime_arguments(runtime_state: Path | None) -> tuple[str, ...]:
+    if runtime_state is None:
+        raise CodingCliError(
+            "coding_cli.runtime_state_missing",
+            "Codex invocation requires owned private runtime state",
+        )
+    return (
+        "--config",
+        "sqlite_home=" + json.dumps(str(runtime_state / "state"), ensure_ascii=False),
+        "--config",
+        "log_dir=" + json.dumps(str(runtime_state / "log"), ensure_ascii=False),
+        # Automated bound tasks do not consume the optional remote catalog; its
+        # ambient download can exceed the caller's unchanged file-size ceiling.
+        "--config",
+        "features.remote_plugin=false",
+    )
+
+
 def _coding_cli_command(
     selection: CodingCliSelection,
     workspace: Path,
@@ -2907,6 +2929,7 @@ def _coding_cli_command(
     model: str | None,
     prompt: str,
     opencode_interface: str | None = None,
+    runtime_state: Path | None = None,
 ) -> list[str]:
     executable = selection.executable
     if selection.name == "codex":
@@ -2914,6 +2937,7 @@ def _coding_cli_command(
             executable,
             "--ask-for-approval",
             "never",
+            *_codex_runtime_arguments(runtime_state),
         ]
         command.extend(
             (
@@ -3359,6 +3383,9 @@ class CodingCliSourceGenerator:
             model = recipe.model_for(self.selection.name)
         with (
             log_operation("coding_session", cli=self.selection.name, model=model or ""),
+            _coding_cli_runtime_state(
+                self.selection, workspace=workspace
+            ) as runtime_state,
             _coding_cli_process_environment(
                 self.environment,
                 self.selection,
@@ -3374,7 +3401,12 @@ class CodingCliSourceGenerator:
                 _configure_opencode_interface(
                     process_environment, interface, self.selection, workspace
                 )
-                command = self._command(workspace, model, opencode_interface=interface)
+                command = self._command(
+                    workspace,
+                    model,
+                    opencode_interface=interface,
+                    runtime_state=runtime_state,
+                )
                 completed = _run_bounded(
                     command,
                     cwd=workspace,
@@ -3641,6 +3673,7 @@ class CodingCliSourceGenerator:
         model: str | None,
         *,
         opencode_interface: str | None = None,
+        runtime_state: Path | None = None,
     ) -> list[str]:
         prompt = (
             "Read .literate-ai-generation-request.md and perform exactly that "
@@ -3652,6 +3685,7 @@ class CodingCliSourceGenerator:
             model=model,
             prompt=prompt,
             opencode_interface=opencode_interface,
+            runtime_state=runtime_state,
         )
 
     def _collect(
@@ -4304,14 +4338,20 @@ def _coding_cli_status_requires_authentication(
     ):
         return False
     try:
-        completed = _run_bounded(
-            (selection.executable, *arguments),
-            cwd=workspace,
-            environment=process_environment,
-            timeout_seconds=30,
-            maximum_stdout_bytes=16 * 1024,
-            maximum_stderr_bytes=16 * 1024,
-        )
+        with _coding_cli_runtime_state(selection, workspace=workspace) as runtime_state:
+            runtime_arguments = (
+                _codex_runtime_arguments(runtime_state)
+                if selection.name == "codex"
+                else ()
+            )
+            completed = _run_bounded(
+                (selection.executable, *runtime_arguments, *arguments),
+                cwd=workspace,
+                environment=process_environment,
+                timeout_seconds=30,
+                maximum_stdout_bytes=16 * 1024,
+                maximum_stderr_bytes=16 * 1024,
+            )
     except (OSError, CodingCliError):
         return False
     return completed.returncode != 0
@@ -4360,6 +4400,27 @@ def _coding_cli_environment(
     scrubbed = _selected_environment(environment, allowed)
     scrubbed["PWD"] = str(workspace)
     return scrubbed
+
+
+@contextmanager
+def _coding_cli_runtime_state(
+    selection: CodingCliSelection, *, workspace: Path
+) -> Iterator[Path | None]:
+    """Own provider databases outside generated outputs through child completion."""
+
+    if selection.name != "codex":
+        yield None
+        return
+    with tempfile.TemporaryDirectory(prefix="litai-cx-") as temporary:
+        root = Path(temporary).resolve(strict=True)
+        if root.is_relative_to(workspace.resolve()):
+            raise CodingCliError(
+                "coding_cli.runtime_state_overlap",
+                "Codex runtime state must remain outside its output workspace",
+            )
+        (root / "state").mkdir(mode=0o700)
+        (root / "log").mkdir(mode=0o700)
+        yield root
 
 
 @contextmanager
@@ -4574,6 +4635,9 @@ def _run_bounded(
         except subprocess.TimeoutExpired:
             returncode = -1
     finally:
+        # A completed launcher may still own helpers and inherited pipe handles.
+        # Retire its process tree before callers remove private provider state.
+        _terminate_process(process, ownership)
         for reader in readers:
             reader.join(timeout=5)
         for _name, (stream, _limit) in streams.items():

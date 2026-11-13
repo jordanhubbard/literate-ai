@@ -315,6 +315,9 @@
       },
       {
         "id": "LAB-AUTHORITY-001"
+      },
+      {
+        "id": "RUNTIME-CAPABILITY-ENV-001"
       }
     ]
   }
