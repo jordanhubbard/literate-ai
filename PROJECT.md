@@ -143,6 +143,12 @@ contributor alias CANDIDATE-NATIVE-REPAIR-001. Its reviewed source implementatio
 full source suite and exact candidate's installed native repair pass; final integration
 qualification and resulting-main delivery remain open.
 
+CODEX-STATE-001 includes the SQLite-state and optional remote-catalog finite-limit
+failures in issues #365 and #412 under Goals 3 and 4. Actual Codex 0.166.0 source
+generation now passes under the unchanged 64 MiB ceiling with private state and
+cleanup. Independent source review, whole installed/platform integration and final
+release qualification remain open.
+
 CUDA-SIGNAL-001 records issue #396 as blocking 1.4.0 work under Goals 1, 2, 4
 and 5. Inert source inventory must preserve original bytes and propose CUDA only
 from CUDA-specific evidence; vendor attribution alone must not add an accelerator
