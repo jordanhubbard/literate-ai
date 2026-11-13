@@ -1,0 +1,79 @@
+{
+  "baseline_main": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+  "classification": "reviewed source composition; combined qualification pending",
+  "composition_before_pin_renewal": "2e2df050e866b5893c1e7991516bef1102e4e98c",
+  "conflict_resolution": {
+    "changelog": "all contributor outcomes retained",
+    "production_source_conflicts": false,
+    "review_markers": "renewed using canonical commands after source review",
+    "roadmap": "newer source/installed closure records retained; new 1.4 repairs precede the retained 1.5 preparation heading"
+  },
+  "contributors": {
+    "a2a_guidance": "ddc70ac5bf0d4a81952ea11ef1f0bf89930950c1",
+    "bootstrap_pr333": "a35983bb912d6dd0ca0dd2a04dfd77f8fd401420",
+    "cargo_custody_pr435": "e6edc3614f4a98ec85b3a6ba510271464b4c30ba",
+    "cuda_signal_pr398": "4b051a9af074e4255789370922cd98bb874c70fc",
+    "windows_and_export_pr428": "6f060715206a54b45ab0eed9353cb444eed1993b"
+  },
+  "goal_complete": false,
+  "inventory_union_preserves_cuda_and_bootstrap_exclusion": true,
+  "precursor_bootstrap": {
+    "revision": "770140dc9",
+    "source": {
+      "exit_code": 0,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2699,
+      "selected": 2788,
+      "skipped": 89
+    },
+    "whole_wheel": {
+      "bootstrap_states": [
+        "ready",
+        "missing",
+        "incompatible"
+      ],
+      "exit_code": 0,
+      "wheel_identity": "sha256:f67496fae669a6e36020288da5ad8418b8f6fad33a6a63fa913a313407287a8a"
+    }
+  },
+  "release_attestation": false,
+  "remaining": [
+    "combined focused and full source gates",
+    "combined complete noneditable wheel gate",
+    "native Windows and exact review/resulting-main integration"
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "source_byte_comparisons": [
+    {
+      "byte_identical": true,
+      "contributor": "review/pr428",
+      "path": "src/literate_ai/adapters/_processes.py",
+      "sha256": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr428",
+      "path": "scripts/check_public_export.py",
+      "sha256": "f09fffabf8f0f2cda27f14185a9a8839345b00dfe71f0952410508c3246fb12e"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr435",
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "dbd724a86dbb4a25e172cc89b3907b6bc6c9f31822694ef70fe03c4730c3d3fa"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr435",
+      "path": "src/literate_ai/adapters/retained_provider_native.py",
+      "sha256": "6da7bda4a26ef73dc1c94e8d3f44450f62b6769550b25632d064afbe4469f99c"
+    },
+    {
+      "byte_identical": true,
+      "contributor": "review/pr398",
+      "path": "tests/critical/test_source_inventory_targets.py",
+      "sha256": "8593fa90424798f101e204ac1bfbd4f04e4a4ee667ddb42ec83caa5845b99d5d"
+    }
+  ]
+}

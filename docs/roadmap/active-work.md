@@ -32281,6 +32281,9 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 - **Accepted designs:** The directing user explicitly accepted [ADR 0054](../decisions/0054-reviewed-retained-cargo-compatibility.md) and [ADR 0055](../decisions/0055-command-addressed-worker-reachability.md) for 1.4 on 2026-11-02. CARGO-COMPAT-001 owns #222–#226; COMMAND-WORKER-001 owns command-addressed reachability. ADRs 0056–0059 were also explicitly accepted for 1.4 on 2026-11-03 ("Accept all four ADRs"); #217, ADOPT-RELOCATE-001, RETAINED-TREE-EXPLORER-001 and WORKER-TELEMETRY-001 retain their recorded implementation and evidence scope. Their implementation and qualification remain open. FreeBSD SDK qualification and the Daemonarchy unblock take priority in execution order; neither accepted design is deferred from 1.4.
 
+
+- **Current dev composition (in progress):** [Source-union audit](../../verification/roadmap-batch1-source-union.json) retains the exact contributors for bootstrap PR333, optional A2A guidance, Windows/export PR428, Cargo observation PR435 and CUDA PR398. Production source merges without content conflicts; changelog and newer roadmap records are retained, and the original bootstrap 1.5 preparation target and unassigned A2A target are unchanged. Canonical review identities bind the combined source. The standalone bootstrap precursor `770140dc9` passes 2,788 selected source cases (2,699 passed, 89 declared skips, no failures; exit0) and the complete noneditable wheel, but those passes do not qualify this later combined tree. Next: complete the combined focused/source/wheel and exact integrated gates. No existing release requirement is deferred or parent goal closed.
+
 ### [ ] OPENCODE-COMPAT-001 — Support both OpenCode v1 and v2 command-line interfaces
 
 - **Priority:** P1
