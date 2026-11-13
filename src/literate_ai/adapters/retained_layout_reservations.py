@@ -261,6 +261,13 @@ class _StagedReservationSet(WriteReservationSet):
                 self._held.nodes[marker.target.path.parent][0],
                 present=True,
             )
+        self._close_currentness()
+
+    def _close_currentness(self):
+        """Close already-read native/dependency facts without payload traversal."""
+        self._live()
+        if not self._complete:
+            _fail("inactive", "staged reservations are not complete")
         # Earlier markers may have changed during later bounded payload/name
         # reads. Close every held/named native identity after those observations.
         for marker in self._markers:

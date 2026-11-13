@@ -33761,6 +33761,25 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Actual control-role composition (source reviewed):** Derive lifecycle, manifest and
+  conversion writer paths from a loaded original-source project, and Git roles
+  from actual registered administration, HEAD/ref/index and effective configuration
+  origins. Compose those derived targets with the staged descriptor owner. Cover
+  absent Git, unborn/absent-index, detached/packed HEAD, linked and containing
+  repositories and included configuration files. Independent review reproduces
+  actual native writers bypassing empty/missing include targets. Five causal
+  writer controls fail the reviewed source; native declared-path discovery binds
+  these targets and conservatively reserves inactive conditional targets. A sixth
+  causal control repairs canceled-prefix symlink traversal without refusing safe
+  parent-relative includes. Approved [source evidence](../../verification/retained-layout-control-roles-development.json)
+  independently reproduces all six include/redirect failures, passes twenty-two
+  maintained methods and three supplementary native controls. The hundred-and-thirty-three-case
+  neighborhood passes without skips. Next compose these actual controls with
+  selected-wrapper/current-layout/initialization, full source custody and exact
+  acknowledged effects under one transaction owner. Complete
+  source/selected-wrapper/execution custody, journaled effects/finalization/recovery
+  and every L2/L4-L6 qualification cell remain required before public apply.
+
 - **Staged reservation acquisition (source reviewed):** Join journaled publication to a
   real descriptor-backed owner. Preflight complete target occupancy, aliases,
   ancestry, one filesystem and bounded stage/journal resources; publish missing

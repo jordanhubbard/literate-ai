@@ -225,3 +225,41 @@ neighborhood passes without skips. The [staged-owner evidence](../../verificatio
 binds exact source, both causal repairs and native proof limits. Complete logical
 role derivation, source effects, journaled finalization/recovery and all remaining
 platform, installed and feature acceptance are still required.
+
+## Actual project and Git control roles (source reviewed)
+
+Derive the canonical lifecycle, manifest and conversion writer roles from a real
+loaded project whose typed conversion state still declares original-source
+authority. Discover Git through its actual registered worktree and administration,
+including no repository, unborn HEAD, absent index, linked worktrees and a project
+inside a containing repository. Bind physical discovery/ancestry and exact critical
+HEAD/ref/index/config inputs; malformed candidates refuse rather than becoming
+ownership from a spelling or generic Git error. Acquire the derived targets through
+the staged descriptor owner and revalidate actual roles while held. Distinguish
+fixed repository anchors from protected administrative entries. Role ownership is
+not original-source custody, selected-wrapper authority, host execution permission,
+or movement/recovery/qualification; those remain the transaction owner's required
+join before public apply is enabled.
+
+The initial fifteen methods and hundred-and-twenty-six-case neighborhood pass.
+Independent native probing identifies an include-target gap: Git's origin listing
+omits existing empty and missing included files, so real `git config --file`
+writers can change them while the lease is held. Later refusal does not establish
+writer exclusion. Five actual writer controls fail the reviewed source. Ask native
+Git for declared, natively expanded include paths and their declaring origins;
+bind exact file presence/absence and parent ancestry before deriving writer locks.
+Reserve inactive conditional targets conservatively as writer coordinates, never
+source ownership/exclusion. Missing or redirected parents refuse before effects.
+
+A further causal control proves lexical `..` normalization can hide a traversed
+symbolic ancestor and mint the wrong file's writer role. Validate and retain each
+canceled prefix's original physical lineage before normalizing; ordinary safe
+parent-relative includes remain supported. All twenty-two maintained methods pass,
+including the original three closing regressions, five native include-writer
+regressions, redirected-parent refusal and ordinary parent-relative resolution.
+Approved independent re-review reproduces all five original writer failures and
+the intermediate redirect failure, then passes twenty-two methods and three
+supplementary actual ancestry/absence/preeffect controls. The hundred-and-thirty-three-case
+affected neighborhood passes without skips. The [control-role evidence](../../verification/retained-layout-control-roles-development.json)
+binds exact source and preserved historical subjects. Full source custody, journaled
+effects/finalization/recovery and L2/L4-L6 acceptance remain open.
