@@ -33803,9 +33803,17 @@ independent review and the complete combined gate from test one.
   external private facts after payload reads, journals its observation and is spent
   before a normal source move. Original retained manifest bytes select initializer
   templates; inactive endpoints, unproduced starters and foreign audit targets refuse.
-  Provider-origin changes revoke the join; historical providers without their
-  original rosters refuse. Saved labels grant no rights. Next join original-provider
-  history and actual update/import/authored metadata roles before root effects,
+  Provider-origin changes revoke the current-provider join; saved labels grant no
+  rights. Supported historical producers can now borrow an actual local provenance
+  checkout and prove their original path roster through exact bounded Git objects.
+  Their original Flavor resources select endpoints, independently of checkout HEAD
+  and today's catalog; unsupported producer shapes and missing objects refuse.
+  Project/provider payload and path budgets are shared, and currentness streams
+  through a separately reserved buffer. The original provider configuration and
+  interpreter facts close after final project inventory. Original-provider
+  [development evidence](../../verification/retained-layout-provider-development.json)
+  retains the exact supported producer scope. Next join actual
+  update/import/authored metadata roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

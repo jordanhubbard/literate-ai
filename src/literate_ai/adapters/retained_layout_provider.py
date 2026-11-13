@@ -1,0 +1,682 @@
+"""Nonexecuting original initializer rosters proved by bounded raw Git objects."""
+
+from __future__ import annotations
+
+import ast
+import hashlib
+import os
+import time
+import unicodedata
+from contextlib import contextmanager
+from pathlib import Path, PurePosixPath
+
+from literate_ai._filesystem import require_safe_directory
+from literate_ai.contracts.identity import canonical_identity
+from literate_ai.contracts.repository_tree import git_object_identity
+from literate_ai.repository_urls import repository_urls_equivalent
+
+from . import harness_inventory, project_initialization
+from .builders._process import run_bounded_process
+from .flavor_markdown import parse_flavor_markdown
+from .repository_refresh import _file, _signature
+
+_INITIALIZER = "src/literate_ai/adapters/project_initialization.py"
+_HARNESS = "src/literate_ai/adapters/harness_inventory.py"
+_RESOURCES = "src/literate_ai/project_template/"
+
+# Reviewed byte-publication and declared-layout dispatch changes since the
+# pre-bootstrap producer. Arbitrary changes to these helpers are not ignored.
+_HELPER_PAIRS = {
+    "_atomic_replace": (
+        "1003828c5bb22454c055fa1413113e9d0706a3f4b9db32e1692c0b0e13b13cd1",
+        "a590432c2bedba4aa985dec20ce2361e7b8ae78c37fc3474c3c10b685b01da59",
+    ),
+    "record_authority_review": (
+        "ffdba4ce16eb9a3b8f66857ebe0337640f3267c165deacdea4fe7fd17b0cc080",
+        "2ac92ee6f9f877e66efe349e39ce1402821f761f840201a612d57563f91166b7",
+    ),
+    "_record_authority_review": (
+        "8cd00d2adcdcc068b899a31336ccdb307b923e448807d679673a4ab6cd36d73f",
+        "2c5d79bca6d4d7aebb6405e836e885bfed1ba05f5262b01c94db7674212a71f7",
+    ),
+    "prepare_native_rewrite_program": (
+        "eaf099b90c2229ce778cfc590f48d937916b69f45f351e21e1a2904c0c451c75",
+        "18a74b961203856717dadb18f1a6f2ddcb4a181fa3dd3e41ea585717b748caaf",
+    ),
+    "record_project_authority_review": (
+        "d4d2cb1c56c3faec64a5cc0e03488aab400b17a3a3a64455f806e73fe6b497ec",
+        "5c63be8302fe8c4d6880a7f9e33c539abba9d72cda5374afc37a9371b6617d7d",
+    ),
+}
+
+
+def _fail(message):
+    raise ValueError("layout.provider: " + message)
+
+
+class _Objects:
+    def __init__(self, root, origin, budget, metadata_limit):
+        self.root, self.origin, self.budget = Path(root).absolute(), origin, budget
+        require_safe_directory(self.root)
+        node = self.root.stat()
+        self.node = node.st_dev, node.st_ino
+        self.limit = metadata_limit
+        self.charged = self.total = self.entries = self.calls = self.reads = 0
+        self.scratch_size = 0
+        self.cache, self.trees = {}, {}
+        self.file_count = 0
+        self.snapshots, self.ancestry, self.directories = {}, {}, {}
+        self.deadline = time.monotonic() + 120
+        self.environment = {
+            key: value
+            for key, value in os.environ.items()
+            if not key.upper().startswith("GIT_")
+        }
+        self.environment.update(
+            GIT_CONFIG_NOSYSTEM="1",
+            GIT_CONFIG_SYSTEM=os.devnull,
+            GIT_CONFIG_GLOBAL=os.devnull,
+            GIT_OPTIONAL_LOCKS="0",
+            GIT_TERMINAL_PROMPT="0",
+            GIT_NO_LAZY_FETCH="1",
+            GIT_NO_REPLACE_OBJECTS="1",
+            GIT_ALLOW_PROTOCOL="",
+        )
+        self.close_locator()
+        commit = self.read("commit", origin.git_revision)
+        first = commit.partition(b"\n")[0]
+        if not first.startswith(b"tree "):
+            _fail("original commit omits its root tree")
+        self.tree = first[5:].decode("ascii")
+        self._tree(self.tree)
+
+    def run(self, *arguments, maximum):
+        maximum = min(maximum, self.remaining())
+        remaining = self.deadline - time.monotonic()
+        self.calls += 1
+        if (
+            remaining <= 0
+            or maximum < 1
+            or self.calls > self.budget.maximum_entries + self.budget.maximum_files + 8
+        ):
+            _fail("original provider observation exhausted its bounds")
+        result = run_bounded_process(
+            (
+                "git",
+                "--no-pager",
+                "-c",
+                "core.fsmonitor=false",
+                "-c",
+                "core.hooksPath=" + os.devnull,
+                *arguments,
+            ),
+            cwd=self.root,
+            environment=self.environment,
+            timeout_seconds=min(30, remaining),
+            stdout_limit_bytes=maximum,
+            stderr_limit_bytes=4096,
+            poll_interval_seconds=0.01,
+            error_prefix="layout.provider",
+        )
+        if result.returncode or time.monotonic() >= self.deadline:
+            _fail("original local provider objects are unavailable")
+        return result.stdout
+
+    def close_locator(self):
+        require_safe_directory(self.root)
+        node = self.root.stat()
+        if (node.st_dev, node.st_ino) != self.node:
+            _fail("original provider checkout was replaced")
+        if not hasattr(self, "configuration"):
+            self.git_paths = self.discover_paths()
+            git_directory, common, objects = self.git_paths
+            for path in (self.root, git_directory, common):
+                self.directory(path)
+            self.configuration = self.snapshot(common / "config")
+            boundary = self.root / ".git"
+            if boundary.is_dir():
+                self.directory(boundary)
+            else:
+                self.snapshot(boundary, optional=True)
+            self.snapshot(git_directory / "commondir", optional=True)
+            worktree_configuration = self.snapshot(
+                git_directory / "config.worktree", optional=True
+            )
+            self.configuration_graph((self.configuration, worktree_configuration))
+            pending, visited = [objects], set()
+            while pending:
+                selected = pending.pop()
+                self.directory(selected)
+                node = _signature(selected)[:2]
+                if node in visited:
+                    continue
+                visited.add(node)
+                info = selected / "info"
+                if not info.exists():
+                    self.snapshot(info, optional=True)
+                    continue
+                self.directory(info)
+                alternates = self.snapshot(info / "alternates", optional=True)
+                for line in (alternates.content or b"").decode("utf-8").split("\n"):
+                    if not line:
+                        continue
+                    if line.startswith('"') or any(ord(char) < 32 for char in line):
+                        _fail("quoted or control-character alternates are unsupported")
+                    current = self.external_path(selected, line)
+                    self.count_entry(str(current))
+                    pending.append(current)
+        if self.discover_paths() != self.git_paths:
+            _fail("original provider Git routing changed")
+        self.close_native()
+        remote = self.run(
+            "config",
+            "--local",
+            "--no-includes",
+            "--get",
+            "remote.origin.url",
+            maximum=min(16384, self.budget.maximum_file_bytes),
+        )
+        if not repository_urls_equivalent(
+            remote.decode("utf-8").strip(), self.origin.repository_url
+        ):
+            _fail("provider checkout does not match the recorded repository")
+        self.close_native()
+
+    def discover_paths(self):
+        paths = []
+        for arguments in (
+            ("--git-dir",),
+            ("--git-common-dir",),
+            ("--git-path", "objects"),
+        ):
+            raw = self.run(
+                "rev-parse", "--path-format=absolute", *arguments, maximum=16384
+            )
+            text = raw.decode("utf-8").removesuffix("\n")
+            path = Path(text)
+            if not path.is_absolute() or "\n" in text or "\r" in text:
+                _fail("original provider Git directory is ambiguous")
+            paths.append(path)
+        return tuple(paths)
+
+    def count_entry(self, label):
+        encoded = label.encode("utf-8")
+        self.entries += 1
+        self.charged += 4096 + 64 * len(encoded)
+        if (
+            len(encoded) > 4096
+            or self.entries > self.budget.maximum_entries
+            or self.charged > self.limit
+            or time.monotonic() >= self.deadline
+        ):
+            _fail("original provider path occurrences exceed their explicit budget")
+
+    def directory(self, path):
+        if time.monotonic() >= self.deadline:
+            _fail("original provider observation exhausted its bounds")
+        require_safe_directory(path)
+        if path not in self.directories:
+            self.count_entry(str(path))
+        self.directories[path] = _signature(path)[:3]
+        for parent in (path, *path.parents):
+            if parent not in self.ancestry:
+                self.count_entry(str(parent))
+                self.ancestry[parent] = _signature(parent)[:3]
+
+    def external_path(self, base, value):
+        target = Path(value)
+        if len(target.parts) > 128 or len(value.encode("utf-8")) > 4096:
+            _fail("original provider external path exceeds its explicit bound")
+        if any(ord(char) < 32 for char in value):
+            _fail("original provider external path contains control characters")
+        current = Path(target.anchor) if target.is_absolute() else base
+        for part in target.parts[1:] if target.is_absolute() else target.parts:
+            # Preserve every traversed prefix, including ones canceled by '..'.
+            self.directory(current)
+            current = current.parent if part == ".." else current / part
+        return current
+
+    def configuration_graph(self, roots):
+        pending, visited = list(roots), set()
+        while pending:
+            item = pending.pop()
+            if item.path in visited or item.content is None:
+                continue
+            visited.add(item.path)
+            keys = self.run(
+                "config",
+                "--file",
+                str(item.path),
+                "--no-includes",
+                "--null",
+                "--list",
+                "--name-only",
+                maximum=self.remaining(),
+            ).split(b"\0")
+            if not any(
+                key.lower().startswith((b"include.", b"includeif.")) for key in keys
+            ):
+                continue
+            declared = self.run(
+                "config",
+                "--file",
+                str(item.path),
+                "--no-includes",
+                "--null",
+                "--path",
+                "--get-regexp",
+                r"^include(if)?\.",
+                maximum=self.remaining(),
+            )
+            if declared and not declared.endswith(b"\0"):
+                _fail("original provider include records are incomplete")
+            for record in declared.split(b"\0")[:-1]:
+                key, separator, value = record.partition(b"\n")
+                if not (
+                    key == b"include.path"
+                    or (key.startswith(b"includeif.") and key.endswith(b".path"))
+                ):
+                    continue
+                if not separator or not value:
+                    _fail("original provider include path is absent")
+                target = self.external_path(item.path.parent, value.decode("utf-8"))
+                self.count_entry(str(target))
+                pending.append(self.snapshot(target, optional=True))
+
+    def snapshot(self, path, *, optional=False):
+        if path in self.snapshots:
+            return self.snapshots[path]
+        self.directory(path.parent)
+        if self.file_count >= self.budget.maximum_files:
+            _fail("original provider inputs exceed their explicit file budget")
+        self.count_entry(str(path))
+        item = _file(path, optional=optional, maximum_bytes=self.remaining())
+        self.charge(item.content or b"")
+        self.file_count += 1
+        self.snapshots[path] = item
+        return item
+
+    def close_native(self):
+        for path, signature in self.ancestry.items():
+            if _signature(path)[:3] != signature:
+                _fail("original provider ancestry changed")
+        for path, item in self.snapshots.items():
+            try:
+                current = _signature(path)
+            except FileNotFoundError:
+                current = None
+            if current != item.signature:
+                _fail(
+                    "original provider configuration changed"
+                    if path == self.configuration.path
+                    else "original provider routing or object-store input changed"
+                )
+
+    def remaining(self):
+        return min(
+            self.budget.maximum_file_bytes,
+            self.budget.maximum_total_bytes - self.total,
+            (self.limit - self.charged - 4096 + 128 * self.scratch_size) // 256,
+        )
+
+    def charge(self, content):
+        self.total += len(content)
+        self.charged += 4096 + 128 * len(content)
+        # Reserve a distinct largest-object scratch buffer for streaming closes.
+        self.charged += 128 * max(0, len(content) - self.scratch_size)
+        self.scratch_size = max(self.scratch_size, len(content))
+        if self.total > self.budget.maximum_total_bytes or self.charged > self.limit:
+            _fail("original provider payloads exceed their explicit budget")
+
+    def read(self, kind, oid, *, maximum_bytes=None):
+        if (
+            len(oid) != len(self.origin.git_revision)
+            or len(oid) not in {40, 64}
+            or any(character not in "0123456789abcdef" for character in oid)
+        ):
+            _fail("original provider object identity is invalid")
+        key = kind, oid
+        if key in self.cache:
+            return self.cache[key]
+        if (
+            self.file_count >= self.budget.maximum_files
+            or self.entries >= self.budget.maximum_entries
+            or self.remaining() < 1
+        ):
+            _fail("original provider objects exceed their explicit budget")
+        maximum = self.remaining()
+        if maximum_bytes is not None:
+            maximum = min(maximum, max(1, maximum_bytes))
+        content = self.run("cat-file", kind, oid, maximum=maximum)
+        if git_object_identity(kind, content, len(oid)) != oid:
+            _fail("original provider object bytes disagree with their identity")
+        self.charge(content)
+        self.reads += 1
+        self.file_count += 1
+        self.entries += 1
+        self.cache[key] = content
+        return content
+
+    def entry(self, path):
+        parsed = PurePosixPath(path)
+        encoded = path.encode("utf-8")
+        if (
+            not path
+            or parsed.is_absolute()
+            or parsed.as_posix() != path
+            or ".." in parsed.parts
+            or "\\" in path
+            or len(parsed.parts) > 128
+            or len(encoded) > 4096
+        ):
+            _fail("original provider path is unsafe or exceeds its bound")
+        self.count_entry(path)
+
+    def _tree(self, oid):
+        if oid in self.trees:
+            return self.trees[oid]
+        raw = self.read("tree", oid)
+        entries, aliases, position = {}, set(), 0
+        width = len(oid) // 2
+        while position < len(raw):
+            end = raw.find(b"\0", position)
+            if end < 0 or end + 1 + width > len(raw):
+                _fail("original provider tree is truncated")
+            mode, name = raw[position:end].split(b" ", 1)
+            name = name.decode("utf-8")
+            if (
+                not name
+                or name in {".", "..", ".git"}
+                or "/" in name
+                or "\\" in name
+                or unicodedata.normalize("NFC", name) != name
+                or name.casefold() in aliases
+                or mode not in {b"40000", b"100644", b"100755", b"120000", b"160000"}
+            ):
+                _fail("original provider tree has unsupported entries")
+            aliases.add(name.casefold())
+            self.entries += 1
+            self.charged += 4096 + 64 * len(name.encode("utf-8"))
+            if self.entries > self.budget.maximum_entries or self.charged > self.limit:
+                _fail("original provider tree metadata exceeds its explicit budget")
+            entries[name] = mode, raw[end + 1 : end + 1 + width].hex()
+            position = end + 1 + width
+        self.trees[oid] = entries
+        return entries
+
+    def locate(self, path):
+        self.entry(path)
+        parsed = PurePosixPath(path)
+        if (
+            not path
+            or parsed.is_absolute()
+            or parsed.as_posix() != path
+            or ".." in parsed.parts
+            or "\\" in path
+        ):
+            _fail("original provider path is unsafe")
+        mode, oid = b"40000", self.tree
+        for name in parsed.parts:
+            if mode != b"40000":
+                _fail("original provider path crosses a non-directory")
+            member = self._tree(oid).get(name)
+            if member is None:
+                _fail("original provider endpoint is missing")
+            mode, oid = member
+        return mode, oid
+
+    def blob(self, path):
+        mode, oid = self.locate(path)
+        if mode not in {b"100644", b"100755"}:
+            _fail("original provider input must be a regular blob")
+        return self.read("blob", oid)
+
+    def flavor_files(self):
+        mode, oid = self.locate(_RESOURCES + "flavors")
+        if mode != b"40000":
+            _fail("original Flavor resources require a directory")
+        pending, files = [("flavors", oid)], []
+        while pending:
+            parent, oid = pending.pop()
+            for name, (mode, child) in self._tree(oid).items():
+                relative = parent + "/" + name
+                self.entry(relative)
+                if len(files) + len(pending) >= self.budget.maximum_entries:
+                    _fail("original Flavor namespace exceeds its explicit budget")
+                if mode == b"40000":
+                    pending.append((relative, child))
+                elif mode in {b"100644", b"100755"}:
+                    files.append(relative)
+                else:
+                    _fail("original Flavor resource aliases are unsupported")
+        return tuple(sorted(files))
+
+
+def _shape(content, *, initializer, maximum_nodes, charge_path=None):
+    module = ast.parse(content)
+    pending, count = [(module, 0)], 0
+    while pending:
+        node, depth = pending.pop()
+        count += 1
+        if count > maximum_nodes or depth > 96:
+            _fail("original producer AST exceeds its explicit budget")
+        pending.extend((child, depth + 1) for child in ast.iter_child_nodes(node))
+    mapping, helpers = None, {}
+    for node in ast.walk(module):
+        if isinstance(node, ast.FunctionDef) and node.name in _HELPER_PAIRS:
+            if node.name in helpers:
+                _fail("ambiguous original producer helper")
+            helpers[node.name] = hashlib.sha256(
+                ast.dump(node, include_attributes=False).encode("utf-8")
+            ).hexdigest()
+    for node in module.body:
+        if (
+            initializer
+            and isinstance(node, ast.Assign)
+            and any(
+                isinstance(target, ast.Name) and target.id == "_TEMPLATE_FILES"
+                for target in node.targets
+            )
+        ):
+            if mapping is not None:
+                _fail("ambiguous original template producer")
+            if (
+                not isinstance(node.value, ast.Dict)
+                or len(node.value.keys) > maximum_nodes
+            ):
+                _fail("original template mapping exceeds its explicit bound")
+            for key, value in zip(node.value.keys, node.value.values, strict=True):
+                if not (
+                    isinstance(key, ast.Constant)
+                    and isinstance(key.value, str)
+                    and isinstance(value, ast.Constant)
+                    and isinstance(value.value, str)
+                ):
+                    _fail("original template producer requires literal paths")
+                if charge_path is not None:
+                    charge_path(key.value)
+                    charge_path(value.value)
+            mapping = ast.literal_eval(node.value)
+            node.value = ast.Dict(keys=[], values=[])
+        if (
+            initializer
+            and isinstance(node, ast.ClassDef)
+            and node.name == "FilesystemProjectInitializationAdapter"
+        ):
+            node.body = [
+                method
+                for method in node.body
+                if not isinstance(method, ast.FunctionDef)
+                or method.name
+                not in {"record_authority_review", "_record_authority_review"}
+            ]
+    # The compared initializer still fixes every created endpoint. These byte
+    # publication helpers cannot expand the accepted template mapping.
+    ignored = (
+        {"_atomic_replace", "record_project_authority_review"}
+        if initializer
+        else {"prepare_native_rewrite_program"}
+    )
+    module.body = [
+        node
+        for node in module.body
+        if not isinstance(node, ast.FunctionDef) or node.name not in ignored
+    ]
+    if initializer and (
+        not isinstance(mapping, dict)
+        or not mapping
+        or any(
+            not isinstance(key, str) or not isinstance(value, str)
+            for key, value in mapping.items()
+        )
+    ):
+        _fail("original template producer requires an exact literal mapping")
+    return ast.dump(module, include_attributes=False), mapping, helpers
+
+
+class _OriginalRoster:
+    __slots__ = ("_objects", "_templates", "_inputs", "_active", "_pid", "_identity")
+
+    def __init__(self, objects, templates, inputs):
+        self._objects, self._templates, self._inputs = objects, templates, inputs
+        self._active, self._pid = True, os.getpid()
+        self._identity = canonical_identity(
+            {
+                "schema": "literate-ai/original-initializer-roster@1",
+                "origin": objects.origin.to_dict(),
+                "objects": sorted(objects.cache),
+                "templates": templates,
+                "provider_inputs": [
+                    (
+                        str(item.path),
+                        item.signature,
+                        None
+                        if item.content is None
+                        else hashlib.sha256(item.content).hexdigest(),
+                    )
+                    for item in objects.snapshots.values()
+                ],
+                "provider_directories": sorted(
+                    (str(path), node) for path, node in objects.directories.items()
+                ),
+            }
+        )
+
+    @property
+    def objects(self):
+        return self._objects
+
+    @property
+    def templates(self):
+        return self._templates
+
+    @property
+    def inputs(self):
+        return self._inputs
+
+    @property
+    def identity(self):
+        return self._identity
+
+    def require_current(self):
+        if not self._active or self._pid != os.getpid():
+            _fail("original provider observation ended")
+        self.close_native()
+        observed = _Objects(
+            self.objects.root,
+            self.objects.origin,
+            self.objects.budget,
+            self.objects.limit,
+        )
+        if observed.node != self.objects.node:
+            _fail("original provider checkout was replaced")
+        self.close_native()
+        verified = set(observed.cache)
+        observed.cache.clear()
+        observed.trees.clear()
+        for kind, oid in self.objects.cache:
+            if (kind, oid) not in verified:
+                observed.read(
+                    kind, oid, maximum_bytes=len(self.objects.cache[kind, oid])
+                )
+                observed.cache.clear()
+        observed.close_locator()
+        self.close_native()
+
+    def close_native(self):
+        if not self._active or self._pid != os.getpid():
+            _fail("original provider observation ended")
+        self.objects.close_native()
+        for item in self.inputs:
+            if _signature(item.path) != item.signature:
+                _fail("current provider interpreter changed")
+
+
+@contextmanager
+def original_initializer_roster(
+    origin, definition, *, checkout, budget, metadata_limit
+):
+    root = (
+        Path(project_initialization.__file__).resolve().parents[3]
+        if checkout is None
+        else Path(checkout)
+    )
+    objects = _Objects(root, origin, budget, metadata_limit)
+    inputs = []
+    for module in (project_initialization, harness_inventory):
+        item = objects.snapshot(Path(module.__file__))
+        inputs.append(item)
+    mapping = None
+    for index, path in enumerate((_INITIALIZER, _HARNESS)):
+        original = _shape(
+            objects.blob(path),
+            initializer=index == 0,
+            maximum_nodes=metadata_limit // 512,
+            charge_path=objects.entry,
+        )
+        current = _shape(
+            inputs[index].content,
+            initializer=index == 0,
+            maximum_nodes=metadata_limit // 512,
+        )
+        if original[0] != current[0]:
+            _fail("original initializer producer shape is unsupported")
+        if original[2].keys() != current[2].keys() or any(
+            original[2][name] != current[2][name]
+            and (original[2][name], current[2][name]) != _HELPER_PAIRS[name]
+            for name in original[2]
+        ):
+            _fail("original initializer helper shape is unsupported")
+        if index == 0:
+            mapping = original[1]
+    flavors = objects.flavor_files()
+    directories = {}
+    for name in flavors:
+        if len(PurePosixPath(name).parts) == 3 and name.endswith("/flavor.md"):
+            flavor = parse_flavor_markdown(objects.blob(_RESOURCES + name), source=name)
+            coordinate = f"flavor://{flavor.namespace}/{flavor.name}"
+            if coordinate in directories:
+                _fail("original Flavor coordinates are ambiguous")
+            directories[coordinate] = PurePosixPath(name).parts[1]
+    active = set()
+    for selector in definition.default_flavor_selectors:
+        directory = directories.get(selector.removeprefix("+"))
+        if directory is None:
+            _fail("original selected Flavor is unavailable")
+        active.add(directory)
+    mapping.update({name: name for name in flavors})
+    templates = []
+    for name, resource in mapping.items():
+        if project_initialization._include_template_file(name, frozenset(active)):
+            objects.entry(name)
+            mode, _ = objects.locate(_RESOURCES + resource)
+            if mode not in {b"100644", b"100755"}:
+                _fail("original template endpoint lacks its regular resource")
+            templates.append(name)
+    roster = _OriginalRoster(objects, tuple(sorted(templates)), tuple(inputs))
+    try:
+        roster.require_current()
+        yield roster
+        roster.require_current()
+    finally:
+        roster._active = False

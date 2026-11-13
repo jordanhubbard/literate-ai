@@ -196,7 +196,7 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
                     self.fail("canonical foreign audit path supplied ownership")
         self.assertEqual(source.read_bytes(), b"original user source\n")
 
-    def test_historical_initializer_refuses_without_its_original_provider(self):
+    def test_unavailable_historical_provider_refuses_without_source_effect(self):
         from dataclasses import replace
 
         path = self.project / ".literate/initialization-origin.json"
@@ -213,7 +213,7 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
         path.write_bytes(canonical_json_bytes(baseline.to_dict()) + b"\n")
         with self.inspecting() as phase:
             with self.assertRaisesRegex(
-                ValueError, "requires its original provider roster"
+                ValueError, "local provider objects are unavailable"
             ):
                 with self.observe(phase):
                     self.fail("current catalog claimed a historical provider's roster")

@@ -1069,7 +1069,9 @@ class _SourcePhase:
         self._require_moved()
 
     @contextmanager
-    def complete_partition(self, *, budget, maximum_metadata_bytes):
+    def complete_partition(
+        self, *, budget, maximum_metadata_bytes, provider_checkout=None
+    ):
         """Join actual initializer/control/source owners inside this acknowledged phase.
 
         Unclaimed metadata remains visible; this grants neither root effects nor
@@ -1078,7 +1080,10 @@ class _SourcePhase:
         from .retained_layout_ownership import _owned_partition
 
         with _owned_partition(
-            self, budget=budget, maximum_metadata_bytes=maximum_metadata_bytes
+            self,
+            budget=budget,
+            maximum_metadata_bytes=maximum_metadata_bytes,
+            provider_checkout=provider_checkout,
         ) as owner:
             yield owner
 

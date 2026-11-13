@@ -1013,3 +1013,61 @@ also insufficient: initial conversion emits only the `host` target, and never
 emits the hello starter. Metadata self-consistency is not historical attestation.
 Original-provider history, update/import/authored metadata roles and immutable
 installed/native qualification remain required before full ownership acceptance.
+
+### Original provider roster (in progress)
+
+Borrow an actual local framework provenance checkout, using the current framework
+checkout by default and an explicit checkout locator when necessary. Match its
+recorded repository URL and read the exact original commit through bounded,
+nonexecuting Git object access with hooks, replacement objects and lazy fetch
+disabled. Verify raw commit/tree/blob hashes along each selected path; an object
+name or unverified `ls-tree` listing is not provenance. Resolve historical template
+endpoints and Flavor resources from that original tree, never today's catalog.
+
+Recognize only an explicit supported initializer shape: literal template mapping,
+the known resource-derived Flavor inventory and unchanged producer/selection
+semantics. Do not import or execute historical Python. Unknown code shapes refuse
+until their producer contract is joined. Preserve original manifest selectors,
+current controls and complete namespace observations; bind the actual provenance
+checkout and consumed objects while the partition is live. Prove a real older
+roster can join and that a newly introduced endpoint cannot gain ownership by
+changing only the baseline. This is additional original-provider composition,
+not completion of update/import/authored ownership or root/public acceptance.
+
+The local dependency now recognizes the exact producer module shape, with literal
+template mappings projected separately. Five older/current helper AST identity
+pairs admit only reviewed byte-publication and native-layout dispatch changes;
+unknown mutations, helpers or selection semantics refuse. Historical Flavor
+coordinates come from the original resource manifests. Every consumed raw object
+is independently rehashed, including parent trees connecting selected paths to
+the exact commit. Checkout HEAD cannot replace that commit.
+
+Independent inspection found that separate project/provider quotas, a second
+retained proof during currentness and counting only unique Git objects left gaps
+in the intended bounds. Debit one combined project/provider file, entry and byte
+allowance. Reserve a distinct largest-object buffer and stream revalidation
+without retaining a second proof. Charge every expanded Flavor directory/leaf
+occurrence, complete path, literal mapping destination/resource and selected
+endpoint, including repeated shared subtrees; check traversal deadlines between
+cached reads. Maintained controls exercise small shared empty-tree graphs and
+many names for one resource, plus actual combined-quota refusals. Broader metadata
+owners, producer compatibility profiles and immutable installed/native/full-program
+acceptance remain open.
+
+The first immutable provider review reproduced a separate Git administration
+directory inside moving source while its checkout stayed outside. Refuse overlap
+for the actual Git/common directories, recursive object stores, configuration
+includes and all traversed native prefixes, including canceled `..` prefixes.
+Capture their actual filesystem inputs in the same resource ledger and close
+their original facts after final project inventory. Fixed external alternates and
+configuration includes remain supported. Independent rereview approves the exact
+restricted source dependency and the maintained 18 provider plus 64 existing
+methods. The actual pre-bootstrap revision's resource initialization, source move
+and later-endpoint forgery refusal also pass with an explicit 4096-entry allowance;
+the earlier 2048-entry allowance correctly refuses under complete accounting.
+Exact subjects and scope are retained in
+[development evidence](../../verification/retained-layout-provider-development.json).
+Helper fingerprints use the development runtime's AST serialization; canonical
+profile compatibility across supported Python runtimes remains a required
+qualification step alongside additional metadata owners and installed/native
+acceptance. These observations do not complete L1 or enable root/public effects.

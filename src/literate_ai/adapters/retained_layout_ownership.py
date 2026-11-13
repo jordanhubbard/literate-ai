@@ -11,7 +11,7 @@ import base64
 import hashlib
 import json
 import os
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
 from literate_ai.contracts import (
@@ -43,6 +43,7 @@ from .project_initialization import (
 from .repository_refresh import _file, _signature
 from .retained_layout import RETAINED_LAYOUT_PATH
 from .retained_layout_partition import capture_retained_layout_partition
+from .retained_layout_provider import original_initializer_roster
 from .update_merge import CHECKPOINT
 from .update_merge import SCHEMA as UPDATE_BASES_SCHEMA
 
@@ -61,12 +62,13 @@ def _beneath(name, root):
     return name == root or name.startswith(root + "/")
 
 
-def _initializer_roles(phase, budget, metadata_limit):
+def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_checkout):
     root = phase.plan.root
     maximum_entries = budget.maximum_entries
     cache = {}
     charged = 0
     payload_bytes = 0
+    provider_files = provider_entries = 0
 
     def snapshot(path, *, optional=False):
         nonlocal charged, payload_bytes
@@ -78,7 +80,11 @@ def _initializer_roles(phase, budget, metadata_limit):
             budget.maximum_total_bytes - payload_bytes,
             (metadata_limit - charged - cost) // 64,
         )
-        if len(cache) >= maximum_entries or remaining < 1:
+        if (
+            len(cache) + provider_files >= budget.maximum_files
+            or len(cache) + provider_entries >= maximum_entries
+            or remaining < 1
+        ):
             _fail("ownership input metadata exceeds its explicit budget")
         item = _file(path, optional=optional, maximum_bytes=remaining)
         size = len(item.content or b"")
@@ -110,8 +116,6 @@ def _initializer_roles(phase, budget, metadata_limit):
         or len(baseline.files) > maximum_entries
     ):
         _fail("initialization origin, file inventory or bound disagrees")
-    if origin != discover_installed_initialization_origin():
-        _fail("historical initializer requires its original provider roster")
     baseline_paths = {item.path for item in baseline.files}
     # Bind selection to the original initialized manifest, not today's mutable
     # selectors or every possible endpoint in the installed template catalog.
@@ -138,8 +142,38 @@ def _initializer_roles(phase, budget, metadata_limit):
     ):
         _fail("original initializer manifest bytes disagree with their identity")
     definition = ProjectDefinition.from_dict(json.loads(original))
+    provider = None
+    if (
+        provider_checkout is not None
+        or origin != discover_installed_initialization_origin()
+    ):
+        remaining_files = budget.maximum_files - len(cache)
+        remaining_entries = budget.maximum_entries - len(cache)
+        remaining_bytes = budget.maximum_total_bytes - payload_bytes
+        if min(remaining_files, remaining_entries, remaining_bytes) < 1:
+            _fail("ownership inputs leave no original provider budget")
+        file_limit = min(budget.maximum_file_bytes, remaining_bytes)
+        provider_budget = RetainedCargoInputBudget(
+            remaining_files,
+            remaining_entries,
+            file_limit,
+            min(remaining_bytes, remaining_files * file_limit),
+        )
+        provider = providers.enter_context(
+            original_initializer_roster(
+                origin,
+                definition,
+                checkout=provider_checkout,
+                budget=provider_budget,
+                metadata_limit=metadata_limit - charged,
+            )
+        )
+        charged += provider.objects.charged
+        payload_bytes += provider.objects.total
+        provider_files = provider.objects.file_count
+        provider_entries = provider.objects.entries
     active_flavors = set()
-    for selector in definition.default_flavor_selectors:
+    for selector in () if provider is not None else definition.default_flavor_selectors:
         selector = selector.removeprefix("+")
         canonical = FLAVOR_SELECTOR_CANONICAL_NAMES.get(selector, selector)
         directory = _FLAVOR_DIRECTORY_BY_CANONICAL.get(canonical)
@@ -151,6 +185,8 @@ def _initializer_roles(phase, budget, metadata_limit):
         for name in _TEMPLATE_FILES
         if _include_template_file(name, frozenset(active_flavors))
     } | set(_STARTER_DOCS)
+    if provider is not None:
+        allowed = set(provider.templates) | set(_STARTER_DOCS)
     # This owner requires real conversion inventory/baseline inputs. Conversion
     # never emits the hello starter, even when its caller requested one.
     allowed.update(
@@ -204,7 +240,13 @@ def _initializer_roles(phase, budget, metadata_limit):
     children = _native_project_roots(project)
     child_inputs = tuple(snapshot(child / PROJECT_FILENAME) for child in children)
     framework_inputs = tuple(snapshot(root / name) for name in sorted(framework))
-    return framework, children, (*inputs, *child_inputs, *framework_inputs), origin
+    return (
+        framework,
+        children,
+        (*inputs, *child_inputs, *framework_inputs),
+        origin,
+        provider,
+    )
 
 
 def _partition_roles(phase, census, framework, children):
@@ -301,6 +343,7 @@ class _OwnedPartition:
         "_native",
         "_inputs",
         "_provider_origin",
+        "_provider",
         "_roles",
         "_directories",
         "_active",
@@ -309,7 +352,9 @@ class _OwnedPartition:
         "_identity",
     )
 
-    def __init__(self, key, phase, census, native, inputs, roles, directories, origin):
+    def __init__(
+        self, key, phase, census, native, inputs, roles, directories, origin, provider
+    ):
         if key is not _KEY:
             raise TypeError("layout.ownership.live-source-phase-required")
         self._phase, self._census, self._native, self._inputs = (
@@ -320,6 +365,7 @@ class _OwnedPartition:
         )
         self._roles, self._directories = roles, directories
         self._provider_origin = origin
+        self._provider = provider
         self._active, self._spent, self._pid = True, False, os.getpid()
         self._identity = canonical_identity(
             {
@@ -327,6 +373,9 @@ class _OwnedPartition:
                 "phase": phase.plan.identity.uri,
                 "namespace": census.identity.uri,
                 "controls": phase.controls.identity.uri,
+                "initializer_provider": None
+                if provider is None
+                else provider.identity.uri,
                 "roles": roles,
                 "directories": directories,
                 "inputs": [
@@ -361,7 +410,9 @@ class _OwnedPartition:
         self._phase._live()
         self._phase.controls.require_initial_inputs()
         _require_prepared(self._phase.plan, self._phase.controls.reservations)
-        if self._provider_origin != discover_installed_initialization_origin():
+        if self._provider is not None:
+            self._provider.require_current()
+        elif self._provider_origin != discover_installed_initialization_origin():
             _fail("original initializer provider changed")
         self.census.require_unchanged()
         self._phase.controls.git.close_native_inputs(self._phase.controls.reservations)
@@ -375,6 +426,8 @@ class _OwnedPartition:
             if current != item.signature:
                 _fail("original ownership inputs changed")
         _close_tree(self.census.tree, self._native, controls=self._phase.controls)
+        if self._provider is not None:
+            self._provider.close_native()
 
     @property
     def document(self):
@@ -399,7 +452,22 @@ class _OwnedPartition:
 
 
 @contextmanager
-def _owned_partition(phase, *, budget, maximum_metadata_bytes):
+def _owned_partition(phase, *, budget, maximum_metadata_bytes, provider_checkout=None):
+    with ExitStack() as providers:
+        with _partition_context(
+            phase,
+            budget=budget,
+            maximum_metadata_bytes=maximum_metadata_bytes,
+            providers=providers,
+            provider_checkout=provider_checkout,
+        ) as owner:
+            yield owner
+
+
+@contextmanager
+def _partition_context(
+    phase, *, budget, maximum_metadata_bytes, providers, provider_checkout
+):
     from .retained_layout_transaction import (
         _native_tree,
         _require_prepared,
@@ -443,7 +511,18 @@ def _owned_partition(phase, *, budget, maximum_metadata_bytes):
         _fail(
             "private journal/stages physically overlap the complete project namespace"
         )
-    framework, children, inputs, origin = _initializer_roles(phase, budget, quarter)
+    framework, children, inputs, origin, provider = _initializer_roles(
+        phase, budget, quarter, providers=providers, provider_checkout=provider_checkout
+    )
+    if provider is not None:
+        protected = {node[:2] for node in provider.objects.directories.values()}
+        moving = {phase.plan.tree._physical[0][:2]} | {
+            node[:2] for _name, node in phase.plan.tree._physical[1]
+        }
+        if protected & moving:
+            _fail(
+                "original provider checkout or administration is part of moving source"
+            )
     census = capture_retained_layout_partition(
         phase.plan.root,
         framework_files=tuple(sorted(framework)),
@@ -461,7 +540,7 @@ def _owned_partition(phase, *, budget, maximum_metadata_bytes):
     if wire_size * 64 > quarter:
         _fail("actual role inventory exceeds ownership metadata budget")
     owner = _OwnedPartition(
-        _KEY, phase, census, native, inputs, roles, directories, origin
+        _KEY, phase, census, native, inputs, roles, directories, origin, provider
     )
     phase._partition_owner = owner
     try:

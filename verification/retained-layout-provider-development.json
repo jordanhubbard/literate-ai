@@ -1,0 +1,210 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Local POSIX supported original-initializer roster composition inside an acknowledged nonroot source phase; not complete L1/root/public/installed relocation acceptance",
+  "base_revision": "9ea4f08f68f070a29d39371ddeea2846d76e342b",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "0419077679e42b19cb32d19fe619fe8fe23e8088d7bf66a3b00ebba7bc58ced6"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "4641a4ca6e718f981fc18e247aa445dc188986598fdfbfb2d9d4c4a2644a8b5e"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "eeb604c6e8b2fc93fef6815ae980fccf2d02689f300c5f92509e0d6918ced1ea"
+    },
+    "tests/critical/test_retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "7fa5e9df44f079bb0ed3fb712234b258c50a0528c34d8d7a218badaa475779e7"
+    },
+    "tests/critical/test_retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "1b30c87605181bd8d0a70639b9b50afe7fe1675801b14f867c3fa36358739086"
+    }
+  },
+  "behaviors": [
+    "Borrow an actual safe local provenance repository, match its recorded repository URL and prove exact commit/tree/blob paths through independently rehashed raw Git objects. No fetch, checkout, filters, hooks or execution of historical Python.",
+    "Recognize the supported complete producer AST shape, project literal template dictionaries separately, and permit only five reviewed exact historical/current helper AST identity pairs. Other producer changes refuse.",
+    "Derive original Flavor coordinates/resources from original Git trees and apply original manifest selectors; current HEAD/catalog or baseline-only new endpoint assertions cannot expand the original roster.",
+    "Share actual project/provider payload, file and entry allowances. Charge every path occurrence and full path metadata, including shared Flavor subtrees and literal mapping/resource/selected endpoint names; bound traversal depth, nodes and elapsed time.",
+    "Retain one proof, reserve a distinct largest-object scratch buffer and stream currentness objects within their original byte sizes without retaining a second proof cache.",
+    "Bind actual checkout, Git/common directories, primary/alternate object stores, Git pointer/config/include files, original native ancestry and interpreter facts. Reject physical overlap with moving source before returning the partition; close native dependencies after final project inventory.",
+    "Consume the real historical composition before actual source movement; preserve current-provider behavior and keep all unsupported metadata/public placement guards."
+  ],
+  "focused_suite": {
+    "selected": 18,
+    "passed": 18,
+    "skipped": 0,
+    "seconds": 137.851,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "99cd5f5fe742522a7df12311a34b2de5c227e0d3190c5f50993031d9aa27608a"
+    }
+  },
+  "affected_suite": {
+    "modules": [
+      "tests.critical.test_retained_layout_provider",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_reservations"
+    ],
+    "selected": 82,
+    "passed": 82,
+    "skipped": 0,
+    "seconds": 179.977,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "745bdff961c05cf09879b4dd7a23456d4dfb436601dba308be17a183dd3bce53"
+    }
+  },
+  "independent_review": {
+    "decision": "approved_at_limited_scope",
+    "initial_report": {
+      "name": "independent-layout-provider-review.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "3e64b4df53d55d0a7b662ffd19484cedbc6003860db1a24c02bf5a218e29ab3a"
+      },
+      "decision": "changes_requested",
+      "qualification": "Initial accounting repairs passed13+64 methods, but actual separate administration inside moving source allowed effect before later failure. Exact initial subjects/counterexample are retained by immutable report."
+    },
+    "rereview": {
+      "name": "independent-layout-provider-rereview.json",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "e7cb3236e40131c5ebb5778878f0d27c950903ccefe159195862f3c29bee3e30"
+      },
+      "executed": [
+        {
+          "selected": 18,
+          "passed": 18,
+          "skipped": 0,
+          "seconds": 137.82
+        },
+        {
+          "selected": 64,
+          "passed": 64,
+          "skipped": 0,
+          "seconds": 41.639
+        },
+        {
+          "qualification": "Original separate-administration refusal replay",
+          "selected": 1,
+          "passed": 1,
+          "seconds": 9.786
+        },
+        {
+          "qualification": "Actual older-commit resource initialization, real move and later endpoint forgery refusal; explicit4096entry allowance",
+          "selected": 2,
+          "passed": 2,
+          "seconds": 34.557
+        }
+      ]
+    }
+  },
+  "causal_history": [
+    "Initial source inspection found independent project/provider quota reuse, retained second-proof allocation, and repeated subtree/path expansion escaping unique-object counters. Repaired before immutable initial provider review, with maintained shared-quota/DAG/mapping controls.",
+    "Initial immutable review reproduced separate Git administration inside moving source despite an external checkout. Repaired by binding actual Git/common/object/include dependencies and refusing physical overlap; maintained separate-admin, alternate-store and included-config refusals have fixed-external positives.",
+    "Actual pre-bootstrap resource initialization/move checks passed before full accounting. The explicit2048-entry attempt then correctly refused. Final actual-history checks pass with an explicit4096-entry allowance;no production ceiling was raised."
+  ],
+  "checks": {
+    "driver_review": "pass",
+    "runner_review": "pass",
+    "lint": "pass",
+    "format": "pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "project_validation": "pass",
+    "static_log_identity": {
+      "algorithm": "sha256",
+      "digest": "1c8ecb8bc2e2e851bb6e1ac84e6a1d7682c623b5763413004116f54be6c9c415"
+    },
+    "project_validate_log_identity": {
+      "algorithm": "sha256",
+      "digest": "8e01301a3147ee327498073054a17dd611ea8002b9c063cb2a4e298dce2ac4ac"
+    },
+    "verify": {
+      "exit_code": 1,
+      "result_ok": false,
+      "counts": {
+        "pass": 1,
+        "fail": 1,
+        "skipped": 3
+      },
+      "failure": "project.test_receipt_stale",
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+      },
+      "qualification": "No full-source/integration/main/release green claim."
+    },
+    "final_static_log_identity": {
+      "algorithm": "sha256",
+      "digest": "0d6bed48c901887fd1a55939e5ffa707500e39c1bff26f34909104b8ecc26a91"
+    },
+    "final_project_validate_log_identity": {
+      "algorithm": "sha256",
+      "digest": "a37d99b73afce7f8e0870601ce0709e2768572ece5494898e324b325e52a5138"
+    }
+  },
+  "limits": [
+    "Only recognized initializer producer profiles and canonical persisted Flavor coordinates; unknown producer code, unsafe aliases, quoted alternate paths, missing original blobs/objects and exceeded budgets refuse.",
+    "Local immutable object verification and cooperative currentness, not signed historical authentication or runtime/wheel attestation. Current interpreter files and provider metadata are observed; no noneditable installed/native Windows claim.",
+    "Additional update/import/authored/monorepo metadata owners, full L1, root/shared/initial/custom-wrapper placement, public recovery and installed/native/full-program acceptance remain open.",
+    "Full-source receipt renewal, consolidation, exact-main CI and release are unproven; whole all pending roadmap items goal remains active.",
+    "Helper AST fingerprints use host ast.dump serialization. Cross-Python canonical profile compatibility remains a required qualification step;these source tests do not establish it."
+  ],
+  "actual_original_revision": {
+    "revision": "37991bbf6f3ace535657a92646dedce7752af718",
+    "selected": 2,
+    "passed": 2,
+    "skipped": 0,
+    "seconds": 34.641,
+    "exit_code": 0,
+    "explicit_namespace_budget": {
+      "maximum_files": 1024,
+      "maximum_entries": 4096,
+      "maximum_file_bytes": 4194304,
+      "maximum_total_bytes": 33554432
+    },
+    "maximum_metadata_bytes": 1073741824,
+    "fixture_provider_input_bytes": 609266,
+    "fixture_provider_conservative_metadata_charge": 111119872,
+    "qualification": "Accounting figures,not measuredRSS. Genuine initialization uses verified original resource bytes and compatible trusted current initializer;historical Python never executed.",
+    "script_identity": {
+      "algorithm": "sha256",
+      "digest": "35e334a08360aeaa0d51fdd6f9bc64cdfff4ffd8c1a10388901506bb985e7770"
+    },
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "2f685b261c8554660f2d5541cb7f0b2b01db9ca2980e581a1518f7ac73274080"
+    }
+  },
+  "development_runtime": "3.14.7",
+  "reviewed_helper_pairs": {
+    "_atomic_replace": [
+      "1003828c5bb22454c055fa1413113e9d0706a3f4b9db32e1692c0b0e13b13cd1",
+      "a590432c2bedba4aa985dec20ce2361e7b8ae78c37fc3474c3c10b685b01da59"
+    ],
+    "record_authority_review": [
+      "ffdba4ce16eb9a3b8f66857ebe0337640f3267c165deacdea4fe7fd17b0cc080",
+      "2ac92ee6f9f877e66efe349e39ce1402821f761f840201a612d57563f91166b7"
+    ],
+    "_record_authority_review": [
+      "8cd00d2adcdcc068b899a31336ccdb307b923e448807d679673a4ab6cd36d73f",
+      "2c5d79bca6d4d7aebb6405e836e885bfed1ba05f5262b01c94db7674212a71f7"
+    ],
+    "prepare_native_rewrite_program": [
+      "eaf099b90c2229ce778cfc590f48d937916b69f45f351e21e1a2904c0c451c75",
+      "18a74b961203856717dadb18f1a6f2ddcb4a181fa3dd3e41ea585717b748caaf"
+    ],
+    "record_project_authority_review": [
+      "d4d2cb1c56c3faec64a5cc0e03488aab400b17a3a3a64455f806e73fe6b497ec",
+      "5c63be8302fe8c4d6880a7f9e33c539abba9d72cda5374afc37a9371b6617d7d"
+    ]
+  }
+}

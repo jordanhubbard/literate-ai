@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained-layout development can verify supported historical initializer roles
+  from exact local Git objects without fetching or executing historical code.
+  Unsupported producers, forged later endpoints and changed provider inputs refuse
+  before source movement (#265).
+
 - Retained-layout development joins complete live initializer, source, control and
   independent-child roles before a normal source move, preserving unknown entries
   and refusing changed private state. Historical initializer providers and root
