@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Generated project agent instructions lead to a standard-library bootstrap check
+  before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.

@@ -25,6 +25,7 @@ _IGNORED_DIRECTORIES = frozenset(
         ".ruff_cache",
         ".tox",
         ".venv",
+        ".litai-venv",
         "__pycache__",
         "node_modules",
         "vendor",

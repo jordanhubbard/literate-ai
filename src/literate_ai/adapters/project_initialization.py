@@ -1155,6 +1155,8 @@ _TEMPLATE_FILES = {
     "SKILL.md": "SKILL.md",
     "AGENTS.md": "AGENTS.md",
     "CLAUDE.md": "CLAUDE.md",
+    "scripts/bootstrap_litai.py": "scripts/bootstrap_litai.py",
+    "docs/user/bootstrap.md": "docs/user/bootstrap.md",
     "agents/openai.yaml": "agents/openai.yaml",
     "docs/roadmap/active-work.md": "docs/roadmap/active-work.md",
     "docs/roadmap/release-goals.json": "docs/roadmap/release-goals.json",
@@ -1964,6 +1966,7 @@ _STARTER_DOCS = {
 > **Replace this paragraph** with a one-to-three sentence description of your
 > project: what it is, what it does, and who it is for.
 
+Before running LitAI, follow [project bootstrap](user/bootstrap.md).
 Start with [getting started](user/getting-started.md) for installation and usage.
 See [active work](roadmap/active-work.md) for current development status.
 

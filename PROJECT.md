@@ -115,6 +115,12 @@ development (2026-09-10):
 
 ## Current work
 
+AGENT-BOOTSTRAP-001 prepares generated-project setup for 1.5 under Goal 1.
+The contributor bootstrap route is composed with current main, preserving
+project pins, custom instructions and local-tooling exclusions. Forty-one
+focused bootstrap, agent-entrypoint, inventory and update controls pass locally;
+complete installed and integrated acceptance remain open in the active queue.
+
 WHEEL-PYTHON-BINDING-001 closes a qualification-fixture gap under Goals 1 and 4:
 installed continuation must bind its bytecode oracle and native build to the same
 explicit interpreter even when PATH contains another supported Python. Mixed-runtime
