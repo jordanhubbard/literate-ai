@@ -54,10 +54,45 @@
   },
   "inherited_custody_optimizations_preserved": true,
   "integration": "07ce6cabe6e9d3a07b6d6770b3870c2a5f627984",
+  "native_macos_receiving": {
+    "candidate": "94036ab84e8906fea67acacf7d1dcc4aa86ee9b0",
+    "consumer_scope": "real POSIX Cargo/Rust processes, reviewed patch workspace, original-source retirement/refusal, libtest/custom/excluded targets and runtime/input/permission/binary currentness",
+    "exit_code": 0,
+    "native_positive_observations": [
+      {
+        "admission_wall_seconds": 324.30537537497,
+        "command_count": 16,
+        "full_input_checks": 59
+      }
+    ],
+    "producer_scope": "explicit synthetic existing producer contract fixture",
+    "raw_log_sha256": "6dd6720bdafd8b5417c1e06ed6616bf8fc5086d2c52755d76ff5c047d52e64d5",
+    "release_evidence": false,
+    "reopened_receipts": [
+      {
+        "command_count": 16,
+        "identity": "sha256:e6eec37c3b78cae36e2f6fde5419e52c7892e0b709f318b547550b3484928a40",
+        "targets": {
+          "custom-harness": 1,
+          "excluded": 1,
+          "libtest": 5
+        }
+      }
+    ],
+    "report_sha256": "ea11ae1b52e8072add53b4b785f95b36e9e960b0e7fd371ba25e525c8da3dfa7",
+    "summary": {
+      "executed": 8,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 8,
+      "selected": 8,
+      "skipped": 0
+    }
+  },
   "pending": [
-    "combined focused guards and real native receiving controls",
-    "combined full source and installed qualification",
-    "exact-head CI and resulting-main gates"
+    "complete final combined source and installed qualification",
+    "exact-head CI and resulting-main gates",
+    "genuine provider and complete application receiving remain separate"
   ],
   "producer_evidence": "synthetic contract fixture; genuine producer qualification and cross-host application admission not claimed",
   "provider_critical": {
@@ -74,7 +109,6 @@
     }
   },
   "release_attestation": false,
-  "resource_hold": "Additional native/full gates held at local free fraction near 2 percent while existing source/wheel jobs release their temporary files",
   "schema": "literate-ai/verification-record@1",
   "source_comparisons": [
     {
