@@ -32230,6 +32230,19 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Reviewed guard composition (in progress):** Compose the independently reviewed
+  CUDA attribution repair at `09a7bc7c0`, Codex owned-process cleanup at
+  `ad2550a30`, and telemetry deadline/publication repair at `cb866f11c` through
+  ordinary histories. Preserve the original frozen `79af4dfce` qualification and
+  its exact evidence scope; it does not qualify this larger union. Require exact
+  runtime/schema hash preservation, deliberate union of roadmap and changelog
+  conflicts, renewed supported pins, then complete source and noneditable-wheel
+  acceptance with maintained installed controls before exact-head/main gates.
+  All partial-feature and native platform requirements remain open. The fresh
+  survey retains 68 open issues and 26 open reviews; no scope is deferred. The
+  worktree-location helper refuses the large registered listing; use the explicit
+  user-directed worktree root without relaxing its guard or collecting state.
+
 - **Transport/error integration in progress:** Preserve reviewed PR400 and PR406 runtime bytes and PR407 installed continuation fixture through ordinary histories in [PR #411](https://github.com/jordanhubbard/literate-ai/pull/411) on `integrate/14-transport-errors`, based on landed root-promotion main `274b35f9d`. [Independent composition review](../../verification/transport-error-integration-review.json) confirms only the contributed remote runner and typed error mapping differ from main, both byte-identical to their reviewed historical source. Require fresh complete source/noneditable wheel, installed controls and exact-head/resulting-main gates. CUDA attribution repair remains required separately in draft PR410 with independent source review pending; no release goal is deferred.
 
 - **Current Linux batch qualification:** [Sanitized source/installed proof](../../verification/transport-error-integration-linux.json) binds source `c7a8d308b`, 2,780 selected cases (2,680 passed, 100 declared skips, no failed/known-failed), all raw worker terminal events, the complete noneditable wheel gate and 26 maintained installed controls with zero skips. All 568 imported framework origins are noneditable; checked runtime module bytes match source and archive, distribution identity stays unchanged, and both continuation scenarios preserve historical cache bytes across four admissions, builds and runs. Strict fast gates, 22 documentation tooling methods, four OpenSpec items and 181 rendered diagrams pass. Exact-head CI and resulting-main qualification remain open.
