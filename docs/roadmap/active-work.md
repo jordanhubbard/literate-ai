@@ -32230,6 +32230,29 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Repaired bootstrap evidence admitted:** Independent non-author [admission](../../verification/bootstrap-successor-independent-admission.json)
+  verifies the original source/wheel evidence-owner states and retained hashes,
+  all 3,032 unique source outcomes, 202 macOS and 213 Linux installed controls,
+  37 selected source/installed/archive module comparisons and 880 test inputs.
+  Source proof stays at `50a06b692`; wheel/native proof stays at `59b7ee828`.
+  Publish the reviewed successor through PR437 using normal history and require
+  current-head/resulting-main checks. Native Windows, security dispositions,
+  complete public telemetry/retained transactions and all remaining goals stay open.
+
+- **Bootstrap/inventory successor installed proof:** At exact `59b7ee828`, the
+  complete macOS wheel gate passes all 202 applicable maintained installed cases
+  without skips. Its identical artifact passes all 213 native Linux maintained
+  cases, including the repaired bootstrap and AppArmor inventory, with backed
+  job-local temporary files. [Artifact/source-bound evidence](../../verification/bootstrap-successor-wheel-linux-development.json)
+  verifies all 37 unique selected source/installed/archive module identities and
+  exact fixed cases/fixtures/test inputs. The original `50a06b692` [source gate](../../verification/bootstrap-repair-source-macos.json)
+  now passes all 3,032 unique outcomes: 2,929 passed, 103 declared skips and no
+  failed/known-failed cases, with original step and evidence owner terminal passed.
+  Runtime/schema/test subtrees match the successor; the one installed-case literal
+  change has separate exact-artifact acceptance. Source proof retains its original
+  revision. Windows, public-feed and release acceptance remain open, as do current
+  security finding dispositions.
+
 - **Complete maintained inventory successor reviewed:** Independent review
   approves the [single-case literal correction](../../verification/bootstrap-installed-inventory-successor-review.json).
   All 24 class/list pairs match exactly, every earlier subject and case remains,

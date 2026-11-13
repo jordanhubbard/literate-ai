@@ -1,0 +1,362 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Exact successor noneditable wheel and native Linux maintained controls",
+  "candidate_revision": "59b7ee828a0ce37fe6a395c770fa9fdeaba056b9",
+  "wheel_identity": {
+    "algorithm": "sha256",
+    "digest": "4e32a6b027330f46162599f977bef04680c7b971492e68e9d63930988439ec82"
+  },
+  "wheel_bytes": 4334825,
+  "macos": {
+    "whole_wheel_passed": true,
+    "installed_selected": 202,
+    "installed_passed": 202,
+    "installed_skipped": 0,
+    "unique_module_source_archive_comparisons": 37
+  },
+  "linux": {
+    "platform": "linux",
+    "machine": "x86_64",
+    "python": [
+      3,
+      14,
+      7
+    ],
+    "maintained_selected": 213,
+    "maintained_passed": 213,
+    "maintained_skipped": 0,
+    "scope_results": {
+      "bootstrap": {
+        "selected": 10,
+        "passed": 10,
+        "skipped": 0
+      },
+      "bootstrap-posix": {
+        "selected": 3,
+        "passed": 3,
+        "skipped": 0
+      },
+      "diagnostics": {
+        "selected": 31,
+        "passed": 31,
+        "skipped": 0
+      },
+      "runtime-capabilities": {
+        "selected": 9,
+        "passed": 9,
+        "skipped": 0
+      },
+      "cuda-inventory": {
+        "selected": 15,
+        "passed": 15,
+        "skipped": 0
+      },
+      "coding-cli-posix": {
+        "selected": 27,
+        "passed": 27,
+        "skipped": 0
+      },
+      "telemetry-controller": {
+        "selected": 89,
+        "passed": 89,
+        "skipped": 0
+      },
+      "telemetry-linux-processes": {
+        "selected": 11,
+        "passed": 11,
+        "skipped": 0
+      },
+      "retained-layout": {
+        "selected": 18,
+        "passed": 18,
+        "skipped": 0
+      }
+    },
+    "unique_module_source_installed_archive_comparisons": 37,
+    "temporary_files": "fresh controller-owned directory on storage-backed home volume",
+    "source_test_python_members": 880,
+    "full_linux_wheel_gate": false,
+    "result_identity": {
+      "algorithm": "sha256",
+      "digest": "53acf8d5e2d972d1a0a627ec432442446ce870731bcb4a7c896b451cdeb4096a"
+    }
+  },
+  "module_identities": [
+    {
+      "module": "literate_ai.adapters._processes",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.action_command_dispatch",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.action_slots",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.builders._process",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.harness_inventory",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "ee67287daa69ef6dd323b8fbb4f1a27f8af4f03816f814b72e3cc3debd3da2ce"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.lifecycle.standard_bazel",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "97da31699d4818c47df47882f13cfb13f13513c2cba64278edbf874b87de619a"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.lifecycle.standard_cargo",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "d46998af694d08470b2278f7bb8ce105d603014270a203bce1dedede1ea38a78"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.lifecycle.standard_local",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "bc23f41eb250f1ef621f82308e4b87421a606f1563313b51069ef371e9611a78"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.models.coding_cli",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.project_initialization",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "bc574594881ef31c30fe76532ee459cc3ea2159ca5b56f698424a5a1a0a5abd7"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.project_updates",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "a011760559771a097a1b561a0815e5e324e096b42900ab7eccaecda43e2c68e5"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.qualification",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.qualification_capture",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.qualification_diagnostics",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.retained_evidence_migration",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "860450d53d086f3a83a620506bad853adeb41cc4823e11f21ddc333c1a6168ca"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.retained_harness_readmission",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "bb8f56a0313dfeb589fd1ba67d084e6486ec0af4794d80dd0ced17b0a3097b50"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.retained_harness_receipts",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.retained_layout",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.standard_project",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "73abd209b9ddeb8bec82999f3c52fead988ff79068ace341a72a82cb48e0468a"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.worker_telemetry_authentication",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.worker_telemetry_processes",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90"
+      }
+    },
+    {
+      "module": "literate_ai.adapters.worker_telemetry_wire",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518"
+      }
+    },
+    {
+      "module": "literate_ai.application.worker_telemetry_authentication",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee"
+      }
+    },
+    {
+      "module": "literate_ai.application.worker_telemetry_authorization",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe"
+      }
+    },
+    {
+      "module": "literate_ai.application.worker_telemetry_polling",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d"
+      }
+    },
+    {
+      "module": "literate_ai.application.worker_telemetry_reservations",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c"
+      }
+    },
+    {
+      "module": "literate_ai.cli.dispatch",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "4b0412d6dc3021affdb4aa1cb4ba9b77c79c36eac3bfc3b88fe903764c9f0632"
+      }
+    },
+    {
+      "module": "literate_ai.cli.operator",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "b08d50d83a317609d5ad14672b62c497d2c4b94b8a3368df6249ae92ab6dc80f"
+      }
+    },
+    {
+      "module": "literate_ai.cli.source_to_specification",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "e5ba1bda33d77e4d1bb8b5af7a73b154cfb9f82801030a1bafbfca69a8a6169d"
+      }
+    },
+    {
+      "module": "literate_ai.contracts.worker_telemetry",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8"
+      }
+    },
+    {
+      "module": "literate_ai.contracts.worker_telemetry_observations",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed"
+      }
+    },
+    {
+      "module": "literate_ai.project_template.scripts._bootstrap_processes",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c"
+      }
+    },
+    {
+      "module": "literate_ai.project_template.scripts.bootstrap_litai",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "0c4aed31ed610a704f0f1fc78d64989e1f5e87de28935c3a9f82d25ac5575494"
+      }
+    },
+    {
+      "module": "literate_ai.schema_catalog",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9"
+      }
+    },
+    {
+      "module": "literate_ai.source_to_specification.inventory",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da"
+      }
+    },
+    {
+      "module": "literate_ai.source_to_specification.skills",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "17dbd629745fbfdb1f30ad4c1b7bc90db3def4373c91c9264675a4e3a22a67bc"
+      }
+    },
+    {
+      "module": "literate_ai.source_to_specification.static_workflow",
+      "identity": {
+        "algorithm": "sha256",
+        "digest": "4f14ecacbcecfcfa3ccce6f245eb4b24fc6cabfd281b6f5d2d3fefc74921cc5d"
+      }
+    }
+  ],
+  "source_suite": {
+    "proof": "verification/bootstrap-repair-source-macos.json",
+    "tested_revision": "50a06b692fb4d4da5d857ea707dfb04141b49b79",
+    "selected": 3032,
+    "passed": 2929,
+    "declared_skipped": 103,
+    "failed": 0,
+    "known_failed": 0,
+    "exact_source_test_runtime_subtrees_match_successor": true,
+    "installed_harness_delta": "One reviewed literal case addition, separately exercised by exact successor whole-wheel and native cohorts."
+  },
+  "remaining": [
+    "Exact-head and resulting-main integration checks",
+    "Actual native Windows bootstrap/ownership and all other feature/release requirements",
+    "Source-hash scanner finding dispositions remain pending"
+  ],
+  "feature_or_release_complete": false
+}

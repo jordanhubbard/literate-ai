@@ -1,0 +1,45 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Independent admission of repaired bootstrap source, wheel and native Linux development evidence",
+  "decision": "approved at exact recorded scopes",
+  "review_identity": {
+    "algorithm": "sha256",
+    "digest": "112174272081a22bbb86add4b976eddbcbb601438659bd7f3778973f7a29c606"
+  },
+  "reviewed_proofs": {
+    "verification/bootstrap-repair-source-macos.json": {
+      "algorithm": "sha256",
+      "digest": "dfb20c083fe98749594dce5fab251f7d88c525d900395cd2869f9bb6afb6c3ce"
+    },
+    "verification/bootstrap-successor-wheel-linux-development.json": {
+      "algorithm": "sha256",
+      "digest": "d0826b9f5992190ed0154548f2e34ba33eaadc2528d22742d8ff6fdf8d0c9d02"
+    }
+  },
+  "source": {
+    "revision": "50a06b692fb4d4da5d857ea707dfb04141b49b79",
+    "unique_outcomes": 3032,
+    "passed": 2929,
+    "declared_skipped": 103,
+    "failed": 0,
+    "known_failed": 0,
+    "original_step_and_owner_terminal_passed": true
+  },
+  "wheel_and_native": {
+    "revision": "59b7ee828a0ce37fe6a395c770fa9fdeaba056b9",
+    "wheel_sha256": "4e32a6b027330f46162599f977bef04680c7b971492e68e9d63930988439ec82",
+    "wheel_bytes": 4334825,
+    "macos_installed_passed": 202,
+    "linux_installed_passed": 213,
+    "maintained_applicable_skipped": 0,
+    "unique_module_comparisons": 37,
+    "test_python_inputs": 880
+  },
+  "admission_limits": [
+    "Source scope remains50a06b692; successor code/test subtree equality and reviewed installed-literal delta verified",
+    "Mac whole-wheel applicable cases and Linux fixed maintained cohort only; unavailable Windows/other-host cells remain explicit",
+    "No real selected-model/public-feed/full-feature/release attestation",
+    "Scanner findings and exact-head/resulting-main checks remain pending"
+  ],
+  "goal_complete": false
+}
