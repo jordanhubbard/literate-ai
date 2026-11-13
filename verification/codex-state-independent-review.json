@@ -1,0 +1,44 @@
+{
+  "basis": [
+    "Original bounded runner finally retires its original process group/Job owner before reader joins and runtime-context teardown on success, nonzero, timeout, overflow and wait exception. Captured returncode is retained; launcher stdout/stderr assertions pass for exit 0 and 7.",
+    "Peer PR413 integration inspected: task, generation and authentication paths allocate separate private state through bounded invocation; JSON/TOML argument quoting preserves Unicode/space paths, environment/HOME and original budgets; non-Codex paths allocate none.",
+    "POSIX helper/SQLite and RLIMIT_FSIZE controls are actual OS fixtures. Windows Job termination uses existing owner claim/close and repeated-success semantics; source inspected, no native Windows execution rerun."
+  ],
+  "classification": "independent non-author source guard review; no installed/platform/release acceptance",
+  "decision": "approved",
+  "findings": [],
+  "goal": "CODEX-STATE-001",
+  "release_attestation": false,
+  "remaining": [
+    "Complete source and installed/native qualification of exact combined subject",
+    "Native Windows coding CLI Job/private-state lifecycle qualification; existing Job bind/fallback limitations are not repaired by this closing guard",
+    "Real selected Codex model invocation and acceptance; fixtures are not native Codex product evidence",
+    "Exact integrated/resulting-main and remaining CODEX-STATE-001/release requirements"
+  ],
+  "reviewed_head": "dd260929e15ffc3539127441e84f16960c598a66",
+  "reviewer_role": "separate explicitly authorized reviewer agent",
+  "schema": "literate-ai/verification-record@1",
+  "source_sha256": {
+    "src/literate_ai/adapters/_processes.py": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c",
+    "src/literate_ai/adapters/models/coding_cli.py": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5",
+    "tests/critical/test_codex_runtime_state.py": "d547860907f73931ed96df42ca6b12e35a06b6cdf2c7dcb74e1df2db2b3dc20a",
+    "tests/critical/test_coding_cli_generation.py": "b40841aa92d7b0a9178b1ff3c97c9959caeabea8b0919d68e1a6ad8e0905431e",
+    "tests/critical/test_coding_cli_success_cleanup.py": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4"
+  },
+  "supplementary": {
+    "passed": 2,
+    "scope": "Native POSIX output overflow retains coding_cli.output_limit and cleans private state; injected wait RuntimeError reaches new finally, kills actual owned process before private-state removal, propagates original exception and prevents delayed survival marker."
+  },
+  "tests_rerun": {
+    "command_prefix": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src _build/python-envs/roadmap-cx1/bin/python -m unittest",
+    "exit_code": 0,
+    "failed": 0,
+    "modules": [
+      "tests.critical.test_coding_cli_success_cleanup",
+      "tests.critical.test_coding_cli_generation",
+      "tests.critical.test_codex_runtime_state"
+    ],
+    "passed": 26,
+    "skipped": 0
+  }
+}
