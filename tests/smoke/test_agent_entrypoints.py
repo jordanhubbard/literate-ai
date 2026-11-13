@@ -71,6 +71,17 @@ class AgentEntrypointTests(unittest.TestCase):
     def audit(self):
         return audit_agent_entrypoints(load_project(self.root))
 
+    def test_initialized_project_ships_current_optional_host_peer_guidance(self):
+        relative = Path("skills/agent/use-connected-a2a-peers/SKILL.md")
+        canonical = Path(__file__).resolve().parents[2] / relative
+        self.assertEqual((self.root / relative).read_bytes(), canonical.read_bytes())
+        self.assertIn(relative.as_posix(), (self.root / "SKILL.md").read_text())
+        self.assertIn(
+            "use-connected-a2a-peers/SKILL.md",
+            (self.root / "skills/agent/SKILL.md").read_text(),
+        )
+        self.assertTrue(self.audit()["ready"])
+
     def test_initialized_project_is_ready_and_audit_is_read_only_idempotent(self):
         before = self.snapshot()
         first = self.audit()

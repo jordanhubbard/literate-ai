@@ -1410,6 +1410,9 @@ _TEMPLATE_FILES = {
         "skills/agent/package-artifacts/SKILL.md"
     ),
     "skills/agent/prompt-master/SKILL.md": "skills/agent/prompt-master/SKILL.md",
+    "skills/agent/use-connected-a2a-peers/SKILL.md": (
+        "skills/agent/use-connected-a2a-peers/SKILL.md"
+    ),
     "skills/agent/prompt-master/LICENSE.prompt-master": (
         "skills/agent/prompt-master/LICENSE.prompt-master"
     ),

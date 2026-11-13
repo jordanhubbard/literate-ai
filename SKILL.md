@@ -36,6 +36,10 @@ There is no persistent Literate AI daemon. Follow
 are `litai`'s job after journal success; do not re-post envelopes the CLI already
 sent.
 
+When the host exposes A2A peers and delegation is permitted, follow
+`skills/agent/use-connected-a2a-peers/SKILL.md` for optional bounded handoffs.
+The host owns connections and task operations; local work needs no A2A setup.
+
 ## Follow the project flow
 
 1. Follow `skills/agent/track-project-requirements/SKILL.md` then

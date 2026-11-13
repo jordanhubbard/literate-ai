@@ -1,0 +1,42 @@
+{
+  "canonical_skill_admission": "passed using repository configured checks via make skills-check",
+  "canonical_template_bytes_equal": true,
+  "direct_evaluator": {
+    "canonical_gate_separately_passed": true,
+    "reason": "unconfigured direct invocation could not run Gitleaks because the executable is absent; no secret finding reported",
+    "result": "incomplete"
+  },
+  "goal": "A2A-001",
+  "goal_complete": false,
+  "initialized_skill_matches_canonical": true,
+  "live_peer_execution_claimed": false,
+  "ordinary_initializer_completed_without_a2a": true,
+  "pending": [
+    "noneditable public CLI distribution proof",
+    "complete source and exact integrated gates"
+  ],
+  "project_validation_ok": true,
+  "reviewed_guidance_scenarios": [
+    "suitable connected peer with scoped permission",
+    "absent A2A support",
+    "unavailable or unsuitable peer",
+    "prohibited delegation or disclosure",
+    "timeout or unconfirmed cancellation requires terminal ownership or explicit handoff",
+    "completed peer work remains a verified candidate with ordinary acceptance"
+  ],
+  "root_and_parent_routes_present": true,
+  "schema": "literate-ai/verification-record@1",
+  "scope": "actual initialized-project filesystem using maintained source initializer fixture; synthetic origin, no live A2A or installed public CLI acceptance",
+  "skill_sha256": "2255d4b35439002f60373a53ac63f3426107fe1008aafc3ab9ac2ce1f22a0f88",
+  "source_cli_probe": {
+    "code": "project.init_origin_ambiguous",
+    "interpretation": "editable source probe cannot establish public installed acceptance; origin refusal retained without weakening it",
+    "result": "refused"
+  },
+  "tests": {
+    "failed": 0,
+    "passed": 28,
+    "selected": 28,
+    "skipped": 0
+  }
+}

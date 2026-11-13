@@ -94,7 +94,7 @@ goals require a specific unreleased Literate AI capability.
 
 ## Completeness
 
-The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
+The [task-oriented skill catalog](docs/user/skills.md) enumerates all 89 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
 composition lessons and proposed adaptations separately from delivered capabilities.
@@ -254,7 +254,10 @@ A2A agents already connected through the coding-agent host, when delegation is
 permitted. Connections and agent communication remain host/orchestrator-owned;
 Literate AI retains pinned authority, execution authorization, artifact verification,
 and acceptance. The [roadmap item](docs/roadmap/active-work.md#a2a-001-guide-agents-to-use-connected-a2a-peers-without-adding-framework-orchestration)
-is open, with no release assigned or native A2A implementation implied.
+is in development: optional host-peer guidance, template routing and a bounded
+scenario review are authored. Skill admission, real initialized-project distribution
+and integrated qualification remain open; no release is assigned or native A2A
+implementation implied.
 
 LAB-AUTHORITY-001 extends Goals 2 and 4 with an independent, progressively richer
 canonical lab curriculum. Each lab must use actual Components, selected Flavors,

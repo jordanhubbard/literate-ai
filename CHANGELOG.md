@@ -4,6 +4,8 @@
 
 - Generated project agent instructions lead to a standard-library bootstrap check
   before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
+- Add optional guidance for suitable A2A peers already connected through the agent
+  host, preserving delegation limits, tracker ownership and independent acceptance.
 
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test

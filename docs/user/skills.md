@@ -5,9 +5,9 @@ engineering, host preparation, document and presentation generation, instruction
 videos, and operator integrations. Start with the task map below; the complete
 inventory follows it.
 
-This inventory covers the **88 canonical `SKILL.md` files under `skills/`** in the
-1.4.0 development tree reviewed on 2026-10-31: **39 agent**, **38
-specification-to-source**, and **11 source-to-specification** skills. A catalog entry
+This inventory covers the **89 canonical `SKILL.md` files under `skills/`** in the
+development tree, including the optional A2A guidance added on 2026-11-12:
+**40 agent**, **38 specification-to-source**, and **11 source-to-specification** skills. A catalog entry
 means guidance exists, not that every target or workflow has passed native acceptance.
 See [current features](current-features.md) for release posture and
 [skill architecture](../architecture/skills.md) for enforcement details.
@@ -31,7 +31,7 @@ For agent work, begin at the repository's declared onboarding skill (normally
 [root `SKILL.md`](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/SKILL.md)). It routes to the
 [agent parent](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/agent/SKILL.md) and the relevant child. Read every
 ancestor on that child's path; nested children add deltas rather than repeat rules.
-The catalog parent is included in the count, so 39 does not mean 39 independent
+The catalog parent is included in the count, so 40 does not mean 40 independent
 end-user workflows.
 
 Generation skills enter a recipe through exact Component/Flavor pins. They are
@@ -42,7 +42,7 @@ after review. `litai project validate` checks the catalog graph.
 
 These are repository capabilities, separate from skills installed in a particular
 coding assistant. Installing a presentation plugin does not add it to this catalog.
-The root onboarding skill is an additional entry point outside the 88. Packaged
+The root onboarding skill is an additional entry point outside the 89. Packaged
 initialization templates are distribution copies, not extra capabilities; Flavors,
 Components, workflows and routing policies are separate catalog kinds. A derived
 project may inherit a different effective inventory through its declared parents.
@@ -139,6 +139,7 @@ a skill can still contribute to several tasks in the task map.
 
 | Skill | Purpose |
 | --- | --- |
+| [use-connected-a2a-peers](https://github.com/jordanhubbard/literate-ai/blob/main/skills/agent/use-connected-a2a-peers/SKILL.md) | Use suitable already-connected host peers when permitted, with bounded handoffs and independent acceptance; ordinary local work needs no A2A support. |
 | [configure-operator-mcp](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/agent/configure-operator-mcp/SKILL.md) | Discover connected MCPs and maintain the operator-local catalog. |
 | [associate-release-jira](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/agent/associate-release-jira/SKILL.md) | Associate a release with Jira when the connected integration applies. |
 | [ingest-channel-work](https://github.com/jordanhubbard/literate-ai/blob/c093657e8839d2adbcb4858a1195dcec9dd29dcc/skills/agent/ingest-channel-work/SKILL.md) | Admit recipient-addressed channel work into a queue draft. |

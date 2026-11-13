@@ -40,6 +40,10 @@ Follow `skills/agent/configure-operator-mcp/SKILL.md` for the operator catalog;
 are `litai`'s job after journal success; do not re-post envelopes the CLI already
 sent.
 
+When the host exposes A2A peers and delegation is permitted, follow
+`skills/agent/use-connected-a2a-peers/SKILL.md` for optional bounded handoffs.
+The host owns connections and task operations; local work needs no A2A setup.
+
 ## Follow the project flow
 
 1. If `PROJECT.md` exists, treat it as the durable goals record; `docs/` is
