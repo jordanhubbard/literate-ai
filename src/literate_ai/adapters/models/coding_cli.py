@@ -4635,6 +4635,9 @@ def _run_bounded(
         except subprocess.TimeoutExpired:
             returncode = -1
     finally:
+        # A completed launcher may still own helpers and inherited pipe handles.
+        # Retire its process tree before callers remove private provider state.
+        _terminate_process(process, ownership)
         for reader in readers:
             reader.join(timeout=5)
         for _name, (stream, _limit) in streams.items():

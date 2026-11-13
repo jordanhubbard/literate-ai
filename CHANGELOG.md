@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Bounded coding CLI invocations retire descendant helpers before removing private
+  state, retaining the launcher exit code and captured streams (#365).
+
 - Source inventory no longer infers CUDA from NVIDIA copyright/vendor attribution; explicit CUDA source, compiler, headers and runtime/driver API signals remain detectable (#396).
 - Generated project agent instructions lead to a standard-library bootstrap check
   before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
