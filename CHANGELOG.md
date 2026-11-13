@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained harness receipts and Cargo contexts can use freshly readmitted nonroot
+  layouts and their selected wrapper locks; prior receipts stay stale and pending
+  or mismatched layout evidence refuses (#265).
+
 - Retained-layout development can rerun direct harness and wrapper parity at a
   relocated nonroot source location, retaining prior evidence and refusing changed
   layout or pending transaction state; qualified admission remains pending (#265).

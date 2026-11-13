@@ -33761,22 +33761,23 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
-- **Structural renewal and qualified admission (in progress):** The committed
-  nonroot transaction produces `requalification-required` at the selected current
-  location. Structural readmission now binds that actual layout in its exact
-  acknowledged plan, executes fresh direct baseline and wrapper parity, and
-  regenerates the selected current wrapper lock. Prior lift/layout evidence stays
-  intact and the fresh reports record the actual layout, lineage, inventory,
-  source and wrapper binding. Two causal late-pending controls fail the preserved
-  intermediate source; the repaired fifteen-method neighborhood passes without
-  skips, including nine actual-layout renewal controls. Independent re-review
-  approves this exact nonroot renewal scope. [Development evidence](../../verification/retained-layout-structural-renewal-development.json)
-  records this scope and the still-stale full-source receipt. Existing admission
-  continues to refuse even these fresh reports until its consumer is implemented.
-  Next wire qualified receipt/Cargo admission and the remaining scope refresh,
-  native rewrite and monorepo consumers to current selected authority, proving
-  genuine fresh execution and old-evidence refusal. Complete the actual root/shared
-  partition owner and the other placement cells before full feature acceptance.
+- **Structural renewal and qualified admission (in progress):** Genuine nonroot
+  readmission now feeds qualified retained receipts and operation-local Cargo
+  contexts. Match the actual declaration, fresh complete baseline/parity phase
+  source observations, inventory/wrapper bytes and current selected wrapper lock.
+  Bind declaration identity into admission, preserve prior lift evidence, refuse
+  old candidates and pending authority, and keep the live declaration pinned.
+  Close actual bound directories, complete selected pinned inputs, declared source
+  paths and known onboarding/document/skill inputs after all catalog and project
+  authority reads. Independent review approves the exact local POSIX declared-source
+  scope and all fourteen maintained admission methods; the complete affected run
+  is recorded in [development evidence](../../verification/retained-layout-qualified-admission-development.json).
+  The configured full-source receipt remains stale. Candidate files remain
+  historical observations whose promotion separately requires current authority.
+  Next complete structural lookup before admission through source-scope refresh,
+  schema-only migration, native rewrite and monorepo discovery. Then join actual
+  role-owned complete source partitions and finish root/shared/initial/wrapper
+  placement, full public recovery and installed/native/full-program acceptance.
 
 - **Recovery control disposition (source reviewed; internal nonroot scope verified):** Join fresh verified data with
   the actual original/supplemental descriptor owners. Preflight a complete bounded

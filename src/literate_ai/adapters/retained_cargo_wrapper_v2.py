@@ -8,6 +8,7 @@ passed documents, this context's identity and serialized plans grant no rights.
 from __future__ import annotations
 
 import json
+import os
 from contextlib import contextmanager
 from dataclasses import dataclass
 
@@ -21,20 +22,29 @@ from literate_ai.adapters.conversion_authority import (
     FilesystemConversionAuthorityStore,
 )
 from literate_ai.adapters.exclusive_directory import directory_node
+from literate_ai.adapters.harness_tree import _validated_scope
 from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
 from literate_ai.adapters.project_validation import validated_project_authority_identity
+from literate_ai.adapters.repository_refresh import _signature
 from literate_ai.adapters.retained_cargo_review_v2 import RetainedCargoReviewedFilesV2
 from literate_ai.adapters.retained_harness_receipts import (
+    RetainedHarnessReceiptError,
     _implementation_root,
     _load_retained_documents,
+    _qualified_layout,
     _require_qualified_parity,
     _retained_project_authority_observation,
 )
+from literate_ai.adapters.retained_layout import RETAINED_LAYOUT_PATH
+from literate_ai.adapters.retained_layout_partition import _lineage
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.projects import (
     PROJECT_FILENAME,
     PinnedInputClosure,
     ProjectConfigurationStore,
+    documentation_files,
+    source_to_specification_skill_paths,
+    specification_to_source_skill_paths,
 )
 
 _CREATION_KEY = object()
@@ -85,7 +95,7 @@ class RetainedCargoWrapperContextV2:
             self,
             "_inputs",
             PinnedInputClosure(
-                maximum_files=7,
+                maximum_files=8,
                 maximum_file_bytes=16 * 1024**2,
                 maximum_total_bytes=112 * 1024**2,
             ),
@@ -99,6 +109,15 @@ class RetainedCargoWrapperContextV2:
                 documents[name]["bytes"] + b"\n",
             }:
                 raise ValueError("retained.cargo.v2-wrapper-documents-changed")
+        if "layout" in documents:
+            content = self._inputs.pin(
+                root / RETAINED_LAYOUT_PATH, boundary=root, label="retained layout"
+            )
+            if content not in {
+                documents["layout"]["bytes"],
+                documents["layout"]["bytes"] + b"\n",
+            }:
+                raise ValueError("retained.cargo.v2-wrapper-layout-changed")
         self._inputs.pin(
             root / "litai.harness.mk",
             boundary=root,
@@ -124,6 +143,32 @@ class RetainedCargoWrapperContextV2:
                     lock_boundary=ComponentLockStore(catalog.root).storage_root,
                 )
                 for lock, catalog in bindings
+            ),
+        )
+        source_paths, _ = _validated_scope(
+            documents["inventory"]["value"].get("source_scope")
+        )
+        object.__setattr__(
+            self,
+            "_source_paths",
+            tuple(self.implementation / path for path in source_paths),
+        )
+        object.__setattr__(
+            self,
+            "_authority_paths",
+            tuple(
+                dict.fromkeys(
+                    (
+                        reviewed.project.agent_skill,
+                        *documentation_files(reviewed.project),
+                        *specification_to_source_skill_paths(
+                            reviewed.project, validate_catalog=False
+                        ),
+                        *source_to_specification_skill_paths(
+                            reviewed.project, validate_catalog=False
+                        ),
+                    )
+                )
             ),
         )
         source_authority, _ = _retained_project_authority_observation(
@@ -163,9 +208,76 @@ class RetainedCargoWrapperContextV2:
             }
         )
 
+    def _native_paths(self):
+        root = self.reviewed.project.root
+        # Derive the complete selected leaf set from the actual pinned owners,
+        # rather than reconstructing selected workflow/specification paths.
+        return tuple(
+            dict.fromkeys(
+                (
+                    self.implementation,
+                    self.workspace,
+                    *self._source_paths,
+                    *self._authority_paths,
+                    root / RETAINED_LAYOUT_PATH,
+                    root / "litai",
+                    *(root / relative for relative in self.reviewed.document_paths),
+                    *(
+                        path
+                        for closure in (self._inputs, *self._closures)
+                        for path in closure.pinned_paths
+                    ),
+                )
+            )
+        )
+
+    def _native_inputs(self):
+        # Original known native facts close after all payload/catalog reads.
+        # They grant no source exclusion, movement or namespace ownership.
+        paths = self._native_paths()
+        existing_parents = []
+        for parent in dict.fromkeys(path.parent for path in paths):
+            while not os.path.lexists(parent):
+                parent = parent.parent
+            existing_parents.append(parent)
+        parents = tuple(
+            (path, _lineage(path)) for path in dict.fromkeys(existing_parents)
+        )
+        nodes = []
+        for path in paths:
+            try:
+                node = _signature(path)
+            except FileNotFoundError:
+                node = None
+            nodes.append((path, node))
+        return parents, tuple(nodes)
+
+    def _close_native_inputs(self, captured):
+        root = self.reviewed.project.root
+        if os.path.lexists(root / "litai/layout.pending"):
+            raise RetainedHarnessReceiptError(
+                "retained_receipt.layout_pending",
+                "pending relocation requires explicit recovery",
+            )
+        parents, nodes = captured
+        if self._native_paths() != tuple(path for path, _ in nodes):
+            raise ValueError("retained.cargo.v2-wrapper-native-input-set-changed")
+        for path, expected in nodes:
+            try:
+                observed = _signature(path)
+            except FileNotFoundError:
+                observed = None
+            if observed != expected:
+                raise ValueError("retained.cargo.v2-wrapper-native-inputs-changed")
+        if any(_lineage(path) != expected for path, expected in parents):
+            raise ValueError("retained.cargo.v2-wrapper-input-ancestry-changed")
+        if not self._lifetime.active:
+            raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+
     def require_unchanged(self):
         if not self._lifetime.active:
             raise ValueError("retained.cargo.v2-wrapper-operation-ended")
+        native_inputs = self._native_inputs()
         reviewed = self.reviewed
         reviewed.require_unchanged()
         self._inputs.require_unchanged()
@@ -176,10 +288,6 @@ class RetainedCargoWrapperContextV2:
             != reviewed.project.definition
             or FilesystemConversionAuthorityStore(reviewed.project.root).load_optional()
             != self.conversion
-            or validated_project_authority_identity(
-                reviewed.project.root, synchronize_source_intelligence=False
-            )
-            != self.revision
         ):
             raise ValueError("retained.cargo.v2-wrapper-authority-changed")
         for (lock, catalog), closure in zip(self.bindings, self._closures, strict=True):
@@ -205,14 +313,22 @@ class RetainedCargoWrapperContextV2:
             != tuple(lock.identity for lock, _ in self.bindings)
         ):
             raise ValueError("retained.cargo.v2-wrapper-ancestry-or-lock-set-changed")
+        if (
+            validated_project_authority_identity(
+                reviewed.project.root, synchronize_source_intelligence=False
+            )
+            != self.revision
+        ):
+            raise ValueError("retained.cargo.v2-wrapper-authority-changed")
+        self._close_native_inputs(native_inputs)
 
 
 @contextmanager
 def retained_cargo_wrapper_context_v2(reviewed: RetainedCargoReviewedFilesV2):
     """Join current authorities under the lifecycle lock, invalidating on exit.
 
-    The current canonical wrapper coordinate is used directly; custom retained
-    layouts require the separately tracked layout resolver, not an alias shim.
+    Resolve the currently selected wrapper only through qualified layout inputs;
+    the operation additionally retains its declaration in the live file closure.
     """
     if type(reviewed) is not RetainedCargoReviewedFilesV2:
         raise TypeError("retained.cargo.v2-reviewed-files-required")
@@ -237,7 +353,7 @@ def retained_cargo_wrapper_context_v2(reviewed: RetainedCargoReviewedFilesV2):
         documents = _load_retained_documents(project)
         _require_qualified_parity(documents)
         bindings = current_project_component_lock_bindings(project)
-        wrapper = project.root / "components/legacy-project-wrapper"
+        wrapper = _qualified_layout(project, documents).wrapper_root
         selected = tuple((lock, c) for lock, c in bindings if c.root == wrapper)
         if len(selected) != 1:
             raise ValueError("retained.cargo.v2-current-wrapper-lock-required")

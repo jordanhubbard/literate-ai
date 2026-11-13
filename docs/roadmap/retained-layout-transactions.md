@@ -786,3 +786,90 @@ evidence](../../verification/retained-layout-structural-renewal-development.json
 binds the source subjects, immutable report identities and final fifteen-method
 run. Qualified admission and the other L2 consumers remain
 unfinished, and the configured full-source receipt is still stale.
+
+## Qualified receipt and Cargo consumption (in progress)
+
+Consume the exact current declaration through the qualified reader after requiring
+matching baseline/parity layout-readmission bindings. Validate their schema,
+complete passing phase coverage and executed source observations, current inventory,
+wrapper bytes and original lift lineage. Retain the original lift record rather
+than changing its historical state. Bind the declaration into retained admission
+identity, so a prior finalized receipt cannot qualify the relocated authority.
+Require a genuinely current selected wrapper Component lock and refuse root
+admission until its complete partition owner exists.
+
+Resolve source and wrapper roles from actual current structural inputs only after
+that qualification check. Capture original layout/lineage native facts and ancestry,
+reject pending relocation, and close the known inputs after reading them. Retained
+execution still independently captures and qualifies its actual current source;
+the readmission source identity describes the earlier executed baseline. Cargo's
+operation-local context pins the declaration and selects the current wrapper from
+its actual current Component lock/catalog bindings. A custom wrapper fixture is
+independently authored and genuinely locked/readmitted; it does not establish
+public wrapper movement or initial-placement acceptance.
+
+Maintain actual nonroot move, genuine readmission, finalized receipt production
+and promotion, old-candidate refusal, selected Cargo context and live declaration
+change controls. Malformed, missing, mismatched or failed evidence and pending
+transactions must refuse before producing positive outputs. Complete the other
+renewal/discovery consumers and full partition/placement/platform qualification
+before closing ADOPT-RELOCATE-001.
+
+Initial qualified-reader review finds two causal gaps despite the first local
+sixty-four-method pass. Missing direct phase source observations can still produce
+and promote a receipt, and Cargo currentness can return across pending insertion
+at its final actual lock read, before a later context exit refuses. Three maintained
+native regressions fail that source. Require each direct phase's source to equal
+its original executed baseline and each parity baseline-source reference to match
+its corresponding direct phase. Close pending state and original known project,
+review and selected-lock native inputs after every Cargo payload/catalog read.
+Keep source-currentness checks and actual receiving/scratch custody separate.
+
+The next review resolves those two findings but reproduces a distinct physical
+root gap: replacing the implementation directory during Cargo's final lock read
+still lets currentness return. Its last bound implementation/workspace identity
+checks precede that read. Include both actual bound directory nodes and their
+ancestry in the same original native closing set. The maintained directory
+replacement control fails the preserved intermediate source; original nodes and
+all changed source remain intact for the caller.
+
+Finalized candidate files are historical observations whose promotion must still
+check current authority. The existing output span can retain a candidate after
+pending insertion following its last currentness guard. A separate actual
+promotion control refuses such pending authority; this step makes no continuous
+multi-file snapshot or pending-promotion bypass claim.
+
+The final Cargo closing inventory must include the complete actual selected-lock
+pinned input set, including workflow/specification/Flavor content, rather than a
+hand-maintained subset of metadata names. Expose only the existing bounded pinned
+leaf paths as a read-only inspection seam; these paths confer no ownership,
+exclusion, execution or write permission. Continue validating the same actual
+closures, then close their original known native facts after every payload read.
+
+Complete selected-lock pin coverage still leaves the separately declared retained
+source authority outside the closing set. A maintained actual app-file mutation
+at the final lock read fails that intermediate source, independently confirmed.
+Bind the exact validated harness source-scope paths and current project
+onboarding/documentation/skill inputs into the same known native closing pass.
+They describe the authority actually observed; they grant no source exclusions or
+complete receiving namespace custody. Validate current project authority after
+catalog/lock reads, then close original known source and metadata facts without
+further payload reads. Keep the existing source-scope semantics; actual receiving
+still proves its complete namespace and scratch ownership separately.
+
+The final source review approves the exact declared-source admission composition.
+All fourteen maintained admission methods pass independently, with native
+metadata replacement/expiry controls and mutation checks across fifty-three
+actual onboarding/document/forward-skill leaves after final project validation.
+The fixture contains no inverse-skill leaves; no native inverse mutation result
+is claimed. Existing source-policy semantics stay intact, and actual receiving
+still proves complete namespace and scratch custody separately. The [development
+evidence](../../verification/retained-layout-qualified-admission-development.json)
+retains exact subjects, causal failures, immutable review identities and the final
+affected source run. Full L2 and placement/platform/program acceptance remain open.
+
+The complete final nine-module affected scope passes all seventy methods without
+skips in 303.377 seconds, including all fourteen maintained admission methods.
+Driver/runner review, lint/format, repository layout, public export and project
+validation pass. All-gates verification passes authority and honestly fails the
+configured stale full-source receipt; this scoped evidence does not renew it.

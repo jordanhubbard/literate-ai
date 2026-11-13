@@ -854,6 +854,15 @@ class PinnedInputClosure:
     def total_bytes(self) -> int:
         return self._total_bytes
 
+    @property
+    def pinned_paths(self) -> tuple[Path, ...]:
+        """Current bounded leaf names for native closing checks, not ownership.
+
+        This read-only inspection grants no exclusion, write or execution rights.
+        Consumers must still validate this actual closure and its original inputs.
+        """
+        return tuple(dict.fromkeys(entry.path for entry in self._entries.values()))
+
     def to_dict(self) -> dict[str, object]:
         return {
             "schema": "literate-ai/pinned-input-closure@1",
