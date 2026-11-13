@@ -263,3 +263,69 @@ supplementary actual ancestry/absence/preeffect controls. The hundred-and-thirty
 affected neighborhood passes without skips. The [control-role evidence](../../verification/retained-layout-control-roles-development.json)
 binds exact source and preserved historical subjects. Full source custody, journaled
 effects/finalization/recovery and L2/L4-L6 acceptance remain open.
+
+## Joined source-effect owner (in progress)
+
+The internal nonroot directory phase now uses the actual project/Git descriptor
+owner directly. It loads the selected structural layout and actual retained-harness
+Component, typed initialization origin/baseline, current affected authored files
+and optional Component lock. Capture the entire original source with no exclusions,
+including internal aliases, complete hardlink groups, native facts and original
+ancestry. Exact acknowledgement and host-execution authorization bind a private
+journal to this prepared phase. Before any source move, persist the complete
+prepared plan and raw old/prospective layout, lift-and-shift and wrapper bytes,
+then durable exact native intent. Revalidate actual controls and every original
+input after those writes; move exclusively, synchronize both parents and recapture
+original bytes/topology/native custody at the destination.
+
+This phase reports `source-moved-metadata-pending`; normal context exit refuses
+rather than report completed relocation. Old metadata, locks and receipts remain
+unchanged, and every partial or moved endpoint/control remains for the unfinished
+metadata/finalization and explicitly acknowledged recovery owner. Its source-only
+plan is not the eventual complete public relocation plan. Root/shared-prefix source
+partitions, selected wrapper changes, coherent authored publication, normal control
+finalization, fresh recovery and all L2/L4-L6 acceptance remain mandatory. Public
+apply stays guarded. Private framework state is caller-selected and may be inside
+the project, but its actual nodes must remain outside the retained source being moved.
+
+The initial sixteen maintained methods pass, including real source movement,
+executable modes, internal file/directory aliases, complete hardlinks, actual Git
+writer exclusion and unchanged index bytes, fork/context lifetime, stale source,
+foreign destinations and post-effect interruption/namespace retention. Independent
+review identifies three gaps: replaced plan fields can cause an external or
+unrelated source move or bind arbitrary prospective authority; a case-variant
+physical staging alias can enter source before source intent; and prior logical
+layout lineage includes checkout-specific native facts. Five maintained causal
+controls fail the exact reviewed bytes. The repair rederives source/destination and
+prospective roles from current actual inputs, checks physical stage and journal
+descriptors against the full source directory census, and separates portable old
+layout content from local physical custody. All twenty-one maintained methods pass
+on macOS without skips at this intermediate scope. The second review below
+identifies remaining physical/closing defects. This is development source evidence,
+not complete transition or platform/installed/feature/release acceptance.
+
+A second review finds that post-move recapture can bind a replaced higher
+parent while preserving the destination's direct parent/root/file inodes; original
+ancestry must close after the observed record and later logical reads. Physical
+Git administration and same-source directory aliases also bypass lexical overlap
+checks on case-insensitive filesystems. Three additional maintained controls fail
+the intermediate repair. Compare original full source/destination lineages and
+source directories with actual registered Git/common-admin node identities;
+reject a destination whose ancestry contains the original source root. Hold
+original source/destination parent descriptors and ancestry through movement,
+actual descriptor synchronization and final closure. Both original parent
+lineages must still match before returning metadata-pending. All twenty-four
+maintained methods pass on macOS without skips. These repairs do not complete
+any missing root, metadata, finalization, recovery or acceptance phase.
+
+Final independent review reproduces all three intermediate failures and passes
+all twenty-four maintained methods plus four actual descriptor-lifetime/failure
+controls. Original parent descriptors remain valid at native movement and observed
+append, close before return/on synchronization or observation failure, and close
+partial setup without moving source. The hundred-and-fifty-seven-case affected
+neighborhood passes without skips. The [source-phase record](../../verification/retained-layout-source-phase-development.json)
+binds all eighteen exact source/test/helper subjects and both preserved negative
+reviews. This approves only the unfinished internal nonroot source phase. Next
+complete coherent metadata publication, normal journaled finalization and fresh
+acknowledged recovery in this same owner, retaining every root/shared/custom and
+L2/L4-L6 native/installed/full-feature obligation.

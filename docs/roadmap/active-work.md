@@ -33761,6 +33761,30 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Source-effect owner (in progress):** Join actual project/Git descriptor controls
+  to the loaded selected wrapper, structural layout, initialization origin/baseline,
+  exact old/prospective metadata and a complete no-exclusion source capture.
+  An exact acknowledged source phase must durably bind these inputs before native
+  movement, preserve every node/topology and leave an explicit metadata-pending
+  result rather than claim relocation success. Start the nonroot directory phase
+  within the complete owner; root/shared-prefix and wrapper transitions, coherent
+  metadata publication, normal finalization and fresh acknowledged recovery remain
+  mandatory. Sixteen initial methods pass, but independent review reproduces
+  three replaced-plan effect/metadata gaps, a physical staging alias into source
+  and checkout-specific authored lineage. Five causal controls fail reviewed
+  bytes; actual-role/prospective rederivation, descriptor identity overlap and
+  portable content lineage repair them. Second review reproduces changed higher
+  destination ancestry returning metadata-pending; native case aliases also evade
+  lexical Git/source overlap checks. Three further causal controls fail intermediate
+  bytes. Actual directory identity checks and original parent descriptor/ancestry
+  custody through movement, descriptor synchronization and final closure repair
+  these gaps. Approved [source-phase evidence](../../verification/retained-layout-source-phase-development.json)
+  reproduces the three intermediate failures and passes twenty-four methods plus
+  four actual descriptor-lifetime/failure controls. The hundred-and-fifty-seven-case
+  neighborhood passes without skips. Next complete coherent metadata publication,
+  normal journaled control finalization and fresh acknowledged recovery in this
+  same owner. Keep all public apply guards and L2/L4-L6 acceptance open.
+
 - **Actual control-role composition (source reviewed):** Derive lifecycle, manifest and
   conversion writer paths from a loaded original-source project, and Git roles
   from actual registered administration, HEAD/ref/index and effective configuration
