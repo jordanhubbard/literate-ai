@@ -1,0 +1,63 @@
+{
+  "change": "Reobserve the original monotonic clock after current-policy validation, refusing deadline crossing and clock regression without retiring live collector slots.",
+  "classification": "controlled polling-currentness source repair; public feed unfinished",
+  "contributor_base": "6e42b7ef3f4ae5a25cb4e344388dcefb8398a7b3",
+  "controls": [
+    "deadline crossed while loading policy despite still-valid wall-clock expiry",
+    "shorter coalesced participant expiry preserves leader and collector capacity",
+    "monotonic clock regression during validation permanently closes only the observation window",
+    "valid delayed policy reads preserve a fresh ticket"
+  ],
+  "driver_pin_renewed": false,
+  "goal": "WORKER-TELEMETRY-001",
+  "independent_review_claimed": false,
+  "issue": 280,
+  "predecessor": {
+    "added_regression_failures": 3,
+    "added_regression_methods": 3,
+    "log_sha256": "d62ced5e3e096cf338b639c8eb32f82e1af7687ef2a2712ed95381a4c98b3da0",
+    "maintained_polling_passed": 18
+  },
+  "release_attestation": false,
+  "remaining": [
+    "independent review of new closing guard before driver renewal",
+    "complete combined source and installed qualification",
+    "accepted public transport/live-action/native attribution/feed acceptance",
+    "exact integration and remaining roadmap requirements"
+  ],
+  "repaired": {
+    "all_telemetry": {
+      "release_evidence": false,
+      "report_sha256": "534160fffe5ffb09a9d8fcba096e705743a35f4e84efaab3b3b516f941003ebb",
+      "summary": {
+        "executed": 86,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 86,
+        "selected": 97,
+        "skipped": 11
+      }
+    },
+    "polling_final": {
+      "release_evidence": false,
+      "report_sha256": "c78d982671024441dd5437e90cf6881b71914cb9ff1f9995311ee07eb9016c5b",
+      "summary": {
+        "executed": 22,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 22,
+        "selected": 22,
+        "skipped": 0
+      }
+    }
+  },
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Deterministic correlated wall/monotonic clocks and injected current-policy ports; no native transport or genuine live worker telemetry claim",
+  "static_checks": {
+    "driver_review": "held; original contribution and new closing guard require independent review before repin",
+    "lint_format_layout_public_export_runner_documentation": 0,
+    "project_validation": true
+  },
+  "subject_sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d",
+  "test_sha256": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669"
+}

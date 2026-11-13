@@ -12,6 +12,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
+from literate_ai.adapters.worker_telemetry_processes import (
+    register_original_process_launch,
+    retire_original_process_observation,
+)
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
 from .._processes import create_process_tree_ownership
@@ -120,6 +124,7 @@ def run_bounded_process(
             f"{error_prefix}_launch_failed", "Tool process could not start"
         ) from exc
     ownership.bind(process.pid)
+    observation = register_original_process_launch(process)
     assert process.stdout is not None and process.stderr is not None
     streams = {
         "stdout": (process.stdout, stdout_limit_bytes),
@@ -328,6 +333,7 @@ def run_bounded_process(
             )
         return result
     finally:
+        retire_original_process_observation(observation)
         if process.poll() is None or terminate_descendants:
             _terminate_process_tree(process, ownership=ownership)
             with suppress(subprocess.TimeoutExpired):

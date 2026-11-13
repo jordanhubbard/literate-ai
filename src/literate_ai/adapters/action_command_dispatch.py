@@ -29,6 +29,10 @@ from literate_ai.application.action_dag_scheduler import (
     LifecycleActionDispatchRequest,
     LifecycleActionWorker,
 )
+from literate_ai.application.worker_telemetry_reservations import (
+    bind_current_action_reservation,
+    finish_action_reservation_observation,
+)
 from literate_ai.contracts.execution_dispatch import (
     ExecutionWorker,
     ExecutionWorkerCatalog,
@@ -273,6 +277,7 @@ class CommandLifecycleActionDispatcher:
                 )
             self._active[request.identity] = event
         actuated = False
+        reservation_observation = None
         try:
             capability = None
             if self.attested_boundary is None:
@@ -284,6 +289,8 @@ class CommandLifecycleActionDispatcher:
                         "action_dispatch.admission_mismatch",
                         "attested boundary returned no admitted capability",
                     )
+            if mode is None:
+                reservation_observation = bind_current_action_reservation(request)
             content = encode_action_request(
                 request,
                 self.deadline,
@@ -380,6 +387,7 @@ class CommandLifecycleActionDispatcher:
                 # is diagnostic transport evidence, never native-job termination.
             raise
         finally:
+            finish_action_reservation_observation(reservation_observation)
             with self._lock:
                 self._active.pop(request.identity, None)
 
