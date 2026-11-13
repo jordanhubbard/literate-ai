@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout development restores still-owned source and metadata after
+  interruption, preserving foreign files and durable committed layouts;
+  recovery control release and public transaction recovery remain pending (#265).
+
 - Retained-layout development binds recovery to current project/Git control roles
   and reacquires released native controls through acknowledged staged publication;
   source/metadata and public transaction recovery remain pending (#265).

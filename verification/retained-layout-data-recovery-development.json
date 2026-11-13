@@ -1,0 +1,221 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Internal macOS POSIX nonroot source/metadata recovery under actual recovered canonical roles; control disposition and public/full-feature acceptance remain open",
+  "base_revision": "9b591ea7303efe2f85e768eecd6eb4dfc574a2b6",
+  "independent_review": {
+    "decision": "approved at exact internal nonroot POSIX data-restoration and committed-verification scope",
+    "subjects": {
+      "docs/decisions/0057-retained-implementation-layout-and-relocation.md": {
+        "algorithm": "sha256",
+        "digest": "9499d259afd7ee5c173073f298ed1d83cee99b7eeedfc713db637b2dabaf8589"
+      },
+      "src/literate_ai/_cache_lock.py": {
+        "algorithm": "sha256",
+        "digest": "f3f353261783bdee578baa1da632bae7591afbfcd6943bebe010f4e88ebc0838"
+      },
+      "src/literate_ai/adapters/component_markdown.py": {
+        "algorithm": "sha256",
+        "digest": "d9e2a25be349baaab15333e6cfd256a07676104a621e8409bb5f9d99939d753f"
+      },
+      "src/literate_ai/adapters/conversion_authority.py": {
+        "algorithm": "sha256",
+        "digest": "c2512731c646e1242d2e98a616167b17847f1d26399d9eed35f61ec99d43d98e"
+      },
+      "src/literate_ai/adapters/exclusive_entry.py": {
+        "algorithm": "sha256",
+        "digest": "3910b3bf8c6a6391b40b291dd871c70145ff4d7f8dd76202e2e7e5f9913a178f"
+      },
+      "src/literate_ai/adapters/lifecycle_lock.py": {
+        "algorithm": "sha256",
+        "digest": "0075643b160fce0563e42b566ecb63043ba3d7bd4b0ed2988dad0922345706ce"
+      },
+      "src/literate_ai/adapters/repository_refresh.py": {
+        "algorithm": "sha256",
+        "digest": "4aa4b18744e079bd4800181582b69cc31325ac46e88a3717d5e0a79a6f8c3d1f"
+      },
+      "src/literate_ai/adapters/repository_refresh_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "51039fc1defa64b0e8844a35dc40f0ffa89afed6afe48bdee00dd884ff9ddfae"
+      },
+      "src/literate_ai/adapters/retained_cargo_tree_v2.py": {
+        "algorithm": "sha256",
+        "digest": "dbd724a86dbb4a25e172cc89b3907b6bc6c9f31822694ef70fe03c4730c3d3fa"
+      },
+      "src/literate_ai/adapters/retained_layout.py": {
+        "algorithm": "sha256",
+        "digest": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e"
+      },
+      "src/literate_ai/adapters/retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "01c10715e44d9289f899e5d77fa68d4348eb9943590fc5f30e2b51c914738c83"
+      },
+      "src/literate_ai/adapters/retained_layout_control_roles.py": {
+        "algorithm": "sha256",
+        "digest": "89bd0c5982e6ce69dea3cc84aa55f914ccf6e61e11461f4cc4f229c057e656ad"
+      },
+      "src/literate_ai/adapters/retained_layout_git_controls.py": {
+        "algorithm": "sha256",
+        "digest": "927b500d13f6cf5b0f84dfef2899b658deb82fc3062e1b9abe17acdf4b17bf5f"
+      },
+      "src/literate_ai/adapters/retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "25835cf1aed40729989e3e589226a4d45ca22939e70dba2fad5ae3f54338b14b"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "src/literate_ai/adapters/retained_layout_recovery_controls.py": {
+        "algorithm": "sha256",
+        "digest": "f7fe2dbdbeb5eae208f1ca6eabee6c55b5653b62d15c8ab8d393d7e3e5376cfd"
+      },
+      "src/literate_ai/adapters/retained_layout_recovery_data.py": {
+        "algorithm": "sha256",
+        "digest": "040d768c5731d36d680d0a9d8140e44b92c531502ed793d03f9d656edc6ce9c9"
+      },
+      "src/literate_ai/adapters/retained_layout_recovery_roles.py": {
+        "algorithm": "sha256",
+        "digest": "5d69684ee5707a89ad2ee9e378cd9b8fa81652a24019639a745605d22553ca04"
+      },
+      "src/literate_ai/adapters/retained_layout_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "6b008c829a611e4fab35ef22a23c3a2fe80f508480e380b6ec13aa6fbdf5d10b"
+      },
+      "src/literate_ai/adapters/retained_layout_transaction.py": {
+        "algorithm": "sha256",
+        "digest": "b368a566fcd4595c59bec0dc4e554b6b8fb70ab49271e2c0595c1acc7679f266"
+      },
+      "src/literate_ai/adapters/retained_project_inputs.py": {
+        "algorithm": "sha256",
+        "digest": "6dfdcae5128efbb822465e545a406412cc396ae523d29b7cbc74d38ecf672f24"
+      },
+      "src/literate_ai/contracts/project_initialization.py": {
+        "algorithm": "sha256",
+        "digest": "a5eb673cbe41cb249c92e3cf6e5986ca81379c5e6f3048914e9fd4bb79e8a2f9"
+      },
+      "tests/critical/test_retained_layout_finalization.py": {
+        "algorithm": "sha256",
+        "digest": "e42bf8a4d6341a945c1ca123bfc9c5620859d6fc069f80e4d7614fac9b079314"
+      },
+      "tests/critical/test_retained_layout_metadata.py": {
+        "algorithm": "sha256",
+        "digest": "7368b93fbc21ecaf378a8feb8af61bc26b6ee9876d5fc07a09584ffd647a0c53"
+      },
+      "tests/critical/test_retained_layout_recovery_controls.py": {
+        "algorithm": "sha256",
+        "digest": "2442d1d403011904ce85142ba3a88491a4f0548bda267b49474d68c11bda15ba"
+      },
+      "tests/critical/test_retained_layout_recovery_data.py": {
+        "algorithm": "sha256",
+        "digest": "78c3cb2b1507720f16e6dccc570db73ebec452360a8dbe3a1def3dabebcdd8a6"
+      },
+      "tests/critical/test_retained_layout_recovery_roles.py": {
+        "algorithm": "sha256",
+        "digest": "9f6a658cd5d9bdf931acb834f66c9b9546bc41dfa8ac60cf2bad1022f37985b7"
+      },
+      "tests/critical/test_retained_layout_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "261a5e28ac6a3f31986070621a1d0197fc698b7474ca15d782a8a8129fc1ae7e"
+      },
+      "tests/critical/test_retained_layout_transaction.py": {
+        "algorithm": "sha256",
+        "digest": "a3c211a409ec3bcb5bfdb83d090a24aa21587f793ffa1712b73242a18c3925ce"
+      }
+    },
+    "initial_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "7ffb3d536d33b3400b20d40916af590c73ae9ddcf511d7b6bc896246ca092bb3"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "9ac8a45323f1fda657a67e3ea25bc4a7cb9f9dd44b49155263d59fc9733a5fd3"
+    },
+    "resolved_findings": [
+      "LAYOUT-DATA-RECOVERY-DEPENDENCY-CLOSE-001",
+      "LAYOUT-DATA-RECOVERY-CANONICAL-INPUT-CLOSE-002"
+    ]
+  },
+  "native_macos_source_cases": {
+    "initial_methods_passed": 18,
+    "initial_seconds": 37.915,
+    "expanded_methods_passed": 21,
+    "expanded_seconds": 49.358,
+    "original_publication_and_durable_commit_boundaries_passed": 2,
+    "original_publication_and_durable_commit_seconds": 6.416,
+    "causal_late_control_and_producer_methods_failed": 3,
+    "causal_late_control_and_producer_seconds": 6.083,
+    "causal_late_canonical_methods_failed": 2,
+    "causal_late_canonical_seconds": 19.683,
+    "repaired_methods_passed": 28,
+    "repaired_seconds": 83.581,
+    "skipped": 0,
+    "independent_counterexamples_reproduced": 2,
+    "independent_counterexample_replay_seconds": 19.785,
+    "independent_repaired_methods_passed": 28,
+    "independent_repaired_seconds": 82.497,
+    "independent_causal_methods_failed": 5,
+    "independent_causal_seconds": 32.493,
+    "independent_postmove_fsync_cleanup_retry_passed": 1,
+    "independent_postmove_fsync_cleanup_retry_seconds": 3.889,
+    "final_neighborhood_passed": 281,
+    "final_neighborhood_seconds": 398.466,
+    "final_neighborhood_skipped": 0
+  },
+  "actual_behavior": [
+    "Validate immutable original plan/raw payloads against the actual project, initialization, selected wrapper and journal binding; capture complete unexcluded current source and all native endpoints.",
+    "Require exact fresh acknowledgement and host execution before bounded journaled same-filesystem exclusive moves under current canonical project/Git controls.",
+    "Quarantine exact published prospective metadata nodes, restore exact original metadata inodes and bytes, then restore the original complete source directory inode, preserving modes, internal symlinks and hardlinks.",
+    "Preserve unpublished private stages and all foreign, changed or ambiguous data; unresolved classification performs no data or journal mutation.",
+    "Recognize actual effects before their observed records, including interruptions during recovery itself; never revive a saved writer or infer ownership from a success record.",
+    "A durable commit decision forbids rollback even before control release; verify actual committed source and prospective metadata and preserve the proposed layout.",
+    "Close captured canonical Git/project native facts and aggregate actual descriptor/journal/private producer state after final data namespace observations, before every effect."
+  ],
+  "causal_history": [
+    {
+      "initial_source_identity": "sha256:cca7c9d71e453e90435dd81b986b9cb2f3f3364ba23dc0e047fe7bebb34c2df9",
+      "finding": "Late data namespace observation could invalidate journal/private-stage/control or same-byte distinct-inode Git/project facts, allowing one real rollback before later refusal. Five maintained native regressions fail the preserved initial source; independent journal/Git counterexamples confirm the real inode move.",
+      "repair": "Final captured Git/project native closure and aggregate descriptor/producer closure after final data observations; no resampling or adoption of payload bytes."
+    }
+  ],
+  "limits": [
+    "Data verification returns complete=false, qualified=false and controls_released=false; no control normalization, retirement, public transaction recovery or new receipt is claimed.",
+    "This internal owner covers the exact original nonroot source transaction and current actual endpoints. Root/shared/mixed partitions and unsupported/incomplete acquisition frontiers remain open.",
+    "No full-source, installed-wheel, native Windows/Linux, public apply, exact-head CI, integration or release qualification follows from these local tests. Existing full-source receipts remain stale."
+  ],
+  "repository_checks": {
+    "driver_review_record": "supported command passed",
+    "documentation_review_record": "supported command passed",
+    "driver_review": "passed",
+    "runner_review": "passed",
+    "lint": "passed",
+    "format_check": "passed",
+    "repository_layout_check": "passed",
+    "public_export_check": "passed",
+    "project_validate_ok": true,
+    "qualification": "Local authored/source checks only; full-source execution receipt is not renewed."
+  },
+  "affected_test_modules": [
+    "tests.critical.test_exclusive_layout_entry",
+    "tests.critical.test_repository_object_install",
+    "tests.critical.test_repository_refresh_reservations",
+    "tests.critical.test_retained_cargo_materialization",
+    "tests.critical.test_retained_layout_control_publication",
+    "tests.critical.test_retained_layout_control_roles",
+    "tests.critical.test_retained_layout_finalization",
+    "tests.critical.test_retained_layout_journal",
+    "tests.critical.test_retained_layout_metadata",
+    "tests.critical.test_retained_layout_partition",
+    "tests.critical.test_retained_layout_recovery_controls",
+    "tests.critical.test_retained_layout_recovery_roles",
+    "tests.critical.test_retained_layout_reservation_retention",
+    "tests.critical.test_retained_layout_reservations",
+    "tests.critical.test_retained_layout_transaction",
+    "tests.critical.test_write_reservations",
+    "tests.support.fixtures_test_write_reservations",
+    "tests.critical.test_retained_layout_recovery_data"
+  ],
+  "affected_log_identity": {
+    "algorithm": "sha256",
+    "digest": "1926ee1c7861612967a4e4e185ccf7126b4bb06de81ae6eb2d681b5afc78ceaf"
+  }
+}

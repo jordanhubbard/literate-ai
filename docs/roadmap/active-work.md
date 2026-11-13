@@ -33761,6 +33761,24 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Source/metadata recovery effects (source reviewed; control disposition unfinished):** Under the real canonical
+  recovery owner, join the validated original plan/raw payloads with complete
+  current source bytes/topology/native custody and exact public/private metadata
+  endpoints. Require a fresh acknowledgement before journaled exclusive moves.
+  Restore only still-owned pre-commit metadata/source nodes; retain published new
+  files privately instead of deleting them. A durable commit decision forbids
+  rollback and must close over the actual committed outputs. Preserve concurrent
+  or unsupported state with explicit unresolved diagnostics. Native data recovery
+  alone leaves control disposition, public recovery and full-program acceptance
+  pending; do not manufacture receipts or qualification.
+  Approved [data-recovery evidence](../../verification/retained-layout-data-recovery-development.json)
+  binds exact source and independent native closing, post-move cleanup and fresh
+  retry controls. Five causal methods fail the frozen initial source; final
+  Git/project and descriptor/producer closure repairs their pre-effect gap. All
+  two hundred eighty-one affected methods pass without skips, including all
+  twenty-eight data-recovery methods. Next implement the real control-disposition
+  handoff, normalization, native retirement and fresh ordinary project reentry.
+
 - **Recovery canonical-role composition (source reviewed; endpoint recovery unfinished):** Bind the actual current
   project/conversion roles and registered Git inputs under the recovered real
   descriptors. Require a fresh acknowledged proposal before publishing absent
@@ -33779,8 +33797,8 @@ independent review and the complete combined gate from test one.
   evidence](../../verification/retained-layout-recovery-roles-development.json)
   binds exact source and independent native closing/lifetime controls. All
   two hundred fifty-three affected methods pass without skips, including all
-  twenty-nine current role methods. Next classify actual source/metadata endpoints
-  and implement acknowledged exact recovery under these current canonical roles.
+  twenty-nine current role methods. The separate data-recovery evidence above
+  now covers acknowledged source/metadata effects; control disposition remains open.
 
 - **Fresh recovery control ownership (source reviewed; transaction recovery unfinished):** Reopen the bounded journal
   with explicit recovery, classify actual retained marker endpoints and bind that

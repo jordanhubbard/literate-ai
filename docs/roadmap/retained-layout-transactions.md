@@ -624,3 +624,64 @@ final affected scope passes all 253 methods without skips, including twenty-nine
 current canonical role methods. Next classify current source and metadata
 endpoints under this actual owner and implement exact journaled recovery; no
 public, platform, receipt/admission or full-feature acceptance follows here.
+
+## Actual source/metadata recovery effects (source reviewed; control disposition unfinished)
+
+Validate the original canonical source-plan payload against the reopened journal
+binding and actual current project, initialization and selected wrapper authority.
+Independently capture the complete source at either recorded endpoint with no
+exclusions, including internal aliases and complete hardlinks. Re-derive the
+original/prospective metadata relationship from raw before payloads; a saved phase,
+completion record or descriptive path is never sufficient ownership.
+
+Freshly classify actual public and private metadata native nodes against durable
+original/recovery move intents and observed facts. Distinct same-byte inodes,
+changed content/topology/ancestry, ambiguous/missing original nodes and unknown
+current public data report retained unresolved state. Unpublished private stages
+lack native publication provenance: preserve and describe them without adopting,
+renaming or collecting them. Original metadata backups must be the exact original
+nodes with exact bytes. Bind current full observations, private namespaces, parent
+identities, role owner and current journal in the new recovery proposal.
+
+Before each effect require exact current acknowledgement/execution authority,
+finite journal and same-filesystem private state. Persist an exact native intent,
+then exclusively quarantine a still-owned prospective public file or restore its
+still-owned original backup; synchronize the held original parents and close over
+all inputs. Restore the complete source directory only after original metadata is
+coherent. Preserve every quarantined prospective/staged/foreign node and all old
+receipts. Fresh recovery must recognize its own interrupted moves from actual
+endpoints and revalidate original source custody, not resume a saved writer.
+
+A durable committed decision preserves the proposed layout and refuses rollback;
+verify actual source and published metadata instead. Pre-commit restoration and
+committed verification remain explicitly unqualified and control-disposition
+pending. Full control release, incomplete/unsupported frontiers, mixed/root/shared
+layouts and all public/installed/native/release acceptance remain required.
+
+Initial independent native counterexamples reveal that late private-data
+observations can invalidate journal or actual Git inputs before a real rollback
+effect. Five maintained causal methods also cover private control staging,
+pending markers and same-byte project-manifest replacement; all fail the frozen
+initial source. Close captured Git/project native facts and aggregate actual
+descriptor/journal/private-producer dependencies after the final data namespace
+observations. Independent rereview approves the exact repaired source; all
+twenty-eight data methods pass independently, and a real post-move parent-sync
+failure closes all temporary descriptors and permits a fresh verified retry. All
+two hundred eighty-one affected methods pass without skips. The
+[data-recovery evidence](../../verification/retained-layout-data-recovery-development.json)
+retains exact source/review identities and causal results; full recovery remains open.
+
+Next, the recovery disposition owner must consume freshly verified actual data
+under the still-live canonical owner, rather than accept the returned data result
+as authority. Carry the original and supplemental real descriptor owners through
+one explicit handoff; revoke ordinary canonical/data writers before controlled
+marker mutation. Keep one held descriptor per advisory mutex, normalize only
+exact owned tokens through those descriptors and preserve already retired private
+nodes. Journal each exact native disposition before moving its still-owned public
+marker, retain and synchronize the actual parents, and release the pending barrier
+last after a durable restored-or-committed decision. Refresh only facts resulting
+from verified owned effects, not arbitrary current observations. Reopening every
+interruption must classify actual native endpoints and partial advisory bytes
+without reviving an old writer. The original locks must outlive handoff, with
+honest post-decision failure outcomes and no receipt renewal. Public recovery and
+fresh ordinary project reentry require their own maintained acceptance afterward.
