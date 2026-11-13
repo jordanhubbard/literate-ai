@@ -264,7 +264,7 @@ affected neighborhood passes without skips. The [control-role evidence](../../ve
 binds exact source and preserved historical subjects. Full source custody, journaled
 effects/finalization/recovery and L2/L4-L6 acceptance remain open.
 
-## Joined source-effect owner (in progress)
+## Joined source-effect owner (source reviewed; transaction unfinished)
 
 The internal nonroot directory phase now uses the actual project/Git descriptor
 owner directly. It loads the selected structural layout and actual retained-harness
@@ -329,3 +329,50 @@ reviews. This approves only the unfinished internal nonroot source phase. Next
 complete coherent metadata publication, normal journaled finalization and fresh
 acknowledged recovery in this same owner, retaining every root/shared/custom and
 L2/L4-L6 native/installed/full-feature obligation.
+
+## Metadata publication in the same live owner (source reviewed; transaction unfinished)
+
+The acknowledged source owner now stages the exact prospective wrapper,
+lift-and-shift and layout files in a caller-selected empty private directory under
+actual descriptor/ancestry custody. The directory may be in project framework
+state; actual source, stage-pool, journal and registered Git administration identities
+remain forbidden through all physical aliases. Check finite remaining journal
+resources and original single-link owned metadata before staging. Keep original
+metadata modes and group on replacements. Every public effect follows a durable
+intent binding actual known source/destination/parent nodes and payload identity.
+Quarantine exact old nodes, preserve them in private state, and publish prospective
+nodes exclusively through held original parents and descriptor synchronization.
+
+Only actual observed effects advance the current authored-input map. Every step
+revalidates the live canonical project/Git descriptors, complete original moved
+source, exact current metadata, original parent ancestry and complete private
+namespace. The final declaration resolves a structurally current, explicitly
+unqualified layout. Return `metadata-published-finalization-pending`, with
+`qualified: false` and `relocation_complete: false`; normal context exit still
+refuses incomplete state. Old metadata nodes and receipts are retained; no normal
+control finalization, fresh recovery or public success is implemented by this step.
+
+Seventeen metadata methods and twenty-four existing source methods initially pass;
+the hundred-and-seventy-four-case neighborhood passes without skips. Independent
+review reproduces publication adopting a same-byte foreign inode between native
+sampling and content observation, and a quarantine hole adopting a foreign optional
+read. It also reopens verified-retired descriptor slots and uses a cached private
+metadata writer to create a node after its owning phase ends. Three maintained
+causal controls produce two failures and one closed-descriptor error against those
+exact source bytes. Bind the observed signature and final full native facts to the
+known moved node, record explicit quarantine absence, bind private currentness to
+the live phase and invalidate that phase before descriptor teardown. Twenty metadata
+and twenty-four source methods pass after repair. Approved independent re-review
+reproduces the two failures and closed-descriptor error against exact original
+bytes, then passes all forty-four methods and eight unique supplementary controls.
+Actual original descriptors reopened into retired slots cannot revive checks or
+writes; phase invalidation precedes teardown. Post-read native replacement and
+hardlink changes, final public/private/journal drift and actual child writes also
+refuse while retaining all observed nodes. One supplementary journal fixture first
+caught only the inner refusal while the outer owner correctly refused again; only
+that assertion scope was corrected and that one case rerun. The hundred-and-seventy-seven-case
+neighborhood passes without skips. The [metadata record](../../verification/retained-layout-metadata-publication-development.json)
+binds all nineteen source/test/helper subjects and the preserved initial report.
+Next complete normal journaled control finalization/release and fresh acknowledged
+recovery in this same actual owner. All root/shared/nested/wrapper placement and
+L2/L4-L6 native/installed/full-feature acceptance remain required.

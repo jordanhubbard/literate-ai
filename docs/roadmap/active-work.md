@@ -33761,7 +33761,26 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
-- **Source-effect owner (in progress):** Join actual project/Git descriptor controls
+- **Metadata publication (source reviewed; transaction unfinished):** Extend the committed
+  real source phase with exact old/prospective metadata publication under its same
+  project/Git descriptors. Stage known replacement files in caller-selected private
+  framework state, persist native intents before quarantining exact old nodes or
+  publishing replacements, synchronize held original parent descriptors and close
+  every source/control/private/authored input afterward. Retain old nodes and all
+  ambiguous endpoints; publish an explicitly unqualified structural layout only.
+  Seventeen metadata and twenty-four source controls initially pass. Independent
+  review reproduces foreign same-byte inode/current-map adoption and a cached
+  private writer creating a file after phase end through reused descriptor slots.
+  Three causal maintained controls fail old bytes; exact observed native binding,
+  explicit quarantine absence and phase-bound writer lifetime repair them. Twenty
+  metadata plus twenty-four source methods pass. Approved [metadata evidence](../../verification/retained-layout-metadata-publication-development.json)
+  reproduces all three initial regressions and passes forty-four methods plus eight
+  supplementary native/lifetime/closing controls. The hundred-and-seventy-seven-case
+  neighborhood passes without skips. Next implement normal journaled control
+  finalization/release and fresh acknowledged recovery in this same owner. All
+  root/shared/custom/L2/L4-L6 acceptance stays required before public apply.
+
+- **Source-effect owner (source reviewed; transaction unfinished):** Join actual project/Git descriptor controls
   to the loaded selected wrapper, structural layout, initialization origin/baseline,
   exact old/prospective metadata and a complete no-exclusion source capture.
   An exact acknowledged source phase must durably bind these inputs before native

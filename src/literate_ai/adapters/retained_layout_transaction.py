@@ -29,7 +29,7 @@ from .component_markdown import parse_component_markdown
 from .conversion_authority import CONVERSION_AUTHORITY_FILE
 from .exclusive_entry import _from_stat, layout_entry_node, move_layout_entry_exclusive
 from .harness_inventory import HARNESS_WRAPPER_FILENAME
-from .repository_refresh import _file, _signature
+from .repository_refresh import RefreshFileObservation, _file, _signature
 from .repository_refresh_reservations import _custody_wire
 from .retained_cargo_tree_v2 import (
     RetainedCargoInputTreeV2,
@@ -433,14 +433,364 @@ def _close_effect_parents(plan):
         _fail("original effect parent ancestry changed")
 
 
+class _MetadataArea:
+    """Private known nodes retained under the live transaction, never a decoder."""
+
+    def __init__(self, root, descriptor, guard, journal):
+        self.root, self.descriptor, self.guard, self.journal = (
+            root,
+            descriptor,
+            guard,
+            journal,
+        )
+        self.known = {}
+        self.poisoned = False
+        self.pid = os.getpid()
+
+    def names(self):
+        names = set()
+        with os.scandir(self.descriptor) as entries:
+            for entry in entries:
+                if len(names) >= 6:
+                    _fail("private metadata namespace exceeds its bound")
+                names.add(entry.name)
+        return names
+
+    def close_native(self):
+        self.guard()
+        if self.pid != os.getpid() or self.poisoned:
+            _fail("private metadata writer ended or was interrupted")
+        if self.names() != set(self.known):
+            _fail("private metadata namespace changed")
+        for name, (node, _) in self.known.items():
+            if (
+                _from_stat(os.stat(name, dir_fd=self.descriptor, follow_symlinks=False))
+                != node
+            ):
+                _fail("private metadata native node changed")
+        if self.names() != set(self.known):
+            _fail("private metadata namespace changed")
+        self.guard()
+
+    def require_current(self):
+        self.close_native()
+        self.journal.require_current()
+        for name, (node, content) in self.known.items():
+            if (
+                _file(self.root / name).content != content
+                or layout_entry_node(self.root / name) != node
+            ):
+                _fail("private metadata bytes or node changed")
+        self.close_native()
+
+    def stage(self, name, content, old_node):
+        self.require_current()
+        if len(self.known) >= 6 or name in self.known:
+            _fail("private metadata stage occupied")
+        self.poisoned = True
+        fd = os.open(
+            name,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+            0o600,
+            dir_fd=self.descriptor,
+        )
+        try:
+            original = _from_stat(os.fstat(fd))
+            view = memoryview(content)
+            while view:
+                count = os.write(fd, view)
+                if count <= 0:
+                    _fail("private metadata short write")
+                view = view[count:]
+            if old_node is not None:
+                os.fchown(fd, -1, old_node.gid)
+                os.fchmod(fd, stat.S_IMODE(old_node.mode))
+            os.fsync(fd)
+            node = layout_entry_node(self.root / name)
+            if (
+                (node.device, node.inode, node.uid)
+                != (original.device, original.inode, original.uid)
+                or _from_stat(os.fstat(fd)) != node
+                or _file(self.root / name).content != content
+            ):
+                _fail("private metadata stage changed")
+        finally:
+            os.close(fd)
+        os.fsync(self.descriptor)
+        self.known[name] = node, content
+        self.poisoned = False
+        self.require_current()
+
+
 class _SourcePhase:
     def __init__(self, key, plan, controls, pool):
         if key is not _KEY:
             raise TypeError("layout.transaction.live-owner-required")
         self.plan, self.controls, self.pool = plan, controls, pool
         self._pid, self._active, self._attempted = os.getpid(), True, False
+        self._prepared_identity = plan.identity
+        self._moved = None
+        self._current_inputs = plan.inputs
+        self._metadata_attempted = False
+        self._metadata_area = None
+        self._resources = None
+
+    def _live(self):
+        if not self._active or self._pid != os.getpid():
+            _fail("transaction context ended")
+        if self.plan.identity != self._prepared_identity:
+            _fail("live acknowledged transaction plan changed")
+
+    def _require_moved(self):
+        self._live()
+        if self._moved is None:
+            _fail("actual completed source phase required before metadata")
+        tree, native = self._moved
+        _validate_plan_roles(self.plan)
+        if (
+            tree != replace(self.plan.tree, root=self.plan.destination)
+            or tree._physical != self.plan.tree._physical
+        ):
+            _fail("live moved source differs from acknowledged original custody")
+        self.controls.require_initial_inputs()
+        for item in self._current_inputs:
+            if _file(item.path, optional=item.signature is None) != item:
+                _fail("current authored metadata changed")
+        tree.require_unchanged()
+        if self._metadata_area is not None:
+            self._metadata_area.require_current()
+        self.controls.reservations.verify_all()
+        self.plan.git.close_native_inputs(self.controls.reservations)
+        _close_inputs(self._current_inputs)
+        if any(
+            _lineage(path) != ancestry for path, ancestry in self.plan.input_lineages
+        ):
+            _fail("authored metadata parent ancestry changed")
+        self.controls.reservations._close_currentness()
+        if self._metadata_area is not None:
+            self._metadata_area.close_native()
+        _close_tree(tree, native)
+        _close_effect_parents(self.plan)
+        _absence(self.plan.tree.root, self.plan.tree.budget.maximum_entries)
+
+    def _replace_current_input(self, path, observation):
+        self._current_inputs = tuple(
+            observation if item.path == path else item for item in self._current_inputs
+        )
+
+    def publish_metadata(self, private_root):
+        """Publish exact acknowledged bytes, preserving every old/ambiguous node.
+
+        This completes no relocation: normal finalization and fresh recovery are
+        still required. Only this live owner's actual effects advance currentness.
+        """
+        self._live()
+        if self._metadata_attempted:
+            _fail("metadata publication already attempted; explicit recovery required")
+        self._require_moved()
+        self._metadata_attempted = True
+        root = Path(private_root)
+        if not root.is_absolute() or ".." in root.parts:
+            _fail("private metadata root must be direct and absolute")
+        lineage = _lineage(root)
+        node = root.lstat()
+        if node.st_uid != os.geteuid() or stat.S_IMODE(node.st_mode) != 0o700:
+            _fail("private metadata root must be owned and private")
+        forbidden = {
+            (n.device, n.inode) for _, n in self._moved[1] if stat.S_ISDIR(n.mode)
+        }
+        forbidden.update(
+            (n.st_dev, n.st_ino)
+            for n in (
+                os.fstat(self.pool._descriptor),
+                os.fstat(self.pool._journal._descriptor),
+            )
+        )
+        if self.plan.git.files is not None:
+            files = self.plan.git.files
+            captured = dict(files.lineages)
+            forbidden.update(
+                captured[path][-1][1:3]
+                for path in (files.git_directory, files.common_directory)
+            )
+        if forbidden.intersection(record[1:3] for record in lineage):
+            _fail("private metadata overlaps source or another actual producer")
+        descriptor, guard = self._resources.enter_context(_pinned_directory(root))
+        if _lineage(root) != lineage:
+            _fail("private metadata original ancestry changed")
+        parent_current = guard
+
+        def guard():
+            self._live()
+            parent_current()
+
+        area = _MetadataArea(root, descriptor, guard, self.pool._journal)
+        if area.names():
+            _fail("private metadata root is not empty")
+        self._metadata_area = area
+        ordered = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
+        prospective = dict(self.plan.prospective)
+        prepared = []
+        parents = {}
+        for index, name in enumerate(ordered):
+            path = self.plan.root / name
+            old = next(item for item in self._current_inputs if item.path == path)
+            old_node = None if old.signature is None else layout_entry_node(path)
+            if old_node is not None and (
+                old_node.links != 1 or old_node.uid != os.geteuid()
+            ):
+                _fail("metadata replacement requires one owned original node")
+            if path.parent not in parents:
+                parents[path.parent] = self._resources.enter_context(
+                    _pinned_directory(path.parent)
+                )
+            parent = layout_entry_node(path.parent)
+            if parent.device != node.st_dev or (
+                old_node is not None and old_node.device != node.st_dev
+            ):
+                _fail("metadata publication requires one filesystem")
+            prepared.append(
+                (name, old, old_node, parent, f"new-{index}", f"old-{index}")
+            )
+        moves = sum(1 + (old.signature is not None) for _, old, *_ in prepared)
+        journal = self.pool._journal
+        records = 2 * moves + 1
+        if (
+            len(journal._events) + records > journal._budget.maximum_events
+            or sum(len(content) for _, content in journal._known.values())
+            + records * 128 * 1024
+            > journal._budget.maximum_storage_bytes
+        ):
+            _fail("metadata publication exceeds remaining journal budget")
+        for name, _, old_node, _, staged, _ in prepared:
+            area.stage(staged, prospective[name], old_node)
+        self._require_moved()
+        for name, old, old_node, parent, staged, quarantined in prepared:
+            path = self.plan.root / name
+            if old_node is not None:
+                self._metadata_move(
+                    path,
+                    area.root / quarantined,
+                    old_node,
+                    parent,
+                    layout_entry_node(area.root),
+                    parents,
+                    area,
+                    old.content,
+                    quarantine=True,
+                )
+            stage_node, content = area.known[staged]
+            self._metadata_move(
+                area.root / staged,
+                path,
+                stage_node,
+                layout_entry_node(area.root),
+                parent,
+                parents,
+                area,
+                content,
+                quarantine=False,
+            )
+        self._require_moved()
+        current = resolve_structural_layout(
+            self.plan.root, json.loads(_file(self.plan.root / _LIFT).content)
+        )
+        if (
+            current.implementation_root != self.plan.destination
+            or current.wrapper_component != self.plan.layout.wrapper_component
+        ):
+            _fail("published metadata does not resolve the acknowledged layout")
+        journal.append(
+            "layout-metadata-observed",
+            canonical_json_bytes(
+                {
+                    "source_phase_identity": self.plan.identity.uri,
+                    "state": "metadata-published-finalization-pending",
+                    "qualified": False,
+                }
+            ),
+        )
+        self._require_moved()
+        return {
+            "state": "metadata-published-finalization-pending",
+            "relocation_complete": False,
+            "qualified": False,
+        }
+
+    def _metadata_move(
+        self,
+        source,
+        destination,
+        source_node,
+        source_parent,
+        destination_parent,
+        parents,
+        area,
+        content,
+        *,
+        quarantine,
+    ):
+        journal = self.pool._journal
+        kind = "metadata-quarantine" if quarantine else "metadata-publication"
+        data = {
+            "source_phase_identity": self.plan.identity.uri,
+            "source": str(source),
+            "destination": str(destination),
+            "source_node": _custody_wire(source_node),
+            "source_parent": _custody_wire(source_parent),
+            "destination_parent": _custody_wire(destination_parent),
+            "payload_digest": journal.store_payload(content),
+        }
+        journal.append(kind + "-intent", canonical_json_bytes(data))
+        self._require_moved()
+        for _, guard in parents.values():
+            guard()
+        area.guard()
+        _absence(destination, 16_384)
+        move_layout_entry_exclusive(
+            source,
+            destination,
+            expected_source=source_node,
+            expected_source_parent=source_parent,
+            expected_destination_parent=destination_parent,
+        )
+        for fd, guard in (*parents.values(), (area.descriptor, area.guard)):
+            os.fsync(fd)
+            guard()
+        actual = layout_entry_node(destination)
+        observed = _file(destination)
+        if (
+            actual.after_rename() != source_node.after_rename()
+            or observed.content != content
+            or observed.signature
+            != (
+                actual.device,
+                actual.inode,
+                actual.mode,
+                actual.size,
+                actual.modified_ns,
+                actual.changed_ns,
+            )
+            or _from_stat(destination.lstat()) != actual
+            or os.path.lexists(source)
+        ):
+            _fail("metadata endpoint changed after native effect")
+        if quarantine:
+            area.known[destination.name] = actual, content
+            self._replace_current_input(
+                source, RefreshFileObservation(source, None, None)
+            )
+        else:
+            del area.known[source.name]
+            self._replace_current_input(destination, observed)
+        journal.append(
+            kind + "-observed",
+            canonical_json_bytes({**data, "observed_node": _custody_wire(actual)}),
+        )
+        self._require_moved()
 
     def move_source(self):
+        self._live()
         if not self._active or self._pid != os.getpid() or self._attempted:
             _fail("source phase ended or was already attempted")
         self.controls.require_initial_inputs()
@@ -538,11 +888,12 @@ class _SourcePhase:
             if os.path.lexists(self.plan.tree.root):
                 _fail("source endpoint was repopulated after movement")
             _close_effect_parents(self.plan)
-            return {
-                "state": "source-moved-metadata-pending",
-                "source_phase_identity": self.plan.identity.uri,
-                "relocation_complete": False,
-            }
+        self._moved = moved, native
+        return {
+            "state": "source-moved-metadata-pending",
+            "source_phase_identity": self.plan.identity.uri,
+            "relocation_complete": False,
+        }
 
 
 @contextmanager
@@ -576,10 +927,17 @@ def retained_layout_source_phase(
     with acquire_retained_layout_control_roles(plan.root, pool) as controls:
         phase = _SourcePhase(_KEY, plan, controls, pool)
         try:
-            yield phase
-            _fail(
-                "source phase remains incomplete; "
-                "metadata/finalization/recovery owner required"
-            )
+            with ExitStack() as resources:
+                phase._resources = resources
+                try:
+                    yield phase
+                    _fail(
+                        "source phase remains incomplete; "
+                        "metadata/finalization/recovery owner required"
+                    )
+                finally:
+                    # Revoke every borrowed writer before any original FD can
+                    # close and its integer slot can be reused by another owner.
+                    phase._active = False
         finally:
             phase._active = False
