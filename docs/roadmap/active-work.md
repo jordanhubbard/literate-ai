@@ -34418,7 +34418,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#396](https://github.com/jordanhubbard/literate-ai/issues/396)
-- **Next action:** Qualify the integrated contributor PR [#398](https://github.com/jordanhubbard/literate-ai/pull/398) on current main, preserving its original source/test bytes and all predecessor failures; complete installed and resulting-main acceptance before closing this release goal.
+- **Next action:** Complete the remaining SPDX/copyright metadata evidence exclusion, preserve source bytes and genuine CUDA signals, then qualify the integrated contributor PR [#398](https://github.com/jordanhubbard/literate-ai/pull/398) on current main, preserving its original source/test bytes and all predecessor failures; complete installed and resulting-main acceptance before closing this release goal.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5
 - **Direction:** Include newly filed issue396 in 1.4.0: NVIDIA copyright/license attribution alone must not propose a CUDA accelerator requirement for portable source.
@@ -34426,7 +34426,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [x] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
+  - [ ] Remove vendor-only CUDA inference and exclude source attribution metadata from CUDA evidence; retain explicit CUDA source suffix, compiler/toolchain, runtime and driver evidence through bounded inert analysis.
   - [x] Add original portable-source and genuine-CUDA regressions with exact byte/digest preservation and unchanged sensitive, generated, binary and test classification precedence.
 - **Evidence:**
   - [x] Reconcile the retained predecessor failure and source-preserving negative/positive inventory controls with the actual corrected PR398 candidate. A locally qualified development variant remains on `fix/cuda-source-signals`; its passing suite is not contributor-head acceptance.
@@ -34437,6 +34437,11 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 
 - **Integrated source checks:** On the normal current-main merge, both maintained inventory methods and their thirteen input subcases pass through `make python-check`, with zero skips. Detector and regression files are byte-identical to contributor `68049ea1b`; driver, runner and documentation reviews remain current, and strict lint plus formatting pass across all 1,890 files. No new driver repin was needed for the roadmap-only conflict resolution. Confirming integrated CI, installed acceptance and resulting-main qualification remain open.
+
+- **Remaining metadata gap (in progress):** Public inert inventory on the frozen combined candidate still proposes CUDA for a portable Rust identity function when only `SPDX-FileCopyrightText` names a CUDA team or `SPDX-License-Identifier` names a CUDA license. Both original byte digests remain unchanged. Vendor-name removal is implemented, but the metadata-exclusion part of the first implementation checkbox is not yet complete. Add a bounded attribution-only evidence view for CUDA detection, preserving exact original bytes, all other signal/classification behavior and genuine source/compiler/header/API evidence, including code after an inline block-comment close. Keep the frozen batch qualification running unchanged.
+
+- **Metadata correction development evidence:** The separate correction filters recognized SPDX/copyright lines only in the bounded CUDA evidence view, including wrapped C/XML attribution blocks and code following their closing delimiter. Other detectors, classification, prompt-injection observation and source hashes retain original input. New predecessor controls record nine failing metadata assertions before the correction. The final canonical inventory subset passes all 15 selected methods with no failures or skips, including static Rust/Python Flavor derivation, genuine CUDA evidence after attribution, unchanged digests and a bounded long-indentation control. Strict lint and formatting pass for both changed Python files. `verification/cuda-attribution-metadata-development.json` records exact source/report digests. Independent review is still required before trusted-driver pin renewal; full source, noneditable/native and exact integration qualification remain open. No implementation or completion checkbox is advanced by this focused development result.
+
 ### [x] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
 - **Release target:** 1.4.0

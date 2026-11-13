@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- Source inventory no longer infers CUDA from NVIDIA copyright/vendor attribution; explicit CUDA source, compiler, headers and runtime/driver API signals remain detectable (#396).
+- Source inventory excludes recognized SPDX and copyright attribution from CUDA
+  evidence without changing input bytes; explicit CUDA source, compiler, headers
+  and runtime/driver API signals remain detectable (#396).
 - Generated project agent instructions lead to a standard-library bootstrap check
   before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
 - Add optional guidance for suitable A2A peers already connected through the agent
