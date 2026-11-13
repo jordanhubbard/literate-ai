@@ -126,6 +126,7 @@ from literate_ai.contracts import (
     CycloneDxBomBinding,
     CycloneDxLifecycle,
     CycloneDxManagedGraph,
+    DependencyKind,
     StandardBuildEvidence,
     StandardComponentAcceptanceEvidence,
     StandardEntrypointExecutionEvidence,
@@ -950,6 +951,7 @@ class LocalStandardLifecyclePorts:
         python_targets: tuple[StandardPythonTarget, ...] = (),
         python_wheelhouse: Path | None = None,
         provider_environment: Mapping[str, tuple[str, str]] | None = None,
+        execution_plan: ComponentExecutionPlan | None = None,
         dependency_observation: HostDependencyObservation | None = None,
         independent_acceptance_oracle: object | None = None,
         browser_driver: object | None = None,
@@ -957,6 +959,14 @@ class LocalStandardLifecyclePorts:
         shared_cache: BoundSharedCache | None = None,
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
+        if execution_plan is not None and not isinstance(
+            execution_plan, ComponentExecutionPlan
+        ):
+            raise TypeError("runtime capability bindings require an execution plan")
+        self._runtime_execution_plan = execution_plan
+        self._runtime_execution_plan_identity = (
+            None if execution_plan is None else execution_plan.identity
+        )
         required_toolchains = required_command_toolchains(
             contracts, command_phases, npm_targets
         )
@@ -1585,6 +1595,116 @@ class LocalStandardLifecyclePorts:
         }
         return controlled_node_environment(controlled)
 
+    def _checked_runtime_execution_plan(self) -> ComponentExecutionPlan | None:
+        plan = self._runtime_execution_plan
+        if (
+            (plan is None) != (self._runtime_execution_plan_identity is None)
+            or plan is not None
+            and (
+                not isinstance(plan, ComponentExecutionPlan)
+                or plan.identity != self._runtime_execution_plan_identity
+            )
+        ):
+            raise LocalStandardLifecycleError("runtime execution plan changed")
+        return plan
+
+    def _runtime_capability_environment(
+        self,
+        environment: dict[str, str],
+        providers: tuple[ArtifactExport, ...],
+        component_revision: ContentIdentity | None,
+        phase: ComponentCommandPhase | None,
+    ) -> dict[str, str]:
+        """Name existing admitted inputs; this projection grants no authority."""
+        if (
+            phase is not ComponentCommandPhase.EXECUTE
+            or self._checked_runtime_execution_plan() is None
+        ):
+            return environment
+        return self._declared_capability_environment(
+            environment,
+            providers,
+            component_revision,
+            phase,
+            self._provider_environment_values(providers),
+        )
+
+    def _declared_capability_environment(
+        self,
+        environment: dict[str, str],
+        providers: tuple[ArtifactExport, ...],
+        component_revision: ContentIdentity | None,
+        phase: ComponentCommandPhase | None,
+        values: dict[str, str],
+    ) -> dict[str, str]:
+        """Project names only from paths resolved by the owning custody adapter."""
+        if phase is not ComponentCommandPhase.EXECUTE:
+            return environment
+        plan = self._checked_runtime_execution_plan()
+        if plan is None:
+            return environment
+        if component_revision not in {
+            item.component_revision for item in plan.generation_plans
+        }:
+            raise LocalStandardLifecycleError("runtime consumer is outside its plan")
+        # Caller/tool variables cannot impersonate a locked runtime capability.
+        result = {
+            name: value
+            for name, value in environment.items()
+            if not name.casefold().startswith("litai_capability_")
+        }
+        primary_owners = {
+            binding[0]: export_id
+            for export_id, binding in self.provider_environment.items()
+            if binding[0] in values
+        }
+        result.update(
+            (name, value)
+            for name, value in values.items()
+            if name.startswith("LITAI_CAPABILITY_")
+        )
+        aliases: dict[str, tuple[ContentIdentity, str]] = {}
+        seen = set()
+        for action in plan.action_plans:
+            for edge in action.dependency_edges:
+                if (
+                    edge.kind is not DependencyKind.RUNTIME
+                    or edge.consumer_revision != component_revision
+                    or edge.identity in seen
+                ):
+                    continue
+                seen.add(edge.identity)
+                local = edge.capability.rsplit(".", 1)[-1]
+                name = "LITAI_CAPABILITY_" + local.upper().replace("-", "_")
+                if re.fullmatch(r"LITAI_CAPABILITY_[A-Z0-9_]+", name) is None:
+                    raise LocalStandardLifecycleError("capability name is not portable")
+                export_id = self._contract(
+                    edge.provider_revision
+                ).artifact_export.export_id
+                supplied = tuple(
+                    item
+                    for item in providers
+                    if item.component_revision == edge.provider_revision
+                    and item.export_id == export_id
+                )
+                if len(supplied) != 1:
+                    raise LocalStandardLifecycleError("runtime provider is unavailable")
+                binding = self.provider_environment[export_id]
+                value = values[binding[0]]
+                owner = (supplied[0].identity, value)
+                if (
+                    name in aliases
+                    and aliases[name] != owner
+                    or name in primary_owners
+                    and primary_owners[name] != export_id
+                ):
+                    raise LocalStandardLifecycleError(
+                        "runtime capability alias is ambiguous"
+                    )
+                aliases[name] = owner
+                result[name] = value
+        return result
+
     @staticmethod
     def _binding_environment(
         environment: dict[str, str], binding: LocalComponentToolBinding
@@ -1652,6 +1772,8 @@ class LocalStandardLifecyclePorts:
         binding: LocalComponentToolBinding | None = None,
         timeout_seconds: float = 60.0,
         extra_environment: Mapping[str, str] | None = None,
+        component_revision: ContentIdentity | None = None,
+        phase: ComponentCommandPhase | None = None,
     ) -> subprocess.CompletedProcess[str]:
         if not command:
             raise LocalStandardLifecycleError("local command cannot be empty")
@@ -1660,6 +1782,9 @@ class LocalStandardLifecyclePorts:
             environment = self._binding_environment(environment, binding)
         if extra_environment is not None:
             environment.update(extra_environment)
+        environment = self._runtime_capability_environment(
+            environment, providers, component_revision, phase
+        )
         environment = inherited_verbose_environment(environment)
         return self._run_with_environment(
             command, cwd=cwd, environment=environment, timeout_seconds=timeout_seconds
@@ -2422,7 +2547,12 @@ class LocalStandardLifecyclePorts:
                     result.compiler_cache_observation = session.observation
                 else:
                     result = self._run(
-                        argv, cwd=artifact_root, providers=providers, binding=binding
+                        argv,
+                        cwd=artifact_root,
+                        providers=providers,
+                        binding=binding,
+                        component_revision=contract.component_revision,
+                        phase=phase,
                     )
             except LocalStandardLifecycleError as exc:
                 code = {
@@ -2646,6 +2776,10 @@ class LocalStandardLifecyclePorts:
             self._binding_environment(
                 isolated_sdk_environment(self._environment(providers)), binding
             )
+        )
+
+        environment = self._runtime_capability_environment(
+            environment, providers, contract.component_revision, phase
         )
 
         with prepare_native_sdk_execution(
@@ -5076,6 +5210,12 @@ class LocalStandardLifecyclePorts:
         checked = self.clock() if at is None else at
         authority.require_valid(now=checked)
         if (
+            self._checked_runtime_execution_plan() is not None
+            and authority.input_scope.execution_plan_identity
+            != self._runtime_execution_plan_identity
+        ):
+            raise LocalStandardLifecycleError("execution authority names another plan")
+        if (
             tuple(item.identity for item in providers)
             != authority.input_scope.provider_artifact_identities
         ):
@@ -5976,6 +6116,13 @@ class LocalStandardLifecyclePorts:
     ) -> dict[str, str]:
         environment = dict(os.environ)
         environment.pop("PYTHONPATH", None)
+        environment.update(self._packaged_provider_environment_values(custody))
+        return environment
+
+    def _packaged_provider_environment_values(
+        self, custody: LocalProjectPackageCustody
+    ) -> dict[str, str]:
+        environment: dict[str, str] = {}
         for identity_uri, path in custody.artifact_paths.items():
             export = self._exports_by_identity[identity_uri]
             binding = self.provider_environment.get(export.export_id)
@@ -5988,8 +6135,42 @@ class LocalStandardLifecyclePorts:
                 raise LocalStandardLifecycleError(
                     f"packaged provider binding is unavailable: {export.export_id}"
                 )
-            environment[name] = str(target.resolve(strict=True))
+            resolved = target.resolve(strict=True)
+            if custody.root.resolve(strict=True) not in resolved.parents:
+                raise LocalStandardLifecycleError(
+                    "packaged provider binding escaped package custody"
+                )
+            environment[name] = str(resolved)
         return environment
+
+    def _packaged_runtime_environment(
+        self,
+        environment: dict[str, str],
+        custody: LocalProjectPackageCustody,
+        phase: ComponentCommandPhase,
+        package_entrypoint: PackageEntrypoint | None = None,
+    ) -> dict[str, str]:
+        if (
+            phase is not ComponentCommandPhase.EXECUTE
+            or self._checked_runtime_execution_plan() is None
+        ):
+            return environment
+        if local_tree_identity(custody.root) != custody.tree_identity:
+            raise LocalStandardLifecycleError("runtime package custody changed")
+        consumer = (
+            custody.root_plan.component_revision
+            if package_entrypoint is None
+            else self._exports_by_identity[
+                package_entrypoint.source_identity.uri
+            ].component_revision
+        )
+        return self._declared_capability_environment(
+            environment,
+            tuple(self._exports_by_identity[key] for key in custody.artifact_paths),
+            consumer,
+            phase,
+            self._packaged_provider_environment_values(custody),
+        )
 
     def _packaged_argv(
         self,
@@ -6123,6 +6304,9 @@ class LocalStandardLifecyclePorts:
             *extra_arguments,
         )
         environment = _child_process_environment(self._packaged_environment(custody))
+        environment = self._packaged_runtime_environment(
+            environment, custody, phase, package_entrypoint
+        )
         trace_subprocess(command, cwd=custody.root, environment=environment)
         completed = run_with_tree_kill(
             command,
@@ -6339,6 +6523,9 @@ class LocalStandardLifecyclePorts:
                 )
             )
             environment.update(environment_overrides)
+            environment = self._packaged_runtime_environment(
+                environment, custody, phase, package_entrypoint
+            )
             if serve or library_oracle is not None:
                 environment = _child_process_environment(environment)
             with inputs.command_scope(
@@ -6397,6 +6584,12 @@ class LocalStandardLifecyclePorts:
         )
         child_environment = self._packaged_environment(custody)
         child_environment.update(environment)
+        child_environment = self._packaged_runtime_environment(
+            child_environment,
+            custody,
+            ComponentCommandPhase.EXECUTE,
+            package_entrypoint,
+        )
         yield NativeSdkCommandScope(
             command, _child_process_environment(child_environment)
         )
@@ -7599,6 +7792,9 @@ class LocalStandardLifecyclePorts:
                 self._packaged_environment(custody)
             )
             base_environment.update(dict(contract.environment))
+            base_environment = self._packaged_runtime_environment(
+                base_environment, custody, ComponentCommandPhase.EXECUTE, selected
+            )
 
         for case in contract.cases:
             with tempfile.TemporaryDirectory(
@@ -8050,7 +8246,12 @@ class LocalStandardLifecyclePorts:
                         case.arguments_document.decode("utf-8"),
                     ),
                     cwd=custody.root,
-                    env=_child_process_environment(self._packaged_environment(custody)),
+                    env=self._packaged_runtime_environment(
+                        _child_process_environment(self._packaged_environment(custody)),
+                        custody,
+                        ComponentCommandPhase.EXECUTE,
+                        _selected_entrypoint,
+                    ),
                     text=True,
                     timeout=60,
                 )
@@ -8464,6 +8665,9 @@ class LocalStandardLifecyclePorts:
                     )
                 completed.native_sdk_execution_identity = scope.evidence_identity
             else:
+                environment = self._packaged_runtime_environment(
+                    environment, custody, ComponentCommandPhase.EXECUTE
+                )
                 completed = run_with_tree_kill(
                     command,
                     cwd=temporary,
