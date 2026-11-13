@@ -33761,6 +33761,28 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Normal control finalization (source reviewed; recovery unfinished):** Keep one actual canonical pending
+  transaction control under `litai/` until every other control is finalized, so
+  partial advisory normalization cannot admit another apply. Bind its absence in
+  read-only preparation; acquire it through the existing known-node/descriptor
+  producer, with no directory-prefix ownership grant. After exact source/metadata
+  closure and durable release intent, normalize only newly created advisory files
+  in place under their existing OS locks, preserve prior advisory files, quarantine
+  exact native controls and retire pending last. Successful internal nonroot
+  completion remains unqualified; fresh recovery and all other layout/acceptance
+  cells stay required before public apply.
+  Initial independent review requests device preflight before token normalization
+  in both live finalization layers. Both layers now refuse projected foreign devices
+  before token changes. Record the durable unqualified commit decision before
+  pending retirement; classify later errors as committed and commit-append errors
+  as unknown, preserving causes and interrupts. Approved [finalization evidence](../../verification/retained-layout-control-finalization-development.json)
+  binds all exact reviewed source subjects, nineteen independently passing methods
+  and three supplementary native release/interrupt controls. The affected scope
+  passes one hundred ninety-six methods without skips. Seven causal methods
+  reproduce seven failures and one error against frozen initial bytes. Next
+  complete fresh acknowledged recovery under actual new descriptors and current
+  endpoint classification; no broader layout, public or feature acceptance follows.
+
 - **Metadata publication (source reviewed; transaction unfinished):** Extend the committed
   real source phase with exact old/prospective metadata publication under its same
   project/Git descriptors. Stage known replacement files in caller-selected private

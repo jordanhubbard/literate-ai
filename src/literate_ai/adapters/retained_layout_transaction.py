@@ -1,9 +1,8 @@
 """Actual acknowledged source phase of the unfinished layout transaction.
 
 This internal owner joins real project/Git controls, selected-wrapper and original
-source custody before a durable native effect. It deliberately has no successful
-relocation/finalization API yet: moved source remains metadata-pending and every
-control/endpoint is retained for the surrounding transaction and explicit recovery.
+source custody before a durable native effect. Normal nonroot finalization commits
+an unqualified layout; fresh recovery and broader layout cells remain unfinished.
 Public apply stays guarded until those remaining phases and all layout cells exist.
 """
 
@@ -46,6 +45,7 @@ from .retained_layout_control_publication import _pinned_directory
 from .retained_layout_control_roles import (
     _project_roles,
     acquire_retained_layout_control_roles,
+    layout_pending_control_path,
 )
 from .retained_layout_git_controls import LayoutGitControls, observe_layout_git_controls
 from .retained_layout_partition import _lineage
@@ -59,6 +59,20 @@ _BASELINE = ".literate/initialization-baseline.json"
 
 def _fail(message):
     raise ValueError("layout.transaction: " + message)
+
+
+class LayoutCommitOutcomeError(RuntimeError):
+    """A commit decision was attempted; this error never grants recovery rights."""
+
+    qualified = False
+
+    def __init__(self, *, committed):
+        self.committed = committed
+        state = "committed-unqualified" if committed else "commit-outcome-unknown"
+        super().__init__(
+            f"layout.transaction: {state}; finalization or context release failed; "
+            "retain all state for explicit recovery, without automatic rollback"
+        )
 
 
 def _inputs(root):
@@ -201,6 +215,7 @@ class _SourceMovePlan:
     def document(self):
         return {
             "schema": "literate-ai/layout-source-phase@1",
+            "pending_control": str(layout_pending_control_path(self.root)),
             "plan": _custody_wire(self),
         }
 
@@ -347,6 +362,30 @@ def _validate_plan_roles(plan):
     if not plan.destination.is_relative_to(plan.root):
         _fail("source destination is outside the actual project")
     relative = plan.destination.relative_to(plan.root).as_posix()
+
+    def folded(path):
+        return tuple(
+            unicodedata.normalize("NFC", part.casefold()) for part in path.parts
+        )
+
+    for target in _project_roles(plan.root).targets():
+        for path in (plan.tree.root, plan.destination):
+            left, right = folded(path), folded(target.path)
+            if left[: len(right)] == right or right[: len(left)] == left:
+                _fail(
+                    "source/control overlap requires the complete mixed-partition owner"
+                )
+        parent = target.path.parent
+        while not os.path.lexists(parent):
+            parent = parent.parent
+        if plan.tree._physical[0][:2] in {item[1:3] for item in _lineage(parent)}:
+            _fail("actual source/control overlap requires mixed-partition ownership")
+    source_ids = {node[:2] for _, node in plan.tree._physical[1]}
+    if any(
+        item.signature is not None and item.signature[:2] in source_ids
+        for item in plan.inputs
+    ):
+        _fail("actual framework metadata is not original source")
     selected = RetainedLayoutSelection.from_values(
         plan.layout.wrapper_component, relative
     )
@@ -392,6 +431,12 @@ def _validate_plan_roles(plan):
 
 def _require_prepared(plan, reservations=None):
     _validate_plan_roles(plan)
+    pending = layout_pending_control_path(plan.root)
+    if reservations is None:
+        if os.path.lexists(pending):
+            _fail("pending transaction requires explicit recovery")
+    elif not reservations.owns(pending):
+        _fail("actual pending transaction descriptor required")
     if _lineage(plan.tree.root) != plan.source_lineage:
         _fail("prepared source ancestry changed")
     if _inputs(plan.root) != (plan.layout, plan.inputs, plan.input_lineages):
@@ -436,7 +481,7 @@ def _close_effect_parents(plan):
 class _MetadataArea:
     """Private known nodes retained under the live transaction, never a decoder."""
 
-    def __init__(self, root, descriptor, guard, journal):
+    def __init__(self, root, descriptor, guard, journal, maximum_entries=6):
         self.root, self.descriptor, self.guard, self.journal = (
             root,
             descriptor,
@@ -446,12 +491,15 @@ class _MetadataArea:
         self.known = {}
         self.poisoned = False
         self.pid = os.getpid()
+        if type(maximum_entries) is not int or not 1 <= maximum_entries <= 1024:
+            _fail("private state namespace bound is invalid")
+        self.maximum_entries = maximum_entries
 
     def names(self):
         names = set()
         with os.scandir(self.descriptor) as entries:
             for entry in entries:
-                if len(names) >= 6:
+                if len(names) >= self.maximum_entries:
                     _fail("private metadata namespace exceeds its bound")
                 names.add(entry.name)
         return names
@@ -485,7 +533,7 @@ class _MetadataArea:
 
     def stage(self, name, content, old_node):
         self.require_current()
-        if len(self.known) >= 6 or name in self.known:
+        if len(self.known) >= self.maximum_entries or name in self.known:
             _fail("private metadata stage occupied")
         self.poisoned = True
         fd = os.open(
@@ -534,6 +582,12 @@ class _SourcePhase:
         self._metadata_attempted = False
         self._metadata_area = None
         self._resources = None
+        self._metadata_published = False
+        self._finalization_started = False
+        self._commit_attempted = False
+        self._committed = False
+        self._finalized = False
+        self._retirement_area = None
 
     def _live(self):
         if not self._active or self._pid != os.getpid():
@@ -711,10 +765,220 @@ class _SourcePhase:
             ),
         )
         self._require_moved()
+        self._metadata_published = True
         return {
             "state": "metadata-published-finalization-pending",
             "relocation_complete": False,
             "qualified": False,
+        }
+
+    def _require_committed_outputs(self):
+        self._live()
+        if not self._metadata_published or self._moved is None:
+            _fail("actual source and metadata publication required")
+        self.controls.reservations.verify_all()
+        if not self.controls.reservations._locations:
+            self.plan.git.require_unchanged(self.controls.reservations)
+        for item in self._current_inputs:
+            if _file(item.path, optional=item.signature is None) != item:
+                _fail("committed authored metadata changed")
+        for name, content in self.plan.prospective:
+            if _file(self.plan.root / name).content != content:
+                _fail("committed prospective metadata changed")
+        tree, native = self._moved
+        tree.require_unchanged()
+        self._metadata_area.require_current()
+        self._retirement_area.require_current()
+        self.controls.reservations.verify_all()
+        _close_inputs(self._current_inputs)
+        if any(
+            _lineage(path) != ancestry for path, ancestry in self.plan.input_lineages
+        ):
+            _fail("committed authored ancestry changed")
+        self.controls.reservations._close_currentness()
+        self._metadata_area.close_native()
+        self._retirement_area.close_native()
+        _close_tree(tree, native)
+        _close_effect_parents(self.plan)
+        _absence(self.plan.tree.root, self.plan.tree.budget.maximum_entries)
+
+    def _raise_commit_outcome(self, error):
+        if not self._commit_attempted or isinstance(error, LayoutCommitOutcomeError):
+            return
+        committed = True if self._committed else None
+        if isinstance(error, Exception):
+            raise LayoutCommitOutcomeError(committed=committed) from error
+        note = str(LayoutCommitOutcomeError(committed=committed))
+        if note not in getattr(error, "__notes__", ()):
+            error.add_note(note)
+
+    def finalize_controls(self, private_root):
+        """Report errors after the durable commit attempt without implying rollback."""
+        self._live()
+        if self._finalization_started or not self._metadata_published:
+            _fail("actual published metadata and unspent finalization required")
+        try:
+            return self._finalize_controls(private_root)
+        except BaseException as error:
+            self._raise_commit_outcome(error)
+            raise
+
+    def _finalize_controls(self, private_root):
+        """Commit an unqualified nonroot transition and release exact controls.
+
+        Source/recovery/admission rights cannot be obtained from the completion
+        record. Existing advisory inodes/contents stay; new ones become ordinary
+        placeholders under their original held OS locks. Pending retires last.
+        """
+        self._live()
+        if self._finalization_started or not self._metadata_published:
+            _fail("actual published metadata and unspent finalization required")
+        self._require_moved()
+        root = Path(private_root)
+        lineage = _lineage(root)
+        node = root.lstat()
+        if (
+            not root.is_absolute()
+            or ".." in root.parts
+            or node.st_uid != os.geteuid()
+            or stat.S_IMODE(node.st_mode) != 0o700
+        ):
+            _fail("finalization requires actual owned private state")
+        forbidden = {
+            (n.device, n.inode) for _, n in self._moved[1] if stat.S_ISDIR(n.mode)
+        }
+        forbidden.update(
+            (n.st_dev, n.st_ino)
+            for n in (
+                os.fstat(self.pool._descriptor),
+                os.fstat(self.pool._journal._descriptor),
+                os.fstat(self._metadata_area.descriptor),
+            )
+        )
+        if self.plan.git.files is not None:
+            files = self.plan.git.files
+            captured = dict(files.lineages)
+            forbidden.update(
+                captured[path][-1][1:3]
+                for path in (files.git_directory, files.common_directory)
+            )
+        if forbidden.intersection(record[1:3] for record in lineage):
+            _fail("finalization state overlaps another actual producer")
+        descriptor, parent_current = self._resources.enter_context(
+            _pinned_directory(root)
+        )
+        if _lineage(root) != lineage:
+            _fail("finalization state ancestry changed")
+
+        def guard():
+            self._live()
+            parent_current()
+
+        markers = self.controls.reservations._markers
+        devices = {
+            self.plan.source_node.device,
+            os.fstat(self.pool._descriptor).st_dev,
+            os.fstat(self.pool._journal._descriptor).st_dev,
+            os.fstat(self._metadata_area.descriptor).st_dev,
+        }
+        for marker in markers:
+            devices.add(os.fstat(marker.descriptor).st_dev)
+            parent_fd = self.controls.reservations._held.nodes[
+                marker.target.path.parent
+            ][0]
+            devices.add(os.fstat(parent_fd).st_dev)
+        if devices != {node.st_dev} or os.fstat(descriptor).st_dev != node.st_dev:
+            _fail("control retirement requires one filesystem before normalization")
+        area = _MetadataArea(
+            root, descriptor, guard, self.pool._journal, max(1, len(markers))
+        )
+        if area.names():
+            _fail("finalization state is not empty")
+        self._retirement_area = area
+        journal = self.pool._journal
+        actions = sum(not m.target.advisory or m.created for m in markers)
+        required_events = 2 * actions + 4
+        if (
+            len(journal._events) + required_events > journal._budget.maximum_events
+            or sum(len(content) for _, content in journal._known.values())
+            + required_events * 128 * 1024
+            > journal._budget.maximum_storage_bytes
+        ):
+            _fail("control finalization exceeds remaining journal budget")
+        self._require_moved()
+        journal.append(
+            "layout-finalization-intent",
+            canonical_json_bytes(
+                {
+                    "source_phase_identity": self.plan.identity.uri,
+                    "moved_root": _custody_wire(self._moved[1][0][1]),
+                    "metadata": [_custody_wire(item) for item in self._current_inputs],
+                    "retirement_root": str(root),
+                    "qualified": False,
+                }
+            ),
+        )
+        self._require_moved()
+        self._finalization_started = True
+        self.controls.begin_finalization(root)
+        for marker in markers:
+            if marker.target.advisory and marker.created:
+                self._require_committed_outputs()
+                self.controls.reservations.normalize_advisory(marker.target.path)
+                self._require_committed_outputs()
+        pending = layout_pending_control_path(self.plan.root)
+        native = sorted(
+            (m for m in markers if not m.target.advisory),
+            key=lambda m: m.target.path == pending,
+        )
+        if sum(marker.target.path == pending for marker in native) != 1:
+            _fail("exact live pending control required for commit")
+        for marker in native:
+            self._require_committed_outputs()
+            if marker.target.path == pending:
+                # Irreversible logical decision precedes release of the last
+                # recovery barrier. The record grants no future descriptor rights.
+                decision = canonical_json_bytes(
+                    {
+                        "source_phase_identity": self.plan.identity.uri,
+                        "state": "committed-unqualified",
+                        "moved_root": _custody_wire(self._moved[1][0][1]),
+                        "metadata": [
+                            _custody_wire(item) for item in self._current_inputs
+                        ],
+                        "pending_control": str(pending),
+                        "retirement_root": str(root),
+                        "qualified": False,
+                    }
+                )
+                self._commit_attempted = True
+                journal.append("layout-commit-observed", decision)
+                self._committed = True
+                self._require_committed_outputs()
+            destination, actual, content = self.controls.reservations.retire_native(
+                marker.target.path
+            )
+            area.known[destination.name] = actual, content
+            self._require_committed_outputs()
+        self.controls.reservations.verify_finalized()
+        journal.append(
+            "layout-finalization-observed",
+            canonical_json_bytes(
+                {
+                    "source_phase_identity": self.plan.identity.uri,
+                    "state": "committed-unqualified",
+                    "qualified": False,
+                }
+            ),
+        )
+        self._require_committed_outputs()
+        self.controls.reservations.finish_finalization()
+        self._finalized = True
+        return {
+            "state": "committed-unqualified",
+            "qualified": False,
+            "internal_transition_complete": True,
+            "feature_complete": False,
         }
 
     def _metadata_move(
@@ -924,20 +1188,30 @@ def retained_layout_source_phase(
     ):
         _fail("private journal/stages overlap retained source")
     _require_prepared(plan)
-    with acquire_retained_layout_control_roles(plan.root, pool) as controls:
-        phase = _SourcePhase(_KEY, plan, controls, pool)
-        try:
-            with ExitStack() as resources:
-                phase._resources = resources
-                try:
-                    yield phase
-                    _fail(
-                        "source phase remains incomplete; "
-                        "metadata/finalization/recovery owner required"
-                    )
-                finally:
-                    # Revoke every borrowed writer before any original FD can
-                    # close and its integer slot can be reused by another owner.
-                    phase._active = False
-        finally:
-            phase._active = False
+    phase = None
+    try:
+        with acquire_retained_layout_control_roles(plan.root, pool) as controls:
+            phase = _SourcePhase(_KEY, plan, controls, pool)
+            try:
+                with ExitStack() as resources:
+                    phase._resources = resources
+                    try:
+                        yield phase
+                        if phase._finalized:
+                            phase._require_committed_outputs()
+                            phase.controls.reservations.verify_finalized()
+                        else:
+                            _fail(
+                                "source phase remains incomplete; "
+                                "metadata/finalization/recovery owner required"
+                            )
+                    finally:
+                        # Revoke every borrowed writer before any original FD can
+                        # close and its integer slot can be reused by another owner.
+                        phase._active = False
+            finally:
+                phase._active = False
+    except BaseException as error:
+        if phase is not None:
+            phase._raise_commit_outcome(error)
+        raise

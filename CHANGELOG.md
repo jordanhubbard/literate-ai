@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout development adds normal control handoff with a durable,
+  unqualified commit decision and explicit post-commit error outcomes; public
+  relocation and fresh recovery remain pending (#265).
+
 - Add exclusive native entry movement for retained-layout transactions, preserving
   nodes and retaining closing conflicts for explicit recovery (#265).
 

@@ -376,3 +376,85 @@ binds all nineteen source/test/helper subjects and the preserved initial report.
 Next complete normal journaled control finalization/release and fresh acknowledged
 recovery in this same actual owner. All root/shared/nested/wrapper placement and
 L2/L4-L6 native/installed/full-feature acceptance remain required.
+
+
+## Normal control finalization (source reviewed; recovery unfinished)
+
+Derive one exact nonadvisory `litai/layout.pending` control from the loaded project
+and acquire it with the same real staged descriptor owner as the canonical
+project/Git controls. Read-only preparation binds its path and absence; a pending
+or foreign occupant refuses a new transaction. Only the live actual descriptor
+can satisfy that control during the current source phase. This grants no ownership
+of `litai/` or any shared ancestor. Source may not swallow actual canonical control
+or framework metadata roles, including physical/case aliases; the complete mixed
+partition owner remains required for those layouts.
+
+After real source and metadata publication, persist a bounded finalization intent
+and reclose all current outputs before releasing controls. Normalize only newly
+created advisory files to a NUL placeholder on their original held descriptor and
+inode; preserve prior advisory contents. Hold their actual OS mutexes until the
+outer context exits. Quarantine exact native Git controls without deletion or
+replacement, synchronizing held original parents. Retire the actual pending
+control last. Before any normalization, both the source finalizer and actual
+reservation owner compare retirement state with the held control/parent, pool and
+journal devices. A projected foreign device refuses with every token unchanged;
+this controlled fixture does not establish actual mounted cross-volume acceptance.
+Interrupted pre-commit writes or moves retain every node and pending state for
+explicit fresh recovery, rather than treating a shortened token as a new lease.
+
+After normalizing advisories and retiring non-pending native controls, reclose the
+actual source, authored metadata and private/control state. Durably append
+`layout-commit-observed` before retiring pending: this is the irreversible logical
+commit decision for the already published, explicitly unqualified layout. Pending
+retirement and the final observation record complete control handoff; they do not
+undo that decision. No exception triggers automatic source or metadata rollback.
+Ordinary errors after a returned commit append raise `LayoutCommitOutcomeError`
+with `committed=true`, `qualified=false`, and their original cause, even if pending
+is already absent. Errors during the commit append report `committed=null` (outcome
+unknown), retaining pending for fresh inspection of actual durable records. An
+append may have published its decision before failing; its exception alone proves
+neither commitment nor absence. Preserve interrupts as interrupts with an outcome
+note. The same classification covers output conflicts and owned context-release
+errors after commit. A saved outcome grants no descriptor or recovery authority.
+
+Actual retired descriptor/name/native/byte facts and a complete private retirement
+namespace replace old public-marker locations in the same reservation owner. Old
+role claims stop once finalization begins. Native Git writers can resume after
+handoff; their later index/ref changes are not falsely frozen as transaction input.
+Source and authored outputs remain checked, old metadata backups remain intact,
+and the internal result is `committed-unqualified`. Normal context completion
+requires every actual control disposition; no saved complete flag grants ownership,
+qualification or recovery. Public apply and fresh recovery remain unfinished.
+
+Eight initial native methods pass. An expanded ninety-two-case regression run
+passes ninety-one methods and finds one fixture whose declared source disagrees
+with its old harness wrapper before reaching the intended metadata-role refusal.
+Correct only that fixture alignment. An earlier eighty-one-case run also reported
+one conservative native `layout.move.entry-changed` during control preparation;
+the exact method passes its direct recheck and in the later run. Preserve those
+observations separately from passing scope. Complete independent review, maintained
+finalization and the full affected neighborhood before admitting this source.
+
+Independent initial review requests a same-filesystem preflight in both the source
+finalizer and actual reservation owner. Its controlled retirement-device projection
+reaches real advisory normalization before EXDEV at the initial bytes. Both layers
+now check devices before control changes, with separate maintained causal tests.
+A native late-journal failure also occurs after pending has retired at those bytes;
+the durable decision and explicit post-commit/unknown error outcomes above address
+that ambiguity. Initial review and prior evidence remain immutable; exact repaired
+source review is approved at the limited normal nonroot POSIX scope. All nineteen
+repaired finalizer methods pass independently, with three supplementary native
+release/interrupt controls. All nineteen author methods also pass;
+the affected scope passes one hundred ninety-six methods with no skips (one
+hundred seventy-six critical-module methods plus twenty generic reservation
+methods). Running the seven new causal methods against frozen initial source
+produces seven failures and one error across eight subcases. This is scoped macOS source
+evidence, not full source or installed/native-platform acceptance.
+
+The approved [finalization record](../../verification/retained-layout-control-finalization-development.json)
+binds exact reviewed source/test/helper subjects and preserves initial-review
+identity. It does not extend historic source or artifact qualification. Next
+complete fresh acknowledged recovery with actual new descriptor ownership and
+current endpoint classification, including unknown or committed-but-incomplete
+outcomes; preserve all ambiguous nodes and original receipts. Public guards and
+all broader layout, lifecycle renewal and platform/installed acceptance stay open.

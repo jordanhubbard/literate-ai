@@ -15,6 +15,7 @@ import stat
 import unicodedata
 from contextlib import ExitStack, contextmanager
 from dataclasses import asdict, dataclass
+from pathlib import Path
 from uuid import uuid4
 
 from literate_ai._cache_lock import _acquire
@@ -29,7 +30,12 @@ from ._write_reservations import (
     _OwnedMarker,
     combine_body_and_release_errors,
 )
-from .exclusive_entry import LayoutEntryNode, _from_stat, layout_entry_node
+from .exclusive_entry import (
+    LayoutEntryNode,
+    _from_stat,
+    layout_entry_node,
+    move_layout_entry_exclusive,
+)
 from .repository_orchestration import _read_document
 from .retained_layout_control_publication import _ControlPool
 from .retained_layout_journal import _directory
@@ -207,6 +213,11 @@ class _StagedReservationSet(WriteReservationSet):
         super().__init__(_CREATION_KEY)
         self._pool, self._held, self._receiver = pool, held, os.getpid()
         self._expected = {}
+        self._locations = {}
+        self._normal = set()
+        self._finishing = False
+        self._finalized = False
+        self._retirement_root = None
         # This internal acquisition factory retains even a partial preparation.
         self._retain_for_recovery = True
 
@@ -219,22 +230,23 @@ class _StagedReservationSet(WriteReservationSet):
 
     def _verify_marker(self, marker):
         self._live()
+        path = self._locations.get(marker.target.path, marker.target.path)
         expected = self._expected[marker.target.path]
         if (
             _from_stat(os.fstat(marker.descriptor)) != expected
-            or layout_entry_node(marker.target.path) != expected
+            or layout_entry_node(path) != expected
         ):
             _fail("changed", "staged reservation native identity changed")
         if os.pread(marker.descriptor, len(marker.content) + 1, 0) != marker.content:
             _fail("changed", "staged reservation bytes changed")
         _portable_name(
-            marker.target.path,
-            self._held.nodes[marker.target.path.parent][0],
+            path,
+            self._held.nodes[path.parent][0],
             present=True,
         )
         if (
             _from_stat(os.fstat(marker.descriptor)) != expected
-            or layout_entry_node(marker.target.path) != expected
+            or layout_entry_node(path) != expected
         ):
             _fail("changed", "staged reservation changed during closing observation")
         self._live()
@@ -256,9 +268,10 @@ class _StagedReservationSet(WriteReservationSet):
         # yields. Re-close the real journal/private dependencies afterwards.
         self._pool.require_current()
         for marker in self._markers:
+            path = self._locations.get(marker.target.path, marker.target.path)
             _portable_name(
-                marker.target.path,
-                self._held.nodes[marker.target.path.parent][0],
+                path,
+                self._held.nodes[path.parent][0],
                 present=True,
             )
         self._close_currentness()
@@ -272,16 +285,25 @@ class _StagedReservationSet(WriteReservationSet):
         # reads. Close every held/named native identity after those observations.
         for marker in self._markers:
             expected = self._expected[marker.target.path]
-            parent_fd = self._held.nodes[marker.target.path.parent][0]
-            named = os.stat(
-                marker.target.path.name, dir_fd=parent_fd, follow_symlinks=False
-            )
+            path = self._locations.get(marker.target.path, marker.target.path)
+            parent_fd = self._held.nodes[path.parent][0]
+            named = os.stat(path.name, dir_fd=parent_fd, follow_symlinks=False)
             if (
                 _from_stat(named) != expected
                 or _from_stat(os.fstat(marker.descriptor)) != expected
             ):
                 _fail("changed", "staged reservation set changed during final closure")
         self._close_dependencies()
+        if self._retirement_root is not None:
+            expected_names = {path.name for path in self._locations.values()}
+            with os.scandir(self._held.nodes[self._retirement_root][0]) as entries:
+                names = set()
+                for entry in entries:
+                    if len(names) >= 1024:
+                        _fail("limit", "retired control namespace exceeds its bound")
+                    names.add(entry.name)
+            if names != expected_names:
+                _fail("changed", "retired control namespace changed")
         self._live()
 
     def _close_dependencies(self):
@@ -301,7 +323,177 @@ class _StagedReservationSet(WriteReservationSet):
 
     def owns(self, path):
         self.verify_all()
-        return any(marker.target.path == path for marker in self._markers)
+        return path not in self._locations and any(
+            marker.target.path == path for marker in self._markers
+        )
+
+    def begin_finalization(self, retirement_root):
+        """One-way live control handoff, never a source/commit authorization."""
+        self.verify_all()
+        if self._finishing:
+            _fail("inactive", "control finalization already started")
+        retirement_root = Path(retirement_root)
+        self._held.pin(retirement_root)
+        node = retirement_root.lstat()
+        with os.scandir(self._held.nodes[retirement_root][0]) as entries:
+            occupied = next(entries, None) is not None
+        if (
+            node.st_uid != os.geteuid()
+            or stat.S_IMODE(node.st_mode) != 0o700
+            or occupied
+        ):
+            _fail("changed", "control retirement requires empty owned private state")
+        devices = {
+            os.fstat(self._pool._descriptor).st_dev,
+            os.fstat(self._pool._journal._descriptor).st_dev,
+            os.fstat(self._held.nodes[retirement_root][0]).st_dev,
+        }
+        for marker in self._markers:
+            devices.add(self._expected[marker.target.path].device)
+            devices.add(os.fstat(marker.descriptor).st_dev)
+            devices.add(os.fstat(self._held.nodes[marker.target.path.parent][0]).st_dev)
+        if devices != {node.st_dev}:
+            _fail(
+                "changed",
+                "control retirement requires one filesystem before normalization",
+            )
+        self._pool._journal.append(
+            "control-finalization-intent",
+            canonical_json_bytes(
+                {
+                    "root": str(retirement_root),
+                    "node": _physical_wire(asdict(layout_entry_node(retirement_root))),
+                    "controls": [
+                        {
+                            "path": str(m.target.path),
+                            "node": _physical_wire(
+                                asdict(self._expected[m.target.path])
+                            ),
+                            "advisory": m.target.advisory,
+                            "created": m.created,
+                        }
+                        for m in self._markers
+                    ],
+                }
+            ),
+        )
+        self.verify_all()
+        self._retirement_root = retirement_root
+        self._finishing = True
+
+    def normalize_advisory(self, path):
+        self.verify_all()
+        if not self._finishing or self._finalized:
+            _fail("inactive", "live finalization required")
+        marker = next(m for m in self._markers if m.target.path == path)
+        if not marker.target.advisory or not marker.created or path in self._normal:
+            _fail("changed", "only a newly created live advisory can be normalized")
+        before = self._expected[path]
+        journal = self._pool._journal
+        data = {
+            "path": str(path),
+            "node": _physical_wire(asdict(before)),
+            "before": journal.store_payload(marker.content),
+            "after": journal.store_payload(b"\0"),
+        }
+        journal.append("advisory-normalization-intent", canonical_json_bytes(data))
+        self.verify_all()
+        if os.pwrite(marker.descriptor, b"\0", 0) != 1:
+            _fail("changed", "advisory normalization made no progress")
+        os.ftruncate(marker.descriptor, 1)
+        os.fsync(marker.descriptor)
+        after = _from_stat(os.fstat(marker.descriptor))
+        if (
+            (after.device, after.inode, after.mode, after.links, after.uid, after.gid)
+            != (
+                before.device,
+                before.inode,
+                before.mode,
+                before.links,
+                before.uid,
+                before.gid,
+            )
+            or after.size != 1
+            or os.pread(marker.descriptor, 2, 0) != b"\0"
+            or layout_entry_node(path) != after
+            or _from_stat(os.fstat(marker.descriptor)) != after
+        ):
+            _fail("changed", "normalized advisory native ownership changed")
+        marker.content = b"\0"
+        self._expected[path] = after
+        self._normal.add(path)
+        journal.append(
+            "advisory-normalization-observed",
+            canonical_json_bytes({**data, "node": _physical_wire(asdict(after))}),
+        )
+        self.verify_all()
+
+    def retire_native(self, path):
+        """Quarantine one exact native marker; never delete or replace it."""
+        self.verify_all()
+        if not self._finishing or self._finalized or path in self._locations:
+            _fail("inactive", "live unspent native control required")
+        marker = next(m for m in self._markers if m.target.path == path)
+        if marker.target.advisory:
+            _fail("changed", "advisory mutex inodes must remain in place")
+        destination = self._retirement_root / f"control-{len(self._locations)}"
+        before = self._expected[path]
+        source_parent = layout_entry_node(path.parent)
+        destination_parent = layout_entry_node(destination.parent)
+        data = {
+            "source": str(path),
+            "destination": str(destination),
+            "node": _physical_wire(asdict(before)),
+            "source_parent": _physical_wire(asdict(source_parent)),
+            "destination_parent": _physical_wire(asdict(destination_parent)),
+            "payload": self._pool._journal.store_payload(marker.content),
+        }
+        self._pool._journal.append(
+            "native-control-retirement-intent", canonical_json_bytes(data)
+        )
+        self.verify_all()
+        move_layout_entry_exclusive(
+            path,
+            destination,
+            expected_source=before,
+            expected_source_parent=source_parent,
+            expected_destination_parent=destination_parent,
+        )
+        for parent in (path.parent, destination.parent):
+            os.fsync(self._held.nodes[parent][0])
+        after = _from_stat(os.fstat(marker.descriptor))
+        if (
+            after.after_rename() != before.after_rename()
+            or layout_entry_node(destination) != after
+            or os.pread(marker.descriptor, len(marker.content) + 1, 0) != marker.content
+            or _from_stat(os.fstat(marker.descriptor)) != after
+        ):
+            _fail("changed", "retired native control ownership changed")
+        self._locations[path] = destination
+        self._expected[path] = after
+        self._pool._journal.append(
+            "native-control-retirement-observed",
+            canonical_json_bytes({**data, "node": _physical_wire(asdict(after))}),
+        )
+        self.verify_all()
+        return destination, after, marker.content
+
+    def verify_finalized(self):
+        self.verify_all()
+        if not self._finishing or any(
+            (
+                m.target.advisory
+                and m.created
+                and (m.target.path not in self._normal or m.content != b"\0")
+            )
+            or (not m.target.advisory and m.target.path not in self._locations)
+            for m in self._markers
+        ):
+            _fail("inactive", "actual controls are not fully finalized")
+
+    def finish_finalization(self):
+        self.verify_finalized()
+        self._finalized = True
 
     def owns_directory(self, path):
         self._live()

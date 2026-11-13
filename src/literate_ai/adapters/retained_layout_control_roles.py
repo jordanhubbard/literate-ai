@@ -31,6 +31,11 @@ from .retained_layout_reservations import acquire_staged_layout_reservations
 _KEY = object()
 
 
+def layout_pending_control_path(root):
+    """One exact runtime control, not ownership of its containing directory."""
+    return Path(root) / "litai/layout.pending"
+
+
 def _fail(message):
     raise ValueError("layout.control-roles: " + message)
 
@@ -47,13 +52,18 @@ class _ProjectRoles:
     def targets(self):
         anchor = self.lineage[-1][1:4]
         store = FilesystemConversionAuthorityStore(self.root)
-        return tuple(
+        advisory = tuple(
             WriteReservationTarget(path, self.root, anchor, advisory=True)
             for path in (
                 project_lifecycle_lock_path(self.root),
                 self.root / f".{PROJECT_FILENAME}.write.lock",
                 store.lock_path,
             )
+        )
+        return advisory + (
+            WriteReservationTarget(
+                layout_pending_control_path(self.root), self.root, anchor
+            ),
         )
 
     def require_roles_current(self):
@@ -129,6 +139,12 @@ class _ControlRolesLease:
             pool,
         )
         self._receiver, self._active = os.getpid(), True
+        self._finalizing = False
+
+    def begin_finalization(self, retirement_root):
+        self.require_initial_inputs()
+        self.reservations.begin_finalization(retirement_root)
+        self._finalizing = True
 
     @property
     def identity(self):
@@ -160,7 +176,7 @@ class _ControlRolesLease:
         return self.git.protected_admin_entries
 
     def require_current(self):
-        if not self._active or self._receiver != os.getpid():
+        if not self._active or self._receiver != os.getpid() or self._finalizing:
             _fail("control role context ended")
         self.reservations.verify_all()
         self._seed.require_roles_current()
@@ -201,6 +217,9 @@ def acquire_retained_layout_control_roles(project_root, pool):
         try:
             lease.require_initial_inputs()
             yield lease
-            lease.require_current()
+            if lease._finalizing:
+                owned.verify_finalized()
+            else:
+                lease.require_current()
         finally:
             lease._active = False
