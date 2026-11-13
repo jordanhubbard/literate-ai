@@ -183,3 +183,45 @@ independent re-review passes fifteen methods and five supplementary final mutati
 the ninety-four-case neighborhood passes without skips. The [publication evidence](../../verification/retained-layout-control-publication-development.json)
 binds exact source, unchanged helpers and point-in-time/native proof limits. It
 does not qualify the full transaction, recovery, native Windows or installed flows.
+
+## Acquiring staged reservations (source reviewed)
+
+Join the known-node publisher to the actual descriptor-backed reservation owner.
+Preflight typed target occupancy, parent ancestry, one filesystem and finite
+publication/journal budgets before any public effect. Publish missing parents and
+marker tokens through durable intents; reopen without creation and prove exact
+native nodes and bytes before acquiring advisory locks. Existing advisory files
+remain unchanged; retained tokens and nonadvisory occupancy refuse. Keep original
+parent descriptors and context/process custody through use. Partial and completed
+sets retain controls on exit while attempting every acquired descriptor close; a later
+explicitly journaled release/recovery owner must classify those real nodes anew.
+Target records still do not prove project/conversion/Git/control roles, source
+movement, qualification or recovery authority. Compose those actual owners before
+enabling public apply, and retain every L2/L4-L6 acceptance obligation.
+
+Thirteen actual macOS methods pass, including real canonical lifecycle mutex and
+Git index writer exclusion, partial acquisition, existing advisory preservation,
+same-byte/ancestry conflicts, process lifetime and release faults. Independent review
+finds that final marker reads can admit a changed private stage namespace or journal
+after their earlier validation, including allowing acquisition to yield an active
+owner. Two maintained controls fail the exact original bytes. The repaired fifteen
+methods pass: repeat real dependency currentness after marker reads, then close
+native markers, private namespace, journal metadata and held ancestry without an
+unchecked new payload traversal. Independent owner re-review reproduces both
+original failures and passes all fifteen methods and six supplementary closing
+controls. Its scope does not cover a later-discovered journal lifetime defect.
+
+The staged-owner repair is independently approved within its exact source scope,
+but composition testing finds a separate journal lifetime defect: a forked child's
+inherited context cleanup explicitly unlocks the shared open-file description,
+allowing a competing writer while the parent still reports currentness. Two new
+controls reproduce this against the journal's exact original bytes. Capture the
+acquiring PID; inherited cleanup closes its descriptor copy without unlocking the
+parent's mutex. Both normal and exceptional child cleanup must keep recovery
+contenders blocked until the parent exits. Approved composition re-review reproduces
+both original fork failures, passes all thirty-two journal/owner methods and three
+additional native cleanup/ancestry controls. The hundred-and-eleven-case selected
+neighborhood passes without skips. The [staged-owner evidence](../../verification/retained-layout-staged-reservations-development.json)
+binds exact source, both causal repairs and native proof limits. Complete logical
+role derivation, source effects, journaled finalization/recovery and all remaining
+platform, installed and feature acceptance are still required.

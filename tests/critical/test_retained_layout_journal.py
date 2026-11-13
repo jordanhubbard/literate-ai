@@ -355,3 +355,50 @@ with j.retained_layout_journal(
                     # Fixture cleanup after asserting preservation, not journal cleanup.
                     foreign.unlink()
         self.assertTrue(injected)
+
+    def _fork_cleanup_preserves_parent_mutex(self, *, body_failure):
+        script = """
+import os
+from pathlib import Path
+from literate_ai.adapters import retained_layout_journal as j
+from literate_ai.contracts.identity import canonical_json_bytes
+from literate_ai._cache_lock import CacheLockError
+try:
+    with j.retained_layout_journal(
+        Path(os.environ['JOURNAL_TEST_PATH']),
+        canonical_binding=canonical_json_bytes(
+            {'project':'/fixture','plan':'exact-plan'}),
+        budget=j.LayoutJournalBudget(), recover=True, lock_timeout_seconds=0.05,
+    ):
+        pass
+except CacheLockError:
+    raise SystemExit(23)
+"""
+        manager = self.open()
+        with manager as writer:
+            self.record(writer)
+            self.assertEqual(self.child(script).returncode, 23)
+            pid = os.fork()
+            if pid == 0:
+                try:
+                    if body_failure:
+                        error = RuntimeError("child body failure")
+                        manager.__exit__(type(error), error, None)
+                    else:
+                        manager.__exit__(None, None, None)
+                except ValueError:
+                    pass  # The inherited writer's closing currentness must refuse.
+                finally:
+                    os._exit(0)  # Context cleanup above has already executed.
+            _, status = os.waitpid(pid, 0)
+            self.assertEqual(os.waitstatus_to_exitcode(status), 0)
+            writer.require_current()
+            result = self.child(script)
+            self.assertEqual(result.returncode, 23, result.stderr)
+        self.assertEqual(self.child(script).returncode, 0)
+
+    def test_inherited_normal_context_cleanup_preserves_parent_native_mutex(self):
+        self._fork_cleanup_preserves_parent_mutex(body_failure=False)
+
+    def test_inherited_exception_context_cleanup_preserves_parent_native_mutex(self):
+        self._fork_cleanup_preserves_parent_mutex(body_failure=True)

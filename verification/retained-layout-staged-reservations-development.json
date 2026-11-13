@@ -1,0 +1,128 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Actual POSIX staged reservation descriptors and journal fork-safe lifetime composition, macOS source development",
+  "base_revision": "05b4137741344de7dc9b3d779f8d9e6e9b57b857",
+  "independent_review": {
+    "decision": "approved at exact POSIX dependency composition source scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "6f9d217ee42394e3124217f504a022366eb371d278fe0ece0238ccd45fd62b3e"
+    },
+    "prior_owner_review_identity": {
+      "algorithm": "sha256",
+      "digest": "4690c900d43f0eeb90f7d3c21971a1f71b776c857e4b3478c9e7339683075572"
+    },
+    "prior_owner_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "aa07df1cc4fa78db938f9462049c5c95db2180bfb15e765a99ea190688a1858f"
+    },
+    "prior_journal_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "32129baa54b0aef626a1dce5dd050e7393a4c907f3bd4e1139ace95bbeda3fcd"
+    },
+    "subjects": {
+      "src/literate_ai/_cache_lock.py": {
+        "algorithm": "sha256",
+        "digest": "f3f353261783bdee578baa1da632bae7591afbfcd6943bebe010f4e88ebc0838"
+      },
+      "src/literate_ai/_filesystem.py": {
+        "algorithm": "sha256",
+        "digest": "48372e2df82da255222607c4e916fb60cff11ccdcf303cfaadd4961a31e1f1c6"
+      },
+      "src/literate_ai/adapters/_write_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "41142605231279e20cd34706c4afcc4b38949a6d819b84011460f382f72adf2a"
+      },
+      "src/literate_ai/adapters/exclusive_directory.py": {
+        "algorithm": "sha256",
+        "digest": "0bf6808090c65da613a8421df7a9f411d971a2fccb5a21f6b091bcacff35376a"
+      },
+      "src/literate_ai/adapters/exclusive_entry.py": {
+        "algorithm": "sha256",
+        "digest": "3910b3bf8c6a6391b40b291dd871c70145ff4d7f8dd76202e2e7e5f9913a178f"
+      },
+      "src/literate_ai/adapters/lifecycle_lock.py": {
+        "algorithm": "sha256",
+        "digest": "0075643b160fce0563e42b566ecb63043ba3d7bd4b0ed2988dad0922345706ce"
+      },
+      "src/literate_ai/adapters/repository_orchestration.py": {
+        "algorithm": "sha256",
+        "digest": "1a560e47ee52262d6a8bd32d88d2e2d77fb2b361607a34ecb8b43a54487c7ed3"
+      },
+      "src/literate_ai/adapters/retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "01c10715e44d9289f899e5d77fa68d4348eb9943590fc5f30e2b51c914738c83"
+      },
+      "src/literate_ai/adapters/retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "25835cf1aed40729989e3e589226a4d45ca22939e70dba2fad5ae3f54338b14b"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "src/literate_ai/adapters/retained_layout_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "06822e065799ea3930163e883e16ed075a6c449b8201ff80ce34d5c17639cd5d"
+      },
+      "src/literate_ai/contracts/identity.py": {
+        "algorithm": "sha256",
+        "digest": "730437c1a4ac356474b45d6b260dbf16b76a42bff3125d1674d0627fc4b2fb3b"
+      },
+      "src/literate_ai/contracts/paths.py": {
+        "algorithm": "sha256",
+        "digest": "5f459e789f9f32069afbaf16cbbb5a421e6fa3ac9202b919d9f08262e252adf7"
+      },
+      "tests/critical/test_retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "5f9dddd1bb025e6532af16e258aef85328fa51975ba06d2219eeb3f909c6da56"
+      },
+      "tests/critical/test_retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "16a0c8d4a5994fb7e5ddf1fd56e2beff3261598a001a986aefa85deba63ff19d"
+      },
+      "tests/critical/test_retained_layout_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "261a5e28ac6a3f31986070621a1d0197fc698b7474ca15d782a8a8129fc1ae7e"
+      }
+    }
+  },
+  "native_macos_source_cases": {
+    "staged_owner_methods_passed": 15,
+    "journal_methods_passed": 17,
+    "independent_composition_methods_passed": 32,
+    "independent_final_composition_supplementary_passed": 3,
+    "prior_owner_review_closing_supplementary_passed": 6,
+    "selected_neighborhood_passed": 111,
+    "skipped": 0,
+    "causal_owner_predecessor_failures": 2,
+    "causal_journal_predecessor_failures": 2
+  },
+  "preserved": [
+    "Whole-set occupancy/portable aliases/ancestry/one-filesystem/stage/journal budgets preflight before public effects",
+    "Missing parents and marker bytes publish only through actual known-node durable journal intents; no generic create-first acquisition is used",
+    "Real no-create/no-follow read-write descriptors bind exact native nodes and bytes; actual advisory OS locks exclude canonical lifecycle and real Git index writers in native fixtures",
+    "Existing advisory contents remain unchanged; retained tokens, foreign markers and physical replacements refuse without replacement or deletion",
+    "Every partial or completed set keeps controls while attempting all descriptor closes; body/release errors, process/context expiry and initial descriptor registration faults remain visible",
+    "Final actual journal/private dependency reads precede cheap marker, private/journal namespace and native metadata, and held ancestry closure",
+    "An inherited journal context closes its descriptor copy without explicit unlock; only the acquiring PID unlocks the shared open-file description"
+  ],
+  "causal_repairs": [
+    "Two original owner controls yielded an active set across final private-stage or journal changes; repaired closure refuses both before yield",
+    "Two original journal controls let a competing process enter after normal/exceptional child cleanup while the parent remained current; acquiring-PID-bound unlock keeps native contenders blocked until parent exit"
+  ],
+  "limits": [
+    "The six owner closing supplements belong to the prior owner review; final composition separately reran32methods and3supplements with the repaired journal",
+    "Typed targets are coordinates, not logical project/conversion/Git/control roles or source movement authorization",
+    "Real canonical lifecycle and Git index exclusion are fixture proof, not complete live project/Git discovery, source custody, all writer roles or transaction acceptance",
+    "Retained controls require explicitly journaled finalization/recovery with fresh real descriptors and endpoint classification; saved intent or acquired records grant no ownership or deletion",
+    "POSIX cooperative state and controlled native fault scheduling only; no hostile same-user containment, native Windows, power-loss or later installed/full-source/release qualification is inferred"
+  ],
+  "remaining": [
+    "Compose actual project/conversion/Git/control role derivation, full source custody, effects and explicit finalization/recovery",
+    "Structural renewal and initial plain/root/custom placement, every relocation and genuine lock/baseline/parity/readmission/receipt renewal cell",
+    "Native Windows durability and actual multi-host, installed, full-source, integration, exact-head/main and release acceptance"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

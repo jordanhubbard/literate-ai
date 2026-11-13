@@ -33761,6 +33761,30 @@ independent review and the complete combined gate from test one.
 
 ### [ ] ADOPT-RELOCATE-001 — Support selected and relocated retained implementation layouts
 
+- **Staged reservation acquisition (source reviewed):** Join journaled publication to a
+  real descriptor-backed owner. Preflight complete target occupancy, aliases,
+  ancestry, one filesystem and bounded stage/journal resources; publish missing
+  parents and tokens, reopen without creation and verify exact native nodes/bytes
+  before real advisory locking. Existing advisory controls remain unchanged;
+  partial and complete sets retain controls while attempting every descriptor close. Thirteen
+  native methods block actual lifecycle and Git writers and test partial failures,
+  identity drift, process lifetime and release. Independent review identifies a
+  closing dependency gap: final marker observations can admit a changed private
+  stage namespace or journal before later context exit refuses. Close both actual
+  dependencies after the last blocking marker reads, then native/namespace/ancestry
+  facts. Two maintained acquisition-yield controls fail the original bytes; fifteen
+  methods pass with the repair. Independent owner re-review approves its exact
+  source scope, then actual composition probing finds inherited journal cleanup
+  releases the parent's shared native mutex. Two further causal journal controls
+  fail the original; acquiring-PID-bound unlock preserves the parent mutex through
+  both child cleanup paths. All thirty-two journal/owner controls pass after repair.
+  Approved [composition evidence](../../verification/retained-layout-staged-reservations-development.json)
+  reproduces both original fork failures and passes thirty-two methods plus three
+  supplementary native cleanup/ancestry controls; the hundred-and-eleven-case
+  neighborhood passes without skips. Typed targets still grant no
+  actual project/conversion/Git roles, source effects, recovery or qualification;
+  compose those owners and every remaining full-program acceptance cell.
+
 - **Journaled control publication (source reviewed):** Privately stage known marker
   files and empty directories, persist exact native source/destination/parent and
   raw payload intent, then publish with exclusive rename and directory synchronization.

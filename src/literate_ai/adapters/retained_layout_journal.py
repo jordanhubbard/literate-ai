@@ -101,6 +101,7 @@ def _file(node):
 def _writer_lock(descriptor, path, *, create, timeout_seconds):
     # Recovery must never create or initialize a foreign/incomplete lock. Opening
     # relative to the held journal also avoids re-following an ancestor pathname.
+    receiver_pid = os.getpid()
     flags = os.O_RDWR | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC
     if create:
         flags |= os.O_CREAT | os.O_EXCL
@@ -132,7 +133,11 @@ def _writer_lock(descriptor, path, *, create, timeout_seconds):
         yield fd, node
     finally:
         try:
-            if locked:
+            # A fork shares the open-file description: unlocking in an inherited
+            # child's cleanup would release the parent's actual writer mutex.
+            # The child closes only its descriptor copy; its PID guard already
+            # refuses all writer operations. The acquiring process still unlocks.
+            if locked and receiver_pid == os.getpid():
                 _release(fd)
         finally:
             os.close(fd)
