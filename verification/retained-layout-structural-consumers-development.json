@@ -1,0 +1,158 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Local POSIX declared nonroot structural source-scope refresh and schema-only evidence migration, including optional nested metadata publication guards; not full L2 or layout acceptance",
+  "base_revision": "8cac7a7e57306fa5d10202af91f2048d027c96ac",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_renewal.py": {
+      "algorithm": "sha256",
+      "digest": "82a0e5c3ff1a14cebf7789af5bc39eff142c0668c1faed07889d5d6a2b11f45f"
+    },
+    "src/literate_ai/adapters/retained_scope_refresh.py": {
+      "algorithm": "sha256",
+      "digest": "598b35829d8ec81160bb9ccd3853ecb3ebbccdf02bb267b54e1d619ef140bc1f"
+    },
+    "src/literate_ai/adapters/retained_evidence_migration.py": {
+      "algorithm": "sha256",
+      "digest": "d8f8357412ba94c60e5bfdc6e1b87c8e2249c8153c193e0097ad3f5aa59bf2d5"
+    },
+    "src/literate_ai/adapters/project_initialization.py": {
+      "algorithm": "sha256",
+      "digest": "17bc71d2dd3282f677d069f33392803c24cc64eb5cb318678172012738e51edd"
+    },
+    "src/literate_ai/projects.py": {
+      "algorithm": "sha256",
+      "digest": "56fd9ee65cbd13d1505ded85529d79b673c3625b3d62520bcb2e31676845fbb2"
+    },
+    "tests/critical/test_retained_layout_structural_consumers.py": {
+      "algorithm": "sha256",
+      "digest": "65141a931b3768ba7e293fee93e4b2db9857d0b73dd395d3ae11f66d40421147"
+    }
+  },
+  "behaviors": [
+    "Resolve actual lift/declaration/wrapper roles and native ancestry without granting admission; refuse pending and unsupported root renewal.",
+    "Plan and acknowledge source-scope refresh at current unqualified nonroot source, preserve historical reports, then genuinely readmit and produce retained receipt.",
+    "Backfill missing source scope at actual declared location without new report bindings; preserve parity-only schema compatibility without lift/layout.",
+    "Parse exact originally observed input bytes, refuse intervening inventory edits, and close source/metadata native facts after final layout payload reads.",
+    "Forward currentness checks into manifest/review atomic owners after private output fsync and immediately before replacement, then close original destination native facts; preserve foreign edits."
+  ],
+  "causal_history": [
+    {
+      "source": "scope-refresh exact base_revision",
+      "result": "Maintained actual unqualified move refresh errors at old qualified-admission guard",
+      "errors": 1,
+      "seconds": 3.356,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "c69d52a9292746f0bcd5a3e15097a4ffa12766194b11ed6101bdb09c0380f952"
+      }
+    },
+    {
+      "source": "evidence-migration exact base_revision, correct package import",
+      "result": "Maintained actual unqualified missing-scope case fails because inventory not migrated",
+      "failures": 1,
+      "seconds": 3.365,
+      "log_identity": {
+        "algorithm": "sha256",
+        "digest": "d026439dd2a0d69b1129229248b0a7d5538f1195489b1c94bd1dbe8ce1561f6d"
+      },
+      "qualification": "Earlier standalone import failed from incorrect package context and is not causal evidence."
+    },
+    {
+      "source": "Initial frozen review subjects",
+      "result": "Three corrected counterexamples plus independent schema-only counterexample confirmed",
+      "repairs": "Close late pending state; bind original parsed/native inventory; close source after final layout reads."
+    },
+    {
+      "source": "First repaired frozen review subjects",
+      "result": "95 maintained tests passed but actual nested review and policy publication probes still reproduced writes after pending insertion",
+      "repairs": "Guard actual atomic writers after private fsync, close original destination native facts, and recheck after nested validation."
+    }
+  ],
+  "affected_suite": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_retained_layout_structural_consumers tests.e2e.test_retained_scope_refresh tests.e2e.test_retained_harness_receipts tests.e2e.test_retained_harness_readmission tests.critical.test_retained_layout_renewal tests.critical.test_retained_layout_admission tests.smoke.test_native_project_updates tests.e2e.test_monorepo_components tests.smoke.test_monorepo_adoption tests.e2e.test_project_identity_migration tests.critical.test_project_configuration tests.e2e.test_project_initialization_adapter",
+    "modules": [
+      "tests.critical.test_retained_layout_structural_consumers",
+      "tests.e2e.test_retained_scope_refresh",
+      "tests.e2e.test_retained_harness_receipts",
+      "tests.e2e.test_retained_harness_readmission",
+      "tests.critical.test_retained_layout_renewal",
+      "tests.critical.test_retained_layout_admission",
+      "tests.smoke.test_native_project_updates",
+      "tests.e2e.test_monorepo_components",
+      "tests.smoke.test_monorepo_adoption",
+      "tests.e2e.test_project_identity_migration",
+      "tests.critical.test_project_configuration",
+      "tests.e2e.test_project_initialization_adapter"
+    ],
+    "selected": 114,
+    "passed": 114,
+    "skipped": 0,
+    "seconds": 251.976,
+    "terminal_exit": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "e5de2f43a4f0d9eddf620022b64df4060ee676c291b878c1565d0ada3e18fc07"
+    }
+  },
+  "independent_review": {
+    "reports": [
+      {
+        "name": "independent-layout-structural-consumers-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "1bf55076dc3e70628aa3b417e871ba224992d3a34143aab9abf055d631b24155"
+        },
+        "decision": "changes_requested"
+      },
+      {
+        "name": "independent-layout-structural-consumers-rereview.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "95f5712ee6146d7d4366de03c076be7ac382dc651282ef2c69215aad9653f8cf"
+        },
+        "decision": "changes_requested"
+      },
+      {
+        "name": "independent-layout-structural-consumers-publication-review.json",
+        "identity": {
+          "algorithm": "sha256",
+          "digest": "6eb122496c7df879a7b64d085397e6c0ce0f616ec2e0e2c1c216c767cfefbd4e"
+        },
+        "decision": "approved_at_limited_scope"
+      }
+    ],
+    "final_decision": "approved_at_limited_scope",
+    "executed": [
+      {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.critical.test_retained_layout_structural_consumers -q",
+        "result": "17 passed0skipped30.143s;exact65141 tests. Includes real moved refresh->readmission->receipt positive,original causal refusals,schema-only compatibility,nested actual review/manifest read pending refusals,and intervening foreign edits during publication callbacks."
+      },
+      {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.critical.test_project_configuration -q",
+        "result": "5 passed0skipped0.042s;existing default manifest-store and exact-snapshot update controls"
+      },
+      {
+        "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/structural-consumers-flush-supplement.py",
+        "result": "2 passed0skipped5.130s. Genuine actual migration forced nested writes;wrapped real fsync for actual mkstemp output,then inserted pending. Both actual manifest and review targets remained exact prepublication bytes,pending retained,private stage removed,and actual stage FD closed."
+      }
+    ],
+    "supplements": "Native late source-directory/historical metadata controls and actual fsynced manifest/review pending controls; all private processes terminal."
+  },
+  "source_checks": {
+    "driver_review": "pass",
+    "runner_review": "pass",
+    "lint": "pass",
+    "format": "pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "project_validation": "pass",
+    "all_gates": "Receipt stale only: authority pass, receipt fail, three skips. No full-source/current-main/release green claim."
+  },
+  "limitations": [
+    "Observed-span closing checks are not a continuous atomic filesystem snapshot or namespace lease.",
+    "Structural observation and schema backfill grant no qualified execution, source movement, source exclusions or receiver/scratch ownership.",
+    "Native rewrite and monorepo discovery remain unfinished L2 consumers.",
+    "Complete actual source partition ownership; root/shared/mixed/nested/initial/wrapper placement; public transaction recovery remain open.",
+    "Installed and native platform acceptance, configured full-source receipt, integration/exact resulting-main/release and full roadmap acceptance remain open."
+  ]
+}

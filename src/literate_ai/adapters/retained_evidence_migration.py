@@ -32,6 +32,8 @@ safe substitute for the exact pre-lift-shift legacy tree (issue #342).
 from __future__ import annotations
 
 import json
+import os
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -41,7 +43,9 @@ from literate_ai.projects import ProjectConfigurationStore, ProjectError
 
 from .harness_inventory import HARNESS_PARITY_SCHEMA
 from .harness_tree import SOURCE_SCOPE_SCHEMA, capture_retained_source_scope
-from .retained_layout import RetainedLayoutError, resolve_legacy_implementation
+from .repository_refresh import _file, _signature
+from .retained_layout_partition import _lineage
+from .retained_layout_renewal import observe_retained_layout_renewal
 
 LEGACY_WRAPPER_PARITY_SCHEMA_V1 = "literate-ai/legacy-wrapper-parity@1"
 
@@ -101,15 +105,22 @@ def backfill_harness_inventory_source_scope(
     return migrated, True
 
 
+def _resolve_layout_inputs(project_root: Path, lift_shift_document: dict[str, Any]):
+    try:
+        observed = observe_retained_layout_renewal(project_root)
+        if json.loads(observed.inputs[0].content) != lift_shift_document:
+            return None
+        return observed
+    except (OSError, ValueError):
+        return None
+
+
 def _resolve_implementation_root(
     project_root: Path, lift_shift_document: dict[str, Any]
 ) -> Path | None:
-    """Resolve lift-shift's recorded implementation directory, fail closed."""
-    try:
-        _, resolved = resolve_legacy_implementation(project_root, lift_shift_document)
-    except RetainedLayoutError:
-        return None
-    return resolved
+    """Resolve current structural source without granting qualified admission."""
+    observed = _resolve_layout_inputs(project_root, lift_shift_document)
+    return None if observed is None else observed.layout.implementation_root
 
 
 def _read_json_document(path: Path) -> dict[str, Any] | None:
@@ -121,7 +132,10 @@ def _read_json_document(path: Path) -> dict[str, Any] | None:
 
 
 def _rebind_receipt_policy_and_review(
-    project_root: Path, migrated_inventory: dict[str, Any]
+    project_root: Path,
+    migrated_inventory: dict[str, Any],
+    *,
+    require_current: Callable[[], None],
 ) -> None:
     """Refresh the receipt-policy identity and review after inventory changes.
 
@@ -162,48 +176,97 @@ def _rebind_receipt_policy_and_review(
         snapshot.definition, test_receipt_policy=expected_policy
     )
     try:
-        store.update(snapshot, updated_definition)
-        record_project_authority_review(project_root)
+        require_current()
+        store.update(snapshot, updated_definition, require_current=require_current)
+        require_current()
+        record_project_authority_review(project_root, require_current=require_current)
     except ProjectError:
         return
 
 
+def _json_input(path: Path):
+    """Parse precisely the bytes bound by the original native observation."""
+    try:
+        original = _file(path, maximum_bytes=16 * 1024**2)
+        document = json.loads(original.content)
+    except (OSError, ValueError):
+        return None
+    return (original, document) if isinstance(document, dict) else None
+
+
+def _require_migration_current(project_root, inputs, lineage, observed=None):
+    if observed is not None:
+        observed.require_current()
+    for original in inputs:
+        try:
+            current = _signature(original.path)
+        except FileNotFoundError:
+            current = None
+        if current != original.signature:
+            raise ValueError("retained evidence changed during migration")
+    if _lineage(project_root / ".literate") != lineage:
+        raise ValueError("retained evidence ancestry changed during migration")
+    # Last check: no further payload reads before the caller's publication.
+    if os.path.lexists(project_root / "litai/layout.pending"):
+        raise ValueError("pending relocation requires explicit recovery")
+
+
 def migrate_retained_evidence(project_root: Path) -> AppliedRetainedEvidenceMigration:
-    """Migrate any 0.9.0-shaped retained-harness evidence found in a project.
-
-    A no-op for projects that never converted a legacy harness: both evidence
-    files are simply absent. Each document is migrated independently, so a
-    project missing lift-shift evidence still gets its parity schema bumped
-    even though its source scope cannot be safely reconstructed.
-    """
-
+    """Independently migrate schemas and missing scopes without earning admission."""
     migrated: list[str] = []
+    if os.path.lexists(project_root / "litai/layout.pending"):
+        return AppliedRetainedEvidenceMigration()
+    metadata = project_root / ".literate"
+    if not metadata.is_dir():
+        return AppliedRetainedEvidenceMigration()
+    lineage = _lineage(metadata)
+    layout_inputs = tuple(
+        _file(project_root / relative, optional=True, maximum_bytes=16 * 1024**2)
+        for relative in (_LIFT_SHIFT_PATH, ".literate/retained-layout.json")
+    )
 
     parity_path = project_root / _PARITY_PATH
-    if parity_path.is_file():
-        document = _read_json_document(parity_path)
-        if document is not None:
-            updated, changed = migrate_legacy_wrapper_parity_document(document)
-            if changed:
-                parity_path.write_bytes(canonical_json_bytes(updated) + b"\n")
-                migrated.append(_PARITY_PATH)
+    parity_input = _json_input(parity_path)
+    if parity_input is not None:
+        original, document = parity_input
+        updated, changed = migrate_legacy_wrapper_parity_document(document)
+        if changed:
+            _require_migration_current(
+                project_root, (*layout_inputs, original), lineage
+            )
+            parity_path.write_bytes(canonical_json_bytes(updated) + b"\n")
+            migrated.append(_PARITY_PATH)
 
     inventory_path = project_root / _INVENTORY_PATH
-    lift_shift_path = project_root / _LIFT_SHIFT_PATH
-    if inventory_path.is_file() and lift_shift_path.is_file():
-        inventory_document = _read_json_document(inventory_path)
-        lift_shift_document = _read_json_document(lift_shift_path)
-        if inventory_document is not None and lift_shift_document is not None:
-            implementation_root = _resolve_implementation_root(
-                project_root, lift_shift_document
+    inventory_input = _json_input(inventory_path)
+    lift_shift_document = _read_json_document(project_root / _LIFT_SHIFT_PATH)
+    if inventory_input is not None and lift_shift_document is not None:
+        original, inventory_document = inventory_input
+        observed = _resolve_layout_inputs(project_root, lift_shift_document)
+        if observed is not None:
+            updated, changed = backfill_harness_inventory_source_scope(
+                inventory_document, observed.layout.implementation_root
             )
-            if implementation_root is not None:
-                updated, changed = backfill_harness_inventory_source_scope(
-                    inventory_document, implementation_root
+            if changed:
+                _require_migration_current(
+                    project_root, (*layout_inputs, original), lineage, observed
                 )
-                if changed:
-                    inventory_path.write_bytes(canonical_json_bytes(updated) + b"\n")
-                    migrated.append(_INVENTORY_PATH)
-                    _rebind_receipt_policy_and_review(project_root, updated)
+                content = canonical_json_bytes(updated) + b"\n"
+                inventory_path.write_bytes(content)
+                migrated.append(_INVENTORY_PATH)
+                published = _file(inventory_path, maximum_bytes=16 * 1024**2)
+                if published.content != content:
+                    raise ValueError("retained inventory changed after migration")
+
+                def require_current():
+                    _require_migration_current(
+                        project_root, (*layout_inputs, published), lineage, observed
+                    )
+
+                require_current()
+                _rebind_receipt_policy_and_review(
+                    project_root, updated, require_current=require_current
+                )
+                require_current()
 
     return AppliedRetainedEvidenceMigration(migrated=tuple(migrated))

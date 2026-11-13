@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained source-scope refresh and schema migration can locate declared nonroot
+  source before readmission, preserve historical evidence, and refuse pending or
+  changed inputs without granting execution admission (#265).
+
 - Retained harness receipts and Cargo contexts can use freshly readmitted nonroot
   layouts and their selected wrapper locks; prior receipts stay stale and pending
   or mismatched layout evidence refuses (#265).

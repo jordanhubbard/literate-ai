@@ -873,3 +873,53 @@ skips in 303.377 seconds, including all fourteen maintained admission methods.
 Driver/runner review, lint/format, repository layout, public export and project
 validation pass. All-gates verification passes authority and honestly fails the
 configured stale full-source receipt; this scoped evidence does not renew it.
+
+
+## Structural source-scope refresh and schema migration (in progress)
+
+Source-scope refresh must work at the actual declared nonroot implementation
+before readmission is earned. A read-only renewal observation binds original
+lift/declaration/wrapper inputs, current source and wrapper coordinates, and
+native ancestry. It grants no execution, namespace ownership or write rights.
+Refresh retains its existing exact plan acknowledgement and lifecycle lock,
+preserves historical baseline/parity/lift evidence, and makes prior receipts
+stale. Genuine readmission is still required before retained receipt execution.
+
+Schema migration uses the same actual structural location to reconstruct a
+missing source scope. It never updates fresh report bindings or supplies passed
+execution evidence. Existing independent parity-only schema migration remains
+supported when lift/layout evidence is absent. Pending layout state prevents
+publication, including dependent receipt-policy and authority-review updates.
+
+Initial independent review reproduced four counterexamples despite eleven
+passing maintained tests: late pending insertion during parity or inventory
+migration, a foreign inventory edit overwritten after its original parse, and
+refresh returning success after a source edit during its final layout read.
+Repairs parse the exact originally observed bytes, compare original native input
+facts after layout payload reads, and check pending absence last before metadata
+publication. Refresh retains known source member and visited-directory facts
+through its final payload reads, then closes source and metadata native facts
+before success. Ordinary rollback remains limited to bytes the operation wrote;
+foreign edits and pending state are preserved. This is a bounded closing check,
+not a continuous filesystem snapshot or complete transaction recovery proof.
+
+A second review confirmed those repairs but reproduced pending insertion inside
+the nested manifest and review helpers, after the outer guard. Forward optional
+currentness checks into the actual atomic write owners, after private temporary
+output is flushed and immediately before replacement. Close the original
+destination native facts after the check so its own reads cannot overwrite an
+intervening manifest or review-document edit. Existing callers retain their
+default behavior; these checks grant no review or mutation authority.
+
+Maintained regressions exercise actual relocated source, refresh followed by
+genuine readmission and receipt execution, schema-only compatibility, changed
+layout, nested policy/review pending publication barriers and preservation of
+intervening edits.
+Independent review approves the exact local structural-consumer scope, all
+seventeen maintained methods and two actual pending insertions during temporary
+output fsync. Targets remain unchanged, pending state is preserved and private
+outputs are closed and removed. The final affected suite and exact reviewed
+subjects belong in [development evidence](../../verification/retained-layout-structural-consumers-development.json).
+Native rewrite and monorepo discovery, complete
+source partition ownership, root/shared/mixed/initial/wrapper placement, public
+recovery and installed/native/full-program qualification remain open.

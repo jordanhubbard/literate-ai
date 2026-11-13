@@ -11,7 +11,7 @@ import sys
 import tempfile
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from contextvars import ContextVar
 from copy import deepcopy
@@ -254,6 +254,8 @@ class ProjectConfigurationStore:
         self,
         expected: ProjectConfigurationSnapshot,
         definition: ProjectDefinition,
+        *,
+        require_current: Callable[[], None] | None = None,
     ) -> ProjectConfigurationSnapshot:
         if not isinstance(expected, ProjectConfigurationSnapshot):
             raise TypeError("expected must be a ProjectConfigurationSnapshot")
@@ -266,14 +268,42 @@ class ProjectConfigurationStore:
             )
         with self._lock(root):
             path = root / PROJECT_FILENAME
+            before = path.lstat() if require_current is not None else None
             current = self._read_manifest(path)
             if current != expected.content:
                 raise ProjectError(
                     "project.manifest_stale",
                     "project manifest changed since it was read",
                 )
+
+            def close_publication_inputs():
+                require_current()
+                after = path.lstat()
+                if any(
+                    getattr(before, name) != getattr(after, name)
+                    for name in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                        "st_ctime_ns",
+                    )
+                ):
+                    raise ProjectError(
+                        "project.manifest_stale",
+                        "project manifest changed during publication checks",
+                    )
+
             if content != current:
-                self._replace(path, content)
+                if require_current is None:
+                    self._replace(path, content)
+                else:
+                    self._replace(
+                        path, content, require_current=close_publication_inputs
+                    )
+            elif require_current is not None:
+                close_publication_inputs()
         return ProjectConfigurationSnapshot(root, definition, content)
 
     def _read_manifest(self, path: Path) -> bytes:
@@ -696,7 +726,9 @@ class ProjectConfigurationStore:
                 pass
 
     @staticmethod
-    def _replace(path: Path, content: bytes) -> None:
+    def _replace(
+        path: Path, content: bytes, *, require_current: Callable[[], None] | None = None
+    ) -> None:
         descriptor, name = tempfile.mkstemp(
             prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
         )
@@ -706,6 +738,8 @@ class ProjectConfigurationStore:
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
+            if require_current is not None:
+                require_current()
             temporary.replace(path)
             # Fsync the parent directory so the rename is durable. Windows does
             # not permit FlushFileBuffers on a directory handle (it raises

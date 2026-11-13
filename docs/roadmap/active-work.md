@@ -33774,8 +33774,18 @@ independent review and the complete combined gate from test one.
   is recorded in [development evidence](../../verification/retained-layout-qualified-admission-development.json).
   The configured full-source receipt remains stale. Candidate files remain
   historical observations whose promotion separately requires current authority.
-  Next complete structural lookup before admission through source-scope refresh,
-  schema-only migration, native rewrite and monorepo discovery. Then join actual
+  Source-scope refresh and schema-only migration now locate the actual declared
+  nonroot source before readmission. Their shared read-only observation binds
+  lift/declaration/wrapper inputs and ancestry without admission. Refresh retains
+  exact acknowledgement and historical reports; migration backfills scope without
+  fresh report bindings. Original parsed/native inputs and final source/metadata
+  facts close after payload reads. Nested policy/review guards run after private
+  output fsync immediately before replacement, preserving foreign edits. Independent
+  review approves this local structural-consumer scope and all seventeen maintained
+  methods, including actual nested publication refusals; the final 114-method
+  affected run is recorded in [development evidence](../../verification/retained-layout-structural-consumers-development.json).
+  Next complete native rewrite and monorepo discovery. Native rewrite authority
+  still requires genuine qualified evidence. Then join actual
   role-owned complete source partitions and finish root/shared/initial/wrapper
   placement, full public recovery and installed/native/full-program acceptance.
 
