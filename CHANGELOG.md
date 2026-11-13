@@ -12,6 +12,15 @@
 - Windows bounded tools reuse confirmed Job Object termination during repeated
   cleanup, avoiding redundant `taskkill` enumeration while retaining fallback
   cleanup when Job ownership or termination is unavailable (#426).
+- Accepted-source export qualification uses the actual admitted Python compiler
+  for independent expected bytecode when the test interpreter differs (#424).
+
+- Avoid redundant initial Cargo census metadata and semantic JSON work during
+  fresh input-currentness checks, retaining every payload hash and closing
+  namespace, physical-node and lineage check (#432).
+- Reuse bounded project/Flavor parsing within one native currentness check while
+  retaining every member guard, fresh graph and byte check, and closing Flavor
+  membership validation; each independent call gets a fresh observation (#432).
 
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
