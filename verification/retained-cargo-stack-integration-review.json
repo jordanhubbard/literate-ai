@@ -1,5 +1,33 @@
 {
   "baseline": "43de0e963",
+  "bounded_custody_controls": {
+    "exit_code": 0,
+    "largest_fixture_bytes": 68157440,
+    "native_build_dispatched": false,
+    "release_evidence": false,
+    "report_sha256": "a1572772062b8cff566250ab28e799ca88b6fc2bc0bebca6b8b123bcd7eb5d7e",
+    "summary": {
+      "executed": 12,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 12,
+      "selected": 12,
+      "skipped": 0
+    }
+  },
+  "cargo_critical": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "f61f5f37af2c340f01013e8bc09ce798578858363f8113df69f46095d7992124",
+    "summary": {
+      "executed": 43,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 43,
+      "selected": 43,
+      "skipped": 0
+    }
+  },
   "contributor_heads": {
     "pr425": "123e50c4c69d056ed30012aaeb5c568cccfcb8ee",
     "pr431": "9c3ebb122c0be7f6d5f31437c869df2615b85260",
@@ -32,6 +60,19 @@
     "exact-head CI and resulting-main gates"
   ],
   "producer_evidence": "synthetic contract fixture; genuine producer qualification and cross-host application admission not claimed",
+  "provider_critical": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "b8de52efaa6d657ce01a45f58fb59ccae498cc360f4284e55f792c49887daed4",
+    "summary": {
+      "executed": 3,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 3,
+      "selected": 3,
+      "skipped": 0
+    }
+  },
   "release_attestation": false,
   "resource_hold": "Additional native/full gates held at local free fraction near 2 percent while existing source/wheel jobs release their temporary files",
   "schema": "literate-ai/verification-record@1",
