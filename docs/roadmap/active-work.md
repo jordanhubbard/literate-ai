@@ -34726,6 +34726,30 @@ implementation, policy weakening, qualification or issue closure is recorded her
         complete audit passed after an observed 215 CPU seconds; its exact total
         duration was not captured and is not inferred.
   - [ ] Final independent review and required PR CI pass.
+### [ ] RUNTIME-CAPABILITY-ENV-001 — Bind declared runtime capability variables to accepted provider artifacts
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)
+- **Next action (in progress):** Qualify the final combined source and installed candidate, then finish native Windows/macOS and exact published-head/resulting-main qualification. Independent non-author review, nine focused runtime controls and strict static gates pass; the canonical driver pin is renewed after that review. Preserve the completed native Linux development evidence and full curriculum scope.
+
+
+- **Combined integration evidence:** The normal source union retains all four production files byte-identically to PR423 `a7482175e`. Independent review covers held-plan/currentness and input scope, EXECUTE-only direct-consumer aliases, portable names/collisions, late projection after overrides, admitted provider paths, package relocation/escape refusal and unchanged serialized toolchain identity. All nine maintained runtime controls pass without skips on native macOS; they execute real fixture provider processes, including after original build roots are removed, but do not claim model generation or a complete generated graph. Canonical driver/documentation renewal follows that review; lint/format, layout, public export and runner checks pass. See `verification/runtime-capability-integration-review.json`. Complete combined source/installed and exact integration gates remain open.
+
+- **Priority:** P0
+- **Owner:** Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001
+- **Direction:** Restore the existing LITAI_CAPABILITY process contract for genuine generated multi-Component consumers on every supported native platform.
+- **Conclusion:** The actual installed two-node JavaScript run accepts the provider and builds/tests the consumer, then execution refuses its missing declared money capability variable. Derive runtime aliases from the exact held execution plan and current accepted provider artifacts, retain generic bindings and closed wire contracts, and reject stale or ambiguous bindings. Do not change the consumer to search arbitrary environment variables or widen retained-source admission.
+- **Additional installed counterexample:** [Packaged execution record](../../verification/runtime-capability-packaged-counterexample.json) binds software `a0a17eca5d43e50e14866db2c0fa71b5509b51c1`. Genuine force-regeneration now reaches accepted checkpoints for both nodes, but final packaged execution still lacks the declared variable; all three original private oracles remain unchanged. The repair must also project aliases from immutable package custody for packaged execution and independent acceptance. This failed development observation does not qualify the final graph or renew the driver review pin.
+- **Complete native Linux development qualification:** [Installed graph and Python 3.12/3.15 evidence](../../verification/runtime-capability-installed-linux.json) binds software `c41d9985b7a418a5ddd7cd6350a6aa01c9c16f8f`. Python 3.12 and 3.15 each reconcile all 2,792 selected source cases: 2,692 passed, 100 declared skips and no failures across 600 raw groups. Both complete noneditable wheel gates pass for the same exact artifact. Its actual configured-Codex two-node generation reaches both original acceptance checkpoints, final packaged execution/independent acceptance and source-cache publication; nine generated tests pass without skips, the committed receipt is current and all three original oracles are unchanged. Independent review, other native platforms, exact integration and the full LAB curriculum remain open; the driver pin is unchanged.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Project late runtime capability aliases from exact locked runtime edges while preserving original source, artifact and execution authority.
+  - [ ] Preserve existing generic bindings, phase separation, portable names and collision/currentness refusals without adding permissions or changing closed wire records.
+- **Evidence:**
+  - [ ] Retain the real installed force-regeneration counterexample and unchanged verifier oracles; generated consumer uses the exact declared variable.
+  - [ ] Pass focused collision, ambient-variable, phase/consumer scoping and stale-authority controls, complete source gates, independent non-author review before driver repin, and an actual corrected installed generated graph journey plus native/exact-head/main verification.
+
 ## 1.5 preparation
 
 ### [ ] AGENT-BOOTSTRAP-001 — Bootstrap generated agent instructions before requiring LitAI
@@ -34750,25 +34774,3 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions. Focused generated-project and update tests pass at `1ec47f356`, with the installed-wheel adoption check preserving the original AGENTS.md.
   - [x] Bootstrap-environment custody controls pass locally: 26 bootstrap/source-inventory/conversion tests and six project-index/materialization/OVA tests, including the no-Git source exclusion. This source change still needs exact-head installed and platform qualification.
   - [ ] Independent review, exact-head CI and noneditable installed distribution checks pass before closure.
-
-### [ ] RUNTIME-CAPABILITY-ENV-001 — Bind declared runtime capability variables to accepted provider artifacts
-
-- **Release target:** 1.4.0
-- **GitHub issue:** [#422](https://github.com/jordanhubbard/literate-ai/issues/422)
-- **Next action (in progress):** Independently review the four changed TCB files before driver pin renewal, then finish native Windows/macOS and exact published-head/resulting-main qualification. Preserve the completed native Linux development evidence and full curriculum scope.
-
-
-- **Priority:** P0
-- **Owner:** Framework Standard runtime provider environment; issue #422; LAB-AUTHORITY-001
-- **Direction:** Restore the existing LITAI_CAPABILITY process contract for genuine generated multi-Component consumers on every supported native platform.
-- **Conclusion:** The actual installed two-node JavaScript run accepts the provider and builds/tests the consumer, then execution refuses its missing declared money capability variable. Derive runtime aliases from the exact held execution plan and current accepted provider artifacts, retain generic bindings and closed wire contracts, and reject stale or ambiguous bindings. Do not change the consumer to search arbitrary environment variables or widen retained-source admission.
-- **Additional installed counterexample:** [Packaged execution record](../../verification/runtime-capability-packaged-counterexample.json) binds software `a0a17eca5d43e50e14866db2c0fa71b5509b51c1`. Genuine force-regeneration now reaches accepted checkpoints for both nodes, but final packaged execution still lacks the declared variable; all three original private oracles remain unchanged. The repair must also project aliases from immutable package custody for packaged execution and independent acceptance. This failed development observation does not qualify the final graph or renew the driver review pin.
-- **Complete native Linux development qualification:** [Installed graph and Python 3.12/3.15 evidence](../../verification/runtime-capability-installed-linux.json) binds software `c41d9985b7a418a5ddd7cd6350a6aa01c9c16f8f`. Python 3.12 and 3.15 each reconcile all 2,792 selected source cases: 2,692 passed, 100 declared skips and no failures across 600 raw groups. Both complete noneditable wheel gates pass for the same exact artifact. Its actual configured-Codex two-node generation reaches both original acceptance checkpoints, final packaged execution/independent acceptance and source-cache publication; nine generated tests pass without skips, the committed receipt is current and all three original oracles are unchanged. Independent review, other native platforms, exact integration and the full LAB curriculum remain open; the driver pin is unchanged.
-- **Depends on:** none
-- **Completion prerequisites:** none
-- **Implementation:**
-  - [ ] Project late runtime capability aliases from exact locked runtime edges while preserving original source, artifact and execution authority.
-  - [ ] Preserve existing generic bindings, phase separation, portable names and collision/currentness refusals without adding permissions or changing closed wire records.
-- **Evidence:**
-  - [ ] Retain the real installed force-regeneration counterexample and unchanged verifier oracles; generated consumer uses the exact declared variable.
-  - [ ] Pass focused collision, ambient-variable, phase/consumer scoping and stale-authority controls, complete source gates, independent non-author review before driver repin, and an actual corrected installed generated graph journey plus native/exact-head/main verification.
