@@ -702,7 +702,11 @@ def _close_consumed_input(owner, item):
     from .retained_layout_source_movement import _consumed_predecessor
 
     admission = _consumed_predecessor(owner)
-    value = _record(admission.phase)
+    from .retained_layout_source_finalization import _terminal_metadata
+
+    value = _terminal_metadata(owner)
+    if value is None:
+        value = _record(admission.phase)
     if value is None:
         return False
     for path, original, backup, current in value.receipts:

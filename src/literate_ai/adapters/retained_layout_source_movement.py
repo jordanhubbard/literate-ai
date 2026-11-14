@@ -52,6 +52,11 @@ def _movement_record(admission):
 
 
 def _consumed_predecessor(owner):
+    from .retained_layout_source_finalization import _terminal_predecessor
+
+    terminal = _terminal_predecessor(owner)
+    if terminal is not None:
+        return terminal
     for phase, movement in tuple(_MOVES.items()):
         record = movement.admission
         if owner is record.original.framework or owner is record.original.catalog:
@@ -364,10 +369,17 @@ def _close_movement_inputs(record):
     from .retained_layout_source_metadata import _close_metadata_native
 
     _close_metadata_native(record)
+    from .retained_layout_source_finalization import _close_retirement_native
+
+    _close_retirement_native(record)
     _close_effect_parents(record.original.plan)
 
 
 def _require_movement_current(record):
+    from .retained_layout_source_finalization import _require_finalization_current
+
+    if _require_finalization_current(record):
+        return
     movement = _movement_record(record)
     if movement is None or movement.expected is None:
         _fail("actual observed source movement required")
@@ -382,6 +394,9 @@ def _require_movement_current(record):
 
 
 def _end_movement(record):
+    from .retained_layout_source_finalization import _end_finalization
+
+    _end_finalization(record)
     from .retained_layout_source_metadata import _end_metadata
 
     _end_metadata(record)

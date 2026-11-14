@@ -391,7 +391,7 @@ class _StagedReservationSet(WriteReservationSet):
         """One-way live control handoff, never a source/commit authorization."""
         from .retained_layout_source_admission import _refuse_unfunded_disposition
 
-        _refuse_unfunded_disposition(self)
+        _refuse_unfunded_disposition(self, "begin")
         self._unhanded()
         self.verify_all()
         if self._finishing:
@@ -444,11 +444,14 @@ class _StagedReservationSet(WriteReservationSet):
         self.verify_all()
         self._retirement_root = retirement_root
         self._finishing = True
+        from .retained_layout_source_finalization import _observe_control_boundary
+
+        _observe_control_boundary(self, "begin")
 
     def normalize_advisory(self, path):
         from .retained_layout_source_admission import _refuse_unfunded_disposition
 
-        _refuse_unfunded_disposition(self)
+        _refuse_unfunded_disposition(self, "normalize", path)
         self._unhanded()
         self.verify_all()
         if not self._finishing or self._finalized:
@@ -466,6 +469,12 @@ class _StagedReservationSet(WriteReservationSet):
         }
         journal.append("advisory-normalization-intent", canonical_json_bytes(data))
         self.verify_all()
+        from .retained_layout_source_finalization import (
+            _observe_control_marker,
+            _preflight_control_receipt,
+        )
+
+        _preflight_control_receipt(self, data)
         if os.pwrite(marker.descriptor, b"\0", 0) != 1:
             _fail("changed", "advisory normalization made no progress")
         os.ftruncate(marker.descriptor, 1)
@@ -490,6 +499,7 @@ class _StagedReservationSet(WriteReservationSet):
         marker.content = b"\0"
         self._expected[path] = after
         self._normal.add(path)
+        _observe_control_marker(self, path, after, b"\0")
         journal.append(
             "advisory-normalization-observed",
             canonical_json_bytes({**data, "node": _physical_wire(asdict(after))}),
@@ -500,7 +510,7 @@ class _StagedReservationSet(WriteReservationSet):
         """Quarantine one exact native marker; never delete or replace it."""
         from .retained_layout_source_admission import _refuse_unfunded_disposition
 
-        _refuse_unfunded_disposition(self)
+        _refuse_unfunded_disposition(self, "retire", path)
         self._unhanded()
         self.verify_all()
         if not self._finishing or self._finalized or path in self._locations:
@@ -524,6 +534,12 @@ class _StagedReservationSet(WriteReservationSet):
             "native-control-retirement-intent", canonical_json_bytes(data)
         )
         self.verify_all()
+        from .retained_layout_source_finalization import (
+            _observe_control_marker,
+            _preflight_control_receipt,
+        )
+
+        _preflight_control_receipt(self, data)
         move_layout_entry_exclusive(
             path,
             destination,
@@ -543,6 +559,7 @@ class _StagedReservationSet(WriteReservationSet):
             _fail("changed", "retired native control ownership changed")
         self._locations[path] = destination
         self._expected[path] = after
+        _observe_control_marker(self, path, after, marker.content, destination)
         self._pool._journal.append(
             "native-control-retirement-observed",
             canonical_json_bytes({**data, "node": _physical_wire(asdict(after))}),
@@ -564,8 +581,13 @@ class _StagedReservationSet(WriteReservationSet):
             _fail("inactive", "actual controls are not fully finalized")
 
     def finish_finalization(self):
+        from .retained_layout_source_admission import _refuse_unfunded_disposition
+        from .retained_layout_source_finalization import _observe_control_boundary
+
+        _refuse_unfunded_disposition(self, "finish")
         self.verify_finalized()
         self._finalized = True
+        _observe_control_boundary(self, "finish")
 
     def owns_directory(self, path):
         self._unhanded()

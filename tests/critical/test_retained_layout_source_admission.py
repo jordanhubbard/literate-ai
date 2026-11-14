@@ -244,7 +244,7 @@ class SourceAdmissionTests(unittest.TestCase):
                 if before.content is not None:
                     self.assertEqual(backup.path.read_bytes(), before.content)
             with self.assertRaisesRegex(ValueError, "verified transition"):
-                phase.finalize_controls(self.retired)
+                phase.controls.reservations.begin_finalization(self.retired)
             self.assertIsNone(reads.current_role_observation())
         self.assertNotIn(phase, metadata._METADATA)
         self.assertTrue((self.project / "litai/layout.pending").exists())

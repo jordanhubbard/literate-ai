@@ -240,6 +240,10 @@ class _SourcePreparation:
             raise
 
     def require_current(self):
+        from .retained_layout_source_finalization import _require_terminal_current
+
+        if _require_terminal_current(self):
+            return
         from .retained_layout_source_admission import _require_admitted_current
 
         if _require_admitted_current(self):
@@ -351,4 +355,7 @@ def prepared_retained_layout_source_move(
             yield owner
             owner.require_current()
         finally:
+            from .retained_layout_source_finalization import _end_terminal
+
+            _end_terminal(owner)
             _LIVE.pop(owner, None)

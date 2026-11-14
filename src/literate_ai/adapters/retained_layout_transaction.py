@@ -246,6 +246,7 @@ def _close_tree(
     controls=None,
     _source_preparation=None,
     _admitted_source_phase=None,
+    _terminal_preparation=None,
 ):
     # Namespace and native facts only, after the last journal/logical input reads.
     # Full directory stamps close insertion/removal, not just directory identity.
@@ -271,7 +272,7 @@ def _close_tree(
         roots = []
         with os.scandir(tree.root) as entries:
             for entry in entries:
-                if entry.name not in known:
+                if entry.name not in known and entry.name not in tree.exclusions:
                     _fail("source native namespace changed")
                 if len(roots) >= tree.budget.maximum_entries:
                     _fail("source membership exceeds its bound")
@@ -279,6 +280,8 @@ def _close_tree(
         observed = {}
 
         def observe(name, node):
+            if name in tree.exclusions:
+                return
             actual = _from_stat(node)
             if known.get(name) != actual:
                 _fail("source native namespace changed")
@@ -291,6 +294,7 @@ def _close_tree(
             allow_internal_symlinks=True,
             access=access,
             observe=observe,
+            excluded_roots=frozenset(tree.exclusions),
         )
         if observed != known:
             _fail("source native namespace changed")
@@ -302,12 +306,21 @@ def _close_tree(
             # This can enumerate the external journal and private stages. Close
             # their original facts, and all project nodes, after those reads.
             controls.reservations._close_currentness()
-            controls.git.close_native_inputs(controls.reservations)
+            from .retained_layout_source_finalization import _git_inputs_released
+
+            if not _git_inputs_released(controls):
+                controls.git.close_native_inputs(controls.reservations)
             controls._seed.close_native_inputs()
         if _admitted_source_phase is not None:
             from .retained_layout_source_admission import _close_admitted_inputs
 
             _close_admitted_inputs(_admitted_source_phase, tree, native)
+        if _terminal_preparation is not None:
+            from .retained_layout_source_finalization import _terminal_native_close
+
+            if controls is not None or _source_preparation is not None:
+                _fail("one actual terminal closure participant required")
+            _terminal_native_close(_terminal_preparation, tree, native)
         # Read files first, deepest directories before their ancestors, root last.
         ordered = sorted(
             native,
@@ -951,7 +964,9 @@ class _SourcePhase:
             )
         if forbidden.intersection(record[1:3] for record in lineage):
             _fail("private metadata overlaps source or another actual producer")
-        descriptor, guard = self._resources.enter_context(_pinned_directory(root))
+        from .retained_layout_source_admission import _enter_phase_resource
+
+        descriptor, guard = _enter_phase_resource(self, _pinned_directory(root))
         if _lineage(root) != lineage:
             _fail("private metadata original ancestry changed")
         parent_current = guard
@@ -978,8 +993,8 @@ class _SourcePhase:
             ):
                 _fail("metadata replacement requires one owned original node")
             if path.parent not in parents:
-                parents[path.parent] = self._resources.enter_context(
-                    _pinned_directory(path.parent)
+                parents[path.parent] = _enter_phase_resource(
+                    self, _pinned_directory(path.parent)
                 )
             parent = layout_entry_node(path.parent)
             if parent.device != node.st_dev or (
@@ -1057,6 +1072,12 @@ class _SourcePhase:
 
     def _require_committed_outputs(self):
         self._live()
+        from .retained_layout_source_admission import _phase_record
+        from .retained_layout_source_finalization import _require_finalization_current
+
+        record = _phase_record(self)
+        if record is not None and _require_finalization_current(record):
+            return
         _require_catalog_provenance(self.plan)
         if not self._metadata_published or self._moved is None:
             _fail("actual source and metadata publication required")
@@ -1103,13 +1124,12 @@ class _SourcePhase:
     def finalize_controls(self, private_root):
         """Report errors after the durable commit attempt without implying rollback."""
         self._live()
-        from .retained_layout_source_admission import _refuse_unfunded_effects
+        from .retained_layout_source_finalization import _run_finalization
 
-        _refuse_unfunded_effects(self)
-        if self._finalization_started or not self._metadata_published:
+        if self._finalization_started:
             _fail("actual published metadata and unspent finalization required")
         try:
-            return self._finalize_controls(private_root)
+            return _run_finalization(self, private_root)
         except BaseException as error:
             self._raise_commit_outcome(error)
             raise
@@ -1123,8 +1143,14 @@ class _SourcePhase:
         """
         self._live()
         from .retained_layout_source_admission import _refuse_unfunded_effects
+        from .retained_layout_source_finalization import (
+            _authorize_control_step,
+            _bind_finalization_area,
+            _require_finalization_authority,
+        )
 
-        _refuse_unfunded_effects(self)
+        if not _require_finalization_authority(self):
+            _refuse_unfunded_effects(self)
         if self._finalization_started or not self._metadata_published:
             _fail("actual published metadata and unspent finalization required")
         self._require_moved()
@@ -1158,8 +1184,10 @@ class _SourcePhase:
             )
         if forbidden.intersection(record[1:3] for record in lineage):
             _fail("finalization state overlaps another actual producer")
-        descriptor, parent_current = self._resources.enter_context(
-            _pinned_directory(root)
+        from .retained_layout_source_admission import _enter_phase_resource
+
+        descriptor, parent_current = _enter_phase_resource(
+            self, _pinned_directory(root)
         )
         if _lineage(root) != lineage:
             _fail("finalization state ancestry changed")
@@ -1189,6 +1217,7 @@ class _SourcePhase:
         if area.names():
             _fail("finalization state is not empty")
         self._retirement_area = area
+        _bind_finalization_area(self, area, descriptor=descriptor, guard=guard)
         journal = self.pool._journal
         actions = sum(not m.target.advisory or m.created for m in markers)
         required_events = 2 * actions + 4
@@ -1214,10 +1243,12 @@ class _SourcePhase:
         )
         self._require_moved()
         self._finalization_started = True
+        _authorize_control_step(self, "begin")
         self.controls.begin_finalization(root)
         for marker in markers:
             if marker.target.advisory and marker.created:
                 self._require_committed_outputs()
+                _authorize_control_step(self, "normalize", marker.target.path)
                 self.controls.reservations.normalize_advisory(marker.target.path)
                 self._require_committed_outputs()
         pending = layout_pending_control_path(self.plan.root)
@@ -1249,6 +1280,7 @@ class _SourcePhase:
                 journal.append("layout-commit-observed", decision)
                 self._committed = True
                 self._require_committed_outputs()
+            _authorize_control_step(self, "retire", marker.target.path)
             destination, actual, content = self.controls.reservations.retire_native(
                 marker.target.path
             )
@@ -1266,6 +1298,7 @@ class _SourcePhase:
             ),
         )
         self._require_committed_outputs()
+        _authorize_control_step(self, "finish")
         self.controls.reservations.finish_finalization()
         self._finalized = True
         return {
@@ -1564,9 +1597,16 @@ def retained_layout_source_phase(
     if preparation is not None:
         from .retained_layout_source_admission import _admit_preparation
 
-        with _admit_preparation(preparation, plan, pool):
+        with _admit_preparation(preparation, plan, pool) as record:
             with _source_phase_context(plan, pool, preparation=preparation) as phase:
                 yield phase
+            from .retained_layout_source_finalization import _complete_terminal
+
+            try:
+                _complete_terminal(record)
+            except BaseException as error:
+                phase._raise_commit_outcome(error)
+                raise
     else:
         with _source_phase_context(plan, pool) as phase:
             yield phase
@@ -1578,7 +1618,9 @@ def _source_phase_context(plan, pool, *, preparation=None):
 
     from .retained_layout_source_admission import (
         _bind_phase,
+        _bind_phase_resources,
         _control_reads,
+        _mark_phase_resources_closed,
         _revoke_phase,
     )
 
@@ -1597,11 +1639,17 @@ def _source_phase_context(plan, pool, *, preparation=None):
                     preparation.require_current()
                 with ExitStack() as resources:
                     phase._resources = resources
+                    _bind_phase_resources(phase, resources)
                     try:
                         yield phase
                         if phase._finalized:
                             phase._require_committed_outputs()
                             phase.controls.reservations.verify_finalized()
+                            from .retained_layout_source_finalization import (
+                                _prepare_terminal_teardown,
+                            )
+
+                            _prepare_terminal_teardown(phase)
                         else:
                             _fail(
                                 "source phase remains incomplete; "
@@ -1610,6 +1658,7 @@ def _source_phase_context(plan, pool, *, preparation=None):
                     finally:
                         phase._active = False
                         _revoke_phase(phase)
+                _mark_phase_resources_closed(phase, resources)
             finally:
                 phase._active = False
                 _revoke_phase(phase)

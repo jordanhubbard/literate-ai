@@ -2,34 +2,13 @@
 
 ## Unreleased
 
-- Retained-layout development can publish its acknowledged nonroot metadata
-  under the original observation allowance, preserve original files at verified
-  backups and keep consumed producer witnesses unchanged. Permission, private
-  membership and observed-record quota checks refuse unsafe transitions.
-  Finalization and successful terminal teardown remain unfinished (#265).
-
-- Retained-layout development can consume its genuine complete partition and
-  move a nonroot source tree under the preparation's original allowance. It
-  preserves links and unknown neighbors, retains consumed producer observations
-  and refuses late foreign changes. Metadata publication and finalization still
-  require integration before a complete transaction (#265).
-
-- Retained-layout development can carry its actual source preparation into
-  canonical control acquisition and complete partition observation under one
-  original allowance. Private-resource aliases refuse before acquisition, and
-  control expectations advance from held native receipts. Source movement,
-  metadata publication and finalization integration remain unfinished (#265).
-
-- Retained-layout development can fund source discovery and capture under one
-  persistent read operation, retain original observations across sequential
-  activations and charge genuine predecessor usage once. Late source, metadata,
-  pending and destination-membership changes refuse. Transaction/partition
-  admission and effect integration remain unfinished (#265).
-
-- Retained-layout discovery uses an active bounded read scope for structural
-  declaration and wrapper inputs, preserving canonical first-read limits and
-  separate JSON accounting for each project. Persistent preparation and complete
-  authored partition ownership remain unfinished (#265).
+- Retained-layout development can carry a nonroot transaction from funded
+  discovery through source movement, metadata publication and control handoff
+  under its original allowance. It preserves source topology, unknown neighbors,
+  original producer witnesses and verified metadata backups. Terminal observation
+  survives successful descriptor teardown and refuses late changes. This internal
+  result remains unqualified; canonical authored roles, other layout cells, public
+  recovery and installed/platform/release acceptance remain open (#265).
 
 - Catalog-copy development can observe multiple selected sources as one bounded
   forest, resolve cross-item links while copying and carry the original

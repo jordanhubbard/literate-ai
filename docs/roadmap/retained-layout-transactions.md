@@ -1754,9 +1754,9 @@ producer records and validate their original inode/content at the retained
 backup, alongside the prospective public successor. Unrelated producer inputs
 remain unchanged. Observe area membership before final stat-only dependency
 closure, and close the enclosing read activation before the last global span.
-The scoped Make gate now passes thirty-six controls without skips. A separate
-389-method affected regression cohort, including native provider and canonical
-source-lease suites, also passes without skips on these exact subjects. Independent
+The metadata-only increment passed thirty-six scoped Make controls without skips.
+A separate 389-method affected regression cohort, including native provider and
+canonical source-lease suites, passed without skips on that exact revision. Independent
 source review closes the permission-template and final private-membership
 findings. An additional causal refusal control requires observed-event quota
 headroom immediately after the last absence scan and before the rename. The
@@ -1773,8 +1773,44 @@ clone cleanup. Original bounded provider discovery retains exact recursive Git
 object-store roots, without treating traversal prefixes as owned stores; these
 roots also refuse metadata effects. These repairs preserve the actual original
 producer records and source lifetimes rather than sampling new baselines.
-Finalization, verified Git input release and a terminal observation surviving
-actual descriptor teardown still require their own joins before normal success.
+The following finalization successor joins actual ordered marker normalization
+and native retirement to that same original ledger. Fund transition graphs and
+retained history before effects, admit only the exact next creating marker, and
+advance original observations and resulting project/private graphs from its
+verified receipt before the observed event. Keep existing advisory inodes and
+bytes; normalize only new advisories under their original locks. Journal the
+unqualified commit decision before retiring the exact pending barrier last.
+Release only the acknowledged Git control scope after actual native handoff;
+ordinary Git writers can resume while retained source and unknown neighbors stay
+current. Original plans, framework caches and catalog seals remain immutable.
+
+Freeze metadata/retirement area bindings and exact original pool/journal written
+receipts before phase deactivation. Every private context enters through a
+restricted registrar backed by the creating resource owner; it exposes no stack
+transfer or early-close operation. Only successful exit of the actual local scope
+produces its frozen exit receipt. After that scope and canonical control FDs end,
+retain a read-only terminal observation through the preparation's original reader.
+Recheck bounded private bytes against already funded written receipts, reject the
+first unexpected private name, close the complete retained project/source span,
+then close actual preparation and producer lifetimes without further callbacks.
+A saved terminal observation grants no phase, writer, admission or recovery rights.
+
+Independent source review approves the normal nonroot transaction ending
+`committed-unqualified`. The final scoped Make gate passes seventy-two methods,
+and a separate 366-method affected cohort also passes without failures or skips.
+These are 438 distinct methods on the exact reviewed subjects. Causal controls
+retain seven predecessor failures covering private binding, journal/staging
+changes after control release, final native callback revocation, resource-stack
+redirection, excess private enumeration and transferred exit callbacks. A genuine
+framework update plus canonical Git catalog source completes the same original
+operation and preserves metadata backups through actual clone cleanup.
+Affected regression also retains the original plain repeated-finalization
+validation refusal; a validation-only repeat does not become a post-commit
+failure, while actual first-attempt and teardown errors retain their commit state.
+Full canonical authored-role, root/shared/initial/wrapper placement, public
+recovery and installed/native/platform/integration/release acceptance remain open.
+Exact source subjects, review findings, causal failures and author qualification
+are retained in [source-finalization evidence](../../verification/retained-layout-source-finalization-development.json).
 
 After the selected-source dependency is qualified, join the actual canonical
 authored inputs to complete partition ownership. Derive their endpoints from the

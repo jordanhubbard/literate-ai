@@ -1,0 +1,95 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_normal_nonroot_committed_unqualified_scope",
+  "review_mode": "source-only; no independent tests or probes",
+  "base_commit": "c14422b2945aaf54ac5b74517a507136953d0093",
+  "reviewer": "guard_review",
+  "record_origin": "Transcribed from independent reviewer messages; exact final subject digests recomputed and compared by author.",
+  "scope": "Actual original-ledger normal nonroot source transaction through metadata, exact control effects, verified Git handoff and terminal source observation after successful descriptor teardown. Result remains committed-unqualified.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_finalization.py",
+      "sha256": "8048ab9dc8800fbb6af01782c9901f7700654ab634b4bb88eb2e13848a174d98"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "f191abafb841d895feff8b52a73af91ded1ea9af89d689bb97e959a3581db452"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_reservations.py",
+      "sha256": "bee58472436b37cb06f5de9759121854ce985c614d6dfea24ccc07d4f7b42463"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_admission.py",
+      "sha256": "759d88eeda3dae4b35cb8f809b782d7f5b1f6e5623c953824b1f9b06ea39cd03"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_movement.py",
+      "sha256": "d99454a2f4bfdc7862949502ee2a3fabbd9d9b5322d8349bf8dda52cb5345667"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_preparation.py",
+      "sha256": "568bf00c670db053911f443c3c4358d6f37e5722995e8686d7fafd0a2edc761e"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_metadata.py",
+      "sha256": "6f288c70d8efbab1f68402aecc7ba4b47b930452821872981d5b2d80f2072748"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_source_finalization.py",
+      "sha256": "1c34136fc73f1ad1f75a339b59be3e0784c8c6bb3ae82afac2461457523e950c"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_source_admission.py",
+      "sha256": "d1506fefa6aa970ba4f37c0d5f34cb5a19d77658282bb7638b23bb650386fb0c"
+    }
+  ],
+  "review_chain": [
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Freeze original creating retirement area descriptor/guard/journal/root/limits/PID and build terminal paths from immutable roots.",
+        "Freeze actual original journal/pool written node/byte/root receipts before teardown, not a new post-teardown baseline.",
+        "Close original terminal/preparation lifetime identity after final project/native callbacks."
+      ],
+      "resolution": "Frozen area bindings; pre-teardown written-receipt candidate; callback-free terminal/preparation and producer lifetime close after the complete native span."
+    },
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Mutable phase resource field can redirect actual contexts to another ExitStack.",
+        "Aggregate project entry ceiling does not fund enlarged terminal private namespaces."
+      ],
+      "resolution": "Creating owner-controlled resource entry; exact original stack/registrar binding; immediate unexpected-name refusal against each frozen private roster."
+    },
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Exposed ExitStack.pop_all can transfer actual close callbacks while retaining stack identity."
+      ],
+      "resolution": "Slots-only restricted registrar exposes only guarded callback registration. Actual stack stays in the creating registry; a frozen exit receipt is issued only after successful actual local scope exit, with phase revoked. Terminal requires that receipt after the live registry ends."
+    },
+    {
+      "decision": "approved_at_normal_nonroot_committed_unqualified_scope",
+      "assessment": "Normal nonroot path, original ledger, ordered marker permits, pending-last commit, original witnesses, exact private receipts and terminal native/lifetime closure inspected. Restricted registrar and factory-issued exited receipt close actual teardown transfer; no remaining source blocker identified within this scope."
+    },
+    {
+      "decision": "author_regression_finding",
+      "finding": "Repeated finalization validation moved inside commit-outcome conversion and wrapped the original plain ValueError.",
+      "resolution": "Restore already-started validation before the wrapper; actual first-attempt and context-release errors keep commit-outcome handling."
+    },
+    {
+      "decision": "approved_at_normal_nonroot_committed_unqualified_scope",
+      "assessment": "Exact final nine subjects rechecked after the legacy validation-boundary correction. Repeated finalization keeps its original plain validation refusal; first-attempt and teardown failures retain commit-outcome handling. Source-only, no reviewer tests or probes."
+    }
+  ],
+  "findings": [],
+  "independent_dynamic_qualification": false,
+  "open_scope": [
+    "Complete canonical authored-role and external original-provider admission",
+    "Root/shared/initial/wrapper layout effects",
+    "Complete public recovery and complete public apply",
+    "Installed/native/cross-platform/integration/release acceptance",
+    "All other pending roadmap requirements"
+  ]
+}

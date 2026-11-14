@@ -33999,9 +33999,9 @@ independent review and the complete combined gate from test one.
   source movement, retaining spent predecessor observation and original shared
   accounting. Derive the resulting complete graph from verified native movement,
   advance funded destination absences and close all namespace scans before final
-  external facts. Metadata/finalization and terminal preparation disposition
-  are next, before a normal complete transaction can succeed.
-  The actual movement increment passes twenty-three scoped Make controls and a
+  external facts. That movement milestone left metadata/finalization and terminal
+  preparation disposition unfinished.
+  The movement increment passed twenty-three scoped Make controls and a
   separate 357-method affected regression cohort without skips, including a
   genuine framework/catalog join, link topology, unchanged
   original reader identity and five causal closing/quota controls. Independent
@@ -34012,18 +34012,28 @@ independent review and the complete combined gate from test one.
   prospective/staged/retained observations before writes, advance only verified
   native rename receipts, retain original producer witnesses at their backups
   and close resulting public/private graphs after payload and membership reads.
-  Thirty-six scoped Make controls and a separate 389-method affected regression
-  cohort pass without skips on the final subjects. Independent source
+  Metadata-only qualification passed thirty-six scoped Make controls and a
+  separate 389-method affected regression cohort without skips on that revision. Independent source
   review closes permission and private-membership findings. Original allowance
   refusal and positive initially declared policy remain distinct; see
   [metadata-successor evidence](../../verification/retained-layout-source-metadata-development.json).
   Original producer private/source roots, recursive object stores and the whole
   collected canonical acquisition now remain outside metadata effects. Native
   acquisition controls prove both refusal and backup survival through cleanup.
-  Next join finalization, verified input release and terminal teardown before
-  normal completion.
-  Then join
-  authored metadata roles before root effects, preserving the transport
+  The finalization successor now joins the exact original control effects,
+  verified Git handoff and a read-only terminal observation through actual
+  descriptor teardown. It retains original producer witnesses and private written
+  receipts, uses the creating restricted resource registrar, refuses foreign
+  private names immediately, and closes original lifetimes after final native
+  callbacks. Independent source review approves this internal normal nonroot
+  transaction ending `committed-unqualified`. The final scoped Make gate passes
+  seventy-two methods and a separate 366-method affected cohort passes without
+  failures or skips: 438 distinct methods on the exact reviewed subjects.
+  Seven causal refusal controls preserve the predecessor failures. Exact subjects,
+  qualification and open acceptance remain in
+  [source-finalization evidence](../../verification/retained-layout-source-finalization-development.json).
+  Complete canonical authored metadata roles and external original-provider
+  admission are the next join before root effects, preserving the transport
   limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review

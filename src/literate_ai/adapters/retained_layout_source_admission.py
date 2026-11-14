@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import os
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 from .bounded_role_observation import _activate_role_observation
@@ -30,6 +30,28 @@ _ADMISSIONS = {}
 _PHASES = {}
 _JOURNALS = {}
 _RESERVATIONS = {}
+_RESOURCE_OWNERS = {}
+_RESOURCE_KEY = object()
+
+
+class _SourceResources:
+    __slots__ = ()
+
+    def __init__(self, key):
+        if key is not _RESOURCE_KEY:
+            raise TypeError("actual source resource registrar required")
+
+    def callback(self, callback, /, *arguments, **keywords):
+        owner = _live_resource_owner(self)
+        return owner.stack.callback(callback, *arguments, **keywords)
+
+
+@dataclass(frozen=True, slots=True)
+class _ResourceOwner:
+    admission: object
+    registrar: object
+    stack: object
+    exited: bool = False
 
 
 def _fail(message):
@@ -56,6 +78,7 @@ class _Admission:
     failed: bool = False
     observing: bool = False
     movement: object = None
+    resources: object = None
 
 
 def _record(preparation, *, cleanup=False):
@@ -91,6 +114,8 @@ def _phase_record(phase):
         or phase._preparation is not record.preparation
     ):
         _fail("original admitted source phase changed")
+    if record.resources is not None and phase._resources is not record.resources:
+        _fail("original source resource stack changed")
     if record.pool._poisoned:
         _fail("original control pool interrupted")
     _close_predecessor_lifetimes(record)
@@ -405,6 +430,77 @@ def _bind_phase(preparation, phase):
     _PHASES[phase] = record
 
 
+def _bind_phase_resources(phase, resources):
+    from contextlib import ExitStack
+
+    record = _phase_record(phase)
+    if record is None:
+        return
+    if (
+        record.resources is not None
+        or type(resources) is not ExitStack
+        or phase._resources is not resources
+    ):
+        _fail("one actual original source resource stack required")
+    registrar = _SourceResources(_RESOURCE_KEY)
+    _RESOURCE_OWNERS[registrar] = _ResourceOwner(record, registrar, resources)
+    record.resources = registrar
+    phase._resources = registrar
+
+
+def _live_resource_owner(registrar):
+    owner = _RESOURCE_OWNERS.get(registrar)
+    if (
+        owner is None
+        or owner.exited
+        or owner.registrar is not registrar
+        or owner.admission.resources is not registrar
+        or _phase_record(owner.admission.phase) is not owner.admission
+    ):
+        _fail("actual original active resource registrar required")
+    return owner
+
+
+def _enter_phase_resource(phase, context):
+    record = _phase_record(phase)
+    if record is None:
+        return phase._resources.enter_context(context)
+    resources = record.resources
+    if resources is None:
+        _fail("actual original source resource registrar required")
+    owner = _live_resource_owner(resources)
+    result = owner.stack.enter_context(context)
+    if _live_resource_owner(resources) is not owner:
+        _fail("original source resource registrar changed during entry")
+    return result
+
+
+def _mark_phase_resources_closed(phase, stack):
+    if phase._preparation is None:
+        return
+    record = _ADMISSIONS.get(phase._preparation)
+    if record is None or record.phase is not phase:
+        _fail("original resource scope admission ended before exit")
+    owner = _RESOURCE_OWNERS.get(record.resources)
+    if (
+        owner is None
+        or owner.admission is not record
+        or owner.stack is not stack
+        or owner.exited
+        or phase._active
+        or phase._resources is not owner.registrar
+    ):
+        _fail("actual original source resource exit required")
+    _RESOURCE_OWNERS[owner.registrar] = replace(owner, exited=True)
+
+
+def _closed_phase_resources(record):
+    owner = _RESOURCE_OWNERS.get(record.resources)
+    if owner is None or owner.admission is not record or not owner.exited:
+        _fail("actual successful original resource teardown required")
+    return owner
+
+
 def _revoke_phase(phase):
     _PHASES.pop(phase, None)
 
@@ -423,7 +519,11 @@ def _fund_journal_document(journal, content):
 
 @contextmanager
 def _admit_preparation(preparation, plan, pool):
+    from .retained_layout_source_finalization import _terminal
+
     original = _state(preparation)
+    if _terminal(preparation) is not None:
+        _fail("terminal preparation grants no source admission")
     if original.plan is not plan or preparation in _ADMISSIONS:
         _fail("actual original unborrowed preparation plan required")
     preparation.require_current()
@@ -504,6 +604,7 @@ def _admit_preparation(preparation, plan, pool):
         from .retained_layout_source_movement import _end_movement
 
         _end_movement(record)
+        _RESOURCE_OWNERS.pop(record.resources, None)
         if record.phase is not None:
             _PHASES.pop(record.phase, None)
         if record.controls is not None:
@@ -517,8 +618,12 @@ def _refuse_unfunded_effects(phase):
         _fail("funded source effects require verified transition participation")
 
 
-def _refuse_unfunded_disposition(reservations):
+def _refuse_unfunded_disposition(reservations, kind=None, path=None):
     if reservations in _RESERVATIONS:
+        from .retained_layout_source_finalization import _admit_control_step
+
+        if _admit_control_step(reservations, kind, path):
+            return
         _fail("funded control effects require verified transition participation")
 
 
