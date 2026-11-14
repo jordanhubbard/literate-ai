@@ -13,6 +13,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
 from literate_ai.adapters.retained_project_inputs import (
     _directory_access,
     _inventory,
@@ -105,6 +106,23 @@ def capture_retained_cargo_tree_v2(
     exclusions: tuple[str, ...] = (),
     maximum_metadata_bytes: int = 1024 * 1024 * 1024,
 ) -> RetainedCargoInputTreeV2:
+    """Capture a complete ordinary root; exclusions retain their original policy."""
+    return _capture_retained_tree(
+        root,
+        budget=budget,
+        exclusions=exclusions,
+        maximum_metadata_bytes=maximum_metadata_bytes,
+    )
+
+
+def _capture_retained_tree(
+    root: Path,
+    *,
+    budget: RetainedCargoInputBudget,
+    exclusions: tuple[str, ...] = (),
+    maximum_metadata_bytes: int,
+    _source_roots: tuple[str, ...] | None = None,
+):
     """Hash physical regular payloads once, with bounded no-follow buffers.
 
     Internal links reuse canonical SDK topology rules. Complete hard-link groups
@@ -127,11 +145,24 @@ def capture_retained_cargo_tree_v2(
     ):
         raise ValueError("retained.cargo.v2-input-exclusions-invalid")
     canonical_relative_posix_paths(exclusions, label="owned Cargo exclusions")
+    if _source_roots is not None:
+        from .catalog_source_forest import _selection
+
+        if exclusions:
+            raise ValueError("catalog.source-forest: exclusions are not selections")
+        partial, selection_cost = _selection(
+            _source_roots, budget, maximum_metadata_bytes
+        )
+    else:
+        partial, selection_cost = (), 0
     root = _root(Path(root))
     excluded = frozenset(exclusions)
+    selected = frozenset(_source_roots or ())
     with _directory_access(root) as access:
 
         def metadata(name):
+            if _source_roots is not None and access is None:
+                require_safe_directory((root / name).parent)
             return (
                 access.metadata(root / name)
                 if access is not None
@@ -147,18 +178,31 @@ def capture_retained_cargo_tree_v2(
                     dir_fd=access.directory(())[0],
                 )
             roots = []
-            root_bytes = 0
+            root_bytes = selection_cost
             try:
-                with os.scandir(
-                    descriptor if descriptor is not None else root
-                ) as entries:
-                    for entry in entries:
-                        if len(roots) >= budget.maximum_entries + len(exclusions):
-                            raise ValueError("retained.cargo.v2-input-entry-limit")
-                        root_bytes += 128 + 32 * len(entry.name.encode("utf-8"))
-                        if root_bytes + 16 * 1024 * 1024 > maximum_metadata_bytes:
-                            raise ValueError("retained.cargo.v2-input-metadata-limit")
-                        roots.append(entry.name)
+                if _source_roots is None:
+                    with os.scandir(
+                        descriptor if descriptor is not None else root
+                    ) as entries:
+                        for entry in entries:
+                            if len(roots) >= budget.maximum_entries + len(exclusions):
+                                raise ValueError("retained.cargo.v2-input-entry-limit")
+                            root_bytes += 128 + 32 * len(entry.name.encode("utf-8"))
+                            if root_bytes + 16 * 1024 * 1024 > maximum_metadata_bytes:
+                                raise ValueError(
+                                    "retained.cargo.v2-input-metadata-limit"
+                                )
+                            roots.append(entry.name)
+                else:
+                    roots = _source_roots
+                    for name in roots:
+                        node = metadata(name)
+                        if not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(
+                            node
+                        ):
+                            raise ValueError(
+                                "catalog.source-forest: selected root is redirected"
+                            )
             finally:
                 if descriptor is not None:
                     os.close(descriptor)
@@ -168,6 +212,12 @@ def capture_retained_cargo_tree_v2(
 
             def observe(name, node):
                 nonlocal included, metadata_bytes
+                if name in selected and (
+                    not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(node)
+                ):
+                    raise ValueError(
+                        "catalog.source-forest: selected root type changed"
+                    )
                 if name not in excluded:
                     included += 1
                     if included > budget.maximum_entries:
@@ -187,6 +237,13 @@ def capture_retained_cargo_tree_v2(
                     if initial_nodes is not None:
                         initial_nodes[name] = node
 
+            for name in partial:
+                node = metadata(name)
+                if not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(node):
+                    raise ValueError(
+                        "catalog.source-forest: direct source ancestry required"
+                    )
+                observe(name, node)
             observed = _inventory(
                 root,
                 tuple(sorted(roots)),
@@ -196,6 +253,8 @@ def capture_retained_cargo_tree_v2(
                 observe=observe,
                 excluded_roots=excluded,
             )
+            if _source_roots is not None:
+                observed = observed[0], tuple(sorted((*observed[1], *partial)))
             return (*observed, charged_links)
 
         root_node = _node(root.lstat())
@@ -264,9 +323,17 @@ def capture_retained_cargo_tree_v2(
             remaining=max(1048576, budget.maximum_entries * 128)
         )
         for alias in aliases:
-            NativeSdkTree._resolve(
+            target = NativeSdkTree._resolve(
                 alias.path, directory_set, file_set, alias_map, resolution
             )
+            if _source_roots is not None:
+                candidate = target
+                while candidate not in selected and "/" in candidate:
+                    candidate = candidate.rsplit("/", 1)[0]
+                if candidate not in selected:
+                    raise ValueError(
+                        "catalog.source-forest: alias leaves selected subtrees"
+                    )
         files = []
         for name in sorted(owners):
             size, mode, digest = _stream(
@@ -283,7 +350,7 @@ def capture_retained_cargo_tree_v2(
         physical = tuple((name, _node(before[name])) for name in sorted(before))
         if any(_node(metadata(name)) != node for name, node in physical):
             raise ValueError("retained.cargo.v2-input-physical-custody-changed")
-        return RetainedCargoInputTreeV2(
+        fields = (
             root,
             budget,
             exclusions,
@@ -293,3 +360,8 @@ def capture_retained_cargo_tree_v2(
             maximum_metadata_bytes,
             (root_node, physical),
         )
+        if _source_roots is None:
+            return RetainedCargoInputTreeV2(*fields)
+        from .catalog_source_forest import CatalogSourceForestTree
+
+        return CatalogSourceForestTree(*fields, _source_roots)

@@ -1,0 +1,95 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "changes_requested",
+  "review_mode": "source-only under explicit storage hold",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "e519dc90697c5556b6f209481e93b60171bb9959",
+  "scope": "Read-only complete selected source union and actual catalog projection; no whole-project partition or exclusion authority.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_forest.py",
+      "sha256": "a550ac06d513a33f31dde38ce6015c26360387c13b08a88b0709eefc44072144"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_forest.py",
+      "sha256": "749f8832d518d7937f135367eaedc4de3f317f4f44287adb7c7db70e6d1ce966"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_topology.py",
+      "sha256": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-FOREST-NATIVE-METADATA-001",
+      "status": "open",
+      "severity": "blocking",
+      "title": "Final selected namespace inventory is not constrained by the retained original metadata allowance",
+      "locations": [
+        "src/literate_ai/adapters/catalog_source_forest.py:127",
+        "src/literate_ai/adapters/catalog_source_forest.py:132",
+        "src/literate_ai/adapters/catalog_source_forest.py:143",
+        "src/literate_ai/adapters/catalog_copy_plan.py:213"
+      ],
+      "source_evidence": [
+        "_Observation.capture reduces future forest maximum_metadata_bytes to a conservative original-roster bound and refunds unused initial headroom.",
+        "CatalogSourceForestCensus.close_native calls _inventory with the original maximum_entries minus partial ancestors, but its observe lambda unconditionally retains every discovered name and _from_stat value in a new dictionary.",
+        "_inventory itself retains visited names/directories and descends into new directories; the close callback does not check membership against the original native map or apply the forest metadata charge before retention/descent.",
+        "Only after the whole inventory returns does observed != dict(native[1:]) reject new nodes. A later enlarged selected namespace can therefore allocate according to a much larger entry/path ceiling than the lowered original metadata allowance.",
+        "The raw capture engine has explicit per-node/path/link metadata accounting; this new final native inventory does not enforce that same lower limit."
+      ],
+      "consequence": "Finite entry limits alone do not preserve the advertised refunded original metadata ceiling. This is an allocation/currentness-closing resource-contract gap; eventual foreign-node refusal does not make the prior retention fit its allowance.",
+      "required_change": "Reject an unknown or changed named node against the original native roster in the observe callback before retaining it or descending into it, then retain exact final membership checks and pure final original-node closure. Alternatively charge every inventory allocation against the original forest metadata ceiling before retention. Do not restore a larger unused traversal allowance or stream payloads in the final pass.",
+      "evidence_limit": "Source-only reasoning. No enlarged namespace, memory probe, test execution or observed resource exhaustion produced during this review."
+    }
+  ],
+  "positive_source_assessment": [
+    "Public ordinary V2 capture delegates with no selection to the shared engine; return class/schema/fields and ordinary exclusion branch remain V2. Forest uses distinct non-V2 tree/census schemas and carries selected_roots explicitly.",
+    "Selection requires bounded canonical sorted unique nonoverlapping coordinates; ancestor strings and selected coordinates are accounted before retention. Selected roots must remain direct directories during actual inventory.",
+    "Raw selected capture visits complete selected subtrees and bounded partial ancestors, not an excluded whole project. Alias resolution must land beneath a fully selected root; partial or unselected targets reject. Complete regular hardlink groups are hashed once and outside-group names refuse.",
+    "Observed-roster reduction's65536-per-node +512*full-path-bytes +64*symlink-size bound conservatively covers selection/ancestor cost and raw capture2048+32*canonical-name accounting. This supports raw recapture, but does not cure the separate unchecked final-inventory finding.",
+    "Multi-item fresh selector roots must match exact sorted selected roots; source actor carries the same forest pointer/census/native tuple through authenticated ledger transfer and lifetime binding. Single-item branch remains the previous complete-tree path.",
+    "Staging projects from exact registry prefix in the shared graph. Cross-selected aliases resolve through that graph; input group payload is charged once and each expanded output payload is charged separately.",
+    "Forest is not accepted as a generic original-source V2 tree or project ownership partition. Native close stays within selected roots and named ancestors rather than enumerating the entire source root.",
+    "Full native root/ancestor stamps may conservatively refuse changes outside the selected union; no dynamic independence guarantee for unselected sibling mutations is established here."
+  ],
+  "independent_execution": {
+    "tests": 0,
+    "probes": 0,
+    "reproduction_scripts": 0,
+    "installs": 0,
+    "builds": 0,
+    "description": "Only bounded source/test text and SHA256 reads plus this report write. No repository code executed.",
+    "reason": "Explicit user storage hold; disk/large database pressure reported by parent. No cleanup, process termination or storage mutation authorized by this review.",
+    "live_reviewer_processes": 0
+  },
+  "author_evidence": {
+    "attribution": "Parent-reported only; not independently executed or promoted to independent qualification.",
+    "reported": "Prior4 workflows+9 forest13PASS18.952s; latest32 small forest/legacy reader controlsPASS0.115s; final4 workflow process61567 was live when review requested. Earlier forest fixture TypeError expectation correction is not a parser relaxation.",
+    "qualification": "No terminal outcome for parent-owned current workflow job is inferred."
+  },
+  "limits": [
+    "Source-only changes-requested finding; no independent dynamic qualification, default reader replay or native topology acceptance.",
+    "All seven hashes rechecked unchanged at inspection end. No implementation/test/pin edits, tests, probes, installs, builds, network or agents.",
+    "Full/default compatibility, cross-item transformation, actual local/Git workflow, broad suites/Make/authority renewal remain required after repair and storage hold resolution.",
+    "No public/root/shared/recovery/installed/cross-platform/full-program/feature/release acceptance; no directory exclusion or generic partition rights from forest data.",
+    "All previous reports remain immutable.",
+    "Inspection terminal; no reviewer process prevents source repair. Parent-owned jobs/storage hold remain separately controlled."
+  ]
+}

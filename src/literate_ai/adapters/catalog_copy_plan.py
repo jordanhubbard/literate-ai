@@ -64,6 +64,7 @@ class CatalogCopyPlan:
     _wire: bytes = field(repr=False)
     _usage: tuple[int, int, int, int] = field(repr=False)
     _source_lease: object | None = field(default=None, repr=False)
+    _source_forest: object | None = field(default=None, repr=False)
 
     @property
     def document(self):
@@ -99,7 +100,10 @@ class CatalogCopyPlan:
         for census, native in zip(self._censuses, self._native, strict=True):
             if _lineage(census.tree.root) != census._lineage:
                 _fail("original catalog ancestry changed")
-            _close_tree(census.tree, native)
+            if census is self._source_forest:
+                census.close_native(native)
+            else:
+                _close_tree(census.tree, native)
         self._close_known_inputs()
 
     def _close_known_inputs(self):
@@ -156,7 +160,13 @@ class _Observation:
         self.charged += 4096 * count + 64 * size
         self.require_capacity()
 
-    def capture(self, root, *, _known_names=None):
+    def capture(self, root, *, _known_names=None, _source_roots=None):
+        if _source_roots is not None:
+            from . import catalog_source_forest, retained_cargo_tree_v2
+
+            # Fund producer dependencies before deriving remaining read limits.
+            self.snapshot(Path(catalog_source_forest.__file__))
+            self.snapshot(Path(retained_cargo_tree_v2.__file__))
         files = self.budget.maximum_files - self.files
         entries = self.budget.maximum_entries - self.records
         total = self.budget.maximum_total_bytes - self.bytes - self.reserve
@@ -176,9 +186,21 @@ class _Observation:
         budget = RetainedCargoInputBudget(
             files, entries, per_file, min(total, files * per_file)
         )
-        census = capture_retained_layout_partition(
-            root, framework_files=(), budget=budget, maximum_metadata_bytes=metadata
-        )
+        if _source_roots is None:
+            census = capture_retained_layout_partition(
+                root, framework_files=(), budget=budget, maximum_metadata_bytes=metadata
+            )
+        else:
+            from .catalog_source_forest import capture_catalog_source_forest
+
+            if _known_names is not None:
+                _fail("private known roster cannot select a source forest")
+            census = capture_catalog_source_forest(
+                root,
+                selected_roots=_source_roots,
+                budget=budget,
+                maximum_metadata_bytes=metadata,
+            )
         if _known_names is not None and {
             name for name, _node in _native_tree(census.tree)
         } != {"", *_known_names}:
@@ -312,13 +334,13 @@ def plan_catalog_copy(
             _fail("catalog selector exceeds the explicit file allowance")
         observation.charge_records(1, 4 * len(spec))
     items = tuple(catalog_import._parse_item_spec(spec) for spec in item_specs)
-    source_censuses = None
+    source_censuses, source_forest = None, None
     if _source_lease is not None:
-        from .catalog_source_lease import _censuses
+        from .catalog_source_lease import _inputs
 
         if _control_ledger is None:
             _fail("actual source lease requires its creating shared control ledger")
-        source_censuses = _censuses(
+        source_censuses, source_forest = _inputs(
             _source_lease, observation, root, source_root, items
         )
     if len(catalog_import._KIND_DIR) > budget.maximum_entries:
@@ -345,12 +367,17 @@ def plan_catalog_copy(
     )
     ancestors = catalog_import._read_source_ancestors(source_root, observation)
     catalog_import.check_dag_safe(root, source_id, ancestors, observation)
-    if source_censuses is not None and len(source_censuses) != len(items):
+    if source_censuses is not None and len(source_censuses) != (
+        1 if source_forest is not None else len(items)
+    ):
         _fail("canonical selector/census count differs")
+    selected_sources = []
     for index, (kind, name) in enumerate(items):
         source = catalog_import._source_item_dir(source_root, kind, name)
+        selected_sources.append(source.relative_to(source_root).as_posix())
         if (
             source_censuses is not None
+            and source_forest is None
             and source_censuses[index][0].tree.root != source
         ):
             _fail("canonical selector/census source coordinate differs")
@@ -364,8 +391,17 @@ def plan_catalog_copy(
                 "catalog.import_conflict",
                 "destination already has selected catalog item",
             )
-        if source_censuses is None:
+        if source_censuses is None and len(items) == 1:
             observation.capture(source)
+    selected_sources = tuple(sorted(selected_sources))
+    if source_forest is not None and (
+        source_forest.tree.root != source_root
+        or source_forest.tree.selected_roots != selected_sources
+        or source_censuses[0][0] is not source_forest
+    ):
+        _fail("canonical selector/census forest coordinates differ")
+    if source_censuses is None and len(items) > 1:
+        source_forest = observation.capture(source_root, _source_roots=selected_sources)
     if source_censuses is not None:
         for census, native in source_censuses:
             observation.censuses.append(census)
@@ -373,6 +409,8 @@ def plan_catalog_copy(
     wire_bound = 8192 + 12 * (len(source_id.encode()) + len(str(source_root).encode()))
     if _source_lease is not None:
         wire_bound += 4096 + 12 * len(_source_lease.reference.encode())
+    if source_forest is not None:
+        wire_bound += 4096 + 12 * sum(len(name.encode()) for name in selected_sources)
     for path in observation.cache:
         anchor, lineage = observation.ancestry[path]
         wire_bound += 4096 + 12 * (len(str(path).encode()) + len(str(anchor).encode()))
@@ -415,6 +453,9 @@ def plan_catalog_copy(
     if _source_lease is not None:
         document["source_lease"] = _source_lease.identity.uri
         document["source_ref"] = _source_lease.reference
+    if source_forest is not None:
+        document["source_forest"] = source_forest.identity.uri
+        document["selected_source_roots"] = selected_sources
     wire = canonical_json_bytes(_physical_wire(document))
     if len(wire) > wire_bound:
         _fail("copy plan serialization exceeds its precharged bound")
@@ -439,6 +480,7 @@ def plan_catalog_copy(
             observation.charged,
         ),
         _source_lease,
+        source_forest,
     )
     plan.require_current()
     if _control_ledger is not None:

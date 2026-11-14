@@ -1,0 +1,207 @@
+{
+  "schema": "literate-ai/independent-evidence-admission@1",
+  "decision": "admit_scoped_test_results_with_exit_uncertainty",
+  "review_mode": "Read-only imported evidence audit; zero new test/probe executions",
+  "scope": "Retained internal catalog/topology Linux test-result records and selected macOS case coverage. This is not a full remote process gate, release attestation or new source implementation approval.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_forest.py",
+      "sha256": "3ddc3317fcce8bc8839b8d1b2ccb075717e7728c73e8172a4d6d7aa3b10316b8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "18454f60dbb63aed6645fbd7cf3da0016427a79eace1a402a07dbe565c418b05"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_forest.py",
+      "sha256": "f87d948171af60b52d552bf4aabb2dff413048304bb9c2bfc1b73387e4814bc5"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_topology.py",
+      "sha256": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_plan.py",
+      "sha256": "500a2bdbdd96f1f1982f36c01fbcca4e0f1deaefc2b0a5f5dc7b3c89e9ce63b6"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_ownership.py",
+      "sha256": "ad7988e41852099dfcf7b3bb5e6d12284d2de67d291e819a05d63dfaab08fde3"
+    }
+  ],
+  "source_binding": {
+    "linux_companion": {
+      "base_commit": "77492b6e4f422d9aca465404c52566b7bdc6d50d",
+      "subjects": 10,
+      "match_current": true,
+      "overlays": "Planner and ownership tests only; exact hashes above."
+    },
+    "mac": {
+      "base_commit": "e519dc90697c5556b6f209481e93b60171bb9959",
+      "platform": "Darwin arm64",
+      "python": "3.14.7",
+      "subjects": 10,
+      "match_current": true,
+      "qualification": "Current modified source bytes, not clean commit or installed package."
+    },
+    "linux_make": {
+      "base_commit": "77492b6e4f422d9aca465404c52566b7bdc6d50d",
+      "subjects": 9,
+      "match_current_subset": true,
+      "qualification": "Earlier nine-subject planner overlay; not relabeled as a ten-subject run."
+    },
+    "verification": "All current10 SHA256 values read and compared to Linux companion and macOS manifests. Earlier Make manifest matches its exact9 subset."
+  },
+  "linux_companion": {
+    "attribution": "Author execution; independently audited retained full log and source evidence.",
+    "unique_ids": 296,
+    "case_records": 296,
+    "passed": 292,
+    "skipped": 4,
+    "failed": 0,
+    "errors": 0,
+    "seconds": 706.425,
+    "footer": "OK (skipped=4)",
+    "explicit_process_exit": null,
+    "remote_gate_accepted": false,
+    "transport_qualification": "Client disconnected before CTQ_BROAD_FINAL_EXIT was received. Transport0, complete footer and later absence of a test process do not establish original command exit. Null remains null.",
+    "artifacts": {
+      "archive": {
+        "path": "_build/catalog-topology-linux-broad-final.tar.gz",
+        "sha256": "1108b75d557b1848a6d43a2af5c68a17231d8df574288fcffc84ed6859933787"
+      },
+      "log": {
+        "path": "_build/linux-catalog-topology-broad-final.log",
+        "sha256": "fb80e692937a35f8ede7c06d421a0a39480a88796426cc4433f3280be8907d8c"
+      },
+      "source": {
+        "path": "_build/linux-catalog-topology-broad-final-source.json",
+        "sha256": "258065a92f1537c3ed3760fba20909d39ddb3f257aeeaf105d854493b6efad29"
+      },
+      "reconnect": {
+        "path": "_build/catalog-topology-linux-replay-reconnect.txt",
+        "sha256": "0accf962f818a2dd7ce5b276b71585fcd7c7b28d824ef3b1df172ee7397ad65f"
+      }
+    },
+    "integrity": "Exactly2 known regular archive members,62323 and1548 bytes, both below1MiB. Local imported log/source are byte-equal to their explicit archive members.296 unique complete case IDs with292ok/4skipped match footer; no pass/error/duplicate count inferred from transport."
+  },
+  "linux_make": {
+    "attribution": "Author execution; structured outcomes, retained log/source/archive and explicit sentinel independently audited.",
+    "selected": 147,
+    "executed_excluding_skips": 146,
+    "unique_ids": 147,
+    "passed": 146,
+    "skipped": 1,
+    "failed": 0,
+    "known_failed": 0,
+    "seconds": 719.017,
+    "explicit_command_exit": 0,
+    "exit_evidence": "CTQ_MAKE_FINAL_EXIT=0",
+    "release_evidence": false,
+    "artifacts": {
+      "archive": {
+        "path": "_build/catalog-topology-linux-make-final-v2.tar.gz",
+        "sha256": "8837006a9053a026e55ecd8f49ff4836f2243f9d448b5e7059c14022ab73f4bd"
+      },
+      "report": {
+        "path": "_build/linux-catalog-topology-make-final-report.json",
+        "sha256": "de144553f4046704862284230144b49bbf6ce579e049fb3b12bbb1a1813ce323"
+      },
+      "log": {
+        "path": "_build/linux-catalog-topology-make-final.log",
+        "sha256": "9198aceaf741dab606d9ddef499d26c646c79514aca571284ca6cf786d93890c"
+      },
+      "source": {
+        "path": "_build/linux-catalog-topology-make-final-source.json",
+        "sha256": "90b4f1acd60d92dfa80924cd97fb931218945959960d36a1a819644028ec7c28"
+      },
+      "transport_record": {
+        "path": "_build/catalog-topology-linux-make-final-transport.log",
+        "sha256": "a06e08139bd7060003dca2a258b348b4b69a568f987aaeec70de8bc0a1f5c046"
+      }
+    },
+    "integrity": "Three expected regular archive members; log/report/source byte-equal to imported local files. Structured147 unique outcomes and summary reconcile with log footer."
+  },
+  "mac_selected": {
+    "attribution": "Author execution; independently read6 unique case outcomes, complete footer and source10 manifest.",
+    "unique_ids": 6,
+    "passed": 6,
+    "skipped": 0,
+    "seconds": 9.899,
+    "footer": "OK",
+    "process_exit_qualification": "Author reports terminal success; no separate numeric process-exit record independently audited from supplied Mac log. No broad Mac process gate claimed.",
+    "case_ids": [
+      "tests.critical.test_catalog_copy_protection.CatalogCopyProtectionTests.test_actual_own_root_manifest_case_is_not_an_independent_candidate",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_git_administration_never_receives_source",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_private_stage_is_refused_by_actual_directory_identity",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_source_descendant_refuses_during_plan",
+      "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_registered_child_manifest_case_preserves_actual_independent_role",
+      "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_selected_flavor_remains_framework_after_manifest_edit"
+    ],
+    "artifacts": {
+      "log": {
+        "path": "_build/catalog-topology-mac-cases.log",
+        "sha256": "a7060aff88fab107e5ed3f6a5caf2b12a5377eaca1bf822ccb753aea94e9e44d"
+      },
+      "source": {
+        "path": "_build/catalog-topology-mac-cases-source.json",
+        "sha256": "0fb4089832dce9d88fc0b41c2d2c51c4f5174a2cd5f7a7c50fa4b1101da8f96c"
+      }
+    },
+    "resource_attribution": "Author documented narrow existing-environment6-case override:256MiB estimate,10GiB reserve,11GiB prelaunch guard and120s timeout. No resource probe or local dynamic work performed by reviewer."
+  },
+  "cross_record_case_coverage": {
+    "unique_ids": 443,
+    "ids_with_at_least_one_success": 443,
+    "linux_distinct_skipped_ids": 5,
+    "mac_passes_cover_all_linux_skips": true,
+    "linux_skipped_case_ids": [
+      "tests.critical.test_catalog_copy_protection.CatalogCopyProtectionTests.test_actual_own_root_manifest_case_is_not_an_independent_candidate",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_git_administration_never_receives_source",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_private_stage_is_refused_by_actual_directory_identity",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_source_descendant_refuses_during_plan",
+      "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_registered_child_manifest_case_preserves_actual_independent_role"
+    ],
+    "explanation": "Make147 and companion296 case sets are disjoint. Mac6 adds no new IDs:5 cases cover1 Make and4 companion filesystem-dependent skips; corrected host-positive case overlaps an already successful companion case. Every443 ID has a success in at least one listed record.",
+    "qualification": "Not one443-method execution, not all443 passed on Linux, not one uniform source/test manifest across all runs, and not a complete remote gate or full program qualification."
+  },
+  "prior_independent_reports": [
+    {
+      "path": "independent-layout-catalog-topology-linux-qualification-review.json",
+      "sha256": "cfa0ef1ae9b62c79b498596e483208dce3f72b98f606321bcce45ae3281504ab"
+    },
+    {
+      "path": "independent-layout-catalog-topology-planner-linux-review.json",
+      "sha256": "78044cbb5b184ed5601eb6ff8ca1a3ad918a8fc4471b01eda113bf196438e0c9"
+    },
+    {
+      "path": "independent-layout-catalog-topology-ownership-portability-review.json",
+      "sha256": "e4c1ef565b300c7b1af0e2df0ded1fa30ebaa6277bb0040312a23f7b84db54da"
+    }
+  ],
+  "findings": [],
+  "limits": [
+    "Missing original296 process exit is an irrecoverable gap in supplied execution evidence; do not backfill0 or restart tests on this audit's authority.",
+    "Earlier failed296 remains failed historical evidence; this completed replay result does not rewrite it.",
+    "No tests, probes, builds, installs, remote reconnects, source/pin edits, worker repairs, new agents or process signaling performed this review. Only local artifact/source/hash reads, data parsing and this report write.",
+    "Mutable verification draft and later documentation/static fields are not admitted by this immutable report; only listed artifacts are bound.",
+    "Internal scoped test-result admission only. No installed/native full-platform, public/root/shared/recovery/full-program/feature/release acceptance or human attestation.",
+    "No new reviewer process remains live; all previous reports immutable."
+  ]
+}

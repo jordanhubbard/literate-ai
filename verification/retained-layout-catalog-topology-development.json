@@ -1,0 +1,569 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "e519dc90697c5556b6f209481e93b60171bb9959",
+  "scope": "Internal normal nonroot selected-union catalog source topology through actual local/Git copy and one-use source handoff; early native namespace closing resource bound",
+  "subjects": {
+    "src/literate_ai/adapters/retained_cargo_tree_v2.py": {
+      "algorithm": "sha256",
+      "digest": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    "src/literate_ai/adapters/catalog_copy_staging.py": {
+      "algorithm": "sha256",
+      "digest": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    "src/literate_ai/adapters/catalog_source_lease.py": {
+      "algorithm": "sha256",
+      "digest": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    "src/literate_ai/adapters/catalog_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "3ddc3317fcce8bc8839b8d1b2ccb075717e7728c73e8172a4d6d7aa3b10316b8"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "18454f60dbb63aed6645fbd7cf3da0016427a79eace1a402a07dbe565c418b05"
+    },
+    "tests/critical/test_catalog_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "f87d948171af60b52d552bf4aabb2dff413048304bb9c2bfc1b73387e4814bc5"
+    },
+    "tests/critical/test_catalog_copy_topology.py": {
+      "algorithm": "sha256",
+      "digest": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    },
+    "tests/critical/test_catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "500a2bdbdd96f1f1982f36c01fbcca4e0f1deaefc2b0a5f5dc7b3c89e9ce63b6"
+    },
+    "tests/critical/test_retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "ad7988e41852099dfcf7b3bb5e6d12284d2de67d291e819a05d63dfaab08fde3"
+    }
+  },
+  "behavior": [
+    "Distinct read-only selected-source forest captures complete selected subtrees and bounded partial ancestors without whole-project partition or exclusion rights.",
+    "Shared no-follow stream hashing and complete hardlink groups permit cross-item aliases/hardlinks only wholly inside selected union. Selected-root replacement, escape, overlapping selections, partial-ancestor aliases, incomplete groups and changed/new selected members refuse.",
+    "Actual canonical coordinates and original forest/census/ledger/native identities feed local and canonical Git planning, staged projections, real provenance, control finalization and one-use source ownership handoff. Shared inputs hashed once; expanded outputs charged separately under original policy.",
+    "Forest and inherited whole-tree native close reject each unknown/changed name and native node before retention or descent, preserving missing-member and final native/control checks."
+  ],
+  "author_local_history": {
+    "_build/catalog-topology-forest-focused.log": {
+      "sha256": "4f95421547839687c21c5431cc3e9ac53dfb12168971811eb94982a2b06d4e0c",
+      "summary": [
+        "9",
+        "0.034"
+      ],
+      "tail": "FAILED (errors=1)"
+    },
+    "_build/catalog-topology-forest-focused-v2.log": {
+      "sha256": "f8c700a3db9957638042129779a6e9f4a8166b991050f1329a8e3f786cf73cdd",
+      "summary": [
+        "9",
+        "0.031"
+      ],
+      "tail": "OK"
+    },
+    "_build/catalog-topology-focused.log": {
+      "sha256": "b8cb713c21f3a70add6c8905605e264f9a12dbe3d8dbcb60c4f3e2aa875b9ee4",
+      "summary": [
+        "13",
+        "18.952"
+      ],
+      "tail": "OK"
+    },
+    "_build/catalog-topology-reader-regression.log": {
+      "sha256": "08b4aa1ce02180a80fafb16037769df26c6a478cad6bb155bddbe0915fd1732d",
+      "summary": [
+        "32",
+        "0.115"
+      ],
+      "tail": "OK"
+    },
+    "_build/catalog-topology-flow-final.log": {
+      "sha256": "fa5f6042b7c02faea5b9f31f765f1bfdb91f4b36fb66908d989c6c0e0b97b902",
+      "summary": [
+        "4",
+        "18.934"
+      ],
+      "tail": "OK"
+    },
+    "_build/catalog-topology-native-budget-before.log": {
+      "sha256": "beda924747b2c8ea0e76fb40e8310bca419510705f02264b404002a6aed73fd7",
+      "summary": [
+        "1",
+        "0.008"
+      ],
+      "tail": "FAILED (failures=2)"
+    },
+    "_build/catalog-topology-native-budget-after.log": {
+      "sha256": "295385fa33c85071b364b01bcd1d47d84ea249d05756d6fe731747b580a65a52",
+      "summary": [
+        "33",
+        "0.126"
+      ],
+      "tail": "OK"
+    },
+    "_build/catalog-topology-reader-final.log": {
+      "sha256": "0e44d09d4cbc901017f9fa73a37437fd8f0cf77017b0103af5f006a22b0053bc",
+      "summary": [
+        "33",
+        "0.124"
+      ],
+      "tail": "OK"
+    }
+  },
+  "review_chain": [
+    {
+      "path": "independent-layout-catalog-topology-review.json",
+      "sha256": "34689f671fc20c4beb27b1045ef4a1d6d08ecd42305956cd32897619db80a24d",
+      "decision": "changes_requested",
+      "mode": "source-only"
+    },
+    {
+      "path": "independent-layout-catalog-topology-rereview.json",
+      "sha256": "84c018fb0ae5ea5d98ed2101fcb9ce245eb1266abc866f5ac62b722a6cb1bd3a",
+      "decision": "approved_at_limited_scope",
+      "mode": "source-only"
+    },
+    {
+      "path": "independent-layout-catalog-topology-linux-qualification-review.json",
+      "sha256": "cfa0ef1ae9b62c79b498596e483208dce3f72b98f606321bcce45ae3281504ab",
+      "decision": "approved_at_limited_internal_linux_scope",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_catalog_copy_topology tests.critical.test_catalog_source_forest tests.smoke.test_retained_cargo_tree_currentness tests.critical.test_retained_project_tree_inputs tests.critical.test_catalog_source_lease",
+        "timeout_seconds": 420,
+        "session": 65809,
+        "terminal": true,
+        "transport_exit": 0,
+        "explicit_test_exit": 0,
+        "tests": 50,
+        "unique_case_lines": 50,
+        "passed": 50,
+        "skipped": 0,
+        "seconds": 164.311,
+        "module_counts": {
+          "catalog_copy_topology": 4,
+          "catalog_source_forest": 11,
+          "retained_cargo_tree_currentness": 8,
+          "retained_project_tree_inputs": 14,
+          "catalog_source_lease": 13
+        },
+        "verification": "Unittest footer,50 unique case lines and durable INDEPENDENT_TEST_EXIT=0 inspected; transport status alone not accepted.",
+        "log": {
+          "path": "_build/catalog-topology-independent-linux.log",
+          "sha256": "26214146c54f224d457ea58b3ce5a64188044a55496334e0ac4aa7820b414465"
+        }
+      }
+    },
+    {
+      "path": "independent-layout-catalog-topology-planner-linux-review.json",
+      "sha256": "78044cbb5b184ed5601eb6ff8ca1a3ad918a8fc4471b01eda113bf196438e0c9",
+      "decision": "approved_at_limited_internal_linux_scope",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_catalog_copy_plan",
+        "timeout_seconds": 120,
+        "session": 56558,
+        "terminal": true,
+        "transport_exit": 0,
+        "explicit_test_exit": 0,
+        "tests": 20,
+        "unique_case_lines": 20,
+        "passed": 20,
+        "skipped": 0,
+        "seconds": 0.558,
+        "platform": "Linux x86_64",
+        "python": "3.12.3",
+        "temporary_policy": "Task-owned directory outside all Git checkouts.",
+        "verification": "Unittest footer,20 unique case lines and INDEPENDENT_PLANNER_EXIT=0 inspected; transport return alone not accepted.",
+        "log": {
+          "path": "_build/catalog-topology-independent-linux-planner.log",
+          "sha256": "8468bb1adfa11ca46fd78a40dc9826fd6d83ad551a58280792838f87d149c13b"
+        }
+      }
+    },
+    {
+      "path": "independent-layout-catalog-topology-ownership-portability-review.json",
+      "sha256": "e4c1ef565b300c7b1af0e2df0ded1fa30ebaa6277bb0040312a23f7b84db54da",
+      "decision": "approved_at_limited_internal_linux_scope",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_selected_flavor_remains_framework_after_manifest_edit tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_forged_baseline_cannot_claim_an_inactive_template_endpoint tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_manifest_blob_must_match_its_baseline_identity",
+        "session": 99303,
+        "timeout_seconds": 180,
+        "terminal": true,
+        "transport_exit": 0,
+        "explicit_test_exit": 0,
+        "tests": 3,
+        "unique_cases": 3,
+        "passed": 3,
+        "skipped": 0,
+        "seconds": 7.248,
+        "platform": "Linux x86_64",
+        "environment": "Owning qualification checkout Make-managed Python3.12.3",
+        "temporary_policy": "Task-owned directory outside all Git checkouts.",
+        "verification": "Read actual three case outcomes, unittest footer and explicit INDEPENDENT_PORTABILITY_EXIT=0; did not infer from transport return0.",
+        "log": {
+          "path": "_build/catalog-topology-independent-linux-portability.log",
+          "sha256": "bad26475f4d474d106ac6e6cef0a497ce54536271f65cc45da3c05f3207086ce"
+        }
+      }
+    }
+  ],
+  "qualification": {
+    "phase_complete": false,
+    "source_only_review": true,
+    "independent_dynamic": true,
+    "full_feature": false,
+    "public_catalog_complete": false,
+    "release_evidence": false,
+    "test_results_complete_at_internal_scope": true,
+    "source_reviewed": true,
+    "remote_gate_accepted": false,
+    "feature_complete": false,
+    "development_checkpoint_ready": true
+  },
+  "open_requirements": [
+    "Companion command-exit acknowledgement remains unavailable; complete future full execution qualification with durable transport custody. Retained unit results alone are not an accepted remote gate.",
+    "Remaining authored metadata roles, root/shared/initial/wrapper placement, complete public application/recovery/installed/native/platform/full-program acceptance.",
+    "Prior unexplained native entry-change refusal remains unresolved; successful replays do not establish cause.",
+    "All other pending roadmap items."
+  ],
+  "remote_source_acquisition": {
+    "mode": "canonical depth-one exact-revision checkout from actual ancestor-verified incremental Git bundle, then linked qualification worktree",
+    "snapshot_commit": "77492b6e4f422d9aca465404c52566b7bdc6d50d",
+    "snapshot_tree": "0399de246c0cdee8b0e52a7d6f0cfa5ebaa0bb5b",
+    "bundle_sha256": "f1777f559ca98e26deca4bf72ffde62ac44322c4b46685395418e2b9530512b2",
+    "bundle_bytes": 1475284,
+    "hydration": {
+      "clean": true,
+      "shallow": true,
+      "repositories": 1,
+      "lfs_verified_repositories": 1,
+      "restored_excluded_lfs_pointers": 0
+    },
+    "current_test_overlay": {
+      "path": "tests/critical/test_catalog_copy_plan.py",
+      "patch_sha256": "856c523f2463ce7f2165b0bee0896cfe95f1cbecde391a3f6841e3be120285ef",
+      "file_sha256": "500a2bdbdd96f1f1982f36c01fbcca4e0f1deaefc2b0a5f5dc7b3c89e9ce63b6",
+      "only_remote_tracked_change": true
+    },
+    "limits": "Private transport snapshot plus exact reviewed test overlay; no upstream push/publication or installed/native release attestation. Host routes and private worker paths excluded.",
+    "ownership_test_overlay": {
+      "path": "tests/critical/test_retained_layout_ownership.py",
+      "patch_sha256": "3db2d398ff4a43d03514ed2a57dd69d4d3d4523411cbc02cebbb2728dd6ae5a3",
+      "file_sha256": "ad7988e41852099dfcf7b3bb5e6d12284d2de67d291e819a05d63dfaab08fde3",
+      "scope": "Second sole test overlay on same canonical snapshot; product source unchanged."
+    }
+  },
+  "historical_remote_author_runs": [
+    {
+      "log": "_build/linux-catalog-topology-make-initial.log",
+      "sha256": "cd613da88a6bfba987419ccc42a728290934f0f9b75d5a2954c3b9fada9db783",
+      "tests": 0,
+      "result": "FAILED; one setUpClass error",
+      "cause": "Author placed TMPDIR inside qualification Git worktree, so ordinary throwaway fixtures inherited enclosing detached Git origin/default policy. Job configuration only corrected to scratch outside every Git checkout; no product guard or fixture weakened."
+    },
+    {
+      "log": "_build/linux-catalog-topology-make-current.log",
+      "sha256": "c50967d8aeeadd35fa14007ebc5b14864f9ed35435d1d49ffa3c1dee2a72a749",
+      "tests": 11,
+      "passed": 10,
+      "failed": 1,
+      "skipped": 0,
+      "seconds": 119.623,
+      "result": "FAILED",
+      "cause": "Legacy multi-item planner assertion expected three independent namespaces. Intended union design yields destination plus one forest. Strengthened maintained assertion now binds exact forest identity, selected roots/files/currentness; single-item omission remains asserted. Production code unchanged."
+    }
+  ],
+  "independent_dynamic_qualification": {
+    "cohorts": [
+      {
+        "path": "independent-layout-catalog-topology-linux-qualification-review.json",
+        "sha256": "cfa0ef1ae9b62c79b498596e483208dce3f72b98f606321bcce45ae3281504ab",
+        "decision": "approved_at_limited_internal_linux_scope",
+        "execution": {
+          "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_catalog_copy_topology tests.critical.test_catalog_source_forest tests.smoke.test_retained_cargo_tree_currentness tests.critical.test_retained_project_tree_inputs tests.critical.test_catalog_source_lease",
+          "timeout_seconds": 420,
+          "session": 65809,
+          "terminal": true,
+          "transport_exit": 0,
+          "explicit_test_exit": 0,
+          "tests": 50,
+          "unique_case_lines": 50,
+          "passed": 50,
+          "skipped": 0,
+          "seconds": 164.311,
+          "module_counts": {
+            "catalog_copy_topology": 4,
+            "catalog_source_forest": 11,
+            "retained_cargo_tree_currentness": 8,
+            "retained_project_tree_inputs": 14,
+            "catalog_source_lease": 13
+          },
+          "verification": "Unittest footer,50 unique case lines and durable INDEPENDENT_TEST_EXIT=0 inspected; transport status alone not accepted.",
+          "log": {
+            "path": "_build/catalog-topology-independent-linux.log",
+            "sha256": "26214146c54f224d457ea58b3ce5a64188044a55496334e0ac4aa7820b414465"
+          }
+        }
+      },
+      {
+        "path": "independent-layout-catalog-topology-planner-linux-review.json",
+        "sha256": "78044cbb5b184ed5601eb6ff8ca1a3ad918a8fc4471b01eda113bf196438e0c9",
+        "decision": "approved_at_limited_internal_linux_scope",
+        "execution": {
+          "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_catalog_copy_plan",
+          "timeout_seconds": 120,
+          "session": 56558,
+          "terminal": true,
+          "transport_exit": 0,
+          "explicit_test_exit": 0,
+          "tests": 20,
+          "unique_case_lines": 20,
+          "passed": 20,
+          "skipped": 0,
+          "seconds": 0.558,
+          "platform": "Linux x86_64",
+          "python": "3.12.3",
+          "temporary_policy": "Task-owned directory outside all Git checkouts.",
+          "verification": "Unittest footer,20 unique case lines and INDEPENDENT_PLANNER_EXIT=0 inspected; transport return alone not accepted.",
+          "log": {
+            "path": "_build/catalog-topology-independent-linux-planner.log",
+            "sha256": "8468bb1adfa11ca46fd78a40dc9826fd6d83ad551a58280792838f87d149c13b"
+          }
+        }
+      }
+    ],
+    "scope": "Separate original-eight-subject50-method and ninth-test-overlay20-method cohorts; both zero skips. Not a single70-case replay, full catalog suite, installed wheel or full-program acceptance."
+  },
+  "maintained_make": {
+    "platform": "Linux x86_64; Python3.12.3",
+    "command": "make python-check PYTHON_TEST_START_DIRECTORY=tests/critical PYTHON_TEST_PATTERN=test_catalog_*.py PYTHON_TEST_WORKERS=1; fresh checkpoint/report",
+    "tests": 147,
+    "passed": 146,
+    "skipped": 1,
+    "seconds": 719.017,
+    "result": "OK (skipped=1)",
+    "explicit_make_exit": 0,
+    "pattern": "test_catalog_*.py",
+    "log": "_build/linux-catalog-topology-make-final.log",
+    "log_sha256": "9198aceaf741dab606d9ddef499d26c646c79514aca571284ca6cf786d93890c",
+    "report": "_build/linux-catalog-topology-make-final-report.json",
+    "report_sha256": "de144553f4046704862284230144b49bbf6ce579e049fb3b12bbb1a1813ce323",
+    "source_manifest_sha256": "90b4f1acd60d92dfa80924cd97fb931218945959960d36a1a819644028ec7c28",
+    "archive_sha256": "8837006a9053a026e55ecd8f49ff4836f2243f9d448b5e7059c14022ab73f4bd",
+    "source_subjects_after_make": "All nine current SHA256 values match; sole tracked overlay is reviewed planner test.",
+    "skipped_cases": [
+      {
+        "annotation_identity": null,
+        "failure_identity": null,
+        "schema": "urn:literate-ai:schema:v2:known-test-failure-outcome",
+        "status": "skipped",
+        "test_key": "tests.critical.test_catalog_copy_protection.CatalogCopyProtectionTests.test_actual_own_root_manifest_case_is_not_an_independent_candidate"
+      }
+    ],
+    "note": "Successful checkpointed runner removes its completion checkpoint; retained report/log/source manifest imported instead. First evidence packaging attempt required absent checkpoint and was superseded, not accepted."
+  },
+  "author_local_corrections": [
+    "Initial forest-only fixture expected ValueError for a noncanonical trailing-parent alias; existing parser correctly raises TypeError. Assertion now accepts canonical parser refusal types, with no product parser relaxation.",
+    "Late-enlarged-namespace maintained case failed on both predecessor closers (two subtests). Repairs reject before retaining or descending into unknown nodes. Final33-method reader replay also follows lint-only loop-helper refactor."
+  ],
+  "output_link_policy": "Source forest preserves complete original alias/hardlink observations. Existing staging policy expands resolved source aliases and hardlinks into ordinary copied output nodes; expanded outputs are charged individually. No claim of preserved output inode/symlink topology.",
+  "author_companion_initial": {
+    "tests": 296,
+    "passed": 291,
+    "errors": 1,
+    "skipped": 4,
+    "seconds": 719.152,
+    "result": "FAILED (errors=1, skipped=4)",
+    "explicit_test_exit": 1,
+    "modules": [
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.e2e.test_repository_orchestration",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_retained_layout_program_consumers",
+      "tests.critical.test_retained_layout_structural_consumers",
+      "tests.smoke.test_catalog_import",
+      "tests.critical.test_retained_project_tree_inputs",
+      "tests.critical.test_retained_layout_recovery_data",
+      "tests.smoke.test_retained_cargo_tree_currentness",
+      "tests.critical.test_retained_cargo_receiving_v2",
+      "tests.critical.test_native_sdk_trees"
+    ],
+    "log": "_build/linux-catalog-topology-broad-initial.log",
+    "log_sha256": "28644a070656d76f40652043d8ea33230ec277f4cca037175f3502d98ffca89f",
+    "source_manifest_sha256": "3ef0274b6e9efc5a8faf709cf7024982efb12f730fd57e3e71187c2b8428c7ef",
+    "error_case": "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_selected_flavor_remains_framework_after_manifest_edit",
+    "cause": "FileNotFoundError reading hardcoded flavors/os-macos/flavor.md before ownership inspection on a real Linux-initialized fixture.",
+    "failed_ownership_test_sha256": "4782aca544e7c4ec1c6e5ab4056945a38270e32510de14d690c0697e92d8195f",
+    "repair": "Only maintained test now uses actual initialized host selector, asserts prior selection, removes exact selector and edits its original Flavor; framework ownership and local-overlay checks retained. No product change.",
+    "skipped_cases": [
+      {
+        "test_key": "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_git_administration_never_receives_source",
+        "reason": "skipped 'actual case-insensitive filesystem required'"
+      },
+      {
+        "test_key": "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_private_stage_is_refused_by_actual_directory_identity",
+        "reason": "skipped 'actual case-insensitive filesystem required'"
+      },
+      {
+        "test_key": "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_source_descendant_refuses_during_plan",
+        "reason": "skipped 'actual case-insensitive filesystem required'"
+      },
+      {
+        "test_key": "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_registered_child_manifest_case_preserves_actual_independent_role",
+        "reason": "skipped 'canonical manifest alias requires a case-insensitive volume'"
+      }
+    ],
+    "replay": "Separate current296 result recorded under author_companion_final; initial failure remains failed."
+  },
+  "independent_ownership_portability": {
+    "path": "independent-layout-catalog-topology-ownership-portability-review.json",
+    "sha256": "e4c1ef565b300c7b1af0e2df0ded1fa30ebaa6277bb0040312a23f7b84db54da",
+    "decision": "approved_at_limited_internal_linux_scope",
+    "execution": {
+      "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_selected_flavor_remains_framework_after_manifest_edit tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_forged_baseline_cannot_claim_an_inactive_template_endpoint tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_manifest_blob_must_match_its_baseline_identity",
+      "session": 99303,
+      "timeout_seconds": 180,
+      "terminal": true,
+      "transport_exit": 0,
+      "explicit_test_exit": 0,
+      "tests": 3,
+      "unique_cases": 3,
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 7.248,
+      "platform": "Linux x86_64",
+      "environment": "Owning qualification checkout Make-managed Python3.12.3",
+      "temporary_policy": "Task-owned directory outside all Git checkouts.",
+      "verification": "Read actual three case outcomes, unittest footer and explicit INDEPENDENT_PORTABILITY_EXIT=0; did not infer from transport return0.",
+      "log": {
+        "path": "_build/catalog-topology-independent-linux-portability.log",
+        "sha256": "bad26475f4d474d106ac6e6cef0a497ce54536271f65cc45da3c05f3207086ce"
+      }
+    }
+  },
+  "author_macos_case_supplement": {
+    "tests": 6,
+    "passed": 6,
+    "skipped": 0,
+    "seconds": 9.899,
+    "result": "OK",
+    "explicit_test_exit": 0,
+    "test_keys": [
+      "tests.critical.test_catalog_copy_protection.CatalogCopyProtectionTests.test_actual_own_root_manifest_case_is_not_an_independent_candidate",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_git_administration_never_receives_source",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_private_stage_is_refused_by_actual_directory_identity",
+      "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_source_descendant_refuses_during_plan",
+      "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_registered_child_manifest_case_preserves_actual_independent_role",
+      "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_selected_flavor_remains_framework_after_manifest_edit"
+    ],
+    "log": "_build/catalog-topology-mac-cases.log",
+    "log_sha256": "a7060aff88fab107e5ed3f6a5caf2b12a5377eaca1bf822ccb753aea94e9e44d",
+    "source_manifest_sha256": "0fb4089832dce9d88fc0b41c2d2c51c4f5174a2cd5f7a7c50fa4b1101da8f96c",
+    "platform": "Darwin",
+    "architecture": "arm64",
+    "python": "3.14.7",
+    "scope": "Actual case-insensitive-filesystem guards: all five cases skipped by Linux catalog/companion plus corrected original-host ownership positive. Full macOS/installed/native program acceptance remains open.",
+    "resource_exception": "Only six small existing fixtures/no environment creation; conservative256MiB peak estimate,10GiB reserve and prelaunch11GiB gate,120s GNUtimeout and file-size cap. Explicit narrow override of default free-fraction threshold. Broad local write-heavy jobs remain held; memory59%free,CPU60-67%idle measured; postrun~11GiBfree."
+  },
+  "author_companion_final": {
+    "tests": 296,
+    "passed": 292,
+    "skipped": 4,
+    "errors": 0,
+    "seconds": 706.425,
+    "result": "OK (skipped=4)",
+    "explicit_test_exit": null,
+    "transport": "Connection lost before command-exit acknowledgement; transport0 is not accepted as test exit. Canonical reconnect found complete successful unit footer and no owned test process, then imported digest-verified log/source manifest. No test restarted.",
+    "modules": [
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.e2e.test_repository_orchestration",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_retained_layout_program_consumers",
+      "tests.critical.test_retained_layout_structural_consumers",
+      "tests.smoke.test_catalog_import",
+      "tests.critical.test_retained_project_tree_inputs",
+      "tests.critical.test_retained_layout_recovery_data",
+      "tests.smoke.test_retained_cargo_tree_currentness",
+      "tests.critical.test_retained_cargo_receiving_v2",
+      "tests.critical.test_native_sdk_trees"
+    ],
+    "log": "_build/linux-catalog-topology-broad-final.log",
+    "log_sha256": "fb80e692937a35f8ede7c06d421a0a39480a88796426cc4433f3280be8907d8c",
+    "source_manifest_sha256": "258065a92f1537c3ed3760fba20909d39ddb3f257aeeaf105d854493b6efad29",
+    "archive_sha256": "1108b75d557b1848a6d43a2af5c68a17231d8df574288fcffc84ed6859933787",
+    "post_source": "All ten current subject hashes match; canonical snapshot plus only two reviewed test overlays.",
+    "skipped_cases": [
+      {
+        "test_key": "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_git_administration_never_receives_source",
+        "reason": "skipped 'actual case-insensitive filesystem required'"
+      },
+      {
+        "test_key": "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_private_stage_is_refused_by_actual_directory_identity",
+        "reason": "skipped 'actual case-insensitive filesystem required'"
+      },
+      {
+        "test_key": "tests.critical.test_retained_layout_transaction.RetainedLayoutTransactionTests.test_case_aliased_source_descendant_refuses_during_plan",
+        "reason": "skipped 'actual case-insensitive filesystem required'"
+      },
+      {
+        "test_key": "tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_registered_child_manifest_case_preserves_actual_independent_role",
+        "reason": "skipped 'canonical manifest alias requires a case-insensitive volume'"
+      }
+    ]
+  },
+  "author_coverage": {
+    "linux_passed": 438,
+    "linux_selected": 443,
+    "linux_skipped": 5,
+    "macos_passed": 6,
+    "macos_covers_all_five_linux_skips": true,
+    "unique_case_ids_successfully_observed_across_separate_runs": 443,
+    "note": "Distinct maintained Make147 and companion296 cohorts plus Mac6; not a single443-case or full-source/release run. Make predates only unused ownership-test body portability overlay; product code unchanged, changed case separately observed in current Linux/Mac runs. Replay command acknowledgement remains unavailable despite complete unit result."
+  },
+  "evidence_admission_audit": {
+    "path": "independent-layout-catalog-topology-evidence-admission-review.json",
+    "sha256": "b777581960b38e648a23fde4311836a325d35951a5f59706766ac997a4c9431f",
+    "decision": "admit_scoped_test_results_with_exit_uncertainty",
+    "scope": "Retained test-result evidence only. Missing companion command exit remains null; no full remote gate accepted."
+  },
+  "static_validation": {
+    "status": "passed",
+    "gates": [
+      "driver-review",
+      "runner-review",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "log_sha256": "cd13cf5c5d3caca027ac5fd010e8fb51cbfef95209a117cf8148b18e77ef1e99",
+    "project_validate": {
+      "ok": true,
+      "log_sha256": "49558d0f4a2cbb7659a3aac60d9d2bd2038d62cabadd7dcd81c913a80e3f1017"
+    },
+    "authority_renewal": "Supported driver-review-record then documentation-review-record; repeated documentation record after final queue next-action update. Source10 unchanged; no hand-edited pins.",
+    "peer_survey": {
+      "ok": true,
+      "when": "end",
+      "sha256": "b6a38d61a7991f2584ada5708f8534a6f8ea688909ddfbccf2931780fcc92266",
+      "disposition": "No branch/worktree collection or peer merges authorized/performed; retained work remains for consolidation."
+    }
+  }
+}

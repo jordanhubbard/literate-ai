@@ -237,21 +237,22 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
     def test_original_selected_flavor_remains_framework_after_manifest_edit(self):
         path = self.project / "literate.project.json"
         manifest = json.loads(path.read_bytes())
+        original_selector = initializer_fixtures.host_platform_selector()
+        self.assertIn(original_selector, manifest["default_flavor_selectors"])
         manifest["default_flavor_selectors"] = [
             selector
             for selector in manifest["default_flavor_selectors"]
-            if not selector.endswith("/os-macos")
+            if selector != original_selector
         ]
         path.write_bytes(canonical_json_bytes(manifest) + b"\n")
-        source = self.project / "flavors/os-macos/flavor.md"
+        relative = f"flavors/{original_selector.rsplit('/', 1)[-1]}/flavor.md"
+        source = self.project / relative
         source.write_bytes(
             source.read_bytes() + b"\nCustom initialized Flavor notes.\n"
         )
         with self.inspecting() as phase:
             with self.observe(phase) as owner:
-                self.assertEqual(
-                    dict(owner.roles)["flavors/os-macos/flavor.md"], "framework"
-                )
+                self.assertEqual(dict(owner.roles)[relative], "framework")
         self.assertTrue(
             source.read_bytes().endswith(b"Custom initialized Flavor notes.\n")
         )

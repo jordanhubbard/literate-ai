@@ -32,6 +32,7 @@ _FIELDS = (
     "inputs",
     "framework_update",
     "framework_identity",
+    "forest",
 )
 
 
@@ -144,7 +145,7 @@ def _ledger(owner, root, source_root, item_specs, budget, metadata, framework_up
     return record["ledger"]
 
 
-def _censuses(owner, ledger, root, source_root, items):
+def _inputs(owner, ledger, root, source_root, items):
     record = _record(owner)
     if (
         not record["claimed"]
@@ -155,7 +156,7 @@ def _censuses(owner, ledger, root, source_root, items):
     ):
         _fail("actual creating source ledger and selectors required")
     owner.require_current()
-    return record["censuses"]
+    return record["censuses"], record["forest"]
 
 
 @contextmanager
@@ -261,8 +262,22 @@ def prepared_git_catalog_copy_roles(
             catalog_import._read_source_project(source_root, ledger)
             catalog_import._read_source_ancestors(source_root, ledger)
             ledger.snapshot(Path(__file__))
-            for kind, name in items:
-                ledger.capture(catalog_import._source_item_dir(source_root, kind, name))
+            forest = None
+            if len(items) == 1:
+                for kind, name in items:
+                    ledger.capture(
+                        catalog_import._source_item_dir(source_root, kind, name)
+                    )
+            else:
+                selected = tuple(
+                    sorted(
+                        catalog_import._source_item_dir(source_root, kind, name)
+                        .relative_to(source_root)
+                        .as_posix()
+                        for kind, name in items
+                    )
+                )
+                forest = ledger.capture(source_root, _source_roots=selected)
             original = tuple(zip(ledger.censuses, ledger.native, strict=True))
             # Transfer actual original censuses, preserving all incurred usage.
             # Planning adds its destination first, then these exact known trees.
@@ -303,6 +318,7 @@ def prepared_git_catalog_copy_roles(
                 ),
                 framework_update=framework_update,
                 framework_identity=framework_identity,
+                forest=forest,
             )
             record["binding"] = tuple(record[name] for name in _FIELDS)
             _LIVE[owner] = record

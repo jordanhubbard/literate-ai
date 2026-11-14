@@ -286,7 +286,15 @@ class _CatalogCopyStages:
         }
 
     def _projection(self, index):
-        tree = self.plan._censuses[index + 1].tree
+        forest = self.plan._source_forest
+        source_index = index + 1 if forest is None else 1
+        tree = self.plan._censuses[source_index].tree
+        start = "."
+        if forest is not None:
+            kind, name = self.plan.items[index]
+            start = dict(self.plan._registry)[kind] + "/" + name
+            if tree.root != self.plan.source_root or start not in tree.selected_roots:
+                _fail("actual selected forest coordinate changed")
         self._ledger.charge_records(0, tree.entry_count * 64)
         directories = {".", *tree.directories}
         files = {name: blob for name, blob, _exec in tree.files}
@@ -294,10 +302,10 @@ class _CatalogCopyStages:
         children = {directory: [] for directory in directories}
         for name in (*tree.directories, *files, *aliases):
             children[PurePosixPath(name).parent.as_posix()].append(name)
-        native = dict(self.plan._native[index + 1])
+        native = dict(self.plan._native[source_index])
         file_names, directory_names = set(files), directories - {"."}
         resolution = _ResolutionBudget(remaining=self.budget.maximum_entries * 128)
-        output, pending = [], [("", ".", frozenset())]
+        output, pending = [], [("", start, frozenset())]
         copied_bytes = 0
         ledger = self._ledger
         ledger.charge_records(1, 16)

@@ -33952,8 +33952,25 @@ independent review and the complete combined gate from test one.
   entry-change refusal remains unexplained despite passing unchanged replays.
   Complete source/review limits are retained in
   [source-lease evidence](../../verification/retained-layout-catalog-source-development.json).
-  Next complete cross-item topology and remaining ownership phases, including authored metadata
-  roles before root effects,
+  Internal selected-source topology now uses one bounded forest across actual
+  canonical selected directories, permitting complete cross-item hardlinks and
+  aliases while refusing escapes, partial-ancestor targets and incomplete groups.
+  The original forest feeds actual local/Git planning, copying, provenance and
+  one-use source handoff. Native closing rejects unknown nodes before retention
+  or descent in both selected and whole-tree paths. Independent Linux runs pass
+  fifty source/topology/reader methods and a separate twenty-method planner
+  cohort without skips. The author catalog Make gate passes 146 methods with
+  one case-insensitive-filesystem skip. The companion replay records 292 passes
+  and four filesystem skips; canonical retrieval confirms its complete unit
+  result and unchanged subjects after transport loss, with command-exit
+  acknowledgement explicitly unknown. A separate six-case macOS run passes
+  without skips and covers all five Linux filesystem skips plus the portable
+  original-host ownership positive. Independent portability checks pass the
+  changed positive and two producer-negative controls. Original failed source review, causal
+  native-close failures and author qualification failures remain retained in
+  [topology evidence](../../verification/retained-layout-catalog-topology-development.json).
+  Next join authored metadata roles before root effects, preserving the transport
+  limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

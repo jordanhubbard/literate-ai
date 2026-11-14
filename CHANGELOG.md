@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Catalog-copy development can observe multiple selected sources as one bounded
+  forest, resolve cross-item links while copying and carry the original
+  observations through source ownership handoff. Native closing scans reject
+  unknown entries before retaining or descending into them. Complete public
+  application, recovery and platform qualification remain unfinished (#265).
+
 - Catalog-copy development can retain an actual canonical Git checkout through
   source ownership handoff and record its resolved commit in provenance. Source
   observations share the copy budget; ended or changed leases refuse. Complete

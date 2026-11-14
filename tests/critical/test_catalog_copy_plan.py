@@ -50,6 +50,9 @@ class CatalogCopyPlanTests(unittest.TestCase):
         document = plan.document
         document["items"].append(["flavor", "forged"])
         self.assertEqual(plan.document["items"], [["flavor", "local-toolchain"]])
+        self.assertIsNone(plan._source_forest)
+        self.assertNotIn("source_forest", plan.document)
+        self.assertNotIn("selected_source_roots", plan.document)
         self.assertFalse((self.root / "flavors").exists())
         self.assertFalse(hasattr(plan, "spend"))
         with self.assertRaises(FrozenInstanceError):
@@ -75,7 +78,27 @@ class CatalogCopyPlanTests(unittest.TestCase):
             maximum_metadata_bytes=2 * 1024**3,
         )
         self.assertEqual(plan.items[0], ("skill", "agent/nested"))
-        self.assertEqual(len(plan.document["namespaces"]), 3)
+        forest = plan._source_forest
+        self.assertIsNotNone(forest)
+        self.assertEqual(len(plan._censuses), 2)
+        self.assertIs(plan._censuses[1], forest)
+        selected = ("flavors/local-toolchain", "skills/agent/nested")
+        self.assertEqual(forest.tree.selected_roots, selected)
+        document = plan.document
+        self.assertEqual(document["selected_source_roots"], list(selected))
+        self.assertEqual(document["source_forest"], forest.identity.uri)
+        self.assertEqual(
+            document["namespaces"],
+            [
+                {"root": str(c.tree.root), "identity": c.identity.uri}
+                for c in plan._censuses
+            ],
+        )
+        self.assertEqual(
+            {name for name, _blob, _executable in forest.tree.files},
+            {"flavors/local-toolchain/flavor.md", "skills/agent/nested/SKILL.md"},
+        )
+        plan.require_current()
 
     def test_missing_optional_metadata_remains_a_bound_absence(self):
         for root in (self.root, self.source):

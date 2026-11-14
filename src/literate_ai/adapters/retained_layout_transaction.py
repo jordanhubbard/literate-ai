@@ -176,23 +176,33 @@ def _close_tree(tree, native, *, controls=None):
     close_private_nodes = (
         None if controls is None else controls.reservations._native_dependency_closer()
     )
+    known = dict(native[1:])
     with _directory_access(tree.root) as access:
         roots = []
         with os.scandir(tree.root) as entries:
             for entry in entries:
+                if entry.name not in known:
+                    _fail("source native namespace changed")
                 if len(roots) >= tree.budget.maximum_entries:
                     _fail("source membership exceeds its bound")
                 roots.append(entry.name)
         observed = {}
+
+        def observe(name, node):
+            actual = _from_stat(node)
+            if known.get(name) != actual:
+                _fail("source native namespace changed")
+            observed[name] = actual
+
         _inventory(
             tree.root,
             tuple(sorted(roots)),
             tree.budget.maximum_entries,
             allow_internal_symlinks=True,
             access=access,
-            observe=lambda name, node: observed.__setitem__(name, _from_stat(node)),
+            observe=observe,
         )
-        if observed != dict(native[1:]):
+        if observed != known:
             _fail("source native namespace changed")
         if controls is not None:
             # This can enumerate the external journal and private stages. Close

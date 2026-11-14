@@ -1578,3 +1578,84 @@ unchanged single-case retry and complete replay pass. The failed run stays faile
 the underlying changed node/path cause remains unestablished and the native guard
 is unchanged. Diagnose that refusal before complete native/program acceptance;
 successful replays do not establish its cause or resolve it.
+
+### Shared selected-source topology
+
+The internal implementation observes the complete union of actual canonical selected
+source directories under one original budget. A distinct read-only forest records
+the selected roots, all their descendants and the native ancestry that anchors
+them. It grants no whole-project partition or exclusion authority. Unselected
+payloads are outside this input selection, not hidden project-owned entries.
+
+Reuse the streaming no-follow hashing and topology rules. Require complete
+hardlink groups within the selected union, permit aliases only into completely
+observed selected subtrees, and refuse escapes, unselected targets, partial
+ancestor targets and ambiguous overlapping selections. Preserve original facts
+and complete recapture, including new entries inside every selected root.
+
+Bind the actual forest and each exact selector coordinate into planning, source
+lease lifetime, staging projections, provenance, receiver finalization and the
+one-use imported-role handoff. Fund shared input hashes once and every expanded
+output separately before effects. Keep ordinary single-item/default behavior,
+original policy limits, protected roles and final lifetime closes intact. Qualify
+real multi-item aliases/hardlinks, expansion and refusal boundaries through the
+actual copy/source owners; complete public/root/recovery/platform acceptance
+remains open.
+
+Source review identifies a closing-scan accounting gap: retaining an enlarged
+namespace up to the original entry count can exceed a later reduced metadata
+reservation before the final mismatch check. Validate each name and native node
+against the exact original map before retention or descent. Apply the same rule
+to the inherited whole-tree native closer, including root-name enumeration.
+Retain the failed source review and qualify late enlarged-subtree refusal without
+traversing unknown descendants; no fresh baseline or higher cap is permitted.
+
+Independent Linux qualification passes fifty maintained topology, forest, legacy
+reader and source-lease methods without skips. A separate source-reviewed planner
+update passes all twenty methods without skips, replacing the obsolete per-item
+namespace count with exact shared-forest identity, roots, files and currentness
+checks while retaining single-item omission checks. The author catalog Make gate
+passes 146 methods and skips one case requiring a case-insensitive filesystem.
+Its initial fixture-setup error and later stale-assertion failure remain recorded
+in [topology evidence](../../verification/retained-layout-catalog-topology-development.json).
+The companion ownership/transaction/recovery/consumer replay completes with
+292 passes and four case-insensitive-filesystem skips. Its transport connection
+is lost before returning the command exit; that acknowledgement remains unknown.
+A canonical reconnect retrieves the complete 296-case successful unit result and
+unchanged ten-subject manifest after confirming no test process remains. This
+proves the retained test result, not a successful transport or release gate.
+
+The first companion run remains failed: a macOS-specific fixture path caused one
+error before ownership inspection. The repaired maintained test derives the
+actual initialized host selector, asserts prior selection and preserves the
+framework-role and local-overlay checks. Its positive and two producer-negative
+controls pass independently on Linux without skips. A separate six-method macOS
+run passes without skips, executing all five filesystem cases skipped across the
+Linux runs plus the corrected original-host positive. Exact scope, the narrow
+host-resource exception and original failures remain in topology evidence.
+No installed, other-platform, root/public/recovery or full-program acceptance
+follows from these source-checkout results.
+
+### Canonical authored metadata ownership (queued)
+
+After the selected-source dependency is qualified, join the actual canonical
+authored inputs to complete partition ownership. Derive their endpoints from the
+live source plan's parsed project, conversion, lift/layout and wrapper witnesses,
+including the actual selected Component and optional lock. Reconcile shared
+endpoints with the genuine initializer, update, catalog and control owners;
+refuse ambiguous ownership rather than accepting a caller's path list or a saved
+digest as permission. Charge original payloads, paths and observations before
+reads through the same operation allowance and retain their original ancestry.
+
+Close these actual inputs after dependent discovery and native callbacks, before
+role consumption or source effects. Qualify real nonroot positive composition
+and changed/ended/forged-owner refusals first, preserving unknown files and stale
+evidence. Keep canonical prospective metadata and interrupted recovery bound to
+their original observations; this does not grant fresh execution qualification.
+
+The source-phase input reader currently refuses root implementation placement,
+and source-prefix partition classification is still nonroot-only. Keep that
+refusal until the complete mixed partition and effect graph exist. Root movement
+must leave Git, controls, metadata and independent children fixed and descend
+through shared ancestors without moving them as source-owned directories. The
+catalog forest supplies no whole-project exclusion or root-partition authority.
