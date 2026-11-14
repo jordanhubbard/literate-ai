@@ -1,0 +1,66 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "95a0a8dd3ef7d40be946b3cb46b2b3fefdf9f549",
+  "predecessor": {
+    "path": "independent-layout-catalog-entry-review.json",
+    "sha256": "e62fc1960b3badd849231300439c22075ac7e5b4f343f9c711387add2f40f290",
+    "preserved": true
+  },
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "6bf9342513422e74dbd37f4c0a9078746916b9588b2de2eab6a057d8b3e8ab02"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "73bd8790c0f832e777d40172449b690f784c65ddcb67b0e84a4541213e9fa94c"
+    },
+    {
+      "path": "tests/critical/test_catalog_entry_publication.py",
+      "sha256": "93d71ab7a1436dc6bf4519b1ba7d85bc1fc92ba32751d713de16fedd9cd94f5a"
+    }
+  ],
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-ENTRY-CUSTODY-001",
+      "assessment": "Actual registry membership now selects transferred-stage dispatch and inspect/stage_item refusal even if the mutable hint is cleared. _receiver retains exact original nonce validation, so a registered stage with changed hint refuses instead of falling back. Actual stage-finally unconditionally revokes its own receiver registration; nested finally retires original factory admission and active state even if revocation raises. No write rights are conferred by inspection."
+    }
+  ],
+  "source_assessment": [
+    "Receiver registration binds original stage plan/ledger, frozen MappingProxyType item map, view budget/metadata, control-private observations, actual live journal admission, actual control lease and expected project/private namespace objects.",
+    "Registry-backed _TOUCHED marks an attempted project native move independently of mutable inspection results; clearing published inspection data cannot convert a published context into completed catalog application.",
+    "Actual receiver writer membership is retired on application exit, while stage observation membership remains until original stage teardown. Ended receiver use rejects before subsequent filesystem access.",
+    "Durable intent precedes exclusive native retirement/publication. Expected namespace updates derive from actual moved nodes; original nodes are retained on failures, without automatic undo.",
+    "Source/protected input reads and namespace captures precede final known native checks and admission close. This is observed-span consistency, not a continuously held filesystem snapshot.",
+    "Closed-item topology restrictions and shared view/event/storage reserves remain; unsupported cross-item aliases refuse before effects."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.critical.test_catalog_entry_publication",
+    "session": 14902,
+    "exit_code": 0,
+    "tests": 17,
+    "passed": 17,
+    "skipped": 0,
+    "seconds": 58.063,
+    "result": "OK",
+    "bespoke_probes": 0,
+    "terminal": true
+  },
+  "coverage": "Maintained methods exercise actual native publication/retirement, missing parent preparation, real committed Git controls, thread denial, foreign edits, post-move failure retention, quota refusal, cleared-hint dispatch and teardown, bound item/view inputs, inspection data clearing and cross-item topology refusal.",
+  "author_evidence": {
+    "path": "_build/catalog-entry-repaired-focused.log",
+    "result": "17 passed, zero skips, 52.723 seconds; read and attributed to author, separate from independent execution."
+  },
+  "limits": [
+    "Approval covers internal partial catalog entry effects and repaired custody only; no completed catalog-copy operation.",
+    "Normal published context exit still deliberately reports incomplete provenance and control finalization. Imported-role handoff and canonical provenance remain unimplemented and mandatory.",
+    "No bespoke causal scripts executed. Clearing-hint regression evidence comes from maintained methods, not a new predecessor replay.",
+    "Earlier author broad138/1error is preserved by the initial report; no current broad-suite pass is inferred here.",
+    "No public API, fresh recovery, full namespace ownership, root/shared/wrapper, isolated installed-wheel, Linux/Windows, full feature/program or release acceptance.",
+    "Source hashes were rechecked unchanged during this review. No implementation/test/pin edits, network actions or new agents.",
+    "No independent process remains live."
+  ]
+}

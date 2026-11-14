@@ -1390,6 +1390,40 @@ Earlier source findings and runs retain their original manifests; the immutable
 review chain, teardown clarification and exact current results are retained in
 [development evidence](../../verification/retained-layout-catalog-protection-development.json).
 
+### Actual catalog entry effects
+
+Transfer the creating stage factory to one authentic effect receiver only after
+the protection scope has ended and original stage/control inputs are revalidated.
+Its expected project and private namespaces advance only from known journal writes
+and exclusive native effects, preserving original observations. Bound current-view
+captures and their metadata in the original shared ledger; never reload foreign
+state as a new baseline or bypass the unchanged destination guard with a flag.
+
+Before overwriting an item, durably record its original namespace and native
+endpoints, then retain the actual old directory in the private area. Publish the
+verified stage exclusively. Missing public parents must come from known private
+directories with ordinary creation modes, promoted with the selected item. Bind
+every update to actual native results and retain ambiguous outcomes without undo.
+Closed per-item topology is the initial normal profile; cross-item topology and
+the full existing acceptance contract remain required.
+
+Entry publication alone is incomplete. Keep controls retained and refuse a complete
+catalog success until canonical provenance, control finalization and the actual
+one-use imported-role/source-custody handoff exist. A receiver that has ended may
+observe for the enclosing stage factory's final close, but may perform no effects;
+the creating stage factory revokes that observation before descriptor teardown.
+
+Actual receiver registration governs dispatch, refusal and teardown independently
+of the mutable stage hint. Original nonce and frozen item/view/control bindings
+remain required; registry-backed touched state governs incomplete-exit signaling.
+All 144 affected author methods and the scoped Make runner's 17 methods pass
+without skips. Independent rereview approves the exact three subjects and passes
+all 17 maintained methods without skips. The initial containing-Git native guard
+conflict remains retained with its passing standalone and final replays; its
+cause is not claimed fixed and the guard remains unchanged. Exact subjects and
+the immutable failed/closing review chain are in
+[development evidence](../../verification/retained-layout-catalog-entry-development.json).
+
 This preflight remains read-only. Actual stage-to-effect receiver transfer,
 original-node retirement, exclusive publication, exact canonical provenance and
 the one-use imported-role/source-custody handoff remain required. Preserve all

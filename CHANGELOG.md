@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Catalog-copy development can retain original item directories and exclusively
+  publish verified stages under actual held controls, including missing parent
+  chains with ordinary modes. Entry effects remain explicitly incomplete until
+  provenance and control finalization exist; no imported roles are issued (#265).
+
 - Catalog-publication development joins actual held project/Git controls to
   bounded retained-source, wrapper and child-project protections. Alternate target
   spellings and cross-role aliases refuse during preflight; publication and

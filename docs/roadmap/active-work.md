@@ -33896,10 +33896,23 @@ independent review and the complete combined gate from test one.
   require explicit ownership transfer or revalidation. Exact subjects, immutable
   failed/closing reviews and this limit are retained in
   [protection development evidence](../../verification/retained-layout-catalog-protection-development.json).
-  Project publication, overwrite retirement and the live imported-role join remain
-  required. The plan is descriptive;
-  it supplies no copied role, source exclusion or write permission. Next connect
-  genuine catalog application/retirement and its live ownership handoff, then
+  Actual entry publication now transfers genuine stages to one live receiver.
+  Durable intent precedes native retirement of old directories and exclusive
+  publication of verified items. Missing parent chains are prepared privately with
+  ordinary modes and promoted with the actual item. Complete expected project and
+  private views advance only from known effects under the original shared budget;
+  ambiguous outcomes retain all nodes. Actual registration, original nonce and
+  frozen policy/item bindings govern custody, while registry-backed touched state
+  keeps published exit explicitly incomplete. All 144 affected author methods and
+  17 scoped Make methods pass without skips; independent rereview approves the
+  exact three subjects and passes all 17 maintained methods. An earlier unrelated
+  containing-Git guard conflict and its passing replays remain recorded without a
+  claimed cause or weakened guard in
+  [entry-effect evidence](../../verification/retained-layout-catalog-entry-development.json).
+  Canonical provenance, actual control finalization and the live imported-role join
+  remain required for complete project application. The plan remains descriptive;
+  it supplies no copied role or source exclusion. Next complete those real writer
+  and ownership phases, then
   authored metadata roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review

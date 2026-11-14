@@ -164,6 +164,7 @@ class _CatalogCopyStages:
         self._active, self._pid, self._poisoned = True, os.getpid(), False
         self._entries, self._names = {}, {"journal"}
         self._active_copy = None
+        self._effect_admission = None
         self._root_node = _from_stat(os.fstat(descriptor))
         self._journal_node = _from_stat(os.fstat(journal._descriptor))
         ledger.snapshot(Path(__file__))
@@ -243,6 +244,10 @@ class _CatalogCopyStages:
         self._live()
 
     def require_current(self):
+        from .catalog_entry_publication import _receiver, _registered
+
+        if self._effect_admission is not None or _registered(self):
+            return _receiver(self).require_current()
         self._live()
         self._guard()
         self._plan.require_current()
@@ -264,6 +269,10 @@ class _CatalogCopyStages:
         self._close_known()
 
     def inspect(self, token):
+        from .catalog_entry_publication import _registered
+
+        if self._effect_admission is not None or _registered(self):
+            _fail("stage custody transferred; inspect the actual effect receiver")
         self.require_current()
         if type(token) is not StagedCatalogItem or token not in self._entries:
             raise TypeError("actual live catalog stage required")
@@ -473,6 +482,10 @@ class _CatalogCopyStages:
         return sorted(records, key=lambda record: Path(record.path))
 
     def stage_item(self, index):
+        from .catalog_entry_publication import _registered
+
+        if self._effect_admission is not None or _registered(self):
+            _fail("stage custody already transferred")
         self.require_current()
         if type(index) is not int or not 0 <= index < len(self.plan.items):
             _fail("exact selected item index required")
@@ -643,9 +656,15 @@ def staged_catalog_copies(root, plan, *, journal_budget):
                     yield owner
                     owner.require_current()
                 finally:
-                    _ADMISSIONS.pop(admission, None)
-                    if owner is not None:
-                        owner._active = False
+                    try:
+                        if owner is not None:
+                            from .catalog_entry_publication import _revoke
+
+                            _revoke(owner)
+                    finally:
+                        _ADMISSIONS.pop(admission, None)
+                        if owner is not None:
+                            owner._active = False
         finally:
             if owner is not None:
                 owner._active = False
