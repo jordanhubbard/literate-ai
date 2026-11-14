@@ -1224,3 +1224,42 @@ refuse before writes until the complete group owner is joined. Next join actual
 catalog-import and authored metadata owners plus durable historical update roles;
 then complete root/shared/initial/wrapper movement and the public/installed/native
 acceptance contract above. No full-program evidence or completion follows here.
+
+### Actual catalog-copy ownership (in progress)
+
+The existing catalog writer removes an old item before copying its source tree;
+its manifest, ancestry, provenance and copied-file readers allocate without a
+shared operation budget. Saved import rows cannot establish actual adoption or
+authorize source exclusions. First bind a read-only copy plan to the complete
+destination namespace, each exact selected source tree, actual canonical selector
+mapping and bounded canonical project/DAG inputs. Close original payload/native
+facts and ancestors after final reads, including source and destination inputs.
+Retain unknown entries and all aliases in these complete observations. Keep this
+plan descriptive: it grants no write, copy, exclusion or role ownership.
+
+Then route actual catalog application through that same plan and canonical
+selection/DAG owners, journal durable intent before effects, retain overwritten
+originals through exclusive native retirement, and bind original/produced native
+nodes and exact serialized provenance to a one-use live handoff. Join that actual
+handoff with source ownership; never reconstruct it from a registry or saved plan.
+Preserve ordinary catalog defaults. Copied item types, alias/copy transformations,
+overwrite, overlapping selections, source changes, foreign destinations, quota
+exhaustion, interruption, native/platform and installed acceptance remain required.
+
+Initial independent plan review changed source project metadata and inserted a
+destination member after the last selected-source namespace close; both controls
+still returned current. Per-namespace closing alone leaves earlier inputs exposed
+to later traversals. Finish every namespace traversal first, then close original
+metadata, all known native nodes, directory stamps and ancestors across the whole
+plan, without a subsequent enumeration. Preserve the failed controls and make
+both actual late changes refuse before admitting this read-only dependency.
+
+The exact read-only dependency is now independently source reviewed. All 37
+affected methods and the scoped Make run's 20 planning methods pass without skips;
+both original failed controls now refuse the same changes. The final pure closing
+pass follows every namespace traversal. Exact reviewed subjects, immutable failed
+and closing reports and final local checks are retained in
+[development evidence](../../verification/retained-layout-catalog-copy-plan-development.json).
+Current selected inputs are individually closed trees; cross-item topology and
+actual alias-copy projections remain required. Next implement genuine application,
+durable native retirement and live imported-role handoff under the contract above.

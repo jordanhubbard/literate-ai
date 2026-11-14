@@ -33845,7 +33845,17 @@ independent review and the complete combined gate from test one.
   [update-handoff development evidence](../../verification/retained-layout-update-handoff-development.json).
   This remains the internal normal nonroot POSIX source-provider profile; complete
   framework alias-group mutation ownership and durable restart/history are open.
-  Next join actual catalog-import and authored metadata roles before root effects,
+  Actual catalog-copy planning is now source reviewed: it binds complete bounded
+  destination/selected-source namespaces, canonical selector/DAG inputs and their
+  final native facts before any effect. All 37 affected methods and the scoped
+  Make runner's 20 planning methods pass without skips. Independent review closes
+  the late-traversal finding; all traversals precede final original native closure.
+  Exact subjects and failed/closing controls are retained in
+  [catalog-copy planning evidence](../../verification/retained-layout-catalog-copy-plan-development.json).
+  The plan is descriptive;
+  it supplies no copied role, source exclusion or write permission. Next connect
+  genuine catalog application/retirement and its live ownership handoff, then
+  authored metadata roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

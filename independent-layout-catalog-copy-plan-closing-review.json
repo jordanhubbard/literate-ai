@@ -1,0 +1,94 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T02:34:21.393120+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "approved_at_exact_read_only_scope",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "a21007acfddc62450fcb9798a08e0154fb458035",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "a4c5b82e1c2f363799bd6db4784ba025bbe8caa383be07ca6d94b9ee81a35122",
+      "bytes": 14441,
+      "unchanged_from_initial": false
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "e66a1bf858546f7163332fc666a3ff2d51bf953aedc8576226f3d0ca829ca1f8",
+      "bytes": 27527,
+      "unchanged_from_initial": true
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_plan.py",
+      "sha256": "bb5c6bef62ecaad18d80da51d63badf4bf5d1e4cb4bc65ecf086f1445340fa51",
+      "bytes": 14054,
+      "unchanged_from_initial": false
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-reviewed-subjects",
+  "scope": "Read-only exact local-input catalog-copy plan using actual canonical selector/project/DAG/import readers and complete destination/selected-source census; no effects or ownership capability.",
+  "findings": [],
+  "source_assessment": [
+    "Read full new plan/test modules and catalog_import diff; inspected reused census/_native_tree/_close_tree and actual canonical DAG contracts.",
+    "Optional observed readers preserve ordinary copy defaults. Origin raw bytes now parsed+hashed once. No framework labels/exclusions: unknown destination members and aliases remain in complete census.",
+    "Frozen plan and detached document have no apply/spend/live role capability. Saved import labels/rows do not mint ownership.",
+    "Shared file/entry/payload/metadata accounting covers complete captures, code/metadata reads, decoded canonical records, actual mapping/selectors and output serialization. Maintained quota boundaries passed; no exhaustive allocator/RSS proof claimed.",
+    "Future copy must independently join actual controls/producer roles, durable intent/overwrite retirement, alias transforms and one-use live handoff. Descriptive plan cannot be treated as saved authority.",
+    "Full3subject rereview: catalog_import.py byte-identical to initial review; only aggregate pure closing and2 maintained causal cases changed.",
+    "Final original missing metadata/nearest-existing ancestry close follows all later observations. Native representation matches original _native_tree/_from_stat, including symlinks/hardlinks/modes.",
+    "Shared finite quota preflight unchanged; exercised file/entry/payload controls pass. No exhaustive RSS/allocator proof.",
+    "Approval is only read-only descriptive prerequisite, not future copy/overwrite/retirement/live role or full-feature admission. Future consumer must rederive actual control/producer roles; saved/forged plan cannot grant rights."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_plan tests.smoke.test_catalog_import tests.e2e.test_repository_catalogs tests.e2e.test_retained_catalog_discovery",
+      "result": "37 passed,0 failed,0 errors,0 skipped,14.617s;20 maintained+17 ordinary regressions",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-independent-cohort.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.py",
+      "result": "Exact unchanged independent2 predecessor controls pass,0 failures/errors/skips,0.069s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-independent-original.log"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-independent-cohort.log",
+      "sha256": "9a29140480d046157b994c2c583b0d5b529d5b5260b89a6705e8feb175edc506",
+      "bytes": 6884
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.py",
+      "sha256": "d1613e498bf4a053d9d0bbff28ca213b913f5ee27d7ecc0358b1850399578a97",
+      "bytes": 1907
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-independent-original.log",
+      "sha256": "f43daaa67b3736027b10693dce778917c47cd94e49adf22fd94effa654e96eb2",
+      "bytes": 370
+    }
+  ],
+  "terminal_process_state": "All independent tests/probes terminal exit0; no reviewer-owned process remains. Author gates not independently relabeled.",
+  "limits": [
+    "Read-only prerequisite only: no copy/overwrite/retirement, ownership/source exclusion, live handoff, CLI/network/recovery/public/full-feature acceptance.",
+    "Local managed editable-source POSIX/macOS evidence only; no isolated installed/wheel, native Windows/Linux/cross-platform or release qualification.",
+    "Existing canonical DAG contract reused; no new global graph ownership/authenticated historical provenance claim.",
+    "Actual alias-copy transforms, overlaps, full ownership/finalization, platform and effect acceptance remain required.",
+    "No hostile same-user continuous atomic snapshot; observed-span currentness still must refuse these two concrete changes.",
+    "No source/test/pin edits, installs, subagents, network or external posts. Only private disposable probes/evidence and requested immutable root report written."
+  ],
+  "prior_report": {
+    "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-copy-plan-review.json",
+    "sha256": "bc439b5e9f4ab9e065759555da824c04f56f1752de00bfe6525cfc7fc17b0c89",
+    "unchanged": true
+  },
+  "resolved": [
+    {
+      "id": "CATALOG-COPY-PLAN-CLOSING-001",
+      "status": "closed_in_exact_reviewed_bytes",
+      "evidence": "All _close_tree enumerations finish before _close_known_inputs closes original metadata/absence/anchors plus all census original native entry/root stamps globally files-first/deepest-directories/root-last. No payload/enumeration follows. Both unchanged independent predecessor controls pass."
+    }
+  ]
+}

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Catalog-copy development can inspect complete destination and selected-source
+  namespaces with bounded canonical project/DAG inputs before any copy effects.
+  Saved provenance remains descriptive and grants no ownership (#265).
+
 - Retained-layout development can carry actual framework update additions and
   reviewed local overlays into acknowledged nonroot source moves. Changed inputs
   and ended update contexts refuse ownership handoff; strict removals retain

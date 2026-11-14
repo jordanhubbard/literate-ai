@@ -29,6 +29,7 @@ from literate_ai.projects import (
     PROJECT_FILENAME,
     ProjectConfigurationStore,
     ProjectError,
+    parse_project_configuration,
 )
 
 _GIT_TIMEOUT_SECONDS = 300
@@ -351,18 +352,63 @@ def _open_source(
     yield _resolve_local_source(source_spec)
 
 
-def _read_source_project(source_root: Path) -> tuple[str, str]:
+def _project_record(root: Path, observation=None):
+    if observation is None:
+        snapshot = ProjectConfigurationStore(root).read()
+        return snapshot.definition, snapshot.content_identity.uri
+    import hashlib
+
+    content = observation.read(root, PROJECT_FILENAME)
+    observation.json_value(content, str(root / PROJECT_FILENAME))
+    return (
+        parse_project_configuration(content),
+        "sha256:" + hashlib.sha256(content).hexdigest(),
+    )
+
+
+def _read_source_project(source_root: Path, observation=None) -> tuple[str, str]:
     try:
-        snapshot = ProjectConfigurationStore(source_root).read()
+        definition, identity = _project_record(source_root, observation)
     except ProjectError as exc:
         raise CatalogImportError(
             "catalog.import_source_invalid",
             f"source project manifest is invalid: {source_root}",
         ) from exc
-    return snapshot.definition.project_id, snapshot.content_identity.uri
+    return definition.project_id, identity
 
 
-def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
+def _read_imports(source_root: Path, observation=None) -> CatalogImportsFile:
+    if observation is None:
+        return CatalogImportsFile.load(source_root)
+    content = observation.read(source_root, CatalogImportsFile.PATH, optional=True)
+    if content is None:
+        return CatalogImportsFile(imports=())
+    return CatalogImportsFile.from_dict(
+        observation.json_value(content, str(source_root / CatalogImportsFile.PATH))
+    )
+
+
+def _read_origin(source_root: Path, observation=None):
+    path = source_root / ".literate/initialization-origin.json"
+    if observation is None:
+        content = path.read_bytes() if path.exists() else None
+    else:
+        content = observation.read(
+            source_root, ".literate/initialization-origin.json", optional=True
+        )
+    if content is None:
+        return None, None
+    value = (
+        json.loads(content.decode("utf-8"))
+        if observation is None
+        else observation.json_value(content, str(path))
+    )
+    return value, content
+
+
+def _read_source_ancestors(
+    source_root: Path, observation=None
+) -> tuple[TransitiveAncestor, ...]:
     """
     Read the source project's own initialization-origin and imports.json to
     build its ancestor chain. The result is what we embed as transitive_ancestors
@@ -371,9 +417,8 @@ def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
     ancestors: list[TransitiveAncestor] = []
 
     # Root edge: initialization-origin.json → literate-ai
-    origin_path = source_root / ".literate" / "initialization-origin.json"
-    if origin_path.exists():
-        origin = json.loads(origin_path.read_text(encoding="utf-8"))
+    origin, origin_content = _read_origin(source_root, observation)
+    if origin_content is not None:
         repo_url = origin.get("repository_url", "")
         git_rev = origin.get("git_revision", "")
         dist_name = origin.get("distribution_name", "literate-ai")
@@ -383,9 +428,7 @@ def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
         # The project identity for literate-ai is derived from the origin record itself
         import hashlib
 
-        origin_identity = (
-            "sha256:" + hashlib.sha256(origin_path.read_bytes()).hexdigest()
-        )
+        origin_identity = "sha256:" + hashlib.sha256(origin_content).hexdigest()
         ancestors.append(
             TransitiveAncestor(
                 project_id=dist_name,
@@ -395,7 +438,7 @@ def _read_source_ancestors(source_root: Path) -> tuple[TransitiveAncestor, ...]:
         )
 
     # Additional edges: source's own imports.json
-    imports = CatalogImportsFile.load(source_root)
+    imports = _read_imports(source_root, observation)
     for imp in imports.imports:
         # Add the direct source and all its transitive ancestors
         src = imp.source
@@ -423,6 +466,7 @@ def check_dag_safe(
     dest_root: Path,
     source_project_id: str,
     source_ancestors: tuple[TransitiveAncestor, ...],
+    observation=None,
 ) -> None:
     """
     Raise CatalogImportError if adding this source would create a cycle.
@@ -433,22 +477,19 @@ def check_dag_safe(
     """
     # Read dest's own project_id
     try:
-        dest_project_id = (
-            ProjectConfigurationStore(dest_root).read().definition.project_id
-        )
+        dest_project_id = _project_record(dest_root, observation)[0].project_id
     except ProjectError as exc:
         raise CatalogImportError(
             "catalog.import_destination_invalid", "destination project is invalid"
         ) from exc
 
     # Compute dest's ancestor project IDs
-    dest_imports = CatalogImportsFile.load(dest_root)
+    dest_imports = _read_imports(dest_root, observation)
     dest_ancestor_ids = dest_imports.all_source_project_ids()
 
     # Also add the literate-ai root from dest's initialization-origin
-    dest_origin = dest_root / ".literate" / "initialization-origin.json"
-    if dest_origin.exists():
-        origin = json.loads(dest_origin.read_text(encoding="utf-8"))
+    origin, _origin_content = _read_origin(dest_root, observation)
+    if _origin_content is not None:
         dist_name = origin.get("distribution_name", "literate-ai")
         dest_ancestor_ids = dest_ancestor_ids | {dist_name}
 
