@@ -72,14 +72,14 @@ def _binding(record):
     )
 
 
-def _close_record(owner, record, original):
+def _close_record(owner, record, original, *, _spent=False):
     """Final original lifetime check, without guard or native callbacks."""
     if (
         _LIVE.get(owner) is not record
         or record["pid"] != os.getpid()
         or record["thread"] != threading.get_ident()
         or record["failed"]
-        or record["spent"]
+        or record["spent"] is not _spent
         or record["state"] != original[0]
         or any(
             a is not b
@@ -376,8 +376,14 @@ class _CatalogCopyRoles:
             record["failed"] = True
             raise
 
-    def close_native(self):
-        record = _record(self, ready=True)
+    def close_native(self, *, _consumed=False):
+        if _consumed:
+            from .retained_layout_source_movement import _consumed_predecessor
+
+            _consumed_predecessor(self)
+            record = _LIVE[self]
+        else:
+            record = _record(self, ready=True)
         original = _binding(record)
         seal = record["seal"]
         for path, expected in seal.ancestry:
@@ -414,7 +420,7 @@ class _CatalogCopyRoles:
         ):
             _fail("actual producer private root node changed")
 
-        _close_record(self, record, original)
+        _close_record(self, record, original, _spent=_consumed)
 
     def bind(self, root):
         self.require_current()

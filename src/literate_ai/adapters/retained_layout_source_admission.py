@@ -55,6 +55,7 @@ class _Admission:
     history: tuple = ()
     failed: bool = False
     observing: bool = False
+    movement: object = None
 
 
 def _record(preparation, *, cleanup=False):
@@ -104,14 +105,20 @@ def _phase_record(phase):
 
 
 def _close_predecessor_lifetimes(record):
+    from .retained_layout_source_movement import _movement_record
+
+    movement = _movement_record(record)
+    consumed = movement is not None and movement.consumed
     if record.catalog_lifetime is not None:
         from .catalog_copy_roles import _close_record
 
-        _close_record(record.original.catalog, *record.catalog_lifetime)
+        _close_record(
+            record.original.catalog, *record.catalog_lifetime, _spent=consumed
+        )
     framework = record.original.framework
     if framework is not None and (
         not framework._active
-        or framework._spent
+        or framework._spent is not consumed
         or not framework._ready
         or framework._pid != os.getpid()
         or framework._catalog_successor is not record.framework_successor
@@ -137,6 +144,12 @@ def _close_admitted_inputs(phase, tree, native):
     original, plan = record.original, record.original.plan
     original.reader._close_native_inputs()
     _close_authored(plan)
+    if record.movement is not None and record.movement.expected is not None:
+        from .retained_layout_source_movement import _close_movement_inputs
+
+        _close_movement_inputs(record)
+        _phase_record(phase)
+        return
     if (
         _lineage(plan.tree.root) != plan.source_lineage
         or _lineage(plan.destination.parent) != plan.destination_lineage
@@ -153,6 +166,21 @@ def _close_admitted_span(record):
     plan, ledger = record.original.plan, record.original.ledger
     if record.span is not None:
         _fail("reentrant admitted closing scope")
+    if record.movement is not None and record.movement.expected is not None:
+        tree, native = record.movement.expected
+        _absence(plan.tree.root, record.original.ledger.budget.maximum_entries)
+        record.span = tree, native, None
+        try:
+            _close_tree(
+                tree,
+                native,
+                controls=record.controls,
+                _admitted_source_phase=record.phase,
+            )
+            _phase_record(record.phase)
+        finally:
+            record.span = None
+        return
     ledger.charge_records(2, 2 * len(str(plan.destination.parent).encode()))
     before = layout_entry_node(plan.destination.parent)
     _absence(plan.destination, plan.tree.budget.maximum_entries)
@@ -183,6 +211,11 @@ def _require_admitted_current(preparation):
         _fail("source control admission has not completed")
     phase = record.phase
     phase._live()
+    if record.movement is not None and record.movement.expected is not None:
+        from .retained_layout_source_movement import _require_movement_current
+
+        _require_movement_current(record)
+        return True
     from .retained_layout_transaction import _require_prepared
 
     with _control_reads(preparation, record.pool):
@@ -468,6 +501,9 @@ def _admit_preparation(preparation, plan, pool):
         yield record
         _close(preparation, original)
     finally:
+        from .retained_layout_source_movement import _end_movement
+
+        _end_movement(record)
         if record.phase is not None:
             _PHASES.pop(record.phase, None)
         if record.controls is not None:

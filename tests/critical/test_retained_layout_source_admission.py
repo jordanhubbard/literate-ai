@@ -12,6 +12,7 @@ from unittest import mock
 import tests.critical.test_catalog_copy_roles as catalog_fixtures
 import tests.critical.test_retained_layout_ownership as fixtures
 from literate_ai.adapters import bounded_role_observation as reads
+from literate_ai.adapters import framework_update_roles as updates
 from literate_ai.adapters import project_initialization
 from literate_ai.adapters import repository_refresh as refresh
 from literate_ai.adapters import retained_layout_git_controls as git_controls
@@ -154,8 +155,9 @@ class SourceAdmissionTests(unittest.TestCase):
 
     def test_public_and_control_effects_remain_guarded_before_transition_owner(self):
         with self.inspecting() as (_owner, phase, _pool, _journal):
+            with self.assertRaisesRegex(ValueError, "actual complete partition"):
+                phase.move_source()
             for operation in (
-                phase.move_source,
                 lambda: phase.publish_metadata(self.metadata),
                 lambda: phase.finalize_controls(self.retired),
                 lambda: phase.controls.reservations.begin_finalization(self.retired),
@@ -165,6 +167,187 @@ class SourceAdmissionTests(unittest.TestCase):
                         operation()
             self.assertFalse(phase._attempted)
             self.assertFalse(self.destination.exists())
+
+    def test_actual_movement_consumes_partition_and_retains_original_reader(self):
+        from literate_ai.adapters import retained_layout_source_movement as movement
+
+        unknown = self.project / "unclaimed-neighbor"
+        unknown.write_bytes(b"preserved\n")
+        (self.source / "alias-source.txt").write_bytes(b"original hardlink group\n")
+        os.link(self.source / "alias-source.txt", self.source / "alias-copy.txt")
+        (self.source / "app-link").symlink_to("app.py")
+        original_bytes = (self.source / "app.py").read_bytes()
+        with self.inspecting() as (owner, phase, _pool, _journal):
+            original = preparation._state(owner)
+            with owner._reads():
+                refresh._file(self.source / "app.py")
+                git_controls._presence(self.source)
+            before = owner.usage
+            with phase.complete_partition(
+                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+            ) as partition:
+                with self.assertRaisesRegex(ValueError, "movement partition"):
+                    partition._consume()
+                result = phase.move_source()
+                self.assertEqual(result["state"], "source-moved-metadata-pending")
+                self.assertTrue(partition._spent)
+                with self.assertRaises(ValueError):
+                    partition.require_current()
+                owner.require_current()
+                self.assertIs(preparation._state(owner).reader, original.reader)
+                self.assertGreater(
+                    owner.usage["payload_bytes"], before["payload_bytes"]
+                )
+                with self.assertRaisesRegex(ValueError, "already attempted"):
+                    phase.move_source()
+            owner.require_current()
+            self.assertFalse(self.source.exists())
+            self.assertEqual((self.destination / "app.py").read_bytes(), original_bytes)
+            self.assertEqual(unknown.read_bytes(), b"preserved\n")
+            self.assertTrue(
+                (self.destination / "alias-copy.txt").samefile(
+                    self.destination / "alias-source.txt"
+                )
+            )
+            self.assertEqual(os.readlink(self.destination / "app-link"), "app.py")
+            self.assertIsNone(reads.current_role_observation())
+            with self.assertRaisesRegex(ValueError, "verified transition"):
+                phase.publish_metadata(self.metadata)
+        self.assertNotIn(phase, movement._MOVES)
+        self.assertFalse(original.reader._active)
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_foreign_namespace_inserted_during_actual_move_refuses(self):
+        move = transaction.move_layout_entry_exclusive
+        foreign = self.project / "foreign-during-source-move"
+
+        def insert(source, destination, **kwargs):
+            result = move(source, destination, **kwargs)
+            if source == self.source:
+                foreign.write_bytes(b"foreign\n")
+            return result
+
+        with self.assertRaisesRegex(ValueError, "native namespace"):
+            with self.inspecting() as (_owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    with mock.patch.object(
+                        transaction, "move_layout_entry_exclusive", insert
+                    ):
+                        phase.move_source()
+        self.assertEqual(foreign.read_bytes(), b"foreign\n")
+        self.assertTrue(self.destination.exists())
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_observed_destination_absences_advance_from_actual_source_move(self):
+        def observe_destination(owner):
+            with owner._reads():
+                self.assertIsNone(
+                    refresh._file(self.destination / "app.py", optional=True).content
+                )
+                self.assertIsNone(git_controls._presence(self.destination / "app.py"))
+
+        with self.inspecting(before_admission=observe_destination) as (
+            owner,
+            phase,
+            _pool,
+            _journal,
+        ):
+            with phase.complete_partition(
+                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+            ):
+                phase.move_source()
+                owner.require_current()
+            self.assertTrue((self.destination / "app.py").exists())
+
+    def test_all_mapped_lineage_reservations_precede_actual_movement(self):
+        reserve = reads._RoleObservation.reserve_lineage
+        with self.inspecting() as (owner, phase, _pool, _journal):
+            reader = preparation._state(owner).reader
+
+            def check(actual, path):
+                if (
+                    actual is reader
+                    and path.is_relative_to(self.destination)
+                    and path not in reader._lineage_allowances
+                ):
+                    self.assertFalse(
+                        phase._attempted, "fresh lineage debit after movement intent"
+                    )
+                return reserve(actual, path)
+
+            with phase.complete_partition(
+                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+            ):
+                with mock.patch.object(
+                    reads._RoleObservation, "reserve_lineage", check
+                ):
+                    phase.move_source()
+
+    def test_preparation_end_during_last_native_callback_revokes_currentness(self):
+        closed, rejected = [], []
+        close = transaction._close_tree
+        descriptor = None
+        try:
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    phase.move_source()
+                descriptor = phase.controls.reservations._markers[0].descriptor
+
+                def end(*args, **kwargs):
+                    result = close(*args, **kwargs)
+                    if kwargs.get("_admitted_source_phase") is phase and not closed:
+                        closed.append(True)
+                        preparation._LIVE.pop(owner)
+                    return result
+
+                with mock.patch.object(transaction, "_close_tree", end):
+                    try:
+                        owner.require_current()
+                    except ValueError:
+                        rejected.append(True)
+        except ValueError:
+            pass  # Ended preparation also refuses its enclosing cleanup reads.
+        self.assertEqual(closed, [True])
+        self.assertEqual(rejected, [True])
+        with self.assertRaises(OSError):
+            os.fstat(descriptor)
+
+    def test_activation_teardown_cannot_change_moved_source_before_return(self):
+        from literate_ai.adapters import retained_layout_source_movement as movement
+
+        raw, changed = refresh._raw_file, []
+        with self.assertRaises(ValueError):
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+
+                    def change(path, **kwargs):
+                        result = raw(path, **kwargs)
+                        current = movement._MOVES.get(phase)
+                        if (
+                            current is not None
+                            and not current.active
+                            and current.expected is not None
+                            and not changed
+                        ):
+                            changed.append(True)
+                            target = self.destination / "app.py"
+                            target.write_bytes(
+                                target.read_bytes() + b"late-payload-close\n"
+                            )
+                        return result
+
+                    with mock.patch.object(refresh, "_raw_file", change):
+                        phase.move_source()
+        self.assertEqual(changed, [True])
+        self.assertTrue(
+            (self.destination / "app.py").read_bytes().endswith(b"late-payload-close\n")
+        )
 
     def test_funded_plan_and_usage_document_cannot_replace_actual_preparation(self):
         with self.prepare() as owner:
@@ -329,6 +512,7 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
     init_git = catalog_fixtures.CatalogCopyRoleTests.init_git
     copying = catalog_fixtures.CatalogCopyRoleTests.copying
     pool = SourceAdmissionTests.pool
+    updated = catalog_fixtures.CatalogCopyRoleTests.updated
 
     @classmethod
     def setUpClass(cls):
@@ -369,6 +553,141 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
             pass
         self.assertEqual(rejected, [True])
         self.assertTrue((self.item / "flavor.md").read_bytes().endswith(b"changed\n"))
+
+    def test_actual_catalog_is_consumed_once_but_its_inputs_stay_observed(self):
+        class StopInspection(Exception):
+            pass
+
+        try:
+            with self.copying() as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                with preparation.prepared_retained_layout_source_move(
+                    self.project,
+                    "retained",
+                    budget=self.copy_budget,
+                    maximum_metadata_bytes=self.copy_metadata,
+                    catalog_copy=catalog,
+                ) as owner:
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.copy_budget,
+                                maximum_metadata_bytes=self.copy_metadata,
+                                catalog_copy=catalog,
+                            ) as partition:
+                                phase.move_source()
+                                self.assertTrue(partition._spent)
+                                with self.assertRaises(ValueError):
+                                    catalog.require_current()
+                                owner.require_current()
+                                original = self.item / "flavor.md"
+                                original.write_bytes(
+                                    original.read_bytes() + b"changed-after-spend\n"
+                                )
+                                with self.assertRaises(ValueError):
+                                    owner.require_current()
+                                raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertTrue(self.destination.exists())
+
+    def test_last_absence_scan_cannot_change_consumed_catalog_input(self):
+        class StopInspection(Exception):
+            pass
+
+        changed, rejected = [], []
+        absence = transaction._absence
+
+        def change(path, *args, **kwargs):
+            result = absence(path, *args, **kwargs)
+            if path == self.source and not changed:
+                changed.append(True)
+                source = self.item / "flavor.md"
+                source.write_bytes(source.read_bytes() + b"late-after-native\n")
+            return result
+
+        try:
+            with self.copying() as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                with preparation.prepared_retained_layout_source_move(
+                    self.project,
+                    "retained",
+                    budget=self.copy_budget,
+                    maximum_metadata_bytes=self.copy_metadata,
+                    catalog_copy=catalog,
+                ) as owner:
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.copy_budget,
+                                maximum_metadata_bytes=self.copy_metadata,
+                                catalog_copy=catalog,
+                            ):
+                                phase.move_source()
+                                with mock.patch.object(transaction, "_absence", change):
+                                    try:
+                                        owner.require_current()
+                                    except ValueError:
+                                        rejected.append(True)
+                                raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertEqual(changed, [True])
+        self.assertEqual(rejected, [True])
+
+    def test_actual_framework_and_catalog_consumption_keep_original_read_owner(self):
+        class StopInspection(Exception):
+            pass
+
+        self.update_budget, self.update_sequence = self.copy_budget, 0
+        try:
+            with self.updated(adopt_added=True) as update:
+                with self.copying(framework_update=update) as catalog:
+                    catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                    with preparation.prepared_retained_layout_source_move(
+                        self.project,
+                        "retained",
+                        budget=self.copy_budget,
+                        maximum_metadata_bytes=self.copy_metadata,
+                        framework_update=update,
+                        catalog_copy=catalog,
+                    ) as owner:
+                        original = preparation._state(owner)
+                        with self.pool(owner.plan) as (pool, _journal):
+                            with owner.source_phase(
+                                pool,
+                                acknowledged_plan_identity=owner.plan.identity,
+                                allow_host_execution=True,
+                            ) as phase:
+                                with phase.complete_partition(
+                                    budget=self.copy_budget,
+                                    maximum_metadata_bytes=self.copy_metadata,
+                                    framework_update=update,
+                                    catalog_copy=catalog,
+                                ):
+                                    phase.move_source()
+                                    owner.require_current()
+                                    self.assertTrue(update._spent)
+                                    with self.assertRaises(
+                                        updates.FrameworkUpdateRoleError
+                                    ):
+                                        update.require_current()
+                                    self.assertIs(
+                                        preparation._state(owner).reader,
+                                        original.reader,
+                                    )
+                                    raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertTrue(self.destination.exists())
 
 
 if __name__ == "__main__":

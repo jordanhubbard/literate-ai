@@ -547,6 +547,10 @@ class _OwnedPartition:
         return self._identity
 
     def _consume(self):
+        from .retained_layout_source_movement import _consume_admitted_partition
+
+        if _consume_admitted_partition(self):
+            return
         from .retained_layout_source_admission import _refuse_unfunded_effects
 
         _refuse_unfunded_effects(self._phase)

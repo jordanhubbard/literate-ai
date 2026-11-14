@@ -1351,10 +1351,19 @@ class _SourcePhase:
             yield owner
 
     def move_source(self):
-        self._live()
-        from .retained_layout_source_admission import _refuse_unfunded_effects
+        from .retained_layout_source_movement import _run_source_move
 
-        _refuse_unfunded_effects(self)
+        return _run_source_move(self)
+
+    def _move_source(self):
+        self._live()
+        from .retained_layout_source_movement import (
+            _capture_moved_source,
+            _observe_source_move,
+            _require_move_authority,
+        )
+
+        _require_move_authority(self)
         if not self._active or self._pid != os.getpid() or self._attempted:
             _fail("source phase ended or was already attempted")
         self.controls.require_initial_inputs()
@@ -1444,14 +1453,17 @@ class _SourcePhase:
             for descriptor, guard in held:
                 os.fsync(descriptor)
                 guard()
-            moved = capture_retained_cargo_tree_v2(
-                self.plan.destination, budget=self.plan.tree.budget
-            )
+            moved = _capture_moved_source(self)
             if (
                 moved != replace(self.plan.tree, root=self.plan.destination)
                 or moved._physical != self.plan.tree._physical
             ):
                 _fail("moved source bytes/topology/physical custody changed")
+            native = (
+                ("", replace(self.plan.native[0][1], changed_ns=moved_node.changed_ns)),
+                *self.plan.native[1:],
+            )
+            _observe_source_move(self, moved, native)
             journal.append(
                 "source-move-observed",
                 canonical_json_bytes(
@@ -1465,10 +1477,6 @@ class _SourcePhase:
             self.plan.git.close_native_inputs(self.controls.reservations)
             _close_authored(self.plan)
             self.controls.reservations._close_currentness()
-            native = (
-                ("", replace(self.plan.native[0][1], changed_ns=moved_node.changed_ns)),
-                *self.plan.native[1:],
-            )
             _close_tree(moved, native)
             if os.path.lexists(self.plan.tree.root):
                 _fail("source endpoint was repopulated after movement")

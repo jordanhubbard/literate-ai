@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development can consume its genuine complete partition and
+  move a nonroot source tree under the preparation's original allowance. It
+  preserves links and unknown neighbors, retains consumed producer observations
+  and refuses late foreign changes. Metadata publication and finalization still
+  require integration before a complete transaction (#265).
+
 - Retained-layout development can carry its actual source preparation into
   canonical control acquisition and complete partition observation under one
   original allowance. Private-resource aliases refuse before acquisition, and

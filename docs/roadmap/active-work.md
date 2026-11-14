@@ -33995,6 +33995,19 @@ independent review and the complete combined gate from test one.
   cohort pass without skips. Independent source rereview approves this observation
   scope after four findings; see
   [observation-admission evidence](../../verification/retained-layout-source-admission-development.json).
+  The first effect join now consumes the actual complete partition during nonroot
+  source movement, retaining spent predecessor observation and original shared
+  accounting. Derive the resulting complete graph from verified native movement,
+  advance funded destination absences and close all namespace scans before final
+  external facts. Metadata/finalization and terminal preparation disposition
+  are next, before a normal complete transaction can succeed.
+  The actual movement increment passes twenty-three scoped Make controls and a
+  separate 357-method affected regression cohort without skips, including a
+  genuine framework/catalog join, link topology, unchanged
+  original reader identity and five causal closing/quota controls. Independent
+  source review approves this limited increment; original failures and open
+  acceptance remain in
+  [source-movement evidence](../../verification/retained-layout-source-movement-development.json).
   Then join
   authored metadata roles before root effects, preserving the transport
   limitation for complete execution qualification,

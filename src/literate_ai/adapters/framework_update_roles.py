@@ -1065,19 +1065,27 @@ class _FrameworkUpdateRoles:
             self._catalog_successor.require_current()
         self.close_native()
 
-    def close_native(self):
-        self._live(ready=True)
+    def close_native(self, *, _consumed=False):
+        from .retained_layout_source_movement import _consumed_predecessor
+
+        def live():
+            if _consumed:
+                _consumed_predecessor(self)
+            else:
+                self._live(ready=True)
+
+        live()
         for item in self._cache.values():
             self._close_file(item)
         if _lineage(self.root) != self._root_lineage:
             _fail("original project ancestry changed")
         if getattr(self, "_git", None) is not None:
             self._git.close_native()
-        self._live(ready=True)
+        live()
         self._close_retirement()
         if self._catalog_successor is not None:
-            self._catalog_successor.close_native()
-        self._live(ready=True)
+            self._catalog_successor.close_native(_consumed=_consumed)
+        live()
 
     def accept_catalog_successor(self, catalog_copy):
         """Advance only metadata published by this actual creating successor."""

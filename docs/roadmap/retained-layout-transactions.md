@@ -1722,6 +1722,28 @@ cohort passes without skips; the original causal failures and remaining
 acceptance are retained in
 [observation-admission evidence](../../verification/retained-layout-source-admission-development.json).
 
+The first effect join now performs actual nonroot source movement. It consumes only
+the genuine complete partition under an authenticated movement call and preserves
+the original predecessor contexts as spent observers without restoring ready
+rights. Fund the retained source before/after view and expected graph/history
+before the first effect. Derive postmove namespace and native expectations from
+the original complete census, exact exclusive rename receipt and original held
+parent identities. Keep unknown neighbors and the pending barrier intact.
+Advance observed destination absences only from funded original-source
+correspondence, retaining both antecedents. Old-source absence enumeration must
+precede the last external reader/producer native closure. Metadata publication,
+control finalization, terminal preparation disposition and canonical authored
+roles still require their actual transitions for a complete normal transaction.
+This movement increment now passes twenty-three scoped Make controls without
+skips, plus a separate 357-method affected regression cohort without skips.
+Genuine framework-plus-catalog consumption retains the same original
+reader and spent producer observations. Native link topology and unknown
+neighbors remain intact. Independent source rereview closes four findings;
+the author additionally retains a causal late activation-teardown failure and
+its correction. Exact subjects, original failing controls, the refusal from a
+redundant census and corrected fixture failures are recorded in
+[source-movement evidence](../../verification/retained-layout-source-movement-development.json).
+
 After the selected-source dependency is qualified, join the actual canonical
 authored inputs to complete partition ownership. Derive their endpoints from the
 live source plan's parsed project, conversion, lift/layout and wrapper witnesses,
