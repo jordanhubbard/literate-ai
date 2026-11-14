@@ -657,6 +657,7 @@ class _Terminal:
     bindings: tuple
     resources: object
     resource_exit: object
+    authored: object
 
 
 def _prepare_terminal_teardown(phase):
@@ -741,6 +742,7 @@ def _terminal(preparation):
 
 def _complete_terminal(record):
     from .retained_layout_source_admission import _closed_phase_resources
+    from .retained_layout_source_authored import _closing_authored
     from .retained_layout_source_metadata import _METADATA
 
     phase = record.phase
@@ -769,6 +771,7 @@ def _complete_terminal(record):
         value.terminal_bindings,
         value.terminal_resources,
         _closed_phase_resources(record),
+        _closing_authored(record),
     )
     _TERMINALS[record.preparation] = terminal
     try:
@@ -839,7 +842,10 @@ def _terminal_native_close(preparation, tree, native):
 
 
 def _close_terminal_registration(terminal):
+    from .retained_layout_source_authored import _close_terminal_authored
+
     record = terminal.admission
+    _close_terminal_authored(record, terminal.original, terminal.authored)
     if (
         _terminal(record.preparation) is not terminal
         or terminal.phase.plan is not terminal.original.plan

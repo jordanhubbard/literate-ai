@@ -127,7 +127,14 @@ class LayoutCommitOutcomeError(RuntimeError):
         )
 
 
-def _inputs(root, *, maximum_checkpoint_bytes=None, _observation=None):
+def _inputs(
+    root,
+    *,
+    maximum_checkpoint_bytes=None,
+    _observation=None,
+    _authored_capture=None,
+    _authored_lock=None,
+):
     if _observation is None:
         from .bounded_role_observation import current_role_observation
 
@@ -192,10 +199,14 @@ def _inputs(root, *, maximum_checkpoint_bytes=None, _observation=None):
         item.name == "legacy.pipeline" for item in authoring.provides
     ):
         _fail("selected wrapper lacks the actual retained-harness role")
-    observations += (
-        component,
-        _file(layout.wrapper_root / "component.lock.json", optional=True),
-    )
+    lock_path = _authored_lock or layout.wrapper_root / "component.lock.json"
+    if _authored_capture is not None:
+        from .retained_layout_source_authored import _Capture
+
+        if type(_authored_capture) is not _Capture:
+            raise TypeError("actual source authored witness capture required")
+        lock_path = _authored_capture.canonical_lock(layout)
+    observations += (component, _file(lock_path, optional=True))
     if layout.implementation_root == root:
         _fail("root source phase requires the complete mixed-partition owner")
     # Never classify nested authority from a basename as ownership. Such a
@@ -204,7 +215,14 @@ def _inputs(root, *, maximum_checkpoint_bytes=None, _observation=None):
     project.require_initial_inputs()
     if any(_lineage(path) != ancestry for path, ancestry in lineages):
         _fail("authored input parent ancestry changed")
-    return layout, observations, tuple(lineages)
+    lineages = tuple(lineages)
+    if _authored_capture is not None:
+        from .retained_layout_source_authored import _Capture
+
+        if type(_authored_capture) is not _Capture:
+            raise TypeError("actual source authored witness capture required")
+        _authored_capture.observe(project, layout, observations, lineages, authoring)
+    return layout, observations, lineages
 
 
 def _close_inputs(observations):
@@ -388,6 +406,8 @@ class _SourceMovePlan:
 class _PreparedSourceMovePlan(_SourceMovePlan):
     """Funded description; the legacy unjoined source-phase entry refuses it."""
 
+    authored_lock: Path | None = None
+
 
 def _prospective_metadata(root, layout, inputs, implementation_directory):
     files = {item.path.relative_to(root).as_posix(): item for item in inputs}
@@ -448,6 +468,7 @@ def plan_retained_layout_source_move(
     framework_update=None,
     catalog_copy=None,
     _observation=None,
+    _authored_capture=None,
 ):
     """Read-only exact nonroot source phase; no complete relocation is promised."""
     root = Path(project_root)
@@ -485,7 +506,9 @@ def plan_retained_layout_source_move(
         else len(framework_update._cache[root / ".literate/update-bases.json"].content)
     )
     layout, inputs, input_lineages = _inputs(
-        root, maximum_checkpoint_bytes=checkpoint_limit
+        root,
+        maximum_checkpoint_bytes=checkpoint_limit,
+        _authored_capture=_authored_capture,
     )
     selected = RetainedLayoutSelection.from_values(
         layout.wrapper_component, implementation_directory
@@ -549,6 +572,11 @@ def plan_retained_layout_source_move(
         update_identity,
         catalog_identity,
         catalog_provenance,
+        **(
+            {"authored_lock": _authored_capture.lock_path}
+            if _authored_capture is not None
+            else {}
+        ),
     )
     if framework_update is not None:
         framework_update.require_plan(plan)
@@ -678,7 +706,11 @@ def _require_prepared(plan, reservations=None):
             if item.path == plan.root / ".literate/update-bases.json"
         )
     )
-    if _inputs(plan.root, maximum_checkpoint_bytes=checkpoint_limit) != (
+    if _inputs(
+        plan.root,
+        maximum_checkpoint_bytes=checkpoint_limit,
+        _authored_lock=getattr(plan, "authored_lock", None),
+    ) != (
         plan.layout,
         plan.inputs,
         plan.input_lineages,

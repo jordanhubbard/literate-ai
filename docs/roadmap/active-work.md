@@ -34032,9 +34032,22 @@ independent review and the complete combined gate from test one.
   Seven causal refusal controls preserve the predecessor failures. Exact subjects,
   qualification and open acceptance remain in
   [source-finalization evidence](../../verification/retained-layout-source-finalization-development.json).
-  Complete canonical authored metadata roles and external original-provider
-  admission are the next join before root effects, preserving the transport
-  limitation for complete execution qualification,
+  Actual parsed source discovery now retains an immutable canonical authored
+  participant for the selected project/conversion, lift/layout, harness-wrapper,
+  Component and optional lock endpoints. Partition ownership reconciles actual
+  initializer, framework-update and catalog witnesses, preserves original optional
+  absence and leaves unknown same-named files unclaimed. Store selection is frozen
+  during funded discovery; pure lifetime closure does not reconstruct a store or
+  reread the environment. External storage refuses before probes, and original
+  native ancestry plus portable names separate absent lock storage from movement.
+  The actual authored participant survives verified metadata effects and read-only
+  terminal observation through descriptor teardown. Independent source review
+  approves the exact eleven subjects. Seventeen authored-role and seventy-two
+  source-operation Make controls plus a separate 370-method affected regression
+  pass without skips: 459 distinct methods. Original failures and final results remain in
+  [authored-role evidence](../../verification/retained-layout-source-authored-development.json).
+  External original-provider shared observation admission is the next join before
+  root effects, preserving the transport limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

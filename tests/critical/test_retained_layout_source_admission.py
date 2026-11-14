@@ -131,7 +131,7 @@ class SourceAdmissionTests(unittest.TestCase):
                     dict(partition.roles)["unclaimed-neighbor"], "unclaimed"
                 )
                 self.assertEqual(
-                    dict(partition.roles)["literate.project.json"], "framework"
+                    dict(partition.roles)["literate.project.json"], "authored"
                 )
                 self.assertEqual(
                     dict(partition.roles)["litai/layout.pending"], "control"

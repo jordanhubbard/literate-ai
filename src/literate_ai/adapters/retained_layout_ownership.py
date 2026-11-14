@@ -255,14 +255,24 @@ def _initializer_roles(
     } | {phase.plan.layout.wrapper_component + "/component.md"}
     for name in component_paths:
         component = root / Path(name).parent
-        lock = ComponentLockStore(component)
-        if lock.path.is_relative_to(root):
-            allowed.add(lock.path.relative_to(root).as_posix())
+        if _source_admission is None:
+            lock_path = ComponentLockStore(component).path
+            audit_path = ComponentResolutionAuditStore(component, "host").path
+        else:
+            from .component_locks import LOCK_FILENAME
+
+            # Original initialization wrote native host endpoints. Ambient cell
+            # selection cannot change what that historical producer owned.
+            lock_path = ComponentLockStore._storage_root(component) / LOCK_FILENAME
+            audit_path = ComponentResolutionAuditStore._path_for_storage(
+                component, "host"
+            )
+        if lock_path.is_relative_to(root):
+            allowed.add(lock_path.relative_to(root).as_posix())
         # Initial conversion produces host locks/audits only. A baseline-named
         # arbitrary target cannot turn the store's naming API into a producer.
-        audit = ComponentResolutionAuditStore(component, "host")
-        if audit.path.is_relative_to(root):
-            allowed.add(audit.path.relative_to(root).as_posix())
+        if audit_path.is_relative_to(root):
+            allowed.add(audit_path.relative_to(root).as_posix())
     if not baseline_paths <= allowed:
         _fail("initialization record claims files outside actual initializer roles")
     framework = (baseline_paths - set(retired)) | {_BASELINE, CONVERSION_AUTHORITY_FILE}
@@ -271,6 +281,10 @@ def _initializer_roles(
     for name in (CHECKPOINT, NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH):
         if os.path.lexists(root / name):
             framework.add(name)
+    if _source_admission is not None:
+        from .retained_layout_source_authored import _initializer_framework
+
+        framework = _initializer_framework(_source_admission, framework, cache)
     project = load_project(root)
     children = _native_project_roots(project)
     child_inputs = tuple(snapshot(child / PROJECT_FILENAME) for child in children)
@@ -284,7 +298,9 @@ def _initializer_roles(
     )
 
 
-def _partition_roles(phase, census, framework, children, imported=(), imported_dirs=()):
+def _partition_roles(
+    phase, census, framework, children, imported=(), imported_dirs=(), *, authored=()
+):
     root = phase.plan.root
     source = phase.plan.tree.root.relative_to(root).as_posix()
     controls = {
@@ -302,14 +318,21 @@ def _partition_roles(phase, census, framework, children, imported=(), imported_d
     aliases = {item.path: item for item in census.tree.aliases}
     leaves = files | aliases.keys()
     imported, imported_dirs = set(imported), set(imported_dirs)
+    authored = set(authored)
     if not imported <= files or not imported_dirs <= set(census.tree.directories):
         _fail("actual catalog roles require their complete copied nodes")
     if not framework <= files | {
         name for name, alias in aliases.items() if alias.kind == "hardlink"
     }:
         _fail("framework roles require exact observed regular files")
+    if not authored <= files | {
+        name for name, alias in aliases.items() if alias.kind == "hardlink"
+    }:
+        _fail("authored roles require actual observed canonical files")
 
     def role(name):
+        if name in authored:
+            return "authored"
         if name in controls or any(_beneath(name, path) for path in git_roots):
             return "control"
         child = next((path for path in child_roots if _beneath(name, path)), None)
@@ -392,6 +415,7 @@ class _OwnedPartition:
         "_identity",
         "_framework_update",
         "_catalog_copy",
+        "_authored",
     )
 
     def __init__(
@@ -407,6 +431,8 @@ class _OwnedPartition:
         provider,
         framework_update=None,
         catalog_copy=None,
+        *,
+        authored=None,
     ):
         if key is not _KEY:
             raise TypeError("layout.ownership.live-source-phase-required")
@@ -421,6 +447,7 @@ class _OwnedPartition:
         self._provider = provider
         self._framework_update = framework_update
         self._catalog_copy = catalog_copy
+        self._authored = authored
         self._active, self._spent, self._pid = True, False, os.getpid()
         self._identity = canonical_identity(
             {
@@ -442,6 +469,7 @@ class _OwnedPartition:
                     }
                     for item in inputs
                 ],
+                **({} if authored is None else {"authored": authored.identity.uri}),
             }
         )
 
@@ -472,6 +500,8 @@ class _OwnedPartition:
         if not self._active or self._spent or self._pid != os.getpid():
             _fail("partition owner ended or was spent")
         self._phase._live()
+        if self._authored is not None:
+            self._authored.require_current()
         self._phase.controls.require_initial_inputs()
         _require_prepared(self._phase.plan, self._phase.controls.reservations)
         if self._framework_update is not None:

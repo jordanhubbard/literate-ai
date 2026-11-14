@@ -424,17 +424,21 @@ class SourcePreparationPredecessorTests(unittest.TestCase):
             with self.copying(framework_update=update) as catalog:
                 catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
                 combined = preparation._predecessor_usage(update, catalog)
-                planner = preparation.plan_retained_layout_source_move
+                debit = preparation._debit_predecessor
                 initial = []
+                ledgers = []
 
-                def observe(*args, **kwargs):
-                    ledger = reads.current_role_observation()._ledger
+                def observe(ledger, usage):
+                    # Observe the actual import boundary. Canonical authored
+                    # discovery reserves metadata before invoking the planner.
+                    self.assertEqual(
+                        (ledger.files, ledger.records, len(ledger.cache)), (0, 0, 0)
+                    )
+                    debit(ledger, usage)
                     initial.append((ledger.files, ledger.records, len(ledger.cache)))
-                    return planner(*args, **kwargs)
+                    ledgers.append(ledger)
 
-                with mock.patch.object(
-                    preparation, "plan_retained_layout_source_move", observe
-                ):
+                with mock.patch.object(preparation, "_debit_predecessor", observe):
                     with self.prepare(
                         framework_update=update, catalog_copy=catalog
                     ) as owner:
@@ -444,6 +448,8 @@ class SourcePreparationPredecessorTests(unittest.TestCase):
                         self.assertEqual(
                             preparation._state(owner).predecessor, combined
                         )
+                        self.assertEqual(len(ledgers), 1)
+                        self.assertIs(preparation._state(owner).ledger, ledgers[0])
                         self.assertIsNone(reads.current_role_observation())
                 # Finish the genuine consuming flow before either enclosing
                 # producer ends; the read-only preparation does not spend them.

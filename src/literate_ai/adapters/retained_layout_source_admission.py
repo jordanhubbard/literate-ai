@@ -79,6 +79,7 @@ class _Admission:
     observing: bool = False
     movement: object = None
     resources: object = None
+    authored: object = None
 
 
 def _record(preparation, *, cleanup=False):
@@ -116,6 +117,12 @@ def _phase_record(phase):
         _fail("original admitted source phase changed")
     if record.resources is not None and phase._resources is not record.resources:
         _fail("original source resource stack changed")
+    if record.authored is not None:
+        from .retained_layout_source_authored import _require_registration
+
+        _require_registration(record)
+    elif record.resources is not None:
+        _fail("original canonical authored participant ended")
     if record.pool._poisoned:
         _fail("original control pool interrupted")
     _close_predecessor_lifetimes(record)
@@ -428,6 +435,9 @@ def _bind_phase(preparation, phase):
     phase._preparation = preparation
     record.phase = phase
     _PHASES[phase] = record
+    from .retained_layout_source_authored import _bind_authored
+
+    _bind_authored(record)
 
 
 def _bind_phase_resources(phase, resources):
@@ -604,6 +614,9 @@ def _admit_preparation(preparation, plan, pool):
         from .retained_layout_source_movement import _end_movement
 
         _end_movement(record)
+        from .retained_layout_source_authored import _end_authored
+
+        _end_authored(record)
         _RESOURCE_OWNERS.pop(record.resources, None)
         if record.phase is not None:
             _PHASES.pop(record.phase, None)
@@ -659,6 +672,7 @@ def _partition_fields(owner):
         owner._framework_update,
         owner._catalog_copy,
         owner._identity,
+        owner._authored,
     )
 
 
@@ -777,6 +791,11 @@ def _admitted_partition(
                     framework.difference_update(imported)
                     framework.add(CatalogImportsFile.PATH)
                     inputs = (*inputs, catalog_copy.provenance)
+                from .retained_layout_source_authored import _join_partition
+
+                framework, inputs, authored = _join_partition(
+                    record, framework, inputs, children, imported, imported_dirs
+                )
                 census = ledger.capture(
                     phase.plan.root, _framework_files=tuple(sorted(framework))
                 )
@@ -792,7 +811,13 @@ def _admitted_partition(
                     _fail("complete project changed while actual roles were joined")
                 native = _native_tree(census.tree)
                 roles, directories = _partition_roles(
-                    phase, census, framework, children, imported, imported_dirs
+                    phase,
+                    census,
+                    framework,
+                    children,
+                    imported,
+                    imported_dirs,
+                    authored=authored,
                 )
                 estimate = 32 + sum(
                     32 + 6 * (len(name.encode()) + len(str(role).encode()))
@@ -816,6 +841,7 @@ def _admitted_partition(
                     provider,
                     framework_update,
                     catalog_copy,
+                    authored=record.authored,
                 )
                 record.partition = owner
                 record.partition_binding = _partition_fields(owner)

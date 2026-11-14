@@ -1,0 +1,146 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_finite_canonical_authored_nonroot_scope",
+  "scope": "Actual selected canonical authored endpoints in the original prepared source operation, including optional absence, actual shared witness reconciliation, frozen store selection and terminal readonly lifetime closure.",
+  "subjects": {
+    "src/literate_ai/adapters/component_locks.py": {
+      "algorithm": "sha256",
+      "digest": "9bd2b55118a34c3e836f8af40fe1ec30d17f4f6d52602c90294e5230a3cdc318"
+    },
+    "src/literate_ai/adapters/component_resolution_audits.py": {
+      "algorithm": "sha256",
+      "digest": "f2032814d5cc223098c58c8bd8e07fcd744d1bfcc71e9b4726a02502c42e8130"
+    },
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "9e436d73a7b9dc31a14bbe78a0bd7ab67c6e24853e2a7afe8b95d2263af176a0"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "564b9603ef51ac7cff1b1d9f7fe50b56bc519da122e3c95fa66efd500ce7fc98"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "082000eb05c0ba812d96304583d7268b0b093b50c4519debf9596eb110e8b7a2"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "5cfa8935be3fad89fec709bbcfe3f56b9974185b975b733f44fe66c5bd34d484"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "4f68c5862cb4371ec0e74dc3fa9b40e940660531b91be13d66463799b0df5f5c"
+    },
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "5d5fcc5a6a3953500c703d79157cdb7046fa79bd4c943f2c3477d339deabfd98"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "algorithm": "sha256",
+      "digest": "16029bcbe13f73b46438d3720a99fda2626d8357380e7ae6412934e9592e5db8"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "ca7f044ca8ece0da680c0068c5a8655dd17dc651714d68b2f6f957bbe3a63d3d"
+    },
+    "tests/critical/test_retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "ff051696b57df24365df95ef1542c75edbe966919a95226ba2b90f706bf61c1b"
+    }
+  },
+  "findings": [
+    {
+      "finding": "Canonical store reconstruction performed filesystem and environment selection in trailing lifetime checks; discovery read a different hardcoded lock endpoint under matrix selection.",
+      "resolution": "Original funded discovery selects and observes the actual canonical endpoint once. Revalidation and pure lifetime closure retain the frozen endpoint. Actual source-admitted historical initializer host naming remains bound to its original producer.",
+      "state": "closed"
+    },
+    {
+      "finding": "An absent canonical lock under an actual case alias of moving source passed lexical separation.",
+      "resolution": "Compare original cached lock ancestry with original source directory device/inodes and retain NFC/casefold source/destination separation without new reads. Native author regression reproduced the bug before repair.",
+      "state": "closed"
+    }
+  ],
+  "method": "Independent source inspection only; no reviewer tests or native probes. Author test results are separate.",
+  "limits": [
+    "Finite selected canonical endpoint ownership only.",
+    "No complete external original-provider/shared participant admission.",
+    "No root/shared/initial/wrapper placement acceptance.",
+    "No complete public recovery/apply, installed/native/platform/integration/release or full roadmap acceptance."
+  ],
+  "review_history": [
+    {
+      "decision": "changes_requested",
+      "scope": "Original eight source and test subjects before canonical store repair",
+      "findings": [
+        "Canonical store reconstructed after original discovery in pure lifetime checks.",
+        "Initial source reader observed hardcoded native lock instead of actual selected matrix store endpoint.",
+        "External selected store constructor could probe before scope refusal."
+      ],
+      "authored_sha256": "1bc6804de8f8496371b2e9c3a96c720c4eae6ac538246d3a5c400362418901ae",
+      "transaction_sha256": "cc893454caf7c1f3464a00854cabc38cdad7f0fee4ac4730f6ed335297f1b303"
+    },
+    {
+      "decision": "changes_requested",
+      "scope": "Ten subjects after canonical store repair, before source-alias repair",
+      "findings": [
+        "Absent lock under a source case alias passes lexical movement separation."
+      ],
+      "authored_sha256": "4fef10a218e6627e3843401acc80b9af46d9c17137465c6e36443090eefbd320",
+      "authored_tests_sha256": "18362e2b9c9d0c02c76bdea6a6ce61f36760ffe74dde291925d079c67fcdeb82"
+    },
+    {
+      "decision": "approved_at_finite_canonical_authored_nonroot_scope",
+      "scope": "Actual selected canonical authored endpoints in the original prepared source operation, including optional absence, actual shared witness reconciliation, frozen store selection and terminal readonly lifetime closure.",
+      "subjects": {
+        "src/literate_ai/adapters/component_locks.py": {
+          "algorithm": "sha256",
+          "digest": "9bd2b55118a34c3e836f8af40fe1ec30d17f4f6d52602c90294e5230a3cdc318"
+        },
+        "src/literate_ai/adapters/component_resolution_audits.py": {
+          "algorithm": "sha256",
+          "digest": "f2032814d5cc223098c58c8bd8e07fcd744d1bfcc71e9b4726a02502c42e8130"
+        },
+        "src/literate_ai/adapters/retained_layout_source_authored.py": {
+          "algorithm": "sha256",
+          "digest": "9e436d73a7b9dc31a14bbe78a0bd7ab67c6e24853e2a7afe8b95d2263af176a0"
+        },
+        "src/literate_ai/adapters/retained_layout_transaction.py": {
+          "algorithm": "sha256",
+          "digest": "564b9603ef51ac7cff1b1d9f7fe50b56bc519da122e3c95fa66efd500ce7fc98"
+        },
+        "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+          "algorithm": "sha256",
+          "digest": "082000eb05c0ba812d96304583d7268b0b093b50c4519debf9596eb110e8b7a2"
+        },
+        "src/literate_ai/adapters/retained_layout_source_admission.py": {
+          "algorithm": "sha256",
+          "digest": "5cfa8935be3fad89fec709bbcfe3f56b9974185b975b733f44fe66c5bd34d484"
+        },
+        "src/literate_ai/adapters/retained_layout_ownership.py": {
+          "algorithm": "sha256",
+          "digest": "4f68c5862cb4371ec0e74dc3fa9b40e940660531b91be13d66463799b0df5f5c"
+        },
+        "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+          "algorithm": "sha256",
+          "digest": "5d5fcc5a6a3953500c703d79157cdb7046fa79bd4c943f2c3477d339deabfd98"
+        },
+        "tests/critical/test_retained_layout_authored_roles.py": {
+          "algorithm": "sha256",
+          "digest": "16029bcbe13f73b46438d3720a99fda2626d8357380e7ae6412934e9592e5db8"
+        },
+        "tests/critical/test_retained_layout_source_admission.py": {
+          "algorithm": "sha256",
+          "digest": "ca7f044ca8ece0da680c0068c5a8655dd17dc651714d68b2f6f957bbe3a63d3d"
+        }
+      },
+      "remaining_blockers_within_scope": []
+    }
+  ],
+  "review_addendum": {
+    "subject": "tests/critical/test_retained_layout_source_preparation.py",
+    "decision": "approved_source_only",
+    "reason": "Actual import boundary observation retains exact combined counters, empty-cache and single-debit checks plus actual owner ledger identity. Genuine consuming flow unchanged.",
+    "dynamic_qualification": false
+  }
+}

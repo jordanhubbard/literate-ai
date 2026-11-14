@@ -1812,8 +1812,8 @@ recovery and installed/native/platform/integration/release acceptance remain ope
 Exact source subjects, review findings, causal failures and author qualification
 are retained in [source-finalization evidence](../../verification/retained-layout-source-finalization-development.json).
 
-After the selected-source dependency is qualified, join the actual canonical
-authored inputs to complete partition ownership. Derive their endpoints from the
+The selected nonroot partition requires the actual canonical authored inputs.
+Derive their endpoints from the
 live source plan's parsed project, conversion, lift/layout and wrapper witnesses,
 including the actual selected Component and optional lock. Reconcile shared
 endpoints with the genuine initializer, update, catalog and control owners;
@@ -1821,11 +1821,58 @@ refuse ambiguous ownership rather than accepting a caller's path list or a saved
 digest as permission. Charge original payloads, paths and observations before
 reads through the same operation allowance and retain their original ancestry.
 
+Use an explicit `authored` role for the actual selected project/conversion,
+lift/layout, harness-wrapper and wrapper-Component endpoints, including the
+canonical optional Component lock. Derive it from the creating source discovery's
+parsed witnesses and exact observations. The initializer inventory is historical;
+the actual selected optional lock may now be absent without making another path
+its replacement. Reconcile initializer/update/catalog overlaps against
+their genuine node and byte observations. A same-named file outside these actual
+endpoints stays unclaimed, and stale evidence gains no qualification. An original
+optional absence stays an absence witness until its actual authorized transition.
+
+Capture the canonical store endpoint once during funded source discovery using
+the store's actual naming policy, including an explicitly selected in-project
+matrix cell. Later closure checks use that frozen endpoint without reconstructing
+a store or selecting from the ambient environment. Refuse external storage before
+probing it unless its actual owner participates, and refuse selected lock storage
+inside either moving source or destination. Reconcile historical initializer host
+endpoints against their original producer rather than current cell selection.
+The current internal matrix-store profile requires an absolute existing
+in-project cell directory. Relative or missing cell-root selectors remain guarded
+and need their own original-observation admission before full public acceptance.
+
 Close these actual inputs after dependent discovery and native callbacks, before
 role consumption or source effects. Qualify real nonroot positive composition
 and changed/ended/forged-owner refusals first, preserving unknown files and stale
 evidence. Keep canonical prospective metadata and interrupted recovery bound to
 their original observations; this does not grant fresh execution qualification.
+
+The finite selected authored-endpoint join is now independently source reviewed.
+The original registered source discovery retains parsed/native witnesses, and the
+actual acquired control seed binds the same project/conversion observations.
+Present selected endpoints receive `authored` roles; optional absence stays valid
+without waiving missing unrelated initializer files. Shared initializer, real
+framework-update and canonical Git catalog observations must agree. The actual
+metadata successor advances expected inputs, and terminal readonly closure retains
+the original authored witness through successful descriptor teardown. All seventeen
+maintained authored-role controls pass on the exact reviewed source without skips.
+A fresh seventy-two-method source-operation Make run and separate 370-method
+regression also pass without skips: 459 distinct methods. The source run's earlier
+accounting-fixture failure and its corrected actual import-boundary observation
+remain separate in [authored-role evidence](../../verification/retained-layout-source-authored-development.json).
+An actual native case-alias failure was reproduced before adding original cached
+ancestry/source-directory identity separation. Earlier reconstructed-store reads
+were removed from pure lifetime closure. Neither fix supplies fresh qualification.
+
+The next join is actual external original-provider observation under the same
+original allowance before its first Git, filesystem or interpreter read. Keep
+original object/template witnesses distinct from the consumer cache, retain the
+same actual participant through final callbacks and descriptor teardown, and
+refuse absent/ended/changed/copied owners. A fresh `_Objects` observer or a
+post-hoc usage report cannot stand in for that original shared participant.
+External original-provider admission, complete canonical/root/shared/initial/
+wrapper effects, public recovery/apply and full acceptance remain open.
 
 The source-phase input reader currently refuses root implementation placement,
 and source-prefix partition classification is still nonroot-only. Keep that

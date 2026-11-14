@@ -119,6 +119,7 @@ class _State:
     plan: object
     pid: int
     thread: int
+    authored: object = None
 
 
 def _state(owner, *, ready=True):
@@ -133,6 +134,10 @@ def _state(owner, *, ready=True):
     if ready and value.plan is None:
         _fail("source preparation has not completed discovery")
     value.reader._live()
+    if value.plan is not None:
+        from .retained_layout_source_authored import _require_witness
+
+        _require_witness(owner, value)
     return value
 
 
@@ -342,6 +347,9 @@ def prepared_retained_layout_source_move(
         _LIVE[owner] = original
         try:
             with owner._reads():
+                from .retained_layout_source_authored import _Capture
+
+                capture = _Capture(owner)
                 plan = plan_retained_layout_source_move(
                     root,
                     implementation_directory,
@@ -349,8 +357,10 @@ def prepared_retained_layout_source_move(
                     framework_update=framework_update,
                     catalog_copy=catalog_copy,
                     _observation=ledger,
+                    _authored_capture=capture,
                 )
-            _LIVE[owner] = replace(original, plan=plan)
+                authored = capture.finish(plan)
+            _LIVE[owner] = replace(original, plan=plan, authored=authored)
             owner.require_current()
             yield owner
             owner.require_current()

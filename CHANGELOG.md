@@ -7,8 +7,11 @@
   under its original allowance. It preserves source topology, unknown neighbors,
   original producer witnesses and verified metadata backups. Terminal observation
   survives successful descriptor teardown and refuses late changes. This internal
-  result remains unqualified; canonical authored roles, other layout cells, public
-  recovery and installed/platform/release acceptance remain open (#265).
+  result remains unqualified. Selected canonical metadata and optional lock roles
+  now follow actual original discovery, including absent locks and in-project
+  matrix storage. Later environment changes cannot redirect those roles, and
+  aliased moving-source storage refuses. External provider admission, other layout
+  cells, public recovery and installed/platform/release acceptance remain open (#265).
 
 - Catalog-copy development can observe multiple selected sources as one bounded
   forest, resolve cross-item links while copying and carry the original
