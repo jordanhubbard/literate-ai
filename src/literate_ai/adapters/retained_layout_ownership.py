@@ -179,8 +179,6 @@ def _initializer_roles(
         if current_origin is None
         else current_origin
     ):
-        if _source_admission is not None:
-            _fail("original provider requires an actual shared observation participant")
         remaining_files = budget.maximum_files - len(cache)
         remaining_entries = budget.maximum_entries - len(cache) - provider_entries
         remaining_bytes = budget.maximum_total_bytes - payload_bytes
@@ -194,15 +192,27 @@ def _initializer_roles(
             file_limit,
             min(remaining_bytes, remaining_files * file_limit),
         )
-        provider = providers.enter_context(
-            original_initializer_roster(
+        if _source_admission is None:
+            provider = providers.enter_context(
+                original_initializer_roster(
+                    origin,
+                    definition,
+                    checkout=provider_checkout,
+                    budget=provider_budget,
+                    metadata_limit=metadata_limit - charged,
+                )
+            )
+        else:
+            from .retained_layout_source_provider import _join
+
+            provider = _join(
+                _source_admission,
                 origin,
                 definition,
                 checkout=provider_checkout,
                 budget=provider_budget,
                 metadata_limit=metadata_limit - charged,
             )
-        )
         charged += provider.objects.charged
         payload_bytes += provider.objects.total
         provider_files = provider.objects.file_count

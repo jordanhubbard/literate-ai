@@ -9,6 +9,8 @@ import time
 import unicodedata
 from contextlib import contextmanager
 from pathlib import Path, PurePosixPath
+from types import MappingProxyType
+from weakref import WeakKeyDictionary
 
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.contracts.identity import canonical_identity
@@ -55,9 +57,42 @@ def _fail(message):
     raise ValueError("layout.provider: " + message)
 
 
+_PROFILES = WeakKeyDictionary()
+
+
+def _profile(instance):
+    """Construction provenance outlives a shared handle's mutable hints."""
+    try:
+        shared = _PROFILES[instance]
+    except KeyError:
+        _fail("actual constructed provider observer required")
+    if instance._shared is not shared:
+        _fail("original provider construction profile changed")
+    if shared is not None:
+        shared.require_profile(instance)
+    return shared
+
+
 class _Objects:
-    def __init__(self, root, origin, budget, metadata_limit):
+    def __init__(self, root, origin, budget, metadata_limit, *, _shared=None):
+        if self in _PROFILES:
+            _fail("provider construction profile cannot be reinitialized")
+        if _shared is None:
+            from .bounded_role_observation import current_role_observation
+
+            if current_role_observation() is not None:
+                _fail("canonical observation requires an actual shared provider")
+        else:
+            from .retained_layout_source_provider import _Provider, _record
+
+            if type(_shared) is not _Provider:
+                _fail("actual registered source provider construction required")
+            _record(_shared, reading=True)
+        self._shared = _shared
+        _PROFILES[self] = _shared
         self.root, self.origin, self.budget = Path(root).absolute(), origin, budget
+        if _shared is not None:
+            _shared.bind_objects(self)
         require_safe_directory(self.root)
         node = self.root.stat()
         self.node = node.st_dev, node.st_ino
@@ -84,6 +119,8 @@ class _Objects:
             GIT_NO_REPLACE_OBJECTS="1",
             GIT_ALLOW_PROTOCOL="",
         )
+        if _profile(self) is not None:
+            self.environment = MappingProxyType(self.environment)
         self.close_locator()
         commit = self.read("commit", origin.git_revision)
         first = commit.partition(b"\n")[0]
@@ -93,6 +130,9 @@ class _Objects:
         self._tree(self.tree)
 
     def run(self, *arguments, maximum):
+        _profile(self)
+        if _profile(self) is not None:
+            return _profile(self).run(self, arguments, maximum)
         maximum = min(maximum, self.remaining())
         remaining = self.deadline - time.monotonic()
         self.calls += 1
@@ -125,6 +165,7 @@ class _Objects:
         return result.stdout
 
     def close_locator(self):
+        _profile(self)
         require_safe_directory(self.root)
         node = self.root.stat()
         if (node.st_dev, node.st_ino) != self.node:
@@ -192,6 +233,7 @@ class _Objects:
         self.close_native()
 
     def discover_paths(self):
+        _profile(self)
         paths = []
         for arguments in (
             ("--git-dir",),
@@ -209,6 +251,9 @@ class _Objects:
         return tuple(paths)
 
     def count_entry(self, label):
+        _profile(self)
+        if _profile(self) is not None:
+            _profile(self).records(1, 4 * len(label))
         encoded = label.encode("utf-8")
         self.entries += 1
         self.charged += 4096 + 64 * len(encoded)
@@ -221,6 +266,9 @@ class _Objects:
             _fail("original provider path occurrences exceed their explicit budget")
 
     def directory(self, path):
+        _profile(self)
+        if _profile(self) is not None:
+            _profile(self).directory(path)
         if time.monotonic() >= self.deadline:
             _fail("original provider observation exhausted its bounds")
         require_safe_directory(path)
@@ -233,6 +281,7 @@ class _Objects:
                 self.ancestry[parent] = _signature(parent)[:3]
 
     def external_path(self, base, value):
+        _profile(self)
         target = Path(value)
         if len(target.parts) > 128 or len(value.encode("utf-8")) > 4096:
             _fail("original provider external path exceeds its explicit bound")
@@ -246,6 +295,7 @@ class _Objects:
         return current
 
     def configuration_graph(self, roots):
+        _profile(self)
         pending, visited = list(roots), set()
         while pending:
             item = pending.pop()
@@ -293,6 +343,7 @@ class _Objects:
                 pending.append(self.snapshot(target, optional=True))
 
     def snapshot(self, path, *, optional=False):
+        _profile(self)
         if path in self.snapshots:
             return self.snapshots[path]
         self.directory(path.parent)
@@ -306,6 +357,7 @@ class _Objects:
         return item
 
     def close_native(self):
+        _profile(self)
         for path, signature in self.object_stores:
             if _signature(path)[:3] != signature:
                 _fail("original provider object-store root changed")
@@ -325,13 +377,18 @@ class _Objects:
                 )
 
     def remaining(self):
+        _profile(self)
         return min(
+            self.budget.maximum_file_bytes
+            if _profile(self) is None
+            else _profile(self).remaining(),
             self.budget.maximum_file_bytes,
             self.budget.maximum_total_bytes - self.total,
             (self.limit - self.charged - 4096 + 128 * self.scratch_size) // 256,
         )
 
     def charge(self, content):
+        _profile(self)
         self.total += len(content)
         self.charged += 4096 + 128 * len(content)
         # Reserve a distinct largest-object scratch buffer for streaming closes.
@@ -341,6 +398,7 @@ class _Objects:
             _fail("original provider payloads exceed their explicit budget")
 
     def read(self, kind, oid, *, maximum_bytes=None):
+        _profile(self)
         if (
             len(oid) != len(self.origin.git_revision)
             or len(oid) not in {40, 64}
@@ -359,6 +417,8 @@ class _Objects:
         maximum = self.remaining()
         if maximum_bytes is not None:
             maximum = min(maximum, max(1, maximum_bytes))
+        if _profile(self) is not None:
+            _profile(self).object_input()
         content = self.run("cat-file", kind, oid, maximum=maximum)
         if git_object_identity(kind, content, len(oid)) != oid:
             _fail("original provider object bytes disagree with their identity")
@@ -370,6 +430,7 @@ class _Objects:
         return content
 
     def entry(self, path):
+        _profile(self)
         parsed = PurePosixPath(path)
         encoded = path.encode("utf-8")
         if (
@@ -385,6 +446,7 @@ class _Objects:
         self.count_entry(path)
 
     def _tree(self, oid):
+        _profile(self)
         if oid in self.trees:
             return self.trees[oid]
         raw = self.read("tree", oid)
@@ -406,6 +468,8 @@ class _Objects:
                 or mode not in {b"40000", b"100644", b"100755", b"120000", b"160000"}
             ):
                 _fail("original provider tree has unsupported entries")
+            if _profile(self) is not None:
+                _profile(self).records(1, len(name.encode("utf-8")))
             aliases.add(name.casefold())
             self.entries += 1
             self.charged += 4096 + 64 * len(name.encode("utf-8"))
@@ -417,6 +481,7 @@ class _Objects:
         return entries
 
     def locate(self, path):
+        _profile(self)
         self.entry(path)
         parsed = PurePosixPath(path)
         if (
@@ -438,12 +503,14 @@ class _Objects:
         return mode, oid
 
     def blob(self, path):
+        _profile(self)
         mode, oid = self.locate(path)
         if mode not in {b"100644", b"100755"}:
             _fail("original provider input must be a regular blob")
         return self.read("blob", oid)
 
     def flavor_files(self):
+        _profile(self)
         mode, oid = self.locate(_RESOURCES + "flavors")
         if mode != b"40000":
             _fail("original Flavor resources require a directory")
@@ -545,10 +612,24 @@ def _shape(content, *, initializer, maximum_nodes, charge_path=None):
 
 
 class _OriginalRoster:
-    __slots__ = ("_objects", "_templates", "_inputs", "_active", "_pid", "_identity")
+    __slots__ = (
+        "_objects",
+        "_templates",
+        "_inputs",
+        "_active",
+        "_pid",
+        "_identity",
+        "_shared",
+        "__weakref__",
+    )
 
     def __init__(self, objects, templates, inputs):
+        if self in _PROFILES:
+            _fail("provider roster construction profile cannot be reinitialized")
+        profile = _profile(objects)
         self._objects, self._templates, self._inputs = objects, templates, inputs
+        self._shared = profile
+        _PROFILES[self] = self._shared
         self._active, self._pid = True, os.getpid()
         self._identity = canonical_identity(
             {
@@ -574,21 +655,29 @@ class _OriginalRoster:
 
     @property
     def objects(self):
+        _profile(self)
         return self._objects
 
     @property
     def templates(self):
+        _profile(self)
         return self._templates
 
     @property
     def inputs(self):
+        _profile(self)
         return self._inputs
 
     @property
     def identity(self):
+        _profile(self)
         return self._identity
 
     def require_current(self):
+        _profile(self)
+        if _profile(self) is not None:
+            _profile(self).require_current()
+            return
         if not self._active or self._pid != os.getpid():
             _fail("original provider observation ended")
         self.close_native()
@@ -614,6 +703,7 @@ class _OriginalRoster:
         self.close_native()
 
     def close_native(self):
+        _profile(self)
         if not self._active or self._pid != os.getpid():
             _fail("original provider observation ended")
         self.objects.close_native()
@@ -622,32 +712,40 @@ class _OriginalRoster:
                 _fail("current provider interpreter changed")
 
 
-@contextmanager
-def original_initializer_roster(
-    origin, definition, *, checkout, budget, metadata_limit
+def _build_original_roster(
+    origin, definition, *, checkout, budget, metadata_limit, _shared=None
 ):
     root = (
-        Path(project_initialization.__file__).resolve().parents[3]
-        if checkout is None
-        else Path(checkout)
+        _shared.select_root(checkout)
+        if _shared is not None
+        else (
+            Path(project_initialization.__file__).resolve().parents[3]
+            if checkout is None
+            else Path(checkout)
+        )
     )
-    objects = _Objects(root, origin, budget, metadata_limit)
+    objects = _Objects(root, origin, budget, metadata_limit, _shared=_shared)
     inputs = []
     for module in (project_initialization, harness_inventory):
         item = objects.snapshot(Path(module.__file__))
         inputs.append(item)
     mapping = None
     for index, path in enumerate((_INITIALIZER, _HARNESS)):
+        content = objects.blob(path)
         original = _shape(
-            objects.blob(path),
+            content,
             initializer=index == 0,
-            maximum_nodes=metadata_limit // 512,
+            maximum_nodes=metadata_limit // 512
+            if _shared is None
+            else _shared.shape_limit(content, metadata_limit // 512),
             charge_path=objects.entry,
         )
         current = _shape(
             inputs[index].content,
             initializer=index == 0,
-            maximum_nodes=metadata_limit // 512,
+            maximum_nodes=metadata_limit // 512
+            if _shared is None
+            else _shared.shape_limit(inputs[index].content, metadata_limit // 512),
         )
         if original[0] != current[0]:
             _fail("original initializer producer shape is unsupported")
@@ -683,7 +781,22 @@ def original_initializer_roster(
             if mode not in {b"100644", b"100755"}:
                 _fail("original template endpoint lacks its regular resource")
             templates.append(name)
-    roster = _OriginalRoster(objects, tuple(sorted(templates)), tuple(inputs))
+    if _shared is not None:
+        _shared.roster_allowance(objects, templates, inputs)
+    return _OriginalRoster(objects, tuple(sorted(templates)), tuple(inputs))
+
+
+@contextmanager
+def original_initializer_roster(
+    origin, definition, *, checkout, budget, metadata_limit
+):
+    roster = _build_original_roster(
+        origin,
+        definition,
+        checkout=checkout,
+        budget=budget,
+        metadata_limit=metadata_limit,
+    )
     try:
         roster.require_current()
         yield roster

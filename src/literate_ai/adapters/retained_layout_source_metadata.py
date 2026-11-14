@@ -259,6 +259,9 @@ def _separate_predecessor_state(admission, candidate_lineage):
             roots.extend(
                 (path, signature[:2]) for path, signature in provider.object_stores
             )
+    from .retained_layout_source_provider import _separate_effects as separate_provider
+
+    separate_provider(admission, candidate_lineage)
     candidate_identity = candidate_lineage[-1][1:3]
     ancestors = {row[1:3] for row in candidate_lineage}
     for path, expected in roots:

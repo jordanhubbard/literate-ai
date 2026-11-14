@@ -80,6 +80,7 @@ class _Admission:
     movement: object = None
     resources: object = None
     authored: object = None
+    provider: object = None
 
 
 def _record(preparation, *, cleanup=False):
@@ -123,6 +124,11 @@ def _phase_record(phase):
         _require_registration(record)
     elif record.resources is not None:
         _fail("original canonical authored participant ended")
+    from .retained_layout_source_provider import (
+        _require_registration as provider_registration,
+    )
+
+    provider_registration(record)
     if record.pool._poisoned:
         _fail("original control pool interrupted")
     _close_predecessor_lifetimes(record)
@@ -175,6 +181,9 @@ def _close_admitted_inputs(phase, tree, native):
     record = _require_admitted_tree(phase, tree, native, phase.controls)
     original, plan = record.original, record.original.plan
     original.reader._close_native_inputs()
+    from .retained_layout_source_provider import _close_native as close_provider_native
+
+    close_provider_native(record)
     _close_authored(plan)
     if record.movement is not None and record.movement.expected is not None:
         from .retained_layout_source_movement import _close_movement_inputs
@@ -193,8 +202,11 @@ def _close_admitted_inputs(phase, tree, native):
 
 
 def _close_admitted_span(record):
+    from .retained_layout_source_provider import _require_payload
     from .retained_layout_transaction import _absence, _close_tree
 
+    with _control_reads(record.preparation, record.pool):
+        _require_payload(record)
     plan, ledger = record.original.plan, record.original.ledger
     if record.span is not None:
         _fail("reentrant admitted closing scope")

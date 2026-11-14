@@ -821,6 +821,11 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         class StopInspection(Exception):
             pass
 
+        # Isolated workers add real ancestor and reservation observations.
+        # Declare the complete positive profile before the first producer;
+        # an active operation never receives a larger allowance.
+        self.copy_metadata = 8 * 1024**3
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
         self.update_budget, self.update_sequence = self.copy_budget, 0
         try:
             with self.updated(adopt_added=True) as update:
@@ -850,6 +855,20 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
                                     phase.move_source()
                                     owner.require_current()
                                     self.assertTrue(update._spent)
+                                    self.assertEqual(
+                                        original.ledger.budget, self.copy_budget
+                                    )
+                                    self.assertEqual(
+                                        original.ledger.metadata, self.copy_metadata
+                                    )
+                                    self.assertLessEqual(
+                                        owner.usage["entries"],
+                                        self.copy_budget.maximum_entries,
+                                    )
+                                    self.assertLessEqual(
+                                        owner.usage["metadata_bytes"],
+                                        self.copy_metadata,
+                                    )
                                     with self.assertRaises(
                                         updates.FrameworkUpdateRoleError
                                     ):
@@ -910,6 +929,10 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         self.assertTrue((self.metadata / "old-0").exists())
 
     def test_original_combined_allowance_refuses_metadata_before_writes(self):
+        # Fund movement under isolated ancestors while leaving insufficient
+        # original records for metadata's complete graph/history reservation.
+        self.copy_budget = replace(self.copy_budget, maximum_entries=69632)
+        self.copy_metadata = 8 * 1024**3
         self.update_budget, self.update_sequence = self.copy_budget, 0
         with self.assertRaisesRegex(
             ValueError, "metadata preflight exceeds original allowance"

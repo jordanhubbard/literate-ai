@@ -24,7 +24,12 @@ class SourceFinalizationTests(unittest.TestCase):
     prepare = fixtures.SourceAdmissionTests.prepare
     pool = fixtures.SourceAdmissionTests.pool
     inspecting = fixtures.SourceAdmissionTests.inspecting
-    setUp = fixtures.SourceAdmissionTests.setUp
+
+    def setUp(self):
+        fixtures.SourceAdmissionTests.setUp(self)
+        # Complete positive flows include isolated-worker ancestor observations.
+        # The smaller-profile refusal below declares its own original policy.
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
 
     @classmethod
     def setUpClass(cls):
@@ -90,6 +95,8 @@ class SourceFinalizationTests(unittest.TestCase):
         self.assertTrue((self.metadata / "old-0").is_file())
 
     def test_original_smaller_policy_refuses_before_control_effects(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=65536)
+        self.metadata_limit = 4 * 1024**3
         self.init_git(commit=True)
         with self.inspecting() as (owner, phase, _pool, _journal):
             with phase.complete_partition(
@@ -138,6 +145,7 @@ class SourceFinalizationTests(unittest.TestCase):
         )
 
     def test_failed_descriptor_release_preserves_committed_error_outcome(self):
+        released = []
         with self.assertRaises(Exception) as caught:
             with self.prepare() as owner:
                 with self.pool(owner.plan) as (pool, _journal):
@@ -149,11 +157,16 @@ class SourceFinalizationTests(unittest.TestCase):
                         self.advance(phase)
 
                         def interrupt_release():
+                            released.append(True)
                             raise OSError("controlled original descriptor release")
 
                         phase._resources.callback(interrupt_release)
         self.assertIs(getattr(caught.exception, "committed", None), True)
+        self.assertEqual(released, [True])
         self.assertIsInstance(caught.exception.__cause__, OSError)
+        self.assertEqual(
+            str(caught.exception.__cause__), "controlled original descriptor release"
+        )
         self.assertFalse((self.project / "litai/layout.pending").exists())
 
     def test_metadata_area_cannot_be_reused_for_control_retirement(self):

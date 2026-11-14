@@ -1,0 +1,464 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "ee784123c1ae49604ff71262d10c24bdcefeb019",
+  "scope": "Actual external original initializer provider joins the original prepared nonroot source operation under the same cumulative reader/ledger through complete source/metadata/control effects and readonly terminal observation after descriptor teardown. Internal POSIX native local fixture scope; result remains committed-unqualified.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "0159ea73a8edcedab401eaaa56fe9b20526737fcbcb38dba53255a87bcefb887"
+    },
+    "src/literate_ai/adapters/retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "74c08813a5e40af2f57f5b91f0136bb41ca5be2166d8a77bc49d11b00fbe6809"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "eacbb634b9f88e7a282badd6a9ca6d2c948eab367c2d0b418121c01a63ece0e0"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "ee92f1f1c3c4e0525012894867ec17b3af03b1c1442358e550a8a60daa90e566"
+    },
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "803f2ffccfdebeca8472d1efbf8a99c7914ada11e486b33916f44e82f95cf92e"
+    },
+    "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+      "algorithm": "sha256",
+      "digest": "dea3bff5cde8ec707c0d4aaba661846f4df96d894ae2f4b83da1ab5506faf38b"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "1bcd2a3225cacd1cb5502e313df7bc598b08841f5d753bc0f523054ac6059325"
+    },
+    "tests/critical/test_retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "480edaedfed2326bfa508074836b9f682837dfdaaa0600f17f843ffce616e8fd"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "dba942b24b85ac9ad980e563f428af1906794f54b362f97fb3e109108083bef1"
+    },
+    "tests/critical/test_retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "2981d216c5015d7135f0a65be3ddb174ed0328f4b1addf493c8fe4a1ef8c1ef7"
+    }
+  },
+  "behavior": [
+    "Authenticate one registered creating source-provider participant before its first filesystem/Git/interpreter read; keep parsed producer evidence and raw Git object witnesses distinct from consumer cache state.",
+    "Charge bounded stdout/stderr peak capacity and actual observations to the original allowance; fund path/tree/AST metadata before retaining decoded data. Raw binary revalidation does not create fictitious decoded newline records.",
+    "Revalidate the same actual object observer and original immutable roster/routing/cache bindings without creating fresh _Objects or importing predecessor usage again.",
+    "Retain construction provenance independently of mutable optional hints. Existing None legacy profiles remain distinct from missing provenance; reinitialization, foreign shared construction, unjoined canonical legacy reads and ended/copy/cleared-profile paths refuse before native I/O.",
+    "Keep moving source, actual pool/journal and metadata/retirement effects separate from actual provider roots, Git administration, recursive object stores and named inputs using original native ancestry.",
+    "Keep the actual provider registered through phase and resource exit until its creating preparation ends; terminal observation uses the original reader and grants no new role, source effect or execution qualification.",
+    "Use the actual supported historical producer, genuine updater and canonical Git catalog in the same original operation, preserving producer caches and metadata backups through actual checkout cleanup. Native local fixtures do not establish remote history authenticity."
+  ],
+  "author_history": [
+    {
+      "path": "_build/source-provider-before.log",
+      "sha256": "8478b7a691d61a55b32aaf77722f011bc27cedf9fc600484dd888f2797ea059e",
+      "interpretation": "Actual old source admission guard; both tests stop before external-provider joining.",
+      "tests": 2,
+      "seconds": 4.154,
+      "footer": "FAILED (errors=2)"
+    },
+    {
+      "path": "_build/source-provider-first.log",
+      "sha256": "ae529240ff81dbf7c21007e0a6bc3568763137d24e22f5f00a8fb92922c5170f",
+      "interpretation": "Both initial integration tests exhaust original records because binary blob newlines were incorrectly charged as newly decoded records on every revalidation. Actual observed channel bytes remain charged after repair; object/tree/path/AST parsers retain proper precharges.",
+      "tests": 2,
+      "seconds": 82.455,
+      "footer": "FAILED (errors=2)"
+    },
+    {
+      "path": "_build/source-provider-second.log",
+      "sha256": "557dc82e03d1f3efef671c211653cd8a3e02eea24468e8f22436c7e78a0ad88b",
+      "interpretation": "Intermediate native actual old-provider full transaction and private provider metadata-area refusal. Same object observer, no fresh _Objects in source currentness.",
+      "tests": 2,
+      "seconds": 224.598,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-provider-dispatch-before.log",
+      "sha256": "1fe6902cff4f11e6e84cb142ea59568a8e747e0fe981d99b0e97557f8808bd2f",
+      "interpretation": "All three actual cleared-hint paths reach forbidden legacy I/O/fresh construction before provenance repair.",
+      "tests": 3,
+      "seconds": 54.711,
+      "footer": "FAILED (failures=3)"
+    },
+    {
+      "path": "_build/source-provider-dispatch-after.log",
+      "sha256": "9db2f75eecadabe032daebf93b5e72322e5d40d0be66d72e06f61d2a4ca19320",
+      "interpretation": "All three immutable-construction-profile dispatch controls pass before constructor hardening.",
+      "tests": 3,
+      "seconds": 71.968,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-provider-construction-before.log",
+      "sha256": "85c96304cad2a2239f7e4ff7ed4e4403dd7286767a5b746b6ffa53e95c8dc13d",
+      "interpretation": "Four methods / five failures, including shared and None legacy reinit, roster mutation, foreign callback and unjoined canonical constructor.",
+      "tests": 4,
+      "seconds": 41.836,
+      "footer": "FAILED (failures=5)"
+    },
+    {
+      "path": "_build/source-provider-construction-after.log",
+      "sha256": "cf77b79c0f2d183ce2b1f6112d62b78910a2508275691f4583784f10fa5d13a0",
+      "interpretation": "All four constructor controls pass, including both real legacy and shared objects.",
+      "tests": 4,
+      "seconds": 49.339,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-provider-combined-first.log",
+      "sha256": "52b51101a79e743116f5b5cb09fa42ef38ff45b9f76ee882db4d422c4397af1a",
+      "interpretation": "Composition fixture names a different repository from installed updater; existing project.update_origin_changed guard correctly refuses. No production change to this guard.",
+      "tests": 1,
+      "seconds": 2.919,
+      "footer": "FAILED (errors=1)"
+    },
+    {
+      "path": "_build/source-provider-combined-second.log",
+      "sha256": "1923ca030a80d8cdc39c5e800ddca1ae1d264706be91d6547fa0a606066beaca",
+      "interpretation": "Actual initialized old-producer fixture regenerated with consistent declared lineage; genuine updater and canonical Git catalog complete one original transaction. Native local fixture, no remote history authenticity claim.",
+      "tests": 1,
+      "seconds": 250.167,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-provider-owners-first.log",
+      "sha256": "78ef2927ef46bfa91fc610cc474c97f48f569576e1b223af537174630a5d1f1f",
+      "interpretation": "Four genuine refusal groups pass: optional participant removal/copy, native close revocation, small original allowance before external constructor and named external provider input within moving source. Native-boundary probe still needs final-boundary refinement.",
+      "tests": 4,
+      "seconds": 54.422,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-provider-teardown-first.log",
+      "sha256": "ad6467748678abaf48fb5231928c0f5dec78c81dd8a4f9330fbc426e3be3c66c",
+      "interpretation": "Registry revocation reports committed. Git corruption fixture fails on readonly object permissions, so neither attempted corruption nor broad exception classification is accepted as final Git revalidation evidence.",
+      "tests": 2,
+      "seconds": 337.571,
+      "footer": "FAILED (errors=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-causal-replay.log",
+        "sha256": "33082802294eaa5908d5995759b5e47b46acb616987329647c5ba83413bfd9d5"
+      },
+      "interpretation": "Corrected actual final admitted span and two descriptor-teardown controls. Successful registry pop/Git corruption and exact provider refusal causes are established; original fixture bytes/mode are restored.",
+      "tests": 3,
+      "seconds": 366.555,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-existing-budget-direct.log",
+        "sha256": "21fe1e405ea63a43c22f83129a1977d2934355e0aa6d952b2695751c09ffa819"
+      },
+      "interpretation": "Unisolated 85-character project root passes original 65536-entry/4GiB positive allowance, no external provider joined.",
+      "tests": 1,
+      "seconds": 39.504,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-existing-budget-isolated.log",
+        "sha256": "f287ba5c14cfc1ca88be2cbcb90a6b3ce060c5a07683ca07671a605899ba7aa4"
+      },
+      "interpretation": "Actual isolated worker environment with 114-character root requires67949 records and4363201536 bytes at movement reservation; original65536/4GiB policy correctly refuses, no provider active.",
+      "tests": 1,
+      "seconds": 36.357,
+      "footer": "FAILED (errors=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-existing-budget-isolated-after.log",
+        "sha256": "6aa2605c47bc855eeb58fbb6964c3a55970849df7a296f29a0dac650e97cc983"
+      },
+      "interpretation": "Positive declares131072/8GiB before either producer, preserves file/payload policy, and actual movement remains within that exact original policy under isolated worker environment.",
+      "tests": 1,
+      "seconds": 42.85,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-complete-source.log",
+        "sha256": "a3226262e1bd001851be1680c0a1c776355577cab1a999b8c44827942db36ef1"
+      },
+      "report": {
+        "path": "_build/source-provider-complete-source-report.json",
+        "sha256": "00e83ce2ff0b149ea8785214d5079fccda96e62a908c1d12082fef3d381aeae9"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 88,
+        "skipped": 0
+      },
+      "interpretation": "First maintained workers2 group stopped on correctly exhausted existing coupled-positive fixture before old source88 qualification; fresh final group uses declared positive profile from start, production guards unchanged."
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-final-source.log",
+        "sha256": "abbd32d0520b8378695b479b818001d378fc44916f7eab2b57e84e6ca0977f88"
+      },
+      "interpretation": "Second source88 workers2 attempt stopped on existing descriptor positive: actual original allowance exhausted before its intended callback. No final source qualification.",
+      "tests": 9,
+      "seconds": 160.435,
+      "footer": "FAILED (failures=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-finalization-isolated-before.log",
+        "sha256": "0d5c73b29cdf5a642f0f6aa371d2fe8a90d3632ae626d16ad809fd2dd3dddb2f"
+      },
+      "interpretation": "Native isolated diagnostic shows pending action and1141-byte document valid, but only5 records remain vs required256; metadata has2364465088 bytes remaining. Correct original guard; callback not reached.",
+      "tests": 1,
+      "seconds": 16.487,
+      "footer": "FAILED (failures=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-finalization-isolated-after.log",
+        "sha256": "0523fd6af4ad87a0155d3519ca3959ba1e03f5d678a7cd44a33cbb93396f9df2"
+      },
+      "interpretation": "Positive declares131072 entries before preparation. Exact callback flag/OSError cause passes; explicit65536-entry/4GiB Git negative still refuses preflight before control effects.",
+      "tests": 2,
+      "seconds": 43.035,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-complete-source-v3.log",
+        "sha256": "d749d06a73b7f3c13f904358c5d0d5c7838acf403782e08c00d972fce116b25a"
+      },
+      "interpretation": "Source88 workers4 stopped after36PASS and one failed existing metadata-negative fixture: isolated roots exhausted old allowance at movement, earlier than its required metadata gate. Not final qualification.",
+      "tests": 39,
+      "seconds": 273.241,
+      "footer": "FAILED (failures=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-provider-metadata-negative-isolated-after.log",
+        "sha256": "21ddf049f2371e2217fe6010eb8c1d196467c600e75c38b924f1f9dd1b23a62a"
+      },
+      "interpretation": "Original69632-entry/8GiB fixture starts before first producer. Movement completes at68045 records; metadata requires4892 records vs1587 remaining, refuses before writes, and existing public/private preservation assertions pass.",
+      "tests": 1,
+      "seconds": 43.147,
+      "footer": "OK"
+    }
+  ],
+  "interrupted_exploratory_run": {
+    "path": "_build/source-provider-expanded.log",
+    "exit_code": 143,
+    "reason": "Stopped after actual composition error to isolate traceback; never a passing qualification."
+  },
+  "independent_review": {
+    "path": "independent-layout-source-provider-review.json",
+    "sha256": "1e53903e3e977e65762aff2064467ff28598ef09d227d33c8a6fda925d2f09dc",
+    "decision": "approved_at_internal_shared_original_provider_nonroot_scope",
+    "independent_dynamic_qualification": false
+  },
+  "final_author_qualification": {
+    "state": "passed",
+    "source_operation_selection": "tests/critical/test_retained_layout_source*.py",
+    "expected_source_methods": 88,
+    "source_workers": 4,
+    "authored_selection": "tests/critical/test_retained_layout_authored_roles.py",
+    "expected_authored_methods": 17,
+    "regression": {
+      "state": "passed",
+      "exit_code": 0,
+      "tests": 370,
+      "seconds": 709.071,
+      "skipped": 0,
+      "scope": "Twenty-one affected suites. Production and selected test subjects unchanged by later fixture-only correction to an unselected SourceAdmission positive method.",
+      "log": {
+        "path": "_build/source-provider-regression-first.log",
+        "sha256": "c6d05a2e9b5f03ba998a11b5a01265bc00a48cfbe35c35f1f424067a8c83a440"
+      }
+    },
+    "authored": {
+      "state": "passed",
+      "command": "make python-check",
+      "selection": "tests/critical/test_retained_layout_authored_roles.py",
+      "workers": 1,
+      "exit_code": 0,
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "seconds": 129.117,
+      "report": {
+        "path": "_build/source-provider-complete-authored-v4-report.json",
+        "sha256": "455a4569cde0291da03777d1579529e2c7b8d7f076b3ed522ae072647c90b309"
+      },
+      "log": {
+        "path": "_build/source-provider-complete-authored-v4.log",
+        "sha256": "ffe6ebac9212f5a46f9bbc8c1b8abdac6e7fc473c5e3f7b0a7c9b3d397e30198"
+      }
+    },
+    "source_operation": {
+      "state": "passed",
+      "command": "make python-check",
+      "selection": "tests/critical/test_retained_layout_source*.py",
+      "workers": 4,
+      "exit_code": 0,
+      "summary": {
+        "executed": 88,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 88,
+        "selected": 88,
+        "skipped": 0
+      },
+      "seconds": 1059.571,
+      "report": {
+        "path": "_build/source-provider-complete-source-v4-report.json",
+        "sha256": "fa0e30bab39b504d591b2041f810d99353a3a449919cabca7ff0da45b3bd4e42"
+      },
+      "log": {
+        "path": "_build/source-provider-complete-source-v4.log",
+        "sha256": "60bfb84310aca61c543c80c3f7fb2edd8643cbd6c3c201f300050a7c6f261d72"
+      }
+    }
+  },
+  "original_positive_policy": {
+    "plain_external_provider": {
+      "maximum_files": 8192,
+      "maximum_entries": 131072,
+      "maximum_file_bytes": 4194304,
+      "maximum_total_bytes": 268435456,
+      "maximum_metadata_bytes": 8589934592
+    },
+    "framework_canonical_catalog_external_provider": {
+      "maximum_files": 8192,
+      "maximum_entries": 524288,
+      "maximum_file_bytes": 4194304,
+      "maximum_total_bytes": 268435456,
+      "maximum_metadata_bytes": 8589934592
+    },
+    "smaller_policy_refusal": {
+      "maximum_entries": 8192,
+      "behavior": "Actual preparation/control/partition refuses before constructing any original-provider observer; source stays unmoved."
+    },
+    "boundary": "Every allowance is declared before its first producer; no active operation receives a larger policy or a replacement reader/ledger.",
+    "existing_coupled_worker_fixture": {
+      "maximum_entries": 131072,
+      "maximum_metadata_bytes": 8589934592,
+      "file_payload_limits": "unchanged",
+      "declared": "before first updater/catalog producer"
+    },
+    "existing_plain_finalization_worker_fixture": {
+      "maximum_entries": 131072,
+      "maximum_metadata_bytes": 4294967296,
+      "file_payload_limits": "unchanged",
+      "declared": "before preparation",
+      "smaller_git_negative": "explicit original65536 entries/4GiB before init/preparation"
+    },
+    "existing_metadata_negative_worker_fixture": {
+      "maximum_entries": 69632,
+      "maximum_metadata_bytes": 8589934592,
+      "declared": "before first producer",
+      "behavior": "Movement fits; original metadata preflight4892 records exceeds1587 remaining, before writes."
+    }
+  },
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-provider-final-static.log",
+      "sha256": "677d5e2fc602588e43728907b190c3868934cd6c51e1ba576979aa919f8cc0e1"
+    },
+    "later_test_only_style_check": {
+      "path": "tests/critical/test_retained_layout_source_admission.py",
+      "commands": [
+        "ruff check",
+        "ruff format"
+      ],
+      "exit_code": 0
+    },
+    "later_test_only_style_checks": [
+      {
+        "path": "tests/critical/test_retained_layout_source_provider.py",
+        "commands": [
+          "ruff check",
+          "ruff format"
+        ],
+        "exit_code": 0
+      },
+      {
+        "path": "tests/critical/test_retained_layout_source_admission.py",
+        "commands": [
+          "ruff check",
+          "ruff format"
+        ],
+        "exit_code": 0
+      },
+      {
+        "path": "tests/critical/test_retained_layout_source_finalization.py",
+        "commands": [
+          "ruff check",
+          "ruff format"
+        ],
+        "exit_code": 0
+      }
+    ]
+  },
+  "acceptance": {
+    "finite_external_original_provider_join": true,
+    "complete_canonical_selectors": false,
+    "root_shared_initial_wrapper_effects": false,
+    "complete_public_recovery": false,
+    "complete_public_apply": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Implement the remaining complete canonical selectors and root/shared/initial/wrapper partition/effect graph, public recovery/apply and all installed/native/platform/integration/release and roadmap obligations. Full lifecycle receipt remains to be renewed; scoped qualification is not full acceptance.",
+  "combined_unique_passing_test_ids": 475,
+  "authority_checks": {
+    "driver_record": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-provider-driver-record.log",
+        "sha256": "283b780581c94d30ee7f8315c1f92f2ca3c37a82e52b36a920cae2b0568bd1ed"
+      }
+    },
+    "documentation_record": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-provider-documentation-record.log",
+        "sha256": "508e4fa903f8d60eb457f10d9058a97d6ca739a942af211b3d224782b278298b"
+      }
+    },
+    "driver_runner_layout_export": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-provider-authority-checks.log",
+        "sha256": "bea278158e37c51c8e529ea833896c27ca2dc26cc34f75b0c2e92a670c4904af"
+      }
+    },
+    "project_validate": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-provider-project-validate.json",
+        "sha256": "5c3f8ec54602d99cec4a1944cadd090a676e660fdac090f39dba2d727769cb28"
+      }
+    }
+  }
+}

@@ -34046,8 +34046,21 @@ independent review and the complete combined gate from test one.
   source-operation Make controls plus a separate 370-method affected regression
   pass without skips: 459 distinct methods. Original failures and final results remain in
   [authored-role evidence](../../verification/retained-layout-source-authored-development.json).
-  External original-provider shared observation admission is the next join before
-  root effects, preserving the transport limitation for complete execution qualification,
+  External original-provider joining now has a source-reviewed participant that
+  funds actual native Git/filesystem reads from the same source allowance, retains
+  original object/template witnesses and revalidates the same observer through
+  descriptor teardown and readonly terminal observation. Immutable construction
+  provenance blocks cleared-field legacy fallback, reinitialization and expired
+  or copied participants before I/O. Actual provider/private/source overlap refuses.
+  Real historical-provider/update/canonical-Git-catalog composition and corrected
+  native teardown controls pass at local fixture scope. The final maintained
+  source gate passes all eighty-eight methods with four isolated local workers;
+  seventeen authored-role controls and 370 separate affected regressions also
+  pass without skips: 475 distinct methods. Exact subjects and failed/intermediate
+  profiles remain in
+  [provider-join evidence](../../verification/retained-layout-source-provider-development.json).
+  Complete canonical selectors and the root/shared effect graph are next,
+  preserving the transport limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

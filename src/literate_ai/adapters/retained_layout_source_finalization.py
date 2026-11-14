@@ -658,6 +658,7 @@ class _Terminal:
     resources: object
     resource_exit: object
     authored: object
+    provider: object
 
 
 def _prepare_terminal_teardown(phase):
@@ -772,6 +773,7 @@ def _complete_terminal(record):
         value.terminal_resources,
         _closed_phase_resources(record),
         _closing_authored(record),
+        record.provider,
     )
     _TERMINALS[record.preparation] = terminal
     try:
@@ -792,6 +794,9 @@ def _require_terminal_current(preparation):
     try:
         _close_terminal_registration(terminal)
         with _activate_role_observation(terminal.original.reader):
+            from .retained_layout_source_provider import _terminal_payload
+
+            _terminal_payload(terminal)
             terminal.tree.require_unchanged()
             for root, _root_node, known in terminal.private:
                 for name, (node, content) in known:
@@ -829,6 +834,9 @@ def _terminal_native_close(preparation, tree, native):
     if terminal is None or terminal.tree is not tree or terminal.native is not native:
         _fail("actual original terminal native span required")
     terminal.original.reader._close_native_inputs()
+    from .retained_layout_source_provider import _close_native as close_provider_native
+
+    close_provider_native(terminal.admission)
     for producer in (terminal.original.framework, terminal.original.catalog):
         if producer is not None:
             producer.close_native(_consumed=True)
@@ -845,6 +853,13 @@ def _close_terminal_registration(terminal):
     from .retained_layout_source_authored import _close_terminal_authored
 
     record = terminal.admission
+    from .retained_layout_source_provider import (
+        _require_registration as provider_registration,
+    )
+
+    if record.provider is not terminal.provider:
+        _fail("original terminal provider participant changed")
+    provider_registration(record)
     _close_terminal_authored(record, terminal.original, terminal.authored)
     if (
         _terminal(record.preparation) is not terminal

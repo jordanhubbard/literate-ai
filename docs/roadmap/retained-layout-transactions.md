@@ -1865,7 +1865,7 @@ An actual native case-alias failure was reproduced before adding original cached
 ancestry/source-directory identity separation. Earlier reconstructed-store reads
 were removed from pure lifetime closure. Neither fix supplies fresh qualification.
 
-The next join is actual external original-provider observation under the same
+The external original-provider join requires observation under the same
 original allowance before its first Git, filesystem or interpreter read. Keep
 original object/template witnesses distinct from the consumer cache, retain the
 same actual participant through final callbacks and descriptor teardown, and
@@ -1873,6 +1873,59 @@ refuse absent/ended/changed/copied owners. A fresh `_Objects` observer or a
 post-hoc usage report cannot stand in for that original shared participant.
 External original-provider admission, complete canonical/root/shared/initial/
 wrapper effects, public recovery/apply and full acceptance remain open.
+
+External-provider joining is now in development. Fund its first filesystem and
+Git access from the already creating source allowance. Retain actual original
+object/template observations and their identity independently from the consumer's
+file cache. Revalidate the same object observer rather than constructing a new
+one with a fresh allowance. Raw object bytes retain channel accounting; only
+actual decoders add parsed record charges. Preserve existing standalone provider
+behavior while joining the actual source registry, acquired controls and original
+reader. Keep source, metadata/retirement outputs, named provider inputs and exact
+Git/recursive object-store roots separate using original native ancestry.
+
+The actual provider participant must remain registered until the creating
+preparation ends, including successful resource teardown and later readonly
+terminal observation. Ordinary phase roles end with the phase; a terminal read
+must grant no source or mutation rights. Clearing an optional field, copying a
+handle, ending the original participant or changing its routing/cache/producer
+witnesses must refuse. Qualify real historical-Git positive composition,
+pre-effect and terminal callback changes, actual private-area overlap and
+smaller original policy refusal before marking this join complete. Keep failed
+intermediate checks separate from final qualification.
+
+The join is now source reviewed at its internal nonroot scope. Method dispatch
+uses actual weak construction provenance rather than mutable optional hints;
+source-created handles cannot become legacy observers after their owner ends.
+Both object and roster constructors refuse reinitialization before mutation,
+foreign shared callbacks refuse before execution, and fresh legacy construction
+inside an active canonical observation requires the actual shared participant.
+The corrected last-native probe arms the real admitted span. Teardown probes
+confirm successful original registration removal or actual owned Git-object
+corruption and the matching provider refusal cause before accepting a committed
+error result. Native historical-provider/update/canonical Git-catalog composition
+uses a freshly initialized consistent lineage fixture, without rewriting generated
+origin/baseline authority. This proves local native handling, not remote history
+authenticity or public qualification. Final author qualification passes the
+maintained eighty-eight-method source gate with four isolated local workers,
+seventeen maintained authored-role controls, and 370 separate affected regression
+methods without skips: 475 distinct methods. Exact reviewed subjects, causal
+controls, failed profiles and passing replays remain in
+[provider-join evidence](../../verification/retained-layout-source-provider-development.json).
+
+An existing coupled positive now declares its complete allowance before the first
+producer. The isolated worker's longer ancestry exhausted its former 65,536-record
+and 4 GiB allowance; direct shorter-root execution passed. Original unchanged
+capacity guards rejected the isolated reservation before source movement. The
+positive now starts with 131,072 records and 8 GiB, preserving file/payload limits
+and asserting its unchanged original policy and bounded usage. Smaller-policy
+refusal remains separate. The plain finalization positives declare 131,072
+entries before preparation; their explicit smaller Git negative retains its
+65,536-entry / 4 GiB original policy and intended preflight refusal. The coupled
+metadata-negative profile starts at 69,632 entries / 8 GiB, reaches actual movement
+at 68,045 records and refuses metadata's 4,892-record reservation with 1,587
+remaining before writes. Earlier movement-only refusals do not count as metadata
+coverage. No active ledger is topped up.
 
 The source-phase input reader currently refuses root implementation placement,
 and source-prefix partition classification is still nonroot-only. Keep that

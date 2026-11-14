@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Retained-layout development can carry an external original initializer's
+  Git-backed observations through the source transaction under its existing
+  allowance, including readonly checks after descriptor teardown. Expired or
+  replaced participants and overlapping private outputs refuse. This internal
+  nonroot result remains unqualified; broader layouts, public recovery and
+  installed/platform/release acceptance remain open (#265).
+
 - Retained-layout development can carry a nonroot transaction from funded
   discovery through source movement, metadata publication and control handoff
   under its original allowance. It preserves source topology, unknown neighbors,

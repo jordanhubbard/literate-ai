@@ -366,6 +366,8 @@ def prepared_retained_layout_source_move(
             owner.require_current()
         finally:
             from .retained_layout_source_finalization import _end_terminal
+            from .retained_layout_source_provider import _end as end_provider
 
+            end_provider(owner)
             _end_terminal(owner)
             _LIVE.pop(owner, None)
