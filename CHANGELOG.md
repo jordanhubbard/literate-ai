@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained-layout development can bound canonical project, conversion, migration,
+  child-registry and Git role inputs under one operation-local allowance while
+  preserving ordinary reader defaults. Changed inputs and ended scopes refuse;
+  the read scope grants no catalog publication or movement rights (#265).
+
 - Catalog-copy development can materialize bounded private trees with durable
   journal intent and validated source/output identities, retaining partial stages
   after interruption without publishing into the project (#265).

@@ -33862,6 +33862,19 @@ independent review and the complete combined gate from test one.
   the journal lifetime finding; earlier independent runs retain their old subjects.
   [Private materialization evidence](../../verification/retained-layout-catalog-copy-staging-development.json)
   binds current source, author checks and the immutable review/failure chain.
+  Canonical publication-role inputs now have an explicit operation-local shared
+  read allowance. Actual project/conversion/migration, registered-child and Git
+  readers retain their canonical parsers and default behavior while bounded
+  observation holds original file bytes, absence, ancestry and native facts.
+  Git output and decoded records share the same ledger; ended/inherited contexts
+  and changed inputs refuse. All 171 author regression methods and 19 scoped
+  Make methods pass without skips. Independent execution passes the same 19 new
+  methods and 13 maintained parser/Git-refresh/migration regressions. Independent
+  review approves the exact read-budget prerequisite. Exact source
+  and validation limits are retained in
+  [role-input development evidence](../../verification/retained-layout-role-inputs-development.json).
+  This read-only scope is a prerequisite to actual protected-role publication
+  preflight and grants no effect or source-exclusion rights.
   Project publication, overwrite retirement and the live imported-role join remain
   required. The plan is descriptive;
   it supplies no copied role, source exclusion or write permission. Next connect

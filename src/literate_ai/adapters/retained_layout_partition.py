@@ -43,6 +43,11 @@ def _physical_wire(value):
 
 
 def _lineage(root: Path) -> tuple:
+    from .bounded_role_observation import current_role_observation
+
+    observation = current_role_observation()
+    if observation is not None:
+        observation.reserve_lineage(root)
     try:
         require_safe_directory(root)
         nodes = []
@@ -60,7 +65,10 @@ def _lineage(root: Path) -> tuple:
                     node.st_gid,
                 )
             )
-        return tuple(nodes)
+        value = tuple(nodes)
+        if observation is not None:
+            observation.remember_lineage(root, value)
+        return value
     except (OSError, UnsafeFilesystemPathError) as exc:
         raise RetainedLayoutError("layout physical ancestry is unavailable") from exc
 

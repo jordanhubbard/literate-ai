@@ -38,7 +38,12 @@ from literate_ai.contracts.operator_adoption import (
     ConversionAuthorityState,
     advance_conversion_authority,
 )
-from literate_ai.projects import LoadedProject, ProjectError, load_project
+from literate_ai.projects import (
+    DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+    LoadedProject,
+    ProjectError,
+    load_project,
+)
 from literate_ai.source_to_specification.promotion_materialization import (
     SourcePromotionError,
     verify_source_promotion_evidence,
@@ -93,7 +98,16 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
 
     registry = project.root / NATIVE_PROJECTS_FILE
     require_native_project_path(project, registry)
-    if not registry.exists():
+    from .bounded_role_observation import current_role_observation
+
+    observation = current_role_observation()
+    if observation is not None:
+        original = observation.file(
+            registry, optional=True, maximum_bytes=_MAXIMUM_STATE_BYTES
+        ).content
+        if original is None:
+            return ()
+    elif not registry.exists():
         return ()
     if registry.is_symlink() or not registry.is_file():
         raise ConversionAuthorityError(
@@ -101,8 +115,12 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
             "native project registry is missing, unsafe, or invalid",
         )
     try:
-        with registry.open("rb") as stream:
-            content = stream.read(_MAXIMUM_STATE_BYTES + 1)
+        if observation is not None:
+            content = original
+            observation.json_value(content, str(registry))
+        else:
+            with registry.open("rb") as stream:
+                content = stream.read(_MAXIMUM_STATE_BYTES + 1)
         if len(content) > _MAXIMUM_STATE_BYTES:
             raise ValueError
         value = json.loads(content)
@@ -141,9 +159,17 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
             child = load_project(child_root)
             if child.root != child_root.resolve(strict=True):
                 raise ValueError
-            definition_value = json.loads(
-                (child.root / "literate.project.json").read_bytes()
-            )
+            definition_path = child.root / "literate.project.json"
+            if observation is not None:
+                definition_content = observation.file(
+                    definition_path,
+                    maximum_bytes=DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+                ).content
+                definition_value = observation.json_value(
+                    definition_content, str(definition_path)
+                )
+            else:
+                definition_value = json.loads(definition_path.read_bytes())
             project_id = entry["project_id"]
             if (
                 not isinstance(project_id, str)
@@ -265,7 +291,18 @@ class FilesystemConversionAuthorityStore:
         self.lock_path = self.root.joinpath(*Path(_CONVERSION_AUTHORITY_LOCK).parts)
 
     def load_optional(self) -> ConversionAuthorityState | None:
-        if not self.path.exists() and not self.path.is_symlink():
+        from .bounded_role_observation import current_role_observation
+
+        observation = current_role_observation()
+        if observation is not None:
+            if (
+                observation.file(
+                    self.path, optional=True, maximum_bytes=_MAXIMUM_STATE_BYTES
+                ).content
+                is None
+            ):
+                return None
+        elif not self.path.exists() and not self.path.is_symlink():
             return None
         return self._read()
 
@@ -313,27 +350,43 @@ class FilesystemConversionAuthorityStore:
     def _read(self) -> ConversionAuthorityState:
         descriptor: int | None = None
         try:
-            descriptor = os.open(
-                self.path,
-                os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0),
-            )
-            before = os.fstat(descriptor)
-            if (
-                not stat.S_ISREG(before.st_mode)
-                or before.st_size <= 0
-                or before.st_size > _MAXIMUM_STATE_BYTES
-            ):
-                raise OSError
-            content = os.read(descriptor, _MAXIMUM_STATE_BYTES + 1)
-            after = os.fstat(descriptor)
-            if (
-                len(content) != before.st_size
-                or len(content) > _MAXIMUM_STATE_BYTES
-                or (before.st_dev, before.st_ino, before.st_size, before.st_mtime_ns)
-                != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
-                or not _named_file_matches(self.path, descriptor, before)
-            ):
-                raise OSError
+            from .bounded_role_observation import current_role_observation
+
+            observation = current_role_observation()
+            if observation is not None:
+                content = observation.file(
+                    self.path, maximum_bytes=_MAXIMUM_STATE_BYTES
+                ).content
+                observation.json_value(content, str(self.path))
+            else:
+                descriptor = os.open(
+                    self.path,
+                    os.O_RDONLY
+                    | getattr(os, "O_BINARY", 0)
+                    | getattr(os, "O_NOFOLLOW", 0),
+                )
+                before = os.fstat(descriptor)
+                if (
+                    not stat.S_ISREG(before.st_mode)
+                    or before.st_size <= 0
+                    or before.st_size > _MAXIMUM_STATE_BYTES
+                ):
+                    raise OSError
+                content = os.read(descriptor, _MAXIMUM_STATE_BYTES + 1)
+                after = os.fstat(descriptor)
+                if (
+                    len(content) != before.st_size
+                    or len(content) > _MAXIMUM_STATE_BYTES
+                    or (
+                        before.st_dev,
+                        before.st_ino,
+                        before.st_size,
+                        before.st_mtime_ns,
+                    )
+                    != (after.st_dev, after.st_ino, after.st_size, after.st_mtime_ns)
+                    or not _named_file_matches(self.path, descriptor, before)
+                ):
+                    raise OSError
             value = json.loads(content.decode("utf-8"))
             state = ConversionAuthorityState.from_dict(value)
             if content != canonical_json_bytes(state.to_dict()) + b"\n":

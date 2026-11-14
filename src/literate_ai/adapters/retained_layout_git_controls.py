@@ -38,14 +38,26 @@ def _fail(message):
 
 
 def _presence(path):
+    from .bounded_role_observation import current_role_observation
+
+    observation = current_role_observation()
+    if observation is not None:
+        observation.reserve_lineage(path.parent)
     try:
         node = path.lstat()
     except FileNotFoundError:
+        if observation is not None:
+            observation.remember_presence(path, None)
         return None
     basic = node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid
     if stat.S_ISDIR(node.st_mode):
+        if observation is not None:
+            observation.remember_presence(path, basic)
         return basic
-    return (*basic, node.st_size, node.st_mtime_ns, node.st_ctime_ns, node.st_nlink)
+    value = (*basic, node.st_size, node.st_mtime_ns, node.st_ctime_ns, node.st_nlink)
+    if observation is not None:
+        observation.remember_presence(path, value)
+    return value
 
 
 def _discovery(root):

@@ -307,6 +307,15 @@ class ProjectConfigurationStore:
         return ProjectConfigurationSnapshot(root, definition, content)
 
     def _read_manifest(self, path: Path) -> bytes:
+        from literate_ai.adapters.bounded_role_observation import (
+            current_role_observation,
+        )
+
+        observation = current_role_observation()
+        if observation is not None:
+            content = observation.file(path, maximum_bytes=self.maximum_bytes).content
+            observation.json_value(content, str(path))
+            return content
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
         flags |= (
             getattr(os, "O_NOFOLLOW", 0)

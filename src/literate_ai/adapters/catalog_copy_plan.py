@@ -181,7 +181,7 @@ class _Observation:
             _fail("canonical reader selected another project")
         return self.snapshot(safe_path(root, relative), optional=optional)
 
-    def snapshot(self, path, *, optional=False):
+    def snapshot(self, path, *, optional=False, maximum_bytes=None, _reader=None):
         if path in self.cache:
             return self.cache[path].content
         anchor = _anchor(path)
@@ -191,6 +191,8 @@ class _Observation:
             self.budget.maximum_total_bytes - self.bytes - self.reserve,
             (self.metadata - self.charged - cost) // 64,
         )
+        if maximum_bytes is not None:
+            remaining = min(remaining, maximum_bytes)
         if (
             remaining < 1
             or self.records >= self.budget.maximum_entries
@@ -200,7 +202,9 @@ class _Observation:
         if optional and not os.path.lexists(path.parent):
             item = RefreshFileObservation(path, None, None)
         else:
-            item = _file(path, optional=optional, maximum_bytes=remaining)
+            item = (_file if _reader is None else _reader)(
+                path, optional=optional, maximum_bytes=remaining
+            )
         self.bytes += len(item.content or b"")
         self.files += 1
         self.records += 1

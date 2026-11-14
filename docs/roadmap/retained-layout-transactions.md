@@ -1317,3 +1317,28 @@ the immutable failed/closing review chain and those validation limits are retain
 in [development evidence](../../verification/retained-layout-catalog-copy-staging-development.json).
 This does not admit project publication, overwrite retirement, imported ownership,
 extended-attribute/platform behavior or complete feature acceptance.
+
+### Bounded canonical publication-role inputs
+
+Publication preflight must use the actual project/Git role readers without
+silently borrowing their independent larger read limits. An explicit,
+operation-local bounded read scope around canonical file/Git/ancestry readers
+now carries those observations. Default callers retain their behavior. Debit
+source bytes, subprocess output,
+decoded records and traversed ancestry before dependent allocation; intersect
+every read with both its original ceiling and the caller's remaining shared
+allowances. Retain original metadata/absence/native facts and refuse changed,
+ended or inherited scope use. An exhausted scope cannot fall back to legacy I/O.
+
+Compose this with the actual project/conversion, structural retained layout,
+registered child and Git owners before allowing catalog target effects. Preserve
+their canonical parsing, migration and native checks. The read scope itself
+grants no role, lock, publication, retirement, source exclusion or handoff rights.
+Actual catalog publication, retirement and imported-role completion remain required.
+
+All 171 affected author methods and the scoped Make runner's 19 methods pass
+without skips. Independent execution passes all 19 new methods and 13 maintained
+parser/Git-refresh/migration regressions. Independent review approves the exact
+read-budget prerequisite. The exact subjects and limited validation
+scope are retained in [development evidence](../../verification/retained-layout-role-inputs-development.json).
+Native Windows, installed-package and complete publication acceptance remain open.
