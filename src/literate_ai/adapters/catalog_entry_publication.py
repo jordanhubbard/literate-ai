@@ -20,6 +20,11 @@ from .bounded_role_observation import bounded_role_observation
 from .catalog_copy_plan import _anchor
 from .catalog_copy_protection import protected_catalog_copies
 from .catalog_copy_staging import _CatalogCopyStages, _require_stage_admission
+from .catalog_provenance_publication import (
+    advance_metadata,
+    prepare_provenance,
+    publish_provenance,
+)
 from .exclusive_entry import (
     _from_stat,
     move_layout_entry_exclusive,
@@ -142,6 +147,8 @@ class _EntryPublication:
         )
         journals._close_live_journal_admission(stages._journal, self._journal_admission)
         _require_acquired_control_roles(self._controls, stages.plan.root)
+        if stages._ledger.cache[record[8].original.path] != record[9]["expected"]:
+            _fail("original or owned prospective metadata observation changed")
 
     def _live(self, *, writing=False):
         record = _OWNERS.get(self._stages)
@@ -190,6 +197,8 @@ class _EntryPublication:
             ):
                 controls.require_initial_inputs()
                 for item in stages.plan._inputs:
+                    if item.path == record[8].original.path:
+                        item = record[9]["expected"]
                     if (
                         _file(
                             item.path,
@@ -331,6 +340,7 @@ class _EntryPublication:
                     destination.links[new] = source.links.pop(old)
             self._advance_parent(source, source_parent)
             self._advance_parent(destination, destination_parent)
+            advance_metadata(self, source, name, destination, target, observed)
             os.fsync(source_fd)
             os.fsync(target_fd)
             source_guard()
@@ -428,6 +438,7 @@ class _EntryPublication:
             else:
                 self._move(self._private, source, self._project, target, kind="publish")
             self._published[token] = target
+            _OWNERS[self._stages][9]["published"].add(token)
             return {
                 "state": "item-published-provenance-pending",
                 "path": str(self._project.root / target),
@@ -440,10 +451,15 @@ class _EntryPublication:
             _FAILED.add(self)
             raise
 
+    def publish_provenance(self, *, acknowledged_plan_identity):
+        return publish_provenance(self, acknowledged_plan_identity)
+
     def inspect(self):
         self.require_current()
         return {
-            "state": "entry-effects-only",
+            "state": "provenance-published-controls-pending"
+            if _OWNERS[self._stages][9]["phase"] == "published"
+            else "entry-effects-only",
             "published": tuple(self._published.values()),
             "grants_imported_roles": False,
         }
@@ -466,7 +482,7 @@ def _closed_targets(tree, targets):
             _fail("cross-item original topology requires its complete receiver")
 
 
-def _reserve_views(stages, targets):
+def _reserve_views(stages, targets, provenance):
     """Fund expected maps and bounded comparison spans before retaining them."""
     project = stages.plan._censuses[0].tree
     entries = stages.plan._native[0]
@@ -488,6 +504,7 @@ def _reserve_views(stages, targets):
         project.payload_bytes
         + sum(e.census.tree.payload_bytes for e in stages._entries.values())
         + stages._journal._budget.maximum_storage_bytes
+        + len(provenance.raw)
     )
     ledger = stages._ledger
     ledger.bytes += payload
@@ -498,7 +515,7 @@ def _reserve_views(stages, targets):
     return future, metadata, payload
 
 
-def _journal_capacity(owner):
+def _journal_capacity(owner, provenance):
     """Reserve all predictable intent/completion room before the first effect."""
     writer = owner._stages._journal
     events, storage = (
@@ -522,6 +539,10 @@ def _journal_capacity(owner):
                 _fail("complete entry intent exceeds original journal record policy")
             storage += size * (2 if missing else 1)
         storage += 8192 * 2 * steps
+    # Prospective staging plus original retirement and exclusive publication.
+    # Each move carries its exact file/native roster under the unchanged ceiling.
+    events += 7
+    storage += 7 * 16384 + 32 * len(str(provenance.original.path).encode())
     if (
         events > writer._budget.maximum_events
         or storage > writer._budget.maximum_storage_bytes
@@ -557,7 +578,12 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         stages.require_current()
         controls.require_initial_inputs()
         scope.file(Path(__file__), maximum_bytes=stages.budget.maximum_file_bytes)
-    future, metadata, payload = _reserve_views(stages, targets)
+        scope.file(
+            Path(prepare_provenance.__code__.co_filename),
+            maximum_bytes=stages.budget.maximum_file_bytes,
+        )
+        provenance = prepare_provenance(stages)
+    future, metadata, payload = _reserve_views(stages, targets, provenance)
     project_tree = stages.plan._censuses[0].tree
     files, links = _payloads(project_tree)
     project = _Namespace(stages.plan.root, dict(stages.plan._native[0]), files, links)
@@ -615,7 +641,7 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         min(payload, future * stages.budget.maximum_file_bytes),
     )
     owner._journal_admission = journals._LIVE_WRITERS[stages._journal]
-    _journal_capacity(owner)
+    _journal_capacity(owner, provenance)
     nonce = object()
     bindings = (
         stages._plan,
@@ -635,6 +661,8 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         os.getpid(),
         threading.get_ident(),
         bindings,
+        provenance,
+        {"expected": provenance.original, "phase": "prepared", "published": set()},
     )
     stages._effect_admission = nonce
     _OWNERS[stages] = record
@@ -649,6 +677,11 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
     finally:
         _WRITERS.discard(owner)
     if owner in _TOUCHED:
+        if record[9]["phase"] == "published":
+            _fail(
+                "catalog publication remains incomplete: "
+                "control finalization and imported-role handoff required"
+            )
         _fail(
             "catalog publication remains incomplete: "
             "provenance and control finalization required"

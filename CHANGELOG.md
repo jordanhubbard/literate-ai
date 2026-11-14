@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Catalog-copy development can publish canonical provenance from verified item
+  receipts, preserving old metadata, unrelated imports and inheritance decisions.
+  Local source references and prospective metadata share the original finite
+  allowance; control finalization and imported-role handoff remain pending (#265).
+
 - Catalog-copy development can retain original item directories and exclusively
   publish verified stages under actual held controls, including missing parent
   chains with ordinary modes. Entry effects remain explicitly incomplete until

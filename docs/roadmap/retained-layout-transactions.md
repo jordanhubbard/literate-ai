@@ -1424,7 +1424,30 @@ cause is not claimed fixed and the guard remains unchanged. Exact subjects and
 the immutable failed/closing review chain are in
 [development evidence](../../verification/retained-layout-catalog-entry-development.json).
 
-This preflight remains read-only. Actual stage-to-effect receiver transfer,
-original-node retirement, exclusive publication, exact canonical provenance and
-the one-use imported-role/source-custody handoff remain required. Preserve all
-root/shared/initial/wrapper, recovery, installed/native and full-program acceptance.
+### Canonical catalog provenance publication
+
+The actual entry receiver now prepares canonical imports from its verified staged
+file receipts, canonical source manifest/ancestors and original destination DAG
+inputs. Bind local references through the canonical local resolver; accepting a
+Git checkout lease and preserving its authentic Git reference remain required.
+Preserve unrelated import rows and inheritance decisions and choose one UTC time
+for all selected entries. Reserve serialization, retained metadata, current views
+and all provenance journal events/storage before any public item effect.
+
+After every actual selected item is published, write and verify prospective bytes
+in the private area, then journal and exclusively retire any original metadata
+file before exclusive publication. Retain its original bytes and inode, preserve
+ordinary file permissions, and refuse aliases or hardlinks at preflight. Original
+plan observations remain immutable; only the verified native metadata moves can
+advance the live ledger's expected canonical input. Partial outcomes retain both
+endpoints and durable intent. No reread of foreign state establishes a baseline.
+
+This remains an incomplete internal normal nonroot POSIX transaction. Genuine
+control finalization, authentic Git source-lease admission and the one-use
+imported-role/source-custody handoff remain required. Preserve all cross-item
+topology, root/shared/initial/wrapper, recovery, installed/native and full-program
+acceptance. All 153 affected author methods and nine scoped Make methods pass
+without skips. Independent review approves the exact three subjects and passes
+all nine maintained methods without skips. Development results and the immutable
+review are retained in
+[provenance evidence](../../verification/retained-layout-catalog-provenance-development.json).

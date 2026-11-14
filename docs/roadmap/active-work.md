@@ -33909,7 +33909,15 @@ independent review and the complete combined gate from test one.
   containing-Git guard conflict and its passing replays remain recorded without a
   claimed cause or weakened guard in
   [entry-effect evidence](../../verification/retained-layout-catalog-entry-development.json).
-  Canonical provenance, actual control finalization and the live imported-role join
+  The live entry receiver can now prepare and exclusively publish canonical
+  provenance from actual staged file receipts, preserving old metadata nodes,
+  unrelated imports and inheritance decisions under the original shared budget.
+  Only verified metadata moves advance the expected canonical input; durable
+  intent and all ambiguous outcomes remain retained. Local provenance uses the
+  canonical resolver; genuine Git source-lease admission remains required.
+  Verification is retained in
+  [provenance evidence](../../verification/retained-layout-catalog-provenance-development.json).
+  Actual control finalization and the live imported-role join
   remain required for complete project application. The plan remains descriptive;
   it supplies no copied role or source exclusion. Next complete those real writer
   and ownership phases, then
