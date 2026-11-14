@@ -241,3 +241,125 @@ class ExclusiveLayoutEntryTests(unittest.TestCase):
         self.assertEqual(self.destination.read_bytes(), b"raw\r\n\x00source")
         self.assertFalse(self.source.exists())
         self.assertTrue((self.root / "saved-new-parent").is_dir())
+
+    def sibling_activity(self, *, read):
+        arguments = self.arguments()
+        original = type(self.root).lstat
+        reads, observations = [], []
+        sibling = self.old / "unrelated"
+
+        def race(path, *args, **kwargs):
+            node = original(path, *args, **kwargs)
+            if path == self.old:
+                reads.append(True)
+                if len(reads) == read:
+                    observations.append(movement._from_stat(node))
+                    sibling.write_bytes(b"unrelated sibling\n")
+                    observations.append(movement._from_stat(original(path)))
+            return node
+
+        with mock.patch.object(type(self.root), "lstat", race):
+            with mock.patch.object(
+                movement, "_native_rename", wraps=movement._native_rename
+            ) as native:
+                movement.move_layout_entry_exclusive(
+                    self.source, self.destination, **arguments
+                )
+                native.assert_called_once()
+        self.assertEqual(len(observations), 2)
+        self.assertNotEqual(observations[0], observations[1])
+        self.assertEqual(
+            observations[0].directory_identity, observations[1].directory_identity
+        )
+        self.assertEqual(sibling.read_bytes(), b"unrelated sibling\n")
+        self.assertEqual(self.destination.read_bytes(), b"raw\r\n\x00source")
+        self.assertFalse(self.source.exists())
+
+    @unittest.skipUnless(os.name == "posix", "actual native ancestor pinning race")
+    def test_unrelated_sibling_activity_during_ancestor_pin_preserves_move(self):
+        self.sibling_activity(read=1)
+
+    @unittest.skipUnless(os.name == "posix", "actual native held-parent guard race")
+    def test_unrelated_sibling_activity_during_held_parent_guard_preserves_move(self):
+        self.sibling_activity(read=3)
+
+    @unittest.skipUnless(os.name == "posix", "actual held ancestor replacement")
+    def test_parent_name_replaced_after_open_refuses_and_preserves_both_trees(self):
+        arguments = self.arguments()
+        expected = self.old.stat()
+        original = os.fstat
+        saved = self.root / "saved-parent"
+        changed = []
+
+        def replace_parent(descriptor):
+            node = original(descriptor)
+            if not changed and (node.st_dev, node.st_ino) == (
+                expected.st_dev,
+                expected.st_ino,
+            ):
+                self.old.rename(saved)
+                self.old.mkdir()
+                (self.old / "input").write_bytes(b"foreign")
+                changed.append(True)
+            return node
+
+        with mock.patch.object(movement.os, "fstat", replace_parent):
+            with mock.patch.object(movement, "_native_rename") as native:
+                with self.assertRaisesRegex(ValueError, "parent-changed"):
+                    movement.move_layout_entry_exclusive(
+                        self.source, self.destination, **arguments
+                    )
+                native.assert_not_called()
+        self.assertEqual(changed, [True])
+        self.assertEqual((saved / "input").read_bytes(), b"raw\r\n\x00source")
+        self.assertEqual(self.source.read_bytes(), b"foreign")
+        self.assertFalse(self.destination.exists())
+
+    @unittest.skipUnless(os.name == "posix", "actual parent permissions race")
+    def test_parent_permission_change_between_named_reads_still_refuses(self):
+        arguments = self.arguments()
+        original = type(self.root).lstat
+        changed = []
+
+        def race(path, *args, **kwargs):
+            node = original(path, *args, **kwargs)
+            if path == self.old and not changed:
+                path.chmod((node.st_mode & 0o777) ^ 0o040)
+                changed.append(True)
+            return node
+
+        with mock.patch.object(type(self.root), "lstat", race):
+            with mock.patch.object(movement, "_native_rename") as native:
+                with self.assertRaises(ValueError):
+                    movement.move_layout_entry_exclusive(
+                        self.source, self.destination, **arguments
+                    )
+                native.assert_not_called()
+        self.assertEqual(changed, [True])
+        self.assertEqual(self.source.read_bytes(), b"raw\r\n\x00source")
+        self.assertFalse(self.destination.exists())
+
+    @unittest.skipUnless(os.name == "posix", "actual strict source snapshot race")
+    def test_source_payload_change_between_named_reads_still_refuses(self):
+        arguments = self.arguments()
+        original = type(self.root).lstat
+        changed = []
+
+        def race(path, *args, **kwargs):
+            node = original(path, *args, **kwargs)
+            if path == self.source and not changed:
+                path.write_bytes(b"foreign source")
+                os.utime(path, ns=(node.st_atime_ns, node.st_mtime_ns + 1000000))
+                changed.append(True)
+            return node
+
+        with mock.patch.object(type(self.root), "lstat", race):
+            with mock.patch.object(movement, "_native_rename") as native:
+                with self.assertRaisesRegex(ValueError, "entry-changed"):
+                    movement.move_layout_entry_exclusive(
+                        self.source, self.destination, **arguments
+                    )
+                native.assert_not_called()
+        self.assertEqual(changed, [True])
+        self.assertEqual(self.source.read_bytes(), b"foreign source")
+        self.assertFalse(self.destination.exists())

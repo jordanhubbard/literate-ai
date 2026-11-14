@@ -63,6 +63,7 @@ class _Witness:
     component: object
     lock_path: Path
     names: tuple
+    selector_paths: tuple
 
 
 class _Capture:
@@ -80,13 +81,13 @@ class _Capture:
         self.observed = None
         self.finished = False
         self.lock_path = None
+        self.selector_paths = ()
         original.ledger.charge_records(
             64, 65536 + 128 * len(str(original.root).encode())
         )
 
     def canonical_lock(self, layout):
         from .bounded_role_observation import current_role_observation
-        from .retained_layout_partition import _lineage
         from .retained_layout_source_preparation import _state
 
         if (
@@ -100,20 +101,58 @@ class _Capture:
         matrix_root = None
         if selected:
             self.original.ledger.charge_records(8, 4096 + 4 * len(selected))
-            matrix_root = Path(selected)
-            if (
-                not matrix_root.is_absolute()
-                or ".." in matrix_root.parts
-                or not matrix_root.is_relative_to(self.original.root)
-            ):
-                _fail("external canonical storage requires its actual shared owner")
-            _lineage(matrix_root)
+            matrix_root = self._canonical_cell(selected)
         lock = ComponentLockStore._storage_root(layout.wrapper_root, matrix_root)
         lock = lock / LOCK_FILENAME
         if not lock.is_relative_to(self.original.root):
             _fail("canonical lock endpoint must remain inside the actual project")
         self.lock_path = lock
         return lock
+
+    def _canonical_cell(self, selected):
+        from .bounded_role_observation import current_role_observation
+        from .retained_layout_git_controls import _presence
+        from .retained_layout_partition import _lineage
+        from .retained_layout_source_preparation import _state
+
+        if (
+            self.finished
+            or self.lock_path is not None
+            or _state(self.preparation, ready=False) is not self.original
+            or current_role_observation() is not self.original.reader
+            or type(selected) is not str
+        ):
+            _fail("actual creating canonical selector observation required")
+        supplied = Path(selected)
+        if not supplied.is_absolute():
+            # CWD is sampled once under the original allowance. Later store
+            # checks use the frozen endpoint, never ambient process state.
+            self.original.ledger.charge_records(8, 65536)
+            supplied = Path.cwd() / supplied
+        resolved = Path(os.path.normpath(str(supplied)))
+        if not resolved.is_relative_to(self.original.root):
+            _fail("external canonical storage requires its actual shared owner")
+        # Every cumulative prefix is at most the supplied absolute path's size.
+        # Reserve this conservative bound before constructing the retained list;
+        # a long selector must refuse before quadratic path allocation.
+        count = len(supplied.parts)
+        self.original.ledger.charge_records(
+            8 + 4 * count,
+            4096 + 128 * count * len(str(supplied).encode()),
+        )
+        paths = [Path(supplied.anchor)]
+        for part in supplied.parts[1:]:
+            paths.append(paths[-1].parent if part == ".." else paths[-1] / part)
+        facts = {}
+        for path in paths:
+            node = _presence(path)
+            if node is not None:
+                if not stat.S_ISDIR(node[2]):
+                    _fail("canonical cell resolution requires direct directories")
+                _lineage(path)
+            facts[path] = node
+        self.selector_paths = tuple(facts.items())
+        return resolved
 
     def observe(self, project, layout, inputs, lineages, component):
         from .bounded_role_observation import current_role_observation
@@ -174,7 +213,6 @@ class _Capture:
                 unicodedata.normalize("NFC", part.casefold()) for part in path.parts
             )
 
-        lock_parts = folded(self.lock_path)
         # An absent leaf still belongs to its original nearest-existing anchor.
         # Use captured native identities: alternate directory spellings cannot
         # hide canonical storage inside the source that this operation will move.
@@ -187,8 +225,20 @@ class _Capture:
             )
             for node in ancestry
         )
+        source_overlap |= any(
+            node is not None
+            and (
+                node[:2] == plan.tree._physical[0][:2]
+                or any(
+                    stat.S_ISDIR(physical[2]) and node[:2] == physical[:2]
+                    for _, physical in plan.tree._physical[1]
+                )
+            )
+            for _, node in self.selector_paths
+        )
         if source_overlap or any(
-            lock_parts[: len(folded(endpoint))] == folded(endpoint)
+            folded(path)[: len(folded(endpoint))] == folded(endpoint)
+            for path in (self.lock_path, *(path for path, _ in self.selector_paths))
             for endpoint in (plan.tree.root, plan.destination)
         ):
             _fail("canonical lock storage overlaps source movement")
@@ -205,6 +255,7 @@ class _Capture:
             component,
             self.lock_path,
             names,
+            self.selector_paths,
         )
 
 
@@ -222,6 +273,10 @@ def _require_witness(preparation, state):
         or value.lock_path != state.plan.authored_lock
         or value.names
         != _endpoint_names(state.root, value.project, value.layout, value.lock_path)
+        or any(
+            path not in state.reader._presences or state.reader._presences[path] != node
+            for path, node in value.selector_paths
+        )
     ):
         _fail("original parsed source-input witnesses changed or ended")
     return value

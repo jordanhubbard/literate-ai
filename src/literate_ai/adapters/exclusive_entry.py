@@ -73,9 +73,20 @@ def _from_stat(node, native_identity=None, link_target=None):
 
 def layout_entry_node(path: Path) -> LayoutEntryNode:
     """Observe a direct named node; this is data, not permission to move it."""
+    return _entry_node(path, directory_identity_only=False)
+
+
+def _directory_identity(path: Path) -> tuple:
+    """Observe ancestor identity without claiming custody of its children."""
+    return _entry_node(path, directory_identity_only=True).directory_identity
+
+
+def _entry_node(path: Path, *, directory_identity_only: bool) -> LayoutEntryNode:
     path = Path(path)
     require_safe_directory(path.parent)
     node = path.lstat()
+    if directory_identity_only and not stat.S_ISDIR(node.st_mode):
+        raise ValueError("layout.move.parent-not-directory")
     link = stat.S_ISLNK(node.st_mode)
     if not (stat.S_ISREG(node.st_mode) or stat.S_ISDIR(node.st_mode) or link) or (
         stat_is_link_or_reparse(node) and not link
@@ -96,7 +107,11 @@ def layout_entry_node(path: Path) -> LayoutEntryNode:
             native = kernel.file_identity(handle)
         finally:
             kernel.close(handle)
-    if _from_stat(path.lstat()) != _from_stat(node):
+    before, after = _from_stat(node), _from_stat(path.lstat())
+    if directory_identity_only:
+        if before.directory_identity != after.directory_identity:
+            raise ValueError("layout.move.parent-changed")
+    elif before != after:
         raise ValueError("layout.move.entry-changed")
     return _from_stat(node, native, target)
 
@@ -176,7 +191,7 @@ def move_layout_entry_exclusive(
                 if path in pinned:
                     descriptor = pinned[path][0]
                     continue
-                current = layout_entry_node(path).directory_identity
+                current = _directory_identity(path)
                 if kernel is None:
                     opened = (
                         os.open(path.anchor, flags)
@@ -196,7 +211,7 @@ def move_layout_entry_exclusive(
 
         def guard():
             for path, (opened, expected) in pinned.items():
-                if layout_entry_node(path).directory_identity != expected:
+                if _directory_identity(path) != expected:
                     raise ValueError("layout.move.parent-changed")
                 if kernel is None:
                     actual = _from_stat(os.fstat(opened)).directory_identity

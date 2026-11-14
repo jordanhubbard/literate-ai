@@ -1838,9 +1838,21 @@ a store or selecting from the ambient environment. Refuse external storage befor
 probing it unless its actual owner participates, and refuse selected lock storage
 inside either moving source or destination. Reconcile historical initializer host
 endpoints against their original producer rather than current cell selection.
-The current internal matrix-store profile requires an absolute existing
-in-project cell directory. Relative or missing cell-root selectors remain guarded
-and need their own original-observation admission before full public acceptance.
+The earlier internal matrix-store profile required an absolute existing
+in-project cell directory. Relative or missing cell-root selectors were guarded
+until the original-observation admission recorded below. External shared storage
+still requires its own actual participant before full public acceptance.
+
+Canonical selector admission now has a source-reviewed internal implementation.
+Resolve actual
+relative, parent-segment and prospective in-project cell roots under the creating
+source reader before the first endpoint read. Retain original direct-directory
+and absence witnesses, fund each native observation from the original ledger,
+and freeze the resolved endpoint across later environment or working-directory
+changes. Redirected, external, changed, or source-crossing resolution paths must
+refuse before effects. Qualify genuine full nonroot source/metadata/control
+completion with an absent cell, plus changed-anchor and late-directory refusal.
+External shared storage and root/shared/initial/wrapper movement remain open.
 
 Close these actual inputs after dependent discovery and native callbacks, before
 role consumption or source effects. Qualify real nonroot positive composition
@@ -1933,3 +1945,39 @@ refusal until the complete mixed partition and effect graph exist. Root movement
 must leave Git, controls, metadata and independent children fixed and descend
 through shared ancestors without moving them as source-owned directories. The
 catalog forest supplies no whole-project exclusion or root-partition authority.
+
+
+## Ancestor identity observation repair (source reviewed)
+
+A broader selector qualification run completed sixteen authored-role controls but
+its combined default update/catalog case refused with `layout.move.entry-changed`
+in an ancestor guard. Its uninstrumented report does not name the path or
+changed fields, so the exact cause remains unproven. A separate deterministic
+actual native reproduction creates an unrelated sibling between the parent
+helper's two named-node snapshots: the full snapshot changes while device/inode,
+type, permissions and ownership remain identical, and movement refuses before
+effects. This establishes a conservative ancestor-observation failure class.
+
+The source-reviewed ancestor repair observes the exact facts needed for
+held ancestor identity and name/descriptor correspondence. Keep complete source
+node, namespace/census and owned private-directory guards strict. Require actual
+unrelated-sibling positive, replaced ancestor/name-to-FD refusal, and unchanged
+source-node race refusal controls before accepting that repair. The original
+failed cohort stays failed; an isolated rerun or selector-only pass does not
+supersede it. This follow-up grants no new source or public apply authority.
+
+
+Final qualification on the four exact reviewed source/test subjects passes the
+maintained 98-method source-operation gate and 17 authored-role controls, plus
+387 separate affected regressions including all 17 native entry controls: 502
+distinct passing methods without skips. The two real sibling-activity positives
+fail the original observer during pinning and held-name closure, then pass with
+exact directory identity observation. Replaced name/held-FD correspondence,
+parent permissions and source payload mutation still refuse before effects.
+Moving-source and post-effect destination node snapshots remain strict. Earlier
+failed authored/regression cohorts, the separate isolated native reproduction,
+and intermediate successful profiles remain distinct in
+[selector and ancestor evidence](../../verification/retained-layout-source-selectors-development.json).
+External shared canonical storage, complete root/shared/initial/wrapper effects,
+public recovery/apply and installed/native/platform/integration/release acceptance
+remain open; the configured full project receipt is still stale.

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Retained-layout development now resolves relative and prospective in-project
+  matrix cell roots under the original observation allowance. Store selection
+  stays fixed after environment or working-directory changes; redirected,
+  source-crossing and changed resolution paths refuse. Native ancestor checks
+  tolerate unrelated sibling activity while preserving held-directory identity
+  and strict source/output checks. Public/root/shared and
+  complete lifecycle qualification remain open (#265).
+
 - Retained-layout development can carry an external original initializer's
   Git-backed observations through the source transaction under its existing
   allowance, including readonly checks after descriptor teardown. Expired or

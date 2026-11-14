@@ -34059,7 +34059,18 @@ independent review and the complete combined gate from test one.
   pass without skips: 475 distinct methods. Exact subjects and failed/intermediate
   profiles remain in
   [provider-join evidence](../../verification/retained-layout-source-provider-development.json).
-  Complete canonical selectors and the root/shared effect graph are next,
+  Original relative, parent-segment and prospective in-project canonical cell
+  selectors now join the creating reader, preserving absence/ancestry witnesses
+  and the frozen endpoint through terminal closure. Source-crossing, redirected
+  and changed paths refuse. Native ancestor checks now observe exact directory
+  identity while preserving held-FD/name correspondence and strict source/output
+  snapshots; unrelated sibling activity no longer causes a conservative refusal.
+  Independent source review approves all four final subjects. Fresh maintained
+  source and authored-role gates pass all 98 and 17 methods; the separate
+  387-method affected regression includes the native move suite: 502 distinct
+  passing methods without skips. Earlier failed cohorts and actual native
+  reproductions remain separate in [selector and ancestor evidence](../../verification/retained-layout-source-selectors-development.json).
+  Next complete original external shared storage and the root/shared effect graph,
   preserving the transport limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
