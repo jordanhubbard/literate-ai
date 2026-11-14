@@ -30,6 +30,32 @@ _RECORD_LIMIT = 2 * _DOCUMENT_LIMIT
 _LABEL = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 _STAGE = re.compile(r"s-[0-9a-f]{32}\Z")
+_LIVE_WRITERS = {}
+
+
+def _close_live_journal_admission(writer, original):
+    descriptor, guard, budget, pid = original
+    if (
+        _LIVE_WRITERS.get(writer) is not original
+        or writer._descriptor != descriptor
+        or writer._guard is not guard
+        or writer._budget is not budget
+        or pid != os.getpid()
+        or writer._poisoned
+    ):
+        raise ValueError("layout.journal.original-live-writer-required")
+
+
+def _require_live_layout_journal(writer):
+    """Require the actual creating context, never a descriptive writer shape."""
+    if type(writer) is not _LayoutJournalWriter or writer not in _LIVE_WRITERS:
+        raise TypeError("layout.journal.actual-live-writer-required")
+    original = _LIVE_WRITERS[writer]
+    _close_live_journal_admission(writer, original)
+    guard = original[1]
+    guard()
+    _close_live_journal_admission(writer, original)
+    return writer
 
 
 @dataclass(frozen=True, slots=True)
@@ -195,9 +221,12 @@ class _LayoutJournalWriter:
         return names
 
     def require_current(self):
+        admission = _LIVE_WRITERS.get(self)
         self._guard()
         if self._poisoned:
             raise ValueError("layout.journal.writer-interrupted")
+        if admission is not None:
+            _close_live_journal_admission(self, admission)
         if self._names() != set(self._known):
             raise ValueError("layout.journal.membership-changed")
         for name, expected in self._known.items():
@@ -206,6 +235,8 @@ class _LayoutJournalWriter:
         if self._names() != set(self._known):
             raise ValueError("layout.journal.membership-changed")
         self._guard()
+        if admission is not None:
+            _close_live_journal_admission(self, admission)
 
     @property
     def events(self):
@@ -495,7 +526,13 @@ def retained_layout_journal(
                 os.fsync(descriptor)
                 os.fsync(parent_fd)
                 writer.require_current()
-                yield writer
-                writer.require_current()
+                _LIVE_WRITERS[writer] = (descriptor, guard, budget, receiver_pid)
+                try:
+                    yield writer
+                    writer.require_current()
+                finally:
+                    _LIVE_WRITERS.pop(writer, None)
+                    # Revoke before the real writer lock or ancestry FDs close.
+                    active = False
         finally:
             active = False

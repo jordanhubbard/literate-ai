@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Catalog-copy development can materialize bounded private trees with durable
+  journal intent and validated source/output identities, retaining partial stages
+  after interruption without publishing into the project (#265).
+
 - Catalog-copy development can inspect complete destination and selected-source
   namespaces with bounded canonical project/DAG inputs before any copy effects.
   Saved provenance remains descriptive and grants no ownership (#265).

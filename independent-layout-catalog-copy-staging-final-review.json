@@ -1,0 +1,103 @@
+{
+  "schema": "independent-source-review@1",
+  "reviewer": "single authorized independent reviewer",
+  "review_mode": "source and existing evidence only",
+  "decision": "source_approved_at_exact_limited_scope",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "8906e4a2a26a5c132b2ccf870c72afc11fa22f65",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "3716434d11a9489fd3d1e2ec847df01fd284c6b6a9e2d12eba5971c40bcda3f2",
+      "unchanged_from_previous_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "dcb0b0cba76fbf2d60dd896aea6653be1dd14bc840326ff77c058aac7d9de8ff",
+      "unchanged_from_previous_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04",
+      "unchanged_from_previous_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_journal.py",
+      "sha256": "e3e910aa62d51449d4451d680f31177f26b661f1f86fe9dade6a8912097354b1",
+      "unchanged_from_previous_review": false
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_staging.py",
+      "sha256": "f82ac00803047e7700bc859ae1c52c94577ecec35cd1cc7755bb5f8e2157d882",
+      "unchanged_from_previous_review": false
+    }
+  ],
+  "prior_report": {
+    "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-copy-staging-admission-review.json",
+    "sha256": "7165062df2be8d17db9d11f35d4f86d2d5cc929e4865f48e22c9b4d5be489c11",
+    "unchanged_verified": true
+  },
+  "scope": "Internal POSIX private catalog-copy staging and actual journal/factory admission. Source approval only; no project publication/imported-role authority.",
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-JOURNAL-ADMISSION-LIFETIME-003",
+      "status": "source_change_closes_reported_condition",
+      "reason": "The actual original registry record is checked before and after guard. The trailing pure comparison rejects removed/replaced registration, changed original descriptor/guard/budget, different PID or poison, without another native traversal. The previously reported actual context-ending callback removes registration and cannot pass that new trailing comparison.",
+      "validation_limit": "No fresh native-control replay this turn; assessed exact source and existing author evidence."
+    },
+    {
+      "id": "CATALOG-STAGING-ADMISSION-001",
+      "status": "previous_repairs_preserved",
+      "reason": "Unchanged stage constructor/factory retain actual journal admission, exact fresh plan/root FD/guard/journal/shared ledger/PID binding, original header/native root checks, lexical/physical scope and teardown revocation."
+    },
+    {
+      "id": "CATALOG-STAGING-FILE-BUDGET-002",
+      "status": "previous_repair_preserved",
+      "reason": "Unchanged factory checks effective journal record/payload read allowance against original per-file policy before private creation."
+    }
+  ],
+  "source_assessment": [
+    "Verified all five hashes and both changed-file diffs against exact previous reviewed snapshots. Three other subjects are byte-identical and retain their earlier assessment.",
+    "Ordinary require_current captures admission at entry and closes eligibility after first guard and final guard. Existing writer-interrupted check remains ahead of the first new admission close, preserving prior poison diagnostic precedence.",
+    "Pre-registration journal initialization/recovery remains supported: ordinary currentness applies registry closing only when an admission existed at entry; separate admission helper still requires exact actual registered writer.",
+    "Journal and stage admissions still revoke in finally before original mutex/descriptor teardown.",
+    "The two added tests are pure in-memory defensive callback state-machine units with synthetic descriptor values, not native descriptor/filesystem qualification.",
+    "Copy materialization, alias expansion, original shared quotas, streaming/native receipts, durable intent, poison semantics and final namespace/native closure are unchanged."
+  ],
+  "independent_test_executions_this_turn": [],
+  "fresh_native_control_replay_this_turn": false,
+  "inspection_only": [
+    "Permitted read-only shasum/diff/sed/cat and Git revision inspection.",
+    "No repository module, test, probe, reproduction script or validation workload executed this turn."
+  ],
+  "author_evidence_read": [
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/_build/catalog-copy-stage-lifetime-final-focused.log",
+      "sha256": "e6f554f1359bf3554645a34e4fed4bb4aaad4e0d511c47aa3b3bcd1050a538c5",
+      "result": "Author-run45 passed, zero failures/errors/skips,3.605s:28 staging+17 journal.",
+      "attribution": "Existing author log read and hashed; not independently executed or relabeled as independent native evidence."
+    }
+  ],
+  "historical_independent_evidence": {
+    "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-independent-cohort.log",
+    "sha256": "9436141241c0af6229217d649a25043233c8a3d4d3d42d23e495c5dd7b8d1bc6",
+    "result": "80 passed,zero failures/errors/skips,18.673s in preceding review.",
+    "exact_older_scope": {
+      "manifest": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-reviewed-subjects/manifest.json",
+      "manifest_sha256": "3afb12593d921af33fdc6efa27f7c96639f4ba9915b9d8a12142735ad94dff03",
+      "journal_sha256": "3a238ada3a787f2b06f9a7c3696d580da04914e58a7794ebcd05ba7c6be653cf",
+      "staging_test_sha256": "48314a14e2e36ebaf6fc5d5959883a0c4fcebdf77ed6a390e85ea72629cf3712"
+    },
+    "qualification": "Historical only: these80 results do not qualify new journal or two new unit-test bytes."
+  },
+  "continuation_status": "Source-only closing review completed after earlier interrupted review. Prior immutable reports/causal evidence unchanged; no further experiments performed.",
+  "acceptance_limits": [
+    "Exact limited source approval, not fresh independent execution qualification of this revision.",
+    "Actual project publication, overwrite retirement, imported-role/source-partition live join, recovery/public/full-feature/program/release acceptance remain pending.",
+    "Cross-item topology, alias-copy transforms, xattrs and isolated installed/wheel/native Linux/Windows/cross-platform/whole application acceptance remain open.",
+    "Saved plans/import rows/descriptive stages/journal records grant no project ownership/exclusion/effect rights.",
+    "No continuous hostile same-user atomic snapshot/authenticated historical provenance claim.",
+    "No source/test/pin edits, installs, subagents, network or external posts. Only requested new immutable report written."
+  ]
+}

@@ -582,9 +582,18 @@ def _copy_item(
     kind: str,
     name: str,
     overwrite: bool,
+    *,
+    _observation=None,
 ) -> list[CatalogImportFile]:
     """Copy item directory tree. Returns list of copied CatalogImportFile records."""
     import hashlib
+
+    if _observation is not None:
+        from .catalog_copy_staging import _CatalogCopyStages
+
+        if type(_observation) is not _CatalogCopyStages:
+            raise TypeError("actual live catalog stage owner required")
+        return _observation._copy_item(source_root, dest_root, kind, name, overwrite)
 
     src_dir = _source_item_dir(source_root, kind, name)
     dst_dir = _dest_item_dir(dest_root, kind, name)

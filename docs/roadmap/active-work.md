@@ -33852,7 +33852,18 @@ independent review and the complete combined gate from test one.
   the late-traversal finding; all traversals precede final original native closure.
   Exact subjects and failed/closing controls are retained in
   [catalog-copy planning evidence](../../verification/retained-layout-catalog-copy-plan-development.json).
-  The plan is descriptive;
+  Private catalog materialization is now source reviewed. It expands internal
+  aliases under shared limits, streams actual canonical copy outputs into exclusive
+  private nodes, and retains intent, completion and partial stages in the durable
+  journal. Actual journal/factory admission binds the original plan, private scope
+  and ledger; journal reads intersect the original file ceiling. Final eligibility
+  checks follow guard callbacks. All 167 affected methods and the scoped Make
+  runner's 28 stage methods pass without skips. Final source-only review closes
+  the journal lifetime finding; earlier independent runs retain their old subjects.
+  [Private materialization evidence](../../verification/retained-layout-catalog-copy-staging-development.json)
+  binds current source, author checks and the immutable review/failure chain.
+  Project publication, overwrite retirement and the live imported-role join remain
+  required. The plan is descriptive;
   it supplies no copied role, source exclusion or write permission. Next connect
   genuine catalog application/retirement and its live ownership handoff, then
   authored metadata roles before root effects,

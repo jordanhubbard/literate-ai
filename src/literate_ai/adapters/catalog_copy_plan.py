@@ -62,6 +62,7 @@ class CatalogCopyPlan:
     _ancestry: tuple = field(repr=False)
     _registry: tuple = field(repr=False)
     _wire: bytes = field(repr=False)
+    _usage: tuple[int, int, int, int] = field(repr=False)
 
     @property
     def document(self):
@@ -353,6 +354,12 @@ def plan_catalog_copy(
         tuple(observation.ancestry.items()),
         registry,
         wire,
+        (
+            observation.bytes,
+            observation.files,
+            observation.records,
+            observation.charged,
+        ),
     )
     plan.require_current()
     return plan

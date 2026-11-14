@@ -1263,3 +1263,57 @@ and closing reports and final local checks are retained in
 Current selected inputs are individually closed trees; cross-item topology and
 actual alias-copy projections remain required. Next implement genuine application,
 durable native retirement and live imported-role handoff under the contract above.
+
+The next effect dependency prepares actual catalog trees in a caller-selected,
+empty, same-filesystem private area outside project and source. Reuse the durable
+journal for original plan and stage intent; preserve every partial/ambiguous node.
+The existing small control pool is not a populated-tree owner. The new pool must
+bound alias expansion before copying, reproduce canonical item selection and
+`.git` filtering, stream/hash exact observed source files into exclusive native
+outputs, preserve copy modes/timestamps and validate every created node before
+issuing an opaque live stage token. Internal directory aliases and hardlinks are
+copy transformations, not ownership exclusions. Charge original plan, expanded
+payloads, private observations, journal storage and reread/metadata buffers into
+one shared allowance. Close all payload/membership reads before original native
+facts, revoke before descriptor teardown, and refuse ended/inherited/poisoned
+contexts. A private completed stage alone grants no project publication,
+retirement, source exclusion, imported ownership, recovery or collection rights.
+
+Journal storage reservation must also intersect the original per-file ceiling:
+the effective record/payload read limit cannot silently exceed it. Check this
+before private creation and retain a small-file-budget refusal control.
+
+Initial staging review constructed the exact observer class with real private
+descriptors but a descriptive no-op journal, then obtained actual copied bytes
+and a token without durable intent. The factory must admit only its actual live
+journal owner, bind the original plan, private root and shared ledger, and revoke
+that admission before underlying writer-resource teardown. Exact class names and
+saved records alone cannot supply journal authority. Preserve that failed control
+and prove that genuine and ended journal contexts remain distinct.
+
+Re-review confirmed both admission/budget repairs but ended the actual journal
+context during the admission guard's final native callback. The helper still
+returned its writer after registration and descriptors ended. Close the same
+original live registration, fields, PID and poison state again after the guard,
+without another traversal. Keep a maintained scope-ending callback control and
+preserve the failed predecessor evidence.
+
+Actual project publication must receive stages from their original live pool and
+join the real project/Git/retained-source/control and independent-child owners.
+A catalog name or overwrite flag cannot authorize moving retained implementation
+or protected authority nested beneath an item. Reject such overlap before project
+effects. Transfer currentness from original project facts to exact observed own
+effects through the actual receiver; do not turn off checks or reload intervening
+changes as a new baseline. Retire overwritten originals durably, publish only
+verified created nodes, and bind exact canonical import provenance before yielding
+the one-use imported-role handoff. This remains the next effect/ownership work.
+
+The private materialization dependency is now independently source reviewed.
+All 167 affected author methods and the scoped Make runner's 28 stage methods
+pass without skips. The final review inspected exact source and existing author
+logs; it did not execute tests or replay the native lifetime control. Earlier
+independent executions retain their original manifests. Exact current subjects,
+the immutable failed/closing review chain and those validation limits are retained
+in [development evidence](../../verification/retained-layout-catalog-copy-staging-development.json).
+This does not admit project publication, overwrite retirement, imported ownership,
+extended-attribute/platform behavior or complete feature acceptance.
