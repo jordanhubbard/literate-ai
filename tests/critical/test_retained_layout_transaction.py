@@ -86,6 +86,30 @@ class RetainedLayoutTransactionTests(unittest.TestCase):
         self.assertIn(b"LITAI_LEGACY := retained\n", prospective["litai.harness.mk"])
         self.assertFalse(self.destination.exists())
 
+    def test_portable_manifest_at_selected_source_root_requires_classification(self):
+        (self.source / "LITERATE.PROJECT.JSON").write_bytes(b"{}\n")
+        with self.assertRaisesRegex(ValueError, "nested project candidate"):
+            self.plan()
+        self.assertFalse(self.destination.exists())
+
+    def test_project_manifest_alias_leaves_require_independent_classification(self):
+        metadata = self.source / "aaa-metadata.json"
+        metadata.write_bytes(b"{}\n")
+        manifest = self.source / "literate.project.json"
+        for kind in ("hardlink", "symlink"):
+            with self.subTest(kind=kind):
+                if kind == "hardlink":
+                    os.link(metadata, manifest)
+                else:
+                    manifest.symlink_to(metadata.name)
+                try:
+                    with self.assertRaisesRegex(ValueError, "nested project candidate"):
+                        self.plan()
+                finally:
+                    manifest.unlink()
+        self.assertTrue(metadata.is_file())
+        self.assertFalse(self.destination.exists())
+
     def test_actual_move_keeps_modes_aliases_hardlinks_and_reports_metadata_pending(
         self,
     ):

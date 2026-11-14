@@ -1342,3 +1342,55 @@ parser/Git-refresh/migration regressions. Independent review approves the exact
 read-budget prerequisite. The exact subjects and limited validation
 scope are retained in [development evidence](../../verification/retained-layout-role-inputs-development.json).
 Native Windows, installed-package and complete publication acceptance remain open.
+
+### Actual catalog publication protections (in progress)
+
+Join the creating catalog stage context to an actual held normal project/Git
+control acquisition. Constructed or ended leases do not supply that acquisition.
+Read the actual canonical retained layout, selected wrapper and registered child
+manifests under the stage owner's original shared allowance. Bind both external
+private control trees to their held descriptors and include their complete
+namespaces in that allowance. Refuse larger independent journal read ceilings.
+
+Before any catalog publication, reject selected-target overlap with actual source,
+wrapper, Git administration, control/input files, private control trees or nested
+project candidates. Resolve original aliases through the complete bounded
+namespace and check physical file identities independently of the chosen hardlink
+representative. A missing independent owner grants no exclusion or overwrite
+permission. Close all payload and namespace observations before final original
+native facts and live factory admissions.
+
+Every target prefix must agree with the original exact namespace. Reject portable
+case/Unicode aliases and any existing node absent from that original name; compare
+the actual native node for each existing coordinate. Genuine new uppercase names
+retain their spelling. Linked-worktree Git closure can still read reservation and
+private journal payloads through `owns()`, so the final private catalog-stage close
+must follow that check.
+
+The guarantee ends at the last active preflight close. Preflight admission is
+revoked before outer read-scope teardown, whose input checks can read again.
+This grants no stage-freshness promise through context return or saved result.
+The future effect receiver must explicitly transfer or revalidate actual ownership;
+it cannot borrow an expired protection observation.
+
+Nested project candidate detection must also recognize portable manifest basename
+spellings, in both catalog protection and complete retained-source partitioning.
+Exclude the actual top-level project parent from that ambiguity test and preserve
+registered child roots; neither a case variant nor a missing owner grants source
+movement or overwrite authority. Exact framework-file ownership remains separate.
+The source planner and its prepared-plan validation must apply the same portable
+sentinel rule to all captured file and alias leaves. The implementation tree is
+separate from the actual project root, so a manifest at its own top level also
+requires independent classification before source movement.
+
+All 251 affected author methods and the scoped Make runner's 21 methods pass
+without skips. Final independent review approves the exact nine subjects and
+passes all 76 maintained protection/transaction/ownership methods without skips.
+Earlier source findings and runs retain their original manifests; the immutable
+review chain, teardown clarification and exact current results are retained in
+[development evidence](../../verification/retained-layout-catalog-protection-development.json).
+
+This preflight remains read-only. Actual stage-to-effect receiver transfer,
+original-node retirement, exclusive publication, exact canonical provenance and
+the one-use imported-role/source-custody handoff remain required. Preserve all
+root/shared/initial/wrapper, recovery, installed/native and full-program acceptance.

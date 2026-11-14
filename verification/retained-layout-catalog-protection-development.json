@@ -1,0 +1,205 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "6a600e7711db6bd3ea1ed20270430ddfa823a668",
+  "scope": "Actual held normal nonroot POSIX catalog protection preflight only; no project publication, retirement or imported-role handoff",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_protection.py": {
+      "algorithm": "sha256",
+      "digest": "0bfd9aded29133114e7ee709d95af42ff272f1a6dc224e9ca493ce118b07f0b2"
+    },
+    "src/literate_ai/adapters/bounded_role_observation.py": {
+      "algorithm": "sha256",
+      "digest": "f6c2eb49244b3d2f9281d4cbb38169b11afd82fcf2f439b1dba4baf225173432"
+    },
+    "src/literate_ai/adapters/retained_layout_control_roles.py": {
+      "algorithm": "sha256",
+      "digest": "cb0c3712e7a88a5b7cfcc0ee9e8ec87051a8a51c340b068387b5b13c3f6a6243"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "feab552e0a270fea60c1a9e5fc68b9babbdcb13c92387fe29547d90a25d36301"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "d0ec868a24542d4344e48c45d160c7e2559340edb7b85ad1ceff3618a72a73a0"
+    },
+    "src/literate_ai/adapters/retained_layout_partition.py": {
+      "algorithm": "sha256",
+      "digest": "d61eb00e473135bc9e2f32254e455e1c13a2da03ebaa1f55a168816299a50e61"
+    },
+    "tests/critical/test_catalog_copy_protection.py": {
+      "algorithm": "sha256",
+      "digest": "739b0b5d008463de2245541cf6d69c9abefab138683a6455f0d671affc9320fe"
+    },
+    "tests/critical/test_retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "24b892ad6a7111486e05ef340d1725f4660d665b8e753acfc4f1be5cc7bbe869"
+    },
+    "tests/critical/test_retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "4782aca544e7c4ec1c6e5ab4056945a38270e32510de14d690c0697e92d8195f"
+    }
+  },
+  "behavior": [
+    "Join the actual registered catalog stage factory and original normal project/Git/control acquisition; constructed or ended owners grant no acquisition.",
+    "Read canonical retained layout, selected wrapper, conversion and registered child manifests under the original shared stage ledger. Observe complete external private control/journal trees and match their original held descriptors.",
+    "Refuse overlapping selectors, protected source/wrapper/Git/control/private/nested-project paths and aliases or hardlinks into protected authority independently of hardlink representative.",
+    "Precharge original-name and portable-name indices. Refuse alternate target spellings or existing nodes absent from original exact coordinates; compare each existing prefix native node. Preserve genuine new uppercase names.",
+    "Close dependent linked-Git reservation payload reads before final catalog-stage native facts and final live factory checks. Ended observations and saved reports grant no effect rights.",
+    "One shared portable manifest-leaf iterator covers physical and alias leaves. Whole-project callers exclude only the own-root parent and retain actual registered-child handling; selected-source planner/prepared-plan guards exclude no source-root sentinel."
+  ],
+  "author_focused": {
+    "passed": 76,
+    "seconds": 82.199,
+    "skipped": 0,
+    "modules": [
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_ownership"
+    ],
+    "log_sha256": "e163373a2af198dbe6dcc499046c715f22c1c9f05d0f25fb7bc670c804781af1"
+  },
+  "maintained_make": {
+    "pattern": "test_catalog_copy_protection.py",
+    "passed": 21,
+    "seconds": 37.866,
+    "skipped": 0,
+    "report_sha256": "be9555c39f1e9ca63f3c4037ba9415b90b340dfe07f6a9ba280725797b398de4"
+  },
+  "final_affected_suite": {
+    "passed": 251,
+    "seconds": 390.243,
+    "skipped": 0,
+    "modules": [
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_control_publication",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_recovery_roles",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_renewal",
+      "tests.critical.test_native_project_registry",
+      "tests.critical.test_retained_layout_partition"
+    ],
+    "log_sha256": "73cec749cdc7a81c7a9e4dce518e879ae8ac56920520ea898d6281cd70b5e967"
+  },
+  "review_chain": [
+    {
+      "path": "independent-layout-catalog-protection-review.json",
+      "sha256": "02b7e3e88951f589bb9605adb32ae1253a0d70a9d7e2740fa4b644f99567d7f7",
+      "decision": "changes_requested",
+      "findings": [
+        "CATALOG-PROTECTION-PHYSICAL-001",
+        "CATALOG-PROTECTION-CLOSING-002"
+      ],
+      "finding_mode": "source findings without bespoke native reproductions"
+    },
+    {
+      "path": "independent-layout-catalog-protection-rereview.json",
+      "sha256": "0a936bf1a826d4af6afb74eb3ba500f98d8479038fc91945ce3b7d87c2b9b386",
+      "decision": "approved_at_exact_read_only_preflight_scope",
+      "independent_current_maintained_tests": {
+        "passed": 19,
+        "seconds": 37.912,
+        "skipped": 0
+      }
+    },
+    {
+      "path": "independent-layout-nested-project-candidate-addendum.json",
+      "sha256": "0b7af2734062c2dc946c7f9426c53f324923680dd8dcf76d24c290a78eccd746",
+      "decision": "changes_requested_for_nested_candidate_detection"
+    },
+    {
+      "path": "independent-layout-catalog-protection-final-review.json",
+      "sha256": "d35e9085ac3661f73ef8dcb1aab9eb5bc8fa00eef7ebaeff813d6daf14743435",
+      "decision": "changes_requested_for_additional_planner_guard"
+    },
+    {
+      "path": "independent-layout-catalog-protection-leaf-review.json",
+      "sha256": "3505d7a15e44e1142f65102945022cc83327d3a0dbdd543bd51d2a27dba3d50d",
+      "decision": "approved_at_exact_limited_scope"
+    }
+  ],
+  "historical_runs": {
+    "author_initial": {
+      "passed": 230,
+      "seconds": 377.358,
+      "skipped": 0,
+      "log_sha256": "78a4b7d93694f8fcdf6825c2232637efb55abd05c803b44d9b5185ed4594ae80",
+      "qualification": "Initial failed-review source manifest only; not final repaired subjects."
+    },
+    "independent_initial": {
+      "focused_passed": 16,
+      "neighborhood_passed": 71,
+      "skipped": 0,
+      "qualification": "Initial failed-review source manifest only; immutable initial review retains exact executions."
+    },
+    "author_after_target_and_closure_repairs": {
+      "passed": 233,
+      "seconds": 386.559,
+      "skipped": 0,
+      "log_sha256": "d4b36bc0a80eccee214ce33268dedc50e7fff4df1023273055165792d34647c0",
+      "subject_manifest": {
+        "src/literate_ai/adapters/catalog_copy_protection.py": {
+          "algorithm": "sha256",
+          "digest": "8f53e7790f9af4deebf3fff212abf5aafeb5a8ae8da744a081f503a79f42b539"
+        },
+        "src/literate_ai/adapters/bounded_role_observation.py": {
+          "algorithm": "sha256",
+          "digest": "f6c2eb49244b3d2f9281d4cbb38169b11afd82fcf2f439b1dba4baf225173432"
+        },
+        "src/literate_ai/adapters/retained_layout_control_roles.py": {
+          "algorithm": "sha256",
+          "digest": "cb0c3712e7a88a5b7cfcc0ee9e8ec87051a8a51c340b068387b5b13c3f6a6243"
+        },
+        "src/literate_ai/adapters/retained_layout_transaction.py": {
+          "algorithm": "sha256",
+          "digest": "d466bd32144f2dbc6dbdbe42610acf8d19b9348982c9888dd9a7f84fe59542dd"
+        },
+        "tests/critical/test_catalog_copy_protection.py": {
+          "algorithm": "sha256",
+          "digest": "96340eb53f5d5292fe993385e5bfb63fdfc599d8235f066c0714f3dbff07320b"
+        }
+      },
+      "qualification": "Exact first repaired manifest; additional portable nested-manifest candidate audit pending."
+    },
+    "candidate_only_focused": {
+      "author_passed": 50,
+      "author_seconds": 71.652,
+      "independent_passed": 50,
+      "independent_seconds": 70.774,
+      "skipped": 0,
+      "qualification": "Previous7subject candidate-only revision; planner case/alias finding remained open."
+    }
+  },
+  "acceptance_limits": [
+    "Currentness is bounded recorded-span observation; no continuous hostile same-user atomic snapshot claim.",
+    "Preflight admission is revoked before outer read-scope teardown; saved descriptive outputs confer no role or effect authority.",
+    "Actual stage-to-effect receiver transfer, durable original-node retirement, exclusive native publication, exact canonical import provenance and one-use live imported-role/source join remain required.",
+    "Normal internal nonroot POSIX source profile only. Root/shared/initial/wrapper/recovery, cross-item/xattr/platform, installed/native/full-program/integration/release acceptance remain open.",
+    "Two canonical-manifest-alias positive tests conditionally skip on case-sensitive volumes; both executed and passed on this macOS volume. No other platform execution is claimed."
+  ],
+  "teardown_clarification": {
+    "path": "independent-layout-catalog-protection-teardown-clarification.json",
+    "sha256": "2389eed72c3fb7dcd7b37b316aa778d7bfec7a41821c3050bab24f187e77efc6",
+    "scope": "Source-only clarification; guarantee ends at last active preflight close, not freshness through tail reads/context return. Future effect receiver must explicitly transfer or revalidate actual ownership."
+  },
+  "independent_current": {
+    "report": "independent-layout-catalog-protection-leaf-review.json",
+    "passed": 76,
+    "seconds": 81.896,
+    "skipped": 0,
+    "qualification": "Current exact9subject source manifest only; no publication or source role transfer acceptance."
+  },
+  "static_checks": [
+    "lint PASS",
+    "format-check PASS",
+    "repository-layout-check PASS",
+    "public-export-check PASS",
+    "git diff --check PASS"
+  ]
+}

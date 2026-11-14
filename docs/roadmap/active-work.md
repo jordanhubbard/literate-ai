@@ -33875,6 +33875,27 @@ independent review and the complete combined gate from test one.
   [role-input development evidence](../../verification/retained-layout-role-inputs-development.json).
   This read-only scope is a prerequisite to actual protected-role publication
   preflight and grants no effect or source-exclusion rights.
+  Catalog protection preflight now joins the actual stage factory and held normal
+  project/Git control acquisition to canonical retained-source, wrapper and
+  registered-child inputs under that original shared ledger. External private
+  control namespaces bind their held descriptors. Protected overlap, ambiguous
+  nested projects, cross-role aliases/hardlinks and alternate target spellings
+  refuse before any publication. Initial review found a case-insensitive coordinate
+  gap and a linked-Git read after stage closure; repaired source checks each target
+  prefix against original names/native nodes and closes stages after dependent
+  linked-Git reads. Further audit found portable manifest spellings and alias
+  leaves missing from nested-project checks. One shared bounded iterator now
+  covers physical files and aliases in preflight, full partitioning, source
+  planning and prepared-plan validation. Whole-project checks exclude their actual
+  own-root parent and preserve registered children; selected-source checks exclude
+  no source-root sentinel. Independent execution passes all 76 maintained methods
+  without skips and final review approves the exact nine subjects. All 251 affected
+  author methods and the scoped Make runner's 21 methods pass without skips.
+  The guarantee ends at the final
+  active preflight check, before revoked-context read-scope teardown; future effects
+  require explicit ownership transfer or revalidation. Exact subjects, immutable
+  failed/closing reviews and this limit are retained in
+  [protection development evidence](../../verification/retained-layout-catalog-protection-development.json).
   Project publication, overwrite retirement and the live imported-role join remain
   required. The plan is descriptive;
   it supplies no copied role, source exclusion or write permission. Next connect

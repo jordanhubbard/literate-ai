@@ -24,8 +24,19 @@ from literate_ai.contracts.identity import ContentIdentity, canonical_identity
 from literate_ai.contracts.native_sdk_trees import NativeSdkTree, _ResolutionBudget
 from literate_ai.contracts.paths import canonical_relative_posix_paths
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
+from literate_ai.projects import PROJECT_FILENAME
 
 from .retained_layout import RetainedLayoutError
+
+
+def _project_manifest_candidates(tree):
+    """Yield portable manifest leaf hints; no ownership or root exclusion."""
+    for name, _blob, _executable in tree.files:
+        if Path(name).name.casefold() == PROJECT_FILENAME:
+            yield name
+    for alias in tree.aliases:
+        if Path(alias.path).name.casefold() == PROJECT_FILENAME:
+            yield alias.path
 
 
 def _physical_wire(value):

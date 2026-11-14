@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Catalog-publication development joins actual held project/Git controls to
+  bounded retained-source, wrapper and child-project protections. Alternate target
+  spellings and cross-role aliases refuse during preflight; publication and
+  imported-role handoff remain unfinished (#265).
+
+- Retained-source planning and partitioning recognize portable project-manifest
+  spellings and alias leaves before source movement. Registered children retain
+  their actual independent roles; a basename alone grants no ownership (#265).
+
 - Retained-layout development can bound canonical project, conversion, migration,
   child-registry and Git role inputs under one operation-local allowance while
   preserving ordinary reader defaults. Changed inputs and ended scopes refuse;

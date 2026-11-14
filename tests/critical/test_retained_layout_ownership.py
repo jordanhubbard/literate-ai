@@ -391,6 +391,39 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
                 )
                 owner.require_current()
 
+    def test_portable_nested_manifest_requires_registered_independent_owner(self):
+        from tests.support.fixtures_test_catalog_import import make_project
+
+        child = make_project(self.project / "unclaimed-child", "nested")
+        (child / "literate.project.json").rename(child / "LITERATE.PROJECT.JSON")
+        with self.inspecting() as phase:
+            with self.assertRaisesRegex(ValueError, "independent project candidate"):
+                with self.observe(phase):
+                    self.fail("portable manifest spelling hid an independent project")
+
+    def test_registered_child_manifest_case_preserves_actual_independent_role(self):
+        from literate_ai.adapters.conversion_authority import register_native_project
+        from literate_ai.projects import ProjectConfigurationStore, load_project
+        from tests.support.fixtures_test_project_agent_development_workflow import (
+            _definition,
+        )
+
+        child = self.project / ".literate/native-projects/child"
+        ProjectConfigurationStore(child).create(_definition(project_id="child"))
+        register_native_project(load_project(self.project), child)
+        manifest = child / "literate.project.json"
+        manifest.rename(child / "LITERATE.PROJECT.JSON")
+        if not manifest.is_file():
+            self.skipTest("canonical manifest alias requires a case-insensitive volume")
+        with self.inspecting() as phase:
+            with self.observe(phase) as owner:
+                self.assertEqual(
+                    dict(owner.roles)[
+                        ".literate/native-projects/child/LITERATE.PROJECT.JSON"
+                    ],
+                    "independent:.literate/native-projects/child",
+                )
+
     def test_late_foreign_entry_after_partition_journal_refuses_source_effect(self):
         plan = self.plan()
         changed = False

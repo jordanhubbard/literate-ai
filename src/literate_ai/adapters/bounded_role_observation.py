@@ -184,11 +184,6 @@ class _RoleObservation:
             self._io_active = False
 
     def require_current(self):
-        from .catalog_copy_plan import _anchor
-        from .repository_refresh import _signature
-        from .retained_layout_git_controls import _presence
-        from .retained_layout_partition import _lineage
-
         self._live()
         for item in tuple(self._ledger.cache.values()):
             self.file(
@@ -196,6 +191,16 @@ class _RoleObservation:
                 optional=item.content is None,
                 maximum_bytes=max(1, len(item.content or b"")),
             )
+        self.close_native_inputs()
+
+    def close_native_inputs(self):
+        """Close only original named facts after all dependent payload reads."""
+        from .catalog_copy_plan import _anchor
+        from .repository_refresh import _signature
+        from .retained_layout_git_controls import _presence
+        from .retained_layout_partition import _lineage
+
+        self._live()
         for path, expected in self._lineages.items():
             if _lineage(path) != expected:
                 _fail("original role ancestry changed")

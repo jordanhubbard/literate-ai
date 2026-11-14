@@ -29,6 +29,27 @@ from .retained_layout_partition import _lineage
 from .retained_layout_reservations import acquire_staged_layout_reservations
 
 _KEY = object()
+_ACQUIRED = {}
+
+
+def _require_acquired_control_roles(lease, root):
+    """Require the actual normal acquisition, not a constructed role record."""
+    if type(lease) is not _ControlRolesLease:
+        raise TypeError("actual acquired normal control roles required")
+    original = _ACQUIRED.get(lease)
+    if (
+        original is None
+        or not lease._active
+        or lease._receiver != os.getpid()
+        or lease._finalizing
+        or lease._seed.root != root
+        or original[0] is not lease._seed
+        or original[1] is not lease.git
+        or original[2] is not lease.reservations
+        or original[3] is not lease._pool
+        or original[4] != os.getpid()
+    ):
+        raise TypeError("actual acquired normal control roles required")
 
 
 def layout_pending_control_path(root):
@@ -214,6 +235,7 @@ def acquire_retained_layout_control_roles(project_root, pool):
         pool, seed.targets() + git.targets()
     ) as owned:
         lease = _ControlRolesLease(_KEY, seed, git, owned, pool)
+        _ACQUIRED[lease] = seed, git, owned, pool, os.getpid()
         try:
             lease.require_initial_inputs()
             yield lease
@@ -222,4 +244,5 @@ def acquire_retained_layout_control_roles(project_root, pool):
             else:
                 lease.require_current()
         finally:
+            _ACQUIRED.pop(lease, None)
             lease._active = False

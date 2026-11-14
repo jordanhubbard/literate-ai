@@ -41,7 +41,10 @@ from .project_initialization import (
 )
 from .repository_refresh import _file, _signature
 from .retained_layout import RETAINED_LAYOUT_PATH
-from .retained_layout_partition import capture_retained_layout_partition
+from .retained_layout_partition import (
+    _project_manifest_candidates,
+    capture_retained_layout_partition,
+)
 from .retained_layout_provider import original_initializer_roster
 from .update_merge import CHECKPOINT, UpdateBases
 
@@ -298,11 +301,9 @@ def _partition_roles(phase, census, framework, children):
             return "framework"
         return "source" if _beneath(name, source) else "unclaimed"
 
-    for name in leaves:
-        if (
-            Path(name).name == PROJECT_FILENAME
-            and name != PROJECT_FILENAME
-            and not any(_beneath(name, child) for child in child_roots)
+    for name in _project_manifest_candidates(census.tree):
+        if Path(name).parent != Path(".") and not any(
+            _beneath(name, child) for child in child_roots
         ):
             _fail("independent project candidate lacks its registered actual owner")
     roles = {name: role(name) for name in leaves}

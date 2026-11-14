@@ -1,0 +1,107 @@
+{
+  "schema": "independent-source-review@1",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "6a600e7711db6bd3ea1ed20270430ddfa823a668",
+  "scope": "Read-only catalog-copy protection preflight joining actual registered private stages, normal acquired project/Git/control lease, canonical retained layout and child metadata. No effects/publication/imported ownership.",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_protection.py",
+      "sha256": "a4f06a5aa4b538453e0312627b34b7b0d1dcaa8fdba285d3f4ade2d9995f7a72"
+    },
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "f6c2eb49244b3d2f9281d4cbb38169b11afd82fcf2f439b1dba4baf225173432"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "d466bd32144f2dbc6dbdbe42610acf8d19b9348982c9888dd9a7f84fe59542dd"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "cb0c3712e7a88a5b7cfcc0ee9e8ec87051a8a51c340b068387b5b13c3f6a6243"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_protection.py",
+      "sha256": "2e3dd5f3ac07cd9434f1b7132676574e97f66abfc6c665f436a9ea589b2da659"
+    }
+  ],
+  "dependency_context": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "3716434d11a9489fd3d1e2ec847df01fd284c6b6a9e2d12eba5971c40bcda3f2"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_git_controls.py",
+      "sha256": "d4301620b31453c904df22636a59ad258d3141dd2ec2177b4953d10e19c1221c"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_reservations.py",
+      "sha256": "55440e36e58fd3f2691d844325b00593b2aae29a5882c17729785b3459445472"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-PROTECTION-PHYSICAL-001",
+      "severity": "blocking_for_protection_preflight",
+      "status": "open",
+      "location": "src/literate_ai/adapters/catalog_copy_protection.py:200",
+      "title": "Physical protection is restricted to lexically selected census names and misses alternate filesystem spellings",
+      "evidence_kind": "source finding; no bespoke or native reproduction executed",
+      "reason": "Lexical target/subtree checks use case-sensitive Path.is_relative_to. The later native identity loop also considers only raw census names lexically beneath the supplied target. Consequently it never examines the actual existing target or prefix inode when that coordinate is an alternate native spelling of a protected directory.",
+      "concrete_condition": "On a case-insensitive filesystem, component:LEGACY-PROJECT-WRAPPER with overwrite=True can name the actual protected components/legacy-project-wrapper. Canonical parsing preserves item-name case. Upstream can contain that selected spelling. The destination complete census contains actual lower-case names, so neither lexical subtree comparison nor native candidate selection matches the uppercase target, even though it is the protected wrapper physically.",
+      "required_change": "Bind every target coordinate prefix to the original complete census/exact actual named node; reject portable alias spellings or existing nodes absent from their exact original names. Compare actual existing target/parent identities against protected nodes independently of lexical filtering. Keep physical and lexical protection rather than substituting a guessed case normalization.",
+      "execution_limit": "Applicability is conditional on native aliasing behavior; this turn did not execute a case-alias reproduction or verify target-volume case behavior."
+    },
+    {
+      "id": "CATALOG-PROTECTION-CLOSING-002",
+      "severity": "blocking_for_currentness",
+      "status": "open",
+      "location": "src/literate_ai/adapters/catalog_copy_protection.py:103",
+      "title": "Linked-worktree owns check can perform reads after final stage known-fact closure",
+      "evidence_kind": "source call-path finding; no bespoke reproduction executed",
+      "call_path": [
+        "protection.require_current line102: stages._close_known()",
+        "line103: controls.git.close_native_inputs(controls.reservations)",
+        "LayoutGitControls.close_native_inputs: originally absent owned linked-worktree locked marker invokes reservations.owns(path)",
+        "_StagedReservationSet.owns -> verify_all -> pool.require_current, marker payload reads and private/journal/name traversals"
+      ],
+      "reason": "Later closes cover canonical role inputs, control-private censuses and original project/source plan, but do not repeat stages._close_known for actual stage payloads/private stage journal/root. Those can change during the late linked-Git ownership traversal without the final protection currentness observing the changed stage facts.",
+      "required_change": "Complete this possible traversal before the final global known-facts pass, then close actual stage/private-stage-journal/root facts after it. Alternatively use an actual bound descriptor-only owns view. No payload or namespace traversal should follow the final stage/native close.",
+      "execution_limit": "This source branch is specific to linked-worktree owned-lock handling. Existing normal-Git maintained positives do not independently exercise that final interleaving."
+    }
+  ],
+  "source_assessment": [
+    "Read complete new protection/test modules and all three integration diffs, plus actual normal role acquisition, stage liveness/known-fact closure, linked Git close and staged-reservation owns/verify implementations.",
+    "Actual stage factory admission and new normal-control acquisition registry reject saved/constructed owners and preserve context/PID bindings. Supplied control-journal path is compared with its real held descriptor; all private captures debit original stage ledger.",
+    "Canonical retained layout/wrapper, project/conversion and registered-child metadata use the existing parser owners through bounded shared observation; no new role labels or effects capability are granted.",
+    "Ordinary lexical source/wrapper/children/admin/private protections and hardlink/alias representative handling are exercised by maintained tests. Alternate native coordinate spellings need the independent prefix checks identified above.",
+    "Separating bounded read final known-native closure preserves its existing behavior; optional _inputs observation keeps original default branch. Maintained neighborhoods passed, but do not close the two source findings."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_protection",
+      "result": "16 passed,0 failures/errors/skips,28.457s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-protection-independent-focused.log",
+      "log_sha256": "15e9b516a16bd50d9f96045377059c0929bc929af0712c7279efaddde2523557"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_bounded_role_observation tests.critical.test_catalog_copy_staging tests.critical.test_retained_layout_transaction",
+      "result": "71 passed,0 failures/errors/skips,15.897s;19 bounded-read+28 stage+24 transaction",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-protection-independent-neighborhood.log",
+      "log_sha256": "189f75cdfd49be0684a36e6576ad67e2f2a907d0422eaeb00ef5d07d7d762914"
+    }
+  ],
+  "terminal_process_state": "All independent maintained processes terminal exit0, including74618. No bespoke probes or reproduction scripts run. Author broad process state not controlled or admitted.",
+  "limits": [
+    "Five changed source/test subjects verified from actual worktree; initial request's six-subject count corrected by user. Dependency hashes included only as call-path evidence.",
+    "Read-only preflight only. Actual catalog destination-to-effect receiver transfer, project publication, overwrite retirement, live imported-role/source-partition joins, recovery and full feature/program/release acceptance remain pending.",
+    "These two findings are source-backed, not claims of independently reproduced native failures this turn. All87 executed maintained methods passed.",
+    "Local editable-source POSIX/macOS evidence only; no isolated installed/wheel/native Linux/Windows/cross-platform or full application qualification.",
+    "No continuous hostile same-user atomic snapshot or authenticated historical provenance claim.",
+    "No implementation/test/pin edits, installs, subagents, network or external posts. Only requested immutable report written; prior reviews unchanged."
+  ]
+}

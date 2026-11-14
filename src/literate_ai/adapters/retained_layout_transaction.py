@@ -49,7 +49,7 @@ from .retained_layout_control_roles import (
     layout_pending_control_path,
 )
 from .retained_layout_git_controls import LayoutGitControls, observe_layout_git_controls
-from .retained_layout_partition import _lineage
+from .retained_layout_partition import _lineage, _project_manifest_candidates
 from .retained_project_inputs import _directory_access, _inventory
 
 _KEY = object()
@@ -76,7 +76,7 @@ class LayoutCommitOutcomeError(RuntimeError):
         )
 
 
-def _inputs(root, *, maximum_checkpoint_bytes=None):
+def _inputs(root, *, maximum_checkpoint_bytes=None, _observation=None):
     project = _project_roles(root)
     lineages = [
         (root, _lineage(root)),
@@ -101,6 +101,9 @@ def _inputs(root, *, maximum_checkpoint_bytes=None):
             _file(root / CHECKPOINT, maximum_bytes=maximum_checkpoint_bytes),
         )
     by_name = {item.path.relative_to(root).as_posix(): item for item in observations}
+    if _observation is not None:
+        for name in (_ORIGIN, _BASELINE, _LIFT):
+            _observation.json_value(by_name[name].content, name)
     origin = ProjectInitializationOrigin.from_dict(json.loads(by_name[_ORIGIN].content))
     baseline = ProjectInitializationBaseline.from_dict(
         json.loads(by_name[_BASELINE].content)
@@ -108,7 +111,7 @@ def _inputs(root, *, maximum_checkpoint_bytes=None):
     if baseline.origin_identity != origin.identity:
         _fail("initialization baseline and origin disagree")
     lift = json.loads(by_name[_LIFT].content)
-    layout = resolve_structural_layout(root, lift)
+    layout = resolve_structural_layout(root, lift, _observation=_observation)
     lineages.append((layout.wrapper_root, _lineage(layout.wrapper_root)))
     component = _file(layout.wrapper_root / "component.md")
     authoring = parse_component_markdown(
@@ -354,7 +357,7 @@ def plan_retained_layout_source_move(
     _absence(destination, budget.maximum_entries)
     source_lineage = _lineage(source)
     tree = capture_retained_cargo_tree_v2(source, budget=budget)
-    if any(Path(name).name == PROJECT_FILENAME for name, _, _ in tree.files):
+    if any(_project_manifest_candidates(tree)):
         _fail("nested project candidate requires independent authority classification")
     native = _native_tree(tree)
     source_node, source_parent = (
@@ -465,7 +468,7 @@ def _validate_plan_roles(plan):
         }
         if administrative_nodes.intersection(source_nodes | destination_nodes):
             _fail("source/destination physically overlaps actual Git administration")
-    if any(Path(name).name == PROJECT_FILENAME for name, _, _ in plan.tree.files):
+    if any(_project_manifest_candidates(plan.tree)):
         _fail("nested project candidate requires independent authority classification")
     if plan.prospective != _prospective_metadata(
         plan.root, plan.layout, plan.inputs, relative
