@@ -1,0 +1,79 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "7e087729e3863b9e703253880056a3cd18f2cfdc",
+  "scope": "Internal canonical Git source acquisition held through actual catalog copy and one fresh retained-source consumer; existing cloning policy remains a separate provider operation.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "bbe1c831559a3883a1e231cb91350363a12d5597bf054d9942369b73be47ceaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "05832c6fea2c194866bf279afd63dae6ddc83c9021a4b7b8b1b9d147c981d21d"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "f72870decc7ed0508ef6d677ea517f883a239d975f7181de74755ed8b6164aaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_provenance_publication.py",
+      "sha256": "b0cf092f2dba0d2a86afc72f3c2a45fb81f65c1549289e3507452b7cbf48ece9"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_lease.py",
+      "sha256": "dae05a85411127d8a7fd316491b5d9eea5099aa6d74c3cbb3368be3501f530de"
+    }
+  ],
+  "dependency": {
+    "path": "src/literate_ai/adapters/catalog_import.py",
+    "sha256": "e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04",
+    "assessment": "Unchanged canonical _open_source/_clone_git_source/_run_git inspected as dependency: resolves actual commit, initializes selected submodules, bounds subprocess time/output, and owns clone-parent cleanup. Local file-protocol fixtures were executed; no remote-source or clone-storage qualification."
+  },
+  "findings": [],
+  "source_assessment": [
+    "Outer producer creates the original observation ledger and debits actual live framework predecessor work before source observation. Selector/path/serialization allocations are charged against the original finite policy.",
+    "Canonical acquisition returns the genuine sanitized resolved Git reference. Only its owned clone is detached; exact HEAD bytes are compared to the resolved40/64-character commit. The local-source provenance branch remains unchanged.",
+    "Temporary-path normalization occurs once before admission, verifies a direct actual leaf and identical native facts, then pins resolved root and actual .git with original ancestry.",
+    "HEAD/config/index and optional packed-refs/shallow, original canonical source metadata, source module and selected complete no-exclusion censuses are observed through the same original ledger before caller exposure and project marker effects.",
+    "Actual original source census objects and native witnesses transfer by identity into the destination-first plan; incurred byte/file/record/metadata usage is retained rather than reset. Source actor claim requires exact root/source/selectors/policy and actual framework predecessor once.",
+    "Plan binds source actor identity and genuine ref. Provenance checks the actual source actor against acknowledged wire fields; descriptive/fabricated actors cannot select the authenticated shared path.",
+    "Source registry binds exact original references, PID/thread and immutable input/census witnesses. Native close rechecks actual root/ancestry/input/selected tree facts, followed by callback-free registry lifetime closure.",
+    "Copy stores the original actual source lifetime tuple. Its own final pure _close_record invokes source._close_lifetime after native callbacks, closing source revocation during the final copy guard without a further filesystem callback.",
+    "Nested copy admission retires before source admission; source registry retires before pinned descriptor teardown and canonical clone cleanup. Cleanup failure does not mint ownership; existing canonical cleanup behavior is not newly qualified as general garbage collection.",
+    "Framework predecessor is debited once in outer source ledger; creating copy claims that same actor/policy and omits a duplicate debit. Actual framework+Git catalog+source composition passes."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease > _build/catalog-source-independent.log 2>&1",
+    "session": 46945,
+    "exit_code": 0,
+    "tests": 11,
+    "passed": 11,
+    "skipped": 0,
+    "seconds": 75.322,
+    "log": "_build/catalog-source-independent.log",
+    "log_sha256": "afff2730f42d5ebfd463b5aaacdb5fdf64ecfcc88c7b8ca2aa8f6ef7c13bdfa3",
+    "terminal": true,
+    "bespoke_probes": 0,
+    "coverage": [
+      "Real canonical file:// immutable commit clone, exact Git provenance, actual copy teardown and retained-source move/metadata/finalization; clone cleanup after use.",
+      "Original HEAD and selected checkout payload mutation refuse before selected entry effect.",
+      "Fabricated actor and saved description refusal before project pending publication.",
+      "Original source file ceiling refuses before project markers and private copy setup.",
+      "Symbolic revision records actual resolved detached commit.",
+      "Actual copy/source registry revocation before canonical clone cleanup.",
+      "Actual framework predecessor and Git catalog share one retained-source move.",
+      "Source final guard and copy final guard callback revocation refusal; expired source/copy cannot create a fresh source plan."
+    ]
+  },
+  "limits": [
+    "Canonical clone/fetch/checkout/submodule storage and subprocess policy are separate unchanged provider behavior; clone repository size is NOT bounded by or charged as copy payload budget.",
+    "Local source-backed POSIX maintained execution only. No remote network source, SHA256 repository, independent Windows/Linux, installed-wheel or complete native-platform qualification.",
+    "No bespoke probes/reproduction scripts, predecessor replay, independent broad regression or standalone local-default matrix; default compatibility was source-reviewed at the optional branches.",
+    "No continuous hostile snapshot, general clone cleanup/GC authority, public catalog API completion, durable restart/recovery, full metadata/root/shared/wrapper ownership, full retained-layout program or release acceptance.",
+    "All five subjects and dependency hashes rechecked unchanged after terminal execution. No implementation/test/pin edits, installs, new agents or external service writes.",
+    "No independent process remains live. Source inspection/execution complete; safe to unfreeze from reviewer side after parent-owned jobs permit.",
+    "All previous independent reports remain immutable."
+  ]
+}

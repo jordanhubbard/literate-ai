@@ -1,0 +1,83 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "changes_requested",
+  "review_mode": "source-only correspondence supplement",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "7e087729e3863b9e703253880056a3cd18f2cfdc",
+  "prior": {
+    "path": "independent-layout-catalog-source-rereview.json",
+    "sha256": "678dbbf6b56daa07d1d2d3b5c5c6f11488546f72f2ae87389d85fc51a2e35b97",
+    "preserved": true,
+    "qualification": "Prior tested source/PID cleanup evidence remains immutable. This supplemental association finding limits admission of current source-lease planner integration."
+  },
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "bbe1c831559a3883a1e231cb91350363a12d5597bf054d9942369b73be47ceaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "05832c6fea2c194866bf279afd63dae6ddc83c9021a4b7b8b1b9d147c981d21d"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "f72870decc7ed0508ef6d677ea517f883a239d975f7181de74755ed8b6164aaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_provenance_publication.py",
+      "sha256": "b0cf092f2dba0d2a86afc72f3c2a45fb81f65c1549289e3507452b7cbf48ece9"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "840ca1462a0778403161509927bbf7416f6568d349b37d38e722ddd89b94a1ba"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_lease.py",
+      "sha256": "57609f6855586783e9ceda5d6cbb2f7277a206550873b84436fdaa3928eccd1a"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "eaa3203bbc5dd1263be1f2f990717c27919eafb392cf272ea5fd014388f69b8c",
+      "role": "unchanged projection dependency"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-SOURCE-CORRESPONDENCE-001",
+      "severity": "blocking_source_contract",
+      "status": "open",
+      "title": "Transferred original source censuses are not paired to the fresh canonical selector coordinates",
+      "locations": [
+        "src/literate_ai/adapters/catalog_source_lease.py:147",
+        "src/literate_ai/adapters/catalog_copy_plan.py:315",
+        "src/literate_ai/adapters/catalog_copy_plan.py:343",
+        "src/literate_ai/adapters/catalog_copy_plan.py:361",
+        "src/literate_ai/adapters/catalog_copy_staging.py:288",
+        "src/literate_ai/adapters/catalog_copy_staging.py:416"
+      ],
+      "source_evidence": [
+        "Source actor records original ordered censuses and item labels. _censuses authenticates original actor/ledger/root/items but does not compare a selected mapping or actual per-item roots.",
+        "Fresh planner snapshots current _KIND_DIR as its registry and derives each source via current canonical _source_item_dir. In source-lease branch it skips a fresh capture and later appends all original source_censuses without checking census.tree.root against that derived source or strictly pairing each item/census.",
+        "Stage _projection(index) selects plan._censuses[index+1].tree and builds output from that original tree. _copy_item checks overall source_root, stage container, item labels and overwrite; it copies tree.root/source directly and derives destination using current _dest_item_dir.",
+        "Plan currentness compares current _KIND_DIR to the fresh registry, so a mapping changed before fresh registry capture can remain consistently current while the transferred census still describes the earlier coordinate."
+      ],
+      "conditional_consequence": "If selected runtime mapping changes between actor capture and fresh planning, and the newly derived selected source exists, the structural plan/stage path does not reject the association mismatch: it can acknowledge the new mapping while retaining/projecting bytes from the old captured item. Native bytes and old-tree custody checks prove the old tree, not its correspondence to the new selector coordinate.",
+      "assumptions": "This requires a private in-process canonical mapping change, not an ordinary external input edit or evidence that a third party can change _KIND_DIR. Canonical mapping is normally static. The finding concerns the explicitly requested exact original selector/census association invariant, not broad hostile concurrent Python mutation support.",
+      "required_change": "Before accepting transferred censuses into the fresh plan, strictly pair their count/order with actual selected items and require every census.tree.root to equal the actual canonical source coordinate derived for that item. Preserve the original census/native objects and ledger debit. An additional stage-time coordinate/projection-root check can defend the same association before effects; binding the original selected mapping can provide an earlier explicit refusal.",
+      "evidence_limit": "Source-only control/data-flow conclusion. No maintained or bespoke test was run in this supplement; no actual publication, effect bypass, corruption or exploit is claimed."
+    }
+  ],
+  "execution": {
+    "tests": 0,
+    "probes": 0,
+    "reproduction_scripts": 0,
+    "description": "Read-only source inspection and current SHA256 checks only. Existing23 passing evidence does not exercise runtime selector/census reassociation.",
+    "live_reviewer_processes": 0
+  },
+  "limits": [
+    "Prior reports remain unchanged. Fork cleanup repair remains assessed at its exact scope; this new correspondence finding is independent.",
+    "No new public, installed, cross-platform, root/shared/recovery/full-program acceptance.",
+    "No implementation/test/pin edits, network or agents.",
+    "Inspection complete; no reviewer process prevents repair. Parent-owned tests must be terminal before edits as instructed."
+  ]
+}

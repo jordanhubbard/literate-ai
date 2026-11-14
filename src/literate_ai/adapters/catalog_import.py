@@ -227,6 +227,7 @@ def _clone_git_source(
         local = Path(url).expanduser()
         if local.exists():
             url = local.resolve().as_uri()
+    clone_owner_pid = os.getpid()
     clone_parent = Path(tempfile.mkdtemp(prefix="litai-c-"))
     clone_root = clone_parent / "src"
     try:
@@ -320,7 +321,8 @@ def _clone_git_source(
             )
         return clone_root, f"git:{sanitize_git_url(url)}@{commit}"
     except Exception:
-        shutil.rmtree(clone_parent, ignore_errors=True)
+        if clone_owner_pid == os.getpid():
+            shutil.rmtree(clone_parent, ignore_errors=True)
         raise
 
 
@@ -342,12 +344,16 @@ def _open_source(
     """Resolve a local path or git URL into a project tree and provenance ref."""
 
     if _is_git_source_spec(source_spec):
+        source_owner_pid = os.getpid()
         clone_root, ref = _clone_git_source(source_spec, paths)
         clone_parent = clone_root.parent
         try:
             yield clone_root, ref
         finally:
-            shutil.rmtree(clone_parent, ignore_errors=True)
+            # A fork child may unwind its inherited context, but pathname
+            # deletion would also destroy the parent's still-live checkout.
+            if source_owner_pid == os.getpid():
+                shutil.rmtree(clone_parent, ignore_errors=True)
         return
     yield _resolve_local_source(source_spec)
 

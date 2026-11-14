@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Catalog-copy development can retain an actual canonical Git checkout through
+  source ownership handoff and record its resolved commit in provenance. Source
+  observations share the copy budget; ended or changed leases refuse. Complete
+  public application and platform qualification remain unfinished. Canonical
+  clone cleanup preserves the parent's checkout when a fork child unwinds an
+  inherited context (#265).
+
 - Retained-layout development can carry an actual completed catalog copy into a
   fresh nonroot source plan, classify its precise imported paths and consume the
   live handoff once. Setup and later phases share the original budget, including

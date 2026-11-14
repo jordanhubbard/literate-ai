@@ -1,0 +1,140 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "7e087729e3863b9e703253880056a3cd18f2cfdc",
+  "scope": "Internal canonical source selector/census correspondence repair, composed with previously reviewed source lease, shared accounting and acquiring-PID clone cleanup.",
+  "lineage": [
+    {
+      "path": "independent-layout-catalog-source-review.json",
+      "sha256": "8a1f66a6089b55097d0ac1a9a0b5d4d8fc83c18e1d1c44363ea399815469d169",
+      "preserved": true
+    },
+    {
+      "path": "independent-layout-catalog-source-fork-supplemental-review.json",
+      "sha256": "cdd483476f085a9ec55c8e8263d9012b5fad6b24620b1d701081ed600cd0fd67",
+      "preserved": true
+    },
+    {
+      "path": "independent-layout-catalog-source-rereview.json",
+      "sha256": "678dbbf6b56daa07d1d2d3b5c5c6f11488546f72f2ae87389d85fc51a2e35b97",
+      "preserved": true
+    },
+    {
+      "path": "independent-layout-catalog-source-correspondence-supplemental-review.json",
+      "sha256": "3e18d44927f722708cd2bf8a45bcc6683bb6b41a23e0711824746083be2916cd",
+      "preserved": true
+    }
+  ],
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "bbe1c831559a3883a1e231cb91350363a12d5597bf054d9942369b73be47ceaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "b1590a148fb58b92edf6e81a317c4389ba896b24f44e2918c157563c0d88025e"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "f72870decc7ed0508ef6d677ea517f883a239d975f7181de74755ed8b6164aaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_provenance_publication.py",
+      "sha256": "b0cf092f2dba0d2a86afc72f3c2a45fb81f65c1549289e3507452b7cbf48ece9"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "840ca1462a0778403161509927bbf7416f6568d349b37d38e722ddd89b94a1ba"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_lease.py",
+      "sha256": "e3607d186d4683ad284cbbaf750d192c3b814dfef2b79bd8712d263d1838e4ab"
+    }
+  ],
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-SOURCE-CORRESPONDENCE-001",
+      "assessment": "Planner now checks selected item/census count, pairs each ordered item/census by enumerate, and requires original census.tree.root equal to the actual current canonical _source_item_dir result before accepting the original census into the fresh plan. No new capture/read, larger allowance or baseline refresh is introduced.",
+      "stage_association": "Stage projection at index+1 now selects an original tree proven to match that selected item's fresh canonical source coordinate. Original census/native objects and usage are retained by identity. Later normal plan currentness compares _KIND_DIR with its acknowledged registry, rejecting persistent subsequent mapping drift.",
+      "qualification": "This closes the specified original selector/census association under the private runtime mapping-change premise. It is not arbitrary concurrent Python mutation atomicity.",
+      "evidence": "New maintained real full-clone/two-candidate source test passes in both independent24-method executions; test attempts fresh plan admission only, not entry effects."
+    }
+  ],
+  "author_causal_evidence_read": [
+    {
+      "path": "_build/catalog-source-correspondence-before.log",
+      "sha256": "71e6bc582f5905a7390c0e18177b38b246aa38efa8814f64a05fd6a69d69805e",
+      "result": "Author predecessor1FAIL3.051s, admitted=True; independently read, not independently rerun."
+    },
+    {
+      "path": "_build/catalog-source-correspondence-after.log",
+      "sha256": "da5599b9b6f52b21189389583099a9a094e69faaf18b01d70f118b5e21e97679",
+      "result": "Author repaired1PASS2.799s; independently read and separately attributed."
+    }
+  ],
+  "independent_executions": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent.log 2>&1",
+      "session": 12266,
+      "exit_code": 1,
+      "tests": 24,
+      "passed": 23,
+      "failed": 0,
+      "errors": 1,
+      "skipped": 0,
+      "seconds": 80.577,
+      "log": "_build/catalog-source-final-independent.log",
+      "sha256": "07c5f0b7ff91a4755c965ca10997dfbbb58eb3c209e01e2ecbf360380d2654f8",
+      "terminal": true,
+      "detail": "Symbolic revision positive errored during catalog entry native move: catalog_copy_roles.apply -> catalog_entry_publication.publish/_publish/_move -> exclusive_entry.move_layout_entry_exclusive.guard -> layout_entry_node two-lstat guard -> ValueError layout.move.entry-changed. Correspondence case and canonical smoke11 passed."
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease.CatalogSourceLeaseTests.test_symbolic_revision_records_actual_resolved_commit > _build/catalog-source-final-symbolic-independent-retry.log 2>&1",
+      "session": 57215,
+      "exit_code": 0,
+      "tests": 1,
+      "passed": 1,
+      "skipped": 0,
+      "seconds": 9.329,
+      "log": "_build/catalog-source-final-symbolic-independent-retry.log",
+      "sha256": "026e50fc43aecbdc9988686afee96aaf253b8efebaa89d42bbd9041c8b215ffe",
+      "terminal": true
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent-replay.log 2>&1",
+      "session": 11012,
+      "exit_code": 0,
+      "tests": 24,
+      "passed": 24,
+      "skipped": 0,
+      "seconds": 79.73,
+      "log": "_build/catalog-source-final-independent-replay.log",
+      "sha256": "8ed023de8164ae20575bf59acaa6479c4c84e32a3e3623727f2084f655584a49",
+      "terminal": true,
+      "detail": "One explicitly requested unchanged complete maintained replay following actual cohort error. No further loop."
+    }
+  ],
+  "execution_qualification": "Original24 failure remains a failed execution. Neither standalone retry nor clean replay relabels it. The native guard's underlying changed node/path cause is unestablished; no guard was relaxed and no cause or corruption inference is made.",
+  "additional_inputs": [
+    {
+      "path": "tests/smoke/test_catalog_import.py",
+      "sha256": "19d1763b0755892cfe9b332d35c316453398ff527109b6748325822cc03384aa"
+    },
+    {
+      "path": "src/literate_ai/adapters/exclusive_entry.py",
+      "sha256": "3910b3bf8c6a6391b40b291dd871c70145ff4d7f8dd76202e2e7e5f9913a178f",
+      "qualification": "Unchanged current dependency; native guard error location."
+    }
+  ],
+  "limits": [
+    "Source association finding closed and one complete unchanged24-method cohort now passed, including13 source cases and11 canonical smoke cases. Prior failed execution remains material retained history.",
+    "No bespoke probes/reproduction scripts or independently rerun predecessor. No broad347 or Make result inferred; earlier broad success precedes this repair.",
+    "Unchanged production subjects retain prior source/cleanup assessment. No blanket default/native/platform stability proof from this scoped replay.",
+    "Canonical cloning storage remains outside copy payload allowance. Local POSIX/file-protocol evidence only; no remote services, isolated installed or cross-platform qualification.",
+    "No continuous hostile snapshot, public/root/shared/cross-item/recovery/full-program/feature/release acceptance.",
+    "All six hashes rechecked unchanged after all executions. No implementation/test/pin edits, installs, network or new agents; previous reports unchanged.",
+    "No independent process remains live. Inspection/execution complete; source safe to unfreeze from reviewer side once parent-owned jobs permit."
+  ]
+}

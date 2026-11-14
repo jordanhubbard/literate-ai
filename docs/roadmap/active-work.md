@@ -33937,8 +33937,23 @@ independent review and the complete combined gate from test one.
   fourteen maintained methods without skips, closing both initial source findings.
   The original review and failing composition runs remain attributed in
   [handoff evidence](../../verification/retained-layout-catalog-handoff-development.json).
-  Next implement authentic Git source-checkout admission and remaining ownership
-  phases, including authored metadata roles before root effects,
+  Authentic Git source-checkout admission now has an independently reviewed
+  internal implementation. Its enclosing canonical acquisition binds the actual resolved
+  commit, pinned checkout and original selected censuses to the same copy ledger;
+  native checks close the stored source lifetime after dependent copy callbacks.
+  Nested teardown ends copy/source admission before canonical clone cleanup.
+  Canonical cloning retains its existing provider policy, separately from the
+  bounded copy observations. Acquiring-PID cleanup preserves a parent's checkout
+  on child unwind, and fresh plans require exact original selector/census roots.
+  All 360 affected author methods and thirteen scoped Make methods pass without
+  skips. Final independent rereview approves the exact six subjects and its
+  unchanged twenty-four-case replay passes. Both repaired source findings and
+  their causal maintained failures remain retained; one earlier independent native
+  entry-change refusal remains unexplained despite passing unchanged replays.
+  Complete source/review limits are retained in
+  [source-lease evidence](../../verification/retained-layout-catalog-source-development.json).
+  Next complete cross-item topology and remaining ownership phases, including authored metadata
+  roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

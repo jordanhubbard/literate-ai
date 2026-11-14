@@ -63,6 +63,7 @@ class CatalogCopyPlan:
     _registry: tuple = field(repr=False)
     _wire: bytes = field(repr=False)
     _usage: tuple[int, int, int, int] = field(repr=False)
+    _source_lease: object | None = field(default=None, repr=False)
 
     @property
     def document(self):
@@ -73,6 +74,8 @@ class CatalogCopyPlan:
         return canonical_identity(self.document)
 
     def require_current(self):
+        if self._source_lease is not None:
+            self._source_lease.require_current()
         ancestry = dict(self._ancestry)
         for census in self._censuses:
             census.require_unchanged()
@@ -120,6 +123,8 @@ class CatalogCopyPlan:
                 _fail("original catalog native facts changed after all traversals")
         if catalog_import._KIND_DIR != dict(self._registry):
             _fail("actual catalog selector mapping changed")
+        if self._source_lease is not None:
+            self._source_lease.close_native()
 
 
 class _Observation:
@@ -278,6 +283,7 @@ def plan_catalog_copy(
     maximum_metadata_bytes,
     overwrite=False,
     _control_ledger=None,
+    _source_lease=None,
 ):
     """Observe exact local inputs before any copy; no network or writes."""
     root, source_root = _root(root), _root(source_root)
@@ -306,6 +312,15 @@ def plan_catalog_copy(
             _fail("catalog selector exceeds the explicit file allowance")
         observation.charge_records(1, 4 * len(spec))
     items = tuple(catalog_import._parse_item_spec(spec) for spec in item_specs)
+    source_censuses = None
+    if _source_lease is not None:
+        from .catalog_source_lease import _censuses
+
+        if _control_ledger is None:
+            _fail("actual source lease requires its creating shared control ledger")
+        source_censuses = _censuses(
+            _source_lease, observation, root, source_root, items
+        )
     if len(catalog_import._KIND_DIR) > budget.maximum_entries:
         _fail("actual selector mapping exceeds the explicit entry allowance")
     for kind, directory in catalog_import._KIND_DIR.items():
@@ -330,8 +345,15 @@ def plan_catalog_copy(
     )
     ancestors = catalog_import._read_source_ancestors(source_root, observation)
     catalog_import.check_dag_safe(root, source_id, ancestors, observation)
-    for kind, name in items:
+    if source_censuses is not None and len(source_censuses) != len(items):
+        _fail("canonical selector/census count differs")
+    for index, (kind, name) in enumerate(items):
         source = catalog_import._source_item_dir(source_root, kind, name)
+        if (
+            source_censuses is not None
+            and source_censuses[index][0].tree.root != source
+        ):
+            _fail("canonical selector/census source coordinate differs")
         destination = catalog_import._dest_item_dir(root, kind, name)
         if source == destination or source.is_relative_to(destination):
             _fail("catalog source overlaps its actual destination")
@@ -342,8 +364,15 @@ def plan_catalog_copy(
                 "catalog.import_conflict",
                 "destination already has selected catalog item",
             )
-        observation.capture(source)
+        if source_censuses is None:
+            observation.capture(source)
+    if source_censuses is not None:
+        for census, native in source_censuses:
+            observation.censuses.append(census)
+            observation.native.append(native)
     wire_bound = 8192 + 12 * (len(source_id.encode()) + len(str(source_root).encode()))
+    if _source_lease is not None:
+        wire_bound += 4096 + 12 * len(_source_lease.reference.encode())
     for path in observation.cache:
         anchor, lineage = observation.ancestry[path]
         wire_bound += 4096 + 12 * (len(str(path).encode()) + len(str(anchor).encode()))
@@ -383,6 +412,9 @@ def plan_catalog_copy(
             for p, i in sorted(observation.cache.items())
         ],
     }
+    if _source_lease is not None:
+        document["source_lease"] = _source_lease.identity.uri
+        document["source_ref"] = _source_lease.reference
     wire = canonical_json_bytes(_physical_wire(document))
     if len(wire) > wire_bound:
         _fail("copy plan serialization exceeds its precharged bound")
@@ -406,6 +438,7 @@ def plan_catalog_copy(
             observation.records,
             observation.charged,
         ),
+        _source_lease,
     )
     plan.require_current()
     if _control_ledger is not None:

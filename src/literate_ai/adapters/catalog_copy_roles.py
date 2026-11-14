@@ -67,6 +67,8 @@ def _binding(record):
         record["nonce"],
         record["descriptor"],
         record["root_node"],
+        record["source_lease"],
+        record["source_lifetime"],
     )
 
 
@@ -87,9 +89,18 @@ def _close_record(owner, record, original):
                 strict=True,
             )
         )
-        or (record["nonce"], record["descriptor"], record["root_node"]) != original[5:]
+        or (
+            record["nonce"],
+            record["descriptor"],
+            record["root_node"],
+            record["source_lease"],
+            record["source_lifetime"],
+        )
+        != original[5:]
     ):
         _fail("original copy producer lifetime or phase ended")
+    if record["source_lease"] is not None:
+        record["source_lease"]._close_lifetime(record["source_lifetime"])
 
 
 def _record(owner, *, ready=False):
@@ -114,6 +125,8 @@ def _record(owner, *, ready=False):
         or _from_stat(record["root"].lstat()) != record["root_node"]
     ):
         _fail("actual producer private root node changed")
+    if record["source_lease"] is not None:
+        record["source_lease"].close_native()
     _close_record(owner, record, original)
     return record
 
@@ -523,6 +536,7 @@ def prepared_catalog_copy_roles(
     copy_journal_budget,
     overwrite=False,
     framework_update=None,
+    _source_lease=None,
 ):
     """Internal producer: apply exact plan, then borrow live roles after teardown.
 
@@ -589,8 +603,23 @@ def prepared_catalog_copy_roles(
 
                 require_update(framework_update).bind(root)
                 framework_identity = framework_update.identity
-            ledger = _Observation(budget, maximum_metadata_bytes, (root, source_root))
-            if framework_update is not None:
+            if _source_lease is None:
+                ledger = _Observation(
+                    budget, maximum_metadata_bytes, (root, source_root)
+                )
+            else:
+                from .catalog_source_lease import _ledger
+
+                ledger = _ledger(
+                    _source_lease,
+                    root,
+                    source_root,
+                    item_specs,
+                    budget,
+                    maximum_metadata_bytes,
+                    framework_update,
+                )
+            if framework_update is not None and _source_lease is None:
                 # The predecessor remains live. Debit its actual retained work
                 # before copy planning; the one sequential peak buffer is shared.
                 ledger.bytes += framework_update._used_bytes
@@ -643,6 +672,7 @@ def prepared_catalog_copy_roles(
                 maximum_metadata_bytes=maximum_metadata_bytes,
                 overwrite=overwrite,
                 _control_ledger=ledger,
+                _source_lease=_source_lease,
             )
             os.mkdir("copies", 0o700, dir_fd=descriptor)
             stages = resources.enter_context(
@@ -671,6 +701,10 @@ def prepared_catalog_copy_roles(
                 "framework_update": framework_update,
                 "framework_identity": framework_identity,
                 "framework_included": framework_update is not None,
+                "source_lease": _source_lease,
+                "source_lifetime": None
+                if _source_lease is None
+                else _source_lease._lifetime(),
             }
             yield owner
             if not _LIVE[owner]["spent"]:

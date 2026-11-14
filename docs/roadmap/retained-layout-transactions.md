@@ -1522,3 +1522,59 @@ The seventeen-module affected regression run passes all 322 methods without
 skips, bringing author coverage with the fourteen handoff methods to 336.
 Next implement remaining source-provider admission and ownership phases, retaining
 all public/platform/full-program requirements above.
+
+### Authentic catalog source checkout
+
+An enclosing canonical source acquisition now supplies a live registered lease
+through actual catalog mutation teardown and the one-use source handoff. Detach
+only its owned clone and bind the actual resolved commit, original HEAD/config/
+index/ref inputs, selected censuses and pinned checkout to the copy plan. On
+macOS, resolve the acquisition's temporary path spelling once before admission
+while verifying the same direct native leaf. All later paths remain direct.
+
+Fund original source observations before project setup effects through the same
+ledger as the copy. Transfer actual selected censuses by identity without resetting
+incurred usage or rereading a new baseline. Debit an actual framework predecessor
+before source I/O and do not debit it again in the nested copy factory. Preserve
+all original witnesses. The copy's final callback-free check closes its stored
+actual source lifetime after dependent native callbacks. Nested teardown revokes
+copy admission, then source admission, before canonical clone cleanup.
+
+Saved source descriptions grant no Git provenance; changed or ended checkouts,
+wrong roots and fabricated actors refuse. Existing local/default behavior and
+canonical Git subprocess limits remain unchanged. Cloning is a separate existing
+provider operation; this does not claim clone storage fits the copy payload budget.
+Thirteen author and thirteen scoped Make methods pass without skips. Final
+independent six-subject review approves the internal dependency; its unchanged
+complete replay passes all twenty-four source-lease/canonical smoke methods.
+The initial macOS path refusal and complete immutable review chain are retained in
+[source-lease evidence](../../verification/retained-layout-catalog-source-development.json).
+All 347 methods in the nineteen-module affected regression run pass without skips,
+bringing final author coverage with the thirteen source-lease methods to 360.
+Next complete remaining cross-item topology and ownership phases. Public/root/recovery/installed/platform
+and full-program acceptance remain required.
+
+Supplemental source audit found an inherited teardown boundary at canonical
+clone cleanup: child-local admission refusal and registry revocation cannot
+authorize deletion of the acquiring parent's still-live source. Both failure and
+normal cleanup now require the actual acquiring PID at the destructive owner.
+A maintained actual fork/unwind case fails on the predecessor and passes after
+repair: child teardown preserves the source, the parent finishes its real copy,
+and parent exit performs normal cleanup. Child descriptor teardown preserves the
+parent's held lock. The original approval and blocking supplement remain intact.
+
+A further source audit found a selector/census correspondence boundary: an
+authenticated original census must match the fresh canonical source coordinate,
+not only the original item labels. If the private runtime selector mapping changes
+during setup, a fresh registry snapshot must not relabel an older captured tree.
+Fresh planning now requires exact count, order and source-root correspondence.
+The maintained setup-boundary case first demonstrates inconsistent plan admission
+on the predecessor, then passes after repair. No entry publication bypass is
+claimed. Final rereview closes both source findings at the exact repaired subjects.
+
+One independent twenty-four-case run reports twenty-three passes and an unchanged
+native two-lstat entry-change refusal in the symbolic-revision positive. Its
+unchanged single-case retry and complete replay pass. The failed run stays failed;
+the underlying changed node/path cause remains unestablished and the native guard
+is unchanged. Diagnose that refusal before complete native/program acceptance;
+successful replays do not establish its cause or resolve it.

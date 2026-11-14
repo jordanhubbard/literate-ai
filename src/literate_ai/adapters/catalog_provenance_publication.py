@@ -44,11 +44,18 @@ def prepare_provenance(stages):
     )
     ancestors = catalog_import._read_source_ancestors(plan.source_root, ledger)
     catalog_import.check_dag_safe(plan.root, source_id, ancestors, ledger)
-    source_root, ref = catalog_import._resolve_local_source(str(plan.source_root))
-    if source_root != plan.source_root:
-        _fail("canonical local source resolved another root")
-    # A local plan has local provenance. A Git ref requires a genuine enclosing
-    # checkout lease, which this internal entry receiver does not yet accept.
+    if plan._source_lease is None:
+        source_root, ref = catalog_import._resolve_local_source(str(plan.source_root))
+        if source_root != plan.source_root:
+            _fail("canonical local source resolved another root")
+    else:
+        plan._source_lease.require_current()
+        ref = plan._source_lease.reference
+        if (plan.document.get("source_lease"), plan.document.get("source_ref")) != (
+            plan._source_lease.identity.uri,
+            ref,
+        ):
+            _fail("actual source lease differs from acknowledged copy plan")
     imports = catalog_import._read_imports(plan.root, ledger)
     original = ledger.cache[plan.root / CatalogImportsFile.PATH]
     parent = (plan.root / CatalogImportsFile.PATH).parent
