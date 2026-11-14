@@ -1103,3 +1103,45 @@ cases. Exact source, fixture provenance and scope are retained in
 [development evidence](../../verification/retained-layout-ast-development.json).
 Cross-runtime syntax identity is separate from installed framework execution,
 native Windows, complete metadata ownership and root/public relocation acceptance.
+
+### Current update metadata roles (in progress)
+
+Framework update application advances `update-bases.json` framework paths and
+upstream blobs while retaining the original initialization origin/baseline. Join
+that actual metadata owner separately from initializer production. Start by
+decoding the already bounded original checkpoint observation through the same
+canonical store parser, rather than reopening the path and adopting later bytes.
+Validate exact producer endpoints and upstream bytes through a bounded current
+provider context. Checkpoint rows, catalog prefixes and matching basenames alone
+must not confer framework ownership. Preserve local overlays and unknown neighbors;
+leave unproven historical/retired roles unresolved until their owners are joined.
+Keep all metadata inputs in the shared budgets and final native closure.
+
+A saved row plus an exact current template digest still cannot establish actual
+adoption. For example, a forged row for a previously absent Windows template could
+claim arbitrary local bytes that the genuine updater would classify as a conflict.
+The next update-role join must therefore receive a process-bound, one-use handoff
+from successful application by the actual updater. Bind the fresh source plan to
+that handoff and its exact post-update checkpoint; release the updater's writer
+lock before yielding read-only provenance, then revalidate after source controls
+are acquired and before consumption. Journal the observation before source effects.
+Saved documents cannot recreate the handoff. Keep ordinary addition-adoption and
+legacy checkpoint/catalog behavior unchanged. Durable restart reconstruction and
+historical overlay lineage remain separate unfinished work.
+
+The canonical observed decoder is now integrated with original initializer-role
+discovery. It validates every checkpoint inventory and blob identity, counts all
+inventory records before decoding payloads, and charges them into the same entry
+and metadata budget as the provider proof. Checkpoint publication still compares
+the original observation to the current path. Six focused parser tests and two
+actual source-phase refusal cases cover stale/absent observations, legacy records,
+malformed catalog metadata and checkpoint record exhaustion. The affected local
+75-method update/ownership/provider run passes without skips; exact source and
+scope are retained in [development evidence](../../verification/retained-layout-checkpoint-observation-development.json).
+Independent review approves this decoder/integration scope after 63 regression
+methods and a separate actual false-ownership control pass. A forged framework
+row containing a genuine public upstream hash still leaves arbitrary local bytes
+unclaimed. The observation bound applies to decoded records; ordinary store
+mutation/publication keeps its existing contract and gains no stronger concurrency
+guarantees from this parser refactor.
+The actual updater-to-source role handoff remains the next implementation action.

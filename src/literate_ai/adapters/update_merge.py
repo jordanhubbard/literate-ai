@@ -53,22 +53,60 @@ class UpdateBases:
             raise ProjectUpdateError(
                 "project.update_base_oversized", "update baseline exceeds byte limit"
             )
-        self.original = path.read_bytes() if path.is_file() else None
+        self._decode(path.read_bytes() if path.is_file() else None)
+
+    @classmethod
+    def from_observed(
+        cls, root: Path, content: bytes | None, *, maximum_entries: int | None = None
+    ) -> UpdateBases:
+        """Decode an already bounded observation without reopening its checkpoint.
+
+        This is store data, not ownership or write authority. Publication still
+        requires the original bytes to match the actual current checkpoint.
+        """
+        result = cls.__new__(cls)
+        result.root = root
+        result._decode(content, maximum_entries=maximum_entries)
+        return result
+
+    def _decode(
+        self, content: bytes | None, *, maximum_entries: int | None = None
+    ) -> None:
+        from .project_updates import ProjectUpdateError
+
+        root = self.root
+        self.original = content
         self.blobs: dict[str, bytes] = {}
         self.scopes: dict[str, dict[str, str]] = {"framework": {}, "catalog": {}}
         self.sources: dict[str, str] = {}
         self.created_directories: list[Path] = []
+        self.entry_count = 0
+        if maximum_entries is not None and (
+            type(maximum_entries) is not int or maximum_entries < 0
+        ):
+            raise ProjectUpdateError(
+                "project.update_base_invalid", "invalid entry bound"
+            )
         if self.original is None:
             return
         try:
+            if not isinstance(self.original, bytes):
+                raise ValueError("checkpoint observation must contain bytes")
             if len(self.original) > MAX_BYTES:
                 raise ValueError("checkpoint exceeds byte limit")
             value = json.loads(self.original)
             if (
-                set(value) != {"schema", "blobs", "framework", "catalog", "sources"}
+                not isinstance(value, dict)
+                or set(value) != {"schema", "blobs", "framework", "catalog", "sources"}
                 or value["schema"] != SCHEMA
             ):
                 raise ValueError("unsupported checkpoint")
+            inventories = (*self.scopes, "blobs", "sources")
+            if any(not isinstance(value[key], dict) for key in inventories):
+                raise ValueError("checkpoint inventories must be mappings")
+            self.entry_count = sum(len(value[key]) for key in inventories)
+            if maximum_entries is not None and self.entry_count > maximum_entries:
+                raise ValueError("checkpoint entries exceed the explicit bound")
             for key, encoded in value["blobs"].items():
                 content = base64.b64decode(encoded, validate=True)
                 if digest(content) != key:

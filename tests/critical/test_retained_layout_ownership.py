@@ -298,6 +298,37 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
                     self.fail("missing original selection supplied ownership")
         self.assertTrue((self.source / "app.py").is_file())
 
+    def test_invalid_catalog_checkpoint_refuses_before_source_effect(self):
+        path = self.project / ".literate/update-bases.json"
+        bases = json.loads(path.read_bytes())
+        bases["catalog"] = []
+        path.write_bytes(canonical_json_bytes(bases) + b"\n")
+        with self.inspecting() as phase:
+            with self.assertRaisesRegex(ValueError, "inventories must be mappings"):
+                with self.observe(phase):
+                    self.fail("partial checkpoint parsing supplied ownership")
+        self.assertTrue((self.source / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
+
+    def test_checkpoint_records_share_entry_budget_before_blob_decoding(self):
+        from literate_ai.adapters import update_merge
+
+        path = self.project / ".literate/update-bases.json"
+        bases = json.loads(path.read_bytes())
+        bases["sources"] = {
+            f"components/import-{index}/component.md": "git:example.invalid/source"
+            for index in range(self.namespace_budget.maximum_entries)
+        }
+        path.write_bytes(canonical_json_bytes(bases) + b"\n")
+        with self.inspecting() as phase:
+            with mock.patch.object(update_merge.base64, "b64decode") as decode:
+                with self.assertRaisesRegex(ValueError, "entries exceed"):
+                    with self.observe(phase):
+                        self.fail("checkpoint records escaped the shared budget")
+            decode.assert_not_called()
+        self.assertTrue((self.source / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
+
     def test_alias_to_actual_control_is_not_unclaimed_source(self):
         with self.inspecting() as phase:
             (self.project / "control-alias").symlink_to("litai/layout.pending")

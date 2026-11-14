@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained-layout ownership validates observed update checkpoints through the
+  canonical parser and includes their records in the shared metadata budget,
+  preserving legacy update data and changed checkpoint bytes (#265).
+
 - Retained-layout producer fingerprints use a versioned structural encoding so
   the same reviewed helper transitions work across Python 3.11 through 3.14 (#265).
 

@@ -7,7 +7,6 @@ supplies no root movement, qualified execution, or recoverable saved permission.
 
 from __future__ import annotations
 
-import base64
 import hashlib
 import json
 import os
@@ -44,8 +43,7 @@ from .repository_refresh import _file, _signature
 from .retained_layout import RETAINED_LAYOUT_PATH
 from .retained_layout_partition import capture_retained_layout_partition
 from .retained_layout_provider import original_initializer_roster
-from .update_merge import CHECKPOINT
-from .update_merge import SCHEMA as UPDATE_BASES_SCHEMA
+from .update_merge import CHECKPOINT, UpdateBases
 
 _KEY = object()
 _ORIGIN = ".literate/initialization-origin.json"
@@ -124,18 +122,24 @@ def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_che
     )
     if manifest is None:
         _fail("original initializer manifest is missing")
-    bases = json.loads(snapshot(root / CHECKPOINT).content)
-    if (
-        not isinstance(bases, dict)
-        or set(bases) != {"schema", "blobs", "framework", "catalog", "sources"}
-        or bases["schema"] != UPDATE_BASES_SCHEMA
-        or not isinstance(bases["blobs"], dict)
-    ):
-        _fail("original initializer manifest requires canonical update bases")
-    encoded = bases["blobs"].get(manifest.identity.uri)
-    if not isinstance(encoded, str):
+    checkpoint = snapshot(root / CHECKPOINT)
+    limit = min(maximum_entries - len(cache), (metadata_limit - charged) // 4096)
+    if limit < 0:
+        _fail("canonical checkpoint exceeds ownership metadata budget")
+    try:
+        bases = UpdateBases.from_observed(
+            root, checkpoint.content, maximum_entries=limit
+        )
+    except ValueError as error:
+        _fail(
+            "original initializer manifest bytes disagree with canonical checkpoint: "
+            + str(error)
+        )
+    charged += 4096 * bases.entry_count
+    provider_entries += bases.entry_count
+    original = bases.get(manifest.identity)
+    if original is None:
         _fail("original initializer manifest bytes are missing")
-    original = base64.b64decode(encoded, validate=True)
     if (
         len(original) != manifest.size
         or "sha256:" + hashlib.sha256(original).hexdigest() != manifest.identity.uri
@@ -148,10 +152,11 @@ def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_che
         or origin != discover_installed_initialization_origin()
     ):
         remaining_files = budget.maximum_files - len(cache)
-        remaining_entries = budget.maximum_entries - len(cache)
+        remaining_entries = budget.maximum_entries - len(cache) - provider_entries
         remaining_bytes = budget.maximum_total_bytes - payload_bytes
         if min(remaining_files, remaining_entries, remaining_bytes) < 1:
             _fail("ownership inputs leave no original provider budget")
+        remaining_files = min(remaining_files, remaining_entries)
         file_limit = min(budget.maximum_file_bytes, remaining_bytes)
         provider_budget = RetainedCargoInputBudget(
             remaining_files,
@@ -171,7 +176,7 @@ def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_che
         charged += provider.objects.charged
         payload_bytes += provider.objects.total
         provider_files = provider.objects.file_count
-        provider_entries = provider.objects.entries
+        provider_entries += provider.objects.entries
     active_flavors = set()
     for selector in () if provider is not None else definition.default_flavor_selectors:
         selector = selector.removeprefix("+")
