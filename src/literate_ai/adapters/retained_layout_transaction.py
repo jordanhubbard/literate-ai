@@ -239,11 +239,24 @@ def _native_tree(tree):
     return tuple(records)
 
 
-def _close_tree(tree, native, *, controls=None, _source_preparation=None):
+def _close_tree(
+    tree,
+    native,
+    *,
+    controls=None,
+    _source_preparation=None,
+    _admitted_source_phase=None,
+):
     # Namespace and native facts only, after the last journal/logical input reads.
     # Full directory stamps close insertion/removal, not just directory identity.
     if controls is not None and type(controls) is not _ControlRolesLease:
         _fail("actual live controls required for dependency closure")
+    if _admitted_source_phase is not None:
+        from .retained_layout_source_admission import _require_admitted_tree
+
+        if _source_preparation is not None:
+            _fail("one actual source closure participant required")
+        _require_admitted_tree(_admitted_source_phase, tree, native, controls)
     if _source_preparation is not None:
         from .retained_layout_source_preparation import _require_preparation_tree
 
@@ -291,6 +304,10 @@ def _close_tree(tree, native, *, controls=None, _source_preparation=None):
             controls.reservations._close_currentness()
             controls.git.close_native_inputs(controls.reservations)
             controls._seed.close_native_inputs()
+        if _admitted_source_phase is not None:
+            from .retained_layout_source_admission import _close_admitted_inputs
+
+            _close_admitted_inputs(_admitted_source_phase, tree, native)
         # Read files first, deepest directories before their ancestors, root last.
         ordered = sorted(
             native,
@@ -813,12 +830,16 @@ class _SourcePhase:
         self._finalized = False
         self._retirement_area = None
         self._partition_owner = None
+        self._preparation = None
 
     def _live(self):
         if not self._active or self._pid != os.getpid():
             _fail("transaction context ended")
         if self.plan.identity != self._prepared_identity:
             _fail("live acknowledged transaction plan changed")
+        from .retained_layout_source_admission import _phase_record
+
+        _phase_record(self)
 
     def _require_moved(self):
         self._live()
@@ -871,6 +892,9 @@ class _SourcePhase:
         still required. Only this live owner's actual effects advance currentness.
         """
         self._live()
+        from .retained_layout_source_admission import _refuse_unfunded_effects
+
+        _refuse_unfunded_effects(self)
         if self._metadata_attempted:
             _fail("metadata publication already attempted; explicit recovery required")
         self._require_moved()
@@ -1052,6 +1076,9 @@ class _SourcePhase:
     def finalize_controls(self, private_root):
         """Report errors after the durable commit attempt without implying rollback."""
         self._live()
+        from .retained_layout_source_admission import _refuse_unfunded_effects
+
+        _refuse_unfunded_effects(self)
         if self._finalization_started or not self._metadata_published:
             _fail("actual published metadata and unspent finalization required")
         try:
@@ -1068,6 +1095,9 @@ class _SourcePhase:
         placeholders under their original held OS locks. Pending retires last.
         """
         self._live()
+        from .retained_layout_source_admission import _refuse_unfunded_effects
+
+        _refuse_unfunded_effects(self)
         if self._finalization_started or not self._metadata_published:
             _fail("actual published metadata and unspent finalization required")
         self._require_moved()
@@ -1231,6 +1261,9 @@ class _SourcePhase:
         *,
         quarantine,
     ):
+        from .retained_layout_source_admission import _refuse_unfunded_effects
+
+        _refuse_unfunded_effects(self)
         journal = self.pool._journal
         kind = "metadata-quarantine" if quarantine else "metadata-publication"
         data = {
@@ -1319,6 +1352,9 @@ class _SourcePhase:
 
     def move_source(self):
         self._live()
+        from .retained_layout_source_admission import _refuse_unfunded_effects
+
+        _refuse_unfunded_effects(self)
         if not self._active or self._pid != os.getpid() or self._attempted:
             _fail("source phase ended or was already attempted")
         self.controls.require_initial_inputs()
@@ -1447,11 +1483,17 @@ class _SourcePhase:
 
 @contextmanager
 def retained_layout_source_phase(
-    plan, pool, *, acknowledged_plan_identity, allow_host_execution=False
+    plan,
+    pool,
+    *,
+    acknowledged_plan_identity,
+    allow_host_execution=False,
+    preparation=None,
 ):
     """Own the real source phase; normal exit cannot claim complete relocation."""
     if (
-        type(plan) is not _SourceMovePlan
+        type(plan)
+        is not (_SourceMovePlan if preparation is None else _PreparedSourceMovePlan)
         or acknowledged_plan_identity != plan.identity
         or allow_host_execution is not True
     ):
@@ -1459,6 +1501,65 @@ def retained_layout_source_phase(
             "exact source phase acknowledgement and host execution "
             "authorization required"
         )
+    if preparation is not None:
+        from .retained_layout_source_admission import _admit_preparation
+
+        with _admit_preparation(preparation, plan, pool):
+            with _source_phase_context(plan, pool, preparation=preparation) as phase:
+                yield phase
+    else:
+        with _source_phase_context(plan, pool) as phase:
+            yield phase
+
+
+@contextmanager
+def _source_phase_context(plan, pool, *, preparation=None):
+    from contextlib import nullcontext
+
+    from .retained_layout_source_admission import (
+        _bind_phase,
+        _control_reads,
+        _revoke_phase,
+    )
+
+    scope = nullcontext() if preparation is None else _control_reads(preparation, pool)
+    with scope:
+        _require_source_phase_resources(plan, pool)
+    phase = None
+    try:
+        with acquire_retained_layout_control_roles(
+            plan.root, pool, _source_participant=preparation
+        ) as controls:
+            phase = _SourcePhase(_KEY, plan, controls, pool)
+            try:
+                if preparation is not None:
+                    _bind_phase(preparation, phase)
+                    preparation.require_current()
+                with ExitStack() as resources:
+                    phase._resources = resources
+                    try:
+                        yield phase
+                        if phase._finalized:
+                            phase._require_committed_outputs()
+                            phase.controls.reservations.verify_finalized()
+                        else:
+                            _fail(
+                                "source phase remains incomplete; "
+                                "metadata/finalization/recovery owner required"
+                            )
+                    finally:
+                        phase._active = False
+                        _revoke_phase(phase)
+            finally:
+                phase._active = False
+                _revoke_phase(phase)
+    except BaseException as error:
+        if phase is not None:
+            phase._raise_commit_outcome(error)
+        raise
+
+
+def _require_source_phase_resources(plan, pool):
     pool.require_current()
     header = json.loads(pool._journal._known["header.json"][1])
     if header["binding"] != plan.binding:
@@ -1473,30 +1574,3 @@ def retained_layout_source_phase(
     ):
         _fail("private journal/stages overlap retained source")
     _require_prepared(plan)
-    phase = None
-    try:
-        with acquire_retained_layout_control_roles(plan.root, pool) as controls:
-            phase = _SourcePhase(_KEY, plan, controls, pool)
-            try:
-                with ExitStack() as resources:
-                    phase._resources = resources
-                    try:
-                        yield phase
-                        if phase._finalized:
-                            phase._require_committed_outputs()
-                            phase.controls.reservations.verify_finalized()
-                        else:
-                            _fail(
-                                "source phase remains incomplete; "
-                                "metadata/finalization/recovery owner required"
-                            )
-                    finally:
-                        # Revoke every borrowed writer before any original FD can
-                        # close and its integer slot can be reused by another owner.
-                        phase._active = False
-            finally:
-                phase._active = False
-    except BaseException as error:
-        if phase is not None:
-            phase._raise_commit_outcome(error)
-        raise

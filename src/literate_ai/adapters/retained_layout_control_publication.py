@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import os
 import stat
+import threading
 import unicodedata
 from contextlib import ExitStack, contextmanager
 from dataclasses import asdict, dataclass
@@ -31,6 +32,35 @@ from .retained_layout_partition import _physical_wire
 _KEY = object()
 _DIRECTORY_FLAGS = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
 _DIRECTORY_FLAGS |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+
+
+_LIVE_POOLS = {}
+
+
+def _close_control_pool_admission(pool, original):
+    if (
+        _LIVE_POOLS.get(pool) is not original
+        or original[0] != os.getpid()
+        or original[1] != threading.get_ident()
+        or original[2] != pool._descriptor
+        or original[3] is not pool._guard
+        or original[4] is not pool._journal
+        or original[5] != pool._maximum_entries
+        or original[6] != pool.root
+    ):
+        raise ValueError("layout.control.original-live-pool-required")
+
+
+def _require_live_control_pool(pool):
+    if type(pool) is not _ControlPool or pool not in _LIVE_POOLS:
+        raise TypeError("layout.control.actual-live-pool-required")
+    original = _LIVE_POOLS[pool]
+    _close_control_pool_admission(pool, original)
+    if pool._poisoned:
+        raise ValueError("layout.control.publication-interrupted")
+    pool._guard()
+    _close_control_pool_admission(pool, original)
+    return original
 
 
 class StagedLayoutControl:
@@ -365,6 +395,15 @@ def staged_layout_controls(root, journal, *, maximum_entries=64):
 
         try:
             pool = _ControlPool(root, descriptor, guard, journal, maximum_entries)
+            _LIVE_POOLS[pool] = (
+                os.getpid(),
+                threading.get_ident(),
+                descriptor,
+                guard,
+                journal,
+                maximum_entries,
+                root,
+            )
             pool.require_current()
             os.fsync(descriptor)
             with _pinned_directory(root.parent) as (parent_fd, current):
@@ -373,4 +412,6 @@ def staged_layout_controls(root, journal, *, maximum_entries=64):
             yield pool
             pool.require_current()
         finally:
+            if "pool" in locals():
+                _LIVE_POOLS.pop(pool, None)
             active = False

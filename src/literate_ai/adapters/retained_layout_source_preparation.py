@@ -240,6 +240,10 @@ class _SourcePreparation:
             raise
 
     def require_current(self):
+        from .retained_layout_source_admission import _require_admitted_current
+
+        if _require_admitted_current(self):
+            return
         original = _state(self)
         catalog_lifetime = None
         try:
@@ -280,6 +284,19 @@ class _SourcePreparation:
         except BaseException:
             _LIVE.pop(self, None)
             raise
+
+    def source_phase(
+        self, pool, *, acknowledged_plan_identity, allow_host_execution=False
+    ):
+        from .retained_layout_transaction import retained_layout_source_phase
+
+        return retained_layout_source_phase(
+            self.plan,
+            pool,
+            acknowledged_plan_identity=acknowledged_plan_identity,
+            allow_host_execution=allow_host_execution,
+            preparation=self,
+        )
 
 
 @contextmanager

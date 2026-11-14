@@ -160,7 +160,11 @@ class _Observation:
         self.charged += 4096 * count + 64 * size
         self.require_capacity()
 
-    def capture(self, root, *, _known_names=None, _source_roots=None):
+    def capture(
+        self, root, *, _known_names=None, _source_roots=None, _framework_files=()
+    ):
+        if _framework_files and (_known_names is not None or _source_roots is not None):
+            _fail("whole-project labels cannot select a source forest/private roster")
         if _source_roots is not None:
             from . import catalog_source_forest, retained_cargo_tree_v2
 
@@ -188,7 +192,10 @@ class _Observation:
         )
         if _source_roots is None:
             census = capture_retained_layout_partition(
-                root, framework_files=(), budget=budget, maximum_metadata_bytes=metadata
+                root,
+                framework_files=_framework_files,
+                budget=budget,
+                maximum_metadata_bytes=metadata,
             )
         else:
             from .catalog_source_forest import capture_catalog_source_forest

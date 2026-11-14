@@ -49,6 +49,16 @@ def _catalog_scope(ledger):
     )
 
 
+def _control_read_scope(ledger, source, pool, *, cleanup=False):
+    if source is None:
+        return _catalog_scope(ledger)
+    if ledger is not None:
+        raise TypeError("one actual control read participant required")
+    from .retained_layout_source_admission import _control_reads
+
+    return _control_reads(source, pool, cleanup=cleanup)
+
+
 def _require_catalog_ledger(ledger, root):
     record = _CATALOG_READS.get(ledger)
     if record is None or record[1] != threading.get_ident():
@@ -312,7 +322,9 @@ class _ControlRolesLease:
 
 
 @contextmanager
-def acquire_retained_layout_control_roles(project_root, pool, *, _catalog_ledger=None):
+def acquire_retained_layout_control_roles(
+    project_root, pool, *, _catalog_ledger=None, _source_participant=None
+):
     """Derive and acquire actual roles; no caller-supplied target-role labels.
 
     Hold only one real descriptor for each canonical advisory mutex. The caller
@@ -324,12 +336,12 @@ def acquire_retained_layout_control_roles(project_root, pool, *, _catalog_ledger
         _fail("project root must be direct and absolute")
     resources, lease = ExitStack(), None
     try:
-        with _catalog_scope(_catalog_ledger):
+        with _control_read_scope(_catalog_ledger, _source_participant, pool):
             seed = _project_roles(root)
             git = observe_layout_git_controls(root)
             seed.require_initial_inputs()
             git.require_unchanged()
-        with _catalog_scope(_catalog_ledger):
+        with _control_read_scope(_catalog_ledger, _source_participant, pool):
             owned = resources.enter_context(
                 acquire_staged_layout_reservations(pool, seed.targets() + git.targets())
             )
@@ -338,16 +350,24 @@ def acquire_retained_layout_control_roles(project_root, pool, *, _catalog_ledger
             if _catalog_ledger is not None:
                 _CATALOG_READS[_catalog_ledger] = [lease, threading.get_ident(), None]
             _advance_control_observations(lease, _catalog_ledger)
+            if _source_participant is not None:
+                from .retained_layout_source_admission import _accept_controls
+
+                _accept_controls(_source_participant, pool, lease)
             lease.require_initial_inputs()
         try:
             yield lease
         except BaseException:
-            with _catalog_scope(_catalog_ledger):
+            with _control_read_scope(
+                _catalog_ledger, _source_participant, pool, cleanup=True
+            ):
                 _revoke_control_admission(lease, _catalog_ledger)
                 resources.__exit__(*sys.exc_info())
                 raise
         else:
-            with _catalog_scope(_catalog_ledger):
+            with _control_read_scope(
+                _catalog_ledger, _source_participant, pool, cleanup=True
+            ):
                 if lease._finalizing:
                     owned.verify_finalized()
                 else:

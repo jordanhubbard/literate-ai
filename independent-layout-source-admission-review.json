@@ -1,0 +1,88 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_observation_admission_scope",
+  "review_mode": "source-only; no independent tests or probes",
+  "base_commit": "4432012fcff21ea17962a904eff0beb7bce177d3",
+  "reviewer": "guard_review",
+  "record_origin": "Transcribed from independent reviewer messages; final subject digests recomputed and compared by author.",
+  "scope": "Actual preparation -> canonical control acquisition -> complete partition observation under the same original ledger. Effects and partition consumption remain guarded.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "961b25c95bb64e7480567b718f7f54e4bd88659113c0ed9bff67d08f4f03726d"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "35a4cf44a920e00ad4c10a18317aab6bbc6fd0b503b19990de878303ecc741fd"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_publication.py",
+      "sha256": "d8594bc0f6a10795cc2073e3d65621b0515dc995b7e92ae9f175eceb6ee712a8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "f06e662305123322dec6b2663715fcd69e512113c712d0b8f74f234ee020fb74"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_journal.py",
+      "sha256": "85a6fd629a4f7ece4b395802c89e3953b9ef2b581f5b8663fae08571563f3aab"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "2feb6328cba6d11564e8e122eada2473ee8c10ba208cabc27336744f604b9370"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_reservations.py",
+      "sha256": "5010fb05be095addca92601b60e37d1ced27d050abe3cd460f23c9ff94d110fa"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_preparation.py",
+      "sha256": "47f32163425585bb65320632dd1c6ed8c7cbc1904e052bb369fdb8dd64d634c8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "14cd289419879726b995e3e01fccf1b947fa3681081ac522134830ade00494ae"
+    },
+    {
+      "path": "src/literate_ai/adapters/standard_lifecycle_binding.py",
+      "sha256": "a4ac77654b3de4406589936faca5b32af6c559f6a5500fdae15d07494ec17c98"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_admission.py",
+      "sha256": "6f7ac4224ae5587eeaeb083bf115ccb4a9396aaec78c90d3ec2e8af5f84b94c9"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_source_admission.py",
+      "sha256": "d0300baa77e6a0311c05755a03b68c2152f8aa6441a73869fc98a752c39e2df6"
+    }
+  ],
+  "review_chain": [
+    {
+      "decision": "changes_requested",
+      "findings": [
+        "Admitted currentness omitted actual predecessor require_current calls.",
+        "Installed-origin discovery still used legacy unbounded Git capture outside the shared ledger.",
+        "Created control parents left cached absent-input ancestry stale."
+      ],
+      "resolution": "Original producer currentness restored; original bounded installed-origin reader; ancestry advances only from actual staged-directory receipts and held native descriptors."
+    },
+    {
+      "decision": "changes_requested",
+      "finding": "Lexical private-resource separation admits alternate project casing before canonical control acquisition.",
+      "resolution": "Same-reader funded native ancestry and actual held factory FD leaf checks reject physical overlap before acquisition."
+    },
+    {
+      "decision": "approved_at_limited_observation_admission_scope",
+      "assessment": "All prior findings closed; no remaining blocker identified within limited observation admission."
+    }
+  ],
+  "findings": [],
+  "independent_dynamic_qualification": false,
+  "open_scope": [
+    "Partition consumption and verified source/control/metadata effects",
+    "Canonical authored-role completion and external-provider shared observations",
+    "Normal nonroot movement and finalization",
+    "Root/shared/initial/wrapper/public recovery",
+    "Installed/native/cross-platform/integration/release and full-roadmap acceptance"
+  ]
+}

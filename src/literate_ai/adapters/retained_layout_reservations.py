@@ -389,6 +389,9 @@ class _StagedReservationSet(WriteReservationSet):
 
     def begin_finalization(self, retirement_root):
         """One-way live control handoff, never a source/commit authorization."""
+        from .retained_layout_source_admission import _refuse_unfunded_disposition
+
+        _refuse_unfunded_disposition(self)
         self._unhanded()
         self.verify_all()
         if self._finishing:
@@ -443,6 +446,9 @@ class _StagedReservationSet(WriteReservationSet):
         self._finishing = True
 
     def normalize_advisory(self, path):
+        from .retained_layout_source_admission import _refuse_unfunded_disposition
+
+        _refuse_unfunded_disposition(self)
         self._unhanded()
         self.verify_all()
         if not self._finishing or self._finalized:
@@ -492,6 +498,9 @@ class _StagedReservationSet(WriteReservationSet):
 
     def retire_native(self, path):
         """Quarantine one exact native marker; never delete or replace it."""
+        from .retained_layout_source_admission import _refuse_unfunded_disposition
+
+        _refuse_unfunded_disposition(self)
         self._unhanded()
         self.verify_all()
         if not self._finishing or self._finalized or path in self._locations:

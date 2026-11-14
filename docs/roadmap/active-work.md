@@ -33983,9 +33983,18 @@ independent review and the complete combined gate from test one.
   independent source review is limited to planning.
   [Preparation evidence](../../verification/retained-layout-source-preparation-development.json)
   retains the original failed controls, corrections and open acceptance. Funded
-  descriptions remain refused by the legacy effect entry. Next join the actual
-  preparation to source-phase admission and retain its ledger through complete
-  partition consumption and verified control/metadata expectation advancement.
+  descriptions remain refused by the legacy effect entry. The actual preparation
+  now participates in canonical control acquisition and complete partition
+  observation under its original ledger. Control expectations advance from held
+  native publication receipts; private-resource native ancestry is checked before
+  acquisition. Original producer currentness and bounded installed-origin reads
+  remain active through observation. Next retain this same ledger through actual
+  partition consumption and verified source/control/metadata effects, which remain
+  guarded until their transitions participate in the original operation.
+  Fourteen scoped Make controls and a separate 357-method affected regression
+  cohort pass without skips. Independent source rereview approves this observation
+  scope after four findings; see
+  [observation-admission evidence](../../verification/retained-layout-source-admission-development.json).
   Then join
   authored metadata roles before root effects, preserving the transport
   limitation for complete execution qualification,

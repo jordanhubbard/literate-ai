@@ -31,6 +31,7 @@ _LABEL = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
 _STAGE = re.compile(r"s-[0-9a-f]{32}\Z")
 _LIVE_WRITERS = {}
+_LIVE_ROOTS = {}
 
 
 def _close_live_journal_admission(writer, original):
@@ -312,6 +313,9 @@ class _LayoutJournalWriter:
         return digest
 
     def append(self, kind, canonical_data):
+        from .retained_layout_source_admission import _fund_journal_document
+
+        _fund_journal_document(self, canonical_data)
         self.require_current()
         if (
             type(kind) is not str
@@ -527,11 +531,13 @@ def retained_layout_journal(
                 os.fsync(parent_fd)
                 writer.require_current()
                 _LIVE_WRITERS[writer] = (descriptor, guard, budget, receiver_pid)
+                _LIVE_ROOTS[writer] = path
                 try:
                     yield writer
                     writer.require_current()
                 finally:
                     _LIVE_WRITERS.pop(writer, None)
+                    _LIVE_ROOTS.pop(writer, None)
                     # Revoke before the real writer lock or ancestry FDs close.
                     active = False
         finally:

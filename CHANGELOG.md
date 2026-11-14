@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development can carry its actual source preparation into
+  canonical control acquisition and complete partition observation under one
+  original allowance. Private-resource aliases refuse before acquisition, and
+  control expectations advance from held native receipts. Source movement,
+  metadata publication and finalization integration remain unfinished (#265).
+
 - Retained-layout development can fund source discovery and capture under one
   persistent read operation, retain original observations across sequential
   activations and charge genuine predecessor usage once. Late source, metadata,

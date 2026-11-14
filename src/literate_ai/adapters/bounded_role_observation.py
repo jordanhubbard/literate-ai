@@ -161,7 +161,7 @@ class _RoleObservation:
             self._poisoned = True
             raise
 
-    def git(self, root, arguments, *, timeout_seconds):
+    def git(self, root, arguments, *, timeout_seconds, _maximum_output_bytes=None):
         from .repository_orchestration import _raw_git
 
         self._live()
@@ -176,6 +176,13 @@ class _RoleObservation:
             - error_limit,
             (ledger.metadata - ledger.charged) // 64 - error_limit,
         )
+        if _maximum_output_bytes is not None:
+            if (
+                type(_maximum_output_bytes) is not int
+                or not 1 <= _maximum_output_bytes <= 8 * 1024**2
+            ):
+                raise ValueError("canonical Git read ceiling cannot be enlarged")
+            limit = min(limit, _maximum_output_bytes)
         if limit < 1:
             self._poisoned = True
             _fail("Git output has no remaining shared allowance")
@@ -228,14 +235,19 @@ class _RoleObservation:
 
     def close_native_inputs(self):
         """Close only original named facts after all dependent payload reads."""
+        self._live()
+        if current_role_observation() is not self:
+            _fail("actual active canonical read scope required")
+        self._close_native_inputs()
+
+    def _close_native_inputs(self):
+        """Original named native facts; no payload reads or activation grant."""
         from .catalog_copy_plan import _anchor
         from .repository_refresh import _signature
         from .retained_layout_git_controls import _presence
         from .retained_layout_partition import _lineage
 
         self._live()
-        if current_role_observation() is not self:
-            _fail("actual active canonical read scope required")
         for path, expected in self._lineages.items():
             if _lineage(path) != expected:
                 _fail("original role ancestry changed")

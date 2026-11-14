@@ -72,6 +72,7 @@ def _initializer_roles(
     provider_checkout,
     retired=(),
     current_origin=None,
+    _source_admission=None,
 ):
     root = phase.plan.root
     maximum_entries = budget.maximum_entries
@@ -79,6 +80,16 @@ def _initializer_roles(
     charged = 0
     payload_bytes = 0
     provider_files = provider_entries = 0
+
+    def parse(content, label):
+        from .bounded_role_observation import current_role_observation
+
+        reader = current_role_observation()
+        return (
+            json.loads(content)
+            if reader is None
+            else reader.json_value(content, str(root / label))
+        )
 
     def snapshot(path, *, optional=False):
         nonlocal charged, payload_bytes
@@ -117,9 +128,11 @@ def _initializer_roles(
         )
     )
     values = {item.path.relative_to(root).as_posix(): item for item in inputs}
-    origin = ProjectInitializationOrigin.from_dict(json.loads(values[_ORIGIN].content))
+    origin = ProjectInitializationOrigin.from_dict(
+        parse(values[_ORIGIN].content, _ORIGIN)
+    )
     baseline = ProjectInitializationBaseline.from_dict(
-        json.loads(values[_BASELINE].content)
+        parse(values[_BASELINE].content, _BASELINE)
     )
     if (
         baseline.origin_identity != origin.identity
@@ -135,6 +148,8 @@ def _initializer_roles(
     if manifest is None:
         _fail("original initializer manifest is missing")
     checkpoint = snapshot(root / CHECKPOINT)
+    if _source_admission is not None:
+        parse(checkpoint.content, CHECKPOINT)
     limit = min(maximum_entries - len(cache), (metadata_limit - charged) // 4096)
     if limit < 0:
         _fail("canonical checkpoint exceeds ownership metadata budget")
@@ -157,13 +172,15 @@ def _initializer_roles(
         or "sha256:" + hashlib.sha256(original).hexdigest() != manifest.identity.uri
     ):
         _fail("original initializer manifest bytes disagree with their identity")
-    definition = ProjectDefinition.from_dict(json.loads(original))
+    definition = ProjectDefinition.from_dict(parse(original, "initializer-project"))
     provider = None
     if provider_checkout is not None or origin != (
         discover_installed_initialization_origin()
         if current_origin is None
         else current_origin
     ):
+        if _source_admission is not None:
+            _fail("original provider requires an actual shared observation participant")
         remaining_files = budget.maximum_files - len(cache)
         remaining_entries = budget.maximum_entries - len(cache) - provider_entries
         remaining_bytes = budget.maximum_total_bytes - payload_bytes
@@ -209,8 +226,8 @@ def _initializer_roles(
     # never emits the hello starter, even when its caller requested one.
     allowed.update(
         legacy_shim_authority(
-            json.loads(values[_INVENTORY].content),
-            json.loads(values[_REPORT].content),
+            parse(values[_INVENTORY].content, _INVENTORY),
+            parse(values[_REPORT].content, _REPORT),
             wrapper_component=phase.plan.layout.wrapper_component,
         )
     )
@@ -441,6 +458,15 @@ class _OwnedPartition:
         return self._directories
 
     def require_current(self):
+        from .retained_layout_source_admission import _partition_current, _phase_record
+
+        if _phase_record(self._phase) is not None:
+            _partition_current(self)
+        else:
+            self._require_current_inputs()
+
+    def _require_current_inputs(self):
+        from .retained_layout_source_admission import _origin_for_phase
         from .retained_layout_transaction import _close_tree, _require_prepared
 
         if not self._active or self._spent or self._pid != os.getpid():
@@ -457,7 +483,7 @@ class _OwnedPartition:
         if self._provider is not None:
             self._provider.require_current()
         elif self._provider_origin != (
-            discover_installed_initialization_origin()
+            _origin_for_phase(self._phase)
             if self._framework_update is None
             else self._framework_update._provider_origin
         ):
@@ -521,6 +547,9 @@ class _OwnedPartition:
         return self._identity
 
     def _consume(self):
+        from .retained_layout_source_admission import _refuse_unfunded_effects
+
+        _refuse_unfunded_effects(self._phase)
         self.require_current()
         if self._framework_update is not None:
             self._framework_update.spend()
@@ -540,6 +569,22 @@ def _owned_partition(
     framework_update=None,
     catalog_copy=None,
 ):
+    from .retained_layout_source_admission import (
+        _admitted_partition,
+        _phase_record,
+    )
+
+    if _phase_record(phase) is not None:
+        with _admitted_partition(
+            phase,
+            budget=budget,
+            maximum_metadata_bytes=maximum_metadata_bytes,
+            provider_checkout=provider_checkout,
+            framework_update=framework_update,
+            catalog_copy=catalog_copy,
+        ) as owner:
+            yield owner
+        return
     with ExitStack() as providers:
         with _partition_context(
             phase,

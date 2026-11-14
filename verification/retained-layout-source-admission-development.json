@@ -1,0 +1,240 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "4432012fcff21ea17962a904eff0beb7bce177d3",
+  "scope": "Actual preparation -> canonical control acquisition -> complete partition observation under the same original ledger. Effects and partition consumption remain guarded.",
+  "subjects": {
+    "src/literate_ai/adapters/bounded_role_observation.py": {
+      "algorithm": "sha256",
+      "digest": "961b25c95bb64e7480567b718f7f54e4bd88659113c0ed9bff67d08f4f03726d"
+    },
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "35a4cf44a920e00ad4c10a18317aab6bbc6fd0b503b19990de878303ecc741fd"
+    },
+    "src/literate_ai/adapters/retained_layout_control_publication.py": {
+      "algorithm": "sha256",
+      "digest": "d8594bc0f6a10795cc2073e3d65621b0515dc995b7e92ae9f175eceb6ee712a8"
+    },
+    "src/literate_ai/adapters/retained_layout_control_roles.py": {
+      "algorithm": "sha256",
+      "digest": "f06e662305123322dec6b2663715fcd69e512113c712d0b8f74f234ee020fb74"
+    },
+    "src/literate_ai/adapters/retained_layout_journal.py": {
+      "algorithm": "sha256",
+      "digest": "85a6fd629a4f7ece4b395802c89e3953b9ef2b581f5b8663fae08571563f3aab"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "2feb6328cba6d11564e8e122eada2473ee8c10ba208cabc27336744f604b9370"
+    },
+    "src/literate_ai/adapters/retained_layout_reservations.py": {
+      "algorithm": "sha256",
+      "digest": "5010fb05be095addca92601b60e37d1ced27d050abe3cd460f23c9ff94d110fa"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "47f32163425585bb65320632dd1c6ed8c7cbc1904e052bb369fdb8dd64d634c8"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "14cd289419879726b995e3e01fccf1b947fa3681081ac522134830ade00494ae"
+    },
+    "src/literate_ai/adapters/standard_lifecycle_binding.py": {
+      "algorithm": "sha256",
+      "digest": "a4ac77654b3de4406589936faca5b32af6c559f6a5500fdae15d07494ec17c98"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "6f7ac4224ae5587eeaeb083bf115ccb4a9396aaec78c90d3ec2e8af5f84b94c9"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "d0300baa77e6a0311c05755a03b68c2152f8aa6441a73869fc98a752c39e2df6"
+    }
+  },
+  "behavior": [
+    "Original actual preparation, source phase, controls and partition are registered together; copied plans/phases and ended owners cannot substitute.",
+    "Actual pool/journal policy reserves original ledger capacity before private resource revalidation and canonical control acquisition; actual event JSON nodes debit the same ledger.",
+    "Created control marker presence and absent-input ancestry advance only from actual verified publication receipts and held native descriptors. Producer inputs remain under original require_current checks.",
+    "Complete project census and initializer role reads use the original ledger without renewing policy or subtracting predecessor usage twice. Unknown files remain unclaimed.",
+    "Installed-origin payload/Git discovery uses the same bounded reader, including capped output before retention; older unattested packaged/external providers remain guarded.",
+    "Native project/private resource ancestry comparisons and held descriptor leaf binding refuse physical overlap before canonical acquisition, including alternate case aliases.",
+    "Sequential activations end before caller yield; phase revocation precedes descriptor teardown and reader lifetime extends through cleanup."
+  ],
+  "qualified_author_make": {
+    "command": "make python-check",
+    "selection": "tests/critical/test_retained_layout_source_admission.py",
+    "exit_code": 0,
+    "summary": {
+      "executed": 14,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 14,
+      "selected": 14,
+      "skipped": 0
+    },
+    "seconds": 21.18,
+    "report": {
+      "path": "_build/source-admission-native-make-report.json",
+      "sha256": "727d22efc000f25be3bc4c493249795b349242b29cd402224853da10e8ec3aca"
+    },
+    "log": {
+      "path": "_build/source-admission-native-make.log",
+      "sha256": "32dbf0b95333e254d03cd50dedf64e74893465fbe3be2b0004510cc90efea050"
+    },
+    "also_checks": [
+      "compileall src/tests",
+      "maintained script py_compile",
+      "host-path policy"
+    ]
+  },
+  "causal_controls": [
+    {
+      "finding": "Original producer mutation was not detected by admitted preparation currentness.",
+      "before": {
+        "path": "_build/source-admission-predecessor-before.log",
+        "sha256": "eea562459c88b5eac194947cfc685b77d49acf71ef6d3cc109bfe20ec47f86d1",
+        "tests": 1,
+        "seconds": 7.781,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": "Passing admitted external-catalog-input case in final Make14."
+    },
+    {
+      "finding": "Created-parent ancestry remained stale and installed-origin discovery reached legacy unbounded capture.",
+      "before": {
+        "path": "_build/source-admission-review-before-v2.log",
+        "sha256": "f64f8b54b93f9cbbc355dc346d3a708609014770f9014126f37dca02f771c7ba",
+        "tests": 2,
+        "seconds": 2.694,
+        "footer": "FAILED (failures=1, errors=1)"
+      },
+      "after": "Passing created-parent and forbidden legacy-origin cases in final Make14."
+    },
+    {
+      "finding": "Actual private pool and journal alternate casing reached canonical control acquisition.",
+      "before": {
+        "path": "_build/source-admission-private-alias-before-v2.log",
+        "sha256": "c89eb26ff3ecf5064bbc7b7cf4c8c357cc53bc4024b7558132cad52fa38be1a6",
+        "tests": 2,
+        "seconds": 2.579,
+        "footer": "FAILED (failures=2)"
+      },
+      "after": "Both actual native case-insensitive alias cases pass in final Make14 without skips."
+    }
+  ],
+  "retained_failed_fixture_attempts": [
+    {
+      "path": "_build/source-admission-review-before.log",
+      "sha256": "e95e61bcc0f95fa8a207f14d0d7e64fd0e99e52427a947fe4f58fbb2e122a927",
+      "interpretation": "Includes missing mock import; corrected fixture result retained separately."
+    },
+    {
+      "path": "_build/source-admission-private-alias-before.log",
+      "sha256": "f36f39c384b832e4aeff2c33adefe601f374d1779c621815e71a217d8f322232",
+      "interpretation": "Pool setup lacked its required directory; corrected two-failure run retained separately."
+    }
+  ],
+  "interrupted_regression": {
+    "command": "make python-check, test_retained_layout*.py, one worker",
+    "log": {
+      "path": "_build/source-admission-retained-regression.log",
+      "sha256": "dec4948cc70c05af5ec3ed22fd4302636d6a040f28d1cbacab3a2935e3d7c87a"
+    },
+    "interpretation": "Author deliberately interrupted the broad run after reviewer found physical private-resource gap, before source edits. Not a passing or complete cohort."
+  },
+  "independent_review": {
+    "path": "independent-layout-source-admission-review.json",
+    "sha256": "2c7a1411ebc173fd44937c1af14a5545a0f3c3068e9a05d1c4ae317db385140c",
+    "decision": "approved_at_limited_observation_admission_scope",
+    "independent_dynamic_qualification": false
+  },
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-admission-final-static.log",
+      "sha256": "8edbfdffdab1017e389040620e314c13081d48957296d1c70f72b502e554f22d"
+    }
+  },
+  "acceptance": {
+    "observation_admission": true,
+    "partition_consumption": false,
+    "verified_source_metadata_finalization_effects": false,
+    "canonical_authored_role_completion": false,
+    "normal_nonroot_transaction": false,
+    "root_public_recovery": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Connect actual partition consumption and verified source/control/metadata effects to the original ledger and complete namespace maps, then canonical authored-role admission and a normal nonroot transaction. Keep all original full-program acceptance.",
+  "supplemental_regression": {
+    "state": "pass",
+    "runner": "managed Python unittest -v",
+    "exit_code": 0,
+    "passed": 357,
+    "skipped": 0,
+    "seconds": 528.299,
+    "unique_case_lines": 357,
+    "modules": [
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_roles",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_topology",
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_retained_layout_control_publication",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_metadata",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.critical.test_retained_layout_source_preparation",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_standard_lifecycle_binding_adapter"
+    ],
+    "log": {
+      "path": "_build/source-admission-neighborhood-regression.log",
+      "sha256": "2432ad162cc4737b2ff9cfff5f42e70f507040d410fb1bd424f5ec12ae4b5469"
+    }
+  },
+  "qualification_interpretation": "Two separate successful final author cohorts: scoped Make14 and supplemental357 maintained tests, zero skips. Independent review is source-only. Full package, installed/native/cross-platform, integration/release and full-roadmap acceptance remain open.",
+  "authority": {
+    "project_validate": {
+      "exit_code": 0,
+      "report": {
+        "path": "_build/source-admission-project-validate.json",
+        "sha256": "01228b76496b34f45f49933c3ed0ebae6297de66b47023ed5af5450d228ed943"
+      }
+    },
+    "supported_renewal": [
+      "make driver-review-record",
+      "make documentation-review-record"
+    ],
+    "driver_review": {
+      "path": "_build/source-admission-driver-review.log",
+      "sha256": "fb53a572a2bf74ad0d244d807263b1be07175cfad3c497f4b93b34054ce020cc"
+    },
+    "documentation_review": {
+      "path": "_build/source-admission-documentation-review.log",
+      "sha256": "6d59307436fa7534934b7132d61482f062d8b90927ed8ebc2f0a8e1f6b67b08b"
+    },
+    "driver_runner_checks": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-admission-authority-checks.log",
+        "sha256": "a8172d571a370bf23f9792c2b9db9e05b642ad607d53ce945c51dadc258e48aa"
+      }
+    }
+  }
+}

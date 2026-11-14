@@ -1696,6 +1696,32 @@ pass without skips. Original failing late-callback controls, their passing repai
 and the broader qualification boundary are retained in
 [preparation evidence](../../verification/retained-layout-source-preparation-development.json).
 
+Actual preparation now joins the original source phase, canonical control
+acquisition and complete partition observation under the same persistent reader
+and ledger. Private journal/pool capacity is reserved before acquisition; actual
+event documents consume that allowance. Native ancestry separates both held
+private resources from the complete project before canonical controls are
+acquired, including alternate path casing. Created marker presence and absent
+input ancestry advance only from actual held descriptors and published directory
+receipts. Original producer currentness remains required after acquisition.
+
+Sequential read activations end before caller yields. The actual phase admission
+revokes before resource descriptors close, while the original reader survives
+control cleanup. Installed-origin discovery uses bounded payload and Git reads;
+an unattested external original provider still requires a shared participant.
+This is observation admission only: partition consumption, source movement,
+metadata publication and control finalization remain guarded until their
+verified transitions participate in this same operation. Next connect those
+actual effects and their complete namespace maps, then admit canonical authored
+roles and qualify a complete normal nonroot transaction. The full work item,
+root/public/recovery and installed/platform acceptance remain open.
+The final scoped Make gate passes fourteen methods without skips, including both
+native private-resource casing controls. Independent source rereview closes all
+four findings at this limited scope. A separate 357-method affected regression
+cohort passes without skips; the original causal failures and remaining
+acceptance are retained in
+[observation-admission evidence](../../verification/retained-layout-source-admission-development.json).
+
 After the selected-source dependency is qualified, join the actual canonical
 authored inputs to complete partition ownership. Derive their endpoints from the
 live source plan's parsed project, conversion, lift/layout and wrapper witnesses,
