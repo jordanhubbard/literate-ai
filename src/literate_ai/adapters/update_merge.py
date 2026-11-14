@@ -81,6 +81,7 @@ class UpdateBases:
         self.sources: dict[str, str] = {}
         self.created_directories: list[Path] = []
         self.entry_count = 0
+        self.published_node = None
         if maximum_entries is not None and (
             type(maximum_entries) is not int or maximum_entries < 0
         ):
@@ -157,16 +158,22 @@ class UpdateBases:
             self.retain(content)
             self.scopes[scope][path] = digest(content)
 
-    def write(self) -> None:
+    def write(self, *, _observation=None) -> bytes | None:
         from .project_update_apply import _write_exact
         from .project_updates import ProjectUpdateError
 
         path = safe_path(self.root, CHECKPOINT)
-        observed = path.read_bytes() if path.is_file() else None
+        observed = (
+            (path.read_bytes() if path.is_file() else None)
+            if _observation is None
+            else _observation.read(CHECKPOINT, optional=True)
+        )
         if observed != self.original:
             raise ProjectUpdateError(
                 "project.update_base_changed", "update baseline changed; re-plan"
             )
+        if _observation is not None:
+            _observation.check_publication(self)
         content = (
             json.dumps(
                 {
@@ -192,7 +199,16 @@ class UpdateBases:
             while parent != self.root and not parent.exists():
                 self.created_directories.append(parent)
                 parent = parent.parent
-            _write_exact(path, content)
+            self.published_node = (
+                _write_exact(path, content)
+                if _observation is None
+                else _write_exact(path, content, _observation=_observation)
+            )
+            if _observation is not None:
+                _observation.after_publication(path, content, self.published_node)
+        elif _observation is not None:
+            self.published_node = _observation.original_node(CHECKPOINT)
+        return None if _observation is None else content
 
     def rollback(self) -> None:
         from .project_update_apply import _write_exact
@@ -209,7 +225,9 @@ class UpdateBases:
                 pass
 
 
-def merge_text(base: bytes, ours: bytes, theirs: bytes) -> bytes | None:
+def merge_text(
+    base: bytes, ours: bytes, theirs: bytes, *, maximum_output_bytes=None
+) -> bytes | None:
     """Return a clean Git diff3 result; never expose conflict markers as output."""
     from .project_updates import ProjectUpdateError
 
@@ -225,12 +243,39 @@ def merge_text(base: bytes, ours: bytes, theirs: bytes) -> bytes | None:
         for path, content in zip(paths, (ours, base, theirs), strict=True):
             path.write_bytes(content)
         try:
-            result = subprocess.run(
-                ["git", "merge-file", "--stdout", "--diff3", *(str(p) for p in paths)],
-                capture_output=True,
-                timeout=30,
-                check=False,
-            )
+            command = [
+                "git",
+                "merge-file",
+                "--stdout",
+                "--diff3",
+                *(str(p) for p in paths),
+            ]
+            if maximum_output_bytes is None:
+                result = subprocess.run(
+                    command, capture_output=True, timeout=30, check=False
+                )
+            else:
+                import os
+
+                from .builders import run_bounded_process
+
+                environment = {
+                    key: value
+                    for key, value in os.environ.items()
+                    if not key.startswith("GIT_")
+                }
+                environment.update(
+                    GIT_CONFIG_NOSYSTEM="1", GIT_CONFIG_GLOBAL=os.devnull
+                )
+                result = run_bounded_process(
+                    command,
+                    cwd=Path(directory),
+                    environment=environment,
+                    timeout_seconds=30,
+                    stdout_limit_bytes=maximum_output_bytes,
+                    stderr_limit_bytes=4096,
+                    error_prefix="project.update_merge",
+                )
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise ProjectUpdateError(
                 "project.update_merge_unavailable", "Git text merge could not run"
@@ -242,18 +287,36 @@ def merge_text(base: bytes, ours: bytes, theirs: bytes) -> bytes | None:
     raise ProjectUpdateError("project.update_merge_failed", "Git text merge failed")
 
 
-def enrich_merge(item, base: bytes | None, ours: bytes | None, theirs: bytes | None):
+def enrich_merge(
+    item,
+    base: bytes | None,
+    ours: bytes | None,
+    theirs: bytes | None,
+    *,
+    _observation=None,
+):
     if item.classification is not ProjectUpdateClassification.CONFLICT or base is None:
         return item
     if digest(base) != (item.baseline_identity.uri if item.baseline_identity else None):
         return item
+    limit = (
+        None if _observation is None else _observation.reserve_merge(base, ours, theirs)
+    )
     try:
         base_text = base.decode("utf-8") if b"\0" not in base else None
     except UnicodeDecodeError:
         base_text = None
     if base_text is None:
         return item
-    merged = None if ours is None or theirs is None else merge_text(base, ours, theirs)
+    merged = (
+        None
+        if ours is None or theirs is None
+        else (
+            merge_text(base, ours, theirs)
+            if _observation is None
+            else merge_text(base, ours, theirs, maximum_output_bytes=limit)
+        )
+    )
     return replace(
         item,
         base_text=base_text,
@@ -337,7 +400,7 @@ def recover_bases(root, files, bases, reader=None, origin=None):
                 bases.retain(content)
 
 
-def resolution_content(item, ours, theirs, resolutions):
+def resolution_content(item, ours, theirs, resolutions, *, _observation=None):
     """Revalidate a clean merge or one explicitly accepted review before writing."""
     from .project_updates import ProjectUpdateError
 
@@ -346,7 +409,17 @@ def resolution_content(item, ours, theirs, resolutions):
             raise ProjectUpdateError(
                 "project.update_merge_invalid", "merge inputs are unavailable"
             )
-        merged = merge_text(item.base_text.encode(), ours, theirs)
+        base = item.base_text.encode()
+        merged = (
+            merge_text(base, ours, theirs)
+            if _observation is None
+            else merge_text(
+                base,
+                ours,
+                theirs,
+                maximum_output_bytes=_observation.reserve_merge(base, ours, theirs),
+            )
+        )
         if merged is None or merged.decode() != item.merged_text:
             raise ProjectUpdateError(
                 "project.update_merge_invalid", "merge no longer matches the plan"

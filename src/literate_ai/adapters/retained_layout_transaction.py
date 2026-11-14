@@ -76,7 +76,7 @@ class LayoutCommitOutcomeError(RuntimeError):
         )
 
 
-def _inputs(root):
+def _inputs(root, *, maximum_checkpoint_bytes=None):
     project = _project_roles(root)
     lineages = [
         (root, _lineage(root)),
@@ -94,6 +94,12 @@ def _inputs(root):
             HARNESS_WRAPPER_FILENAME,
         )
     )
+    if maximum_checkpoint_bytes is not None:
+        from .update_merge import CHECKPOINT
+
+        observations += (
+            _file(root / CHECKPOINT, maximum_bytes=maximum_checkpoint_bytes),
+        )
     by_name = {item.path.relative_to(root).as_posix(): item for item in observations}
     origin = ProjectInitializationOrigin.from_dict(json.loads(by_name[_ORIGIN].content))
     baseline = ProjectInitializationBaseline.from_dict(
@@ -224,13 +230,17 @@ class _SourceMovePlan:
     source_node: object
     source_parent: object
     prospective: tuple
+    framework_update: str | None = None
 
     @property
     def document(self):
+        plan = _custody_wire(self)
+        if self.framework_update is None:
+            del plan["framework_update"]
         return {
             "schema": "literate-ai/layout-source-phase@1",
             "pending_control": str(layout_pending_control_path(self.root)),
-            "plan": _custody_wire(self),
+            "plan": plan,
         }
 
     @property
@@ -296,14 +306,28 @@ def _prospective_metadata(root, layout, inputs, implementation_directory):
     )
 
 
-def plan_retained_layout_source_move(project_root, implementation_directory, *, budget):
+def plan_retained_layout_source_move(
+    project_root, implementation_directory, *, budget, framework_update=None
+):
     """Read-only exact nonroot source phase; no complete relocation is promised."""
     root = Path(project_root)
     if not root.is_absolute() or ".." in root.parts:
         _fail("project root must be direct and absolute")
     if type(budget) is not RetainedCargoInputBudget:
         _fail("explicit typed source budget required")
-    layout, inputs, input_lineages = _inputs(root)
+    update_identity = None
+    if framework_update is not None:
+        from .framework_update_roles import _require_handoff
+
+        update_identity = _require_handoff(framework_update).bind(root)
+    checkpoint_limit = (
+        None
+        if framework_update is None
+        else len(framework_update._cache[root / ".literate/update-bases.json"].content)
+    )
+    layout, inputs, input_lineages = _inputs(
+        root, maximum_checkpoint_bytes=checkpoint_limit
+    )
     selected = RetainedLayoutSelection.from_values(
         layout.wrapper_component, implementation_directory
     )
@@ -358,8 +382,14 @@ def plan_retained_layout_source_move(project_root, implementation_directory, *, 
         source_node,
         source_parent,
         prospective,
+        update_identity,
     )
+    if framework_update is not None:
+        framework_update.require_plan(plan)
+        framework_update.require_current()
     _require_prepared(plan)
+    if framework_update is not None:
+        framework_update.close_native()
     return plan
 
 
@@ -453,7 +483,20 @@ def _require_prepared(plan, reservations=None):
         _fail("actual pending transaction descriptor required")
     if _lineage(plan.tree.root) != plan.source_lineage:
         _fail("prepared source ancestry changed")
-    if _inputs(plan.root) != (plan.layout, plan.inputs, plan.input_lineages):
+    checkpoint_limit = (
+        None
+        if plan.framework_update is None
+        else next(
+            len(item.content)
+            for item in plan.inputs
+            if item.path == plan.root / ".literate/update-bases.json"
+        )
+    )
+    if _inputs(plan.root, maximum_checkpoint_bytes=checkpoint_limit) != (
+        plan.layout,
+        plan.inputs,
+        plan.input_lineages,
+    ):
         _fail("selected wrapper/layout/initialization inputs changed")
     plan.git.require_unchanged(reservations)
     plan.tree.require_unchanged()
@@ -623,7 +666,13 @@ class _SourcePhase:
             _fail("live moved source differs from acknowledged original custody")
         self.controls.require_initial_inputs()
         for item in self._current_inputs:
-            if _file(item.path, optional=item.signature is None) != item:
+            arguments = {"optional": item.signature is None}
+            if (
+                self.plan.framework_update is not None
+                and item.path == self.plan.root / ".literate/update-bases.json"
+            ):
+                arguments["maximum_bytes"] = len(item.content)
+            if _file(item.path, **arguments) != item:
                 _fail("current authored metadata changed")
         tree.require_unchanged()
         if self._metadata_area is not None:
@@ -1070,7 +1119,12 @@ class _SourcePhase:
 
     @contextmanager
     def complete_partition(
-        self, *, budget, maximum_metadata_bytes, provider_checkout=None
+        self,
+        *,
+        budget,
+        maximum_metadata_bytes,
+        provider_checkout=None,
+        framework_update=None,
     ):
         """Join actual initializer/control/source owners inside this acknowledged phase.
 
@@ -1084,6 +1138,7 @@ class _SourcePhase:
             budget=budget,
             maximum_metadata_bytes=maximum_metadata_bytes,
             provider_checkout=provider_checkout,
+            framework_update=framework_update,
         ) as owner:
             yield owner
 
@@ -1094,6 +1149,8 @@ class _SourcePhase:
         self.controls.require_initial_inputs()
         _require_prepared(self.plan, self.controls.reservations)
         partition = self._partition_owner
+        if self.plan.framework_update is not None and partition is None:
+            _fail("bound framework update requires its live complete partition")
         partition_record = None if partition is None else partition.document
         self._attempted = True
         journal = self.pool._journal

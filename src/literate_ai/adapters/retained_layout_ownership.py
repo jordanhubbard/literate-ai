@@ -60,7 +60,16 @@ def _beneath(name, root):
     return name == root or name.startswith(root + "/")
 
 
-def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_checkout):
+def _initializer_roles(
+    phase,
+    budget,
+    metadata_limit,
+    *,
+    providers,
+    provider_checkout,
+    retired=(),
+    current_origin=None,
+):
     root = phase.plan.root
     maximum_entries = budget.maximum_entries
     cache = {}
@@ -147,9 +156,10 @@ def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_che
         _fail("original initializer manifest bytes disagree with their identity")
     definition = ProjectDefinition.from_dict(json.loads(original))
     provider = None
-    if (
-        provider_checkout is not None
-        or origin != discover_installed_initialization_origin()
+    if provider_checkout is not None or origin != (
+        discover_installed_initialization_origin()
+        if current_origin is None
+        else current_origin
     ):
         remaining_files = budget.maximum_files - len(cache)
         remaining_entries = budget.maximum_entries - len(cache) - provider_entries
@@ -235,7 +245,7 @@ def _initializer_roles(phase, budget, metadata_limit, *, providers, provider_che
             allowed.add(audit.path.relative_to(root).as_posix())
     if not baseline_paths <= allowed:
         _fail("initialization record claims files outside actual initializer roles")
-    framework = baseline_paths | {_BASELINE, CONVERSION_AUTHORITY_FILE}
+    framework = (baseline_paths - set(retired)) | {_BASELINE, CONVERSION_AUTHORITY_FILE}
     # These endpoints have distinct actual owners; their contents cannot label
     # any additional files as framework-owned.
     for name in (CHECKPOINT, NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH):
@@ -355,10 +365,21 @@ class _OwnedPartition:
         "_spent",
         "_pid",
         "_identity",
+        "_framework_update",
     )
 
     def __init__(
-        self, key, phase, census, native, inputs, roles, directories, origin, provider
+        self,
+        key,
+        phase,
+        census,
+        native,
+        inputs,
+        roles,
+        directories,
+        origin,
+        provider,
+        framework_update=None,
     ):
         if key is not _KEY:
             raise TypeError("layout.ownership.live-source-phase-required")
@@ -371,6 +392,7 @@ class _OwnedPartition:
         self._roles, self._directories = roles, directories
         self._provider_origin = origin
         self._provider = provider
+        self._framework_update = framework_update
         self._active, self._spent, self._pid = True, False, os.getpid()
         self._identity = canonical_identity(
             {
@@ -415,9 +437,16 @@ class _OwnedPartition:
         self._phase._live()
         self._phase.controls.require_initial_inputs()
         _require_prepared(self._phase.plan, self._phase.controls.reservations)
+        if self._framework_update is not None:
+            self._framework_update.require_plan(self._phase.plan)
+            self._framework_update.require_current()
         if self._provider is not None:
             self._provider.require_current()
-        elif self._provider_origin != discover_installed_initialization_origin():
+        elif self._provider_origin != (
+            discover_installed_initialization_origin()
+            if self._framework_update is None
+            else self._framework_update._provider_origin
+        ):
             _fail("original initializer provider changed")
         self.census.require_unchanged()
         self._phase.controls.git.close_native_inputs(self._phase.controls.reservations)
@@ -433,11 +462,30 @@ class _OwnedPartition:
         _close_tree(self.census.tree, self._native, controls=self._phase.controls)
         if self._provider is not None:
             self._provider.close_native()
+        if self._framework_update is not None:
+            self._framework_update.close_native()
+        self._require_eligible()
+
+    def _require_eligible(self):
+        self._phase._live()
+        controls = self._phase.controls
+        if (
+            not self._active
+            or self._spent
+            or self._pid != os.getpid()
+            or not self._phase._active
+            or not controls._active
+            or controls._receiver != os.getpid()
+            or controls._finalizing
+            or not controls.reservations._active
+            or not controls.reservations._complete
+        ):
+            _fail("partition or original control context ended")
 
     @property
     def document(self):
         self.require_current()
-        return {
+        result = {
             "schema": "literate-ai/layout-owned-partition-observation@1",
             "identity": self._identity.uri,
             "source_phase_identity": self._phase.plan.identity.uri,
@@ -445,6 +493,9 @@ class _OwnedPartition:
             "roles": self.roles,
             "directories": self.directories,
         }
+        if self._framework_update is not None:
+            result["framework_update"] = self._framework_update.document
+        return result
 
     @property
     def identity(self):
@@ -453,11 +504,21 @@ class _OwnedPartition:
 
     def _consume(self):
         self.require_current()
+        if self._framework_update is not None:
+            self._framework_update.spend()
+        self._require_eligible()
         self._spent = True
 
 
 @contextmanager
-def _owned_partition(phase, *, budget, maximum_metadata_bytes, provider_checkout=None):
+def _owned_partition(
+    phase,
+    *,
+    budget,
+    maximum_metadata_bytes,
+    provider_checkout=None,
+    framework_update=None,
+):
     with ExitStack() as providers:
         with _partition_context(
             phase,
@@ -465,13 +526,20 @@ def _owned_partition(phase, *, budget, maximum_metadata_bytes, provider_checkout
             maximum_metadata_bytes=maximum_metadata_bytes,
             providers=providers,
             provider_checkout=provider_checkout,
+            framework_update=framework_update,
         ) as owner:
             yield owner
 
 
 @contextmanager
 def _partition_context(
-    phase, *, budget, maximum_metadata_bytes, providers, provider_checkout
+    phase,
+    *,
+    budget,
+    maximum_metadata_bytes,
+    providers,
+    provider_checkout,
+    framework_update,
 ):
     from .retained_layout_transaction import (
         _native_tree,
@@ -496,6 +564,28 @@ def _partition_context(
     ):
         _fail("complete ownership metadata budget must be explicit and bounded")
     quarter = maximum_metadata_bytes // 4
+    if framework_update is not None:
+        from .framework_update_roles import _require_handoff
+
+        _require_handoff(framework_update).require_plan(phase.plan)
+        framework_update.require_current()
+        budget, maximum_metadata_bytes = framework_update.remaining(
+            budget, maximum_metadata_bytes
+        )
+        quarter = maximum_metadata_bytes // 4
+        moving = {phase.plan.tree._physical[0][:2]} | {
+            node[:2] for _name, node in phase.plan.tree._physical[1]
+        }
+        for _anchor, lineage in framework_update._lineages.values():
+            if moving & {entry[1:3] for entry in lineage}:
+                _fail("actual update provider or inputs overlap moving source")
+        if moving & {node[:2] for node in framework_update._git.directories.values()}:
+            _fail(
+                "actual update Git administration or object store "
+                "overlaps moving source"
+            )
+    elif phase.plan.framework_update is not None:
+        _fail("fresh source plan requires its actual live framework update")
     before = capture_retained_layout_partition(
         phase.plan.root,
         framework_files=(),
@@ -517,8 +607,18 @@ def _partition_context(
             "private journal/stages physically overlap the complete project namespace"
         )
     framework, children, inputs, origin, provider = _initializer_roles(
-        phase, budget, quarter, providers=providers, provider_checkout=provider_checkout
+        phase,
+        budget,
+        quarter,
+        providers=providers,
+        provider_checkout=provider_checkout,
+        retired=() if framework_update is None else framework_update.removed_paths,
+        current_origin=None
+        if framework_update is None
+        else framework_update._provider_origin,
     )
+    if framework_update is not None:
+        framework.update(framework_update.paths)
     if provider is not None:
         protected = {node[:2] for node in provider.objects.directories.values()}
         moving = {phase.plan.tree._physical[0][:2]} | {
@@ -545,7 +645,16 @@ def _partition_context(
     if wire_size * 64 > quarter:
         _fail("actual role inventory exceeds ownership metadata budget")
     owner = _OwnedPartition(
-        _KEY, phase, census, native, inputs, roles, directories, origin, provider
+        _KEY,
+        phase,
+        census,
+        native,
+        inputs,
+        roles,
+        directories,
+        origin,
+        provider,
+        framework_update,
     )
     phase._partition_owner = owner
     try:

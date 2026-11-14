@@ -1144,4 +1144,83 @@ row containing a genuine public upstream hash still leaves arbitrary local bytes
 unclaimed. The observation bound applies to decoded records; ordinary store
 mutation/publication keeps its existing contract and gains no stronger concurrency
 guarantees from this parser refactor.
-The actual updater-to-source role handoff remains the next implementation action.
+The updater-to-source role handoff below is source reviewed; complete update
+history, imports and authored metadata still require their own owners.
+
+The strict handoff path must also bound the actual planning and apply-time reads:
+an oversized file must not be allocated and only then rejected. Route canonical
+local/contract/checkpoint, resource, catalog, protected-path and skill/roadmap
+discovery through one bounded observation, without fallback to legacy readers.
+Ordinary callers retain their existing defaults. Revalidate unchanged/current
+rows as well as selected writes. If post-application provenance cannot close,
+report that the update applied but the handoff is unavailable; do not invoke the
+legacy rollback on a later ownership-observation failure.
+
+### Live current framework updates (source reviewed; internal nonroot scope)
+
+The internal development context now observes the complete bounded original
+project and the actual source-backed updater, including its resources, Git routing,
+configuration, HEAD, symbolic-ref chain and packed refs. The canonical planner and
+apply paths consume that observation for project/contract/checkpoint reads,
+Component and skill discovery, roadmap inputs and merge transformations. Initial
+namespace, provider, configuration, decoded metadata and currentness buffers share
+explicit allowances. Ordinary updater callers keep their existing behavior.
+
+The actual successful updater records selected and verified unchanged/current
+advancements. Exact published nodes and bytes bind adopted additions, clean merges
+and explicitly reviewed local overlays. A fresh nonce and exact post-update
+checkpoint bind the subsequent acknowledged source plan. The updater releases its
+writer mutex before yielding read-only provenance. Only that live participant can
+join additional roles or describe removals; saved checkpoint rows and documents
+cannot mint it. Complete source observations journal this descriptive proof before
+source effects and consume it once through the actual source owner.
+
+Strict publications check the original namespace and inputs after temporary-file
+fsync, then close coherent directory facts and the exact target/parent through
+held native parents. Intended file modes are set before publication. Published
+receipts include full native signature facts. Foreign edits refuse; the strict
+path retains observed or partially applied state rather than invoking legacy
+rollback. A failed post-application handoff explicitly reports that the update
+applied but provenance is unavailable. Interruptions retain their original type.
+
+Independent review found that the actual enclosing handoff context could end
+during its final native close. The original failed control remains in the immutable
+review report. Final lifetime/PID/spent checks now follow native observations,
+including participant consumption and the original source/control owners. A
+maintained actual-context-exit regression checks that boundary. An installed-layout
+module cannot borrow an ambient checkout's Git origin as source-provider evidence.
+
+This remains an internal normal nonroot POSIX source-provider profile. Packaged
+providers, durable restart reconstruction, historical overlay/retirement lineage,
+other metadata owners, root/shared/initial/wrapper placement, public recovery and
+installed/native/full-program acceptance remain open. No published or installed
+qualification follows from these authored development checks.
+
+Re-review found a separate retirement race: a path-based unlink could follow a
+replaced parent and delete its foreign file. Strict retirements must instead use
+the actual held parents and exclusive native entry movement into an explicitly
+supplied empty private retirement directory. Record durable exclusive intent
+before movement, retain original and ambiguous nodes without automatic collection,
+and bind the complete private area into the live observation and shared budgets.
+This private evidence is descriptive and cannot authorize later recovery or GC.
+
+A further independent teardown control closed the actual retirement descriptor,
+reopened that same directory at its recycled descriptor number, and found the
+cached participant still eligible during cleanup. Revoke ownership in a finally
+inside the pinned-resource scope, before any original descriptor cleanup starts,
+including exceptional writer and reader exits. Keep the outer fallback for
+failures before owner creation. Normal and exceptional real-FD teardown controls
+must refuse currentness without consulting a replacement descriptor.
+
+The final independent review closes all three findings against the exact source
+and tests. Ownership now ends inside the held private-directory scope, before
+native descriptor teardown, including writer, pre-yield and caller failures.
+All 28 maintained handoff methods pass through the scoped Make runner. The final
+affected checks, immutable failed/closing reviews and exact source identities are
+retained in [development evidence](../../verification/retained-layout-update-handoff-development.json).
+The private owner record, durable intents and original retired nodes remain intact;
+there is no automatic cleanup or restart permission. Framework alias-group mutations
+refuse before writes until the complete group owner is joined. Next join actual
+catalog-import and authored metadata owners plus durable historical update roles;
+then complete root/shared/initial/wrapper movement and the public/installed/native
+acceptance contract above. No full-program evidence or completion follows here.

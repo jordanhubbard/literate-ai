@@ -32230,6 +32230,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Contribution-policy intake (pending integration):**
+  [issue #441](https://github.com/jordanhubbard/literate-ai/issues/441) and
+  [PR #442](https://github.com/jordanhubbard/literate-ai/pull/442) cover the optional
+  contribution roadmap-manifest parser rejecting its serialized default. Exact
+  contributor head `4c102f1267e51e4b60d980b00e9516b1f43193a1` has twelve successful
+  reported checks and two platform/profile skips, including the separately named
+  secret scan; this is contributor evidence, not resulting-main qualification.
+  Preserve required milestones, unknown-key refusal and relative-path validation.
+  Integrate the reviewed parser/regressions during consolidation, renew the combined
+  authority through supported commands, then qualify the exact integrated result.
+
 - **Complete maintained inventory successor reviewed:** Independent review
   approves the [single-case literal correction](../../verification/bootstrap-installed-inventory-successor-review.json).
   All 24 class/list pairs match exactly, every earlier subject and case remains,
@@ -33822,8 +33833,19 @@ independent review and the complete combined gate from test one.
   75-method update/ownership/provider run and six-method scoped Make run pass;
   [checkpoint observation evidence](../../verification/retained-layout-checkpoint-observation-development.json)
   retains the exact scope. Saved checkpoint rows remain data, not adoption or
-  ownership authority. Next join actual
-  update/import/authored metadata roles before root effects,
+  ownership authority. Actual source-backed framework updates now issue a bounded
+  live handoff for selected and verified unchanged/current roles, adopted additions
+  and reviewed overlays. Fresh source plans bind the exact post-update checkpoint
+  and nonce, and consume the same actual participant once. Strict removals retain
+  original nodes and durable intents in an explicit private directory; changed or
+  foreign state refuses without blind rollback. Ownership ends before actual
+  descriptor teardown, including exceptional exits. Independent source review
+  closes all three findings; all 142 affected methods and the scoped Make run's
+  28 maintained methods pass without skips. Exact reviewed subjects are retained in
+  [update-handoff development evidence](../../verification/retained-layout-update-handoff-development.json).
+  This remains the internal normal nonroot POSIX source-provider profile; complete
+  framework alias-group mutation ownership and durable restart/history are open.
+  Next join actual catalog-import and authored metadata roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

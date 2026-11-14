@@ -222,12 +222,28 @@ def _declaration_directory_ancestry(directory: Path) -> tuple:
     return tuple(nodes)
 
 
+def _parse_layout_bytes(content):
+    if len(content) > _MAX_LAYOUT_BYTES:
+        raise RetainedLayoutError("retained layout exceeds its byte limit")
+    declaration = RetainedLayoutDeclaration.from_dict(json.loads(content))
+    if content != canonical_json_bytes(declaration.to_dict()) + b"\n":
+        raise RetainedLayoutError("retained layout bytes are not canonical")
+    return declaration
+
+
 def read_retained_layout_declaration(
     project_root: Path,
+    *,
+    _observation=None,
 ) -> RetainedLayoutDeclaration | None:
     """Read a direct declaration, or report that legacy authority applies."""
 
     root = Path(project_root).absolute()
+    if _observation is not None:
+        content = _observation.read(RETAINED_LAYOUT_PATH, optional=True)
+        if content is not None:
+            _observation.json_value(content, RETAINED_LAYOUT_PATH)
+        return None if content is None else _parse_layout_bytes(content)
     path = root / RETAINED_LAYOUT_PATH
     try:
         require_safe_directory(root)
@@ -262,10 +278,7 @@ def read_retained_layout_declaration(
             raise RetainedLayoutError("retained layout changed during inspection")
         if len(content) != opened.st_size:
             raise RetainedLayoutError("retained layout was not read completely")
-        document = json.loads(content)
-        declaration = RetainedLayoutDeclaration.from_dict(document)
-        if content != canonical_json_bytes(declaration.to_dict()) + b"\n":
-            raise RetainedLayoutError("retained layout bytes are not canonical")
+        declaration = _parse_layout_bytes(content)
         # Parsing and encoding must not expose a declaration through a different
         # directory, even when a hardlink preserves the exact original file.
         if _declaration_directory_ancestry(path.parent) != ancestry:
@@ -284,7 +297,7 @@ def read_retained_layout_declaration(
 
 
 def resolve_legacy_implementation(
-    project_root: Path, lift_shift: dict[str, Any]
+    project_root: Path, lift_shift: dict[str, Any], *, _observation=None
 ) -> tuple[str, Path]:
     """Resolve the legacy coordinate without following a redirected ancestor.
 
@@ -292,7 +305,10 @@ def resolve_legacy_implementation(
     with a path derived from the host's current filesystem spelling.
     """
 
-    if read_retained_layout_declaration(project_root) is not None:
+    if (
+        read_retained_layout_declaration(project_root, _observation=_observation)
+        is not None
+    ):
         raise RetainedLayoutError(
             "declared layout requires a supported transition and requalification"
         )
@@ -322,12 +338,12 @@ def resolve_legacy_implementation(
 
 
 def resolve_legacy_layout(
-    project_root: Path, lift_shift: dict[str, Any]
+    project_root: Path, lift_shift: dict[str, Any], *, _observation=None
 ) -> ResolvedRetainedLayout:
     """Join legacy implementation evidence to its fixed wrapper coordinate."""
 
     implementation_directory, implementation_root = resolve_legacy_implementation(
-        project_root, lift_shift
+        project_root, lift_shift, _observation=_observation
     )
     wrapper_root = (
         Path(project_root).absolute().joinpath(*LEGACY_WRAPPER_COMPONENT.split("/"))
@@ -347,7 +363,7 @@ def resolve_legacy_layout(
 
 
 def resolve_structural_layout(
-    project_root: Path, lift_shift: dict[str, Any]
+    project_root: Path, lift_shift: dict[str, Any], *, _observation=None
 ) -> ResolvedRetainedLayout:
     """Locate one declared or legacy layout without asserting execution qualification.
 
@@ -355,9 +371,13 @@ def resolve_structural_layout(
     admission must separately require current locks and renewed harness evidence.
     """
 
-    declaration = read_retained_layout_declaration(project_root)
+    declaration = read_retained_layout_declaration(
+        project_root, _observation=_observation
+    )
     if declaration is None:
-        return resolve_legacy_layout(project_root, lift_shift)
+        return resolve_legacy_layout(
+            project_root, lift_shift, _observation=_observation
+        )
     if (
         lift_shift.get("implementation_directory")
         != declaration.implementation_directory
@@ -391,7 +411,13 @@ def resolve_structural_layout(
         from literate_ai.adapters.component_markdown import parse_component_markdown
 
         authoring = parse_component_markdown(
-            component, component.read_text(encoding="utf-8"), project_root=root
+            component,
+            component.read_text(encoding="utf-8")
+            if _observation is None
+            else _observation.read(component.relative_to(root).as_posix()).decode(
+                "utf-8"
+            ),
+            project_root=root,
         )
         if "adoption-shim" not in authoring.profiles or not any(
             item.name == "legacy.pipeline" for item in authoring.provides
@@ -403,17 +429,30 @@ def resolve_structural_layout(
             baseline_path = root / ".literate/initialization-baseline.json"
             if path_is_link_or_reparse(baseline_path) or not baseline_path.is_file():
                 raise ValueError("root ownership lacks initialization baseline")
-            baseline_bytes = baseline_path.read_bytes()
+            baseline_bytes = (
+                baseline_path.read_bytes()
+                if _observation is None
+                else _observation.read(".literate/initialization-baseline.json")
+            )
             if len(baseline_bytes) > _MAX_LAYOUT_BYTES:
                 raise ValueError("root initialization baseline exceeds byte limit")
             baseline = ProjectInitializationBaseline.from_dict(
                 json.loads(baseline_bytes)
+                if _observation is None
+                else _observation.json_value(
+                    baseline_bytes, ".literate/initialization-baseline.json"
+                )
             )
             owned_paths = set(declaration.framework_owned_paths)
             if not {item.path for item in baseline.files}.issubset(owned_paths):
                 raise ValueError("root ownership omits initialized framework files")
             metadata_root = root / ".literate"
-            for metadata in metadata_root.rglob("*"):
+            metadata_paths = (
+                metadata_root.rglob("*")
+                if _observation is None
+                else _observation.paths_beneath(metadata_root)
+            )
+            for metadata in metadata_paths:
                 if metadata.is_file() or path_is_link_or_reparse(metadata):
                     if metadata.relative_to(root).as_posix() not in owned_paths:
                         raise ValueError("root ownership omits current metadata")

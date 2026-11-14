@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained-layout development can carry actual framework update additions and
+  reviewed local overlays into acknowledged nonroot source moves. Changed inputs
+  and ended update contexts refuse ownership handoff; strict removals retain
+  original nodes and durable intent in a private directory (#265).
+
 - Retained-layout ownership validates observed update checkpoints through the
   canonical parser and includes their records in the shared metadata budget,
   preserving legacy update data and changed checkpoint bytes (#265).
