@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Catalog-copy development can finalize its original held controls after verified
+  provenance publication, preserve existing advisory bytes and retire native
+  markers with the pending barrier last. Git reads charge actual channel usage
+  within unchanged limits. Imported-role handoff remains unfinished (#265).
+
 - Catalog-copy development can publish canonical provenance from verified item
   receipts, preserving old metadata, unrelated imports and inheritance decisions.
   Local source references and prospective metadata share the original finite

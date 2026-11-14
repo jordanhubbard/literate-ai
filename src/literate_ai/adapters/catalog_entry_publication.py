@@ -17,6 +17,12 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
 
 from . import retained_layout_journal as journals
 from .bounded_role_observation import bounded_role_observation
+from .catalog_control_finalization import (
+    finalize_controls,
+    prepare_finalization,
+    require_controls,
+    require_initial_inputs,
+)
 from .catalog_copy_plan import _anchor
 from .catalog_copy_protection import protected_catalog_copies
 from .catalog_copy_staging import _CatalogCopyStages, _require_stage_admission
@@ -32,7 +38,6 @@ from .exclusive_entry import (
 from .repository_refresh import _file, _signature
 from .retained_cargo_tree_v2 import capture_retained_cargo_tree_v2
 from .retained_layout_control_publication import _pinned_directory
-from .retained_layout_control_roles import _require_acquired_control_roles
 from .retained_layout_partition import _lineage, _physical_wire
 from .retained_layout_transaction import _native_tree
 
@@ -129,6 +134,7 @@ class _EntryPublication:
                         self._view_budget,
                         self._control_private,
                         self._journal_admission,
+                        self._control_views,
                     ),
                     strict=True,
                 )
@@ -146,7 +152,7 @@ class _EntryPublication:
             stages._ledger,
         )
         journals._close_live_journal_admission(stages._journal, self._journal_admission)
-        _require_acquired_control_roles(self._controls, stages.plan.root)
+        require_controls(self, record)
         if stages._ledger.cache[record[8].original.path] != record[9]["expected"]:
             _fail("original or owned prospective metadata observation changed")
 
@@ -174,7 +180,7 @@ class _EntryPublication:
             _fail("original namespace differs from exact known effects")
 
     def _close_nodes(self):
-        for state in (self._project, self._private):
+        for state in (self._project, self._private, *self._control_views):
             for name, expected in sorted(
                 state.nodes.items(),
                 key=lambda pair: (
@@ -195,7 +201,7 @@ class _EntryPublication:
                 maximum_metadata_bytes=stages._ledger.metadata,
                 _ledger=stages._ledger,
             ):
-                controls.require_initial_inputs()
+                require_initial_inputs(self)
                 for item in stages.plan._inputs:
                     if item.path == record[8].original.path:
                         item = record[9]["expected"]
@@ -210,8 +216,8 @@ class _EntryPublication:
                         _fail("original catalog metadata changed")
                 for census in stages.plan._censuses[1:]:
                     census.require_unchanged()
-                for census, _native in self._control_private:
-                    census.require_unchanged()
+                for state in self._control_views:
+                    self._capture(state)
                 self._capture(self._project)
                 self._capture(self._private)
                 stages._journal.require_current()
@@ -221,12 +227,9 @@ class _EntryPublication:
             controls._pool._guard()
             if _lineage(self._project.root) != controls._seed.lineage:
                 _fail("original project ancestry changed")
-            for census, native in self._control_private:
+            for census, _native in self._control_private:
                 if _lineage(census.tree.root) != census._lineage:
                     _fail("original control ancestry changed")
-                for name, expected in native:
-                    if _from_stat((census.tree.root / name).lstat()) != expected:
-                        _fail("original private control node changed")
             for census, native in zip(
                 stages.plan._censuses[1:], stages.plan._native[1:], strict=True
             ):
@@ -352,20 +355,27 @@ class _EntryPublication:
         )
         self.require_current()
 
-    def _mkdir(self, name):
+    def _mkdir(self, name, *, mode=None):
         state = self._private
         self.require_current()
         self._live(writing=True)
         parent = self._parent(state, name)
         self._journal(
             "catalog-parent-intent",
-            {"path": str(state.root / name), "parent": asdict(state.nodes[parent])},
+            {
+                "path": str(state.root / name),
+                "parent": asdict(state.nodes[parent]),
+                "mode": mode,
+            },
         )
         self.require_current()
         with _pinned_directory(state.root / parent) as (fd, guard):
             self._live(writing=True)
             # Ordinary mkdir mode/umask, while still below the owned mode0700 root.
-            os.mkdir(Path(name).name, dir_fd=fd)
+            if mode is None:
+                os.mkdir(Path(name).name, dir_fd=fd)
+            else:
+                os.mkdir(Path(name).name, mode, dir_fd=fd)
             with _pinned_directory(state.root / name) as (created, current):
                 node = _from_stat(os.fstat(created))
                 if node != _from_stat((state.root / name).lstat()):
@@ -454,10 +464,15 @@ class _EntryPublication:
     def publish_provenance(self, *, acknowledged_plan_identity):
         return publish_provenance(self, acknowledged_plan_identity)
 
+    def finalize_controls(self, *, acknowledged_plan_identity):
+        return finalize_controls(self, acknowledged_plan_identity)
+
     def inspect(self):
         self.require_current()
         return {
-            "state": "provenance-published-controls-pending"
+            "state": "controls-finalized-imported-handoff-pending"
+            if _OWNERS[self._stages][11]["complete"]
+            else "provenance-published-controls-pending"
             if _OWNERS[self._stages][9]["phase"] == "published"
             else "entry-effects-only",
             "published": tuple(self._published.values()),
@@ -482,7 +497,9 @@ def _closed_targets(tree, targets):
             _fail("cross-item original topology requires its complete receiver")
 
 
-def _reserve_views(stages, targets, provenance):
+def _reserve_views(
+    stages, targets, provenance, controls, control_private, finalization
+):
     """Fund expected maps and bounded comparison spans before retaining them."""
     project = stages.plan._censuses[0].tree
     entries = stages.plan._native[0]
@@ -491,7 +508,14 @@ def _reserve_views(stages, targets, provenance):
     for entry in stages._entries.values():
         count += len(entry.native)
         path_bytes += sum(64 + len(name.encode()) for name, _node in entry.native)
+    for _census, native in control_private:
+        count += len(native)
+        path_bytes += sum(64 + len(name.encode()) for name, _node in native)
     future = count + 2 * stages._journal._budget.maximum_events
+    # Existing control journal records are already counted above. This sealed
+    # phase emits <=events records and <=2*actions payloads, with events=2a+4.
+    future += 2 * finalization.events + 4
+    future += len(controls.reservations._markers)
     future += sum(len(Path(p).parts) for p in targets) + 16
     path_bytes += future * (128 + max(len(p.encode()) for p in targets))
     link_bytes = sum(
@@ -505,11 +529,15 @@ def _reserve_views(stages, targets, provenance):
         + sum(e.census.tree.payload_bytes for e in stages._entries.values())
         + stages._journal._budget.maximum_storage_bytes
         + len(provenance.raw)
+        + sum(census.tree.payload_bytes for census, _native in control_private)
+        + finalization.storage
     )
     ledger = stages._ledger
     ledger.bytes += payload
     ledger.files += future
     ledger.charge_records(4 * future, 8 * path_bytes)
+    # `future` and `path_bytes` sum all namespaces, so this funds their combined
+    # retained maps and one sequential bounded recapture, not four full copies.
     ledger.charged += 2 * metadata
     ledger.require_capacity()
     return future, metadata, payload
@@ -541,8 +569,8 @@ def _journal_capacity(owner, provenance):
         storage += 8192 * 2 * steps
     # Prospective staging plus original retirement and exclusive publication.
     # Each move carries its exact file/native roster under the unchanged ceiling.
-    events += 7
-    storage += 7 * 16384 + 32 * len(str(provenance.original.path).encode())
+    events += 11
+    storage += 11 * 16384 + 32 * len(str(provenance.original.path).encode())
     if (
         events > writer._budget.maximum_events
         or storage > writer._budget.maximum_storage_bytes
@@ -583,7 +611,14 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
             maximum_bytes=stages.budget.maximum_file_bytes,
         )
         provenance = prepare_provenance(stages)
-    future, metadata, payload = _reserve_views(stages, targets, provenance)
+        scope.file(
+            Path(prepare_finalization.__code__.co_filename),
+            maximum_bytes=stages.budget.maximum_file_bytes,
+        )
+        finalization = prepare_finalization(stages, controls)
+    future, metadata, payload = _reserve_views(
+        stages, targets, provenance, controls, control_private, finalization
+    )
     project_tree = stages.plan._censuses[0].tree
     files, links = _payloads(project_tree)
     project = _Namespace(stages.plan.root, dict(stages.plan._native[0]), files, links)
@@ -633,6 +668,10 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         set(),
         {},
     )
+    owner._control_views = tuple(
+        _Namespace(census.tree.root, dict(native), *_payloads(census.tree))
+        for census, native in control_private
+    )
     owner._view_metadata = metadata
     owner._view_budget = RetainedCargoInputBudget(
         future,
@@ -650,6 +689,7 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         owner._view_budget,
         owner._control_private,
         owner._journal_admission,
+        owner._control_views,
         owner._view_metadata,
     )
     record = (
@@ -663,6 +703,15 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         bindings,
         provenance,
         {"expected": provenance.original, "phase": "prepared", "published": set()},
+        finalization,
+        {
+            "started": False,
+            "decision": False,
+            "complete": False,
+            "nodes": {m.target.path: m.node for m in finalization.markers},
+            "contents": {m.target.path: m.content for m in finalization.markers},
+            "locations": {},
+        },
     )
     stages._effect_admission = nonce
     _OWNERS[stages] = record
@@ -677,6 +726,10 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
     finally:
         _WRITERS.discard(owner)
     if owner in _TOUCHED:
+        if record[11]["complete"]:
+            _fail(
+                "catalog publication remains incomplete: imported-role handoff required"
+            )
         if record[9]["phase"] == "published":
             _fail(
                 "catalog publication remains incomplete: "

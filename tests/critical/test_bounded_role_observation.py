@@ -14,6 +14,7 @@ from literate_ai.adapters import bounded_role_observation as reads
 from literate_ai.adapters import project_identity_migration as migration
 from literate_ai.adapters import repository_orchestration as orchestration
 from literate_ai.adapters import repository_refresh as refresh
+from literate_ai.adapters.builders._process import BoundedProcessResult
 from literate_ai.adapters.conversion_authority import (
     FilesystemConversionAuthorityStore,
     _native_project_roots,
@@ -134,6 +135,41 @@ class BoundedRoleReadTests(unittest.TestCase):
                 self.assertIn(config, scope._ledger.cache)
                 config.write_bytes(b"[example]\nvalue = changed\n")
         self.assertIn(b"changed", config.read_bytes())
+
+    def test_repeated_real_git_reads_charge_actual_empty_stderr_under_original_budget(
+        self,
+    ):
+        self.init_git(commit=True)
+        budget = RetainedCargoInputBudget(128, 4096, 4096, 32768)
+        with self.scope(budget) as scope:
+            size = 0
+            for _ in range(32):
+                size += len(orchestration._git(self.project, "rev-parse", "HEAD"))
+            self.assertEqual(scope._ledger.bytes, size)
+            self.assertEqual(scope.budget, budget)
+
+    def test_successful_git_stderr_bytes_are_charged_and_channel_limits_stay_fixed(
+        self,
+    ):
+        budget = RetainedCargoInputBudget(128, 4096, 4096, 32768)
+        with self.scope(budget) as scope:
+            with mock.patch.object(
+                orchestration,
+                "run_bounded_process",
+                return_value=BoundedProcessResult(0, b"out", b"diagnostic"),
+            ) as run:
+                self.assertEqual(orchestration._git(self.project, "status"), b"out")
+            self.assertEqual(scope._ledger.bytes, len(b"outdiagnostic"))
+            self.assertEqual(run.call_args.kwargs["stdout_limit_bytes"], 4096)
+            self.assertEqual(run.call_args.kwargs["stderr_limit_bytes"], 4096)
+
+    def test_missing_canonical_git_usage_receipt_refuses_without_refund(self):
+        budget = RetainedCargoInputBudget(128, 4096, 4096, 32768)
+        with self.assertRaisesRegex(ValueError, "channel usage"):
+            with self.scope(budget) as scope:
+                with mock.patch.object(orchestration, "_raw_git", return_value=b"out"):
+                    orchestration._git(self.project, "status")
+        self.assertEqual(scope._ledger.bytes, 8192)
 
     def test_git_metadata_cannot_borrow_a_larger_independent_file_limit(self):
         self.init_git(commit=True)

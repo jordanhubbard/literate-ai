@@ -1451,3 +1451,35 @@ without skips. Independent review approves the exact three subjects and passes
 all nine maintained methods without skips. Development results and the immutable
 review are retained in
 [provenance evidence](../../verification/retained-layout-catalog-provenance-development.json).
+
+### Catalog control finalization
+
+The actual catalog receiver joins published provenance to the original live
+control acquisition and retains those descriptors throughout finalization. Reserve
+both journals and bounded comparison views before the first public item effect.
+Advance private journal and project marker expectations only from verified writes
+and actual reservation results; preserve every original observation. Normalize
+only newly created advisory markers, retire native controls into owned private
+storage, and journal the commit decision before retiring the pending barrier last.
+Verify all finalized controls and complete namespaces before reporting this internal
+phase. Saved rows and phase results still grant no imported roles. Normal context
+exit remains explicitly incomplete. The next required action is the one-use live
+source/imported-role join; full public/program acceptance remains required.
+
+The first real and linked Git finalization runs exposed cumulative accounting of
+unused stderr capacity as consumed input. Both channel limits remain reserved during
+each canonical Git read; successful reads charge actual stdout and stderr bytes
+reported by that reader. Failed reads retain their conservative reservation and
+poison the read scope. The original aggregate and per-file ceilings are unchanged.
+
+Expected-view reservation counts all namespaces together and funds the combined
+retained maps plus one sequential recapture. Future control journal names/storage
+use the sealed finalization action bound, retaining both original control censuses'
+payloads. The original policy ceilings remain unchanged. Original census records
+are never replaced by a reread. The initially failing native-Git and multi-item
+runs and their repairs are retained with final evidence in
+[control-finalization evidence](../../verification/retained-layout-catalog-finalization-development.json).
+All 204 affected author methods and ten scoped Make methods pass without skips.
+Final independent review approves the exact seven subjects and passes twelve
+maintained methods without skips; the earlier failed and repaired review scopes
+remain immutable and separately attributed in that evidence.

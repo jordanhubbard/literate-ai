@@ -165,15 +165,29 @@ class _RoleObservation:
         ledger.charged += 64 * (limit + error_limit)
         ledger.require_capacity()
         try:
+            usage = []
             raw = _raw_git(
                 root,
                 *arguments,
                 timeout_seconds=timeout_seconds,
                 _maximum_output_bytes=limit,
                 _maximum_error_bytes=error_limit,
+                _output_usage=lambda output, error: usage.append((output, error)),
             )
-            ledger.bytes -= limit - len(raw)
-            ledger.charged -= 64 * (limit - len(raw))
+            if (
+                len(usage) != 1
+                or usage[0][0] != len(raw)
+                or type(usage[0][1]) is not int
+                or not 0 <= usage[0][1] <= error_limit
+                or len(raw) > limit
+            ):
+                _fail("canonical Git reader did not report bounded channel usage")
+            # Peak capacity was held for both channels while I/O was active.
+            # Keep actual stderr consumption, not unused capacity, in the shared
+            # cumulative input ledger. Failed reads never reach this refund.
+            unused = limit - len(raw) + error_limit - usage[0][1]
+            ledger.bytes -= unused
+            ledger.charged -= 64 * unused
             ledger.charge_records(1 + raw.count(b"\0") + raw.count(b"\n"))
             self._live()
             return raw

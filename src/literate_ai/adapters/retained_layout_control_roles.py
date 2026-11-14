@@ -34,6 +34,14 @@ _ACQUIRED = {}
 
 def _require_acquired_control_roles(lease, root):
     """Require the actual normal acquisition, not a constructed role record."""
+    original = _require_control_registration(lease, root)
+    if lease._finalizing:
+        raise TypeError("actual acquired normal control roles required")
+    return original
+
+
+def _require_control_registration(lease, root):
+    """Pure factory identity check; callers still own phase/effect admission."""
     if type(lease) is not _ControlRolesLease:
         raise TypeError("actual acquired normal control roles required")
     original = _ACQUIRED.get(lease)
@@ -41,7 +49,6 @@ def _require_acquired_control_roles(lease, root):
         original is None
         or not lease._active
         or lease._receiver != os.getpid()
-        or lease._finalizing
         or lease._seed.root != root
         or original[0] is not lease._seed
         or original[1] is not lease.git
@@ -50,6 +57,7 @@ def _require_acquired_control_roles(lease, root):
         or original[4] != os.getpid()
     ):
         raise TypeError("actual acquired normal control roles required")
+    return original
 
 
 def layout_pending_control_path(root):

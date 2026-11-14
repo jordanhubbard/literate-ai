@@ -1,0 +1,88 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "c38c3c28325d9130c25107f3c9799641bf2fdaf1",
+  "predecessor": {
+    "path": "independent-layout-catalog-finalization-review.json",
+    "sha256": "40eea0646b089c30023432a226c55095e2c9b39c4631ffeb824832cd88bed548",
+    "preserved": true
+  },
+  "scope": "Actual internal catalog control finalization and finite canonical Git observation accounting; imported-role handoff and complete catalog application remain unfinished.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_control_finalization.py",
+      "sha256": "60e8c7063905d48c60e3b63843246b4c4cf1f15a04954cb1c4e95823954eea39"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "2ffeca74700073922c9f861e15996084e64ddc0e63fe4efd74d597754b0a5bb7"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "c803b8d37438ea7776047af2894ce5ed80e800d572d0047f43b55b54564a4232"
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_orchestration.py",
+      "sha256": "8c65543a808c99664b821cebe47e82d944a5059514daa8ec3d35a2b7fb58c189"
+    },
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "c5bf5c5e855275b5f7302a4a2d42b87e9296cfbed386497b9804e97fa6878d5b"
+    },
+    {
+      "path": "tests/critical/test_catalog_control_finalization.py",
+      "sha256": "c05e7b3dacbba84ca560151832ded6d491380e5a3bc0391e173763334db56aa3"
+    },
+    {
+      "path": "tests/critical/test_bounded_role_observation.py",
+      "sha256": "1169efbbcc2ae27488276bafb336d8038d84e74a0b14d41c4625a305aa952286"
+    }
+  ],
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-FINALIZATION-GIT-BUDGET-001",
+      "assessment": "Closed at reviewed profile. Both ordinary and linked native Git finalization positives now pass with unchanged original test ledger. Previously retained unused stderr capacity caused cumulative exhaustion. The repair reserves stdout and stderr maxima before I/O, then refunds unused portions of both only after canonical successful bounded process output supplies exactly one validated usage receipt. Actual stderr remains charged.",
+      "evidence": "Independent maintained32 passes, including both formerly failing Git methods, 32 real repeated reads under original32768-byte aggregate budget, controlled stderr accounting/channel limits, and missing usage receipt refusal retaining8192 bytes.",
+      "limits": "This establishes the declared maintained profiles and inspected accounting, not arbitrary-size repository completion under any finite user budget."
+    }
+  ],
+  "source_assessment": [
+    "Existing stdout/stderr per-call maximums, original per-file and aggregate ceilings and simultaneous peak reservations remain unchanged. Failed bounded processes, missing/invalid receipts and exceptions poison scope and do not receive an unused-capacity refund.",
+    "_raw_git default behavior remains returning the same stdout bytes; optional internal usage callback runs only after a successful bounded process result. Diagnostics are not exposed by the accounting callback.",
+    "Finalization's original four production/test subjects are byte-identical to the failed review. Prior actual acquisition, original marker, normal-phase refusal, journal admission, PID/thread/WRITER/BUSY, content/node/location and currentness assessment remains applicable.",
+    "Durable commit precedes pending-last retirement. Newly created advisories normalize on original descriptors; existing advisory bytes/inodes persist. All descriptors remain held until enclosing actual owners tear down.",
+    "Original census baselines remain retained; only verified actual journal/marker effects advance expected views.",
+    "Normal completion remains explicitly incomplete pending imported-role handoff; finalization does not grant roles or successful public catalog application."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_control_finalization tests.critical.test_bounded_role_observation > _build/catalog-finalization-independent-repaired.log 2>&1",
+    "session": 47349,
+    "exit_code": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 90.212,
+    "log": "_build/catalog-finalization-independent-repaired.log",
+    "log_sha256": "b8e3e0c9fdf8fa7f305951204248b03eab61e117e2068b7ef65b2abb3f63dce7",
+    "terminal": true,
+    "bespoke_probes": 0
+  },
+  "coverage": [
+    "All10 actual finalization methods: no-Git same-FD exclusion/reentry; preserved existing advisories; provenance/ack/single use; foreign journal; interrupted pending retirement; upfront journal allowance; ordinary and linked Git pending-last retirement; flag-spoof refusal.",
+    "All22 bounded canonical read methods: default parser/limit compatibility, shared file/record limits, native/optional absence, include/configuration and migration chain inputs, actual registered child manifest, scope/thread lifetime and nonresetting nested allowance.",
+    "Three new receipt regressions distinguish real repeated small Git output from unused reservation, controlled successful stderr consumption and missing receipt refusal."
+  ],
+  "limits": [
+    "No bespoke probes, predecessor replay or independent broad suite this turn.",
+    "Author broad affected and Make jobs were running during review; no result from them is inferred here.",
+    "No generic postcommit error-classification, fresh recovery, imported ownership or control-release proof beyond actual tested scope.",
+    "Internal POSIX source-backed profile only; no isolated installed-wheel, Linux/Windows, root/shared/wrapper, public API, full program or release acceptance.",
+    "Finite quotas still intentionally refuse operations exceeding actual cumulative input or peak capacity.",
+    "All seven hashes rechecked unchanged after test completion. No source/test/pin edits, installs, network or agents. Prior reports immutable.",
+    "No independent process remains live."
+  ]
+}

@@ -85,7 +85,10 @@ def _raw_git(
     timeout_seconds: float = 60,
     _maximum_output_bytes=None,
     _maximum_error_bytes=None,
+    _output_usage=None,
 ) -> bytes:
+    if _output_usage is not None and not callable(_output_usage):
+        raise TypeError("Git output usage observer must be callable")
     output_limit, error_limit = 8 * 1024 * 1024, 64 * 1024
     for value, ceiling in (
         (_maximum_output_bytes, output_limit),
@@ -136,6 +139,8 @@ def _raw_git(
     if result.returncode:
         # Git diagnostics may contain configured credentials; never echo them.
         _fail("inspection_failed", "Git could not inspect the requested repository")
+    if _output_usage is not None:
+        _output_usage(len(result.stdout), len(result.stderr))
     return result.stdout
 
 

@@ -33917,7 +33917,14 @@ independent review and the complete combined gate from test one.
   canonical resolver; genuine Git source-lease admission remains required.
   Verification is retained in
   [provenance evidence](../../verification/retained-layout-catalog-provenance-development.json).
-  Actual control finalization and the live imported-role join
+  Actual internal control finalization now keeps original descriptors while
+  normalizing only new advisory markers and retaining native controls, pending
+  last after a durable decision. Known project/private journal views advance only
+  from verified effects. Canonical Git reads retain actual channel usage under
+  unchanged ceilings; global view reservation uses sealed action bounds.
+  The failed native-Git/multi-item runs and repaired evidence are retained in
+  [control-finalization evidence](../../verification/retained-layout-catalog-finalization-development.json).
+  The live imported-role join and full control/public/platform acceptance
   remain required for complete project application. The plan remains descriptive;
   it supplies no copied role or source exclusion. Next complete those real writer
   and ownership phases, then

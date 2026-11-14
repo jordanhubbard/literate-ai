@@ -1,0 +1,91 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "c38c3c28325d9130c25107f3c9799641bf2fdaf1",
+  "lineage": [
+    {
+      "path": "independent-layout-catalog-finalization-review.json",
+      "sha256": "40eea0646b089c30023432a226c55095e2c9b39c4631ffeb824832cd88bed548",
+      "status": "immutable initial failed scope"
+    },
+    {
+      "path": "independent-layout-catalog-finalization-rereview.json",
+      "sha256": "20d8bf2dbafbea5778e4bbae3e2b4aaeb942c13d314642218d535db65e8e490d",
+      "status": "immutable prior seven-subject approval; independent32 at older entry hash"
+    }
+  ],
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_control_finalization.py",
+      "sha256": "60e8c7063905d48c60e3b63843246b4c4cf1f15a04954cb1c4e95823954eea39"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "147549b71e3b48f64dc8ebb2952f849dd607310bb3ae3301eb910b2c5fd382b5"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "c803b8d37438ea7776047af2894ce5ed80e800d572d0047f43b55b54564a4232"
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_orchestration.py",
+      "sha256": "8c65543a808c99664b821cebe47e82d944a5059514daa8ec3d35a2b7fb58c189"
+    },
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "c5bf5c5e855275b5f7302a4a2d42b87e9296cfbed386497b9804e97fa6878d5b"
+    },
+    {
+      "path": "tests/critical/test_catalog_control_finalization.py",
+      "sha256": "c05e7b3dacbba84ca560151832ded6d491380e5a3bc0391e173763334db56aa3"
+    },
+    {
+      "path": "tests/critical/test_bounded_role_observation.py",
+      "sha256": "1169efbbcc2ae27488276bafb336d8038d84e74a0b14d41c4625a305aa952286"
+    }
+  ],
+  "findings": [],
+  "delta_assessment": [
+    "Only entry publication subject changed from prior reviewed seven-file manifest. Current reserve and call accept actual sealed finalization ticket.",
+    "Original node/path count aggregates project, private stages/journal, control pool and control journal. Existing control journal nodes remain counted.",
+    "For a actual marker actions, sealed events=2a+4 bounds begin1, two events per action, commit1 and final-observed1. At most2a payload publications plus those events fit 2*sealed.events+4 future-node reservation, including small transient margin.",
+    "Payload reservation includes both original control census payloads plus sealed additional finalization.storage; existing journal payload is not omitted. Original stage journal maximum storage and prospective provenance remain funded.",
+    "Global metadata formula already sums all namespaces. Two global metadata reservations fund aggregate expected maps and one sequential comparison capture; four full global reservations duplicated the global aggregate. Retained original censuses remain independently funded by earlier ledger capture.",
+    "No policy ceiling increased, no canonical check removed, no original census replaced by a fresh baseline. Actual ledger capacity checks, journal event/storage limits and complete known native/content closure remain.",
+    "Both formerly failing two-item maintained positives now complete their declared partial phase with original fixtures and budgets. The internal profile remains incomplete pending imported-role handoff."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_entry_publication.CatalogEntryPublicationTests.test_all_selected_items_are_published_without_rebasing_the_first tests.critical.test_catalog_provenance_publication.CatalogProvenancePublicationTests.test_all_items_share_one_timestamp_and_keep_canonical_source_ancestors tests.critical.test_catalog_control_finalization > _build/catalog-finalization-reserve-independent.log 2>&1",
+    "session": 85016,
+    "exit_code": 0,
+    "tests": 12,
+    "passed": 12,
+    "skipped": 0,
+    "seconds": 99.127,
+    "log": "_build/catalog-finalization-reserve-independent.log",
+    "log_sha256": "e3fa8c358c8520f65d9638bcb50e94674dc499762dc81a9ec6e9bd7a632a5150",
+    "terminal": true,
+    "bespoke_probes": 0,
+    "additional_test_inputs": [
+      {
+        "path": "tests/critical/test_catalog_entry_publication.py",
+        "sha256": "93d71ab7a1436dc6bf4519b1ba7d85bc1fc92ba32751d713de16fedd9cd94f5a"
+      },
+      {
+        "path": "tests/critical/test_catalog_provenance_publication.py",
+        "sha256": "421f5c3f20a4ff99e6457fd067984cda0d45be8e19164b9e4baf5a430171135f"
+      }
+    ]
+  },
+  "limits": [
+    "Reserve source review and exact maintained12 only; no bespoke probes or independent broad suite.",
+    "Earlier author broad204 with202 passes/two multi-item failures is historical failed evidence, not relabeled passing. Current author broad/Make jobs were pending and not relied upon.",
+    "Sealed bound covers this finalizer's owned appends/store_payload calls, not arbitrary extra caller journal work.",
+    "Prior Git accounting independent32 remains at its precise older entry hash; six unchanged subjects retain their inspected bytes, not a new32 execution.",
+    "Finite budgets may still refuse larger actual workloads. No general all-size completion proof.",
+    "No imported-role handoff, public apply, fresh recovery, full namespace ownership, root/shared/wrapper, installed-wheel, cross-platform, full feature/program or release acceptance.",
+    "No source/test/pin edits, installs, network or agents. Entry hash rechecked unchanged after terminal tests; other six match prior exact manifest.",
+    "No independent process remains live."
+  ]
+}
