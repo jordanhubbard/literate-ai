@@ -1,0 +1,61 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_planning_core_scope",
+  "review_mode": "source-only; no independent tests or probes",
+  "base_commit": "b79a1c8a52fbff6ceed5b5152f41b41658cfeaf6",
+  "reviewer": "guard_review",
+  "record_origin": "Transcribed from independent reviewer messages; final subject digests recomputed by author.",
+  "scope": "Read-only persistent source-preparation planning core, including actual ledger lifetime, predecessor accounting and final observed-span closure. Phase, partition and effect admission are unfinished.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "d3b77dd6e3293c67dfda608289309d6498f25b7fb29b50ab41e392a2c1320196"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "bec7260d792ad58df66e0400ec1afedaa190f0d56ade90514dda2c86db9a191d"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_source_preparation.py",
+      "sha256": "55bb3583ad803c96967916e43654b087abedc68fd2be5abd38a347a414f6f1bb"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_source_preparation.py",
+      "sha256": "e94521896247890cf284bfd5abaabc25940dab88bf6c059b50aeba0921bf36a3"
+    }
+  ],
+  "review_chain": [
+    {
+      "decision": "changes_requested",
+      "finding": "Activation teardown rereads metadata payloads after the source-tree closure, leaving late source changes unchecked.",
+      "source_preparation_sha256": "77d09ae75df7a04468f6e767a78a7ffff084ce04a853980ad6e074781a06d4f7",
+      "resolution": "Final global native closure follows the last activation payload traversal."
+    },
+    {
+      "decision": "changes_requested",
+      "finding": "Final pending absence was unchecked, and destination/source namespace scans followed already-closed metadata/Git facts.",
+      "source_preparation_sha256": "9526e1d30005671da6489b2c402d43f7c1b9e75b541550569f5f85d364d95bee",
+      "resolution": "Actual registered preparation joins native source closing after namespace scans; final original metadata/Git/ancestry, destination and pending checks precede known source-native facts."
+    },
+    {
+      "decision": "changes_requested",
+      "finding": "Exact destination absence did not cover a portable alias introduced during later source traversal.",
+      "source_preparation_sha256": "3a07c2a485740c225c3cf0f46f51eaa3a4a815775339642f70e97be99c70fcc9",
+      "resolution": "Coherent native destination-parent stamp brackets the alias-aware absence scan and closes after later traversal. The closing registration binds actual original State/tree/native objects and revokes in finally."
+    },
+    {
+      "decision": "approved_at_limited_planning_core_scope",
+      "source_preparation_sha256": "55bb3583ad803c96967916e43654b087abedc68fd2be5abd38a347a414f6f1bb",
+      "assessment": "No remaining blocker identified at the planning-core scope."
+    }
+  ],
+  "findings": [],
+  "independent_dynamic_qualification": false,
+  "open_scope": [
+    "Actual source-phase admission retaining the preparation ledger",
+    "Complete partition consumption and canonical authored-role admission",
+    "Verified control/metadata effect expectation advancement",
+    "Initial/root/shared/wrapper placement and recovery",
+    "Installed/native/cross-platform/integration/release and full-roadmap acceptance"
+  ]
+}

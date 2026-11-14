@@ -33975,9 +33975,18 @@ independent review and the complete combined gate from test one.
   32 controls and the final affected neighborhood passes 139 methods without
   skips. Independent source rereview closes both findings at this prerequisite
   scope; [read-path evidence](../../verification/retained-layout-source-metadata-read-development.json)
-  retains exact subjects and limits. Next create the registered preparation
-  operation before initial discovery and retain its ledger through actual phase
-  and partition admission, charging genuine predecessor usage once. Then join
+  retains exact subjects and limits. The persistent planning core now funds
+  initial discovery and source capture through one registered read owner and
+  ledger, imports genuine predecessor usage once and closes late source,
+  metadata, pending and destination-membership changes. Its 23-case scoped Make
+  gate and separate 241-method regression cohort pass without skips;
+  independent source review is limited to planning.
+  [Preparation evidence](../../verification/retained-layout-source-preparation-development.json)
+  retains the original failed controls, corrections and open acceptance. Funded
+  descriptions remain refused by the legacy effect entry. Next join the actual
+  preparation to source-phase admission and retain its ledger through complete
+  partition consumption and verified control/metadata expectation advancement.
+  Then join
   authored metadata roles before root effects, preserving the transport
   limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and

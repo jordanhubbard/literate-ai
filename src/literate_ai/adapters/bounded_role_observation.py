@@ -9,7 +9,10 @@ from contextvars import ContextVar
 from pathlib import Path
 
 _CURRENT = ContextVar("bounded-role-observation", default=None)
+_ACTIVATION = ContextVar("bounded-role-activation", default=None)
 _KEY = object()
+_OPERATIONS = {}
+_ACTIVE = {}
 
 
 def _fail(message):
@@ -22,6 +25,8 @@ def current_role_observation():
         if type(value) is not _RoleObservation:
             raise TypeError("actual bounded role read scope required")
         value._live()
+        if _ACTIVATION.get() is None or _ACTIVE.get(value) is not _ACTIVATION.get():
+            _fail("original read activation ended")
     return value
 
 
@@ -47,10 +52,22 @@ class _RoleObservation:
             or self._thread != threading.get_ident()
         ):
             _fail("read scope ended, inherited or exhausted")
+        original = _OPERATIONS.get(self)
+        if (
+            original is None
+            or original[0] is not self._ledger
+            or original[3] is not self._ledger.budget
+            or original[4] != self._ledger.metadata
+            or original[5] != self._ledger.reserve
+        ):
+            self._poisoned = True
+            _fail("original canonical read policy changed")
         self._ledger.require_capacity()
 
     def _begin_io(self):
         self._live()
+        if current_role_observation() is not self:
+            _fail("actual active canonical read scope required")
         if self._io_active:
             self._poisoned = True
             _fail("reentrant role I/O cannot borrow the shared allowance")
@@ -134,6 +151,8 @@ class _RoleObservation:
 
     def json_value(self, content, label):
         self._live()
+        if current_role_observation() is not self:
+            _fail("actual active canonical read scope required")
         try:
             value = self._ledger.json_value(content, label)
             self._live()
@@ -215,6 +234,8 @@ class _RoleObservation:
         from .retained_layout_partition import _lineage
 
         self._live()
+        if current_role_observation() is not self:
+            _fail("actual active canonical read scope required")
         for path, expected in self._lineages.items():
             if _lineage(path) != expected:
                 _fail("original role ancestry changed")
@@ -231,8 +252,8 @@ class _RoleObservation:
 
 
 @contextmanager
-def bounded_role_observation(*, budget, maximum_metadata_bytes, _ledger=None):
-    """Scope only canonical read helpers; saved observations grant no effects."""
+def _role_observation_operation(*, budget, maximum_metadata_bytes, _ledger=None):
+    """Retain one read owner without installing it across a caller yield."""
     from .catalog_copy_plan import _Observation
 
     if _CURRENT.get() is not None:
@@ -246,10 +267,69 @@ def bounded_role_observation(*, budget, maximum_metadata_bytes, _ledger=None):
     ):
         raise TypeError("actual matching shared observation ledger required")
     owner = _RoleObservation(_KEY, _ledger)
+    _OPERATIONS[owner] = (
+        _ledger,
+        os.getpid(),
+        threading.get_ident(),
+        _ledger.budget,
+        maximum_metadata_bytes,
+        _ledger.reserve,
+    )
+    try:
+        yield owner
+    finally:
+        _OPERATIONS.pop(owner, None)
+        owner._active = False
+
+
+@contextmanager
+def _activate_role_observation(owner, *, _borrow=False):
+    """Activate only a live factory owner; foreign or reentrant I/O refuses."""
+    original = _OPERATIONS.get(owner)
+    if (
+        type(owner) is not _RoleObservation
+        or original is None
+        or original[0] is not owner._ledger
+        or original[1:3] != (os.getpid(), threading.get_ident())
+    ):
+        raise TypeError("actual live canonical read operation required")
+    owner._live()
+    current = _CURRENT.get()
+    if owner._io_active:
+        owner._poisoned = True
+        _fail("nested or reentrant read activation is ambiguous")
+    if current is not None and (current is not owner or not _borrow):
+        _fail("nested or reentrant read activation is ambiguous")
+    if current is owner:
+        if current_role_observation() is not owner:
+            _fail("original read activation ended")
+        yield owner
+        owner.require_current()
+        if _OPERATIONS.get(owner) is not original:
+            _fail("original canonical read operation ended")
+        owner._live()
+        return
+    activation = object()
     token = _CURRENT.set(owner)
+    activation_token = _ACTIVATION.set(activation)
+    _ACTIVE[owner] = activation
     try:
         yield owner
         owner.require_current()
+        if _OPERATIONS.get(owner) is not original:
+            _fail("original canonical read operation ended")
+        owner._live()
     finally:
-        owner._active = False
+        _ACTIVE.pop(owner, None)
+        _ACTIVATION.reset(activation_token)
         _CURRENT.reset(token)
+
+
+@contextmanager
+def bounded_role_observation(*, budget, maximum_metadata_bytes, _ledger=None):
+    """Scope only canonical read helpers; saved observations grant no effects."""
+    with _role_observation_operation(
+        budget=budget, maximum_metadata_bytes=maximum_metadata_bytes, _ledger=_ledger
+    ) as owner:
+        with _activate_role_observation(owner):
+            yield owner

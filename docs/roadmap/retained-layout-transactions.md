@@ -1671,6 +1671,31 @@ JSON-accounting findings at this prerequisite scope. Exact subjects, test logs
 and limits are retained in the
 [read-path evidence](../../verification/retained-layout-source-metadata-read-development.json).
 
+The persistent planning core now starts one registered observation operation
+before canonical source discovery and funds the source census from its remaining
+allowance. Sequential activations retain the exact original ledger and reader;
+no read ContextVar remains installed across the caller's yield. Original input,
+metadata and reread-buffer policy stay bound, and expired copied activations
+cannot borrow the still-live operation. Genuine predecessor usage is imported
+once, using the catalog's already-combined accounting when framework and catalog
+are joined. Producer caches and control expectations remain separate.
+
+Planning currentness closes all cached payloads before final namespace scans,
+then original metadata/Git/ancestry, pending and destination-parent membership
+facts, then known source native facts and pure original lifetimes. A coherent
+parent stamp preserves portable destination-alias refusal across the later source
+scan. These are read-only observations. The distinct funded plan is refused by
+the legacy source-effect entry; saved descriptions do not grant phase admission.
+The next action is to join the actual preparation to source-phase admission,
+carry the same ledger through complete partition consumption, and advance cached
+expectations only from verified original control and metadata effects. Those
+joins and complete authored-role admission remain unfinished.
+The 23-case scoped Make gate, a separate 241-method regression cohort and
+independent source review qualify this planning core only. Both author cohorts
+pass without skips. Original failing late-callback controls, their passing repairs
+and the broader qualification boundary are retained in
+[preparation evidence](../../verification/retained-layout-source-preparation-development.json).
+
 After the selected-source dependency is qualified, join the actual canonical
 authored inputs to complete partition ownership. Derive their endpoints from the
 live source plan's parsed project, conversion, lift/layout and wrapper witnesses,

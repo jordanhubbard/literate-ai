@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development can fund source discovery and capture under one
+  persistent read operation, retain original observations across sequential
+  activations and charge genuine predecessor usage once. Late source, metadata,
+  pending and destination-membership changes refuse. Transaction/partition
+  admission and effect integration remain unfinished (#265).
+
 - Retained-layout discovery uses an active bounded read scope for structural
   declaration and wrapper inputs, preserving canonical first-read limits and
   separate JSON accounting for each project. Persistent preparation and complete

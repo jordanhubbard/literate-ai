@@ -239,11 +239,17 @@ def _native_tree(tree):
     return tuple(records)
 
 
-def _close_tree(tree, native, *, controls=None):
+def _close_tree(tree, native, *, controls=None, _source_preparation=None):
     # Namespace and native facts only, after the last journal/logical input reads.
     # Full directory stamps close insertion/removal, not just directory identity.
     if controls is not None and type(controls) is not _ControlRolesLease:
         _fail("actual live controls required for dependency closure")
+    if _source_preparation is not None:
+        from .retained_layout_source_preparation import _require_preparation_tree
+
+        if controls is not None:
+            _fail("read-only preparation cannot supply acquired control roles")
+        _require_preparation_tree(_source_preparation, tree, native)
     close_private_nodes = (
         None if controls is None else controls.reservations._native_dependency_closer()
     )
@@ -275,6 +281,10 @@ def _close_tree(tree, native, *, controls=None):
         )
         if observed != known:
             _fail("source native namespace changed")
+        if _source_preparation is not None:
+            from .retained_layout_source_preparation import _close_preparation_inputs
+
+            _close_preparation_inputs(_source_preparation, tree, native)
         if controls is not None:
             # This can enumerate the external journal and private stages. Close
             # their original facts, and all project nodes, after those reads.
@@ -344,6 +354,11 @@ class _SourceMovePlan:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class _PreparedSourceMovePlan(_SourceMovePlan):
+    """Funded description; the legacy unjoined source-phase entry refuses it."""
+
+
 def _prospective_metadata(root, layout, inputs, implementation_directory):
     files = {item.path.relative_to(root).as_posix(): item for item in inputs}
     previous_content = files[RETAINED_LAYOUT_PATH].content
@@ -402,6 +417,7 @@ def plan_retained_layout_source_move(
     budget,
     framework_update=None,
     catalog_copy=None,
+    _observation=None,
 ):
     """Read-only exact nonroot source phase; no complete relocation is promised."""
     root = Path(project_root)
@@ -409,6 +425,19 @@ def plan_retained_layout_source_move(
         _fail("project root must be direct and absolute")
     if type(budget) is not RetainedCargoInputBudget:
         _fail("explicit typed source budget required")
+    if _observation is not None:
+        from .bounded_role_observation import current_role_observation
+        from .catalog_copy_plan import _Observation
+
+        reader = current_role_observation()
+        if (
+            type(_observation) is not _Observation
+            or reader is None
+            or reader._ledger is not _observation
+            or _observation.budget != budget
+            or _observation.roots != (root,)
+        ):
+            raise TypeError("actual active source preparation ledger required")
     update_identity = None
     if framework_update is not None:
         from .framework_update_roles import _require_handoff
@@ -453,7 +482,11 @@ def plan_retained_layout_source_move(
     ancestry = _lineage(destination.parent)
     _absence(destination, budget.maximum_entries)
     source_lineage = _lineage(source)
-    tree = capture_retained_cargo_tree_v2(source, budget=budget)
+    tree = (
+        capture_retained_cargo_tree_v2(source, budget=budget)
+        if _observation is None
+        else _observation.capture(source).tree
+    )
     if any(_project_manifest_candidates(tree)):
         _fail("nested project candidate requires independent authority classification")
     native = _native_tree(tree)
@@ -467,7 +500,8 @@ def plan_retained_layout_source_move(
     prospective = _prospective_metadata(
         root, layout, inputs, selected.implementation_directory
     )
-    plan = _SourceMovePlan(
+    plan_type = _SourceMovePlan if _observation is None else _PreparedSourceMovePlan
+    plan = plan_type(
         root,
         layout,
         inputs,
