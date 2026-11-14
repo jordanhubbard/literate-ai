@@ -154,7 +154,9 @@ class SourceSelectorTests(unittest.TestCase):
                 authored.Path, "cwd", side_effect=AssertionError("unowned CWD read")
             ) as cwd:
                 with self.assertRaises(ValueError):
-                    capture._canonical_cell("cell")
+                    ComponentLockStore.observe_selection(
+                        capture.preparation, self.source.parent
+                    )
                 self.assertFalse(cwd.called)
 
         with mock.patch.object(authored._Capture, "finish", finish):

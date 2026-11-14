@@ -1,0 +1,275 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Shared canonical lock observation under actual creating source preparation, original reader/ledger and exact acknowledged plan, external evidence separate from project ownership. Internal POSIX nonroot only.",
+  "base_commit": "4a275fb048a0e87ff8a05d7e461171523c8d8c13",
+  "review": "independent-layout-source-storage-review.json",
+  "author_history": [
+    {
+      "state": "failed",
+      "tests": 3,
+      "failures": 1,
+      "errors": 2,
+      "seconds": 2.279,
+      "log": {
+        "path": "_build/source-storage-before.log",
+        "sha256": "f9aab480dc2838a2922ef454f535a2ad53b695c256c27cb4900bdd6b017e80ec"
+      },
+      "scope": "Two genuine original external-store refusals and one actual unowned legacy constructor probe."
+    },
+    {
+      "state": "failed",
+      "executed": 7,
+      "passed": 6,
+      "errors": 1,
+      "seconds": 53.456,
+      "log": {
+        "path": "_build/source-storage-first.log",
+        "sha256": "5f50081e2debcbf1770b35045116bbba554978f03f80462386a2138a0eadc741"
+      },
+      "report": {
+        "path": "_build/source-storage-first-report.json",
+        "sha256": "258b7f1d43055bd44ccdd6c2dc2bfcf20eb509a2b22633e1b27e34076414644b"
+      },
+      "scope": "Six intended controls pass; private-pool case fails fixture mkdir because pool already exists, before its intended assertion."
+    },
+    {
+      "state": "passed_intermediate",
+      "tests": 10,
+      "seconds": 62.641,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-storage-second.log",
+        "sha256": "3815d2137ffbeab9c70e779a76db706b656efade91ab1ea4fa7b43c6cf7bbe0c"
+      },
+      "report": {
+        "path": "_build/source-storage-second-report.json",
+        "sha256": "f523cb5becfd9dfdeaf678ae4a27d23b9995658175eec9623ba4b84755581338"
+      },
+      "scope": "Before independently retained exact-record/field seals."
+    },
+    {
+      "state": "passed_intermediate",
+      "tests": 10,
+      "seconds": 38.375,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-storage-selectors-first.log",
+        "sha256": "b72406f98c27f9f827b36cd7ea83f8510086813b554c500f4bddfbe8b85bc1d2"
+      },
+      "report": {
+        "path": "_build/source-storage-selectors-first-report.json",
+        "sha256": "3e6ad0fc0df47b8c824cd40745fb4660e5bde054b46268c30d5c30a38970c9c4"
+      },
+      "scope": "Selector compatibility before record-integrity hardening; final complete source selection will include these IDs."
+    },
+    {
+      "state": "failed",
+      "executed": 2,
+      "passed": 1,
+      "errors": 1,
+      "seconds": 17.949,
+      "log": {
+        "path": "_build/source-storage-authored-first.log",
+        "sha256": "0e9e4c0343ec7f0816cca74db558c9af5a71e1098c49f1c774147ff7b2fd2db4"
+      },
+      "report": {
+        "path": "_build/source-storage-authored-first-report.json",
+        "sha256": "d52f671192473642b95bf103674d1a3b0e9cf455f5363b227be412a46a9adb5d"
+      },
+      "scope": "Unchanged original65536-entry/4GiB positive reaches final control receipt capacity refusal."
+    },
+    {
+      "state": "failed",
+      "tests": 1,
+      "seconds": 15.253,
+      "log": {
+        "path": "_build/source-storage-authored-budget.log",
+        "sha256": "e756b426b15beed75f10d05601623b1004d3ab591a076e9aec3b53cb6559de20"
+      },
+      "scope": "Actual pending control document1083bytes,240entries remaining vs256 required;2367174144metadata bytes remain under original4GiB. No production limit changed."
+    },
+    {
+      "state": "failed",
+      "tests": 1,
+      "seconds": 2.111,
+      "log": {
+        "path": "_build/source-storage-record-before-second.log",
+        "sha256": "a93d288ada7a7d1938a38de5d26e4f47cc284457203d966d5313823502c4fc99"
+      },
+      "scope": "Actual replaced record changes storage geometry but still accepts original identity and performs57nativepresence probes."
+    },
+    {
+      "state": "passed",
+      "tests": 1,
+      "seconds": 2.201,
+      "log": {
+        "path": "_build/source-storage-record-after.log",
+        "sha256": "2531650152ef3579dc7aa6ebed48b7ab5e29b8a9770ab03734b71edbc23bd110"
+      },
+      "scope": "Same altered-record probe refuses with zero native probes after independent exact-record/field seal."
+    },
+    {
+      "state": "passed",
+      "tests": 14,
+      "seconds": 62.551,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-storage-third.log",
+        "sha256": "dcbc7edb601cfdaa3c995767ca409db22a23c2c37259c9c5226bfb73cfebca6f"
+      },
+      "report": {
+        "path": "_build/source-storage-third-report.json",
+        "sha256": "67007210d103602f732e4b65b414c43beeb1be36d894f8a59ab5a52c54971a1b"
+      },
+      "scope": "Final new storage suite on exact reviewed source; overlaps final complete source family and will count once."
+    },
+    {
+      "state": "passed",
+      "tests": 18,
+      "seconds": 147.455,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-storage-authored-second.log",
+        "sha256": "0f2fc6f046cb6b7fd2b34bffa2a02b95dc993f2d9cacfd58af97c68d794ae32e"
+      },
+      "report": {
+        "path": "_build/source-storage-authored-second-report.json",
+        "sha256": "ec28c485627d13cb49d5bbe77eb81e4b12af4a0243de426990f50a77e6d881f7"
+      },
+      "scope": "Final maintained authored controls; positives declare131072entries before preparation with unchanged4GiB/file/payload policy; explicit65536-entry/4GiB negative reaches actual receipt guard, callback control confirms actual revocation."
+    }
+  ],
+  "diagnostics": [
+    {
+      "log": {
+        "path": "_build/source-storage-record-before.log",
+        "sha256": "3dc74c3043359b2537178f56eb9e505dbe606de29f2b635e6a2ef7cc36f307be"
+      },
+      "scope": "Private diagnostic initially patched a nonexistent module alias; startup AttributeError precedes intended integrity assertion. Corrected native module alias in retained actual failing replay."
+    }
+  ],
+  "final_author_qualification": {
+    "state": "passed",
+    "source_operation": {
+      "state": "passed",
+      "exit_code": 0,
+      "summary": {
+        "executed": 112,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 112,
+        "selected": 112,
+        "skipped": 0
+      },
+      "seconds": 1141.331,
+      "log": {
+        "path": "_build/source-storage-complete-source.log",
+        "sha256": "f7be76087dc1e77e49b8350591ddd0719635ea0bedb7a49bb8ab26761cd7a8c3"
+      },
+      "report": {
+        "path": "_build/source-storage-complete-source-report.json",
+        "sha256": "8a7ea2f08dc5d6542bf9138adf51ee7e811e317c7abf52057635f3ae9eb7b615"
+      }
+    },
+    "authored_roles": {
+      "state": "passed",
+      "exit_code": 0,
+      "summary": {
+        "executed": 18,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 18,
+        "skipped": 0
+      },
+      "seconds": 147.455,
+      "log": {
+        "path": "_build/source-storage-authored-second.log",
+        "sha256": "0f2fc6f046cb6b7fd2b34bffa2a02b95dc993f2d9cacfd58af97c68d794ae32e"
+      },
+      "report": {
+        "path": "_build/source-storage-authored-second-report.json",
+        "sha256": "ec28c485627d13cb49d5bbe77eb81e4b12af4a0243de426990f50a77e6d881f7"
+      }
+    },
+    "regression": {
+      "seconds": 859.2620764170424,
+      "summary": {
+        "selected": 387,
+        "executed": 387,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 387
+      },
+      "ok": true,
+      "state": "passed",
+      "exit_code": 0,
+      "report": {
+        "path": "_build/source-storage-regression-first-report.json",
+        "sha256": "7e4b3fb47c6c7c21cbb1d2303bf38225324a4aa451f1e9ca0aa8389c0c010c96"
+      },
+      "log": {
+        "path": "_build/source-storage-regression-first.log",
+        "sha256": "75ee22e580f23ce7ec61e86eb0c2a02116885035dc7dd6d0de7baa997e546fb7"
+      }
+    },
+    "distinct_passing_test_ids": 517,
+    "skipped": 0
+  },
+  "acceptance": {
+    "finite_shared_canonical_storage_observation": true,
+    "complete_canonical_selectors": false,
+    "root_shared_initial_wrapper_effects": false,
+    "complete_public_recovery": false,
+    "complete_public_apply": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Complete root/shared/initial/wrapper partition and effect graph, public recovery/apply and every remaining installed/native/platform/integration/release and roadmap obligation. The full project receipt remains stale.",
+  "static_gates": {
+    "state": "passed",
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-storage-first-static.log",
+      "sha256": "bfcf8887e184c1968b73b7803fa4f1f08ef9437dcb5ed72d82c12f17a0eac25b"
+    }
+  },
+  "authority_checks": {
+    "driver_record": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-storage-driver-record.log",
+        "sha256": "1c913f99c2f1c47e3bdab82ae3c5c64b46ca07b0ee171ed5c33a46313f9b5c48"
+      }
+    },
+    "documentation_record": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-storage-documentation-record.log",
+        "sha256": "6ad749a119ceb9df473958248988e4cd982e1d381359ee662b1d8b302210b216"
+      }
+    },
+    "driver_runner_layout_export": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-storage-authority-checks.log",
+        "sha256": "f482d5424f8c527ffaf5b7834b8475477ad8380e079faf9a81e050999f0873e6"
+      }
+    },
+    "project_validate": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-storage-project-validate.json",
+        "sha256": "f0e3c3307aba890ccbb48698869be2e3f0bf3b4b62033a31c671d64d9575ddf9"
+      }
+    }
+  }
+}

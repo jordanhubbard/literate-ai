@@ -12,7 +12,7 @@ from literate_ai.contracts.component_locking import ComponentAuthoring
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.projects import PROJECT_FILENAME
 
-from .component_locks import LOCK_FILENAME, ComponentLockStore
+from .component_locks import ComponentLockStore
 from .conversion_authority import CONVERSION_AUTHORITY_FILE
 from .harness_inventory import HARNESS_WRAPPER_FILENAME
 from .repository_refresh import _file
@@ -36,8 +36,7 @@ def _endpoint_names(root, project, layout, lock_path):
         root / RETAINED_LAYOUT_PATH,
         root / HARNESS_WRAPPER_FILENAME,
         layout.wrapper_root / "component.md",
-        lock_path,
-    )
+    ) + ((lock_path,) if lock_path.is_relative_to(root) else ())
     if (
         project.root != root
         or project.manifest.path != root / PROJECT_FILENAME
@@ -64,6 +63,7 @@ class _Witness:
     lock_path: Path
     names: tuple
     selector_paths: tuple
+    selection: object
 
 
 class _Capture:
@@ -82,6 +82,7 @@ class _Capture:
         self.finished = False
         self.lock_path = None
         self.selector_paths = ()
+        self.selection = None
         original.ledger.charge_records(
             64, 65536 + 128 * len(str(original.root).encode())
         )
@@ -97,62 +98,12 @@ class _Capture:
             or current_role_observation() is not self.original.reader
         ):
             _fail("one actual funded canonical store selection required")
-        selected = os.environ.get("LITAI_MATRIX_CELL_ROOT")
-        matrix_root = None
-        if selected:
-            self.original.ledger.charge_records(8, 4096 + 4 * len(selected))
-            matrix_root = self._canonical_cell(selected)
-        lock = ComponentLockStore._storage_root(layout.wrapper_root, matrix_root)
-        lock = lock / LOCK_FILENAME
-        if not lock.is_relative_to(self.original.root):
-            _fail("canonical lock endpoint must remain inside the actual project")
-        self.lock_path = lock
-        return lock
-
-    def _canonical_cell(self, selected):
-        from .bounded_role_observation import current_role_observation
-        from .retained_layout_git_controls import _presence
-        from .retained_layout_partition import _lineage
-        from .retained_layout_source_preparation import _state
-
-        if (
-            self.finished
-            or self.lock_path is not None
-            or _state(self.preparation, ready=False) is not self.original
-            or current_role_observation() is not self.original.reader
-            or type(selected) is not str
-        ):
-            _fail("actual creating canonical selector observation required")
-        supplied = Path(selected)
-        if not supplied.is_absolute():
-            # CWD is sampled once under the original allowance. Later store
-            # checks use the frozen endpoint, never ambient process state.
-            self.original.ledger.charge_records(8, 65536)
-            supplied = Path.cwd() / supplied
-        resolved = Path(os.path.normpath(str(supplied)))
-        if not resolved.is_relative_to(self.original.root):
-            _fail("external canonical storage requires its actual shared owner")
-        # Every cumulative prefix is at most the supplied absolute path's size.
-        # Reserve this conservative bound before constructing the retained list;
-        # a long selector must refuse before quadratic path allocation.
-        count = len(supplied.parts)
-        self.original.ledger.charge_records(
-            8 + 4 * count,
-            4096 + 128 * count * len(str(supplied).encode()),
+        self.selection = ComponentLockStore.observe_selection(
+            self.preparation, layout.wrapper_root
         )
-        paths = [Path(supplied.anchor)]
-        for part in supplied.parts[1:]:
-            paths.append(paths[-1].parent if part == ".." else paths[-1] / part)
-        facts = {}
-        for path in paths:
-            node = _presence(path)
-            if node is not None:
-                if not stat.S_ISDIR(node[2]):
-                    _fail("canonical cell resolution requires direct directories")
-                _lineage(path)
-            facts[path] = node
-        self.selector_paths = tuple(facts.items())
-        return resolved
+        self.lock_path = self.selection.path
+        self.selector_paths = self.selection.selector_paths
+        return self.lock_path
 
     def observe(self, project, layout, inputs, lineages, component):
         from .bounded_role_observation import current_role_observation
@@ -256,10 +207,14 @@ class _Capture:
             self.lock_path,
             names,
             self.selector_paths,
+            self.selection,
         )
 
 
 def _require_witness(preparation, state):
+    from .component_lock_observation import _for_preparation
+
+    selection = _for_preparation(preparation)
     value = state.authored
     if (
         type(value) is not _Witness
@@ -271,6 +226,9 @@ def _require_witness(preparation, state):
         or value.inputs is not state.plan.inputs
         or value.lineages is not state.plan.input_lineages
         or value.lock_path != state.plan.authored_lock
+        or value.selection is not selection
+        or value.selector_paths is not selection.selector_paths
+        or state.plan.authored_storage != selection.identity.uri
         or value.names
         != _endpoint_names(state.root, value.project, value.layout, value.lock_path)
         or any(

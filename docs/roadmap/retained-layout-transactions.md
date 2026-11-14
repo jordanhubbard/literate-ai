@@ -1852,7 +1852,8 @@ and freeze the resolved endpoint across later environment or working-directory
 changes. Redirected, external, changed, or source-crossing resolution paths must
 refuse before effects. Qualify genuine full nonroot source/metadata/control
 completion with an absent cell, plus changed-anchor and late-directory refusal.
-External shared storage and root/shared/initial/wrapper movement remain open.
+External shared storage is joined below; complete root/shared/initial/wrapper
+movement and public acceptance remain open.
 
 Close these actual inputs after dependent discovery and native callbacks, before
 role consumption or source effects. Qualify real nonroot positive composition
@@ -1981,3 +1982,68 @@ and intermediate successful profiles remain distinct in
 External shared canonical storage, complete root/shared/initial/wrapper effects,
 public recovery/apply and installed/native/platform/integration/release acceptance
 remain open; the configured full project receipt is still stale.
+
+
+## Shared external canonical storage (source reviewed)
+
+Join an actual canonical store-selection participant during original funded
+source discovery. Its factory must own selection and optional lock observation,
+retain the same actual reader and cumulative ledger through final callbacks and
+descriptor teardown, and bind the selected location plus original native/content
+facts into the acknowledged source plan. Saved paths, copied/ended participants
+or fresh legacy constructors inside a canonical observation grant no substitute
+rights. Keep external observations separate from the project partition: an
+external lock never gives an in-project namesake authored ownership.
+
+Close original external bytes, absence, ancestry and participant registration
+after dependent reads and at the final native boundary. Protect the actual
+selected storage endpoint from moving source/destination and original private
+pool/journal/metadata/retirement effects, including missing endpoints and native
+aliases. Preserve foreign files and stale lock evidence unchanged. Qualify actual
+nonroot source/metadata/control completion with existing and absent external
+locks, changed/late inputs, private-area overlap, ended/forged/copied ownership,
+last-native revocation and actual teardown-time changes under the original
+allowance. Keep legacy unjoined behavior, root/shared/initial/wrapper effects,
+public recovery/apply and installed/platform/release acceptance explicit.
+
+
+The canonical store now owns a sealed selection participant, funded before its
+first native observation by the actual creating source reader and original
+cumulative ledger. Its identity binds the exact selected endpoint and original
+content/native facts into the acknowledged source plan. External lock evidence
+never becomes an in-project authored exclusion. The same original snapshots
+and registration survive source, metadata and control effects, descriptor
+teardown and readonly terminal observation; ordinary legacy constructors refuse
+inside canonical observation, while standalone behavior stays unchanged.
+
+An actual diagnostic changed the registered storage root while retaining its
+path, snapshot, identity and plan. It was wrongly accepted and performed 57 native
+presence probes. Independent exact-record and field seals now retain original
+snapshot and content-identity primitives as well as references, reject changes
+before reads, prohibit advancement of completed observations and permit one
+validated plan binding. The same diagnostic now refuses with zero probes. A
+foreign active reader cannot perform native closure; authenticated final closure
+without an active reader remains available. Actual private pool/journal and
+metadata/retirement separation covers original missing and existing endpoints
+without claiming the entire external cell as exclusive storage.
+
+Fresh maintained qualification passes all 112 source-operation methods and
+eighteen authored-role methods. A separate 387-method affected regression also
+passes without skips: 517 distinct passing methods on the exact ten independently
+reviewed source/test subjects. The new fourteen-method storage suite is included
+once in that source cohort. An original authored positive needed more than its
+65,536-entry policy: the diagnostic reached an actual pending control receipt
+with 240 records remaining for a 256-record reservation, while document size and
+metadata retained headroom. Positives now declare 131,072 entries before
+preparation, preserving the original 4 GiB/file/payload limits. A separate
+65,536-entry/4 GiB negative must still reach that specific receipt guard. No
+active policy is enlarged, and the original capacity guard is unchanged. The
+authored teardown control now requires successful actual revocation before
+accepting a committed error. Exact failures, profiles, source review and final
+reports are retained in
+[shared storage evidence](../../verification/retained-layout-source-storage-development.json).
+
+Complete root/shared/initial/wrapper effects, public recovery/apply and
+installed/native/platform/integration/release acceptance remain open. This
+normal nonroot source transaction is still committed-unqualified, and the
+configured full project test receipt remains stale.

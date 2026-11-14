@@ -134,6 +134,7 @@ def _inputs(
     _observation=None,
     _authored_capture=None,
     _authored_lock=None,
+    _authored_storage=None,
 ):
     if _observation is None:
         from .bounded_role_observation import current_role_observation
@@ -206,7 +207,16 @@ def _inputs(
         if type(_authored_capture) is not _Capture:
             raise TypeError("actual source authored witness capture required")
         lock_path = _authored_capture.canonical_lock(layout)
-    observations += (component, _file(lock_path, optional=True))
+        _authored_storage = _authored_capture.selection
+    if _authored_storage is not None:
+        from .component_lock_observation import _require_path
+
+        _require_path(_authored_storage, root, layout.wrapper_root, lock_path)
+    observations += (component,)
+    if lock_path.is_relative_to(root):
+        observations += (_file(lock_path, optional=True),)
+    elif _authored_storage is None:
+        _fail("external canonical storage requires its actual original owner")
     if layout.implementation_root == root:
         _fail("root source phase requires the complete mixed-partition owner")
     # Never classify nested authority from a basename as ownership. Such a
@@ -407,6 +417,7 @@ class _PreparedSourceMovePlan(_SourceMovePlan):
     """Funded description; the legacy unjoined source-phase entry refuses it."""
 
     authored_lock: Path | None = None
+    authored_storage: str | None = None
 
 
 def _prospective_metadata(root, layout, inputs, implementation_directory):
@@ -573,11 +584,18 @@ def plan_retained_layout_source_move(
         catalog_identity,
         catalog_provenance,
         **(
-            {"authored_lock": _authored_capture.lock_path}
+            {
+                "authored_lock": _authored_capture.lock_path,
+                "authored_storage": _authored_capture.selection.identity.uri,
+            }
             if _authored_capture is not None
             else {}
         ),
     )
+    if _authored_capture is not None:
+        from .component_lock_observation import _bind_plan
+
+        _bind_plan(_authored_capture.selection, plan)
     if framework_update is not None:
         framework_update.require_plan(plan)
         framework_update.require_current()
@@ -687,6 +705,11 @@ def _validate_plan_roles(plan):
 
 
 def _require_prepared(plan, reservations=None):
+    storage = None
+    if type(plan) is _PreparedSourceMovePlan:
+        from .component_lock_observation import _require_plan
+
+        storage = _require_plan(plan)
     _validate_plan_roles(plan)
     _require_catalog_provenance(plan)
     pending = layout_pending_control_path(plan.root)
@@ -710,6 +733,7 @@ def _require_prepared(plan, reservations=None):
         plan.root,
         maximum_checkpoint_bytes=checkpoint_limit,
         _authored_lock=getattr(plan, "authored_lock", None),
+        _authored_storage=storage,
     ) != (
         plan.layout,
         plan.inputs,

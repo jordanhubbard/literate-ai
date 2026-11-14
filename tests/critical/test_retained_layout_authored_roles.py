@@ -24,7 +24,10 @@ class AuthoredRoleTests(unittest.TestCase):
     prepare = fixtures.SourceAdmissionTests.prepare
     pool = fixtures.SourceAdmissionTests.pool
     inspecting = fixtures.SourceAdmissionTests.inspecting
-    setUp = fixtures.SourceAdmissionTests.setUp
+
+    def setUp(self):
+        fixtures.SourceAdmissionTests.setUp(self)
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
 
     @classmethod
     def setUpClass(cls):
@@ -111,6 +114,57 @@ class AuthoredRoleTests(unittest.TestCase):
                     roles.require_current()
                 owner.require_current()
             owner.require_current()
+        self.assertFalse(lock.exists())
+        self.assertTrue((self.destination / "app.py").is_file())
+
+    def test_original_smaller_profile_retains_control_receipt_refusal(self):
+        from literate_ai.adapters import retained_layout_source_finalization as controls
+        from literate_ai.contracts.identity import canonical_json_bytes
+
+        self.input_budget = replace(self.input_budget, maximum_entries=65536)
+        lock = ComponentLockStore(self.source.parent).path
+        lock.unlink()
+        original = controls._preflight_control_receipt
+        refused = []
+
+        def receipt(reservations, data):
+            try:
+                return original(reservations, data)
+            except ValueError:
+                for phase, value in controls._FINALIZATIONS.items():
+                    if phase.controls.reservations is reservations:
+                        ledger = value.admission.original.ledger
+                        self.assertEqual(ledger.budget.maximum_entries, 65536)
+                        self.assertEqual(ledger.metadata, 4 * 1024**3)
+                        self.assertIsNotNone(value.pending)
+                        self.assertLess(len(canonical_json_bytes(data)) + 128, 65536)
+                        self.assertLess(
+                            ledger.budget.maximum_entries - ledger.records, 256
+                        )
+                        self.assertGreaterEqual(
+                            ledger.metadata - ledger.charged, 4096 * 256
+                        )
+                        refused.append(True)
+                raise
+
+        with mock.patch.object(controls, "_preflight_control_receipt", receipt):
+            with self.assertRaises(transaction.LayoutCommitOutcomeError) as caught:
+                with self.prepare() as owner:
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.input_budget,
+                                maximum_metadata_bytes=self.metadata_limit,
+                            ):
+                                phase.move_source()
+                            phase.publish_metadata(self.metadata)
+                            phase.finalize_controls(self.retired)
+        self.assertEqual(refused, [True])
+        self.assertIs(caught.exception.committed, True)
         self.assertFalse(lock.exists())
         self.assertTrue((self.destination / "app.py").is_file())
 
@@ -266,18 +320,26 @@ class AuthoredRoleTests(unittest.TestCase):
         self.assertTrue(self.source.is_dir())
         self.assertFalse(self.destination.exists())
 
-    def test_external_canonical_store_refuses_before_store_constructor_reads(self):
+    def test_external_canonical_store_uses_actual_selection_without_legacy_constructor(
+        self,
+    ):
         cell = self.root / "external-cell"
         cell.mkdir(mode=0o700)
         with mock.patch.dict(os.environ, {"LITAI_MATRIX_CELL_ROOT": str(cell)}):
+            expected = ComponentLockStore(self.source.parent).path
             with mock.patch.object(
                 authored, "ComponentLockStore", wraps=ComponentLockStore
             ) as store:
-                with self.assertRaises(ValueError):
-                    with self.prepare():
-                        self.fail(
-                            "external canonical evidence admitted without its owner"
-                        )
+                with self.prepare() as owner:
+                    selection = preparation._state(owner).authored.selection
+                    self.assertEqual(owner.plan.authored_lock, expected)
+                    self.assertEqual(
+                        owner.plan.authored_storage, selection.identity.uri
+                    )
+                    owner.require_current()
+                    store.observe_selection.assert_called_once_with(
+                        owner, self.source.parent
+                    )
                 self.assertFalse(store.called)
         self.assertFalse((self.project / "litai/layout.pending").exists())
 
@@ -340,6 +402,7 @@ class AuthoredRoleTests(unittest.TestCase):
     def test_authored_owner_ending_during_descriptor_teardown_refuses_terminal_success(
         self,
     ):
+        revoked = []
         with self.assertRaises(Exception) as caught:
             with self.prepare() as owner:
                 with self.pool(owner.plan) as (pool, _journal):
@@ -356,7 +419,13 @@ class AuthoredRoleTests(unittest.TestCase):
                             phase.move_source()
                         phase.publish_metadata(self.metadata)
                         phase.finalize_controls(self.retired)
-                        phase._resources.callback(authored._OWNERS.pop, roles)
+
+                        def revoke():
+                            authored._OWNERS.pop(roles)
+                            revoked.append(True)
+
+                        phase._resources.callback(revoke)
+        self.assertEqual(revoked, [True])
         self.assertIs(getattr(caught.exception, "committed", None), True)
 
 

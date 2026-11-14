@@ -165,6 +165,7 @@ def _close_preparation_inputs(owner, tree, native):
     plan = original.plan
     plan.git.close_native_inputs()
     _close_authored(plan)
+    original.authored.selection.close_native()
     if _lineage(plan.tree.root) != plan.source_lineage:
         _fail("original source ancestry changed")
     if _lineage(plan.destination.parent) != plan.destination_lineage:
@@ -369,5 +370,8 @@ def prepared_retained_layout_source_move(
             from .retained_layout_source_provider import _end as end_provider
 
             end_provider(owner)
+            from .component_lock_observation import _end as end_storage
+
+            end_storage(owner)
             _end_terminal(owner)
             _LIVE.pop(owner, None)

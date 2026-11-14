@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development can preserve selected external Component lock
+  evidence through its internal source transaction under the original read
+  allowance. Existing and absent locks stay read-only; changed or replaced
+  observations and overlapping private effects refuse. This internal nonroot
+  result remains unqualified (#265).
+
 - Retained-layout development now resolves relative and prospective in-project
   matrix cell roots under the original observation allowance. Store selection
   stays fixed after environment or working-directory changes; redirected,

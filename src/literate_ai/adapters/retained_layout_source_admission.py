@@ -582,6 +582,8 @@ def _admit_preparation(preparation, plan, pool):
     from .retained_layout_partition import _lineage
 
     with _activate_role_observation(original.reader, _borrow=True):
+        from .component_lock_observation import _separate_effects as separate_storage
+
         project_lineage = _lineage(original.root)
         project_identity = project_lineage[-1][1:3]
         project_ancestors = {entry[1:3] for entry in project_lineage}
@@ -603,6 +605,7 @@ def _admit_preparation(preparation, plan, pool):
                 identity in project_ancestors
             ):
                 _fail("private pool/journal physically overlaps complete project")
+            separate_storage(preparation, lineage)
         pool._guard()
         journal._guard()
     _close_control_pool_admission(pool, pool_binding)
@@ -811,6 +814,9 @@ def _admitted_partition(
                 census = ledger.capture(
                     phase.plan.root, _framework_files=tuple(sorted(framework))
                 )
+                from .component_lock_observation import _separate_project
+
+                _separate_project(record.preparation, census.tree)
                 comparable = replace(
                     census.tree,
                     budget=before.tree.budget,

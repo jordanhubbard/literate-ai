@@ -94,6 +94,13 @@ class ComponentLockStore:
     """Read, compare, and atomically replace one ``component.lock.json``."""
 
     def __init__(self, component_root: Path) -> None:
+        from .bounded_role_observation import current_role_observation
+
+        if current_role_observation() is not None:
+            raise ComponentLockStoreError(
+                "component_lock.original_owner_required",
+                "Canonical observation requires its actual original selection owner",
+            )
         supplied = Path(component_root)
         try:
             metadata = supplied.lstat()
@@ -118,6 +125,13 @@ class ComponentLockStore:
         self.path = storage_root / LOCK_FILENAME
         self.write_lock_path = storage_root / _WRITE_LOCK_FILENAME
         self.operation_lock_path = storage_root / _OPERATION_LOCK_FILENAME
+
+    @staticmethod
+    def observe_selection(preparation, component_root):
+        """Observe canonical selection under its actual creating source reader."""
+        from .component_lock_observation import observe_selection
+
+        return observe_selection(preparation, component_root)
 
     @staticmethod
     def _storage_root(root: Path, matrix_root: Path | None = None) -> Path:

@@ -34070,7 +34070,19 @@ independent review and the complete combined gate from test one.
   387-method affected regression includes the native move suite: 502 distinct
   passing methods without skips. Earlier failed cohorts and actual native
   reproductions remain separate in [selector and ancestor evidence](../../verification/retained-layout-source-selectors-development.json).
-  Next complete original external shared storage and the root/shared effect graph,
+  Shared external canonical storage now has an actual original store-selection
+  participant under the creating reader and ledger. Its native/content identity
+  binds the acknowledged source plan; external observations stay outside project
+  authored roles and survive readonly terminal checks. Existing and absent lock
+  evidence remains unchanged. Replaced/copied/ended records, changed original
+  fields, foreign active readers and overlapping private effects refuse before
+  further reads or effects. Independent source review approves all ten final
+  subjects. The maintained 112-method source gate, eighteen authored-role controls
+  and 387 separate affected regressions pass without skips: 517 distinct methods.
+  Original guard failures, the stored-record integrity reproduction and its
+  zero-probe repair, finite positive/negative policies and final checks remain in
+  [shared storage evidence](../../verification/retained-layout-source-storage-development.json).
+  Next implement the complete root/shared effect graph,
   preserving the transport limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review

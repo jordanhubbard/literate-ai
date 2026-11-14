@@ -206,8 +206,11 @@ def _run_metadata_publication(phase, private_root):
 
 def _separate_predecessor_state(admission, candidate_lineage):
     """Keep original producer state and catalog source inputs read-only."""
+    from .component_lock_observation import _separate_effects as separate_storage
     from .retained_layout_partition import _lineage
     from .retained_layout_source_movement import _consumed_predecessor
+
+    separate_storage(admission.preparation, candidate_lineage)
 
     roots = []
     catalog = admission.original.catalog
