@@ -34008,6 +34008,20 @@ independent review and the complete combined gate from test one.
   source review approves this limited increment; original failures and open
   acceptance remain in
   [source-movement evidence](../../verification/retained-layout-source-movement-development.json).
+  The actual metadata successor now joins that original operation: fund
+  prospective/staged/retained observations before writes, advance only verified
+  native rename receipts, retain original producer witnesses at their backups
+  and close resulting public/private graphs after payload and membership reads.
+  Thirty-six scoped Make controls and a separate 389-method affected regression
+  cohort pass without skips on the final subjects. Independent source
+  review closes permission and private-membership findings. Original allowance
+  refusal and positive initially declared policy remain distinct; see
+  [metadata-successor evidence](../../verification/retained-layout-source-metadata-development.json).
+  Original producer private/source roots, recursive object stores and the whole
+  collected canonical acquisition now remain outside metadata effects. Native
+  acquisition controls prove both refusal and backup survival through cleanup.
+  Next join finalization, verified input release and terminal teardown before
+  normal completion.
   Then join
   authored metadata roles before root effects, preserving the transport
   limitation for complete execution qualification,

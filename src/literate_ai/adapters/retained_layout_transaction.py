@@ -689,6 +689,10 @@ def _require_catalog_provenance(plan):
 
 
 def _close_authored(plan):
+    from .retained_layout_source_metadata import _close_current_authored
+
+    if _close_current_authored(plan):
+        return
     if plan.catalog_provenance is not None:
         item = plan.catalog_provenance
         if _signature(item.path) != item.signature:
@@ -773,6 +777,12 @@ class _MetadataArea:
         self.close_native()
 
     def stage(self, name, content, old_node):
+        from .retained_layout_source_metadata import (
+            _read_staged_metadata,
+            _stage_preflight,
+        )
+
+        _stage_preflight(self, name, content, old_node=old_node)
         self.require_current()
         if len(self.known) >= self.maximum_entries or name in self.known:
             _fail("private metadata stage occupied")
@@ -800,7 +810,10 @@ class _MetadataArea:
                 (node.device, node.inode, node.uid)
                 != (original.device, original.inode, original.uid)
                 or _from_stat(os.fstat(fd)) != node
-                or _file(self.root / name).content != content
+                or _read_staged_metadata(
+                    self, name, content, node, fd, original
+                ).content
+                != content
             ):
                 _fail("private metadata stage changed")
         finally:
@@ -843,6 +856,10 @@ class _SourcePhase:
 
     def _require_moved(self):
         self._live()
+        from .retained_layout_source_metadata import _require_metadata_moved
+
+        if _require_metadata_moved(self):
+            return
         _require_catalog_provenance(self.plan)
         if self._moved is None:
             _fail("actual completed source phase required before metadata")
@@ -886,15 +903,24 @@ class _SourcePhase:
         )
 
     def publish_metadata(self, private_root):
+        from .retained_layout_source_metadata import _run_metadata_publication
+
+        return _run_metadata_publication(self, private_root)
+
+    def _publish_metadata(self, private_root):
         """Publish exact acknowledged bytes, preserving every old/ambiguous node.
 
         This completes no relocation: normal finalization and fresh recovery are
         still required. Only this live owner's actual effects advance currentness.
         """
         self._live()
-        from .retained_layout_source_admission import _refuse_unfunded_effects
+        from .retained_layout_source_metadata import (
+            _bind_metadata_area,
+            _published_layout,
+            _require_metadata_authority,
+        )
 
-        _refuse_unfunded_effects(self)
+        _require_metadata_authority(self)
         if self._metadata_attempted:
             _fail("metadata publication already attempted; explicit recovery required")
         self._require_moved()
@@ -938,6 +964,7 @@ class _SourcePhase:
         if area.names():
             _fail("private metadata root is not empty")
         self._metadata_area = area
+        _bind_metadata_area(self, area)
         ordered = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
         prospective = dict(self.plan.prospective)
         prepared = []
@@ -1002,9 +1029,7 @@ class _SourcePhase:
                 quarantine=False,
             )
         self._require_moved()
-        current = resolve_structural_layout(
-            self.plan.root, json.loads(_file(self.plan.root / _LIFT).content)
-        )
+        current = _published_layout(self)
         if (
             current.implementation_root != self.plan.destination
             or current.wrapper_component != self.plan.layout.wrapper_component
@@ -1021,7 +1046,9 @@ class _SourcePhase:
             ),
         )
         self._require_moved()
-        self._metadata_published = True
+        from .retained_layout_source_metadata import _mark_metadata_observed
+
+        _mark_metadata_observed(self)
         return {
             "state": "metadata-published-finalization-pending",
             "relocation_complete": False,
@@ -1261,9 +1288,16 @@ class _SourcePhase:
         *,
         quarantine,
     ):
-        from .retained_layout_source_admission import _refuse_unfunded_effects
+        from .retained_layout_source_metadata import (
+            _commit_metadata_move,
+            _preflight_metadata_receipt,
+            _read_metadata_destination,
+            _require_metadata_step,
+        )
 
-        _refuse_unfunded_effects(self)
+        _require_metadata_step(
+            self, source, destination, source_node, content, quarantine=quarantine
+        )
         journal = self.pool._journal
         kind = "metadata-quarantine" if quarantine else "metadata-publication"
         data = {
@@ -1281,6 +1315,7 @@ class _SourcePhase:
             guard()
         area.guard()
         _absence(destination, 16_384)
+        _preflight_metadata_receipt(self, data)
         move_layout_entry_exclusive(
             source,
             destination,
@@ -1292,7 +1327,15 @@ class _SourcePhase:
             os.fsync(fd)
             guard()
         actual = layout_entry_node(destination)
-        observed = _file(destination)
+        observed = _read_metadata_destination(
+            self,
+            source,
+            destination,
+            source_node,
+            actual,
+            content,
+            quarantine=quarantine,
+        )
         if (
             actual.after_rename() != source_node.after_rename()
             or observed.content != content
@@ -1317,6 +1360,15 @@ class _SourcePhase:
         else:
             del area.known[source.name]
             self._replace_current_input(destination, observed)
+        _commit_metadata_move(
+            self,
+            source,
+            destination,
+            source_node,
+            actual,
+            observed,
+            quarantine=quarantine,
+        )
         journal.append(
             kind + "-observed",
             canonical_json_bytes({**data, "observed_node": _custody_wire(actual)}),

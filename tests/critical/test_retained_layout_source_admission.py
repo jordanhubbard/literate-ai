@@ -4,12 +4,14 @@ from __future__ import annotations
 
 import copy
 import os
+import stat
 import unittest
 from contextlib import contextmanager
 from dataclasses import replace
 from unittest import mock
 
 import tests.critical.test_catalog_copy_roles as catalog_fixtures
+import tests.critical.test_catalog_source_lease as git_fixtures
 import tests.critical.test_retained_layout_ownership as fixtures
 from literate_ai.adapters import bounded_role_observation as reads
 from literate_ai.adapters import framework_update_roles as updates
@@ -157,8 +159,9 @@ class SourceAdmissionTests(unittest.TestCase):
         with self.inspecting() as (_owner, phase, _pool, _journal):
             with self.assertRaisesRegex(ValueError, "actual complete partition"):
                 phase.move_source()
+            with self.assertRaisesRegex(ValueError, "actual moved source"):
+                phase.publish_metadata(self.metadata)
             for operation in (
-                lambda: phase.publish_metadata(self.metadata),
                 lambda: phase.finalize_controls(self.retired),
                 lambda: phase.controls.reservations.begin_finalization(self.retired),
             ):
@@ -212,10 +215,181 @@ class SourceAdmissionTests(unittest.TestCase):
             self.assertEqual(os.readlink(self.destination / "app-link"), "app.py")
             self.assertIsNone(reads.current_role_observation())
             with self.assertRaisesRegex(ValueError, "verified transition"):
-                phase.publish_metadata(self.metadata)
+                phase.finalize_controls(self.retired)
         self.assertNotIn(phase, movement._MOVES)
         self.assertFalse(original.reader._active)
         self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_actual_metadata_publication_retains_originals_and_same_read_owner(self):
+        from literate_ai.adapters import retained_layout_source_metadata as metadata
+
+        with self.inspecting() as (owner, phase, _pool, _journal):
+            original = preparation._state(owner)
+            inputs = owner.plan.inputs
+            with phase.complete_partition(
+                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+            ):
+                phase.move_source()
+            result = phase.publish_metadata(self.metadata)
+            self.assertEqual(result["state"], "metadata-published-finalization-pending")
+            self.assertTrue(phase._metadata_published)
+            self.assertIs(phase.plan.inputs, inputs)
+            self.assertIs(preparation._state(owner).reader, original.reader)
+            owner.require_current()
+            for name, content in phase.plan.prospective:
+                self.assertEqual((self.project / name).read_bytes(), content)
+            state = metadata._METADATA[phase]
+            self.assertTrue(state.published)
+            for _path, before, backup, _current in state.receipts:
+                if before.content is not None:
+                    self.assertEqual(backup.path.read_bytes(), before.content)
+            with self.assertRaisesRegex(ValueError, "verified transition"):
+                phase.finalize_controls(self.retired)
+            self.assertIsNone(reads.current_role_observation())
+        self.assertNotIn(phase, metadata._METADATA)
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_changed_retained_metadata_backup_refuses_without_erasure(self):
+        changed = []
+        with self.assertRaises(ValueError):
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    phase.move_source()
+                phase.publish_metadata(self.metadata)
+                backup = self.metadata / "old-0"
+                backup.write_bytes(backup.read_bytes() + b"foreign-backup-edit\n")
+                changed.append(backup)
+                owner.require_current()
+        self.assertEqual(len(changed), 1)
+        self.assertTrue(changed[0].read_bytes().endswith(b"foreign-backup-edit\n"))
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_foreign_namespace_during_metadata_rename_is_retained_and_refused(self):
+        move, changed = transaction.move_layout_entry_exclusive, []
+        foreign = self.project / "foreign-during-metadata"
+
+        def insert(source, destination, **kwargs):
+            result = move(source, destination, **kwargs)
+            if destination.parent == self.metadata and not changed:
+                foreign.write_bytes(b"foreign\n")
+                changed.append(True)
+            return result
+
+        with self.assertRaises(ValueError):
+            with self.inspecting() as (_owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    phase.move_source()
+                with mock.patch.object(
+                    transaction, "move_layout_entry_exclusive", insert
+                ):
+                    phase.publish_metadata(self.metadata)
+        self.assertEqual(changed, [True])
+        self.assertEqual(foreign.read_bytes(), b"foreign\n")
+        self.assertFalse(phase._metadata_published)
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_wrong_stage_permission_template_refuses_before_stage_creation(self):
+        stage, changed = transaction._MetadataArea.stage, []
+
+        def wrong(area, name, content, old_node):
+            if not changed and old_node is not None:
+                changed.append(True)
+                old_node = replace(old_node, mode=old_node.mode ^ 0o111)
+            return stage(area, name, content, old_node)
+
+        with self.assertRaises(ValueError):
+            with self.inspecting() as (_owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    phase.move_source()
+                with mock.patch.object(transaction._MetadataArea, "stage", wrong):
+                    phase.publish_metadata(self.metadata)
+        self.assertEqual(changed, [True])
+        self.assertFalse((self.metadata / "new-0").exists())
+
+    def test_observed_record_headroom_is_required_before_public_metadata_rename(self):
+        absence, consumed = transaction._absence, []
+        with self.assertRaises(ValueError):
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    phase.move_source()
+                name = transaction.HARNESS_WRAPPER_FILENAME
+                original = (self.project / name).read_bytes()
+                reader = preparation._state(owner).reader
+
+                def consume(path, *args, **kwargs):
+                    result = absence(path, *args, **kwargs)
+                    if path == self.metadata / "old-0" and not consumed:
+                        ledger = preparation._state(owner).ledger
+                        left = ledger.budget.maximum_entries - ledger.records
+                        payload = b"[" + b",".join([b"0"] * (left - 2)) + b"]"
+                        reader.json_value(
+                            payload, str(self.project / "additional-observation")
+                        )
+                        consumed.append(True)
+                    return result
+
+                with mock.patch.object(transaction, "_absence", consume):
+                    phase.publish_metadata(self.metadata)
+        self.assertEqual(consumed, [True])
+        self.assertFalse((self.metadata / "old-0").exists())
+        self.assertEqual((self.project / name).read_bytes(), original)
+        self.assertTrue((self.metadata / "new-0").exists())
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_private_membership_change_during_last_native_file_close_refuses(self):
+        from literate_ai.adapters import retained_layout_source_metadata as metadata
+
+        real_stat, changed, rejected, armed = os.stat, [], [], []
+        close = metadata._close_metadata_native
+        foreign = self.metadata / "foreign-last-native"
+        try:
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ):
+                    phase.move_source()
+                phase.publish_metadata(self.metadata)
+                state = metadata._METADATA[phase]
+                last_name = state.known[-1][0]
+
+                def change(path, *args, **kwargs):
+                    result = real_stat(path, *args, **kwargs)
+                    if (
+                        path == last_name
+                        and kwargs.get("dir_fd") == state.descriptor
+                        and armed
+                        and not changed
+                    ):
+                        changed.append(True)
+                        foreign.write_bytes(b"foreign\n")
+                    return result
+
+                def mark(record):
+                    armed.append(True)
+                    try:
+                        return close(record)
+                    finally:
+                        armed.clear()
+
+                with mock.patch.object(metadata, "_close_metadata_native", mark):
+                    with mock.patch.object(metadata.os, "stat", change):
+                        try:
+                            owner.require_current()
+                        except ValueError:
+                            rejected.append(True)
+        except ValueError:
+            pass
+        self.assertEqual(changed, [True])
+        self.assertEqual(rejected, [True])
+        self.assertEqual(foreign.read_bytes(), b"foreign\n")
 
     def test_foreign_namespace_inserted_during_actual_move_refuses(self):
         move = transaction.move_layout_entry_exclusive
@@ -688,6 +862,277 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         except StopInspection:
             pass
         self.assertTrue(self.destination.exists())
+
+    def test_actual_framework_catalog_metadata_preserves_immutable_witnesses(self):
+        class StopInspection(Exception):
+            pass
+
+        self.copy_metadata = 8 * 1024**3
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
+        self.update_budget, self.update_sequence = self.copy_budget, 0
+        try:
+            with self.updated(adopt_added=True) as update:
+                with self.copying(framework_update=update) as catalog:
+                    catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                    cache = tuple(update._cache.items())
+                    with preparation.prepared_retained_layout_source_move(
+                        self.project,
+                        "retained",
+                        budget=self.copy_budget,
+                        maximum_metadata_bytes=self.copy_metadata,
+                        framework_update=update,
+                        catalog_copy=catalog,
+                    ) as owner:
+                        original = preparation._state(owner)
+                        with self.pool(owner.plan) as (pool, _journal):
+                            with owner.source_phase(
+                                pool,
+                                acknowledged_plan_identity=owner.plan.identity,
+                                allow_host_execution=True,
+                            ) as phase:
+                                with phase.complete_partition(
+                                    budget=self.copy_budget,
+                                    maximum_metadata_bytes=self.copy_metadata,
+                                    framework_update=update,
+                                    catalog_copy=catalog,
+                                ):
+                                    phase.move_source()
+                                phase.publish_metadata(self.metadata)
+                                owner.require_current()
+                                self.assertEqual(tuple(update._cache.items()), cache)
+                                self.assertIs(
+                                    preparation._state(owner).reader, original.reader
+                                )
+                                self.assertTrue(phase._metadata_published)
+                                raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertTrue((self.metadata / "old-0").exists())
+
+    def test_original_combined_allowance_refuses_metadata_before_writes(self):
+        self.update_budget, self.update_sequence = self.copy_budget, 0
+        with self.assertRaisesRegex(
+            ValueError, "metadata preflight exceeds original allowance"
+        ):
+            with self.updated(adopt_added=True) as update:
+                with self.copying(framework_update=update) as catalog:
+                    catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                    with preparation.prepared_retained_layout_source_move(
+                        self.project,
+                        "retained",
+                        budget=self.copy_budget,
+                        maximum_metadata_bytes=self.copy_metadata,
+                        framework_update=update,
+                        catalog_copy=catalog,
+                    ) as owner:
+                        with self.pool(owner.plan) as (pool, _journal):
+                            with owner.source_phase(
+                                pool,
+                                acknowledged_plan_identity=owner.plan.identity,
+                                allow_host_execution=True,
+                            ) as phase:
+                                with phase.complete_partition(
+                                    budget=self.copy_budget,
+                                    maximum_metadata_bytes=self.copy_metadata,
+                                    framework_update=update,
+                                    catalog_copy=catalog,
+                                ):
+                                    phase.move_source()
+                                before = {
+                                    name: (self.project / name).read_bytes()
+                                    if (self.project / name).exists()
+                                    else None
+                                    for name, _ in owner.plan.prospective
+                                }
+                                phase.publish_metadata(self.metadata)
+        self.assertEqual(list(self.metadata.iterdir()), [])
+        self.assertFalse(phase._metadata_published)
+        for name, content in before.items():
+            path = self.project / name
+            self.assertEqual(path.read_bytes() if path.exists() else None, content)
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def _check_original_catalog_scope_refuses_metadata(self, *, source_scope):
+        class StopInspection(Exception):
+            pass
+
+        self.copy_metadata = 8 * 1024**3
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
+        refused = []
+        protected = self.item / "empty" if source_scope else None
+        if source_scope:
+            protected.chmod(0o700)
+        try:
+            with self.copying() as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                with preparation.prepared_retained_layout_source_move(
+                    self.project,
+                    "retained",
+                    budget=self.copy_budget,
+                    maximum_metadata_bytes=self.copy_metadata,
+                    catalog_copy=catalog,
+                ) as owner:
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.copy_budget,
+                                maximum_metadata_bytes=self.copy_metadata,
+                                catalog_copy=catalog,
+                            ):
+                                phase.move_source()
+                            if not source_scope:
+                                record = admission._phase_record(
+                                    phase
+                                ).catalog_lifetime[0]
+                                candidates = [
+                                    state.root / name
+                                    for state in record["seal"].private
+                                    for name, node in state.nodes.items()
+                                    if stat.S_ISDIR(node.mode)
+                                    and stat.S_IMODE(node.mode) == 0o700
+                                    and not any(
+                                        other != name
+                                        and (not name or other.startswith(name + "/"))
+                                        for other in state.nodes
+                                    )
+                                ]
+                                self.assertTrue(candidates)
+                                protected = sorted(candidates)[0]
+                            self.assertEqual(list(protected.iterdir()), [])
+                            try:
+                                phase.publish_metadata(protected)
+                            except ValueError:
+                                refused.append(True)
+                            raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertEqual(refused, [True])
+        self.assertEqual(list(protected.iterdir()), [])
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_consumed_catalog_private_container_refuses_metadata_before_writes(self):
+        self._check_original_catalog_scope_refuses_metadata(source_scope=False)
+
+    def test_original_catalog_source_refuses_metadata_before_writes(self):
+        self._check_original_catalog_scope_refuses_metadata(source_scope=True)
+
+
+@unittest.skipUnless(os.name == "posix", "actual canonical Git acquisition ownership")
+class SourceAdmissionGitCatalogTests(unittest.TestCase):
+    git = git_fixtures.CatalogSourceLeaseTests.git
+    init_git = git_fixtures.CatalogSourceLeaseTests.init_git
+    commit_source = git_fixtures.CatalogSourceLeaseTests.commit_source
+    copying = git_fixtures.CatalogSourceLeaseTests.copying
+    pool = SourceAdmissionTests.pool
+
+    @classmethod
+    def setUpClass(cls):
+        git_fixtures.CatalogSourceLeaseTests.setUpClass.__func__(cls)
+
+    def setUp(self):
+        git_fixtures.CatalogSourceLeaseTests.setUp(self)
+        self.copy_metadata = 8 * 1024**3
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
+
+    def _check_canonical_scope_refuses_metadata(self, *, sibling):
+        class StopInspection(Exception):
+            pass
+
+        refused = []
+        try:
+            with self.copying() as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                clone = catalog.plan.source_root
+                protected = (
+                    clone.parent / "metadata"
+                    if sibling
+                    else clone / ".git/objects/info"
+                )
+                if not sibling:
+                    self.assertEqual(list(protected.iterdir()), [])
+                    protected.chmod(0o700)
+                with preparation.prepared_retained_layout_source_move(
+                    self.project,
+                    "retained",
+                    budget=self.copy_budget,
+                    maximum_metadata_bytes=self.copy_metadata,
+                    catalog_copy=catalog,
+                ) as owner:
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.copy_budget,
+                                maximum_metadata_bytes=self.copy_metadata,
+                                catalog_copy=catalog,
+                            ):
+                                phase.move_source()
+                            if sibling:
+                                protected.mkdir(mode=0o700)
+                            try:
+                                phase.publish_metadata(protected)
+                            except ValueError:
+                                refused.append(True)
+                            self.assertEqual(refused, [True])
+                            self.assertEqual(list(protected.iterdir()), [])
+                            raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertTrue((self.project / "litai/layout.pending").exists())
+
+    def test_whole_canonical_acquisition_refuses_metadata_before_writes(self):
+        self._check_canonical_scope_refuses_metadata(sibling=False)
+
+    def test_canonical_cleanup_parent_refuses_metadata_before_writes(self):
+        self._check_canonical_scope_refuses_metadata(sibling=True)
+
+    def test_metadata_outside_acquisition_survives_actual_clone_cleanup(self):
+        class StopInspection(Exception):
+            pass
+
+        try:
+            with self.copying() as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                clone = catalog.plan.source_root
+                with preparation.prepared_retained_layout_source_move(
+                    self.project,
+                    "retained",
+                    budget=self.copy_budget,
+                    maximum_metadata_bytes=self.copy_metadata,
+                    catalog_copy=catalog,
+                ) as owner:
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.copy_budget,
+                                maximum_metadata_bytes=self.copy_metadata,
+                                catalog_copy=catalog,
+                            ):
+                                phase.move_source()
+                            original = (
+                                self.project / transaction.HARNESS_WRAPPER_FILENAME
+                            ).read_bytes()
+                            phase.publish_metadata(self.metadata)
+                            owner.require_current()
+                            self.assertEqual(
+                                (self.metadata / "old-0").read_bytes(), original
+                            )
+                            raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertFalse(clone.exists())
+        self.assertEqual((self.metadata / "old-0").read_bytes(), original)
 
 
 if __name__ == "__main__":

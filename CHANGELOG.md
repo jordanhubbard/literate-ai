@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development can publish its acknowledged nonroot metadata
+  under the original observation allowance, preserve original files at verified
+  backups and keep consumed producer witnesses unchanged. Permission, private
+  membership and observed-record quota checks refuse unsafe transitions.
+  Finalization and successful terminal teardown remain unfinished (#265).
+
 - Retained-layout development can consume its genuine complete partition and
   move a nonroot source tree under the preparation's original allowance. It
   preserves links and unknown neighbors, retains consumed producer observations

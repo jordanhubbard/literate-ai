@@ -1744,6 +1744,38 @@ its correction. Exact subjects, original failing controls, the refusal from a
 redundant census and corrected fixture failures are recorded in
 [source-movement evidence](../../verification/retained-layout-source-movement-development.json).
 
+The metadata successor joins the actual creating private area to that same
+operation. Preflight its physical separation, original allowance, six staged or
+retained endpoints, prospective payload/JSON and bounded transition graphs before
+writes. Admit only the exact staged bytes and the next original native rename;
+advance both endpoints, held-parent stamps, current authored inputs and complete
+project/private expectations before the next canonical read. Preserve old
+producer records and validate their original inode/content at the retained
+backup, alongside the prospective public successor. Unrelated producer inputs
+remain unchanged. Observe area membership before final stat-only dependency
+closure, and close the enclosing read activation before the last global span.
+The scoped Make gate now passes thirty-six controls without skips. A separate
+389-method affected regression cohort, including native provider and canonical
+source-lease suites, also passes without skips on these exact subjects. Independent
+source review closes the permission-template and final private-membership
+findings. An additional causal refusal control requires observed-event quota
+headroom immediately after the last absence scan and before the rename. The
+combined positive declares its finite metadata/entry capacities before catalog
+creation; the unchanged smaller original policy remains a pre-write refusal.
+No active operation enlarges its original policy or refunds work. Exact subjects,
+original failed controls and policy bounds remain in
+[metadata-successor evidence](../../verification/retained-layout-source-metadata-development.json).
+Additional native controls refuse metadata inside original catalog private/source
+state, canonical checkout administration and the whole collected acquisition
+parent. The original acquisition factory funds and retains that parent's FD,
+guard and native receipt. Retained backups outside the acquisition survive actual
+clone cleanup. Original bounded provider discovery retains exact recursive Git
+object-store roots, without treating traversal prefixes as owned stores; these
+roots also refuse metadata effects. These repairs preserve the actual original
+producer records and source lifetimes rather than sampling new baselines.
+Finalization, verified Git input release and a terminal observation surviving
+actual descriptor teardown still require their own joins before normal success.
+
 After the selected-source dependency is qualified, join the actual canonical
 authored inputs to complete partition ownership. Derive their endpoints from the
 live source plan's parsed project, conversion, lift/layout and wrapper witnesses,

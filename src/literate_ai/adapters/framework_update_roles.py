@@ -1076,6 +1076,11 @@ class _FrameworkUpdateRoles:
 
         live()
         for item in self._cache.values():
+            if _consumed:
+                from .retained_layout_source_metadata import _close_consumed_input
+
+                if _close_consumed_input(self, item):
+                    continue
             self._close_file(item)
         if _lineage(self.root) != self._root_lineage:
             _fail("original project ancestry changed")

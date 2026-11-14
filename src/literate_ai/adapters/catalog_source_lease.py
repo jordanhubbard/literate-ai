@@ -245,7 +245,16 @@ def prepared_git_catalog_copy_roles(
         owner = _SourceLease()
         with ExitStack() as pins:
             pinned = []
-            for path in (source_root, source_root / ".git"):
+            # Canonical acquisition collects this entire private parent. Retain
+            # its original FD/native receipt as well as checkout/admin roots so
+            # successors cannot place durable backups in a collected sibling.
+            cleanup_root = source_root.parent
+            cleanup_paths = (cleanup_root, *cleanup_root.parents)
+            ledger.charge_records(
+                2 * len(cleanup_paths),
+                2 * sum(len(str(path).encode("utf-8")) for path in cleanup_paths),
+            )
+            for path in (cleanup_root, source_root, source_root / ".git"):
                 descriptor, guard = pins.enter_context(_pinned_directory(path))
                 pinned.append(
                     (path, descriptor, guard, _from_stat(os.fstat(descriptor)))

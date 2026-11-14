@@ -390,6 +390,11 @@ class _CatalogCopyRoles:
             if _anchor(path) != expected:
                 _fail("original producer input ancestry changed")
         for item in seal.inputs:
+            if _consumed:
+                from .retained_layout_source_metadata import _close_consumed_input
+
+                if _close_consumed_input(self, item):
+                    continue
             if (
                 _signature(item.path) if os.path.lexists(item.path) else None
             ) != item.signature:

@@ -67,6 +67,7 @@ class _Objects:
         self.cache, self.trees = {}, {}
         self.file_count = 0
         self.snapshots, self.ancestry, self.directories = {}, {}, {}
+        self.object_stores = ()
         self.deadline = time.monotonic() + 120
         self.environment = {
             key: value
@@ -145,6 +146,7 @@ class _Objects:
             )
             self.configuration_graph((self.configuration, worktree_configuration))
             pending, visited = [objects], set()
+            object_stores = []
             while pending:
                 selected = pending.pop()
                 self.directory(selected)
@@ -152,6 +154,11 @@ class _Objects:
                 if node in visited:
                     continue
                 visited.add(node)
+                # Retain exact original object-store roots, not all traversed
+                # prefixes. Successors must keep external alternate stores out
+                # of private effect areas without treating '/' as a store.
+                self.count_entry(str(selected))
+                object_stores.append((selected, self.directories[selected]))
                 info = selected / "info"
                 if not info.exists():
                     self.snapshot(info, optional=True)
@@ -166,6 +173,7 @@ class _Objects:
                     current = self.external_path(selected, line)
                     self.count_entry(str(current))
                     pending.append(current)
+            self.object_stores = tuple(object_stores)
         if self.discover_paths() != self.git_paths:
             _fail("original provider Git routing changed")
         self.close_native()
@@ -298,6 +306,9 @@ class _Objects:
         return item
 
     def close_native(self):
+        for path, signature in self.object_stores:
+            if _signature(path)[:3] != signature:
+                _fail("original provider object-store root changed")
         for path, signature in self.ancestry.items():
             if _signature(path)[:3] != signature:
                 _fail("original provider ancestry changed")

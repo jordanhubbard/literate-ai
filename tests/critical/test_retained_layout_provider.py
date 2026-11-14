@@ -455,7 +455,7 @@ class HistoricalInitializerTests(unittest.TestCase):
         self.provider_overlap_refusal(objects_in_source=True)
 
     def test_external_fixed_alternate_store_can_supply_original_roster(self):
-        borrowed, _ = self.borrowed_repository()
+        borrowed, admin = self.borrowed_repository()
         with self.inspecting() as phase:
             with phase.complete_partition(
                 budget=self.namespace_budget,
@@ -465,6 +465,41 @@ class HistoricalInitializerTests(unittest.TestCase):
                 self.assertEqual(
                     dict(owner.roles)["scripts/bootstrap_litai.py"], "framework"
                 )
+                objects = owner._provider._objects
+                self.assertEqual(
+                    {path for path, _signature in objects.object_stores},
+                    {admin / "objects", self.checkout / ".git/objects"},
+                )
+                for path, signature in objects.object_stores:
+                    self.assertEqual(signature, objects.directories[path])
+
+    def test_recursive_external_object_store_roots_preserve_exact_original_witnesses(
+        self,
+    ):
+        borrowed, admin = self.borrowed_repository()
+        external = self.root / "external-objects"
+        (external / "info").mkdir(parents=True)
+        (external / "info/alternates").write_text(
+            str(self.checkout / ".git/objects") + "\n"
+        )
+        (admin / "objects/info/alternates").write_text(str(external) + "\n")
+        with self.inspecting() as phase:
+            with phase.complete_partition(
+                budget=self.namespace_budget,
+                maximum_metadata_bytes=1024 * 1024**2,
+                provider_checkout=borrowed,
+            ) as owner:
+                objects = owner._provider._objects
+                roots = objects.object_stores
+                self.assertEqual(
+                    {path for path, _signature in roots},
+                    {admin / "objects", external, self.checkout / ".git/objects"},
+                )
+                self.assertNotIn(
+                    Path(external.anchor), {path for path, _signature in roots}
+                )
+                owner.require_current()
+                self.assertIs(objects.object_stores, roots)
 
     def test_provider_include_inside_moving_source_refuses(self):
         borrowed, _ = self.borrowed_repository()

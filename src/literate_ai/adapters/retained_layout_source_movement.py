@@ -361,6 +361,9 @@ def _close_movement_inputs(record):
     for producer in (record.original.framework, record.original.catalog):
         if producer is not None:
             producer.close_native(_consumed=True)
+    from .retained_layout_source_metadata import _close_metadata_native
+
+    _close_metadata_native(record)
     _close_effect_parents(record.original.plan)
 
 
@@ -371,10 +374,16 @@ def _require_movement_current(record):
     with _control_reads(record.preparation, record.pool):
         record.controls.require_initial_inputs()
         movement.expected[0].require_unchanged()
+        from .retained_layout_source_metadata import _observe_metadata_area
+
+        _observe_metadata_area(record)
         record.pool.require_current()
     _close_admitted_span(record)
 
 
 def _end_movement(record):
+    from .retained_layout_source_metadata import _end_metadata
+
+    _end_metadata(record)
     if record.phase is not None:
         _MOVES.pop(record.phase, None)
