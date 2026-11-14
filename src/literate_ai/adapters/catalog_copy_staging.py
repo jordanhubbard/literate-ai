@@ -577,7 +577,7 @@ class _CatalogCopyStages:
 
 
 @contextmanager
-def staged_catalog_copies(root, plan, *, journal_budget):
+def staged_catalog_copies(root, plan, *, journal_budget, _control_ledger=None):
     """Materialize private copies only; retain every stage and journal on exit."""
     if (
         os.name != "posix"
@@ -588,20 +588,27 @@ def staged_catalog_copies(root, plan, *, journal_budget):
     journal_budget.validate()
     document = plan.document
     budget = _journal_allowance(plan, journal_budget)
-    fresh = plan_catalog_copy(
-        plan.root,
-        plan.source_root,
-        tuple(kind + ":" + name for kind, name in plan.items),
-        budget=budget,
-        maximum_metadata_bytes=document["maximum_metadata_bytes"],
-        overwrite=plan.overwrite,
-    )
-    if fresh.identity != plan.identity:
-        _fail("actual original catalog plan changed")
-    ledger = _Observation(
-        budget, document["maximum_metadata_bytes"], (plan.root, plan.source_root)
-    )
-    ledger.bytes, ledger.files, ledger.records, ledger.charged = fresh._usage
+    if _control_ledger is None:
+        fresh = plan_catalog_copy(
+            plan.root,
+            plan.source_root,
+            tuple(kind + ":" + name for kind, name in plan.items),
+            budget=budget,
+            maximum_metadata_bytes=document["maximum_metadata_bytes"],
+            overwrite=plan.overwrite,
+        )
+        if fresh.identity != plan.identity:
+            _fail("actual original catalog plan changed")
+        ledger = _Observation(
+            budget, document["maximum_metadata_bytes"], (plan.root, plan.source_root)
+        )
+        ledger.bytes, ledger.files, ledger.records, ledger.charged = fresh._usage
+    else:
+        from .retained_layout_control_roles import _require_catalog_plan
+
+        _require_catalog_plan(_control_ledger, plan)
+        plan.require_current()
+        ledger, fresh = _control_ledger, plan
     ledger.bytes += journal_budget.maximum_storage_bytes
     journal_records = (
         8 + 2 * journal_budget.maximum_events + journal_budget.maximum_stages

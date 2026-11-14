@@ -33924,11 +33924,21 @@ independent review and the complete combined gate from test one.
   unchanged ceilings; global view reservation uses sealed action bounds.
   The failed native-Git/multi-item runs and repaired evidence are retained in
   [control-finalization evidence](../../verification/retained-layout-catalog-finalization-development.json).
-  The live imported-role join and full control/public/platform acceptance
-  remain required for complete project application. The plan remains descriptive;
-  it supplies no copied role or source exclusion. Next complete those real writer
-  and ownership phases, then
-  authored metadata roles before root effects,
+  The live imported-role join now has an independently reviewed internal normal
+  nonroot implementation. A genuine enclosing producer transfers only actual published
+  paths, empty directories and exact provenance after successful teardown; fresh
+  source planning and complete partitioning consume it once before movement.
+  Initial canonical setup and all later catalog phases share one original ledger.
+  A genuine framework predecessor can join that ledger and accept its actual
+  catalog successor's exact metadata transition. Saved plans/imports remain
+  descriptive. Expired, changed or spent producers grant no roles.
+  All 336 affected author methods and fourteen scoped Make methods pass without
+  skips. Independent rereview approves the exact twelve subjects and passes
+  fourteen maintained methods without skips, closing both initial source findings.
+  The original review and failing composition runs remain attributed in
+  [handoff evidence](../../verification/retained-layout-catalog-handoff-development.json).
+  Next implement authentic Git source-checkout admission and remaining ownership
+  phases, including authored metadata roles before root effects,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
   are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).

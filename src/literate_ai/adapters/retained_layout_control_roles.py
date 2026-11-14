@@ -9,7 +9,9 @@ the live lease.
 from __future__ import annotations
 
 import os
-from contextlib import contextmanager
+import sys
+import threading
+from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -30,6 +32,84 @@ from .retained_layout_reservations import acquire_staged_layout_reservations
 
 _KEY = object()
 _ACQUIRED = {}
+_CATALOG_READS = {}
+
+
+def _catalog_scope(ledger):
+    if ledger is None:
+        return nullcontext()
+    from .bounded_role_observation import bounded_role_observation
+
+    return bounded_role_observation(
+        budget=ledger.budget, maximum_metadata_bytes=ledger.metadata, _ledger=ledger
+    )
+
+
+def _require_catalog_ledger(ledger, root):
+    record = _CATALOG_READS.get(ledger)
+    if record is None or record[1] != threading.get_ident():
+        raise TypeError("actual catalog control read ledger required")
+    _require_acquired_control_roles(record[0], root)
+    return record
+
+
+def _register_catalog_plan(ledger, plan):
+    record = _require_catalog_ledger(ledger, plan.root)
+    if record[2] is not None:
+        raise TypeError("one actual catalog plan per setup ledger required")
+    record[2] = plan
+
+
+def _require_catalog_plan(ledger, plan):
+    if _require_catalog_ledger(ledger, plan.root)[2] is not plan:
+        raise TypeError("actual catalog plan from creating read ledger required")
+
+
+def _revoke_control_admission(lease, ledger):
+    if ledger is not None:
+        _CATALOG_READS.pop(ledger, None)
+    if lease is not None:
+        _ACQUIRED.pop(lease, None)
+        lease._active = False
+
+
+def _advance_control_observations(lease, ledger):
+    """Only the original acquisition may advance its absent marker witnesses."""
+    if ledger is None:
+        return
+    from .repository_refresh import RefreshFileObservation
+
+    _require_acquired_control_roles(lease, lease._seed.root)
+    lease.reservations.verify_all()
+    history = []
+    for marker in lease.reservations._markers:
+        path = marker.target.path
+        before = ledger.cache.get(path)
+        if before is None or before.content is not None:
+            continue
+        if not marker.created:
+            _fail("absent observation does not match original created control")
+        node = lease.reservations._expected[path]
+        if (
+            _signature(path)
+            != (
+                node.device,
+                node.inode,
+                node.mode,
+                node.size,
+                node.modified_ns,
+                node.changed_ns,
+            )
+            or os.pread(marker.descriptor, len(marker.content) + 1, 0) != marker.content
+        ):
+            _fail("actual acquired marker differs from original descriptor")
+        ledger.charge_records(2, len(marker.content))
+        ledger.bytes += len(marker.content)
+        ledger.require_capacity()
+        after = RefreshFileObservation(path, _signature(path), marker.content)
+        history.append((before, after))
+        ledger.cache[path] = after
+    ledger._owned_control_history = tuple(history)
 
 
 def _require_acquired_control_roles(lease, root):
@@ -225,7 +305,7 @@ class _ControlRolesLease:
 
 
 @contextmanager
-def acquire_retained_layout_control_roles(project_root, pool):
+def acquire_retained_layout_control_roles(project_root, pool, *, _catalog_ledger=None):
     """Derive and acquire actual roles; no caller-supplied target-role labels.
 
     Hold only one real descriptor for each canonical advisory mutex. The caller
@@ -235,22 +315,39 @@ def acquire_retained_layout_control_roles(project_root, pool):
     root = Path(project_root)
     if not root.is_absolute() or ".." in root.parts:
         _fail("project root must be direct and absolute")
-    seed = _project_roles(root)
-    git = observe_layout_git_controls(root)
-    seed.require_initial_inputs()
-    git.require_unchanged()
-    with acquire_staged_layout_reservations(
-        pool, seed.targets() + git.targets()
-    ) as owned:
-        lease = _ControlRolesLease(_KEY, seed, git, owned, pool)
-        _ACQUIRED[lease] = seed, git, owned, pool, os.getpid()
-        try:
+    resources, lease = ExitStack(), None
+    try:
+        with _catalog_scope(_catalog_ledger):
+            seed = _project_roles(root)
+            git = observe_layout_git_controls(root)
+            seed.require_initial_inputs()
+            git.require_unchanged()
+        with _catalog_scope(_catalog_ledger):
+            owned = resources.enter_context(
+                acquire_staged_layout_reservations(pool, seed.targets() + git.targets())
+            )
+            lease = _ControlRolesLease(_KEY, seed, git, owned, pool)
+            _ACQUIRED[lease] = seed, git, owned, pool, os.getpid()
+            if _catalog_ledger is not None:
+                _CATALOG_READS[_catalog_ledger] = [lease, threading.get_ident(), None]
+            _advance_control_observations(lease, _catalog_ledger)
             lease.require_initial_inputs()
+        try:
             yield lease
-            if lease._finalizing:
-                owned.verify_finalized()
-            else:
-                lease.require_current()
-        finally:
-            _ACQUIRED.pop(lease, None)
-            lease._active = False
+        except BaseException:
+            with _catalog_scope(_catalog_ledger):
+                _revoke_control_admission(lease, _catalog_ledger)
+                resources.__exit__(*sys.exc_info())
+                raise
+        else:
+            with _catalog_scope(_catalog_ledger):
+                if lease._finalizing:
+                    owned.verify_finalized()
+                else:
+                    lease.require_current()
+                _revoke_control_admission(lease, _catalog_ledger)
+                resources.close()
+    finally:
+        # Admission always ends before an original FD can be closed/reused.
+        _revoke_control_admission(lease, _catalog_ledger)
+        resources.__exit__(*sys.exc_info())

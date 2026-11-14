@@ -271,7 +271,12 @@ def protected_catalog_copies(stages, controls, *, control_journal_root):
                 _fail("control staging and journal must remain outside catalog trees")
             if _from_stat(path.lstat()) != _from_stat(os.fstat(descriptor)):
                 _fail("control path differs from the actual held descriptor")
-            census = stages._ledger.capture(path)
+            known = (
+                tuple(item.name for item in controls._pool._entries.values())
+                if descriptor == controls._pool._descriptor
+                else tuple(journal._known)
+            )
+            census = stages._ledger.capture(path, _known_names=known)
             censuses.append((census, _native_tree(census.tree)))
         scope.file(Path(__file__), maximum_bytes=stages.budget.maximum_file_bytes)
         reads = _ProjectReads(stages, scope)

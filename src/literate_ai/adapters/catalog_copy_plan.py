@@ -6,7 +6,7 @@ import hashlib
 import json
 import os
 import stat
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 from literate_ai._filesystem import require_safe_directory
@@ -151,11 +151,19 @@ class _Observation:
         self.charged += 4096 * count + 64 * size
         self.require_capacity()
 
-    def capture(self, root):
+    def capture(self, root, *, _known_names=None):
         files = self.budget.maximum_files - self.files
         entries = self.budget.maximum_entries - self.records
         total = self.budget.maximum_total_bytes - self.bytes - self.reserve
         metadata = min((self.metadata - self.charged) // 4, 256 * 1024**2)
+        if _known_names is not None:
+            # Actual private producers already own a complete name roster. Fund
+            # its metadata, not an unrelated whole-project traversal allowance.
+            count = 1 + len(_known_names)
+            path_bytes = len(str(root).encode()) + sum(
+                len(str(root / name).encode()) for name in _known_names
+            )
+            metadata = min(metadata, 16 * 1024**2 + 65536 * count + 512 * path_bytes)
         if min(files, entries, total) < 1 or metadata < 16 * 1024**2:
             _fail("complete catalog namespace has no remaining shared allowance")
         files = min(files, entries)
@@ -165,6 +173,25 @@ class _Observation:
         )
         census = capture_retained_layout_partition(
             root, framework_files=(), budget=budget, maximum_metadata_bytes=metadata
+        )
+        if _known_names is not None and {
+            name for name, _node in _native_tree(census.tree)
+        } != {"", *_known_names}:
+            _fail("actual private producer namespace differs from its known roster")
+        # The first traversal is admitted against remaining capacity above.
+        # Retain only a conservative bound for its actual immutable roster, and
+        # lower future recaptures to that same bound before refunding headroom.
+        # This dominates the receiver's per-node/path/link accounting; a changed
+        # larger namespace cannot consume the old, unused traversal ceiling.
+        observed_bound = 16 * 1024**2 + sum(
+            65536
+            + 512 * len(str(root / name).encode())
+            + (64 * node[3] if stat.S_ISLNK(node[2]) else 0)
+            for name, node in census.tree._physical[1]
+        )
+        metadata = min(metadata, observed_bound)
+        census = replace(
+            census, tree=replace(census.tree, maximum_metadata_bytes=metadata)
         )
         self.bytes += census.tree.payload_bytes
         self.files += census.tree.file_count
@@ -250,12 +277,27 @@ def plan_catalog_copy(
     budget,
     maximum_metadata_bytes,
     overwrite=False,
+    _control_ledger=None,
 ):
     """Observe exact local inputs before any copy; no network or writes."""
     root, source_root = _root(root), _root(source_root)
     if type(overwrite) is not bool or type(item_specs) is not tuple:
         _fail("explicit boolean overwrite and finite tuple of selectors required")
-    observation = _Observation(budget, maximum_metadata_bytes, (root, source_root))
+    if _control_ledger is None:
+        observation = _Observation(budget, maximum_metadata_bytes, (root, source_root))
+    else:
+        from .retained_layout_control_roles import _require_catalog_ledger
+
+        _require_catalog_ledger(_control_ledger, root)
+        if (
+            type(_control_ledger) is not _Observation
+            or _control_ledger.budget != budget
+            or _control_ledger.metadata != maximum_metadata_bytes
+            or _control_ledger.roots != (root, source_root)
+            or _control_ledger.censuses
+        ):
+            _fail("original unspent setup ledger required before planning")
+        observation = _control_ledger
     if not item_specs:
         _fail("at least one actual catalog selector required")
     observation.charge_records(len(item_specs))
@@ -366,4 +408,8 @@ def plan_catalog_copy(
         ),
     )
     plan.require_current()
+    if _control_ledger is not None:
+        from .retained_layout_control_roles import _register_catalog_plan
+
+        _register_catalog_plan(observation, plan)
     return plan

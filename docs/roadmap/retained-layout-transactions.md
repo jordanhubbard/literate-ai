@@ -1483,3 +1483,42 @@ All 204 affected author methods and ten scoped Make methods pass without skips.
 Final independent review approves the exact seven subjects and passes twelve
 maintained methods without skips; the earlier failed and repaired review scopes
 remain immutable and separately attributed in that evidence.
+
+### Live catalog ownership handoff
+
+An actual enclosing catalog-copy producer pins its private root while applying
+acknowledged entries, provenance and control finalization. It transfers the
+receiver's original known observations before revocation and grants a ready
+handoff only after all mutation contexts close successfully. Failed teardown
+retains artifacts and issues no roles. The producer's final lifetime check closes
+actual registry, phase, nonce, process and thread after native callbacks.
+
+A fresh source plan binds that live producer and its exact provenance witness.
+Complete partitioning recognizes only actual copied files and directories,
+including empty directories. Unknown neighboring inputs remain unclaimed;
+provider/input/private overlap with moving source refuses. Consumption spends the
+producer once immediately before the actual source move. Saved descriptions and
+expired, changed, wrong-project or spent producers grant no role.
+
+Canonical setup discovery, acquisition, planning, staging and handoff share the
+original observation ledger. Only verified owned control/provenance transitions
+advance current expectations; original antecedents remain retained. Successful
+censuses reserve a conservative bound for their observed roster and lower future
+recapture ceilings to that same bound before releasing unused headroom. Original
+global policy limits stay unchanged. A genuine framework-update predecessor can
+join the same ledger before copy I/O and accept only its actual successor's exact
+provenance change; unrelated changes to cached framework inputs still refuse.
+
+This is internal normal nonroot composition, not complete public application.
+Authentic Git source-checkout lease admission, cross-item topology, authored
+metadata ownership, root/shared/initial/wrapper placement, public recovery and
+installed/native/full-program acceptance remain required. Both initial independent
+findings (setup outside the shared ledger and the final actor-lifetime close) are
+resolved in the exact twelve-subject rereview. Author, independent and required
+Make executions each pass all fourteen maintained handoff methods without skips.
+The initial failing composition runs remain separately attributed in
+[handoff evidence](../../verification/retained-layout-catalog-handoff-development.json).
+The seventeen-module affected regression run passes all 322 methods without
+skips, bringing author coverage with the fourteen handoff methods to 336.
+Next implement remaining source-provider admission and ownership phases, retaining
+all public/platform/full-program requirements above.

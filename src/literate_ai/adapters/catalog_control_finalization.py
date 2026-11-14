@@ -160,6 +160,20 @@ def _advance_marker(owner, original, node, content, destination=None):
     progress, controls = record[11], owner._controls
     path = original.target.path
     before = progress["nodes"][path]
+    cached = owner._stages._ledger.cache.get(path)
+    if cached is not None and (
+        cached.signature
+        != (
+            before.device,
+            before.inode,
+            before.mode,
+            before.size,
+            before.modified_ns,
+            before.changed_ns,
+        )
+        or cached.content != progress["contents"][path]
+    ):
+        _fail("original observed marker input changed before its owned effect")
     actual_path = path if destination is None else destination
     if (
         _from_stat(os.fstat(original.descriptor)) != node
@@ -207,6 +221,29 @@ def _advance_marker(owner, original, node, content, destination=None):
         owner._advance_parent(owner._private, record[10].directory)
         progress["locations"][path] = destination
     progress["nodes"][path], progress["contents"][path] = node, content
+    if cached is not None:
+        from .repository_refresh import RefreshFileObservation
+
+        expected = RefreshFileObservation(
+            path,
+            None
+            if destination is not None
+            else (
+                node.device,
+                node.inode,
+                node.mode,
+                node.size,
+                node.modified_ns,
+                node.changed_ns,
+            ),
+            None if destination is not None else content,
+        )
+        ledger = owner._stages._ledger
+        ledger._owned_control_history = (
+            *getattr(ledger, "_owned_control_history", ()),
+            (cached, expected),
+        )
+        ledger.cache[path] = expected
 
 
 def finalize_controls(owner, acknowledged_plan_identity):

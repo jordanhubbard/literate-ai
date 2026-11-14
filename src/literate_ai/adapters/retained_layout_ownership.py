@@ -267,7 +267,7 @@ def _initializer_roles(
     )
 
 
-def _partition_roles(phase, census, framework, children):
+def _partition_roles(phase, census, framework, children, imported=(), imported_dirs=()):
     root = phase.plan.root
     source = phase.plan.tree.root.relative_to(root).as_posix()
     controls = {
@@ -284,6 +284,9 @@ def _partition_roles(phase, census, framework, children):
     files = {name for name, _, _ in census.tree.files}
     aliases = {item.path: item for item in census.tree.aliases}
     leaves = files | aliases.keys()
+    imported, imported_dirs = set(imported), set(imported_dirs)
+    if not imported <= files or not imported_dirs <= set(census.tree.directories):
+        _fail("actual catalog roles require their complete copied nodes")
     if not framework <= files | {
         name for name, alias in aliases.items() if alias.kind == "hardlink"
     }:
@@ -295,6 +298,10 @@ def _partition_roles(phase, census, framework, children):
         child = next((path for path in child_roots if _beneath(name, path)), None)
         if child is not None:
             return "independent:" + child
+        if name in imported or name in imported_dirs:
+            if _beneath(name, source):
+                _fail("actual catalog ownership overlaps retained source")
+            return "imported"
         if name in framework:
             if _beneath(name, source):
                 _fail("framework ownership overlaps the actual retained source")
@@ -367,6 +374,7 @@ class _OwnedPartition:
         "_pid",
         "_identity",
         "_framework_update",
+        "_catalog_copy",
     )
 
     def __init__(
@@ -381,6 +389,7 @@ class _OwnedPartition:
         origin,
         provider,
         framework_update=None,
+        catalog_copy=None,
     ):
         if key is not _KEY:
             raise TypeError("layout.ownership.live-source-phase-required")
@@ -394,6 +403,7 @@ class _OwnedPartition:
         self._provider_origin = origin
         self._provider = provider
         self._framework_update = framework_update
+        self._catalog_copy = catalog_copy
         self._active, self._spent, self._pid = True, False, os.getpid()
         self._identity = canonical_identity(
             {
@@ -441,6 +451,9 @@ class _OwnedPartition:
         if self._framework_update is not None:
             self._framework_update.require_plan(self._phase.plan)
             self._framework_update.require_current()
+        if self._catalog_copy is not None:
+            self._catalog_copy.require_plan(self._phase.plan)
+            self._catalog_copy.require_current()
         if self._provider is not None:
             self._provider.require_current()
         elif self._provider_origin != (
@@ -465,6 +478,8 @@ class _OwnedPartition:
             self._provider.close_native()
         if self._framework_update is not None:
             self._framework_update.close_native()
+        if self._catalog_copy is not None:
+            self._catalog_copy.close_native()
         self._require_eligible()
 
     def _require_eligible(self):
@@ -496,6 +511,8 @@ class _OwnedPartition:
         }
         if self._framework_update is not None:
             result["framework_update"] = self._framework_update.document
+        if self._catalog_copy is not None:
+            result["catalog_copy"] = self._catalog_copy.document
         return result
 
     @property
@@ -507,6 +524,8 @@ class _OwnedPartition:
         self.require_current()
         if self._framework_update is not None:
             self._framework_update.spend()
+        if self._catalog_copy is not None:
+            self._catalog_copy.spend()
         self._require_eligible()
         self._spent = True
 
@@ -519,6 +538,7 @@ def _owned_partition(
     maximum_metadata_bytes,
     provider_checkout=None,
     framework_update=None,
+    catalog_copy=None,
 ):
     with ExitStack() as providers:
         with _partition_context(
@@ -528,6 +548,7 @@ def _owned_partition(
             providers=providers,
             provider_checkout=provider_checkout,
             framework_update=framework_update,
+            catalog_copy=catalog_copy,
         ) as owner:
             yield owner
 
@@ -541,6 +562,7 @@ def _partition_context(
     providers,
     provider_checkout,
     framework_update,
+    catalog_copy,
 ):
     from .retained_layout_transaction import (
         _native_tree,
@@ -570,9 +592,14 @@ def _partition_context(
 
         _require_handoff(framework_update).require_plan(phase.plan)
         framework_update.require_current()
-        budget, maximum_metadata_bytes = framework_update.remaining(
-            budget, maximum_metadata_bytes
-        )
+        if catalog_copy is None:
+            budget, maximum_metadata_bytes = framework_update.remaining(
+                budget, maximum_metadata_bytes
+            )
+        else:
+            from .catalog_copy_roles import _require_handoff as require_catalog
+
+            require_catalog(catalog_copy).require_framework(framework_update)
         quarter = maximum_metadata_bytes // 4
         moving = {phase.plan.tree._physical[0][:2]} | {
             node[:2] for _name, node in phase.plan.tree._physical[1]
@@ -587,6 +614,17 @@ def _partition_context(
             )
     elif phase.plan.framework_update is not None:
         _fail("fresh source plan requires its actual live framework update")
+    if catalog_copy is not None:
+        from .catalog_copy_roles import _require_handoff as require_catalog
+
+        require_catalog(catalog_copy).require_plan(phase.plan)
+        catalog_copy.require_current()
+        budget, maximum_metadata_bytes = catalog_copy.remaining(
+            budget, maximum_metadata_bytes
+        )
+        quarter = maximum_metadata_bytes // 4
+    elif phase.plan.catalog_copy is not None:
+        _fail("fresh source plan requires its actual live catalog copy")
     before = capture_retained_layout_partition(
         phase.plan.root,
         framework_files=(),
@@ -620,6 +658,14 @@ def _partition_context(
     )
     if framework_update is not None:
         framework.update(framework_update.paths)
+    imported, imported_dirs = (), ()
+    if catalog_copy is not None:
+        from literate_ai.contracts.catalog_imports import CatalogImportsFile
+
+        imported, imported_dirs = catalog_copy.paths, catalog_copy.directories
+        framework.difference_update(imported)
+        framework.add(CatalogImportsFile.PATH)
+        inputs = (*inputs, catalog_copy.provenance)
     if provider is not None:
         protected = {node[:2] for node in provider.objects.directories.values()}
         moving = {phase.plan.tree._physical[0][:2]} | {
@@ -638,7 +684,9 @@ def _partition_context(
     if census.tree != before.tree or census.tree._physical != before.tree._physical:
         _fail("complete namespace changed while actual roles were joined")
     native = _native_tree(census.tree)
-    roles, directories = _partition_roles(phase, census, framework, children)
+    roles, directories = _partition_roles(
+        phase, census, framework, children, imported, imported_dirs
+    )
     # Charge the actual serialized role inventory, not only its digest.
     from literate_ai.contracts.identity import canonical_json_bytes
 
@@ -656,6 +704,7 @@ def _partition_context(
         origin,
         provider,
         framework_update,
+        catalog_copy,
     )
     phase._partition_owner = owner
     try:

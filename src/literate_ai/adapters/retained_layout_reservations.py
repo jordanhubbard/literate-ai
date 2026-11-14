@@ -160,7 +160,14 @@ def _preflight(pool, targets, held):
                 node = layout_entry_node(target.path)
                 if not stat.S_ISREG(node.mode) or node.links != 1:
                     _fail("changed", "existing advisory control is not a direct file")
-                content = _read_document(target.path, maximum_bytes=256)
+                from .bounded_role_observation import current_role_observation
+
+                observation = current_role_observation()
+                content = (
+                    _read_document(target.path, maximum_bytes=256)
+                    if observation is None
+                    else observation.file(target.path, maximum_bytes=256).content
+                )
                 if not content or content.startswith(_PREFIX):
                     _fail(
                         "busy", "empty or retained advisory control requires recovery"

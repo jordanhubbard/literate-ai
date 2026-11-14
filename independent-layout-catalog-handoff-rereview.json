@@ -1,0 +1,114 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "3ea2751b9f4c001cea4dbf43a81cb6fb6cd1e682",
+  "predecessor": {
+    "path": "independent-layout-catalog-handoff-review.json",
+    "sha256": "d2e273a4b3418c532ae3dae4c46b323034e24a23d40c275ababa45e76ed539e4",
+    "preserved": true
+  },
+  "scope": "Internal actual local catalog producer and one-use source-partition handoff, including shared setup/read accounting and actual framework-update predecessor composition.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "559f3ca123338cc1843abf10fcd73331ee8120d6f14d91fcb074a944d5ba4b82"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "3a61a6ec6ac1034ea5bf303f331f96b700de82a9c2882663957ed05641581d02"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "334d7e32040e3633fe115ce03f3edb113f89b827ebd2f8548db010ebb9b148ee"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "64f30b2d5515e0430404aa4359a385fa9d190ba2148434fda741da6548920ce3"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "f8bd4f2389012b26e5e88b5d1a93598812ef1455ef8410e3f4e20c57c21b5e6c"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "eaa3203bbc5dd1263be1f2f990717c27919eafb392cf272ea5fd014388f69b8c"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "4dfadfacbb2fafa2ac44558f5dfffba2db7081360382a2ed9edc066690637456"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_reservations.py",
+      "sha256": "8dae8cfb497fe9aac1fd275ae8d40cad168ef7b638b71ded6f98027c842ebc73"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_control_finalization.py",
+      "sha256": "c655a9c2e81be2cfb3a316461d764a8a7ce15d067eb4ed5e5e44920134f500a9"
+    },
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "bad404bcf7e5116276fc1e38cb4e61f20a4d4a95cc02a8aa261638793498e603"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_protection.py",
+      "sha256": "1343fd6b1b0e56e220ccae49d61d07dd0cd36cd6a8a929993d19ce6679b99b07"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_roles.py",
+      "sha256": "047050b973e09011e2e820a00ede935bd776a78384ffc36738e573aef205bbc2"
+    }
+  ],
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-HANDOFF-SETUP-BUDGET-001",
+      "assessment": "One actual _Observation now exists before canonical control discovery. Setup journal allowance is charged before entry; canonical acquisition and closing use bounded scopes over that exact ledger without spanning caller yield. Authenticated actual acquisition/thread and exact plan registry bind private ledger reuse. Planning consumes the same ledger before reads, and staging admits its original actual usage plus journal allowance rather than resetting counters. Ordinary no-ledger paths retain their original reader policy. Maintained oversized setup manifest refuses before pending publication."
+    },
+    {
+      "id": "CATALOG-HANDOFF-LIFETIME-002",
+      "assessment": "_close_record is a pure exact-original registry/state/seal/stage/control/guard/nonce/descriptor/PID/thread/failed/spent check. _record invokes it after guard/native callbacks, require_current and close_native close their original binding after final native observations, and spend performs a pure close before advancing one-use state. Actual control acquisition admission is revoked before original descriptor cleanup. Two maintained callback-state regressions demonstrate refusal at entry-record and final-native boundaries without adding a further callback."
+    }
+  ],
+  "source_assessment": [
+    "Receiver acceptance still requires actual creating producer, stage/control objects and receiver registry, actual completed finalization/provenance and normal original resource teardown. Readiness is not issued after cleanup error; enclosing producer pin keeps the ready actor live until its registry is retired before outer native teardown.",
+    "Marker cache advancement derives from actual original marker/FD/name/bytes and verified normalize/retire results. Antecedent RefreshFileObservation objects remain in immutable history; live cache changes do not rewrite the original plan inputs.",
+    "Shared-ledger stage constructor compares the exact admitted setup/plan usage and journal debit, and private-scope/header/factory/journal admissions remain. Reuse is keyed to actual control acquisition and exact plan, rather than a descriptive saved ledger record.",
+    "Full partition classifies only actual copied regular leaves and exact copied directories as imported, binds exact current provenance as framework metadata, preserves unknown neighbors and rejects source/provider/private physical overlap. Source move requires the actual bound participant and consumes it once through the live partition.",
+    "Framework composition debits the predecessor's actual used bytes/files/entries/metadata before copy planning, sharing one sequential reserve. Only the actual included successor can advance the updater's provenance observation; antecedent identity/document/observation are retained, and additional document/observation usage is charged in both owners. Partition avoids subtracting the already included predecessor twice, while validating actual predecessor/successor identity and lifetimes.",
+    "Source plan optional fields are omitted when absent. Canonical parser/default branches remain available outside scoped paths. Currentness retains original source/private/input facts and finishes with native/lifetime closure rather than refreshing a foreign baseline."
+  ],
+  "census_refund_assessment": {
+    "decision": "source bound accepted at limited profile",
+    "details": [
+      "Initial complete capture is admitted against remaining aggregate capacity and original finite metadata ceiling. Refund occurs only after actual immutable roster exists.",
+      "Installed future bound is min(initial ceiling,16MiB + sum(65536 +512*full UTF8 path bytes +64*symlink st_size)). It dominates the raw reader's16MiB base, top-level128+32*name bytes, each2048+32*canonical JSON path bytes, and64*symlink size; absolute path charging is conservative relative to relative names and JSON escaping.",
+      "The reduced ceiling is installed into the immutable tree before ledger headroom is refunded, so later unchanged captures use the same policy and new names cannot borrow the old unused ceiling. Physical/logical/tree checks and no-exclusion capture remain unchanged.",
+      "Known private roster admission is still followed by complete capture and exact observed-name comparison; the roster is not used as an exclusion.",
+      "Identity includes the lowered tree ceiling consistently. No claim that old pre-change serialized plan identities are unchanged; fresh plans remain required."
+    ]
+  },
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_roles > _build/catalog-handoff-independent-repaired.log 2>&1",
+    "session": 87590,
+    "exit_code": 0,
+    "tests": 14,
+    "passed": 14,
+    "skipped": 0,
+    "seconds": 140.511,
+    "log": "_build/catalog-handoff-independent-repaired.log",
+    "log_sha256": "29eec5140fb891b0eb1dc180febcf72612e275224a1777b067909cb4eea213dc",
+    "terminal": true,
+    "bespoke_probes": 0,
+    "coverage": "Actual apply/normal teardown, fresh source plan/imported leaves+emptydir/unknown neighbor, source move+metadata+finalization; actual update+copy composition; changed provenance/copied subtree; missing real actor and saved/fabricated objects; original policy refusal; real linked Git and new source controls; hardlink safety refusal; setup file ceiling; callback lifetime closures; teardown error without readiness."
+  },
+  "limits": [
+    "Independent dynamic evidence is exactly14 maintained methods; no bespoke probes or predecessor causal replay.",
+    "Census mathematics and complete/default API compatibility were source-reviewed, not an exhaustive independently executed boundary matrix.",
+    "Author broad17-module and Make jobs were still separate live jobs; their outcomes are not inferred here.",
+    "Local source-backed POSIX internal dependency only, not public catalog API completion, durable historical/restart ownership or recovery, complete metadata ownership, root/shared/wrapper effects, installed-wheel or cross-platform qualification.",
+    "No continuous snapshot or hostile concurrent mutation guarantee, whole retained-layout program, full feature or release acceptance.",
+    "All12 hashes rechecked unchanged after terminal execution. No implementation/test/pin edits, installs, network or new agents; prior reports immutable.",
+    "No independent process remains live. Source sampling/execution finished; parent may unfreeze subject after its separately owned jobs permit."
+  ]
+}

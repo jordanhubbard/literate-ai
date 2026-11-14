@@ -112,6 +112,8 @@ class _FrameworkUpdateRoles:
         self._identity = None
         self._plan = None
         self._applied = None
+        self._catalog_successor = None
+        self._catalog_predecessor = None
 
     @property
     def root(self):
@@ -1059,6 +1061,8 @@ class _FrameworkUpdateRoles:
             _fail("actual upstream provider changed")
         for item in self._cache.values():
             self._check(item)
+        if self._catalog_successor is not None:
+            self._catalog_successor.require_current()
         self.close_native()
 
     def close_native(self):
@@ -1071,7 +1075,79 @@ class _FrameworkUpdateRoles:
             self._git.close_native()
         self._live(ready=True)
         self._close_retirement()
+        if self._catalog_successor is not None:
+            self._catalog_successor.close_native()
         self._live(ready=True)
+
+    def accept_catalog_successor(self, catalog_copy):
+        """Advance only metadata published by this actual creating successor."""
+        from .catalog_copy_roles import (
+            _framework_successor,
+            _reserve_framework_successor,
+        )
+        from .repository_refresh_reservations import _custody_wire
+
+        self._live(ready=True)
+        if self._catalog_successor is not None:
+            _fail("framework update already has its actual catalog successor")
+        before, after, identity = _framework_successor(catalog_copy, self)
+        if before.path.parent.parent != self.root or after.path != before.path:
+            _fail("catalog successor belongs to another project")
+        previous = self._cache.get(before.path)
+        if previous is not None and previous != before:
+            _fail("catalog predecessor does not match original update observation")
+        for path, item in self._cache.items():
+            if path != before.path:
+                self._check(item)
+        # Fund the retained predecessor, new document and one metadata witness
+        # before parsing/copying it. Existing default documents stay unchanged.
+        bound = 2 * len(self._document) + 16384
+        if (
+            bound
+            > min(
+                self.budget.maximum_file_bytes,
+                self.budget.maximum_total_bytes - self._used_bytes - self._reserve,
+            )
+            or 64 * bound + 16384 > self.metadata - self._used_metadata
+            or self._used_entries + 4 > self.budget.maximum_entries
+        ):
+            _fail("catalog successor observation exceeds original update budget")
+        extra_file = int(after.path not in self._cache)
+        _reserve_framework_successor(
+            catalog_copy,
+            self,
+            total=bound + len(after.content),
+            metadata=64 * bound
+            + 16384
+            + 4096
+            + 64 * (len(str(after.path).encode()) + len(after.content)),
+            entries=4 + extra_file,
+            files=extra_file,
+        )
+        self._total += bound
+        self._charged += 64 * bound + 16384
+        self._records += 4
+        self._accept_observation(after.path, after.content, after.signature)
+        old_identity, old_document = self._identity, self._document
+        document = json.loads(old_document)
+        document["predecessor_identity"] = old_identity.uri
+        document["catalog_successor"] = identity.uri
+        document["observations"] = [
+            (
+                str(path),
+                None if item.content is None else digest(item.content),
+                _custody_wire(item.signature),
+                _custody_wire(self._lineages[path]),
+            )
+            for path, item in sorted(self._cache.items())
+        ]
+        encoded = json.dumps(document, sort_keys=True).encode()
+        if len(encoded) > bound:
+            _fail("catalog successor exceeded reserved document bound")
+        self._catalog_predecessor = old_identity, old_document, before
+        self._document, self._identity = encoded, canonical_identity(document)
+        self._catalog_successor = catalog_copy
+        self.require_current()
 
     def bind(self, root):
         self.require_current()
@@ -1086,6 +1162,8 @@ class _FrameworkUpdateRoles:
         checkpoint = self._cache[self.root / CHECKPOINT]
         if checkpoint not in plan.inputs:
             _fail("fresh source plan does not bind exact post-update checkpoint")
+        if self._catalog_successor is not None:
+            self._catalog_successor.require_plan(plan)
 
     def remaining(self, budget, metadata):
         self._live()

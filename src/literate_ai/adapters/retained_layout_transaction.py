@@ -234,12 +234,17 @@ class _SourceMovePlan:
     source_parent: object
     prospective: tuple
     framework_update: str | None = None
+    catalog_copy: str | None = None
+    catalog_provenance: object | None = None
 
     @property
     def document(self):
         plan = _custody_wire(self)
         if self.framework_update is None:
             del plan["framework_update"]
+        if self.catalog_copy is None:
+            del plan["catalog_copy"]
+            del plan["catalog_provenance"]
         return {
             "schema": "literate-ai/layout-source-phase@1",
             "pending_control": str(layout_pending_control_path(self.root)),
@@ -310,7 +315,12 @@ def _prospective_metadata(root, layout, inputs, implementation_directory):
 
 
 def plan_retained_layout_source_move(
-    project_root, implementation_directory, *, budget, framework_update=None
+    project_root,
+    implementation_directory,
+    *,
+    budget,
+    framework_update=None,
+    catalog_copy=None,
 ):
     """Read-only exact nonroot source phase; no complete relocation is promised."""
     root = Path(project_root)
@@ -323,6 +333,12 @@ def plan_retained_layout_source_move(
         from .framework_update_roles import _require_handoff
 
         update_identity = _require_handoff(framework_update).bind(root)
+    catalog_identity, catalog_provenance = None, None
+    if catalog_copy is not None:
+        from .catalog_copy_roles import _require_handoff as require_catalog
+
+        catalog_identity = require_catalog(catalog_copy).bind(root)
+        catalog_provenance = catalog_copy.provenance
     checkpoint_limit = (
         None
         if framework_update is None
@@ -386,17 +402,35 @@ def plan_retained_layout_source_move(
         source_parent,
         prospective,
         update_identity,
+        catalog_identity,
+        catalog_provenance,
     )
     if framework_update is not None:
         framework_update.require_plan(plan)
         framework_update.require_current()
     _require_prepared(plan)
+    if catalog_copy is not None:
+        catalog_copy.require_plan(plan)
+        catalog_copy.require_current()
     if framework_update is not None:
         framework_update.close_native()
     return plan
 
 
 def _validate_plan_roles(plan):
+    if (plan.catalog_copy is None) != (plan.catalog_provenance is None):
+        _fail("catalog producer identity and provenance must be joined")
+    if plan.catalog_copy is not None:
+        from literate_ai.contracts.catalog_imports import CatalogImportsFile
+
+        item = plan.catalog_provenance
+        if (
+            type(item) is not RefreshFileObservation
+            or item.path != plan.root / CatalogImportsFile.PATH
+            or item.content is None
+            or item.signature is None
+        ):
+            _fail("exact canonical catalog provenance observation required")
     if (
         type(plan.tree) is not RetainedCargoInputTreeV2
         or type(plan.tree.budget) is not RetainedCargoInputBudget
@@ -430,7 +464,10 @@ def _validate_plan_roles(plan):
     source_ids = {node[:2] for _, node in plan.tree._physical[1]}
     if any(
         item.signature is not None and item.signature[:2] in source_ids
-        for item in plan.inputs
+        for item in (
+            *plan.inputs,
+            *((plan.catalog_provenance,) if plan.catalog_copy is not None else ()),
+        )
     ):
         _fail("actual framework metadata is not original source")
     selected = RetainedLayoutSelection.from_values(
@@ -478,6 +515,7 @@ def _validate_plan_roles(plan):
 
 def _require_prepared(plan, reservations=None):
     _validate_plan_roles(plan)
+    _require_catalog_provenance(plan)
     pending = layout_pending_control_path(plan.root)
     if reservations is None:
         if os.path.lexists(pending):
@@ -511,7 +549,18 @@ def _require_prepared(plan, reservations=None):
     _close_tree(plan.tree, plan.native)
 
 
+def _require_catalog_provenance(plan):
+    if plan.catalog_provenance is not None:
+        item = plan.catalog_provenance
+        if _file(item.path, maximum_bytes=len(item.content)) != item:
+            _fail("bound catalog provenance changed")
+
+
 def _close_authored(plan):
+    if plan.catalog_provenance is not None:
+        item = plan.catalog_provenance
+        if _signature(item.path) != item.signature:
+            _fail("bound catalog provenance node changed")
     _close_inputs(plan.inputs)
     if any(_lineage(path) != ancestry for path, ancestry in plan.input_lineages):
         _fail("authored input parent ancestry changed")
@@ -658,6 +707,7 @@ class _SourcePhase:
 
     def _require_moved(self):
         self._live()
+        _require_catalog_provenance(self.plan)
         if self._moved is None:
             _fail("actual completed source phase required before metadata")
         tree, native = self._moved
@@ -841,6 +891,7 @@ class _SourcePhase:
 
     def _require_committed_outputs(self):
         self._live()
+        _require_catalog_provenance(self.plan)
         if not self._metadata_published or self._moved is None:
             _fail("actual source and metadata publication required")
         self.controls.reservations.verify_all()
@@ -865,6 +916,10 @@ class _SourcePhase:
         self.controls.reservations._close_currentness()
         self._metadata_area.close_native()
         self._retirement_area.close_native()
+        if self.plan.catalog_provenance is not None:
+            item = self.plan.catalog_provenance
+            if _signature(item.path) != item.signature:
+                _fail("committed catalog provenance node changed")
         _close_tree(tree, native)
         _close_effect_parents(self.plan)
         _absence(self.plan.tree.root, self.plan.tree.budget.maximum_entries)
@@ -1128,6 +1183,7 @@ class _SourcePhase:
         maximum_metadata_bytes,
         provider_checkout=None,
         framework_update=None,
+        catalog_copy=None,
     ):
         """Join actual initializer/control/source owners inside this acknowledged phase.
 
@@ -1142,6 +1198,7 @@ class _SourcePhase:
             maximum_metadata_bytes=maximum_metadata_bytes,
             provider_checkout=provider_checkout,
             framework_update=framework_update,
+            catalog_copy=catalog_copy,
         ) as owner:
             yield owner
 
@@ -1154,6 +1211,8 @@ class _SourcePhase:
         partition = self._partition_owner
         if self.plan.framework_update is not None and partition is None:
             _fail("bound framework update requires its live complete partition")
+        if self.plan.catalog_copy is not None and partition is None:
+            _fail("bound catalog copy requires its live complete partition")
         partition_record = None if partition is None else partition.document
         self._attempted = True
         journal = self.pool._journal

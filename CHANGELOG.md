@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development can carry an actual completed catalog copy into a
+  fresh nonroot source plan, classify its precise imported paths and consume the
+  live handoff once. Setup and later phases share the original budget, including
+  an optional actual framework-update predecessor. Complete public application,
+  recovery and platform qualification remain unfinished (#265).
+
 - Catalog-copy development can finalize its original held controls after verified
   provenance publication, preserve existing advisory bytes and retire native
   markers with the pending barrier last. Git reads charge actual channel usage

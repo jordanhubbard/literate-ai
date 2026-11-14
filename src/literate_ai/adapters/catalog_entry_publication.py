@@ -96,6 +96,9 @@ def _registered(stages):
 
 
 def _revoke(stages):
+    from .catalog_copy_roles import _revoked
+
+    _revoked(stages)
     # Use the actual stage key, never a mutable field naming another receiver.
     record = _OWNERS.pop(stages, None)
     if record is not None:
@@ -205,6 +208,8 @@ class _EntryPublication:
                 for item in stages.plan._inputs:
                     if item.path == record[8].original.path:
                         item = record[9]["expected"]
+                    elif item.path in record[11]["nodes"]:
+                        item = stages._ledger.cache[item.path]
                     if (
                         _file(
                             item.path,
@@ -727,6 +732,10 @@ def catalog_entry_publication(stages, controls, *, control_journal_root):
         _WRITERS.discard(owner)
     if owner in _TOUCHED:
         if record[11]["complete"]:
+            from .catalog_copy_roles import _transferred
+
+            if _transferred(owner):
+                return
             _fail(
                 "catalog publication remains incomplete: imported-role handoff required"
             )
