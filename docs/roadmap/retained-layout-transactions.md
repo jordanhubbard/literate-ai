@@ -1636,7 +1636,40 @@ host-resource exception and original failures remain in topology evidence.
 No installed, other-platform, root/public/recovery or full-program acceptance
 follows from these source-checkout results.
 
-### Canonical authored metadata ownership (queued)
+### Canonical authored metadata ownership (in progress)
+
+Source audit confirms that source planning discovers project roles, canonical
+inputs and Git facts before applying the source-tree allowance; preparation
+revalidation repeats that discovery. Begin one registered preparation operation
+before the first read, with an explicit metadata allowance and the original
+ledger retained through actual phase admission and partition consumption. Import
+genuine predecessor usage once: catalog already includes its joined framework
+predecessor. Keep producer witness sets separate from the new operation's cache.
+
+ContextVar wrapping alone is insufficient. Structural-layout discovery also
+uses direct declaration and Component reads; pass its bounded read/JSON adapter
+and enforce each canonical first-read ceiling. Use sequential scopes, borrowing
+only the same authenticated ledger and preserving foreign/nested/reentrant
+refusal. Admit immutable parsed authored witnesses through the actual phase;
+saved plan labels remain descriptive. Separate role consumption from the
+remaining read-budget lifetime, and advance expected inputs only through verified
+actual control or metadata effects before final callback-free lifetime closure.
+
+The read-path prerequisite now borrows an already active canonical observation
+for structural declaration and Component reads. Project/conversion/declaration
+first reads retain their original 1 MiB / 256 KiB / 16 MiB ceilings. Parsed JSON
+is charged under project-qualified labels, absent or ended read owners refuse,
+and a root declaration refuses before structural metadata enumeration. This
+closes a bypass within an existing bounded scope; it does not create the pending
+persistent preparation operation or fund a default source plan by itself. The
+next action remains the registered operation spanning initial discovery, actual
+phase admission and partition consumption, with predecessor usage charged once.
+The scoped Make gate passes all 32 reader controls, and the final unchanged
+revision passes 139 transaction/control/ownership/catalog/update methods without
+skips. Independent source rereview closes the absent-owner and cross-project
+JSON-accounting findings at this prerequisite scope. Exact subjects, test logs
+and limits are retained in the
+[read-path evidence](../../verification/retained-layout-source-metadata-read-development.json).
 
 After the selected-source dependency is qualified, join the actual canonical
 authored inputs to complete partition ownership. Derive their endpoints from the

@@ -22,7 +22,10 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
-from literate_ai.projects import PROJECT_FILENAME
+from literate_ai.projects import (
+    DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+    PROJECT_FILENAME,
+)
 
 from .component_markdown import parse_component_markdown
 from .conversion_authority import CONVERSION_AUTHORITY_FILE
@@ -36,9 +39,11 @@ from .retained_cargo_tree_v2 import (
     capture_retained_cargo_tree_v2,
 )
 from .retained_layout import (
+    _MAX_LAYOUT_BYTES,
     RETAINED_LAYOUT_PATH,
     RetainedLayoutDeclaration,
     RetainedLayoutSelection,
+    _parse_layout_bytes,
     resolve_structural_layout,
 )
 from .retained_layout_control_publication import _pinned_directory
@@ -56,6 +61,52 @@ _KEY = object()
 _LIFT = ".literate/legacy-lift-shift.json"
 _ORIGIN = ".literate/initialization-origin.json"
 _BASELINE = ".literate/initialization-baseline.json"
+
+
+def _input_limit(name):
+    from .repository_locks import MAXIMUM_LOCK_BYTES
+
+    return {
+        PROJECT_FILENAME: DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+        CONVERSION_AUTHORITY_FILE: 256 * 1024,
+        RETAINED_LAYOUT_PATH: _MAX_LAYOUT_BYTES,
+    }.get(name, MAXIMUM_LOCK_BYTES)
+
+
+class _SourceMetadataObservation:
+    """Structural resolver adapter borrowing the actual canonical read scope.
+
+    It has no enumeration or effect rights. In particular it cannot turn root
+    placement into a source partition by walking the metadata directory.
+    """
+
+    def __init__(self, root, owner):
+        self.root, self.owner = root, owner
+        self._live()
+
+    def _live(self):
+        from .bounded_role_observation import current_role_observation
+
+        if self.owner is None or current_role_observation() is not self.owner:
+            raise TypeError("actual active source metadata read scope required")
+
+    def read(self, relative, *, optional=False):
+        from .update_merge import safe_path
+
+        self._live()
+        return self.owner.file(
+            safe_path(self.root, relative),
+            optional=optional,
+            maximum_bytes=_input_limit(relative),
+        ).content
+
+    def json_value(self, content, label):
+        self._live()
+        return self.owner.json_value(content, str(self.root / label))
+
+    def paths_beneath(self, root):
+        self._live()
+        _fail("root source phase requires the complete mixed-partition owner")
 
 
 def _fail(message):
@@ -77,13 +128,23 @@ class LayoutCommitOutcomeError(RuntimeError):
 
 
 def _inputs(root, *, maximum_checkpoint_bytes=None, _observation=None):
+    if _observation is None:
+        from .bounded_role_observation import current_role_observation
+
+        owner = current_role_observation()
+        if owner is not None:
+            _observation = _SourceMetadataObservation(root, owner)
     project = _project_roles(root)
     lineages = [
         (root, _lineage(root)),
         (root / ".literate", _lineage(root / ".literate")),
     ]
     observations = tuple(
-        _file(root / name, optional=name == RETAINED_LAYOUT_PATH)
+        _file(
+            root / name,
+            optional=name == RETAINED_LAYOUT_PATH,
+            maximum_bytes=_input_limit(name),
+        )
         for name in (
             PROJECT_FILENAME,
             CONVERSION_AUTHORITY_FILE,
@@ -101,16 +162,26 @@ def _inputs(root, *, maximum_checkpoint_bytes=None, _observation=None):
             _file(root / CHECKPOINT, maximum_bytes=maximum_checkpoint_bytes),
         )
     by_name = {item.path.relative_to(root).as_posix(): item for item in observations}
-    if _observation is not None:
-        for name in (_ORIGIN, _BASELINE, _LIFT):
-            _observation.json_value(by_name[name].content, name)
-    origin = ProjectInitializationOrigin.from_dict(json.loads(by_name[_ORIGIN].content))
-    baseline = ProjectInitializationBaseline.from_dict(
-        json.loads(by_name[_BASELINE].content)
-    )
+
+    def value(name):
+        content = by_name[name].content
+        return (
+            json.loads(content)
+            if _observation is None
+            else _observation.json_value(content, name)
+        )
+
+    origin = ProjectInitializationOrigin.from_dict(value(_ORIGIN))
+    baseline = ProjectInitializationBaseline.from_dict(value(_BASELINE))
     if baseline.origin_identity != origin.identity:
         _fail("initialization baseline and origin disagree")
-    lift = json.loads(by_name[_LIFT].content)
+    lift = value(_LIFT)
+    declaration = by_name[RETAINED_LAYOUT_PATH].content
+    if declaration is not None:
+        if _observation is not None:
+            _observation.json_value(declaration, RETAINED_LAYOUT_PATH)
+        if _parse_layout_bytes(declaration).implementation_directory == ".":
+            _fail("root source phase requires the complete mixed-partition owner")
     layout = resolve_structural_layout(root, lift, _observation=_observation)
     lineages.append((layout.wrapper_root, _lineage(layout.wrapper_root)))
     component = _file(layout.wrapper_root / "component.md")

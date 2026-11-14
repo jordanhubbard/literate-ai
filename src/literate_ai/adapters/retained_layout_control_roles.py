@@ -16,7 +16,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from literate_ai.contracts.identity import canonical_identity
-from literate_ai.projects import PROJECT_FILENAME, load_project
+from literate_ai.projects import (
+    DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+    PROJECT_FILENAME,
+    load_project,
+)
 
 from ._write_reservations import WriteReservationTarget
 from .conversion_authority import (
@@ -208,7 +212,10 @@ class _ProjectRoles:
 
 def _project_roles(root):
     lineage = _lineage(root)
-    manifest = _file(root / PROJECT_FILENAME)
+    manifest = _file(
+        root / PROJECT_FILENAME,
+        maximum_bytes=DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
+    )
     project = load_project(root)
     if project.root != root:
         _fail("project loader resolved a different root")

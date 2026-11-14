@@ -1,0 +1,43 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "review_mode": "source-only; no independent tests or probes",
+  "base_commit": "3825ce1c5dc3edd51673d615e2db0537be7ef31e",
+  "reviewer": "guard_review",
+  "record_origin": "Transcribed by author from independent reviewer messages; final source digests independently recomputed.",
+  "scope": "Canonical source metadata read-path prerequisite within an already active bounded observation scope.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "7b0ceaebc48366fce701473866b9574a96925ac7e4dc1b3b4d5aba09afc3b64b"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "f553940a44938e386d7853ac4c67db393902d64a1ef429a86561d3e9bfa80dd9"
+    },
+    {
+      "path": "tests/critical/test_bounded_role_observation.py",
+      "sha256": "23b37faa46cbe4ce7460003c95ff459c61fde18598c888f69cc68edf76a08934"
+    }
+  ],
+  "initial_findings": [
+    {
+      "finding": "Absent owner passed the identity check outside a scope because None is None. Later reads failed; no I/O authority was granted.",
+      "resolution": "Reject an absent owner explicitly before borrowing; maintained absent-owner regression added."
+    },
+    {
+      "finding": "Relative JSON labels could share decoded-record charges across project roots in one read scope.",
+      "resolution": "Root-qualify JSON accounting labels; two-root finite-record-budget regression added."
+    }
+  ],
+  "rereview": "Both findings closed. No additional blocker identified at the read-path prerequisite scope.",
+  "findings": [],
+  "open_scope": [
+    "Persistent registered source-preparation operation before initial discovery",
+    "Original predecessor debit continuity through phase and partition consumption",
+    "Authenticated canonical authored-role partition admission",
+    "Root placement and full effect/recovery graph",
+    "Installed/native/cross-platform and complete feature/integration/release acceptance"
+  ],
+  "independent_dynamic_qualification": false
+}

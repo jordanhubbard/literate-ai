@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained-layout discovery uses an active bounded read scope for structural
+  declaration and wrapper inputs, preserving canonical first-read limits and
+  separate JSON accounting for each project. Persistent preparation and complete
+  authored partition ownership remain unfinished (#265).
+
 - Catalog-copy development can observe multiple selected sources as one bounded
   forest, resolve cross-item links while copying and carry the original
   observations through source ownership handoff. Native closing scans reject

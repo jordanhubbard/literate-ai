@@ -14,6 +14,7 @@ from literate_ai.adapters import bounded_role_observation as reads
 from literate_ai.adapters import project_identity_migration as migration
 from literate_ai.adapters import repository_orchestration as orchestration
 from literate_ai.adapters import repository_refresh as refresh
+from literate_ai.adapters import retained_layout_transaction as transaction
 from literate_ai.adapters.builders._process import BoundedProcessResult
 from literate_ai.adapters.conversion_authority import (
     FilesystemConversionAuthorityStore,
@@ -72,6 +73,176 @@ class BoundedRoleReadTests(unittest.TestCase):
                 conversion,
             )
             self.assertTrue(scope._ledger.cache)
+
+    def declared_layout(self, implementation=None):
+        import json
+
+        from literate_ai.adapters.retained_layout import RetainedLayoutDeclaration
+
+        wrapper = "components/legacy-project-wrapper"
+        implementation = implementation or f"{wrapper}/implementation"
+        owned = (
+            tuple(
+                sorted(
+                    (
+                        ".literate/initialization-baseline.json",
+                        transaction.RETAINED_LAYOUT_PATH,
+                        "literate.project.json",
+                        f"{wrapper}/component.md",
+                    )
+                )
+            )
+            if implementation == "."
+            else ()
+        )
+        declaration = RetainedLayoutDeclaration(wrapper, implementation, owned, None)
+        (self.project / transaction.RETAINED_LAYOUT_PATH).write_bytes(
+            canonical_json_bytes(declaration.to_dict()) + b"\n"
+        )
+        path = self.project / transaction._LIFT
+        lift = json.loads(path.read_bytes())
+        lift.update(
+            implementation_directory=implementation,
+            wrapper_component=wrapper,
+            layout_identity=declaration.identity,
+            previous_layout_identity=None,
+        )
+        path.write_bytes(canonical_json_bytes(lift) + b"\n")
+        return self.project / wrapper / "component.md"
+
+    def test_source_discovery_uses_same_canonical_inputs_in_bounded_scope(self):
+        expected = transaction._inputs(self.project)
+        with self.scope() as scope:
+            self.assertEqual(transaction._inputs(self.project), expected)
+            for item in expected[1]:
+                self.assertEqual(scope._ledger.cache[item.path], item)
+
+    def test_declared_source_discovery_funds_structural_component_reads(self):
+        component = self.declared_layout()
+        expected = transaction._inputs(self.project)
+        read_text = Path.read_text
+
+        def guarded(path, *args, **kwargs):
+            self.assertNotEqual(path, component, "unfunded structural Component read")
+            return read_text(path, *args, **kwargs)
+
+        with self.scope() as scope, mock.patch.object(Path, "read_text", guarded):
+            self.assertEqual(transaction._inputs(self.project), expected)
+            self.assertEqual(
+                scope._ledger.cache[component].content, component.read_bytes()
+            )
+
+    def test_source_component_change_during_structural_resolution_refuses(self):
+        component = self.declared_layout()
+        resolve = transaction.resolve_structural_layout
+
+        def change(*args, **kwargs):
+            layout = resolve(*args, **kwargs)
+            original = component.read_bytes()
+            component.write_bytes(original[:-1] + b"!")
+            return layout
+
+        with self.assertRaisesRegex(ValueError, "original role input changed"):
+            with (
+                self.scope(),
+                mock.patch.object(transaction, "resolve_structural_layout", change),
+            ):
+                transaction._inputs(self.project)
+        self.assertTrue(component.read_bytes().endswith(b"!"))
+
+    def test_source_discovery_refuses_root_before_structural_enumeration(self):
+        self.declared_layout(".")
+        with self.assertRaisesRegex(ValueError, "complete mixed-partition owner"):
+            with (
+                self.scope(),
+                mock.patch.object(
+                    transaction,
+                    "resolve_structural_layout",
+                    side_effect=AssertionError("root structural discovery"),
+                ),
+            ):
+                transaction._inputs(self.project)
+
+    def test_project_role_first_read_keeps_canonical_manifest_ceiling(self):
+        from literate_ai.projects import DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES
+
+        path = self.project / "literate.project.json"
+        with path.open("r+b") as stream:
+            stream.truncate(DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES + 1)
+        raw_file = refresh._raw_file
+        limits = []
+
+        def observe(path, **kwargs):
+            limits.append((path, kwargs["maximum_bytes"]))
+            return raw_file(path, **kwargs)
+
+        with self.assertRaises(ValueError):
+            with self.scope(), mock.patch.object(refresh, "_raw_file", observe):
+                transaction._inputs(self.project)
+        self.assertEqual(limits[0], (path, DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES))
+
+    def test_source_discovery_exhausts_shared_allowance_before_later_inputs(self):
+        raw_file = refresh._raw_file
+        paths = []
+
+        def observe(path, **kwargs):
+            paths.append(path)
+            return raw_file(path, **kwargs)
+
+        budget = RetainedCargoInputBudget(2, 32768, 4 * 1024**2, 8 * 1024**2)
+        with self.assertRaises(ValueError):
+            with self.scope(budget), mock.patch.object(refresh, "_raw_file", observe):
+                transaction._inputs(self.project)
+        self.assertNotIn(self.project / transaction._ORIGIN, paths)
+        self.assertNotIn(
+            self.project / "components/legacy-project-wrapper/component.md", paths
+        )
+
+    def test_source_declaration_first_read_keeps_canonical_layout_ceiling(self):
+        path = self.project / transaction.RETAINED_LAYOUT_PATH
+        with path.open("wb") as stream:
+            stream.truncate(transaction._MAX_LAYOUT_BYTES + 1)
+        raw_file = refresh._raw_file
+        limits = []
+
+        def observe(selected, **kwargs):
+            if selected == path:
+                limits.append(kwargs["maximum_bytes"])
+            return raw_file(selected, **kwargs)
+
+        budget = RetainedCargoInputBudget(2048, 32768, 32 * 1024**2, 128 * 1024**2)
+        with self.assertRaises(ValueError):
+            with (
+                reads.bounded_role_observation(
+                    budget=budget, maximum_metadata_bytes=4 * 1024**3
+                ),
+                mock.patch.object(refresh, "_raw_file", observe),
+            ):
+                transaction._inputs(self.project)
+        self.assertEqual(limits, [transaction._MAX_LAYOUT_BYTES])
+
+    def test_source_resolver_adapter_cannot_escape_its_actual_read_scope(self):
+        with self.scope() as scope:
+            adapter = transaction._SourceMetadataObservation(self.project, scope)
+            self.assertIsNotNone(adapter.read("literate.project.json"))
+        with self.assertRaises(TypeError):
+            adapter.read("literate.project.json")
+
+    def test_source_resolver_adapter_requires_present_actual_owner(self):
+        with self.assertRaises(TypeError):
+            transaction._SourceMetadataObservation(self.project, None)
+
+    def test_source_json_accounting_cannot_be_shared_between_project_roots(self):
+        budget = RetainedCargoInputBudget(2, 5, 1024, 2048)
+        with self.assertRaisesRegex(ValueError, "decoded canonical metadata"):
+            with self.scope(budget) as scope:
+                first = transaction._SourceMetadataObservation(self.project, scope)
+                second = transaction._SourceMetadataObservation(self.state, scope)
+                self.assertEqual(
+                    first.json_value(b'{"state":"wrapped"}', "input.json"),
+                    {"state": "wrapped"},
+                )
+                second.json_value(b'{"state":"wrapped"}', "input.json")
 
     def test_original_canonical_file_ceiling_is_not_increased(self):
         path = self.project / "metadata-input"

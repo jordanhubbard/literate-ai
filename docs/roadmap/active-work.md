@@ -33969,7 +33969,16 @@ independent review and the complete combined gate from test one.
   changed positive and two producer-negative controls. Original failed source review, causal
   native-close failures and author qualification failures remain retained in
   [topology evidence](../../verification/retained-layout-catalog-topology-development.json).
-  Next join authored metadata roles before root effects, preserving the transport
+  Source discovery now routes structural declaration/Component reads through an
+  already active bounded reader, preserves canonical first-read ceilings and
+  separates decoded JSON accounting by project. The scoped Make gate passes
+  32 controls and the final affected neighborhood passes 139 methods without
+  skips. Independent source rereview closes both findings at this prerequisite
+  scope; [read-path evidence](../../verification/retained-layout-source-metadata-read-development.json)
+  retains exact subjects and limits. Next create the registered preparation
+  operation before initial discovery and retain its ledger through actual phase
+  and partition admission, charging genuine predecessor usage once. Then join
+  authored metadata roles before root effects, preserving the transport
   limitation for complete execution qualification,
   then finish root/shared/initial/wrapper placement, full public recovery and
   installed/native/full-program acceptance. Local checks and independent review
