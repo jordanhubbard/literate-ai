@@ -29591,7 +29591,11 @@ aliases under each alias filename so suffix-based scanning cannot be bypassed;
 charge expanded alias content to the existing finite source-scan budget. Native
 index/provider metadata is versioned for this capability. Required intelligence
 continues to refuse unsupported link inputs; no required policy is downgraded.
-PR #444 remains the separate snapshot/quarantine groundwork review.
+[PR #445](https://github.com/jordanhubbard/literate-ai/pull/445) owns this
+SDK follow-up; PR #444 remains the separate snapshot/quarantine groundwork
+review. FreeBSD bootstrap detection found only the declared CMake capability
+missing for the selected OS/CMake profile; native validation is pending its
+authorized prerequisite installation.
 
 SDK integration checkpoint: seven scoped native cases pass on Linux ARM64,
 including actual authored locking, compilation through a source symlink,
