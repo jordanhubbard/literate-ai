@@ -462,3 +462,34 @@ exact commit, inspect and build it in quarantine, then admit its immutable bytes
 external source cache. It does not become a Component. Promotion is the more laborious
 path chosen only when the project wants reviewed regenerative intent to outrank the
 original implementation.
+
+
+### Explicit closed POSIX source links
+
+The ordinary snapshot default remains the v1 `SnapshotPolicy`: symbolic links
+are refused and existing provider identities remain unchanged. A caller may
+explicitly select `InternalSymlinkSnapshotPolicy` for POSIX input custody. Its
+v2 policy identity binds closed-namespace target-text semantics and the
+4,096-byte target bound. A symlink is a typed `SourceEntryType.SYMLINK` with
+normalized mode `0777`; its size and SHA-256 identify the exact UTF-8 target
+text, including lexical `.` components. Target payloads remain separately
+captured regular entries. Directory aliases are inventoried once without
+following them. Unrepresented empty directories are not valid target inputs.
+
+Source snapshots and quarantine share the retained-input closure validator.
+Every target and traversed directory must belong to the selected namespace;
+absolute, escaping, missing and nonterminating targets are refused. Traversal
+through another link or a regular file ancestor is refused. A finite alias to
+its containing directory is permitted. Git selection cannot borrow untracked
+or excluded targets. POSIX reads hold no-follow ancestor descriptors and
+revalidate both ancestors and the leaf; unsupported platforms refuse this
+explicit capability.
+
+Quarantine preserves link kind and raw text, verifies member closures before
+copying, and rechecks links when reopening or verifying aggregate members.
+Permission sealing and failed-copy cleanup never follow aliases. These records
+remain source custody: they grant no execution, source admission, SDK or
+Component qualification. Source-intelligence attachment currently refuses link
+captures until a link-aware provider contract is integrated. SDK lock-policy
+selection, live inspection/build propagation and installed qualification remain
+open under RETAINED-CATALOG-001.
