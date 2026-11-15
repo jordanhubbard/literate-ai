@@ -28,7 +28,7 @@ class SourceLinkCustodyTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve(strict=True)
         self.source = self.root / "source"
         self.source.mkdir()
         (self.source / "src").mkdir()

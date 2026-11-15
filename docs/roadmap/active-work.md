@@ -29563,9 +29563,21 @@ The broader retained-project run executed 216 cases: 209 passed, six skipped
 and one receiver-composition case expired its existing 120-second capability
 budget while measuring receiver code. The same case fails in an isolated
 18-case run (17 pass). Neither the deadline nor the test is relaxed. An
-unchanged `f34debb73` source-export control is running to establish whether the
-failure predates this patch; inherited or storage-specific cause is not yet
-proved. This is an unresolved qualification failure, not a green full gate.
+unchanged `f34debb73` source-export control reproduces the same failure with
+17 passes and one error in 139.538 seconds; the candidate's isolated run took
+139.133 seconds. Exact baseline test and receiver-code bytes match Git. The
+identical `30dbe1c7` candidate exported to temporary RAM-backed source passes all
+24 selected runtime cases in 28.757 seconds with the same 120-second deadline,
+including warm revocation. The temporary export was removed after evidence
+retention. This establishes a source-placement-sensitive qualification failure
+that also occurs before this patch; it does not diagnose the underlying NAS
+latency or turn the failed NFS run into a pass. The same candidate also passes
+the complete 222-case retained-project subset from RAM-backed source in 113.066
+seconds (216 passes, six configured skips), with no deadline or guard changes.
+Both temporary source exports were removed after their reports were retained.
+The POSIX source-link fixture resolves its temporary root before direct
+no-follow reads so ordinary macOS temporary-directory aliases do not redirect
+the fixture's declared root; all seventeen focused fixture cases pass.
 
 Next action (in progress): bind the explicit link policy through authored SDK
 source-lock selection, actual recapture, immutable inspection, live authorization
