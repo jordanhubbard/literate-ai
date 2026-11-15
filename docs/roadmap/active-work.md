@@ -29581,7 +29581,36 @@ the fixture's declared root; all seventeen focused fixture cases pass.
 
 Next action (in progress): bind the explicit link policy through authored SDK
 source-lock selection, actual recapture, immutable inspection, live authorization
-and per-command build checks. Preserve the regular-only project input owner and
+and per-command build checks. The follow-up selects strict boolean
+`allow_internal_symlinks` per authored repository dependency, omitting the
+legacy false default from serialized identities. Acquisition carries the same
+selection in its typed checkout; source locking rejects a selection mismatch.
+SDK inspection composes existing regular-only pinned input custody with exact
+link-target checks and the shared closed-namespace validator. Scan terminal file
+aliases under each alias filename so suffix-based scanning cannot be bypassed;
+charge expanded alias content to the existing finite source-scan budget. Native
+index/provider metadata is versioned for this capability. Required intelligence
+continues to refuse unsupported link inputs; no required policy is downgraded.
+PR #444 remains the separate snapshot/quarantine groundwork review.
+
+SDK integration checkpoint: seven scoped native cases pass on Linux ARM64,
+including actual authored locking, compilation through a source symlink,
+quarantine retention and relocated independent library execution after producer
+removal. Changed raw target text blocks grant issuance and later compilation;
+live revocation and missing execution acknowledgement also refuse admission.
+Scanner control uses a suffix-changing code alias with the existing explicit
+blocking policy and no host override; production policy and budgets are unchanged.
+Eight contract/custody controls pass, and the real Git corpus additionally pins
+all 114,734 regular inputs plus all 138 link targets (1,540,895,823 bytes) under
+the existing SDK source limits in 60.769 seconds. Its snapshot remains
+`sha256:f334c40290bfdf14596570890045dc2de21828047b9a12694bb7a6df367569e9`.
+The old SDK source-build cases (three), Git acquisition cases (three), critical
+Component lock checks (three), Component smoke checks (eleven) and source
+regressions (53, one explicit corpus skip) also pass. Initial test-only failures
+were an incorrectly ordered reduced-budget fixture and a scanner-denial fixture
+that still enabled the existing host override; both were corrected without
+relaxing production behavior. Installed/native-platform, full-suite and full
+SDK/catalog/action/package/lifecycle qualification remain required. Preserve the regular-only project input owner and
 public unqualified retained execution guard. Link-aware source-intelligence,
 full native catalog/action/package/lifecycle qualification remain open under
 issue #74.

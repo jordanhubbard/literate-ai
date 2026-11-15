@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- SDK repository dependencies can explicitly select closed POSIX source links
+  through authored policy. Native inspection scans file aliases under their
+  observable names and rechecks link custody during authorization and builds;
+  default dependency identities and regular-only project pinning stay compatible.
+  Full SDK/catalog and installed qualification remain open (#74).
+
 - Source snapshots offer explicit POSIX internal-link custody, preserving raw
   target identity and immutable quarantine aliases through reopen and aggregate
   verification. Default v1 selection and identities remain compatible. Link-aware

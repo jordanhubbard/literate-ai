@@ -8,7 +8,7 @@ from collections.abc import Mapping, Set
 
 def validate_internal_symlink_closure(
     targets: Mapping[str, str], nodes: Set[str], directories: Set[str]
-) -> None:
+) -> dict[str, str]:
     """Validate raw target text without consulting or following the filesystem.
 
     Callers own complete, normalized, non-overlapping node inventories. Directory
@@ -50,7 +50,7 @@ def validate_internal_symlink_closure(
                     raise ValueError(
                         "Retained symlink traverses a link or non-directory"
                     )
-    resolved: set[str] = set()
+    resolved: dict[str, str] = {}
     for start in links:
         current = start
         chain: set[str] = set()
@@ -59,4 +59,7 @@ def validate_internal_symlink_closure(
                 raise ValueError("Retained symlink target cycle")
             chain.add(current)
             current = links[current]
-        resolved.update(chain)
+        terminal = resolved.get(current, current)
+        for name in chain:
+            resolved[name] = terminal
+    return resolved

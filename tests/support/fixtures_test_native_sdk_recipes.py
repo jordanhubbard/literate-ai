@@ -61,6 +61,8 @@ class NativeSdkRecipeTests(unittest.TestCase):
         )
         self.addCleanup(self.fixture.doCleanups)
         self.fixture.source_payload_bytes = getattr(self, "source_payload_bytes", 0)
+        self.fixture.source_link_targets = getattr(self, "source_link_targets", {})
+        self.fixture.source_extra_files = getattr(self, "source_extra_files", {})
         self.fixture.setUp()
         self.component, self.flavors = _fixture(self.fixture.root / "project")
         host_os = self.fixture.layout.operating_system
@@ -110,6 +112,7 @@ class NativeSdkRecipeTests(unittest.TestCase):
         )
         selected = dataclasses.replace(
             dependency(),
+            allow_internal_symlinks=self.fixture.checkout.allow_internal_symlinks,
             revision_selector=RepositoryRevisionSelector(
                 RepositoryRevisionKind.COMMIT, self.fixture.checkout.resolved_commit
             ),

@@ -120,4 +120,4 @@ def validate_source_links(entries: tuple[SourceEntry, ...], targets: dict[str, s
     expected = {e.path for e in entries if e.entry_type is SourceEntryType.SYMLINK}
     if expected != set(targets):
         raise ValueError("Source link target inventory differs from captured entries")
-    validate_internal_symlink_closure(targets, names | directories, directories)
+    return validate_internal_symlink_closure(targets, names | directories, directories)

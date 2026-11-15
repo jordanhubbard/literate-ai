@@ -21,7 +21,11 @@ from literate_ai.contracts import (
     RepositorySourceDependency,
     canonical_identity,
 )
-from literate_ai.sources import SourceCapture, SourceSnapshotter
+from literate_ai.sources import (
+    InternalSymlinkSnapshotPolicy,
+    SourceCapture,
+    SourceSnapshotter,
+)
 
 
 class _RepositoryGitRunner:
@@ -171,6 +175,7 @@ class GitRepositorySourceAcquirer:
                         "checkout": "detached-no-filters",
                     }
                 ),
+                allow_internal_symlinks=dependency.allow_internal_symlinks,
             )
 
 
@@ -187,4 +192,13 @@ class GitRepositorySourceCapturer:
         )
 
     def capture(self, checkout: RepositoryCheckout) -> SourceCapture:
+        if checkout.allow_internal_symlinks:
+            # Construct per capture: one resolver may acquire dependencies with
+            # different authored selections; never mutate a shared adapter.
+            return GitSourceAdapter(
+                runner=self.adapter.runner,
+                git_binary=self.adapter.git_binary,
+                timeout_seconds=self.adapter.timeout_seconds,
+                snapshotter=SourceSnapshotter(InternalSymlinkSnapshotPolicy()),
+            ).capture(checkout.source_root)
         return self.adapter.capture(checkout.source_root)
