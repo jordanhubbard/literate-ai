@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development now binds the complete original project namespace
+  before source-plan acknowledgement. Actual canonical control publications
+  advance that observation through their live receipts and acquired descriptors;
+  unknown neighbors, replacements and changed witnesses refuse. Root/shared
+  execution, public application and recovery remain unfinished (#265).
+
 - Retained-layout development now binds a source move graph to its live
   ownership partition and durable intent. Proposed shared ancestors stay fixed;
   collisions, changed alias targets and additions inside Git or independent

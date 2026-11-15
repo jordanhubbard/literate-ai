@@ -385,19 +385,44 @@ class SourcePreparationPredecessorTests(unittest.TestCase):
         )
 
     def test_actual_framework_usage_and_original_policy_precede_discovery(self):
-        with self.updated(adopt_added=True) as update:
+        # Declare the complete positive policy before the original producer;
+        # the successor never enlarges an already-live predecessor allowance.
+        with self.updated(
+            adopt_added=True, maximum_metadata_bytes=4 * 1024**3
+        ) as update:
             usage = preparation._predecessor_usage(update, None)
             with self.assertRaisesRegex(ValueError, "enlarge original predecessor"):
-                with self.prepare(framework_update=update):
+                with self.prepare(
+                    framework_update=update, maximum_metadata_bytes=8 * 1024**3
+                ):
                     self.fail("enlarged metadata policy admitted")
             with self.prepare(
-                framework_update=update, maximum_metadata_bytes=2 * 1024**3
+                framework_update=update, maximum_metadata_bytes=4 * 1024**3
             ) as owner:
                 state = preparation._state(owner)
                 self.assertEqual(state.predecessor, usage)
                 self.assertIsNot(state.ledger.cache, update._cache)
                 self.assertGreater(owner.usage["files"], usage.files)
                 self.assertEqual(owner.plan.framework_update, update.identity.uri)
+
+    def test_original_two_gib_policy_refuses_complete_namespace_without_effects(self):
+        with self.updated(adopt_added=True) as update:
+            before = sorted(self.project.rglob("*"))
+            usage = preparation._predecessor_usage(update, None)
+            self.assertEqual(usage.metadata, 2 * 1024**3)
+            with self.assertRaisesRegex(
+                ValueError, "shared catalog input allowance exhausted"
+            ):
+                with self.prepare(
+                    framework_update=update, maximum_metadata_bytes=2 * 1024**3
+                ):
+                    self.fail("unfunded original project namespace admitted")
+            self.assertEqual(sorted(self.project.rglob("*")), before)
+            self.assertTrue((self.source / "app.py").is_file())
+            self.assertFalse(self.destination.exists())
+            self.assertFalse((self.project / "litai/layout.pending").exists())
+            self.assertEqual(preparation._predecessor_usage(update, None), usage)
+            update.require_current()
 
     def test_actual_catalog_usage_is_imported_without_old_control_cache(self):
         with self.copying() as catalog:

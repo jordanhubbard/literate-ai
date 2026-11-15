@@ -275,11 +275,25 @@ def _close_tree(
     _source_preparation=None,
     _admitted_source_phase=None,
     _terminal_preparation=None,
+    _namespace_preparation=None,
 ):
     # Namespace and native facts only, after the last journal/logical input reads.
     # Full directory stamps close insertion/removal, not just directory identity.
     if controls is not None and type(controls) is not _ControlRolesLease:
         _fail("actual live controls required for dependency closure")
+    if _namespace_preparation is not None:
+        from .retained_layout_source_namespace import _require_tree
+
+        if any(
+            owner is not None
+            for owner in (
+                _source_preparation,
+                _admitted_source_phase,
+                _terminal_preparation,
+            )
+        ):
+            _fail("one actual namespace closure participant required")
+        _require_tree(_namespace_preparation, tree, native, controls)
     if _admitted_source_phase is not None:
         from .retained_layout_source_admission import _require_admitted_tree
 
@@ -349,6 +363,12 @@ def _close_tree(
             if controls is not None or _source_preparation is not None:
                 _fail("one actual terminal closure participant required")
             _terminal_native_close(_terminal_preparation, tree, native)
+        if _namespace_preparation is not None:
+            from .retained_layout_source_namespace import (
+                _close_inputs as close_namespace_inputs,
+            )
+
+            close_namespace_inputs(_namespace_preparation, tree, native)
         # Read files first, deepest directories before their ancestors, root last.
         ordered = sorted(
             native,
@@ -418,6 +438,7 @@ class _PreparedSourceMovePlan(_SourceMovePlan):
 
     authored_lock: Path | None = None
     authored_storage: str | None = None
+    project_namespace: str | None = None
 
 
 def _prospective_metadata(root, layout, inputs, implementation_directory):
@@ -534,6 +555,13 @@ def plan_retained_layout_source_move(
         or source.is_relative_to(destination)
     ):
         _fail("source and destination overlap")
+    namespace = None
+    if _observation is not None:
+        from .retained_layout_source_namespace import observe_project_namespace
+
+        if _authored_capture is None:
+            raise TypeError("actual original namespace preparation required")
+        namespace = observe_project_namespace(_authored_capture.preparation)
     git = observe_layout_git_controls(root)
     for protected in git.protected_admin_entries:
         if any(
@@ -587,6 +615,7 @@ def plan_retained_layout_source_move(
             {
                 "authored_lock": _authored_capture.lock_path,
                 "authored_storage": _authored_capture.selection.identity.uri,
+                "project_namespace": namespace.identity.uri,
             }
             if _authored_capture is not None
             else {}
@@ -596,6 +625,9 @@ def plan_retained_layout_source_move(
         from .component_lock_observation import _bind_plan
 
         _bind_plan(_authored_capture.selection, plan)
+        from .retained_layout_source_namespace import _bind_plan as bind_namespace
+
+        bind_namespace(namespace, plan)
     if framework_update is not None:
         framework_update.require_plan(plan)
         framework_update.require_current()
@@ -706,10 +738,14 @@ def _validate_plan_roles(plan):
 
 def _require_prepared(plan, reservations=None):
     storage = None
+    namespace = None
     if type(plan) is _PreparedSourceMovePlan:
         from .component_lock_observation import _require_plan
 
         storage = _require_plan(plan)
+        from .retained_layout_source_namespace import _require_plan as require_namespace
+
+        namespace = require_namespace(plan)
     _validate_plan_roles(plan)
     _require_catalog_provenance(plan)
     pending = layout_pending_control_path(plan.root)
@@ -748,6 +784,8 @@ def _require_prepared(plan, reservations=None):
     plan.git.close_native_inputs(reservations)
     _close_authored(plan)
     _close_tree(plan.tree, plan.native)
+    if namespace is not None:
+        namespace.require_current()
 
 
 def _require_catalog_provenance(plan):

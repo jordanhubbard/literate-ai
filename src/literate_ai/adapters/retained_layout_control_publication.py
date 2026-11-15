@@ -12,9 +12,10 @@ import stat
 import threading
 import unicodedata
 from contextlib import ExitStack, contextmanager
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, fields
 from pathlib import Path
 from uuid import uuid4
+from weakref import WeakKeyDictionary
 
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.contracts.identity import canonical_json_bytes
@@ -35,6 +36,112 @@ _DIRECTORY_FLAGS |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
 
 
 _LIVE_POOLS = {}
+_PUBLICATIONS = {}
+_PUBLICATION_SEALS = {}
+_CREATED_POOLS = WeakKeyDictionary()
+
+
+@dataclass(frozen=True, slots=True)
+class _Publication:
+    """Actual issuer observation; only its live registration authenticates it."""
+
+    pool: object
+    path: Path
+    staged_node: LayoutEntryNode
+    node: LayoutEntryNode
+    content: bytes | None
+    operation_id: str
+    parent_before: LayoutEntryNode
+    parent_after: LayoutEntryNode
+
+
+def _publication_seal(value):
+    if type(value) is not _Publication:
+        raise ValueError("layout.control.actual-publication-required")
+    return (
+        tuple(getattr(value, item.name) for item in fields(_Publication)),
+        canonical_json_bytes(
+            _physical_wire(
+                {
+                    "path": str(value.path),
+                    "content": None if value.content is None else value.content.hex(),
+                    "operation_id": value.operation_id,
+                    **{
+                        name: asdict(getattr(value, name))
+                        for name in (
+                            "staged_node",
+                            "node",
+                            "parent_before",
+                            "parent_after",
+                        )
+                    },
+                }
+            )
+        ),
+        tuple(
+            (
+                getattr(value, name),
+                tuple(
+                    (f.name, getattr(getattr(value, name), f.name))
+                    for f in fields(LayoutEntryNode)
+                ),
+            )
+            for name in ("staged_node", "node", "parent_before", "parent_after")
+        ),
+    )
+
+
+def _publication_history(pool):
+    """Authenticate retained point observations without rereading endpoints.
+
+    Existing published directories may have acquired their own later children.
+    The consuming owner must close its complete projected namespace and actual
+    acquired descriptors; this history alone grants no role or effect rights.
+    """
+    original = _LIVE_POOLS.get(pool)
+    if type(pool) is not _ControlPool or original is None:
+        raise ValueError("layout.control.original-publication-pool-required")
+    _close_control_pool_admission(pool, original)
+    history = _PUBLICATIONS.get(pool)
+    sealed = _PUBLICATION_SEALS.get(pool)
+    if (
+        type(history) is not tuple
+        or sealed is None
+        or sealed[0] is not history
+        or len(history) != len(sealed[1])
+        or len(history) > pool._maximum_entries
+        or any(
+            not _publication_matches(value, before)
+            for value, before in zip(history, sealed[1], strict=True)
+        )
+    ):
+        raise ValueError("layout.control.original-publication-history-changed")
+    return history
+
+
+def _publication_matches(value, before):
+    if value is not before[0]:
+        return False
+    refs = tuple(getattr(value, f.name) for f in fields(_Publication))
+    if any(a is not b for a, b in zip(refs, before[1][0], strict=True)):
+        return False
+    if any(
+        getattr(node, name) is not old
+        for node, observed in before[1][2]
+        for name, old in observed
+    ):
+        return False
+    return _publication_seal(value)[1] == before[1][1]
+
+
+def _retain_publication(pool, before, value):
+    if _publication_history(pool) is not before or value.pool is not pool:
+        raise ValueError("layout.control.original-publication-predecessor-changed")
+    if len(before) >= pool._maximum_entries:
+        raise ValueError("layout.control.publication-history-limit")
+    history = (*before, value)
+    seals = (*_PUBLICATION_SEALS[pool][1], (value, _publication_seal(value)))
+    _PUBLICATIONS[pool], _PUBLICATION_SEALS[pool] = history, (history, seals)
 
 
 def _close_control_pool_admission(pool, original):
@@ -189,12 +296,19 @@ class _ControlPool:
         return names
 
     def require_current(self):
+        created = _CREATED_POOLS.get(self)
+        if created is not None and (
+            self not in _LIVE_POOLS or created != (os.getpid(), threading.get_ident())
+        ):
+            raise ValueError("layout.control.context-ended")
+        _publication_history(self)
         self._guard()
         if self._poisoned:
             raise ValueError("layout.control.publication-interrupted")
         self._require_namespace_current()
 
     def _require_namespace_current(self):
+        _publication_history(self)
         self._guard()
         self._journal.require_current()
         expected = {item.name for item in self._entries.values()}
@@ -214,6 +328,7 @@ class _ControlPool:
         # immutable; any ordinary write, replacement, link or membership change
         # invalidates their complete recorded native facts. Do not traverse more
         # journal payloads after this close and leave private membership unchecked.
+        _publication_history(self)
         expected = {item.name for item in self._entries.values()}
         if self._names() != expected:
             raise ValueError("layout.control.stage-membership-changed")
@@ -282,6 +397,7 @@ class _ControlPool:
     def publish(self, token, destination, *, expected_parent):
         """Publish one known node; never infer control roles or clean conflicts."""
         self.require_current()
+        history = _publication_history(self)
         if type(token) is not StagedLayoutControl or token not in self._entries:
             raise ValueError("layout.control.live-stage-required")
         destination = Path(destination)
@@ -359,6 +475,20 @@ class _ControlPool:
             self._require_private_close()
             parent_current()
             self._guard()
+            _retain_publication(
+                self,
+                history,
+                _Publication(
+                    self,
+                    destination,
+                    item.node,
+                    node,
+                    item.content,
+                    item.operation_id,
+                    expected_parent,
+                    _from_stat(os.fstat(parent_fd)),
+                ),
+            )
             self._poisoned = False
             return PublishedLayoutControl(destination, node, payload, item.operation_id)
 
@@ -404,6 +534,9 @@ def staged_layout_controls(root, journal, *, maximum_entries=64):
                 maximum_entries,
                 root,
             )
+            _PUBLICATIONS[pool] = ()
+            _PUBLICATION_SEALS[pool] = (_PUBLICATIONS[pool], ())
+            _CREATED_POOLS[pool] = os.getpid(), threading.get_ident()
             pool.require_current()
             os.fsync(descriptor)
             with _pinned_directory(root.parent) as (parent_fd, current):
@@ -414,4 +547,6 @@ def staged_layout_controls(root, journal, *, maximum_entries=64):
         finally:
             if "pool" in locals():
                 _LIVE_POOLS.pop(pool, None)
+                _PUBLICATIONS.pop(pool, None)
+                _PUBLICATION_SEALS.pop(pool, None)
             active = False

@@ -632,6 +632,9 @@ class SourceAdmissionTests(unittest.TestCase):
             owner.require_current()
 
     def _refuse_aliased_private_resource(self, *, journal_inside):
+        class StopInspection(Exception):
+            pass
+
         alias = self.project.with_name(self.project.name.swapcase())
         if (
             alias == self.project
@@ -641,27 +644,56 @@ class SourceAdmissionTests(unittest.TestCase):
             self.skipTest("actual case-insensitive project alias required")
         inside = alias / "private-resource"
         inside.mkdir(mode=0o700)
-        with self.prepare() as owner:
-            journal_path = (inside if journal_inside else self.state) / "journal"
-            stages_path = (self.state if journal_inside else inside) / "stages"
-            stages_path.mkdir(mode=0o700, exist_ok=True)
-            with retained_layout_journal(
-                journal_path,
-                canonical_binding=canonical_json_bytes(owner.plan.binding),
-                budget=LayoutJournalBudget(128, 1024**2, 8 * 1024**2, 32),
-            ) as journal:
-                with staged_layout_controls(stages_path, journal) as pool:
-                    with self.assertRaisesRegex(ValueError, "physically overlaps"):
-                        with owner.source_phase(
-                            pool,
-                            acknowledged_plan_identity=owner.plan.identity,
-                            allow_host_execution=True,
+        journal_path = (inside if journal_inside else self.state) / "journal"
+        stages_path = (self.state if journal_inside else inside) / "stages"
+        # An existing empty pool must still reach the native ancestry guard.
+        # The journal binds the plan, so its later in-project creation instead
+        # invalidates the original namespace before private admission begins.
+        stages_path.mkdir(mode=0o700, exist_ok=True)
+        rejected = False
+        try:
+            with self.prepare() as owner:
+                with retained_layout_journal(
+                    journal_path,
+                    canonical_binding=canonical_json_bytes(owner.plan.binding),
+                    budget=LayoutJournalBudget(128, 1024**2, 8 * 1024**2, 32),
+                ) as journal:
+                    with staged_layout_controls(stages_path, journal) as pool:
+                        before = sorted(self.project.rglob("*"))
+                        expected = (
+                            r"^retained\.cargo\.v2-input-custody-changed$"
+                            if journal_inside
+                            else "physically overlaps"
+                        )
+                        with mock.patch.object(
+                            transaction,
+                            "acquire_retained_layout_control_roles",
+                            side_effect=AssertionError("canonical acquisition reached"),
                         ):
-                            self.fail(
-                                "aliased private resource acquired canonical controls"
-                            )
-                    self.assertFalse((self.project / "litai/layout.pending").exists())
-                    self.assertEqual(journal.events, ())
+                            with self.assertRaisesRegex(ValueError, expected):
+                                with owner.source_phase(
+                                    pool,
+                                    acknowledged_plan_identity=owner.plan.identity,
+                                    allow_host_execution=True,
+                                ):
+                                    self.fail("aliased private resource admitted")
+                        self.assertEqual(sorted(self.project.rglob("*")), before)
+                        self.assertFalse(
+                            (self.project / "litai/layout.pending").exists()
+                        )
+                        self.assertEqual(journal.events, ())
+                        os.fstat(journal._descriptor)
+                        os.fstat(pool._descriptor)
+                        rejected = True
+                        if journal_inside:
+                            self.assertNotIn(owner, preparation._LIVE)
+                            raise StopInspection()
+                        owner.require_current()
+        except StopInspection:
+            pass
+        self.assertTrue(rejected)
+        self.assertTrue((self.source / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
 
     def test_private_pool_alias_refuses_before_control_acquisition(self):
         self._refuse_aliased_private_resource(journal_inside=False)
@@ -794,6 +826,9 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         class StopInspection(Exception):
             pass
 
+        # Fund the complete namespace and post-move observations before the
+        # catalog producer starts; the live ledger never gains allowance.
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
         try:
             with self.copying() as catalog:
                 catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
@@ -835,6 +870,7 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         class StopInspection(Exception):
             pass
 
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
         changed, rejected = [], []
         absence = transaction._absence
 

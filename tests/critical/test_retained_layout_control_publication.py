@@ -103,6 +103,115 @@ class RetainedLayoutControlPublicationTests(unittest.TestCase):
                 self.assertEqual((parent / "lifecycle.lock").read_bytes(), self.content)
                 self.assertEqual(len(journal.events), 4)
 
+    def test_live_history_retains_original_directory_and_parent_chain(self):
+        parent = self.public / "locks"
+        with self.journal() as journal:
+            with publication.staged_layout_controls(self.stages, journal) as pool:
+                directory = pool.stage_directory()
+                self.publish(pool, directory, parent)
+                first = publication._publication_history(pool)
+                self.assertEqual(len(first), 1)
+                self.assertIsNone(first[0].content)
+                marker = pool.stage_marker(self.content)
+                self.publish(pool, marker, parent / "lifecycle.lock")
+                history = publication._publication_history(pool)
+                self.assertIs(history[0], first[0])
+                self.assertEqual(history[1].parent_before, first[0].node)
+                self.assertEqual(
+                    history[1].parent_after.directory_identity,
+                    first[0].node.directory_identity,
+                )
+                self.assertEqual(history[1].content, self.content)
+                self.assertNotEqual(
+                    publication.layout_entry_node(parent), first[0].node
+                )
+                pool.require_current()
+        with self.assertRaisesRegex(ValueError, "original-publication-pool"):
+            publication._publication_history(pool)
+
+    def _changed_history_refuses_before_probe(self, *, mutate):
+        with self.journal() as journal:
+            with self.assertRaisesRegex(
+                ValueError, "original-publication-history-changed"
+            ):
+                with publication.staged_layout_controls(self.stages, journal) as pool:
+                    token = pool.stage_marker(self.content)
+                    self.publish(pool, token)
+                    history = publication._publication_history(pool)
+                    if mutate:
+                        object.__setattr__(history[0].node, "size", 999)
+                    else:
+                        publication._PUBLICATIONS[pool] = tuple([*history])
+                    with mock.patch.object(
+                        publication,
+                        "_inspect",
+                        side_effect=AssertionError(
+                            "probe before history authentication"
+                        ),
+                    ):
+                        pool.require_current()
+        self.assertEqual(self.destination.read_bytes(), self.content)
+
+    def test_replaced_history_refuses_before_probe(self):
+        self._changed_history_refuses_before_probe(mutate=False)
+
+    def test_changed_native_receipt_refuses_before_probe(self):
+        self._changed_history_refuses_before_probe(mutate=True)
+
+    def test_changed_payload_refuses_before_serialization(self):
+        with self.journal() as journal:
+            with self.assertRaisesRegex(
+                ValueError, "original-publication-history-changed"
+            ):
+                with publication.staged_layout_controls(self.stages, journal) as pool:
+                    self.publish(pool, pool.stage_marker(self.content))
+                    receipt = publication._publication_history(pool)[0]
+                    object.__setattr__(receipt, "content", b"replacement")
+                    with mock.patch.object(
+                        publication,
+                        "_publication_seal",
+                        side_effect=AssertionError(
+                            "serialization before reference authentication"
+                        ),
+                    ):
+                        pool.require_current()
+        self.assertEqual(self.destination.read_bytes(), self.content)
+
+    def test_constructed_pool_has_no_publication_history(self):
+        forged = object.__new__(publication._ControlPool)
+        with self.assertRaisesRegex(ValueError, "original-publication-pool"):
+            forged.require_current()
+
+    def test_changed_history_after_intent_refuses_before_next_native_effect(self):
+        with self.journal() as journal:
+            with self.assertRaisesRegex(
+                ValueError, "original-publication-history-changed"
+            ):
+                with publication.staged_layout_controls(self.stages, journal) as pool:
+                    self.publish(pool, pool.stage_marker(self.content))
+                    first = publication._publication_history(pool)[0]
+                    second = pool.stage_marker(b"second marker\n")
+                    append = journal.append
+
+                    def corrupt(kind, data):
+                        result = append(kind, data)
+                        if kind == "control-publication-intent":
+                            object.__setattr__(first.node, "size", 999)
+                        return result
+
+                    with (
+                        mock.patch.object(journal, "append", corrupt),
+                        mock.patch.object(
+                            publication, "move_layout_entry_exclusive"
+                        ) as move,
+                    ):
+                        try:
+                            self.publish(pool, second, self.public / "second.lock")
+                        finally:
+                            move.assert_not_called()
+        self.assertEqual(self.destination.read_bytes(), self.content)
+        self.assertFalse((self.public / "second.lock").exists())
+
     def test_occupied_foreign_destination_is_never_replaced_or_removed(self):
         self.destination.write_bytes(b"foreign")
         before = self.destination.stat().st_ino

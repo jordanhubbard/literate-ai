@@ -36,14 +36,14 @@ class FrameworkUpdateRoleTests(unittest.TestCase):
         self.update_sequence = 0
 
     @contextmanager
-    def updated(self, **kwargs):
+    def updated(self, *, maximum_metadata_bytes=2 * 1024**3, **kwargs):
         self.update_sequence += 1
         retirement = self.state / f"update-retired-{self.update_sequence}"
         retirement.mkdir(mode=0o700)
         with updates.applied_framework_update_roles(
             self.project,
             budget=self.update_budget,
-            maximum_metadata_bytes=2 * 1024**3,
+            maximum_metadata_bytes=maximum_metadata_bytes,
             retirement_directory=retirement,
             **kwargs,
         ) as handoff:

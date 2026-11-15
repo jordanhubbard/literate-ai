@@ -34100,6 +34100,25 @@ independent review and the complete combined gate from test one.
   Next action in progress: implement complete receipt-backed root/shared
   multi-entry execution and original-observation projections, including original
   root census/partition acknowledgement and logical custody during parking.
+  The complete original project namespace is now observed under its creating
+  reader before acknowledgement and bound into the plan identity. Only actual
+  canonical control publications advance that observation: sealed live-pool
+  history retains staged nodes and exact before/after parent facts, joined to
+  acquired descriptors and the canonical target roster. Unknown additions,
+  replacements and metadata changes refuse. Complete namespace closure follows
+  payload callbacks, and partition/movement admission uses that same original
+  controlled view. Independent source review approves ten production/test
+  subjects after two causally reproduced defects were fixed: arbitrary witness
+  resealing and a trailing nested-witness mutation. Original smaller policies
+  remain unchanged; finite positive policies are declared before their actual
+  producers. The fresh maintained source cohort passes all 131 methods; the
+  disjoint retained-layout and framework cohorts pass 408 and 28 methods:
+  567 distinct passes without failures or skips. Preserve the original failure
+  history and scoped results in
+  [namespace development evidence](../../verification/retained-layout-source-namespace-development.json).
+  Next, bind the actual canonical role partition before acknowledgement and
+  persist complete bounded namespace/partition data for restart recovery, then
+  implement the complete root/shared receipt-backed schedule and projections.
   Keep root effects guarded until those participants, metadata and recovery are
   complete. Preserve the recorded transport limitation until complete execution
   qualification, and finish root/shared/initial/wrapper placement, full public

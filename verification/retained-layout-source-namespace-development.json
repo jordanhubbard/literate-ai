@@ -1,0 +1,369 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "state": "development_unqualified_scoped_checks_passed",
+  "base_commit": "0135d857777ff0b9dc9b4090b72eb71edc0571f3",
+  "scope": "Complete original project namespace bound before acknowledgement, authenticated actual canonical control publications, and whole namespace closure through the guarded internal nonroot source transaction.",
+  "review": "independent-layout-source-namespace-review.json",
+  "author_history": [
+    {
+      "state": "failed_ended_pool_diagnostic_regression",
+      "scope": "Restore genuine ended-pool context-ended diagnostic without permitting forged or inherited pools.",
+      "log": {
+        "path": "_build/namespace-publications-first.log",
+        "sha256": "fd451ac243d5891765d26487a0f260f53c533bc13cbec46fbdf8b8567b7b0b40"
+      },
+      "report": {
+        "path": "_build/namespace-publications-first-report.json",
+        "sha256": "375fc3b47a03367d70988d9ee31b2a9b03a44d59a30557e286a14bfd0a9e715b"
+      },
+      "summary": {
+        "executed": 5,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 19,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_intermediate",
+      "scope": "Nineteen publication controls before the final history/binding cases.",
+      "log": {
+        "path": "_build/namespace-publications-second.log",
+        "sha256": "97d8d9bffadbde71fbff750a480306507e9349a05fc2dd866b05ae815550aa50"
+      },
+      "report": {
+        "path": "_build/namespace-publications-second-report.json",
+        "sha256": "1f1fe711105cf74c8fade7fb4fb24402b802f8ae585a0e2cd6bc906b2e4553a7"
+      },
+      "summary": {
+        "executed": 19,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 19,
+        "selected": 19,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed_original_positive_metadata_capacity",
+      "scope": "Actual framework predecessor exhausted its original 2 GiB metadata policy. No active allowance was enlarged.",
+      "log": {
+        "path": "_build/namespace-preparation-first.log",
+        "sha256": "3398e7312330f932e17d40595dd99362a205852117599caa0a830ff74fd3f30f"
+      },
+      "report": {
+        "path": "_build/namespace-preparation-first-report.json",
+        "sha256": "f36f81138ee68c877a47541acd4e6dadd662e38bd3ce47aa7673aa0b71c825b9"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 23,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_predecessor_policy_controls",
+      "scope": "Twenty-four preparation cases with finite positive policy declared before producer; new original 2 GiB negative preserves inputs and no source effect.",
+      "log": {
+        "path": "_build/namespace-preparation-second.log",
+        "sha256": "a421b93d1755e0a55a934899d41430532fd290a62a496cdf8d1fa091b538b9c3"
+      },
+      "report": {
+        "path": "_build/namespace-preparation-second-report.json",
+        "sha256": "092bb724889a0b9a3a5281c90e5e05a3a2ee0e09c49de214b9b40685b556b684"
+      },
+      "summary": {
+        "executed": 24,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 24,
+        "selected": 24,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_final_source",
+      "scope": "Twenty-one publication controls, including late journal mutation and actual live control binding.",
+      "log": {
+        "path": "_build/namespace-publications-fourth.log",
+        "sha256": "4e4b73d8d5dd79682a347d3b5140527ca27b9b8f14b14e29fb7c9ed58a248f84"
+      },
+      "report": {
+        "path": "_build/namespace-publications-fourth-report.json",
+        "sha256": "85d27dc880307963f3c206978151959870f9226d39a99ec5199c9b6145f70b7f"
+      },
+      "summary": {
+        "executed": 21,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 21,
+        "selected": 21,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_final_source",
+      "scope": "Fourteen complete original namespace controls.",
+      "log": {
+        "path": "_build/namespace-fourth.log",
+        "sha256": "438cbac261b28c311d3cb35fd95139902dfa2f2dd508e5bc90f45be274085ea5"
+      },
+      "report": {
+        "path": "_build/namespace-fourth-report.json",
+        "sha256": "1df19a75956f4e413074657982929e5e1a530d9a61d72ae06ee75f614d8a7ab9"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed_original_positive_entry_capacity",
+      "scope": "Original 65536-entry catalog movement positive exhausted the shared allowance at actual bounded Git configuration observation. Explicit smaller negatives remain unchanged; two positives now declare 131072 before their producer.",
+      "log": {
+        "path": "_build/namespace-source-complete.log",
+        "sha256": "1e35abd248eee820f0a36a7d8a3a70235a86d0980557eb71206a7f30165d049c"
+      },
+      "report": {
+        "path": "_build/namespace-source-complete-report.json",
+        "sha256": "0593718ccdf25cf87ea6dd4774e41d10c7be7dd6db1274e19c3714945bfd2ada"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 131,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_frozen_production_source",
+      "scope": "408 disjoint remaining retained-layout regression cases. Only two source-admission positive test method capacity declarations changed afterward; production subjects and selected test modules remained unchanged.",
+      "log": {
+        "path": "_build/namespace-regression-complete.log",
+        "sha256": "85a4a59e1569124c6a1f34403b0e60aa017fbb6341da0a47095c862b2898c926"
+      },
+      "report": {
+        "path": "_build/namespace-regression-complete-report.json",
+        "sha256": "7eded1fde40037f81c970300fc289b439a6be34ae6f0e36d7509dfb7fb4b9029"
+      },
+      "summary": {
+        "executed": 408,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 408,
+        "selected": 408,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_final_helper_source",
+      "scope": "28 framework-role regressions preserve the fixture helper default policy.",
+      "log": {
+        "path": "_build/namespace-framework-complete.log",
+        "sha256": "0dbda3f8423099351717f5bd5ac7bb175eafb8ee4623525fbb92f007ce439593"
+      },
+      "report": {
+        "path": "_build/namespace-framework-complete-report.json",
+        "sha256": "e6b3393ff14e0f1db2b05f9fa84dc6af2cf14b7df84d3de1fe33782cea86f237"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed_superseded_private_alias_fixture_expectation",
+      "scope": "111 passed; old journal-alias fixture expected later physical overlap, but actual post-acknowledgement journal creation correctly invalidates original project custody first. Production subjects unchanged.",
+      "log": {
+        "path": "_build/namespace-source-complete-second.log",
+        "sha256": "f4636b54e6bc87cb80cd1e1cdc9ebe1999912bc77ee5e5872a1312acbba72eae"
+      },
+      "report": {
+        "path": "_build/namespace-source-complete-second-report.json",
+        "sha256": "9349193d66f26cb9cfe82d170020b9d0c6a2efd734ad1a3b86f76af7bc7b7470"
+      },
+      "summary": {
+        "executed": 112,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 111,
+        "selected": 131,
+        "skipped": 0
+      }
+    }
+  ],
+  "causal_review_controls": {
+    "before": {
+      "path": "_build/namespace-review-before.log",
+      "sha256": "9830094bdb6a873ea24b5c20751b57c2702c6fed3f6d501131ea8a0cce50129c"
+    },
+    "after": {
+      "path": "_build/namespace-review-after.log",
+      "sha256": "43715a6aa27edaf06eab912e7d56ca9f271622a04f25d4af72c2d7ef4c25b837"
+    },
+    "before_failures": 2,
+    "after_passed": 2,
+    "superseded_namespace_module": {
+      "path": "_build/namespace-before-review-repairs.py",
+      "sha256": "e17d8cdbf17130235d67f343ae760e10e3a5276eb04bb41aadd866a2eaebfc4c"
+    }
+  },
+  "capacity_probe": {
+    "path": "_build/namespace-predecessor-capacity-probe.log",
+    "sha256": "36043b88d093bfc532b101383704b9d48c97a5cdcb0263088808cbc21e73849f"
+  },
+  "static_checks": {
+    "state": "passed",
+    "checks": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "log": {
+      "path": "_build/namespace-static-third.log",
+      "sha256": "d3c23ba67c683f2765ca541dc49355e29b606eccffff8900980b1d1dd70d11bb"
+    }
+  },
+  "remaining": [
+    "Original canonical role partition before acknowledgement and bounded persisted namespace/partition for restart recovery.",
+    "Complete root/shared multi-entry effects and original logical custody during parking.",
+    "Initializer, initial/custom wrapper placement, metadata projections and public plan/ack/apply/recovery.",
+    "Installed/native/platform/integration/release and complete roadmap qualification."
+  ],
+  "limits": [
+    "Development checks are not a complete configured test receipt or release qualification.",
+    "Live issuer receipts and original native descriptors establish effect authority; saved census identities or decoded documents do not.",
+    "No production allowance, guard or default test policy was relaxed."
+  ],
+  "private_alias_controls": {
+    "before": {
+      "path": "_build/namespace-private-alias-before.log",
+      "sha256": "5e98dd6845668e7f5e405edb09275aa3a4a55b1c33d8fbd252874862e22b65ca"
+    },
+    "after": {
+      "path": "_build/namespace-private-alias-after.log",
+      "sha256": "754094eaa45bc1052a7c41538e472b625ab5cd18dc155d192010f1a4ede3e8ed"
+    },
+    "before_failures": 2,
+    "after_passed": 2,
+    "scope": "Existing empty aliased pool still reaches physical-overlap guard. Newly created plan-bound aliased journal must revoke the original namespace first. Both prohibit actual canonical acquisition and preserve namespace/source, journal events and held descriptors."
+  },
+  "documentation_checks": {
+    "state": "passed",
+    "mermaid_diagrams": 181,
+    "markdown_files": 1954,
+    "tooling_tests_passed": 22,
+    "log": {
+      "path": "_build/namespace-final-documentation.log",
+      "sha256": "9006eec82bf3f4a3c321353e8b461c1666c644c66f642a522a2e75437348a99b"
+    }
+  },
+  "platform": "macOS native POSIX development checks",
+  "final_suites": [
+    {
+      "state": "passed",
+      "scope": "Fresh complete original-source cohort on final ten-subject reviewed scope.",
+      "log": {
+        "path": "_build/namespace-source-complete-third.log",
+        "sha256": "ff3dcbb3b78523540b8ddb3a7e7d4d9226d2250ee4e5c76d464df5b7e5f3580f"
+      },
+      "report": {
+        "path": "_build/namespace-source-complete-third-report.json",
+        "sha256": "0b58386865521982cacddd362ecdff4c57e6352bdac791edc1216637ab40fd6a"
+      },
+      "summary": {
+        "executed": 131,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 131,
+        "selected": 131,
+        "skipped": 0
+      },
+      "seconds": 1222.861
+    },
+    {
+      "state": "passed",
+      "scope": "Disjoint remaining retained-layout regressions; production and selected test module bytes unchanged after this run.",
+      "log": {
+        "path": "_build/namespace-regression-complete.log",
+        "sha256": "85a4a59e1569124c6a1f34403b0e60aa017fbb6341da0a47095c862b2898c926"
+      },
+      "report": {
+        "path": "_build/namespace-regression-complete-report.json",
+        "sha256": "7eded1fde40037f81c970300fc289b439a6be34ae6f0e36d7509dfb7fb4b9029"
+      },
+      "summary": {
+        "executed": 408,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 408,
+        "selected": 408,
+        "skipped": 0
+      },
+      "seconds": 654.267
+    },
+    {
+      "state": "passed",
+      "scope": "Disjoint framework-role regressions preserve the fixture helper default policy.",
+      "log": {
+        "path": "_build/namespace-framework-complete.log",
+        "sha256": "0dbda3f8423099351717f5bd5ac7bb175eafb8ee4623525fbb92f007ce439593"
+      },
+      "report": {
+        "path": "_build/namespace-framework-complete-report.json",
+        "sha256": "e6b3393ff14e0f1db2b05f9fa84dc6af2cf14b7df84d3de1fe33782cea86f237"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      },
+      "seconds": 163.524
+    }
+  ],
+  "distinct_passed_methods": 567,
+  "failed_methods": 0,
+  "skipped_methods": 0,
+  "final_checks": {
+    "state": "passed_at_development_scope",
+    "driver_review_record": {
+      "path": "_build/namespace-driver-record.log",
+      "sha256": "c9f41e03c13a22c2655312f8536b013980514c2771d56555cbb3b8825223658d"
+    },
+    "documentation_review_record": {
+      "path": "_build/namespace-documentation-record.log",
+      "sha256": "cb39da364c59d74a471f6f9bea0ca2fee7d1d9ac0c896a00928057caf5d02d95"
+    },
+    "authority_runner_layout_export": {
+      "path": "_build/namespace-final-authority-checks.log",
+      "sha256": "f06cc990b8feeec36a8e1aa8f1ae19392122a5eb46f83a15b218a17a06b5cbec"
+    },
+    "project_validate": {
+      "path": "_build/namespace-project-validate.json",
+      "sha256": "84a52df338dd2d233eebf8cb40834a9961987170d2fa70c64a177eb68a7bd65e"
+    },
+    "documentation": {
+      "path": "_build/namespace-final-documentation.log",
+      "sha256": "9006eec82bf3f4a3c321353e8b461c1666c644c66f642a522a2e75437348a99b"
+    },
+    "configured_project_receipt": "stale; full configured qualification remains open"
+  }
+}

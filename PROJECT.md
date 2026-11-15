@@ -244,6 +244,9 @@ custom wrapper Component names. The directing user accepted ADR 0057 for 1.4 und
 2026-11-03; implementation, rollback and fresh receipt qualification remain open.
 The internal source transaction now binds a descriptive role-based move graph,
 including shared ancestors, empty logical roots and protected Git/child namespaces.
+It also binds the complete original project namespace before acknowledgement,
+projects canonical control changes from actual publication receipts and acquired
+descriptors, and closes the complete namespace through premovement admission.
 Its production executor still accepts only the existing nonroot single-rename
 profile; root/shared movement, public application and recovery remain unfinished.
 

@@ -138,6 +138,9 @@ def _state(owner, *, ready=True):
         from .retained_layout_source_authored import _require_witness
 
         _require_witness(owner, value)
+        from .retained_layout_source_namespace import _require_registration
+
+        _require_registration(owner, value)
     return value
 
 
@@ -196,6 +199,9 @@ def _close_original_native(owner, original):
     _CLOSING[owner] = original, after
     try:
         _close_tree(plan.tree, plan.native, _source_preparation=owner)
+        from .retained_layout_source_namespace import _PREPARATIONS
+
+        _PREPARATIONS[owner].close_native()
     finally:
         _CLOSING.pop(owner, None)
 
@@ -373,5 +379,8 @@ def prepared_retained_layout_source_move(
             from .component_lock_observation import _end as end_storage
 
             end_storage(owner)
+            from .retained_layout_source_namespace import _end as end_namespace
+
+            end_namespace(owner)
             _end_terminal(owner)
             _LIVE.pop(owner, None)

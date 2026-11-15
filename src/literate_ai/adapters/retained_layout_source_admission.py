@@ -231,7 +231,9 @@ def _close_admitted_span(record):
     after = layout_entry_node(plan.destination.parent)
     if before != after:
         _fail("destination parent changed during admitted absence scan")
-    tree, native = plan.tree, plan.native
+    from .retained_layout_source_namespace import _current_view
+
+    tree, native = _current_view(record.preparation)
     if record.partition_binding is not None:
         tree, native = record.partition_binding[0].tree, record.partition_binding[1]
     record.span = tree, native, after
@@ -346,6 +348,10 @@ def _control_reads(preparation, pool, *, cleanup=False):
         yield record.original.ledger
     if _record(preparation, cleanup=cleanup) is not record:
         _fail("original admission ended during control reads")
+    if record.phase is None:
+        from .retained_layout_source_namespace import _PREPARATIONS
+
+        _PREPARATIONS[preparation].close_native()
 
 
 def _accept_controls(preparation, pool, controls):
@@ -433,6 +439,11 @@ def _accept_controls(preparation, pool, controls):
     record.history = tuple(history)
     record.controls, record.control_binding = controls, binding
     _RESERVATIONS[controls.reservations] = record
+    from .retained_layout_source_namespace import (
+        _accept_controls as accept_namespace_controls,
+    )
+
+    accept_namespace_controls(preparation, controls)
 
 
 def _bind_phase(preparation, phase):
@@ -550,6 +561,10 @@ def _admit_preparation(preparation, plan, pool):
         _fail("actual original unborrowed preparation plan required")
     preparation.require_current()
     pool_binding = _require_live_control_pool(pool)
+    from .retained_layout_control_publication import _publication_history
+
+    if _publication_history(pool):
+        _fail("original source admission requires an unpublished control pool")
     journal = _require_live_layout_journal(pool._journal)
     journal_binding = _LIVE_WRITERS[journal]
     journal_root = _LIVE_ROOTS[journal]
@@ -572,8 +587,12 @@ def _admit_preparation(preparation, plan, pool):
     ledger.bytes += payload
     prefix = max(len(str(root).encode("utf-8")) for root in (pool.root, journal_root))
     ledger.charge_records(
-        2 * count + 32 * budget.maximum_events,
-        payload + 2 * count * (prefix + 256),
+        2 * count + 32 * budget.maximum_events + 8 * pool._maximum_entries,
+        payload
+        + 2 * count * (prefix + 256)
+        + 16
+        * pool._maximum_entries
+        * (prefix + len(str(original.root).encode()) + 512),
     )
     ledger.require_capacity()
     # Spelling alone cannot separate directories on case-insensitive volumes.
@@ -769,6 +788,11 @@ def _admitted_partition(
                         producer.require_plan(phase.plan)
                         producer.require_current()
                 before = ledger.capture(phase.plan.root)
+                from .retained_layout_source_namespace import _require_matching_view
+
+                _require_matching_view(
+                    record.preparation, before.tree, _native_tree(before.tree)
+                )
                 private = {
                     (n.st_dev, n.st_ino)
                     for n in (
