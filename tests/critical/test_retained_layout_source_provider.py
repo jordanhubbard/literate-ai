@@ -22,7 +22,6 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
     os.name == "posix", "actual POSIX original provider source operation"
 )
 class SourceProviderTests(unittest.TestCase):
-    prepare = source_fixtures.SourceAdmissionTests.prepare
     pool = source_fixtures.SourceAdmissionTests.pool
     inspecting = source_fixtures.SourceAdmissionTests.inspecting
 
@@ -39,6 +38,15 @@ class SourceProviderTests(unittest.TestCase):
             8192, 131072, 4 * 1024**2, 256 * 1024**2
         )
         self.metadata_limit = 8 * 1024**3
+
+    def prepare(self):
+        return preparation.prepared_retained_layout_source_move(
+            self.project,
+            "retained",
+            budget=self.input_budget,
+            maximum_metadata_bytes=self.metadata_limit,
+            provider_checkout=self.checkout,
+        )
 
     def observe(self, phase):
         return phase.complete_partition(
@@ -92,6 +100,53 @@ class SourceProviderTests(unittest.TestCase):
                 self.assertLessEqual(owner.usage["metadata_bytes"], self.metadata_limit)
         self.assertFalse(self.source.exists())
         self.assertTrue((self.destination / "app.py").is_file())
+
+    def test_reserved_original_allowance_refuses_before_control_retirement(self):
+        class StopInspection(Exception):
+            pass
+
+        try:
+            with self.prepare() as owner:
+                with self.pool(owner.plan) as (pool, journal):
+                    with owner.source_phase(
+                        pool,
+                        acknowledged_plan_identity=owner.plan.identity,
+                        allow_host_execution=True,
+                    ) as phase:
+                        with self.observe(phase):
+                            phase.move_source()
+                        phase.publish_metadata(self.metadata)
+                        markers = tuple(
+                            (
+                                m.target.path,
+                                m.target.path.stat().st_ino,
+                                m.target.path.read_bytes(),
+                            )
+                            for m in phase.controls.reservations._markers
+                        )
+                        events = journal.events
+                        ledger = preparation._state(owner).ledger
+                        remaining = ledger.budget.maximum_entries - ledger.records
+                        self.assertGreater(remaining, 4096)
+                        ledger.charge_records(remaining - 4096)
+                        self.assertEqual(
+                            ledger.budget.maximum_entries - ledger.records, 4096
+                        )
+                        with self.assertRaisesRegex(
+                            ValueError,
+                            "finalization preflight exceeds original allowance",
+                        ):
+                            phase.finalize_controls(self.retired)
+                        self.assertEqual(journal.events, events)
+                        for path, inode, content in markers:
+                            self.assertEqual(path.stat().st_ino, inode)
+                            self.assertEqual(path.read_bytes(), content)
+                        self.assertEqual(list(self.retired.iterdir()), [])
+                        raise StopInspection()
+        except StopInspection:
+            pass
+        self.assertTrue((self.destination / "app.py").is_file())
+        self.assertTrue((self.project / "litai/layout.pending").is_file())
 
     def test_cleared_shared_object_hint_refuses_before_legacy_native_io(self):
         with self.inspecting() as (_owner, phase, _pool, _journal):
@@ -234,54 +289,135 @@ class SourceProviderTests(unittest.TestCase):
                         )
                     self.assertFalse(probe.called)
 
-    def test_removed_or_copied_provider_cannot_authorize_source_effects(self):
-        with self.inspecting() as (_owner, phase, _pool, _journal):
-            with self.observe(phase) as partition:
-                actual = partition._provider
-                record = admission._phase_record(phase)
-                copied = copy.copy(actual)
-                with self.assertRaises(ValueError):
-                    copied.require_current()
-                for replacement in (None, copied, object()):
-                    with self.subTest(replacement=type(replacement).__name__):
-                        record.provider = replacement
-                        try:
-                            with self.assertRaises(ValueError):
-                                phase.move_source()
-                        finally:
-                            record.provider = actual
-                        self.assertTrue(self.source.is_dir())
-                        self.assertFalse(self.destination.exists())
+    def test_missing_provider_cannot_authorize_source_effects(self):
+        self._check_admitted_provider_replacement("missing")
+
+    def test_copied_provider_cannot_authorize_source_effects(self):
+        self._check_admitted_provider_replacement("copied")
+
+    def test_foreign_provider_cannot_authorize_source_effects(self):
+        self._check_admitted_provider_replacement("foreign")
+
+    def _check_admitted_provider_replacement(self, kind):
+        # Each replacement gets a fresh real fixture/lifetime. A prior
+        # revocation must not turn later replacement cases into tombstone tests.
+        with self.assertRaisesRegex(
+            ValueError,
+            "layout.original-roles: "
+            "actual original preparation role participant required",
+        ):
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with self.observe(phase) as partition:
+                    actual = partition._provider
+                    record = admission._phase_record(phase)
+                    copied = copy.copy(actual)
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "layout.source-provider: "
+                        "actual original provider participant required",
+                    ):
+                        copied.require_current()
+                    self.assertIs(admission._phase_record(phase), record)
+                    source = self.source.stat().st_ino
+                    payload = (self.source / "app.py").read_bytes()
+                    descriptors = tuple(
+                        marker.descriptor
+                        for marker in phase.controls.reservations._markers
+                    )
+                    record.provider = {
+                        "missing": None,
+                        "copied": copied,
+                        "foreign": object(),
+                    }[kind]
+                    try:
+                        with (
+                            mock.patch.object(
+                                transaction,
+                                "move_layout_entry_exclusive",
+                                side_effect=AssertionError(
+                                    "source effect with changed provider"
+                                ),
+                            ) as effect,
+                            self.assertRaisesRegex(
+                                ValueError,
+                                "layout.original-roles: "
+                                "original admitted provider selection changed",
+                            ),
+                        ):
+                            phase.move_source()
+                    finally:
+                        record.provider = actual
+                    effect.assert_not_called()
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "layout.original-roles: "
+                        "actual original preparation role participant required",
+                    ):
+                        owner.require_current()
+                    self.assertEqual(self.source.stat().st_ino, source)
+                    self.assertEqual((self.source / "app.py").read_bytes(), payload)
+                    self.assertFalse(self.destination.exists())
+        for descriptor in descriptors:
+            with self.assertRaises(OSError):
+                os.fstat(descriptor)
 
     def test_last_native_provider_revocation_refuses_before_source_effects(self):
-        with self.inspecting() as (owner, phase, _pool, _journal):
-            with self.observe(phase) as partition:
-                actual = partition._provider
-                saved = shared._record(actual)
-                close = transaction._close_tree
-                revoked = []
+        with self.assertRaisesRegex(
+            ValueError,
+            "layout.original-roles: "
+            "actual original preparation role participant required",
+        ):
+            with self.inspecting() as (owner, phase, _pool, _journal):
+                with self.observe(phase) as partition:
+                    actual = partition._provider
+                    saved = shared._record(actual)
+                    close = transaction._close_tree
+                    revoked = []
+                    source = self.source.stat().st_ino
+                    payload = (self.source / "app.py").read_bytes()
+                    descriptors = tuple(
+                        marker.descriptor
+                        for marker in phase.controls.reservations._markers
+                    )
 
-                def revoke_after_close(*args, **kwargs):
-                    result = close(*args, **kwargs)
-                    if kwargs.get("_admitted_source_phase") is phase and not revoked:
-                        span = admission._phase_record(phase).span
-                        self.assertIsNotNone(span)
-                        self.assertIs(span[0], args[0])
-                        shared._OWNERS.pop(actual)
-                        revoked.append(True)
-                    return result
+                    def revoke_after_close(*args, **kwargs):
+                        result = close(*args, **kwargs)
+                        if (
+                            kwargs.get("_admitted_source_phase") is phase
+                            and not revoked
+                        ):
+                            span = admission._phase_record(phase).span
+                            self.assertIsNotNone(span)
+                            self.assertIs(span[0], args[0])
+                            shared._OWNERS.pop(actual)
+                            revoked.append(True)
+                        return result
 
-                try:
-                    with mock.patch.object(
-                        transaction, "_close_tree", revoke_after_close
+                    try:
+                        with mock.patch.object(
+                            transaction, "_close_tree", revoke_after_close
+                        ):
+                            with self.assertRaisesRegex(
+                                ValueError,
+                                "layout.original-roles: "
+                                "original provider observer or lifetime changed",
+                            ):
+                                owner.require_current()
+                    finally:
+                        shared._OWNERS[actual] = saved
+                    self.assertEqual(revoked, [True])
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "layout.original-roles: "
+                        "actual original preparation role participant required",
                     ):
-                        with self.assertRaises(ValueError):
-                            owner.require_current()
-                finally:
-                    shared._OWNERS[actual] = saved
-                self.assertEqual(revoked, [True])
-                self.assertTrue(self.source.is_dir())
-                self.assertFalse(self.destination.exists())
+                        owner.require_current()
+                    self.assertEqual(self.source.stat().st_ino, source)
+                    self.assertEqual((self.source / "app.py").read_bytes(), payload)
+                    self.assertFalse(self.destination.exists())
+        for descriptor in descriptors:
+            with self.assertRaises(OSError):
+                os.fstat(descriptor)
 
     def advance(self, phase):
         with self.observe(phase) as partition:
@@ -324,7 +460,7 @@ class SourceProviderTests(unittest.TestCase):
         self.assertIs(getattr(caught.exception, "committed", None), True)
         self.assertTrue(
             any(
-                "layout.source-provider: actual original provider participant required"
+                "layout.original-roles: original provider observer or lifetime changed"
                 in str(error)
                 for error in self.error_chain(caught.exception)
             )
@@ -506,6 +642,7 @@ class CombinedSourceProviderTests(unittest.TestCase):
                     maximum_metadata_bytes=self.copy_metadata,
                     framework_update=update,
                     catalog_copy=catalog,
+                    provider_checkout=self.checkout,
                 ) as owner:
                     original = preparation._state(owner)
                     with self.pool(owner.plan) as (pool, _journal):

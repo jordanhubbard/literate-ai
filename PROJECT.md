@@ -247,6 +247,9 @@ including shared ancestors, empty logical roots and protected Git/child namespac
 It also binds the complete original project namespace before acknowledgement,
 projects canonical control changes from actual publication receipts and acquired
 descriptors, and closes the complete namespace through premovement admission.
+The creating preparation also owns canonical initializer, provider and authored
+roles before acknowledgement. Admission retains those actual participants and
+their original shared reader; a fresh post-lock discovery cannot replace them.
 Its production executor still accepts only the existing nonroot single-rename
 profile; root/shared movement, public application and recovery remain unfinished.
 

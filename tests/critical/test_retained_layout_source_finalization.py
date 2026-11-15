@@ -47,7 +47,7 @@ class SourceFinalizationTests(unittest.TestCase):
     def test_complete_original_operation_survives_git_release_and_descriptor_teardown(
         self,
     ):
-        self.input_budget = replace(self.input_budget, maximum_entries=131072)
+        self.input_budget = replace(self.input_budget, maximum_entries=262144)
         self.metadata_limit = 8 * 1024**3
         self.init_git(commit=True)
         unknown = self.project / "unclaimed-neighbor"
@@ -94,11 +94,64 @@ class SourceFinalizationTests(unittest.TestCase):
         self.assertEqual(unknown.read_bytes(), b"retained neighbor\n")
         self.assertTrue((self.metadata / "old-0").is_file())
 
-    def test_original_smaller_policy_refuses_before_control_effects(self):
+    def test_original_smaller_policy_refuses_before_source_effects(self):
         self.input_budget = replace(self.input_budget, maximum_entries=65536)
         self.metadata_limit = 4 * 1024**3
         self.init_git(commit=True)
-        with self.inspecting() as (owner, phase, _pool, _journal):
+        with self.assertRaises(ValueError) as caught:
+            with self.inspecting() as (owner, phase, _pool, journal):
+                original = preparation._state(owner)
+                with phase.complete_partition(
+                    budget=self.input_budget,
+                    maximum_metadata_bytes=self.metadata_limit,
+                ):
+                    originals = {
+                        marker.target.path: (
+                            marker.target.path.stat().st_ino,
+                            marker.target.path.read_bytes(),
+                        )
+                        for marker in phase.controls.reservations._markers
+                    }
+                    journal_files = {
+                        path.name: (path.stat().st_ino, path.read_bytes())
+                        for path in (self.state / "journal").iterdir()
+                    }
+                    source = self.source.stat().st_ino
+                    payload = (self.source / "app.py").read_bytes()
+                    phase.move_source()
+        errors, error = [], caught.exception
+        while error is not None and all(error is not item for item in errors):
+            errors.append(error)
+            error = error.__cause__ or error.__context__
+        self.assertIn(
+            "catalog.copy-plan: shared catalog input allowance exhausted",
+            [str(error) for error in errors],
+        )
+        self.assertEqual(original.ledger.budget.maximum_entries, 65536)
+        self.assertGreater(original.ledger.records, 65536)
+        self.assertEqual(self.source.stat().st_ino, source)
+        self.assertEqual((self.source / "app.py").read_bytes(), payload)
+        self.assertFalse(self.destination.exists())
+        self.assertEqual(
+            {
+                path.name: (path.stat().st_ino, path.read_bytes())
+                for path in (self.state / "journal").iterdir()
+            },
+            journal_files,
+        )
+        for path, expected in originals.items():
+            self.assertEqual((path.stat().st_ino, path.read_bytes()), expected)
+        self.assertTrue((self.project / "litai/layout.pending").is_file())
+        self.assertEqual(list(self.metadata.iterdir()), [])
+        self.assertEqual(list(self.retired.iterdir()), [])
+
+    def test_original_git_entry_policy_refuses_finalization_before_control_effects(
+        self,
+    ):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
+        self.metadata_limit = 8 * 1024**3
+        self.init_git(commit=True)
+        with self.inspecting() as (owner, phase, _pool, journal):
             with phase.complete_partition(
                 budget=self.input_budget,
                 maximum_metadata_bytes=self.metadata_limit,
@@ -109,8 +162,26 @@ class SourceFinalizationTests(unittest.TestCase):
                 marker.target.path: marker.target.path.read_bytes()
                 for marker in phase.controls.reservations._markers
             }
-            with self.assertRaisesRegex(ValueError, "preflight exceeds original"):
+            ledger = preparation._state(owner).ledger
+            before = ledger.records, ledger.charged, journal.events
+            with (
+                mock.patch.object(
+                    finalization,
+                    "_preflight_control_receipt",
+                    side_effect=AssertionError(
+                        "control receipt before capacity admission"
+                    ),
+                ),
+                self.assertRaisesRegex(
+                    ValueError, "finalization preflight exceeds original"
+                ),
+            ):
                 phase.finalize_controls(self.retired)
+            # Final currentness reads still spend the original allowance;
+            # the refused preflight must leave every control effect unstarted.
+            self.assertGreaterEqual(ledger.records, before[0])
+            self.assertGreaterEqual(ledger.charged, before[1])
+            self.assertEqual(journal.events, before[2])
             self.assertFalse(list(self.retired.iterdir()))
             for path, content in originals.items():
                 self.assertEqual(path.read_bytes(), content)

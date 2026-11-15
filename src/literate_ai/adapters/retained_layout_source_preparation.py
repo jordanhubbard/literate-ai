@@ -141,6 +141,11 @@ def _state(owner, *, ready=True):
         from .retained_layout_source_namespace import _require_registration
 
         _require_registration(owner, value)
+        from .retained_layout_source_roles import (
+            _require_registration as role_registration,
+        )
+
+        role_registration(owner, value)
     return value
 
 
@@ -202,6 +207,9 @@ def _close_original_native(owner, original):
         from .retained_layout_source_namespace import _PREPARATIONS
 
         _PREPARATIONS[owner].close_native()
+        from .retained_layout_source_roles import _close_references
+
+        _close_references(owner)
     finally:
         _CLOSING.pop(owner, None)
 
@@ -282,6 +290,9 @@ class _SourcePreparation:
             _close(self, original)
             with self._reads():
                 _require_prepared(original.plan)
+                from .retained_layout_source_roles import _payload_current
+
+                _payload_current(self)
             _close_original_native(self, original)
             # No payload/native callbacks follow these original lifetime checks.
             if catalog_lifetime is not None:
@@ -324,6 +335,7 @@ def prepared_retained_layout_source_move(
     maximum_metadata_bytes,
     framework_update=None,
     catalog_copy=None,
+    provider_checkout=None,
 ):
     """Fund discovery before its first read and retain its actual read owner.
 
@@ -365,6 +377,7 @@ def prepared_retained_layout_source_move(
                     catalog_copy=catalog_copy,
                     _observation=ledger,
                     _authored_capture=capture,
+                    _provider_checkout=provider_checkout,
                 )
                 authored = capture.finish(plan)
             _LIVE[owner] = replace(original, plan=plan, authored=authored)
@@ -376,6 +389,12 @@ def prepared_retained_layout_source_move(
             from .retained_layout_source_provider import _end as end_provider
 
             end_provider(owner)
+            from .retained_layout_source_roles import _end as end_roles
+
+            end_roles(owner)
+            from .retained_layout_source_authored import _end_capture
+
+            _end_capture(owner)
             from .component_lock_observation import _end as end_storage
 
             end_storage(owner)

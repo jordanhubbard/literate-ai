@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development now observes initializer, provider and authored
+  roles before source-plan acknowledgement. Admission retains the original
+  participants and shared observation allowance. Changed plan bindings and
+  provider selections refuse. Root and shared-directory execution, public
+  application and recovery remain unfinished (#265).
+
 - Retained-layout development now binds the complete original project namespace
   before source-plan acknowledgement. Actual canonical control publications
   advance that observation through their live receipts and acquired descriptors;

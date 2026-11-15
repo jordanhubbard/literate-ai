@@ -11,10 +11,14 @@ from unittest import mock
 
 import tests.critical.test_catalog_copy_roles as predecessor_fixtures
 import tests.critical.test_retained_layout_transaction as fixtures
+import tests.support.fixtures_test_retained_harness_receipts as initializer_fixtures
 from literate_ai.adapters import bounded_role_observation as reads
+from literate_ai.adapters import project_initialization
 from literate_ai.adapters import repository_refresh as refresh
+from literate_ai.adapters import retained_layout_source_admission as admission
 from literate_ai.adapters import retained_layout_source_preparation as preparation
 from literate_ai.adapters import retained_layout_transaction as transaction
+from literate_ai.adapters import standard_lifecycle_binding as standard
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
 
 
@@ -25,7 +29,12 @@ class SourcePreparationTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        fixtures.RetainedLayoutTransactionTests.setUpClass.__func__(cls)
+        with mock.patch.object(
+            initializer_fixtures,
+            "_origin",
+            project_initialization.discover_installed_initialization_origin,
+        ):
+            fixtures.RetainedLayoutTransactionTests.setUpClass.__func__(cls)
 
     def setUp(self):
         fixtures.RetainedLayoutTransactionTests.setUp(self)
@@ -38,9 +47,21 @@ class SourcePreparationTests(unittest.TestCase):
             self.project,
             "retained",
             budget=kwargs.pop("budget", self.input_budget),
-            maximum_metadata_bytes=4 * 1024**3,
+            maximum_metadata_bytes=kwargs.pop("maximum_metadata_bytes", 4 * 1024**3),
             **kwargs,
         )
+
+    def test_original_metadata_profile_funds_role_discovery_without_effects(self):
+        before = sorted(self.project.rglob("*"))
+        with self.prepare(maximum_metadata_bytes=4 * 1024**3) as owner:
+            self.assertIsNotNone(owner.plan.project_roles)
+            owner.require_current()
+            self.assertLessEqual(owner.usage["metadata_bytes"], 4 * 1024**3)
+        self.assertEqual(sorted(self.project.rglob("*")), before)
+        self.assertTrue((self.source / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
+        self.assertFalse((self.project / "litai/layout.pending").exists())
+        self.assertIsNone(reads.current_role_observation())
 
     def test_actual_discovery_is_read_only_and_retains_one_ledger(self):
         before = sorted(self.project.rglob("*"))
@@ -60,6 +81,51 @@ class SourcePreparationTests(unittest.TestCase):
         self.assertEqual(sorted(self.project.rglob("*")), before)
         self.assertTrue((self.source / "app.py").is_file())
         self.assertFalse(self.destination.exists())
+
+    def test_bounded_origin_calculation_uses_original_reader_before_phase(self):
+        expected = project_initialization.discover_installed_initialization_origin()
+        before_paths = sorted(self.project.rglob("*"))
+        with self.prepare() as owner:
+            original = preparation._state(owner)
+            before_usage = owner.usage
+            before_cache = dict(original.ledger.cache)
+            with (
+                owner._reads(),
+                mock.patch.object(
+                    project_initialization,
+                    "discover_installed_initialization_origin",
+                    side_effect=AssertionError("legacy unbounded origin reached"),
+                ),
+                mock.patch.object(
+                    transaction,
+                    "acquire_retained_layout_control_roles",
+                    side_effect=AssertionError("control acquisition reached"),
+                ),
+            ):
+                observed = admission._observe_installed_origin(original.reader)
+            self.assertEqual(observed, expected)
+            self.assertGreater(owner.usage["entries"], before_usage["entries"])
+            self.assertEqual(owner.usage["files"], before_usage["files"])
+            self.assertEqual(original.ledger.cache.keys(), before_cache.keys())
+            for path, witness in before_cache.items():
+                self.assertIs(original.ledger.cache[path], witness)
+            self.assertIs(preparation._state(owner).reader, original.reader)
+            self.assertIs(preparation._state(owner).ledger, original.ledger)
+            owner.require_current()
+        self.assertEqual(sorted(self.project.rglob("*")), before_paths)
+        self.assertTrue((self.source / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
+
+    def test_phase_free_origin_refuses_missing_reader_before_origin_probe(self):
+        with mock.patch.object(
+            standard,
+            "observe_installed_framework_origin",
+            side_effect=AssertionError("origin probe before read-owner admission"),
+        ):
+            for reader in (None, object()):
+                with self.subTest(reader=reader):
+                    with self.assertRaisesRegex(ValueError, "actual active.*reader"):
+                        admission._observe_installed_origin(reader)
 
     def test_metadata_exhaustion_refuses_before_source_capture(self):
         budget = RetainedCargoInputBudget(2, 32768, 4 * 1024**2, 8 * 1024**2)
@@ -388,16 +454,16 @@ class SourcePreparationPredecessorTests(unittest.TestCase):
         # Declare the complete positive policy before the original producer;
         # the successor never enlarges an already-live predecessor allowance.
         with self.updated(
-            adopt_added=True, maximum_metadata_bytes=4 * 1024**3
+            adopt_added=True, maximum_metadata_bytes=8 * 1024**3
         ) as update:
             usage = preparation._predecessor_usage(update, None)
             with self.assertRaisesRegex(ValueError, "enlarge original predecessor"):
                 with self.prepare(
-                    framework_update=update, maximum_metadata_bytes=8 * 1024**3
+                    framework_update=update, maximum_metadata_bytes=16 * 1024**3
                 ):
                     self.fail("enlarged metadata policy admitted")
             with self.prepare(
-                framework_update=update, maximum_metadata_bytes=4 * 1024**3
+                framework_update=update, maximum_metadata_bytes=8 * 1024**3
             ) as owner:
                 state = preparation._state(owner)
                 self.assertEqual(state.predecessor, usage)
@@ -444,8 +510,46 @@ class SourcePreparationPredecessorTests(unittest.TestCase):
             with self.prepare(catalog_copy=catalog):
                 self.fail("ended catalog supplied a preparation")
 
+    def test_original_combined_entry_policy_refuses_without_effects(self):
+        class InspectionComplete(Exception):
+            pass
+
+        with (
+            self.assertRaises(InspectionComplete),
+            self.updated(adopt_added=True) as update,
+        ):
+            with self.copying(framework_update=update) as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                before = sorted(self.project.rglob("*"))
+                usage = preparation._predecessor_usage(update, catalog)
+                self.assertEqual(usage.budget.maximum_entries, 65536)
+                with self.assertRaisesRegex(
+                    ValueError, "shared catalog input allowance exhausted"
+                ):
+                    with self.prepare(framework_update=update, catalog_copy=catalog):
+                        self.fail("unfunded combined original role discovery admitted")
+                self.assertEqual(sorted(self.project.rglob("*")), before)
+                self.assertTrue((self.source / "app.py").is_file())
+                self.assertFalse(self.destination.exists())
+                self.assertFalse((self.project / "litai/layout.pending").exists())
+                self.assertEqual(preparation._predecessor_usage(update, catalog), usage)
+                update.require_current()
+                catalog.require_current()
+                # No consuming source transaction follows this refusal. Exit
+                # both genuine producer lifetimes together while still live.
+                raise InspectionComplete()
+
     def test_actual_joined_framework_and_catalog_usage_is_debited_once(self):
-        with self.updated(adopt_added=True) as update:
+        # Fund all three original participants before either producer starts.
+        # The original 65536-entry policy remains a refusal case above.
+        self.copy_budget = RetainedCargoInputBudget(
+            8192, 131072, 4 * 1024**2, 256 * 1024**2
+        )
+        self.copy_metadata = 8 * 1024**3
+        self.update_budget = self.copy_budget
+        with self.updated(
+            adopt_added=True, maximum_metadata_bytes=self.copy_metadata
+        ) as update:
             with self.copying(framework_update=update) as catalog:
                 catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
                 combined = preparation._predecessor_usage(update, catalog)

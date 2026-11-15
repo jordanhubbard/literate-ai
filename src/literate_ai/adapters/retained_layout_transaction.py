@@ -439,6 +439,7 @@ class _PreparedSourceMovePlan(_SourceMovePlan):
     authored_lock: Path | None = None
     authored_storage: str | None = None
     project_namespace: str | None = None
+    project_roles: str | None = None
 
 
 def _prospective_metadata(root, layout, inputs, implementation_directory):
@@ -501,6 +502,7 @@ def plan_retained_layout_source_move(
     catalog_copy=None,
     _observation=None,
     _authored_capture=None,
+    _provider_checkout=None,
 ):
     """Read-only exact nonroot source phase; no complete relocation is promised."""
     root = Path(project_root)
@@ -592,6 +594,19 @@ def plan_retained_layout_source_move(
     prospective = _prospective_metadata(
         root, layout, inputs, selected.implementation_directory
     )
+    original_roles = None
+    if _authored_capture is not None:
+        from .retained_layout_source_roles import _observe as observe_roles
+
+        original_roles = observe_roles(
+            _authored_capture,
+            tree,
+            git,
+            namespace,
+            destination,
+            prospective,
+            provider_checkout=_provider_checkout,
+        )
     plan_type = _SourceMovePlan if _observation is None else _PreparedSourceMovePlan
     plan = plan_type(
         root,
@@ -616,6 +631,7 @@ def plan_retained_layout_source_move(
                 "authored_lock": _authored_capture.lock_path,
                 "authored_storage": _authored_capture.selection.identity.uri,
                 "project_namespace": namespace.identity.uri,
+                "project_roles": original_roles.identity.uri,
             }
             if _authored_capture is not None
             else {}
@@ -628,6 +644,9 @@ def plan_retained_layout_source_move(
         from .retained_layout_source_namespace import _bind_plan as bind_namespace
 
         bind_namespace(namespace, plan)
+        from .retained_layout_source_roles import _bind_plan as bind_roles
+
+        bind_roles(original_roles, plan)
     if framework_update is not None:
         framework_update.require_plan(plan)
         framework_update.require_current()
@@ -746,6 +765,9 @@ def _require_prepared(plan, reservations=None):
         from .retained_layout_source_namespace import _require_plan as require_namespace
 
         namespace = require_namespace(plan)
+        from .retained_layout_source_roles import _require_plan as require_roles
+
+        require_roles(plan)
     _validate_plan_roles(plan)
     _require_catalog_provenance(plan)
     pending = layout_pending_control_path(plan.root)

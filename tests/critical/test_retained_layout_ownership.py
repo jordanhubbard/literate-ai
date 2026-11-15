@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import unittest
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from unittest import mock
 
 import tests.critical.test_retained_layout_finalization as fixtures
@@ -13,6 +13,9 @@ import tests.critical.test_retained_layout_recovery_data as recovery_fixtures
 import tests.support.fixtures_test_retained_harness_receipts as initializer_fixtures
 from literate_ai.adapters import retained_layout_ownership as ownership
 from literate_ai.adapters import retained_layout_transaction as transaction
+from literate_ai.adapters.retained_layout_partition import (
+    capture_retained_layout_partition,
+)
 from literate_ai.contracts import (
     ProjectInitializationBaseline,
     ProjectInitializationBaselineFile,
@@ -91,6 +94,67 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
                 owner.require_current()
             with self.assertRaisesRegex(ValueError, "owner ended"):
                 owner.require_current()
+
+    def test_canonical_role_calculation_needs_no_acquired_source_phase(self):
+        unknown = self.project / ".literate/unclaimed.py"
+        unknown.write_bytes(b"unknown stays unclaimed\n")
+        before = sorted(self.project.rglob("*"))
+        with (
+            ExitStack() as providers,
+            mock.patch.object(
+                transaction,
+                "acquire_retained_layout_control_roles",
+                side_effect=AssertionError("control acquisition reached"),
+            ),
+            mock.patch.object(
+                transaction,
+                "plan_retained_layout_source_move",
+                side_effect=AssertionError("source phase plan required"),
+            ),
+        ):
+            framework, children, inputs, origin, provider = (
+                ownership._initializer_role_inputs(
+                    self.project,
+                    self.source.parent.relative_to(self.project).as_posix(),
+                    self.namespace_budget,
+                    512 * 1024**2,
+                    providers=providers,
+                    provider_checkout=None,
+                )
+            )
+            census = capture_retained_layout_partition(
+                self.project,
+                framework_files=tuple(sorted(framework)),
+                budget=self.namespace_budget,
+                maximum_metadata_bytes=512 * 1024**2,
+            )
+            roles, directories = ownership._classify_observed_roles(
+                self.project,
+                self.source.relative_to(self.project).as_posix(),
+                census,
+                framework,
+                children,
+                (),
+                (),
+            )
+            self.assertEqual(dict(roles)["literate.project.json"], "framework")
+            self.assertEqual(
+                dict(roles)[
+                    (self.source / "app.py").relative_to(self.project).as_posix()
+                ],
+                "source",
+            )
+            self.assertEqual(dict(roles)[".literate/unclaimed.py"], "unclaimed")
+            self.assertIn("unclaimed", dict(directories)[".literate"])
+            self.assertTrue(inputs)
+            self.assertEqual(
+                origin, ownership.discover_installed_initialization_origin()
+            )
+            self.assertIsNone(provider)
+        self.assertEqual(sorted(self.project.rglob("*")), before)
+        self.assertEqual(unknown.read_bytes(), b"unknown stays unclaimed\n")
+        self.assertFalse((self.project / "litai/layout.pending").exists())
+        self.assertFalse(self.destination.exists())
 
     def test_full_owner_is_journaled_and_spent_before_actual_source_effect(self):
         plan = self.plan()

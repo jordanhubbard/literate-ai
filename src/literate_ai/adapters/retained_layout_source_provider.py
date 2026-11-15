@@ -41,6 +41,8 @@ class _Record:
     objects: object = None
     roster: object = None
     binding: object = None
+    discovery: object = None
+    preparation: object = None
 
 
 def _binding(objects, roster):
@@ -131,6 +133,20 @@ def _require_binding(value):
 
 
 def _record(owner, *, reading=False, role=False):
+    if type(owner) is not _Provider:
+        _fail("actual original provider participant required")
+    try:
+        return _read_record(owner, reading=reading, role=role)
+    except BaseException:
+        value = _OWNERS.get(owner)
+        if value is not None and value.preparation is not None:
+            from .retained_layout_source_roles import _revoke_preparation
+
+            _revoke_preparation(value.preparation)
+        raise
+
+
+def _read_record(owner, *, reading=False, role=False):
     from .retained_layout_source_admission import _ADMISSIONS
 
     value = _OWNERS.get(owner)
@@ -141,6 +157,13 @@ def _record(owner, *, reading=False, role=False):
     ):
         _fail("actual original provider participant required")
     admission = value.admission
+    if value.discovery is not None:
+        from .retained_layout_source_roles import _require_provider
+
+        _require_provider(value, reading=reading, role=role)
+        if value.objects is not None:
+            _require_binding(value)
+        return value
     if (
         _state(admission.preparation) is not value.original
         or admission.provider is not owner
@@ -316,6 +339,13 @@ class _Provider:
         from .retained_layout_source_admission import _control_reads
 
         value = _record(self, role=True)
+        if value.discovery is not None:
+            from .retained_layout_source_roles import _provider_reads
+
+            with _provider_reads(value.discovery):
+                _payload(value)
+            self.close_native()
+            return
         with _control_reads(value.admission.preparation, value.admission.pool):
             _payload(value)
         self.close_native()
@@ -360,6 +390,10 @@ def _join(admission, origin, definition, *, checkout, budget, metadata_limit):
     from . import project_initialization
     from .retained_layout_provider import _build_original_roster
     from .retained_layout_source_admission import _phase_record
+    from .retained_layout_source_roles import _CREATED
+
+    if admission.preparation in _CREATED:
+        _fail("original provider must be selected before acknowledgement")
 
     if (
         _phase_record(admission.phase) is not admission
@@ -407,7 +441,61 @@ def _join(admission, origin, definition, *, checkout, budget, metadata_limit):
         raise
 
 
+def _join_preparation(
+    discovery, origin, definition, *, checkout, budget, metadata_limit
+):
+    from .retained_layout_provider import _build_original_roster
+    from .retained_layout_source_roles import (
+        _provider_construction,
+        _register_provider,
+    )
+
+    context, root = _provider_construction(discovery, checkout)
+    context.ledger.charge_records(
+        64,
+        65536
+        + 16 * len(str(root).encode())
+        + 8 * sum(len(k) + len(v) for k, v in os.environ.items()),
+    )
+    owner = _Provider(_KEY)
+    value = _Record(
+        owner,
+        None,
+        context.original,
+        root,
+        origin,
+        discovery=discovery,
+        preparation=context.preparation,
+    )
+    _OWNERS[owner] = value
+    _BOUND[context.preparation] = owner
+    _register_provider(discovery, value)
+    try:
+        roster = _build_original_roster(
+            origin,
+            definition,
+            checkout=checkout,
+            budget=budget,
+            metadata_limit=metadata_limit,
+            _shared=owner,
+        )
+        value = _record(owner)
+        value = replace(value, roster=roster, binding=_binding(value.objects, roster))
+        _OWNERS[owner] = value
+        _separate(value)
+        owner.require_current()
+        return owner
+    except BaseException:
+        _OWNERS.pop(owner, None)
+        raise
+
+
 def _separate(value):
+    if value.discovery is not None:
+        from .retained_layout_source_roles import _separate_provider
+
+        _separate_provider(value)
+        return
     plan = value.original.plan
     source = {
         plan.tree._physical[0][:2],
@@ -444,7 +532,11 @@ def _require_registration(admission):
         _fail("original provider registration was replaced or removed")
     if admission.provider is not None:
         value = _record(admission.provider)
-        if value.admission is not admission:
+        if value.discovery is not None:
+            from .retained_layout_source_roles import _require_admission
+
+            _require_admission(value.discovery, admission)
+        elif value.admission is not admission:
             _fail("foreign original provider registration")
 
 
@@ -490,7 +582,11 @@ def _separate_effects(admission, candidate_lineage):
 def _end(preparation):
     _BOUND.pop(preparation, None)
     for owner, value in tuple(_OWNERS.items()):
-        if value.admission.preparation is preparation:
+        if (
+            value.preparation
+            if value.discovery is not None
+            else value.admission.preparation
+        ) is preparation:
             if value.roster is not None:
                 value.roster._active = False
             _OWNERS.pop(owner, None)

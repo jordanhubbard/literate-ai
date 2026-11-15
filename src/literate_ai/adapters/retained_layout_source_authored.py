@@ -5,7 +5,7 @@ from __future__ import annotations
 import os
 import stat
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from pathlib import Path
 
 from literate_ai.contracts.component_locking import ComponentAuthoring
@@ -20,6 +20,9 @@ from .retained_layout import RETAINED_LAYOUT_PATH
 
 _KEY = object()
 _OWNERS = {}
+_CAPTURES = {}
+_OBSERVED = {}
+_REVOKED_CAPTURES = set()
 
 
 def _fail(message):
@@ -75,6 +78,7 @@ class _Capture:
         if (
             original.plan is not None
             or current_role_observation() is not original.reader
+            or preparation in _CAPTURES
         ):
             _fail("actual creating source discovery required")
         self.preparation, self.original = preparation, original
@@ -86,6 +90,7 @@ class _Capture:
         original.ledger.charge_records(
             64, 65536 + 128 * len(str(original.root).encode())
         )
+        _CAPTURES[preparation] = self
 
     def canonical_lock(self, layout):
         from .bounded_role_observation import current_role_observation
@@ -136,6 +141,19 @@ class _Capture:
         ):
             _fail("parsed canonical source witnesses disagree")
         self.observed = project, layout, inputs, lineages, component, names
+        objects = (self.original, project, layout, component, *inputs)
+        count = sum(len(fields(item)) for item in objects)
+        self.original.ledger.charge_records(8 + 2 * count, 4096 + 128 * count)
+        _OBSERVED[self] = (
+            self.original,
+            self.observed,
+            self.lock_path,
+            self.selection,
+            tuple(
+                (item, tuple((f.name, getattr(item, f.name)) for f in fields(item)))
+                for item in objects
+            ),
+        )
 
     def finish(self, plan):
         from .bounded_role_observation import current_role_observation
@@ -150,7 +168,9 @@ class _Capture:
             or current_role_observation() is not self.original.reader
         ):
             _fail("actual creating source plan required to bind witnesses")
-        project, layout, inputs, lineages, component, names = self.observed
+        project, layout, inputs, lineages, component, names = _original_observation(
+            self
+        )
         if (
             plan.layout is not layout
             or plan.inputs is not inputs
@@ -209,6 +229,42 @@ class _Capture:
             self.selector_paths,
             self.selection,
         )
+
+
+def _original_observation(capture):
+    if type(capture) is not _Capture:
+        _fail("actual original parsed source capture required")
+    try:
+        return _read_original_observation(capture)
+    except BaseException:
+        if capture in _OBSERVED:
+            _REVOKED_CAPTURES.add(capture)
+        raise
+
+
+def _read_original_observation(capture):
+    seal = _OBSERVED.get(capture)
+    if (
+        type(capture) is not _Capture
+        or capture in _REVOKED_CAPTURES
+        or seal is None
+        or _CAPTURES.get(capture.preparation) is not capture
+        or capture.original is not seal[0]
+        or capture.observed is not seal[1]
+        or capture.lock_path is not seal[2]
+        or capture.selection is not seal[3]
+    ):
+        _fail("original parsed source observation changed or ended")
+    for item, observed in seal[4]:
+        if any(getattr(item, name) is not old for name, old in observed):
+            _fail("original parsed source facts changed")
+    return seal[1]
+
+
+def _end_capture(preparation):
+    capture = _CAPTURES.pop(preparation, None)
+    _OBSERVED.pop(capture, None)
+    _REVOKED_CAPTURES.discard(capture)
 
 
 def _require_witness(preparation, state):
@@ -410,14 +466,41 @@ def _initializer_framework(admission, framework, observed):
 
 
 def _join_partition(admission, framework, inputs, children, imported, imported_dirs):
+    value = _require_registration(admission)
+    return _join_original_inputs(
+        value.witness.plan.root,
+        value.witness.names,
+        value.inputs,
+        framework,
+        inputs,
+        children,
+        imported,
+        imported_dirs,
+        admission.original.framework,
+        admission.original.catalog,
+    )
+
+
+def _join_original_inputs(
+    root,
+    names,
+    canonical_inputs,
+    framework,
+    inputs,
+    children,
+    imported,
+    imported_dirs,
+    framework_update,
+    catalog_copy,
+):
+    """Join observed canonical facts; callers retain actual producer custody."""
     from .catalog_copy_roles import _record as catalog_record
     from .catalog_entry_publication import _digest
 
-    value = _require_registration(admission)
     by_path = {item.path: item for item in inputs}
-    names = set(value.witness.names)
-    for item in value.inputs:
-        name = item.path.relative_to(value.witness.plan.root).as_posix()
+    names = set(names)
+    for item in canonical_inputs:
+        name = item.path.relative_to(root).as_posix()
         if any(item.path.is_relative_to(child) for child in children):
             _fail("canonical authored endpoint overlaps an independent project")
         if name in imported_dirs:
@@ -425,7 +508,7 @@ def _join_partition(admission, framework, inputs, children, imported, imported_d
         previous = by_path.get(item.path)
         if previous is not None and previous != item:
             _fail("canonical and initializer ownership observations disagree")
-        update = admission.original.framework
+        update = framework_update
         if update is not None:
             previous = update._cache.get(item.path)
             if previous is not None and previous != item:
@@ -433,7 +516,7 @@ def _join_partition(admission, framework, inputs, children, imported, imported_d
             if name in update.paths and previous is None:
                 _fail("actual shared framework-update witness required")
         if name in imported:
-            seal = catalog_record(admission.original.catalog, ready=True)["seal"]
+            seal = catalog_record(catalog_copy, ready=True)["seal"]
             node = seal.project.nodes.get(name)
             signature = (
                 None
@@ -457,7 +540,11 @@ def _join_partition(admission, framework, inputs, children, imported, imported_d
     return (
         framework - names,
         tuple(by_path[path] for path in sorted(by_path)),
-        set(value.admission.authored.paths),
+        {
+            item.path.relative_to(root).as_posix()
+            for item in canonical_inputs
+            if item.content is not None
+        },
     )
 
 

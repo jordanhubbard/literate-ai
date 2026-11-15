@@ -10,10 +10,9 @@ import os
 import tempfile
 import unittest
 from pathlib import Path
-from types import SimpleNamespace
 
 from literate_ai.adapters.retained_layout_effect_graph import _source_effect_graph
-from literate_ai.adapters.retained_layout_ownership import _partition_roles
+from literate_ai.adapters.retained_layout_ownership import _classify_observed_roles
 from literate_ai.adapters.retained_layout_partition import (
     capture_retained_layout_partition,
 )
@@ -43,17 +42,15 @@ class RetainedLayoutEffectGraphTests(unittest.TestCase):
             budget=RetainedCargoInputBudget(256, 512, 1024**2, 16 * 1024**2),
             maximum_metadata_bytes=64 * 1024**2,
         )
-        phase = SimpleNamespace(
-            plan=SimpleNamespace(
-                root=self.root, tree=SimpleNamespace(root=self.root / source)
-            ),
-            controls=SimpleNamespace(
-                reservations=SimpleNamespace(_markers=()),
-                protected_admin_entries=(self.root / ".git",),
-            ),
-        )
-        roles, directories = _partition_roles(
-            phase, census, self.framework, kwargs.pop("children", ()), **kwargs
+        roles, directories = _classify_observed_roles(
+            self.root,
+            source,
+            census,
+            self.framework,
+            kwargs.pop("children", ()),
+            kwargs.pop("control_paths", ()),
+            (".git",),
+            **kwargs,
         )
         return _source_effect_graph(
             census.tree,
@@ -88,6 +85,32 @@ class RetainedLayoutEffectGraphTests(unittest.TestCase):
     def test_empty_logical_root_cannot_be_projected_inside_git(self):
         with self.assertRaisesRegex(ValueError, "enters Git or independent"):
             self.graph(destination=".git/empty")
+
+    def test_absent_control_target_preserves_fixed_and_logical_empty_parent(self):
+        self.write("app.py")
+        directory = self.root / "litai"
+        directory.mkdir()
+        original = directory.stat()
+        graph = self.graph(control_paths=("litai/layout.pending",))
+        self.assertIn("litai", graph.fixed_directories)
+        self.assertIn(("litai", "retained/litai"), graph.projection)
+        self.assertNotIn(("litai", "retained/litai"), graph.carriers)
+        self.assertIn("retained/litai", graph.create_directories)
+        self.replay_fixture_graph(graph)
+        self.assertEqual(directory.stat().st_ino, original.st_ino)
+        self.assertEqual(list(directory.iterdir()), [])
+        self.assertEqual(list((self.root / "retained/litai").iterdir()), [])
+        self.assertFalse((directory / "layout.pending").exists())
+
+    def test_absent_control_target_does_not_hide_source_neighbor(self):
+        self.write("litai/application.cfg")
+        graph = self.graph(control_paths=("litai/layout.pending",))
+        self.assertIn("litai", graph.fixed_directories)
+        self.assertIn(
+            ("litai/application.cfg", "retained/litai/application.cfg"),
+            graph.carriers,
+        )
+        self.assertNotIn(("litai", "retained/litai"), graph.carriers)
 
     def test_root_splits_shared_ancestors_without_hiding_new_source(self):
         self.write("components/wrapper/application.txt")

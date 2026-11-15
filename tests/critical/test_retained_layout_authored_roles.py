@@ -117,17 +117,17 @@ class AuthoredRoleTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertTrue((self.destination / "app.py").is_file())
 
-    def test_original_smaller_profile_refuses_finalization_before_control_effects(self):
+    def test_original_smaller_profile_refuses_metadata_before_control_effects(self):
         from literate_ai.adapters import retained_layout_source_finalization as controls
 
-        # Preserve the original finite policy. The newly funded source graph
-        # now exhausts it at finalization preflight, before any control receipt.
+        # Preserve the original finite policy. Complete original discovery now
+        # leaves too few observations for metadata, before any control receipt.
         self.input_budget = replace(self.input_budget, maximum_entries=65536)
         lock = ComponentLockStore(self.source.parent).path
         lock.unlink()
         with mock.patch.object(controls, "_preflight_control_receipt") as receipt:
             with self.assertRaisesRegex(
-                ValueError, "finalization preflight exceeds original allowance"
+                ValueError, "metadata preflight exceeds original allowance"
             ):
                 with self.prepare() as owner:
                     original = preparation._state(owner)
@@ -142,11 +142,29 @@ class AuthoredRoleTests(unittest.TestCase):
                                 maximum_metadata_bytes=self.metadata_limit,
                             ):
                                 phase.move_source()
+                            journal_files = {
+                                path.name: (path.stat().st_ino, path.read_bytes())
+                                for path in (self.state / "journal").iterdir()
+                            }
+                            originals = {
+                                item.path: item.path.read_bytes()
+                                for item in phase.plan.inputs
+                                if item.path.is_file()
+                            }
                             phase.publish_metadata(self.metadata)
-                            phase.finalize_controls(self.retired)
             receipt.assert_not_called()
         self.assertEqual(original.ledger.budget.maximum_entries, 65536)
-        self.assertTrue(phase._metadata_published)
+        self.assertFalse(phase._metadata_published)
+        self.assertEqual(
+            {
+                path.name: (path.stat().st_ino, path.read_bytes())
+                for path in (self.state / "journal").iterdir()
+            },
+            journal_files,
+        )
+        self.assertEqual(list(self.metadata.iterdir()), [])
+        for path, content in originals.items():
+            self.assertEqual(path.read_bytes(), content)
         self.assertTrue((self.project / "litai/layout.pending").is_file())
         self.assertEqual(list(self.retired.iterdir()), [])
         self.assertFalse(lock.exists())

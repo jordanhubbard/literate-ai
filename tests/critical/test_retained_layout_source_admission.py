@@ -285,6 +285,7 @@ class SourceAdmissionTests(unittest.TestCase):
     def test_actual_metadata_publication_retains_originals_and_same_read_owner(self):
         from literate_ai.adapters import retained_layout_source_metadata as metadata
 
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         with self.inspecting() as (owner, phase, _pool, _journal):
             original = preparation._state(owner)
             inputs = owner.plan.inputs
@@ -311,7 +312,49 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertNotIn(phase, metadata._METADATA)
         self.assertTrue((self.project / "litai/layout.pending").exists())
 
+    def test_original_entry_policy_refuses_metadata_without_effects(self):
+        self.assertEqual(self.input_budget.maximum_entries, 65536)
+        with self.inspecting() as (owner, phase, _pool, journal):
+            with phase.complete_partition(
+                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+            ):
+                phase.move_source()
+            originals = {
+                self.project / name: next(
+                    item.content
+                    for item in owner.plan.inputs
+                    if item.path == self.project / name
+                )
+                for name, _content in owner.plan.prospective
+            }
+            events = journal.events
+            with (
+                mock.patch.object(
+                    transaction._MetadataArea,
+                    "stage",
+                    side_effect=AssertionError(
+                        "metadata stage before capacity admission"
+                    ),
+                ),
+                self.assertRaisesRegex(
+                    ValueError, "metadata preflight exceeds original allowance"
+                ),
+            ):
+                phase.publish_metadata(self.metadata)
+            self.assertEqual(journal.events, events)
+            self.assertFalse(phase._metadata_published)
+            self.assertEqual(list(self.metadata.iterdir()), [])
+            self.assertEqual(list(self.retired.iterdir()), [])
+            for path, content in originals.items():
+                self.assertEqual(path.read_bytes() if path.exists() else None, content)
+            self.assertEqual(
+                preparation._state(owner).ledger.budget.maximum_entries, 65536
+            )
+            self.assertTrue((self.destination / "app.py").is_file())
+            self.assertTrue((self.project / "litai/layout.pending").is_file())
+
     def test_changed_retained_metadata_backup_refuses_without_erasure(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         changed = []
         with self.assertRaises(ValueError):
             with self.inspecting() as (owner, phase, _pool, _journal):
@@ -329,6 +372,7 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertTrue((self.project / "litai/layout.pending").exists())
 
     def test_foreign_namespace_during_metadata_rename_is_retained_and_refused(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         move, changed = transaction.move_layout_entry_exclusive, []
         foreign = self.project / "foreign-during-metadata"
 
@@ -355,6 +399,7 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertTrue((self.project / "litai/layout.pending").exists())
 
     def test_wrong_stage_permission_template_refuses_before_stage_creation(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         stage, changed = transaction._MetadataArea.stage, []
 
         def wrong(area, name, content, old_node):
@@ -375,6 +420,7 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertFalse((self.metadata / "new-0").exists())
 
     def test_observed_record_headroom_is_required_before_public_metadata_rename(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         absence, consumed = transaction._absence, []
         with self.assertRaises(ValueError):
             with self.inspecting() as (owner, phase, _pool, _journal):
@@ -409,6 +455,7 @@ class SourceAdmissionTests(unittest.TestCase):
     def test_private_membership_change_during_last_native_file_close_refuses(self):
         from literate_ai.adapters import retained_layout_source_metadata as metadata
 
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         real_stat, changed, rejected, armed = os.stat, [], [], []
         close = metadata._close_metadata_native
         foreign = self.metadata / "foreign-last-native"
@@ -1027,28 +1074,89 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         self.assertTrue((self.metadata / "old-0").exists())
 
     def test_original_combined_allowance_refuses_before_metadata_writes(self):
-        self._check_combined_allowance_refuses_writes(metadata=False)
+        class InspectionComplete(Exception):
+            pass
+
+        self.copy_budget = replace(self.copy_budget, maximum_entries=69632)
+        self.copy_metadata = 8 * 1024**3
+        self.update_budget, self.update_sequence = self.copy_budget, 0
+        with (
+            self.assertRaises(InspectionComplete),
+            self.updated(adopt_added=True) as update,
+        ):
+            with self.copying(framework_update=update) as catalog:
+                catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                usage = preparation._predecessor_usage(update, catalog)
+                self.assertEqual(usage.budget.maximum_entries, 69632)
+                names = sorted(self.project.rglob("*"))
+                source = (
+                    self.source.stat().st_ino,
+                    (self.source / "app.py").read_bytes(),
+                )
+                before = {
+                    self.project / name: (
+                        (self.project / name).read_bytes()
+                        if (self.project / name).exists()
+                        else None
+                    )
+                    for name in (
+                        transaction.RETAINED_LAYOUT_PATH,
+                        transaction._LIFT,
+                        transaction.HARNESS_WRAPPER_FILENAME,
+                    )
+                }
+                with (
+                    mock.patch.object(
+                        transaction,
+                        "move_layout_entry_exclusive",
+                        side_effect=AssertionError("source effect during preparation"),
+                    ) as effect,
+                    self.assertRaisesRegex(
+                        ValueError,
+                        "shared catalog input allowance exhausted|"
+                        "decoded canonical metadata exceeds the shared allowance",
+                    ),
+                ):
+                    with preparation.prepared_retained_layout_source_move(
+                        self.project,
+                        "retained",
+                        budget=self.copy_budget,
+                        maximum_metadata_bytes=self.copy_metadata,
+                        framework_update=update,
+                        catalog_copy=catalog,
+                    ):
+                        self.fail("unfunded combined role discovery admitted")
+                effect.assert_not_called()
+                self.assertEqual(sorted(self.project.rglob("*")), names)
+                self.assertEqual(
+                    (self.source.stat().st_ino, (self.source / "app.py").read_bytes()),
+                    source,
+                )
+                self.assertFalse(self.destination.exists())
+                self.assertFalse((self.project / "litai/layout.pending").exists())
+                self.assertEqual(list(self.metadata.iterdir()), [])
+                self.assertEqual(list(self.retired.iterdir()), [])
+                for path, content in before.items():
+                    self.assertEqual(
+                        path.read_bytes() if path.exists() else None, content
+                    )
+                self.assertEqual(preparation._predecessor_usage(update, catalog), usage)
+                update.require_current()
+                catalog.require_current()
+                # This refusal does not claim a consuming source transaction.
+                raise InspectionComplete()
 
     def test_metadata_preflight_refuses_after_original_allowance_is_reserved(self):
-        self._check_combined_allowance_refuses_writes(metadata=True)
-
-    def _check_combined_allowance_refuses_writes(self, *, metadata):
-        # Preserve the original smaller policy. The separate metadata-boundary
-        # case declares its larger finite policy before either producer starts,
-        # then reserves additional records through the same original ledger.
-        limit = 131072 if metadata else 69632
+        # Fund this actual metadata boundary before either producer starts,
+        # then reserve records through the same original ledger.
+        limit = 131072
         self.copy_budget = replace(self.copy_budget, maximum_entries=limit)
         self.copy_metadata = 8 * 1024**3
         self.update_budget, self.update_sequence = self.copy_budget, 0
         moved = False
         with self.assertRaisesRegex(
             ValueError,
-            "metadata preflight exceeds original allowance"
-            if metadata
-            else (
-                "shared catalog input allowance exhausted|"
-                "metadata preflight exceeds original allowance"
-            ),
+            "metadata preflight exceeds original allowance",
         ):
             with self.updated(adopt_added=True) as update:
                 with self.copying(framework_update=update) as catalog:
@@ -1089,13 +1197,12 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
                                     ) as effect:
                                         phase.move_source()
                                     moved = True
-                                if metadata:
-                                    ledger = original.ledger
-                                    remaining = (
-                                        ledger.budget.maximum_entries - ledger.records
-                                    )
-                                    self.assertGreater(remaining, 512)
-                                    ledger.charge_records(remaining - 512, 0)
+                                ledger = original.ledger
+                                remaining = (
+                                    ledger.budget.maximum_entries - ledger.records
+                                )
+                                self.assertGreater(remaining, 512)
+                                ledger.charge_records(remaining - 512, 0)
                                 phase.publish_metadata(self.metadata)
         self.assertEqual(list(self.metadata.iterdir()), [])
         self.assertFalse(phase._metadata_published)

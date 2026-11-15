@@ -287,6 +287,11 @@ def _origin_for_phase(phase):
 
 
 def _bounded_installed_origin(record):
+    return _observe_installed_origin(record.original.reader)
+
+
+def _observe_installed_origin(reader):
+    """Observe origin under the creating reader without requiring a phase."""
     from literate_ai.contracts import ProjectInitializationOrigin
 
     from . import project_initialization
@@ -297,8 +302,7 @@ def _bounded_installed_origin(record):
         observe_installed_framework_origin,
     )
 
-    reader = record.original.reader
-    if current_role_observation() is not reader:
+    if reader is None or current_role_observation() is not reader:
         _fail("actual active installed-origin reader required")
     try:
         return observe_installed_framework_origin(
@@ -642,6 +646,9 @@ def _admit_preparation(preparation, plan, pool):
         record.framework_successor = original.framework._catalog_successor
     _ADMISSIONS[preparation], _JOURNALS[journal] = record, record
     try:
+        from .retained_layout_source_roles import _bind_admission
+
+        _bind_admission(record)
         yield record
         _close(preparation, original)
     finally:
@@ -745,7 +752,6 @@ def _admitted_partition(
     framework_update,
     catalog_copy,
 ):
-    from contextlib import ExitStack
     from dataclasses import replace
 
     from literate_ai.contracts.identity import canonical_json_bytes
@@ -754,9 +760,7 @@ def _admitted_partition(
         _KEY as ownership_key,
     )
     from .retained_layout_ownership import (
-        _initializer_roles,
         _OwnedPartition,
-        _partition_roles,
     )
     from .retained_layout_transaction import _native_tree, _require_prepared
 
@@ -777,135 +781,98 @@ def _admitted_partition(
         or catalog_copy is not original.catalog
     ):
         _fail("partition requires the actual original predecessor participants")
+    from .retained_layout_source_roles import _validate_selector
+
+    _validate_selector(record, provider_checkout)
     record.observing = True
     owner = None
     try:
-        with ExitStack() as providers:
-            with _control_reads(record.preparation, record.pool):
-                _require_prepared(phase.plan, phase.controls.reservations)
-                for producer in (framework_update, catalog_copy):
-                    if producer is not None:
-                        producer.require_plan(phase.plan)
-                        producer.require_current()
-                before = ledger.capture(phase.plan.root)
-                from .retained_layout_source_namespace import _require_matching_view
+        with _control_reads(record.preparation, record.pool):
+            _require_prepared(phase.plan, phase.controls.reservations)
+            for producer in (framework_update, catalog_copy):
+                if producer is not None:
+                    producer.require_plan(phase.plan)
+                    producer.require_current()
+            before = ledger.capture(phase.plan.root)
+            from .retained_layout_source_namespace import _require_matching_view
 
-                _require_matching_view(
-                    record.preparation, before.tree, _native_tree(before.tree)
+            _require_matching_view(
+                record.preparation, before.tree, _native_tree(before.tree)
+            )
+            private = {
+                (n.st_dev, n.st_ino)
+                for n in (
+                    os.fstat(record.pool._descriptor),
+                    os.fstat(record.pool._journal._descriptor),
                 )
-                private = {
-                    (n.st_dev, n.st_ino)
-                    for n in (
-                        os.fstat(record.pool._descriptor),
-                        os.fstat(record.pool._journal._descriptor),
-                    )
-                }
-                if before.tree._physical[0][:2] in private or any(
-                    node[:2] in private for _name, node in before.tree._physical[1]
-                ):
-                    _fail("original private resources overlap complete project")
-                remaining, metadata = _remaining_policy(record)
-                framework, children, inputs, origin, provider = _initializer_roles(
-                    phase,
-                    remaining,
-                    metadata // 4,
-                    providers=providers,
-                    provider_checkout=provider_checkout,
-                    retired=()
-                    if framework_update is None
-                    else framework_update.removed_paths,
-                    current_origin=_bounded_installed_origin(record)
-                    if framework_update is None
-                    else framework_update._provider_origin,
-                    _source_admission=record,
-                )
-                if framework_update is not None:
-                    framework.update(framework_update.paths)
-                imported, imported_dirs = (), ()
-                if catalog_copy is not None:
-                    from literate_ai.contracts.catalog_imports import CatalogImportsFile
+            }
+            if before.tree._physical[0][:2] in private or any(
+                node[:2] in private for _name, node in before.tree._physical[1]
+            ):
+                _fail("original private resources overlap complete project")
+            from .retained_layout_source_roles import _admitted_view
 
-                    imported, imported_dirs = (
-                        catalog_copy.paths,
-                        catalog_copy.directories,
-                    )
-                    framework.difference_update(imported)
-                    framework.add(CatalogImportsFile.PATH)
-                    inputs = (*inputs, catalog_copy.provenance)
-                from .retained_layout_source_authored import _join_partition
+            framework, _children, inputs, origin, provider, roles, directories = (
+                _admitted_view(record, before, provider_checkout=provider_checkout)
+            )
+            census = ledger.capture(
+                phase.plan.root, _framework_files=tuple(sorted(framework))
+            )
+            from .component_lock_observation import _separate_project
 
-                framework, inputs, authored = _join_partition(
-                    record, framework, inputs, children, imported, imported_dirs
-                )
-                census = ledger.capture(
-                    phase.plan.root, _framework_files=tuple(sorted(framework))
-                )
-                from .component_lock_observation import _separate_project
+            _separate_project(record.preparation, census.tree)
+            comparable = replace(
+                census.tree,
+                budget=before.tree.budget,
+                maximum_metadata_bytes=before.tree.maximum_metadata_bytes,
+            )
+            if (
+                comparable != before.tree
+                or census.tree._physical != before.tree._physical
+            ):
+                _fail("complete project changed while actual roles were joined")
+            native = _native_tree(census.tree)
+            estimate = 32 + sum(
+                32 + 6 * (len(name.encode()) + len(str(role).encode()))
+                for name, role in (*roles, *directories)
+            )
+            # Fund the complete logical projection, carrier forest and
+            # serialization before allocating the graph on the live owner.
+            from .retained_layout_effect_graph import _graph_allowance
 
-                _separate_project(record.preparation, census.tree)
-                comparable = replace(
-                    census.tree,
-                    budget=before.tree.budget,
-                    maximum_metadata_bytes=before.tree.maximum_metadata_bytes,
-                )
-                if (
-                    comparable != before.tree
-                    or census.tree._physical != before.tree._physical
-                ):
-                    _fail("complete project changed while actual roles were joined")
-                native = _native_tree(census.tree)
-                roles, directories = _partition_roles(
-                    phase,
-                    census,
-                    framework,
-                    children,
-                    imported,
-                    imported_dirs,
-                    authored=authored,
-                )
-                estimate = 32 + sum(
-                    32 + 6 * (len(name.encode()) + len(str(role).encode()))
-                    for name, role in (*roles, *directories)
-                )
-                # Fund the complete logical projection, carrier forest and
-                # serialization before allocating the graph on the live owner.
-                from .retained_layout_effect_graph import _graph_allowance
-
-                graph_records, graph_bytes = _graph_allowance(
-                    roles,
-                    directories,
-                    phase.plan.destination.relative_to(phase.plan.root).as_posix(),
-                )
-                ledger.charge_records(
-                    1 + len(roles) + len(directories) + graph_records,
-                    estimate + graph_bytes,
-                )
-                wire = canonical_json_bytes(
-                    {"roles": roles, "directories": directories}
-                )
-                if len(wire) > estimate:
-                    _fail("original role serialization allowance exceeded")
-                owner = _OwnedPartition(
-                    ownership_key,
-                    phase,
-                    census,
-                    native,
-                    inputs,
-                    roles,
-                    directories,
-                    origin,
-                    provider,
-                    framework_update,
-                    catalog_copy,
-                    authored=record.authored,
-                )
-                record.partition = owner
-                record.partition_binding = _partition_fields(owner)
-                phase._partition_owner = owner
+            graph_records, graph_bytes = _graph_allowance(
+                roles,
+                directories,
+                phase.plan.destination.relative_to(phase.plan.root).as_posix(),
+            )
+            ledger.charge_records(
+                1 + len(roles) + len(directories) + graph_records,
+                estimate + graph_bytes,
+            )
+            wire = canonical_json_bytes({"roles": roles, "directories": directories})
+            if len(wire) > estimate:
+                _fail("original role serialization allowance exceeded")
+            owner = _OwnedPartition(
+                ownership_key,
+                phase,
+                census,
+                native,
+                inputs,
+                roles,
+                directories,
+                origin,
+                provider,
+                framework_update,
+                catalog_copy,
+                authored=record.authored,
+            )
+            record.partition = owner
+            record.partition_binding = _partition_fields(owner)
+            phase._partition_owner = owner
+        _partition_current(owner)
+        yield owner
+        if not owner._spent:
             _partition_current(owner)
-            yield owner
-            if not owner._spent:
-                _partition_current(owner)
     finally:
         record.observing = False
         if owner is not None:

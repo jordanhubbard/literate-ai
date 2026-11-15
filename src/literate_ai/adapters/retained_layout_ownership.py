@@ -74,7 +74,39 @@ def _initializer_roles(
     current_origin=None,
     _source_admission=None,
 ):
-    root = phase.plan.root
+    return _initializer_role_inputs(
+        phase.plan.root,
+        phase.plan.layout.wrapper_component,
+        budget,
+        metadata_limit,
+        providers=providers,
+        provider_checkout=provider_checkout,
+        retired=retired,
+        current_origin=current_origin,
+        _source_admission=_source_admission,
+    )
+
+
+def _initializer_role_inputs(
+    root,
+    wrapper_component,
+    budget,
+    metadata_limit,
+    *,
+    providers,
+    provider_checkout,
+    retired=(),
+    current_origin=None,
+    _source_admission=None,
+    _source_discovery=None,
+):
+    """Observe canonical initializer facts; this grants no phase or effects."""
+    if _source_discovery is not None:
+        from .retained_layout_source_roles import _require_calculation
+
+        _require_calculation(_source_discovery, root, wrapper_component)
+        if _source_admission is not None:
+            _fail("one original initializer calculation owner required")
     maximum_entries = budget.maximum_entries
     cache = {}
     charged = 0
@@ -148,7 +180,7 @@ def _initializer_roles(
     if manifest is None:
         _fail("original initializer manifest is missing")
     checkpoint = snapshot(root / CHECKPOINT)
-    if _source_admission is not None:
+    if _source_admission is not None or _source_discovery is not None:
         parse(checkpoint.content, CHECKPOINT)
     limit = min(maximum_entries - len(cache), (metadata_limit - charged) // 4096)
     if limit < 0:
@@ -192,7 +224,18 @@ def _initializer_roles(
             file_limit,
             min(remaining_bytes, remaining_files * file_limit),
         )
-        if _source_admission is None:
+        if _source_discovery is not None:
+            from .retained_layout_source_provider import _join_preparation
+
+            provider = _join_preparation(
+                _source_discovery,
+                origin,
+                definition,
+                checkout=provider_checkout,
+                budget=provider_budget,
+                metadata_limit=metadata_limit - charged,
+            )
+        elif _source_admission is None:
             provider = providers.enter_context(
                 original_initializer_roster(
                     origin,
@@ -238,7 +281,7 @@ def _initializer_roles(
         legacy_shim_authority(
             parse(values[_INVENTORY].content, _INVENTORY),
             parse(values[_REPORT].content, _REPORT),
-            wrapper_component=phase.plan.layout.wrapper_component,
+            wrapper_component=wrapper_component,
         )
     )
     allowed.update(
@@ -262,10 +305,10 @@ def _initializer_roles(
     # stale. This does not qualify that lock or invent a selected Component.
     component_paths = {
         name for name in baseline_paths & allowed if name.endswith("/component.md")
-    } | {phase.plan.layout.wrapper_component + "/component.md"}
+    } | {wrapper_component + "/component.md"}
     for name in component_paths:
         component = root / Path(name).parent
-        if _source_admission is None:
+        if _source_admission is None and _source_discovery is None:
             lock_path = ComponentLockStore(component).path
             audit_path = ComponentResolutionAuditStore(component, "host").path
         else:
@@ -295,6 +338,10 @@ def _initializer_roles(
         from .retained_layout_source_authored import _initializer_framework
 
         framework = _initializer_framework(_source_admission, framework, cache)
+    elif _source_discovery is not None:
+        from .retained_layout_source_roles import _initializer_framework
+
+        framework = _initializer_framework(_source_discovery, framework, cache)
     project = load_project(root)
     children = _native_project_roots(project)
     child_inputs = tuple(snapshot(child / PROJECT_FILENAME) for child in children)
@@ -313,7 +360,6 @@ def _partition_roles(
 ):
     root = phase.plan.root
     source = phase.plan.tree.root.relative_to(root).as_posix()
-    root_source = source == "."
     controls = {
         marker.target.path.relative_to(root).as_posix()
         for marker in phase.controls.reservations._markers
@@ -324,6 +370,36 @@ def _partition_roles(
         for path in phase.controls.protected_admin_entries
         if path.is_relative_to(root)
     )
+    return _classify_observed_roles(
+        root,
+        source,
+        census,
+        framework,
+        children,
+        controls,
+        git_roots,
+        imported,
+        imported_dirs,
+        authored=authored,
+    )
+
+
+def _classify_observed_roles(
+    root,
+    source,
+    census,
+    framework,
+    children,
+    control_paths,
+    git_roots,
+    imported=(),
+    imported_dirs=(),
+    *,
+    authored=(),
+):
+    """Classify one complete census; labels lend no observation/effect rights."""
+    root_source = source == "."
+    controls = set(control_paths)
     child_roots = tuple(child.relative_to(root).as_posix() for child in children)
     files = {name for name, _, _ in census.tree.files}
     aliases = {item.path: item for item in census.tree.aliases}
@@ -384,6 +460,15 @@ def _partition_roles(
             directories[name].add(role(name))
         for parent in ancestors(name):
             directories[parent].update(directories[name])
+    # Original planning precedes canonical acquisition. Even an absent target
+    # fixes its existing ancestors, while their original source membership
+    # (including an empty logical directory) must remain in the projection.
+    # These are descriptive contributions; the planning owner must separately
+    # bind the target roster and absences to actual canonical producers.
+    for target in controls:
+        for parent in ancestors(target):
+            if parent in directories:
+                directories[parent].add("control")
     resolution = _ResolutionBudget(
         remaining=max(1048576, census.tree.budget.maximum_entries * 128)
     )

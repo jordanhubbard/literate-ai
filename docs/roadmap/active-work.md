@@ -34119,6 +34119,48 @@ independent review and the complete combined gate from test one.
   Next, bind the actual canonical role partition before acknowledgement and
   persist complete bounded namespace/partition data for restart recovery, then
   implement the complete root/shared receipt-backed schedule and projections.
+  Canonical initializer-role calculation and complete namespace classification
+  now feed their acquired-phase adapter without requiring a synthetic phase.
+  The bounded installed-origin observer also accepts its actual active reader
+  before phase creation, rejects missing/foreign readers before probing and
+  debits the same original ledger. Independent source review covers five
+  subjects; the maintained ownership, graph and preparation cohorts pass all
+  30, 24 and 26 methods, respectively, without failures or skips. Two native
+  prospective-control cases reproduce the earlier classifier's missing fixed
+  ancestor and pass after repair. The actual preparation now owns original
+  initializer/provider/authored role observations before plan construction,
+  shares its original reader and ledger, and binds the complete role graph and
+  original plan field references once. Admission retains that same provider and
+  projects only verified canonical control publications. Independent source
+  review approves this guarded nonroot integration; all sixteen original-role
+  methods pass. The maintained preparation and framework cohorts each pass all
+  twenty-eight methods, and the disjoint remaining retained-layout cohort passes
+  all 411 methods. Namespace, selector, storage, finalization and admission
+  modules also pass all fourteen, ten, fourteen, fourteen and forty-one methods,
+  respectively. The fresh provider module passes all nineteen methods after
+  permanent-revocation test corrections: 595 distinct maintained methods pass
+  without failures, known failures or skips. This is scoped local author
+  evidence; installed/platform/integration/release qualification stays open. The
+  [original-role development evidence](../../verification/retained-layout-source-roles-development.json)
+  retains the approved subjects and native failure history without claiming
+  complete affected-source or release qualification.
+  Original immutable payload witnesses remain funded with their reader; added
+  role descriptions use byte commitments instead of repeated payload bodies.
+  Earlier inflated capacity results came from duplicate payload accounting and
+  remain superseded defect evidence. The combined producer fixture's original
+  65536-entry policy refuses at 68393 entries while below its metadata limit;
+  preserve that no-effect refusal and declare the positive lifecycle's complete
+  finite policy before either original producer. Next, finish qualification and
+  persist complete bounded original namespace/partition data for recovery.
+  Root source needs a logical forest over the complete original
+  partition, not a synthetic phase or a raw whole-project source tree. Bind that
+  original forest and graph into the acknowledged, durably retained plan before
+  enabling the root/shared executor; keep every existing legacy effect guard.
+  Account for absent canonical control targets in the original partition:
+  existing ancestors become fixed shared directories while their original
+  source contents and empty logical directories still project to the destination.
+  These prospective contributions must come from the actual canonical producer
+  roster; descriptive control-path labels alone grant no effect rights.
   Keep root effects guarded until those participants, metadata and recovery are
   complete. Preserve the recorded transport limitation until complete execution
   qualification, and finish root/shared/initial/wrapper placement, full public
