@@ -23,6 +23,7 @@ from literate_ai.contracts import (
 )
 from literate_ai.storage import BlobRef, FileSystemCAS, canonical_json_bytes
 
+from .internal_links import read_source_entry, validate_source_links
 from .models import GitSignatureVerification, SourceCapture
 
 _BUFFER_SIZE = 1024 * 1024
@@ -57,6 +58,13 @@ class QuarantineRecord:
             ),
         )
         if self.source_intelligence is not None:
+            if any(
+                e.entry_type is SourceEntryType.SYMLINK
+                for e in self.materialized_entries
+            ):
+                raise QuarantineError(
+                    "source intelligence requires a link-aware provider"
+                )
             source_files = {
                 entry.path: self.tree_path.joinpath(*entry.path.split("/")).read_bytes()
                 for entry in self.materialized_entries
@@ -117,7 +125,7 @@ class TrustedSource:
             tuple(
                 entry
                 for entry in self.capture.snapshot.entries
-                if entry.entry_type is SourceEntryType.FILE
+                if entry.entry_type in (SourceEntryType.FILE, SourceEntryType.SYMLINK)
             ),
             self.tree_path,
         )
@@ -164,14 +172,18 @@ class QuarantineStore:
         materialized_entries = tuple(
             entry
             for entry in capture.snapshot.entries
-            if entry.entry_type is SourceEntryType.FILE
+            if entry.entry_type in (SourceEntryType.FILE, SourceEntryType.SYMLINK)
         )
 
         def populate(tree: Path) -> None:
+            _verify_link_namespace(materialized_entries, root)
             for entry in capture.snapshot.entries:
                 if entry.entry_type is SourceEntryType.SUBMODULE:
                     continue
-                if entry.entry_type is not SourceEntryType.FILE:
+                if entry.entry_type not in (
+                    SourceEntryType.FILE,
+                    SourceEntryType.SYMLINK,
+                ):
                     raise QuarantineError(
                         f"unsupported source entry type: {entry.entry_type.value}"
                     )
@@ -186,6 +198,10 @@ class QuarantineStore:
     ) -> tuple[QuarantineRecord, Any]:
         """Derive intelligence at the final path under an exclusive lock."""
 
+        if any(
+            e.entry_type is SourceEntryType.SYMLINK for e in record.materialized_entries
+        ):
+            raise QuarantineError("source intelligence requires a link-aware provider")
         if record.source_intelligence is not None:
             record.verify()
             return record, record.source_intelligence
@@ -385,17 +401,32 @@ class QuarantineStore:
         materialized_entries = tuple(
             SourceEntry(
                 path=f"{aggregate_member.mount_path}/{entry.path}",
-                entry_type=SourceEntryType.FILE,
+                entry_type=entry.entry_type,
                 mode=entry.mode,
                 size=entry.size,
                 identity=entry.identity,
             )
             for aggregate_member in capture.snapshot.aggregate_members
             for entry in members[aggregate_member.member_id].capture.snapshot.entries
-            if entry.entry_type is SourceEntryType.FILE
+            if entry.entry_type in (SourceEntryType.FILE, SourceEntryType.SYMLINK)
         )
 
         def populate(tree: Path) -> None:
+            targets = {}
+            for aggregate_member in capture.snapshot.aggregate_members:
+                record = members[aggregate_member.member_id]
+                for entry in record.capture.snapshot.entries:
+                    if entry.entry_type is SourceEntryType.SYMLINK:
+                        _, _, data = read_source_entry(
+                            record.tree_path, entry.path, symlink=True
+                        )
+                        targets[f"{aggregate_member.mount_path}/{entry.path}"] = (
+                            data.decode("utf-8")
+                        )
+            try:
+                validate_source_links(materialized_entries, targets)
+            except ValueError as exc:
+                raise QuarantineError(str(exc)) from exc
             for aggregate_member in capture.snapshot.aggregate_members:
                 record = members[aggregate_member.member_id]
                 if (
@@ -409,7 +440,10 @@ class QuarantineStore:
                 for entry in record.capture.snapshot.entries:
                     if entry.entry_type is SourceEntryType.SUBMODULE:
                         continue
-                    if entry.entry_type is not SourceEntryType.FILE:
+                    if entry.entry_type not in (
+                        SourceEntryType.FILE,
+                        SourceEntryType.SYMLINK,
+                    ):
                         raise QuarantineError(
                             "aggregate child entry is not a regular file"
                         )
@@ -522,9 +556,13 @@ class QuarantineStore:
                 os.chmod(temporary, 0o700)
                 for current, directories, files in os.walk(temporary):
                     for name in directories:
-                        os.chmod(Path(current) / name, 0o700)
+                        path = Path(current) / name
+                        if not path.is_symlink():
+                            os.chmod(path, 0o700)
                     for name in files:
-                        os.chmod(Path(current) / name, 0o600)
+                        path = Path(current) / name
+                        if not path.is_symlink():
+                            os.chmod(path, 0o600)
                 shutil.rmtree(temporary)
             raise
 
@@ -630,7 +668,66 @@ def _normalized_quarantine_record(raw: bytes) -> dict[str, Any]:
     return normalized
 
 
+def _verify_link_namespace(entries: tuple[SourceEntry, ...], root: Path) -> None:
+    targets = {}
+    try:
+        for entry in entries:
+            if entry.entry_type is SourceEntryType.SYMLINK:
+                digest, size, data = read_source_entry(root, entry.path, symlink=True)
+                if (
+                    size != entry.size
+                    or digest != entry.identity.digest
+                    or entry.mode != 0o777
+                ):
+                    raise ValueError("Source link identity changed")
+                targets[entry.path] = data.decode("utf-8")
+        validate_source_links(entries, targets)
+    except (OSError, ValueError) as exc:
+        raise QuarantineError("Source link namespace failed verification") from exc
+
+
 def _copy_entry(source: Path, target: Path, entry: SourceEntry) -> None:
+    if entry.entry_type is SourceEntryType.SYMLINK:
+        try:
+            digest, size, data = read_source_entry(
+                source.parent, source.name, symlink=True
+            )
+            if (
+                entry.mode != 0o777
+                or size != entry.size
+                or digest != entry.identity.digest
+            ):
+                raise ValueError("Source link identity changed")
+            target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+            os.symlink(data.decode("utf-8"), target)
+        except (OSError, ValueError) as exc:
+            raise QuarantineError(
+                f"source link failed verification: {entry.path}"
+            ) from exc
+        return
+    if os.name != "nt":
+        target.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+        descriptor = os.open(target, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o700)
+        try:
+            with os.fdopen(descriptor, "wb") as output:
+                digest, size, _ = read_source_entry(
+                    source.parent,
+                    source.name,
+                    symlink=False,
+                    output=output,
+                    executable=bool(entry.mode & 0o111),
+                )
+                output.flush()
+                os.fsync(output.fileno())
+            if size != entry.size or digest != entry.identity.digest:
+                raise ValueError("Source bytes changed during materialization")
+        except (OSError, ValueError) as exc:
+            target.unlink(missing_ok=True)
+            raise QuarantineError(
+                f"source entry failed verification: {entry.path}"
+            ) from exc
+        os.chmod(target, 0o500 if entry.mode & 0o111 else 0o400)
+        return
     if source.is_symlink():
         raise QuarantineError(f"source entry became a symbolic link: {entry.path}")
     try:
@@ -690,8 +787,10 @@ def _verify_entries(
             raise ValueError
     except (TypeError, ValueError) as exc:
         raise QuarantineError("quarantine names invalid derived metadata") from exc
+    _verify_link_namespace(entries, tree)
+    targets: dict[str, str] = {}
     for entry in entries:
-        if entry.entry_type is not SourceEntryType.FILE:
+        if entry.entry_type not in (SourceEntryType.FILE, SourceEntryType.SYMLINK):
             raise QuarantineError("quarantine contains an unsupported entry contract")
         expected.add(entry.path)
         if any(
@@ -702,20 +801,53 @@ def _verify_entries(
                 "source entries collide with reserved derived metadata"
             )
         path = tree / entry.path
+        if entry.entry_type is SourceEntryType.SYMLINK:
+            try:
+                digest, size, data = read_source_entry(tree, entry.path, symlink=True)
+                if (
+                    entry.mode != 0o777
+                    or size != entry.size
+                    or digest != entry.identity.digest
+                ):
+                    raise ValueError("Source link identity changed")
+                targets[entry.path] = data.decode("utf-8")
+            except (OSError, ValueError) as exc:
+                raise QuarantineError(
+                    f"quarantine link failed verification: {entry.path}"
+                ) from exc
+            continue
         if path.is_symlink() or not path.is_file():
             raise QuarantineError(f"quarantine entry is missing: {entry.path}")
-        digest = hashlib.sha256()
-        size = 0
-        with path.open("rb") as source:
-            while chunk := source.read(_BUFFER_SIZE):
-                digest.update(chunk)
-                size += len(chunk)
-        if size != entry.size or digest.hexdigest() != entry.identity.digest:
+        if os.name != "nt":
+            try:
+                value, size, _ = read_source_entry(
+                    tree,
+                    entry.path,
+                    symlink=False,
+                    executable=bool(entry.mode & 0o111),
+                )
+            except (OSError, ValueError) as exc:
+                raise QuarantineError(
+                    f"quarantine entry failed verification: {entry.path}"
+                ) from exc
+        else:
+            digest = hashlib.sha256()
+            size = 0
+            with path.open("rb") as source:
+                while chunk := source.read(_BUFFER_SIZE):
+                    digest.update(chunk)
+                    size += len(chunk)
+            value = digest.hexdigest()
+        if size != entry.size or value != entry.identity.digest:
             raise QuarantineError(f"quarantine entry failed verification: {entry.path}")
         executable = bool(path.stat(follow_symlinks=False).st_mode & 0o111)
         if executable != bool(entry.mode & 0o111):
             raise QuarantineError(f"quarantine entry mode changed: {entry.path}")
 
+    try:
+        validate_source_links(entries, targets)
+    except ValueError as exc:
+        raise QuarantineError(str(exc)) from exc
     actual: set[str] = set()
     for current, directories, files in os.walk(tree, followlinks=False):
         current_path = Path(current)
@@ -723,7 +855,13 @@ def _verify_entries(
         for name in directories:
             path = current_path / name
             if path.is_symlink():
-                raise QuarantineError("quarantine directory contains a symbolic link")
+                relative = path.relative_to(tree).as_posix()
+                if relative not in targets:
+                    raise QuarantineError(
+                        "quarantine directory contains an unexpected link"
+                    )
+                actual.add(relative)
+                continue
             relative = path.relative_to(tree).as_posix()
             if relative in derived:
                 continue
@@ -731,8 +869,8 @@ def _verify_entries(
         directories[:] = kept_directories
         for name in files:
             path = current_path / name
-            if path.is_symlink():
-                raise QuarantineError("quarantine tree contains a symbolic link")
+            if path.is_symlink() and path.relative_to(tree).as_posix() not in targets:
+                raise QuarantineError("quarantine tree contains an unexpected link")
             actual.add(path.relative_to(tree).as_posix())
     if actual != expected:
         raise QuarantineError("quarantine tree contains unexpected or missing files")
@@ -773,13 +911,17 @@ def _make_read_only(tree: Path) -> None:
         current_path = Path(current)
         for name in files:
             path = current_path / name
-            if path.is_symlink() or not path.is_file():
+            if path.is_symlink():
+                continue  # Verified target text; chmod must never follow it.
+            if not path.is_file():
                 raise QuarantineError("quarantine contains an unsafe file")
             executable = bool(path.stat(follow_symlinks=False).st_mode & 0o111)
             os.chmod(path, 0o500 if executable else 0o400)
         for name in directories:
             path = current_path / name
-            if path.is_symlink() or not path.is_dir():
+            if path.is_symlink():
+                continue  # Directory aliases are input nodes, never traversed.
+            if not path.is_dir():
                 raise QuarantineError("quarantine contains an unsafe directory")
             os.chmod(path, 0o500)
     os.chmod(tree, 0o500)

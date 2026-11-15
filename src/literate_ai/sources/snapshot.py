@@ -19,6 +19,7 @@ from literate_ai.contracts import (
     canonical_identity,
 )
 
+from .internal_links import read_source_entry, validate_source_links
 from .models import GitFacts, GitSubmoduleFact, LfsPointerFact, SourceCapture
 
 _BUFFER_SIZE = 1024 * 1024
@@ -49,6 +50,26 @@ class SnapshotPolicy:
             "schema": "urn:literate-ai:schema:v1:snapshot-policy",
             "excluded_top_level": sorted(self.excluded_top_level),
             "reject_symlinks": self.reject_symlinks,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class InternalSymlinkSnapshotPolicy(SnapshotPolicy):
+    """Explicit v2 POSIX policy; links retain raw text in a closed namespace."""
+
+    reject_symlinks: bool = False
+
+    def __post_init__(self) -> None:
+        if self.reject_symlinks is not False:
+            raise ValueError("internal-link policy requires explicit link custody")
+        SnapshotPolicy(self.excluded_top_level)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": "urn:literate-ai:schema:v2:snapshot-policy",
+            "excluded_top_level": sorted(self.excluded_top_level),
+            "symlinks": "closed-posix-target-text",
+            "maximum_target_bytes": 4096,
         }
 
 
@@ -178,14 +199,20 @@ class SourceSnapshotter:
             for name in sorted(directories):
                 path = current_path / name
                 if path.is_symlink():
-                    raise SourceSnapshotError(f"symbolic link is not allowed: {path}")
+                    if self.policy.reject_symlinks:
+                        raise SourceSnapshotError(
+                            f"symbolic link is not allowed: {path}"
+                        )
+                    if relative_current != Path(".") or name not in excluded:
+                        result.append(path.relative_to(root).as_posix())
+                    continue
                 if relative_current == Path(".") and name in excluded:
                     continue
                 kept_directories.append(name)
             directories[:] = kept_directories
             for name in sorted(files):
                 path = current_path / name
-                if path.is_symlink():
+                if path.is_symlink() and self.policy.reject_symlinks:
                     raise SourceSnapshotError(f"symbolic link is not allowed: {path}")
                 relative = path.relative_to(root).as_posix()
                 if relative_current == Path(".") and name in excluded:
@@ -201,13 +228,16 @@ class SourceSnapshotter:
         entries: list[SourceEntry] = []
         pointers: list[LfsPointerFact] = []
         seen: set[str] = set()
+        targets: dict[str, str] = {}
+        if not self.policy.reject_symlinks and os.name == "nt":
+            raise SourceSnapshotError("Internal source links require a POSIX worker")
         for relative in paths:
             relative = self._normalize_relative(relative)
             if relative in seen:
                 raise SourceSnapshotError(f"duplicate source path: {relative}")
             seen.add(relative)
             path = root / relative
-            if path.is_symlink():
+            if path.is_symlink() and self.policy.reject_symlinks:
                 raise SourceSnapshotError(f"symbolic link is not allowed: {path}")
             try:
                 file_stat = path.stat(follow_symlinks=False)
@@ -215,11 +245,44 @@ class SourceSnapshotter:
                 raise SourceSnapshotError(
                     f"source path disappeared: {relative}"
                 ) from exc
+            if stat.S_ISLNK(file_stat.st_mode) and not self.policy.reject_symlinks:
+                try:
+                    digest, size, target = read_source_entry(
+                        root, relative, symlink=True
+                    )
+                    targets[relative] = target.decode("utf-8")
+                except (OSError, ValueError) as exc:
+                    raise SourceSnapshotError(
+                        f"cannot safely read source link: {relative}"
+                    ) from exc
+                entries.append(
+                    SourceEntry(
+                        relative,
+                        SourceEntryType.SYMLINK,
+                        0o777,
+                        size,
+                        ContentIdentity(HashAlgorithm.SHA256, digest),
+                    )
+                )
+                continue
             if not stat.S_ISREG(file_stat.st_mode):
                 raise SourceSnapshotError(
                     f"source path is not a regular file: {relative}"
                 )
-            digest, size, prefix = self._hash_file(path)
+            if self.policy.reject_symlinks:
+                digest, size, prefix = self._hash_file(path)
+            else:
+                try:
+                    digest, size, prefix = read_source_entry(
+                        root,
+                        relative,
+                        symlink=False,
+                        executable=bool(file_stat.st_mode & 0o111),
+                    )
+                except (OSError, ValueError) as exc:
+                    raise SourceSnapshotError(
+                        f"cannot safely read source file: {relative}"
+                    ) from exc
             mode = 0o755 if file_stat.st_mode & 0o111 else 0o644
             entries.append(
                 SourceEntry(
@@ -233,6 +296,11 @@ class SourceSnapshotter:
             pointer = self._lfs_pointer(relative, prefix, size)
             if pointer is not None:
                 pointers.append(pointer)
+        if not self.policy.reject_symlinks:
+            try:
+                validate_source_links(tuple(entries), targets)
+            except ValueError as exc:
+                raise SourceSnapshotError(str(exc)) from exc
         return (
             tuple(sorted(entries, key=lambda item: item.path)),
             tuple(sorted(pointers, key=lambda item: item.path)),
@@ -319,4 +387,9 @@ class SourceSnapshotter:
         return path.as_posix()
 
 
-__all__ = ["SnapshotPolicy", "SourceSnapshotError", "SourceSnapshotter"]
+__all__ = [
+    "InternalSymlinkSnapshotPolicy",
+    "SnapshotPolicy",
+    "SourceSnapshotError",
+    "SourceSnapshotter",
+]

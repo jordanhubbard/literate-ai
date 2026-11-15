@@ -29538,6 +29538,54 @@ small-fixture snapshot custody; it is not a full source-tree snapshot, canonical
 native catalog registration or Component action/package/lifecycle acceptance.
 Full-suite, installed and native qualification remain separate gates.
 
+Source snapshot integration checkpoint: explicit v2
+`InternalSymlinkSnapshotPolicy` now preserves raw target SHA-256, link kind and
+closed POSIX namespace custody through Git/local capture, quarantine reopen and
+aggregate materialization. It shares the retained-input closure validator and
+holds no-follow ancestor descriptors during link and regular payload reads.
+Default v1 policy serialization and source identities remain unchanged. Sealing
+and failed-copy cleanup do not follow links. Link-unaware source intelligence
+fails before invoking the provider.
+
+Eighteen focused checks pass locally, including the actual 114,872-entry Git
+source corpus at `7bac8a17251a380924472e621480f640adf8e5eb`, all 138 raw link
+targets and independent streamed SHA-256 comparison against every committed Git
+blob (1,540,895,823 bytes). Its source snapshot is
+`sha256:f334c40290bfdf14596570890045dc2de21828047b9a12694bb7a6df367569e9`.
+The final 53-case source regression run (one explicit corpus skip), three
+existing SDK source-build cases, three Git acquisition cases and 64-case
+link/retained-link run (one explicit corpus skip) also pass. Lint, formatting,
+repository layout and public-export checks pass. These are source custody and
+existing-path regression results; full-suite, installed and native platform
+qualification remain open.
+
+The broader retained-project run executed 216 cases: 209 passed, six skipped
+and one receiver-composition case expired its existing 120-second capability
+budget while measuring receiver code. The same case fails in an isolated
+18-case run (17 pass). Neither the deadline nor the test is relaxed. An
+unchanged `f34debb73` source-export control reproduces the same failure with
+17 passes and one error in 139.538 seconds; the candidate's isolated run took
+139.133 seconds. Exact baseline test and receiver-code bytes match Git. The
+identical `30dbe1c7` candidate exported to temporary RAM-backed source passes all
+24 selected runtime cases in 28.757 seconds with the same 120-second deadline,
+including warm revocation. The temporary export was removed after evidence
+retention. This establishes a source-placement-sensitive qualification failure
+that also occurs before this patch; it does not diagnose the underlying NAS
+latency or turn the failed NFS run into a pass. The same candidate also passes
+the complete 222-case retained-project subset from RAM-backed source in 113.066
+seconds (216 passes, six configured skips), with no deadline or guard changes.
+Both temporary source exports were removed after their reports were retained.
+The POSIX source-link fixture resolves its temporary root before direct
+no-follow reads so ordinary macOS temporary-directory aliases do not redirect
+the fixture's declared root; all seventeen focused fixture cases pass.
+
+Next action (in progress): bind the explicit link policy through authored SDK
+source-lock selection, actual recapture, immutable inspection, live authorization
+and per-command build checks. Preserve the regular-only project input owner and
+public unqualified retained execution guard. Link-aware source-intelligence,
+full native catalog/action/package/lifecycle qualification remain open under
+issue #74.
+
 A lock-reader test exposed an additional full-catalog graph case: declaring two
 Component directories directly as separate catalog roots gives both the local
 name `.` and makes lock planning refuse duplicate graph node IDs. The reader

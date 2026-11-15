@@ -14,7 +14,12 @@ from .quarantine import (
     QuarantineStore,
     TrustedSource,
 )
-from .snapshot import SnapshotPolicy, SourceSnapshotError, SourceSnapshotter
+from .snapshot import (
+    InternalSymlinkSnapshotPolicy,
+    SnapshotPolicy,
+    SourceSnapshotError,
+    SourceSnapshotter,
+)
 
 __all__ = [
     "GitChange",
@@ -25,6 +30,7 @@ __all__ = [
     "QuarantineError",
     "QuarantineRecord",
     "QuarantineStore",
+    "InternalSymlinkSnapshotPolicy",
     "SnapshotPolicy",
     "SourceCapture",
     "SourceSnapshotError",

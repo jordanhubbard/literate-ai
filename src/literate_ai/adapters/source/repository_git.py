@@ -21,7 +21,7 @@ from literate_ai.contracts import (
     RepositorySourceDependency,
     canonical_identity,
 )
-from literate_ai.sources import SourceCapture
+from literate_ai.sources import SourceCapture, SourceSnapshotter
 
 
 class _RepositoryGitRunner:
@@ -177,10 +177,13 @@ class GitRepositorySourceAcquirer:
 class GitRepositorySourceCapturer:
     """Capture acquired bytes using the same isolated Git inspection policy."""
 
-    def __init__(self, *, git_binary: str = "git") -> None:
+    def __init__(
+        self, *, git_binary: str = "git", snapshotter: SourceSnapshotter | None = None
+    ) -> None:
         self.adapter = GitSourceAdapter(
             runner=_RepositoryGitRunner(RepositoryFetchDeadlinePolicy()),
             git_binary=git_binary,
+            snapshotter=snapshotter,
         )
 
     def capture(self, checkout: RepositoryCheckout) -> SourceCapture:

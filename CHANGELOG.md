@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Source snapshots offer explicit POSIX internal-link custody, preserving raw
+  target identity and immutable quarantine aliases through reopen and aggregate
+  verification. Default v1 selection and identities remain compatible. Link-aware
+  SDK lock/build policy and source-intelligence integration remain open (#74).
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.
