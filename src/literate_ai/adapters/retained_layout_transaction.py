@@ -1514,6 +1514,16 @@ class _SourcePhase:
             _fail("bound framework update requires its live complete partition")
         if self.plan.catalog_copy is not None and partition is None:
             _fail("bound catalog copy requires its live complete partition")
+        if partition is not None:
+            partition.require_current()
+            source_name, destination_name = (
+                partition._effect_graph.require_single_rename()
+            )
+            if (
+                self.plan.root / source_name != self.plan.tree.root
+                or self.plan.root / destination_name != self.plan.destination
+            ):
+                _fail("actual source effect graph differs from the prepared move")
         partition_record = None if partition is None else partition.document
         self._attempted = True
         journal = self.pool._journal
@@ -1554,6 +1564,9 @@ class _SourcePhase:
                     "source": str(self.plan.tree.root),
                     "destination": str(self.plan.destination),
                     "source_node": _custody_wire(self.plan.source_node),
+                    "source_effect_graph_identity": None
+                    if partition is None
+                    else partition._effect_graph.identity.uri,
                     "metadata": payloads,
                 }
             ),

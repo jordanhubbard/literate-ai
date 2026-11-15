@@ -117,26 +117,86 @@ class AuthoredRoleTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertTrue((self.destination / "app.py").is_file())
 
-    def test_original_smaller_profile_retains_control_receipt_refusal(self):
+    def test_original_smaller_profile_refuses_finalization_before_control_effects(self):
+        from literate_ai.adapters import retained_layout_source_finalization as controls
+
+        # Preserve the original finite policy. The newly funded source graph
+        # now exhausts it at finalization preflight, before any control receipt.
+        self.input_budget = replace(self.input_budget, maximum_entries=65536)
+        lock = ComponentLockStore(self.source.parent).path
+        lock.unlink()
+        with mock.patch.object(controls, "_preflight_control_receipt") as receipt:
+            with self.assertRaisesRegex(
+                ValueError, "finalization preflight exceeds original allowance"
+            ):
+                with self.prepare() as owner:
+                    original = preparation._state(owner)
+                    with self.pool(owner.plan) as (pool, _journal):
+                        with owner.source_phase(
+                            pool,
+                            acknowledged_plan_identity=owner.plan.identity,
+                            allow_host_execution=True,
+                        ) as phase:
+                            with phase.complete_partition(
+                                budget=self.input_budget,
+                                maximum_metadata_bytes=self.metadata_limit,
+                            ):
+                                phase.move_source()
+                            phase.publish_metadata(self.metadata)
+                            phase.finalize_controls(self.retired)
+            receipt.assert_not_called()
+        self.assertEqual(original.ledger.budget.maximum_entries, 65536)
+        self.assertTrue(phase._metadata_published)
+        self.assertTrue((self.project / "litai/layout.pending").is_file())
+        self.assertEqual(list(self.retired.iterdir()), [])
+        self.assertFalse(lock.exists())
+        self.assertTrue((self.destination / "app.py").is_file())
+
+    def test_committed_control_receipt_refuses_after_original_allowance_is_reserved(
+        self,
+    ):
         from literate_ai.adapters import retained_layout_source_finalization as controls
         from literate_ai.contracts.identity import canonical_json_bytes
 
-        self.input_budget = replace(self.input_budget, maximum_entries=65536)
         lock = ComponentLockStore(self.source.parent).path
         lock.unlink()
         original = controls._preflight_control_receipt
         refused = []
+        reserved = []
 
         def receipt(reservations, data):
+            # At the real final pending-barrier retirement, reserve from the
+            # same original ledger after its durable commit decision. Leave one
+            # fewer record than the mandatory 256-record native receipt window.
+            # Earlier normalizations retain their ordinary original allowance.
+            if not reserved:
+                for phase, value in controls._FINALIZATIONS.items():
+                    if phase.controls.reservations is reservations:
+                        if value.pending != (
+                            "retire",
+                            self.project / "litai/layout.pending",
+                        ):
+                            continue
+                        self.assertTrue(phase._committed)
+                        ledger = value.admission.original.ledger
+                        remaining = ledger.budget.maximum_entries - ledger.records
+                        self.assertGreater(remaining, 256)
+                        ledger.charge_records(remaining - 255, 0)
+                        reserved.append(ledger)
             try:
                 return original(reservations, data)
             except ValueError:
                 for phase, value in controls._FINALIZATIONS.items():
                     if phase.controls.reservations is reservations:
                         ledger = value.admission.original.ledger
-                        self.assertEqual(ledger.budget.maximum_entries, 65536)
+                        self.assertIs(ledger, reserved[0])
+                        self.assertEqual(ledger.budget.maximum_entries, 131072)
                         self.assertEqual(ledger.metadata, 4 * 1024**3)
-                        self.assertIsNotNone(value.pending)
+                        self.assertEqual(
+                            value.pending,
+                            ("retire", self.project / "litai/layout.pending"),
+                        )
+                        self.assertTrue(phase._committed)
                         self.assertLess(len(canonical_json_bytes(data)) + 128, 65536)
                         self.assertLess(
                             ledger.budget.maximum_entries - ledger.records, 256
@@ -164,6 +224,7 @@ class AuthoredRoleTests(unittest.TestCase):
                             phase.publish_metadata(self.metadata)
                             phase.finalize_controls(self.retired)
         self.assertEqual(refused, [True])
+        self.assertEqual(len(reserved), 1)
         self.assertIs(caught.exception.committed, True)
         self.assertFalse(lock.exists())
         self.assertTrue((self.destination / "app.py").is_file())

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import os
 import stat
 import unittest
@@ -170,6 +171,67 @@ class SourceAdmissionTests(unittest.TestCase):
                         operation()
             self.assertFalse(phase._attempted)
             self.assertFalse(self.destination.exists())
+
+    def test_actual_graph_is_bound_to_partition_and_durable_move_intent(self):
+        with self.inspecting() as (_owner, phase, _pool, journal):
+            with phase.complete_partition(
+                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+            ) as partition:
+                graph = partition._effect_graph
+                self.assertEqual(
+                    graph.require_single_rename(),
+                    (self.source.relative_to(self.project).as_posix(), "retained"),
+                )
+                phase.move_source()
+                event = next(
+                    e for e in journal.events if e["kind"] == "source-move-intent"
+                )
+                self.assertEqual(
+                    event["data"]["source_effect_graph_identity"], graph.identity.uri
+                )
+                event = next(
+                    e
+                    for e in journal.events
+                    if e["kind"] == "source-partition-observed"
+                )
+                recorded = json.loads(
+                    journal.read_payload(event["data"]["partition_payload_digest"])
+                )
+                self.assertEqual(
+                    recorded["source_effect_graph"]["carriers"],
+                    [list(graph.carriers[0])],
+                )
+
+    def _changed_graph_refuses_effect(self, mutate):
+        from dataclasses import replace
+
+        with self.assertRaisesRegex(
+            ValueError, "partition required|effect graph changed"
+        ):
+            with self.inspecting() as (_owner, phase, _pool, _journal):
+                with phase.complete_partition(
+                    budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
+                ) as partition:
+                    graph = partition._effect_graph
+                    if mutate:
+                        object.__setattr__(graph, "carriers", ())
+                    else:
+                        partition._effect_graph = replace(graph)
+                    with mock.patch.object(
+                        transaction, "move_layout_entry_exclusive"
+                    ) as effect:
+                        try:
+                            phase.move_source()
+                        finally:
+                            effect.assert_not_called()
+        self.assertTrue((self.source / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
+
+    def test_replaced_graph_refuses_before_effect(self):
+        self._changed_graph_refuses_effect(mutate=False)
+
+    def test_mutated_graph_refuses_before_effect(self):
+        self._changed_graph_refuses_effect(mutate=True)
 
     def test_actual_movement_consumes_partition_and_retains_original_reader(self):
         from literate_ai.adapters import retained_layout_source_movement as movement
@@ -928,14 +990,29 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
             pass
         self.assertTrue((self.metadata / "old-0").exists())
 
-    def test_original_combined_allowance_refuses_metadata_before_writes(self):
-        # Fund movement under isolated ancestors while leaving insufficient
-        # original records for metadata's complete graph/history reservation.
-        self.copy_budget = replace(self.copy_budget, maximum_entries=69632)
+    def test_original_combined_allowance_refuses_before_metadata_writes(self):
+        self._check_combined_allowance_refuses_writes(metadata=False)
+
+    def test_metadata_preflight_refuses_after_original_allowance_is_reserved(self):
+        self._check_combined_allowance_refuses_writes(metadata=True)
+
+    def _check_combined_allowance_refuses_writes(self, *, metadata):
+        # Preserve the original smaller policy. The separate metadata-boundary
+        # case declares its larger finite policy before either producer starts,
+        # then reserves additional records through the same original ledger.
+        limit = 131072 if metadata else 69632
+        self.copy_budget = replace(self.copy_budget, maximum_entries=limit)
         self.copy_metadata = 8 * 1024**3
         self.update_budget, self.update_sequence = self.copy_budget, 0
+        moved = False
         with self.assertRaisesRegex(
-            ValueError, "metadata preflight exceeds original allowance"
+            ValueError,
+            "metadata preflight exceeds original allowance"
+            if metadata
+            else (
+                "shared catalog input allowance exhausted|"
+                "metadata preflight exceeds original allowance"
+            ),
         ):
             with self.updated(adopt_added=True) as update:
                 with self.copying(framework_update=update) as catalog:
@@ -960,16 +1037,36 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
                                     framework_update=update,
                                     catalog_copy=catalog,
                                 ):
-                                    phase.move_source()
-                                before = {
-                                    name: (self.project / name).read_bytes()
-                                    if (self.project / name).exists()
-                                    else None
-                                    for name, _ in owner.plan.prospective
-                                }
+                                    original = preparation._state(owner)
+                                    before = {
+                                        name: next(
+                                            item.content
+                                            for item in owner.plan.inputs
+                                            if item.path == self.project / name
+                                        )
+                                        for name, _ in owner.plan.prospective
+                                    }
+                                    with mock.patch.object(
+                                        transaction,
+                                        "move_layout_entry_exclusive",
+                                        wraps=transaction.move_layout_entry_exclusive,
+                                    ) as effect:
+                                        phase.move_source()
+                                    moved = True
+                                if metadata:
+                                    ledger = original.ledger
+                                    remaining = (
+                                        ledger.budget.maximum_entries - ledger.records
+                                    )
+                                    self.assertGreater(remaining, 512)
+                                    ledger.charge_records(remaining - 512, 0)
                                 phase.publish_metadata(self.metadata)
         self.assertEqual(list(self.metadata.iterdir()), [])
         self.assertFalse(phase._metadata_published)
+        self.assertEqual(original.ledger.budget.maximum_entries, limit)
+        self.assertEqual(effect.call_count, int(moved))
+        self.assertEqual((self.source / "app.py").is_file(), not moved)
+        self.assertEqual(self.destination.exists(), moved)
         for name, content in before.items():
             path = self.project / name
             self.assertEqual(path.read_bytes() if path.exists() else None, content)

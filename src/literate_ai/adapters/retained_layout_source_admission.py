@@ -688,6 +688,8 @@ def _partition_fields(owner):
         owner._catalog_copy,
         owner._identity,
         owner._authored,
+        owner._effect_graph,
+        owner._effect_graph_fields,
     )
 
 
@@ -841,7 +843,19 @@ def _admitted_partition(
                     32 + 6 * (len(name.encode()) + len(str(role).encode()))
                     for name, role in (*roles, *directories)
                 )
-                ledger.charge_records(1 + len(roles) + len(directories), estimate)
+                # Fund the complete logical projection, carrier forest and
+                # serialization before allocating the graph on the live owner.
+                from .retained_layout_effect_graph import _graph_allowance
+
+                graph_records, graph_bytes = _graph_allowance(
+                    roles,
+                    directories,
+                    phase.plan.destination.relative_to(phase.plan.root).as_posix(),
+                )
+                ledger.charge_records(
+                    1 + len(roles) + len(directories) + graph_records,
+                    estimate + graph_bytes,
+                )
                 wire = canonical_json_bytes(
                     {"roles": roles, "directories": directories}
                 )

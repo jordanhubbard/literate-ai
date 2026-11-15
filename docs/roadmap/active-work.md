@@ -34082,11 +34082,29 @@ independent review and the complete combined gate from test one.
   Original guard failures, the stored-record integrity reproduction and its
   zero-probe repair, finite positive/negative policies and final checks remain in
   [shared storage evidence](../../verification/retained-layout-source-storage-development.json).
-  Next implement the complete root/shared effect graph,
-  preserving the transport limitation for complete execution qualification,
-  then finish root/shared/initial/wrapper placement, full public recovery and
-  installed/native/full-program acceptance. Local checks and independent review
-  are recorded in [development evidence](../../verification/retained-layout-ownership-development.json).
+  A descriptive graph now derives exact source carriers, fixed/shared ancestors,
+  target containers and privately retained empty source directories from the
+  complete actual partition. It preflights final namespace collisions, unchanged
+  alias referents and protected Git/independent-project boundaries, binds to the
+  live partition and durable intent, and constrains the production executor to
+  its exact existing nonroot single-rename profile. An empty logical source root
+  still requires its selected destination while the physical repository stays
+  fixed. Independent source review approves all seven final subjects. The fresh
+  maintained source and remaining retained-layout gates pass all 116 and 402
+  methods without skips: 518 distinct methods, including twenty-two graph cases
+  and fixture-only native carrier replay. Original smaller policies remain
+  unchanged; separate metadata and committed pending-barrier receipt controls
+  reserve from that same original ledger without enlarging its allowance.
+  Earlier guard/fixture failures and exact final checks remain in
+  [graph development evidence](../../verification/retained-layout-effect-graph-development.json).
+  Next action in progress: implement complete receipt-backed root/shared
+  multi-entry execution and original-observation projections, including original
+  root census/partition acknowledgement and logical custody during parking.
+  Keep root effects guarded until those participants, metadata and recovery are
+  complete. Preserve the recorded transport limitation until complete execution
+  qualification, and finish root/shared/initial/wrapper placement, full public
+  recovery and installed/native/full-program acceptance. Earlier ownership checks
+  remain in [development evidence](../../verification/retained-layout-ownership-development.json).
 
 - **Recovery control disposition (source reviewed; internal nonroot scope verified):** Join fresh verified data with
   the actual original/supplemental descriptor owners. Preflight a complete bounded

@@ -242,6 +242,10 @@ ADOPT-RELOCATE-001 extends Goals 1, 4 and 6 with supported retained implementati
 placement and transactional relocation, including repository-root placement and
 custom wrapper Component names. The directing user accepted ADR 0057 for 1.4 under issue #265 on
 2026-11-03; implementation, rollback and fresh receipt qualification remain open.
+The internal source transaction now binds a descriptive role-based move graph,
+including shared ancestors, empty logical roots and protected Git/child namespaces.
+Its production executor still accepts only the existing nonroot single-rename
+profile; root/shared movement, public application and recovery remain unfinished.
 
 Issue #217's reviewed Rust library acceptance-harness dependencies are covered by
 ADR 0056, explicitly accepted by the directing user on 2026-11-03. Implementation

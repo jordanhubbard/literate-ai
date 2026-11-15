@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained-layout development now binds a source move graph to its live
+  ownership partition and durable intent. Proposed shared ancestors stay fixed;
+  collisions, changed alias targets and additions inside Git or independent
+  project namespaces refuse. Root execution, public application and complete
+  lifecycle qualification remain unfinished (#265).
+
 - Retained-layout development can preserve selected external Component lock
   evidence through its internal source transaction under the original read
   allowance. Existing and absent locks stay read-only; changed or replaced

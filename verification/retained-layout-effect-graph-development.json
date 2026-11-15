@@ -1,0 +1,258 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "state": "development_unqualified_scoped_checks_passed",
+  "scope": "Pure complete root/shared proposal graph and original-ledger/partition binding in the existing guarded internal nonroot POSIX single-rename executor. Native fixture replay is an oracle for the proposed schedule only.",
+  "base_commit": "aa8f6eeeafb62e060cf6f54d01f3f36ab9551878",
+  "review": "independent-layout-effect-graph-review.json",
+  "author_history": [
+    {
+      "state": "failed_fixture_expectation",
+      "scope": "The cross-role hardlink is rejected by the earlier proposed-partition reader, before the expected later ownership guard.",
+      "log": {
+        "path": "_build/mixed-layout-graph-first.log",
+        "sha256": "7efd4b7a61566cde9d5af3813ec04e4c7b8e08fcc98feb0b2decf342bcf848e6"
+      },
+      "report": {
+        "path": "_build/mixed-layout-graph-first-report.json",
+        "sha256": "17f9f8c42f9eddc47b7ff335af07454a0d0a860bd92ccda25410ed61ff2d2987"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 0,
+        "selected": 15,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed_fixture_expectation",
+      "scope": "Fifteen cases pass; nested manifest collision is refused as an unregistered child before the expected leaf-collision guard.",
+      "log": {
+        "path": "_build/mixed-layout-graph-second.log",
+        "sha256": "72d8cfd767826a2a5257ced505859ebcd9894f022bedcb65c0415524377359b8"
+      },
+      "report": {
+        "path": "_build/mixed-layout-graph-second-report.json",
+        "sha256": "4a102d519bf9edf87cba729aec31c67dc6ea68bdc91dc829f887321f388ad9db"
+      },
+      "summary": {
+        "executed": 16,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 16,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "passed_intermediate",
+      "scope": "Sixteen graph cases before protected-directory insertion was discovered.",
+      "log": {
+        "path": "_build/mixed-layout-graph-third.log",
+        "sha256": "37eb0ea991ca1cd137bfb79f7c9c3dc15f959aeca751a2cb608da4cf5624105d"
+      },
+      "report": {
+        "path": "_build/mixed-layout-graph-third-report.json",
+        "sha256": "f8f74bd99f26c44f8f82d4142882e5d93ad1e13fd720bb47d0644be66f8bfe5a"
+      },
+      "summary": {
+        "executed": 16,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 16,
+        "selected": 16,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "interrupted",
+      "scope": "Deliberately stopped by author to correct protected-directory insertion before accepting graph semantics; not a completed qualification.",
+      "log": {
+        "path": "_build/mixed-layout-source-first.log",
+        "sha256": "44b94cf5f9c60574bc5b7d6a82d1386a9aba553d42d359c851568d01f51e14d6"
+      }
+    },
+    {
+      "state": "interrupted",
+      "scope": "Deliberately stopped by author for the same protected-directory correction; not a completed qualification.",
+      "log": {
+        "path": "_build/mixed-layout-regression-first.log",
+        "sha256": "52e0c8ca75f8ee9ae03da91795004d6de5d7c3986c391a2d6348de07fc18e525"
+      }
+    },
+    {
+      "state": "passed_intermediate",
+      "scope": "Twenty graph cases after protected-directory correction, before empty logical-root correction.",
+      "log": {
+        "path": "_build/mixed-layout-graph-final.log",
+        "sha256": "37e9d78f55ae58b19748058d0ade717d5662c0d4a7b7a79c61d7f826411f8246"
+      },
+      "report": {
+        "path": "_build/mixed-layout-graph-final-report.json",
+        "sha256": "fa430302dedc9b5f6b1fda5ec9296ca130b47917741ca9096e6f8d0f184acf80"
+      },
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed",
+      "scope": "Original69632 combined input profile exhausts earlier at movement funding under isolated ancestors; its old negative fixture expected later metadata preflight.",
+      "log": {
+        "path": "_build/mixed-layout-source-final.log",
+        "sha256": "18905e7292b01217bd6b3c5ff956bd4b7f81cd5984731ca7df2d43079794c4a7"
+      },
+      "report": {
+        "path": "_build/mixed-layout-source-final-report.json",
+        "sha256": "f4e43d1134d8e87896cd141fd4123e6cd3dc350fd59b9b19ec09014ffc741743"
+      },
+      "summary": {
+        "executed": 61,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 60,
+        "selected": 115,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed",
+      "scope": "Original65536 authored input profile exhausts earlier at finalization preflight; its old negative fixture expected later committed receipt refusal.",
+      "log": {
+        "path": "_build/mixed-layout-regression-final.log",
+        "sha256": "308850ff97a383d627da5eb6836fa46c64434ee5cd8f520617844e04a17dbeec"
+      },
+      "report": {
+        "path": "_build/mixed-layout-regression-final-report.json",
+        "sha256": "517fb89744d0e55f0dc900cee4a462c42a7c2d5b9c45e1f406f1fd2cdb1af3c2"
+      },
+      "summary": {
+        "executed": 170,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 169,
+        "selected": 399,
+        "skipped": 0
+      }
+    },
+    {
+      "state": "failed_fixture_expectation",
+      "scope": "Twenty-two graph cases and two other budget cases pass. The control-reservation injection was too early for committed-outcome expectation, and a no-op native-move mock was reached in a shallower native ancestry.",
+      "log": {
+        "path": "_build/mixed-layout-corrected-focused.log",
+        "sha256": "d39b621ee88e1f851b62822e9a29b7589e6510de3b39af69c253e1e60931b71c"
+      }
+    },
+    {
+      "state": "passed_focused",
+      "scope": "Both corrected cases pass: reservation at actual committed pending-barrier retirement, and genuine native source movement followed by metadata refusal when the original smaller policy reaches that boundary.",
+      "log": {
+        "path": "_build/mixed-layout-corrected-focused-second.log",
+        "sha256": "20150eba6bdf9befa4c2d2a350db5f3dd07e2ea093a7edac2923e9c6f3de6fd1"
+      }
+    }
+  ],
+  "current_author_checks": [
+    {
+      "state": "passed",
+      "report": {
+        "path": "_build/mixed-layout-source-corrected-report.json",
+        "sha256": "9c29074c3445018e1ec690c3e09616e98bd535462f14a4fe2944e493f96f3046"
+      },
+      "scope": "Complete maintained source preparation/admission/provider/storage/selectors/finalization gate; four isolated local workers.",
+      "summary": {
+        "executed": 116,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 116,
+        "selected": 116,
+        "skipped": 0
+      },
+      "seconds": 1287.429,
+      "log": {
+        "path": "_build/mixed-layout-source-corrected.log",
+        "sha256": "6194f96f30d58ea0280fb0378a1d76d850742a72c1c0863da36af7e19c1569fe"
+      }
+    },
+    {
+      "state": "passed",
+      "report": {
+        "path": "_build/mixed-layout-regression-corrected-report.json",
+        "sha256": "b5a9167f8c36d1e33a104d87f794001b913d61b4efbf220d4a874efcd9ad755a"
+      },
+      "scope": "Complete maintained remaining retained-layout gate, including graph, ownership, authored roles, controls, metadata, recovery, renewal and consumers; four isolated local workers.",
+      "summary": {
+        "executed": 402,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 402,
+        "selected": 402,
+        "skipped": 0
+      },
+      "log": {
+        "path": "_build/mixed-layout-regression-corrected.log",
+        "sha256": "5f16d608d6f6b74d1fc34799d3e2b8213baf7621ae9e57b9aed68b592d3a2dda"
+      },
+      "seconds": 854.03
+    }
+  ],
+  "static_checks": [
+    {
+      "state": "passed",
+      "gates": [
+        "lint",
+        "format-check",
+        "repository-layout-check",
+        "public-export-check"
+      ],
+      "log": {
+        "path": "_build/mixed-layout-static-corrected.log",
+        "sha256": "54a7b855ad0dc7f5dd96f3290b483214d55c86d00bf831a4fc797dfa6e5d8907"
+      }
+    },
+    {
+      "state": "passed",
+      "gates": [
+        "documentation-check"
+      ],
+      "log": {
+        "path": "_build/mixed-layout-documentation-check.log",
+        "sha256": "83019d9c925cfe5fa7e384f160d66938aa8ae31f52bb15157e8f61713b6f880a"
+      }
+    },
+    {
+      "state": "passed",
+      "gates": [
+        "runner-review"
+      ],
+      "log": {
+        "path": "_build/mixed-layout-runner-review.log",
+        "sha256": "75c81ed5c9353054420f98d5e608f965df26a15c8ce336a380b2cba2f47017e4"
+      }
+    }
+  ],
+  "policy_controls": [
+    "Original69632 combined producer/source policy remains unchanged. Depending on actual ancestor costs it refuses original movement funding or metadata preflight; observed native call count must agree with completed movement, while metadata bytes/private area and pending are preserved.",
+    "Original65536 authored policy remains unchanged and refuses finalization preflight before any control receipt or retirement effects.",
+    "Separate metadata and committed receipt cases declare finite131072-entry profiles before preparation. Reservations debit the same original ledger; no policy, producer witness, cache or source owner is replaced or enlarged in flight.",
+    "Metadata boundary keeps512 remaining records; committed pending-barrier boundary keeps255 against the mandatory256-record native receipt window. Production guards remain unchanged."
+  ],
+  "remaining": [
+    "Complete receipt-backed root/shared multi-entry native effects and original-reader custody projections, including temporary alias forests, complete hardlink group timestamps and intermediate namespace/private closing.",
+    "Complete original root source planning and ownership before acknowledgement, root metadata, selected initial placement and wrapper coordinate changes.",
+    "Complete public read-only plan, acknowledged apply, restart recovery, qualified readmission and genuine lifecycle receipt renewal.",
+    "Complete installed/native/platform/integration/release qualification and all remaining roadmap requirements; no full configured test receipt or release evidence is claimed by scoped checks."
+  ],
+  "qualification": "development_only_unqualified",
+  "distinct_current_test_ids": 518,
+  "current_modules": 27,
+  "selection_sha256": "e1f7cba21ba678da807fd7fe3b361fed057162f53702ba9dc6bbb420b99cd624",
+  "selection_encoding": "UTF-8 sorted distinct test IDs joined by LF, no trailing LF",
+  "source_review_subjects_match": true
+}

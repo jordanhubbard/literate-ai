@@ -313,6 +313,7 @@ def _partition_roles(
 ):
     root = phase.plan.root
     source = phase.plan.tree.root.relative_to(root).as_posix()
+    root_source = source == "."
     controls = {
         marker.target.path.relative_to(root).as_posix()
         for marker in phase.controls.reservations._markers
@@ -349,14 +350,14 @@ def _partition_roles(
         if child is not None:
             return "independent:" + child
         if name in imported or name in imported_dirs:
-            if _beneath(name, source):
+            if not root_source and _beneath(name, source):
                 _fail("actual catalog ownership overlaps retained source")
             return "imported"
         if name in framework:
-            if _beneath(name, source):
+            if not root_source and _beneath(name, source):
                 _fail("framework ownership overlaps the actual retained source")
             return "framework"
-        return "source" if _beneath(name, source) else "unclaimed"
+        return "source" if root_source or _beneath(name, source) else "unclaimed"
 
     for name in _project_manifest_candidates(census.tree):
         if Path(name).parent != Path(".") and not any(
@@ -426,6 +427,8 @@ class _OwnedPartition:
         "_framework_update",
         "_catalog_copy",
         "_authored",
+        "_effect_graph",
+        "_effect_graph_fields",
     )
 
     def __init__(
@@ -453,6 +456,25 @@ class _OwnedPartition:
             inputs,
         )
         self._roles, self._directories = roles, directories
+        from .retained_layout_effect_graph import _graph_fields, _source_effect_graph
+
+        self._effect_graph = _source_effect_graph(
+            census.tree,
+            roles,
+            directories,
+            phase.plan.tree.root.relative_to(phase.plan.root).as_posix(),
+            phase.plan.destination.relative_to(phase.plan.root).as_posix(),
+            protected_directories=tuple(
+                sorted(
+                    path.relative_to(phase.plan.root).as_posix()
+                    for path in phase.controls.protected_admin_entries
+                    if path.is_relative_to(phase.plan.root)
+                    and path.relative_to(phase.plan.root).as_posix()
+                    in census.tree.directories
+                )
+            ),
+        )
+        self._effect_graph_fields = _graph_fields(self._effect_graph)
         self._provider_origin = origin
         self._provider = provider
         self._framework_update = framework_update
@@ -470,6 +492,7 @@ class _OwnedPartition:
                 else provider.identity.uri,
                 "roles": roles,
                 "directories": directories,
+                "source_effect_graph": self._effect_graph.identity.uri,
                 "inputs": [
                     {
                         "path": str(item.path),
@@ -563,6 +586,17 @@ class _OwnedPartition:
             or not controls.reservations._complete
         ):
             _fail("partition or original control context ended")
+        from .retained_layout_effect_graph import _graph_fields
+
+        if any(
+            a is not b
+            for a, b in zip(
+                _graph_fields(self._effect_graph),
+                self._effect_graph_fields,
+                strict=True,
+            )
+        ):
+            _fail("original source effect graph changed")
 
     @property
     def document(self):
@@ -574,6 +608,7 @@ class _OwnedPartition:
             "namespace_identity": self.census.identity.uri,
             "roles": self.roles,
             "directories": self.directories,
+            "source_effect_graph": self._effect_graph.document,
         }
         if self._framework_update is not None:
             result["framework_update"] = self._framework_update.document
@@ -780,7 +815,14 @@ def _partition_context(
     from literate_ai.contracts.identity import canonical_json_bytes
 
     wire_size = len(canonical_json_bytes({"roles": roles, "directories": directories}))
-    if wire_size * 64 > quarter:
+    from .retained_layout_effect_graph import _graph_allowance
+
+    _, graph_bytes = _graph_allowance(
+        roles,
+        directories,
+        phase.plan.destination.relative_to(phase.plan.root).as_posix(),
+    )
+    if wire_size * 64 + graph_bytes > quarter:
         _fail("actual role inventory exceeds ownership metadata budget")
     owner = _OwnedPartition(
         _KEY,
