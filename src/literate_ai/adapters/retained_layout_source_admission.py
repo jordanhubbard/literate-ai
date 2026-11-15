@@ -647,7 +647,9 @@ def _admit_preparation(preparation, plan, pool):
     _ADMISSIONS[preparation], _JOURNALS[journal] = record, record
     try:
         from .retained_layout_source_roles import _bind_admission
+        from .retained_layout_source_state import _persist_original_state
 
+        _persist_original_state(record)
         _bind_admission(record)
         yield record
         _close(preparation, original)

@@ -441,6 +441,13 @@ class _PreparedSourceMovePlan(_SourceMovePlan):
     project_namespace: str | None = None
     project_roles: str | None = None
 
+    @property
+    def binding(self):
+        return {
+            **super(_PreparedSourceMovePlan, self).binding,
+            "original_state_required": True,
+        }
+
 
 def _prospective_metadata(root, layout, inputs, implementation_directory):
     files = {item.path.relative_to(root).as_posix(): item for item in inputs}

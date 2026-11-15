@@ -34152,6 +34152,60 @@ independent review and the complete combined gate from test one.
   preserve that no-effect refusal and declare the positive lifecycle's complete
   finite policy before either original producer. Next, finish qualification and
   persist complete bounded original namespace/partition data for recovery.
+  Development persistence now retains the acknowledged plan, complete original
+  namespace/native/role/graph descriptions and raw metadata before canonical
+  publication. Actual private journal registration funds persistence while the
+  creating preparation's sealed role observations remain unbound; the complete
+  post-write payload/native close must pass before role admission. Saved data
+  grants no rights. Packed byte witnesses preserve the journal's original limits;
+  the census physical table is reconstructed losslessly from the once-retained
+  native roster and checked against both acknowledged identities. Encoding funds
+  new containers and buffers without recounting existing immutable scalars;
+  fresh decoding keeps its separate full observation allowance. Journal rereads
+  enforce exact immutable lengths and the funded record roster, including empty
+  payloads. Twelve maintained persistence/reopening methods pass, including an
+  actual source mutation after the last durable private append that refuses
+  binding/publication while preserving both changed source and original records.
+  Independent source review approves the exact internal scope in the
+  [state development evidence](../../verification/retained-layout-source-state-development.json),
+  which retains the causal failures and measured budget history.
+  Preserve original 65536-entry refusals and their primary capacity causes,
+  including the authored-lock-absent fixture: the added original-state work now
+  refuses that fixture before source intent instead of reaching its older
+  metadata-stage assumption. Require unchanged source inode/bytes, retained
+  authored originals, unchanged journal and no source/metadata/control receipt
+  effects. Movement positives declare 131072 entries before preparation. Keep
+  ordinary provider defaults and reservation negatives unchanged. The coupled
+  provider operation completes through all teardown in a 16GiB diagnostic
+  envelope. Its updater reserves half its declared policy; retaining the original
+  2GiB updater predicts 8752484416 bytes of complete source metadata use. The
+  actual full maintained operation now passes under separately predeclared 9GiB
+  catalog/source policies with the original 2GiB updater and at least 512MiB of
+  actual source headroom after every enclosing teardown. The original coupled
+  8GiB profile also passes its bounded committed-unqualified outcome and exact
+  source/metadata/control custody checks. The complete provider module selects
+  and passes twenty methods. All 611 distinct maintained affected methods pass
+  across six disjoint cohorts, including the twelve state methods, without
+  failures or skips. Exact reviewed subjects, reports and their disjoint audit
+  are retained in the state development evidence. Static, OpenSpec and
+  documentation checks pass. The supported documentation review is current;
+  full `litai verify` passes authority but refuses the stale project test receipt.
+  Keep that full-source qualification boundary explicit. Retain this local
+  development checkpoint and complete the original logical source forest and
+  root/shared executor below. Source/test edits wait until
+  every author native job and reviewer is terminal; all six cohorts are now
+  terminal. Scoped internal evidence does not qualify full source,
+  root/shared/public recovery, installed/native or release acceptance.
+  Source review additionally found that valid metadata with long repeated bytes
+  can produce repeated ordered chunk references. Persistence deduplicates those
+  physical payloads; reopening now accepts those ordered references while
+  enforcing original logical storage and fixed-width packing bounds before
+  assembly. Every expanded occurrence remains funded. A real canonical lock
+  padded within unchanged fixture budgets reproduces the old refusal and now
+  reopens byte-for-byte. A separate valid reopened journal with repeated existing
+  references but an oversized logical claim refuses the exact packing policy
+  without allocating that body. Independent source review approves both checks.
+  The interrupted broader cohorts remain partial development evidence.
   Root source needs a logical forest over the complete original
   partition, not a synthetic phase or a raw whole-project source tree. Bind that
   original forest and graph into the acknowledged, durably retained plan before

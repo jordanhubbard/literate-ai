@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Retained-layout development now journals the acknowledged plan, complete
+  original namespace and role observations, and packed metadata bytes before
+  acquiring public controls. Recovery requires a fresh bounded reader and actual
+  canonical owners. Repeated raw metadata chunks reopen with physical
+  deduplication and bounded logical expansion. Root/shared execution and complete
+  public recovery remain unfinished (#265).
+
 - Retained-layout development now observes initializer, provider and authored
   roles before source-plan acknowledgement. Admission retains the original
   participants and shared observation allowance. Changed plan bindings and

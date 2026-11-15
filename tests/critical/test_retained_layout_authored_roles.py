@@ -117,18 +117,32 @@ class AuthoredRoleTests(unittest.TestCase):
         self.assertFalse(lock.exists())
         self.assertTrue((self.destination / "app.py").is_file())
 
-    def test_original_smaller_profile_refuses_metadata_before_control_effects(self):
+    def test_original_smaller_profile_refuses_before_source_move(self):
         from literate_ai.adapters import retained_layout_source_finalization as controls
 
-        # Preserve the original finite policy. Complete original discovery now
-        # leaves too few observations for metadata, before any control receipt.
+        # Preserve the original finite policy. Complete durable original-state
+        # work now reaches capacity before source intent, with no metadata or
+        # finalization receipt. Cleanup refusal cannot hide the primary cause.
         self.input_budget = replace(self.input_budget, maximum_entries=65536)
         lock = ComponentLockStore(self.source.parent).path
         lock.unlink()
-        with mock.patch.object(controls, "_preflight_control_receipt") as receipt:
-            with self.assertRaisesRegex(
-                ValueError, "metadata preflight exceeds original allowance"
-            ):
+        before = (self.source / "app.py").read_bytes()
+        source_inode = self.source.stat().st_ino
+        reached = []
+        with (
+            mock.patch.object(controls, "_preflight_control_receipt") as receipt,
+            mock.patch.object(
+                transaction,
+                "move_layout_entry_exclusive",
+                side_effect=AssertionError("source effect before capacity admission"),
+            ) as move,
+            mock.patch.object(
+                transaction._MetadataArea,
+                "stage",
+                side_effect=AssertionError("metadata effect before capacity admission"),
+            ) as stage,
+        ):
+            with self.assertRaises(ValueError) as failed:
                 with self.prepare() as owner:
                     original = preparation._state(owner)
                     with self.pool(owner.plan) as (pool, _journal):
@@ -141,19 +155,32 @@ class AuthoredRoleTests(unittest.TestCase):
                                 budget=self.input_budget,
                                 maximum_metadata_bytes=self.metadata_limit,
                             ):
+                                journal_files = {
+                                    path.name: (path.stat().st_ino, path.read_bytes())
+                                    for path in (self.state / "journal").iterdir()
+                                }
+                                originals = {
+                                    item.path: (
+                                        item.path.stat().st_ino,
+                                        item.path.read_bytes(),
+                                    )
+                                    for item in phase.plan.inputs
+                                    if item.path.is_file()
+                                }
+                                reached.append("source-move")
                                 phase.move_source()
-                            journal_files = {
-                                path.name: (path.stat().st_ino, path.read_bytes())
-                                for path in (self.state / "journal").iterdir()
-                            }
-                            originals = {
-                                item.path: item.path.read_bytes()
-                                for item in phase.plan.inputs
-                                if item.path.is_file()
-                            }
-                            phase.publish_metadata(self.metadata)
             receipt.assert_not_called()
+            move.assert_not_called()
+            stage.assert_not_called()
+        self.assertEqual(reached, ["source-move"])
+        chain, current = [], failed.exception
+        while current is not None and current not in chain:
+            chain.append(current)
+            current = current.__cause__ or current.__context__
+        self.assertIn("shared catalog input allowance exhausted", str(chain[-1]))
         self.assertEqual(original.ledger.budget.maximum_entries, 65536)
+        self.assertGreater(original.ledger.records, 65536)
+        self.assertLess(original.ledger.charged, self.metadata_limit)
         self.assertFalse(phase._metadata_published)
         self.assertEqual(
             {
@@ -163,12 +190,15 @@ class AuthoredRoleTests(unittest.TestCase):
             journal_files,
         )
         self.assertEqual(list(self.metadata.iterdir()), [])
-        for path, content in originals.items():
+        for path, (inode, content) in originals.items():
+            self.assertEqual(path.stat().st_ino, inode)
             self.assertEqual(path.read_bytes(), content)
         self.assertTrue((self.project / "litai/layout.pending").is_file())
         self.assertEqual(list(self.retired.iterdir()), [])
         self.assertFalse(lock.exists())
-        self.assertTrue((self.destination / "app.py").is_file())
+        self.assertFalse(self.destination.exists())
+        self.assertEqual(self.source.stat().st_ino, source_inode)
+        self.assertEqual((self.source / "app.py").read_bytes(), before)
 
     def test_committed_control_receipt_refuses_after_original_allowance_is_reserved(
         self,

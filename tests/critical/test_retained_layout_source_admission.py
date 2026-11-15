@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import errno
 import json
 import os
 import stat
@@ -173,6 +174,7 @@ class SourceAdmissionTests(unittest.TestCase):
             self.assertFalse(self.destination.exists())
 
     def test_actual_graph_is_bound_to_partition_and_durable_move_intent(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         with self.inspecting() as (_owner, phase, _pool, journal):
             with phase.complete_partition(
                 budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
@@ -234,6 +236,7 @@ class SourceAdmissionTests(unittest.TestCase):
         self._changed_graph_refuses_effect(mutate=True)
 
     def test_actual_movement_consumes_partition_and_retains_original_reader(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         from literate_ai.adapters import retained_layout_source_movement as movement
 
         unknown = self.project / "unclaimed-neighbor"
@@ -312,46 +315,88 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertNotIn(phase, metadata._METADATA)
         self.assertTrue((self.project / "litai/layout.pending").exists())
 
-    def test_original_entry_policy_refuses_metadata_without_effects(self):
+    def test_original_entry_policy_refuses_before_source_move(self):
+        from literate_ai.adapters.retained_layout_source_state import (
+            _read_original_state,
+        )
+
         self.assertEqual(self.input_budget.maximum_entries, 65536)
-        with self.inspecting() as (owner, phase, _pool, journal):
-            with phase.complete_partition(
-                budget=self.input_budget, maximum_metadata_bytes=self.metadata_limit
-            ):
-                phase.move_source()
-            originals = {
-                self.project / name: next(
-                    item.content
-                    for item in owner.plan.inputs
-                    if item.path == self.project / name
-                )
-                for name, _content in owner.plan.prospective
-            }
+        before = (self.source / "app.py").read_bytes()
+        source_inode = self.source.stat().st_ino
+        source_error, controls, descriptors = [], [], []
+        with self.assertRaises(ValueError) as failed:
+            with self.prepare() as owner:
+                original = preparation._state(owner)
+                binding = canonical_json_bytes(owner.plan.binding)
+                phase_identity = owner.plan.identity.uri
+                with self.pool(owner.plan) as (pool, journal):
+                    journal_budget = journal._budget
+                    with owner.source_phase(
+                        pool,
+                        acknowledged_plan_identity=owner.plan.identity,
+                        allow_host_execution=True,
+                    ) as phase:
+                        controls.extend(phase.controls.reservations._markers)
+                        descriptors.extend(marker.descriptor for marker in controls)
+                        with phase.complete_partition(
+                            budget=self.input_budget,
+                            maximum_metadata_bytes=self.metadata_limit,
+                        ):
+                            with mock.patch.object(
+                                transaction,
+                                "move_layout_entry_exclusive",
+                                side_effect=AssertionError(
+                                    "source effect before capacity admission"
+                                ),
+                            ):
+                                try:
+                                    phase.move_source()
+                                except ValueError as error:
+                                    source_error.append(error)
+                                    raise
+        self.assertEqual(len(source_error), 1)
+        self.assertIn("shared catalog input allowance exhausted", str(source_error[0]))
+        chain, current = [], failed.exception
+        while current is not None and current not in chain:
+            chain.append(current)
+            current = current.__cause__ or current.__context__
+        self.assertIn(
+            source_error[0], chain, "cleanup masked the primary capacity failure"
+        )
+        self.assertEqual(original.ledger.budget.maximum_entries, 65536)
+        self.assertGreater(original.ledger.records, 65536)
+        self.assertLess(original.ledger.charged, self.metadata_limit)
+        self.assertEqual(self.source.stat().st_ino, source_inode)
+        self.assertEqual((self.source / "app.py").read_bytes(), before)
+        self.assertFalse(self.destination.exists())
+        self.assertEqual(list(self.metadata.iterdir()), [])
+        self.assertEqual(list(self.retired.iterdir()), [])
+        self.assertTrue(controls)
+        self.assertTrue(all(marker.target.path.is_file() for marker in controls))
+        self.assertTrue(all(marker.descriptor == -1 for marker in controls))
+        for descriptor in descriptors:
+            with self.assertRaises(OSError) as closed:
+                os.fstat(descriptor)
+            self.assertEqual(closed.exception.errno, errno.EBADF)
+        self.assertTrue((self.project / "litai/layout.pending").is_file())
+        with retained_layout_journal(
+            self.state / "journal",
+            canonical_binding=binding,
+            budget=journal_budget,
+            recover=True,
+        ) as journal:
             events = journal.events
-            with (
-                mock.patch.object(
-                    transaction._MetadataArea,
-                    "stage",
-                    side_effect=AssertionError(
-                        "metadata stage before capacity admission"
-                    ),
-                ),
-                self.assertRaisesRegex(
-                    ValueError, "metadata preflight exceeds original allowance"
-                ),
-            ):
-                phase.publish_metadata(self.metadata)
-            self.assertEqual(journal.events, events)
-            self.assertFalse(phase._metadata_published)
-            self.assertEqual(list(self.metadata.iterdir()), [])
-            self.assertEqual(list(self.retired.iterdir()), [])
-            for path, content in originals.items():
-                self.assertEqual(path.read_bytes() if path.exists() else None, content)
             self.assertEqual(
-                preparation._state(owner).ledger.budget.maximum_entries, 65536
+                sum(e["kind"] == "source-original-state-durable" for e in events), 1
             )
-            self.assertTrue((self.destination / "app.py").is_file())
-            self.assertTrue((self.project / "litai/layout.pending").is_file())
+            self.assertNotIn("source-move-intent", [e["kind"] for e in events])
+            saved = _read_original_state(
+                journal,
+                phase_identity,
+                budget=self.input_budget,
+                maximum_metadata_bytes=self.metadata_limit,
+            )
+            self.assertEqual(saved.document["source_phase_identity"], phase_identity)
 
     def test_changed_retained_metadata_backup_refuses_without_erasure(self):
         self.input_budget = replace(self.input_budget, maximum_entries=131072)
@@ -501,6 +546,7 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertEqual(foreign.read_bytes(), b"foreign\n")
 
     def test_foreign_namespace_inserted_during_actual_move_refuses(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         move = transaction.move_layout_entry_exclusive
         foreign = self.project / "foreign-during-source-move"
 
@@ -524,6 +570,8 @@ class SourceAdmissionTests(unittest.TestCase):
         self.assertTrue((self.project / "litai/layout.pending").exists())
 
     def test_observed_destination_absences_advance_from_actual_source_move(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
+
         def observe_destination(owner):
             with owner._reads():
                 self.assertIsNone(
@@ -545,6 +593,7 @@ class SourceAdmissionTests(unittest.TestCase):
             self.assertTrue((self.destination / "app.py").exists())
 
     def test_all_mapped_lineage_reservations_precede_actual_movement(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         reserve = reads._RoleObservation.reserve_lineage
         with self.inspecting() as (owner, phase, _pool, _journal):
             reader = preparation._state(owner).reader
@@ -569,6 +618,7 @@ class SourceAdmissionTests(unittest.TestCase):
                     phase.move_source()
 
     def test_preparation_end_during_last_native_callback_revokes_currentness(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         closed, rejected = [], []
         close = transaction._close_tree
         descriptor = None
@@ -600,6 +650,7 @@ class SourceAdmissionTests(unittest.TestCase):
             os.fstat(descriptor)
 
     def test_activation_teardown_cannot_change_moved_source_before_return(self):
+        self.input_budget = replace(self.input_budget, maximum_entries=131072)
         from literate_ai.adapters import retained_layout_source_movement as movement
 
         raw, changed = refresh._raw_file, []

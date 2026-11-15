@@ -250,6 +250,16 @@ descriptors, and closes the complete namespace through premovement admission.
 The creating preparation also owns canonical initializer, provider and authored
 roles before acknowledgement. Admission retains those actual participants and
 their original shared reader; a fresh post-lock discovery cannot replace them.
+Development persistence retains bounded original namespace, role, native and raw
+metadata observations before canonical publication. Saved descriptions grant no
+effect rights; recovery still requires fresh actual canonical owners. Repeated
+metadata chunks preserve physical deduplication and fund bounded logical
+expansion before assembly; twelve maintained persistence checks pass. All 611
+affected maintained methods pass across six disjoint cohorts. The combined
+provider operation completes through teardown under predeclared 9 GiB source
+and catalog policies with its original 2 GiB updater policy and at least 512 MiB
+of source metadata headroom. Full source and broader qualification, including a
+current project test receipt, remain open.
 Its production executor still accepts only the existing nonroot single-rename
 profile; root/shared movement, public application and recovery remain unfinished.
 

@@ -183,7 +183,7 @@ class _LayoutJournalWriter:
         self._stages = set()
         self._poisoned = False
 
-    def _read(self, name):
+    def _read(self, name, *, maximum_bytes=None):
         fd = os.open(
             name,
             os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
@@ -192,6 +192,10 @@ class _LayoutJournalWriter:
         try:
             before = _file(os.fstat(fd))
             limit = max(_RECORD_LIMIT, self._budget.maximum_payload_bytes)
+            if maximum_bytes is not None:
+                if type(maximum_bytes) is not int or maximum_bytes < 0:
+                    raise ValueError("layout.journal.read-limit-invalid")
+                limit = min(limit, maximum_bytes)
             if before[5] > limit:
                 raise ValueError("layout.journal.file-limit")
             chunks, size = [], 0
@@ -221,21 +225,33 @@ class _LayoutJournalWriter:
                 names.add(entry.name)
         return names
 
-    def require_current(self):
+    def require_current(self, *, _expected=None):
         admission = _LIVE_WRITERS.get(self)
+        roster = tuple(self._known.items()) if _expected is None else _expected
+
+        def require_roster():
+            if len(self._known) != len(roster) or any(
+                self._known.get(name) is not expected for name, expected in roster
+            ):
+                raise ValueError("layout.journal.funded-roster-changed")
+
         self._guard()
+        require_roster()
         if self._poisoned:
             raise ValueError("layout.journal.writer-interrupted")
         if admission is not None:
             _close_live_journal_admission(self, admission)
         if self._names() != set(self._known):
             raise ValueError("layout.journal.membership-changed")
-        for name, expected in self._known.items():
-            if self._read(name) != expected:
+        for name, expected in roster:
+            require_roster()
+            if self._read(name, maximum_bytes=len(expected[1])) != expected:
                 raise ValueError("layout.journal.record-changed")
+            require_roster()
         if self._names() != set(self._known):
             raise ValueError("layout.journal.membership-changed")
         self._guard()
+        require_roster()
         if admission is not None:
             _close_live_journal_admission(self, admission)
 

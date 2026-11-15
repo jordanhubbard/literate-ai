@@ -1,0 +1,553 @@
+{
+  "schema": "literate-ai/retained-layout-original-state-development@1",
+  "state": "development_unqualified_independently_source_reviewed_611distinct_maintained_methods_passed",
+  "base_commit": "40499833d7b703c05c7e92222ddf8e2afc03ceae",
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "qualified": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "review": {
+    "path": "independent-layout-source-state-review.json",
+    "sha256": "8ef2d1541378873a2fe0400d2ede8e135502d02e07fafb77c01373c6af7b4acc"
+  },
+  "behavior": [
+    "Actual original namespace/census/native observations and complete original role/graph descriptions retained before first canonical publication",
+    "Acknowledged namespace and role identities commit exact persisted facts, auxiliary rosters and full native observations",
+    "Original raw metadata witnesses packed into content-checked finite chunks; journal policies and legacy/root effect guards retained",
+    "Explicit fresh read allowance before bounded journal-wide reads and immutable expected-length/roster validation",
+    "Actual canonical recovery participant reads original and prospective metadata before source-move intent; saved data grants no permissions",
+    "Repeated ordered chunk references preserve physical deduplication while every expanded logical occurrence is bounded and funded before assembly"
+  ],
+  "current_scoped_checks": [
+    {
+      "report": {
+        "path": "_build/source-state-preparation-chunks-report.json",
+        "sha256": "aef0abfd89fe5530fde00bb5cbcc8f7de25cd1941b82e6314dacabd663d30d6a"
+      },
+      "log": {
+        "path": "_build/source-state-preparation-chunks.log",
+        "sha256": "758e93cd8fa4a3de63d607bd238df013fdd5ac4a9f58e508f7fdc491ac7c7655"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-framework-chunks-report.json",
+        "sha256": "8391e13cbff27b9048e027bbef54b524868b9aa811e78672f10ac85f92093f04"
+      },
+      "log": {
+        "path": "_build/source-state-framework-chunks.log",
+        "sha256": "8dbdb755ea99061b99b38236cb4571391428def90141e6b149982b6b4eb81133"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-regression-chunks-report.json",
+        "sha256": "a1f16d533307d0b0d4b17595f253994b4b1901ea6545fc4cd38eb71066290762"
+      },
+      "log": {
+        "path": "_build/source-state-regression-chunks.log",
+        "sha256": "4aa30e8193b1a9c46d0d58494e97121483973c2b7d36a4a0db31ef3dd610c0c0"
+      },
+      "summary": {
+        "executed": 414,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 414,
+        "selected": 414,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-participants-chunks-report.json",
+        "sha256": "0e67d56f6794003437de5a31fede22fd800198dba07ac42168eac5c70155ee56"
+      },
+      "log": {
+        "path": "_build/source-state-participants-chunks.log",
+        "sha256": "7c9b7f0907b961a0c019c9e0b3929609370cad01b75434abc7e3acf8a321e6d1"
+      },
+      "summary": {
+        "executed": 80,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 80,
+        "selected": 80,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-admission-chunks-report.json",
+        "sha256": "4024b48c90a29a0eee47575a0839799ed3fa1271ee283599480389a1b79296fd"
+      },
+      "log": {
+        "path": "_build/source-state-admission-chunks.log",
+        "sha256": "b4ebd2ca8909edf34f01d0de790e72933ce6f2b4f5c8382d4af1aefafe62baf9"
+      },
+      "summary": {
+        "executed": 41,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 41,
+        "selected": 41,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-provider-chunks-report.json",
+        "sha256": "4397d110ff55205a4df191494a7ab0a6c83fdf0489c7211911a273c430ef9066"
+      },
+      "log": {
+        "path": "_build/source-state-provider-chunks.log",
+        "sha256": "ed860d384999afe184497cb11e582c493347aede8b6adc41844d7b00284ae8f4"
+      },
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      }
+    }
+  ],
+  "distinct_current_methods_passed": 611,
+  "historical_causal_failures": [
+    {
+      "cause": "original_missing_acknowledged_plan_before_first_publication",
+      "log": {
+        "path": "_build/source-state-before.log",
+        "sha256": "066dae4b84025a9a681e7b6c21efe900ce2e76534083293b1f935bffab4ae041"
+      },
+      "report": {
+        "path": "_build/source-state-before-report.json",
+        "sha256": "a33c7fabf33999113b14803f3dda9ccc083336ecb45b41203d41e5686a7e203b"
+      }
+    },
+    {
+      "cause": "complete_state_per_input_representation_exceeds_original_payload_count",
+      "log": {
+        "path": "_build/source-state-first.log",
+        "sha256": "94f7a59cdbba27779be8716ff50a9b255192c681b0cf2719d46526ea348b2b23"
+      },
+      "report": {
+        "path": "_build/source-state-first-report.json",
+        "sha256": "1da052b86546220c29f72372fd3521fc49a987fd936b7c9d62153a0a83be71d2"
+      }
+    },
+    {
+      "cause": "measured_140_payloads_against_128_slots_without_policy_enlargement",
+      "log": {
+        "path": "_build/source-state-second.log",
+        "sha256": "2cd4f3ed369615642e01900d6f547cf982647f12c311c9c4c49c04e21fb63577"
+      },
+      "report": {
+        "path": "_build/source-state-second-report.json",
+        "sha256": "ac415e59f7279854cc86a24c27010e29e8567bb7906de45ed4457b377377fead"
+      }
+    },
+    {
+      "cause": "native_symlink_test_expected_different_representation",
+      "log": {
+        "path": "_build/source-state-complete-first.log",
+        "sha256": "2cfcab8318c93012e0d398fc3401d763ffabbb7b9aa8384701532e2198912343"
+      },
+      "report": {
+        "path": "_build/source-state-complete-first-report.json",
+        "sha256": "f19c35766ad2d829a54a936340a1112d09a61839b6e6b3ed4b0002853acbbe4c"
+      }
+    },
+    {
+      "cause": "existing_native_race_hook_did_not_forward_new_read_ceiling",
+      "log": {
+        "path": "_build/source-state-journal-first.log",
+        "sha256": "08dad9143605148f1bd1730b474e62503ccbe1cfede1691f9f5e5935611a437e"
+      },
+      "report": {
+        "path": "_build/source-state-journal-first-report.json",
+        "sha256": "9acf75eb7fc469ea638aeaf0bccd91be33bc3b2f6d600b2553b79841aa55b0b5"
+      }
+    },
+    {
+      "cause": "full_combined_metadata_131072_entry_fixture_refuses_after_duplicate_physical_description_retention",
+      "report": {
+        "path": "_build/source-state-admission-first-report.json",
+        "sha256": "4fc82ff81c95161dd3bcfc6ee9cf00da05a68ec1e3ff8b8b4958fdda2394300b"
+      },
+      "log": {
+        "path": "_build/source-state-admission-first.log",
+        "sha256": "9abd356aed3fedf724c292b338a4a027b1c4e46b584e0e9e6cb55880ed0f3e8a"
+      }
+    },
+    {
+      "cause": "default65536_entry_capacity_refuses_before_intended_movement_teardown_callback; cleanup scope error masks primary cause",
+      "report": {
+        "path": "_build/source-state-admission-compact-report.json",
+        "sha256": "2fcbcb78be7f15dcfe7fca742231191040bb80d73082557c7332b1d7b475bbf2"
+      },
+      "log": {
+        "path": "_build/source-state-admission-compact.log",
+        "sha256": "354b96c660b5dc039239b1fc460f2d06c9d27a5b72f21a8676bd5f87bf247345"
+      }
+    },
+    {
+      "cause": "provider-backed original snapshot incorrectly accessed phase-scoped provider role after admission binding before phase creation",
+      "report": {
+        "path": "_build/source-state-provider-funded-report.json",
+        "sha256": "8786064c1d596c4b6d9fd31f8fb90607139665bcac72685e24cbd57b45b04fa6"
+      },
+      "log": {
+        "path": "_build/source-state-provider-funded.log",
+        "sha256": "59c3b066938fb01a668bec5878943608ab350c259d29b93e18e53cc5bc6fc556"
+      }
+    },
+    {
+      "cause": "provider-backed fulloperation now reaches source+metadata publication but finalization preflight refuses original finite policy; exact resource-axis diagnostic pending",
+      "report": {
+        "path": "_build/source-state-provider-prebind-report.json",
+        "sha256": "374a15db514144158b472e3e3beabf25051f0421f07421e97e8682f9db40b83a"
+      },
+      "log": {
+        "path": "_build/source-state-provider-prebind.log",
+        "sha256": "537ed819e91969d102e9ea6cc1299cbf326d7411d1d2fafdd10fd6e440a43d20"
+      }
+    },
+    {
+      "cause": "serial provider original8GiB fulloperation commits but closing provider byte/metadata allowance exhausts; explicit committed-unqualified outcome not full qualification",
+      "report": {
+        "path": "_build/source-state-provider-closing-report.json",
+        "sha256": "244bbcd22b16f6f5866cad64d4f9ed51598ba18db83c0d6f0f9fb4ee319b0f39"
+      },
+      "log": {
+        "path": "_build/source-state-provider-closing.log",
+        "sha256": "be4237bacdf0d5f848d4b11dd33bf855aa1af75ae08cc92ba441d414ab1fd723"
+      }
+    },
+    {
+      "cause": "writer accepts repeated raw metadata chunks but old recovery reader rejects ordered duplicate digests",
+      "log": {
+        "path": "_build/source-state-repeated-chunks-before-lock.log",
+        "sha256": "446f84b8914fb638b451799bbd2cbc6f821dfa8240d9a67f11177b9a8157b5e3"
+      },
+      "qualification": false
+    }
+  ],
+  "pending": [
+    "Full source and current receipt qualification; installed/native-platform/integration/release acceptance",
+    "Root/shared/overlapping carrier execution and original logical source forest",
+    "Full public recovery and entrypoint application",
+    "Remaining roadmap obligations; owning ADOPT-RELOCATE-001 remains open"
+  ],
+  "historical_accounting_diagnostic": {
+    "log": {
+      "path": "_build/source-state-entry-accounting-diagnostic.log",
+      "sha256": "36d3a9f4252281e96bbb9fefb58a42d995e4eafa72ddf2d26afcf560b7e3ea50"
+    },
+    "qualification": false,
+    "finding": "19560 persistence records; census physical table duplicates full native observations; compact representation retains full native once and reconstructs exact census physical facts"
+  },
+  "interrupted_broader_run": {
+    "checkpoint": {
+      "path": "_build/source-state-regression-first-checkpoint.json",
+      "sha256": "9d34ea6245ddc93302ae1659bfbbacae10a678c7773b015507c57c410a174d2f"
+    },
+    "log": {
+      "path": "_build/source-state-regression-first.log",
+      "sha256": "14894b64883459f23de6fc8291080f39be6f82593da12bd10cb3f3ea3478aea2"
+    },
+    "passed_before_author_interrupt": 21,
+    "selected": 414,
+    "complete": false,
+    "reason": "stop exact own runner to inspect/correct representation accounting after concurrent admission failure; terminal and descendants gone verified"
+  },
+  "static_checks": {
+    "path": "_build/source-state-chunks-static-gates.log",
+    "sha256": "3eabb95b08f7813a2816e974b078f19a3cb56c422fdb667e90a67fd6d2324a27",
+    "passed": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review"
+    ]
+  },
+  "driver_review_status": "current_supported_driver_review_5db13ed65548d66767a4ab49a1cae643aedc92202aacafb74941d5a48b4bd6c6",
+  "capacity_diagnostics": [
+    {
+      "log": {
+        "path": "_build/source-state-teardown-capacity-diagnostic.log",
+        "sha256": "7ae8c3dc802ec5fcbed2bf6f918a6ad4ff66d9a37d362f9966765f6c85696a91"
+      },
+      "qualified": false,
+      "observed": {
+        "entries_required": 65815,
+        "original_limit": 65536,
+        "metadata_bytes_used": 2887435264,
+        "metadata_byte_limit": 4294967296
+      }
+    },
+    {
+      "log": {
+        "path": "_build/source-state-capacity-split-diagnostic.log",
+        "sha256": "815280d630225ca505912ef8c40e3e85ad7fc790083f0ed3ee53837ecce58810"
+      },
+      "qualified": false,
+      "passed": 2,
+      "scope": "focused causal default-refusal and funded callback cases; maintained qualification separate"
+    }
+  ],
+  "policy_boundary": "shared default remains65536; actual fully persisted movement positives predeclare131072 before preparation; original65536 negative now proves earlier movement refusal, durable state, exact source preservation and closed native FDs; funded metadata-boundary negatives remain separate",
+  "earlier_scoped_checks": [
+    {
+      "report": {
+        "path": "_build/source-state-funded-report.json",
+        "sha256": "23cd7c9a1bc525708bee54c54acd1b42d07361cec1c9e607be818cfb1fabef79"
+      },
+      "log": {
+        "path": "_build/source-state-funded.log",
+        "sha256": "cb21693e06dcc7851598319f89892eaa79aa43082789b38455369a5ce15b96eb"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-journal-second-report.json",
+        "sha256": "78fda50e73a6008c131723566c6748251bb572feb8014138876f84f059c8c779"
+      },
+      "log": {
+        "path": "_build/source-state-journal-second.log",
+        "sha256": "7821f778200852f7a74db2495b5710ad53c363ccb021a588359213923828ea7f"
+      },
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-framework-funded-report.json",
+        "sha256": "b3f55f1372a698d807e271a4efcbeef1b7449ff22ac61e5a22d35bffdef68acf"
+      },
+      "log": {
+        "path": "_build/source-state-framework-funded.log",
+        "sha256": "c3846d6c9462dc98c380d34f4c6b109292b460d7748489b423b86b06faf63293"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-preparation-funded-report.json",
+        "sha256": "5cbad3ab7d1a343584991698010b082e42c8ac14dea0b54048ae7c967beeea8a"
+      },
+      "log": {
+        "path": "_build/source-state-preparation-funded.log",
+        "sha256": "59966693a7c1c51fe078212c0ba1131ef45b3c2fd06882b6024af7d8ad5401ca"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-prebind-report.json",
+        "sha256": "ce3725230db6a3c2c924f881c06fd417ec450656a87ad42183d908a2fea0e5ca"
+      },
+      "log": {
+        "path": "_build/source-state-prebind.log",
+        "sha256": "b2f405a2956ec73e89b7a05f7011d198bc543d5da2d39412b8084f82d4056b76"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-closing-report.json",
+        "sha256": "ad0032f4c26532257e02d5b8b75eaa19ff2b557554000f7ff05ce7a6f68b01ad"
+      },
+      "log": {
+        "path": "_build/source-state-closing.log",
+        "sha256": "12884b8b3c8b367f8a32d275549bee53c5aca44e79f3295a71ceacb428f293bf"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-last-write-report.json",
+        "sha256": "39435f6722f5c63082c79a640bdb078355b99955d6763e558c620ceedb4c7caf"
+      },
+      "log": {
+        "path": "_build/source-state-last-write.log",
+        "sha256": "33d907265673d6223d4f7dccb1c402a89c65fab81d5c7fa84bf13c60659a4d37"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-state-repeated-chunks-final-report.json",
+        "sha256": "42fb315c151d17ecda91502deaa6fce062b5e01bffadd70d192e9e958f2e782a"
+      },
+      "log": {
+        "path": "_build/source-state-repeated-chunks-final.log",
+        "sha256": "73a424b6316994985259afea86553ec495280a4df3a281e61461799718eecdb9"
+      },
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      }
+    }
+  ],
+  "provider_closing_diagnostic": {
+    "log": {
+      "path": "_build/source-state-provider-finalization-diagnostic.log",
+      "sha256": "e2255fa35a35be1311f874d542dcbbbb44b017e39434df8558f73ba468f9adcb"
+    },
+    "qualified": false,
+    "finding": "serial focused case reaches committed finalization but closing provider read exhausts8GiB metadata; 175155entries<524288; failure frame is after guard, not initial preflight baseline",
+    "entries_used_at_failure": 175155,
+    "entry_limit": 524288,
+    "metadata_at_failure": 8589934592,
+    "metadata_limit": 8589934592,
+    "required_finalization_entries_from_frame": 36344,
+    "required_finalization_metadata_from_frame": 413761536,
+    "journal_bytes_at_failure": 2569923
+  },
+  "documentation_authority": {
+    "record": {
+      "path": "_build/source-state-chunks-documentation-review-record.log",
+      "sha256": "face99e994421a49721fb6cead5e3af20dd4bc601988eaa87d0b70b34d4b7aa5"
+    },
+    "authority_identity": "sha256:4de703d7283785271e318159986b5ffa119345eaa9e80f20961b207c0b1093a0"
+  },
+  "documentation_check": {
+    "path": "_build/source-state-final-documentation-gates.log",
+    "sha256": "15c1e5e30137e4d8922631ef3ee37716cac7dc24d2bc26b54a7d3830f40b26a5",
+    "passed": true,
+    "rendered_diagrams": 181
+  },
+  "cohort_audit": {
+    "path": "_build/source-state-final-cohort-audit.json",
+    "sha256": "00de5ef82ef404614c83224adf3616173db0a7d0344f458de01434e8fa324a3f"
+  },
+  "combined_provider_capacity": {
+    "catalog_and_source_metadata_policy_bytes": 9663676416,
+    "original_updater_metadata_policy_bytes": 2147483648,
+    "minimum_actual_source_headroom_after_all_teardown_bytes": 536870912,
+    "positive_test_key": "tests.critical.test_retained_layout_source_provider.CombinedSourceProviderTests.test_real_original_provider_update_and_canonical_catalog_complete",
+    "original_eight_gib_test_key": "tests.critical.test_retained_layout_source_provider.CombinedSourceProviderTests.test_original_eight_gib_profile_preserves_unqualified_outcome",
+    "report": {
+      "path": "_build/source-state-provider-chunks-report.json",
+      "sha256": "4397d110ff55205a4df191494a7ab0a6c83fdf0489c7211911a273c430ef9066"
+    },
+    "scope": "Original stage-specific policies declared before producers; full source/catalog/updater teardown and original8GiB bounded committed-unqualified custody profile passed; no general source or release qualification"
+  },
+  "openspec_check": {
+    "log": {
+      "path": "_build/source-state-chunks-openspec-check.log",
+      "sha256": "cadece6ef3f01e8e27e9192638a8d22c4fea3920bad870cc9ff245c4fec501d8"
+    },
+    "passed": true,
+    "items": 4
+  },
+  "full_project_verify": {
+    "report": {
+      "path": "_build/source-state-final-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "ok": false,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "limitation": "Scoped611 affected methods are development evidence; no current full-source project test receipt or release qualification claimed"
+  }
+}

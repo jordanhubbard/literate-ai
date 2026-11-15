@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import errno
 import os
 import unittest
 from dataclasses import replace
@@ -10,11 +11,16 @@ from unittest import mock
 
 import tests.critical.test_retained_layout_provider as historical
 import tests.critical.test_retained_layout_source_admission as source_fixtures
+from literate_ai.adapters import catalog_copy_roles as copies
+from literate_ai.adapters import framework_update_roles as updates
 from literate_ai.adapters import retained_layout_provider as provider
 from literate_ai.adapters import retained_layout_source_admission as admission
 from literate_ai.adapters import retained_layout_source_preparation as preparation
 from literate_ai.adapters import retained_layout_source_provider as shared
 from literate_ai.adapters import retained_layout_transaction as transaction
+from literate_ai.adapters.exclusive_entry import _from_stat, layout_entry_node
+from literate_ai.adapters.retained_layout_journal import retained_layout_journal
+from literate_ai.contracts.identity import canonical_json_bytes
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
 
 
@@ -627,13 +633,21 @@ class CombinedSourceProviderTests(unittest.TestCase):
             8192, 524288, 4 * 1024**2, 256 * 1024**2
         )
         self.copy_metadata = 8 * 1024**3
+        self.update_metadata = 2 * 1024**3
         self.update_budget, self.update_sequence = self.copy_budget, 0
 
     def test_real_original_provider_update_and_canonical_catalog_complete(self):
-        with self.updated(adopt_added=True) as update:
+        # Keep the updater's original policy; fund new durable state and the
+        # complete consumer lifetime before either producer starts.
+        self.copy_metadata = 9 * 1024**3
+        with self.updated(
+            adopt_added=True, maximum_metadata_bytes=self.update_metadata
+        ) as update:
+            updater = updates._require_handoff(update)
             with self.copying(framework_update=update) as catalog:
                 clone = catalog.plan.source_root
                 catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                catalog_ledger = copies._record(catalog, ready=True)["seal"].ledger
                 original_cache = tuple(update._cache.items())
                 with preparation.prepared_retained_layout_source_move(
                     self.project,
@@ -673,6 +687,169 @@ class CombinedSourceProviderTests(unittest.TestCase):
         self.assertFalse(clone.parent.exists())
         self.assertTrue((self.metadata / "old-0").is_file())
         self.assertTrue((self.destination / "app.py").is_file())
+        # These counters are inspected after source, catalog and updater
+        # teardown. They grant no continuing rights through ended handles.
+        self.assertFalse(original.reader._active)
+        self.assertEqual(updater.metadata, self.update_metadata)
+        self.assertLessEqual(updater._used_metadata, self.update_metadata)
+        self.assertEqual(catalog_ledger.metadata, self.copy_metadata)
+        self.assertLessEqual(catalog_ledger.charged, self.copy_metadata)
+        self.assertEqual(original.ledger.metadata, self.copy_metadata)
+        headroom = 2 * self.copy_budget.maximum_file_bytes * 64
+        self.assertLessEqual(original.ledger.charged + headroom, self.copy_metadata)
+        self.assertLessEqual(original.ledger.records, self.copy_budget.maximum_entries)
+        self.assertLessEqual(original.ledger.files, self.copy_budget.maximum_files)
+        self.assertLessEqual(
+            original.ledger.bytes + original.ledger.reserve,
+            self.copy_budget.maximum_total_bytes,
+        )
+
+    def test_original_eight_gib_profile_preserves_unqualified_outcome(self):
+        self.assertEqual(self.copy_metadata, 8 * 1024**3)
+        before = (self.source / "app.py").read_bytes()
+        source_inode = self.source.stat().st_ino
+        markers, descriptors = [], []
+        failure, result = None, None
+        try:
+            with self.updated(
+                adopt_added=True, maximum_metadata_bytes=self.update_metadata
+            ) as update:
+                updater = updates._require_handoff(update)
+                with self.copying(framework_update=update) as catalog:
+                    clone = catalog.plan.source_root
+                    catalog.apply(acknowledged_plan_identity=catalog.plan.identity)
+                    with preparation.prepared_retained_layout_source_move(
+                        self.project,
+                        "retained",
+                        budget=self.copy_budget,
+                        maximum_metadata_bytes=self.copy_metadata,
+                        framework_update=update,
+                        catalog_copy=catalog,
+                        provider_checkout=self.checkout,
+                    ) as owner:
+                        original = preparation._state(owner)
+                        binding = canonical_json_bytes(owner.plan.binding)
+                        prospective = owner.plan.prospective
+                        names = {name for name, _content in prospective}
+                        old_metadata = tuple(
+                            (layout_entry_node(item.path), item.content)
+                            for item in owner.plan.inputs
+                            if item.path.relative_to(self.project).as_posix() in names
+                            and item.content is not None
+                        )
+                        with self.pool(owner.plan) as (pool, journal):
+                            journal_budget = journal._budget
+                            with owner.source_phase(
+                                pool,
+                                acknowledged_plan_identity=owner.plan.identity,
+                                allow_host_execution=True,
+                            ) as phase:
+                                with phase.complete_partition(
+                                    budget=self.copy_budget,
+                                    maximum_metadata_bytes=self.copy_metadata,
+                                    provider_checkout=self.checkout,
+                                    framework_update=update,
+                                    catalog_copy=catalog,
+                                ):
+                                    phase.move_source()
+                                phase.publish_metadata(self.metadata)
+                                for marker in phase.controls.reservations._markers:
+                                    descriptors.append(marker.descriptor)
+                                    markers.append(
+                                        (
+                                            marker.target.path,
+                                            marker.target.advisory,
+                                            marker.created,
+                                            _from_stat(os.fstat(marker.descriptor)),
+                                            marker.content,
+                                        )
+                                    )
+                                result = phase.finalize_controls(self.retired)
+        except transaction.LayoutCommitOutcomeError as error:
+            failure = error
+
+        self.assertEqual(original.ledger.metadata, self.copy_metadata)
+        self.assertEqual(updater.metadata, self.update_metadata)
+        self.assertFalse(original.reader._active)
+        self.assertLess(original.ledger.records, self.copy_budget.maximum_entries)
+        self.assertLessEqual(original.ledger.files, self.copy_budget.maximum_files)
+        self.assertLess(
+            original.ledger.bytes + original.ledger.reserve,
+            self.copy_budget.maximum_total_bytes,
+        )
+        if failure is None:
+            self.assertIsNotNone(result)
+            self.assertEqual(result["state"], "committed-unqualified")
+            self.assertFalse(result["qualified"])
+            self.assertTrue(phase._finalized)
+            self.assertFalse(clone.parent.exists())
+            self.assertLessEqual(original.ledger.charged, self.copy_metadata)
+        else:
+            self.assertIs(failure.committed, True)
+            self.assertEqual(original.ledger.charged, self.copy_metadata)
+            chain, current = [], failure
+            while current is not None and current not in chain:
+                chain.append(current)
+                current = current.__cause__ or current.__context__
+            self.assertTrue(
+                any("stdout or stderr byte budget" in str(error) for error in chain),
+                "unrelated error cannot satisfy metadata exhaustion",
+            )
+        self.assertFalse(self.source.exists())
+        self.assertEqual(self.destination.stat().st_ino, source_inode)
+        self.assertEqual((self.destination / "app.py").read_bytes(), before)
+        for name, content in prospective:
+            self.assertEqual((self.project / name).read_bytes(), content)
+        private_originals = tuple(self.metadata.glob("old-*"))
+        self.assertEqual(len(private_originals), len(old_metadata))
+        for node, content in old_metadata:
+            matches = [
+                (path, layout_entry_node(path))
+                for path in private_originals
+                if (path.stat().st_dev, path.stat().st_ino) == (node.device, node.inode)
+            ]
+            self.assertEqual(
+                len(matches), 1, "original metadata custody lost or ambiguous"
+            )
+            self.assertEqual(matches[0][1].after_rename(), node.after_rename())
+            self.assertEqual(matches[0][0].read_bytes(), content)
+        for descriptor in descriptors:
+            with self.assertRaises(OSError) as closed:
+                os.fstat(descriptor)
+            self.assertEqual(closed.exception.errno, errno.EBADF)
+        self.assertTrue(markers)
+        retired = tuple(self.retired.iterdir())
+        for path, advisory, created, node, content in markers:
+            if advisory:
+                current = layout_entry_node(path)
+                self.assertEqual(
+                    (current.device, current.inode), (node.device, node.inode)
+                )
+                self.assertEqual(path.read_bytes(), b"\0" if created else content)
+            else:
+                matches = []
+                for candidate in (path, *retired):
+                    if candidate.exists():
+                        current = layout_entry_node(candidate)
+                        if (current.device, current.inode) == (node.device, node.inode):
+                            matches.append((candidate, current))
+                self.assertEqual(
+                    len(matches), 1, "native control custody lost or ambiguous"
+                )
+                self.assertEqual(matches[0][1].after_rename(), node.after_rename())
+                self.assertEqual(matches[0][0].read_bytes(), content)
+        with retained_layout_journal(
+            self.state / "journal",
+            canonical_binding=binding,
+            budget=journal_budget,
+            recover=True,
+        ) as journal:
+            commits = [
+                e for e in journal.events if e["kind"] == "layout-commit-observed"
+            ]
+            self.assertEqual(len(commits), 1)
+            self.assertEqual(commits[0]["data"]["state"], "committed-unqualified")
+            self.assertFalse(commits[0]["data"]["qualified"])
 
 
 if __name__ == "__main__":

@@ -337,9 +337,9 @@ with j.retained_layout_journal(
         with self.open(recover=True) as writer:
             original_read = writer._read
 
-            def racing_read(name):
+            def racing_read(name, **kwargs):
                 nonlocal injected
-                result = original_read(name)
+                result = original_read(name, **kwargs)
                 if not injected and name == "header.json":
                     injected = True
                     foreign.write_bytes(b"preserve")
@@ -402,3 +402,46 @@ except CacheLockError:
 
     def test_inherited_exception_context_cleanup_preserves_parent_native_mutex(self):
         self._fork_cleanup_preserves_parent_mutex(body_failure=True)
+
+    def test_currentness_accepts_empty_immutable_payload(self):
+        with self.open() as writer:
+            digest = writer.store_payload(b"")
+            writer.require_current()
+            self.assertEqual(writer.read_payload(digest), b"")
+
+    def test_grown_record_refuses_before_reading_beyond_immutable_length(self):
+        with self.assertRaisesRegex(ValueError, "layout.journal.file-limit"):
+            with self.open() as writer:
+                digest = writer.store_payload(b"small")
+                target = f"p-{digest}.bin"
+                read = writer._read
+
+                def grown(name, *, maximum_bytes=None):
+                    if name == target:
+                        self.assertEqual(maximum_bytes, 5)
+                        (self.path / target).write_bytes(b"larger than the original")
+                        with mock.patch.object(
+                            journal.os,
+                            "read",
+                            side_effect=AssertionError("oversized native read"),
+                        ):
+                            return read(name, maximum_bytes=maximum_bytes)
+                    return read(name, maximum_bytes=maximum_bytes)
+
+                with mock.patch.object(writer, "_read", side_effect=grown):
+                    writer.require_current()
+
+    def test_in_place_roster_addition_cannot_introduce_an_unfunded_read(self):
+        observed = []
+        with self.assertRaisesRegex(ValueError, "funded-roster-changed"):
+            with self.open() as writer:
+                read = writer._read
+
+                def changed(name, *, maximum_bytes=None):
+                    observed.append(name)
+                    writer._known["unfunded"] = writer._known[name]
+                    return read(name, maximum_bytes=maximum_bytes)
+
+                with mock.patch.object(writer, "_read", side_effect=changed):
+                    writer.require_current()
+        self.assertNotIn("unfunded", observed)

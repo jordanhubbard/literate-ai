@@ -548,6 +548,11 @@ def _observe(
                 "origin": origin.to_dict(),
                 "provider": None if provider is None else provider.identity.uri,
                 "inputs": _custody_wire(_input_commitments(role_inputs)),
+                "framework": tuple(sorted(framework)),
+                "children": tuple(children),
+                "imported": tuple(imported),
+                "imported_directories": tuple(imported_dirs),
+                "authored": tuple(sorted(authored)),
             }
         )
         facts = _Facts(

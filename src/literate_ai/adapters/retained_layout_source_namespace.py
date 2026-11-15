@@ -246,6 +246,7 @@ def observe_project_namespace(preparation):
         {
             "schema": "literate-ai/original-project-namespace@1",
             "namespace": census.identity.uri,
+            "native": canonical_identity(_custody_wire(native)).uri,
         }
     )
     value = _Record(

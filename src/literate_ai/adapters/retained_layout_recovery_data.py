@@ -299,21 +299,38 @@ def _metadata_moves(events, phase, entry, name, base, content, public, areas):
     return result
 
 
-def _original_data(pool, roles):
+def _original_data(pool, roles, *, budget=None, maximum_metadata_bytes=None):
     journal = pool._journal
-    header = json.loads(journal._known["header.json"][1])
-    binding = header["binding"]
-    if binding.get("schema") != "literate-ai/layout-transaction-binding@1":
-        _fail("original source transaction binding required")
-    phase = binding["source_phase_identity"]
-    raw = journal.read_payload(phase.removeprefix("sha256:"))
-    document = json.loads(raw)
-    if (
-        canonical_json_bytes(document) != raw
-        or canonical_identity(document).uri != phase
-    ):
-        _fail("original source payload is not the acknowledged canonical plan")
+    saved = None
+    if budget is not None or maximum_metadata_bytes is not None:
+        from .retained_layout_source_state import _read_original_state
+
+        if budget is None or maximum_metadata_bytes is None:
+            _fail("fresh complete original-state read policy required")
+        saved = _read_original_state(
+            journal, budget=budget, maximum_metadata_bytes=maximum_metadata_bytes
+        )
+        document = saved.plan_document
+        phase = saved.document["source_phase_identity"]
+    else:
+        header = json.loads(journal._known["header.json"][1])
+        binding = header["binding"]
+        if binding.get("schema") != "literate-ai/layout-transaction-binding@1":
+            _fail("original source transaction binding required")
+        if binding.get("original_state_required") is True:
+            _fail("fresh complete original-state read policy required")
+        phase = binding["source_phase_identity"]
+        raw = journal.read_payload(phase.removeprefix("sha256:"))
+        document = json.loads(raw)
+        if (
+            canonical_json_bytes(document) != raw
+            or canonical_identity(document).uri != phase
+        ):
+            _fail("original source payload is not the acknowledged canonical plan")
     original = document["plan"]
+    if "project_namespace" in original and saved is None:
+        # Saved policies/descriptions do not grant a new reader its allowance.
+        _fail("fresh complete original-state read policy required")
     root = roles._seed.root
     if (
         document["schema"] != "literate-ai/layout-source-phase@1"
@@ -321,7 +338,7 @@ def _original_data(pool, roles):
         or document["pending_control"] != str(layout_pending_control_path(root))
     ):
         _fail("original source plan belongs to another actual project")
-    events = journal.events
+    events = journal.events if saved is None else saved.events
     intents = [
         e["data"]
         for e in events
@@ -339,7 +356,25 @@ def _original_data(pool, roles):
     before = {item["path"]: item for item in original["inputs"]}
     for name in _TARGETS:
         item = before[str(root / name)]
-        if payloads:
+        if saved is not None:
+            digest = item["content"]
+            content = (
+                None
+                if digest is None
+                else saved.body(digest["content_identity"].removeprefix("sha256:"))
+            )
+            proposed = saved.body(
+                dict(original["prospective"])[name]["content_identity"].removeprefix(
+                    "sha256:"
+                )
+            )
+            if payloads and (
+                payloads[name]["before"]
+                != (None if content is None else hashlib.sha256(content).hexdigest())
+                or payloads[name]["prospective"] != hashlib.sha256(proposed).hexdigest()
+            ):
+                _fail("source intent disagrees with durable original metadata")
+        elif payloads:
             digest = payloads[name]["before"]
             content = None if digest is None else journal.read_payload(digest)
             proposed = journal.read_payload(payloads[name]["prospective"])
@@ -358,7 +393,9 @@ def _original_data(pool, roles):
     return phase, original, events, old, prospective
 
 
-def plan_layout_data_recovery(pool, roles, private_root):
+def plan_layout_data_recovery(
+    pool, roles, private_root, *, budget=None, maximum_metadata_bytes=None
+):
     """Fresh read-only data frontier under actual current canonical descriptors."""
     if type(roles) is not _RecoveryRoleLease or roles._pool is not pool:
         _fail("actual same-producer canonical recovery owner required")
@@ -373,7 +410,12 @@ def plan_layout_data_recovery(pool, roles, private_root):
     files, areas, parents, actions, endpoints = {}, {private: initial_area}, {}, [], {}
     tree, native, phase, committed, issues = None, (), "", False, ()
     try:
-        phase, original, events, old, proposed = _original_data(pool, roles)
+        phase, original, events, old, proposed = _original_data(
+            pool,
+            roles,
+            budget=budget,
+            maximum_metadata_bytes=maximum_metadata_bytes,
+        )
         coordinates = original["layout"]
         selected = RetainedLayoutSelection.from_values(
             coordinates["wrapper_component"], coordinates["implementation_directory"]
