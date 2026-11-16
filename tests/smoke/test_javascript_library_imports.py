@@ -435,6 +435,71 @@ class JavaScriptLibraryImportTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 require_javascript_library_source_bom(imports, json.dumps(bad).encode())
 
+    def test_project_library_bom_passes_real_metadata_admission(self):
+        import copy
+
+        from literate_ai.adapters.dependencies import build_cyclonedx_bom
+        from literate_ai.adapters.models.coding_cli import (
+            CodingCliError,
+            _reconcile_authoritative_source_sbom,
+        )
+        from literate_ai.application.library_artifacts import (
+            javascript_library_source_component,
+        )
+        from literate_ai.contracts import (
+            CYCLONEDX_SOURCE_SBOM_PATH,
+            CycloneDxLifecycle,
+        )
+        from tests.support.fixtures_test_coding_cli_generation import flavor, recipe
+
+        value = recipe(flavor("javascript"))
+        canonical, _ = build_cyclonedx_bom(
+            lifecycle=CycloneDxLifecycle.SOURCE,
+            managed_graph=value.managed_sbom_graph,
+            composition_aggregate="complete",
+        )
+        document = json.loads(canonical)
+        component = javascript_library_source_component(
+            self.artifact.component_revision, self.surface
+        )
+        document["components"].append(component)
+        root_ref = document["metadata"]["component"]["bom-ref"]
+        root_edge = next(d for d in document["dependencies"] if d["ref"] == root_ref)
+        root_edge["dependsOn"].append(component["bom-ref"])
+        document["dependencies"].append({"ref": component["bom-ref"], "dependsOn": []})
+        workspace = self.root / "metadata-admission"
+        workspace.joinpath(CYCLONEDX_SOURCE_SBOM_PATH).parent.mkdir(parents=True)
+
+        def admit(content):
+            files = {CYCLONEDX_SOURCE_SBOM_PATH: json.dumps(content)}
+            _reconcile_authoritative_source_sbom(value, workspace, files)
+            return files[CYCLONEDX_SOURCE_SBOM_PATH].encode()
+
+        admitted = admit(document)
+        self.assertIn(component, json.loads(admitted)["components"])
+        from literate_ai.adapters.lifecycle.javascript_libraries import (
+            require_javascript_library_source_bom,
+        )
+
+        require_javascript_library_source_bom(self.prepare(), admitted)
+        for reserved in [
+            "literate-ai:provider-component-revision",
+            "literate-ai:library-import-surface",
+            "literate-ai:component-revision",
+        ]:
+            bad = copy.deepcopy(document)
+            bad["components"][-1]["properties"].append(
+                {"name": reserved, "value": self.artifact.component_revision.uri}
+            )
+            with (
+                self.subTest(property=reserved),
+                self.assertRaises(CodingCliError) as raised,
+            ):
+                admit(bad)
+            self.assertEqual(
+                raised.exception.code, "coding_cli.generated_metadata_invalid"
+            )
+
     def test_generation_prompt_has_exact_bom_declarations_without_npm_authority(self):
         from literate_ai.adapters.models.coding_cli import RecipeLibraryDependency
         from literate_ai.application.library_artifacts import (

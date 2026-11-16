@@ -57,3 +57,9 @@ or a claim that an authoring revision is a compiled-byte hash. Existing source a
 resolved dependency admission remain unchanged. Actual sealed provider blob,
 interface, target and dependency identities remain in the consumer build binding
 and artifact evidence. No runtime import allowlist exempts imports from the BOM.
+
+The model-supplied declaration describes project dependency intent. Its reference,
+generic package namespace and provider/surface properties must be project-owned;
+it must not claim reserved framework authority. Keep the existing source metadata
+forgery checks intact and exercise the real reconciliation path, in addition to
+the later typed-binding matcher and adapter tests.

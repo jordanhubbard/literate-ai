@@ -378,6 +378,11 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       JavaScript consumer acceptance is not established by metadata-only bindings.
       Implement and qualify the [bounded importer contract](../architecture/javascript-library-imports.md)
       before treating that path as usable. No registry/checkout fallback is permitted.
+      The first ordinary installed-wheel consumer run reached real source admission
+      and correctly rejected the projection's reserved framework properties.
+      Move library declaration identities into project-owned metadata, retain the
+      existing forgery guard, and add real metadata-reconciliation coverage before
+      repeating the ordinary rebuild. Adapter fixtures alone did not cover this gate.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out

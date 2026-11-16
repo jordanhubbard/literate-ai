@@ -129,21 +129,23 @@ def javascript_library_source_component(
     return {
         "type": "library",
         ("bom-ref"): (
-            f"urn:literate-ai:library-import:{provider_revision.digest}:"
+            f"urn:project:library-import:{provider_revision.digest}:"
             f"{surface.identity.digest}"
         ),
         "name": surface.package,
         "version": provider_revision.uri,
-        "purl": f"pkg:generic/literate-ai/{surface.package}@{provider_revision.digest}",
+        "purl": (
+            f"pkg:generic/project-library/{surface.package}@{provider_revision.digest}"
+        ),
         "properties": [
             {"name": "literate-ai:dependency-kind", "value": "package"},
             {"name": "literate-ai:dependency-scope", "value": "runtime"},
             {
-                "name": "literate-ai:provider-component-revision",
+                "name": "project:library-provider-revision",
                 "value": provider_revision.uri,
             },
             {
-                "name": "literate-ai:library-import-surface",
+                "name": "project:library-import-surface",
                 "value": surface.identity.uri,
             },
         ],
