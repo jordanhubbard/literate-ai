@@ -400,6 +400,20 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       file-mode, byte or namespace checks; add a Windows-path regression and
       obtain full manual Windows qualification before landing the follow-up.
       Existing POSIX and PR-only green results do not close this platform gate.
+- **Follow-up issue:** [#452](https://github.com/jordanhubbard/literate-ai/issues/452)
+      tracks distributable TypeScript/npm SDK consumers. The generic JavaScript
+      tree adapter does not authorize package-npm composition: npm resolution,
+      artifact materialization and declaration packaging are separate gates.
+      The next action for this boundary is explicit directing-user review of
+      proposed [ADR 0073](../decisions/0073-sealed-node-sdk-composition.md),
+      before implementation under ADR 0006. Bind exact provider revision,
+      interface, import surface, artifact bytes, target and declarations; preserve
+      complete npm inventory admission and deny namespace/type collisions.
+      Acceptance must exercise an ordinary generated consumer and an actual packed,
+      relocated SDK through CJS/ESM root and subpath imports plus TypeScript,
+      with the producer checkout and ambient resolution unavailable. Preserve all
+      failed attempts and older qualification evidence. No downstream SDK cutover
+      follows from the existing JavaScript importer fixtures.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out

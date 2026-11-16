@@ -183,6 +183,7 @@ lists the per-project fields and their defaults.
 - [Prefix-installed CLI self-update](decisions/0037-prefix-installed-cli-self-update.md)
 - [Continuous upstream shadow qualification](decisions/0063-continuous-upstream-shadow-qualification.md)
 - [Qualified native child revision](decisions/0066-qualified-native-child-revision.md)
+- [Sealed Node SDK composition (proposed)](decisions/0073-sealed-node-sdk-composition.md)
 - [Source trust and build-security plan](security/source-trust-and-build-policy.md)
 
 ## Migration and roadmap
