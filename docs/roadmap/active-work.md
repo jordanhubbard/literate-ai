@@ -222,6 +222,13 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       the catalog and initialized-project Flavor, specification and JavaScript
       skill byte-identical, and extend the existing copy-parity gate to those
       policy files. A passing custom consumer does not qualify stale defaults.
+      Exact merged-main qualification at `e3ca4c78` subsequently exposed five
+      Windows importer failures: expected directory keys use native separators,
+      while scanned sealed-artifact keys use POSIX separators. The next importer
+      action is to normalize those expected keys without relaxing link/reparse,
+      file-mode, byte or namespace checks; add a Windows-path regression and
+      obtain full manual Windows qualification before landing the follow-up.
+      Existing POSIX and PR-only green results do not close this platform gate.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out
@@ -19230,6 +19237,18 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 - **Wheel timing investigation:** The initial macOS candidate recorded 552.19 seconds in subprocess spans; installed HTML observability accounted for 289.41 seconds. Those HTML scenarios mutate the same golden project and cannot safely be fanned out without separate fixture custody. Independent environment setup offers a smaller opportunity. These observations came from a busy macOS host and do not establish a Windows wheel speedup. Native gate timings and the requested performance target remain open.
 
 - **Native Windows follow-up:** The four-worker gate stopped after 575 passes, 45 skips and 579 passing subtests when the real Cargo accounting fixture exceeded its 60-second compiler deadline. An isolated unchanged probe passes: cold compile 32.594 seconds, cached compile 0.469 seconds. The fixture now allows 180 seconds on Windows (60 elsewhere) and uses existing owned-process-tree cleanup on timeout. This is a test-fixture timing correction, not native performance acceptance; the final gate must be rerun. The failed job evidence is retained and its finite on-demand task is confirmed removed.
+
+- **SDLC timing follow-up:** The reviewed native batch selected 2,885 tests with
+  2,793 passes and 92 skips in 842.390 seconds on twelve workers; its step ledger
+  records 844.445 seconds. The retained 611 module logs lack recorded durations.
+  Add one bounded parent-owned timing artifact in the existing worker-log directory,
+  registered once with the evidence owner and reduced by the timing reader. Record
+  setup, process observation, cancellation and cleanup separately; preserve the
+  existing timeout origin and validated outcome authority. Incomplete endings stay
+  unknown. Avoid one ordinary evidence node per module: its completion currently
+  rebuilds the entire ledger index. Qualify overlap, serial barriers, crash and
+  cancellation through real public-runner processes before changing scheduling.
+  One-worker and native Windows pytest coverage remain explicit measurement gaps.
 
 ### [x] MERMAID-SCOPE-001 — Mermaid documentation check scans gitignored build output (generated/)
 

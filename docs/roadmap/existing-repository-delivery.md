@@ -254,6 +254,22 @@ owned deletions. This is not yet an installed-wheel result, a released-version
 upgrade, a hosted native PR, or target-platform qualification. Those remain
 separate obligations.
 
+The final source composition includes the independently reviewed Windows
+JavaScript path correction from main `b9fc61770` and preserves the published worker
+history. Its fresh four-worker run selected 2,886 tests: 2,794 passed and 92 skipped
+in 1,566.179 seconds. All source/trust/static/skill gates passed. The
+[composition record](../../verification/native-windows-composition-review.json)
+binds the exact reviewed subjects; installed and exact-head CI results remain
+separate. The earlier twelve-worker run took 842.390 seconds for 2,885 tests on
+the same busy host. These observations do not isolate concurrency from host load
+and the additional Windows regression, so they do not establish a speedup claim.
+
+TEST-PARALLEL-001 retains the remaining measurement work: the earlier native run's
+611 module logs contain no recorded durations, although its Python step ledger
+records 844.445 seconds. Filesystem timestamp estimates suggest dependency-proof
+reopening and complete rebuild journeys as profiling candidates, not measured
+causes. Retain bounded module spans before changing scheduling or assurance.
+
 The first implementation PR's exact `43809001d` CI run `43922384703` passed eleven
 jobs with two named skips in 41m26s wall time. Its longest Linux job spent 27m19s
 in conformance and 12m35s in installed-wheel verification; queue/setup does not
