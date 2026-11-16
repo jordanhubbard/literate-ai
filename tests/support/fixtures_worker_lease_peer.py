@@ -61,7 +61,12 @@ def main():
         "status": "ready",
         "provision_response": allocation,
         "expires_at": (
-            datetime.now(UTC) + timedelta(hours=-1 if mode == "expired" else 1)
+            datetime.now(UTC)
+            + (
+                timedelta(seconds=1 if mode == "short" else 12)
+                if mode in ("short", "cleanup-short")
+                else timedelta(hours=-1 if mode == "expired" else 1)
+            )
         )
         .isoformat()
         .replace("+00:00", "Z"),

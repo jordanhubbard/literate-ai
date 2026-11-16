@@ -2764,8 +2764,32 @@ same idempotency key. A completed release retains a tombstone and never allocate
 again under that worker ID. Lookup after a failed release preserves that release
 intent. `--expired-only` requires an observed expiry in the past before the first
 release attempt. A changed registration, unrelated static worker or changed
-provider configuration is never deleted by this operation. Coordinate release
-with active jobs; this command does not drain them or collect their artifacts.
+provider configuration is never deleted by this operation.
+
+Managed SSH dispatch observes the lease before each attempt and requires enough
+remaining lifetime for the full job deadline plus the actual remote runner's
+configured cleanup waits and deadline rounding (18 seconds on POSIX controllers,
+48 seconds with the Windows fallback). It rechecks after publishing the attempt
+and passes an absolute monotonic deadline into SSH, so execution cannot restart
+its full budget after delayed publication. It binds the exact registration and records the attempt before
+invoking SSH. One active or uncertain attempt is admitted per managed worker.
+Static workers retain their existing dispatch path.
+
+An active job makes ordinary release save its intent, withdraw registration and
+return `dispatch_draining` without contacting the provider. The active attempt may
+finish collecting its result and artifacts; repeat release afterward. A controller
+crash or transport error retains an active or uncertain attempt, preventing silent
+reuse. Inspect `worker provisioner status WORKER` to obtain its attempt ID. To
+terminate that exact attempt and its lease, use:
+
+```sh
+litai worker provisioner release WORKER --cancel-attempt ATTEMPT --acknowledge
+```
+
+A different or completed attempt refuses cancellation. An accepted cancellation
+survives a lost release reply; later retries keep the same release request.
+Results arriving after cancellation cannot satisfy dispatch. This command cancels
+the allocation; it does not claim to recover artifacts lost with that worker.
 
 The lease request schema is `urn:literate-ai:schema:v1:worker-lease-request`:
 `operation` (`observe` or `release`), fresh observation `nonce`,
@@ -2782,10 +2806,14 @@ intent. The provider must enforce request idempotency and must not create a new
 resource while handling either operation. Process and stream limits are the same
 as allocation. Provider responses do not establish native hardware qualification.
 
-This explicit management surface does not yet establish automatic expiry-aware
-dispatch, background reaping, job drainage or provider-enforced expiration. Those
-remain required lifecycle acceptance. No live provider cleanup is implied by the
-local fixture tests.
+Background reaping, provider-enforced expiration and a live-provider pilot remain
+open. Local expiry uses UTC and a monotonic elapsed-time floor within the attempt,
+so a backward clock step cannot extend that attempt's admission. Provider and
+controller clocks must still agree on UTC. The cleanup allowance covers configured
+waits; it does not bound native system calls, blocking stream closure, scheduling
+delay or remote descendant death. Failures retain uncertain attempts. Local
+fixtures prove protocol behavior,
+not remote hardware execution, provider TTL enforcement or live cleanup.
 
 For retained secondary-identity execution, the development contract also accepts
 an optional `inspection_command` argument array. Omit it to preserve existing

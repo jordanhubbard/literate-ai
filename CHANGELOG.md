@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Managed SSH jobs require a fresh lease covering their execution deadline and
+  configured cleanup waits. Release drains the recorded active attempt; explicit
+  cancellation binds its exact attempt ID. Lost controllers retain outstanding
+  work, and cancelled or expired attempts cannot supply accepted results.
+
 - Rerun checks when the project dependency authority cannot be resolved; a suite
   name or unchanged test module alone no longer authorizes checkpoint reuse.
 

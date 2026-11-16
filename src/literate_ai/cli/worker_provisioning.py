@@ -66,6 +66,10 @@ def add_provisioning_arguments(commands):
                 action="store_true",
                 help="refuse unless the saved lease observation has expired",
             )
+            parser.add_argument(
+                "--cancel-attempt",
+                help="cancel the exact outstanding attempt reported by status",
+            )
     launch = commands.add_parser(
         "provision", help="explicitly request and register a dynamic SSH worker"
     )
@@ -137,6 +141,7 @@ def provisioning_from_args(args):
                 os.environ,
                 operation=operation,
                 expired_only=getattr(args, "expired_only", False),
+                cancel_attempt=getattr(args, "cancel_attempt", None),
             )
         else:
             requirements = (

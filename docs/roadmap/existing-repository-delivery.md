@@ -296,3 +296,38 @@ root process kill remains. Four portable ownership cases pass, with three native
 Windows cases skipped on macOS. The surrounding process selection passes 18 cases
 with four FreeBSD-specific skips. These skips are not native Windows or FreeBSD
 qualification. Both PRs and final integrated qualification remain open.
+
+
+## Managed dispatch follow-up
+
+The separate lease follow-up binds SSH admission to a fresh ready observation,
+exact registration and the whole bounded job duration. One durable attempt per
+managed worker serializes dispatch with release. Ordinary release withdraws the
+registration and preserves intent while the admitted job drains; interrupted
+controllers retain uncertain work. Explicit cancellation names that exact attempt,
+uses the existing idempotent release request, and rejects late results. Static
+workers remain independent of this protocol.
+
+Local child-provider and transport-boundary checks currently pass: 29 cases in
+7.318 seconds, including an actual controller `os._exit(23)`, clock rollback,
+short/expired leases, concurrent drain, explicit CLI cancellation and late result
+refusal. These are development checks, not native SSH/provider qualification.
+The final corrected production delta has independent source approval; combined
+installed checks and exact-candidate CI remain required. Background reaping, provider lifetime enforcement and live cleanup
+are still open under WORKER-001 and SDLC-001; no additional roadmap owner is added.
+
+
+Independent review found and reproduced delayed-publication admission after
+expiry, the incorrect ten-second cleanup assumption and terminal cancellation
+accepting a wrong token. The follow-up now checks lifetime again after durable
+publication, propagates one absolute monotonic execution deadline, derives cleanup
+wait allowance from the actual process owner, and checks terminal cancellation
+against the retained cancelled attempt. Local controls cover expired and still-live
+but insufficient headroom, no handler entry, and exact terminal retry. The independent reviewer approved all nine production files and exercised 32
+focused cases plus failed-publication and lost-reply probes. The final author
+selection passed 40 cases with seven native-platform skips. A fresh complete
+local source gate passed 2,836 selected cases: 2,744 passes and 92 skips in
+1,555.305 seconds. See [the development evidence](../../verification/managed-lease-development.json).
+Live round trips were disabled; installed, native-provider and exact-candidate CI
+qualification remain separate. The corrected source hashes match the reviewed
+subject, and no full worker-program or release completion is claimed.

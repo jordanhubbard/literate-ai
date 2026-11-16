@@ -350,7 +350,7 @@ def read_record(path):
                     "response",
                 }
             ),
-            optional=frozenset({"management", "managed"}),
+            optional=frozenset({"management", "managed", "dispatch"}),
         )
     )
     request = contract_fields(
@@ -386,6 +386,10 @@ def read_record(path):
         validate_saved_management(record)
     elif record["status"] in ("releasing", "released"):
         refuse("invalid_state", "Lease release requires its durable request.")
+    if "dispatch" in record:
+        from .worker_lease_dispatch import validate_saved_dispatch
+
+        validate_saved_dispatch(record)
     return record
 
 

@@ -212,16 +212,28 @@ def _configuration(config_path, environment, record):
 
 
 def manage_lease(
-    config_path, state, worker_id, environment, *, operation, expired_only=False
+    config_path,
+    state,
+    worker_id,
+    environment,
+    *,
+    operation,
+    expired_only=False,
+    cancel_attempt=None,
 ):
     if operation not in ("observe", "release") or (
         expired_only and operation != "release"
     ):
         raise ValueError("invalid lease management operation")
+    if cancel_attempt is not None and operation != "release":
+        raise ValueError("attempt cancellation requires release")
     path = operation_path(state, worker_id)
     with exclusive_cache_lock(path.with_suffix(".lock")):
         record = read_record(path)
         if record["status"] == "released":
+            from .worker_lease_dispatch import release_dispatch
+
+            release_dispatch(record, cancel_attempt)
             _unregister_owned(record)
             return record
         config, child = _configuration(config_path, environment, record)
@@ -255,6 +267,9 @@ def manage_lease(
             }
         )
         if operation == "release":
+            from .worker_lease_dispatch import release_dispatch
+
+            draining = release_dispatch(record, cancel_attempt)
             release = request
             record["status"] = "releasing"
         record["management"] = {
@@ -269,6 +284,12 @@ def manage_lease(
             # Stop future selections before asking the provider to terminate it.
             # A crash here retains the exact release request for an idempotent retry.
             _unregister_owned(record)
+            if draining:
+                refuse(
+                    "dispatch_draining",
+                    "Release intent is saved and new jobs are blocked; retry after "
+                    "the active attempt finishes, or cancel its exact attempt ID.",
+                )
         output = invoke(
             replace(config, command=config.management_command), child, request=request
         )
@@ -282,6 +303,8 @@ def manage_lease(
                 record["status"] = "ready"
         elif response["status"] == "released":
             record["status"] = "released"
+            if "dispatch" in record:
+                record["dispatch"]["state"] = "released"
         elif release is None:
             record["status"] = "uncertain"
         record["management"].update(state="complete", response=response)

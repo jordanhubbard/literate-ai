@@ -13,6 +13,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+_TASKKILL_WAIT_SECONDS = 5
+
+
+def process_tree_termination_wait_seconds(*, platform_name: str | None = None) -> int:
+    """Configured helper waits, excluding native syscall/scheduling delays."""
+    return 2 * _TASKKILL_WAIT_SECONDS if (platform_name or os.name) == "nt" else 0
+
+
 # -- Win32 Job Object primitives -------------------------------------------
 #
 # `CREATE_NEW_PROCESS_GROUP` (used by `process_group_options` below) only
@@ -335,11 +343,11 @@ def terminate_process_tree(
                     stderr=subprocess.DEVNULL,
                 )
                 try:
-                    terminator.wait(timeout=5)
+                    terminator.wait(timeout=_TASKKILL_WAIT_SECONDS)
                 except subprocess.TimeoutExpired:
                     terminator.kill()
                     with suppress(subprocess.TimeoutExpired):
-                        terminator.wait(timeout=5)
+                        terminator.wait(timeout=_TASKKILL_WAIT_SECONDS)
             except OSError:
                 pass
     if process.poll() is None:

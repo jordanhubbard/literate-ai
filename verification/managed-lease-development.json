@@ -1,0 +1,142 @@
+{
+  "schema": "literate-ai/managed-lease-development@1",
+  "baseline_revision": "d90d8704c26f7192224238727526e72a1f4eceb4",
+  "owning_work_items": [
+    "WORKER-001",
+    "SDLC-001"
+  ],
+  "state": "independently-reviewed-full-local-source-gate-passed",
+  "release_evidence": false,
+  "source_sha256": {
+    "src/literate_ai/adapters/_processes.py": "6427c9d3cdaa72e21f10c4b3b49982cc54474ff800ef0678c19d6e010fb57ff1",
+    "src/literate_ai/adapters/builders/_process.py": "f86ef2066623242b0ff93d126c19b5d1459f833a94b60417d8adaf39650f5b26",
+    "src/literate_ai/adapters/execution_dispatch.py": "ada27aab6b261193c21ef9fdd4ffb2f4bd5bc385ed0629c3bdce76ea9acfecae",
+    "src/literate_ai/adapters/remote_transport.py": "b782bbcbe498a9d4791e904ad6d66afa8ce15f77370f21f19b9de99596b988e9",
+    "src/literate_ai/adapters/ssh_execution.py": "166901eafd9333da7dbb63264961b2567297290f4b0762b2b626fb726d537ad1",
+    "src/literate_ai/adapters/worker_lease_dispatch.py": "4038d19b125b1bec09a690282044435c0c7393a5f09e31da0fe39cffdc38ec28",
+    "src/literate_ai/adapters/worker_lease_management.py": "e56748bd0b3f399d84b3634c7c3a55d620032795086de18c80e8a65b18ec740a",
+    "src/literate_ai/adapters/worker_provisioning.py": "e5bb375a2cbe4918832b0f71f9286904a41905d7b10990c4496bb2f92e325be3",
+    "src/literate_ai/cli/worker_provisioning.py": "450b24e8efde713d9834abbcd2478c6aa6bc108eadc96cc60b7c49701f0d1895"
+  },
+  "independent_review": {
+    "decision": "Approved for the recorded narrow source delta; no remaining blocking findings. Review pass terminal.",
+    "diff_sha256": "9dce38b63693bc45465ca349f06186ac0fc19f23935592002ac0602eaf51b898",
+    "inspected": [
+      "All14 changed subjects and complete fixed diff; surrounding actual SSH deadline, transport and process cleanup paths; management validation/lock/publication/registration owners.",
+      "Single outstanding attempt, concurrent drain/cancel, lost reply, controller exit, fail-before-launch and late result handling.",
+      "Static worker branch remains unchanged; additional absolute deadline argument is sent only on managed branch. Canonical request identity is not rewritten.",
+      "Roadmap/configuration documentation labels local fixtures and outstanding provider/native/qualification obligations."
+    ],
+    "limits": "No live allocation, provider, SSH or remote worker; local fixture children only. No new native runner escape probe in this pass. No full source/installed wheel/native Windows/Linux/release qualification. Unrelated sdlc14 full-suite result is outside this approval. Driver pins and documentation marker not changed by reviewer.",
+    "resolutions": {
+      "LEASE-REVIEW-1": "Resolved. After actual active publication, whole-job+cleanup lifetime is rechecked. Expired or insufficient headroom records not-started and refuses before handler. A monotonic absolute execution deadline is passed through SshExecutionDispatcher to SshLifecycleRequestHandler, which caps its own deadline and checks before materialization. Failure publishing the nonrunning disposition conservatively leaves active state.",
+      "LEASE-REVIEW-2": "Resolved within explicitly documented configured-wait scope. Actual taskkill/process/stream constants feed the shared process-owner conservative no-stdin allowance17s POSIX/47s Windows; SSH adds1s rounding and admission reserves18/48. Runtime wait values are unchanged. Native syscall, blocking stream-close, scheduling and remote-death guarantees are explicitly excluded.",
+      "LEASE-REVIEW-3": "Resolved. Released fast path validates supplied token against retained accepted cancellation. Exact cancellation and no-token terminal release remain idempotent; wrong, completed-but-not-cancelled and absent-dispatch cancellation tokens refuse."
+    },
+    "reviewed_at": "2026-11-16T16:14:43.366072+00:00",
+    "reviewer": "/root/sdlc_review",
+    "schema": "literate-ai/independent-review-note@1",
+    "scope": "Only lease-followup-fixed-review.diff and14 exact subjects in lease-followup-fixed-subjects.json.9 production source paths. Not wholesale approval of unrelated worktree changes.",
+    "subject_sha256": {
+      "docs/roadmap/existing-repository-delivery.md": "b526868369bf0b5b75bbbb5354e570ff545446506e962fbdfdda127bf0ae7b6f",
+      "docs/user/configuration-and-cli.md": "fa9ed980d106828f3ec2710ae7b5c7d3f82d2ec1965a829ba94a807eaba4c1f0",
+      "src/literate_ai/adapters/_processes.py": "6427c9d3cdaa72e21f10c4b3b49982cc54474ff800ef0678c19d6e010fb57ff1",
+      "src/literate_ai/adapters/builders/_process.py": "f86ef2066623242b0ff93d126c19b5d1459f833a94b60417d8adaf39650f5b26",
+      "src/literate_ai/adapters/execution_dispatch.py": "ada27aab6b261193c21ef9fdd4ffb2f4bd5bc385ed0629c3bdce76ea9acfecae",
+      "src/literate_ai/adapters/remote_transport.py": "b782bbcbe498a9d4791e904ad6d66afa8ce15f77370f21f19b9de99596b988e9",
+      "src/literate_ai/adapters/ssh_execution.py": "166901eafd9333da7dbb63264961b2567297290f4b0762b2b626fb726d537ad1",
+      "src/literate_ai/adapters/worker_lease_dispatch.py": "4038d19b125b1bec09a690282044435c0c7393a5f09e31da0fe39cffdc38ec28",
+      "src/literate_ai/adapters/worker_lease_management.py": "e56748bd0b3f399d84b3634c7c3a55d620032795086de18c80e8a65b18ec740a",
+      "src/literate_ai/adapters/worker_provisioning.py": "e5bb375a2cbe4918832b0f71f9286904a41905d7b10990c4496bb2f92e325be3",
+      "src/literate_ai/cli/worker_provisioning.py": "450b24e8efde713d9834abbcd2478c6aa6bc108eadc96cc60b7c49701f0d1895",
+      "tests/smoke/test_ssh_execution.py": "7190367a31cd979ed6292b29d092251d56c93ff86d39bef6e0617ea867903477",
+      "tests/smoke/test_worker_lease_management.py": "8ebb484f5a759955e3fa40d6b6c7a4b812e3b92020c981c37599edffdfc6b925",
+      "tests/support/fixtures_worker_lease_peer.py": "b32a8ab949af5646f004c278bce346fde8c4c553d04d8d28c7821208a19e2e80"
+    },
+    "validation": {
+      "author_retained_tests": "lease-followup-corrected.log:47selected40passed7skipped10.157s; inspected log, not independently rerun full cohort",
+      "cleanup_allowance": "Source arithmetic verified and actual helper returns17POSIX/47Windows.",
+      "diff_check": "passed",
+      "reviewer_lost_reply": "Same probe: cancellation persists across lost provider reply; same release request; one provider release key; exact terminal retry and wrong-token rejection add0provider calls.",
+      "reviewer_partial_failure": "reviewer/lease-fixed-probes.json: failed not-started publication invoked no handler, retained active, ordinary release drained, exact cancellation released.",
+      "reviewer_tests": "32passed6.107s across worker lease management, provisioning, SSH execution and remote library transport; reviewer/lease-fixed-tests.log",
+      "reviewer_workspace_edits": false,
+      "subject_drift": []
+    }
+  },
+  "independent_review_sha256": "e4e86a05a0af86dfbd9ba9aa69f44ba69b58fbd96f04f61b03c4923b46f9ac65",
+  "author_cohort": {
+    "selected": 47,
+    "passed": 40,
+    "skipped": 7,
+    "seconds": 10.157,
+    "log_sha256": "141e9b488cd231d5921171b73d9402bbd03a35fdb80dadb07d192c64b0bd2d02"
+  },
+  "resolved_findings": [
+    {
+      "confidence": "high",
+      "consequence": "A slow fsync/publication or scheduling delay can consume lease lifetime and still start a remote job. Post-result refusal does not protect the worker lifetime during execution.",
+      "evidence": "Clock-boundary diagnostic advanced wall and monotonic clocks7200s during the actual active-record publication. SSH handler entered; only afterward dispatch_deadline_exceeded refused and state became uncertain. Fixture lease lifetime was1hour.",
+      "fix": "Recheck effective time after durable publication and before yielding to SSH. Ensure the actual execution budget plus justified cleanup margin fits the original observation; align actual handler deadline with the admitted absolute window rather than silently restarting a full timeout. Preserve conservative durable state if interruption prevents proving nonlaunch.",
+      "id": "LEASE-REVIEW-1",
+      "issue": "Lease lifetime is checked before durable attempt publication, but SSH starts afterward with a fresh full timeout and no prelaunch lifetime recheck.",
+      "line": 140,
+      "path": "src/literate_ai/adapters/worker_lease_dispatch.py",
+      "severity": "P2",
+      "verification": "A clock-controlled active-publication delay that exhausts remaining lifetime must invoke no handler. Include a still-valid but insufficient-whole-job case and retain normal drain/retry cases."
+    },
+    {
+      "confidence": "high",
+      "consequence": "Minimum TTL arithmetic overstates the actual cleanup guarantee; a job admitted near expiry can outlive the supposedly covered interval.",
+      "evidence": "SshLifecycleRequestHandler uses BoundedRemoteProcessRunner\u2192builders._process.run_bounded_process, not BoundedDispatcherProcessRunner. _process.py:252-258,271-286,330-336 add waits/reader joins. A bounded real local Python child with an escaped finite12.5s descendant holding output pipes took12.536172749940306s under timeout_seconds1, exceeding advertised1+10. No SSH/provider used.",
+      "fix": "Bind admission to a real documented total execution/cleanup bound of the selected SSH transport, with one deadline budget or explicitly configurable/conservative cleanup allowance. Do not derive it from another runner or fix only the comment. Preserve uncertain-state handling where remote termination cannot be established.",
+      "id": "LEASE-REVIEW-2",
+      "issue": "TERMINATION_SECONDS=10 and documentation claim a bound the actual SSH runner does not provide.",
+      "line": 29,
+      "path": "src/literate_ai/adapters/worker_lease_dispatch.py",
+      "severity": "P2",
+      "verification": "Controlled runner boundary cases must show the same budget used by admission and actual cleanup, including inherited output pipes/late cleanup. Keep local bound distinct from remote process-death/provider-TTL guarantees."
+    },
+    {
+      "confidence": "high",
+      "consequence": "The exact-attempt cancellation contract and documented refusal are bypassed on terminal records; stale automation receives false acknowledgement.",
+      "evidence": "After a successfully cancelled attempt and idempotent retry, release(cancel_attempt=\"0\"*64) returned status released despite a different retained attempt.",
+      "fix": "Validate a supplied token before the released fast path against the retained exact attempt and accepted cancellation state. Preserve no-token terminal release and exact cancellation retries without provider reinvocation.",
+      "id": "LEASE-REVIEW-3",
+      "issue": "Already-released fast path accepts an arbitrary --cancel-attempt without checking the retained attempt or cancellation state.",
+      "line": 233,
+      "path": "src/literate_ai/adapters/worker_lease_management.py",
+      "severity": "P3",
+      "verification": "Correct terminal cancellation token returns idempotently; wrong token, ordinary completed attempt and terminal record without a cancelled dispatch refuse; provider operation count unchanged."
+    }
+  ],
+  "limits": [
+    "No full-source, installed candidate or exact-head CI qualification yet.",
+    "Provider peer is a real local child process; SSH execution is a controlled boundary fixture.",
+    "Actual controller os._exit proves durable outstanding state; no remote process or cloud allocation was used.",
+    "Cleanup allowance covers configured waits only; native syscalls, blocking stream close and remote descendant death remain outside that arithmetic.",
+    "No automatic fleet reaping or live provider TTL enforcement claimed."
+  ],
+  "full_source_gate": {
+    "command": "make python-check",
+    "summary": {
+      "executed": 2744,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2744,
+      "selected": 2836,
+      "skipped": 92
+    },
+    "seconds": 1555.305,
+    "report_sha256": "4d689f4ec846d427c7ec337b648f52144b12b6474b94441f42302d8fa4b25cfd",
+    "log_sha256": "c91d8c9b58db38f7a120e1e7df8ca9a7020cb7127e9727cf62c9e6da198afcc0",
+    "live_roundtrips_enabled": false,
+    "context_identity": null,
+    "pin_identity": {
+      "algorithm": "sha256",
+      "digest": "60db81c6150334bce8a7a69fe97149e5fd94cebd84b8cc1d548f8b1b7d37f6cc",
+      "schema": "urn:literate-ai:schema:v1:content-identity"
+    },
+    "release_evidence": false
+  }
+}
