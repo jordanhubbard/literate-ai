@@ -926,6 +926,15 @@ def required_command_toolchains(
     if any(not isinstance(item, StandardNpmTarget) for item in npm_targets):
         raise TypeError("npm_targets must contain StandardNpmTarget values")
     if ComponentCommandPhase.BUILD in command_phases:
+        from literate_ai.adapters.standard_project import _STANDARD_BUILD_DRIVER
+
+        required_toolchains.update(
+            item.language_compiler_identity.uri
+            for item in contracts
+            if len(item.command(ComponentCommandPhase.BUILD).argv) >= 4
+            and item.command(ComponentCommandPhase.BUILD).argv[2:4]
+            == (_STANDARD_BUILD_DRIVER, "javascript-tree")
+        )
         required_toolchains.update(
             target.node_toolchain_identity.uri for target in npm_targets
         )
@@ -3585,6 +3594,75 @@ class LocalStandardLifecyclePorts:
         self.build_seconds += time.monotonic() - started
         return output
 
+    def _javascript_library_imports(self, plan, providers, contract):
+        from literate_ai.adapters.lifecycle.javascript_libraries import (
+            prepare_javascript_library_imports,
+            require_javascript_library_source_bom,
+        )
+        from literate_ai.adapters.standard_project import _STANDARD_BUILD_DRIVER
+
+        command = contract.command(ComponentCommandPhase.BUILD).argv
+        if len(command) < 4 or command[2:4] != (
+            _STANDARD_BUILD_DRIVER,
+            "javascript-tree",
+        ):
+            return None
+        if not providers or not any(
+            self._contract(p.component_revision).is_library for p in providers
+        ):
+            return None
+        try:
+            inputs = self._plan_inputs_by_revision[plan.component_revision.uri]
+            bindings = self.library_consumer_bindings(inputs.intent)
+            if not bindings and not any(
+                self._contract(p.component_revision).is_library for p in providers
+            ):
+                return None
+            node = self.tool_bindings[contract.language_compiler_identity.uri]
+            node.require_unchanged()
+            observed = self._run(
+                (
+                    *node.command,
+                    "-e",
+                    "process.stdout.write(JSON.stringify(require('node:module').builtinModules))",
+                ),
+                cwd=self.object_root,
+                providers=(),
+                binding=node,
+            )
+            node.require_unchanged()
+            if (
+                observed.returncode != 0
+                or observed.stderr
+                or len(observed.stdout.encode("utf-8")) > 65536
+            ):
+                raise ValueError("Node builtin namespace exceeds its bound")
+            names = json.loads(observed.stdout)
+            if (
+                not isinstance(names, list)
+                or not 1 <= len(names) <= 1024
+                or any(not isinstance(n, str) or len(n) > 128 for n in names)
+            ):
+                raise ValueError("Node builtin namespace unavailable")
+            builtins = frozenset(
+                n.removeprefix("node:").split("/", 1)[0] for n in names
+            )
+            imports = prepare_javascript_library_imports(
+                contract,
+                providers,
+                bindings,
+                self.contracts,
+                self.read_artifact_blob,
+                builtin_modules=builtins,
+            )
+            custody = self.source_trees.evidence(plan.request.source_tree_identity)
+            require_javascript_library_source_bom(imports, custody.source_bom_content)
+            return imports
+        except (KeyError, TypeError, ValueError, OSError) as exc:
+            raise LocalStandardLifecycleError(
+                "JavaScript library import authority unavailable"
+            ) from exc
+
     def _build_locked(
         self,
         plan: StandardComponentBuildPlan,
@@ -3617,12 +3695,17 @@ class LocalStandardLifecyclePorts:
         provider_materials = self._provider_materials(
             provider_artifacts, consumer_revision=plan.component_revision
         )
+        javascript_imports = self._javascript_library_imports(
+            plan, provider_artifacts, contract
+        )
         cache_key: dict[str, object] = {
             "schema": "literate-ai/local-standard-build-cache-key@2",
             "command_contract_identity": contract.identity.uri,
             "source_tree_identity": plan.request.source_tree_identity.uri,
             "provider_materials": provider_materials,
         }
+        if javascript_imports is not None:
+            cache_key["javascript_library_imports"] = javascript_imports.identity.uri
         if (
             self.shared_cache is not None
             and self.shared_cache.compiler_tool is not None
@@ -3683,6 +3766,19 @@ class LocalStandardLifecyclePorts:
                 )
                 if plan.materialization.native_sdk_input_identities:
                     self._require_sdk_build_authorized(plan)
+                if javascript_imports is not None:
+                    from literate_ai.adapters.lifecycle.javascript_libraries import (
+                        materialize_javascript_library_imports,
+                    )
+
+                    try:
+                        materialize_javascript_library_imports(
+                            javascript_imports, export_path
+                        )
+                    except (TypeError, ValueError, OSError) as exc:
+                        raise LocalStandardLifecycleError(
+                            "JavaScript library materialization refused"
+                        ) from exc
                 for declaration in plan.manifest.export_declarations:
                     _require_generated_export(
                         artifact_workspace / declaration.export_id

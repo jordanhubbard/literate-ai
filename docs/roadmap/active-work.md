@@ -201,6 +201,27 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
 - **GitHub issue:** [#377](https://github.com/NVIDIA-dev/literate-ai/issues/377)
       requires the library-specific verifier-owned oracle during `spec qualify`.
 - **Decision:** [ADR 0038](../decisions/0038-importable-library-artifact-authority.md)
+- **Follow-up issue:** [#447](https://github.com/jordanhubbard/literate-ai/issues/447)
+      identifies missing default JavaScript sealed-provider materialization. The earlier
+      checked language-wide materialization claim below is historical; generic
+      JavaScript consumer acceptance is not established by metadata-only bindings.
+      Implement and qualify the [bounded importer contract](../architecture/javascript-library-imports.md)
+      before treating that path as usable. No registry/checkout fallback is permitted.
+      The first ordinary installed-wheel consumer run reached real source admission
+      and correctly rejected the projection's reserved framework properties.
+      Move library declaration identities into project-owned metadata, retain the
+      existing forgery guard, and add real metadata-reconciliation coverage before
+      repeating the ordinary rebuild. Adapter fixtures alone did not cover this gate.
+      The corrected wheel then passed an ordinary generated consumer and 27 relocated
+      oracle cases with explicit generation/build edges, but downstream preparation
+      found that the JavaScript Flavor still requires built-ins only. Align and
+      version that authored policy and its skill before merge; runtime success
+      cannot waive a Flavor requirement. Preserve prior qualifications as historical
+      evidence and repeat qualification under the updated inherited authority.
+      Full qualification then correctly caught a stale shipped Flavor copy. Keep
+      the catalog and initialized-project Flavor, specification and JavaScript
+      skill byte-identical, and extend the existing copy-parity gate to those
+      policy files. A passing custom consumer does not qualify stale defaults.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out
