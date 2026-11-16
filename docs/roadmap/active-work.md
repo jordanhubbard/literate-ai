@@ -389,6 +389,10 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       version that authored policy and its skill before merge; runtime success
       cannot waive a Flavor requirement. Preserve prior qualifications as historical
       evidence and repeat qualification under the updated inherited authority.
+      Full qualification then correctly caught a stale shipped Flavor copy. Keep
+      the catalog and initialized-project Flavor, specification and JavaScript
+      skill byte-identical, and extend the existing copy-parity gate to those
+      policy files. A passing custom consumer does not qualify stale defaults.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out
