@@ -372,6 +372,12 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
 - **GitHub issue:** [#377](https://github.com/NVIDIA-dev/literate-ai/issues/377)
       requires the library-specific verifier-owned oracle during `spec qualify`.
 - **Decision:** [ADR 0038](../decisions/0038-importable-library-artifact-authority.md)
+- **Follow-up issue:** [#447](https://github.com/jordanhubbard/literate-ai/issues/447)
+      identifies missing default JavaScript sealed-provider materialization. The earlier
+      checked language-wide materialization claim below is historical; generic
+      JavaScript consumer acceptance is not established by metadata-only bindings.
+      Implement and qualify the [bounded importer contract](../architecture/javascript-library-imports.md)
+      before treating that path as usable. No registry/checkout fallback is permitted.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out

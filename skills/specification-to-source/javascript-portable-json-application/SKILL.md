@@ -5,7 +5,7 @@ metadata:
   author: "Literate AI maintainers <literate-ai-maintainers@users.noreply.github.com>"
 schema: "urn:literate-ai:schema:v1:specification-to-source-skill"
 skill_id: "javascript-portable-json-application"
-version: "1.4.10"
+version: "1.4.11"
 title: "JavaScript portable JSON application"
 stages:
   - "generate"
@@ -18,7 +18,7 @@ dependencies:
       algorithm: "sha256"
       digest: "0df5d4b45e8ff6a1e3b670add69e4897fd29bfdcd2e521275d602809e4704f5f"
 limitations:
-  - "Do not declare or depend on an npm package unless the `package-npm` Flavor is selected. Without that Flavor, use only Node.js built-in modules; with it, use only the exact package closure admitted by `javascript-ecosystem`."
+  - "Do not declare or depend on an npm package unless the `package-npm` Flavor is selected. Without that Flavor, use only Node.js built-in modules and the exact direct sealed-library mappings supplied by the lifecycle; with it, use only the exact package closure admitted by `javascript-ecosystem`. Never declare a sealed Component library as an npm dependency."
   - "Do not detect, install, or update Node.js, npm, package dependencies, or any other host tool during generation; tool discovery and dependency replay belong only to the authorized lifecycle."
   - "Do not use network access, standard input, a shell, eval, dynamic code loading, timers, locale-sensitive ordering, or operating-system-specific APIs."
   - "Do not emit logs or presentation text alongside the single JSON result on standard output."
@@ -29,7 +29,7 @@ trust: "repository-reviewed"
 ---
 # JavaScript portable JSON application
 
-Implement the selected JavaScript Flavor as direct, auditable JavaScript for Node.js 20 or newer. Without `package-npm`, use built-in modules only. With `package-npm`, use a package only when the exact manifest, complete matching lockfile, and CycloneDX source SBOM describe the same enumerated dependency closure and the authorized lifecycle admits that closure; never invent package or lockfile authority. Unless the Component declares a role-specific path, write the complete application to source/main.js and put the native generated-test implementation at source/tests/litai_test.js. Dispatch the Standard `--litai-test` and `--litai-smoke` modes before parsing exactly one UTF-8 JSON array containing the application arguments from process.argv[2]; keep the test implementation independent of source/tests/manifest.json. Validate every shape used by the specification, compute with deterministic integer and string semantics, and write exactly one JSON result to standard output. When a Component explicitly declares a multi-toolchain frontend role, honor its source path and CLI contract exactly; use child_process.spawnSync without a shell when that contract requires invoking a separately compiled backend, validate the backend exit status and JSON response, and keep application arguments distinct from infrastructure paths. Keep all ordering explicit before JSON.stringify and report exceptional failures only on standard error.
+Implement the selected JavaScript Flavor as direct, auditable JavaScript for Node.js 20 or newer. Without `package-npm`, use built-in modules and exact supplied direct sealed-library imports only. With `package-npm`, use a package only when the exact manifest, complete matching lockfile, and CycloneDX source SBOM describe the same enumerated dependency closure and the authorized lifecycle admits that closure; never invent package or lockfile authority. Unless the Component declares a role-specific path, write the complete application to source/main.js and put the native generated-test implementation at source/tests/litai_test.js. Dispatch the Standard `--litai-test` and `--litai-smoke` modes before parsing exactly one UTF-8 JSON array containing the application arguments from process.argv[2]; keep the test implementation independent of source/tests/manifest.json. Validate every shape used by the specification, compute with deterministic integer and string semantics, and write exactly one JSON result to standard output. When a Component explicitly declares a multi-toolchain frontend role, honor its source path and CLI contract exactly; use child_process.spawnSync without a shell when that contract requires invoking a separately compiled backend, validate the backend exit status and JSON response, and keep application arguments distinct from infrastructure paths. Keep all ordering explicit before JSON.stringify and report exceptional failures only on standard error.
 
 When a Component requires Unicode code-point ordering, do not use default `sort`, `<`,
 `>`, or `localeCompare`: JavaScript's relational/default-sort behavior compares UTF-16
@@ -48,3 +48,14 @@ specifier. Node resolves a bare specifier such as `main` or `litai_main_module` 
 `node_modules`, so it both fails at runtime for a dependency-free application and is
 reported as an undeclared external package by the dependency evidence the lifecycle
 requires before it will authorize a build.
+
+
+When exact direct JavaScript library mappings are supplied, preserve their normal
+bare package/module imports and the exact generic source-BOM declarations in the
+resolved prompt. Do not put these libraries in npm dependencies or lockfiles,
+create node_modules, copy implementation files or fabricate replacement modules.
+The lifecycle materializes the accepted sealed providers during the authorized
+build. Direct generation-time imports may therefore be unavailable; do not bypass
+them with stubs or declare tests passed. Actual generated native tests, smoke and
+independent acceptance must pass on the built artifact. The generation-time checks
+above remain required for compositions without those supplied library mappings.
