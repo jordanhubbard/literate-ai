@@ -5,7 +5,7 @@ metadata:
   author: "Literate AI maintainers <literate-ai-maintainers@users.noreply.github.com>"
 schema: "urn:literate-ai:schema:v1:specification-to-source-skill"
 skill_id: "javascript-portable-json-application"
-version: "1.4.11"
+version: "1.4.12"
 title: "JavaScript portable JSON application"
 stages:
   - "generate"
@@ -23,7 +23,7 @@ limitations:
   - "Do not use network access, standard input, a shell, eval, dynamic code loading, timers, locale-sensitive ordering, or operating-system-specific APIs."
   - "Do not emit logs or presentation text alongside the single JSON result on standard output."
   - "Do not embed acceptance-oracle values or special-case known invocation payloads."
-  - "Do not import a generated sibling file through a bare specifier such as `main` or `litai_main_module`. A bare specifier names an npm package and resolves from node_modules; every generated local module must be imported through an explicit relative path with its file extension, such as `./main.js` or `./tests/litai_test.js`."
+  - "Do not import a generated sibling file through a bare specifier such as `main` or `litai_main_module`. Bare package namespaces are permitted only for exact lifecycle-supplied sealed-library mappings or the separately admitted npm closure. Every generated local module must use an explicit relative path with its file extension, such as `./main.js` or `./tests/litai_test.js`."
   - "Do not complete generation after only a direct-source `--litai-test` when the deliverable is a single-file bundle; the bundled artifact must also pass `--litai-test` and `--litai-smoke` with non-empty JSON."
 trust: "repository-reviewed"
 ---

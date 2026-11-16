@@ -14,6 +14,14 @@ Reject missing/substituted/ambiguous bindings or package-name collisions before
 publishing an artifact. A package/module path must remain in its declared portable
 package namespace; never infer an ambient package from arbitrary text imports.
 
+The language Flavor and conversion skill both permit this bounded project-library
+path. A consumer explicitly declares generation and build dependencies: the first
+supplies interface knowledge and the second supplies sealed artifact authority.
+A generation-only edge does not implicitly become a build edge. The qualified
+ordinary fixture uses GENERATION plus BUILD; this does not qualify other adapter
+or edge combinations. Updated projects must reconcile their inherited Flavor and
+skill authority normally and relock before a new qualification.
+
 The lifecycle creates a fresh artifact-local node_modules package for each selected
 sealed provider. A closed package exports map exposes only the exact declared
 module paths. The complete original sealed provider directory is retained inside

@@ -383,6 +383,12 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       Move library declaration identities into project-owned metadata, retain the
       existing forgery guard, and add real metadata-reconciliation coverage before
       repeating the ordinary rebuild. Adapter fixtures alone did not cover this gate.
+      The corrected wheel then passed an ordinary generated consumer and 27 relocated
+      oracle cases with explicit generation/build edges, but downstream preparation
+      found that the JavaScript Flavor still requires built-ins only. Align and
+      version that authored policy and its skill before merge; runtime success
+      cannot waive a Flavor requirement. Preserve prior qualifications as historical
+      evidence and repeat qualification under the updated inherited authority.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out
