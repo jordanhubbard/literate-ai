@@ -704,6 +704,11 @@ def _project_root(selected: Path) -> Path:
         raise ProjectReleaseError(
             "release.project_not_found", "no literate.project.json found"
         )
+    if project.definition.framework_directory is not None:
+        raise ProjectReleaseError(
+            "release.native_profile_unsupported",
+            "The contained native profile keeps release execution with native tooling",
+        )
     return project.root
 
 

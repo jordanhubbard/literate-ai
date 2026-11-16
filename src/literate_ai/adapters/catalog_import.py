@@ -584,6 +584,17 @@ def catalog_copy(
     Copy catalog items from source_spec into dest_root, recording provenance.
     Returns a result dict suitable for CLI output.
     """
+    try:
+        destination = ProjectConfigurationStore(dest_root).read()
+    except ProjectError as exc:
+        raise CatalogImportError(
+            "catalog.import_destination_invalid", "destination project is invalid"
+        ) from exc
+    if destination.definition.framework_directory is not None:
+        raise CatalogImportError(
+            "catalog.native_profile_unsupported",
+            "The contained native profile does not admit catalog imports",
+        )
     items = [_parse_item_spec(s) for s in item_specs]
     paths = tuple(
         sorted(

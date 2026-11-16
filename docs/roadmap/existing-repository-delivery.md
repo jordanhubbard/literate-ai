@@ -48,7 +48,7 @@ coverage waiver, not a Windows pass.
 | Support and optional capabilities | Current native/GPU/SDK goals and RELEASE-COLLATERAL-001 | Revision-bound support cells; native adoption does not require generator/media setup; production deployment boundary is explicit. |
 
 The table combines execution ownership; it does not mark the listed goals
-complete. The current release's existing 75 goal records remain obligations until
+complete. The current release's existing 79 goal records remain obligations until
 their own terminal evidence or an explicit recorded disposition establishes
 otherwise. Add new obligations to the same manifest instead of inventing a
 second release-readiness authority.
@@ -112,6 +112,84 @@ drop platform/feature goals to manufacture a faster green release.
 
 ## Containment inventory and implementation boundary
 
+The current native implementation is a development checkpoint, not completion of
+PROJECT-LAYOUT-001 or ADOPT-CLI-001. The public minimal profile preserves a
+seven-file Python/Make fixture, its custom agent instructions and native GitHub
+workflow discovery. Its 15 repository additions are all under `litai/`; it neither
+executes a native build nor produces a release receipt. Explicit `--profile
+convert` retains the larger conversion path. The legacy compatibility cohort
+passed 38 tests in 66.126 seconds before the subsequent custody corrections;
+those corrections still require the full source and installed qualification.
+
+Independent review caught four real issues: snapshots dropped the observed
+directory identity, legacy and contained creators used different locks, lexical
+discovery followed a redirected framework path, and application-root catalog
+metadata could suppress a contained update. Corrections have 18 passing focused
+tests in 24.074 seconds. Two successive simulated template upgrades through the
+real CLI preserve a local overlay, and a conflicting edit preserves its file and
+baseline. This is controlled template behavior, not a released-wheel upgrade.
+
+Local child-process exits before and after exclusive bootstrap publication leave,
+respectively, unchanged application source or complete unqualified original
+authority. A competing bootstrap/legacy publication control has one winner.
+The initial synchronization fixture had a classmethod-binding error; the corrected
+race passed in 0.773 seconds. Before-publication crashes can retain a sibling
+temporary staging directory; orphan cleanup is still open. The first private-state reservation split on case aliases and configurable
+state roots. Its replacement uses the actual worktree Git administration
+directory and the existing manifest-lock protocol. Non-Git scaffold
+creation uses a transient root reservation. These transaction files are explicit
+coordination exceptions, not tracked application integration files. The POSIX manifest
+lock acquisition can block on another holder; it does not yet have the bounded
+wait described by the newer Windows retry path. Native publication with this
+correction still needs its final alias/concurrency qualification.
+
+Removal reuses committed Git before-images and index publication rather than a
+new deletion journal. The development CLI plans finite owned paths, preserves
+custom documents and unrelated staging, applies exact deletion patches, and
+removes the manifest in a separate final step. Both index and filesystem must
+confirm removal even when Git returns zero. Recovery requires the recorded full
+source commit and finite path set; it never guesses from history or restores
+worktree bytes. Unknown Git locks remain a native recovery prerequisite.
+
+Six public fixture tests passed in 39.778 seconds, including actual process exits
+before and after manifest deletion and fresh-process recovery. The initial
+three recovery cases failed because copied worktrees had stale Git stat caches;
+finite `git add --refresh` plus semantic index comparison corrected that without
+staging content. Seven subsequent tests passed in 49.838 seconds, adding parent
+directory custody and truthful already-absent result accounting. Independent
+review then identified changed authority metadata being treated like custom
+product documents; its refusal correction and negative control passed in an eight-case run
+(48.864 seconds). These local development runs do not establish installed or native
+Windows/Linux qualification. Runtime and custom files are retained; removal does
+not promise an empty directory or commit the staged deletions.
+
+The subsequent 31-case cohort passed in 133.329 seconds. Independent real-Git
+probes still found alternate-index bootstrap admission, a recovery index-restore
+race that discarded new staging, catalog copies outside containment, and legacy
+root release-policy selection. The corrected design refuses Git scope overrides,
+removes automatic index restoration, uses exact indexed deletion patches for
+already-missing files, and explicitly refuses optional catalog, parent and
+release owners until contained support exists. Those corrections require renewed
+review and qualification. A permission-fault recovery control passed in 12.210
+seconds after correcting test cleanup for a directory Git had already pruned.
+
+Native execution binding, migrations, optional external adapters, other implicit
+owners, and native Windows/Linux installed qualification remain acceptance
+obligations. The supported Git index inspection is bounded to 4 MiB; an oversized
+index refuses instead of claiming large-repository support. The complete current
+native-batch qualification is recorded in the current checkpoint below.
+
+The exact `d90d8704c26f7192224238727526e72a1f4eceb4` candidate separately passed
+wheel verification, offline installation and actual configured-model generation,
+local build/test/run using one identical wheel. The
+[candidate artifact record](../../verification/candidate-artifact-development.json)
+binds those results to wheel `sha256:2ef9e1dc02770185980f076d23014f6b26c8200c3694449ae61a24aa1da23e7a`.
+It does not qualify later worker/native changes or other target platforms. An
+initial live attempt refused an ambient CLI/configured-model mismatch after
+installation. Moving that inexpensive check before runtime creation now has a
+real subprocess negative control; a full installed requalification of that
+changed script is still required.
+
 The baseline has 146 direct project-manifest references in 60 Python modules;
 five release-policy references in four modules; eight worker-catalog references
 in eight modules; and 135 `.literate/` references in 43 modules. These are text
@@ -138,9 +216,52 @@ Discovery must distinguish a contained manifest from an independent repository
 whose name happens to be `litai`. Refuse dual manifests, redirected framework
 directories and stale location bindings. Merely returning the application parent
 from discovery would leave direct manifest, lineage and state readers inconsistent.
-The resolver and consuming owners must therefore land together with create,
-native adoption, update, migration and removal acceptance; this inventory does not
-enable partial contained discovery or change a real consumer.
+Each admitted profile must carry its resolver and consuming owners together.
+The initial native profile admits bootstrap, authority inspection, three-way
+policy update and committed removal; optional owners must refuse before work
+until their contained paths are qualified. Existing consumers keep the legacy
+layout until an explicit migration qualifies source preservation, upgrade,
+removal and evidence renewal. This phased boundary does not close the broader
+layout or adoption release goals.
+
+## Current native review checkpoint
+
+The [native development record](../../verification/native-adoption-development.json)
+binds independent approval of 51 exact authored subjects. Its final review also
+rechecked all 33 changed/untracked source modules against native and earlier
+main/worker approvals. A real `diff.noprefix` counterexample had redirected a
+patch toward an identically named application file; fixed diff prefixes, strict
+whitespace matching and finite apply inclusion now preserve application files in
+both index-plus-worktree and index-only removal. The latest 29 maintained removal
+and release controls pass in 68.027 seconds; two final independent controls pass
+in 9.770 seconds. Earlier failure records remain retained. Full source and
+installed/platform evidence are recorded separately; no layout or release goal
+is closed by this review alone.
+
+The fresh native source run selected 2,885 tests: 2,793 passed and 92 skipped in
+842.390 seconds. Driver, runner, documentation, lint, formatting, changed-skill,
+repository-layout and public-export gates passed. The earlier stopped run remains
+retained: a legacy release fixture omitted the typed project definition. Four
+corrected critical cases passed in 3.328 seconds without weakening the native
+release guard. The final run used a fresh checkpoint.
+
+An incremental independent review approved five additional harness/fixture files.
+Existing installed conversion scenarios now select `--profile convert` explicitly.
+The installed-wheel harness also exercises native bootstrap, unchanged update,
+native test pass/fail/repair, and committed removal preserving custom policy.
+Its development invocation preserved five application files and staged fourteen
+owned deletions. This is not yet an installed-wheel result, a released-version
+upgrade, a hosted native PR, or target-platform qualification. Those remain
+separate obligations.
+
+The first implementation PR's exact `43809001d` CI run `43922384703` passed eleven
+jobs with two named skips in 41m26s wall time. Its longest Linux job spent 27m19s
+in conformance and 12m35s in installed-wheel verification; queue/setup does not
+explain that critical path. Job spans sum to 79m43s and are not pure CPU usage.
+This ordinary PR profile is not comparable to the baseline's full qualification
+matrix. PR 450 contains every PR 449 commit and the reviewed worker follow-up;
+one combined landing avoids an intermediate main qualification run. The older
+passing head never substitutes for the combined head's checks.
 
 ## First implementation checkpoint
 

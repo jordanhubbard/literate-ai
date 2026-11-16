@@ -29,7 +29,9 @@ class PublishedReleaseIdentityTests(unittest.TestCase):
             root, remote = helper._initialize_with_default_branch(parent)
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root, definition=SimpleNamespace(framework_directory=None)
+                ),
             ):
                 plan = create_release_plan(
                     root, transition="patch", explicit_version=None
@@ -111,7 +113,9 @@ class PublishedReleaseIdentityTests(unittest.TestCase):
             root, remote = helper._initialize_with_default_branch(parent)
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root, definition=SimpleNamespace(framework_directory=None)
+                ),
             ):
                 plan = create_release_plan(
                     root, transition="patch", explicit_version=None

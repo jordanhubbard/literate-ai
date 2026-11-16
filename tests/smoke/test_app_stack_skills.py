@@ -8,6 +8,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 TEMPLATE_ROOT = REPO / "src" / "literate_ai" / "project_template"
 _STACK_SKILLS = (
+    "javascript-portable-json-application/SKILL.md",
     "mcp-application/SKILL.md",
     "mcp-application/webmcp/SKILL.md",
     "frontend-application/SKILL.md",
@@ -30,6 +31,7 @@ class AppStackSkillCatalogTests(unittest.TestCase):
             Path("skills", "specification-to-source", *skill.split("/"))
             for skill in _STACK_SKILLS
         ] + [Path("flavors", flavor, "flavor.md") for flavor in _STACK_FLAVORS]
+        relatives.append(Path("flavors/lang-javascript/openspec/spec.md"))
         for relative in relatives:
             with self.subTest(path=relative.as_posix()):
                 self.assertEqual(

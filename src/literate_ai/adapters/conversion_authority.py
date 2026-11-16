@@ -268,8 +268,10 @@ class FilesystemConversionAuthorityStore:
 
     def __init__(self, project_root: Path) -> None:
         self.root = Path(project_root).resolve(strict=True)
-        self.path = self.root.joinpath(*Path(CONVERSION_AUTHORITY_FILE).parts)
-        self.lock_path = self.root.joinpath(*Path(_CONVERSION_AUTHORITY_LOCK).parts)
+        context = ProjectConfigurationStore.context(self.root)
+        self.root = context.root
+        self.path = context.framework_path(CONVERSION_AUTHORITY_FILE)
+        self.lock_path = context.framework_path(_CONVERSION_AUTHORITY_LOCK)
 
     def load_optional(self) -> ConversionAuthorityState | None:
         if not self.path.exists() and not self.path.is_symlink():

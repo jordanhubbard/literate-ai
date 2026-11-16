@@ -252,7 +252,7 @@ def _authority_paths(project: LoadedProject) -> tuple[Path, ...]:
         project.agent_skill,
         ProjectConfigurationStore.manifest_path(project.root),
     }
-    lineage_root = project.root / ".literate"
+    lineage_root = project.framework_root / ".literate"
     if lineage_root.is_dir() and not lineage_root.is_symlink():
         paths.update(path for path in lineage_root.rglob("*") if path.is_file())
     if project.definition.test_receipt:

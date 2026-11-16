@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Existing repositories default to a contained native adoption profile under
+  `litai/`, preserving source, build tools, CI and custom instructions. Explicit
+  `--profile convert` retains conversion. Native policy updates use three-way
+  merging; committed removal preserves custom files and staging, binds exact Git
+  before-images and exposes recovery without automatic index restoration.
+  Catalog imports, reparenting and framework release execution remain unavailable
+  in this minimal profile; bootstrap does not establish execution qualification.
+- Reject incompatible installed live-model selection before creating a runtime
+  or installing a candidate; offline installation remains model-independent.
+
 - Managed SSH jobs require a fresh lease covering their execution deadline and
   configured cleanup waits. Release drains the recorded active attempt; explicit
   cancellation binds its exact attempt ID. Lost controllers retain outstanding
@@ -36,6 +46,9 @@
   elapsed intervals, overlapping child coverage and gaps without double-counting
   nested jobs or inventing durations for interrupted runs. Timing is diagnostic;
   source, artifact and receipt qualification requirements remain in force.
+- Materialize generic JavaScript direct-library imports from exact sealed provider
+  artifacts, with native Node export maps, truthful generic source-BOM declarations
+  and rejection of built-in or consumer-scope collisions (#447).
 
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test

@@ -766,7 +766,10 @@ class FilesystemProjectValidationAdapter:
             _error(exc, "project.invalid", "project structure is invalid")
         monorepo_components: dict[str, object] | None = None
         monorepo_installation = (
-            project.root / ".literate" / "monorepo-components" / "installation.json"
+            project.framework_root
+            / ".literate"
+            / "monorepo-components"
+            / "installation.json"
         )
         if monorepo_installation.exists() or monorepo_installation.is_symlink():
             from literate_ai.adapters.monorepo_adoption import MonorepoAdoptionError

@@ -27,6 +27,7 @@ from .project_updates import (
     ProjectUpdateError,
     _identity,
     _project_path,
+    _read_contract,
     _upstream_template,
 )
 
@@ -106,6 +107,23 @@ def apply_project_update(
             "project.update_plan_invalid", "apply requires a typed update plan"
         )
     root = Path(root).resolve()
+    from literate_ai.adapters.project_initialization import INITIALIZATION_BASELINE_FILE
+    from literate_ai.contracts import ProjectInitializationBaseline
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(root)
+    root = context.root
+    profile = "generated"
+    if context.framework_root != root:
+        baseline = _read_contract(
+            root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
+        )
+        if baseline.identity != plan.baseline_identity:
+            raise ProjectUpdateError(
+                "project.update_base_changed",
+                "initialization baseline changed; re-plan",
+            )
+        profile = baseline.profile
     from .update_merge import UpdateBases, resolution_content
 
     resolutions = resolutions or {}
@@ -131,8 +149,13 @@ def apply_project_update(
     adopting = update_adopts_additions(plan.files, explicit=adopt_added)
     selected = set(MECHANICAL) | (set(OPT_IN) if adopting else set())
 
-    upstream_content = _upstream_template(
-        {item.path for item in plan.files if item.baseline_identity is not None}
+    baseline_paths = {
+        item.path for item in plan.files if item.baseline_identity is not None
+    }
+    upstream_content = (
+        _upstream_template(baseline_paths, profile="native")
+        if profile == "native"
+        else _upstream_template(baseline_paths)
     )
     applied: list[str] = []
     adopted: list[str] = []

@@ -7,11 +7,15 @@ metadata:
 
 # Literate AI
 
-Treat specifications as application authority and generated source as replaceable
-derived output. The operator front door is `litai doctor`, then
+Preserve native source, build tools and CI for existing repositories. In a
+generation profile, specifications are authority and generated source is
+replaceable derived output. The operator front door is `litai doctor`, then
 `litai onboard create` for a new tree or `litai onboard adopt` for an existing
 tree. Inspect the read-only plan, apply only with acknowledgement, and use
-`litai status` for the next evidence-gated verb. The lower-level `litai init` and
+`litai status` for the next evidence-gated verb. Default native adoption keeps
+its framework metadata under `litai/` without moving source; conversion is the
+explicit `--profile convert` choice. Bootstrap metadata is not build or release
+qualification. The lower-level `litai init` and
 `litai init --convert` mutators remain available. Run `litai help` for flags,
 errors, and identity rules. Do not restate those in this file.
 
@@ -58,10 +62,11 @@ sent.
    changes parent authority. After an intentional non-editable framework-wheel upgrade,
    use the reviewed `litai project lifecycle rebind-standard` plan/apply flow before
    rebuild; never hand-edit or silently advance a Standard distribution pin during
-   update. `litai project validate` is the authority gate alone. `litai onboard`
-   calls the existing `litai init` / `litai init --convert` mutators after an
-   acknowledged, revalidated plan. Those mutators and `litai catalog copy` own their
-   selectors and fail-closed collisions. Treat the conversion report as the exact follow-up
+   update. `litai project validate` is the authority gate alone.
+   `litai onboard create` and `litai onboard adopt --profile convert` use the
+   existing initialization/conversion owners after an acknowledged, revalidated
+   plan. Minimal native adoption uses its contained bootstrap. The selected
+   owners and `litai catalog copy` retain their selectors and collision checks. Treat the conversion report as the exact follow-up
    queue; the initialized subset does not embed the framework-only conversion skill.
 3. Read the selected `component.md`, local behavioral documents, direct public
    interface contracts, and acceptance contract. `litai lock` and `litai plan` own

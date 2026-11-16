@@ -1,6 +1,6 @@
 ---
 name: convert-project
-description: Adopt an existing repository through the deterministic Literate AI conversion harness, including inspect-first readiness, quarantine, baseline, rollback, shim parity, lift-shift evidence, and explicit authority stages. Use `litai onboard adopt` before mutation and this skill to review its gates.
+description: Adopt an existing repository through the deterministic Literate AI conversion harness, including inspect-first readiness, quarantine, baseline, rollback, shim parity, lift-shift evidence, and explicit authority stages. Use only when source conversion is explicitly requested; ordinary native adoption does not activate this skill.
 metadata:
   author: Literate AI maintainers <literate-ai-maintainers@users.noreply.github.com>
 ---
@@ -15,13 +15,13 @@ the prompt or move `_legacy/` content manually.
 
 ## Route through the harness
 
-1. Run `litai onboard adopt PATH`. It writes nothing and reports detected
+1. Run `litai onboard adopt PATH --profile convert`. It writes nothing and reports detected
    languages, Flavors, drivers, stages, catalog gaps, CI classification, and one typed
    readiness state. If the project is already initialized, use `litai update` instead.
 2. Review the report. Resolve `blocked-missing-catalog` in framework authority before
    conversion. `blocked-no-driver` may proceed only as the harness documents; never
    invent a wrapper command. Record material gaps with `litai work record`.
-3. With authorization, rerun `litai onboard adopt PATH --apply --acknowledge`
+3. With authorization, rerun `litai onboard adopt PATH --profile convert --apply --acknowledge`
    (add `--run-baseline` only when
    the operator authorizes host-heavy stages). For a proven long-running harness, set
    `--baseline-timeout-seconds`; for an unusually verbose failure, set the bounded

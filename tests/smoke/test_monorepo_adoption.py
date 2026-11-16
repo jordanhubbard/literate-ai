@@ -108,6 +108,8 @@ class MonorepoAdoptionTests(unittest.TestCase):
             "main",
             "--root-plan",
             str(self.selection_file),
+            "--profile",
+            "convert",
         ]
         with (
             mock.patch(
@@ -189,6 +191,8 @@ class MonorepoAdoptionTests(unittest.TestCase):
             "--root-plan",
             str(self.selection_file),
             "--run-baseline",
+            "--profile",
+            "convert",
         ]
         initialized = {"schema": "literate-ai/project-initialization@6"}
         with (

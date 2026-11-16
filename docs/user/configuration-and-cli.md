@@ -22,6 +22,7 @@ important, and it is not an invariant against later combinable aliases.
 litai doctor
 litai onboard create
 litai onboard adopt
+litai onboard remove
 litai onboard orchestrate plan
 litai onboard orchestrate check
 litai onboard orchestrate initialize
@@ -519,7 +520,7 @@ root-integration acceptance still remain.
 | `doctor` | Inspect platform-resolved user paths, native host dependencies, and coding-CLI authentication without requiring a project or invoking a model. |
 | `status [--project PATH]` | Compose project authority, adopted conversion stage, Component locks, the current receipt, tracker state, host preflight, and the next operator verb in one versioned snapshot. |
 | `onboard create PATH [--from URL[#REVISION]] [--refine REQUEST] [--apply --acknowledge] [--expect-plan SHA256]` | Plan creation without writes, then revalidate and call the existing init mutator only after explicit acknowledgement. |
-| `onboard adopt PATH [--from URL[#REVISION]] [--root-plan SELECTION.json] [--run-baseline] [--apply --acknowledge] [--expect-plan SHA256]` | Plan brownfield conversion with detected Flavors, candidate build roots, quarantine entries and retained runners. Default adoption lands at `wrapped`; explicit multi-root selection is read-only pending per-Component materialization. |
+| `onboard adopt PATH [--profile native\|convert] [--default-branch BRANCH] [--apply --acknowledge] [--expect-plan SHA256]` | Default native adoption creates a contained `litai/` profile, preserving native source/build/CI and establishing no build qualification. Explicit `--profile convert` selects detected Flavors, quarantine and retained runners at `wrapped`; conversion-only options include `--from`, `--root-plan` and `--run-baseline`. |
 | `init [PATH] [--from URL[#REVISION]] [--repository-fetch-total-seconds N] [--repository-fetch-no-progress-seconds N] [--repository-fetch-connect-seconds N]` | Create a canonical project, optionally inheriting a complete repository ancestor DAG under an explicit bounded fetch policy. |
 | `graph [--format text\|json\|mermaid\|dot\|svg] [--output PATH] [--kind KIND] [--provenance PROJECT] [--ownership local\|inherited] [--inheritance inheritable\|private] [--edge-kind KIND]` | Solve effective repository/catalog authority, reject cycles, filter a closed view, and export the provenance DAG. Repeat kind, provenance, and edge-kind filters for unions. |
 | `update [PATH] [--apply] [--adopt-added] [--take-upstream PATH] [--keep-local PATH] [--repository-fetch-*-seconds N]` | Plan or safely apply inherited-catalog and framework-scaffold changes while preserving local authority and reporting the selected bounded fetch policy. Repeat resolution flags only for explicitly reviewed inherited-catalog paths. |
@@ -2277,7 +2278,7 @@ Video walkthrough:
 [Adopt an existing project](../courses/03-adopt-an-existing-project/03-adopt-an-existing-project.mp4)
 ([captions](../courses/03-adopt-an-existing-project/03-adopt-an-existing-project.vtt)).
 
-`litai onboard adopt PATH` reports `conversion.build_root_candidates`. A marker
+`litai onboard adopt PATH --profile convert` reports `conversion.build_root_candidates`. A marker
 such as `kit/repo.toml` is a candidate, not a selected Component or a proven
 independent build. The default continues to use one retained wrapper.
 
@@ -2311,7 +2312,7 @@ example a two-root repository with a shared directory:
 ```
 
 ```console
-litai onboard adopt PATH --root-plan SELECTION.json
+litai onboard adopt PATH --profile convert --root-plan SELECTION.json
 ```
 
 Adapt the example to the real files and commands. Every captured source file outside

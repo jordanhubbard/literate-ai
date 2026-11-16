@@ -131,7 +131,8 @@ class ProjectReleaseTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):
@@ -219,11 +220,12 @@ class ProjectReleaseTests(unittest.TestCase):
             strict = SimpleNamespace(
                 root=root,
                 definition=SimpleNamespace(
+                    framework_directory=None,
                     repository_policy=SimpleNamespace(
                         patch_authority="strict",
                         writers=("writer",),
                         release_engineer_source="README.md#release-engineers",
-                    )
+                    ),
                 ),
             )
             policy = replace(policy, provider_kind=None, provider_repository=None)
@@ -243,11 +245,12 @@ class ProjectReleaseTests(unittest.TestCase):
             loose = SimpleNamespace(
                 root=root,
                 definition=SimpleNamespace(
+                    framework_directory=None,
                     repository_policy=SimpleNamespace(
                         patch_authority="loose",
                         writers=("writer",),
                         release_engineer_source="README.md#release-engineers",
-                    )
+                    ),
                 ),
             )
             with patch(
@@ -335,7 +338,8 @@ class ProjectReleaseTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):
@@ -616,7 +620,10 @@ class ProjectReleaseTests(unittest.TestCase):
                 with (
                     patch(
                         "literate_ai.project_releases.discover_project",
-                        return_value=SimpleNamespace(root=root, definition=None),
+                        return_value=SimpleNamespace(
+                            root=root,
+                            definition=SimpleNamespace(framework_directory=None),
+                        ),
                     ),
                     patch.object(
                         project_releases,
@@ -674,7 +681,9 @@ class ProjectReleaseTests(unittest.TestCase):
                 self.git(root, "commit", "-m", "Later")
                 with patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root, definition=None),
+                    return_value=SimpleNamespace(
+                        root=root, definition=SimpleNamespace(framework_directory=None)
+                    ),
                 ):
                     loaded = project_releases.load_release_policy(root)[1]
                 with self.assertRaises(ProjectReleaseError) as stale:
@@ -739,7 +748,9 @@ class ProjectReleaseTests(unittest.TestCase):
             with (
                 patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root, definition=None),
+                    return_value=SimpleNamespace(
+                        root=root, definition=SimpleNamespace(framework_directory=None)
+                    ),
                 ),
                 patch.object(
                     project_releases, "_host_platform", return_value=("macos", "arm64")
@@ -774,7 +785,9 @@ class ProjectReleaseTests(unittest.TestCase):
         path = root / "_build/q.json"
         with patch(
             "literate_ai.project_releases.discover_project",
-            return_value=SimpleNamespace(root=root, definition=None),
+            return_value=SimpleNamespace(
+                root=root, definition=SimpleNamespace(framework_directory=None)
+            ),
         ):
             policy = project_releases.load_release_policy(root)[1]
         left = project_releases._left_tier_qualification
@@ -873,7 +886,9 @@ class ProjectReleaseTests(unittest.TestCase):
                 patch.dict(project_releases.os.environ, {"HOME": str(home)}),
                 patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root, definition=None),
+                    return_value=SimpleNamespace(
+                        root=root, definition=SimpleNamespace(framework_directory=None)
+                    ),
                 ),
                 patch.object(project_releases, "_host_platform", return_value=None),
                 patch.object(
@@ -937,7 +952,9 @@ class ProjectReleaseTests(unittest.TestCase):
                 patch.dict(project_releases.os.environ, {"HOME": str(home)}),
                 patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root, definition=None),
+                    return_value=SimpleNamespace(
+                        root=root, definition=SimpleNamespace(framework_directory=None)
+                    ),
                 ),
                 patch.object(project_releases, "_host_platform", return_value=None),
                 patch.object(
@@ -1017,7 +1034,8 @@ class ProjectReleaseTests(unittest.TestCase):
                     return_value=SimpleNamespace(
                         root=root,
                         definition=SimpleNamespace(
-                            repository_policy=SimpleNamespace(default_branch="main")
+                            framework_directory=None,
+                            repository_policy=SimpleNamespace(default_branch="main"),
                         ),
                     ),
                 ),
@@ -1119,7 +1137,8 @@ class ProjectReleaseTests(unittest.TestCase):
                     return_value=SimpleNamespace(
                         root=root,
                         definition=SimpleNamespace(
-                            repository_policy=SimpleNamespace(default_branch="main")
+                            framework_directory=None,
+                            repository_policy=SimpleNamespace(default_branch="main"),
                         ),
                     ),
                 ),
@@ -1187,7 +1206,8 @@ class ProjectReleaseTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):
@@ -1232,7 +1252,8 @@ class ProjectReleaseTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):
@@ -1280,7 +1301,8 @@ class ProjectReleaseTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):
@@ -1329,7 +1351,8 @@ class ProjectReleaseTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):
@@ -1396,7 +1419,8 @@ class ReleaseBackportTests(unittest.TestCase):
                 return_value=SimpleNamespace(
                     root=root,
                     definition=SimpleNamespace(
-                        repository_policy=SimpleNamespace(default_branch="main")
+                        framework_directory=None,
+                        repository_policy=SimpleNamespace(default_branch="main"),
                     ),
                 ),
             ):

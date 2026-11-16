@@ -1402,12 +1402,159 @@ def assert_installed_repository_refresh(litai: Path, root: Path) -> dict[str, ob
     }
 
 
+@_timed("scenario.installed_native_adoption")
+def assert_installed_native_adoption(
+    litai: Path, python: Path, root: Path
+) -> dict[str, object]:
+    """Exercise the contained profile without claiming a governed test receipt."""
+
+    project = root / "golden-native"
+    project.mkdir()
+    original = {
+        "app.py": b"def value():\n    return 4\n",
+        "tests/test_app.py": (
+            b"import unittest\nfrom app import value\n"
+            b"class App(unittest.TestCase):\n"
+            b"    def test_value(self): self.assertEqual(value(), 4)\n"
+        ),
+        "Makefile": b"check:\n\tpython3 -B -m unittest discover -s tests\n",
+        "AGENTS.md": b"Preserve these repository-owned instructions.\n",
+        ".github/workflows/native.yml": (
+            b"name: native\non: [push]\njobs:\n  test:\n"
+            b"    runs-on: ubuntu-latest\n    steps:\n"
+            b"      - uses: actions/checkout@v4\n      - run: make check\n"
+        ),
+    }
+    for relative, content in original.items():
+        path = project / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(content)
+    _fixture_git("init", "-b", "main", cwd=project)
+    _fixture_git("config", "user.name", "Native Fixture", cwd=project)
+    _fixture_git("config", "user.email", "native@example.invalid", cwd=project)
+    _fixture_git("add", ".", cwd=project)
+    _fixture_git("commit", "-m", "Native application", cwd=project)
+
+    def preserved() -> None:
+        for relative, content in original.items():
+            if (project / relative).read_bytes() != content:
+                raise RuntimeError(
+                    f"native adoption changed application file {relative}"
+                )
+        outside = {
+            path.relative_to(project).as_posix()
+            for path in project.rglob("*")
+            if path.is_file()
+            and path.relative_to(project).parts[0] not in {".git", "litai"}
+        }
+        if outside != set(original):
+            raise RuntimeError("native adoption wrote outside its framework directory")
+
+    arguments = ("onboard", "adopt", str(project), "--default-branch", "main")
+    plan = _installed_cli_result(litai, *arguments, cwd=root)
+    preserved()
+    if (
+        plan.get("writes") is not False
+        or plan.get("admitted") is not False
+        or plan.get("external_files") != []
+        or (project / "litai").exists()
+    ):
+        raise RuntimeError("native adoption plan wrote files or overstated admission")
+    applied = _installed_cli_result(
+        litai,
+        *arguments,
+        "--apply",
+        "--acknowledge",
+        "--expect-plan",
+        plan["plan_identity"],
+        cwd=root,
+    )
+    if applied.get("applied") is not True:
+        raise RuntimeError("installed native adoption was not applied")
+    _installed_cli_result(litai, "project", "validate", str(project), cwd=root)
+    status = _installed_cli_result(litai, "status", "--project", str(project), cwd=root)
+    if status.get("native_delivery", {}).get("state") != "bootstrap-only":
+        raise RuntimeError("installed native status overstated delivery qualification")
+    preserved()
+    before_update = {
+        path.relative_to(project).as_posix(): path.read_bytes()
+        for path in (project / "litai").rglob("*")
+        if path.is_file() and ".litai-locks" not in path.parts
+    }
+    _installed_cli_result(litai, "update", str(project), cwd=root)
+    _installed_cli_result(litai, "update", str(project), "--apply", cwd=root)
+    after_update = {
+        path.relative_to(project).as_posix(): path.read_bytes()
+        for path in (project / "litai").rglob("*")
+        if path.is_file() and ".litai-locks" not in path.parts
+    }
+    if before_update != after_update:
+        raise RuntimeError("unchanged installed native templates caused update churn")
+    preserved()
+    check = (str(python), "-B", "-m", "unittest", "discover", "-s", "tests")
+    run(*check, cwd=project)
+    (project / "app.py").write_bytes(b"def value():\n    return 5\n")
+    failed = subprocess.run(
+        check,
+        cwd=project,
+        env=_subprocess_environment(),
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    if failed.returncode == 0 or "FAIL: test_value" not in failed.stderr:
+        raise RuntimeError("native test did not catch the seeded application defect")
+    (project / "app.py").write_bytes(original["app.py"])
+    run(*check, cwd=project)
+    custom = project / "litai/docs/adoption.md"
+    custom_content = custom.read_bytes() + b"\nKeep this repository's review policy.\n"
+    custom.write_bytes(custom_content)
+    _fixture_git("add", "litai", cwd=project)
+    _fixture_git("commit", "-m", "Reviewed native adoption", cwd=project)
+    head = _fixture_git("rev-parse", "HEAD", cwd=project).stdout.strip()
+    removal = _installed_cli_result(litai, "onboard", "remove", str(project), cwd=root)
+    preserved()
+    if removal.get("retained", {}).get("litai/docs/adoption.md") != "customized":
+        raise RuntimeError("native removal did not retain customized policy")
+    removed = _installed_cli_result(
+        litai,
+        "onboard",
+        "remove",
+        str(project),
+        "--apply",
+        "--acknowledge",
+        "--expect-plan",
+        removal["plan_identity"],
+        cwd=root,
+    )
+    if (
+        removed.get("state") != "removed"
+        or removed.get("committed") is not False
+        or custom.read_bytes() != custom_content
+        or _fixture_git("rev-parse", "HEAD", cwd=project).stdout.strip() != head
+        or any((project / path).exists() for path in removal["selected"])
+        or set(removed["staged_deletions"]) != set(removal["selected"])
+    ):
+        raise RuntimeError("native removal changed custom content or missed deletions")
+    preserved()
+    return {
+        "profile": "native",
+        "state": "bootstrap-only",
+        "external_files": [],
+        "application_files_preserved": len(original),
+        "native_test": "pass-fail-pass",
+        "unchanged_update": "no-churn",
+        "removal": "staged-owned-deletions-custom-policy-preserved",
+    }
+
+
 @_timed("scenario.assert_installed_operator_golden_paths")
 def assert_installed_operator_golden_paths(
     litai: Path,
     root: Path,
     *,
     parent_source: str,
+    python: Path,
 ) -> dict[str, object]:
     """Prove create and adopt through only the release-candidate wheel CLI."""
 
@@ -1504,6 +1651,8 @@ def assert_installed_operator_golden_paths(
         "onboard",
         "adopt",
         str(adopted_project),
+        "--profile",
+        "convert",
         "--from",
         parent_source,
         "--default-branch",
@@ -1658,12 +1807,14 @@ def assert_installed_operator_golden_paths(
             "hello": True,
         },
         "adopt": {
+            "profile": "convert",
             "stage": retained["stage"],
             "release_authority": retained["release_authority"],
             "receipt": "current",
             "host_toolchain_resolved": True,
             "host_tools_ready": host_tools["ready"],
         },
+        "native_adopt": assert_installed_native_adoption(litai, python, root),
         "source": "release-candidate-wheel",
     }
 
@@ -2577,7 +2728,7 @@ def _main() -> int:
                 f"installed wheel reported unexpected version {version!r}"
             )
         operator_golden_paths = assert_installed_operator_golden_paths(
-            litai, root, parent_source=parent_source
+            litai, root, parent_source=parent_source, python=python
         )
         retained_catalog_discovery = {
             "qualified": False,

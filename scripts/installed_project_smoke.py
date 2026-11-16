@@ -633,6 +633,20 @@ def _main() -> int:
     arguments = parser.parse_args()
 
     repository = arguments.repository.resolve()
+    environment = dict(os.environ)
+    selection = None
+    if arguments.live:
+        # Invalid CLI/model pairs must refuse before wheel installation or any
+        # fixture work. Retain the resolved pair for this invocation.
+        try:
+            selection = resolve_live_test_selection(
+                coding_cli=arguments.coding_cli,
+                model=arguments.model,
+                environment=environment,
+                project_root=repository,
+            )
+        except CodingCliError as exc:
+            raise RuntimeError(f"{exc.code}: {exc.message}") from exc
     parent_source = f"{repository.as_uri()}#{_git(repository, 'rev-parse', 'HEAD')}"
     with _runtime_directory() as directory:
         root = Path(directory)
@@ -643,7 +657,6 @@ def _main() -> int:
         )
         launcher = Path(installed["launcher"])
         project = root / "project"
-        environment = dict(os.environ)
         environment["LITAI_NO_SELF_UPDATE"] = "1"
         environment["PATH"] = os.pathsep.join(
             (str(launcher.parent), environment.get("PATH", ""))
@@ -913,15 +926,7 @@ def _main() -> int:
 
         rebuilt: dict[str, object] | None = None
         if arguments.live:
-            try:
-                selection = resolve_live_test_selection(
-                    coding_cli=arguments.coding_cli,
-                    model=arguments.model,
-                    environment=environment,
-                    project_root=repository,
-                )
-            except CodingCliError as exc:
-                raise RuntimeError(f"{exc.code}: {exc.message}") from exc
+            assert selection is not None
             apply_live_test_selection(environment, selection)
             log_live_session_models(selection)
             rebuilt = _run(

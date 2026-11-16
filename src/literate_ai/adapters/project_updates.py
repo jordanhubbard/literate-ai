@@ -47,6 +47,7 @@ from literate_ai.documentation import (
 from literate_ai.projects import (
     PROJECT_FILENAME,
     LoadedProject,
+    ProjectConfigurationStore,
     ProjectError,
     discover_project,
 )
@@ -80,7 +81,9 @@ def _project_path(root: Path, relative: str) -> Path:
 
 
 def _read_contract(root: Path, relative: str, contract_type):
-    path = _project_path(root, relative)
+    path = _project_path(
+        ProjectConfigurationStore.context(root).framework_root, relative
+    )
     if not path.is_file():
         raise ProjectUpdateError(
             "project.update_evidence_unavailable",
@@ -146,6 +149,7 @@ def _local_identity(root: Path, relative: str) -> ContentIdentity | None:
 def _catalog_import_paths(root: Path) -> frozenset[str]:
     """Return destinations recorded as catalog-inherited, not template-scaffolded."""
 
+    root = ProjectConfigurationStore.context(root).framework_root
     imports_path = root / CatalogImportsFile.PATH
     if not imports_path.is_file():
         return frozenset()
@@ -283,7 +287,13 @@ def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
     )
 
 
-def _upstream_template(baseline_paths: set[str]) -> dict[str, bytes]:
+def _upstream_template(
+    baseline_paths: set[str], *, profile: str = "generated"
+) -> dict[str, bytes]:
+    if profile == "native":
+        from .native_project_bootstrap import native_template_files
+
+        return native_template_files()
     converted = LEGACY_LIFT_SHIFT_ADR in baseline_paths
     content = {
         destination: _template_text(resource).encode("utf-8")
@@ -503,16 +513,39 @@ class FilesystemProjectUpdateAdapter:
         bases = UpdateBases(root)
         baseline_by_path = {item.path: item.identity for item in baseline.files}
         baseline_by_path.update(bases.identities("framework"))
-        upstream_content = _upstream_template(set(baseline_by_path))
-        imported = _catalog_import_paths(root)
-        inherited = (
-            imported
-            | frozenset(bases.scopes["catalog"])
-            | _project_owned_generation_input_paths(project, imported)
-            | _retained_legacy_shim_authority_paths(root)
-            | self._protected_paths
-            | frozenset(self._catalog_overrides)
+        upstream_content = (
+            _upstream_template(set(baseline_by_path), profile="native")
+            if baseline.profile == "native"
+            else _upstream_template(set(baseline_by_path))
         )
+        if baseline.profile == "native":
+            imports_path = project.framework_root / CatalogImportsFile.PATH
+            if (
+                project.definition.framework_directory != "litai"
+                or any(not path.startswith("litai/") for path in baseline_by_path)
+                or imports_path.exists()
+                or imports_path.is_symlink()
+                or bases.scopes["catalog"]
+                or self._catalog_overrides
+            ):
+                raise ProjectUpdateError(
+                    "project.native_update_catalog_unsupported",
+                    "Minimal native updates require contained template ownership "
+                    "without catalog imports",
+                )
+            # Application-root legacy-looking metadata is application content.
+            # It grants no exclusions from the contained template policy.
+            inherited = self._protected_paths
+        else:
+            imported = _catalog_import_paths(root)
+            inherited = (
+                imported
+                | frozenset(bases.scopes["catalog"])
+                | _project_owned_generation_input_paths(project, imported)
+                | _retained_legacy_shim_authority_paths(root)
+                | self._protected_paths
+                | frozenset(self._catalog_overrides)
+            )
         # Catalog-imported paths are classified against the resolved parent catalog
         # by the lineage adapter. Comparing them here against the installed
         # init-template snapshot reports false conflicts (or would mechanically
