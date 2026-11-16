@@ -393,6 +393,13 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       the catalog and initialized-project Flavor, specification and JavaScript
       skill byte-identical, and extend the existing copy-parity gate to those
       policy files. A passing custom consumer does not qualify stale defaults.
+      Exact merged-main qualification at `e3ca4c78` subsequently exposed five
+      Windows importer failures: expected directory keys use native separators,
+      while scanned sealed-artifact keys use POSIX separators. The next importer
+      action is to normalize those expected keys without relaxing link/reparse,
+      file-mode, byte or namespace checks; add a Windows-path regression and
+      obtain full manual Windows qualification before landing the follow-up.
+      Existing POSIX and PR-only green results do not close this platform gate.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out

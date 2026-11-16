@@ -268,7 +268,7 @@ def _require_written_provider(
     expected = {item.path: item for item in files}
     directories = set()
     for name in expected:
-        directories.update(str(p) for p in Path(name).parents if str(p) != ".")
+        directories.update(p.as_posix() for p in Path(name).parents if str(p) != ".")
     seen = set()
     pending = [root]
     while pending:

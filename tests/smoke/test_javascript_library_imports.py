@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 import unittest
 from dataclasses import fields, replace
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from unittest.mock import patch
 
 from literate_ai.adapters.directory_artifacts import (
@@ -185,6 +185,37 @@ class JavaScriptLibraryImportTests(unittest.TestCase):
                 moved / "node_modules" / self.surface.package / "package.json"
             ).read_text(),
         )
+
+    def test_nested_provider_namespace_uses_portable_directory_keys(self):
+        imports = self.prepare()
+        names = {item.path for package in imports.packages for item in package.files}
+        self.assertTrue(any(len(PureWindowsPath(name).parts) > 2 for name in names))
+        root = self.artifact_root()
+
+        def host_path(value):
+            # Model Windows parsing only for portable archive-relative names.
+            # All materialized paths, IO, modes and confinement checks stay real.
+            return (
+                PureWindowsPath(value)
+                if isinstance(value, str) and value in names
+                else Path(value)
+            )
+
+        with patch(
+            "literate_ai.adapters.lifecycle.javascript_libraries.Path",
+            side_effect=host_path,
+        ):
+            materialize_javascript_library_imports(imports, root)
+        result = self.node(
+            root,
+            "process.stdout.write(String(require("
+            + json.dumps(self.import_name)
+            + ")["
+            + json.dumps(self.capability.symbols[0])
+            + "](2,3)));",
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout, "5")
 
     def test_undeclared_subpath_is_not_exposed(self):
         root = self.artifact_root()
