@@ -1306,6 +1306,64 @@ class GenerationRecipe:
                     "```",
                 ]
             )
+        javascript_libraries = {
+            item.provider_component_revision.uri
+            + ":"
+            + item.import_surface.identity.uri: item
+            for item in self.library_dependencies
+            if item.import_surface.language == "javascript"
+        }
+        if javascript_libraries:
+            from literate_ai.application.library_artifacts import (
+                javascript_library_source_component,
+            )
+
+            source_components = [
+                javascript_library_source_component(
+                    item.provider_component_revision, item.import_surface
+                )
+                for _, item in sorted(javascript_libraries.items())
+            ]
+            sections.extend(
+                [
+                    "",
+                    "### JavaScript sealed-library source BOM",
+                    "",
+                    "Add the exact generic library components below.",
+                    f"Source BOM: {CYCLONEDX_SOURCE_SBOM_PATH}",
+                    "and add each bom-ref to the root component's dependsOn list.",
+                    (
+                        "They describe exact provider revision/import authority"
+                        ", not npm packages"
+                    ),
+                    (
+                        "or final compiled artifact hashes. Do not add them to "
+                        "npm dependencies,"
+                    ),
+                    (
+                        "install packages, create node_modules, copy provider s"
+                        "ource, or invent stubs."
+                    ),
+                    (
+                        "The authorized build supplies artifact-local native im"
+                        "port mappings;"
+                    ),
+                    (
+                        "generation-time direct import checks may be unavailabl"
+                        "e until that build."
+                    ),
+                    (
+                        "Generated native tests and independent acceptance must"
+                        " still run on the"
+                    ),
+                    "actual sealed consumer artifact; do not simulate their results.",
+                    "```json",
+                    json.dumps(
+                        source_components, sort_keys=True, separators=(",", ":")
+                    ),
+                    "```",
+                ]
+            )
         if self.native_sdk_dependencies:
             sections.extend(
                 [

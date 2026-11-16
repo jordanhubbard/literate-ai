@@ -2,7 +2,7 @@
 schema: "literate-ai/flavor-markdown@1"
 namespace: "literate-ai"
 name: "lang-javascript"
-version: "1.0.0"
+version: "1.1.0"
 display_name: "Portable JavaScript on Node.js 20+"
 primary_axis: "implementation.language-ecosystem"
 target: "javascript"
