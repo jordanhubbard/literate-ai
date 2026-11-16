@@ -31,6 +31,9 @@
   elapsed intervals, overlapping child coverage and gaps without double-counting
   nested jobs or inventing durations for interrupted runs. Timing is diagnostic;
   source, artifact and receipt qualification requirements remain in force.
+- Materialize generic JavaScript direct-library imports from exact sealed provider
+  artifacts, with native Node export maps, truthful generic source-BOM declarations
+  and rejection of built-in or consumer-scope collisions (#447).
 
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test

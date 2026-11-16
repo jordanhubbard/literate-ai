@@ -112,3 +112,41 @@ def project_cpp_library_layout(
 
 
 __all__ = ["project_library_import_surface", "project_cpp_library_layout"]
+
+
+def javascript_library_source_component(
+    provider_revision: ContentIdentity, surface: LibraryImportSurface
+) -> dict[str, object]:
+    """Exact pre-generation source-BOM declaration; not artifact admission."""
+    if (
+        not isinstance(provider_revision, ContentIdentity)
+        or not isinstance(surface, LibraryImportSurface)
+        or surface.language != "javascript"
+    ):
+        raise ValueError(
+            "JavaScript source library declaration requires typed authority"
+        )
+    return {
+        "type": "library",
+        ("bom-ref"): (
+            f"urn:project:library-import:{provider_revision.digest}:"
+            f"{surface.identity.digest}"
+        ),
+        "name": surface.package,
+        "version": provider_revision.uri,
+        "purl": (
+            f"pkg:generic/project-library/{surface.package}@{provider_revision.digest}"
+        ),
+        "properties": [
+            {"name": "literate-ai:dependency-kind", "value": "package"},
+            {"name": "literate-ai:dependency-scope", "value": "runtime"},
+            {
+                "name": "project:library-provider-revision",
+                "value": provider_revision.uri,
+            },
+            {
+                "name": "project:library-import-surface",
+                "value": surface.identity.uri,
+            },
+        ],
+    }
