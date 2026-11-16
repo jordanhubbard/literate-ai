@@ -2,6 +2,36 @@
 
 ## Unreleased
 
+- Rerun checks when the project dependency authority cannot be resolved; a suite
+  name or unchanged test module alone no longer authorizes checkpoint reuse.
+
+- Prevent recursive Make dry-run, query and touch modes from recording unexecuted
+  release gates as successful or clearing retained repair progress.
+
+- Share one exact qualified wheel across release installation checks, with immutable
+  candidate selection, source/version/origin checks and staged byte verification.
+  Preserve independent source installation and all installed behavior checks.
+
+- `release-check` refuses stale driver, runner and documentation review before starting expensive
+  qualification; its later driver check and clean release rerun rule remain intact.
+- Recorded dynamic workers support explicit lease lookup and acknowledged,
+  idempotent release through an optional private management command. Lost replies
+  retain recovery intent; changed registrations and static workers are preserved.
+
+- Optional contribution roadmap manifests now round-trip without weakening required
+  milestone, unknown-field or path validation (upstream PR 442, issue 441).
+- Export checks preserve their denied-reference coverage while avoiding repeated
+  scanning of long suffix-free inputs (upstream PR 428, issue 427).
+- Windows process cleanup avoids redundant `taskkill` after confirmed Job Object
+  termination; uncertain ownership still uses fallback cleanup (upstream PR 428,
+  issue 426).
+
+- Release evidence now times artifact qualification and final receipt validation.
+  `litai release evidence timing` reads the latest ledger records and reports
+  elapsed intervals, overlapping child coverage and gaps without double-counting
+  nested jobs or inventing durations for interrupted runs. Timing is diagnostic;
+  source, artifact and receipt qualification requirements remain in force.
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.

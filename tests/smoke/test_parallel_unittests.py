@@ -13,10 +13,15 @@ import textwrap
 import time
 import unittest
 import uuid
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
+from literate_ai.adapters.project_lifecycle_driver import (
+    lifecycle_driver_implementation_identity,
+)
 from literate_ai.parallel_unittests import available_workers
+from literate_ai.projects import LoadedProject, ProjectConfigurationStore
 
 SOURCE = Path(__file__).resolve().parents[2] / "src"
 
@@ -122,7 +127,57 @@ class ParallelUnittestTests(unittest.TestCase):
         result = self.run_suite()
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def _declare_checkpoint_authority(self) -> None:
+        source = ProjectConfigurationStore(SOURCE.parent).read().definition
+        (self.root / "driver.py").write_text("# Immutable fixture driver authority.\n")
+        (self.root / "SKILL.md").write_text(
+            "---\nname: checkpoint-fixture\n"
+            "description: Exercise parallel checkpoints.\n---\n"
+        )
+        (self.root / "docs").mkdir()
+        driver = replace(source.lifecycle_driver, implementation_paths=("driver.py",))
+        definition = replace(
+            source,
+            project_id="checkpoint-fixture",
+            agent_skill="SKILL.md",
+            component_roots=(),
+            flavor_roots=(),
+            skill_roots=(),
+            workflow_roots=(),
+            routing_roots=(),
+            mcp_roots=(),
+            documentation_roots=("docs",),
+            test_receipt=None,
+            test_receipt_policy=None,
+            default_flavor_selectors=(),
+            component_flavor_selectors={},
+            lifecycle_driver=driver,
+        )
+        identity = lifecycle_driver_implementation_identity(
+            LoadedProject(self.root.resolve(), definition), driver
+        )
+        ProjectConfigurationStore(self.root).create(
+            replace(
+                definition,
+                lifecycle_driver=replace(driver, implementation_identity=identity),
+            )
+        )
+
     def test_fail_fast_and_repair_out_of_order(self) -> None:
+        base = self.root
+        for declared in (True, False):
+            with self.subTest(declared_authority=declared):
+                self.root = base / ("declared" if declared else "unmanaged")
+                self.root.mkdir()
+                self.state, self.report = (
+                    self.root / "state.json",
+                    self.root / "report.json",
+                )
+                if declared:
+                    self._declare_checkpoint_authority()
+                self._repair_out_of_order(declared)
+
+    def _repair_out_of_order(self, declared: bool) -> None:
         self.module(
             "a",
             """
@@ -154,13 +209,16 @@ class ParallelUnittestTests(unittest.TestCase):
         self.assertEqual(first.returncode, 1, first.stderr)
         (self.root / "fixed").touch()
         repair = self.run_suite()
-        self.assertEqual(repair.returncode, 2, repair.stderr)
-        self.assertEqual((self.root / "a.executions").read_text(), "a\n")
+        self.assertEqual(repair.returncode, 2 if declared else 0, repair.stderr)
+        executions = 1 if declared else 2
+        self.assertEqual((self.root / "a.executions").read_text(), "a\n" * executions)
         self.assertEqual(json.loads(self.report.read_text())["summary"]["skipped"], 1)
-        self.assertEqual((self.root / "executions").read_text(), "b\n")
+        self.assertEqual((self.root / "executions").read_text(), "b\n" * executions)
         fresh = self.run_suite()
         self.assertEqual(fresh.returncode, 0, fresh.stderr)
-        self.assertEqual((self.root / "executions").read_text(), "b\nb\n")
+        self.assertEqual(
+            (self.root / "executions").read_text(), "b\n" * (executions + 1)
+        )
 
     def test_worker_crash_is_nonpassing_and_does_not_reuse_partial_module(self) -> None:
         self.module(
@@ -341,6 +399,20 @@ raise SystemExit(run_unittest_suite(unittest.TestSuite([test, test]),
     def test_known_failures_context_and_release_evidence_keep_their_semantics(
         self,
     ) -> None:
+        base = self.root
+        for declared in (True, False):
+            with self.subTest(declared_authority=declared):
+                self.root = base / ("declared" if declared else "unmanaged")
+                self.root.mkdir()
+                self.state, self.report = (
+                    self.root / "state.json",
+                    self.root / "report.json",
+                )
+                if declared:
+                    self._declare_checkpoint_authority()
+                self._known_failure_semantics(declared)
+
+    def _known_failure_semantics(self, declared: bool) -> None:
         from literate_ai.contracts.identity import ContentIdentity, canonical_identity
         from literate_ai.contracts.known_test_failures import (
             KnownTestFailureAnnotation,
@@ -387,9 +459,12 @@ raise SystemExit(run_unittest_suite(unittest.TestSuite([test, test]),
         result = self.run_suite(extra=arguments)
         self.assertEqual(result.returncode, 1, result.stderr)
         self.assertEqual(
-            json.loads(self.report.read_text())["summary"]["known_failed"], 1
+            json.loads(self.report.read_text())["summary"]["known_failed"],
+            1 if declared else 0,
         )
-        self.assertEqual((self.root / "executions").read_text(), "once\n")
+        self.assertEqual(
+            (self.root / "executions").read_text(), "once\n" * (1 if declared else 2)
+        )
         result = self.run_suite(
             extra=("--context-identity", canonical_identity({"worker": "b"}).uri)
         )
@@ -401,7 +476,9 @@ raise SystemExit(run_unittest_suite(unittest.TestSuite([test, test]),
         result = self.run_suite(extra=(*arguments, "--release-evidence"))
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(self.report.read_text())["summary"]["passed"], 1)
-        self.assertEqual((self.root / "executions").read_text(), "once\nonce\nonce\n")
+        self.assertEqual(
+            (self.root / "executions").read_text(), "once\n" * (3 if declared else 4)
+        )
 
     def test_windows_gate_exposes_parallel_fail_fast_and_serial_debugging(self) -> None:
         from scripts import windows_release_gate as gate

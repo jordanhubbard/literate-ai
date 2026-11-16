@@ -11,6 +11,22 @@ from scripts.summarize_release_roadmap import summarize
 
 
 class ReleaseRoadmapSummaryTests(unittest.TestCase):
+    def test_duplicate_owner_cannot_hide_in_another_release_or_untargeted_section(self):
+        current = "### [ ] AUD-ONE — current\n- **Release target:** 1.4.0\n"
+        for target in ("", "- **Release target:** 1.1.0\n"):
+            historical = "### [x] AUD-ONE — historical\n" + target
+            for content in (current + historical, historical + current):
+                with self.subTest(content=content):
+                    with self.assertRaisesRegex(ValueError, "duplicate.*AUD-ONE"):
+                        summarize(content, "1.4.0")
+        # Examples do not create queue owners.
+        self.assertEqual(
+            len(
+                summarize(current + f"\n```markdown\n{current}```\n", "1.4.0")["items"]
+            ),
+            1,
+        )
+
     def test_full_integration_refuses_untargeted_open_or_partial_items(self) -> None:
         for state in (" ", "~"):
             for target in ("", "- **Release target:** 1.10.0\n"):

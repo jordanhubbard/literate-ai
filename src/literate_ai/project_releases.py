@@ -171,7 +171,8 @@ class ReleaseContributionsPolicy:
     @classmethod
     def from_dict(cls, value: object, *, path: str) -> ReleaseContributionsPolicy:
         data = _mapping(value, path)
-        _keys(data, path, {"current_milestone", "roadmap_goal_manifest"})
+        manifest_raw = data.pop("roadmap_goal_manifest", None)
+        _keys(data, path, {"current_milestone"})
         milestone = _string(data["current_milestone"], f"{path}.current_milestone")
         remainder = milestone.replace("{version}", "")
         if milestone.count("{version}") > 1 or "{" in remainder or "}" in remainder:
@@ -179,7 +180,6 @@ class ReleaseContributionsPolicy:
                 f"{path}.current_milestone",
                 "must be a literal milestone or contain one {version} placeholder",
             )
-        manifest_raw = data.get("roadmap_goal_manifest")
         manifest = (
             None
             if manifest_raw is None
@@ -3853,8 +3853,30 @@ def _check_release(
             gate["stdout_path"] = f"{gate_node_id}/stdout.log"
             gate["stderr_path"] = f"{gate_node_id}/stderr.log"
         target_evidence = {"kind": "legacy-local"}
-    artifacts = _qualify_release_files(root, policy, snapshot, version)
-    authenticated_receipt = _require_authenticated_release_receipt(root, policy)
+    artifact_context = (
+        evidence_run.node(
+            "release/artifacts",
+            operation="release.artifacts",
+            parent=evidence_node.node_id if evidence_node else None,
+            pins={"revision": snapshot["head"], "version": version},
+        )
+        if evidence_run is not None and policy.artifact_gate is not None
+        else nullcontext()
+    )
+    with artifact_context:
+        artifacts = _qualify_release_files(root, policy, snapshot, version)
+    receipt_context = (
+        evidence_run.node(
+            "release/receipt",
+            operation="release.receipt",
+            parent=evidence_node.node_id if evidence_node else None,
+            pins={"revision": snapshot["head"]},
+        )
+        if evidence_run is not None
+        else nullcontext()
+    )
+    with receipt_context:
+        authenticated_receipt = _require_authenticated_release_receipt(root, policy)
     result: dict[str, object] = {
         "schema": LEGACY_PREPARED_RELEASE_SCHEMA,
         "plan_identity": plan["identity"],

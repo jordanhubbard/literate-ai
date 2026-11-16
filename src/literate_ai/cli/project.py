@@ -1101,7 +1101,17 @@ def documentation_review_from_args(args) -> dict[str, Any]:
     try:
         selected = Path(args.path)
         if not getattr(args, "record", False):
-            return FilesystemProjectValidationAdapter().documentation_review(selected)
+            review = FilesystemProjectValidationAdapter().documentation_review(selected)
+            if (
+                getattr(args, "require_current", False)
+                and review.get("state") != "current"
+            ):
+                raise CliFailure(
+                    "project.documentation_authority_review_stale",
+                    "Documentation authority is not current; review the changes and "
+                    "record them with project documentation-review --record.",
+                )
+            return review
         return record_project_authority_review(selected)
     except ProjectInitializationError as exc:
         raise CliFailure(exc.code, exc.message) from exc

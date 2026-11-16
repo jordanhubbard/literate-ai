@@ -621,6 +621,10 @@
             "maxLength": 4096,
             "pattern": "^[^\\x00\\r\\n]+$"
           }
+        },
+        "provisioning_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
         }
       },
       "allOf": [
@@ -734,6 +738,20 @@
               },
               "lifecycle_executable": {
                 "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "provisioning_identity"
+            ]
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "ssh"
               }
             }
           }

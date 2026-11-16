@@ -76,6 +76,7 @@ litai release rc
 litai release state
 litai release state set
 litai release evidence explain
+litai release evidence timing --run RUN_ID
 litai release evidence index
 litai release evidence show
 litai release evidence prune
@@ -162,7 +163,9 @@ litai worker provisioner command-help
 litai worker provisioner configure
 litai worker provisioner disable
 litai worker provisioner enable
+litai worker provisioner observe
 litai worker provisioner recover
+litai worker provisioner release
 litai worker provisioner remove
 litai worker provisioner show
 litai worker provisioner status
@@ -564,7 +567,7 @@ root-integration acceptance still remain.
 | `project source-intelligence sync [PATH] [--binary COMMAND]` | Synchronize and verify the bounded project-local artifact for an explicitly configured external provider. |
 | `project source-intelligence check [PATH] [--binary COMMAND]` | Verify the configured external provider, current source binding, and project-local artifact without changing the project. |
 | `project documentation-update [PATH] [--apply --allow-model-egress] [--model MODEL]` | Produce a deterministic, read-only documentation-drift plan by default; with both explicit authorizations, request bounded documentation-only replacements from the selected coding CLI. |
-| `project documentation-review [PATH] [--record]` | Calculate the exact marker for the current reviewed authority and documentation graph; `--record` atomically replaces the one existing marker and verifies it became current. |
+| `project documentation-review [PATH] [--record] [--require-current]` | Calculate the exact marker for the current reviewed authority and documentation graph; `--record` atomically replaces the one existing marker and verifies it became current. `--require-current` refuses a stale or missing review and is used by the Make gate. |
 | `project agent-entrypoints [PATH]` | Audit owned coding-agent delegates against the declared onboarding skill without writes; exit 1 reports missing, stale or unsafe entries requiring reviewed authored repair. |
 | `project parent-readme [PATH] [--apply] [--browser-url REPOSITORY=URL]` | Plan or reconcile root README links to validated direct parents using the installed framework runtime; preserve authored content and require explicit browser identity for local-only parents. |
 | `spec scxml-review CHART [--trace SIDECAR ...]` | Read-only bounded structural validation and supported-subset trace replay for one exact SCXML 1.0 chart and its explicit JSON sidecars. |
@@ -2721,8 +2724,68 @@ Registration conflicts preserve the existing worker. Timeouts, invalid responses
 and interrupted operations remain uncertain; inspect the provider using the saved
 request identity before taking manual recovery action. Removing a registration or
 provisioner configuration does not delete allocation records or remote machines.
-This hook is explicit on-demand provisioning; automatic scheduling and provider
-resource deletion remain separate work under `WORKER-001`.
+This hook is explicit on-demand provisioning. Automatic scheduling remains separate
+work under `WORKER-001`.
+
+For provider lookup and resource release, configure an optional separate
+`management_command` argument array **before allocating**. It receives only the
+versioned lease protocol; the framework never calls the allocation command for
+lookup or cleanup. The original configuration identity binds the command and
+credential bindings. Disabling allocation preserves explicit management access;
+changing the provider configuration refuses management of old records until their
+ownership is reconciled. Existing configurations without this field keep their
+existing serialization and manual provider recovery behavior.
+
+Managed registrations carry a `provisioning_identity` binding the original request,
+provider configuration and lease ID. A static registration with identical connection
+details lacks that binding and cannot be removed as though it were the allocation.
+This is registration ownership, not independent proof of a provider instance.
+
+```sh
+litai worker provisioner observe new-linux
+litai worker provisioner recover new-linux
+litai worker provisioner release new-linux --acknowledge
+litai worker provisioner release new-linux --expired-only --acknowledge
+```
+
+`observe` asks the provider about the exact saved allocation request. A ready reply
+must identify the same worker, requirements and lease, and include a UTC expiry.
+The response can recover a lost allocation reply without allocating a second
+worker; `recover` then explicitly registers it. An observed pending, absent or
+expired worker loses only its still-matching registration. An unfinished lookup,
+expired observation or release intent cannot authorize recovery. Observation is
+read-only at the provider but updates the local journal and may remove an invalid
+registration. `status` remains a local read without a provider call.
+
+`release` requires acknowledgement and removes the exact owned registration before
+asking the provider to release it. The request is durably saved first. A timeout,
+crash or pending provider reply leaves `releasing`; repeat the command to use the
+same idempotency key. A completed release retains a tombstone and never allocates
+again under that worker ID. Lookup after a failed release preserves that release
+intent. `--expired-only` requires an observed expiry in the past before the first
+release attempt. A changed registration, unrelated static worker or changed
+provider configuration is never deleted by this operation. Coordinate release
+with active jobs; this command does not drain them or collect their artifacts.
+
+The lease request schema is `urn:literate-ai:schema:v1:worker-lease-request`:
+`operation` (`observe` or `release`), fresh observation `nonce`,
+`provision_request_identity`, original `request_id`, `worker_id` and known
+`lease_id` (otherwise null). Release retries preserve their original nonce and
+complete request. Replies use `urn:literate-ai:schema:v1:worker-lease-response`
+with the exact management `request_identity`, `status`, `provision_response` and
+`expires_at`. A `ready` observation carries a validated original provision response
+and an ISO UTC timestamp ending in `Z`. Other states carry null response and
+expiry. `pending` and `absent` observations grant no registration or reallocation
+authority. A release reply must be `pending` or `released`; `released` means the
+provider has terminated the recorded lease or cancelled its pending allocation
+intent. The provider must enforce request idempotency and must not create a new
+resource while handling either operation. Process and stream limits are the same
+as allocation. Provider responses do not establish native hardware qualification.
+
+This explicit management surface does not yet establish automatic expiry-aware
+dispatch, background reaping, job drainage or provider-enforced expiration. Those
+remain required lifecycle acceptance. No live provider cleanup is implied by the
+local fixture tests.
 
 For retained secondary-identity execution, the development contract also accepts
 an optional `inspection_command` argument array. Omit it to preserve existing

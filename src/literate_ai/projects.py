@@ -196,7 +196,23 @@ class ProjectConfigurationStore:
 
     @property
     def path(self) -> Path:
-        return self.root / PROJECT_FILENAME
+        return self.manifest_path(self.root)
+
+    @staticmethod
+    def manifest_path(root: Path) -> Path:
+        """Locate configuration without rebasing application-relative paths.
+
+        Readers, custody checks and storage must share this owner. Contained
+        storage will be enabled with its migration and discovery contract;
+        legacy projects currently retain their existing coordinates.
+        """
+        return Path(root) / PROJECT_FILENAME
+
+    @classmethod
+    def lock_path(cls, root: Path) -> Path:
+        """Use the same manifest coordinate for writers and reservations."""
+        manifest = cls.manifest_path(root)
+        return manifest.with_name(f".{manifest.name}.write.lock")
 
     def _root(self, *, create: bool = False) -> Path:
         if create:
@@ -213,7 +229,7 @@ class ProjectConfigurationStore:
 
     def read(self) -> ProjectConfigurationSnapshot:
         root = self._root()
-        path = root / PROJECT_FILENAME
+        path = self.manifest_path(root)
         content = self._read_manifest(path)
         parses = _PROJECT_CONFIGURATION_PARSES.get()
         return ProjectConfigurationSnapshot(
@@ -232,7 +248,7 @@ class ProjectConfigurationStore:
             resolved = Path(start).resolve()
         candidate = resolved.parent if resolved.is_file() else resolved
         for root in (candidate, *candidate.parents):
-            path = root / PROJECT_FILENAME
+            path = cls.manifest_path(root)
             if path.is_file() and not path.is_symlink():
                 return cls(root).read()
         return None
@@ -242,7 +258,7 @@ class ProjectConfigurationStore:
         self._require_bounded(content)
         root = self._root(create=True)
         with self._lock(root):
-            path = root / PROJECT_FILENAME
+            path = self.manifest_path(root)
             if path.exists() or path.is_symlink():
                 raise ProjectError(
                     "project.manifest_exists", "project manifest already exists"
@@ -265,7 +281,7 @@ class ProjectConfigurationStore:
                 "project.manifest_stale", "project snapshot belongs to another root"
             )
         with self._lock(root):
-            path = root / PROJECT_FILENAME
+            path = self.manifest_path(root)
             current = self._read_manifest(path)
             if current != expected.content:
                 raise ProjectError(
@@ -432,7 +448,7 @@ class ProjectConfigurationStore:
 
     @contextmanager
     def _lock(self, root: Path) -> Iterator[None]:
-        path = root / f".{PROJECT_FILENAME}.write.lock"
+        path = self.lock_path(root)
         descriptor = -1
         locked = False
         opened: os.stat_result | None = None

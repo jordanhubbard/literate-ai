@@ -2131,6 +2131,11 @@ def _parser() -> JsonArgumentParser:
     project_documentation_review = project_commands.add_parser("documentation-review")
     project_documentation_review.add_argument("path", nargs="?", default=".")
     project_documentation_review.add_argument(
+        "--require-current",
+        action="store_true",
+        help="fail if the reviewed documentation authority is not current",
+    )
+    project_documentation_review.add_argument(
         "--record",
         action="store_true",
         help="atomically record the exact validated authority-review marker",

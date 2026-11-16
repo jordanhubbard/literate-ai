@@ -37,6 +37,9 @@ def summarize(
         end = headings[index + 1].start() if index + 1 < len(headings) else len(content)
         section = content[heading.end() : end]
         state, work_id, title = heading.groups()
+        if work_id in seen:
+            raise ValueError(f"duplicate release work item: {work_id}")
+        seen.add(work_id)
         remaining = re.findall(r"^\s+- \[[ ~]\] (.+)$", section, re.M)
         if target.search(section) is None:
             if require_all_open_targeted and (state != "x" or remaining):
@@ -44,9 +47,6 @@ def summarize(
                     f"unresolved item is not targeted to {line}: {work_id}"
                 )
             continue
-        if work_id in seen:
-            raise ValueError(f"duplicate release work item: {work_id}")
-        seen.add(work_id)
         if state == "x" and remaining:
             raise ValueError(f"closed item has unchecked acceptance: {work_id}")
         items.append(

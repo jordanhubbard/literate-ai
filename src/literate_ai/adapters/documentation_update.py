@@ -18,7 +18,12 @@ from literate_ai.application.project_authority import (
     AUTHORITY_REVIEW_MARKER,
     AUTHORITY_REVIEW_PLACEHOLDER,
 )
-from literate_ai.projects import LoadedProject, documentation_files, documentation_paths
+from literate_ai.projects import (
+    LoadedProject,
+    ProjectConfigurationStore,
+    documentation_files,
+    documentation_paths,
+)
 
 DOCUMENTATION_UPDATE_SCHEMA = "literate-ai/documentation-update@1"
 DOCUMENTATION_UPDATE_PROPOSAL_SCHEMA = "literate-ai/documentation-update-proposal@1"
@@ -245,7 +250,7 @@ def plan_documentation_update(
 def _authority_paths(project: LoadedProject) -> tuple[Path, ...]:
     paths: set[Path] = {
         project.agent_skill,
-        project.root / "literate.project.json",
+        ProjectConfigurationStore.manifest_path(project.root),
     }
     lineage_root = project.root / ".literate"
     if lineage_root.is_dir() and not lineage_root.is_symlink():

@@ -19,7 +19,7 @@ from literate_ai.contracts import (
     ExecutionWorker,
     ExecutionWorkerKind,
 )
-from literate_ai.evidence_ledger import load_run
+from literate_ai.evidence_ledger import latest_run, load_run
 from literate_ai.project_releases import (
     PREPARED_RELEASE_SCHEMA,
     PUBLISHED_VERIFICATION_SCHEMA,
@@ -401,6 +401,7 @@ class ProjectReleaseTests(unittest.TestCase):
                     {
                         "release",
                         "release/gate",
+                        "release/receipt",
                         "release/target/local",
                         "release/target/github",
                     },
@@ -1031,8 +1032,37 @@ class ProjectReleaseTests(unittest.TestCase):
                 self.git(root, "add", "project.json", "version.py", "CHANGELOG.md")
                 self.git(root, "commit", "-m", "Prepare 1.2.4")
                 prepared_path = parent / "prepared.json"
+                with patch(
+                    "literate_ai.project_releases._qualify_release_files",
+                    side_effect=ProjectReleaseError(
+                        "fixture.artifact_failed", "failed"
+                    ),
+                ):
+                    with self.assertRaises(ProjectReleaseError):
+                        check_release(root, plan_path, output=prepared_path)
+                failed_run = latest_run(root)
+                self.assertIsNotNone(failed_run)
+                failed_artifact = next(
+                    item
+                    for item in failed_run.reduced()["nodes"]
+                    if item["path"] == "release/artifacts"
+                )
+                self.assertEqual(failed_artifact["state"], "failed")
+                self.assertIsNotNone(failed_artifact["ended_at"])
+                self.assertFalse(prepared_path.exists())
                 checked = check_release(root, plan_path, output=prepared_path)
                 self.assertEqual(len(invocations), 1)
+                checked_run = load_run(root, checked["evidence"]["run_id"])
+                artifact_node = next(
+                    item
+                    for item in checked_run.reduced()["nodes"]
+                    if item["path"] == "release/artifacts"
+                )
+                self.assertEqual(artifact_node["state"], "passed")
+                self.assertEqual(
+                    artifact_node["pins"]["revision"], checked["prepared_revision"]
+                )
+                self.assertIsNotNone(artifact_node["ended_at"])
                 self.assertEqual(
                     checked["artifacts"]["files"][0]["identity"],
                     file_identity(artifact),

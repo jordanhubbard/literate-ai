@@ -311,7 +311,7 @@ def _clone_git_source(
                 "git catalog source did not resolve the requested immutable commit",
             )
         _initialize_submodules(clone_root, paths if immutable else None)
-        if not (clone_root / PROJECT_FILENAME).exists():
+        if not (ProjectConfigurationStore.manifest_path(clone_root)).exists():
             raise CatalogImportError(
                 "catalog.import_source_invalid",
                 f"git catalog source is not a literate-ai project "
@@ -326,7 +326,7 @@ def _clone_git_source(
 def _resolve_local_source(source_spec: str) -> tuple[Path, str]:
     path_str = source_spec.removeprefix("local:").strip()
     path = Path(path_str).expanduser().resolve()
-    if not (path / PROJECT_FILENAME).exists():
+    if not (ProjectConfigurationStore.manifest_path(path)).exists():
         raise CatalogImportError(
             "catalog.import_source_invalid",
             f"source path is not a literate-ai project (no {PROJECT_FILENAME}): {path}",

@@ -14,6 +14,7 @@ from literate_ai.adapters.catalog_import import (
 )
 from literate_ai.authority_graph import AuthorityGraphError
 from literate_ai.project_authority_graph import project_authority_graph
+from literate_ai.projects import ProjectConfigurationStore
 
 from .errors import CliFailure
 
@@ -83,7 +84,7 @@ def migrate_flavor_names(project: Path, *, record: bool) -> dict[str, Any]:
     """Plan or atomically record the canonical built-in Flavor-name migration."""
 
     root = project.resolve(strict=True)
-    manifest = root / "literate.project.json"
+    manifest = ProjectConfigurationStore.manifest_path(root)
     if not manifest.is_file():
         raise CliFailure(
             "project.not_found", "flavor migration requires literate.project.json"
@@ -107,7 +108,9 @@ def migrate_flavor_names(project: Path, *, record: bool) -> dict[str, Any]:
         root / str(item)
         for item in (*flavor_roots, *component_roots, *workflow_roots, *routing_roots)
     ]
-    scanned_roots.extend((root / "skills", root / "literate.project.json"))
+    scanned_roots.extend(
+        (root / "skills", ProjectConfigurationStore.manifest_path(root))
+    )
     if (root / "src" / "literate_ai" / "project_template").is_dir():
         scanned_roots.append(root / "src" / "literate_ai" / "project_template")
     files: set[Path] = set()

@@ -22,6 +22,7 @@ from typing import Any
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.repository_lifecycle import OPERATIONS, RepositoryLifecycle
 from literate_ai.contracts.repository_orchestration import RepositoryOrchestration
+from literate_ai.projects import ProjectConfigurationStore
 
 from ._processes import create_process_tree_ownership, terminate_process_tree
 from ._write_reservations import (
@@ -133,7 +134,7 @@ def plan_repository_lifecycle(
         _fail(
             "lifecycle declaration must account for every indexed Gitlink exactly once"
         )
-    manifest = json.loads((root / "literate.project.json").read_bytes())
+    manifest = json.loads((ProjectConfigurationStore.manifest_path(root)).read_bytes())
     authority = RepositoryOrchestration.from_dict(manifest["repository_orchestration"])
     observed = {child.path: child for child in inventory.children}
     if (

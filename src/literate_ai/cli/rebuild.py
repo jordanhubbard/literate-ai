@@ -689,7 +689,7 @@ def _standard_rebuild_one_component(
                 "explicit cache directory custody belongs to a different project"
             )
         from literate_ai.adapters.component_acceptance import ComponentAcceptanceError
-        from literate_ai.projects import discover_project
+        from literate_ai.projects import ProjectConfigurationStore, discover_project
         from literate_ai.security import (
             AuthorizationError,
             AuthorizationRevocationSet,
@@ -702,7 +702,7 @@ def _standard_rebuild_one_component(
         def current_sdk_revocations():
             nonlocal reviewed_project_bytes
             binding.require_unchanged()
-            path = project.root / "literate.project.json"
+            path = ProjectConfigurationStore.manifest_path(project.root)
             if reviewed_project_bytes is None:
                 content = path.read_bytes()
                 current = discover_project(project.root)

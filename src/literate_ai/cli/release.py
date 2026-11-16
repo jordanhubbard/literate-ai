@@ -264,6 +264,10 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
                     0,
                 )
             run = _evidence_run(args)
+            if args.evidence_command == "timing":
+                from literate_ai.evidence_timing import summarize_timing
+
+                return summarize_timing(run.reduced()), 0
             if args.evidence_command == "index":
                 path = run.write_index()
                 return {
@@ -596,6 +600,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     )
     explain.add_argument("--project", default=".")
     explain.add_argument("--run", default=None, help="run id or run root")
+    timing = evidence_commands.add_parser(
+        "timing", help="account for completed intervals and uninstrumented gaps"
+    )
+    timing.add_argument("--project", default=".")
+    timing.add_argument("--run", default=None, help="run id or run root")
     index = evidence_commands.add_parser(
         "index", help="reduce a run ledger into index.json"
     )

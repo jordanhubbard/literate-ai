@@ -45,7 +45,7 @@ from literate_ai.contracts.standard_source_admission import (
     STANDARD_SOURCE_ADMISSION_CACHE_ENTRY_SCHEMA,
     StandardSourceAdmissionCacheEntry,
 )
-from literate_ai.projects import PROJECT_FILENAME, LoadedProject
+from literate_ai.projects import LoadedProject, ProjectConfigurationStore
 from literate_ai.storage import (
     BlobIntegrityError,
     BlobNotFoundError,
@@ -1587,7 +1587,7 @@ def project_source_cache_protected_paths(project: LoadedProject) -> tuple[Path, 
     if not isinstance(project, LoadedProject):
         raise TypeError("project protection requires a LoadedProject")
     protected: list[Path] = [
-        project.root / PROJECT_FILENAME,
+        ProjectConfigurationStore.manifest_path(project.root),
         project.agent_skill,
         project.root / ".codegraph",
         project.root / ".git",
