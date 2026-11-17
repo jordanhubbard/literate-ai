@@ -467,17 +467,23 @@ class ParallelUnittestTests(unittest.TestCase):
                     with Path("a.executions").open("a") as log:
                         log.write("a\\n")
                 def test_repair(self):
-                    time.sleep(.3)
+                    # Fail only after the other worker has flushed its report.
+                    # A fixed sleep races process startup on a busy host.
+                    deadline = time.monotonic() + 20
+                    while not Path("b.finished").exists():
+                        self.assertLess(time.monotonic(), deadline)
+                        time.sleep(.01)
                     self.assertTrue(Path("fixed").exists())
         """,
         )
         self.module(
             "b",
             """
-            import unittest
+            import atexit, unittest
             from pathlib import Path
             class Tests(unittest.TestCase):
                 def test_fast(self):
+                    atexit.register(Path("b.finished").touch)
                     with Path("executions").open("a") as log:
                         log.write("b\\n")
                 @unittest.skip("intentional repair skip")
