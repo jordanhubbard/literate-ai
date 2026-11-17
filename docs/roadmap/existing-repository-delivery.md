@@ -479,3 +479,32 @@ local source gate passed 2,836 selected cases: 2,744 passes and 92 skips in
 Live round trips were disabled; installed, native-provider and exact-candidate CI
 qualification remain separate. The corrected source hashes match the reviewed
 subject, and no full worker-program or release completion is claimed.
+
+## Post-merge platform failure recovery
+
+Main `ebf88985be10f733dd64f469b7cd4aa685ce9083`, CI run `43990299543`,
+exposed failures that the ordinary PR profile did not catch. These remain failed
+qualification evidence until corrected candidates pass the affected native cells.
+
+- Linux/Python3.14's checkpoint repair fixture assumed another process would
+  finish within a 300ms sleep. Delaying that worker by 700ms reproduced the exact
+  `b\n` versus `b\nb\n` execution-count mismatch. A bounded completion barrier
+  now waits for the other worker's shutdown marker after it flushes its report. The same
+  delayed-process control passes in 8.080s; all 18 scheduler-module controls pass
+  in 41.298s. Checkpoint reuse and fail-fast behavior are unchanged.
+- Windows/Python3.12 shard1 lost an HTTP403 response with WinError10053. The
+  cache's pre-body rejection closed over an unread upload. A real local loopback
+  control with a delayed 25-byte body reproduced a connection reset, establishing
+  the transport defect but not the exact native Windows error sequence. Rejected
+  finite PUT bodies now have bounded disposal after the error response and write
+  half-close, under the original connection timer. Invalid framing, Expect and
+  oversized bodies receive no drain; discarded bytes never enter publication.
+  Native Windows confirmation remains required.
+- The same Windows shard timed out during fixture Git commit setup after 20s,
+  before its public-planning assertion. The log does not identify Git execution,
+  inherited hooks, descendant-held pipes or contention as the cause. The timeout
+  remains unchanged; targeted native diagnosis is still open.
+
+The native bootstrap byte-restoration failure is handled by the separately
+reviewed documentation/CI batch. No failure is waived by a local or simulated
+pass, and no test budgets, skips or required platform cells are relaxed.
