@@ -97,108 +97,59 @@ goals require a specific unreleased Literate AI capability.
 ## Completeness
 
 Accepted [ADR 0073](docs/decisions/0073-sealed-node-sdk-composition.md) is being
-implemented under LIBRARY-ARTIFACT-001. Internal foundation commit `8c2e108f`
-passed 658 smoke tests (six declared skips), independent state/security review
-and the macOS whole-wheel gate. A synthetic fixture then compiled, packed and
-ran after relocation through that exact installed wheel, with four TypeScript
-consumer combinations and verified installed payloads. This is installed-owner
-fixture evidence, not ordinary SDK lifecycle qualification.
+implemented under LIBRARY-ARTIFACT-001. Canonical `lang-typescript-library` and
+`package-node-sdk` Flavors select a versioned pure SDK generation skill, dual public
+exports, `src/` implementation and built-SDK tests. Initialization templates match
+the canonical authority. Existing TypeScript application policy and older import
+wire formats remain separate and unchanged.
 
-The subsequent additive dual-export surface and common compile-to-plan path
-passed 674 local smoke tests (six declared skips) and independent state/security
-review. Existing import wire formats remain unchanged; the application profile
-explicitly refuses the new SDK surface. Public generated/retained adapters, authoritative declaration
-acceptance and native/installed-lifecycle qualification remain unfinished. These
-checks do not authorize downstream SDK or registered-child cutover.
+Explicit local SDK targets share one captured TypeScript compiler, composition and
+offline pack owner. Target/profile/Flavor/tool identities bind actual BUILD, TEST
+and EXEC commands. BUILD requires original admitted invocation/provider custody and
+a separately current finalized build grant through child execution and artifact
+registration. Original bounded product inventory precedes cache hashing. Dependency
+evidence retains exact compiler-image, composition and bundled-provider identities.
+Runtime commands receive no producer checkout paths. Scoped command bindings and
+closing membership checks follow authority callbacks.
 
-The new Node runtime/declaration oracle is explicitly refused by legacy
-single-harness acceptance, including copied or subclassed values. This preserves
-its additional original-input, second-runtime and declaration obligations while
-the opt-in SDK lifecycle is unfinished; rejection does not supply admission.
+Canonical static recipe preparation permits declaration-bearing JavaScript inputs
+only for an explicit TypeScript dual-library SDK policy. Preparation and execution
+share pinned profile decoding and language-shape validation. Other cross-language
+imports, malformed policy and competing build/accelerator profiles remain refused.
+Exact public interface and import-surface metadata reach the static recipe.
+Declaration bytes enter the bound recipe only through live verified provider
+custody; private provider specifications and oracle inputs do not. Static metadata grants no source, provider,
+verifier or build authority. Bound recipes retain the original consumer command
+contract and exact GENERATION+BUILD edges.
 
-An internal live provider scope now reopens genuine registered acceptance stages,
-source, sealed bytes and materialized files under the current build grant. Original
-owner membership, aggregate bounds and closing file stamps reject copied, closed,
-concurrently retired or changed custody. Long-lived file custody requires POSIX
-change timestamps and refuses unsupported platforms; macOS fixtures do not qualify
-Windows. This establishes artifact/stage custody; SDK recipe/cache binding, public
-profile admission and installed lifecycle qualification remain open.
+An explicit trusted-host operation port retains one original accepted provider,
+loaded v2 oracle and current separate verifier grant around synchronous SDK use.
+The actual scheduler waits for provider acceptance before owned source/cache
+selection, stage reservations and bounded repairs. Revalidation binds the exact
+original invocation. Root cache publication renews that ownership through the
+membership link; a late loss retains durable evidence and withholds acknowledgment.
+Data-only, copied, retired and uncertain scopes cannot reopen source or mutations.
+Node children and coding-agent children share process liveness and cleanup.
 
-The local lifecycle can now explicitly join that live provider with its exact
-locked specification/interfaces, original Node oracle and selected compiler under
-a separate current verifier execution grant. Full local command scope is required.
-Actual type checks and both runtime harnesses precede synchronous consumption;
-guards retire on every exit, and publication follows closing oracle revalidation
-and a final current-grant check. Returned data grants no subsequent admission.
-SDK recipe/cache integration and asynchronous lifecycle qualification remain open.
+Current evidence includes actual authored SDK compilation/packing, bounded cache
+reuse, relocated CJS/ESM root/subpath imports and positive/negative TypeScript
+consumers. A canonical filesystem graph now joins strict authored JavaScript
+provider BUILD/TEST/EXEC stages on macOS, original v2 runtime/declaration checks and
+a current fixture-only verifier grant to the owned SDK invocation. Its escaped
+guard is rejected after exit. The latest preparation/projection and refusal runs
+pass 27 and 14 checks respectively. These prove local seams, not model generation
+or independent SDK acceptance. Earlier foundation `8c2e108f` passed a whole-wheel
+fixture gate; later changes are not covered by that installed-wheel evidence.
 
-An internal bound-invocation record now links that static plan to exact verified
-provider facts, public declaration closure, a new recipe and a freshly metered
-context/cache identity. Public-root TypeScript resolution determines the exposed
-declarations; private files inspected only by oracle cases remain excluded.
-The metadata has its own local context classification and journal/schema support.
-Existing source/cache/resume and remote paths refuse these DATA records until a
-live owner spans generation and publication; SDK cache rebinding cannot relabel an
-older recipe. Scheduler/build integration and public profile activation remain open.
-
-Original synchronous verifier ownership now propagates into consumer child
-supervision. Coding-agent and bounded tool children share process-tree cleanup;
-additive liveness checks run before launch, while waiting and after cleanup.
-Retired or failed scopes cannot be revived through copied worker contexts, and
-these checks grant no new stage, tool or network permission. Live SDK scheduling,
-repair/publication admission and installed qualification remain open.
-
-An explicitly configured internal SDK operation owner now holds one original
-accepted provider and original verifier under a separate current grant around
-synchronous consumption. The exact consumer command contract joins recipe
-identity, and fresh revalidation must match the original invocation exactly.
-Original pinned-file stamps close ownership after blocking oracle reads. The
-existing complete-node repair driver can retain actual stage reservations under
-that owner and terminates on ownership loss. These local fixtures use real
-provider custody and inert consumer DATA; multi-provider joins, public profile
-activation and installed qualification remain open.
-
-Explicit local SDK admissions now join the actual scheduler: direct providers
-must pass acceptance before bound source/cache selection or model reservation.
-The same owned recipe reaches build-intent validation and bounded repairs. SDK
-cache restoration is deferred into that scope, and cache publication after root
-acceptance reopens the exact original binding. The real filesystem publication
-fences original ownership at the membership link; a late loss retains durable
-evidence and withholds acknowledgment. A fresh repair of cached source publishes
-its winning head. Deterministic scheduling/cache/repair fixtures and a real
-accepted-provider seam pass, without qualifying generated SDK source, public
-Flavors or installed/native lifecycle execution. Remote/checkpoint SDK recovery
-remains refused.
-
-An explicit local SDK target now joins the shared TypeScript compiler and offline
-packer to ordinary BUILD, TEST and EXEC commands. The selected target, profile,
-Flavor, tools and dual-export surface bind the command contract; BUILD separately
-requires original invocation custody and current finalized build authorization.
-Dependency evidence preserves exact bundled-provider revision and content hashes.
-Bounded original-product checks precede cache hashing, and runtime commands receive
-no producer checkout paths. An authored-source fixture exercises actual compilation,
-packing, cache reuse and relocated CJS/ESM plus TypeScript consumers. This is local
-target integration, not generated SDK acceptance or
-native/installed lifecycle qualification; downstream SDK adoption remains gated.
-
-Explicit locally authored SDK profiles now project that same target through the
-locked toolchain closure and ordinary runtime assembly. The selected packaging
-Flavor, exact Node/npm/compiler authority and full command/version constraints
-must agree. The compiler is captured from an explicitly located TypeScript package;
-no implicit installation or registry resolution supplies it. Host dependency
-evidence includes immutable compiler-image identities. Command scope and original
-target membership remain guarded, including after authority callbacks. Cross-language
-recipe preparation, independent SDK acceptance and generated/native/
-installed qualification remain open.
-
-Canonical `lang-typescript-library` and `package-node-sdk` Flavors now select a
-versioned pure SDK generation skill and matching source/test layout without changing
-TypeScript application authority. Lock/recipe/runtime selection and exact skill bytes
-are verified from these authored files; template copies match. Application or
-competing build profiles are rejected before tool discovery. Required skill checks
-pass. Exact legal-content custody, live generation/provider admission, cross-language
-recipe preparation, independent SDK acceptance and generated/native/installed
-qualification remain required before downstream adoption.
+Remaining gates are exact Component-authorized legal-byte custody, public runtime
+admission configuration, SDK BUILD through the complete canonical lifecycle,
+original v2 independent SDK acceptance, arbitrary declared provider layouts,
+multiple-provider closing cuts, ordinary generated and retained SDK products,
+packed SDK output publication, supported native platforms and fresh noneditable
+installed qualification. Legacy single-harness acceptance refuses the stronger
+Node oracle. Remote/async/checkpoint SDK recovery and accepted-source-only cache
+continuation remain unqualified/refused. No downstream SDK or registered-child
+cutover follows before complete qualification.
 
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 89 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The

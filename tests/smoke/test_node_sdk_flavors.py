@@ -25,7 +25,15 @@ from tests.smoke.test_standard_command_projection import _locked_snapshot, _obse
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def canonical_snapshot(root, *, build_system=None, package=True, application=False):
+def canonical_snapshot(
+    root,
+    *,
+    build_system=None,
+    package=True,
+    application=False,
+    before_lock=None,
+    additional_flavor_selectors=(),
+):
     def configure(component, _flavors):
         path = component / "component.md"
         value, body = parse_authoring_markdown(path.read_bytes(), source=str(path))
@@ -55,6 +63,8 @@ def canonical_snapshot(root, *, build_system=None, package=True, application=Fal
             ]
         )
         path.write_bytes(render_authoring_markdown(value, body))
+        if before_lock is not None:
+            before_lock(component, _flavors)
 
     return _locked_snapshot(
         root,
@@ -64,6 +74,7 @@ def canonical_snapshot(root, *, build_system=None, package=True, application=Fal
         generation_ready=True,
         build_system=build_system,
         before_lock=configure,
+        additional_flavor_selectors=additional_flavor_selectors,
     )
 
 

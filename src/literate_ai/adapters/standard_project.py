@@ -126,6 +126,10 @@ from literate_ai.adapters.source_generation import (
     CachedCodingCliSourceGenerationRunner,
     CodingCliSourceGenerationInvocation,
 )
+from literate_ai.adapters.standard_command_profiles import (
+    is_node_sdk_language_profile,
+    read_standard_profile_contribution,
+)
 from literate_ai.application.component_execution_planning import (
     authored_assets_from_lock,
 )
@@ -188,7 +192,6 @@ from literate_ai.contracts import (
     StandardSourceSelectorSet,
     ToolchainConstraint,
     merge_toolchain_constraints,
-    parse_standard_command_profile,
     standard_entrypoint_source_path,
 )
 from literate_ai.contracts.components import (
@@ -1106,14 +1109,8 @@ def _profile_contributions(snapshot, node) -> tuple[object, ...]:
             ):
                 continue
             try:
-                content = snapshot.flavor_content(flavor.identity, contribution.content)
-                value = json.loads(content.decode("utf-8"))
-                profile = parse_standard_command_profile(
-                    value,
-                    path=(
-                        f"Flavor {flavor.definition.coordinate.uri} contribution "
-                        f"{contribution.contribution_id}"
-                    ),
+                profile = read_standard_profile_contribution(
+                    snapshot, flavor, contribution
                 )
             except Exception as exc:
                 raise StandardCommandProjectionError(
@@ -2546,12 +2543,7 @@ def project_locked_standard_toolchain_closure(
             )
         )
         if node_sdk_profile is not None and (
-            language.target != "typescript"
-            or language.build_strategy
-            is not StandardLanguageBuildStrategy.TYPESCRIPT_TREE
-            or language.runtime_strategy
-            is not StandardLanguageRuntimeStrategy.JAVASCRIPT
-            or language.artifact_layout is not StandardArtifactLayout.TREE
+            not is_node_sdk_language_profile(language)
             or authoring.resolved_kind != "library"
             or authoring.entrypoints
             or build_system is not None

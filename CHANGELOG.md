@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Canonical SDK recipes can now reference declaration-bearing JavaScript libraries
+  under an explicit TypeScript dual-library SDK policy. Preparation and execution
+  share pinned profile decoding and language-shape checks. Other language mismatches,
+  malformed SDK policy and competing build profiles remain refused. A real canonical
+  graph now joins strict authored provider stages and original v2 verification to
+  the existing owned SDK invocation. Static recipe data grants no execution, and
+  generated SDK BUILD/acceptance and full qualification remain unfinished.
+
 - Add opt-in `lang-typescript-library` and `package-node-sdk` Flavors with a
   versioned pure SDK generation policy and matching initialization templates.
   Real lock/recipe/profile projection selects the shared SDK target and exact

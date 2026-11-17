@@ -81,6 +81,7 @@ def _locked_snapshot(
     cpp_library_kind: str | None = None,
     duplicate_entrypoint: bool = False,
     before_lock=None,
+    additional_flavor_selectors: tuple[str, ...] = (),
 ):
     component, flavors = _fixture(root)
     if generation_ready:
@@ -327,6 +328,7 @@ def _locked_snapshot(
         selectors.append("+flavor://literate-ai/" + package_name)
     if before_lock is not None:
         before_lock(component, flavors)
+    selectors.extend(additional_flavor_selectors)
     target = "standard-command-test"
     planner = FilesystemComponentLockPlanner()
     plan = planner.plan(

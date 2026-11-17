@@ -496,6 +496,24 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       cross-language recipe preparation, v2 independent SDK acceptance, actual
       generated/retained/native/installed qualification and downstream adoption
       remain open. Canonical selection alone grants none of those stages.
+      Static recipe preparation now permits declaration-bearing JavaScript imports
+      only for an explicit TypeScript dual-library SDK policy. Preparation and
+      execution share content-pinned profile decoding and a language-shape check.
+      Actual canonical filesystem lock/recipe tests preserve exact public provider
+      interface/declaration identity and exclude private provider specs/oracles;
+      missing declarations, malformed SDK policy and competing builds remain
+      refused. All 27 broader checks pass. A separate actual canonical integration
+      builds/tests/executes authored provider source through normal macOS runtime assembly,
+      then joins its registered stages and original v2 verifier under a current
+      fixture-only grant to the owned SDK invocation. Escaped guards fail after
+      exit. This does not qualify model-generated SDK source, SDK BUILD or SDK
+      independent acceptance. Static preparation remains inert; exact original
+      GENERATION+BUILD binding, provider joins and separate grants stay required.
+      Qualify generic JavaScript provider EXEC against arbitrary explicit CommonJS
+      declaration layouts before full SDK delivery: the current canonical provider
+      integration uses the conventional `source/<package>` manifest/export map.
+      A passing conventional layout does not prove the generic driver honors every
+      explicit v2 runtime/declaration path.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.
