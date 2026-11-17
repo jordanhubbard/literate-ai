@@ -353,6 +353,22 @@ class ParallelUnittestTests(unittest.TestCase):
             self.assertEqual(len(result["invocations"]), 1)
             self.assertEqual(result["invocations"][0]["coverage"], "complete")
             self.assertEqual(result["invocations"][0]["selected_modules"], 1)
+            # CI uploads only the evidence directory. Reopen that exact archive
+            # after removing the original evidence and private worker spool.
+            archive = shutil.make_archive(
+                str(self.root / "evidence-export"),
+                "zip",
+                root_dir=evidence.root.parent,
+            )
+            shutil.rmtree(evidence.root.parent)
+            shutil.rmtree(self.root / "workers")
+            downloaded = (self.root / "downloaded").resolve()
+            shutil.unpack_archive(archive, downloaded)
+            relocated = downloaded / evidence.root.name
+            exported_index = json.loads((relocated / "index.json").read_bytes())
+            exported = registered_module_timings(exported_index, relocated)
+            self.assertEqual(exported, result)
+            self.assertFalse(Path(pointers[0]["path"]).is_absolute())
 
     def test_modules_overlap_with_private_directories(self) -> None:
         for name, other in (("a", "b"), ("b", "a")):
@@ -467,17 +483,23 @@ class ParallelUnittestTests(unittest.TestCase):
                     with Path("a.executions").open("a") as log:
                         log.write("a\\n")
                 def test_repair(self):
-                    time.sleep(.3)
+                    # Fail only after the other worker has flushed its report.
+                    # A fixed sleep races process startup on a busy host.
+                    deadline = time.monotonic() + 20
+                    while not Path("b.finished").exists():
+                        self.assertLess(time.monotonic(), deadline)
+                        time.sleep(.01)
                     self.assertTrue(Path("fixed").exists())
         """,
         )
         self.module(
             "b",
             """
-            import unittest
+            import atexit, unittest
             from pathlib import Path
             class Tests(unittest.TestCase):
                 def test_fast(self):
+                    atexit.register(Path("b.finished").touch)
                     with Path("executions").open("a") as log:
                         log.write("b\\n")
                 @unittest.skip("intentional repair skip")

@@ -479,3 +479,28 @@ local source gate passed 2,836 selected cases: 2,744 passes and 92 skips in
 Live round trips were disabled; installed, native-provider and exact-candidate CI
 qualification remain separate. The corrected source hashes match the reviewed
 subject, and no full worker-program or release completion is claimed.
+
+## Preserve module timing through CI handoff
+
+Timing candidate `51afb59ca17676f4df89825b59bffba66f873542` passes ordinary PR
+CI run `43991908658` (11 successful jobs, two declared skips). Downloading its
+actual evidence artifact `14292940153` exposes a retention gap: all 60 members
+omit the module timing file, while the ledger points to an absolute worker spool
+outside the uploaded evidence directory. The reader correctly has no module
+elapsed time after download, but its aggregate availability label was misleading.
+
+The correction writes attached timing beneath its owning evidence node and
+registers a relative pointer. Standalone or disabled evidence keeps the original
+private spool; a disabled node cannot redirect writes into the current directory.
+One registration, record/byte bounds, fail-soft diagnostics, process ownership and
+test deadlines stay unchanged. Missing records report unavailable at both levels.
+
+The maintained real-subprocess control now archives only the ordinary evidence
+upload directory, removes the original evidence and worker spool, and reopens the
+archive at a different path. It fails on the original writer in 0.788s and passes
+after the correction; 13 reader/retention controls pass in 0.771s. The combined
+reader/scheduler cohort passes all 30 controls in 40.095s, including the previously
+reviewed shutdown-barrier repair for the fixed-sleep fixture race. Independent
+review, fresh complete source checks and an exact corrected CI artifact remain
+pending. Prior CI success does not establish portable timing evidence or release
+qualification.

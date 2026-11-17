@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
 import os
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from literate_ai.cli.release import add_release_parser, release_from_args
@@ -194,12 +196,53 @@ class EvidenceTimingTests(unittest.TestCase):
                 }
             ]
             missing = registered_module_timings(run(registration), root)
+            self.assertEqual(missing["coverage"], "unavailable")
             self.assertEqual(missing["invocations"][0]["coverage"], "unavailable")
             self.assertIsNone(missing["invocations"][0]["elapsed_seconds"])
+            empty_directory = root / "abcdef123456"
+            empty_directory.mkdir()
+            (empty_directory / FILENAME).write_bytes(b"")
+            empty = registered_module_timings(run(registration), root)
+            self.assertEqual(empty["coverage"], "unavailable")
+            self.assertEqual(empty["invocations"][0]["coverage"], "unavailable")
+            self.assertIsNone(empty["invocations"][0]["elapsed_seconds"])
             registration["outputs"][0]["role"] = "unrelated"
             self.assertEqual(
                 registered_module_timings(run(registration), root)["coverage"],
                 "unavailable",
+            )
+
+    def test_disabled_evidence_node_keeps_timing_in_private_spool(self):
+        from literate_ai.evidence_ledger import _NullEvidenceNode
+        from literate_ai.parallel_unittest_timing import ModuleTiming
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            directory = root / "workers" / "abcdef123456"
+            disabled = _NullEvidenceNode()
+            forbidden = root / "must-stay-absent"
+            evidence = SimpleNamespace(node=lambda *_args, **_kwargs: disabled)
+            with (
+                patch.object(_NullEvidenceNode, "directory", forbidden),
+                patch(
+                    "literate_ai.parallel_unittest_timing.attach_run",
+                    return_value=evidence,
+                ),
+            ):
+                timing = ModuleTiming(
+                    root=root,
+                    directory=directory,
+                    workers=1,
+                    selected=[],
+                    stream=io.StringIO(),
+                )
+                timing.close(completed=True, failed=False)
+            self.assertIsNone(timing.node)
+            self.assertFalse(forbidden.exists())
+            records, issues, _ = read_module_timing(directory, directory.name)
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                [record["kind"] for record in records], ["invocation", "suite_closed"]
             )
 
     def test_nested_parallel_and_contained_children_are_not_double_counted(

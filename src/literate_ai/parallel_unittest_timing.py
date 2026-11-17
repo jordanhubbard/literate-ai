@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import TextIO
 
 from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
-from literate_ai.evidence_ledger import attach_run
+from literate_ai.evidence_ledger import EvidenceNode, attach_run
 
 SCHEMA = "literate-ai/parallel-unittest-timing@1"
 ROLE = "parallel-unittest-timing"
@@ -47,6 +47,20 @@ class ModuleTiming:
         self.bytes = 0
         self.incomplete = False
         try:
+            run = attach_run(root)
+            if run is not None:
+                node = run.node(
+                    f"python/modules/{self.invocation}",
+                    operation="parallel-unittest-timing",
+                    pins={"invocation": self.invocation, "schema": SCHEMA},
+                ).__enter__()
+                if isinstance(node, EvidenceNode):
+                    self.node = node
+                    # This directory is included in the ordinary evidence upload
+                    # and its relative pointer survives archive relocation.
+                    directory = node.directory / self.invocation
+                # A disabled evidence node uses '.' as its directory. Keep the
+                # original private spool in that case; never write in the cwd.
             directory.mkdir(parents=True, exist_ok=True)
             self.handle = (directory / FILENAME).open("xb")
             self.emit(
@@ -58,13 +72,7 @@ class ModuleTiming:
             )
             for descriptor in selected:
                 self.emit("selected", **descriptor)
-            run = attach_run(root)
-            if run is not None:
-                self.node = run.node(
-                    f"python/modules/{self.invocation}",
-                    operation="parallel-unittest-timing",
-                    pins={"invocation": self.invocation, "schema": SCHEMA},
-                ).__enter__()
+            if self.node is not None:
                 self.node.add_output(
                     role=ROLE,
                     path=directory.resolve(),
@@ -229,11 +237,15 @@ def registered_module_timings(
             budget -= used
             row = summarize_module_timing(records, invocation=invocation)
             row["issues"].extend(unavailable)
-            if unavailable:
+            if unavailable or not records:
                 row["coverage"] = "incomplete" if records else "unavailable"
             rows.append(row)
     return {
-        "coverage": "available" if rows else "unavailable",
+        "coverage": (
+            "available"
+            if any(row["coverage"] != "unavailable" for row in rows)
+            else "unavailable"
+        ),
         "invocations": rows,
         "issues": issues,
         "limitations": [
