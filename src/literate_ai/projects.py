@@ -7,6 +7,7 @@ import hashlib
 import json
 import os
 import stat
+import subprocess
 import sys
 import tempfile
 import threading
@@ -20,6 +21,11 @@ from enum import Enum
 from pathlib import Path
 
 from literate_ai._cache_lock import _is_windows, _windows_identity_matches
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    path_is_link_or_reparse,
+    require_safe_directory,
+)
 from literate_ai.application.agent_skill_catalog import (
     AgentSkillCatalog,
     AgentSkillCatalogError,
@@ -168,10 +174,47 @@ def serialize_project_configuration(definition: ProjectDefinition) -> bytes:
 
 
 @dataclass(frozen=True, slots=True)
+class ProjectContext:
+    """Application coordinates and the selected framework authority location.
+
+    Declared paths always remain relative to ``root``. ``framework_root`` owns
+    implicit framework metadata; it never rebases native source or commands.
+    """
+
+    root: Path
+    framework_root: Path
+    directory_binding: tuple[tuple[int, ...], tuple[int, ...]] | None = None
+
+    @classmethod
+    def observe(cls, root: Path, framework: Path) -> ProjectContext:
+        def node(path: Path) -> tuple[int, ...]:
+            value = path.stat()
+            return value.st_dev, value.st_ino, value.st_mode, value.st_uid, value.st_gid
+
+        try:
+            binding = (node(root), node(framework))
+        except FileNotFoundError:
+            binding = None
+        return cls(root, framework, binding)
+
+    @property
+    def manifest_path(self) -> Path:
+        return self.framework_root / PROJECT_FILENAME
+
+    def framework_path(self, relative: str) -> Path:
+        path = Path(relative)
+        if path.is_absolute() or not path.parts or ".." in path.parts:
+            raise ValueError("framework path must be a nonescaping relative path")
+        return self.framework_root / path
+
+
+@dataclass(frozen=True, slots=True)
 class ProjectConfigurationSnapshot:
     root: Path
     definition: ProjectDefinition
     content: bytes
+    manifest_path: Path
+    directory_binding: tuple[tuple[int, ...], tuple[int, ...]] | None
 
     @property
     def content_identity(self) -> ContentIdentity:
@@ -196,11 +239,71 @@ class ProjectConfigurationStore:
 
     @property
     def path(self) -> Path:
-        return self.root / PROJECT_FILENAME
+        return self.manifest_path(self.root)
+
+    @staticmethod
+    def manifest_path(root: Path) -> Path:
+        return ProjectConfigurationStore.context(root).manifest_path
+
+    @staticmethod
+    def context(root: Path) -> ProjectContext:
+        """Select one declared location without writes or implicit migration.
+
+        A child repository named ``litai`` is independent unless its manifest
+        explicitly declares the containing application's framework directory.
+        """
+        root = Path(root)
+        direct = root / PROJECT_FILENAME
+        child = root / "litai"
+        contained = child / PROJECT_FILENAME
+
+        def declared(path: Path) -> bool:
+            content = ProjectConfigurationStore(path.parent)._read_manifest(path)
+            return parse_project_configuration(content).framework_directory == "litai"
+
+        def require_direct(directory: Path) -> None:
+            try:
+                require_safe_directory(directory.absolute())
+            except (UnsafeFilesystemPathError, OSError) as exc:
+                raise ProjectError(
+                    "project.framework_directory_unsafe",
+                    "framework directory must be direct and unredirected",
+                ) from exc
+
+        if root.name == "litai" and direct.is_file() and not direct.is_symlink():
+            if declared(direct):
+                require_direct(root)
+                legacy = root.parent / PROJECT_FILENAME
+                if legacy.exists() or legacy.is_symlink():
+                    raise ProjectError(
+                        "project.manifest_ambiguous",
+                        "root and contained project authority cannot coexist",
+                    )
+                return ProjectContext.observe(root.parent, root)
+        if contained.exists() or contained.is_symlink():
+            # Inspect no manifest through redirected directory ancestry.
+            require_direct(child)
+            if declared(contained):
+                if direct.exists() or direct.is_symlink():
+                    raise ProjectError(
+                        "project.manifest_ambiguous",
+                        "root and contained project authority cannot coexist",
+                    )
+                return ProjectContext.observe(root, child)
+        return ProjectContext.observe(root, root)
+
+    @classmethod
+    def lock_path(cls, root: Path) -> Path:
+        """Use the same manifest coordinate for writers and reservations."""
+        manifest = cls.manifest_path(root)
+        return manifest.with_name(f".{manifest.name}.write.lock")
 
     def _root(self, *, create: bool = False) -> Path:
         if create:
             self.root.mkdir(parents=True, exist_ok=True)
+        # Inspect a declared contained coordinate before resolve can erase a
+        # redirected framework directory or application ancestor.
+        self.context(self.root.absolute())
         try:
             root = self.root.resolve(strict=True)
         except OSError as exc:
@@ -212,43 +315,166 @@ class ProjectConfigurationStore:
         return root
 
     def read(self) -> ProjectConfigurationSnapshot:
-        root = self._root()
-        path = root / PROJECT_FILENAME
+        context = self.context(self._root())
+        root, path = context.root, context.manifest_path
         content = self._read_manifest(path)
         parses = _PROJECT_CONFIGURATION_PARSES.get()
-        return ProjectConfigurationSnapshot(
-            root,
+        definition = (
             parse_project_configuration(content)
             if parses is None
-            else parses.parse(content),
-            content,
+            else parses.parse(content)
         )
+        self._require_layout(context, definition)
+        if self.context(root) != context:
+            raise ProjectError(
+                "project.manifest_stale",
+                "project manifest location changed while it was read",
+            )
+        return ProjectConfigurationSnapshot(
+            root, definition, content, path, context.directory_binding
+        )
+
+    @staticmethod
+    def _require_layout(context: ProjectContext, definition: ProjectDefinition) -> None:
+        expected = (
+            context.root / definition.framework_directory
+            if definition.framework_directory is not None
+            else context.root
+        )
+        if expected != context.framework_root:
+            raise ProjectError(
+                "project.manifest_location",
+                "project manifest location differs from its declared "
+                "framework directory",
+            )
 
     @classmethod
     def discover(cls, start: Path) -> ProjectConfigurationSnapshot | None:
-        try:
-            resolved = Path(start).resolve(strict=True)
-        except OSError:
-            resolved = Path(start).resolve()
-        candidate = resolved.parent if resolved.is_file() else resolved
+        selected = Path(start).absolute()
+        candidate = selected.parent if selected.is_file() else selected
         for root in (candidate, *candidate.parents):
-            path = root / PROJECT_FILENAME
-            if path.is_file() and not path.is_symlink():
+            context = cls.context(root)
+            path = context.manifest_path
+            if path.exists() or path.is_symlink():
+                if context.framework_root != context.root:
+                    try:
+                        require_safe_directory(candidate, allow_missing=True)
+                    except (UnsafeFilesystemPathError, OSError) as exc:
+                        raise ProjectError(
+                            "project.framework_directory_unsafe",
+                            "contained discovery must not cross redirected paths",
+                        ) from exc
+                if path_is_link_or_reparse(path) or not path.is_file():
+                    raise ProjectError(
+                        "project.manifest_unavailable",
+                        "selected project manifest is not a direct regular file",
+                    )
                 return cls(root).read()
         return None
+
+    @staticmethod
+    def layout_metadata_directory(root: Path) -> Path | None:
+        """Return this worktree's direct Git administration directory, if present.
+
+        Git's per-worktree coordinate is independent of configurable user-state
+        roots and filesystem case aliases. A new non-Git scaffold has no such
+        directory yet; its creator uses a transient root reservation instead.
+        """
+        root = Path(root).absolute()
+        marker = root / ".git"
+        if not marker.exists() and not marker.is_symlink():
+            return None
+        if path_is_link_or_reparse(marker):
+            raise ProjectError("project.layout_lock_unsafe", "Git entry is redirected")
+        try:
+            result = subprocess.run(
+                ["git", "-C", str(root), "rev-parse", "--absolute-git-dir"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            if result.returncode or not result.stdout.strip():
+                raise ValueError("Git administration directory is unavailable")
+            directory = Path(result.stdout.strip())
+            require_safe_directory(directory)
+            return directory
+        except (
+            OSError,
+            ValueError,
+            subprocess.TimeoutExpired,
+            UnsafeFilesystemPathError,
+        ) as exc:
+            raise ProjectError(
+                "project.layout_lock_unsafe", "Git layout coordination is unavailable"
+            ) from exc
+
+    @classmethod
+    @contextmanager
+    def layout_lock(cls, root: Path) -> Iterator[None]:
+        """Serialize authority publication across layouts at one physical path.
+
+        Native adoption requires Git, so its transient reservation lives in the
+        worktree administration directory. Non-Git creation uses a separate
+        transient root reservation. Both reuse the manifest lock's bounded
+        identity-checked protocol and idle-file cleanup.
+        """
+        root = Path(root).resolve(strict=True)
+        directory = cls.layout_metadata_directory(root)
+        coordinate = (directory or root) / "literate-layout"
+        with cls(root)._lock(root, manifest_path=coordinate):
+            yield
 
     def create(self, definition: ProjectDefinition) -> ProjectConfigurationSnapshot:
         content = serialize_project_configuration(definition)
         self._require_bounded(content)
         root = self._root(create=True)
-        with self._lock(root):
-            path = root / PROJECT_FILENAME
+        with self.layout_lock(root):
+            return self._create_locked(root, definition, content)
+
+    def _create_locked(
+        self, root: Path, definition: ProjectDefinition, content: bytes
+    ) -> ProjectConfigurationSnapshot:
+        context = self.context(root)
+        if context.root != root or context.manifest_path.exists():
+            raise ProjectError(
+                "project.manifest_exists", "project manifest already exists"
+            )
+        framework = (
+            root / definition.framework_directory
+            if definition.framework_directory
+            else root
+        )
+        if framework != root:
+            framework.mkdir(exist_ok=True)
+            try:
+                require_safe_directory(framework)
+            except (UnsafeFilesystemPathError, OSError) as exc:
+                raise ProjectError(
+                    "project.framework_directory_unsafe",
+                    "framework directory is unsafe",
+                ) from exc
+        context = ProjectContext.observe(root, framework)
+        path = context.manifest_path
+        with self._lock(root, manifest_path=path):
+            current = self.context(root)
+            if current.manifest_path.exists() or current.manifest_path.is_symlink():
+                raise ProjectError(
+                    "project.manifest_exists", "project manifest already exists"
+                )
             if path.exists() or path.is_symlink():
                 raise ProjectError(
                     "project.manifest_exists", "project manifest already exists"
                 )
+            if ProjectContext.observe(root, framework) != context:
+                raise ProjectError(
+                    "project.manifest_stale",
+                    "project directory changed during creation",
+                )
             self._replace(path, content)
-        return ProjectConfigurationSnapshot(root, definition, content)
+        return ProjectConfigurationSnapshot(
+            root, definition, content, path, context.directory_binding
+        )
 
     def update(
         self,
@@ -259,22 +485,41 @@ class ProjectConfigurationStore:
             raise TypeError("expected must be a ProjectConfigurationSnapshot")
         content = serialize_project_configuration(definition)
         self._require_bounded(content)
-        root = self._root()
+        context = self.context(self._root())
+        root = context.root
         if expected.root != root:
             raise ProjectError(
                 "project.manifest_stale", "project snapshot belongs to another root"
             )
+        self._require_layout(context, definition)
         with self._lock(root):
-            path = root / PROJECT_FILENAME
+            selected = self.context(root)
+            path = selected.manifest_path
+            if (
+                path != expected.manifest_path
+                or selected != context
+                or selected.directory_binding != expected.directory_binding
+            ):
+                raise ProjectError(
+                    "project.manifest_stale",
+                    "project manifest location changed since it was read",
+                )
             current = self._read_manifest(path)
             if current != expected.content:
                 raise ProjectError(
                     "project.manifest_stale",
                     "project manifest changed since it was read",
                 )
+            if self.context(root) != selected:
+                raise ProjectError(
+                    "project.manifest_stale",
+                    "project manifest location changed while it was read",
+                )
             if content != current:
                 self._replace(path, content)
-        return ProjectConfigurationSnapshot(root, definition, content)
+        return ProjectConfigurationSnapshot(
+            root, definition, content, path, selected.directory_binding
+        )
 
     def _read_manifest(self, path: Path) -> bytes:
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
@@ -431,8 +676,12 @@ class ProjectConfigurationStore:
             fcntl.flock(descriptor, fcntl.LOCK_UN)
 
     @contextmanager
-    def _lock(self, root: Path) -> Iterator[None]:
-        path = root / f".{PROJECT_FILENAME}.write.lock"
+    def _lock(self, root: Path, *, manifest_path: Path | None = None) -> Iterator[None]:
+        path = (
+            self.lock_path(root)
+            if manifest_path is None
+            else manifest_path.with_name(f".{manifest_path.name}.write.lock")
+        )
         descriptor = -1
         locked = False
         opened: os.stat_result | None = None
@@ -1039,6 +1288,19 @@ class LoadedProject:
     root: Path
     definition: ProjectDefinition
 
+    @property
+    def context(self) -> ProjectContext:
+        framework = (
+            self.root / self.definition.framework_directory
+            if self.definition.framework_directory is not None
+            else self.root
+        )
+        return ProjectContext(self.root, framework)
+
+    @property
+    def framework_root(self) -> Path:
+        return self.context.framework_root
+
     def roots(self, catalog: str) -> tuple[Path, ...]:
         try:
             configured = getattr(self.definition, f"{catalog}_roots")
@@ -1352,6 +1614,11 @@ def _require_disjoint_source_cache_roots(
 
 def project_owns_agent_shim(definition: ProjectDefinition, relative: str) -> bool:
     """Optional provider shims inside independent children are not root authority."""
+    if (
+        definition.agent_entrypoints is not None
+        and relative not in definition.agent_entrypoints
+    ):
+        return False
     binding = definition.repository_orchestration
     if binding is None:
         return True

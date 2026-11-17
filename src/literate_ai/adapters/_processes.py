@@ -13,6 +13,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+_TASKKILL_WAIT_SECONDS = 5
+
+
+def process_tree_termination_wait_seconds(*, platform_name: str | None = None) -> int:
+    """Configured helper waits, excluding native syscall/scheduling delays."""
+    return 2 * _TASKKILL_WAIT_SECONDS if (platform_name or os.name) == "nt" else 0
+
+
 # -- Win32 Job Object primitives -------------------------------------------
 #
 # `CREATE_NEW_PROCESS_GROUP` (used by `process_group_options` below) only
@@ -174,6 +182,9 @@ class ProcessTreeOwnership:
 
     popen_options: dict[str, object]
     job: WindowsProcessTreeJob | None = None
+    _termination_succeeded: bool = field(
+        default=False, init=False, repr=False, compare=False
+    )
     _job_lock: threading.Lock = field(
         default_factory=threading.Lock,
         init=False,
@@ -209,16 +220,25 @@ class ProcessTreeOwnership:
             self.job = None
         job.close()
 
-    def terminate(self) -> None:
-        """Terminate and close the Job Object once across concurrent callers."""
+    def terminate(self) -> bool:
+        """Return only confirmed Job termination, including repeated cleanup.
+
+        A concurrent caller that finds a claimed but unfinished job must still
+        use the fallback: claiming ownership alone does not prove termination.
+        """
 
         job = self._claim_job()
         if job is None:
-            return
+            with self._job_lock:
+                return self._termination_succeeded
         try:
-            job.terminate()
+            terminated = job.terminate()
         finally:
             job.close()
+        if terminated:
+            with self._job_lock:
+                self._termination_succeeded = True
+        return terminated
 
     def release(self) -> None:
         """Release the job handle without terminating anything."""
@@ -310,9 +330,8 @@ def terminate_process_tree(
                 process.kill()
         return
     if selected_platform == "nt":
-        if ownership is not None:
-            ownership.terminate()
-        executable = windows_taskkill_executable(environment)
+        terminated = ownership is not None and ownership.terminate()
+        executable = None if terminated else windows_taskkill_executable(environment)
         if executable is not None:
             try:
                 terminator = subprocess.Popen(
@@ -324,11 +343,11 @@ def terminate_process_tree(
                     stderr=subprocess.DEVNULL,
                 )
                 try:
-                    terminator.wait(timeout=5)
+                    terminator.wait(timeout=_TASKKILL_WAIT_SECONDS)
                 except subprocess.TimeoutExpired:
                     terminator.kill()
                     with suppress(subprocess.TimeoutExpired):
-                        terminator.wait(timeout=5)
+                        terminator.wait(timeout=_TASKKILL_WAIT_SECONDS)
             except OSError:
                 pass
     if process.poll() is None:

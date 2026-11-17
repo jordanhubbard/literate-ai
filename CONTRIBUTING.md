@@ -75,8 +75,8 @@ correct:
 `literate.project.json` pins a content hash (`driver.pinned_identity`) over every
 file under the declared `implementation_paths` — the framework's trusted computing
 base. If your change touches anything under `src/literate_ai/` (or another declared
-implementation path), that pin goes stale and `make driver-review` (part of
-`make python-check`) fails with a message naming the drifted files.
+implementation path), that pin goes stale and the separate `make driver-review`
+gate fails with a message naming the drifted files.
 
 Fix it by re-pinning after what changed has been reviewed. The review must not be
 the author's own: an independent agent reviewer that did not write the drift is
@@ -122,12 +122,13 @@ Then re-run `make documentation-review` (read-only) to confirm `"state": "curren
 Run the full gate locally so CI doesn't surprise you:
 
 ```
-make python-check
+make python-check driver-review documentation-review lint format-check
 ```
 
-This runs the project's Python test suite plus both checks above (`driver-review`,
-`documentation-review`), along with lint and formatting checks. If it passes locally,
-CI should pass too.
+These explicit targets run the project's Python test suite, both checks above
+(`driver-review`, `documentation-review`), lint, and formatting checks.
+`make python-check` alone does not run the other four gates. Resolve their findings
+before pushing; a passing test suite does not establish current authority pins.
 
 At cycle boundaries, inspect peer work with `litai project peer-work survey --when
 start|end`. Before deleting a local branch, record an exact `merged` or reason-bearing
@@ -173,8 +174,7 @@ and manual CI runs add the macOS qualification job. It runs the complete suite o
 Python 3.11 in four partitions balanced by measured module time (only the first runs
 every repository gate and the wheel check), plus a Python 3.14 smoke subset; Linux
 qualifies all of Python 3.14. Full qualification also retains both Linux Python versions, all three
-Windows test shards and Windows packaging gates. `make release-check` remains
-unchanged. Use a manual CI run on a candidate branch when full platform evidence is needed
+Windows test shards and Windows packaging gates. `make release-check` preserves the same required checks. Use a manual CI run on a candidate branch when full platform evidence is needed
 before merging. Require full successful exact-commit qualification before release;
 a green ordinary PR smoke job is not a substitute. Qualification means every platform
 and action in `literate.release.json` `qualification` passed on the exact commit,
@@ -190,3 +190,26 @@ name the running test. Full macOS artifact names include their partition to avoi
 collisions. Self-update assertion failures include real pip output and installed
 source/bytecode diagnostics. Do not attach credentials or environment dumps.
 Keep public PR execution on GitHub-hosted runners, not personal developer Macs.
+
+## Reuse the candidate's wheel bytes
+
+`make release-check` selects one qualified wheel under
+`$(OBJ_DIR)/release-wheels/<exact-commit>/manifest.json`. `wheel-check` publishes
+that selection only after its checks pass. Subsequent installation checks stage
+and hash those same bytes, verify the clean source revision, declared version and
+embedded origin, then install into their own environments and run every check.
+They report `qualified_wheel_identity`; this shares an artifact, not test results
+or environment qualification. The source installation in `installed-e2e` and the
+native CI install/uninstall coverage remain separate.
+
+An existing candidate selection is immutable. Requalification uses its wheel
+again; a concurrent build cannot replace it with different bytes. A missing,
+changed or mismatched artifact fails closed. Preserve its evidence for inspection
+and choose a new `RELEASE_QUALIFIED_WHEEL_MANIFEST` path when deliberately creating
+a different candidate. Ordinary `make install` and standalone install checks keep
+their source-install behavior. For an explicit standalone reuse sequence, pass the
+same `QUALIFIED_WHEEL_MANIFEST` path to `wheel-check` and the installation checks.
+
+This does not reuse pre-CI results, waive signatures or trust checks, or establish
+another platform's qualification. Release evidence still requires the ordinary
+fresh, complete gate sequence; resumed repair checkpoints remain diagnostic.

@@ -79,6 +79,7 @@ class SshExecutionRequestHandler(Protocol):
         request: ExecutionDispatchRequest,
         *,
         cwd: Path,
+        deadline_monotonic: float | None = None,
     ) -> ExecutionDispatchResult: ...
 
 
@@ -359,8 +360,14 @@ class LocalExecutionDispatcher:
 class SshExecutionDispatcher:
     """Delegate an exact SSH worker to the existing bounded SSH lifecycle lane."""
 
-    def __init__(self, handler: SshExecutionRequestHandler) -> None:
+    def __init__(
+        self,
+        handler: SshExecutionRequestHandler,
+        *,
+        environment: Mapping[str, str] | None = None,
+    ) -> None:
         self.handler = handler
+        self.environment = dict(os.environ if environment is None else environment)
 
     def dispatch(
         self,
@@ -375,6 +382,28 @@ class SshExecutionDispatcher:
                 "SSH dispatcher requires an SSH worker",
             )
         working_directory = _dispatch_context(worker, request, cwd)
+        if worker.provisioning_identity is not None:
+            from .user_paths import resolve_user_paths
+            from .worker_lease_dispatch import admitted_lease_dispatch
+
+            paths = resolve_user_paths(environment=self.environment)
+            with admitted_lease_dispatch(
+                Path(paths.worker_provisioner),
+                Path(paths.worker_provisioning),
+                worker,
+                request,
+                self.environment,
+            ) as deadline:
+                return _validated_result(
+                    worker,
+                    request,
+                    self.handler.execute(
+                        worker,
+                        request,
+                        cwd=working_directory,
+                        deadline_monotonic=deadline,
+                    ),
+                )
         return _validated_result(
             worker,
             request,

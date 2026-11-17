@@ -149,6 +149,14 @@ class ProjectCliTests(unittest.TestCase):
                 encoding="utf-8",
             )
 
+            status, refused = invoke(
+                "project", "documentation-review", str(target), "--require-current"
+            )
+            self.assertNotEqual(status, 0)
+            self.assertEqual(
+                refused["error"]["code"], "project.documentation_authority_review_stale"
+            )
+
             status, envelope = invoke(
                 "project", "documentation-review", str(target), "--record"
             )
@@ -161,6 +169,12 @@ class ProjectCliTests(unittest.TestCase):
                 (target / "docs/architecture/design-traceability.md").read_text(),
             )
             self.assertEqual(invoke("project", "validate", str(target))[0], 0)
+            self.assertEqual(
+                invoke(
+                    "project", "documentation-review", str(target), "--require-current"
+                )[0],
+                0,
+            )
 
     def test_repository_is_a_self_describing_canonical_project(self) -> None:
         status, envelope = invoke("project", "validate", str(REPO_ROOT))

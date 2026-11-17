@@ -311,7 +311,7 @@ def _clone_git_source(
                 "git catalog source did not resolve the requested immutable commit",
             )
         _initialize_submodules(clone_root, paths if immutable else None)
-        if not (clone_root / PROJECT_FILENAME).exists():
+        if not (ProjectConfigurationStore.manifest_path(clone_root)).exists():
             raise CatalogImportError(
                 "catalog.import_source_invalid",
                 f"git catalog source is not a literate-ai project "
@@ -326,7 +326,7 @@ def _clone_git_source(
 def _resolve_local_source(source_spec: str) -> tuple[Path, str]:
     path_str = source_spec.removeprefix("local:").strip()
     path = Path(path_str).expanduser().resolve()
-    if not (path / PROJECT_FILENAME).exists():
+    if not (ProjectConfigurationStore.manifest_path(path)).exists():
         raise CatalogImportError(
             "catalog.import_source_invalid",
             f"source path is not a literate-ai project (no {PROJECT_FILENAME}): {path}",
@@ -584,6 +584,17 @@ def catalog_copy(
     Copy catalog items from source_spec into dest_root, recording provenance.
     Returns a result dict suitable for CLI output.
     """
+    try:
+        destination = ProjectConfigurationStore(dest_root).read()
+    except ProjectError as exc:
+        raise CatalogImportError(
+            "catalog.import_destination_invalid", "destination project is invalid"
+        ) from exc
+    if destination.definition.framework_directory is not None:
+        raise CatalogImportError(
+            "catalog.native_profile_unsupported",
+            "The contained native profile does not admit catalog imports",
+        )
     items = [_parse_item_spec(s) for s in item_specs]
     paths = tuple(
         sorted(

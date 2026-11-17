@@ -40,7 +40,10 @@ def cache_lock_path(
     ):
         raise CacheLockError("cache lock path components are invalid")
     identity = hashlib.sha256(str(cache).encode("utf-8")).hexdigest()
-    return project / ".litai-cache-locks" / identity / Path(*parts)
+    from literate_ai.projects import ProjectConfigurationStore
+
+    framework = ProjectConfigurationStore.context(project).framework_root
+    return framework / ".litai-cache-locks" / identity / Path(*parts)
 
 
 def _open_lock_with_retry(lock_path: Path, flags: int) -> int:

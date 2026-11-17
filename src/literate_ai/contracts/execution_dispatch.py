@@ -711,11 +711,20 @@ class ExecutionWorker:
     action_protocol: str | None = None
     action_command: tuple[str, ...] = ()
     reachability: WorkerReachability | None = None
+    provisioning_identity: ContentIdentity | None = None
 
     SCHEMA: ClassVar[str] = EXECUTION_WORKER_SCHEMA
 
     def __post_init__(self) -> None:
         _identifier(self.worker_id, "ExecutionWorker.worker_id")
+        if self.provisioning_identity is not None and (
+            not isinstance(self.provisioning_identity, ContentIdentity)
+            or self.kind is not ExecutionWorkerKind.SSH
+        ):
+            fail(
+                "ExecutionWorker.provisioning_identity",
+                "requires a typed provisioning binding on an SSH worker",
+            )
         if not isinstance(self.kind, ExecutionWorkerKind):
             fail("ExecutionWorker.kind", "must be typed")
         if self.kind is ExecutionWorkerKind.REMOTE:
@@ -903,6 +912,11 @@ class ExecutionWorker:
             "lifecycle_executable": self.lifecycle_executable,
             "slots": self.slots,
             **(
+                {"provisioning_identity": self.provisioning_identity.uri}
+                if self.provisioning_identity is not None
+                else {}
+            ),
+            **(
                 {"action_command": list(self.action_command)}
                 if self.action_command
                 else {}
@@ -976,6 +990,7 @@ class ExecutionWorker:
                     "slots",
                     "action_protocol",
                     "action_command",
+                    "provisioning_identity",
                 }
             ),
         )
@@ -1023,6 +1038,9 @@ class ExecutionWorker:
                 )
             ),
             reachability,
+            ContentIdentity.parse_uri(data["provisioning_identity"])
+            if "provisioning_identity" in data
+            else None,
         )
 
 

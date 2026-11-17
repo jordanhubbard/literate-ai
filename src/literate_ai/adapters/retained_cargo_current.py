@@ -90,7 +90,7 @@ def read_retained_cargo_importer_authority(
         maximum_total_bytes=maximum_file_bytes * 2,
     )
     inputs.pin(
-        root / PROJECT_FILENAME,
+        ProjectConfigurationStore.manifest_path(root),
         boundary=root,
         label=PROJECT_FILENAME,
         expected_content=configuration.content,

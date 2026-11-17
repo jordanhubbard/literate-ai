@@ -6,7 +6,10 @@
 
 # Prefix-installed CLI self-update implementation plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> Historical implementation plan. Follow the current repository agent entry point
+> and selected Literate AI skill for subsequent changes. The former mandatory
+> Superpowers instruction is retired under SDLC-001; no external skill dependency
+> is required by this completed plan.
 
 **Goal:** A prefix-installed `litai` launcher stages a newer GitHub Release wheel in the background and, on the next enrolled invocation, installs it into the same prefix and re-execs the original argv.
 

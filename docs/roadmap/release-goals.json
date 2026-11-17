@@ -315,6 +315,18 @@
       },
       {
         "id": "LAB-AUTHORITY-001"
+      },
+      {
+        "id": "SDLC-001"
+      },
+      {
+        "id": "ADOPT-CLI-001"
+      },
+      {
+        "id": "WORKER-001"
+      },
+      {
+        "id": "TEST-CACHE-001"
       }
     ]
   }

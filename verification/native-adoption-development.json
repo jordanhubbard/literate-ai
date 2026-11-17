@@ -1,0 +1,317 @@
+{
+  "schema": "literate-ai/native-adoption-development@1",
+  "reviewer": "sdlc_review",
+  "review_decision": "APPROVE exact cumulative 51-subject native batch for the independent source-review/pin-renewal prerequisite; not release qualification",
+  "review_record_sha256": "6b06f41beb849904ed6968cf0666a1d644adf4c842e90cc3b8bcef9b323e8710",
+  "subjects": [
+    {
+      "path": "SKILL.md",
+      "sha256": "38427877af74934b3914f869775a55beeb526f97861cb0cb4f4f150a2e0ab333"
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "de8e0ca30e6c17d617fc9aac965cfc57b2c4275955d7b262e53ce5dec658e4c3"
+    },
+    {
+      "path": "docs/user/configuration-and-cli.md",
+      "sha256": "f77bb30cc60076272788939193f2df36a2e984768047e88f1c8787ceb9ff9291"
+    },
+    {
+      "path": "docs/user/framework-flow.md",
+      "sha256": "ebf23bd0c90408c7c329385bdc45f8ddaca1d0bfb4e0a1f26cc4d5dea8226b59"
+    },
+    {
+      "path": "docs/user/getting-started.md",
+      "sha256": "0da51f5de5cc81c7740070c717dac9c668ea26780e52be7d18f8cf91b0b6696a"
+    },
+    {
+      "path": "schemas/v2/project-initialization.schema.json",
+      "sha256": "d815df916a06992ceeadef426143753aa76c25128782d0c1463293c10bf2c25c"
+    },
+    {
+      "path": "schemas/v2/projects-skills.schema.json",
+      "sha256": "370f9e101b4093cf4271388ad8ba9108e4b5b13e875e6f4a1684377b43a2e862"
+    },
+    {
+      "path": "scripts/installed_project_smoke.py",
+      "sha256": "efb3e8d592e046828afa8bfabf5ef69d51d3a36cccca462c912871cd15c387d8"
+    },
+    {
+      "path": "skills/agent/convert-project/SKILL.md",
+      "sha256": "56f407bd5a9482b64fa50200e2254e3abe4cd6a9230311e511c46310d5f6847c"
+    },
+    {
+      "path": "src/literate_ai/_cache_lock.py",
+      "sha256": "2412bee77dad6ecdd700b573fa3ae64b677402fa3c9aeff8e9eaa1134d71763a"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "edab2ee32932a6fd18de33abb852c5d970f604a3ffd4765f7966bcb30969f0b7"
+    },
+    {
+      "path": "src/literate_ai/adapters/conversion_authority.py",
+      "sha256": "7e6e93727e579482d77cb476f174df20f0a1c6ae6ce883d701fc793a8d2bb536"
+    },
+    {
+      "path": "src/literate_ai/adapters/documentation_update.py",
+      "sha256": "f90a159889d56b3816ae56afc9d75fd3c09d32640baa638ab4f55d7006d50f3b"
+    },
+    {
+      "path": "src/literate_ai/adapters/lifecycle_lock.py",
+      "sha256": "d8c3e66bbd8e284e7d77f0084d0cc29f6d6e062aace6ac0460b747d27287da85"
+    },
+    {
+      "path": "src/literate_ai/adapters/native_project_bootstrap.py",
+      "sha256": "5b7cf38a141ace8ac59c380dac2299919e2c438234958ef5393b0e7062f67a60"
+    },
+    {
+      "path": "src/literate_ai/adapters/native_project_removal.py",
+      "sha256": "5779fa356e2b066aa81d9857217e58a8f695933aeffde05954566b5caf22d6d7"
+    },
+    {
+      "path": "src/literate_ai/adapters/operator_status.py",
+      "sha256": "26f2ad7bdc92804b0b7737177d894af83c095b1065bd21cce1149eec6e4536e0"
+    },
+    {
+      "path": "src/literate_ai/adapters/original_project_adoption.py",
+      "sha256": "94dd55fbe9dca912be0e7cc27b1718661bd1886c80f2041fff676fca48863aa8"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_reparenting.py",
+      "sha256": "9eabd47d7122204d854fedc2c73b1631be0803a1be2706870bb0cd89b5ebc0f8"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_apply.py",
+      "sha256": "e1061490f21e8e83272e5ce4eb50eeb58c80e5c3ead2b69e3ead139fa7831f38"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "sha256": "f6162cb32076dd894347b41f86818c9402f47d75cb16deabca1fcc58efe32d31"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_validation.py",
+      "sha256": "9bc184d69d016bc072914f7fc180f8a772ba29fa51ceb8a8d373d403fa8a6201"
+    },
+    {
+      "path": "src/literate_ai/adapters/repository_lineage.py",
+      "sha256": "48d0abd381b239ca599b6d77f6c432c992ff454f86dfb2fb0898b5756ff266a9"
+    },
+    {
+      "path": "src/literate_ai/adapters/update_merge.py",
+      "sha256": "84a7e2c3d2266ddf21c57098d7395340496d7c226d15d1fdd298287e123e412c"
+    },
+    {
+      "path": "src/literate_ai/cache_directories.py",
+      "sha256": "26f682ed00366e5324c6939816bbfb3293972931c3ac0586b72321842d2224d6"
+    },
+    {
+      "path": "src/literate_ai/cli/dispatch.py",
+      "sha256": "eb284ce6276037d13e50380163747c12d52d9a01a332d3e1899a46e2f1432eab"
+    },
+    {
+      "path": "src/literate_ai/cli/operator.py",
+      "sha256": "ccc0479f2aaf086b3e7608214bb81d84a75bf13077250cbea0b6f4341fedce33"
+    },
+    {
+      "path": "src/literate_ai/cli/project.py",
+      "sha256": "8635990306ddfcacdd6fdbeca1356028b60dad70d9ddb73fa94aa7e275e7478c"
+    },
+    {
+      "path": "src/literate_ai/contracts/project_initialization.py",
+      "sha256": "bb5a208c8f1938da3ee8945eced6ddcd79a015fcb748aad5f8dad292f79c6e67"
+    },
+    {
+      "path": "src/literate_ai/contracts/projects.py",
+      "sha256": "050f75096e8208e61f2f3b80da2b1d022594e94e3f332717976a937ff7deed7b"
+    },
+    {
+      "path": "src/literate_ai/evidence_ledger.py",
+      "sha256": "3742010a4add081a22c9d0d7b2668572b39ad82cbdbf368636f7cb32745bb592"
+    },
+    {
+      "path": "src/literate_ai/project_authority_graph.py",
+      "sha256": "40b2a5ea57ae41e1da3546c7cf11399365fb8f96aa3c608010b777769a2a92ed"
+    },
+    {
+      "path": "src/literate_ai/project_releases.py",
+      "sha256": "d9e184ec0114e1f0c195e8a3dfa10ac8c6a6bbba223a91e64f043477e41fd860"
+    },
+    {
+      "path": "src/literate_ai/project_template/SKILL.md",
+      "sha256": "a784f845519e95bdd8847da68a77ed9cf472875b49e8d0119dd3d24edd4b011b"
+    },
+    {
+      "path": "src/literate_ai/projects.py",
+      "sha256": "19bd5e0d225eae8c447abaaf2ade521fddca6148243d7fd899d02e317dd7bbab"
+    },
+    {
+      "path": "tests/critical/test_project_configuration.py",
+      "sha256": "ff18f3d179c4be82d9c866d813a17fdbf0e23070192073bf1c44303d54ef52bf"
+    },
+    {
+      "path": "tests/e2e/test_adoption_failure_evidence.py",
+      "sha256": "d1f5b4f79412b4fc103390c6f2f51f14846ded3402727bc6ac2dfed416fb8b47"
+    },
+    {
+      "path": "tests/e2e/test_adoption_node_dependencies.py",
+      "sha256": "3713b830c2273978937fbed73f706a460e09d383d92b582e82f75bc50ea22c21"
+    },
+    {
+      "path": "tests/e2e/test_conversion_tracked_ignored.py",
+      "sha256": "533eb4b092a7f20c2ba9b3b0c6b247202291f2dc0dbdc5b9a8566c165e3635e4"
+    },
+    {
+      "path": "tests/e2e/test_native_bootstrap_publication.py",
+      "sha256": "8e592654086c972da786708bfda5e89668a35225e8d3cf6f29c4e5f9362c8f21"
+    },
+    {
+      "path": "tests/e2e/test_native_project_bootstrap.py",
+      "sha256": "199e46ae956f362b3105c3f953ce60a05ca7e185bfd44c5e9c9147d1aa10a602"
+    },
+    {
+      "path": "tests/e2e/test_native_project_removal.py",
+      "sha256": "7fafe2ca8f1c92c840ed8dc0ab96185b1ae507db43758c45306c5c7299019116"
+    },
+    {
+      "path": "tests/e2e/test_native_template_update.py",
+      "sha256": "9876d5e58123c646db8fd1ba4837de82112801e9d7eb0be0c5e6a64a541f21e2"
+    },
+    {
+      "path": "tests/e2e/test_onboard_plan_readonly.py",
+      "sha256": "de38fb58408a8b529b5b2171cd30330648eccb8902d59d466d1376e76a26555d"
+    },
+    {
+      "path": "tests/e2e/test_project_releases.py",
+      "sha256": "cb859f125c5933a6b5f00adc77f05b492f7e7adc6c06be9ec455eb82f6e9a78c"
+    },
+    {
+      "path": "tests/e2e/test_retained_catalog_discovery.py",
+      "sha256": "6e992845ae3060b61e41d62f949a4ad35c7a2b5c8f5b51c3d1d9fafde8de6e54"
+    },
+    {
+      "path": "tests/smoke/test_installed_project_preflight.py",
+      "sha256": "5a2db18e187b630c98edc4cf01296e72dd3fcdabe30dc3e9122df0fa40d43dd8"
+    },
+    {
+      "path": "tests/smoke/test_monorepo_adoption.py",
+      "sha256": "89d5438ee3ecb294a01c0503f4a0390d7627bdfb8b933265a9207f1226be06a8"
+    },
+    {
+      "path": "tests/support/installed_identity_migration_journey.py",
+      "sha256": "cd27c6fb70ecdba3ff84f75c51168b385e7c6a6a0177b3d10ff4142a73b3e702"
+    },
+    {
+      "path": "tests/support/native_repository.py",
+      "sha256": "c2efff21f53536b75a6f8f7a4c82a51bf99c3c3bcedeb74953b41b0649def70c"
+    },
+    {
+      "path": "verification/candidate-artifact-development.json",
+      "sha256": "1a374e0be4a5a0237d507911c8131334fdea7414bca15cc57d59c5de7739470f"
+    }
+  ],
+  "scope": "Contained native Git bootstrap, bounded update/removal, typed refusal of unsupported optional owners, and early installed live-selection preflight. Not release qualification.",
+  "validation": {
+    "latest_author_cohort": {
+      "selected": 29,
+      "passed": 29,
+      "seconds": 68.027,
+      "log_sha256": "33d541acc7eee1b65c904e731a5c46fc1487e6efbcd3cc1a79227cb83c5e7c64"
+    },
+    "independent_final_controls": {
+      "selected": 2,
+      "passed": 2,
+      "seconds": 9.77
+    },
+    "independent_configuration_probes": "Both index and cached removal preserve application-owned root instructions under conflicting diff/apply preferences.",
+    "full_source": {
+      "summary": {
+        "executed": 2793,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2793,
+        "selected": 2885,
+        "skipped": 92
+      },
+      "seconds": 842.39,
+      "report_sha256": "d975699ed88404480ace270dbce8d8dcbf55a5a56854b1e55a46b46312b4b451",
+      "log_sha256": "553585eb793c4a3a5e2fc58e7b6339e7d0c3cbe89b9abd77ed9b6fa659bd6816",
+      "fresh_checkpoint": true,
+      "release_evidence": false
+    },
+    "installed": "pending",
+    "native_platforms": "pending",
+    "retained_failed_attempt": {
+      "summary": {
+        "executed": 740,
+        "failed": 1,
+        "known_failed": 0,
+        "passed": 739,
+        "selected": 2885,
+        "skipped": 30
+      },
+      "report_sha256": "e336f65abc4570e0170638b342943a5a59eb701a382a7a8ee1f41d392c2fe214",
+      "reason": "Legacy release fixture omitted the typed project definition; corrected four fixture namespaces without weakening the production native-release refusal."
+    },
+    "additional_gates": [
+      "driver-review",
+      "runner-review",
+      "documentation-review",
+      "lint",
+      "format-check",
+      "skills-check",
+      "repository-layout-check",
+      "public-export-check"
+    ]
+  },
+  "preserved_limits": [
+    "No native execution/release receipt is established by bootstrap.",
+    "No automatic index restoration; uncertain states require native Git disposition.",
+    "Unknown runtime and custom data remain; removal stages changes without committing.",
+    "Git index read is bounded to4MiB.",
+    "POSIX manifest flock acquisition can block.",
+    "Legacy migration and optional contained owners remain roadmap obligations."
+  ],
+  "post_review_documentation": {
+    "scope": "Author-reviewed changelog and evidence summaries added after independent source approval. No reviewed source/contract/skill bytes changed.",
+    "paths": {
+      "CHANGELOG.md": "02b4f49969bfdd0a4afeb9d3c83b995cd5c09d866845d4ff86bb9f337af39929",
+      "docs/roadmap/existing-repository-delivery.md": "66ba6d30b12964ccf7b21d2b1e0b7713897a3e856dd9537cb75e4aea66d73d7f",
+      "docs/user/getting-started.md": "c3d8278d796bf1353dc8b44cc2e950c7bb25e9fbfe43a497aada9a2d880b6b0e"
+    }
+  },
+  "incremental_reviews": [
+    {
+      "reviewer": "sdlc_review",
+      "scope": "Installed native and explicit conversion harness; legacy typed-context fixture repair.",
+      "review_record_sha256": "b5f3e0072aadd907a3931f28436fd69c7b25addd2166b035a281cccc6e32891a",
+      "subjects": [
+        {
+          "path": "scripts/wheel_smoke.py",
+          "sha256": "18227d453670e7664bf12db9d93c11c90df8524d52333ec5dd8af5e0e2f4f5f4"
+        },
+        {
+          "path": "scripts/installed_retained_catalog_smoke.py",
+          "sha256": "b2cbf42dc1c33f6c1b27cb3089e00f9b20a1c5640d3477fb857636c7d26bb907"
+        },
+        {
+          "path": "tests/critical/test_legacy_release_line.py",
+          "sha256": "b49051200dac72a1543dc14663c455bc43448f69c0cedd14a4cfecc9cfab319f"
+        },
+        {
+          "path": "tests/critical/test_release_semver_requirement.py",
+          "sha256": "4d3002dc9c98f7430014cb12c34509edd5a6473ea552b598d756f5a6e47a77f7"
+        },
+        {
+          "path": "tests/critical/test_published_release_identity.py",
+          "sha256": "906eab290690f6c31039cc571a9a5131a300174da83c41f1f6486244651fe7c9"
+        }
+      ],
+      "independent_critical_tests": {
+        "selected": 4,
+        "passed": 4,
+        "seconds": 3.469
+      },
+      "development_harness": "Editable CLI only; actual Git readback confirms fourteen contained staged deletions and preserved custom policy."
+    }
+  ]
+}

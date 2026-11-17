@@ -49,7 +49,9 @@ class ReleaseSemverRequirementTests(unittest.TestCase):
                     helper.write_record(path, record)
                 with patch(
                     "literate_ai.project_releases.discover_project",
-                    return_value=SimpleNamespace(root=root),
+                    return_value=SimpleNamespace(
+                        root=root, definition=SimpleNamespace(framework_directory=None)
+                    ),
                 ):
                     self.assertEqual(
                         releases.load_release_policy(root)[1].version_scheme, "pep440"

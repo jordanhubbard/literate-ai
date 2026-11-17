@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import tempfile
+import time
 import unittest
 from dataclasses import replace
 from pathlib import Path
@@ -71,6 +72,7 @@ def request() -> ExecutionDispatchRequest:
 class RecordingRunner:
     def __init__(self, result: ExecutionDispatchResult) -> None:
         self.calls: list[tuple[str, ...]] = []
+        self.timeouts: list[float] = []
         self.executed = False
         manifest = RemoteLifecycleEvidenceManifest(
             result.request_identity,
@@ -114,6 +116,7 @@ class RecordingRunner:
 
     def run(self, argv, *, cwd, timeout_seconds):
         self.calls.append(tuple(argv))
+        self.timeouts.append(timeout_seconds)
         if len(self.calls) == 6:
             self.executed = True
             output = canonical_json_bytes(
@@ -229,12 +232,16 @@ class SshExecutionTests(unittest.TestCase):
                 ),
             ):
                 actual = SshLifecycleRequestHandler(runner).execute(
-                    selected, dispatch_request, cwd=root
+                    selected,
+                    dispatch_request,
+                    cwd=root,
+                    deadline_monotonic=time.monotonic() + 5,
                 )
 
         self.assertEqual(actual.request_identity, result.request_identity)
         self.assertIsNotNone(actual.custody_receipt)
         self.assertEqual(len(runner.calls), 8)
+        self.assertTrue(all(0 < value <= 5 for value in runner.timeouts))
         self.assertEqual(runner.calls[0][0], transport)
         self.assertTrue(all(call[0] == "scp" for call in runner.calls[1:5]))
         self.assertEqual(runner.calls[5][0], transport)

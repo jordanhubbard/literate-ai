@@ -2853,7 +2853,7 @@ class FilesystemProjectInitializationAdapter:
                 )
             except HarnessWorkspaceError as exc:
                 raise ProjectInitializationError(exc.code, exc.message) from exc
-            if (resolved_target / PROJECT_FILENAME).exists():
+            if (ProjectConfigurationStore.manifest_path(resolved_target)).exists():
                 raise ProjectInitializationError(
                     "project.already_initialized",
                     f"{PROJECT_FILENAME} already exists; this project is already a "

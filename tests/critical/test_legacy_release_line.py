@@ -33,7 +33,9 @@ class LegacyReleaseLineTests(unittest.TestCase):
             )
             with patch(
                 "literate_ai.project_releases.discover_project",
-                return_value=SimpleNamespace(root=root),
+                return_value=SimpleNamespace(
+                    root=root, definition=SimpleNamespace(framework_directory=None)
+                ),
             ):
                 initial_refs = helper.git(remote, "show-ref")
                 with self.assertRaises(ProjectReleaseError) as error:

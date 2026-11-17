@@ -13,7 +13,7 @@ from dataclasses import fields, is_dataclass
 from pathlib import Path
 
 from literate_ai.contracts.identity import canonical_identity
-from literate_ai.projects import PROJECT_FILENAME
+from literate_ai.projects import ProjectConfigurationStore
 
 from ._write_reservations import (
     WriteReservationSet,
@@ -74,7 +74,7 @@ def refresh_reservation_targets(
                     path, observed.root, observed.root_node, advisory=True
                 )
                 for path in (
-                    observed.root / f".{PROJECT_FILENAME}.write.lock",
+                    ProjectConfigurationStore.lock_path(observed.root),
                     project_lifecycle_lock_path(observed.root),
                 )
             )

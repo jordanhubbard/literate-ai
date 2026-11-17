@@ -45,9 +45,11 @@ specification-led software: a Component's Markdown specification is the durable
 authority for its observable behavior, and every coding-CLI-generated source tree is
 disposable output. The framework's own goals are:
 
-1. Template and convert repositories into an evidence-gated SDLC: `litai onboard create`
+1. Adopt existing repositories into an evidence-gated SDLC while preserving native
+   source, build, tests and CI. In-place adoption is the primary path; contained
+   onboarding remains an open 1.4 deliverable under SDLC-001. `litai onboard create`
    plans and scaffolds a new tree with workflow, receipts, and release protocol;
-   `litai onboard adopt` wraps an existing tree in the same harness; `verify`,
+   explicit conversion remains an optional capability; `verify`,
    `lock`, `plan`, and `rebuild` prove when that tree is valid, and `release`
    cuts a versioned line. Framework and derived-project releases must follow
    Semantic Versioning: each published release has an immutable version tag on
@@ -130,6 +132,13 @@ development (2026-09-10):
 | Samples | Non-inheritable demos under `samples/`, except `hello-component` (the inheritable starter `litai init` seeds). | See the open taxonomy question in `docs/roadmap/active-work.md`. |
 
 ## Current work
+
+SDLC-001 makes existing-repository delivery the primary adoption path for 1.4.0.
+The [evidence-backed program](docs/roadmap/existing-repository-delivery.md) and
+[ADR 0074](docs/decisions/0074-existing-repository-delivery.md) consolidate native
+adoption, containment, release measurement and worker lifecycle under existing
+owners. Native source and working build/CI layouts remain application authority;
+generation is an explicit capability. Implementation and pilot acceptance remain open.
 
 WHEEL-PYTHON-BINDING-001 closes a qualification-fixture gap under Goals 1 and 4:
 installed continuation must bind its bytecode oracle and native build to the same

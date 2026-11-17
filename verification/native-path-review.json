@@ -1,0 +1,50 @@
+{
+  "schema": "literate-ai/development-incremental-review@1",
+  "reviewer": "sdlc_review",
+  "baseline_commit": "b2465356af5fdc8b0838b14c075df20ed3c67011",
+  "review_record_sha256": "1f448674db8370bc341f0e97dc1d1f9ce86da7701398ec3e8dfb6fec185fd07b",
+  "subjects": {
+    "src/literate_ai/adapters/native_project_bootstrap.py": "aecc8053f41efa8366c27485e0ab200e2aef0fee2e0efc5ba3c9e2ee8cc55175",
+    "tests/e2e/test_native_project_bootstrap.py": "7e9d0e097c14c9bbd18d17752347236aada88f6a4943eb5827e1e3e8ee0d9c19",
+    "scripts/wheel_smoke.py": "48110338a6071c1c672689c76873f4ed907a23c3cc56dca9648224ac83d55b37",
+    "docs/roadmap/existing-repository-delivery.md": "9e5c9a4d0c6fe4dfd2326514cb9cb60b6c7356e4d95345bc2d80a52c8d786556"
+  },
+  "scope": "Native path refusal and harness-only macOS path canonicalization; no relaxed filesystem custody.",
+  "qualification": {
+    "focused_source": {
+      "tests": 9,
+      "seconds": 26.855,
+      "result": "passed"
+    },
+    "negative_before": "Public alias control reproduced missing structured error before the source repair.",
+    "prior_installed_harness": "Corrected harness passes against b2465356 installed wheel; diagnosis only.",
+    "fresh_source_and_wheel": "Fresh source qualification passed; repaired-wheel qualification remains required at the clean commit.",
+    "complete_source": {
+      "selected": 2887,
+      "passed": 2795,
+      "skipped": 92,
+      "failed": 0,
+      "seconds": 1551.175,
+      "workers": 4,
+      "checkpoint": "fresh-from-zero",
+      "gates": [
+        "python-check",
+        "driver-review",
+        "runner-review",
+        "documentation-review",
+        "lint",
+        "format-check",
+        "repository-layout-check",
+        "public-export-check"
+      ]
+    },
+    "baseline_ci": {
+      "run": 43977241097,
+      "commit": "b2465356af5fdc8b0838b14c075df20ed3c67011",
+      "conclusion": "success",
+      "successful_jobs": 11,
+      "skipped_jobs": 2,
+      "scope": "Prior published candidate only; does not attest this repair."
+    }
+  }
+}

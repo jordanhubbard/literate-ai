@@ -12,6 +12,7 @@ from literate_ai.adapters.user_assets import (
     resolve_worker_config_path,
 )
 from literate_ai.adapters.user_paths import UserPathError, resolve_user_paths
+from literate_ai.adapters.worker_lease_management import manage_lease
 from literate_ai.adapters.worker_provisioning import (
     configure,
     discover_help,
@@ -42,6 +43,8 @@ def add_provisioning_arguments(commands):
         "command-help",
         "status",
         "recover",
+        "observe",
+        "release",
     ):
         parser = actions.add_parser(name)
         if name == "configure":
@@ -50,8 +53,23 @@ def add_provisioning_arguments(commands):
                 required=True,
                 help="versioned local configuration; starts disabled",
             )
-        if name in ("status", "recover"):
+        if name in ("status", "recover", "observe", "release"):
             parser.add_argument("worker_id")
+        if name == "release":
+            parser.add_argument(
+                "--acknowledge",
+                action="store_true",
+                help="authorize releasing the recorded allocation and registration",
+            )
+            parser.add_argument(
+                "--expired-only",
+                action="store_true",
+                help="refuse unless the saved lease observation has expired",
+            )
+            parser.add_argument(
+                "--cancel-attempt",
+                help="cancel the exact outstanding attempt reported by status",
+            )
     launch = commands.add_parser(
         "provision", help="explicitly request and register a dynamic SSH worker"
     )
@@ -109,6 +127,21 @@ def provisioning_from_args(args):
                 read_record(operation_path(state, args.worker_id))
                 if operation == "status"
                 else recover(state, args.worker_id)
+            )
+        elif operation in ("observe", "release"):
+            if operation == "release" and not args.acknowledge:
+                raise CliFailure(
+                    "worker.provisioner_acknowledgement_required",
+                    "Releasing a recorded allocation requires --acknowledge.",
+                )
+            result["request"] = manage_lease(
+                config_path,
+                state,
+                args.worker_id,
+                os.environ,
+                operation=operation,
+                expired_only=getattr(args, "expired_only", False),
+                cancel_attempt=getattr(args, "cancel_attempt", None),
             )
         else:
             requirements = (

@@ -1099,7 +1099,7 @@ def _inherited_promotion_build(project):
         )
     guard = PinnedInputClosure.for_project(project)
     guard.pin(
-        project.root / "literate.project.json",
+        ProjectConfigurationStore.manifest_path(project.root),
         boundary=project.root,
         label="promotion-parent",
         expected_content=snapshot.content,

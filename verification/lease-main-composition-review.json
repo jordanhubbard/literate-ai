@@ -1,0 +1,111 @@
+{
+  "schema": "literate-ai/development-composition-review@1",
+  "reviewer": "sdlc_review",
+  "scope": "Independent composition review of previously reviewed production changes; no native adoption or full release qualification.",
+  "base": "f408ed00adace62a21dcf0de6291f24bd048f810",
+  "incoming": "43809001da525ca8e9b5fc5b09cf8bc047d0d9ea",
+  "source_path_overlap": [],
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/lifecycle/javascript_libraries.py",
+      "reviewed_commit": "43809001d",
+      "sha256": "39e365ac9a8ce936e718e6d08491252a4e2a617209ebfe57d3732fd4f21b8f43"
+    },
+    {
+      "path": "src/literate_ai/adapters/lifecycle/standard_local.py",
+      "reviewed_commit": "43809001d",
+      "sha256": "e2b0ba29e763e8afbe9e9f8f89c16ff0ae6871f6a0fa60d490046eab00b33702"
+    },
+    {
+      "path": "src/literate_ai/adapters/models/coding_cli.py",
+      "reviewed_commit": "43809001d",
+      "sha256": "4c5c872fee82cb45cf9de67ea3820b559e040ffb40544e4d98bb9b4b2d87d5a6"
+    },
+    {
+      "path": "src/literate_ai/application/library_artifacts.py",
+      "reviewed_commit": "43809001d",
+      "sha256": "1e3fd4730120ff69d428b3ea11b63445ed0e3c42efe7df5b5f3f8422738b73da"
+    },
+    {
+      "path": "src/literate_ai/project_template/flavors/lang-javascript/flavor.md",
+      "reviewed_commit": "43809001d",
+      "sha256": "ead3a78b1bb83a477d4ed8b219156cfa0f2118ed80f2ecb672c5ab398abd3d9f"
+    },
+    {
+      "path": "src/literate_ai/project_template/flavors/lang-javascript/openspec/spec.md",
+      "reviewed_commit": "43809001d",
+      "sha256": "c04a8be3b91fcf92cdfe503e332b4dadc66f2655eaf44534d61c070f73398f2d"
+    },
+    {
+      "path": "src/literate_ai/project_template/skills/specification-to-source/javascript-portable-json-application/SKILL.md",
+      "reviewed_commit": "43809001d",
+      "sha256": "1e46732e4a18ed31925246bde458d99e4ae0e5433d6ad8c301e9cddabed47944"
+    },
+    {
+      "path": "src/literate_ai/adapters/_processes.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "6427c9d3cdaa72e21f10c4b3b49982cc54474ff800ef0678c19d6e010fb57ff1"
+    },
+    {
+      "path": "src/literate_ai/adapters/builders/_process.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "f86ef2066623242b0ff93d126c19b5d1459f833a94b60417d8adaf39650f5b26"
+    },
+    {
+      "path": "src/literate_ai/adapters/execution_dispatch.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "ada27aab6b261193c21ef9fdd4ffb2f4bd5bc385ed0629c3bdce76ea9acfecae"
+    },
+    {
+      "path": "src/literate_ai/adapters/remote_transport.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "b782bbcbe498a9d4791e904ad6d66afa8ce15f77370f21f19b9de99596b988e9"
+    },
+    {
+      "path": "src/literate_ai/adapters/ssh_execution.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "166901eafd9333da7dbb63264961b2567297290f4b0762b2b626fb726d537ad1"
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_lease_dispatch.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "4038d19b125b1bec09a690282044435c0c7393a5f09e31da0fe39cffdc38ec28"
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_lease_management.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "e56748bd0b3f399d84b3634c7c3a55d620032795086de18c80e8a65b18ec740a"
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_provisioning.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "e5bb375a2cbe4918832b0f71f9286904a41905d7b10990c4496bb2f92e325be3"
+    },
+    {
+      "path": "src/literate_ai/cli/worker_provisioning.py",
+      "reviewed_commit": "f408ed00",
+      "sha256": "450b24e8efde713d9834abbcd2478c6aa6bc108eadc96cc60b7c49701f0d1895"
+    }
+  ],
+  "review_record_sha256": "b8901d9d38c6309f4723c7a8512b90cf18834af6d6ecc6acd0e8f675b8396979",
+  "focused_tests": {
+    "selected": 27,
+    "passed": 27,
+    "seconds": 12.78
+  },
+  "approval": "pin-renewal-prerequisite-only",
+  "local_source_validation": {
+    "summary": {
+      "executed": 2763,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2763,
+      "selected": 2855,
+      "skipped": 92
+    },
+    "seconds": 858.193,
+    "report_sha256": "e63398d175decb32c82f2bc536a9aea8bdf67fc28f45e702530665d9429359dd",
+    "log_sha256": "2fd9f4ffa3e141e707e72b0f915980c4341e02658ef0080feb72cde8b61a8231",
+    "release_evidence": false
+  }
+}

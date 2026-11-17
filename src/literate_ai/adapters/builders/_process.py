@@ -14,12 +14,35 @@ from typing import BinaryIO
 
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
-from .._processes import create_process_tree_ownership
+from .._processes import (
+    create_process_tree_ownership,
+    process_tree_termination_wait_seconds,
+)
 from .._processes import terminate_process_tree as _terminate_process_tree
 from .python import BuildError
 
 _PIPE_READ_BYTES = 64 * 1024
 _PIPE_CLOSE_TIMEOUT_SECONDS = 5.0
+_PROCESS_EXIT_WAIT_SECONDS = 5
+_STREAM_JOIN_SECONDS = 1
+
+
+def remote_cleanup_wait_seconds(*, platform_name: str | None = None) -> float:
+    """Conservative configured waits for descendant cleanup with no stdin writer.
+
+    The long pipe-close path has three termination calls, two shared reader
+    deadlines, two final reader joins and a final process wait. The timeout path
+    has two termination calls, two process waits and two reader joins. Native
+    calls and blocking stream.close are not bounded by this wait arithmetic.
+    """
+    terminate = process_tree_termination_wait_seconds(platform_name=platform_name)
+    return max(
+        3 * terminate
+        + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
+        + 2 * _STREAM_JOIN_SECONDS
+        + _PROCESS_EXIT_WAIT_SECONDS,
+        2 * terminate + 2 * _PROCESS_EXIT_WAIT_SECONDS + 2 * _STREAM_JOIN_SECONDS,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -252,10 +275,10 @@ def run_bounded_process(
         if "timeout_kind" in locals():
             _terminate_process_tree(process, ownership=ownership)
             with suppress(subprocess.TimeoutExpired):
-                process.wait(timeout=5)
+                process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
             _close_process_pipes(process)
             for reader in readers:
-                reader.join(timeout=1)
+                reader.join(timeout=_STREAM_JOIN_SECONDS)
             raise BuildError(
                 (
                     f"{error_prefix}_timeout"
@@ -283,7 +306,7 @@ def run_bounded_process(
             if any(reader.is_alive() for reader in readers):
                 _close_process_pipes(process)
                 for reader in readers:
-                    reader.join(timeout=1)
+                    reader.join(timeout=_STREAM_JOIN_SECONDS)
                 raise BuildError(
                     f"{error_prefix}_output_stream",
                     "Tool descendants left inherited output streams open",
@@ -299,7 +322,7 @@ def run_bounded_process(
                 "Tool process output could not be read",
             ) from read_errors[0]
         if writer is not None:
-            writer.join(timeout=1)
+            writer.join(timeout=_STREAM_JOIN_SECONDS)
             if writer.is_alive() or input_errors:
                 # The direct child may have exited while a descendant retains
                 # stdin. Stop the owned tree before releasing its identity.
@@ -331,14 +354,14 @@ def run_bounded_process(
         if process.poll() is None or terminate_descendants:
             _terminate_process_tree(process, ownership=ownership)
             with suppress(subprocess.TimeoutExpired):
-                process.wait(timeout=5)
+                process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
         ownership.release()
         _close_process_pipes(process)
         if writer is not None:
             if process.stdin is not None:
                 with suppress(OSError, ValueError):
                     process.stdin.close()
-            writer.join(timeout=1)
+            writer.join(timeout=_STREAM_JOIN_SECONDS)
 
 
 __all__ = ["BoundedProcessResult", "run_bounded_process"]

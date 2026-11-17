@@ -65,6 +65,10 @@ def evidence_root(project_root: Path) -> Path:
     """Return the configured evidence directory for one project."""
 
     root = Path(os.path.realpath(Path(project_root).resolve()))
+    from .projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(root)
+    root = context.root
     configured = os.environ.get("OBJ_DIR", "").strip()
     if configured:
         obj = Path(configured)
@@ -73,7 +77,7 @@ def evidence_root(project_root: Path) -> Path:
         else:
             obj = Path(os.path.realpath(obj.resolve()))
     else:
-        obj = root / "_build"
+        obj = context.framework_root / "_build"
     evidence = obj / EVIDENCE_ROOT_NAME
     if configured and Path(configured).is_absolute():
         try:

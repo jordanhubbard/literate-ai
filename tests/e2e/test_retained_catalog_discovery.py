@@ -150,6 +150,8 @@ class RetainedCatalogDiscoveryTests(unittest.TestCase):
             str(legacy),
             "--source-intelligence-provider",
             "none",
+            "--profile",
+            "convert",
         )
         status, plan = invoke(*args)
         self.assertEqual(status, 0, plan)

@@ -89,6 +89,11 @@ class FilesystemRepositoryReparentAdapter:
             raise RepositoryReparentError(
                 "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
             )
+        if project.definition.framework_directory is not None:
+            raise RepositoryReparentError(
+                "repository_reparent.native_profile_unsupported",
+                "The contained native profile does not admit parent catalogs",
+            )
         store = FilesystemRepositoryLineageStore(project.root)
         try:
             previous = store.load_optional()

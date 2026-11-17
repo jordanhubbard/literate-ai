@@ -178,10 +178,13 @@ class ProjectInitializationBaseline:
     origin_identity: ContentIdentity
     template_protocol: str
     files: tuple[ProjectInitializationBaselineFile, ...]
+    profile: str = "generated"
 
     SCHEMA: ClassVar[str] = INITIALIZATION_BASELINE_SCHEMA
 
     def __post_init__(self) -> None:
+        if self.profile not in {"generated", "native"}:
+            fail("ProjectInitializationBaseline.profile", "must be generated or native")
         if not isinstance(self.origin_identity, ContentIdentity):
             fail(
                 "ProjectInitializationBaseline.origin_identity",
@@ -214,12 +217,15 @@ class ProjectInitializationBaseline:
         return contract_identity(self)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        value = {
             "schema": self.SCHEMA,
             "origin_identity": self.origin_identity.to_dict(),
             "template_protocol": self.template_protocol,
             "files": [item.to_dict() for item in self.files],
         }
+        if self.profile != "generated":
+            value["profile"] = self.profile
+        return value
 
     @classmethod
     def from_dict(
@@ -230,6 +236,7 @@ class ProjectInitializationBaseline:
             path=path,
             schema_uri=cls.SCHEMA,
             required=frozenset({"origin_identity", "template_protocol", "files"}),
+            optional=frozenset({"profile"}),
         )
         files = tuple(
             ProjectInitializationBaselineFile.from_dict(
@@ -245,6 +252,7 @@ class ProjectInitializationBaseline:
                 data["template_protocol"], f"{path}.template_protocol"
             ),
             files=files,
+            profile=string_value(data.get("profile", "generated"), f"{path}.profile"),
         )
 
 

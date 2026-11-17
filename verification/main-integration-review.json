@@ -1,0 +1,59 @@
+{
+  "status": "terminal-approved-narrow-composition",
+  "approval": true,
+  "reviewer": "/root/sdlc_review",
+  "baseline": "d90d8704c26f7192224238727526e72a1f4eceb4",
+  "merge_head": "e3ca4c7889c72d031191d6d8709f7c91211aed38",
+  "scope": "Independent review of incoming JavaScript sealed-library implementation and its composition with the previously reviewed SDLC source, including the unchanged bounded CLI process owner. Approval is limited to this exact merge delta and corrected portability test; no native adoption, release, provider or full-platform qualification approval.",
+  "approved_subjects": {
+    "docs/architecture/javascript-library-imports.md": "42ff7aeb088a9104a4ab399a5e36ca391c7789439d5d3e24b5b32d028bb42c64",
+    "flavors/lang-javascript/flavor.md": "ead3a78b1bb83a477d4ed8b219156cfa0f2118ed80f2ecb672c5ab398abd3d9f",
+    "flavors/lang-javascript/openspec/spec.md": "c04a8be3b91fcf92cdfe503e332b4dadc66f2655eaf44534d61c070f73398f2d",
+    "skills/specification-to-source/javascript-portable-json-application/SKILL.md": "1e46732e4a18ed31925246bde458d99e4ae0e5433d6ad8c301e9cddabed47944",
+    "src/literate_ai/adapters/lifecycle/javascript_libraries.py": "39e365ac9a8ce936e718e6d08491252a4e2a617209ebfe57d3732fd4f21b8f43",
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "e2b0ba29e763e8afbe9e9f8f89c16ff0ae6871f6a0fa60d490046eab00b33702",
+    "src/literate_ai/adapters/models/coding_cli.py": "4c5c872fee82cb45cf9de67ea3820b559e040ffb40544e4d98bb9b4b2d87d5a6",
+    "src/literate_ai/application/library_artifacts.py": "1e3fd4730120ff69d428b3ea11b63445ed0e3c42efe7df5b5f3f8422738b73da",
+    "src/literate_ai/project_template/flavors/lang-javascript/flavor.md": "ead3a78b1bb83a477d4ed8b219156cfa0f2118ed80f2ecb672c5ab398abd3d9f",
+    "src/literate_ai/project_template/flavors/lang-javascript/openspec/spec.md": "c04a8be3b91fcf92cdfe503e332b4dadc66f2655eaf44534d61c070f73398f2d",
+    "src/literate_ai/project_template/skills/specification-to-source/javascript-portable-json-application/SKILL.md": "1e46732e4a18ed31925246bde458d99e4ae0e5433d6ad8c301e9cddabed47944",
+    "tests/smoke/test_app_stack_skills.py": "36821cb002bca55fd92a60d00750fbdbc29ce97e25ab8fcc3984d489d02dd3dd",
+    "tests/smoke/test_javascript_library_imports.py": "7f424c038cc58c127a764359051e856fcc13285200a64fbf175facc1bcdc7827"
+  },
+  "resolved_findings": [
+    {
+      "id": "INTEGRATION-REVIEW-01",
+      "severity": "P2",
+      "confidence": "high",
+      "path": "tests/smoke/test_javascript_library_imports.py",
+      "line": 306,
+      "finding": "The new test assumed _stream_readable existed in every selected Node namespace; actual Node v26.8.1 omitted it and failed the smoke suite.",
+      "fix": "Retain mandatory fs/path/crypto controls and test every underscore-prefixed internal module that the selected Node actually reports. No namespace fabrication or production weakening.",
+      "verification": "Corrected exact test passed1case0.256s; all20other selected tests had already passed with identical source and test bodies."
+    }
+  ],
+  "assessed_controls": [
+    "Typed exact provider/interface/surface/target/dependency coverage before materialization.",
+    "Pinned Node namespace discovery and bounded archive/body acquisition.",
+    "Fresh artifact-local package exports and provider byte preservation; rejection of package collisions, undeclared subpaths, redirected nodes and consumer self-reference.",
+    "Materialization identity participates in build cache key; normal native build/test/execute and transitive packages exercised locally.",
+    "Shared pure source-BOM projection used by prompt and validation; real reconciliation keeps reserved framework forgery checks intact.",
+    "Provider npm admission is not broadened; npm targets bypass this generic path explicitly.",
+    "Incoming prompt addition does not change the previously reviewed CLI process ownership implementation."
+  ],
+  "limits": [
+    "Actual Node import/build/test/execute fixtures ran on this macOS host only; no native Windows/Linux, GPU or remote execution.",
+    "Provider source and admission records in adapter fixtures are synthetic; no model-backed ordinary rebuild or deployed consumer was independently run.",
+    "No full source/wheel/release suite or trust-pin mutation performed.",
+    "No claim that the separate native adoption blockers are resolved."
+  ],
+  "full_source_gate": {
+    "selected": 2846,
+    "passed": 2754,
+    "skipped": 92,
+    "seconds": 1534.07,
+    "log_sha256": "622d8a62e6872e49a0fa91c0974d6a152feea2571f4bdb5723c943b89722b56c",
+    "report_sha256": "210640f1a9afe505f289cc0f7acb117e07092461fc30ae781ee53b5de94ae0d5"
+  },
+  "release_qualification": false
+}
