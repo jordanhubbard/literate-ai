@@ -309,7 +309,13 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       `sha256:dd2e345ab4fde486a05d640213522b3ff6ce24558506d8bf3989520052a79400`
       binds installed distribution
       `sha256:25d4dfcf42e84689538c326cef6eeee875d5cce83649b8f56c342faec2d33444`.
-      These checks cover the shared internal verifier, not public SDK admission.
+      The same wheel passed a fresh shared capture/compile/pack fixture with 203
+      owner checks and 320 installed framework origins, four compiled outputs,
+      both relocated runtimes, all four typing combinations and four any-weakened
+      negative controls. Its new fixture and compiler selection were captured from
+      the current checkpoint; earlier setup refusals and historical manifests stay
+      retained separately. Independent review confirms these synthetic shared-owner
+      checks establish no public SDK admission or ordinary lifecycle qualification.
       Next, join exact accepted provider evidence and live original-oracle checks
       before SDK recipe construction or cache lookup; retain that binding through
       build admission. Existing generation remains interface-only for other profiles.
