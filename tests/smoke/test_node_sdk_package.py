@@ -27,6 +27,8 @@ from literate_ai.contracts import BlobRef, canonical_identity
 from literate_ai.contracts.executable_components.packages import (
     PackageFileKind,
     PackageInput,
+    PackageKind,
+    PackagePlan,
 )
 from literate_ai.security.policy import (
     AuthorizationError,
@@ -45,7 +47,9 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
             component_revision=revision,
             request=SimpleNamespace(source_tree_identity=source),
         )
-        export = SimpleNamespace(identity=canonical_identity("unit guard export"))
+        export = SimpleNamespace(
+            identity=canonical_identity("unit guard export"), export_id="library"
+        )
         request = BuildRequest(
             effective_revision_digest=revision.uri,
             source_bundle_digest=source.uri,
@@ -83,9 +87,12 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
             package_artifacts=(),
             dependency_resolution="none",
         )
-        custody = object()
+        custody = SimpleNamespace(identity=canonical_identity("unit source custody"))
         target = SimpleNamespace(identity=canonical_identity("unit target"))
-        evidence = SimpleNamespace(identity=canonical_identity("unit evidence"))
+        evidence = SimpleNamespace(
+            identity=canonical_identity("unit evidence"),
+            source_custody_identity=custody.identity,
+        )
         ports = SimpleNamespace(
             build_evidence_for_test=lambda *_args: evidence,
             clock=lambda: times[0],
@@ -116,6 +123,7 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
         resource._original_stamps = resource._stamps
         resource._original_source_stamps = resource._source_stamps
         resource._original_resources = None
+        resource._package_records = None
         resource._export_inputs = resource._original_export_inputs = ()
         return resource, ports, times, issued
 
@@ -132,6 +140,97 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
         ports.clock = clock
         with self.assertRaisesRegex(ValueError, "original build membership"):
             resource.require_current()
+
+    def test_packaged_command_path_plan_and_registry_substitutions_are_rejected(self):
+        for mutation in ("path", "plan", "coordinated-plan-result", "registry"):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as raw:
+                root = Path(raw).resolve()
+                resource, ports, _times, issued = self.guard_fixture(root)
+                export = resource._export
+                target = canonical_identity("target")
+                plan = PackagePlan(
+                    resource._plan.component_revision,
+                    canonical_identity("lock"),
+                    target,
+                    canonical_identity("graph"),
+                    canonical_identity("link"),
+                    export.identity,
+                    PackageKind.DIRECTORY,
+                    canonical_identity("packager"),
+                    (
+                        PackageInput(
+                            "root/library",
+                            "library",
+                            PackageFileKind.ARTIFACT,
+                            export.identity,
+                            target,
+                            BlobRef("0" * 64, 0),
+                        ),
+                    ),
+                    (),
+                    (),
+                )
+                result = SimpleNamespace(
+                    identity=canonical_identity("package result"),
+                    package_plan_identity=plan.identity,
+                )
+                custody = SimpleNamespace(
+                    node_sdk_resources=resource,
+                    package_plan=plan,
+                    package_result=result,
+                    root_plan=resource._plan,
+                    root=root,
+                    artifact_paths={export.identity.uri: root / "root/library"},
+                )
+                ports._project_packages = {result.identity.uri: custody}
+                package_file = root / "root/library/index.js"
+                package_file.parent.mkdir(parents=True)
+                package_file.write_bytes(b"original")
+                package_file.chmod(0o644)
+                resource._package_root = root
+                resource._package_stamps = _original_stamps(
+                    root,
+                    (DirectoryExportFile("root/library/index.js", b"original", 0o644),),
+                )
+                resource.bind_package_metadata(
+                    plan,
+                    result,
+                    plan_identity=plan.identity,
+                    result_identity=result.identity,
+                )
+                resource.command_inputs(custody)
+
+                def clock(
+                    mutation=mutation,
+                    custody=custody,
+                    export=export,
+                    root=root,
+                    plan=plan,
+                    ports=ports,
+                    issued=issued,
+                    result=result,
+                ):
+                    if mutation == "path":
+                        custody.artifact_paths[export.identity.uri] = root / "outside"
+                    elif mutation in {"plan", "coordinated-plan-result"}:
+                        object.__setattr__(
+                            plan,
+                            "packager_identity",
+                            canonical_identity("foreign packager"),
+                        )
+                        if mutation == "coordinated-plan-result":
+                            result.package_plan_identity = plan.identity
+                    else:
+                        ports._project_packages.clear()
+                    return issued
+
+                ports.clock = clock
+                with self.assertRaisesRegex(
+                    ValueError, "original (packaged custody|metadata changed)"
+                ):
+                    resource.command_inputs(custody)
+                resource._package_stamps()
+                self.assertEqual(package_file.read_bytes(), b"original")
 
     def setUp(self):
         self.plan = SimpleNamespace(identity=canonical_identity("original build plan"))

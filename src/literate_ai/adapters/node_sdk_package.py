@@ -151,6 +151,7 @@ class LocalNodeSDKPackageResources:
         self._target_identity = self._target.identity
         self._original_owner = owner
         self._original_resources = None
+        self._package_records = None
         self._export_inputs = self._original_export_inputs = ()
         self.require_current()
         self._export_inputs = self._capture_exports(exports)
@@ -203,6 +204,7 @@ class LocalNodeSDKPackageResources:
         self._original_resources = (self.inputs, self._blob, self._content)
         self._original_resource_identity = self._resource_identity()
         self._package_root = self._package_stamps = None
+        self._package_records = None
         self.require_current()
 
     def _require_original_resources(self):
@@ -290,6 +292,7 @@ class LocalNodeSDKPackageResources:
         self._source_stamps()
         now = ports.clock()
         self._require_original_resources()
+        self._require_package_metadata()
         if (
             self._owner is not self._original_owner
             or self._ports is not self._original_ports
@@ -313,6 +316,7 @@ class LocalNodeSDKPackageResources:
             != self._source_root
             or ports.source_trees.registered_evidence(plan.request.source_tree_identity)
             is not self._source_custody
+            or self._source_custody.identity != self._evidence.source_custody_identity
         ):
             raise ValueError("SDK package original build membership changed")
         # All blocking policy/input reads precede final finite original stamps.
@@ -427,8 +431,50 @@ class LocalNodeSDKPackageResources:
         self._package_stamps = _original_stamps(root, files)
         self.require_packaged(root)
 
+    def bind_package_metadata(self, plan, result, *, plan_identity, result_identity):
+        if self._package_records is not None:
+            raise ValueError("SDK package metadata is already bound")
+        self._package_records = (plan, result, plan_identity, result_identity)
+        self.require_current()
+        self._require_package_metadata()
+
+    def _require_package_metadata(self):
+        if self._package_records is None:
+            return  # Internal construction before any package is registered.
+        plan, result, plan_identity, result_identity = self._package_records
+        if plan.identity != plan_identity or result.identity != result_identity:
+            raise ValueError("SDK package original metadata changed")
+
     def require_packaged(self, root):
         self.require_current()
+        self._require_package_metadata()
         if self._package_root != root or self._package_stamps is None:
             raise ValueError("SDK package has no original materialized custody")
         self._package_stamps()
+
+    def command_inputs(self, custody):
+        """Select only the original registered package's SDK and protected tests.
+
+        These are command DATA; the caller still needs the original operation,
+        selected runtime and phase permission. No arbitrary packaged path lookup.
+        """
+        self.require_packaged(custody.root)
+        export = self._export
+        path = custody.root / "root" / export.export_id
+        if (
+            custody.node_sdk_resources is not self
+            or self._package_records is None
+            or custody.package_plan is not self._package_records[0]
+            or custody.package_result is not self._package_records[1]
+            or self._ports._project_packages.get(custody.package_result.identity.uri)
+            is not custody
+            or custody.root_plan is not self._plan
+            or custody.package_plan.root_component_revision
+            != self._plan.component_revision
+            or custody.package_plan.root_artifact_identity != export.identity
+            or custody.package_result.package_plan_identity
+            != custody.package_plan.identity
+            or custody.artifact_paths.get(export.identity.uri) != path
+        ):
+            raise ValueError("SDK command differs from original packaged custody")
+        return self._contract, self._source_root, path

@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from literate_ai.adapters.builders.javascript import discover_npm_toolchain
@@ -21,6 +22,10 @@ from literate_ai.adapters.lifecycle import LocalComponentToolBinding
 from literate_ai.adapters.lifecycle.standard_node_sdk import StandardNodeSDKTarget
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+from literate_ai.application.artifact_graph import (
+    create_artifact_build_graph,
+    realize_manifest,
+)
 from literate_ai.application.component_generation_context import (
     PromptSegmentInput,
     prepare_component_generation_context,
@@ -30,6 +35,9 @@ from literate_ai.contracts import (
     ContentIdentity,
     StandardNodeSDKCommandProfile,
     canonical_identity,
+)
+from literate_ai.contracts.executable_components.artifacts import (
+    artifact_driver_composition_identity,
 )
 from literate_ai.contracts.node_sdk import NodeSDKExportDeclaration
 from literate_ai.security.policy import AuthorizationError
@@ -318,6 +326,68 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
             )
 
         self.owned(build)
+
+    def test_packaged_runtime_uses_protected_tests_and_sealed_export(self):
+        # Actual commands with the existing inert consumer fixture; the separate
+        # canonical case retains the full filesystem lock/recipe authority.
+        def operation(invocation, guard):
+            providers, _ = self.prepare(invocation)
+            built = self.ports.build(self.plan, providers)
+            manifests = tuple(
+                realize_manifest(
+                    self.ports._plans_by_revision[
+                        export.component_revision.uri
+                    ].manifest,
+                    (export,),
+                )
+                for export in (*providers, built.exports[0])
+            )
+            drivers = tuple(
+                sorted(
+                    {m.build_system_driver_identity for m in manifests},
+                    key=lambda identity: identity.uri,
+                )
+            )
+            graph = create_artifact_build_graph(
+                build_system_driver_identity=drivers[0]
+                if len(drivers) == 1
+                else artifact_driver_composition_identity(drivers),
+                driver_composition=drivers if len(drivers) > 1 else (),
+                manifests=manifests,
+                link_roots=(built.exports[0].identity,),
+            )
+            lock = SimpleNamespace(
+                root_revision=self.plan.component_revision,
+                identity=self.f.execution.component_lock_identity,
+            )
+            plan, result = self.ports.create_project_package(
+                lock, self.f.execution, SimpleNamespace(), graph, graph.link_plans[0]
+            )
+            custody = self.ports.project_package_custody(plan, result)
+            with mock.patch.object(
+                self.ports,
+                "_packaged_argv",
+                side_effect=AssertionError("SDK cannot use generic packaged runner"),
+            ):
+                self.ports.test_root_integration(
+                    lock, self.f.execution, SimpleNamespace(), plan, result
+                )
+                self.ports.execute_packaged_project(
+                    lock, self.f.execution, SimpleNamespace(), plan, result
+                )
+            self.assertIn(
+                "node-sdk-loadability",
+                self.ports.project_execution_stdout[result.identity.uri],
+            )
+            self.assertFalse(
+                (
+                    custody.artifact_paths[built.exports[0].identity.uri]
+                    / "source/tests/litai_test.cjs"
+                ).exists()
+            )
+            guard()
+
+        self.owned(operation)
 
     def test_final_owner_callback_target_loss_withholds_registration_and_cache_hit(
         self,

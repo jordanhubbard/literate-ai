@@ -70,7 +70,8 @@ class NodeSDKGenerationDataTests(unittest.TestCase):
         plan = next(
             item
             for item in execution.generation_plans
-            if item.component_revision == names["pricing"]
+            if item.component_revision
+            == names[getattr(self, "consumer_name", "pricing")]
         )
         generation_action = next(
             item

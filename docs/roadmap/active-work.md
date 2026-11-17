@@ -552,12 +552,26 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       fields, and unit fixtures use the real record type. Two deliberately cancelled
       candidates and that failed run remain distinct from the successful proof.
       These are internal package seams, not independent or installed qualification.
-      Next action: retain exact original SDK ownership across root finalization,
-      then wire typed SDK/v2 independent acceptance with packaged legal-byte
+      Root finalization now re-enters the exact original accepted SDK binding
+      across artifact/package assembly and finalization ports, retiring it before
+      separate source-cache publication. Original lock/execution/project-plan,
+      graph/link and package identities remain pinned across callbacks, including
+      coordinated in-place mutations. Packaged TEST/EXEC reuse the shared runner,
+      environment and liveness owners with original protected test-source custody
+      and the fixed sealed export; generated tests are not shipped as SDK contents.
+      The actual canonical authored filesystem-lock fixture passes BUILD/cache/
+      TEST/EXEC/PACKAGE plus packaged TEST/EXEC in 555 seconds with original current
+      ownership and grants. An independent inert-consumer native packaged-command
+      fixture also passes. Focused lifecycle/ownership checks pass 41/41; the broader
+      Standard-prefix make python-check exits successfully with opt-in prerequisite
+      skips retained. The initial broader launch failed before tests due to shell
+      quoting, and an earlier focused candidate had a corrected test-import error;
+      neither failed attempt counts as a pass. Independent state/security source
+      review finds no remaining blocker for this increment.
+      Next action: wire typed SDK/v2 independent acceptance with packaged legal-byte
       comparison and separate current verifier authorization. Reuse the shared
-      runtime/declaration verifier and keep the legacy v2 refusal intact. Public
-      finalization currently remains outside the SDK operation and fails closed;
-      packaged TEST also needs its original generated test-source custody.
+      runtime/declaration verifier and keep the legacy v2 refusal intact. This
+      checkpoint does not establish independent SDK acceptance or public admission.
       Model generation, final legal-byte acceptance wiring, SDK acceptance and
       full generated/retained/native/installed qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from

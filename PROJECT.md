@@ -158,8 +158,14 @@ original registered BUILD custody of the complete artifact tree. Bounded capture
 and original namespace stamps precede generic hashing. All linked library exports
 materialize from validated immutable blob rows, without traversing producer trees.
 Original invocation, source/build membership and current grant checks close through
-package materialization and registration. This is internal port-only packaging;
-public finalization ownership and independent SDK acceptance remain unfinished.
+package materialization and registration. Root finalization now revalidates the exact
+accepted SDK binding around assembly, packaging and finalization ports, then retires
+before separate source-cache publication. Original graph/link/package identities
+remain pinned across callbacks. Packaged TEST and EXEC reuse the shared SDK runner,
+with protected original test source and the fixed packaged export under additive
+liveness checks. Original package plan/result objects and CIDs are pinned before
+staging. Independent v2 SDK acceptance and public admission configuration remain
+unfinished; these internal seams do not qualify a complete generated SDK lifecycle.
 
 Remaining gates are final Component-authorized legal-byte acceptance wiring, public
 runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,

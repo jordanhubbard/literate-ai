@@ -9,12 +9,14 @@ import unittest
 from contextvars import copy_context
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from literate_ai.adapters.candidate_repair import (
     FilesystemStandardCandidateRepairAdapter,
 )
 from literate_ai.application.standard_node_sdk_admission import (
+    capture_node_sdk_lifecycle,
     require_node_sdk_build_intent,
     require_node_sdk_source,
     run_node_sdk_lifecycle,
@@ -24,6 +26,9 @@ from literate_ai.application.standard_project_lifecycle import (
     StandardProjectLifecycleService,
 )
 from literate_ai.contracts import ContentIdentity, canonical_identity
+from literate_ai.contracts.standard_root_integration import (
+    StandardRootIntegrationEvidence,
+)
 from tests.smoke import test_node_sdk_generation as generation_fixture
 from tests.smoke.test_standard_project_lifecycle import (
     LifecyclePorts,
@@ -54,8 +59,14 @@ class _Admission:
     def with_invocation(self, execution, prepared, receipts, *, consume, expected=None):
         self.calls += 1
         if self.ports is not None:
-            assert ("accept", "money") in self.ports.events
-            self.ports._record("sdk-admission", "pricing")
+            for dependency in self.fixture.prepared.recipe.library_dependencies:
+                assert (
+                    "accept",
+                    self.ports.names[dependency.provider_component_revision.uri],
+                ) in self.ports.events
+            self.ports._record(
+                "sdk-admission", self.ports.names[prepared.plan.component_revision.uri]
+            )
         invocation = self.fixture.bind()
         if expected is not None:
             if self.revoke_publication:
@@ -75,7 +86,9 @@ class _Admission:
         self.owner()
         assert candidate.recipe_identity.uri == invocation.prepared.recipe.identity
         if self.ports is not None:
-            self.ports._record("sdk-intent", "pricing")
+            self.ports._record(
+                "sdk-intent", self.ports.names[prepared.plan.component_revision.uri]
+            )
 
 
 class _Ports(LifecyclePorts):
@@ -184,14 +197,19 @@ class NodeSDKLifecycleTests(unittest.TestCase):
         self.run_owned(run)
         callback.assert_called_once()
 
-    def configured_service(self, **ports_options):
+    def configured_service(self, *, root_sdk=False, **ports_options):
+        fixture = self.fixture
+        if root_sdk:
+            fixture = generation_fixture.NodeSDKGenerationDataTests()
+            fixture.consumer_name = "invoice-cli"
+            fixture.setUp()
         lock = _diamond_lock()
         _, requests = _prepared_execution(lock)
         nodes = _prepared_nodes(self.execution, requests)
-        uri = self.fixture.prepared.plan.component_revision.uri
-        nodes[uri] = self.fixture.prepared
+        uri = fixture.prepared.plan.component_revision.uri
+        nodes[uri] = fixture.prepared
         ports = _Ports(self.execution, _names(lock), **ports_options)
-        admission = _Admission(self.fixture, ports)
+        admission = _Admission(fixture, ports)
         service = _service(ports)
         service.node_sdk_admissions = {uri: admission}
         args = dict(
@@ -203,6 +221,231 @@ class NodeSDKLifecycleTests(unittest.TestCase):
             max_parallelism=2,
         )
         return service, ports, admission, args
+
+    def test_root_finalization_owns_every_stage_before_separate_publication(self):
+        service, ports, admission, args = self.configured_service(root_sdk=True)
+        observed = []
+        retired = []
+        methods = (
+            "assemble_project_artifacts",
+            "create_project_package",
+            "test_root_integration",
+            "execute_packaged_project",
+            "accept_project_independently",
+        )
+        with mock.patch.multiple(
+            ports, **{name: mock.DEFAULT for name in methods}
+        ) as patched:
+            for name in methods:
+                original = getattr(type(ports), name).__get__(ports)
+
+                def call(*values, name=name, original=original):
+                    guard = capture_node_sdk_lifecycle()
+                    self.assertIsNotNone(guard)
+                    guard()
+                    retired.append(guard)
+                    observed.append(name)
+                    return original(*values)
+
+                patched[name].side_effect = call
+            result = service.execute(self.execution, **args)
+        self.assertTrue(result.successful)
+        self.assertEqual(observed, list(methods))
+        self.assertEqual(admission.calls, 3)
+        for guard in retired:
+            with self.assertRaises(ValueError):
+                guard()
+        self.assertLess(
+            ports.events.index(("independent-accept", "project")),
+            ports.events.index(("publish", "invoice-cli")),
+        )
+
+    def test_root_owner_loss_withholds_following_stages_and_publication(self):
+        methods = (
+            "assemble_project_artifacts",
+            "create_project_package",
+            "test_root_integration",
+            "execute_packaged_project",
+            "accept_project_independently",
+        )
+        for index, name in enumerate(methods):
+            with self.subTest(stage=name):
+                service, ports, admission, args = self.configured_service(root_sdk=True)
+                original = getattr(ports, name)
+
+                def lose(*values, original=original, admission=admission):
+                    result = original(*values)
+                    admission.alive = False
+                    return result
+
+                with mock.patch.object(ports, name, side_effect=lose):
+                    with self.assertRaisesRegex(ValueError, "owner ended"):
+                        service.execute(self.execution, **args)
+                self.assertFalse(any(event[0] == "publish" for event in ports.events))
+                for following in methods[index + 1 :]:
+                    # No downstream finalization port may run after owner loss.
+                    event = {
+                        "create_project_package": "create-package",
+                        "test_root_integration": "root-integration-test",
+                        "execute_packaged_project": "execute-package",
+                        "accept_project_independently": "independent-accept",
+                    }[following]
+                    self.assertNotIn((event, "project"), ports.events)
+
+    def test_root_finalization_rejects_changed_plan_before_packaging(self):
+        service, ports, _admission, args = self.configured_service(root_sdk=True)
+        original = ports.assemble_project_artifacts
+
+        def assemble(lock, execution, project, ordered):
+            result = original(lock, execution, project, ordered)
+            object.__setattr__(
+                project,
+                "execution_plan_identity",
+                canonical_identity("foreign execution"),
+            )
+            return result
+
+        with mock.patch.object(
+            ports, "assemble_project_artifacts", side_effect=assemble
+        ):
+            with self.assertRaisesRegex(StandardProjectLifecycleError, "original lock"):
+                service.execute(self.execution, **args)
+        self.assertNotIn(("create-package", "project"), ports.events)
+        self.assertFalse(any(event[0] == "publish" for event in ports.events))
+
+    def test_root_cache_hit_still_finalizes_inside_fresh_ownership(self):
+        service, ports, admission, args = self.configured_service(root_sdk=True)
+        first = service.execute(self.execution, **args)
+        root = next(
+            node
+            for node in first.node_results
+            if node.component_revision == self.execution.root_revision
+        )
+        service.node_sdk_source_lookup = lambda *_: root.source_cache_membership
+        args["invalidation"] = _decision(self.execution, ports.names, "money")
+        ports.events.clear()
+        original = ports.create_project_package
+
+        def package(*values):
+            guard = capture_node_sdk_lifecycle()
+            self.assertIsNotNone(guard)
+            guard()
+            return original(*values)
+
+        with mock.patch.object(ports, "create_project_package", side_effect=package):
+            result = service.execute(self.execution, **args)
+        self.assertTrue(result.successful)
+        self.assertEqual(admission.calls, 5)
+        self.assertNotIn(("generate", "invoice-cli"), ports.events)
+        self.assertNotIn(("publish", "invoice-cli"), ports.events)
+        self.assertIn(("independent-accept", "project"), ports.events)
+
+    def test_combined_finalizer_runs_under_same_root_owner_and_closes_afterward(self):
+        for revoke in (False, True):
+            with self.subTest(revoke=revoke):
+                service, ports, admission, args = self.configured_service(root_sdk=True)
+
+                def finalize(
+                    lock,
+                    project,
+                    graph,
+                    plan,
+                    result,
+                    *,
+                    revoke=revoke,
+                    admission=admission,
+                ):
+                    guard = capture_node_sdk_lifecycle()
+                    self.assertIsNotNone(guard)
+                    guard()
+                    evidence = StandardRootIntegrationEvidence(
+                        lock.identity,
+                        self.execution.identity,
+                        project.identity,
+                        graph,
+                        graph.link_plans[0],
+                        plan,
+                        result,
+                        canonical_identity("root test"),
+                        canonical_identity("packaged exec"),
+                        canonical_identity("independent accept"),
+                    )
+                    if revoke:
+                        admission.alive = False
+                    return evidence
+
+                service.project_finalizer = SimpleNamespace(finalize=finalize)
+                if revoke:
+                    with self.assertRaisesRegex(ValueError, "owner ended"):
+                        service.execute(self.execution, **args)
+                    self.assertFalse(
+                        any(event[0] == "publish" for event in ports.events)
+                    )
+                else:
+                    self.assertTrue(service.execute(self.execution, **args).successful)
+                    self.assertEqual(admission.calls, 3)
+
+    def test_late_finalization_mutations_cannot_rebind_accepted_metadata(self):
+        for stage in ("execute_packaged_project", "accept_project_independently"):
+            for mutation in ("graph", "link", "plan-result"):
+                with self.subTest(stage=stage, mutation=mutation):
+                    service, ports, _admission, args = self.configured_service(
+                        root_sdk=True
+                    )
+                    assembled = []
+                    assemble = ports.assemble_project_artifacts
+                    original = getattr(ports, stage)
+
+                    def record(*values, assemble=assemble, assembled=assembled):
+                        result = assemble(*values)
+                        assembled.append(result)
+                        return result
+
+                    def mutate(
+                        *values,
+                        original=original,
+                        mutation=mutation,
+                        assembled=assembled,
+                    ):
+                        value = original(*values)
+                        graph, link = assembled[-1]
+                        if mutation == "graph":
+                            object.__setattr__(
+                                graph,
+                                "build_system_driver_identity",
+                                canonical_identity("foreign driver"),
+                            )
+                        elif mutation == "link":
+                            object.__setattr__(
+                                link,
+                                "root_artifact_identity",
+                                canonical_identity("foreign artifact"),
+                            )
+                        else:
+                            plan, result = values[3:5]
+                            object.__setattr__(
+                                plan,
+                                "packager_identity",
+                                canonical_identity("foreign packager"),
+                            )
+                            object.__setattr__(
+                                result, "package_plan_identity", plan.identity
+                            )
+                        return value
+
+                    with (
+                        mock.patch.object(
+                            ports, "assemble_project_artifacts", side_effect=record
+                        ),
+                        mock.patch.object(ports, stage, side_effect=mutate),
+                    ):
+                        with self.assertRaisesRegex(
+                            StandardProjectLifecycleError, "after validation"
+                        ):
+                            service.execute(self.execution, **args)
+                    self.assertFalse(
+                        any(event[0] == "publish" for event in ports.events)
+                    )
 
     def test_scheduler_waits_for_accept_and_publication_renews_exact_binding(self):
         service, ports, admission, args = self.configured_service()

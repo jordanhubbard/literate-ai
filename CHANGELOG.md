@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retain exact accepted SDK ownership across root finalization, separately from
+  source-cache publication. Pin graph, link and package identities through later
+  callbacks. Packaged SDK TEST/EXEC share the existing runner and protected source
+  custody; path and coordinated metadata substitutions are rejected. Independent
+  SDK acceptance and full lifecycle qualification remain unfinished.
+
 - Bind local SDK tarballs as explicit package resources using original complete
   BUILD custody. SDK packaging writes validated immutable library blob rows and
   checks finite source, export and staged-package inventories through registration.

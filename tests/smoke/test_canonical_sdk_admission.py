@@ -199,6 +199,37 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 custody.node_sdk_resources.read_blob(distribution.blob),
                 (artifact / "node-sdk.tgz").read_bytes(),
             )
+            self.assertFalse(
+                (
+                    custody.artifact_paths[built.exports[0].identity.uri]
+                    / "source/tests/litai_test.cjs"
+                ).exists()
+            )
+            with mock.patch.object(
+                ports,
+                "_packaged_argv",
+                side_effect=AssertionError("SDK package must use shared SDK runner"),
+            ):
+                root_test = ports.test_root_integration(
+                    fixture.snapshot.authority.lock,
+                    fixture.execution,
+                    SimpleNamespace(),
+                    package_plan,
+                    package_result,
+                )
+                executed = ports.execute_packaged_project(
+                    fixture.snapshot.authority.lock,
+                    fixture.execution,
+                    SimpleNamespace(),
+                    package_plan,
+                    package_result,
+                )
+            self.assertIsInstance(root_test, type(built.evidence.identity))
+            self.assertIsInstance(executed, type(built.evidence.identity))
+            self.assertIn(
+                "node-sdk-loadability",
+                ports.project_execution_stdout[package_result.identity.uri],
+            )
             return built.evidence.identity
 
         self.with_canonical_sdk(operation, verifier_lifetime=timedelta(minutes=15))

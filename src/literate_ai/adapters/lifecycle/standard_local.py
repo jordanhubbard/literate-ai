@@ -6584,6 +6584,7 @@ class LocalStandardLifecyclePorts:
                 return sdk_resources.read_blob(reference)
             return self.read_artifact_blob(reference)
 
+        package_plan_identity = None if node_sdk_resources is None else plan.identity
         result = (
             DirectoryPackageAdapter().package(plan, read_blob=read_package_blob)
             if self.project_packager is None
@@ -6591,9 +6592,19 @@ class LocalStandardLifecyclePorts:
                 artifact_graph, plan, read_blob=read_package_blob
             )
         )
+        package_result_identity = (
+            None if node_sdk_resources is None else getattr(result, "identity", None)
+        )
         from literate_ai.application.packaging import verify_package_result
 
         verify_package_result(plan, result, read_blob=read_package_blob)
+        if node_sdk_resources is not None:
+            node_sdk_resources.bind_package_metadata(
+                plan,
+                result,
+                plan_identity=package_plan_identity,
+                result_identity=package_result_identity,
+            )
         package_parent = self.object_root / "project-packages"
         package_parent.mkdir(parents=True, exist_ok=True)
         staging = Path(
@@ -6883,6 +6894,51 @@ class LocalStandardLifecyclePorts:
         package_entrypoint: PackageEntrypoint | None = None,
     ) -> subprocess.CompletedProcess[str]:
         self._require_command_phase(phase)
+        if custody.node_sdk_resources is not None:
+            from literate_ai.adapters.node_sdk_package import (
+                LocalNodeSDKPackageResources,
+            )
+
+            if (
+                type(custody.node_sdk_resources) is not LocalNodeSDKPackageResources
+                or self._project_packages.get(custody.package_result.identity.uri)
+                is not custody
+            ):
+                raise LocalStandardLifecycleError(
+                    "SDK commands require original registered package custody"
+                )
+            if (
+                phase not in {ComponentCommandPhase.TEST, ComponentCommandPhase.EXECUTE}
+                or extra_arguments
+                or package_entrypoint is not None
+            ):
+                raise LocalStandardLifecycleError(
+                    "SDK package commands require exact TEST or EXEC"
+                )
+            from literate_ai.adapters.process_liveness import process_liveness
+
+            resources = custody.node_sdk_resources
+            inputs = resources.command_inputs(custody)
+
+            def require_current():
+                if resources.command_inputs(custody) != inputs:
+                    raise LocalStandardLifecycleError(
+                        "SDK packaged command inputs changed"
+                    )
+
+            contract, source, export = inputs
+            with process_liveness(require_current):
+                completed = self._run_locked(
+                    contract,
+                    phase,
+                    source_root=source,
+                    object_root=custody.root,
+                    artifact_root=export.parent,
+                    export_path=export,
+                    providers=(),
+                )
+                require_current()
+                return completed
         if (
             custody.native_sdk_resources is not None
             and custody.native_sdk_resources.inputs
