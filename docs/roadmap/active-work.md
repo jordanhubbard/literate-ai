@@ -422,8 +422,17 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       The subsequent additive SDK output codec and common compile-to-plan path
       passed 674 local smoke tests with six declared skips and independent review.
       Their application-profile denial remains explicit; neither supplies public
-      SDK lifecycle admission. Compiler tool selection should reuse the existing
-      bounded native SDK-tree capture owner, not add another filesystem reader.
+      SDK lifecycle admission. Compiler tool selection now reuses the existing
+      bounded native SDK-tree capture owner with explicit package selection and
+      closing capture checks. A small worker-compatible bootstrap binds the exact
+      helper and immutable compiler packet before code loading; the selected Node
+      launcher and flags remain part of the actual invocation. Owner revocation
+      after Node probing prevents package capture and CAS writes. These tool-level
+      checks do not grant SDK admission or vendor execution trust; the public
+      generated/retained lifecycle and authoritative declaration acceptance remain
+      the next implementation gates. This compiler-capture increment passed 684
+      macOS smoke tests with six declared skips and independent review; it has not
+      replaced the earlier installed-wheel qualification checkpoint.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

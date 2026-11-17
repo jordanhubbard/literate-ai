@@ -58,13 +58,7 @@ function loadCompiler(snapshot) {
   }
   return load('lib/typescript.js');
 }
-(async () => {
-  const chunks=[];let bytes=0;
-  for await(const chunk of process.stdin) {
-    if((bytes+=chunk.length)>64*1024*1024) throw Error('compiler input bound');
-    chunks.push(chunk);
-  }
-  const request=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+module.exports = function compileNodeSDK(request) {
   if (!own(request,['version','operation','files','roots','compiler_files']) || request.version!==1 || !['compile','check'].includes(request.operation) || !Array.isArray(request.roots) || !request.roots.length || request.roots.length>1024) throw Error('compiler request shape');
   const source=inventory(request.files,4096,32*1024*1024);
   const snapshot=inventory(request.compiler_files,1024,32*1024*1024);
@@ -162,5 +156,5 @@ function loadCompiler(snapshot) {
     }
   }
   const result = {version:1, compiler:ts.version, success:diagnostics.length === 0, diagnostics, inputs:[...loaded].filter(name => files.has(name)).map(name => name.slice(virtualRoot.length+1)).sort(), outputs:[...(diagnostics.length ? new Map() : outputs)].sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0).map(([name,content])=>({path:name.slice(virtualRoot.length+1),content:Buffer.from(content).toString('base64')}))};
-  process.stdout.write(JSON.stringify(result));
-})().catch(error => {process.stderr.write(String(error.message));process.exitCode=1;});
+  return result;
+};

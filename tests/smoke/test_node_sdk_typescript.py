@@ -1,16 +1,22 @@
 """Compiler-owner denials and opt-in real SDK compilation, not qualification."""
 
 import base64
+import hashlib
 import json
 import os
 import shutil
+import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.adapters.builders.javascript import (
     discover_node_toolchain,
     discover_npm_toolchain,
+)
+from literate_ai.adapters.builders.typescript_sdk import (
+    capture_typescript_sdk_toolchain,
 )
 from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.node_sdk_build import compile_node_sdk_plan
@@ -24,7 +30,8 @@ from literate_ai.adapters.node_sdk_typescript import (
     TypeScriptSDK,
     _inventory,
 )
-from literate_ai.contracts import ContentIdentity
+from literate_ai.contracts import ContentIdentity, canonical_identity
+from literate_ai.storage.cas import FileSystemCAS
 from tests.smoke import test_node_sdk_composition as composition_fixtures
 
 
@@ -88,6 +95,7 @@ class TypeScriptInventoryTests(unittest.TestCase):
             "[]",
             '{"name":"other","version":"6.0.3"}',
             '{"name":"typescript","version":"5.7.0"}',
+            '{"name":"typescript","version":"6.0.3","type":"module"}',
         ]:
             with self.subTest(metadata=metadata), self.assertRaises(ValueError):
                 TypeScriptSDK(
@@ -106,27 +114,25 @@ class TypeScriptInventoryTests(unittest.TestCase):
 class TypeScriptCompilerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        # Only test setup reads this explicit tool fixture. Production owners must
-        # supply their separately admitted immutable compiler package snapshot.
+        # Explicit selection exercises the production custody owner before the
+        # real compiler tests; it never installs or discovers an SDK package.
         root = Path(os.environ["LITERATE_TYPESCRIPT_SDK"]).resolve(strict=True)
-        files = []
-        total = 0
-        for path in sorted(root.rglob("*")):
-            if path.is_symlink():
-                raise ValueError("test compiler SDK contains a link")
-            if path.is_file():
-                if path.stat().st_size > 16 * 1024 * 1024 or len(files) >= 1024:
-                    raise ValueError("test compiler SDK exceeds its bound")
-                content = path.read_bytes()
-                total += len(content)
-                if total > 32 * 1024 * 1024:
-                    raise ValueError("test compiler SDK exceeds its bound")
-                files.append(file(path.relative_to(root).as_posix(), content))
+        temporary = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(temporary.cleanup)
         cls.environment = dict(os.environ)
         cls.environment.pop("NODE_OPTIONS", None)
         cls.environment.pop("NODE_PATH", None)
         cls.node = discover_node_toolchain(cls.environment)
-        cls.compiler = NodeSDKTypeScriptCompiler(TypeScriptSDK(tuple(files)), cls.node)
+        selected = capture_typescript_sdk_toolchain(
+            root,
+            node=cls.node,
+            store=FileSystemCAS(Path(temporary.name) / "cas"),
+            constraint_identity=canonical_identity({"test_tool": "typescript"}),
+            version_constraint=">=5.8.0",
+            environment=cls.environment,
+            require_current=lambda: None,
+        )
+        cls.compiler = selected.compiler
 
     def setUp(self):
         self.fixture = composition_fixtures.NodeSDKCompositionTests(
@@ -449,8 +455,6 @@ class TypeScriptCompilerTests(unittest.TestCase):
     def test_virtual_paths_ignore_platform_native_path_operations(self):
         # Fault-inject Windows native path operations on this host. This is a
         # real compiler control, not evidence of native Windows qualification.
-        import subprocess
-
         helper = self.compiler._helper.replace(
             "const path = require('node:path');",
             "const path = {...require('node:path').win32, "
@@ -464,20 +468,23 @@ class TypeScriptCompilerTests(unittest.TestCase):
                 for item in files
             ]
 
-        packet = {
-            "version": 1,
-            "operation": "compile",
-            "roots": ["src/index.ts"],
-            "files": rows((*self.provider_files, self.source)),
-            "compiler_files": rows(self.compiler.sdk.files),
-        }
-        result = subprocess.run(
-            (*self.node.command, "--max-old-space-size=512", "--eval", helper),
-            input=json.dumps(packet).encode(),
-            capture_output=True,
-            timeout=30,
-            env=self.environment,
+        packet = json.loads(
+            self.compiler._request_packet(
+                {
+                    "version": 1,
+                    "operation": "compile",
+                    "roots": ["src/index.ts"],
+                    "files": rows((*self.provider_files, self.source)),
+                }
+            )
         )
+        packet["helper"] = helper
+        command = (
+            *self.compiler.command[:-2],
+            hashlib.sha256(helper.encode()).hexdigest(),
+            self.compiler.command[-1],
+        )
+        result = self.raw_packet(packet, command=command)
         self.assertEqual(result.returncode, 0, result.stderr.decode())
         response = json.loads(result.stdout)
         self.assertTrue(response["success"], response["diagnostics"])
@@ -539,10 +546,25 @@ class TypeScriptCompilerTests(unittest.TestCase):
             )
         self.assertGreaterEqual(checks, 3)
 
-    def test_request_is_closed_even_when_calling_helper_directly(self):
-        import subprocess
+    def raw_packet(self, packet, *, command=None):
+        from literate_ai.adapters.builders._process import run_bounded_process
 
-        packet = {
+        return run_bounded_process(
+            self.compiler.command if command is None else command,
+            cwd=None,
+            environment=self.environment,
+            timeout_seconds=30,
+            stdout_limit_bytes=48 * 1024 * 1024,
+            stderr_limit_bytes=1024 * 1024,
+            error_prefix="compiler protocol test",
+            input_bytes=json.dumps(packet).encode(),
+            input_limit_bytes=64 * 1024 * 1024,
+            terminate_descendants=True,
+            trace=False,
+        )
+
+    def test_request_is_closed_even_when_calling_bootstrap_directly(self):
+        request = {
             "version": 1,
             "operation": "check",
             "files": [],
@@ -550,15 +572,70 @@ class TypeScriptCompilerTests(unittest.TestCase):
             "compiler_files": [],
             "extra": True,
         }
-        result = subprocess.run(
-            (*self.node.command, "--eval", self.compiler._helper),
-            input=json.dumps(packet).encode(),
-            capture_output=True,
-            timeout=10,
-            env=self.environment,
-        )
+        result = self.raw_packet(json.loads(self.compiler._request_packet(request)))
         self.assertNotEqual(result.returncode, 0)
         self.assertIn(b"request shape", result.stderr)
+        self.assertFalse(result.stdout)
+
+    def test_helper_and_sdk_substitution_cannot_execute_supplied_code(self):
+        packet = json.loads(
+            self.compiler._request_packet(
+                {
+                    "version": 1,
+                    "operation": "compile",
+                    "files": [
+                        {
+                            "path": "src/index.ts",
+                            "content": base64.b64encode(b"export const n=1;").decode(),
+                        }
+                    ],
+                    "roots": ["src/index.ts"],
+                }
+            )
+        )
+        changed = dict(packet)
+        changed["helper"] += "\nprocess.stdout.write('untrusted helper ran');"
+        result = self.raw_packet(changed)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b"helper differs", result.stderr)
+        self.assertFalse(result.stdout)
+        changed = dict(packet)
+        sdk = json.loads(changed["compiler_snapshot"])
+        for row in sdk:
+            if row["path"] == "lib/typescript.js":
+                row["content"] = base64.b64encode(
+                    b"process.stdout.write('untrusted SDK ran');"
+                ).decode()
+        changed["compiler_snapshot"] = json.dumps(
+            sdk, sort_keys=True, separators=(",", ":")
+        )
+        result = self.raw_packet(changed)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b"SDK differs", result.stderr)
+        self.assertFalse(result.stdout)
+        changed = dict(packet)
+        changed["extra"] = True
+        result = self.raw_packet(changed)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(result.stdout)
+
+    def test_worker_command_is_bounded_and_selection_is_identity_bound(self):
+        self.assertLessEqual(len(self.compiler.command), 64)
+        self.assertTrue(
+            all(len(token.encode()) <= 4096 for token in self.compiler.command)
+        )
+        self.assertEqual(
+            self.compiler.command[: len(self.node.command)], self.node.command
+        )
+        changed = replace(
+            self.compiler,
+            selection_identity=ContentIdentity.parse_uri(
+                self.fixture.arguments["source"].uri
+            ),
+        )
+        self.assertNotEqual(changed.identity, self.compiler.identity)
+        self.assertEqual(changed.command, self.compiler.command)
+        self.assertEqual(changed.sdk.identity, self.compiler.sdk.identity)
 
     def test_snapshot_bytes_are_executed_without_compiler_path_lookup(self):
         sdk = TypeScriptSDK(
@@ -577,3 +654,20 @@ class TypeScriptCompilerTests(unittest.TestCase):
                 environment=self.environment,
                 require_current=lambda: None,
             )
+
+    def test_selected_node_flag_is_used_by_real_compiler(self):
+        node = discover_node_toolchain(
+            self.environment,
+            pinned_command=(self.node.command[0], "--no-warnings"),
+        )
+        compiler = NodeSDKTypeScriptCompiler(self.compiler.sdk, node)
+        self.assertEqual(compiler.command[:2], node.command)
+        result = compiler.run(
+            files=(file("src/index.ts", "export const value: number = 42;"),),
+            roots=("src/index.ts",),
+            operation="compile",
+            environment=self.environment,
+            require_current=lambda: None,
+        )
+        self.assertTrue(result.success, result.diagnostics)
+        self.assertEqual(len(result.outputs), 4)

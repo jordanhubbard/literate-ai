@@ -76,7 +76,7 @@ def _rows(files: tuple[DirectoryExportFile, ...]) -> list[dict[str, str]]:
 class TypeScriptSDK:
     """An explicitly selected tool snapshot; integrity does not grant execution."""
 
-    files: tuple[DirectoryExportFile, ...]
+    files: tuple[DirectoryExportFile, ...] = field(repr=False)
     version: str = field(init=False)
     identity: ContentIdentity = field(init=False)
 
@@ -88,6 +88,13 @@ class TypeScriptSDK:
             if len(metadata) > 64 * 1024:
                 raise ValueError("TypeScript package metadata exceeds its bound")
             package = json.loads(metadata)
+            if (
+                not isinstance(package, dict)
+                or package.get("type", "commonjs") != "commonjs"
+            ):
+                raise ValueError(
+                    "initial TypeScript compiler SDK requires a CommonJS bundle"
+                )
             version = package["version"]
             parsed = SemanticVersion.parse(version)
             if (
@@ -133,21 +140,56 @@ class TypeScriptResult:
 class NodeSDKTypeScriptCompiler:
     sdk: TypeScriptSDK
     node: NodeToolchain
+    selection_identity: ContentIdentity | None = None
     identity: ContentIdentity = field(init=False)
     _helper: str = field(init=False, repr=False)
+    _bootstrap: str = field(init=False, repr=False)
+    _sdk_packet: str = field(init=False, repr=False)
+    _helper_sha256: str = field(init=False, repr=False)
+    _sdk_packet_sha256: str = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
         if not isinstance(self.sdk, TypeScriptSDK) or not isinstance(
             self.node, NodeToolchain
         ):
             raise ValueError("TypeScript compiler requires selected SDK and Node tools")
-        # The exact helper bytes captured here are both identity-bound and passed
-        # through --eval. Execution does not reopen this framework source file.
-        with Path(__file__).with_name("node_sdk_compiler.cjs").open("rb") as stream:
-            helper = stream.read(16 * 1024 + 1)
-        if not 1 <= len(helper) <= 16 * 1024:
-            raise ValueError("TypeScript compiler helper exceeds its bound")
+        if self.selection_identity is not None and not isinstance(
+            self.selection_identity, ContentIdentity
+        ):
+            raise TypeError("compiler selection identity must be a typed authority")
+        # Capture framework code once. The small command binds helper and SDK
+        # packet hashes before either executes; no source path is reopened.
+        captured = {}
+        for name, maximum in (
+            ("node_sdk_compiler.cjs", 16 * 1024),
+            ("node_sdk_compiler_bootstrap.cjs", 4096),
+        ):
+            with Path(__file__).with_name(name).open("rb") as stream:
+                content = stream.read(maximum + 1)
+            if not 1 <= len(content) <= maximum:
+                raise ValueError(
+                    "TypeScript compiler framework resource exceeds its bound"
+                )
+            captured[name] = content
+        helper = captured["node_sdk_compiler.cjs"]
+        bootstrap = captured["node_sdk_compiler_bootstrap.cjs"]
+        sdk_packet = json.dumps(
+            _rows(self.sdk.files),
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        if len(sdk_packet.encode("utf-8")) > 48 * 1024 * 1024:
+            raise ValueError("TypeScript compiler SDK packet exceeds its bound")
         object.__setattr__(self, "_helper", helper.decode("utf-8"))
+        object.__setattr__(self, "_bootstrap", bootstrap.decode("utf-8"))
+        object.__setattr__(self, "_sdk_packet", sdk_packet)
+        object.__setattr__(self, "_helper_sha256", hashlib.sha256(helper).hexdigest())
+        object.__setattr__(
+            self,
+            "_sdk_packet_sha256",
+            hashlib.sha256(sdk_packet.encode("utf-8")).hexdigest(),
+        )
         object.__setattr__(
             self,
             "identity",
@@ -156,21 +198,51 @@ class NodeSDKTypeScriptCompiler:
                     "schema": "literate-ai/node-sdk-typescript-compiler@1",
                     "sdk": self.sdk.identity.uri,
                     "node": self.node.identity,
-                    "helper_sha256": hashlib.sha256(helper).hexdigest(),
+                    "helper_sha256": self._helper_sha256,
+                    "bootstrap_sha256": hashlib.sha256(bootstrap).hexdigest(),
+                    "sdk_packet_sha256": self._sdk_packet_sha256,
                     "timeout_seconds": _TIMEOUT,
                     "heap_mib": _HEAP_MIB,
                     "input_bytes": _MAX_INPUT,
                     "output_bytes": _MAX_OUTPUT,
                     "environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
-                    "arguments": [
-                        f"--max-old-space-size={_HEAP_MIB}",
-                        "--input-type=commonjs",
-                        "--eval",
-                        "<captured-helper>",
-                    ],
+                    "command": list(self.command),
+                    **(
+                        {"selection": self.selection_identity.to_dict()}
+                        if self.selection_identity is not None
+                        else {}
+                    ),
                 }
             ),
         )
+
+    @property
+    def command(self) -> tuple[str, ...]:
+        """Actual worker command binding captured helper and SDK hashes."""
+        return (
+            *self.node.command,
+            f"--max-old-space-size={_HEAP_MIB}",
+            "--input-type=commonjs",
+            "--eval",
+            self._bootstrap,
+            "--",
+            self._helper_sha256,
+            self._sdk_packet_sha256,
+        )
+
+    def _request_packet(self, request: dict[str, object]) -> bytes:
+        content = json.dumps(
+            {
+                "helper": self._helper,
+                "compiler_snapshot": self._sdk_packet,
+                "request": request,
+            },
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+        if len(content) > _MAX_INPUT:
+            raise ValueError("combined TypeScript request exceeds its encoded bound")
+        return content
 
     def run(
         self,
@@ -197,31 +269,21 @@ class NodeSDKTypeScriptCompiler:
             for name in roots
         ):
             raise ValueError("dual-format SDK compilation requires src/*.ts roots")
-        request = json.dumps(
+        request = self._request_packet(
             {
                 "version": 1,
                 "operation": operation,
                 "files": _rows(files),
                 "roots": roots,
-                "compiler_files": _rows(self.sdk.files),
-            },
-            separators=(",", ":"),
-        ).encode("utf-8")
-        if len(request) > _MAX_INPUT:
-            raise ValueError("combined TypeScript request exceeds its encoded bound")
+            }
+        )
         # No ambient preload/search-path switches. Candidate configuration files
         # never select flags; all CompilerHost I/O uses the packet inventory.
         child_environment = node_sdk_tool_environment(environment)
         require_current()
         self.node.require_unchanged(child_environment)
         result = run_bounded_process(
-            (
-                *self.node.command,
-                f"--max-old-space-size={_HEAP_MIB}",
-                "--input-type=commonjs",
-                "--eval",
-                self._helper,
-            ),
+            self.command,
             cwd=None,
             environment=child_environment,
             timeout_seconds=_TIMEOUT,
