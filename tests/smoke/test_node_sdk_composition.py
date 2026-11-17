@@ -16,8 +16,11 @@ from literate_ai.adapters.node_sdk_composition import (
     prepare_node_sdk_composition,
     require_node_sdk_projection,
 )
-from literate_ai.contracts import canonical_identity
-from literate_ai.contracts.node_sdk import CommonJSModuleDeclaration
+from literate_ai.contracts import LibraryImportSurface, canonical_identity
+from literate_ai.contracts.node_sdk import (
+    CommonJSModuleDeclaration,
+    NodeSDKExportDeclaration,
+)
 from tests.smoke import test_javascript_library_imports as import_fixtures
 
 
@@ -90,6 +93,18 @@ class NodeSDKCompositionTests(unittest.TestCase):
             for directory, runtime in (("cjs", cjs), ("esm", esm))
             for suffix, data in ((".js", runtime), (".d.ts", dts))
         )
+        # Synthetic generated-SDK output authority. This fixture still has no
+        # real generation/profile/provider-acceptance receipt.
+        sdk_surface = LibraryImportSurface(
+            "typescript",
+            "counter-sdk",
+            (replace(capability, module="counter-sdk"),),
+            node_sdk_exports=(
+                NodeSDKExportDeclaration("counter-sdk", "index"),
+                NodeSDKExportDeclaration("counter-sdk/counter", "index"),
+            ),
+        )
+        f.consumer = replace(f.consumer, library_import_surface=sdk_surface)
         self.arguments = dict(
             source=canonical_identity("TypeScript source fixture"),
             compiler=canonical_identity("selected compiler"),
@@ -189,6 +204,19 @@ class NodeSDKCompositionTests(unittest.TestCase):
         ]:
             with self.subTest(changes=changes), self.assertRaises(ValueError):
                 self.prepare(**changes)
+
+    def test_application_fixture_keeps_provider_namespace_collision_denial(self):
+        # The internal owner is shared with separately admitted retained SDKs.
+        # This synthetic application contract grants no retained admission.
+        self.fixture.consumer = replace(
+            self.fixture.consumer,
+            library_import_surface=None,
+            artifact_export=replace(
+                self.fixture.consumer.artifact_export, role="application"
+            ),
+        )
+        with self.assertRaisesRegex(ValueError, "collides"):
+            self.prepare(name=self.provider_contract.library_import_surface.package)
 
     def test_complete_inventory_rejects_extra_missing_or_substituted_bytes(self):
         plan = self.prepare()

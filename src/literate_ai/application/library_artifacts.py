@@ -91,6 +91,12 @@ def project_library_import_surface(
             raise ValueError(
                 "declaration-bearing surfaces require complete module authority"
             )
+        sdk_exports = {}
+        for item in selected:
+            for export in item.node_sdk_exports:
+                previous = sdk_exports.setdefault(export.module, export)
+                if previous != export:
+                    raise ValueError("conflicting SDK files for one public module")
         return LibraryImportSurface(
             language,
             selected[0].package,
@@ -104,6 +110,7 @@ def project_library_import_surface(
                 for item in selected
             ),
             declarations=tuple(module_files[name] for name in sorted(module_files)),
+            node_sdk_exports=tuple(sdk_exports[name] for name in sorted(sdk_exports)),
         )
     package = component_name.replace("-", "_")
     imports = []

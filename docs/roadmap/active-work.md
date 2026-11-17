@@ -415,6 +415,15 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       These are internal fixture results, not lifecycle qualification. The next
       action is the opt-in SDK policy and generated/retained adapters, followed by
       authoritative declaration acceptance and native/installed qualification.
+      Foundation commit `8c2e108f` also passed the macOS whole-wheel gate; an exact
+      installed-wheel fixture passed compilation, offline packing, relocation,
+      both runtimes and four typing combinations with complete closing custody
+      checks. A digest-representation preflight failure is retained separately.
+      The subsequent additive SDK output codec and common compile-to-plan path
+      passed 674 local smoke tests with six declared skips and independent review.
+      Their application-profile denial remains explicit; neither supplies public
+      SDK lifecycle admission. Compiler tool selection should reuse the existing
+      bounded native SDK-tree capture owner, not add another filesystem reader.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

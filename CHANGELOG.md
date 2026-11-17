@@ -5,8 +5,9 @@
 - Library contracts: add opt-in, exact CommonJS runtime and TypeScript declaration
   paths while preserving existing library import wire identities. Node SDK
   composition under accepted ADR 0073 remains in development; its internal shared
-  owner now supplies bounded compiler snapshots and offline exact tarball readback.
-  Public lifecycle/profile integration and native qualification remain open.
+  owner now supplies bounded compiler snapshots, offline exact tarball readback
+  and explicit dual-output authority. Public lifecycle/profile integration and
+  native qualification remain open.
 
 - Materialize generic JavaScript direct-library imports from exact sealed provider
   artifacts, with native Node export maps, truthful generic source-BOM declarations

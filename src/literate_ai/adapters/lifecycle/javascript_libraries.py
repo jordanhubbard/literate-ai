@@ -128,6 +128,8 @@ def prepare_javascript_library_imports(
         if provider is None or not isinstance(contract, ComponentCommandContract):
             raise ValueError("JavaScript provider or contract unavailable")
         surface = contract.library_import_surface
+        if surface is not None and surface.node_sdk_exports:
+            raise ValueError("dual SDK surface @3 is not a CommonJS provider surface")
         if (
             not contract.is_library
             or surface is None

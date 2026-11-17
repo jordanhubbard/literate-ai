@@ -7,7 +7,7 @@
     {"$ref": "urn:literate-ai:schema:v2:multi-entrypoint-component-semantics@1"},
     {"$ref": "urn:literate-ai:schema:v2:library-capability-import@1"},
     {"$ref": "urn:literate-ai:schema:v2:library-import-surface@1"},
-    {"$ref": "urn:literate-ai:schema:v2:library-import-surface@2"},
+    {"$ref": "urn:literate-ai:schema:v2:library-import-surface@2"}, {"$ref": "urn:literate-ai:schema:v2:library-import-surface@3"},
     {"$ref": "urn:literate-ai:schema:v2:commonjs-module-declaration@1"},
     {"$ref": "urn:literate-ai:schema:v2:library-consumer-binding@1"}
   ],
@@ -344,7 +344,7 @@
           "minItems": 1,
           "items": {"$ref": "urn:literate-ai:schema:v2:multi-entrypoint-component-semantics@1"}
         },
-        "library_import_surface": {"oneOf": [{"$ref": "urn:literate-ai:schema:v2:library-import-surface@1"}, {"$ref": "urn:literate-ai:schema:v2:library-import-surface@2"}]},
+        "library_import_surface": {"oneOf": [{"$ref": "urn:literate-ai:schema:v2:library-import-surface@1"}, {"$ref": "urn:literate-ai:schema:v2:library-import-surface@2"}, {"$ref": "urn:literate-ai:schema:v2:library-import-surface@3"}]},
         "native_layout": {"$ref": "urn:literate-ai:schema:v2:execution-dispatch-contracts#/$defs/cpp_library_layout"}
       },
       "if": {"required": ["library_import_surface"], "properties": {"library_import_surface": {"properties": {"language": {"const": "cpp"}}, "required": ["language"]}}},

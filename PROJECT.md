@@ -95,14 +95,20 @@ goals require a specific unreleased Literate AI capability.
 ## Completeness
 
 Accepted [ADR 0073](docs/decisions/0073-sealed-node-sdk-composition.md) is being
-implemented under LIBRARY-ARTIFACT-001. Declaration-bearing CommonJS import
-authority, shared projection, immutable-snapshot TypeScript compiler and offline
-npm tarball readback have local fixture coverage and independent state/security
-review. Real compiler checks cover both formats, Node16/NodeNext consumers and
-negative declaration controls; packed fixtures run after relocation. The opt-in
-SDK profile, public generated/retained adapters, authoritative declaration
+implemented under LIBRARY-ARTIFACT-001. Internal foundation commit `8c2e108f`
+passed 658 smoke tests (six declared skips), independent state/security review
+and the macOS whole-wheel gate. A synthetic fixture then compiled, packed and
+ran after relocation through that exact installed wheel, with four TypeScript
+consumer combinations and verified installed payloads. This is installed-owner
+fixture evidence, not ordinary SDK lifecycle qualification.
+
+The subsequent additive dual-export surface and common compile-to-plan path
+passed 674 local smoke tests (six declared skips) and independent state/security
+review. Existing import wire formats remain unchanged; the application profile
+explicitly refuses the new SDK surface. The opt-in SDK profile, compiler
+tool selection, public generated/retained adapters, authoritative declaration
 acceptance and native/installed-lifecycle qualification remain unfinished. These
-internal checks do not authorize downstream SDK or registered-child cutover.
+checks do not authorize downstream SDK or registered-child cutover.
 
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The

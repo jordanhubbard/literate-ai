@@ -8,14 +8,23 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from literate_ai.adapters.builders.javascript import discover_node_toolchain
+from literate_ai.adapters.builders.javascript import (
+    discover_node_toolchain,
+    discover_npm_toolchain,
+)
 from literate_ai.adapters.directory_artifacts import DirectoryExportFile
+from literate_ai.adapters.node_sdk_build import compile_node_sdk_plan
+from literate_ai.adapters.node_sdk_packaging import (
+    pack_node_sdk,
+    require_node_sdk_tarball,
+)
 from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
 from literate_ai.adapters.node_sdk_typescript import (
     NodeSDKTypeScriptCompiler,
     TypeScriptSDK,
     _inventory,
 )
+from literate_ai.contracts import ContentIdentity
 from tests.smoke import test_node_sdk_composition as composition_fixtures
 
 
@@ -185,6 +194,117 @@ class TypeScriptCompilerTests(unittest.TestCase):
             file("consumer.cts", consumer),
             file("consumer.mts", consumer),
         )
+
+    def compile_plan(self, **changes):
+        arguments = dict(self.fixture.arguments)
+        authority = arguments.pop("source")
+        for name in ("compiled", "compiler", "node"):
+            del arguments[name]
+        arguments.update(changes)
+        return compile_node_sdk_plan(
+            self.fixture.fixture.consumer,
+            source_authority=authority,
+            source_files=(self.source,),
+            compiler=self.compiler,
+            environment=self.environment,
+            require_current=lambda: None,
+            **arguments,
+        )
+
+    def test_shared_compile_plan_rejects_changed_bindings_before_execution(self):
+        with patch.object(NodeSDKTypeScriptCompiler, "run") as run:
+            with self.assertRaisesRegex(ValueError, "bindings differ"):
+                self.compile_plan(build_bindings=())
+            run.assert_not_called()
+
+    def test_shared_compile_plan_reopens_provider_before_publication(self):
+        original = self.fixture.arguments["read_blob"]
+        reads = 0
+
+        def changed(blob):
+            nonlocal reads
+            reads += 1
+            content = original(blob)
+            return content if reads == 1 else content + b"changed"
+
+        with self.assertRaisesRegex(ValueError, "differs from pinned bytes"):
+            self.compile_plan(read_blob=changed)
+        self.assertEqual(reads, 2)
+
+    @unittest.skipUnless(shutil.which("npm"), "requires selected local npm")
+    def test_real_shared_compile_pack_relocate_and_type_consumers(self):
+        import io
+        import subprocess
+        import tarfile
+
+        npm = discover_npm_toolchain(
+            self.node,
+            self.environment,
+            version_constraint=">=10.0.0",
+            constraint_identity=self.fixture.arguments["packer"].uri,
+        )
+        compiled = self.compile_plan(packer=ContentIdentity.parse_uri(npm.identity))
+        self.assertEqual(compiled.plan.compiler, self.compiler.identity)
+        self.assertTrue(
+            any(name.endswith(".d.ts") for name in compiled.compiler_inputs)
+        )
+        packed = pack_node_sdk(
+            compiled.plan,
+            self.fixture.fixture.root / "compiled-pack",
+            npm=npm,
+            environment=self.environment,
+            require_current=lambda: None,
+        )
+        require_node_sdk_tarball(compiled.plan, packed.content)
+        root = self.fixture.fixture.root / "compiled-relocated"
+        package = root / "node_modules/counter-sdk"
+        package.mkdir(parents=True)
+        files = []
+        with tarfile.open(fileobj=io.BytesIO(packed.content), mode="r:gz") as archive:
+            for member in archive:
+                name = member.name.removeprefix("package/")
+                content = archive.extractfile(member).read()
+                destination = package / name
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(content)
+                files.append(file("node_modules/counter-sdk/" + name, content))
+        consumer = (
+            "import {CounterError," + self.fixture.symbol + "} from 'counter-sdk';"
+            "import {CounterError as Other} from 'counter-sdk/counter';"
+            "const e:Error=new Other('bad');const n:number="
+            + self.fixture.symbol
+            + "(2,3);\n// @ts-expect-error preserve numeric arguments\n"
+            + self.fixture.symbol
+            + "('bad',3);"
+        )
+        files.extend((file("consumer.cts", consumer), file("consumer.mts", consumer)))
+        checked = self.run_compiler(files, ("consumer.cts", "consumer.mts"))
+        self.assertTrue(checked.success, checked.diagnostics)
+        for esm in (False, True):
+            script = (
+                "import * as a from 'counter-sdk';"
+                "import * as b from 'counter-sdk/counter';"
+                if esm
+                else "const a=require('counter-sdk'),b=require('counter-sdk/counter');"
+            )
+            script += (
+                "if(a.CounterError!==b.CounterError||a."
+                + self.fixture.symbol
+                + "(2,3)!==5)process.exit(1);"
+            )
+            result = subprocess.run(
+                (
+                    *self.node.command,
+                    *(["--input-type=module"] if esm else []),
+                    "--eval",
+                    script,
+                ),
+                cwd=root,
+                env=self.environment,
+                capture_output=True,
+                timeout=15,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr.decode())
 
     def test_actual_dual_compilation_and_four_consumer_combinations(self):
         result = self.run_compiler(self.package(), ("consumer.cts", "consumer.mts"))

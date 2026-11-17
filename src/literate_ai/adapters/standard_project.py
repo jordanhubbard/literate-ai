@@ -1525,6 +1525,12 @@ def _command_contract(
         if not entrypoints
         else None
     )
+    if library_surface is not None and library_surface.node_sdk_exports:
+        raise StandardCommandProjectionError(
+            "standard_command.node_sdk_profile_required",
+            "TypeScript SDK exports require the opt-in package-node-sdk compiler "
+            "and packer profile; the application profile cannot build this surface",
+        )
     native_layout = (
         project_cpp_library_layout(
             library_surface, kind=language.cpp_library_kind, platform=platform.target

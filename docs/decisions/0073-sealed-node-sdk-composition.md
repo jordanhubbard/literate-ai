@@ -74,6 +74,16 @@ must expose the same logical provider paths. No provider bytes are written to th
 authored source tree. Error-class identity must hold across the SDK's root/subpath
 exports within each format; cross-format module-instance identity is not promised.
 
+A generated SDK's own TypeScript output uses an additive versioned import surface,
+separate from the CommonJS provider surface. It binds each public module to its
+exact CJS/ESM runtime and declaration paths and the package-boundary manifest
+bytes. Explicit root/subpath aliases may share exact files for a covered
+capability; extra public stems need their own capability authority. Existing
+surface codecs retain their wire identities. A dual SDK output surface cannot
+silently become a dependency-free CommonJS provider in this first composition
+profile. Retained applications bind their acknowledged SDK-product authority
+separately and never gain a fabricated library Component.
+
 The package exports map binds separate `require.types` and `import.types` entries.
 Use `.d.ts` files inside explicit CJS and ESM package-type boundaries, paired with
 their matching `.js` outputs. Keep those boundary manifests in the distribution.

@@ -266,6 +266,8 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "urn:literate-ai:schema:v2:library-capability-import@1",
         "urn:literate-ai:schema:v2:library-import-surface@1",
         "urn:literate-ai:schema:v2:library-import-surface@2",
+        "urn:literate-ai:schema:v2:library-import-surface@3",
+        "urn:literate-ai:schema:v2:node-sdk-export-declaration@1",
         "urn:literate-ai:schema:v2:commonjs-module-declaration@1",
         "urn:literate-ai:schema:v2:native-sdk-snapshot",
         "urn:literate-ai:schema:v2:native-sdk-build-layout",
