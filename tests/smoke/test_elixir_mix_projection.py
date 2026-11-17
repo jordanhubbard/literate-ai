@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import tempfile
 import unittest
 from dataclasses import replace
@@ -10,6 +9,8 @@ from pathlib import Path
 from unittest import mock
 
 from jsonschema import Draft202012Validator
+from referencing import Registry, Resource
+from referencing.jsonschema import DRAFT202012
 
 from literate_ai.adapters.builders.elixir import ElixirToolchain
 from literate_ai.adapters.builders.hex import HexToolchain
@@ -22,11 +23,9 @@ from literate_ai.contracts import (
     StandardMixCommandProfile,
     parse_standard_command_profile,
 )
-from tests.support.fixtures_test_elixir_mix_projection import (
-    _REPOSITORY,
-    _mix_snapshot,
-)
+from tests.support.fixtures_test_elixir_mix_projection import _mix_snapshot
 from tests.support.fixtures_test_elixir_standard_mix import _tool
+from tests.support.fixtures_test_schema_catalog import SchemaCatalog
 from tests.support.fixtures_test_standard_command_projection import (
     _observation,
 )
@@ -104,12 +103,17 @@ class MixProfileTests(unittest.TestCase):
                 )
 
     def test_schema_and_contract_reject_native_manifests_and_extra_authority(self):
-        schema = json.loads(
-            (
-                _REPOSITORY / "schemas/v2/standard-command-profiles.schema.json"
-            ).read_text()
+        catalog = SchemaCatalog()
+        registry = Registry().with_resources(
+            (uri, Resource.from_contents(document, default_specification=DRAFT202012))
+            for uri, document in catalog.resources.items()
         )
-        validator = Draft202012Validator(schema)
+        validator = Draft202012Validator(
+            catalog.resources[
+                "urn:literate-ai:schema:v2:standard-command-profile-contracts"
+            ],
+            registry=registry,
+        )
         valid = StandardMixCommandProfile(
             "mix", "hex", "source/mix-project.json"
         ).to_dict()
