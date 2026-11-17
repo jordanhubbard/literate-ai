@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Qualify explicit Python SDK host orchestration through actual `runtime.execute`
+  with a deterministic authored generator. The native fixture passes in 1081.895
+  seconds, including original provider admission, finalization re-admission,
+  packaged six-type/two-runtime checks and publication after root acceptance.
+  Real-model, durable-cache/recovery and installed qualification remain open.
+
 - Add opt-in Python host configuration for a Node SDK root and one sealed
   CommonJS provider. Bind the original runtime, snapshot, graph and loaded
   oracles; select root acceptance only during its owned invocation. Retired or

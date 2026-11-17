@@ -197,6 +197,17 @@ separately. This exercises owned ports, not complete `runtime.execute` or model
 generation. Configuration supplies no execution grant and does not activate a
 CLI or default policy.
 
+A separate deterministic authored generator now qualifies actual `runtime.execute`
+orchestration in 1081.895 seconds. It binds actual prepared requests, recipes and
+allocated workspaces while the runtime produces all stage receipts. Finalization
+re-admits the original invocation facts with a distinct policy, refuses the
+retired generation context, completes the original packaged six-TypeScript/two-
+runtime checker, and publishes both source memberships only after original root
+acceptance returns. The default local publisher observes membership identity;
+this does not establish durable cache restoration. Production code and grant
+policy remain unchanged; live model generation and installed qualification remain
+separate gates.
+
 Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
 arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,

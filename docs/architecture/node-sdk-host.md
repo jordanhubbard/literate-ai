@@ -47,8 +47,16 @@ the existing shared verifier. Configuring this Python API adds no CLI flag,
 serialized private policy or default activation.
 
 Development acceptance is tracked under LIBRARY-ARTIFACT-001 in the
-[active work queue](../roadmap/active-work.md). Authored operations through an
-assembled runtime do not establish ordinary model generation, complete
-`runtime.execute` orchestration, retained-source recovery, supported-platform or
-noneditable installed qualification. Downstream SDK cutover remains gated on
-those separate obligations.
+[active work queue](../roadmap/active-work.md). A deterministic authored generator
+now exercises complete `runtime.execute` orchestration on the native macOS cell:
+real provider admission before SDK generation, distinct finalization policy with
+the same original invocation identity, retirement of the generation context,
+original packaged six-TypeScript/two-runtime verification, and source membership
+publication after root acceptance. The fixture passes in 1081.895 seconds.
+Its generator binds actual prepared source requests, recipes and workspaces;
+all build and acceptance evidence comes from the runtime. The local default
+publisher observes membership identity, not durable cache persistence.
+
+Authored orchestration does not establish ordinary model generation, retained
+source/recovery, the supported-platform matrix or noneditable installed
+qualification. Downstream SDK cutover remains gated on those separate obligations.

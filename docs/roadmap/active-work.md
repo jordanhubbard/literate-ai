@@ -636,11 +636,27 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       host/ports/closure identity assertions; those sentinel assertions establish
       wiring, not native admission. Independent state/security review finds no
       remaining blocker for this scoped local-source increment.
-      Next qualify full orchestration, including its original finalization
-      re-admission, ordinary generated/retained lifecycle behavior and actual
+      Next qualify ordinary model-generated/retained lifecycle behavior and actual
       selected-project time/grant bounds. Legacy CommonJS v2 refusal remains
       intact. Complete public admission and generated/retained/native/installed
       qualification remain open.
+      Full authored orchestration now passes through actual runtime.execute with
+      a deterministic authored source generator bound to the actual prepared
+      requests, recipes and allocated workspaces. The runtime creates all
+      stage receipts, verify the provider before SDK generation, re-admit original
+      invocation facts under a distinct finalization policy, retire the copied
+      generation context, and finish original packaged acceptance before source
+      membership publication. The actual native case passes in 1081.895 seconds,
+      including the original six-TypeScript/two-runtime root checker, one original
+      root acceptance and both later source membership publications. All assertions
+      pass without production changes. Observers delegate to original checker/acceptor/
+      publisher implementations. A shared write-only source metadata helper
+      preserves existing registration behavior; the Standard Make regression
+      selects 69 cases: 61 pass and eight retain prerequisite skips. Fresh fixture
+      verifier grants are explicitly bounded to 30 minutes; original BUILD grant
+      policy, real clock and closing expiry checks remain unchanged. No active
+      grant extension, live model, durable cache/recovery or installed acceptance
+      is claimed by this authored orchestration experiment.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.

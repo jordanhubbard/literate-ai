@@ -48,6 +48,48 @@ def register_strict_source(
         component_name = projection.definition.coordinate.name
     else:
         component_name = recipe.application_id
+    source_bom, suite = write_strict_source_evidence(
+        source,
+        recipe=recipe,
+        component_name=component_name,
+        additional_components=additional_components,
+        root_dependency_refs=root_dependency_refs,
+        additional_edges=additional_edges,
+    )
+
+    def identity(label: str):
+        return canonical_identity({identity_namespace: label})
+
+    candidate = GeneratedSourceCandidate(
+        generation_plan.component_revision,
+        identity("orchestration-request"),
+        identity("planned-coding-cli-request"),
+        generation_plan.identity,
+        generation_plan.generation_key.identity,
+        identity("context"),
+        identity("prompt"),
+        ContentIdentity.parse_uri(recipe.identity),
+        identity("workspace"),
+        local_generated_source_tree_identity(source),
+        identity("bundle"),
+        identity("manifest"),
+        source_bom.bom_identity,
+        ContentIdentity.parse_uri(suite.content_identity),
+    )
+    registry.register(candidate, source, recipe=recipe)
+    return candidate
+
+
+def write_strict_source_evidence(
+    source: Path,
+    *,
+    recipe: object,
+    component_name: str,
+    additional_components: Sequence[Mapping[str, object]] = (),
+    root_dependency_refs: Sequence[str] = (),
+    additional_edges: Sequence[tuple[str, str]] = (),
+):
+    """Write fixture SBOM/suite bytes; grant no registration or stage authority."""
     reference = recipe.non_acceptance_document_paths[0]
     cases = []
     for category in ("example", "boundary", "invariant"):
@@ -93,27 +135,7 @@ def register_strict_source(
     source_bom_path.parent.mkdir(parents=True, exist_ok=True)
     source_bom_path.write_bytes(source_bom_content)
 
-    def identity(label: str):
-        return canonical_identity({identity_namespace: label})
-
-    candidate = GeneratedSourceCandidate(
-        generation_plan.component_revision,
-        identity("orchestration-request"),
-        identity("planned-coding-cli-request"),
-        generation_plan.identity,
-        generation_plan.generation_key.identity,
-        identity("context"),
-        identity("prompt"),
-        ContentIdentity.parse_uri(recipe.identity),
-        identity("workspace"),
-        local_generated_source_tree_identity(source),
-        identity("bundle"),
-        identity("manifest"),
-        source_bom.bom_identity,
-        ContentIdentity.parse_uri(suite.content_identity),
-    )
-    registry.register(candidate, source, recipe=recipe)
-    return candidate
+    return source_bom, suite
 
 
-__all__ = ["register_strict_source"]
+__all__ = ["register_strict_source", "write_strict_source_evidence"]
