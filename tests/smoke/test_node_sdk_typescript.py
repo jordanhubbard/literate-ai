@@ -7,7 +7,7 @@ import os
 import shutil
 import tempfile
 import unittest
-from dataclasses import replace
+from dataclasses import FrozenInstanceError, replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -250,7 +250,20 @@ class TypeScriptCompilerTests(unittest.TestCase):
             version_constraint=">=10.0.0",
             constraint_identity=self.fixture.arguments["packer"].uri,
         )
-        compiled = self.compile_plan(packer=ContentIdentity.parse_uri(npm.identity))
+        observations = []
+        compiled = self.compile_plan(
+            packer=ContentIdentity.parse_uri(npm.identity),
+            observe_process=observations.append,
+        )
+        self.assertEqual(len(observations), 1)
+        observed = observations[0]
+        self.assertEqual(observed.command, self.compiler.command)
+        self.assertEqual(observed.returncode, 0)
+        self.assertIsNotNone(observed.input_identity)
+        self.assertTrue(json.loads(observed.stdout)["success"])
+        with self.assertRaises(FrozenInstanceError):
+            observed.stdout = b"observer cannot replace compiler bytes"
+
         self.assertEqual(compiled.plan.compiler, self.compiler.identity)
         self.assertTrue(
             any(name.endswith(".d.ts") for name in compiled.compiler_inputs)
@@ -700,3 +713,89 @@ class TypeScriptCompilerTests(unittest.TestCase):
             require_current=lambda: None,
         )
         self.assertEqual(selected, compiler)
+
+    def test_observer_owner_cut_prevents_compiler_result_publication(self):
+        active, observations = True, []
+
+        def current():
+            if not active:
+                raise RuntimeError("owner ended after actual compiler closure")
+
+        def observe(value):
+            nonlocal active
+            observations.append(value)
+            active = False
+
+        with self.assertRaisesRegex(RuntimeError, "owner ended"):
+            self.compiler.run(
+                files=(file("src/index.ts", "export const value=42;"),),
+                roots=("src/index.ts",),
+                operation="compile",
+                environment=self.environment,
+                require_current=current,
+                observe_process=observe,
+            )
+        self.assertEqual(len(observations), 1)
+        self.assertEqual(observations[0].returncode, 0)
+        self.assertTrue(json.loads(observations[0].stdout)["success"])
+
+    def test_invalid_observer_is_denied_before_compiler_execution(self):
+        with patch(
+            "literate_ai.adapters.node_sdk_typescript.run_bounded_process"
+        ) as run:
+            with self.assertRaises(TypeError):
+                self.run_compiler(
+                    (file("consumer.cts", "const value=42;"),),
+                    ("consumer.cts",),
+                    observe_process=object(),
+                )
+            run.assert_not_called()
+
+    def test_known_async_observers_are_denied_before_compiler_execution(self):
+        async def observe(_value):
+            raise AssertionError("must not run")
+
+        class AsyncObserver:
+            async def __call__(self, _value):
+                raise AssertionError("must not run")
+
+        for observer in (observe, AsyncObserver()):
+            with (
+                self.subTest(observer=type(observer).__name__),
+                patch(
+                    "literate_ai.adapters.node_sdk_typescript.run_bounded_process"
+                ) as run,
+            ):
+                with self.assertRaisesRegex(TypeError, "synchronous"):
+                    self.run_compiler(
+                        (file("consumer.cts", "const value=42;"),),
+                        ("consumer.cts",),
+                        observe_process=observer,
+                    )
+                run.assert_not_called()
+
+    def test_observer_return_value_cannot_defer_or_acknowledge_observation(self):
+        bodies, observed = [], []
+
+        async def deferred():
+            bodies.append("must not run")
+
+        for factory in (deferred, lambda: False):
+
+            def observe(value, factory=factory):
+                observed.append(value)
+                return factory()
+
+            with (
+                self.subTest(factory=factory.__name__),
+                self.assertRaisesRegex(TypeError, "return None"),
+            ):
+                self.run_compiler(
+                    (file("src/index.ts", "export const value=42;"),),
+                    ("src/index.ts",),
+                    operation="compile",
+                    observe_process=observe,
+                )
+        self.assertEqual(len(observed), 2)
+        self.assertTrue(all(value.returncode == 0 for value in observed))
+        self.assertFalse(bodies)

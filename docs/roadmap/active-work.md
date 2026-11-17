@@ -439,6 +439,12 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       count includes that closed role. Forty focused tests, the existing command/
       schema regressions and independent review cover this infrastructure. There
       is still no selectable SDK Flavor or public SDK builder/acceptance admission.
+      Shared compiler/packer owners also expose actual completed-process facts
+      for future lifecycle recording. Observers receive immutable data, must finish
+      synchronously and return no value, and cannot bypass the final owner/tool/
+      projection checks. Thirty-seven focused tests and independent review cover
+      this internal hook; timeouts and uncertain closure still need separate
+      failure evidence. No lifecycle receipt is inferred from the hook itself.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

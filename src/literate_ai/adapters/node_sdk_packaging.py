@@ -23,7 +23,12 @@ from literate_ai.adapters.node_sdk_composition import (
     materialize_node_sdk,
     require_node_sdk_projection,
 )
-from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+from literate_ai.adapters.node_sdk_tools import (
+    NodeSDKToolProcess,
+    node_sdk_tool_environment,
+    notify_node_sdk_process,
+    require_node_sdk_process_observer,
+)
 from literate_ai.contracts import ContentIdentity, canonical_identity
 
 _MAX_ARCHIVE = MAX_SDK_BYTES + 8 * 1024 * 1024
@@ -149,6 +154,7 @@ def pack_node_sdk(
     npm: NpmToolchain,
     environment: Mapping[str, str],
     require_current: Callable[[], None],
+    observe_process: Callable[[NodeSDKToolProcess], None] | None = None,
 ) -> PackedNodeSDK:
     """Pack once in fresh private custody; retain failed or uncertain attempts.
 
@@ -163,6 +169,7 @@ def pack_node_sdk(
         raise ValueError("SDK packing tools differ from the prepared plan")
     if not callable(require_current):
         raise TypeError("SDK packing requires its current live owner")
+    require_node_sdk_process_observer(observe_process)
     require_current()
     require_safe_directory(workspace.parent)
     workspace.mkdir(mode=0o700)
@@ -182,25 +189,26 @@ def pack_node_sdk(
     child_environment = node_sdk_tool_environment(environment)
     npm.require_unchanged(child_environment)
     require_node_sdk_projection(plan, projection, require_current=require_current)
+    command = (
+        *npm.command,
+        "pack",
+        "--ignore-scripts",
+        "--offline",
+        "--json",
+        "--pack-destination",
+        str(packed),
+        "--cache",
+        str(cache),
+        "--userconfig",
+        str(user_config),
+        "--globalconfig",
+        str(global_config),
+        "--audit=false",
+        "--fund=false",
+        "--update-notifier=false",
+    )
     result = run_bounded_process(
-        (
-            *npm.command,
-            "pack",
-            "--ignore-scripts",
-            "--offline",
-            "--json",
-            "--pack-destination",
-            str(packed),
-            "--cache",
-            str(cache),
-            "--userconfig",
-            str(user_config),
-            "--globalconfig",
-            str(global_config),
-            "--audit=false",
-            "--fund=false",
-            "--update-notifier=false",
-        ),
+        command,
         cwd=projection,
         environment=child_environment,
         timeout_seconds=120,
@@ -213,6 +221,15 @@ def pack_node_sdk(
     )
     npm.require_unchanged(child_environment)
     require_node_sdk_projection(plan, projection, require_current=require_current)
+    if observe_process is not None:
+        try:
+            notify_node_sdk_process(observe_process, command=command, result=result)
+        finally:
+            require_current()
+            npm.require_unchanged(child_environment)
+            require_node_sdk_projection(
+                plan, projection, require_current=require_current
+            )
     if result.returncode:
         raise ValueError(
             "offline npm pack failed: "

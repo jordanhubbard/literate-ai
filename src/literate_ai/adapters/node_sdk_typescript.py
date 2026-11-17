@@ -22,7 +22,10 @@ from literate_ai.adapters.builders.javascript import NodeToolchain
 from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.node_sdk_tools import (
     SDK_TOOL_ENVIRONMENT_POLICY,
+    NodeSDKToolProcess,
     node_sdk_tool_environment,
+    notify_node_sdk_process,
+    require_node_sdk_process_observer,
 )
 from literate_ai.contracts import ContentIdentity, SemanticVersion, canonical_identity
 from literate_ai.contracts.paths import canonical_relative_posix_paths
@@ -252,9 +255,11 @@ class NodeSDKTypeScriptCompiler:
         roots: tuple[str, ...],
         environment: Mapping[str, str],
         require_current: Callable[[], None],
+        observe_process: Callable[[NodeSDKToolProcess], None] | None = None,
     ) -> TypeScriptResult:
         if operation not in {"compile", "check"} or not callable(require_current):
             raise ValueError("TypeScript requires an operation and current live owner")
+        require_node_sdk_process_observer(observe_process)
         files = _inventory(files, maximum=4096)
         if not isinstance(roots, tuple) or not 1 <= len(roots) <= 1024:
             raise ValueError("TypeScript root inventory exceeds its bound")
@@ -298,6 +303,18 @@ class NodeSDKTypeScriptCompiler:
         )
         self.node.require_unchanged(child_environment)
         require_current()
+        if observe_process is not None:
+            try:
+                notify_node_sdk_process(
+                    observe_process,
+                    command=self.command,
+                    result=result,
+                    input_bytes=request,
+                )
+            finally:
+                require_current()
+                self.node.require_unchanged(child_environment)
+                require_current()
         if result.returncode:
             raise ValueError(
                 "TypeScript SDK compiler rejected the request: "

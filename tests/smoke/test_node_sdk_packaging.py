@@ -2,6 +2,7 @@
 
 import gzip
 import io
+import json
 import os
 import shutil
 import tarfile
@@ -123,6 +124,7 @@ class NodeSDKOfflinePackTests(unittest.TestCase):
         )
 
     def test_actual_offline_pack_exact_payload_and_relocation(self):
+        observations = []
         result = pack_node_sdk(
             self.plan,
             self.fixture.fixture.root / "pack-attempt",
@@ -136,7 +138,16 @@ class NodeSDKOfflinePackTests(unittest.TestCase):
                 ),
             },
             require_current=lambda: None,
+            observe_process=observations.append,
         )
+        self.assertEqual(len(observations), 1)
+        observed = observations[0]
+        self.assertEqual(observed.command[: len(self.npm.command)], self.npm.command)
+        self.assertIn("--offline", observed.command)
+        self.assertIn("--ignore-scripts", observed.command)
+        self.assertIsNone(observed.input_identity)
+        self.assertEqual(observed.returncode, 0)
+        self.assertEqual(json.loads(observed.stdout)[0]["name"], "counter-sdk")
         self.assertFalse((self.fixture.fixture.root / "outside-pack-coverage").exists())
         self.assertEqual(result.plan, self.plan.identity)
         require_node_sdk_tarball(self.plan, result.content)
@@ -195,3 +206,93 @@ class NodeSDKOfflinePackTests(unittest.TestCase):
                 )
             run.assert_not_called()
         self.assertFalse(workspace.exists())
+
+    def test_observer_projection_mutation_denies_package_publication(self):
+        workspace = self.fixture.fixture.root / "observed-pack"
+        observations = []
+
+        def observe(value):
+            observations.append(value)
+            (workspace / "sdk/package.json").write_bytes(b"{}\n")
+
+        with self.assertRaises(ValueError):
+            pack_node_sdk(
+                self.plan,
+                workspace,
+                npm=self.npm,
+                environment=self.environment,
+                require_current=lambda: None,
+                observe_process=observe,
+            )
+        self.assertEqual(len(observations), 1)
+        self.assertEqual(observations[0].returncode, 0)
+        self.assertTrue(list((workspace / "packed").glob("*.tgz")))
+
+    def test_invalid_observer_cannot_create_packer_workspace(self):
+        workspace = self.fixture.fixture.root / "invalid-observed-pack"
+        with patch(
+            "literate_ai.adapters.node_sdk_packaging.run_bounded_process"
+        ) as run:
+            with self.assertRaises(TypeError):
+                pack_node_sdk(
+                    self.plan,
+                    workspace,
+                    npm=self.npm,
+                    environment=self.environment,
+                    require_current=lambda: None,
+                    observe_process=object(),
+                )
+            run.assert_not_called()
+        self.assertFalse(workspace.exists())
+
+    def test_known_async_observer_cannot_start_or_create_workspace(self):
+        async def observe(_value):
+            raise AssertionError("must not run")
+
+        workspace = self.fixture.fixture.root / "async-observed-pack"
+        with patch(
+            "literate_ai.adapters.node_sdk_packaging.run_bounded_process"
+        ) as run:
+            with self.assertRaisesRegex(TypeError, "synchronous"):
+                pack_node_sdk(
+                    self.plan,
+                    workspace,
+                    npm=self.npm,
+                    environment=self.environment,
+                    require_current=lambda: None,
+                    observe_process=observe,
+                )
+            run.assert_not_called()
+        self.assertFalse(workspace.exists())
+
+    def test_observer_return_value_prevents_packed_output_publication(self):
+        bodies, observed = [], []
+
+        async def deferred():
+            bodies.append("must not run")
+
+        for index, factory in enumerate((deferred, lambda: False)):
+
+            def observe(value, factory=factory):
+                observed.append(value)
+                return factory()
+
+            workspace = self.fixture.fixture.root / (
+                "deferred-observed-pack-" + str(index)
+            )
+            with (
+                self.subTest(index=index),
+                self.assertRaisesRegex(TypeError, "return None"),
+            ):
+                pack_node_sdk(
+                    self.plan,
+                    workspace,
+                    npm=self.npm,
+                    environment=self.environment,
+                    require_current=lambda: None,
+                    observe_process=observe,
+                )
+            self.assertTrue(list((workspace / "packed").glob("*.tgz")))
+        self.assertEqual(len(observed), 2)
+        self.assertTrue(all(value.returncode == 0 for value in observed))
+        self.assertFalse(bodies)

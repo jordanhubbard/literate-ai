@@ -16,6 +16,10 @@ from literate_ai.adapters.node_sdk_composition import (
     prepare_node_sdk_providers,
     require_node_sdk_output_authority,
 )
+from literate_ai.adapters.node_sdk_tools import (
+    NodeSDKToolProcess,
+    require_node_sdk_process_observer,
+)
 from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
 from literate_ai.contracts import (
     ArtifactExport,
@@ -52,6 +56,7 @@ def compile_node_sdk_plan(
     builtin_modules: frozenset[str],
     environment: Mapping[str, str],
     require_current: Callable[[], None],
+    observe_process: Callable[[NodeSDKToolProcess], None] | None = None,
 ) -> CompiledNodeSDKPlan:
     """Compile once and bind the resulting plan to the actual compiler/input bytes.
 
@@ -60,6 +65,7 @@ def compile_node_sdk_plan(
     admits a provider nor qualifies the generated SDK. It does not materialize
     providers into authored source, infer a registry closure, or publish a package.
     """
+    require_node_sdk_process_observer(observe_process)
     if (
         not isinstance(source_authority, ContentIdentity)
         or not isinstance(packer, ContentIdentity)
@@ -109,6 +115,7 @@ def compile_node_sdk_plan(
         roots=roots,
         environment=environment,
         require_current=require_current,
+        observe_process=observe_process,
     )
     if not result.success:
         raise ValueError(
