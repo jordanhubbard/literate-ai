@@ -2,6 +2,7 @@
 
 import os
 import shutil
+import sys
 import tempfile
 import unittest
 from contextlib import contextmanager
@@ -16,6 +17,7 @@ from literate_ai.adapters.lifecycle import (
     LocalStandardLifecycleError,
     LocalStandardLifecyclePorts,
 )
+from literate_ai.adapters.models.coding_cli import _run_bounded
 from literate_ai.adapters.node_library_acceptance import load_node_library_acceptance
 from literate_ai.contracts import (
     ComponentArtifactExportShape,
@@ -37,6 +39,7 @@ from tests.smoke import test_node_library_acceptance as oracle_fixture
 from tests.smoke import test_node_library_verification as verifier_fixture
 from tests.smoke import test_node_sdk_typescript as compiler_fixture
 from tests.support.fixtures_test_standard_command_projection import _locked_snapshot
+from tests.support.process_state import stopped_process_state
 from tests.support.standard_source_evidence_fixture import register_strict_source
 
 
@@ -352,6 +355,67 @@ class NodeProviderLifecycleTests(unittest.TestCase):
             self.assertEqual(data.compiler, self.compiler.identity)
             with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
                 escaped[0]()
+
+    def test_fresh_verification_keeps_the_same_binding_across_owned_workspaces(self):
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+            data = []
+            for label in ("first", "second"):
+                data.append(
+                    self.ports.with_node_sdk_provider_generation_data(
+                        scope,
+                        revision=self.revision,
+                        oracle=self.oracle,
+                        compiler=self.compiler,
+                        authorization=self.grant(scope),
+                        workspace=self.root / ("renewal-" + label),
+                        require_current=self.owner,
+                        consume=lambda value, guard: value,
+                        environment=self.environment,
+                        observe_process=self.processes.append,
+                    )
+                )
+            self.assertEqual(data[0], data[1])
+            self.assertEqual(data[0].identity, data[1].identity)
+            self.assertEqual(len(self.processes), 18)
+
+    def test_original_verifier_grant_is_polled_inside_a_real_consumer_child(self):
+        pid = self.root / "consumer.pid"
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+            grant = self.grant(scope)
+
+            def owner():
+                self.owner()
+                if pid.exists():
+                    object.__setattr__(grant, "revoked", True)
+
+            def consume(_checks, _guard):
+                _run_bounded(
+                    (
+                        sys.executable,
+                        "-c",
+                        "import os,time;from pathlib import Path;"
+                        + f"Path({str(pid)!r}).write_text(str(os.getpid()));"
+                        "time.sleep(60)",
+                    ),
+                    cwd=self.root,
+                    environment={},
+                    timeout_seconds=10,
+                    maximum_stdout_bytes=1024,
+                    maximum_stderr_bytes=1024,
+                )
+                self.fail("revoked consumer returned a successful result")
+
+            with self.assertRaises(AuthorizationError):
+                self.run_join(
+                    scope, consume, authorization=grant, require_current=owner
+                )
+            self.assertTrue(pid.exists())
+            state = stopped_process_state(int(pid.read_text()))
+            self.assertTrue(not state or state.startswith("Z"), state)
 
     def test_missing_revoked_wrong_or_expired_grant_cannot_start_tools(self):
         with self.ports.accepted_library_provider(

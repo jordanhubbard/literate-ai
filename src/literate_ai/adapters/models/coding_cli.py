@@ -10,19 +10,14 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import threading
 from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass, replace
-from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING
 
-from literate_ai.adapters._processes import (
-    ProcessTreeOwnership,
-    create_process_tree_ownership,
-    terminate_process_tree,
-)
+from literate_ai.adapters.builders._process import run_bounded_process
+from literate_ai.adapters.builders.python import BuildError
 from literate_ai.adapters.dependencies import (
     CycloneDxBomError,
     build_cyclonedx_bom,
@@ -78,10 +73,8 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.model_scopes import RETAINED_SOURCE_PROVIDER
 from literate_ai.diagnostics import (
-    inherited_verbose_environment,
     log_operation,
     redact_secrets,
-    trace_subprocess,
 )
 from literate_ai.evidence_ledger import EvidenceNode, attach_run, bounded_excerpt
 from literate_ai.generated_test_coverage import (
@@ -132,7 +125,6 @@ _OPENCODE_V2_HELP_OPTIONS = (
     b"--print-logs",
     b"--log-level",
 )
-_PIPE_READ_BYTES = 64 * 1024
 _ACCEPTED_SOURCE_LOOKUP_ONLY_EXECUTABLE = "/accepted-source-lookup-only"
 _OPENCODE_PERMISSION = json.dumps(
     {
@@ -4620,13 +4612,6 @@ class _BoundedProcessResult:
     stderr: bytes
 
 
-def _terminate_process(
-    process: subprocess.Popen[bytes],
-    ownership: ProcessTreeOwnership | None = None,
-) -> None:
-    terminate_process_tree(process, ownership=ownership)
-
-
 def _run_bounded(
     command: Sequence[str],
     *,
@@ -4636,128 +4621,34 @@ def _run_bounded(
     maximum_stdout_bytes: int,
     maximum_stderr_bytes: int,
 ) -> _BoundedProcessResult:
-    """Drain both streams concurrently and kill the process on the first overflow."""
-
-    child_environment = inherited_verbose_environment(environment)
-    _started = datetime.now(UTC)
-    trace_subprocess(command, cwd=cwd, environment=child_environment)
-    ownership = create_process_tree_ownership()
+    """Use the shared owned-child runner and retain the coding-CLI error surface."""
     try:
-        process = subprocess.Popen(
-            list(command),
+        result = run_bounded_process(
+            command,
             cwd=cwd,
-            env=child_environment,
-            stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            **ownership.popen_options,
+            environment=environment,
+            timeout_seconds=timeout_seconds,
+            stdout_limit_bytes=maximum_stdout_bytes,
+            stderr_limit_bytes=maximum_stderr_bytes,
+            error_prefix="coding_cli",
+            terminate_descendants=True,
         )
-    except OSError:
-        ownership.release()
-        raise
-    ownership.bind(process.pid)
-    assert process.stdout is not None
-    assert process.stderr is not None
-
-    streams = {
-        "stdout": (process.stdout, maximum_stdout_bytes),
-        "stderr": (process.stderr, maximum_stderr_bytes),
-    }
-    buffers = {name: bytearray() for name in streams}
-    overflows: list[str] = []
-    read_errors: list[Exception] = []
-    state_lock = threading.Lock()
-
-    def read_stream(name: str) -> None:
-        stream, limit = streams[name]
-        try:
-            while True:
-                remaining = limit - len(buffers[name])
-                content = stream.read(min(_PIPE_READ_BYTES, remaining + 1))
-                if not content:
-                    return
-                if len(content) > remaining:
-                    buffers[name].extend(content[:remaining])
-                    with state_lock:
-                        overflows.append(name)
-                    _terminate_process(process, ownership)
-                    return
-                buffers[name].extend(content)
-        except (OSError, ValueError) as exc:
-            with state_lock:
-                read_errors.append(exc)
-            _terminate_process(process, ownership)
-        finally:
-            stream.close()
-
-    readers = [
-        threading.Thread(
-            target=read_stream,
-            args=(name,),
-            name=f"literate-ai-{name}-reader",
-            daemon=True,
-        )
-        for name in streams
-    ]
-    for reader in readers:
-        reader.start()
-    timed_out = False
-    try:
-        returncode = process.wait(timeout=timeout_seconds)
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        _terminate_process(process, ownership)
-        try:
-            returncode = process.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            returncode = -1
-    finally:
-        for reader in readers:
-            reader.join(timeout=5)
-        for _name, (stream, _limit) in streams.items():
-            if any(reader.is_alive() for reader in readers):
-                try:
-                    stream.close()
-                except OSError:
-                    pass
-        for reader in readers:
-            reader.join(timeout=1)
-
-    if timed_out:
-        ownership.release()
-        raise CodingCliError(
-            "coding_cli.timeout",
-            "coding CLI exceeded the configured execution timeout",
-        )
-    if overflows:
-        names = " and ".join(sorted(set(overflows)))
-        ownership.release()
-        raise CodingCliError(
-            "coding_cli.output_limit",
-            f"coding CLI exceeded the configured {names} byte limit",
-        )
-    if read_errors or any(reader.is_alive() for reader in readers):
-        ownership.release()
+    except BuildError as exc:
+        if exc.code == "coding_cli_timeout":
+            raise CodingCliError(
+                "coding_cli.timeout",
+                "coding CLI exceeded the configured execution timeout",
+            ) from exc
+        if exc.code == "coding_cli_output_limit":
+            raise CodingCliError(
+                "coding_cli.output_limit",
+                "coding CLI exceeded its configured output byte limit",
+            ) from exc
         raise CodingCliError(
             "coding_cli.execution_failed",
-            "coding CLI output streams could not be read safely",
-        )
-    result = _BoundedProcessResult(
-        returncode,
-        bytes(buffers["stdout"]),
-        bytes(buffers["stderr"]),
-    )
-    trace_subprocess(
-        command,
-        cwd=cwd,
-        environment=child_environment,
-        status=result.returncode,
-        stdout=result.stdout,
-        stderr=result.stderr,
-        started_at=_started,
-    )
-    ownership.release()
-    return result
+            "coding CLI process could not complete safely",
+        ) from exc
+    return _BoundedProcessResult(result.returncode, result.stdout, result.stderr)
 
 
 def _require_coding_cli_compatible(

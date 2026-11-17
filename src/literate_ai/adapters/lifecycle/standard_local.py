@@ -5915,6 +5915,7 @@ class LocalStandardLifecyclePorts:
             node_sdk_tool_environment,
             require_node_sdk_process_observer,
         )
+        from literate_ai.adapters.process_liveness import process_liveness
 
         self._require_full_command_scope()
         for callback in (require_current, consume):
@@ -6009,7 +6010,8 @@ class LocalStandardLifecyclePorts:
                         provider=scope.export,
                     )
                     require_live()
-                    result = consume(checks, require_live)
+                    with process_liveness(require_live):
+                        result = consume(checks, require_live)
                     if (
                         inspect.isawaitable(result)
                         or inspect.isgenerator(result)

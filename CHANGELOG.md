@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Coding-agent and tool children now share bounded process supervision. Scoped
+  owner checks stop launches and running process trees after revocation, including
+  copied contexts, and withhold results when ownership expires during cleanup.
+  Coding-agent timeout/output error codes remain unchanged. This supplies the
+  live-owner process path for SDK work without activating public SDK generation.
+
 - Node SDK generation groundwork: bind exact verified provider facts and public
   declaration closure into a new recipe and bounded context/cache identity while
   preserving the static plan. Oracle-only private imports stay out of model

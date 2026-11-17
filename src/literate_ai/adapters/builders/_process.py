@@ -12,6 +12,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
+from literate_ai.adapters.process_liveness import capture_process_liveness
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
 from .._processes import (
@@ -114,21 +115,29 @@ def run_bounded_process(
         not isinstance(input_bytes, bytes) or len(input_bytes) > input_limit_bytes
     ):
         raise ValueError("tool process input exceeds its configured byte limit")
-    if interrupt_guard is not None:
-        interrupt_guard()
+    caller_guard = interrupt_guard
+    require_process_liveness = capture_process_liveness()
+
+    def interrupt_guard():
+        require_process_liveness()
+        if caller_guard is not None:
+            caller_guard()
+        require_process_liveness()
+
+    interrupt_guard()
     if stdout_sink is not None and not stdout_sink.writable():
         raise ValueError("tool stdout sink must be writable")
     ownership = create_process_tree_ownership()
-    child_environment = inherited_verbose_environment(environment)
-    started_monotonic = clock()
     try:
+        child_environment = inherited_verbose_environment(environment)
+        started_monotonic = clock()
         _started = datetime.now(UTC)
         if trace:
             trace_subprocess(
                 command, cwd=cwd or Path.cwd(), environment=child_environment
             )
-        process = process_factory(
-            list(command),
+        launch_command = list(command)
+        launch_options = dict(
             cwd=cwd,
             env=child_environment,
             stdin=subprocess.DEVNULL if input_bytes is None else subprocess.PIPE,
@@ -137,11 +146,20 @@ def run_bounded_process(
             **({} if input_bytes is None else {"bufsize": 0}),
             **ownership.popen_options,
         )
+        interrupt_guard()
+    except BaseException:
+        ownership.release()
+        raise
+    try:
+        process = process_factory(launch_command, **launch_options)
     except OSError as exc:
         ownership.release()
         raise BuildError(
             f"{error_prefix}_launch_failed", "Tool process could not start"
         ) from exc
+    except BaseException:
+        ownership.release()
+        raise
     ownership.bind(process.pid)
     assert process.stdout is not None and process.stderr is not None
     streams = {
@@ -349,7 +367,6 @@ def run_bounded_process(
                 stderr=result.stderr,
                 started_at=_started,
             )
-        return result
     finally:
         if process.poll() is None or terminate_descendants:
             _terminate_process_tree(process, ownership=ownership)
@@ -362,6 +379,8 @@ def run_bounded_process(
                 with suppress(OSError, ValueError):
                     process.stdin.close()
             writer.join(timeout=_STREAM_JOIN_SECONDS)
+    interrupt_guard()
+    return result
 
 
 __all__ = ["BoundedProcessResult", "run_bounded_process"]

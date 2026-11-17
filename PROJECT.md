@@ -142,6 +142,13 @@ Existing source/cache/resume and remote paths refuse these DATA records until a
 live owner spans generation and publication; SDK cache rebinding cannot relabel an
 older recipe. Scheduler/build integration and public profile activation remain open.
 
+Original synchronous verifier ownership now propagates into consumer child
+supervision. Coding-agent and bounded tool children share process-tree cleanup;
+additive liveness checks run before launch, while waiting and after cleanup.
+Retired or failed scopes cannot be revived through copied worker contexts, and
+these checks grant no new stage, tool or network permission. Live SDK scheduling,
+repair/publication admission and installed qualification remain open.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records

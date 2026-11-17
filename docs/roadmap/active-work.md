@@ -372,6 +372,26 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       ownership before cache selection, model reservation, repair and publication,
       wait for exact direct provider acceptance, and carry the same binding through
       current build admission.
+      Live-owner integration must preserve the scheduler's existing stage
+      reservations and bounded repair driver. Do not substitute a pool slot for
+      stage execution permission. Fresh publication checks must retain the exact
+      original invocation; a two-workspace, 18-child actual verifier reproduction
+      confirms current check and generation-input identities are stable. Add that
+      regression rather than silently changing the identity contract. The coding
+      agent runner now shares the bounded tool process owner. Synchronous additive
+      liveness follows original scopes through launch, process polling and final
+      cleanup; setup callbacks cannot drop entering owners or start a child after
+      revocation. Nested callbacks close with a callback-free membership sweep,
+      copied scopes retire with their originals, and caught failures cannot revive
+      them. The existing verifier consumer now carries its actual provider/oracle/
+      grant guard into child execution. Actual fixtures verify grant revocation
+      interrupts a consumer child and owned descendants; existing coding-agent
+      timeout/output error codes remain intact. The broader selection passed 80
+      checks with three Windows-native skips, followed by 40 final scope/CLI/grant
+      checks with the same skips after closing-race repairs. Independent review
+      passes; native Windows, complete lifecycle and installed qualification remain
+      open. This grants no new execution permission; SDK public generation remains
+      refused until the complete admission join.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
