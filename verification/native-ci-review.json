@@ -1,0 +1,105 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-approved-full-qualification-pending",
+  "reviewer": "sdlc_review",
+  "reviewed_original_base": "8839ffc915604e72f13cfc19e8639807ffbb8059",
+  "composed_base": "a5709da778b542b6adf83b70fe4d950e3b434d12",
+  "review_identity": "sha256:ac68cb114fbe2c0329a8cdd161fc989a70001e14d6327bc624fbaab2fea16987",
+  "composition_review_identity": "sha256:8b68de170caabd02db8430f70ded39b209c8272da387d619e92506c1f49df480",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/github_observation.py",
+      "sha256": "2f92745883c3534c08a5754093c8223e996d477874eb131a54fd612a69b8f503",
+      "bytes": 8802
+    },
+    {
+      "path": "src/literate_ai/adapters/native_ci.py",
+      "sha256": "974d8a349fec8c451cb994dd9432a5ed4e0dc06af81553c2104174ed639de14c",
+      "bytes": 19167
+    },
+    {
+      "path": "src/literate_ai/contracts/projects.py",
+      "sha256": "6e30605de934728e375d78560a147339638de07593af31b2f92b1e8fd7fa6121",
+      "bytes": 72469
+    },
+    {
+      "path": "src/literate_ai/project_releases.py",
+      "sha256": "09e0dd11e59214d12298b5726f4bcef2ba9bb2c6df173e6eb863b006d133089f",
+      "bytes": 206169
+    },
+    {
+      "path": "src/literate_ai/cli/project.py",
+      "sha256": "324deb6eff10a09ad98914cefef93d0cc9267be59a3f01f9bfa71ea755c7cf8c",
+      "bytes": 67740
+    },
+    {
+      "path": "src/literate_ai/cli/dispatch.py",
+      "sha256": "1072394569b5b80cbe87b3d89cc527f193957c08bea8059fe9a5ce42ee57baeb",
+      "bytes": 144265
+    },
+    {
+      "path": "tests/e2e/test_native_ci.py",
+      "sha256": "981df54c7746321820a99ae0d7470801886a412d7cd9c734e713b9ddc1818e2b",
+      "bytes": 18076
+    },
+    {
+      "path": "tests/e2e/test_release_ci_selection.py",
+      "sha256": "aa4e534f3b1171f778dc5a4e67813e9a5f8523106b15fadb769763eb60f23b53",
+      "bytes": 17682
+    },
+    {
+      "path": "docs/user/getting-started.md",
+      "sha256": "3a91580cb4c2574ea238b14c2b555defb67b980dfdd558fe13a270649c5b846e",
+      "bytes": 40331
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "56cf330005ec0500e84a1f5900abe7b4edd42a0470732cf4c6c8b44321cab41a",
+      "bytes": 44182
+    },
+    {
+      "path": "verification/native-ci-design-review.json",
+      "sha256": "ef031c80bfa1a14f63a9ffb67fd49d31405d52fbb733376312c4c1b47ab02eef",
+      "bytes": 1124
+    },
+    {
+      "path": "verification/native-ci-development.json",
+      "sha256": "cb0571fb731e0746c7811e0bd6c15ae9ad8587289019e5af923bafa9f86cdbfc",
+      "bytes": 4486
+    }
+  ],
+  "closed_findings": [
+    "NCI-1 replacement-ref policy bypass",
+    "NCI-2 implicit object fetch and absent/unavailable conflation",
+    "NCI-3 case-only remote spelling refusal"
+  ],
+  "controls": {
+    "author_native_and_release": {
+      "selected": 32,
+      "passed": 32,
+      "skipped": 0,
+      "seconds": 31.245
+    },
+    "independent_native": {
+      "selected": 8,
+      "passed": 8,
+      "skipped": 0,
+      "seconds": 11.726
+    },
+    "composition": "All 12 native and12 performance subject hashes match; source interactions inspected, no additional heavy test. Fresh full combined candidate remains required."
+  },
+  "preserved": [
+    "Native CI owns execution, retries, platform matrix and merge requirements.",
+    "Only the accepted base policy defines this configured fallback.",
+    "Read-only stdout observation does not admit bootstrap or qualify artifacts/releases."
+  ],
+  "limits": [
+    "Actual local Git and public CLI; GitHub transport simulated in maintained tests.",
+    "Actual provider metadata collector observed 13 historical jobs; it does not establish checkout-tree or artifact provenance.",
+    "Carried-forward partial retries remain incomplete.",
+    "Git2.45+ needed for no-lazy-fetch observer; unsupported Git response simulated.",
+    "Full combined source, installed and native platform qualification pending."
+  ],
+  "release_qualification": false,
+  "historical_scope": "This record preserves its original reviewed subjects and evidence. Later provider observations supersede its partial-retry limitation; see native-ci-provider-observations.json."
+}

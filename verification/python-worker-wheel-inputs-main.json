@@ -1,0 +1,179 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "PYTHON-BINARY-CLOSURE-001",
+  "issue": 418,
+  "main_subject": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+  "review_head": "d840a78dedd8767254721e92bed4b0776356d5d8",
+  "review_ci": {
+    "run": 43016945880,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/43016945880",
+    "successful_jobs": 27
+  },
+  "main_ci": {
+    "run": 43038760305,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/43038760305",
+    "successful_jobs": 27
+  },
+  "current_source315": {
+    "summary": {
+      "executed": 2683,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2683,
+      "selected": 2783,
+      "skipped": 100
+    },
+    "raw_worker_groups": 599,
+    "report_sha256": "97ffd331adf63e569f754fcce188b840355af3b233b3e091b0fc3cc4983fc7e2",
+    "every_case_instance_reconciled": true
+  },
+  "current_review_gates": {
+    "driver_pin_unchanged": "sha256:0086cc0a419753fccae6f85b47c44a71ad1b01edba192bec635b64827a7aa1ed",
+    "runner_pin_unchanged": "sha256:421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1"
+  },
+  "native315_whole_wheel": {
+    "wheel_identity": "sha256:d39d10c2ebc85dda5e78cf6aeff05210aeac45f559561afeb6b0e590f37048d8",
+    "framework_distribution": "sha256:1fc52ee7f0d3e33523d4f72f39c284ac048ad08aa823ab1f259b7565e522fabf",
+    "retained_manifest": "_build/ci-wheels/run-4oag6xdz/manifest.json",
+    "reviewed_dependency_inputs": {
+      "arrow-1.4.0-py3-none-any.whl": "sha256:749f0769958ebdc79c173ff0b0670d59051a535fa26e8eba02953dc19eb43205",
+      "attrs-26.1.0-py3-none-any.whl": "sha256:c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309",
+      "boolean_py-5.0-py3-none-any.whl": "sha256:ef28a70bd43115208441b53a045d1549e2f0ec6e3d08a9d142cbc41c1938e8d9",
+      "certifi-2026.7.22-py3-none-any.whl": "sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775",
+      "cffi-2.1.1-cp315-cp315-manylinux2014_aarch64.manylinux_2_17_aarch64.whl": "sha256:507a24c282e0f42f8ed737cf048572cbf580468da5555764a8331735e9c736b6",
+      "cryptography-50.0.1-cp311-abi3-manylinux_2_34_aarch64.whl": "sha256:e2ca8fd1b6b4b82a1c4cb02841d0837e3c12336c2e24b520ab8ab3b969733d8f",
+      "cyclonedx_python_lib-11.11.0-py3-none-any.whl": "sha256:3049fc83e06a059b5c5907a527625a8ed5073caab10607ed4c9e5503b590fd44",
+      "defusedxml-0.7.1-py2.py3-none-any.whl": "sha256:a352e7e428770286cc899e2542b6cdaedb2b4953ff269a210103ec58f6198a61",
+      "fqdn-1.6.0-py3-none-any.whl": "sha256:6c793c312ccfa29981e1135b3ef5e1277ebe639731a6b0f7350d90e96e63f0b4",
+      "idna-3.20-py3-none-any.whl": "sha256:ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c",
+      "isoduration-20.11.0-py3-none-any.whl": "sha256:b2904c2a4228c3d44f409c8ae8e2370eb21a26f7ac2ec5446df141dde3452042",
+      "jsonpointer-3.12-py3-none-any.whl": "sha256:89f391335ee2719ae72149e1bf30a4d4c7c5d92f15a3f53faa8d20cc7c6c7f19",
+      "jsonschema-4.26.0-py3-none-any.whl": "sha256:d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce",
+      "jsonschema_specifications-2025.9.1-py3-none-any.whl": "sha256:98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe",
+      "lark-1.3.1-py3-none-any.whl": "sha256:c629b661023a014c37da873b4ff58a817398d12635d3bbb2c5a03be7fe5d1e12",
+      "license_expression-30.4.4-py3-none-any.whl": "sha256:421788fdcadb41f049d2dc934ce666626265aeccefddd25e162a26f23bcbf8a4",
+      "packageurl_python-0.17.6-py3-none-any.whl": "sha256:31a85c2717bc41dd818f3c62908685ff9eebcb68588213745b14a6ee9e7df7c9",
+      "packaging-26.3-py3-none-any.whl": "sha256:d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c",
+      "py_serializable-2.2.0-py3-none-any.whl": "sha256:2cce775abc5aac12115f9ff572a145c7276d04a770090334bd4e51ed9c782415",
+      "pycparser-3.12-py3-none-any.whl": "sha256:a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e",
+      "pyjwt-2.14.0-py3-none-any.whl": "sha256:ad0cef71c756a56e74863c2919cf0985f72decbcfcb550ee2f422e7c62b5eedc",
+      "python_dateutil-4.0.0-py3-none-any.whl": "sha256:a5e246f79eb80475e691bf93862cead98decd8a498cf53ba0516fcdc0f50dc1c",
+      "pyyaml-6.0.3-py3-none-any.whl": "sha256:5aced5e0e25cea18820161c0add140c071b5c9a2cbd458cf9738fa79a9779e84",
+      "referencing-0.37.0-py3-none-any.whl": "sha256:381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231",
+      "rfc3339_validator-0.1.4-py2.py3-none-any.whl": "sha256:24f6ec1eda14ef823da9e36ec7113124b39c04d50a4d3d3a3c2859577e7791fa",
+      "rfc3986_validator-0.1.1-py2.py3-none-any.whl": "sha256:2f235c432ef459970b4306369336b9d5dbdda31b510ca1e327636e01f528bfa9",
+      "rfc3987_syntax-1.1.0-py3-none-any.whl": "sha256:6c3d97604e4c5ce9f714898e05401a0445a641cfa276432b0a648c80856f6a3f",
+      "rpds_py-2026.9.1-cp315-cp315-manylinux_2_17_aarch64.manylinux2014_aarch64.whl": "sha256:ec450527cbf485e13c8d3602a54f428ab0432fdade0ede75efd74b735421c871",
+      "semantic_version-2.10.0-py2.py3-none-any.whl": "sha256:de78a3b8e0feda74cabc54aab2da702113e33ac9d9eb9d2389bcf1f58b7d9177",
+      "semver-3.1.1-py3-none-any.whl": "sha256:c00cf7dac88a352bc6a4a997d6ac0bf95ba835c589bc0c54f7b76f9e2a45123a",
+      "six-1.17.0-py2.py3-none-any.whl": "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274",
+      "sortedcontainers-2.4.0-py2.py3-none-any.whl": "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0",
+      "tzdata-2026.6-py2.py3-none-any.whl": "sha256:0a10eec6e13ef16b627fabed9a5f2ba61a62b1c67f327305f4e7e412a70b4aec",
+      "univers-32.0.1-py3-none-any.whl": "sha256:50a574ff2321e31e1eba7aa586bf63a9558d91c69c70316bf26c75e1b122499b",
+      "uri_template-1.3.0-py3-none-any.whl": "sha256:a44a133ea12d44a0c0f06d7d42a52d71282e77e2f937d8abd5655b8d56fc1363",
+      "webcolors-25.10.0-py3-none-any.whl": "sha256:032c727334856fc0b968f63daa252a1ac93d33db2f5267756623c210e57a4f1d"
+    },
+    "ordinary_installed_distributions": 37,
+    "uv_installed_distributions": 37,
+    "both_worker_dependency_closures": "sha256:227a556ddcb453594f5d3dedbc39811de6c41570649468856b8f835599350710"
+  },
+  "minimum311": {
+    "ci_platform": "Linux CI / Python 3.11",
+    "ci_job": 130584773981,
+    "ci_wheel_identity": "sha256:09723b89c36f17426f17cef8d7bb9329aac27ffe5d43e0ad256740fcd8dddd1e",
+    "ci_framework_distribution": "sha256:1fc52ee7f0d3e33523d4f72f39c284ac048ad08aa823ab1f259b7565e522fabf",
+    "ci_ordinary_worker_distributions": 38,
+    "ci_ordinary_dependency_closure": "sha256:90ee823eb4ad0ed6888161ab51cfc9e2540b290f7eef2912276c3a89bd993109",
+    "uv_not_available_on_ci_runner": true,
+    "additional_native_uv_worker": {
+      "interpreter": {
+        "version": "3.11.14",
+        "implementation": "cpython",
+        "architecture": "aarch64",
+        "platform": "linux"
+      },
+      "wheel_identity": "sha256:d39d10c2ebc85dda5e78cf6aeff05210aeac45f559561afeb6b0e590f37048d8",
+      "framework_distribution": "sha256:1fc52ee7f0d3e33523d4f72f39c284ac048ad08aa823ab1f259b7565e522fabf",
+      "installed_distributions": 38,
+      "dependency_closure_identity": "sha256:a2bff7f68044d30906a7db96abd27bd65b78b2c921a98a176292db607c6c51b8",
+      "source_builds_disabled": true
+    }
+  },
+  "canonical_input_refusals": [
+    {
+      "case": "empty",
+      "exit": 1,
+      "code": "worker.wheelhouse_source_invalid",
+      "installer_or_runtime_subprocess_started": false,
+      "timed_subprocess_stages": [
+        "subprocess._main.git",
+        "subprocess._main.git",
+        "subprocess._main.git"
+      ]
+    },
+    {
+      "case": "redirected",
+      "exit": 1,
+      "code": "worker.wheelhouse_source_invalid",
+      "installer_or_runtime_subprocess_started": false,
+      "timed_subprocess_stages": [
+        "subprocess._main.git",
+        "subprocess._main.git",
+        "subprocess._main.git"
+      ]
+    }
+  ],
+  "native_ci_wheel_artifacts_rehashed": [
+    {
+      "artifact": "qualified-wheel-ubuntu-latest-3.11",
+      "revision": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+      "files": [
+        {
+          "identity": "sha256:09723b89c36f17426f17cef8d7bb9329aac27ffe5d43e0ad256740fcd8dddd1e",
+          "path": "literate_ai-1.4.0-py3-none-any.whl",
+          "role": "wheel",
+          "size": 4254271
+        }
+      ],
+      "rehash_passed": true
+    },
+    {
+      "artifact": "qualified-wheel-macos-3.14-0",
+      "revision": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+      "files": [
+        {
+          "identity": "sha256:3496ad2be4bf792d256eb45bf5e8faa6bd4452a22b46a083c1c31f7b05c52609",
+          "path": "literate_ai-1.4.0-py3-none-any.whl",
+          "role": "wheel",
+          "size": 4254271
+        }
+      ],
+      "rehash_passed": true
+    },
+    {
+      "artifact": "qualified-wheel-windows-3.12",
+      "revision": "638845ec00272776ae4644944d6e1dec4b1c4ff6",
+      "files": [
+        {
+          "identity": "sha256:2fdf66422c7cc68f98fc60bf715c5f96c3b95d5b12c7473541726c7905d20556",
+          "path": "literate_ai-1.4.0-py3-none-any.whl",
+          "role": "wheel",
+          "size": 4254390
+        }
+      ],
+      "rehash_passed": true
+    }
+  ],
+  "preserved_development_evidence": [
+    "verification/python315-worker-dependency-development.json",
+    "verification/python-worker-wheel-inputs-linux.json"
+  ],
+  "policy": {
+    "python_floor": "3.11",
+    "dependency_pins_changed": false,
+    "automatic_interpreter_fallback": false,
+    "source_build_fallback": false,
+    "input_boundary": "Explicit complete reviewed wheel directory; snapshot/validate before binary-only installation and offline ordinary/uv export/bootstrap"
+  },
+  "scope": "Closes the affected supported-runtime dependency-input defect; no complete 1.4 release acceptance or unrelated parent completion is claimed"
+}

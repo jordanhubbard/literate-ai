@@ -13,6 +13,36 @@ from tests.support.native_repository import NativeRepositoryFixture
 
 
 class NativeProjectBootstrapTests(NativeRepositoryFixture):
+    def test_retained_placement_options_require_explicit_conversion(self):
+        plan = self.cli("onboard", "adopt", self.root)["result"]
+        indexed = self.git("ls-files", "--stage")
+        for option, value in (
+            ("--implementation-directory", "scheduler"),
+            ("--implementation-directory", ""),
+            ("--wrapper-component", "components/scheduler-wrapper"),
+            ("--wrapper-component", ""),
+        ):
+            for apply in (
+                (),
+                ("--apply", "--acknowledge", "--expect-plan", plan["plan_identity"]),
+            ):
+                with self.subTest(option=option, value=value, apply=bool(apply)):
+                    result = self.cli(
+                        "onboard",
+                        "adopt",
+                        self.root,
+                        option,
+                        value,
+                        *apply,
+                        success=False,
+                    )
+                    self.assertEqual(
+                        result["error"]["code"], "operator.native_profile_options"
+                    )
+        self.assertEqual(self.git("ls-files", "--stage"), indexed)
+        self.assertFalse((self.root / "litai").exists())
+        self.assert_original()
+
     def test_redirected_root_refuses_plan_and_apply_without_publication(self):
         plan = self.cli("onboard", "adopt", self.root)["result"]
         alias = self.root.parent / "redirected"
@@ -166,6 +196,7 @@ class NativeProjectBootstrapTests(NativeRepositoryFixture):
         self.assertEqual(before_update, after_update)
         self.assert_original()
         source = self.root / "src/native.py"
+        original_source = source.read_bytes()
         source.write_text("def value():\n    return 5\n")
         failed = subprocess.run(
             [sys.executable, "-m", "unittest", "discover", "-s", "tests"],
@@ -174,7 +205,7 @@ class NativeProjectBootstrapTests(NativeRepositoryFixture):
             timeout=30,
         )
         self.assertNotEqual(failed.returncode, 0)
-        source.write_text("def value():\n    return 4\n")
+        source.write_bytes(original_source)
         # Avoid timestamp-based native bytecode reuse during the immediate repair.
         fixed = subprocess.run(
             [

@@ -1,0 +1,66 @@
+{
+  "contributor": "a7482175ef97724339edfd1261396e2fe89ec418",
+  "driver_pin_log_sha256": "ad0243c67bbd45112fdc395152c104b26079d2aaf3c51dc3812a85c733155c71",
+  "driver_pin_renewed": true,
+  "focused": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "636d6436d4e7ee4f26e53b9180543ba4d31132c24832a9f28e2f42c1294e275c",
+    "summary": {
+      "executed": 9,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 9,
+      "selected": 9,
+      "skipped": 0
+    }
+  },
+  "goal": "RUNTIME-CAPABILITY-ENV-001",
+  "goal_complete": false,
+  "independent_non_author_review": {
+    "blocking_findings": [],
+    "reviewed": [
+      "held execution-plan identity/currentness and existing input-scope binding",
+      "EXECUTE-only direct-consumer runtime-edge aliases",
+      "portable names and distinct-provider alias collision refusal",
+      "late projection after tool/acceptance overrides removes ambient impersonation",
+      "provider paths remain bound to current accepted artifacts",
+      "packaged aliases rebase to exact retained tree and refuse escape/drift",
+      "Bazel/Cargo adapters forward the same plan",
+      "serialized toolchain record and default identity remain unchanged"
+    ]
+  },
+  "integration": "8da8e2906b5cac45506389bc4cb784bb76b2b5eb",
+  "issue": 422,
+  "other_collected_evidence": "Python 3.15 main closure remains unchecked until original native raw evidence is reopened; contributor records are retained without treating them as independent acceptance",
+  "pending": [
+    "combined focused runtime controls",
+    "complete source/installed qualification at final source union",
+    "native Windows/macOS and exact-head/resulting-main acceptance"
+  ],
+  "release_attestation": false,
+  "schema": "literate-ai/verification-record@1",
+  "source_comparisons": [
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/lifecycle/standard_local.py",
+      "sha256": "bc23f41eb250f1ef621f82308e4b87421a606f1563313b51069ef371e9611a78"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/lifecycle/standard_bazel.py",
+      "sha256": "97da31699d4818c47df47882f13cfb13f13513c2cba64278edbf874b87de619a"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/lifecycle/standard_cargo.py",
+      "sha256": "d46998af694d08470b2278f7bb8ce105d603014270a203bce1dedede1ea38a78"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/standard_project.py",
+      "sha256": "b3c144b5c19c495a197a33c05e659f8eca4acc22ba6479c0e956c0f7a6ab2177"
+    }
+  ],
+  "static_exit": 0
+}

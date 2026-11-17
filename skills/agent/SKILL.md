@@ -21,6 +21,10 @@ persistent Literate AI process: an interactive coding session follows the nested
 skill that matches the task (operator MCP catalog, release, Jira association,
 channel ingest, workers, and so on).
 
+For optional use of suitable host-connected A2A peers, follow
+`use-connected-a2a-peers/SKILL.md` only when the current task permits delegation.
+Absent A2A support leaves ordinary local work available.
+
 ## Wrap Python so skills do not spend tokens
 
 When a deterministic command exists (`litai …`, `python -m literate_ai…`, or a
