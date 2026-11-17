@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Pinned inputs use bounded read requests while preserving their complete bytes,
+  per-file capability limits and closing source checks. Large source ceilings no
+  longer size each small file's temporary read buffer (#462).
+
 - SDK repository dependencies can explicitly select closed POSIX source links
   through authored policy. Native inspection scans file aliases under their
   observable names and rechecks link custody during authorization and builds;

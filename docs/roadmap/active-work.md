@@ -34614,3 +34614,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Dependency development evidence:** [Source/build/installed and canonical offline bootstrap record](../../verification/python315-worker-dependency-development.json) retains exact artifact identities. Its existing framework artifact is bound to `7078bc96b`; it does not qualify the later new wheel-gate projection or a final release candidate.
 
 - **Current complete local qualification:** [Minimum/current Python source and whole-wheel record](../../verification/python-worker-wheel-inputs-linux.json) binds software `c733d96f80cd80b802e7aa4387cab2d7740e219a`. Both native Python 3.11.14 and 3.15.2 select 2,783 source cases: 2,683 pass, 100 retain declared skips, and all 599 raw groups reconcile with no failed or known-failed cases. Both complete noneditable wheel gates pass with the same framework distribution identity and exact reviewed pure PyYAML bytes; ordinary and uv worker paths install respectively 38 and 37 distributions with matching framework identities. Real empty/redirected input refusals precede installation. The earlier source-prefix failure and unconfigured binary-export failure remain preserved separately. Parent completion and issue closure await independent/exact integrated acceptance; no release acceptance is claimed.
+
+### [ ] PINNED-READ-ALLOCATION-001 — Bound transient reads independently of the pinned-input capability ceiling
+
+- **GitHub issue:** [#462](https://github.com/jordanhubbard/literate-ai/issues/462)
+
+- **Priority:** P1
+- **Owner:** Framework core pinned-input capture; PROJECT Goal 4
+- **Direction:** Preserve the complete supported source corpus and one-GiB per-file capability while avoiding a ceiling-sized temporary allocation for every small pinned input.
+- **Conclusion:** The public native pin profile attributes nearly all large-ceiling cost to BufferedReader.read. Stream complete bytes through bounded requests, retaining the witness byte, immutable identity, accounting and closing path checks. Do not change the allocator, dataset, source limits or worker deadline.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Replace the monolithic ceiling-sized input read with bounded complete streaming and preserve existing refusal codes and identities.
+  - [ ] Add allocation-request and complete-content/limit regressions, including reads that grow during capture.
+- **Evidence:**
+  - [ ] Demonstrate regression failure on the unchanged owner and pass on the repair; run existing pinned-input refusal tests and native SDK cases.
+  - [ ] Repeat native large-ceiling profiling and all nine original full-source policy cases against all 115,624 entries without skips or relaxed bounds.
+
+- **Development evidence:** The unchanged reader fails the allocation-request
+  regression with a 1,073,741,825-byte request and separately accepts a fixture
+  that grows beyond its ceiling during the read. The repair passes all five
+  pinned-input cases and all 68 existing SDK critical cases through the managed
+  Make runner; focused Ruff and formatting checks pass. Native whole-corpus and
+  repaired-revision SDK qualification remain open. Earlier 102-case native SDK
+  evidence belongs to `51906343`, while its installed-wheel failure is tracked
+  independently by #461.
