@@ -9,7 +9,11 @@ import tempfile
 from dataclasses import replace
 from pathlib import Path
 
-from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    path_is_link_or_reparse,
+    require_safe_directory,
+)
 from literate_ai.adapters.conversion_authority import FilesystemConversionAuthorityStore
 from literate_ai.adapters.exclusive_directory import (
     directory_node,
@@ -166,9 +170,18 @@ def _definition(project_id: str, policy: RepositoryPolicy) -> ProjectDefinition:
     )
 
 
+def _require_safe_root(root: Path) -> None:
+    try:
+        require_safe_directory(root)
+    except UnsafeFilesystemPathError as exc:
+        raise OriginalProjectAdoptionError(
+            "unsafe-root", "Select a direct project root without redirected components"
+        ) from exc
+
+
 def _source(root: Path, *, allowed_new: tuple[str, ...] = ()) -> dict[str, str]:
     _require_actual_git_scope()
-    require_safe_directory(root)
+    _require_safe_root(root)
     top = Path(_git(root, "rev-parse", "--show-toplevel").decode().strip())
     if top.resolve(strict=True) != root:
         raise OriginalProjectAdoptionError(
@@ -187,7 +200,7 @@ def plan_native_project_bootstrap(
     """Inspect an exact clean native source baseline without writing files."""
     root = Path(root).absolute()
     _require_actual_git_scope()
-    require_safe_directory(root)
+    _require_safe_root(root)
     if root != root.resolve(strict=True):
         raise OriginalProjectAdoptionError(
             "redirected-root", "Select the direct project root"
@@ -454,7 +467,7 @@ def apply_native_project_bootstrap(
         )
     root = Path(root).absolute()
     _require_actual_git_scope()
-    require_safe_directory(root)
+    _require_safe_root(root)
     with ProjectConfigurationStore.layout_lock(root):
         return _apply_native_project_bootstrap_locked(
             root,

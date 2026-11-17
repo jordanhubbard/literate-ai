@@ -1408,7 +1408,9 @@ def assert_installed_native_adoption(
 ) -> dict[str, object]:
     """Exercise the contained profile without claiming a governed test receipt."""
 
-    project = root / "golden-native"
+    # This harness owns the temporary directory. Canonicalize its macOS /var
+    # alias without weakening the CLI's refusal of redirected user paths.
+    project = root.resolve(strict=True) / "golden-native"
     project.mkdir()
     original = {
         "app.py": b"def value():\n    return 4\n",

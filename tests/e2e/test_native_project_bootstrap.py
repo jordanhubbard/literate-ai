@@ -13,6 +13,32 @@ from tests.support.native_repository import NativeRepositoryFixture
 
 
 class NativeProjectBootstrapTests(NativeRepositoryFixture):
+    def test_redirected_root_refuses_plan_and_apply_without_publication(self):
+        plan = self.cli("onboard", "adopt", self.root)["result"]
+        alias = self.root.parent / "redirected"
+        parent_alias = self.root.parent / "redirected-parent"
+        try:
+            alias.symlink_to(self.root, target_is_directory=True)
+            parent_alias.symlink_to(self.root.parent, target_is_directory=True)
+        except OSError as exc:
+            self.skipTest(f"directory symlinks unavailable: {exc}")
+        indexed = self.git("ls-files", "--stage")
+        for redirected in (alias, parent_alias / self.root.name):
+            for options in (
+                (),
+                ("--apply", "--acknowledge", "--expect-plan", plan["plan_identity"]),
+            ):
+                with self.subTest(path=redirected.name, apply=bool(options)):
+                    refused = self.cli(
+                        "onboard", "adopt", redirected, *options, success=False
+                    )
+                    self.assertEqual(
+                        refused["error"]["code"], "original_adoption.unsafe-root"
+                    )
+        self.assertEqual(self.git("ls-files", "--stage"), indexed)
+        self.assertFalse((self.root / "litai").exists())
+        self.assert_original()
+
     def test_alternate_git_index_cannot_hide_dirty_native_state(self):
         plan = self.cli("onboard", "adopt", self.root)["result"]
         alternate = self.root.parent / "alternate-index"

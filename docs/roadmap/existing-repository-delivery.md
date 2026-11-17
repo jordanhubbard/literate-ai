@@ -254,6 +254,17 @@ owned deletions. This is not yet an installed-wheel result, a released-version
 upgrade, a hosted native PR, or target-platform qualification. Those remain
 separate obligations.
 
+The first installed run of the combined `b2465356` candidate refused the harness's
+macOS `/var` temporary-directory alias before native publication. No qualified
+wheel manifest was exported. The repaired harness resolves its own temporary
+directory; the CLI continues to reject redirected user paths and now reports
+`original_adoption.unsafe-root` as structured JSON. A maintained public control
+covers both leaf and ancestor aliases for plan and apply, preserving the Git
+index and application files. The pre-fix control reproduced the traceback;
+nine focused source controls pass in 26.855 seconds. The corrected harness also
+passes against the previously installed candidate, but that diagnostic run does
+not qualify the repaired source or replace fresh whole-wheel qualification.
+
 The final source composition includes the independently reviewed Windows
 JavaScript path correction from main `b9fc61770` and preserves the published worker
 history. Its fresh four-worker run selected 2,886 tests: 2,794 passed and 92 skipped
