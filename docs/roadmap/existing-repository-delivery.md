@@ -755,3 +755,13 @@ there. Correct the fixture's oracle against the owned blocked child's independen
 exercise both tmpfs and file-backed temporary roots. Production telemetry must
 continue reporting storage accounting without substituting syscall byte counts.
 Retain the failed gate and run a fresh complete gate after the reviewed correction.
+
+The architecture review now distinguishes its original baseline from subsequent
+implementation evidence at `c1038afa2`, and records the passed Linux source gate
+and its measured module costs. The three longest observed module envelopes were
+750.615 seconds (retained Cargo receiving), 591.124 seconds (command-link
+dependencies) and 485.934 seconds (model-free rebuild). Those are diagnostic
+worker intervals, not CPU, billed runner use or an attributed historical release
+critical path. The update preserves all remaining hosted, artifact-promotion,
+legacy-adoption, skill-comparison and native acceptance boundaries; no queue item
+is closed, moved or weakened by the narrative.
