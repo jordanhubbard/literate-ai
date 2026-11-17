@@ -174,12 +174,16 @@ declaration owner. Original oracle, package, BUILD and locked-input stamp checks
 close after the final clock. A canonical authored port-level fixture passes actual
 packaged SDK acceptance with six TypeScript children and both runtime formats;
 missing/wrong grants, copied authority, invented stages and late locked-input
-rewrites are refused. The complete authored fixture takes about 22 minutes, so
-revalidation overhead needs profiling before broader use. Public admission and a
-complete generated SDK lifecycle remain unfinished.
+rewrites are refused. Profiling identified repeated combined host/package checks.
+Root acceptance now uses the shared verifier's separate owner and subject roles,
+retaining original invocation, snapshot, package/legal, stamp and expiry checks.
+The extended authored fixture passes in 979.740 seconds versus the prior 1,344.510
+seconds, including added host-loss, late package-drift and final-clock grant
+revocation refusals. One current root guard measures 2.18 seconds; this is an initial
+local improvement, not a performance guarantee. Public admission and a complete
+generated SDK lifecycle remain unfinished.
 
-Remaining gates are bounded verification performance without weaker guards, public
-runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,
+Remaining gates are public runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,
 arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,
 packed SDK output publication, supported native platforms and fresh noneditable

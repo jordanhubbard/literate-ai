@@ -590,9 +590,29 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       even when the graph carries an equal value projection. Its regression also
       rejects copied registry replacement. Earlier new-test failures were assertion/
       cleanup expectations corrected without weakening production refusals.
-      Next action: profile repeated ownership/identity validation overhead while
-      preserving every original guard and expiry check, then wire explicit public
-      SDK admission configuration and ordinary generated/retained lifecycle proof.
+      Profiling found that one original SDK owner check takes about 0.25 seconds
+      and performs nine full lock revalidations. Root acceptance had repeated its
+      combined host/package validator in distinct shared-verifier callback roles.
+      It now separates current host ownership from package/legal validation, runs
+      both before authorization, and retains the shared helper's original ordering
+      and final finite cuts. Request description validates fixed inputs and finite
+      witnesses without establishing ownership. No currentness cache, clock change,
+      active-grant extension or shared-provider behavior change is introduced.
+      The extended authored canonical fixture passes in 979.740 seconds, including
+      actual six-type/two-runtime verification plus early host-loss, late host
+      callback package/legal drift and final-clock grant/input mutation refusals.
+      Closing-only negatives deliberately revoke a disposable verifier grant or
+      substitute prior observations before forcing a denial; they are not extra
+      native positives. The positive uses the original checker, with two additional
+      real guard calls for timing/profiling. Its larger root guard measures 2.18
+      seconds with 77 full lock revalidations; this differs from the smaller SDK
+      owner sample and does not establish a guard-to-guard speedup ratio. The
+      previous full fixture took 1,344.510 seconds with fewer refusal cases; these
+      local runs show an initial improvement, not a performance guarantee. The
+      broader Node SDK Make check passes with prerequisite skips retained.
+      Next action: wire explicit public SDK admission configuration and ordinary
+      generated/retained lifecycle proof, retaining bounded time and current grants
+      for the actual selected project.
       Legacy CommonJS v2 refusal remains intact. Public admission, model generation,
       and full generated/retained/native/installed qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from

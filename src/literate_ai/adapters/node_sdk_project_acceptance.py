@@ -301,7 +301,7 @@ class LocalNodeSDKProjectAcceptance:
             resources.require_verification_close(custody, now=now)
             authority_stamps()
 
-        def current():
+        def require_host_current():
             self._require_config_bytes()
             returned = self.require_current()
             if returned is not None:
@@ -310,6 +310,10 @@ class LocalNodeSDKProjectAcceptance:
                 raise TypeError("SDK acceptance owner must return None synchronously")
             self.snapshot.require_unchanged()
             owner()
+            self._require_config_bytes()
+
+        def require_package_current():
+            self._require_config_bytes()
             resources.command_inputs(custody)
             require_locked_node_sdk_legal_files(
                 self.snapshot,
@@ -330,11 +334,15 @@ class LocalNodeSDKProjectAcceptance:
         )
 
         def describe_request():
-            current()
+            # Describe fixed inputs and close their original finite witnesses.
+            # The shared owner/subject callbacks separately perform blocking
+            # currentness reads; constructing request DATA never opens a scope.
+            self._require_config_bytes()
             close(ports.clock())
             return request
 
-        current()
+        require_host_current()
+        require_package_current()
         authority_stamps = self._authority_inputs.capture_current_stamps()
         describe_request()
         authorization = self.authorize_verifier(request)
@@ -365,12 +373,12 @@ class LocalNodeSDKProjectAcceptance:
             compiler=self.target.typescript.compiler,
             authorization=authorization,
             workspace=workspace_parent / uuid4().hex,
-            require_current=current,
+            require_current=require_host_current,
             consume=consume,
             environment=self.environment,
             describe_request=describe_request,
             inputs_identity=inputs_identity,
-            require_subject=current,
+            require_subject=require_package_current,
             require_membership=close,
             provider=None,
         )

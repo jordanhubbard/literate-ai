@@ -2,13 +2,19 @@
 
 ## Unreleased
 
+- Reduce repeated root SDK validation by separating host ownership from package
+  custody within the existing shared verifier. Preserve original snapshot, legal
+  bytes, source/package stamps and grant expiry checks. The extended authored
+  fixture passes in about 16m20s versus the prior 22m25s, including added host-loss,
+  package-drift and grant-revocation refusals. Public SDK admission remains gated.
+
 - Add explicit internal SDK project acceptance using the shared Node verifier
   lifecycle. Require original complete component plans, registered package and
   TEST/EXEC evidence, locked legal bytes, the loaded root oracle and a separate
   verifier grant. Final clock callbacks cannot replace original oracle, package
   or locked inputs unnoticed. The authored canonical fixture passes actual dual
   runtime and declaration checks; public admission and generated SDK qualification
-  remain open, with verification overhead still requiring profiling.
+  remain open.
 
 - Retain exact accepted SDK ownership across root finalization, separately from
   source-cache publication. Pin graph, link and package identities through later

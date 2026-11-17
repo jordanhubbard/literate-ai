@@ -327,6 +327,23 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         oracle = load_node_library_acceptance(original.path, revision.coordinate.name)
         mode = ["missing"]
         requests = []
+        grants = []
+        host = {"alive": True, "calls": 0, "mutate_at": None, "mutated": []}
+
+        def require_host():
+            host["calls"] += 1
+            if not host["alive"]:
+                raise ValueError("root verifier host ended")
+            if host["calls"] == host["mutate_at"]:
+                package_file = (
+                    fixture.ports._project_packages[
+                        package_result.identity.uri
+                    ].artifact_paths[package_plan.root_artifact_identity.uri]
+                    / "LICENSE"
+                )
+                package_file.write_bytes(b"not the locked legal asset")
+                host["mutated"].append(package_file)
+            owner()
 
         def authorize(request):
             requests.append(request)
@@ -348,6 +365,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             )
             if mode[0] == "wrong":
                 return replace(grant, request_digest=canonical_identity("wrong").uri)
+            grants.append(grant)
             return grant
 
         ports = fixture.ports
@@ -369,7 +387,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             invocation=invocation,
             oracle=oracle,
             authorize_verifier=authorize,
-            require_current=owner,
+            require_current=require_host,
             environment=dict(os.environ),
         )
         ports.node_sdk_project_acceptance = policy
@@ -389,6 +407,11 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ports.accept_project_independently(*changed)
         self.assertEqual(requests, [])
+        host["alive"] = False
+        with self.assertRaisesRegex(ValueError, "root verifier host ended"):
+            ports.accept_project_independently(*arguments)
+        self.assertEqual(requests, [])
+        host["alive"] = True
         with self.assertRaisesRegex(TypeError, "separate explicit"):
             ports.accept_project_independently(*arguments)
         mode[0] = "wrong"
@@ -424,7 +447,8 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             all(r.builder_id == "local-node-sdk-project-verifier@1" for r in requests)
         )
         # Closing-only negative: substitute prior observations for the checker,
-        # then rewrite original locked authority at the final clock. This is not
+        # then revoke the grant or rewrite locked authority at the final clock.
+        # These closing-only denials are not additional native positives. This is not
         # another qualification run; old checks cannot bypass the current cut.
         path = next(
             entry.path
@@ -440,6 +464,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         )
         depth = 0
         mutated = []
+        clock_cut = ["grant"]
 
         @contextmanager
         def capture(value):
@@ -461,27 +486,54 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             )
             del frame, caller
             if depth == 0 and root_close and not mutated:
-                path.write_bytes(content)
-                os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
-                mutated.append(path)
+                if clock_cut[0] == "grant":
+                    object.__setattr__(grants[-1], "revoked", True)
+                    mutated.append("grant")
+                else:
+                    path.write_bytes(content)
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    mutated.append(path)
             return original_clock()
 
-        with (
-            mock.patch.object(
-                node_library_verification, "check_node_library", return_value=checked[0]
-            ),
-            mock.patch.object(
-                oracle_fixture.owner,
-                "capture_loaded_node_library_verifier_inputs",
-                capture,
-            ),
-            mock.patch.object(ports, "clock", clock),
-            self.assertRaises(PinnedInputClosureError),
+        for cut, error in (
+            ("grant", AuthorizationError),
+            ("input", PinnedInputClosureError),
         ):
-            ports.accept_project_independently(*arguments)
-        self.assertEqual(mutated, [path])
+            clock_cut[0] = cut
+            mutated.clear()
+            with (
+                self.subTest(final_clock=cut),
+                mock.patch.object(
+                    node_library_verification,
+                    "check_node_library",
+                    return_value=checked[0],
+                ),
+                mock.patch.object(
+                    oracle_fixture.owner,
+                    "capture_loaded_node_library_verifier_inputs",
+                    capture,
+                ),
+                mock.patch.object(ports, "clock", clock),
+                self.assertRaises(error),
+            ):
+                ports.accept_project_independently(*arguments)
+            self.assertEqual(mutated, ["grant" if cut == "grant" else path])
         self.assertEqual(path.read_bytes(), content)
         self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+        # Initial host validation succeeds; the later host callback mutates the
+        # packaged legal file. The checker must never start after this drift.
+        host["mutate_at"] = host["calls"] + 2
+        with (
+            mock.patch.object(
+                node_library_verification,
+                "check_node_library",
+                side_effect=AssertionError("checker started after package drift"),
+            ) as checker,
+            self.assertRaises(ValueError),
+        ):
+            ports.accept_project_independently(*arguments)
+        self.assertEqual(len(host["mutated"]), 1)
+        checker.assert_not_called()
         return accepted
 
     def with_canonical_sdk(
