@@ -18,6 +18,7 @@ from literate_ai.adapters.action_dispatch_wire import (
     ActionWireError,
 )
 from literate_ai.adapters.action_tool_observation import WorkerToolObservation
+from literate_ai.adapters.standard_toolchain_observations import MAX_STANDARD_TOOL_ROLES
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 
 SELECTOR_PROTOCOL = "literate-ai/worker-tool-selectors@1"
@@ -59,7 +60,10 @@ def decode_selector_request(content):
             canonical_json_bytes(value["capability"])
         )
         selectors = value["selectors"]
-        if not isinstance(selectors, list) or not 1 <= len(selectors) <= 14:
+        if (
+            not isinstance(selectors, list)
+            or not 1 <= len(selectors) <= MAX_STANDARD_TOOL_ROLES
+        ):
             raise ValueError("invalid selector count")
         roles = []
         for item in selectors:

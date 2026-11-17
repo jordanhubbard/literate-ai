@@ -8,6 +8,9 @@
     },
     {
       "$ref": "urn:literate-ai:schema:v2:node-sdk-export-declaration@1"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1"
     }
   ],
   "$defs": {
@@ -146,6 +149,63 @@
               "sha256": "48e847860dd4f0907ce91e346dbb00a4a12213163ad3d80a953c343eb9a11979"
             }
           ]
+        }
+      }
+    },
+    "standardNodeSDKCommandProfile": {
+      "$id": "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "target",
+        "toolchain",
+        "compiler",
+        "source_root",
+        "legal_files",
+        "formats",
+        "declaration_policy",
+        "pack_policy"
+      ],
+      "properties": {
+        "schema": {
+          "const": "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1"
+        },
+        "target": {
+          "const": "node-sdk"
+        },
+        "toolchain": {
+          "const": "npm"
+        },
+        "compiler": {
+          "const": "typescript"
+        },
+        "source_root": {
+          "const": "src"
+        },
+        "legal_files": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^(LICENSE|NOTICE)([A-Za-z0-9._-]*[A-Za-z0-9_-])?$"
+          }
+        },
+        "formats": {
+          "const": [
+            "commonjs",
+            "module"
+          ]
+        },
+        "declaration_policy": {
+          "const": "independent-node16-nodenext"
+        },
+        "pack_policy": {
+          "const": "offline-ignore-scripts"
         }
       }
     }

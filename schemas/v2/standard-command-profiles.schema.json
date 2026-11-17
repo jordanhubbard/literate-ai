@@ -11,6 +11,7 @@
     { "$ref": "urn:literate-ai:schema:v2:standard-cargo-command-profile" },
     { "$ref": "urn:literate-ai:schema:v2:standard-mix-command-profile" },
     { "$ref": "urn:literate-ai:schema:v2:standard-npm-command-profile" },
+    { "$ref": "urn:literate-ai:schema:v2:standard-node-sdk-command-profile@1" },
     { "$ref": "urn:literate-ai:schema:v2:standard-python-wheel-command-profile" },
     { "$ref": "urn:literate-ai:schema:v2:standard-platform-command-profile" },
     { "$ref": "urn:literate-ai:schema:v2:standard-accelerator-command-profile" }

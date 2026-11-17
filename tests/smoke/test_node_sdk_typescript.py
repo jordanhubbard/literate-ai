@@ -132,6 +132,7 @@ class TypeScriptCompilerTests(unittest.TestCase):
             environment=cls.environment,
             require_current=lambda: None,
         )
+        cls.selected = selected
         cls.compiler = selected.compiler
 
     def setUp(self):
@@ -671,3 +672,31 @@ class TypeScriptCompilerTests(unittest.TestCase):
         )
         self.assertTrue(result.success, result.diagnostics)
         self.assertEqual(len(result.outputs), 4)
+
+    def test_captured_compiler_registers_in_exact_worker_inventory(self):
+        from literate_ai.adapters.action_toolchains import WorkerToolchainRegistry
+        from literate_ai.adapters.configured_tool_observations import (
+            ConfiguredToolObservations,
+        )
+        from literate_ai.adapters.lifecycle import LocalComponentToolBinding
+
+        tools = {"node": self.node, "typescript": self.selected}
+        registry = WorkerToolchainRegistry(
+            tuple(
+                LocalComponentToolBinding.from_observed_toolchain(tool)
+                for tool in tools.values()
+            )
+        )
+        observed = ConfiguredToolObservations(registry, tools)
+        current = observed.capture(require_current=lambda: None)
+        compiler = next(item for item in current.tools if item.role == "typescript")
+        self.assertEqual(compiler.command, self.compiler.command)
+        self.assertEqual(compiler.toolchain_identity, self.compiler.identity)
+        self.assertEqual(compiler.node_identity.uri, self.node.identity)
+        selected = observed.verify_selector(
+            "typescript",
+            self.compiler.command,
+            environment=self.environment,
+            require_current=lambda: None,
+        )
+        self.assertEqual(selected, compiler)

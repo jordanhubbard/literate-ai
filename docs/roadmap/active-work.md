@@ -432,7 +432,13 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       generated/retained lifecycle and authoritative declaration acceptance remain
       the next implementation gates. This compiler-capture increment passed 684
       macOS smoke tests with six declared skips and independent review; it has not
-      replaced the earlier installed-wheel qualification checkpoint.
+      replaced the earlier installed-wheel qualification checkpoint. The opt-in
+      SDK policy codec now fixes formats, declaration checks, offline script-free
+      packing and explicit portable legal filenames. Worker observations bind the
+      captured TypeScript command to the same selected Node; the shared selector
+      count includes that closed role. Forty focused tests, the existing command/
+      schema regressions and independent review cover this infrastructure. There
+      is still no selectable SDK Flavor or public SDK builder/acceptance admission.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
