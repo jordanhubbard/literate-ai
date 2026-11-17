@@ -595,6 +595,42 @@ class TypeScriptCompilerTests(unittest.TestCase):
         self.assertIn(b"request shape", result.stderr)
         self.assertFalse(result.stdout)
 
+    def test_audit_roles_are_closed_before_compiler_execution(self):
+        for paths in (
+            ("relative", "/object", "/export"),
+            ("/source", "/object"),
+            ("/source", "/object", ""),
+            ("/source", "/object", "/bad\0path"),
+            ("/source", "/object", "/" + "x" * 4096),
+            ["/source", "/object", "/export"],
+        ):
+            with (
+                self.subTest(paths=paths),
+                self.assertRaisesRegex(
+                    ValueError, "absolute source/object/export paths"
+                ),
+            ):
+                self.run_compiler(
+                    (file("src/index.ts", "export const n=1;"),),
+                    ("src/index.ts",),
+                    operation="compile",
+                    command_paths=paths,
+                )
+        with self.assertRaisesRegex(ValueError, "absolute source/object/export paths"):
+            self.run_compiler(
+                (file("src/index.ts", "export const n=1;"),),
+                ("src/index.ts",),
+                command_paths=("/source", "/object", "/export"),
+            )
+
+    def test_bootstrap_denies_relative_audit_role_without_reading_packet(self):
+        result = self.raw_packet(
+            {}, command=(*self.compiler.command, "relative", "/object", "/export")
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(b"compiler command identity invalid", result.stderr)
+        self.assertFalse(result.stdout)
+
     def test_helper_and_sdk_substitution_cannot_execute_supplied_code(self):
         packet = json.loads(
             self.compiler._request_packet(

@@ -188,6 +188,57 @@ def capture_node_sdk_lifecycle():
     return scope.guard
 
 
+def consume_node_sdk_build(consumer, candidate, providers, operation):
+    """Supply original bound facts within custody, never a build execution grant."""
+    scope = _CURRENT.get()
+    if scope is None:
+        raise ValueError("SDK build requires original live invocation admission")
+
+    def guard():
+        try:
+            scope.guard()
+            invocation = scope.invocation
+            if (
+                consumer.component_revision
+                != invocation.prepared.plan.component_revision
+                or candidate.component_revision != consumer.component_revision
+                or candidate.recipe_identity.uri != scope.recipe
+                or dict(invocation.prepared.recipe.resolved_inputs).get(
+                    "node_sdk_command_contract"
+                )
+                != consumer.identity.uri
+                or tuple(sorted((p.identity for p in providers), key=lambda p: p.uri))
+                != tuple(
+                    sorted(
+                        (
+                            p.artifact.identity
+                            for p in invocation.prepared.recipe.node_sdk_providers
+                        ),
+                        key=lambda p: p.uri,
+                    )
+                )
+            ):
+                raise ValueError("SDK build differs from its original source/providers")
+        except BaseException:
+            scope.active = False
+            raise
+
+    guard()
+    result = operation(scope.invocation, guard)
+    if (
+        isinstance(result, Future)
+        or inspect.isawaitable(result)
+        or inspect.isgenerator(result)
+        or inspect.isasyncgen(result)
+    ):
+        if inspect.iscoroutine(result) or inspect.isgenerator(result):
+            result.close()
+        scope.active = False
+        raise TypeError("SDK build must complete synchronously")
+    guard()
+    return result
+
+
 def require_node_sdk_build_intent(
     execution_plan, prepared, candidate, providers, packages, intent
 ):

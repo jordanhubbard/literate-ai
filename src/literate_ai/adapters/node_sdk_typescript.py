@@ -257,10 +257,30 @@ class NodeSDKTypeScriptCompiler:
         environment: Mapping[str, str],
         require_current: Callable[[], None],
         observe_process: Callable[[NodeSDKToolProcess], None] | None = None,
+        command_paths: tuple[str, str, str] | None = None,
     ) -> TypeScriptResult:
         if operation not in {"compile", "check"} or not callable(require_current):
             raise ValueError("TypeScript requires an operation and current live owner")
         require_node_sdk_process_observer(observe_process)
+        if command_paths is not None and (
+            operation != "compile"
+            or type(command_paths) is not tuple
+            or len(command_paths) != 3
+            or any(
+                type(p) is not str
+                or not p
+                or len(p.encode()) > 4096
+                or "\0" in p
+                or not Path(p).is_absolute()
+                for p in command_paths
+            )
+        ):
+            raise ValueError(
+                "compiler roles require absolute source/object/export paths"
+            )
+        # Standard path roles bind the command audit, never compiler I/O. Every
+        # source/tool read still uses only the bounded immutable stdin packet.
+        command = (*self.command, *(command_paths or ()))
         files = _inventory(files, maximum=4096)
         if not isinstance(roots, tuple) or not 1 <= len(roots) <= 1024:
             raise ValueError("TypeScript root inventory exceeds its bound")
@@ -289,7 +309,7 @@ class NodeSDKTypeScriptCompiler:
         require_current()
         self.node.require_unchanged(child_environment)
         result = run_bounded_process(
-            self.command,
+            command,
             cwd=None,
             environment=child_environment,
             timeout_seconds=_TIMEOUT,
@@ -308,7 +328,7 @@ class NodeSDKTypeScriptCompiler:
             try:
                 notify_node_sdk_process(
                     observe_process,
-                    command=self.command,
+                    command=command,
                     result=result,
                     input_bytes=request,
                 )

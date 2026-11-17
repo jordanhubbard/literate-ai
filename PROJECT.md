@@ -171,6 +171,17 @@ accepted-provider seam pass, without qualifying generated SDK source, public
 Flavors or installed/native lifecycle execution. Remote/checkpoint SDK recovery
 remains refused.
 
+An explicit local SDK target now joins the shared TypeScript compiler and offline
+packer to ordinary BUILD, TEST and EXEC commands. The selected target, profile,
+Flavor, tools and dual-export surface bind the command contract; BUILD separately
+requires original invocation custody and current finalized build authorization.
+Dependency evidence preserves exact bundled-provider revision and content hashes.
+Bounded original-product checks precede cache hashing, and runtime commands receive
+no producer checkout paths. An authored-source fixture exercises actual compilation,
+packing, cache reuse and relocated CJS/ESM plus TypeScript consumers. This is local
+target integration, not public-profile selection, generated SDK acceptance or
+native/installed lifecycle qualification; downstream SDK adoption remains gated.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records

@@ -67,6 +67,10 @@ from literate_ai.adapters.dependencies.python_source import (
 )
 from literate_ai.adapters.dependencies.python_target import observe_python_wheel_target
 from literate_ai.adapters.lifecycle._service_http import open_service_request
+from literate_ai.adapters.lifecycle.standard_node_sdk import (
+    StandardNodeSDKTarget,
+    build_standard_node_sdk,
+)
 from literate_ai.adapters.lifecycle.standard_npm import (
     StandardNpmDependencyEvidence,
     StandardNpmLifecycleError,
@@ -975,6 +979,7 @@ def required_command_toolchains(
     contracts: tuple[ComponentCommandContract, ...],
     command_phases: tuple[ComponentCommandPhase, ...],
     npm_targets: tuple[StandardNpmTarget, ...] = (),
+    node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
 ) -> frozenset[str]:
     """Exact host command identities for one canonical execution scope."""
     if (
@@ -1004,6 +1009,8 @@ def required_command_toolchains(
                 required_toolchains.add(acceptance.uri)
     if any(not isinstance(item, StandardNpmTarget) for item in npm_targets):
         raise TypeError("npm_targets must contain StandardNpmTarget values")
+    if any(type(item) is not StandardNodeSDKTarget for item in node_sdk_targets):
+        raise TypeError("node_sdk_targets must contain exact SDK targets")
     if ComponentCommandPhase.BUILD in command_phases:
         from literate_ai.adapters.standard_project import _STANDARD_BUILD_DRIVER
 
@@ -1016,6 +1023,11 @@ def required_command_toolchains(
         )
         required_toolchains.update(
             target.node_toolchain_identity.uri for target in npm_targets
+        )
+        required_toolchains.update(
+            identity
+            for target in node_sdk_targets
+            for identity in (target.npm.identity, target.typescript.node.identity)
         )
     return frozenset(required_toolchains)
 
@@ -1034,6 +1046,7 @@ class LocalStandardLifecyclePorts:
             ComponentCommandPhase
         ),
         npm_targets: tuple[StandardNpmTarget, ...] = (),
+        node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
         native_sdk_inputs: NativeSdkConsumerInputs | None = None,
         python_targets: tuple[StandardPythonTarget, ...] = (),
         python_wheelhouse: Path | None = None,
@@ -1046,7 +1059,7 @@ class LocalStandardLifecyclePorts:
         clock: Callable[[], datetime] = lambda: datetime.now(UTC),
     ) -> None:
         required_toolchains = required_command_toolchains(
-            contracts, command_phases, npm_targets
+            contracts, command_phases, npm_targets, node_sdk_targets
         )
         self._command_phases = command_phases
         self.source_trees = source_trees
@@ -1071,6 +1084,25 @@ class LocalStandardLifecyclePorts:
         self.npm_targets = {item.component_revision.uri: item for item in npm_targets}
         if len(self.npm_targets) != len(npm_targets):
             raise ValueError("Standard npm targets must name unique Components")
+        self.node_sdk_targets = {
+            item.component_revision.uri: item for item in node_sdk_targets
+        }
+        self._node_sdk_compiled_plans = {}
+        self._node_sdk_cache_lock = threading.RLock()
+        if len(self.node_sdk_targets) != len(node_sdk_targets) or set(
+            self.node_sdk_targets
+        ) & set(self.npm_targets):
+            raise ValueError(
+                "Node SDK targets must be unique and separate from npm applications"
+            )
+        for revision, target in self.node_sdk_targets.items():
+            target.require_contract(self.contracts[revision])
+            if ComponentCommandPhase.BUILD in command_phases:
+                for tool in (target.typescript, target.npm, target.typescript.node):
+                    if self.tool_bindings[tool.identity].command != tool.command:
+                        raise ValueError(
+                            "SDK tool binding differs from selected target"
+                        )
         for revision, target in self.npm_targets.items():
             contract = self.contracts.get(revision)
             if contract is None:
@@ -1113,7 +1145,7 @@ class LocalStandardLifecyclePorts:
         }
         if len(self.python_targets) != len(python_targets) or set(
             self.python_targets
-        ) & set(self.npm_targets):
+        ) & (set(self.npm_targets) | set(self.node_sdk_targets)):
             raise ValueError("Python targets must name unique, non-npm Components")
         self.python_wheelhouse = python_wheelhouse
         if python_wheelhouse is not None and not isinstance(python_wheelhouse, Path):
@@ -2246,6 +2278,7 @@ class LocalStandardLifecyclePorts:
         additional_build_evidence: Mapping[str, object] | None = None,
         python_observer: StandardPythonDependencyObserver | None = None,
         mix_observer: MixDependencyObserver | None = None,
+        additional_observation: HostDependencyObservation | None = None,
     ) -> CycloneDxBomBinding:
         source = self.source_trees.evidence(plan.request.source_tree_identity)
         from literate_ai.adapters.native_sdk_dependencies import (
@@ -2275,6 +2308,10 @@ class LocalStandardLifecyclePorts:
                 plan.component_revision, parent=self.object_root
             )
         sdk_observation, sdk_resolutions = merge_native_sdk_dependencies(sdk_evidence)
+        if additional_observation is not None:
+            sdk_observation = merge_sdk_host_observations(
+                sdk_observation, additional_observation
+            )
         dependency_inventory = self.dependency_observation
         if sdk_evidence:
             host_observation = _RecordedHostDependencyObserver(
@@ -2379,13 +2416,21 @@ class LocalStandardLifecyclePorts:
         artifact_root: Path,
         provider_materials: tuple[dict[str, object], ...],
         process_observation: ContentIdentity,
+        *,
+        additional_observation: HostDependencyObservation | None = None,
     ) -> None:
         manifest_path = artifact_root / _ARTIFACT_MANIFEST
         if manifest_path.exists() or manifest_path.is_symlink():
             raise LocalStandardLifecycleError(
                 "build output occupied the reserved artifact evidence path"
             )
-        resolved_sbom = self._write_resolved_sbom(plan, artifact_root)
+        resolved_sbom = (
+            self._write_resolved_sbom(plan, artifact_root)
+            if additional_observation is None
+            else self._resolve_and_write_sbom(
+                plan, artifact_root, additional_observation=additional_observation
+            )
+        )
         artifact_tree = self._record_evidence(_local_tree_document(artifact_root))
         observation = self._record_evidence(
             {
@@ -2430,6 +2475,45 @@ class LocalStandardLifecyclePorts:
     ) -> subprocess.CompletedProcess[str]:
         """Resolve typed roles to argv without a shell or ambient tool inference."""
         self._require_command_phase(phase)
+        if contract.component_revision.uri in self.node_sdk_targets:
+            # The SDK carries its providers inside the sealed export. Runtime
+            # stages receive no producer-checkout environment or fallback path.
+            providers = ()
+            from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+            from literate_ai.adapters.process_liveness import process_liveness
+            from literate_ai.application.standard_node_sdk_admission import (
+                capture_node_sdk_lifecycle,
+            )
+
+            guard = capture_node_sdk_lifecycle()
+            if guard is None:
+                raise LocalStandardLifecycleError(
+                    "SDK commands require original live invocation admission"
+                )
+            with process_liveness(guard):
+                argv = self._locked_argv(
+                    contract,
+                    phase,
+                    source_root=source_root,
+                    object_root=object_root,
+                    artifact_root=artifact_root,
+                    export_path=export_path,
+                    providers=(),
+                )
+                binding = self.tool_bindings[
+                    contract.tool_binding(phase).toolchain_identity.uri
+                ]
+                binding.require_unchanged()
+                result = self._run_with_environment(
+                    argv,
+                    cwd=artifact_root,
+                    environment=node_sdk_tool_environment(
+                        self._binding_environment(self._environment(()), binding)
+                    ),
+                )
+                binding.require_unchanged()
+                guard()
+                return result
 
         command = (
             contract if entrypoint_contract is None else entrypoint_contract
@@ -3677,6 +3761,35 @@ class LocalStandardLifecyclePorts:
         self.build_seconds += time.monotonic() - started
         return output
 
+    def _node_builtin_modules(self, toolchain_identity):
+        node = self.tool_bindings[toolchain_identity.uri]
+        node.require_unchanged()
+        observed = self._run(
+            (
+                *node.command,
+                "-e",
+                "process.stdout.write(JSON.stringify(require('node:module').builtinModules))",
+            ),
+            cwd=self.object_root,
+            providers=(),
+            binding=node,
+        )
+        node.require_unchanged()
+        if (
+            observed.returncode != 0
+            or observed.stderr
+            or len(observed.stdout.encode("utf-8")) > 65536
+        ):
+            raise ValueError("Node builtin namespace exceeds its bound")
+        names = json.loads(observed.stdout)
+        if (
+            not isinstance(names, list)
+            or not 1 <= len(names) <= 1024
+            or any(not isinstance(n, str) or len(n) > 128 for n in names)
+        ):
+            raise ValueError("Node builtin namespace unavailable")
+        return frozenset(n.removeprefix("node:").split("/", 1)[0] for n in names)
+
     def _javascript_library_imports(self, plan, providers, contract):
         from literate_ai.adapters.lifecycle.javascript_libraries import (
             prepare_javascript_library_imports,
@@ -3701,35 +3814,7 @@ class LocalStandardLifecyclePorts:
                 self._contract(p.component_revision).is_library for p in providers
             ):
                 return None
-            node = self.tool_bindings[contract.language_compiler_identity.uri]
-            node.require_unchanged()
-            observed = self._run(
-                (
-                    *node.command,
-                    "-e",
-                    "process.stdout.write(JSON.stringify(require('node:module').builtinModules))",
-                ),
-                cwd=self.object_root,
-                providers=(),
-                binding=node,
-            )
-            node.require_unchanged()
-            if (
-                observed.returncode != 0
-                or observed.stderr
-                or len(observed.stdout.encode("utf-8")) > 65536
-            ):
-                raise ValueError("Node builtin namespace exceeds its bound")
-            names = json.loads(observed.stdout)
-            if (
-                not isinstance(names, list)
-                or not 1 <= len(names) <= 1024
-                or any(not isinstance(n, str) or len(n) > 128 for n in names)
-            ):
-                raise ValueError("Node builtin namespace unavailable")
-            builtins = frozenset(
-                n.removeprefix("node:").split("/", 1)[0] for n in names
-            )
+            builtins = self._node_builtin_modules(contract.language_compiler_identity)
             imports = prepare_javascript_library_imports(
                 contract,
                 providers,
@@ -3752,6 +3837,14 @@ class LocalStandardLifecyclePorts:
         provider_artifacts: tuple[ArtifactExport, ...],
         contract: ComponentCommandContract,
     ) -> StandardBuildOutput:
+        if plan.component_revision.uri in self.node_sdk_targets:
+            return build_standard_node_sdk(
+                self,
+                plan,
+                provider_artifacts,
+                contract,
+                self.node_sdk_targets[plan.component_revision.uri],
+            )
         if plan.component_revision.uri in self.python_targets:
             return self._build_python_target(plan, provider_artifacts, contract)
         npm_target = self.npm_targets.get(plan.component_revision.uri)

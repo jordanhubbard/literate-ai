@@ -452,6 +452,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       actual two-provider closing-cut fixtures, then run ordinary generated SDK
       and packed/relocated CJS/ESM/subpath/type acceptance. Do not activate defaults
       or adopt the child SDK before that complete qualification.
+      The concrete local Node SDK target now reuses the selected TypeScript image,
+      composition and offline pack owners. Target/profile/Flavor/tool and source
+      identities bind the command contract. Actual BUILD retains the original
+      admitted SDK invocation and separately current finalized build grant through
+      child execution and artifact registration; returned provider/check data never
+      supplies either permission. The authored-source fixture exercises the real
+      local build path with an accepted sealed provider, cache readback, actual
+      packed/relocated imports and source/grant/owner denials. Original bounded
+      product inventory is checked before generic cache hashing. Dependency
+      evidence preserves exact composition, provider revision and artifact hashes.
+      The target/compiler selection passes 36 tests; 71 regression checks pass
+      with one existing macOS persistent-service skip. The actual package runs
+      after relocation with producer/source paths unavailable, and both .cts/.mts
+      consumers pass positive checks and reject invalid argument types under
+      Node16/NodeNext resolution. Oversized, linked and FIFO cached archives are
+      refused. Final owner-callback target loss withholds registration/cache-hit
+      success, and revoked build grants prevent compiler execution/publication.
+      Keep locked public profile selection and independent SDK acceptance gated
+      until their actual dispatcher is wired; this step does not complete ADR 0073.
       Multi-provider support, default/public profile activation, remote/recovery
       support and complete source-cache lifecycle qualification remain open.
       Bind exact provider revision,

@@ -1,10 +1,11 @@
 "use strict";
-const crypto=require("node:crypto"),vm=require("node:vm");
+const crypto=require("node:crypto"),vm=require("node:vm"),path=require("node:path");
 const [helperSHA,sdkSHA]=process.argv.slice(1);
 const own=(value,keys)=>value&&typeof value==="object"&&!Array.isArray(value)&&Object.keys(value).sort().join("|")===keys.sort().join("|");
 const sha=bytes=>crypto.createHash("sha256").update(bytes).digest("hex");
 (async()=>{
-  if(!/^[a-f0-9]{64}$/.test(helperSHA)||!/^[a-f0-9]{64}$/.test(sdkSHA)||process.argv.length!==3)throw Error("compiler command identity invalid");
+  // Optional absolute Standard path roles are audit-only; never read from them.
+  if(!/^[a-f0-9]{64}$/.test(helperSHA)||!/^[a-f0-9]{64}$/.test(sdkSHA)||![3,6].includes(process.argv.length)||process.argv.slice(3).some(p=>!p||!path.isAbsolute(p)||Buffer.byteLength(p)>4096||p.includes("\0")))throw Error("compiler command identity invalid");
   let size=0;const chunks=[];
   for await(const chunk of process.stdin){if((size+=chunk.length)>64*1024*1024)throw Error("compiler packet byte bound");chunks.push(chunk);}
   const packet=JSON.parse(Buffer.concat(chunks).toString("utf8"));

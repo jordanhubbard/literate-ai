@@ -57,6 +57,7 @@ def compile_node_sdk_plan(
     environment: Mapping[str, str],
     require_current: Callable[[], None],
     observe_process: Callable[[NodeSDKToolProcess], None] | None = None,
+    command_paths: tuple[str, str, str] | None = None,
 ) -> CompiledNodeSDKPlan:
     """Compile once and bind the resulting plan to the actual compiler/input bytes.
 
@@ -116,6 +117,7 @@ def compile_node_sdk_plan(
         environment=environment,
         require_current=require_current,
         observe_process=observe_process,
+        command_paths=command_paths,
     )
     if not result.success:
         raise ValueError(

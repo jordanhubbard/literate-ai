@@ -38,11 +38,16 @@ def register_strict_source(
     additional_components: Sequence[Mapping[str, object]] = (),
     root_dependency_refs: Sequence[str] = (),
     additional_edges: Sequence[tuple[str, str]] = (),
+    recipe=None,
 ) -> GeneratedSourceCandidate:
-    projection = LockedComponentNodePreparationAdapter().project(
-        snapshot, generation_plan
-    )
-    recipe = projection.recipe
+    if recipe is None:
+        projection = LockedComponentNodePreparationAdapter().project(
+            snapshot, generation_plan
+        )
+        recipe = projection.recipe
+        component_name = projection.definition.coordinate.name
+    else:
+        component_name = recipe.application_id
     reference = recipe.non_acceptance_document_paths[0]
     cases = []
     for category in ("example", "boundary", "invariant"):
@@ -68,7 +73,7 @@ def register_strict_source(
         suite_content,
         recipe_identity=recipe.identity,
         specification_references=recipe.non_acceptance_document_paths,
-        acceptance_arguments=([{"component": projection.definition.coordinate.name}],),
+        acceptance_arguments=([{"component": component_name}],),
         result_shape={"component": "string"},
     )
     suite_path = source.joinpath(*Path(GENERATED_TEST_SUITE_PATH).parts)

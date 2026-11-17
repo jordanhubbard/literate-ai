@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Node SDK local build integration: explicitly selected targets bind the compiler,
+  offline packer, profile and dual-export surface to the command contract. BUILD
+  retains original invocation custody and a separately current build grant through
+  compilation, packing, dependency evidence and artifact registration. Cache
+  readback checks the original bounded product inventory before generic hashing;
+  TEST/EXEC use the shared runtime without producer-checkout paths. Public profile
+  selection and generated/native/installed lifecycle qualification remain open.
+
 - Node SDK internal integration: explicitly configured local SDK nodes wait for
   provider acceptance and retain original ownership through source/cache selection,
   stage reservations, current build inputs and bounded repair. Root cache

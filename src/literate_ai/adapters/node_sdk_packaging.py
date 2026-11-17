@@ -147,6 +147,13 @@ def _read_pack_output(path: Path) -> bytes:
     return content
 
 
+def read_node_sdk_tarball(plan: NodeSDKCompositionPlan, path: Path) -> bytes:
+    """Bounded no-follow readback shared by pack, build cache and consumers."""
+    content = _read_pack_output(path)
+    require_node_sdk_tarball(plan, content)
+    return content
+
+
 def pack_node_sdk(
     plan: NodeSDKCompositionPlan,
     workspace: Path,
@@ -263,8 +270,7 @@ def pack_node_sdk(
             raise ValueError(
                 "npm pack output inventory differs from the selected artifact"
             )
-        content = _read_pack_output(packed / expected_name)
-        require_node_sdk_tarball(plan, content)
+        content = read_node_sdk_tarball(plan, packed / expected_name)
         require_node_sdk_projection(plan, projection, require_current=require_current)
         return PackedNodeSDK(plan.identity, content)
     except (KeyError, TypeError, json.JSONDecodeError) as exc:
