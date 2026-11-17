@@ -806,3 +806,13 @@ fixtures, safe immutable pre-capture reuse or distributing the long e2e/critical
 cases through the existing module scheduler. No full-gate case is removed or
 reclassified by this observation. The assessment identity is
 `sha256:8190461757a5afc71da0dc4eb29e8d4c00aab47700a98a0493ea4abe437f254c`.
+
+The architecture review now distinguishes its original baseline from subsequent
+implementation evidence at `c1038afa2`, and records the passed Linux source gate
+and its measured module costs. The three longest observed module envelopes were
+750.615 seconds (retained Cargo receiving), 591.124 seconds (command-link
+dependencies) and 485.934 seconds (model-free rebuild). Those are diagnostic
+worker intervals, not CPU, billed runner use or an attributed historical release
+critical path. The update preserves all remaining hosted, artifact-promotion,
+legacy-adoption, skill-comparison and native acceptance boundaries; no queue item
+is closed, moved or weakened by the narrative.
