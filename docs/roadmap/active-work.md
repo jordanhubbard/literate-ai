@@ -484,6 +484,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       checks pass without skips. Next: canonical opt-in Flavors and generation
       policy, exact cross-language recipe preparation, and original v2 independent
       SDK acceptance before ordinary generated and retained lifecycle qualification.
+      Canonical `lang-typescript-library` and `package-node-sdk` Flavors now bind
+      SDK layout, bounded npm/compiler constraints and one versioned generation
+      skill, mirrored in initialization templates. Existing TypeScript application
+      authority stays unchanged. Real canonical lock/recipe/runtime selection,
+      exact selected skill bytes, complete template equality and application/build
+      mismatch denials pass. Required skill checks pass, and the current catalog
+      contains 89 skills. Exact legal bytes must be joined to original Component
+      authority before SDK acceptance; file presence alone is insufficient and no
+      Flavor chooses a license. Original provider/generation admission,
+      cross-language recipe preparation, v2 independent SDK acceptance, actual
+      generated/retained/native/installed qualification and downstream adoption
+      remain open. Canonical selection alone grants none of those stages.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.

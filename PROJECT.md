@@ -107,8 +107,7 @@ fixture evidence, not ordinary SDK lifecycle qualification.
 The subsequent additive dual-export surface and common compile-to-plan path
 passed 674 local smoke tests (six declared skips) and independent state/security
 review. Existing import wire formats remain unchanged; the application profile
-explicitly refuses the new SDK surface. Canonical opt-in SDK Flavors and generation
-policy, public generated/retained adapters, authoritative declaration
+explicitly refuses the new SDK surface. Public generated/retained adapters, authoritative declaration
 acceptance and native/installed-lifecycle qualification remain unfinished. These
 checks do not authorize downstream SDK or registered-child cutover.
 
@@ -179,7 +178,7 @@ Dependency evidence preserves exact bundled-provider revision and content hashes
 Bounded original-product checks precede cache hashing, and runtime commands receive
 no producer checkout paths. An authored-source fixture exercises actual compilation,
 packing, cache reuse and relocated CJS/ESM plus TypeScript consumers. This is local
-target integration, not canonical profile delivery, generated SDK acceptance or
+target integration, not generated SDK acceptance or
 native/installed lifecycle qualification; downstream SDK adoption remains gated.
 
 Explicit locally authored SDK profiles now project that same target through the
@@ -188,11 +187,20 @@ Flavor, exact Node/npm/compiler authority and full command/version constraints
 must agree. The compiler is captured from an explicitly located TypeScript package;
 no implicit installation or registry resolution supplies it. Host dependency
 evidence includes immutable compiler-image identities. Command scope and original
-target membership remain guarded, including after authority callbacks. Canonical
-opt-in Flavors and generation policy, cross-language recipe preparation, independent
-SDK acceptance and generated/native/installed qualification remain open.
+target membership remain guarded, including after authority callbacks. Cross-language
+recipe preparation, independent SDK acceptance and generated/native/
+installed qualification remain open.
 
-The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
+Canonical `lang-typescript-library` and `package-node-sdk` Flavors now select a
+versioned pure SDK generation skill and matching source/test layout without changing
+TypeScript application authority. Lock/recipe/runtime selection and exact skill bytes
+are verified from these authored files; template copies match. Application or
+competing build profiles are rejected before tool discovery. Required skill checks
+pass. Exact legal-content custody, live generation/provider admission, cross-language
+recipe preparation, independent SDK acceptance and generated/native/installed
+qualification remain required before downstream adoption.
+
+The [task-oriented skill catalog](docs/user/skills.md) enumerates all 89 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
 composition lessons and proposed adaptations separately from delivered capabilities.

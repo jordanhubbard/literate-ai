@@ -75,6 +75,7 @@ def _locked_snapshot(
     accelerator: str | None = None,
     package_npm: bool = False,
     package_python: bool = False,
+    package_node_sdk: bool = False,
     generation_ready: bool = False,
     no_entrypoint: bool = False,
     cpp_library_kind: str | None = None,
@@ -173,6 +174,7 @@ def _locked_snapshot(
             "cpp": "cpp17-portable-json-application",
             "javascript": "javascript-portable-json-application",
             "rust": "rust-portable-json-application",
+            "typescript-library": "typescript-node-sdk",
         }
         shutil.copytree(
             repository / "skills/specification-to-source" / skill_by_language[language],
@@ -261,7 +263,7 @@ def _locked_snapshot(
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(source, destination)
         selectors.append("+flavor://literate-ai/accel-nvidia-cuda")
-    if package_npm or package_python:
+    if package_npm or package_python or package_node_sdk:
         document = component / "component.md"
         text = document.read_text(encoding="utf-8")
         text = text.replace(
@@ -275,7 +277,13 @@ def _locked_snapshot(
         document.write_text(text, encoding="utf-8", newline="\n")
         import shutil
 
-        package_name = "package-npm" if package_npm else "package-pip"
+        package_name = (
+            "package-node-sdk"
+            if package_node_sdk
+            else "package-npm"
+            if package_npm
+            else "package-pip"
+        )
         shutil.copytree(repository / "flavors" / package_name, flavors / package_name)
         if package_python:
             flavor_path = flavors / package_name / "flavor.md"
@@ -305,8 +313,12 @@ def _locked_snapshot(
                 encoding="utf-8",
             )
         for skill in (
-            "skills/agent/package-artifacts",
-            "skills/specification-to-source/javascript-ecosystem",
+            ()
+            if package_node_sdk
+            else (
+                "skills/agent/package-artifacts",
+                "skills/specification-to-source/javascript-ecosystem",
+            )
         ):
             source = repository / skill
             destination = root / skill

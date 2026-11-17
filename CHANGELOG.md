@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Add opt-in `lang-typescript-library` and `package-node-sdk` Flavors with a
+  versioned pure SDK generation policy and matching initialization templates.
+  Real lock/recipe/profile projection selects the shared SDK target and exact
+  policy bytes; application or competing build profiles fail before tool discovery.
+  Existing TypeScript application policy is unchanged. Canonical selection does
+  not establish provider admission, independent SDK acceptance or native/installed
+  qualification; license contents still require exact Component authority.
+
 - Explicit Node SDK profiles now project the shared SDK target through locked
   toolchain closure and ordinary runtime assembly. Compiler selection captures an
   explicitly located TypeScript image and enforces its original Node, exact
