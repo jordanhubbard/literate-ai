@@ -6,7 +6,8 @@
   paths while preserving existing library import wire identities. Node SDK
   composition under accepted ADR 0073 remains in development; its internal shared
   owner now supplies bounded compiler snapshots, offline exact tarball readback
-  and explicit dual-output authority. Public lifecycle/profile integration and
+  explicit dual-output authority, and original runtime/declaration verifier input
+  custody. Public lifecycle/profile integration and
   native qualification remain open.
 
 - Materialize generic JavaScript direct-library imports from exact sealed provider

@@ -94,6 +94,15 @@ consumers under both Node16 and NodeNext resolution with compiler type roots lim
 to the exact selected compiler SDK and packaged declarations. Missing declarations
 cannot be rescued by host `@types`, NODE_PATH or the producer checkout.
 
+Verifier input custody binds the original reviewed oracle, separate CommonJS and
+ESM runtime harnesses, and all four declaration sources per independent case.
+Reopen that bounded file closure before and after verification, including failed
+operations. A copied oracle value or historical result cannot acquire original
+input custody. Input custody and declaration-check data remain separate from
+artifact admission, execution authorization and lifecycle publication. The
+internal Node oracle loader is not a public lifecycle dispatcher until those
+remaining checks are integrated.
+
 The first retained adapter may coexist with the SDK's separately admitted existing
 registry closure. Those registry dependencies retain their original exact lockfile,
 install authorization and complete inventory checks. They cannot satisfy sealed
