@@ -41,7 +41,7 @@ from literate_ai.contracts.operator_adoption import (
     ConversionAuthorityStage,
     ConversionAuthorityState,
 )
-from literate_ai.projects import LoadedProject, load_project
+from literate_ai.projects import LoadedProject, ProjectConfigurationStore, load_project
 
 HISTORY = ".literate/project-identity-migrations"
 PLAN_SCHEMA = "literate-ai/project-identity-migration-plan@1"
@@ -199,7 +199,9 @@ def _capture_record(
         "from_project_id": state.project_id,
         "to_project_id": project.definition.project_id,
         "project_definition_identity": "sha256:"
-        + hashlib.sha256((root / "literate.project.json").read_bytes()).hexdigest(),
+        + hashlib.sha256(
+            (ProjectConfigurationStore.manifest_path(root)).read_bytes()
+        ).hexdigest(),
         "source_identity": canonical_identity({"scope": scope, "members": members}).uri,
         "historical_evidence": {
             name: data["identity"] for name, data in documents.items()

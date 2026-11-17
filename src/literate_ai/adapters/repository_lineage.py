@@ -34,7 +34,7 @@ from literate_ai.contracts import (
     RepositoryParentSelection,
 )
 from literate_ai.diagnostics import report_progress
-from literate_ai.projects import parse_project_configuration
+from literate_ai.projects import ProjectConfigurationStore, parse_project_configuration
 
 REPOSITORY_PARENT_FILE = ".literate/repository-parent.json"
 REPOSITORY_LINEAGE_FILE = ".literate/repository-lineage.json"
@@ -107,7 +107,7 @@ def _document_bytes(value: dict[str, object]) -> bytes:
 
 
 def _metadata_path(root: Path, relative: str) -> Path:
-    path = root.resolve()
+    path = ProjectConfigurationStore.context(root.resolve()).framework_root
     for part in Path(relative).parts:
         path /= part
         if path_is_link_or_reparse(path):

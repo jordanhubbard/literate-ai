@@ -104,6 +104,8 @@ class AdoptionNodeDependencyTests(unittest.TestCase):
             "--acknowledge",
             "--run-baseline",
             *options,
+            "--profile",
+            "convert",
         )
 
     def test_checkout_passes_but_missing_sandbox_binding_fails_and_rolls_back(self):

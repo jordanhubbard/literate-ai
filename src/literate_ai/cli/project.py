@@ -609,6 +609,86 @@ def _attach_update_conflict_evidence(
         raise CliFailure(exc.code, exc.message) from exc
 
 
+def _update_native_project(args, project) -> dict[str, Any]:
+    """Use the ordinary three-way update owner for the minimal native profile."""
+    from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+    from literate_ai.adapters.project_initialization import INITIALIZATION_BASELINE_FILE
+    from literate_ai.adapters.project_update_apply import apply_project_update
+    from literate_ai.adapters.project_updates import _read_contract
+    from literate_ai.adapters.update_merge import load_resolutions
+    from literate_ai.contracts import ProjectInitializationBaseline, canonical_identity
+    from literate_ai.projects import ProjectConfigurationStore
+
+    unsupported = (
+        "take_upstream",
+        "keep_local",
+        "record_work_items",
+        "review_conflicts",
+        "follow",
+        "allow_minor",
+        "allow_major",
+    )
+    if any(getattr(args, name, None) for name in unsupported):
+        raise CliFailure(
+            "project.native_update_options",
+            "Native template updates do not change parent selectors "
+            "or create generation work",
+        )
+    try:
+        baseline = _read_contract(
+            project.root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
+        )
+        if baseline.profile != "native":
+            raise ProjectUpdateError(
+                "project.native_profile_required",
+                "Contained root updates require the native bootstrap profile",
+            )
+        adapter = FilesystemProjectUpdateAdapter()
+        plan = adapter.plan(project.root)
+        identity = canonical_identity(plan.to_dict()).uri
+        value: dict[str, Any] = {
+            "schema": "literate-ai/native-project-update@1",
+            "mode": "read-only-plan",
+            "framework": plan.to_dict(),
+            "plan_identity": identity,
+            "apply_supported": True,
+            "source_moved": False,
+            "authority_review_required": False,
+        }
+        if not getattr(args, "apply", False):
+            return value
+        resolutions = load_resolutions(getattr(args, "resolutions", None), plan.files)
+        with (
+            ProjectConfigurationStore.layout_lock(project.root),
+            project_lifecycle_lock(project.root, operation="native-update"),
+        ):
+            current = adapter.plan(project.root)
+            if canonical_identity(current.to_dict()).uri != identity:
+                raise ProjectUpdateError(
+                    "project.update_plan_changed",
+                    "Native update inputs changed before apply",
+                )
+            applied = apply_project_update(
+                plan,
+                project.root,
+                adopt_added=bool(getattr(args, "adopt_added", False)),
+                resolutions=resolutions,
+                validator=lambda root: FilesystemProjectValidationAdapter().validate(
+                    root,
+                    require_authority_review=False,
+                    include_test_receipt=False,
+                ),
+            )
+        value.update(
+            mode="applied",
+            application=applied.to_dict(),
+            authority_review_required=bool(applied.applied or applied.adopted),
+        )
+        return value
+    except ProjectUpdateError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+
+
 def update_project_from_args(args) -> dict[str, Any]:
     """Plan a three-way initialized-project update; optionally record advisory items.
 
@@ -640,6 +720,8 @@ def update_project_from_args(args) -> dict[str, Any]:
         raise CliFailure(exc.code, exc.message) from exc
     except RepositoryLineageStoreError as exc:
         raise CliFailure(exc.code, exc.message) from exc
+    if project.definition.framework_directory == "litai" and not selection.parents:
+        return _update_native_project(args, project)
     if not selection.parents:
         provider = _repository_fetch_provider(args)
         return {
@@ -1101,7 +1183,17 @@ def documentation_review_from_args(args) -> dict[str, Any]:
     try:
         selected = Path(args.path)
         if not getattr(args, "record", False):
-            return FilesystemProjectValidationAdapter().documentation_review(selected)
+            review = FilesystemProjectValidationAdapter().documentation_review(selected)
+            if (
+                getattr(args, "require_current", False)
+                and review.get("state") != "current"
+            ):
+                raise CliFailure(
+                    "project.documentation_authority_review_stale",
+                    "Documentation authority is not current; review the changes and "
+                    "record them with project documentation-review --record.",
+                )
+            return review
         return record_project_authority_review(selected)
     except ProjectInitializationError as exc:
         raise CliFailure(exc.code, exc.message) from exc

@@ -91,7 +91,11 @@ class RetainedCargoWrapperContextV2:
             ),
         )
         root = reviewed.project.root
-        self._inputs.pin(root / PROJECT_FILENAME, boundary=root, label=PROJECT_FILENAME)
+        self._inputs.pin(
+            ProjectConfigurationStore.manifest_path(root),
+            boundary=root,
+            label=PROJECT_FILENAME,
+        )
         for name, relative in _DOCUMENTS:
             content = self._inputs.pin(root / relative, boundary=root, label=relative)
             if content not in {

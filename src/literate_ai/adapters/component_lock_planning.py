@@ -83,7 +83,6 @@ from literate_ai.contracts.provider_resolution import (
     resolve_provider_declaration,
 )
 from literate_ai.projects import (
-    PROJECT_FILENAME,
     PinnedInputClosure,
     PinnedInputClosureError,
     ProjectConfigurationStore,
@@ -361,7 +360,7 @@ class ComponentCatalogSnapshot:
                         "project scale authority changed before locked input capture",
                     )
                 closure.pin(
-                    observed.root / PROJECT_FILENAME,
+                    ProjectConfigurationStore.manifest_path(observed.root),
                     boundary=observed.root,
                     label="project-scale-authority",
                     expected_content=observed.content,
@@ -2071,7 +2070,7 @@ def _require_inputs_unchanged(
                     "project configuration is unavailable during lock planning",
                 ) from exc
             closure.pin(
-                project_snapshot.root / PROJECT_FILENAME,
+                ProjectConfigurationStore.manifest_path(project_snapshot.root),
                 boundary=project.root,
                 label="project-manifest",
                 expected_content=project_snapshot.content,

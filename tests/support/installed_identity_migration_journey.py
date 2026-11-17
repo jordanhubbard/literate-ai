@@ -141,6 +141,8 @@ def main():
         "--default-branch",
         "main",
         "--run-baseline",
+        "--profile",
+        "convert",
     )
     plan = cli(*adopt)
     require(plan["writes"] is False, "adoption plan must be read-only")

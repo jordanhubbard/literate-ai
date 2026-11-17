@@ -37,7 +37,12 @@ from literate_ai.contracts.authority import (
     ComponentAuthorityState,
 )
 from literate_ai.contracts.operator_adoption import ConversionAuthorityStage
-from literate_ai.projects import ProjectError, load_project, parse_project_configuration
+from literate_ai.projects import (
+    ProjectConfigurationStore,
+    ProjectError,
+    load_project,
+    parse_project_configuration,
+)
 from literate_ai.source_to_specification.promotion_materialization import (
     SourcePromotionError,
     verify_source_promotion_evidence,
@@ -231,7 +236,7 @@ def _promotion_custody(captured: _RegisteredChild, tree: dict) -> dict[str, obje
                     raise
                 candidate, identity = previous
                 transitions.append(identity)
-                (view / "literate.project.json").write_bytes(candidate)
+                (ProjectConfigurationStore.manifest_path(view)).write_bytes(candidate)
     return {
         "projections": [p.identity.uri for p in projections],
         "historical_rebind_records": transitions,
@@ -358,11 +363,13 @@ def _apply_native_child_replacement(
             for entry in registry["projects"]:
                 if entry["path"] == captured.context["child_path"]:
                     entry["project_definition_identity"] = canonical_identity(
-                        json.loads(_read(child / "literate.project.json"))
+                        json.loads(
+                            _read(ProjectConfigurationStore.manifest_path(child))
+                        )
                     ).uri
             updated_registry = canonical_json_bytes(registry) + b"\n"
             if (
-                _read(captured.parent.root / "literate.project.json")
+                _read(ProjectConfigurationStore.manifest_path(captured.parent.root))
                 != captured.parent_manifest
             ):
                 _refuse("changed", "parent manifest changed during replacement")

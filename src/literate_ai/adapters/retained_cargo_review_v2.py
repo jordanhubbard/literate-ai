@@ -109,7 +109,7 @@ def read_retained_cargo_review_v2(
         root, maximum_bytes=maximum_file_bytes
     ).read()
     inputs.pin(
-        root / PROJECT_FILENAME,
+        ProjectConfigurationStore.manifest_path(root),
         boundary=root,
         label=PROJECT_FILENAME,
         expected_content=configuration.content,

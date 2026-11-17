@@ -34,6 +34,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
+from literate_ai.projects import ProjectConfigurationStore
 
 # Reject a contended mutation quickly rather than blocking the caller for the
 # duration of a peer's rebuild: the point of this lock is to fail *before*
@@ -72,8 +73,9 @@ def project_lifecycle_lock_path(project_root: Path) -> Path:
     """Return the stable lifecycle-lock path for one project checkout."""
 
     root = Path(project_root).resolve(strict=True)
-    identity = hashlib.sha256(str(root).encode("utf-8")).hexdigest()
-    return root / ".litai-locks" / identity / "lifecycle.lock"
+    context = ProjectConfigurationStore.context(root)
+    identity = hashlib.sha256(str(context.root).encode("utf-8")).hexdigest()
+    return context.framework_root / ".litai-locks" / identity / "lifecycle.lock"
 
 
 def _owner_path(lock_path: Path) -> Path:

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -94,6 +97,94 @@ class CheckpointedGateTests(unittest.TestCase):
             runner=lambda gate: calls.append(gate) or (9 if gate == "expensive" else 0),
         )
         self.assertEqual(calls, ["new-fast", "fast", "expensive"])
+
+    def test_unmanaged_native_inputs_are_retested_after_a_failed_attempt(self):
+        root = Path(self.temporary.name).resolve()
+        native = root / "native_test.py"
+        dependency = root / "input.txt"
+        native.write_text(
+            "from pathlib import Path\n"
+            "assert Path('input.txt').read_text() == 'correct'\n"
+        )
+        dependency.write_text("correct")
+        fail_final = True
+
+        def execute(gate):
+            if gate == "native-test":
+                return subprocess.run(
+                    (sys.executable, str(native)),
+                    cwd=root,
+                    capture_output=True,
+                    timeout=30,
+                ).returncode
+            return 7 if fail_final else 0
+
+        def attempt():
+            return run_gates(
+                suite="native-fixture",
+                gates=("native-test", "final"),
+                state_path=self.state,
+                runner=execute,
+                project_root=root,
+            )
+
+        self.assertEqual(attempt(), 7)
+        dependency.write_text("broken")
+        fail_final = False
+        self.assertEqual(attempt(), 1)
+        dependency.write_text("correct")
+        self.assertEqual(attempt(), 0)
+
+    @unittest.skipUnless(shutil.which("make"), "Make is unavailable")
+    def test_make_preview_modes_never_create_success_evidence_or_clear_progress(self):
+        root = Path(self.temporary.name).resolve()
+        script = (
+            Path(__file__).resolve().parents[2] / "scripts/run_checkpointed_gates.py"
+        )
+        (root / "Makefile").write_text(
+            ".PHONY: all marker fail\nall:\n"
+            f'\t+"{sys.executable}" "{script}" --state checkpoint.json '
+            '--make "$(MAKE)" marker fail\n'
+            f'marker:\n\t"{sys.executable}" -c '
+            "\"from pathlib import Path; Path('executed').write_text('yes')\"\n"
+            f'fail:\n\t"{sys.executable}" -c "raise SystemExit(7)"\n'
+        )
+        environment = {
+            **os.environ,
+            "MAKEFLAGS": "",
+            "MFLAGS": "",
+            "MAKEOVERRIDES": "",
+            "GNUMAKEFLAGS": "",
+            "OBJ_DIR": str(root / "objects"),
+        }
+        for flag in ("-n", "-q", "-t"):
+            with self.subTest(flag=flag):
+                progress = root / "checkpoint.json"
+                progress.write_bytes(b"retained incomplete run\n")
+                result = subprocess.run(
+                    ("make", flag, "all"),
+                    cwd=root,
+                    env=environment,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                self.assertIn(result.returncode, (0, 1), result.stderr)
+                self.assertEqual(progress.read_bytes(), b"retained incomplete run\n")
+                self.assertFalse((root / "executed").exists())
+                self.assertFalse((root / "objects").exists())
+        progress.unlink()
+        result = subprocess.run(
+            ("make", "all"),
+            cwd=root,
+            env=environment,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertTrue((root / "executed").is_file(), result.stdout + result.stderr)
+        self.assertTrue(progress.is_file())
 
 
 if __name__ == "__main__":

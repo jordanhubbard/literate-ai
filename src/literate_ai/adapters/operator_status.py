@@ -165,7 +165,10 @@ def _next_verb(
     locks: dict[str, object],
     *,
     standard_binding_distribution_mismatch: bool = False,
+    native_bootstrap: bool = False,
 ) -> str:
+    if native_bootstrap:
+        return "litai project validate ."
     if stage == "wrapped":
         return "litai project test-receipt run-retained CANDIDATE --project ."
     if stage == "retained":
@@ -230,7 +233,9 @@ def inspect_operator_status(
                     "conversion authority identifies another project",
                 )
             stage_value = {
-                "path": ".literate/conversion-authority.json",
+                "path": (project.framework_root / ".literate/conversion-authority.json")
+                .relative_to(project.root)
+                .as_posix(),
                 "identity": conversion.identity.uri,
                 **conversion.to_dict(),
             }
@@ -315,7 +320,12 @@ def inspect_operator_status(
     standard_binding_distribution_mismatch = _standard_binding_distribution_mismatch(
         project.definition.lifecycle_driver
     )
-    return {
+    native_bootstrap = (
+        project.definition.framework_directory == "litai"
+        and project.definition.lifecycle_driver is None
+        and stage == "original"
+    )
+    value = {
         "schema": OPERATOR_STATUS_SCHEMA,
         "view": view,
         "project": {
@@ -335,8 +345,17 @@ def inspect_operator_status(
             standard_binding_distribution_mismatch=(
                 standard_binding_distribution_mismatch
             ),
+            native_bootstrap=native_bootstrap,
         ),
     }
+    if native_bootstrap:
+        value["native_delivery"] = {
+            "state": "bootstrap-only",
+            "execution_authority": "repository-native-tools-and-ci",
+            "qualification": "not-established-by-bootstrap",
+            "next_action": "Run the repository's native build, tests and CI checks.",
+        }
+    return value
 
 
 __all__ = [

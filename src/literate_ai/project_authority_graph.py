@@ -32,6 +32,7 @@ from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.repository_orchestration import RepositoryOrchestration
 from literate_ai.projects import (
     PROJECT_FILENAME,
+    ProjectConfigurationStore,
     ProjectError,
     discover_project,
     project_skill_catalog,
@@ -47,7 +48,7 @@ _ENTITY_LAYOUT = (
 
 
 def _baseline_identities(root: Path) -> dict[str, str]:
-    path = root / _BASELINE_PATH
+    path = ProjectConfigurationStore.context(root).framework_path(_BASELINE_PATH)
     if not path.is_file() or path.is_symlink():
         return {}
     try:
@@ -298,7 +299,7 @@ def project_authority_graph(
         if lineage.selected_parents
         else None
     )
-    imports = CatalogImportsFile.load(project.root)
+    imports = CatalogImportsFile.load(project.framework_root)
     imported = {(item.kind, item.name): item for item in imports.imports}
     entity_by_path: dict[str, str] = {}
     component_by_coordinate: dict[tuple[str, str], str] = {}

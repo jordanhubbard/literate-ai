@@ -1,11 +1,15 @@
 # The framework flow
 
-The operator golden path is adopt, then prove the `dev` workflow, then cut a
-release. You do not need every framework contract to start.
+Existing repositories begin with minimal native adoption and their own build,
+tests and CI. The contained profile adds framework authority without moving
+source. It does not qualify a release. Enable deeper lifecycle or generation
+profiles when their additional evidence is required.
 
 ```mermaid
 flowchart LR
-  Adopt["litai onboard create / adopt"] --> Status[litai status]
+  Native["litai onboard adopt"] --> NativeStatus["status / validate / update"]
+  NativeStatus --> Host["Repository native checks and CI"]
+  Adopt["create or explicit --profile convert"] --> Status[litai status]
   Status --> Verify[litai verify]
   Verify --> LockPlan["lock then plan"]
   LockPlan --> Rebuild["litai rebuild (dev)"]
@@ -86,7 +90,7 @@ execution, and acceptance always run again. This bounds recovery cost without tr
 historical authority as current authority.
 
 If a flow diagram, tutorial, or tool presents a different order, it should explain why.
-This is the repository's golden path. The arrows express required dependencies, not a
+These are the configured generation lifecycle dependencies. The arrows express required dependencies, not a
 globally fixed set of implementation stages: a pinned workflow may add or parallelize
 work where those dependencies still hold.
 

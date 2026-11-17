@@ -495,3 +495,18 @@ cannot skip collateral by prose exception. The receipt binds candidate version, 
 revision, account, source hashes, stable provider IDs, and exported read-back hashes;
 drift in any of them invalidates the candidate. Never retag a published distribution tag
 to carry a later overview refresh.
+
+## Diagnostic release timing
+
+`litai release evidence timing --run RUN_ID` reads the current append-only ledger
+without rewriting its index or running a gate. It reports completed run and node
+intervals, the union of completed child intervals, and the remaining gaps. A gap
+may contain setup, execution, queueing or approval; the report does not guess its
+cause. Pending or interrupted nodes have no invented end time. Invalid ordering,
+missing parents, cycles and clock skew remain diagnostics.
+
+Artifact qualification and final receipt validation have separate child spans in
+new release checks. Older runs retain their original instrumentation gaps. Node
+nesting does not prove scheduling dependencies or exclusive runner occupancy, so
+critical-path and runner-use totals remain unknown rather than summing overlapping
+nodes. These timings never satisfy a release gate or authorize receipt reuse.

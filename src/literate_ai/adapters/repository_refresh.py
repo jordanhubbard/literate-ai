@@ -17,6 +17,7 @@ from literate_ai.contracts.repository_refresh import (
     RepositoryRefreshAuthority,
     RepositoryRefreshRequest,
 )
+from literate_ai.projects import ProjectConfigurationStore
 
 from ._write_reservations import WriteReservationSet
 from .repository_lfs import (
@@ -385,7 +386,7 @@ def _observe(
     authority = RepositoryRefreshAuthority(
         repository.lock.repository_orchestration, request
     )
-    manifest = _file(root / "literate.project.json")
+    manifest = _file(ProjectConfigurationStore.manifest_path(root))
     store = RepositoryLockStore(root)
     metadata_node = _node(store.directory)
     _absent(store.writer_path, reservations)

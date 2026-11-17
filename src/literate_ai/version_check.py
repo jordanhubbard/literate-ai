@@ -23,7 +23,11 @@ from literate_ai.adapters.standard_lifecycle_binding import (
 )
 from literate_ai.build_version import cli_version_label
 from literate_ai.contracts import SemanticVersion, StandardProjectLifecycleDriver
-from literate_ai.projects import PROJECT_FILENAME, ProjectError, discover_project
+from literate_ai.projects import (
+    ProjectConfigurationStore,
+    ProjectError,
+    discover_project,
+)
 from literate_ai.schema_catalog import (
     SCHEMA_CATALOG_ROOT_ENVIRONMENT,
     SUPPORTED_SCHEMA_CATALOGS,
@@ -242,7 +246,7 @@ def _project_state(project_path: Path | None) -> tuple[dict[str, object], Path |
         raise VersionCheckError(
             "version.project_root_invalid", "project root is unavailable"
         ) from exc
-    if not (selected / PROJECT_FILENAME).is_file():
+    if not (ProjectConfigurationStore.manifest_path(selected)).is_file():
         return unavailable, selected
     try:
         project = discover_project(selected)

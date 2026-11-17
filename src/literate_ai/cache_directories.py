@@ -114,15 +114,17 @@ def resolve_cache_directories(
     """Resolve portable defaults, with relative overrides anchored at the project."""
 
     root = Path(project_root).resolve(strict=True)
+    context = ProjectConfigurationStore.context(root)
+    root = context.root
     configured = os.environ if environment is None else environment
     build_dir = _configured_path(
         configured.get(BUILD_DIR_ENVIRONMENT),
-        default=root / DEFAULT_BUILD_DIRECTORY,
+        default=context.framework_root / DEFAULT_BUILD_DIRECTORY,
         project_root=root,
     )
     obj_dir = _configured_path(
         configured.get(OBJ_DIR_ENVIRONMENT),
-        default=root / DEFAULT_OBJECT_DIRECTORY,
+        default=context.framework_root / DEFAULT_OBJECT_DIRECTORY,
         project_root=root,
     )
     return bind_cache_directories(root, build_dir=build_dir, obj_dir=obj_dir)
@@ -144,17 +146,19 @@ def select_cache_directories(
     """
 
     root = Path(project_root).resolve(strict=True)
+    context = ProjectConfigurationStore.context(root)
+    root = context.root
     configured = os.environ if environment is None else environment
     selected_build = _selected_path(
         build_dir,
         fallback=configured.get(BUILD_DIR_ENVIRONMENT),
-        default=root / DEFAULT_BUILD_DIRECTORY,
+        default=context.framework_root / DEFAULT_BUILD_DIRECTORY,
         project_root=root,
     )
     selected_obj = _selected_path(
         obj_dir,
         fallback=configured.get(OBJ_DIR_ENVIRONMENT),
-        default=root / DEFAULT_OBJECT_DIRECTORY,
+        default=context.framework_root / DEFAULT_OBJECT_DIRECTORY,
         project_root=root,
     )
     return bind_cache_directories(root, build_dir=selected_build, obj_dir=selected_obj)
@@ -438,7 +442,11 @@ def _require_safe_root(path: Path, *, project_root: Path, label: str) -> None:
     }
     if path in forbidden:
         raise CacheDirectoryError(f"{label} resolves to a protected directory")
-    protected_roots = (*_authority_roots(project_root), project_root / _LOCK_DIRECTORY)
+    protected_roots = (
+        *_authority_roots(project_root),
+        ProjectConfigurationStore.context(project_root).framework_root
+        / _LOCK_DIRECTORY,
+    )
     for protected in protected_roots:
         if path == protected or path.is_relative_to(protected):
             raise CacheDirectoryError(
@@ -464,6 +472,17 @@ def _authority_roots(project_root: Path) -> tuple[Path, ...]:
         raise CacheDirectoryError(
             "project manifest is invalid during cache validation"
         ) from exc
+    context = ProjectConfigurationStore.context(project_root)
+    roots.update(
+        {
+            context.manifest_path,
+            context.framework_root / ".literate",
+            context.framework_root / ".litai-locks",
+            project_root / definition.agent_skill,
+        }
+    )
+    if definition.test_receipt is not None:
+        roots.add(project_root / definition.test_receipt)
     for field in _PROJECT_AUTHORITY_ROOT_FIELDS:
         for value in getattr(definition, field):
             roots.add(project_root.joinpath(*Path(value).parts).resolve(strict=False))
@@ -510,7 +529,12 @@ def _default_disposable_object_root(
 ) -> bool:
     """Recognize the one conventionally destructible, repository-local boundary."""
 
-    return kind == "object" and path == project_root / DEFAULT_OBJECT_DIRECTORY
+    return (
+        kind == "object"
+        and path
+        == ProjectConfigurationStore.context(project_root).framework_root
+        / DEFAULT_OBJECT_DIRECTORY
+    )
 
 
 def _require_disposable_tree_safe(path: Path) -> None:

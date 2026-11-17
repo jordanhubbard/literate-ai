@@ -695,6 +695,15 @@ def _parser() -> JsonArgumentParser:
     onboard_adopt = onboard_commands.add_parser(
         "adopt", help="plan or adopt an existing source tree"
     )
+    onboard_remove = onboard_commands.add_parser(
+        "remove", help="plan or stage removal of a committed minimal native profile"
+    )
+    onboard_remove.add_argument("path", nargs="?", default=".")
+    onboard_remove.add_argument("--source", help="exact before commit for recovery")
+    onboard_remove.add_argument("--only", action="append", default=[])
+    onboard_remove.add_argument("--apply", action="store_true")
+    onboard_remove.add_argument("--acknowledge", action="store_true")
+    onboard_remove.add_argument("--expect-plan")
     for onboard_parser in (onboard_create, onboard_adopt):
         onboard_parser.add_argument("path", nargs="?", default=".")
         onboard_parser.add_argument("--project-id")
@@ -734,6 +743,14 @@ def _parser() -> JsonArgumentParser:
         "--refine", metavar="REQUEST", help="refine this mission Markdown before apply"
     )
     onboard_adopt.add_argument("--default-branch")
+    onboard_adopt.add_argument(
+        "--profile",
+        dest="adoption_profile",
+        choices=("native", "convert"),
+        default="native",
+        help="native preserves source/build/CI in place; "
+        "convert explicitly relocates source",
+    )
     onboard_adopt.add_argument(
         "--root-plan",
         metavar="SELECTION.json",
@@ -2130,6 +2147,11 @@ def _parser() -> JsonArgumentParser:
     )
     project_documentation_review = project_commands.add_parser("documentation-review")
     project_documentation_review.add_argument("path", nargs="?", default=".")
+    project_documentation_review.add_argument(
+        "--require-current",
+        action="store_true",
+        help="fail if the reviewed documentation authority is not current",
+    )
     project_documentation_review.add_argument(
         "--record",
         action="store_true",

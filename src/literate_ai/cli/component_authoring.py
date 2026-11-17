@@ -38,9 +38,9 @@ from literate_ai.contracts.component_locking import (
 )
 from literate_ai.contracts.repositories import RepositorySourceDependency
 from literate_ai.projects import (
-    PROJECT_FILENAME,
     PinnedInputClosure,
     PinnedInputClosureError,
+    ProjectConfigurationStore,
     discover_project,
     project_boundary,
 )
@@ -345,7 +345,7 @@ def _migration_roots(selected: Path) -> tuple[tuple[Path, ...], Path, bool]:
     if (
         project is None
         or selected != project.root
-        or not (selected / PROJECT_FILENAME).is_file()
+        or not (ProjectConfigurationStore.manifest_path(selected)).is_file()
     ):
         raise CliFailure(
             "component_migration.component_invalid",

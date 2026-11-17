@@ -7,6 +7,7 @@ import hashlib
 import inspect
 import json
 import os
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -439,12 +440,14 @@ def _try_framework_pins(root: Path) -> tuple[Pin, Pin] | None:
     )
 
 
-def _resolve_gate_pins(root: Path, suite: str, gates: Sequence[str]) -> dict[str, Pin]:
+def _resolve_gate_pins(
+    root: Path, suite: str, gates: Sequence[str]
+) -> tuple[dict[str, Pin], bool]:
     framework = _try_framework_pins(root)
     if framework is None:
         pin = suite_fallback_pin(suite, gates)
-        return {gate: pin for gate in gates}
-    return bind_gates_to_pins(gates, tcb=framework[0], docs=framework[1])
+        return {gate: pin for gate in gates}, False
+    return bind_gates_to_pins(gates, tcb=framework[0], docs=framework[1]), True
 
 
 def _unittest_source_members(
@@ -517,7 +520,7 @@ def _resolve_unittest_pin(
         pipeline=tuple(steps),
         declared_inputs=(*base.declared_inputs, "python-test-sources"),
         own_identity=base.identity,
-    ), complete
+    ), complete and framework is not None
 
 
 def _optional_receipts(root: Path) -> MemoryTestedTagStore:
@@ -657,8 +660,8 @@ def run_gates(
     root = project_root or Path.cwd()
     if evidence_run is None:
         evidence_run = attach_run(root)
-    catalog = (
-        dict(gate_pins)
+    catalog, source_complete = (
+        (dict(gate_pins), True)
         if gate_pins is not None
         else _resolve_gate_pins(root, suite, gates)
     )
@@ -666,11 +669,16 @@ def run_gates(
     if missing:
         raise ValueError(f"gate {missing[0]!r} has no pin")
     markers = CheckpointMarkerStore(state_path, suite)
+    if not source_complete:
+        # A suite name is a diagnostic coordinate, not a dependency identity.
+        markers.reset_repair_progress()
     if not markers.repair_progress_matches_gate_prefix(gates, catalog):
         print("checkpoint: gate plan changed; reset repair progress", flush=True)
         markers.reset_repair_progress()
     resumed_repair = bool(markers.completion_order)
     receipts = dispatch.receipts if dispatch is not None else _optional_receipts(root)
+    if not source_complete:
+        receipts = MemoryTestedTagStore()
     service = PinDispatchService(markers=markers, receipts=receipts)
     unique_pins: dict[str, Pin] = {}
     for gate in gates:
@@ -715,7 +723,11 @@ def run_gates(
             with context as node:
                 result = _run_gate(runner, gate, node)
         if result != 0:
-            reusable = sum(len(item.completed_steps) for item in decisions.values())
+            reusable = (
+                sum(len(item.completed_steps) for item in decisions.values())
+                if source_complete
+                else 0
+            )
             print(
                 "checkpoint: stop after "
                 f"{gate} failed; {reusable} gate(s) remain reusable",
@@ -1006,7 +1018,11 @@ def run_unittest_suite(
     if bound.pipeline != tuple(test_keys):
         bound = replace(bound, pipeline=tuple(test_keys))
     markers = CheckpointMarkerStore(state_path, "python-unittest")
+    if not source_complete:
+        markers.reset_repair_progress()
     receipts = dispatch.receipts if dispatch is not None else _optional_receipts(root)
+    if not source_complete:
+        receipts = MemoryTestedTagStore()
     service = PinDispatchService(markers=markers, receipts=receipts)
     scheduled = service.evaluate((bound,))[0]
     if scheduled.action is DispatchAction.SKIP and not release_evidence:
@@ -1297,6 +1313,30 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _make_will_execute(environment: Mapping[str, str]) -> bool:
+    """Recursive Make invokes recipes even in modes that do not run their gates."""
+    for name in ("MAKEFLAGS", "MFLAGS", "GNUMAKEFLAGS"):
+        for option in shlex.split(environment.get(name, "")):
+            if option == "--" or ("=" in option and not option.startswith("--")):
+                break  # Variable assignments are not Make options.
+            if option in {
+                "--just-print",
+                "--dry-run",
+                "--recon",
+                "--question",
+                "--touch",
+            }:
+                return False
+            short = option.lstrip("-")
+            if (
+                not option.startswith("--")
+                and short.isalpha()
+                and set(short) & set("nqt")
+            ):
+                return False
+    return True
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     arguments = _parser().parse_args(argv)
     state_path = arguments.state.resolve()
@@ -1320,6 +1360,11 @@ def main(argv: Sequence[str] | None = None) -> int:
             workers=arguments.workers,
             worker_timeout=arguments.worker_timeout,
         )
+    if not _make_will_execute(os.environ):
+        print(
+            "checkpoint: Make preview/query/touch mode; no gates or evidence recorded"
+        )
+        return 0
     if arguments.reset:
         reset_checkpoint(state_path)
         print(f"checkpoint: reset {state_path}")
