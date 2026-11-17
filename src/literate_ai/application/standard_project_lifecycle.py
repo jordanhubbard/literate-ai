@@ -1324,7 +1324,9 @@ def _rebind_standard_source_generation(
     component_lock_identity = execution_plan.component_lock_identity
     cached = generation.output
     cached_candidate = cached.candidate
-    if require_exact_generation and (
+    if (
+        require_exact_generation or getattr(prepared.recipe, "node_sdk_providers", ())
+    ) and (
         cached_candidate.component_revision != plan.component_revision
         or cached_candidate.component_generation_plan_identity != plan.identity
         or cached_candidate.generation_key_identity != plan.generation_key.identity
@@ -1688,6 +1690,16 @@ class StandardProjectLifecycleService:
                     "standard_lifecycle.preparation_identity_mismatch",
                     "prepared node does not bind its exact Component plan",
                 ) from exc
+            if component_worker_routing is not None:
+                surface = getattr(prepared.recipe, "library_import_surface", None)
+                if getattr(surface, "node_sdk_exports", ()) or getattr(
+                    prepared.recipe, "node_sdk_providers", ()
+                ):
+                    raise StandardProjectLifecycleError(
+                        "standard_lifecycle.node_sdk_generation_admission_required",
+                        "remote Node SDK generation requires live "
+                        "bound-invocation admission",
+                    )
         supplied = {} if resume_candidates is None else dict(resume_candidates)
         cached = (
             {} if source_cache_memberships is None else dict(source_cache_memberships)
@@ -3104,6 +3116,18 @@ class StandardProjectLifecycleService:
         source_generation_resume,
         regenerate,
     ):
+        surface = getattr(prepared.recipe, "library_import_surface", None)
+        if getattr(surface, "node_sdk_exports", ()) or getattr(
+            prepared.recipe, "node_sdk_providers", ()
+        ):
+            # Bound invocation records are DATA. The static/remote/resume path
+            # has no continuing provider+oracle+grant owner and cannot adopt one
+            # merely by restoring metadata or a historical cache membership.
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.node_sdk_generation_admission_required",
+                "Node SDK generation requires live bound-invocation admission "
+                "before source selection, cache reuse or model reservation",
+            )
         if source_cache_membership is None and candidate is not None:
             source_cache_membership = candidate.source_cache_membership
         if regenerate:

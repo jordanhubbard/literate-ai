@@ -39,6 +39,7 @@ from literate_ai.adapters.model_selection_stack import (
     explicit_stack_model,
 )
 from literate_ai.adapters.models.native_sdk_recipe import RecipeNativeSdkDependency
+from literate_ai.adapters.models.node_sdk_recipe import RecipeNodeSDKProvider
 from literate_ai.adapters.user_paths import (
     opencode_managed_configuration_roots,
     resolve_host_system_paths,
@@ -582,6 +583,7 @@ class GenerationRecipe:
     library_dependencies: tuple[RecipeLibraryDependency, ...] = ()
     native_sdk_dependencies: tuple[RecipeNativeSdkDependency, ...] = ()
     cpp_library_build: RecipeCppLibraryBuild | None = None
+    node_sdk_providers: tuple[RecipeNodeSDKProvider, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.recipe_id or not self.application_id or not self.documents:
@@ -690,6 +692,56 @@ class GenerationRecipe:
             for item in self.native_sdk_dependencies
         ):
             raise TypeError("generation recipe SDK dependencies must be typed")
+        if type(self.node_sdk_providers) is not tuple or any(
+            type(item) is not RecipeNodeSDKProvider for item in self.node_sdk_providers
+        ):
+            raise TypeError("generation recipe Node SDK providers must be typed")
+        if self.node_sdk_providers:
+            if (
+                self.library_import_surface is None
+                or self.library_import_surface.language != "typescript"
+                or not self.library_import_surface.node_sdk_exports
+                or entrypoints
+                or self.native_sdk_dependencies
+            ):
+                raise ValueError(
+                    "Node SDK provider metadata requires a pure TypeScript SDK"
+                )
+            revisions = tuple(
+                item.artifact.component_revision.uri for item in self.node_sdk_providers
+            )
+            if revisions != tuple(sorted(set(revisions))):
+                raise ValueError(
+                    "Node SDK generation providers must be canonical and unique"
+                )
+            expected_providers = {
+                item.provider_component_revision.uri
+                for item in self.library_dependencies
+            }
+            if set(revisions) != expected_providers:
+                raise ValueError(
+                    "Node SDK metadata differs from direct library dependencies"
+                )
+            by_revision = {
+                item.artifact.component_revision: item
+                for item in self.node_sdk_providers
+            }
+            for dependency in self.library_dependencies:
+                if (
+                    dependency.import_surface
+                    != by_revision[dependency.provider_component_revision].surface
+                ):
+                    raise ValueError(
+                        "Node SDK metadata differs from exact import authority"
+                    )
+            namespaces = [
+                item.surface.package.casefold() for item in self.node_sdk_providers
+            ]
+            if (
+                len(namespaces) != len(set(namespaces))
+                or self.library_import_surface.package.casefold() in namespaces
+            ):
+                raise ValueError("Node SDK generation package namespaces collide")
         sdk_keys = tuple(item.dependency_id for item in self.native_sdk_dependencies)
         if sdk_keys != tuple(sorted(set(sdk_keys))):
             raise ValueError(
@@ -922,6 +974,10 @@ class GenerationRecipe:
         if self.native_sdk_dependencies:
             value["native_sdk_dependencies"] = [
                 item.to_dict() for item in self.native_sdk_dependencies
+            ]
+        if self.node_sdk_providers:
+            value["node_sdk_providers"] = [
+                item.to_dict() for item in self.node_sdk_providers
             ]
         if self.generated_test_coverage_authority is not None:
             value["generated_test_coverage"] = (
@@ -1300,6 +1356,30 @@ class GenerationRecipe:
                     "```json",
                     json.dumps(
                         [item.to_dict() for item in self.library_dependencies],
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                    "```",
+                ]
+            )
+        if self.node_sdk_providers:
+            sections.extend(
+                [
+                    "",
+                    "## Exact sealed Node SDK provider inputs",
+                    "",
+                    "Use only these public import mappings and declaration bytes.",
+                    "The records describe exact inputs; they grant no execution",
+                    "permission or ambient package resolution. Provider implementation",
+                    "and verifier answers are excluded from this generation context.",
+                    "```json",
+                    json.dumps(
+                        [
+                            item.to_dict()
+                            if include_locked_authority_documents
+                            else {"input_identity": item.identity.uri}
+                            for item in self.node_sdk_providers
+                        ],
                         sort_keys=True,
                         separators=(",", ":"),
                     ),

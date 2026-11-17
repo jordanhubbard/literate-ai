@@ -133,6 +133,15 @@ guards retire on every exit, and publication follows closing oracle revalidation
 and a final current-grant check. Returned data grants no subsequent admission.
 SDK recipe/cache integration and asynchronous lifecycle qualification remain open.
 
+An internal bound-invocation record now links that static plan to exact verified
+provider facts, public declaration closure, a new recipe and a freshly metered
+context/cache identity. Public-root TypeScript resolution determines the exposed
+declarations; private files inspected only by oracle cases remain excluded.
+The metadata has its own local context classification and journal/schema support.
+Existing source/cache/resume and remote paths refuse these DATA records until a
+live owner spans generation and publication; SDK cache rebinding cannot relabel an
+older recipe. Scheduler/build integration and public profile activation remain open.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records

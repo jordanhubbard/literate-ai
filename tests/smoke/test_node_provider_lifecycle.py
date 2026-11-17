@@ -145,7 +145,14 @@ class NodeProviderLifecycleTests(unittest.TestCase):
         (source / "source/counter").mkdir(parents=True)
         (source / "source/counter/api.js").write_text("exports.add=(a,b)=>a+b;\n")
         (source / "source/counter/api.d.ts").write_text(
-            "export declare function add(a:number,b:number):number;\n"
+            "import {Amount} from './types.js';\n"
+            "export declare function add(a:Amount,b:Amount):Amount;\n"
+        )
+        (source / "source/counter/types.d.ts").write_text(
+            "export type Amount = number;\n"
+        )
+        (source / "source/counter/unrelated.d.ts").write_text(
+            "export interface PrivateUnused {value:string}\n"
         )
         (source / "source/test.js").write_text(
             "const {add}=require('./counter/api.js');"
@@ -276,6 +283,75 @@ class NodeProviderLifecycleTests(unittest.TestCase):
             with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
                 escaped[0]()
             self.ports.require_library_provider_custody(scope)
+
+    def test_generation_data_contains_only_actual_public_declaration_closure(self):
+        escaped = []
+        # The independent oracle may inspect an unrelated private declaration.
+        # That does not make it part of the public API's generation context.
+        private_import = (
+            "\nimport type {PrivateUnused} from '../../node_modules/counter/_providers/"
+            + self.accepted.build.exports[0].component_revision.digest
+            + "/artifact/source/counter/unrelated.js';"
+            "const unused:PrivateUnused={value:'private'};\n"
+        ).encode()
+        for field in (
+            oracle_fixture.owner._SOURCE_FIELDS[0],
+            oracle_fixture.owner._SOURCE_FIELDS[2],
+        ):
+            ref = self.input.document["declaration_cases"][0][field]
+            path = self.input.root / ref["path"]
+            path.write_bytes(path.read_bytes() + private_import)
+            ref["identity"] = oracle_fixture._sha(path.read_bytes())
+        self.input.write_document()
+        self.oracle = load_node_library_acceptance(
+            self.input.path, self.revision.coordinate.name
+        )
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+
+            def consume(data, require_live):
+                require_live()
+                escaped.append(require_live)
+                self.assertEqual(data.artifact, scope.export)
+                self.assertEqual(data.acceptance, self.accepted.identity)
+                self.assertEqual(
+                    [path for path, _ in data.declarations],
+                    ["source/counter/api.d.ts", "source/counter/types.d.ts"],
+                )
+                serialized = str(data.to_dict())
+                for forbidden in (
+                    "exports.add=",
+                    "PrivateUnused",
+                    "expected_result",
+                    "runtime.cjs",
+                    "test.js",
+                ):
+                    self.assertNotIn(forbidden, serialized)
+                return data
+
+            data = self.ports.with_node_sdk_provider_generation_data(
+                scope,
+                revision=self.revision,
+                oracle=self.oracle,
+                compiler=self.compiler,
+                authorization=self.grant(scope),
+                workspace=self.root / "verify-data",
+                require_current=self.owner,
+                consume=consume,
+                environment=self.environment,
+                observe_process=self.processes.append,
+            )
+            self.assertEqual(len(self.processes), 9)
+            self.assertTrue(
+                any(
+                    b"unrelated.d.ts" in process.stdout
+                    for process in self.processes[:6]
+                )
+            )
+            self.assertEqual(data.compiler, self.compiler.identity)
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
+                escaped[0]()
 
     def test_missing_revoked_wrong_or_expired_grant_cannot_start_tools(self):
         with self.ports.accepted_library_provider(

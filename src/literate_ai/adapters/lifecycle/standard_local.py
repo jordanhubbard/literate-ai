@@ -6031,6 +6031,46 @@ class LocalStandardLifecyclePorts:
         finally:
             active = False
 
+    def with_node_sdk_provider_generation_data(
+        self, scope, *, consume, **verifier_inputs
+    ):
+        """Project original checks to public generation DATA inside live custody."""
+        from literate_ai.adapters.node_sdk_generation import (
+            node_sdk_provider_generation_data,
+        )
+        from literate_ai.adapters.node_sdk_tools import (
+            require_node_sdk_process_observer,
+        )
+
+        if not callable(consume):
+            raise TypeError("SDK generation consumer must be synchronous")
+        require_node_sdk_process_observer(consume)
+        compiler = verifier_inputs["compiler"]
+        request = self.library_provider_verifier_request(
+            scope,
+            revision=verifier_inputs["revision"],
+            oracle=verifier_inputs["oracle"],
+            compiler=compiler,
+        )
+
+        def project(checks, require_live):
+            require_live()
+            data = node_sdk_provider_generation_data(
+                scope,
+                checks,
+                compiler,
+                request,
+                environment=verifier_inputs["environment"],
+                require_current=require_live,
+                observe_process=verifier_inputs.get("observe_process"),
+            )
+            require_live()
+            return consume(data, require_live)
+
+        return self.with_verified_node_library_provider(
+            scope, consume=project, **verifier_inputs
+        )
+
     def admit_transferred_acceptance(
         self,
         *,

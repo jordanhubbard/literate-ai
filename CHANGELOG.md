@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Node SDK generation groundwork: bind exact verified provider facts and public
+  declaration closure into a new recipe and bounded context/cache identity while
+  preserving the static plan. Oracle-only private imports stay out of model
+  context. Existing source, cache/resume and remote routes refuse the data-only
+  invocation pending live generation admission; SDK source cannot be retagged
+  with a different provider recipe.
+
 - Node library verification: join genuine accepted provider custody to exact locked
   specifications, original oracle files and selected compiler/Node tools under a
   separate explicit execution grant. Controller-only runtimes cannot execute the

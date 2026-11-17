@@ -353,6 +353,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       cache lookup and through build admission. Asynchronous generation and later
       cache/build publication require fresh lifetime-aware admission. Existing
       generation remains interface-only for other profiles.
+      The internal versioned bound generation invocation now links the unchanged
+      static plan to exact verified provider inputs, public declaration closure,
+      a new recipe and freshly metered bounded request/cache identities. The
+      original verifier consumer delegates a separate public-root traversal to the
+      existing selected compiler. An actual oracle-positive private import is
+      observed in verification but excluded from generation metadata. This avoids
+      a second declaration resolver and preserves original verifier identities.
+      Metadata has an explicit local context classification with matching journal
+      visibility and public schemas. Existing local source/cache/resume/regenerate
+      and remote paths refuse the DATA-only preparation until live admission is
+      supplied, and SDK cache rebinding refuses a different recipe. These records
+      do not activate the public profile. All 55 selected macOS checks pass with
+      no skips across actual provider/verifier execution, bound invocation/cache
+      metadata, original Node verification, lifecycle, schemas and coding-agent
+      context/generation regressions; independent state/security review passes.
+      The next pre-source gate must retain live
+      ownership before cache selection, model reservation, repair and publication,
+      wait for exact direct provider acceptance, and carry the same binding through
+      current build admission.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

@@ -11,7 +11,7 @@
     "permittedAuthorityKind": {
       "enum": [
         "framework-envelope", "local-specification", "local-flavor", "local-skill",
-        "local-workflow", "local-routing-policy", "local-public-interface", "local-asset-metadata", "local-native-sdk-metadata",
+        "local-workflow", "local-routing-policy", "local-public-interface", "local-asset-metadata", "local-native-sdk-metadata", "local-node-sdk-provider-metadata",
         "direct-public-interface"
       ]
     },
