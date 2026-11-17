@@ -3,22 +3,15 @@
 import copy
 import os
 import shutil
-import tempfile
 import unittest
 from dataclasses import replace
-from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.adapters import retained_cargo_materialization_v2 as receiver
-from literate_ai.adapters.retained_cargo_files_v2 import read_retained_cargo_files_v2
-from literate_ai.adapters.retained_cargo_import_v2 import RetainedCargoCurrentInputsV2
-from literate_ai.adapters.retained_cargo_scratch_v2 import (
-    reserve_retained_cargo_scratch_v2,
+from tests.support.fixtures_retained_cargo_receiving_v2 import (
+    initialize_retained_cargo_receiving_v2_fixture,
+    receive_retained_cargo_fixture,
 )
-from literate_ai.adapters.retained_cargo_wrapper_v2 import (
-    retained_cargo_wrapper_context_v2,
-)
-from tests.support.fixtures_retained_cargo_scratch import scratch_review_fixture
 
 
 @unittest.skipUnless(
@@ -27,41 +20,10 @@ from tests.support.fixtures_retained_cargo_scratch import scratch_review_fixture
 )
 class RetainedCargoReceivingV2Tests(unittest.TestCase):
     def setUp(self):
-        self.base = Path(
-            self.enterContext(tempfile.TemporaryDirectory(prefix="rv2-"))
-        ).resolve()
-        self.reviewed, self.provider = self.enterContext(
-            scratch_review_fixture(self.base, with_provider=True)
-        )
-        common = self.reviewed.plan.common
-        workspace = self.reviewed.project.root / common.workspace_root
-        # Exact fixture after-manifests are authored before the live source owner.
-        (workspace / "Cargo.toml").write_bytes(b"workspace")
-        (workspace / "Cargo.lock").write_bytes(b"lock")
-        self.current = RetainedCargoCurrentInputsV2(
-            self.reviewed,
-            replace(
-                self.provider.inputs,
-                importer_project_id=self.reviewed.project.definition.project_id,
-                reviewed_binding_identity=self.reviewed.binding.identity,
-                configured_store_id=self.reviewed.binding.common.source_store_id,
-            ),
-        )
-        self.context = self.enterContext(
-            retained_cargo_wrapper_context_v2(self.reviewed)
-        )
-        self.scratch_manager = reserve_retained_cargo_scratch_v2(self.context)
-        self.scratch = self.enterContext(self.scratch_manager)
-        self.files = read_retained_cargo_files_v2(
-            self.reviewed, manifest_state="after", package_state="absent"
-        )
+        initialize_retained_cargo_receiving_v2_fixture(self)
 
     def receive(self, **changes):
-        args = {**self.provider.calls, "read_current": lambda: self.current}
-        args.update(changes)
-        return receiver.materialize_retained_cargo_archive_v2(
-            self.files, scratch=self.scratch, **args
-        )
+        return receive_retained_cargo_fixture(self, **changes)
 
     def test_real_archive_is_published_under_live_original_source_and_expires(self):
         materialized = self.receive()

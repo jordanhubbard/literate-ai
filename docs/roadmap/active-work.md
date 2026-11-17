@@ -24418,6 +24418,54 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Fixture correction verified:** Canonicalizing only the owned temporary root with `Path.resolve()` makes all eight actual Cargo capture/currentness controls run on their intended payloads. The complete combined focused gate selects57, passes54 and retains three native-Windows-only skips, with no failures and exit0 in15.959seconds. Production source and no-redirection admission remain byte-identical to the reviewed contributors; the first six-error fixture run remains retained. Complete combined qualification is still required.
 
+- **Integrated local baseline:** The native-adoption composition at
+  `8839ffc915604e72f13cfc19e8639807ffbb8059` passes its fresh complete local source
+  gate: 3,026 passes, 103 declared skips and no failures out of 3,129 selected
+  cases in 2,657.514s. Its actual default native-receiving fixture completes 59
+  full-input checks in 262.197s, compared with 16 subprocesses totaling 2.059s;
+  admission takes 359.566s. These are distinct observed scopes, not CPU use or a
+  release speedup. Native platform and installed composed-candidate obligations
+  remain open; this supersedes only the pending local combined source gate above.
+- **Parsing follow-up under this owner:** Reuse [PR439](https://github.com/jordanhubbard/literate-ai/pull/439)
+  commit `7ef2ad0b5ee71bf5cf02d86821dadd561e091d36` for isolated project/catalog
+  parse frames within each v2 Cargo input observation. Every fresh read and all 17
+  wrapper guards remain; each observation starts with empty parsing state and
+  restores ambient state on exit. Seven maintained controls pass in 97.860s on
+  the composition, including identity/guard equivalence, source mutation refusal,
+  exception cleanup and ended-scratch refusal. A [paired local measurement](../../verification/isolated-parse-composition-measurement.json)
+  runs two ABBA blocks on one real retained fixture. Disabling only the new parse
+  scopes gives four baseline observations with median 4.234s; enabled scopes give
+  median 3.760s. Each observation retains all 17 wrapper guards and the same
+  identity; parsing calls fall from 17 to one. This controlled original-body
+  comparison is not two released distributions or a full admission/release timing.
+  Shared receiving setup is subsequently extracted into `tests/support`, keeping
+  every original setup/receive operation and receiving-test assertion unchanged.
+  All 11 combined receiving/parsing controls pass in 143.219s. The timing record
+  retains its original fixture hashes; the three production files are unchanged,
+  and no post-extraction timing is claimed. Independent review and complete
+  candidate qualification remain pending.
+  This is one implementation step of CARGO-CUSTODY-PERF-001, not another release
+  gate or completion claim.
+- **Next composition:** Combine the published PR438 source
+  `56fb5310fe2b67fb1a00d6533d951a5197001888` in this same owner before the next full
+  qualification. Its bounded, access-local lexical cache reuses only path parsing,
+  with its storage charged against the existing graph metadata allowance. Retain
+  PR435's initial census, all filesystem and payload observations, the uncached
+  fallback and every closing custody check. Establish current composed identity,
+  operation counts, budget/refusal controls and independent review before claiming
+  an improvement. The contributor's large-tree timing is historical evidence,
+  not a measurement of this composition or its release critical path.
+- **Composed lexical control:** The 12 maintained lexical/custody controls pass
+  in 0.539s. A [current paired measurement](../../verification/lexical-composition-measurement.json)
+  captures one real 1,024-file, 64-directory corpus in two ABBA blocks. Median
+  capture time is 0.258s with only the lexical cache disabled and 0.222s enabled.
+  Separately counted path parses fall from 6,592 to 1,088; all native filesystem
+  call counts and 1,024 payload streams remain equal, as do semantic identity and
+  physical observations. Four samples per arm on a shared, non-isolated host do
+  not establish release or full-admission speedup. Windows retains its uncached
+  fallback. Independent composition review and full qualification remain pending.
+
+
 ### [ ] WINDOWS-JOB-FALLBACK-001 — Avoid redundant Windows tree fallback after successful Job termination
 
 - **Priority:** P1
