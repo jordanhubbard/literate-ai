@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -67,6 +68,7 @@ from literate_ai.adapters.generation_preparation import (
     LockedComponentModelSelectionAdapter,
     LockedComponentNodePreparationAdapter,
 )
+from literate_ai.adapters.lifecycle.commonjs_import import commonjs_import_driver_source
 from literate_ai.adapters.lifecycle.cpp_acceptance import cpp_compile_driver_source
 from literate_ai.adapters.lifecycle.standard_bazel import (
     StandardBazelLifecyclePorts,
@@ -702,8 +704,14 @@ finally:
 )
 
 
+_STANDARD_COMMONJS_IMPORT_DRIVER = _inline_python_driver(
+    commonjs_import_driver_source()
+)
+
+
 _STANDARD_LIBRARY_IMPORT_DRIVER = _inline_python_driver(
     """import base64
+import hashlib
 import importlib
 import json
 import pathlib
@@ -826,50 +834,11 @@ elif language == "python":
             getattr(module, symbol)
         observed.append(capability["capability"])
 elif language == "javascript":
-    script = '''const fs=require('fs'),path=require('path');
-const root=fs.realpathSync(process.argv[1]), surface=JSON.parse(process.argv[2]);
-const packageRoot=fs.realpathSync(path.join(root,'source',surface.package));
-const manifestPath=path.join(packageRoot,'package.json');
-const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));
-if (manifest.name!==surface.package || !manifest.exports ||
-    !['commonjs',undefined].includes(manifest.type))
-  throw Error('library manifest differs from locked import authority');
-const dependencyFields=['dependencies','devDependencies',
-                        'optionalDependencies','peerDependencies'];
-for (const field of dependencyFields)
-  if (manifest[field] && Object.keys(manifest[field]).length)
-    throw Error('dependency-free library manifest declares '+field);
-const seen=[];
-const expectedExports={};
-for (const capability of surface.capabilities) {
-  const prefix=surface.package+'/';
-  if (!capability.module.startsWith(prefix))
-    throw Error('library module escaped package authority');
-  const subpath='./'+capability.module.slice(prefix.length);
-  const targetSpec='./'+capability.module.slice(prefix.length)+'.js';
-  expectedExports[subpath]=targetSpec;
-  if (manifest.exports[subpath]!==targetSpec)
-    throw Error('library exports map differs for '+subpath);
-  const target=path.join(packageRoot,targetSpec);
-  const resolved=fs.realpathSync(require.resolve(target));
-  if (!(resolved===packageRoot || resolved.startsWith(packageRoot+path.sep)))
-    throw Error('library import escaped exact artifact');
-  const value=require(resolved);
-  for (const symbol of capability.symbols)
-    if (!(symbol in value)) throw Error('missing library symbol '+symbol);
-  seen.push(capability.capability);
-}
-const actualExportKeys=Object.keys(manifest.exports).sort();
-const expectedExportKeys=Object.keys(expectedExports).sort();
-if (JSON.stringify(actualExportKeys)!==JSON.stringify(expectedExportKeys))
-  throw Error('library exports map has undeclared entries');
-process.stdout.write(JSON.stringify({schema:'literate-ai/library-import-observation@1',capabilities:seen}));
-'''
-    completed = subprocess.run([*tool, "-e", script, str(export), surface_json],
-                               capture_output=True)
-    sys.stdout.buffer.write(completed.stdout)
-    sys.stderr.buffer.write(completed.stderr)
-    raise SystemExit(completed.returncode)
+    support = sys.argv[7]
+    support_digest = hashlib.sha256(support.encode("utf-8")).hexdigest()
+    if support_digest != "__COMMONJS_DRIVER_DIGEST__":
+        raise RuntimeError("library import driver support changed")
+    exec(support)
 elif language == "rust":
     document = tomllib.loads((export / manifest).read_text(encoding="utf-8"))
     package_name = document["package"]["name"]
@@ -909,7 +878,10 @@ else:
 if language != "javascript":
     print(json.dumps({"schema":"literate-ai/library-import-observation@1",
                       "capabilities":observed}, sort_keys=True, separators=(",",":")))
-"""
+""".replace(
+        "__COMMONJS_DRIVER_DIGEST__",
+        hashlib.sha256(_STANDARD_COMMONJS_IMPORT_DRIVER.encode("utf-8")).hexdigest(),
+    )
 )
 
 
@@ -1036,6 +1008,10 @@ def _encoded_library_import_surface(surface: LibraryImportSurface) -> str:
             for item in surface.capabilities
         ],
     }
+    if surface.declarations:
+        declared_surface = surface.to_dict()
+        verifier_surface["schema"] = declared_surface["schema"]
+        verifier_surface["declarations"] = declared_surface["declarations"]
     content = json.dumps(verifier_surface, separators=(",", ":")).encode("utf-8")
     encoded = base64.urlsafe_b64encode(zlib.compress(content, level=9)).decode("ascii")
     if len(encoded) > 4096:
@@ -2082,6 +2058,11 @@ def _command_contract(
             "{export_path}",
             manifest,
             "{artifact_root}",
+            *(
+                (_STANDARD_COMMONJS_IMPORT_DRIVER,)
+                if language.target == "javascript"
+                else ()
+            ),
         )
         if language.target == "python" and python_profile is None:
             # The legacy library path also needs isolated interpreter startup:

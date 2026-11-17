@@ -16,6 +16,22 @@ CommonJS JavaScript provider with declarations. Zero or multiple providers,
 mixed native toolchain graphs and dependency-bearing provider layouts remain
 outside this host configuration's supported boundary.
 
+A declaration-bearing `LibraryImportSurface@2` carries its complete runtime and
+TypeScript declaration records into the existing JavaScript library EXEC owner.
+Logical root and subpath exports resolve to their exact declared `.js` or `.cjs`
+files beneath `source/<package>/`; they do not fall back to convention-based
+filenames. Legacy surfaces retain their existing convention. This does not change
+the JavaScript Flavor's `source/main.js` TEST dispatcher requirement.
+
+The standalone driver and host share CommonJS metadata and declared-file
+membership checks. Before Node evaluation, the v2 driver checks bounded regular
+file membership and rejects links, foreign nodes and conflicting package type
+boundaries. Original immutable artifact custody remains independently required.
+The single JavaScript loader is embedded as fixed support code; its dispatcher
+checks that support argument's SHA256 before execution. Both arguments fit the
+existing 4,096-character ceiling. This introduces no provider-supplied code into
+the driver and supplies no execution authorization.
+
 The execution plan supplies expected facts, not execution authority. An equal
 replanned record can match those facts, but each operation retains its actual
 execution object and original owned invocation. One configuration binds once to

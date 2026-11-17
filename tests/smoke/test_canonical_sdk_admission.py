@@ -82,11 +82,21 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
     def test_real_canonical_provider_stages_and_owned_invocation(self):
         self.with_canonical_sdk()
 
+    def test_canonical_provider_exec_uses_declared_nested_cjs_runtime(self):
+        self.with_canonical_sdk(
+            provider_runtime="source/counter/runtime/add.cjs", public_host=True
+        )
+
     def test_canonical_sdk_build_cache_tests_and_execution(self):
         self._exercise_sdk_build()
 
     def test_public_host_build_package_and_acceptance(self):
         self._exercise_sdk_build(public_host=True)
+
+    def test_public_host_nested_provider_build_package_and_acceptance(self):
+        self._exercise_sdk_build(
+            public_host=True, provider_runtime="source/counter/runtime/add.cjs"
+        )
 
     def test_public_host_configures_canonical_invocation(self):
         self.with_canonical_sdk(public_host=True)
@@ -177,8 +187,13 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
     def test_public_final_clock_authority_write_withholds_result(self):
         self._assert_public_final_clock_drift("authority")
 
-    def _exercise_sdk_build(self, *, public_host=False):
+    def _exercise_sdk_build(
+        self, *, public_host=False, provider_runtime="source/counter/api.js"
+    ):
         def operation(invocation, owner, fixture):
+            print(
+                "Canonical SDK acceptance: provider admitted; prepare SDK", flush=True
+            )
             source = fixture.root / "sdk-source"
             (source / "src").mkdir(parents=True)
             (source / "source/tests").mkdir(parents=True)
@@ -225,10 +240,12 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             )
             index = ports.index(candidate.component_revision, candidate.tree_identity)
             plan = ports.finalize(intent, ports.authorize(intent, index))
+            print("Canonical SDK acceptance: SDK BUILD", flush=True)
             built = ports.build(plan, (provider,))
             owner()
             self.assertEqual(ports.build(plan, (provider,)), built)
             self.assertEqual(ports.build_cache_hits, 1)
+            print("Canonical SDK acceptance: SDK cache, TEST and EXEC", flush=True)
             ports.test(plan, built.exports)
             ports.execute(plan, built.exports)
             artifact = ports.artifact_path(built.exports[0]).parent
@@ -297,6 +314,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             )
             # Packaging binds original BUILD custody, not this acceleration cache.
             ports._node_sdk_compiled_plans.clear()
+            print("Canonical SDK acceptance: PACKAGE", flush=True)
             with mock.patch(
                 "literate_ai.adapters.lifecycle.standard_local.shutil.copytree",
                 side_effect=AssertionError(
@@ -358,6 +376,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 "node-sdk-loadability",
                 ports.project_execution_stdout[package_result.identity.uri],
             )
+            print("Canonical SDK acceptance: independent packaged root", flush=True)
             self._accept_sdk_project(
                 fixture,
                 invocation,
@@ -375,6 +394,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             verifier_lifetime=timedelta(minutes=30),
             public_host=public_host,
             root_acceptance=public_host,
+            provider_runtime=provider_runtime,
         )
 
     def _accept_sdk_project(
@@ -722,10 +742,13 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         verifier_lifetime=timedelta(minutes=5),
         public_host=False,
         root_acceptance=False,
+        provider_runtime="source/counter/api.js",
     ):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
-            _, snapshot, execution = with_provider(root / "authority")
+            _, snapshot, execution = with_provider(
+                root / "authority", provider_runtime=provider_runtime
+            )
             environment = dict(os.environ)
             environment["LITAI_TYPESCRIPT_SDK"] = environment["LITERATE_TYPESCRIPT_SDK"]
             closure = project_locked_standard_toolchain_closure(
@@ -882,9 +905,29 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             source = root / "provider-source"
             (source / "source/counter").mkdir(parents=True)
             (source / "source/tests").mkdir()
-            (source / "source/counter/api.js").write_text("exports.add=(a,b)=>a+b;\n")
+            declared_runtime = provider_contract.library_import_surface.declarations[
+                0
+            ].runtime
+            runtime_path = source / declared_runtime
+            runtime_path.parent.mkdir(parents=True, exist_ok=True)
+            runtime_path.write_text("exports.add=(a,b)=>a+b;\n")
+            if declared_runtime != "source/counter/api.js":
+                (source / "source/counter/api.js").write_text(
+                    "throw Error('undeclared conventional runtime evaluated');\n"
+                )
+            package_relative = runtime_path.relative_to(
+                source / "source/counter"
+            ).as_posix()
             (source / "source/counter/package.json").write_text(
-                '{"name":"counter","type":"commonjs","exports":{"./api":"./api.js"}}\n'
+                json.dumps(
+                    {
+                        "name": "counter",
+                        "type": "commonjs",
+                        "exports": {"./api": "./" + package_relative},
+                    },
+                    separators=(",", ":"),
+                )
+                + "\n"
             )
             (source / "source/counter/api.d.ts").write_text(
                 "export declare function add(a:number,b:number):number;\n"
@@ -893,7 +936,9 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 "if(process.argv[2]==='--litai-test')require('./tests/litai_test.js');\n"
             )
             (source / "source/tests/litai_test.js").write_text(
-                "const {add}=require('../counter/api.js');"
+                "const {add}=require("
+                + json.dumps("../counter/" + package_relative)
+                + ");"
                 "for(const [a,b,n] of [[1,2,3],[0,0,0],[-1,1,0]])"
                 "if(add(a,b)!==n)throw Error('bad sum');"
                 "console.log(JSON.stringify({schema:'literate-ai/generated-test-results@1',"

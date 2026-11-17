@@ -693,6 +693,41 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       retains its original source scope, separate from this closing-boundary proof.
       Independent state/security review finds no remaining blocker for this
       finite outer closing repair.
+      Declared provider runtime layouts reproduce an actual producer EXEC failure
+      in 78.167 seconds: BUILD and TEST pass for logical counter/api mapped to
+      source/counter/runtime/add.cjs, then the library driver rejects its correct
+      manifest because it infers ./api.js. The encoder also omitted the v2 schema
+      and declaration facts. The correction carries complete typed v2 facts into
+      the same import owner, chooses declared root/subpath targets without
+      convention fallback, and shares CommonJS membership/metadata policy between
+      the host and standalone driver. Original artifact custody remains required.
+      An initial combined-driver candidate correctly hit the existing 4,096-char
+      command-argument ceiling; its failed native and partial regression outcomes
+      remain separate. The corrected dispatcher and fixed JavaScript support code
+      fit that same ceiling, and the dispatcher checks the support SHA256 before
+      executing it. Four direct checks pass, including the legacy loader, aliases,
+      decoy convention path, missing/wrong/extra exports and files, conflicting ESM
+      boundaries, oversized metadata, links and support substitution refusal.
+      The Standard Make gate selects 71 cases: 63 pass and eight retain
+      prerequisite skips (14.742 seconds). The SDK Make gate selects 168 cases:
+      107 pass and 61 retain prerequisite skips (106.094 seconds). Actual public
+      host declared-path and default canonical provider/owned-scope cases both
+      pass in 261.802 seconds. The full authored public-host nested-provider
+      SDK passes in 979.867 seconds: actual BUILD/cache/TEST/EXEC/PACKAGE,
+      packaged TEST/EXEC and original relocated root acceptance with six
+      TypeScript child checks and both runtime formats. A conventional api.js
+      decoy throws if evaluated. Product source remains byte-identical throughout
+      qualification; the canonical test receives formatting only afterward, with
+      unchanged Python AST. This qualifies authored owned-port operations, not
+      current-source runtime orchestration, live model generation, durable cache
+      recovery or installed qualification. Independent source/security review
+      confirms the source and final evidence with no remaining reviewed blocker.
+      The original repository lifecycle-driver pin is still stale across the
+      accumulated SDK contribution (64 tracked TCB paths since its last pin);
+      the current scoped review does not authorize repinning that whole closure.
+      Preserve this refusal as an open integration/activation gate. Documentation
+      authority is renewed separately; no default policy or installed activation
+      follows from this source-only checkpoint.
       Provider count and independent execution grants remain unchanged.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately

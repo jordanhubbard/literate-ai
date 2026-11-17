@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Honor exact declared CommonJS runtime paths in JavaScript library EXEC,
+  including nested `.cjs` files and root/subpath aliases. Preserve complete v2
+  declaration facts, reuse CommonJS metadata and membership checks, and pin fixed
+  driver support by SHA256 within the existing command argument limit. Legacy
+  convention-based surfaces and independent execution grants remain unchanged.
+
 - Close public SDK host bindings and original locked-authority witnesses before
   returning owned operation results. Native regressions reproduced late registry
   replacement and same-byte authority writes escaping the lower operation.

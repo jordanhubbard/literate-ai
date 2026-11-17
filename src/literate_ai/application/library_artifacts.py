@@ -14,6 +14,8 @@ from literate_ai.contracts.executable_components.commands import (
 )
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
 
+COMMONJS_PACKAGE_METADATA_MAX_BYTES = 65536
+
 
 def javascript_module_paths(
     surface: LibraryImportSurface, module: str
@@ -29,30 +31,39 @@ def javascript_module_paths(
     return "source/" + module + ".js", None
 
 
+def require_commonjs_package_boundary(content: bytes) -> None:
+    """One JSON-only CommonJS boundary policy, also embedded in native drivers."""
+    if len(content) > COMMONJS_PACKAGE_METADATA_MAX_BYTES:
+        raise ValueError("CommonJS package boundary exceeds its metadata bound")
+    metadata = json.loads(content)
+    if not isinstance(metadata, dict) or metadata.get("type", "commonjs") != "commonjs":
+        raise ValueError(
+            "declared CommonJS provider has a conflicting package boundary"
+        )
+
+
+def require_commonjs_module_files(modules, files) -> None:
+    """Check declared file membership, not content, execution or admission."""
+    for runtime, declaration in modules:
+        if runtime not in files or declaration not in files:
+            raise ValueError(
+                "JavaScript provider runtime or declaration is absent from sealed bytes"
+            )
+
+
 def require_declared_commonjs_files(
     surface: LibraryImportSurface, files: Mapping[str, bytes]
 ) -> None:
     """Require the explicit format boundary before any consumer can load @2."""
     if not surface.declarations:
         return
-    for declared in surface.declarations:
-        if declared.runtime not in files or declared.declaration not in files:
-            raise ValueError(
-                "JavaScript provider runtime or declaration is absent from sealed bytes"
-            )
+    require_commonjs_module_files(
+        ((row.runtime, row.declaration) for row in surface.declarations), files
+    )
     for path, content in files.items():
         if PurePosixPath(path).name != "package.json":
             continue
-        if len(content) > 65536:
-            raise ValueError("CommonJS package boundary exceeds its metadata bound")
-        metadata = json.loads(content)
-        if (
-            not isinstance(metadata, dict)
-            or metadata.get("type", "commonjs") != "commonjs"
-        ):
-            raise ValueError(
-                "declared CommonJS provider has a conflicting package boundary"
-            )
+        require_commonjs_package_boundary(content)
 
 
 def project_library_import_surface(

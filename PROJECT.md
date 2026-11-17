@@ -223,8 +223,19 @@ or clock can reopen that closing boundary. Late registry replacement is preserve
 and refused rather than restored; a caller's later runtime guard cannot conceal
 an already returned result.
 
+JavaScript library EXEC now retains complete v2 declaration authority and uses
+exact declared runtime paths for root/subpath exports, including nested `.cjs`
+files. Host and standalone driver share bounded CommonJS metadata and declared
+file-membership policy. Fixed driver support is checked by SHA256 and fits the
+original argument limit; immutable artifact custody and independent grants remain
+required. Native public-host provider admission and the default canonical control
+both pass. The complete authored public-host nested-provider SDK passes in
+979.867 seconds, including actual build/cache/test/execute/package, packaged tests
+and execution, and the original six-TypeScript/two-runtime root checker. Current
+source orchestration, ordinary model output and installed qualification remain
+separate from this owned-port proof.
+
 Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
-arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,
 packed SDK output publication, supported native platforms and fresh noneditable
 installed qualification. Legacy single-harness acceptance refuses the stronger

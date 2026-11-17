@@ -23,7 +23,14 @@ FIXTURE_LEGAL_TEXT = (
 )
 
 
-def with_provider(root, *, declared=True, build_system=None, corrupt_profile=False):
+def with_provider(
+    root,
+    *,
+    declared=True,
+    build_system=None,
+    corrupt_profile=False,
+    provider_runtime="source/counter/api.js",
+):
     def configure(component, flavors):
         source = component / "component.md"
         value, body = parse_authoring_markdown(source.read_bytes(), source=str(source))
@@ -105,7 +112,7 @@ def with_provider(root, *, declared=True, build_system=None, corrupt_profile=Fal
                         {
                             "node_module": CommonJSModuleDeclaration(
                                 "counter/api",
-                                "source/counter/api.js",
+                                provider_runtime,
                                 "source/counter/api.d.ts",
                             ).to_dict()
                         }
