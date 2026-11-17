@@ -26,6 +26,9 @@ from literate_ai.application.source_generation_scheduling import (
 from literate_ai.application.standard_lifecycle_ports import (
     AdmittedBuildIntentDispatcher,
 )
+from literate_ai.application.standard_node_sdk_admission import (
+    NodeSDKLifecycleAdmission,
+)
 from literate_ai.application.standard_project_lifecycle import (
     AcceptedSourceCachePublisher,
     BuildAuthorizer,
@@ -251,6 +254,7 @@ class StandardProjectApplicationService:
         | None = None,
         resume_candidates: Mapping[str, StandardNodeAcceptedCandidate] | None = None,
         max_parallelism: int = 1,
+        skip_node_sdk_cache_lookup: bool = False,
     ) -> StandardProjectLifecycleResult:
         if not isinstance(prepared, PreparedExecutableProject):
             raise TypeError("prepared must be a PreparedExecutableProject")
@@ -263,6 +267,7 @@ class StandardProjectApplicationService:
             source_generation_resume_candidates=source_generation_resume_candidates,
             resume_candidates=resume_candidates,
             max_parallelism=max_parallelism,
+            skip_node_sdk_cache_lookup=skip_node_sdk_cache_lookup,
         )
 
     @staticmethod
@@ -321,6 +326,8 @@ def assemble_standard_project_application_service(
     checkpoint_recorder: StandardLifecycleCheckpointRecorder | None = None,
     context_evidence_recorder: StandardContextEvidenceRecorder | None = None,
     candidate_repair_port: StandardCandidateRepairPort | None = None,
+    node_sdk_admissions: Mapping[str, NodeSDKLifecycleAdmission] | None = None,
+    node_sdk_source_lookup: Callable | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> StandardProjectApplicationService:
     """Assemble the public Standard service without a CLI-private dependency."""
@@ -353,6 +360,8 @@ def assemble_standard_project_application_service(
             checkpoint_recorder=checkpoint_recorder,
             context_evidence_recorder=context_evidence_recorder,
             candidate_repair_port=candidate_repair_port,
+            node_sdk_admissions=node_sdk_admissions,
+            node_sdk_source_lookup=node_sdk_source_lookup,
             clock=clock,
         )
     )

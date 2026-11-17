@@ -136,6 +136,7 @@ from literate_ai.application.source_generation_scheduling import (
     ComponentSourceGenerationRunError,
     ComponentSourceGenerationRunner,
 )
+from literate_ai.application.standard_node_sdk_admission import is_node_sdk
 from literate_ai.application.standard_project_lifecycle import (
     AcceptedSourceCachePublisher,
     GenerationIndexer,
@@ -3361,7 +3362,7 @@ class FilesystemStandardProjectRuntime:
                 selection_preflight(tuple(prepared.nodes_by_revision.values()))
             regenerate = {item.uri for item in request.invalidation.regenerate}
             for uri, node in prepared.nodes_by_revision.items():
-                if uri in cache_memberships or uri in regenerate:
+                if uri in cache_memberships or uri in regenerate or is_node_sdk(node):
                     continue
                 restored = self.source_cache_restorer.restore_prepared(
                     request.planned.execution_plan,
@@ -3431,6 +3432,7 @@ class FilesystemStandardProjectRuntime:
                     uri in cache_memberships
                     or uri in source_resumes
                     or uri in regenerate
+                    or is_node_sdk(node)
                 ):
                     continue
                 restored = self.checkpoint_store.restore_prepared(
@@ -3456,6 +3458,7 @@ class FilesystemStandardProjectRuntime:
                 invalidation=request.invalidation,
                 source_cache_memberships=cache_memberships or None,
                 source_generation_resume_candidates=source_resumes,
+                skip_node_sdk_cache_lookup=request.fresh_source,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
             )
@@ -3465,6 +3468,7 @@ class FilesystemStandardProjectRuntime:
                 component_lock=snapshot.authority.lock,
                 invalidation=request.invalidation,
                 source_cache_memberships=cache_memberships or None,
+                skip_node_sdk_cache_lookup=request.fresh_source,
                 resume_candidates=request.resume_candidates,
                 max_parallelism=request.max_parallelism,
             )
@@ -3863,6 +3867,8 @@ def compose_filesystem_standard_source_cache(
         checkpoint_recorder=runtime.checkpoint_store,
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=runtime.application.lifecycle.candidate_repair_port,
+        node_sdk_admissions=runtime.application.lifecycle.node_sdk_admissions,
+        node_sdk_source_lookup=restorer.restore_prepared,
         clock=runtime.application.lifecycle.clock,
     )
     return replace(
@@ -3898,6 +3904,8 @@ def compose_filesystem_standard_lifecycle_checkpoints(
         checkpoint_recorder=store,
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=lifecycle.candidate_repair_port,
+        node_sdk_admissions=lifecycle.node_sdk_admissions,
+        node_sdk_source_lookup=lifecycle.node_sdk_source_lookup,
         clock=lifecycle.clock,
     )
     return replace(runtime, application=application, checkpoint_store=store)

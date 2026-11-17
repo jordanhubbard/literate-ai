@@ -412,9 +412,46 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       existing lifecycle regressions; no skips. Independent state/security review
       passes. Consumer plans in this selection remain inert DATA, so these checks
       do not qualify generated SDK output or an installed lifecycle.
-      Next: wire configured local SDK scheduling through this operation owner,
-      waiting for exact direct provider acceptance before source/cache/model
-      selection, and retain the same binding through build and publication.
+      Configured local SDK scheduling now uses this operation owner, waiting for
+      exact direct provider acceptance before source/cache/model selection and
+      retaining the same binding through build and publication. The explicit
+      trusted-host port selects only local SDK nodes; default/remote refusal and
+      rejection of SDK checkpoint/whole-node recovery remain. The existing guarded
+      node/repair driver runs inside that port, while ordinary nodes retain phased
+      scheduling. Post-root publication re-enters the original configured port
+      with the exact expected invocation. Regression fixtures cover provider
+      ordering, owner loss, cache/recipe drift, repair, stage reservation and
+      publication failure; deterministic consumer fixtures are not native
+      generated/packed/installed SDK qualification.
+      Review also requires original ownership at the real filesystem cache commit
+      after blocking entry construction/CAS copies, not only around the publisher
+      call. Capture the existing SDK scope and carry its guard to immutable link/
+      membership publication. Preserve any committed evidence if the closing
+      acknowledgment is withheld; never infer absence or retry an uncertain write.
+      Runtime composition must preserve explicit admission ports and defer SDK
+      cache restoration until the recipe is bound inside original provider custody;
+      skip unsupported SDK checkpoint restoration rather than reading it early.
+      These scheduler/build/publication joins are now implemented for explicitly
+      configured local admission. Runtime recompositions retain selected ports,
+      SDK cache restoration runs inside the bound invocation and fresh-source
+      requests bypass it. Existing repair authority retains the original recipe/
+      manifest with changed request and fresh workspace. A real-repair regression
+      exposed stale cache-input markers suppressing publication of a repaired head;
+      local result handling now derives reuse from the final winning generation.
+      The nine-module selection passed all 51 checks, including genuine accepted
+      provider custody and real publisher owner loss during entry construction,
+      CAS copies, pre-link staging and post-link cleanup. Only the post-link case
+      retains a discoverable membership with its acknowledgment withheld. After
+      the cache-repair correction, 21 focused scheduling/repair checks pass. These
+      are deterministic consumer fixtures and an actual-provider integration seam,
+      not generated/packed SDK or native/installed qualification.
+      Independent state/security review passes for this internal integration.
+      Next: wire the opt-in TypeScript/package-node-sdk Flavor, selected compiler,
+      current verifier grants and actual shared SDK builder into public locked
+      preparation/runtime projection. Lift the single-provider bound only with
+      actual two-provider closing-cut fixtures, then run ordinary generated SDK
+      and packed/relocated CJS/ESM/subpath/type acceptance. Do not activate defaults
+      or adopt the child SDK before that complete qualification.
       Multi-provider support, default/public profile activation, remote/recovery
       support and complete source-cache lifecycle qualification remain open.
       Bind exact provider revision,

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Node SDK internal integration: explicitly configured local SDK nodes wait for
+  provider acceptance and retain original ownership through source/cache selection,
+  stage reservations, current build inputs and bounded repair. Root cache
+  publication revalidates the original invocation, and filesystem membership links
+  check ownership after staging. Late loss retains committed evidence with no
+  acknowledgment. Repaired cached source publishes its new winning membership.
+  Default/public SDK profile activation and native/installed qualification remain
+  open; remote and checkpoint recovery remain refused.
+
 - Node SDK groundwork: add an explicit internal synchronous operation owner for
   one genuinely accepted provider under fresh verifier grants. Renewal preserves
   the exact original invocation and consumer command contract. Closing checks

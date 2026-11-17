@@ -11,6 +11,7 @@ import stat
 import tempfile
 import unicodedata
 from collections.abc import Iterable, Mapping, Sequence
+from contextlib import nullcontext
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Protocol
@@ -19,6 +20,10 @@ from literate_ai.adapters.dependencies import (
     CycloneDxBomError,
     validate_cyclonedx_bom,
     validate_resolved_cyclonedx_bom,
+)
+from literate_ai.adapters.process_liveness import (
+    capture_process_liveness,
+    process_liveness,
 )
 from literate_ai.contracts import (
     AcceptedSourceCacheEntry,
@@ -229,8 +234,31 @@ class FileSystemSourceCache:
         *,
         caller_cas: FileSystemCAS,
         intelligence_attachments: Sequence[SourceIntelligenceAttachment] = (),
+        require_current=None,
     ) -> ContentIdentity:
         """Verify a caller CAS, copy immutable objects, then publish membership last."""
+
+        with (
+            process_liveness(require_current)
+            if require_current is not None
+            else nullcontext()
+        ):
+            return self._publish_current(
+                entry,
+                caller_cas=caller_cas,
+                intelligence_attachments=intelligence_attachments,
+                require_current=capture_process_liveness(),
+            )
+
+    def _publish_current(
+        self,
+        entry,
+        *,
+        caller_cas,
+        intelligence_attachments,
+        require_current,
+    ):
+        require_current()
 
         if type(entry) not in {
             AcceptedSourceCacheEntry,
@@ -323,10 +351,15 @@ class FileSystemSourceCache:
                 self.cas,
                 source_tree_identity=_entry_source_tree_identity(entry),
             )
-        self._publish_entry_manifest(entry)
+        require_current()
+        self._publish_entry_manifest(entry, require_current=require_current)
         for attachment in sorted(attachments, key=lambda item: item.identity.uri):
             self._publish_intelligence_attachment(attachment)
-        self._publish_membership(entry)
+        require_current()
+        self._publish_membership(entry, require_current=require_current)
+        # A late loss can follow the durable link. Keep immutable evidence and
+        # withhold acknowledgment; callers must not infer no write or replay it.
+        require_current()
         return entry.identity
 
     def intelligence_attachments(
@@ -605,7 +638,10 @@ class FileSystemSourceCache:
         return entry
 
     def _publish_entry_manifest(
-        self, entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry
+        self,
+        entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry,
+        *,
+        require_current=None,
     ) -> None:
         content = canonical_json_bytes(entry.to_dict())
         if hashlib.sha256(content).hexdigest() != entry.identity.digest:
@@ -614,11 +650,16 @@ class FileSystemSourceCache:
                 "cache entry serialization changed its identity",
             )
         self._publish_immutable_bytes(
-            self.entries / f"{entry.identity.digest}.json", content
+            self.entries / f"{entry.identity.digest}.json",
+            content,
+            require_current=require_current,
         )
 
     def _publish_membership(
-        self, entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry
+        self,
+        entry: AcceptedSourceCacheEntry | StandardSourceAdmissionCacheEntry,
+        *,
+        require_current=None,
     ) -> None:
         key = _entry_cache_key(entry)
         lookup_identity = key.accepted_source_lookup_identity
@@ -638,10 +679,15 @@ class FileSystemSourceCache:
         self._publish_immutable_bytes(
             key_directory / f"{entry.identity.digest}.json",
             canonical_json_bytes(document),
+            require_current=require_current,
         )
 
     def retire_other_memberships(
-        self, key: SourceDerivationCacheKey, *, keep: ContentIdentity
+        self,
+        key: SourceDerivationCacheKey,
+        *,
+        keep: ContentIdentity,
+        require_current=None,
     ) -> None:
         """Prune stale exact-key membership pointers after a deliberate override.
 
@@ -656,6 +702,20 @@ class FileSystemSourceCache:
         establish, without mutating or discarding any immutable accepted-source
         content.
         """
+
+        with (
+            process_liveness(require_current)
+            if require_current is not None
+            else nullcontext()
+        ):
+            return self._retire_current(
+                key,
+                keep=keep,
+                require_current=capture_process_liveness(),
+            )
+
+    def _retire_current(self, key, *, keep, require_current):
+        require_current()
 
         if not isinstance(key, SourceDerivationCacheKey):
             raise TypeError("membership retirement requires a SourceDerivationCacheKey")
@@ -720,11 +780,14 @@ class FileSystemSourceCache:
                 canonical_json_bytes(
                     {**document, "schema": _RETIRED_MEMBERSHIP_SCHEMA}
                 ),
+                require_current=require_current,
             )
+            require_current()
             membership.unlink()
             retired = True
         if retired:
             _fsync_directory(key_directory)
+        require_current()
 
     def _intelligence_attachment(self, digest: str) -> SourceIntelligenceAttachment:
         _require_hex_digest(digest, label="intelligence attachment")
@@ -969,7 +1032,13 @@ class FileSystemSourceCache:
                 f"cached {label} evidence is not one canonical versioned object",
             )
 
-    def _publish_immutable_bytes(self, destination: Path, content: bytes) -> None:
+    def _publish_immutable_bytes(
+        self, destination: Path, content: bytes, *, require_current=None
+    ) -> None:
+        guard = (
+            capture_process_liveness() if require_current is None else require_current
+        )
+        guard()
         if not self.writable:
             raise SourceCacheError(
                 "source-cache.write-disabled",
@@ -993,6 +1062,7 @@ class FileSystemSourceCache:
                     "source-cache.immutable-collision",
                     "immutable cache path contains different bytes",
                 )
+            guard()
             return
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=".publish-", dir=self.staging
@@ -1004,6 +1074,7 @@ class FileSystemSourceCache:
                 output.flush()
                 os.fsync(output.fileno())
             os.chmod(temporary, 0o600)
+            guard()
             try:
                 os.link(
                     _native_filesystem_path(temporary),
@@ -1026,6 +1097,7 @@ class FileSystemSourceCache:
                 _fsync_directory(destination.parent)
         finally:
             temporary.unlink(missing_ok=True)
+        guard()
 
     @property
     def _io_root(self) -> Path:
@@ -1122,6 +1194,7 @@ class LegacyFileSystemV1SourceCache(FileSystemSourceCache):
         *,
         caller_cas: FileSystemCAS,
         intelligence_attachments: Sequence[SourceIntelligenceAttachment] = (),
+        require_current=None,
     ) -> ContentIdentity:
         raise SourceCacheError(
             "source-cache.legacy-write-disabled",
@@ -1447,6 +1520,7 @@ class SourceCacheResolver:
         *,
         caller_cas: FileSystemCAS,
         intelligence_attachments: Sequence[SourceIntelligenceAttachment] = (),
+        require_current=None,
     ) -> ContentIdentity:
         if not self.configuration.mode.can_write:
             raise SourceCacheError(
@@ -1459,10 +1533,15 @@ class SourceCacheResolver:
             entry,
             caller_cas=caller_cas,
             intelligence_attachments=intelligence_attachments,
+            **({} if require_current is None else {"require_current": require_current}),
         )
 
     def retire_other_memberships(
-        self, key: SourceDerivationCacheKey, *, keep: ContentIdentity
+        self,
+        key: SourceDerivationCacheKey,
+        *,
+        keep: ContentIdentity,
+        require_current=None,
     ) -> None:
         if not self.configuration.mode.can_write:
             raise SourceCacheError(
@@ -1471,7 +1550,11 @@ class SourceCacheResolver:
             )
         target_id = self.configuration.write_target_id
         assert target_id is not None
-        self.stores[target_id].retire_other_memberships(key, keep=keep)
+        self.stores[target_id].retire_other_memberships(
+            key,
+            keep=keep,
+            **({} if require_current is None else {"require_current": require_current}),
+        )
 
 
 class SourceCacheMaterializer:

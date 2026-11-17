@@ -156,8 +156,20 @@ identity, and fresh revalidation must match the original invocation exactly.
 Original pinned-file stamps close ownership after blocking oracle reads. The
 existing complete-node repair driver can retain actual stage reservations under
 that owner and terminates on ownership loss. These local fixtures use real
-provider custody and inert consumer DATA; multi-provider joins, live scheduler
-integration, public profile activation and installed qualification remain open.
+provider custody and inert consumer DATA; multi-provider joins, public profile
+activation and installed qualification remain open.
+
+Explicit local SDK admissions now join the actual scheduler: direct providers
+must pass acceptance before bound source/cache selection or model reservation.
+The same owned recipe reaches build-intent validation and bounded repairs. SDK
+cache restoration is deferred into that scope, and cache publication after root
+acceptance reopens the exact original binding. The real filesystem publication
+fences original ownership at the membership link; a late loss retains durable
+evidence and withholds acknowledgment. A fresh repair of cached source publishes
+its winning head. Deterministic scheduling/cache/repair fixtures and a real
+accepted-provider seam pass, without qualifying generated SDK source, public
+Flavors or installed/native lifecycle execution. Remote/checkpoint SDK recovery
+remains refused.
 
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The

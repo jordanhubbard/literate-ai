@@ -171,6 +171,37 @@ class LocalNodeSDKGenerationAdmission:
             raise TypeError("SDK policy owner must return None synchronously")
         self._require_config_bytes()
 
+    def require_build_intent(
+        self,
+        invocation,
+        execution_plan,
+        prepared,
+        candidate,
+        providers,
+        packages,
+        intent,
+    ):
+        """Match actual local build inputs to the original consumer command policy.
+
+        This checks DATA/current command selection; the lifecycle still obtains
+        its own stage reservation and build execution authorization afterward.
+        """
+        self._require_config()
+        if (
+            type(invocation) is not BoundNodeSDKGenerationInvocation
+            or prepared.recipe.identity != invocation.prepared.recipe.identity
+            or candidate.recipe_identity.uri != prepared.recipe.identity
+            or dict(prepared.recipe.resolved_inputs).get("node_sdk_command_contract")
+            != self.consumer.identity.uri
+        ):
+            raise NodeSDKAdmissionError("SDK build differs from its bound recipe")
+        inputs = self.ports.build_intent_inputs(
+            execution_plan, prepared.plan, candidate, providers, packages
+        )
+        if inputs.contract is not self.consumer or intent != inputs.create():
+            raise NodeSDKAdmissionError("SDK build differs from current command inputs")
+        self._require_config()
+
     def with_invocation(
         self, execution_plan, prepared, receipts, *, consume, expected=None
     ):

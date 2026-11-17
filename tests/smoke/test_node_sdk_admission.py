@@ -8,7 +8,7 @@ import os
 import unittest
 from concurrent.futures import Future
 from contextlib import contextmanager
-from dataclasses import replace
+from dataclasses import fields, replace
 from datetime import timedelta
 from unittest import mock
 
@@ -29,9 +29,16 @@ from literate_ai.application.component_generation_preparation import (
     ComponentGenerationWorkspaceDescriptor,
     PreparedComponentGenerationNode,
 )
+from literate_ai.application.standard_node_sdk_admission import require_node_sdk_source
+from literate_ai.application.standard_project_lifecycle import (
+    StandardProjectLifecycleService,
+    _LifecycleStep,
+)
 from literate_ai.contracts import (
+    GeneratedSourceCandidate,
     LibraryCapabilityImport,
     LibraryImportSurface,
+    StandardLifecycleStage,
     canonical_identity,
 )
 from literate_ai.contracts.capabilities import DependencyKind
@@ -417,6 +424,112 @@ class NodeSDKAdmissionTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.invoke(self.admission(), consume)
         self.assertEqual(self.grants, [])
+
+    def test_real_provider_joins_source_build_and_fresh_publication_scopes(self):
+        # Application seam over genuine provider custody. The consumer candidate
+        # remains inert typed DATA, not generated or built SDK output.
+        service = object.__new__(StandardProjectLifecycleService)
+        admission = self.admission()
+        candidate = None
+
+        def steps(execution, plan, prepared, *_):
+            nonlocal candidate
+            self.assertTrue(require_node_sdk_source(execution, prepared))
+            candidate = GeneratedSourceCandidate(
+                **{
+                    field.name: canonical_identity("inert consumer " + field.name)
+                    for field in fields(GeneratedSourceCandidate)
+                }
+            )
+            candidate = replace(
+                candidate,
+                component_revision=plan.component_revision,
+                component_generation_plan_identity=plan.identity,
+                recipe_identity=ContentIdentity.parse_uri(prepared.recipe.identity),
+            )
+            providers = (self.fixture.accepted.build.exports[0],)
+            intent = self.fixture.ports.build_intent_inputs(
+                execution,
+                plan,
+                candidate,
+                providers,
+                (),
+            ).create()
+            admission.require_build_intent(
+                current[0],
+                execution,
+                prepared,
+                candidate,
+                providers,
+                (),
+                intent,
+            )
+            with self.assertRaisesRegex(
+                NodeSDKAdmissionError, "current command inputs"
+            ):
+                admission.require_build_intent(
+                    current[0],
+                    execution,
+                    prepared,
+                    candidate,
+                    providers,
+                    (),
+                    replace(
+                        intent,
+                        build_request=replace(
+                            intent.build_request,
+                            toolchain_digest=canonical_identity("foreign tool").uri,
+                        ),
+                    ),
+                )
+            yield _LifecycleStep(
+                StandardLifecycleStage.SOURCE_GENERATION, lambda: "inert"
+            )
+            return "consumed"
+
+        # Capture the original callback record while retaining the real owner's
+        # full verification; no grant/provider/check output is mocked.
+        original = admission.with_invocation
+        current = []
+
+        def with_invocation(*args, consume, **kwargs):
+            def joined(invocation, guard):
+                current[:] = [invocation]
+                return consume(invocation, guard)
+
+            return original(*args, consume=joined, **kwargs)
+
+        admission.with_invocation = with_invocation
+        service._run_complete_node_steps = steps
+        invocation, result, membership = service._run_node_sdk(
+            admission,
+            (self.fixture.accepted,),
+            self.execution,
+            self.prepared.plan,
+            self.prepared,
+            None,
+            None,
+            None,
+            (),
+            (),
+            True,
+        )
+        self.assertIsNone(membership)
+        self.assertEqual(result, "consumed")
+        self.assertFalse(require_node_sdk_source(self.execution, invocation.prepared))
+        published = []
+        publication = service._publish_node_sdk(
+            admission,
+            self.execution,
+            self.prepared,
+            (self.fixture.accepted,),
+            invocation,
+            candidate,
+            lambda: published.append(True) or "publication data",
+        )
+        self.assertEqual(publication, "publication data")
+        self.assertEqual(published, [True])
+        self.assertEqual(len(self.grants), 2)
 
     def test_hidden_future_cannot_escape_live_ownership(self):
         with self.assertRaisesRegex(TypeError, "finish synchronously"):

@@ -350,18 +350,41 @@ class FilesystemStandardAcceptedSourcePublisher:
         self._published_entry_by_membership = {}
 
     def published_entry_identity(self, membership_identity):
-        """Report an actual immutable publication, never infer it from a hit."""
+        """Report acknowledged publication; absence does not disprove a late write."""
         return self._published_entry_by_membership.get(membership_identity)
 
     def publish_accepted(
         self, publication: StandardAcceptedSourcePublication
     ) -> ContentIdentity:
+        from literate_ai.application.standard_node_sdk_admission import (
+            capture_node_sdk_lifecycle,
+        )
+
+        require_current = capture_node_sdk_lifecycle()
         _key, entry = self._build_entry(publication)
-        self.cache.publish(entry, caller_cas=self.caller_cas)
+        if require_current is not None:
+            require_current()
+        self.cache.publish(
+            entry,
+            caller_cas=self.caller_cas,
+            **({} if require_current is None else {"require_current": require_current}),
+        )
+        if require_current is not None:
+            require_current()
         if self.source_admission is not None:
             # An explicitly reviewed live retained qualification supersedes its
             # prior exact-key membership. Immutable older evidence is retained.
-            self.cache.retire_other_memberships(_key, keep=entry.identity)
+            self.cache.retire_other_memberships(
+                _key,
+                keep=entry.identity,
+                **(
+                    {}
+                    if require_current is None
+                    else {"require_current": require_current}
+                ),
+            )
+        if require_current is not None:
+            require_current()
         self._published_entry_by_membership[publication.membership.identity] = (
             entry.identity
         )
@@ -509,8 +532,21 @@ class FilesystemStandardAcceptedSourcePublisher:
         ``--source-cache-entry`` selection reaches them again once retired.
         """
 
+        from literate_ai.application.standard_node_sdk_admission import (
+            capture_node_sdk_lifecycle,
+        )
+
+        require_current = capture_node_sdk_lifecycle()
         key, entry = self._build_entry(publication)
-        self.cache.retire_other_memberships(key, keep=entry.identity)
+        if require_current is not None:
+            require_current()
+        self.cache.retire_other_memberships(
+            key,
+            keep=entry.identity,
+            **({} if require_current is None else {"require_current": require_current}),
+        )
+        if require_current is not None:
+            require_current()
 
 
 class FilesystemStandardSourceAdmissionPublisher:
