@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Close public SDK host bindings and original locked-authority witnesses before
+  returning owned operation results. Native regressions reproduced late registry
+  replacement and same-byte authority writes escaping the lower operation.
+  Preserve original baselines and retired contexts without another callback or
+  clock sample after the lower owner returns.
+
 - Close original SDK operation input witnesses after the final clock callback.
   Actual regressions reproduced escaped results after oracle/file writes or
   oracle-selection replacement at that cut. Preserve the original finite

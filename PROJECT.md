@@ -215,6 +215,14 @@ escaped results before the repair; the complete 12-case native operation suite
 now passes without recapturing baselines or extending active grants. Multiple
 providers remain refused pending their own actual ownership and closing proof.
 
+The public host also pins the original snapshot input-closure object and captures
+its validated authority stamps before each owned operation. After the lower owner
+returns, finite checks close original host metadata, installed binding, delegate
+and closure identities, and those authority stamps. No later callback, byte read
+or clock can reopen that closing boundary. Late registry replacement is preserved
+and refused rather than restored; a caller's later runtime guard cannot conceal
+an already returned result.
+
 Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
 arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,

@@ -12,6 +12,7 @@ import tempfile
 import unittest
 from contextlib import contextmanager
 from contextvars import copy_context
+from copy import copy
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -106,6 +107,75 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             self.with_canonical_sdk(operation, public_host=True)
         self.assertEqual(len(replacements), 1)
         replacements[0].require_build_intent.assert_not_called()
+
+    def _assert_public_final_clock_drift(self, cut):
+        changed = []
+        completed = []
+        returned = []
+        retired = []
+        replacements = []
+        original_runner = run_node_sdk_lifecycle
+
+        def observe(*args, **kwargs):
+            result = original_runner(*args, **kwargs)
+            returned.append(result)
+            return result
+
+        def operation(invocation, _owner, fixture):
+            ports = fixture.ports
+            original_clock = ports.clock
+
+            def clock():
+                frame = inspect.currentframe()
+                caller = frame.f_back
+                final_cut = (
+                    caller.f_code.co_name == "final_inputs"
+                    and caller.f_locals.get("live_membership") is False
+                )
+                del frame, caller
+                if final_cut and completed and not changed:
+                    self.assertFalse(ports._library_provider_scopes)
+                    if cut == "registry":
+                        replacement = object()
+                        replacements.append(replacement)
+                        ports.source_trees = replacement
+                    else:
+                        closure = fixture.snapshot._input_closure
+                        path = next(iter(closure._entries.values())).path
+                        before = path.stat()
+                        path.write_bytes(path.read_bytes())
+                        os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    changed.append(cut)
+                    print("SDK host final clock mutation executed: " + cut, flush=True)
+                return original_clock()
+
+            patcher = mock.patch.object(ports, "clock", clock)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+            retired.append((copy_context(), ports))
+            completed.append(True)
+            return invocation.identity
+
+        with mock.patch(__name__ + ".run_node_sdk_lifecycle", side_effect=observe):
+            with self.assertRaises(
+                (NodeSDKHostConfigurationError, PinnedInputClosureError)
+            ):
+                self.with_canonical_sdk(operation, public_host=True)
+        self.assertEqual(completed, [True])
+        self.assertEqual(changed, [cut])
+        # A helper's later runtime guard must not conceal an escaped result.
+        self.assertEqual(returned, [])
+        context, ports = retired[0]
+        with self.assertRaises(NodeSDKHostConfigurationError):
+            context.run(current_node_sdk_project_acceptance, ports)
+        if cut == "registry":
+            self.assertIs(ports.source_trees, replacements[0])
+
+    def test_public_final_clock_registry_replacement_withholds_result(self):
+        self._assert_public_final_clock_drift("registry")
+
+    def test_public_final_clock_authority_write_withholds_result(self):
+        self._assert_public_final_clock_drift("authority")
 
     def _exercise_sdk_build(self, *, public_host=False):
         def operation(invocation, owner, fixture):
@@ -301,7 +371,10 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             return built.evidence.identity
 
         self.with_canonical_sdk(
-            operation, verifier_lifetime=timedelta(minutes=30), public_host=public_host
+            operation,
+            verifier_lifetime=timedelta(minutes=30),
+            public_host=public_host,
+            root_acceptance=public_host,
         )
 
     def _accept_sdk_project(
@@ -648,6 +721,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         *,
         verifier_lifetime=timedelta(minutes=5),
         public_host=False,
+        root_acceptance=False,
     ):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
@@ -754,6 +828,16 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 runtime._require_sdk_host(snapshot)
                 bound = configuration._binding
                 self.assertEqual(grants, [])
+                original_inputs = snapshot._input_closure
+                try:
+                    object.__setattr__(
+                        snapshot, "_input_closure", copy(original_inputs)
+                    )
+                    with self.assertRaises(NodeSDKHostConfigurationError):
+                        bound.require_current()
+                finally:
+                    # Explicit disposable-fixture reset, never runtime cleanup.
+                    object.__setattr__(snapshot, "_input_closure", original_inputs)
                 for field, value in (
                     ("source_trees", object()),
                     ("object_root", root / "foreign-objects"),
@@ -928,9 +1012,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 admission, selected_execution, prepared, (accepted,), consume
             )
             self.assertTrue(result.digest)
-            self.assertEqual(
-                len(grants), 2 if public_host and operation is not None else 1
-            )
+            self.assertEqual(len(grants), 2 if public_host and root_acceptance else 1)
             with self.assertRaises((ValueError, RuntimeError)):
                 escaped[0]()
             if public_host:

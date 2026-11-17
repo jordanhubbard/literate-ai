@@ -52,6 +52,14 @@ configuration before validating all verifier grants at that captured time.
 The closing cut retains the original baselines; it does not recapture changed
 files or allow a completed operation to escape after a callback changes them.
 
+The public host also pins its original snapshot input-closure object. Before
+entering a provider operation it captures that closure's validated original
+stamps. After the lower operation returns, the host closes original runtime
+metadata, installed binding, delegate/closure identity and those same authority
+stamps. There is no later owner callback, byte reread or clock sample. This
+withholds results if the lower operation's last clock changes host inputs; a
+later caller-side runtime guard cannot substitute for this return-boundary check.
+
 Development acceptance is tracked under LIBRARY-ARTIFACT-001 in the
 [active work queue](../roadmap/active-work.md). A deterministic authored generator
 now exercises complete `runtime.execute` orchestration on the native macOS cell:

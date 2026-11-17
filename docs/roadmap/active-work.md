@@ -674,6 +674,26 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       This is actual accepted-provider custody with an inert consumer plan,
       not a new generated SDK or installed qualification. Retain the one-provider
       admission restriction until separate actual multi-provider closing proof.
+      Public host closing reproduces a separate gap: both original native cases
+      fail in 283.039 seconds after post-scope final-clock registry replacement
+      or same-byte/restored-mtime locked-authority writes. The lifecycle observer
+      records return before a later fixture runtime guard; that guard must not
+      conceal escaped results. The correction pins the original input-closure
+      object in host configuration, captures its validated original stamps before
+      entering the provider operation, then closes original host metadata,
+      installed binding, base/closure identity and those stamps after the lower
+      operation returns. No owner callback, byte reread, clock sample or new
+      baseline follows that return. All three actual public-host native cases
+      pass in 433.272 seconds: both corrected refusals and the unchanged-input
+      owned-scope positive. They include copied-closure refusal before grants,
+      retired copied-context refusal and preservation of the replacement registry
+      value. The broader SDK Make gate selects 168 cases: 107 pass and 61 retain
+      prerequisite skips (103.524 seconds). Source and fixture hashes remain
+      unchanged across the native run; earlier authored full-runtime evidence
+      retains its original source scope, separate from this closing-boundary proof.
+      Independent state/security review finds no remaining blocker for this
+      finite outer closing repair.
+      Provider count and independent execution grants remain unchanged.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.

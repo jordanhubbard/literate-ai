@@ -153,12 +153,14 @@ class LocalNodeSDKHostConfiguration:
             require_current,
         )
         self.environment = node_sdk_tool_environment(dict(environment))
+        self._authority_inputs = snapshot._input_closure
         self._originals = (
             snapshot,
             expected_execution,
             root_oracle,
             authorize_verifier,
             require_current,
+            self._authority_inputs,
         )
         self._provider_map = self.provider_oracles
         self._providers = tuple(sorted(self.provider_oracles.items()))
@@ -188,9 +190,11 @@ class LocalNodeSDKHostConfiguration:
             self.root_oracle,
             self.authorize_verifier,
             self.require_current,
+            self._authority_inputs,
         )
         if (
             any(a is not b for a, b in zip(actual, self._originals, strict=True))
+            or self.snapshot._input_closure is not self._authority_inputs
             or self.provider_oracles is not self._provider_map
             or set(self.provider_oracles) != {k for k, _ in self._providers}
             or any(self.provider_oracles[k] is not v for k, v in self._providers)
@@ -521,9 +525,26 @@ class _BoundAdmission:
             self.require_current()
             return result
 
-        return self._checked_base().with_invocation(
+        base = self._checked_base()
+        authority_inputs = self.configuration._authority_inputs
+        authority_stamps = authority_inputs.capture_current_stamps()
+        result = base.with_invocation(
             execution, prepared, receipts, consume=owned, expected=expected
         )
+        # The lower operation has closed its clock/input cut and retired its
+        # scopes. Join that cut with original host observations only: no owner
+        # callback, byte reread, new clock or new baseline follows its return.
+        self._require_inputs()
+        self._require_installed()
+        if (
+            self._base is not base
+            or self.configuration._authority_inputs is not authority_inputs
+        ):
+            raise NodeSDKHostConfigurationError(
+                "SDK host original closing owner changed"
+            )
+        authority_stamps()
+        return result
 
     def require_build_intent(self, invocation, execution, *args):
         self._checked_base()
