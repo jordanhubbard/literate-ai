@@ -1,0 +1,30 @@
+{
+  "schema": "ci-run-selection-probe@1",
+  "revision": "8839ffc915604e72f13cfc19e8639807ffbb8059",
+  "method": "Controlled CI metadata response over a real temporary Git repository. Provider response and authorization prerequisites simulated; stopped at local tag-existence boundary. No network, tag or release publication. Tests only run selection, not end-to-end release authorization.",
+  "results": [
+    {
+      "newer_status": "in_progress",
+      "newer_conclusion": null,
+      "release_gate": {
+        "result": "accepted",
+        "selected_run": 100
+      },
+      "release_candidate": {
+        "result": "passed_ci_selection_reached_tag_existence_check"
+      }
+    },
+    {
+      "newer_status": "completed",
+      "newer_conclusion": "failure",
+      "release_gate": {
+        "result": "refused",
+        "code": "release.gate_failed"
+      },
+      "release_candidate": {
+        "result": "passed_ci_selection_reached_tag_existence_check"
+      }
+    }
+  ],
+  "tags_created": 0
+}
