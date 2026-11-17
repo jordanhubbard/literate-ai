@@ -479,3 +479,69 @@ local source gate passed 2,836 selected cases: 2,744 passes and 92 skips in
 Live round trips were disabled; installed, native-provider and exact-candidate CI
 qualification remain separate. The corrected source hashes match the reviewed
 subject, and no full worker-program or release completion is claimed.
+
+
+## Qualification cost and documentation checks after the first landing
+
+The initial native-adoption/worker/review batch landed through
+[PR 450](https://github.com/jordanhubbard/literate-ai/pull/450) at
+`ebf88985be10f733dd64f469b7cd4aa685ce9083`. Its exact source candidate `101315c4`
+passed [ordinary PR CI run 43984309076](https://github.com/jordanhubbard/literate-ai/actions/runs/43984309076):
+11 successful jobs, two declared skips, 42m45s wall time. The longest Linux job
+spent 28m22s in conformance and 13m in installed-wheel verification. Summed job
+spans were 4,973 seconds; they include setup and idle and are not CPU or billable
+runner time. This is ordinary PR evidence, not full release qualification.
+
+The timing follow-up at `51afb59ca17676f4df89825b59bffba66f873542`
+([PR 456](https://github.com/jordanhubbard/literate-ai/pull/456)) passed 2,894 selected
+local tests: 2,802 passed, 92 skipped, zero failures, 1,587.324 seconds. All 611
+module envelopes are accounted for without reader issues. The diagnostic file is
+1,169,864 bytes across 6,112 records. Four concurrent slots were occupied almost
+continuously; module envelopes sum to 6,320.705 seconds. These are overlapping
+observations on a busy macOS host, not a critical path or speedup comparison.
+
+The two slowest observed modules were model-free CLI rebuild (434.629 seconds,
+seven cases) and command LINK dependencies (415.543 seconds, one case with its
+shared PACKAGE/FINALIZE controls). More than 99.99% of their combined envelope
+was inside their test subprocesses. A separate controlled run of the seven CLI
+setup/cleanup cycles measured 8.968 seconds of setup, including 8.961 seconds of
+initialization, and 0.110 seconds of cleanup. It used actual local initialization
+with no builds or live model calls. This different timing window cannot be
+subtracted from the full-suite trace as exact attribution. Even ideal reuse of
+six initializations would save about 7.7 seconds before copying costs. Prioritize
+measuring lifecycle, proof decoding and verified CAS reads before optimizing
+fixtures or removing safeguards. No such production optimization is claimed here.
+
+The subsequent [site run 43990299670](https://github.com/jordanhubbard/literate-ai/actions/runs/43990299670)
+failed before publication because the raw HTML report linked to a Markdown route
+that the site rendered as HTML. Full Python conformance had passed. The existing
+site verifier caught the missing route in approximately 1.6 seconds. The report
+now links to the repository roadmap, which works both in the checkout and copied
+site. On the independently reviewed retained-layout composition, a local full-site
+check passed 1,742 pages and 14,121 local links. That run used Node 26.8.1; CI
+retains Node 24 selection. This is separate from this follow-up's qualification.
+
+The SDLC-001 follow-up therefore adds the existing site build/link check to
+relevant PRs, with read-only permissions and no publication job for PR events.
+The deployment job depends on validation of the same run's artifact. The local
+presentation/roadmap exception in CONTRIBUTING requires independent scope review,
+actual roadmap/diagram/site checks and current authority; code, templates, skills,
+policy, acceptance and uncertain changes still require the complete local suite.
+Documentation-only CI already selects a focused profile. Neither that profile nor
+this exception is full release qualification or an authorization to publish.
+This policy/CI change itself must pass the full local gate before landing.
+
+
+The exact post-merge Windows shard
+[133728953509](https://github.com/jordanhubbard/literate-ai/actions/runs/43990299543/job/133728953509)
+reported 707 passes, 113 skips and one failure in 1,176.68 seconds. Native adoption
+and update passed their source-preservation checks; the fixture's final repair
+used text-mode writing, converting the original LF source to CRLF. The observed
+hashes exactly match the LF and CRLF forms of the fixture. Capture and restore the
+original bytes instead, retaining the strict digest/mode/Git assertion and fresh
+bytecode directory. A local Windows-newline simulation reproduced the original
+failure; it is not native Windows qualification. Add the existing adoption and
+publication modules to both platform smoke cells so this behavior is exercised
+before merge. The repaired head still requires actual Windows evidence. This is
+another reason to choose platform checks by changed behavior rather than relying
+on a passing generic installation smoke check.
