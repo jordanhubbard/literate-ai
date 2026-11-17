@@ -1,0 +1,41 @@
+{
+  "schema": "literate-ai/ci-selection-development@1",
+  "state": "focused-qualified-independent-final-review-pending",
+  "base_revision": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+  "subjects": [
+    {
+      "path": "src/literate_ai/project_releases.py",
+      "sha256": "a9e8ac8122c7e638d6a125b5d62588385e1de85e5e1b85d2b90c9d2e3bb16d18"
+    },
+    {
+      "path": "tests/e2e/test_release_ci_selection.py",
+      "sha256": "aa4e534f3b1171f778dc5a4e67813e9a5f8523106b15fadb769763eb60f23b53"
+    }
+  ],
+  "first_review_identity": "sha256:d01d1b02d36a3806ff728d3da253108eac071396c1d911e3041680bf2475876a",
+  "resolved_review_findings": [
+    "Accept the actual gh pending conclusion representation (empty string or null).",
+    "Collect metadata through the established process owner with stdout and stderr limits.",
+    "Refuse non-UTF8 metadata with a typed provider error.",
+    "Bind observed run IDs to immutable workflow/run numbers across polling; cap observation history."
+  ],
+  "maintained_controls": {
+    "selected": 24,
+    "passed": 24,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 20.433,
+    "log_identity": "sha256:b17262c6e41127e6c03e457253b2375d1afa9bf68537f86d38a1d98e2cd89188",
+    "modules": [
+      "tests.e2e.test_release_ci_selection",
+      "tests.e2e.test_project_releases"
+    ]
+  },
+  "method": "Public release check, release candidate and local qualification APIs use real temporary Git repositories, project/release policy parsing and release-engineer authorization. GitHub transport is simulated. Output overflow, invalid UTF-8 and timeout use actual bounded Python child responders. Successful tags are confined to temporary local repositories and their temporary bare remotes.",
+  "limits": [
+    "No live GitHub release, tag or deployment publication.",
+    "Final independent source review, full local gate and native platform qualification remain pending.",
+    "Selection metadata does not prove artifact provenance or qualify native bootstrap.",
+    "Current collector accepts at most100 workflow rows and50 exact-head run rows; saturated inventories refuse."
+  ]
+}
