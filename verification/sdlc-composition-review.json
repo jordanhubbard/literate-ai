@@ -1,0 +1,207 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-and-documentation-reviewed-combined-qualification-pending",
+  "reviewer": "sdlc_review",
+  "base_revision": "a5709da778b542b6adf83b70fe4d950e3b434d12",
+  "review_identity": "sha256:0412344c8fda9e8838272846bd3da290f0c88c6cb934de51fb2ed814d2df7eca",
+  "documentation_addendum_identity": "sha256:05b0b3f7a4a8ca20e53126cd555452e60c9d82055a973e51fa410dadfb78fffd",
+  "subjects": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "0d111eed24784445bf90e195b79c8be4023478b348eef2b9c62a902d6dce513e",
+      "bytes": 46219
+    },
+    {
+      "path": ".github/workflows/conference-pages.yml",
+      "sha256": "50a9661e6652fc87e0eefb5f45adfef4f51f2c0ef227feeedaf1d11458756c6c",
+      "bytes": 2858
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "4902b2c525f0ca5e5a1189ef1bd448400c47539f64c6130c98786b94831218c9",
+      "bytes": 14361
+    },
+    {
+      "path": "docs/architecture/project-releases.md",
+      "sha256": "28f3bed73b406db44e0d5ee052d0e52b05e5e65d5685ca0040d88097b9bf69b8",
+      "bytes": 34768
+    },
+    {
+      "path": "docs/history/roadmap/release-closure-0.10.md",
+      "sha256": "a2f40edf1ede88b43d8b035fdf2c4e72ea91d4d5caf1274ce9415d2ffdfda4cf",
+      "bytes": 7724
+    },
+    {
+      "path": "docs/roadmap/active-work.md",
+      "sha256": "1380b9268ced988835cf681450cd79737be62a6a3e57194fbe262bb387eb8ecd",
+      "bytes": 2136407
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "f1485a9b84ba574710885d842be3e0e34fc3bd7ceb2b811d006ce1d6a7cffb19",
+      "bytes": 53805
+    },
+    {
+      "path": "docs/roadmap/release-goals.json",
+      "sha256": "84d1508fd99be956e4eb1c7f2587c6baf99122e1be809494298248e07fec36c4",
+      "bytes": 6945
+    },
+    {
+      "path": "docs/user/getting-started.md",
+      "sha256": "3a91580cb4c2574ea238b14c2b555defb67b980dfdd558fe13a270649c5b846e",
+      "bytes": 40331
+    },
+    {
+      "path": "src/literate_ai/adapters/cache/http_reference.py",
+      "sha256": "0a3298c9fbea6a47c111e4c645377cb8dd903a3c7db606f522e9d883dad6388c",
+      "bytes": 15743
+    },
+    {
+      "path": "src/literate_ai/adapters/github_observation.py",
+      "sha256": "2f92745883c3534c08a5754093c8223e996d477874eb131a54fd612a69b8f503",
+      "bytes": 8802
+    },
+    {
+      "path": "src/literate_ai/adapters/native_ci.py",
+      "sha256": "974d8a349fec8c451cb994dd9432a5ed4e0dc06af81553c2104174ed639de14c",
+      "bytes": 19167
+    },
+    {
+      "path": "src/literate_ai/cli/dispatch.py",
+      "sha256": "1072394569b5b80cbe87b3d89cc527f193957c08bea8059fe9a5ce42ee57baeb",
+      "bytes": 144265
+    },
+    {
+      "path": "src/literate_ai/cli/project.py",
+      "sha256": "324deb6eff10a09ad98914cefef93d0cc9267be59a3f01f9bfa71ea755c7cf8c",
+      "bytes": 67740
+    },
+    {
+      "path": "src/literate_ai/cli/release.py",
+      "sha256": "14a79530a2d206cc25e6dd079e65b9b05f66d7b8b94d3a0e7068b163fd06e97b",
+      "bytes": 25370
+    },
+    {
+      "path": "src/literate_ai/contracts/projects.py",
+      "sha256": "6e30605de934728e375d78560a147339638de07593af31b2f92b1e8fd7fa6121",
+      "bytes": 72469
+    },
+    {
+      "path": "src/literate_ai/evidence_timing.py",
+      "sha256": "c748dc6217402418c30e030924a9c9e0f3460b80bcc102ef5b54bed89fa4388d",
+      "bytes": 16968
+    },
+    {
+      "path": "src/literate_ai/parallel_unittest_timing.py",
+      "sha256": "be84f0154047d6e244115c2f0d5909eac6073143feff9bb7ac0c26169f8647c8",
+      "bytes": 9884
+    },
+    {
+      "path": "src/literate_ai/parallel_unittests.py",
+      "sha256": "5e70d42fdefa06265bca2a31d7cda249424b707bc085f51d84f5fcafe4e05c28",
+      "bytes": 26748
+    },
+    {
+      "path": "src/literate_ai/project_releases.py",
+      "sha256": "09e0dd11e59214d12298b5726f4bcef2ba9bb2c6df173e6eb863b006d133089f",
+      "bytes": 206169
+    },
+    {
+      "path": "tests/critical/test_http_reference_cache.py",
+      "sha256": "182cb84dc3d95cceadc8d33d439f601f20471c9aca9663d306ce6e846e4e0fb4",
+      "bytes": 16053
+    },
+    {
+      "path": "tests/e2e/test_native_ci.py",
+      "sha256": "981df54c7746321820a99ae0d7470801886a412d7cd9c734e713b9ddc1818e2b",
+      "bytes": 18076
+    },
+    {
+      "path": "tests/e2e/test_native_project_bootstrap.py",
+      "sha256": "49d60a3da6a9bf7df9eb8900ccb3e459f62c18e0748ebcf4cd42d7443c7b3693",
+      "bytes": 11052
+    },
+    {
+      "path": "tests/e2e/test_release_ci_selection.py",
+      "sha256": "aa4e534f3b1171f778dc5a4e67813e9a5f8523106b15fadb769763eb60f23b53",
+      "bytes": 17682
+    },
+    {
+      "path": "tests/smoke/test_evidence_timing.py",
+      "sha256": "5926d0bd05bf778e344da8f5bf35ae3773fbc68fc8deb6e571dc6046566a4340",
+      "bytes": 16512
+    },
+    {
+      "path": "tests/smoke/test_parallel_unittests.py",
+      "sha256": "29df06f470d049262648f836f5bc92e834f742b9851d0cca91a0e4a1f5efcbff",
+      "bytes": 41642
+    },
+    {
+      "path": "verification/documentation-gates-review.json",
+      "sha256": "dc2355769e134eac047e8482bffb0d7edc298f3dded374b33e970765a5d294f2",
+      "bytes": 4052
+    },
+    {
+      "path": "verification/historical-release-closure-reconciliation.json",
+      "sha256": "6aa83b7bcdc2967759181cd414c51961518d7c7b9668bf2dc51e37b70a9a564e",
+      "bytes": 1910
+    },
+    {
+      "path": "verification/module-timing-retention-review.json",
+      "sha256": "3d756baee0eb5655b6f9f8ba5ede76fc9156424a7e11db920a507cc87a769535",
+      "bytes": 2794
+    },
+    {
+      "path": "verification/module-timing-review.json",
+      "sha256": "765b8ebf20e2339ff9e7ce6ebf78547d00d673025f237c93c71c6464b99de33d",
+      "bytes": 3652
+    },
+    {
+      "path": "verification/native-ci-design-review.json",
+      "sha256": "ef031c80bfa1a14f63a9ffb67fd49d31405d52fbb733376312c4c1b47ab02eef",
+      "bytes": 1124
+    },
+    {
+      "path": "verification/native-ci-development.json",
+      "sha256": "cb0571fb731e0746c7811e0bd6c15ae9ad8587289019e5af923bafa9f86cdbfc",
+      "bytes": 4486
+    },
+    {
+      "path": "verification/native-ci-review.json",
+      "sha256": "0920b5d45d9dc5e4a3a18791bd38dca5434aeb891e001503cf64d45a7dba0b68",
+      "bytes": 3958
+    },
+    {
+      "path": "verification/platform-failure-repair-review.json",
+      "sha256": "33f0a4005b4437710f6edea5dfdf1c366bae6c898ee3ce1d9110bbdaf16c9558",
+      "bytes": 2378
+    }
+  ],
+  "incoming_reviewed_heads": {
+    "timing_retention": "af4ab36e03b0784d7758b5599f16fb79ff28fbb2",
+    "platform_repair": "913ad5920288af37ed0c436089531fed2c437e13",
+    "documentation_gates": "48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68",
+    "retained_and_parsing": "a5709da778b542b6adf83b70fe4d950e3b434d12"
+  },
+  "composition_verification": [
+    "All incoming production files equal their approved source bytes; no divergent baseline production edits overwritten.",
+    "CI fixture additions and original-byte restoration preserve the retained branch changes.",
+    "Scheduler barrier equals the already reviewed timing-retention subject.",
+    "Native and parsing source controls preserved; exact review identities remain in their records.",
+    "Historical closure archived verbatim; all 80 prior release goals retained and current existing closure owner added as goal81.",
+    "Current roadmap dependency graph validates."
+  ],
+  "qualification": {
+    "complete_combined_source": "pending",
+    "installed_composed_candidate": "pending",
+    "native_platforms": "pending"
+  },
+  "limits": [
+    "Individual local and CI passes qualify their original subjects, not this combined candidate.",
+    "GitGuardian incidents remain unresolved; no security waiver.",
+    "Native Windows Git setup timeout remains unexplained.",
+    "Live release, deployment and Pages publication still require authorization.",
+    "Native CI observation reports associated source, not tested-tree/artifact provenance or release readiness."
+  ],
+  "release_qualification": false
+}

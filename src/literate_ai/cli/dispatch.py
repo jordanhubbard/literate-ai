@@ -373,6 +373,7 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             parent_checkout_from_args,
             parent_readme_from_args,
             project_ci_plan_from_args,
+            project_ci_verify_from_args,
             project_guidance_from_args,
             project_lifecycle_from_args,
             project_peer_work_from_args,
@@ -390,6 +391,9 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return report, 0 if report["ready"] else 1
         if args.project_command == "ci-plan":
             return project_ci_plan_from_args(args), 0
+        if args.project_command == "ci":
+            report = project_ci_verify_from_args(args)
+            return report, 0 if report["observation_status"] == "verified" else 1
         if args.project_command == "guidance":
             return project_guidance_from_args(args), 0
         if args.project_command == "lifecycle":
@@ -743,6 +747,8 @@ def _parser() -> JsonArgumentParser:
         "--refine", metavar="REQUEST", help="refine this mission Markdown before apply"
     )
     onboard_adopt.add_argument("--default-branch")
+    onboard_adopt.add_argument("--implementation-directory")
+    onboard_adopt.add_argument("--wrapper-component")
     onboard_adopt.add_argument(
         "--profile",
         dest="adoption_profile",
@@ -2070,6 +2076,13 @@ def _parser() -> JsonArgumentParser:
         action="store_true",
         help="authorize changing Standard lifecycle and receipt-policy authority",
     )
+    project_ci = project_commands.add_parser(
+        "ci", help="observe the native CI contract without running or promoting code"
+    )
+    project_ci_commands = project_ci.add_subparsers(dest="ci_command", required=True)
+    project_ci_verify = project_ci_commands.add_parser("verify")
+    project_ci_verify.add_argument("path", nargs="?", default=".")
+    project_ci_verify.add_argument("--pr", type=int, required=True)
     project_ci_plan = project_commands.add_parser(
         "ci-plan",
         help="detect test frameworks and emit a fail-closed shard/impact plan",
@@ -3443,11 +3456,13 @@ def main(
     scoped_retained_cargo = command == "project.retained-cargo"
     scoped_worker_health = command == "worker.health"
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
+    scoped_native_ci = command == "project.ci"
     scoped_tree_render = command == "render.tree"
     scoped_orchestration = (
         scoped_orchestration
         or scoped_worker_health
         or scoped_agent_entrypoints
+        or scoped_native_ci
         or scoped_tree_render
         or scoped_retained_promotion
     )
@@ -3517,7 +3532,9 @@ def main(
             or getattr(args, "debug", None) not in {None, "-"}
         ):
             raise CliFailure(
-                "project.agent_entrypoints_read_only_options"
+                "project.native_ci.read_only_options"
+                if scoped_native_ci
+                else "project.agent_entrypoints_read_only_options"
                 if scoped_agent_entrypoints
                 else (
                     "worker.health_read_only_options"

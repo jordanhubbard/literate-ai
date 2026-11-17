@@ -9,9 +9,362 @@
     {"$ref": "literate-ai/prepared-release@2"},
     {"$ref": "literate-ai/release-publication-receipt@1"},
     {"$ref": "literate-ai/release-published-verification@1"},
-    {"$ref": "literate-ai/release-qualification@1"}
+    {"$ref": "literate-ai/release-qualification@1"},
+    {"$ref": "literate-ai/release-ci-coverage@1"}
   ],
   "$defs": {
+    "ci_coverage_cell": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "platform",
+        "action",
+        "action_identity",
+        "argv",
+        "os_family",
+        "cpu_architecture",
+        "job_ids",
+        "exit_status"
+      ],
+      "properties": {
+        "platform": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_platform"
+        },
+        "action": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,63}$"
+        },
+        "action_identity": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        },
+        "argv": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/argv"
+        },
+        "os_family": {
+          "enum": [
+            "linux",
+            "macos",
+            "windows",
+            "freebsd"
+          ]
+        },
+        "cpu_architecture": {
+          "type": "string",
+          "pattern": "^[a-z0-9_]{1,32}$"
+        },
+        "job_ids": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 9223372036854775807
+          }
+        },
+        "exit_status": {
+          "type": "integer",
+          "const": 0
+        }
+      }
+    },
+    "ci_coverage_proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "repository_id",
+        "repository",
+        "workflow_id",
+        "workflow_path",
+        "run_id",
+        "run_number",
+        "attempt",
+        "event",
+        "revision",
+        "tree",
+        "policy_identity",
+        "qualification_identity",
+        "producer_job_id",
+        "producer_started_at",
+        "producer_completed_at",
+        "attempt_started_at",
+        "artifact_id",
+        "artifact_name",
+        "artifact_digest",
+        "artifact_created_at",
+        "cells",
+        "tested_artifacts",
+        "identity"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/verified-ci-coverage@1"
+        },
+        "repository_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "repository": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "maxLength": 256
+        },
+        "workflow_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "workflow_path": {
+          "type": "string",
+          "pattern": "^\\.github/workflows/[A-Za-z0-9_.-]+\\.ya?ml$",
+          "maxLength": 256
+        },
+        "run_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "run_number": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "attempt": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "event": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "tree": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+        },
+        "policy_identity": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        },
+        "qualification_identity": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        },
+        "producer_job_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "producer_started_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "format": "date-time"
+        },
+        "producer_completed_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "format": "date-time"
+        },
+        "attempt_started_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "format": "date-time"
+        },
+        "artifact_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "artifact_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 146
+        },
+        "artifact_digest": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        },
+        "artifact_created_at": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "format": "date-time"
+        },
+        "cells": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_cell"
+          }
+        },
+        "tested_artifacts": {
+          "const": false
+        },
+        "identity": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        }
+      }
+    },
+    "ci_coverage_report": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "repository",
+        "workflow",
+        "run",
+        "checkout",
+        "policy_identity",
+        "qualification_identity",
+        "producer_job_id",
+        "cells"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/release-ci-coverage@1"
+        },
+        "repository": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            "name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+              "maxLength": 256
+            }
+          }
+        },
+        "workflow": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "path",
+            "revision"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            "path": {
+              "type": "string",
+              "pattern": "^\\.github/workflows/[A-Za-z0-9_.-]+\\.ya?ml$",
+              "maxLength": 256
+            },
+            "revision": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+            }
+          }
+        },
+        "run": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "number",
+            "attempt",
+            "event",
+            "head"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            "number": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            "attempt": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9223372036854775807
+            },
+            "event": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "head": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+            }
+          }
+        },
+        "checkout": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "revision",
+            "tree"
+          ],
+          "properties": {
+            "revision": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+            },
+            "tree": {
+              "type": "string",
+              "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"
+            }
+          }
+        },
+        "policy_identity": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        },
+        "qualification_identity": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"
+        },
+        "producer_job_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "cells": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "items": {
+            "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_cell"
+          }
+        }
+      },
+      "$id": "literate-ai/release-ci-coverage@1"
+    },
+    "ci_observation": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "coverage": {
+          "$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_coverage_proof"
+        }
+      }
+    },
     "qualification_platform": {
       "type": "string",
       "pattern": "^(freebsd|linux|macos|windows)(-[a-z0-9_]{1,32})?$"
@@ -37,7 +390,16 @@
           "type": "object", "additionalProperties": false,
           "properties": {
             "mandatory": {"type": "boolean"},
-            "platforms": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_platform"}}
+            "platforms": {"type": "array", "maxItems": 64, "uniqueItems": true, "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_platform"}},
+            "coverage": {
+              "type": "object", "additionalProperties": false,
+              "required": ["schema", "artifact_name", "producer_job"],
+              "properties": {
+                "schema": {"const": "literate-ai/github-ci-coverage-binding@1"},
+                "artifact_name": {"type": "string", "minLength": 1, "maxLength": 128, "pattern": "^(?:[A-Za-z0-9][A-Za-z0-9._-]*)?\\{attempt\\}[A-Za-z0-9._-]*$"},
+                "producer_job": {"type": "string", "minLength": 1, "maxLength": 256}
+              }
+            }
           }
         }
       }
@@ -80,7 +442,7 @@
         "coverage": {"type": "array", "minItems": 1, "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_cell"}},
         "runs": {"type": "array", "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_run"}},
         "excluded_workers": {"type": "array", "items": {"type": "object"}},
-        "ci": {"type": ["object", "null"]},
+        "ci": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_observation"},
         "identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"}
       }
     },
@@ -636,9 +998,16 @@
             "coverage": {"type": "array", "minItems": 1, "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_cell"}},
             "runs": {"type": "array", "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_run"}},
             "excluded_workers": {"type": "array", "items": {"type": "object"}},
-            "ci": {"type": ["object", "null"]},
+            "ci": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_observation"},
             "worker_id": {"type": "string", "minLength": 1, "maxLength": 256},
             "endpoint": {"type": "string", "minLength": 1, "maxLength": 320},
+            "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", "maxLength": 256},
+            "workflow_id": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "run_number": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "attempt": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "revision": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+            "branch": {"type": "string", "minLength": 1, "maxLength": 1024},
+            "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
             "run_id": {"type": ["integer", "string"]},
             "run_url": {"type": "string", "minLength": 1, "maxLength": 2048},
             "conclusion": {"type": "string", "minLength": 1, "maxLength": 64}
@@ -713,9 +1082,16 @@
             "coverage": {"type": "array", "minItems": 1, "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_cell"}},
             "runs": {"type": "array", "items": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/qualification_run"}},
             "excluded_workers": {"type": "array", "items": {"type": "object"}},
-            "ci": {"type": ["object", "null"]},
+            "ci": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/ci_observation"},
             "worker_id": {"type": "string", "minLength": 1, "maxLength": 256},
             "endpoint": {"type": "string", "minLength": 1, "maxLength": 320},
+            "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$", "maxLength": 256},
+            "workflow_id": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "run_number": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "attempt": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+            "revision": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+            "branch": {"type": "string", "minLength": 1, "maxLength": 1024},
+            "policy_identity": {"$ref": "urn:literate-ai:schema:v2:project-release-contracts#/$defs/identity"},
             "run_id": {"type": ["integer", "string"]},
             "run_url": {"type": "string", "minLength": 1, "maxLength": 2048},
             "conclusion": {"type": "string", "minLength": 1, "maxLength": 64}

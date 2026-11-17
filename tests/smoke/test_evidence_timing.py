@@ -1,14 +1,25 @@
 from __future__ import annotations
 
 import argparse
+import io
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from literate_ai.cli.release import add_release_parser, release_from_args
 from literate_ai.evidence_ledger import EVIDENCE_LEDGER_SCHEMA, EVIDENCE_NODE_SCHEMA
-from literate_ai.evidence_timing import summarize_timing
+from literate_ai.evidence_timing import summarize_module_timing, summarize_timing
+from literate_ai.parallel_unittest_timing import (
+    FILENAME,
+    ROLE,
+    SCHEMA,
+    read_module_timing,
+    registered_module_timings,
+)
 
 
 def stamp(second: int) -> str:
@@ -40,7 +51,200 @@ def run(*nodes: dict[str, object]) -> dict[str, object]:
     }
 
 
+def module_records() -> list[dict[str, object]]:
+    values = [
+        {
+            "kind": "invocation",
+            "clock_domain": "abcdef123456",
+            "workers": 2,
+            "selected_modules": 1,
+            "utc_anchor": "2026-11-16T00:00:00Z",
+        },
+        {
+            "kind": "selected",
+            "module_id": 0,
+            "module": "test_example",
+            "cases": 1,
+            "serial": False,
+        },
+        {"kind": "setup_begin", "module_id": 0},
+        {"kind": "spawn_begin", "module_id": 0},
+        {"kind": "spawn_returned", "module_id": 0},
+        {"kind": "exit_observed", "module_id": 0, "returncode": 0},
+        {"kind": "cleanup_begin", "module_id": 0, "disposition": "normal"},
+        {"kind": "cleanup_complete", "module_id": 0},
+        {"kind": "scratch_removal_begin", "module_id": 0},
+        {"kind": "scratch_removed", "module_id": 0},
+        {
+            "kind": "report_observed",
+            "module_id": 0,
+            "done": True,
+            "failed": False,
+            "invalid": False,
+            "terminal_cases": 1,
+        },
+        {"kind": "suite_closed", "failed": False},
+    ]
+    return [
+        {
+            "schema": SCHEMA,
+            "invocation": "abcdef123456",
+            "sequence": i,
+            "offset_ns": i * 1_000_000_000,
+            **value,
+        }
+        for i, value in enumerate(values)
+    ]
+
+
 class EvidenceTimingTests(unittest.TestCase):
+    def test_module_clock_is_monotonic_and_interruption_stays_unknown(self):
+        records = module_records()
+        full = summarize_module_timing(records, invocation="abcdef123456")
+        self.assertEqual(full["issues"], [])
+        self.assertEqual(full["elapsed_seconds"], 11)
+        self.assertEqual(full["modules"][0]["elapsed_seconds"], 7)
+        records[0]["utc_anchor"] = "1900-01-01T00:00:00Z"
+        self.assertEqual(
+            summarize_module_timing(records, invocation="abcdef123456"), full
+        )
+        interrupted = summarize_module_timing(records[:5], invocation="abcdef123456")
+        self.assertIn("unclosed_invocation", interrupted["issues"])
+        self.assertIsNone(interrupted["elapsed_seconds"])
+        self.assertIsNone(interrupted["completed_modules_wall_seconds"])
+        self.assertIsNone(interrupted["modules"][0]["elapsed_seconds"])
+        self.assertEqual(interrupted["modules"][0]["disposition"], "unknown")
+        for bad in (
+            "duplicate",
+            "clock",
+            "invocation",
+            "missing-exit",
+            "late-exit",
+            "disposition",
+        ):
+            changed = module_records()
+            if bad == "duplicate":
+                changed[8]["kind"] = "cleanup_complete"
+            elif bad == "clock":
+                changed[7]["offset_ns"] = 0
+            elif bad == "invocation":
+                changed[7]["invocation"] = "123456abcdef"
+            elif bad == "missing-exit":
+                changed.pop(5)
+                for sequence, record in enumerate(changed):
+                    record["sequence"] = sequence
+            elif bad == "late-exit":
+                exit_record = changed.pop(5)
+                changed.insert(-1, exit_record)
+                for sequence, record in enumerate(changed):
+                    record["sequence"] = sequence
+                    record["offset_ns"] = sequence * 1_000_000_000
+            else:
+                changed[6]["disposition"] = []
+            with self.subTest(bad=bad):
+                result = summarize_module_timing(changed, invocation="abcdef123456")
+                self.assertEqual(result["coverage"], "incomplete")
+                self.assertIsNone(result["elapsed_seconds"])
+
+    def test_module_reader_retains_truncation_and_refuses_nonregular_or_missing_files(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary).resolve() / "abcdef123456"
+            directory.mkdir()
+            path = directory / FILENAME
+            prefix = "".join(json.dumps(row) + "\n" for row in module_records()[:5])
+            path.write_text(prefix + '{"kind":')
+            records, issues, _ = read_module_timing(directory, directory.name)
+            self.assertEqual(len(records), 5)
+            self.assertEqual(issues, ["truncated_record"])
+            with patch("literate_ai.parallel_unittest_timing.MAX_TIMING_RECORDS", 3):
+                records, issues, _ = read_module_timing(directory, directory.name)
+            self.assertEqual(len(records), 3)
+            self.assertEqual(issues, ["artifact_limit"])
+            path.unlink()
+            records, issues, _ = read_module_timing(directory, directory.name)
+            self.assertEqual(records, [])
+            self.assertTrue(issues)
+            if hasattr(os, "mkfifo"):
+                os.mkfifo(path)
+                records, issues, _ = read_module_timing(directory, directory.name)
+                self.assertEqual(records, [])
+                self.assertTrue(issues)
+                path.unlink()
+            target = directory / "target"
+            target.write_text(prefix)
+            try:
+                path.symlink_to(target)
+            except OSError:
+                return
+            records, issues, _ = read_module_timing(directory, directory.name)
+            self.assertEqual(records, [])
+            self.assertTrue(issues)
+
+    def test_registration_is_required_and_missing_artifacts_are_unavailable(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            registration = node("modules", 1, 9)
+            registration["pins"] = {"invocation": "abcdef123456", "schema": SCHEMA}
+            registration["outputs"] = [
+                {
+                    "role": ROLE,
+                    "path": str(root / "abcdef123456"),
+                    "media_type": "inode/directory",
+                    "retention": "retained",
+                }
+            ]
+            missing = registered_module_timings(run(registration), root)
+            self.assertEqual(missing["coverage"], "unavailable")
+            self.assertEqual(missing["invocations"][0]["coverage"], "unavailable")
+            self.assertIsNone(missing["invocations"][0]["elapsed_seconds"])
+            empty_directory = root / "abcdef123456"
+            empty_directory.mkdir()
+            (empty_directory / FILENAME).write_bytes(b"")
+            empty = registered_module_timings(run(registration), root)
+            self.assertEqual(empty["coverage"], "unavailable")
+            self.assertEqual(empty["invocations"][0]["coverage"], "unavailable")
+            self.assertIsNone(empty["invocations"][0]["elapsed_seconds"])
+            registration["outputs"][0]["role"] = "unrelated"
+            self.assertEqual(
+                registered_module_timings(run(registration), root)["coverage"],
+                "unavailable",
+            )
+
+    def test_disabled_evidence_node_keeps_timing_in_private_spool(self):
+        from literate_ai.evidence_ledger import _NullEvidenceNode
+        from literate_ai.parallel_unittest_timing import ModuleTiming
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            directory = root / "workers" / "abcdef123456"
+            disabled = _NullEvidenceNode()
+            forbidden = root / "must-stay-absent"
+            evidence = SimpleNamespace(node=lambda *_args, **_kwargs: disabled)
+            with (
+                patch.object(_NullEvidenceNode, "directory", forbidden),
+                patch(
+                    "literate_ai.parallel_unittest_timing.attach_run",
+                    return_value=evidence,
+                ),
+            ):
+                timing = ModuleTiming(
+                    root=root,
+                    directory=directory,
+                    workers=1,
+                    selected=[],
+                    stream=io.StringIO(),
+                )
+                timing.close(completed=True, failed=False)
+            self.assertIsNone(timing.node)
+            self.assertFalse(forbidden.exists())
+            records, issues, _ = read_module_timing(directory, directory.name)
+            self.assertEqual(issues, [])
+            self.assertEqual(
+                [record["kind"] for record in records], ["invocation", "suite_closed"]
+            )
+
     def test_nested_parallel_and_contained_children_are_not_double_counted(
         self,
     ) -> None:
@@ -158,9 +362,33 @@ class EvidenceTimingTests(unittest.TestCase):
             report, code = release_from_args(args)
             self.assertEqual(code, 0)
             self.assertEqual(report["completed_roots_wall_seconds"], 20)
+            self.assertEqual(report["module_timing"]["coverage"], "unavailable")
             self.assertEqual(
                 {path.name: path.read_bytes() for path in directory.iterdir()}, before
             )
+            modules = root.resolve() / "abcdef123456"
+            modules.mkdir()
+            (modules / FILENAME).write_text(
+                "".join(json.dumps(row) + "\n" for row in module_records())
+            )
+            registration = node("modules", 1, 10, "root")
+            registration["pins"] = {"invocation": modules.name, "schema": SCHEMA}
+            registration["outputs"] = [
+                {
+                    "role": ROLE,
+                    "path": str(modules),
+                    "retention": "retained",
+                    "media_type": "inode/directory",
+                }
+            ]
+            with ledger.open("a") as handle:
+                handle.write(json.dumps(registration) + "\n")
+            report, code = release_from_args(args)
+            self.assertEqual(code, 0)
+            invocation = report["module_timing"]["invocations"][0]
+            self.assertEqual(invocation["coverage"], "complete")
+            self.assertEqual(invocation["elapsed_seconds"], 11)
+            self.assertEqual(stale.read_bytes(), before["index.json"])
 
 
 if __name__ == "__main__":
