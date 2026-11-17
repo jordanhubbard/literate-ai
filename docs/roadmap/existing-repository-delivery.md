@@ -755,3 +755,54 @@ there. Correct the fixture's oracle against the owned blocked child's independen
 exercise both tmpfs and file-backed temporary roots. Production telemetry must
 continue reporting storage accounting without substituting syscall byte counts.
 Retain the failed gate and run a fresh complete gate after the reviewed correction.
+
+## Hosted producer pilot implementation
+
+RELEASE-CLOSURE-001 retains this next in-progress action. Use a dedicated native
+Linux/Windows fixture workflow and small real build/test commands with matching
+committed fixture policy. An exporter depends on all contributing jobs, gathers
+their actual result artifacts and provider execution identities, and uploads the
+versioned coverage report during its own job. Observe it only after the workflow
+completes, through the existing read-only adapter; a dependent job in the same
+workflow cannot require that workflow to be completed. No new public CLI command
+or framework production-policy opt-in is needed for this experiment.
+
+The pilot must refuse complete coverage after native failure/cancellation or a
+missing action, wrong source/command, stale report or copied exporter. A partial
+retry must preserve original successful execution facts and require a freshly
+executed dependent exporter and attempt-specific report. Bind the actual checkout
+commit/tree separately from associated head, exact fixture policy/action identity,
+observed OS/CPU and provider job/run/attempt identities. Prove actual archive
+transfer and matching digest, while retaining that report integrity does not
+qualify binary artifacts. This initial hosted adapter/transport pilot cannot
+close the unchanged public release CLI's consuming-repository acceptance. That
+requires an actual repository whose root owns the selected release policy.
+
+Keep the current source-gate candidate frozen in its own worktree. Pilot workflow,
+fixture commands, exporter and failure/recovery controls require independent
+review and applicable gates before a PR can supply real hosted evidence. Local
+simulation and a workflow declaration alone cannot satisfy that acceptance.
+
+The pilot source has independent approval after correcting a missing required
+policy field, cross-OS Windows executable parsing and a recovery test that reused
+old receipts. Its maintained cohort passes 16 methods in 37.856 seconds, including
+real local native commands, exporter process, ZIP and adapter consumption with
+provider transport and foreign-job facts simulated. Recovery now regenerates the
+native facts after a real seeded failure. See the
+[pilot source review](../../verification/ci-coverage-pilot-review.json). Full gates,
+actual hosted Linux/Windows execution, partial retry, uploaded archive transfer and
+consuming-repository public release qualification remain open.
+
+The existing retained-observation performance owner retains a measured gate-cost
+follow-up. Source inspection finds eight receiving cases each perform adoption
+and three Cargo preparation commands, including three pre-execution refusals that
+never launch a receiving subprocess. During the Linux gate this single module
+was the last active worker; its process remained CPU-active and the final selected
+case was the real patch-workspace/protocol/retired-admission journey. This does
+not attribute that time to Cargo: setup, fresh runtime/source byte checks and
+assertion phases remain unmeasured. Preserve both positive custody paths and the
+qualified parse optimizations. Measure those phases before choosing cheaper refusal
+fixtures, safe immutable pre-capture reuse or distributing the long e2e/critical
+cases through the existing module scheduler. No full-gate case is removed or
+reclassified by this observation. The assessment identity is
+`sha256:8190461757a5afc71da0dc4eb29e8d4c00aab47700a98a0493ea4abe437f254c`.

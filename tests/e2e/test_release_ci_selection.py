@@ -10,6 +10,8 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
+import unittest
 import zipfile
 from pathlib import Path
 from unittest.mock import patch
@@ -1010,3 +1012,93 @@ class ReleaseCISelectionTests(ReleaseFixture):
         self.assertEqual(self.git_reference_inventory(), refs)
         self.assertFalse(output.exists())
         self.assertEqual(releases._STRICT_CI_GIT_READS.get(), context)
+
+    @unittest.skipIf(
+        os.name == "nt",
+        "Exporter runs on Linux; this fixture uses a POSIX gh transport double",
+    )
+    def test_native_producer_exporter_and_consumer_preserve_retry_evidence(self):
+        from literate_ai.adapters.release_ci_coverage import observe_ci_coverage
+        from literate_ai.release_ci_coverage import CICoverageError
+        from tests.support.coverage_pilot_fixture import CoveragePilotFixture
+
+        pilot = CoveragePilotFixture(
+            self.root, self.base, Path(__file__).resolve().parents[2], self.git
+        )
+        receipts = pilot.receipts()
+        pilot.configure()
+        exported = pilot.export(receipts)
+        self.assertEqual(exported.returncode, 0, exported.stderr)
+        policy = releases.ReleasePolicy.from_dict(
+            json.loads(pilot.policy_path.read_text())
+        )
+
+        def consume():
+            with patch.dict(os.environ, pilot.environment):
+                return observe_ci_coverage(
+                    self.root,
+                    repository=pilot.repo,
+                    branch=pilot.branch,
+                    revision=pilot.head,
+                    tree=pilot.tree,
+                    policy_identity=policy.identity,
+                    workflow=".github/workflows/ci-coverage-pilot.yml",
+                    qualification=policy.qualification,
+                    required_cells={
+                        (p, a.name)
+                        for p in policy.qualification.platforms
+                        for a in policy.qualification.actions
+                    },
+                    deadline=time.monotonic() + 30,
+                )
+
+        with self.assertRaises(CICoverageError):
+            consume()
+        pilot.complete_and_archive()
+        proof = consume()
+        self.assertEqual(len(proof["cells"]), 4)
+        self.assertEqual(
+            {job for cell in proof["cells"] for job in cell["job_ids"]}, {311, 312}
+        )
+        self.assertIs(proof["tested_artifacts"], False)
+        for fault in (
+            "missing-action",
+            "wrong-command",
+            "wrong-source",
+            "old-only",
+            "skipped",
+            "copied-exporter",
+            "wrong-origin",
+            "relabelled-copy",
+        ):
+            pilot.configure()
+            bad = copy.deepcopy(receipts)
+            if fault == "missing-action":
+                bad["windows"]["actions"].pop()
+            if fault == "wrong-command":
+                bad["windows"]["actions"][0]["argv"][1:] = ["different.py"]
+            if fault == "wrong-source":
+                bad["linux"]["actions"][0]["revision"] = "a" * 40
+            if fault == "old-only":
+                pilot.jobs = [j for j in pilot.jobs if j["id"] != 311]
+            if fault == "skipped":
+                pilot.jobs[2]["conclusion"] = "skipped"
+            if fault == "copied-exporter":
+                pilot.jobs[-1]["started_at"] = "2026-11-17T00:00:01Z"
+            if fault == "wrong-origin":
+                bad["linux"]["actions"][0]["attempt"] = "2"
+            if fault == "relabelled-copy":
+                for fact in bad["linux"]["actions"]:
+                    fact["attempt"] = "2"
+            pilot.write_state()
+            with self.subTest(fault=fault):
+                result = pilot.export(bad)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(pilot.report.exists())
+        self.assertEqual(pilot.native("test", seed=True).returncode, 1)
+        self.assertNotEqual(pilot.native("receipt").returncode, 0)
+        recovered_receipts = pilot.receipts()
+        pilot.configure()
+        self.assertEqual(pilot.export(recovered_receipts).returncode, 0)
+        pilot.complete_and_archive()
+        self.assertEqual(len(consume()["cells"]), 4)
