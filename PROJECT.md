@@ -149,6 +149,16 @@ Retired or failed scopes cannot be revived through copied worker contexts, and
 these checks grant no new stage, tool or network permission. Live SDK scheduling,
 repair/publication admission and installed qualification remain open.
 
+An explicitly configured internal SDK operation owner now holds one original
+accepted provider and original verifier under a separate current grant around
+synchronous consumption. The exact consumer command contract joins recipe
+identity, and fresh revalidation must match the original invocation exactly.
+Original pinned-file stamps close ownership after blocking oracle reads. The
+existing complete-node repair driver can retain actual stage reservations under
+that owner and terminates on ownership loss. These local fixtures use real
+provider custody and inert consumer DATA; multi-provider joins, live scheduler
+integration, public profile activation and installed qualification remain open.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records

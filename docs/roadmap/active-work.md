@@ -392,6 +392,31 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       passes; native Windows, complete lifecycle and installed qualification remain
       open. This grants no new execution permission; SDK public generation remains
       refused until the complete admission join.
+      An explicitly configured internal operation owner now holds original
+      accepted provider/verifier scopes and actual verifier grants while a
+      synchronous operation consumes its bound invocation. The exact selected
+      consumer command contract joins recipe identity. Fresh revalidation rejects
+      any binding difference rather than retagging accepted source. Final owner
+      checks follow blocking oracle reads, then original pinned-file stamps close
+      without another policy callback or byte read. Actual-provider regressions
+      cover post-scope-read ownership loss and same-size restored-time writes in
+      the last owner callback. This increment explicitly accepts one provider;
+      multi-provider closing cuts require actual two-provider fixtures before
+      lifting the bound. The existing complete-node repair driver now has an
+      optional synchronous owner that retains each stage's real reserve/guard/
+      release path, retries capacity without running unreserved work and stops
+      repairs after owner loss. Unsupported async, Future and non-None owners
+      fail before advancing the chain. Existing transport defaults remain intact.
+      Fifty selected local checks pass, including real accepted-provider operation
+      fixtures, closing races, pinned-input stamps, synchronous admission and
+      existing lifecycle regressions; no skips. Independent state/security review
+      passes. Consumer plans in this selection remain inert DATA, so these checks
+      do not qualify generated SDK output or an installed lifecycle.
+      Next: wire configured local SDK scheduling through this operation owner,
+      waiting for exact direct provider acceptance before source/cache/model
+      selection, and retain the same binding through build and publication.
+      Multi-provider support, default/public profile activation, remote/recovery
+      support and complete source-cache lifecycle qualification remain open.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

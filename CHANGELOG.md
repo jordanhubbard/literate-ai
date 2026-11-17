@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Node SDK groundwork: add an explicit internal synchronous operation owner for
+  one genuinely accepted provider under fresh verifier grants. Renewal preserves
+  the exact original invocation and consumer command contract. Closing checks
+  reject ownership loss during final reads and late oracle writes. The shared
+  complete-node repair driver can retain per-stage reservations under that owner;
+  ownership loss ends the operation before further repair. Public SDK generation
+  and multi-provider lifecycle admission remain unfinished.
+
 - Coding-agent and tool children now share bounded process supervision. Scoped
   owner checks stop launches and running process trees after revocation, including
   copied contexts, and withhold results when ownership expires during cleanup.

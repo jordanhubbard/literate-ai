@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 import re
 import time
 from collections.abc import Callable, Generator, Mapping
@@ -2877,20 +2878,99 @@ class StandardProjectLifecycleService:
             disposition=disposition,
         )
 
-    def _run_complete_node(self, *args, **kwargs):
-        """Drive the steps inside an explicitly selected complete-node transport."""
+    def _run_complete_node(self, *args, require_current=None, **kwargs):
+        """Drive the existing repair chain inside one complete-node operation.
+
+        A local live owner must retain each stage's own reservation. Ordinary
+        complete-node transports retain their existing admission semantics.
+        """
+        if require_current is not None and (
+            not callable(require_current)
+            or any(
+                inspect.iscoroutinefunction(target)
+                or inspect.isasyncgenfunction(target)
+                or inspect.isgeneratorfunction(target)
+                for target in (require_current, type(require_current).__call__)
+            )
+        ):
+            raise TypeError("lifecycle owner must be synchronous and return None")
+        owner_failure = None
+
+        def guard():
+            nonlocal owner_failure
+            if owner_failure is not None:
+                raise owner_failure
+            if require_current is not None:
+                try:
+                    returned = require_current()
+                    if returned is not None:
+                        if inspect.iscoroutine(returned) or inspect.isgenerator(
+                            returned
+                        ):
+                            returned.close()
+                        raise TypeError(
+                            "lifecycle owner must be synchronous and return None"
+                        )
+                except BaseException as exc:
+                    owner_failure = exc
+                    raise
+
+        def advance(operation, *values):
+            guard()
+            try:
+                return operation(*values)
+            finally:
+                guard()
+
+        guard()
         steps = self._run_complete_node_steps(*args, **kwargs)
         try:
-            step = next(steps)
+            step = advance(next, steps)
             while True:
                 try:
-                    value = self._run_step(step)
+                    value = (
+                        self._run_owned_step(step, guard)
+                        if require_current is not None
+                        else self._run_step(step)
+                    )
                 except Exception as exc:
-                    step = steps.throw(exc)
+                    # Loss of the operation owner is terminal, including when a
+                    # stage caught its error. Never feed it into model repair.
+                    guard()
+                    step = advance(steps.throw, exc)
                 else:
-                    step = steps.send(value)
+                    step = advance(steps.send, value)
         except StopIteration as completed:
-            return completed.value
+            result = completed.value
+        finally:
+            steps.close()
+        guard()
+        return result
+
+    def _run_owned_step(self, step, require_current):
+        def guard():
+            require_current()
+            if step.guard is not None:
+                step.guard()
+            require_current()
+
+        owned_step = replace(step, guard=guard)
+        require_current()
+        if step.reserve is None:
+            result = self._run_step(owned_step)
+        else:
+            while True:
+                require_current()
+                reservation = step.reserve()
+                if reservation is not None:
+                    # The common runner releases even if the closing admission
+                    # check fails before reservation.run().
+                    result = self._run_reserved_step(owned_step, reservation)
+                    break
+                require_current()
+                time.sleep(0.01)
+        require_current()
+        return result
 
     def _run_reserved_step(
         self, step: _LifecycleStep, reservation: ReservedLifecycleOperation

@@ -183,6 +183,7 @@ class NodeLibraryVerifierInputs(NamedTuple):
 class NodeLibraryVerifierScope(NamedTuple):
     inputs: NodeLibraryVerifierInputs
     require_unchanged: Callable[[], None]
+    capture_stamps: Callable[[], Callable[[], None]]
 
     def __call__(self):
         self.require_unchanged()
@@ -412,9 +413,23 @@ def capture_loaded_node_library_verifier_inputs(oracle):
     if witness is None:
         _refuse()
     witness.require_unchanged(oracle)
+
+    def capture_stamps():
+        witness.require_original(oracle)
+        stamps = witness.authority.capture_current_stamps()
+
+        def require_stamps():
+            witness.require_original(oracle)
+            stamps()
+
+        require_stamps()
+        return require_stamps
+
     try:
         yield NodeLibraryVerifierScope(
-            witness.verifier_inputs, lambda: witness.require_unchanged(oracle)
+            witness.verifier_inputs,
+            lambda: witness.require_unchanged(oracle),
+            capture_stamps,
         )
     finally:
         witness.require_unchanged(oracle)

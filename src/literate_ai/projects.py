@@ -1122,6 +1122,65 @@ class PinnedInputClosure:
                     + ", ".join(entry.labels),
                 )
 
+    def capture_current_stamps(self):
+        """Fence original POSIX files after owner callbacks without reading again.
+
+        This is observation only. It neither renews authority nor replaces byte
+        validation. Directory identity is pinned without rejecting unrelated
+        sibling writes; original files retain metadata-change timestamps.
+        """
+        if os.name != "posix":
+            raise ValueError("live pinned files require POSIX change timestamps")
+        entries = tuple(self._entries.items())
+        files = {}
+        directories = {}
+
+        def file_stamp(path):
+            value = path.lstat()
+            if not stat.S_ISREG(value.st_mode):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned file is no longer regular"
+                )
+            return (
+                value.st_dev,
+                value.st_ino,
+                value.st_mode,
+                value.st_nlink,
+                value.st_size,
+                value.st_mtime_ns,
+                value.st_ctime_ns,
+            )
+
+        def directory_stamp(path):
+            value = path.lstat()
+            if not stat.S_ISDIR(value.st_mode):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned directory changed"
+                )
+            return value.st_dev, value.st_ino, value.st_mode
+
+        for _, entry in entries:
+            files[entry.path] = file_stamp(entry.path)
+            for parent in entry.path.parents:
+                directories[parent] = directory_stamp(parent)
+
+        def require_stamps():
+            if (
+                tuple(self._entries.items()) != entries
+                or any(
+                    directory_stamp(path) != value
+                    for path, value in directories.items()
+                )
+                or any(file_stamp(path) != value for path, value in files.items())
+            ):
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned inputs changed before close"
+                )
+
+        self.require_unchanged()
+        require_stamps()
+        return require_stamps
+
     def _identity_document(self) -> dict[str, object]:
         return {
             "schema": "literate-ai/pinned-input-closure@1",

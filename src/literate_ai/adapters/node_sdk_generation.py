@@ -163,7 +163,14 @@ class BoundNodeSDKGenerationInvocation:
 
 
 def bind_node_sdk_generation_invocation(
-    execution_plan, prepared, *, profile, target, providers, require_current
+    execution_plan,
+    prepared,
+    *,
+    profile,
+    target,
+    providers,
+    require_current,
+    command_contract=None,
 ):
     """Construct a new recipe/request before cache lookup; preserve the static plan.
 
@@ -220,12 +227,30 @@ def bind_node_sdk_generation_invocation(
             )
     if any(item.artifact.target_identity != target for item in providers):
         raise ValueError("SDK generation provider target differs from its consumer")
+    contract_inputs = ()
+    if command_contract is not None:
+        from literate_ai.contracts import ComponentCommandContract
+
+        if (
+            type(command_contract) is not ComponentCommandContract
+            or command_contract.component_revision != prepared.plan.component_revision
+            or command_contract.artifact_export.target_identity != target
+            or command_contract.library_import_surface != recipe.library_import_surface
+            or "node_sdk_command_contract" in dict(recipe.resolved_inputs)
+        ):
+            raise ValueError(
+                "SDK invocation differs from its exact consumer command contract"
+            )
+        contract_inputs = (
+            ("node_sdk_command_contract", command_contract.identity.uri),
+        )
     bound_recipe = replace(
         recipe,
         node_sdk_providers=providers,
         resolved_inputs=(
             *recipe.resolved_inputs,
             ("node_sdk_profile", profile.identity.uri),
+            *contract_inputs,
         ),
     )
     original = prepared.request
