@@ -52,6 +52,49 @@ that adapter: that system applied its own translation between its task and provi
 layers. Literate AI never applies both paths to one request, and neither path can
 change locked derivation authority or grant execution privilege.
 
+## Optional host-connected A2A peers
+
+A coding agent may use a suitable A2A peer already connected through its host
+when the current task permits delegation and the recipient's access is authorized.
+The host owns connections, authentication, discovery, conversations, remote tasks,
+status, deadlines and cancellation. Literate AI adds optional agent guidance, not
+an A2A client/server, account setup flow, protocol configuration or second scheduler.
+A missing connection or unsuitable peer leaves the ordinary local path available.
+
+The nested `use-connected-a2a-peers` agent skill bounds each handoff to necessary
+public context, owned paths, permitted operations and data, deadlines, expected
+candidate artifacts and acceptance requirements. Do not expose dependency-private
+context or infer source-disclosure, build or publication permission from delegation.
+An Agent Card describes a claimed capability, not a privilege or proof of execution.
+Honor host/user delegation restrictions before sharing project context.
+
+Use the configured tracker for consequential handoffs and decisions; under ADR 0050,
+forge issues remain the durable default. Host task/result identifiers correlate
+operational records only. They do not become generation, source-cache or build-cache
+inputs. No peer conversation may silently amend a specification, public interface,
+exact skill, workflow, route or authorization. Promote proposed changes only through
+the existing reviewed and pinned authority owners.
+
+Returned work remains a candidate: verify the actual files and artifact identities,
+then run ordinary current validation and authorized lifecycle/independent acceptance.
+Neither a completed remote task nor a reported test pass grants execution permission
+or replaces local custody and acceptance. Preserve failures and limitations.
+An observation timeout leaves task ownership unresolved; establish terminal state or
+an explicit handoff before repeating the delegated work locally. Continue independent
+work while the host resolves an active task, and preserve already completed results.
+
+The following guidance review defines the intended decisions; it does not claim a
+native A2A transport or a live peer was exercised.
+
+| Situation | Required decision |
+| --- | --- |
+| Suitable connected peer and permitted bounded task | Share only authorized public context; use host task operations and independently validate candidate results. |
+| Host has no A2A support | Continue locally without new dependencies, accounts or project configuration. |
+| Peer is unavailable, unsuitable or lacks access | Select ordinary local work; do not broaden the task or infer privileges from an Agent Card. |
+| Delegation or disclosure is prohibited | Keep the work local; do not send project context during discovery or delegation. |
+| Task observation times out or cancellation is unconfirmed | Use the host's status/cancellation path; establish terminal ownership or an explicit handoff before duplicate execution. |
+| Peer returns completed work or proposes changed authority | Preserve its candidate/evidence; verify exact artifacts and review/pin authority changes before normal acceptance. |
+
 ## Join protocol
 
 One future `derivation-run` envelope should carry semantic identities rather than host

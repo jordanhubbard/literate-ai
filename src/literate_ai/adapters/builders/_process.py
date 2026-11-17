@@ -12,6 +12,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
+from literate_ai.adapters.worker_telemetry_processes import (
+    register_original_process_launch,
+    retire_original_process_observation,
+)
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
 from .._processes import (
@@ -142,102 +146,104 @@ def run_bounded_process(
         raise BuildError(
             f"{error_prefix}_launch_failed", "Tool process could not start"
         ) from exc
-    ownership.bind(process.pid)
-    assert process.stdout is not None and process.stderr is not None
-    streams = {
-        "stdout": (process.stdout, stdout_limit_bytes),
-        "stderr": (process.stderr, stderr_limit_bytes),
-    }
-    buffers = {name: bytearray() for name in streams}
-    counts = dict.fromkeys(streams, 0)
-    overflow = threading.Event()
-    read_errors: list[OSError | ValueError] = []
-    state_lock = threading.Lock()
-    last_activity = [started_monotonic]
-    input_errors: list[OSError | ValueError] = []
-
-    def send_input() -> None:
-        assert process.stdin is not None and input_bytes is not None
-        try:
-            remaining = memoryview(input_bytes)
-            while remaining:
-                written = process.stdin.write(remaining[:_PIPE_READ_BYTES])
-                if not written:
-                    raise OSError("tool input stream stopped accepting bytes")
-                remaining = remaining[written:]
-        except (OSError, ValueError) as exc:
-            input_errors.append(exc)
-        finally:
-            with suppress(OSError, ValueError):
-                process.stdin.close()
-
+    observation = None
     writer = None
-    if input_bytes is not None:
-        writer = threading.Thread(
-            target=send_input, name="literate-ai-tool-stdin", daemon=True
-        )
-        writer.start()
+    try:
+        ownership.bind(process.pid)
+        observation = register_original_process_launch(process)
+        assert process.stdout is not None and process.stderr is not None
+        streams = {
+            "stdout": (process.stdout, stdout_limit_bytes),
+            "stderr": (process.stderr, stderr_limit_bytes),
+        }
+        buffers = {name: bytearray() for name in streams}
+        counts = dict.fromkeys(streams, 0)
+        overflow = threading.Event()
+        read_errors: list[OSError | ValueError] = []
+        state_lock = threading.Lock()
+        last_activity = [started_monotonic]
+        input_errors: list[OSError | ValueError] = []
 
-    def retain(name: str, chunk: bytes) -> None:
-        if name == "stdout" and stdout_sink is not None:
-            remaining = memoryview(chunk)
-            while remaining:
-                try:
-                    written = stdout_sink.write(remaining)
-                except Exception as exc:
-                    # A callback failure must reach the supervising thread even
-                    # when the child already exited successfully. Never let a
-                    # reader-thread traceback turn lost archive bytes into zero.
-                    raise OSError("tool stdout sink write failed") from exc
-                if type(written) is not int or not 0 < written <= len(remaining):
-                    raise OSError("tool stdout sink stopped accepting bytes")
-                remaining = remaining[written:]
-        else:
-            buffers[name].extend(chunk)
-            if name == "stderr" and stderr_tail_bytes is not None:
-                del buffers[name][:-stderr_tail_bytes]
-        counts[name] += len(chunk)
+        def send_input() -> None:
+            assert process.stdin is not None and input_bytes is not None
+            try:
+                remaining = memoryview(input_bytes)
+                while remaining:
+                    written = process.stdin.write(remaining[:_PIPE_READ_BYTES])
+                    if not written:
+                        raise OSError("tool input stream stopped accepting bytes")
+                    remaining = remaining[written:]
+            except (OSError, ValueError) as exc:
+                input_errors.append(exc)
+            finally:
+                with suppress(OSError, ValueError):
+                    process.stdin.close()
 
-    def drain(name: str) -> None:
-        stream, limit = streams[name]
-        try:
-            while True:
-                tail = name == "stderr" and stderr_tail_bytes is not None
-                remaining = _PIPE_READ_BYTES if tail else limit - counts[name]
-                read_available = getattr(stream, "read1", stream.read)
-                chunk = read_available(min(_PIPE_READ_BYTES, remaining + 1))
-                if not chunk:
-                    return
-                if len(chunk) > remaining:
-                    if remaining > 0:
-                        retain(name, chunk[:remaining])
+        if input_bytes is not None:
+            writer = threading.Thread(
+                target=send_input, name="literate-ai-tool-stdin", daemon=True
+            )
+            writer.start()
+
+        def retain(name: str, chunk: bytes) -> None:
+            if name == "stdout" and stdout_sink is not None:
+                remaining = memoryview(chunk)
+                while remaining:
+                    try:
+                        written = stdout_sink.write(remaining)
+                    except Exception as exc:
+                        # A callback failure must reach the supervising thread even
+                        # when the child already exited successfully. Never let a
+                        # reader-thread traceback turn lost archive bytes into zero.
+                        raise OSError("tool stdout sink write failed") from exc
+                    if type(written) is not int or not 0 < written <= len(remaining):
+                        raise OSError("tool stdout sink stopped accepting bytes")
+                    remaining = remaining[written:]
+            else:
+                buffers[name].extend(chunk)
+                if name == "stderr" and stderr_tail_bytes is not None:
+                    del buffers[name][:-stderr_tail_bytes]
+            counts[name] += len(chunk)
+
+        def drain(name: str) -> None:
+            stream, limit = streams[name]
+            try:
+                while True:
+                    tail = name == "stderr" and stderr_tail_bytes is not None
+                    remaining = _PIPE_READ_BYTES if tail else limit - counts[name]
+                    read_available = getattr(stream, "read1", stream.read)
+                    chunk = read_available(min(_PIPE_READ_BYTES, remaining + 1))
+                    if not chunk:
+                        return
+                    if len(chunk) > remaining:
+                        if remaining > 0:
+                            retain(name, chunk[:remaining])
+                        with state_lock:
+                            last_activity[0] = clock()
+                        overflow.set()
+                        if process.poll() is None:
+                            _terminate_process_tree(process, ownership=ownership)
+                        return
+                    retain(name, chunk)
                     with state_lock:
                         last_activity[0] = clock()
-                    overflow.set()
-                    if process.poll() is None:
-                        _terminate_process_tree(process, ownership=ownership)
-                    return
-                retain(name, chunk)
+            except (OSError, ValueError) as exc:
                 with state_lock:
-                    last_activity[0] = clock()
-        except (OSError, ValueError) as exc:
-            with state_lock:
-                read_errors.append(exc)
-            if process.poll() is None:
-                _terminate_process_tree(process, ownership=ownership)
+                    read_errors.append(exc)
+                if process.poll() is None:
+                    _terminate_process_tree(process, ownership=ownership)
 
-    readers = tuple(
-        threading.Thread(
-            target=drain,
-            args=(name,),
-            name=f"literate-ai-tool-{name}",
-            daemon=True,
+        readers = tuple(
+            threading.Thread(
+                target=drain,
+                args=(name,),
+                name=f"literate-ai-tool-{name}",
+                daemon=True,
+            )
+            for name in streams
         )
-        for name in streams
-    )
-    for reader in readers:
-        reader.start()
-    try:
+        for reader in readers:
+            reader.start()
         try:
             while True:
                 if interrupt_guard is not None:
@@ -351,17 +357,20 @@ def run_bounded_process(
             )
         return result
     finally:
-        if process.poll() is None or terminate_descendants:
-            _terminate_process_tree(process, ownership=ownership)
-            with suppress(subprocess.TimeoutExpired):
-                process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
-        ownership.release()
-        _close_process_pipes(process)
-        if writer is not None:
+        try:
+            retire_original_process_observation(observation)
+        finally:
+            if process.poll() is None or terminate_descendants:
+                _terminate_process_tree(process, ownership=ownership)
+                with suppress(subprocess.TimeoutExpired):
+                    process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
+            ownership.release()
+            _close_process_pipes(process)
             if process.stdin is not None:
                 with suppress(OSError, ValueError):
                     process.stdin.close()
-            writer.join(timeout=_STREAM_JOIN_SECONDS)
+            if writer is not None and writer.ident is not None:
+                writer.join(timeout=_STREAM_JOIN_SECONDS)
 
 
 __all__ = ["BoundedProcessResult", "run_bounded_process"]

@@ -1,0 +1,94 @@
+{
+  "decision": "approved",
+  "findings": [],
+  "base_head": "146a8ca46ab4677e2a0960de5b392217c1a7b8df",
+  "scope": "Exact frozen uncommitted acceptance-harness extension over committed146a8ca46; approval of harness source only, not actual installed/platform/full-wheel acceptance.",
+  "source_manifest": {
+    "scripts/installed_maintained_controls.py": {
+      "sha256": "6e4f947aa95c10b5b81d6e416860c70f9784d3bf9b0e74ae14fb392b4013e972",
+      "git_blob": "67c2d38210e20a125c9fa54f353058d33efd2c1f"
+    },
+    "scripts/wheel_smoke.py": {
+      "sha256": "b434c8e1a35fee515ac976d91f4403f072ac2b91e2cd724534c99ed949ed9517",
+      "git_blob": "a7a56f818cae768a908039aa012900e533a5b944"
+    }
+  },
+  "fixed_case_counts": {
+    "diagnostics": 31,
+    "runtime-capabilities": 9,
+    "cuda-inventory": 15,
+    "coding-cli-posix": 26,
+    "telemetry-controller": 89,
+    "telemetry-linux-processes": 11
+  },
+  "applicable_platform_inventory": {
+    "darwin": {
+      "mandatory": [
+        "diagnostics",
+        "runtime-capabilities",
+        "cuda-inventory",
+        "coding-cli-posix",
+        "telemetry-controller"
+      ],
+      "case_count": 170,
+      "unavailable": [
+        "telemetry-linux-processes"
+      ]
+    },
+    "linux": {
+      "mandatory": [
+        "diagnostics",
+        "runtime-capabilities",
+        "cuda-inventory",
+        "coding-cli-posix",
+        "telemetry-controller",
+        "telemetry-linux-processes"
+      ],
+      "case_count": 181,
+      "unavailable": []
+    },
+    "win32": {
+      "mandatory": [
+        "diagnostics",
+        "runtime-capabilities",
+        "cuda-inventory",
+        "telemetry-controller"
+      ],
+      "case_count": 144,
+      "unavailable": [
+        "coding-cli-posix",
+        "telemetry-linux-processes"
+      ]
+    }
+  },
+  "source_assessment": [
+    "Four additions are literal method inventories; existing diagnostics31 and runtime9 inventories remain unchanged. Each class inventory is compared exactly with unittest getTestCaseNames, so missing or newly added cases cannot silently change coverage.",
+    "Direct helper refuses a nonapplicable scope. Caller records explicit platform-unavailable status/reason only for POSIX coding CLI on non-POSIX and Linux process observations on non-Linux; no configurable host/platform bypass was introduced.",
+    "Applicable scopes launch installed Python with -I; helper requires isolated virtual environment, refuses candidate-source module origins and editable direct_url metadata before test execution, clears child Python path/startup inputs and requires all framework module origins under installed prefix.",
+    "Before and after case execution, selected subject module hashes must equal candidate source; complete test Python membership/content is hashed, fixture paths/digests are bound, exact returned case set/count is checked and any skipped/failed case refuses.",
+    "Caller checks schema/scope/status, exact selected/passed cases, zero skipped, fixture hashes, complete test-input identity/member count, module-origin flag/count and exact subject module set. Script and test-input mutation across invocation refuse; every returned subject hash must equal candidate bytes.",
+    "Existing wheel caller invokes these controls after actual wheel installation in its separately created environment. This review did not execute that lifecycle or infer installed success from an editable environment."
+  ],
+  "remaining_acceptance": [
+    "Actual complete wheel creation and noneditable installed controls on exact current harness/runtime subject remain pending.",
+    "Applicable scopes require zero skips; explicit unavailable platform scopes are gaps, not passes.",
+    "Native Windows coding CLI lifecycle remains unqualified by this POSIX-only scope; Linux process controls require actual Linux execution.",
+    "Telemetry controls qualify partial primitives only, not negotiated public feed, production policy custody, action/subtree attribution or installed downstream live-worker journeys.",
+    "Genuine selected Codex model, full native/platform/current-head/resulting-main and release acceptance remain open."
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "reviewer_role": "same separately authorized non-author reviewer",
+  "reviewed_entries_unchanged": 24,
+  "negative_validator_controls": {
+    "synthetic_baseline": "accepted only as validator control",
+    "missing_case": "refused",
+    "installed_source_digest_mismatch": "refused",
+    "injected_skip": "refused"
+  },
+  "actual_platform_counterexamples": [
+    "Editable installed invocation refused before cases",
+    "Linux-only scope refused on actual macOS"
+  ],
+  "actual_installed_cases_run_this_review": 0,
+  "release_attestation": false
+}
