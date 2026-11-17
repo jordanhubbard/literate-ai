@@ -266,8 +266,14 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             run = _evidence_run(args)
             if args.evidence_command == "timing":
                 from literate_ai.evidence_timing import summarize_timing
+                from literate_ai.parallel_unittest_timing import (
+                    registered_module_timings,
+                )
 
-                return summarize_timing(run.reduced()), 0
+                index = run.reduced()
+                summary = summarize_timing(index)
+                summary["module_timing"] = registered_module_timings(index, run.root)
+                return summary, 0
             if args.evidence_command == "index":
                 path = run.write_index()
                 return {

@@ -6,6 +6,7 @@ import importlib.util
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -20,6 +21,9 @@ from unittest.mock import patch
 from literate_ai.adapters.project_lifecycle_driver import (
     lifecycle_driver_implementation_identity,
 )
+from literate_ai.evidence_ledger import open_run
+from literate_ai.evidence_timing import summarize_module_timing
+from literate_ai.parallel_unittest_timing import FILENAME, read_module_timing
 from literate_ai.parallel_unittests import available_workers
 from literate_ai.projects import LoadedProject, ProjectConfigurationStore
 
@@ -41,13 +45,55 @@ class ParallelUnittestTests(unittest.TestCase):
         )
 
     def run_suite(
-        self, workers: int = 2, timeout: float = 20, extra: tuple[str, ...] = ()
+        self,
+        workers: int = 2,
+        timeout: float = 20,
+        extra: tuple[str, ...] = (),
+        timing_write_failure: bool = False,
+        scratch_cleanup: str | None = None,
+        before_runner: str | None = None,
     ) -> subprocess.CompletedProcess[str]:
+        entry = ["-m", "literate_ai.test_checkpointing"]
+        if timing_write_failure:
+            entry = [
+                "-c",
+                "import runpy; from unittest.mock import patch; "
+                "patch('literate_ai.parallel_unittest_timing.MAX_RECORD_BYTES', "
+                "1).start(); "
+                "runpy.run_module('literate_ai.test_checkpointing', "
+                "run_name='__main__')",
+            ]
+        if scratch_cleanup is not None:
+            entry = [
+                "-c",
+                "import runpy, time\n"
+                "from pathlib import Path\n"
+                "import literate_ai.parallel_unittests as runner\n"
+                "original = runner.shutil.rmtree\n"
+                "def cleanup(path, *args, **kwargs):\n"
+                "    if Path(path).name.startswith('litai-pt-'):\n"
+                + (
+                    "        raise OSError('controlled scratch cleanup failure')\n"
+                    if scratch_cleanup == "failure"
+                    else "        time.sleep(.3)\n"
+                )
+                + "    return original(path, *args, **kwargs)\n"
+                "runner.shutil.rmtree = cleanup\n"
+                "runpy.run_module('literate_ai.test_checkpointing', "
+                "run_name='__main__')",
+            ]
+        if before_runner is not None:
+            entry = [
+                "-c",
+                "import runpy\n"
+                + textwrap.dedent(before_runner)
+                + "\nrunpy.run_module('literate_ai.test_checkpointing', "
+                "run_name='__main__')",
+            ]
         return subprocess.run(
             [
                 sys.executable,
-                "-m",
-                "literate_ai.test_checkpointing",
+                *entry,
                 "python",
                 "--state",
                 str(self.state),
@@ -68,12 +114,245 @@ class ParallelUnittestTests(unittest.TestCase):
             timeout=60,
         )
 
+    def test_timing_observes_barriers_crash_and_cancellation_without_owning_results(
+        self,
+    ):
+        for name, other in (("a", "b"), ("b", "a")):
+            self.module(
+                name,
+                f'''
+                import time, unittest
+                from pathlib import Path
+                class Tests(unittest.TestCase):
+                    def test_overlap(self):
+                        Path("{name}.ready").touch()
+                        deadline = time.monotonic() + 20
+                        while not Path("{other}.ready").exists():
+                            self.assertLess(time.monotonic(), deadline)
+                            time.sleep(.01)
+                    @classmethod
+                    def tearDownClass(cls):
+                        Path("{name}.finished").touch()
+            ''',
+            )
+        self.module(
+            "c",
+            """
+            import unittest
+            from pathlib import Path
+            LITAI_TEST_SERIAL = True
+            class Tests(unittest.TestCase):
+                def test_barrier(self):
+                    self.assertTrue(Path("a.finished").exists())
+                    self.assertTrue(Path("b.finished").exists())
+                    self.assertFalse(Path("e.ready").exists())
+        """,
+        )
+        self.module(
+            "d",
+            """
+            import os, time, unittest
+            from pathlib import Path
+            class Tests(unittest.TestCase):
+                def test_crash(self):
+                    deadline = time.monotonic() + 20
+                    while not Path("e.ready").exists():
+                        self.assertLess(time.monotonic(), deadline)
+                        time.sleep(.01)
+                    os._exit(23)
+        """,
+        )
+        self.module(
+            "e",
+            """
+            import time, unittest
+            from pathlib import Path
+            class Tests(unittest.TestCase):
+                def test_cancelled(self):
+                    Path("e.ready").touch()
+                    time.sleep(30)
+        """,
+        )
+        self.module(
+            "f",
+            """
+            import unittest
+            from pathlib import Path
+            LITAI_TEST_SERIAL = True
+            class Tests(unittest.TestCase):
+                def test_never_started(self):
+                    Path("f.started").touch()
+        """,
+        )
+        completed = self.run_suite()
+        self.assertEqual(completed.returncode, 1, completed.stderr)
+        report = json.loads(self.report.read_text())
+        artifacts = list(self.root.rglob(FILENAME))
+        self.assertEqual(len(artifacts), 1)
+        path = artifacts[0]
+        records, issues, size = read_module_timing(
+            path.parent.resolve(), path.parent.name
+        )
+        self.assertEqual(issues, [])
+        summary = summarize_module_timing(records, invocation=path.parent.name)
+        self.assertEqual(summary["issues"], [])
+        self.assertEqual(summary["coverage"], "complete")
+        self.assertEqual(summary["selected_modules"], 6)
+        self.assertEqual(summary["observed_peak_module_overlap"], 2)
+        rows = {row["module"]: row for row in summary["modules"]}
+        offsets = {name: row["offsets_seconds"] for name, row in rows.items()}
+        for name in ("test_a", "test_b"):
+            self.assertLessEqual(
+                offsets[name]["cleanup_complete"], offsets["test_c"]["setup_begin"]
+            )
+        for name in ("test_d", "test_e"):
+            self.assertLessEqual(
+                offsets["test_c"]["cleanup_complete"], offsets[name]["setup_begin"]
+            )
+        self.assertEqual(rows["test_d"]["disposition"], "worker-error")
+        self.assertEqual(rows["test_e"]["disposition"], "peer-cancelled")
+        self.assertEqual(rows["test_f"]["disposition"], "not-started-after-failure")
+        self.assertIsNone(rows["test_f"]["elapsed_seconds"])
+        self.assertFalse((self.root / "f.started").exists())
+        self.assertLess(len(records), 64)
+        self.assertLess(size, 64 * 8192)
+        for name in ("a.ready", "b.ready", "a.finished", "b.finished", "e.ready"):
+            (self.root / name).unlink()
+        self.state.unlink()
+        self.report.unlink()
+        failed_diagnostics = self.run_suite(timing_write_failure=True)
+        self.assertEqual(failed_diagnostics.returncode, completed.returncode)
+        self.assertEqual(failed_diagnostics.stderr.count("module timing incomplete"), 1)
+        repeated_report = json.loads(self.report.read_text())
+        self.assertEqual(repeated_report["summary"], report["summary"])
+        self.assertEqual(repeated_report["outcomes"], report["outcomes"])
+
     def test_worker_count_validation(self) -> None:
         for invalid in (0, -1, True, "2.5", "01", "invalid"):
             with self.subTest(invalid=invalid), self.assertRaises(ValueError):
                 available_workers(invalid)
         self.assertEqual(available_workers("3"), 3)
         self.assertGreaterEqual(available_workers("auto"), 1)
+
+    def test_spawn_return_timing_is_sampled_before_bind_and_written_after_it(self):
+        self.module(
+            "one",
+            """
+            import unittest
+            class Tests(unittest.TestCase):
+                def test_pass(self):
+                    self.assertTrue(True)
+        """,
+        )
+        completed = self.run_suite(
+            before_runner="""
+            import json, time
+            from pathlib import Path
+            from literate_ai.adapters._processes import ProcessTreeOwnership
+            from literate_ai.parallel_unittest_timing import ModuleTiming
+            original_bind = ProcessTreeOwnership.bind
+            original_emit = ModuleTiming.emit
+            observations = {}
+            def bind(owner, pid):
+                observations["bind_started_ns"] = time.monotonic_ns()
+                original_bind(owner, pid)
+                observations["bind_finished_ns"] = time.monotonic_ns()
+            def emit(writer, kind, **values):
+                if kind == "spawn_returned":
+                    offset = values.get("offset_ns")
+                    Path("bind-observation.json").write_text(json.dumps({
+                        "bound_before_diagnostic": "bind_finished_ns" in observations,
+                        "sample_precedes_bind": (isinstance(offset, int)
+                            and offset + writer.origin
+                                <= observations["bind_started_ns"]),
+                    }))
+                original_emit(writer, kind, **values)
+            ProcessTreeOwnership.bind = bind
+            ModuleTiming.emit = emit
+        """
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(
+            json.loads((self.root / "bind-observation.json").read_text()),
+            {"bound_before_diagnostic": True, "sample_precedes_bind": True},
+        )
+
+    def test_timing_includes_scratch_cleanup_and_keeps_failed_deletion_open(self):
+        self.module(
+            "one",
+            """
+            import unittest
+            class Tests(unittest.TestCase):
+                def test_pass(self):
+                    self.assertTrue(True)
+        """,
+        )
+        for mode in ("delay", "failure"):
+            with self.subTest(mode=mode):
+                before = set(self.root.rglob(FILENAME))
+                self.state.unlink(missing_ok=True)
+                completed = self.run_suite(scratch_cleanup=mode)
+                paths = set(self.root.rglob(FILENAME)) - before
+                self.assertEqual(len(paths), 1)
+                path = paths.pop()
+                request = json.loads((path.parent / "0/request.json").read_text())
+                self.addCleanup(shutil.rmtree, request["scratch"], ignore_errors=True)
+                records, issues, _ = read_module_timing(
+                    path.parent.resolve(), path.parent.name
+                )
+                self.assertEqual(issues, [])
+                result = summarize_module_timing(records, invocation=path.parent.name)
+                row = result["modules"][0]
+                if mode == "delay":
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    self.assertEqual(result["coverage"], "complete")
+                    self.assertGreaterEqual(row["scratch_cleanup_seconds"], 0.3)
+                    self.assertGreaterEqual(row["cleanup_seconds"], 0.3)
+                    self.assertEqual(row["scratch_disposition"], "removed")
+                    self.assertEqual(
+                        row["elapsed_seconds"],
+                        row["offsets_seconds"]["scratch_removed"]
+                        - row["offsets_seconds"]["setup_begin"],
+                    )
+                else:
+                    self.assertNotEqual(completed.returncode, 0)
+                    self.assertIn("unclosed_invocation", result["issues"])
+                    self.assertIsNone(row["elapsed_seconds"])
+                    self.assertIsNone(row["cleanup_seconds"])
+                    self.assertEqual(row["scratch_disposition"], "unknown")
+
+    def test_timing_registers_once_with_the_owning_evidence_run(self):
+        from literate_ai.parallel_unittest_timing import ROLE, registered_module_timings
+
+        self.module(
+            "one",
+            """
+            import unittest
+            class Tests(unittest.TestCase):
+                def test_pass(self):
+                    self.assertTrue(True)
+        """,
+        )
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            evidence = open_run(self.root, operation="timing-control")
+            self.assertIsNotNone(evidence)
+            self.environment["OBJ_DIR"] = str(self.root / "objects")
+            self.environment["LITAI_EVIDENCE_RUN"] = str(evidence.root)
+            completed = self.run_suite()
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            index = evidence.reduced()
+            pointers = [
+                output
+                for node in index["nodes"]
+                for output in node["outputs"]
+                if output["role"] == ROLE
+            ]
+            self.assertEqual(len(pointers), 1)
+            result = registered_module_timings(index, evidence.root)
+            self.assertEqual(result["issues"], [])
+            self.assertEqual(len(result["invocations"]), 1)
+            self.assertEqual(result["invocations"][0]["coverage"], "complete")
+            self.assertEqual(result["invocations"][0]["selected_modules"], 1)
 
     def test_modules_overlap_with_private_directories(self) -> None:
         for name, other in (("a", "b"), ("b", "a")):
