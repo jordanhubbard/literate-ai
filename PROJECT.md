@@ -112,6 +112,11 @@ tool selection, public generated/retained adapters, authoritative declaration
 acceptance and native/installed-lifecycle qualification remain unfinished. These
 checks do not authorize downstream SDK or registered-child cutover.
 
+The new Node runtime/declaration oracle is explicitly refused by legacy
+single-harness acceptance, including copied or subclassed values. This preserves
+its additional original-input, second-runtime and declaration obligations while
+the opt-in SDK lifecycle is unfinished; rejection does not supply admission.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records

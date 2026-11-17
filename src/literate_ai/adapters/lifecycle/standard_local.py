@@ -201,6 +201,18 @@ class LocalStandardLifecycleError(RuntimeError):
     pass
 
 
+def _require_legacy_library_oracle(oracle):
+    # Node oracles add original input custody, a second runtime and independent
+    # declaration checks. Subclass compatibility cannot discard those duties.
+    from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+
+    if isinstance(oracle, NodeLibraryAcceptance):
+        raise LocalStandardLifecycleError(
+            "Node library oracle requires its explicit SDK verification profile; "
+            "the legacy single-harness acceptance path is unavailable"
+        )
+
+
 class GeneratedCandidateCommandError(LocalStandardLifecycleError):
     """A generated build or generated-test command rejected candidate bytes."""
 
@@ -7897,6 +7909,7 @@ class LocalStandardLifecyclePorts:
                     "importable library acceptance requires a verifier-owned "
                     "library oracle"
                 )
+            _require_legacy_library_oracle(oracle)
             custody = self.project_package_custody(package_plan, package_result)
             return self._accept_library(
                 component_lock,
@@ -8243,6 +8256,7 @@ class LocalStandardLifecyclePorts:
 
         if not isinstance(oracle, LibraryAcceptance):
             raise TypeError("oracle must be a LibraryAcceptance")
+        _require_legacy_library_oracle(oracle)
         # Revalidate mutable product values before staging or invoking the harness.
         oracle_identity = oracle.identity
         if self._evidence_recorder is not None:

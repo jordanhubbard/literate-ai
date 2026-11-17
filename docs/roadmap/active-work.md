@@ -316,6 +316,12 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       the current checkpoint; earlier setup refusals and historical manifests stay
       retained separately. Independent review confirms these synthetic shared-owner
       checks establish no public SDK admission or ordinary lifecycle qualification.
+      The legacy single-harness boundary now rejects Node-oracle values, copies
+      and subclasses before custody lookup, execution or evidence writes. A real
+      Node reproduction previously issued acceptance despite unverified ESM and
+      declarations. All 28 focused oracle/result/Python lifecycle checks pass,
+      preserving the legacy actual-Node cases, with independent security review.
+      The older whole-wheel checkpoint does not cover this later boundary repair.
       Next, join exact accepted provider evidence and live original-oracle checks
       before SDK recipe construction or cache lookup; retain that binding through
       build admission. Existing generation remains interface-only for other profiles.

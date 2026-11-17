@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Library acceptance refuses the new Node runtime/declaration oracle at legacy
+  single-harness entry points, before custody lookup or evidence publication.
+  Original-input, ESM and declaration requirements cannot be discarded through
+  subclass compatibility; public SDK lifecycle admission remains unfinished.
+
 - Library contracts: add opt-in, exact CommonJS runtime and TypeScript declaration
   paths while preserving existing library import wire identities. Node SDK
   composition under accepted ADR 0073 remains in development; its internal shared
