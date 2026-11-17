@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import io
+import os
 import stat
 import struct
 import unicodedata
@@ -12,7 +13,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 
-from literate_ai._filesystem import path_is_link_or_reparse
+from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.library_products import LibraryArtifactProduct
 from literate_ai.contracts.paths import canonical_relative_posix_paths
@@ -291,3 +292,126 @@ def require_transported_library_package(
                 raise ValueError(
                     "library package member differs from transported artifact"
                 )
+
+
+def require_materialized_files(
+    root: Path, files: tuple[DirectoryExportFile, ...]
+) -> None:
+    # Enumerate only the finite original namespace. Unexpected nodes stop before
+    # recursion; file reads allocate at most the pinned original length plus one.
+    expected = {item.path: item for item in files}
+    directories = set()
+    for name in expected:
+        directories.update(p.as_posix() for p in Path(name).parents if str(p) != ".")
+    seen = set()
+    stamps = {}
+    directory_stamps = {}
+    pending = [root]
+    while pending:
+        directory = pending.pop()
+        require_safe_directory(directory)
+        before_directory = directory.lstat()
+        directory_stamps[directory] = (
+            before_directory.st_dev,
+            before_directory.st_ino,
+            before_directory.st_mode,
+            before_directory.st_nlink,
+            before_directory.st_mtime_ns,
+            before_directory.st_ctime_ns,
+        )
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                path = Path(entry.path)
+                name = path.relative_to(root).as_posix()
+                if name in seen or path_is_link_or_reparse(path):
+                    raise ValueError(
+                        "materialized JavaScript provider has a foreign node"
+                    )
+                seen.add(name)
+                if name in directories:
+                    if not entry.is_dir(follow_symlinks=False):
+                        raise ValueError("materialized JavaScript directory differs")
+                    pending.append(path)
+                    continue
+                item = expected.get(name)
+                if item is None or not entry.is_file(follow_symlinks=False):
+                    raise ValueError(
+                        "materialized JavaScript provider has a foreign file"
+                    )
+                fd = os.open(
+                    path,
+                    os.O_RDONLY
+                    | getattr(os, "O_NOFOLLOW", 0)
+                    | getattr(os, "O_NONBLOCK", 0),
+                )
+                with os.fdopen(fd, "rb") as stream:
+                    before = os.fstat(stream.fileno())
+                    if (
+                        not stat.S_ISREG(before.st_mode)
+                        or before.st_nlink != 1
+                        or before.st_size != len(item.content)
+                        or stat.S_IMODE(before.st_mode) != item.mode
+                        or stream.read(len(item.content) + 1) != item.content
+                    ):
+                        raise ValueError(
+                            "materialized JavaScript provider bytes differ"
+                        )
+                    after = os.fstat(stream.fileno())
+                    stamps[path] = (
+                        after.st_dev,
+                        after.st_ino,
+                        after.st_mode,
+                        after.st_nlink,
+                        after.st_size,
+                        after.st_mtime_ns,
+                        after.st_ctime_ns,
+                    )
+                    if (
+                        before.st_dev,
+                        before.st_ino,
+                        before.st_size,
+                        before.st_mtime_ns,
+                        before.st_ctime_ns,
+                    ) != (
+                        after.st_dev,
+                        after.st_ino,
+                        after.st_size,
+                        after.st_mtime_ns,
+                        after.st_ctime_ns,
+                    ):
+                        raise ValueError(
+                            "materialized JavaScript provider changed during read"
+                        )
+    if seen != set(expected) | directories:
+        raise ValueError("materialized JavaScript provider namespace differs")
+
+    for directory, expected_stamp in directory_stamps.items():
+        current = directory.lstat()
+        observed_stamp = (
+            current.st_dev,
+            current.st_ino,
+            current.st_mode,
+            current.st_nlink,
+            current.st_mtime_ns,
+            current.st_ctime_ns,
+        )
+        if (
+            path_is_link_or_reparse(directory)
+            or not stat.S_ISDIR(current.st_mode)
+            or observed_stamp != expected_stamp
+        ):
+            raise ValueError("materialized directory changed before inventory close")
+
+    for path, expected_stamp in stamps.items():
+        current = path.lstat()
+        observed_stamp = (
+            current.st_dev,
+            current.st_ino,
+            current.st_mode,
+            current.st_nlink,
+            current.st_size,
+            current.st_mtime_ns,
+            current.st_ctime_ns,
+        )
+        if path_is_link_or_reparse(path) or observed_stamp != expected_stamp:
+            raise ValueError("materialized file changed before inventory close")

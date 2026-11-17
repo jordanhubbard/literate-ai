@@ -1,9 +1,9 @@
 # ADR 0073: Package Exact Sealed Libraries in Node SDKs
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-16
 - Decision owners: directing user and literate-ai maintainers
-- Roadmap: existing LIBRARY-ARTIFACT-001; no implementation subtasks begin before acceptance
+- Roadmap: existing LIBRARY-ARTIFACT-001
 - GitHub issue: [#452](https://github.com/jordanhubbard/literate-ai/issues/452)
 - Governance: [ADR 0006](0006-significant-feature-request-governance.md)
 
@@ -22,7 +22,9 @@ without copying generated implementation into authored source, using a same-name
 registry replacement, or relying on a producer checkout. Full general-purpose
 JavaScript bundling would add unrelated transformation and dependency authority.
 
-## Decision proposed for review
+Accepted by the directing user on 2026-11-16 before implementation.
+
+## Decision
 
 ### One typed composition plan and materializer
 

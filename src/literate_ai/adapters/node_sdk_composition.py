@@ -1,0 +1,406 @@
+"""One object-custody composition owner for generated and retained Node SDKs.
+
+Callers retain lifecycle admission, compiler execution and current live owners.
+This module never discovers a provider, fetches a dependency, or grants execution.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import re
+import unicodedata
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
+from pathlib import Path
+
+from literate_ai._filesystem import require_safe_directory
+from literate_ai.adapters.directory_artifacts import DirectoryExportFile
+from literate_ai.adapters.lifecycle.javascript_libraries import (
+    JavaScriptLibraryImports,
+    prepare_javascript_library_imports,
+)
+from literate_ai.adapters.node_sdk_tools import SDK_TOOL_ENVIRONMENT_POLICY
+from literate_ai.contracts import (
+    ArtifactExport,
+    BlobRef,
+    ComponentCommandContract,
+    ContentIdentity,
+    SemanticVersion,
+    canonical_identity,
+)
+from literate_ai.contracts.executable_components.commands import LibraryConsumerBinding
+from literate_ai.contracts.paths import (
+    canonical_relative_posix_path,
+    canonical_relative_posix_paths,
+)
+
+MAX_SDK_FILES = 4096
+MAX_SDK_BYTES = 32 * 1024 * 1024
+SCHEMA = "literate-ai/node-sdk-composition-plan@1"
+_NAME = re.compile(r"(?:@[a-z][a-z0-9._-]{0,126}/)?[a-z][a-z0-9._-]{0,126}")
+
+
+def _data_mode() -> int:
+    return 0o666 if os.name == "nt" else 0o644
+
+
+@dataclass(frozen=True, slots=True)
+class NodeSDKEntrypoint:
+    public: str
+    module: str
+
+    def __post_init__(self):
+        if self.public != ".":
+            if not self.public.startswith("./"):
+                raise ValueError("SDK export must be a root or explicit subpath")
+            canonical_relative_posix_path(self.public[2:], label="SDK public subpath")
+        canonical_relative_posix_path(self.module, label="SDK output module")
+        if any(
+            part.casefold() in {"node_modules", "_providers"}
+            for path in (self.public, self.module)
+            for part in path.split("/")
+        ):
+            raise ValueError("SDK entrypoint uses a reserved dependency namespace")
+        if any(token in self.public + self.module for token in ("*", "%", "#", "?")):
+            raise ValueError("SDK export patterns and URL escapes are forbidden")
+
+
+def _file_record(file: DirectoryExportFile) -> dict[str, object]:
+    return {
+        "path": file.path,
+        "sha256": hashlib.sha256(file.content).hexdigest(),
+        "bytes": len(file.content),
+        "mode": file.mode,
+    }
+
+
+def _files(files: tuple[DirectoryExportFile, ...]) -> tuple[DirectoryExportFile, ...]:
+    if not isinstance(files, tuple) or not 1 <= len(files) <= MAX_SDK_FILES:
+        raise ValueError("SDK requires a bounded immutable file inventory")
+    if any(
+        not isinstance(file, DirectoryExportFile)
+        or not isinstance(file.path, str)
+        or len(file.path) > 512
+        or not isinstance(file.content, bytes)
+        or file.mode not in ((0o666, 0o777) if os.name == "nt" else (0o644, 0o755))
+        for file in files
+    ):
+        raise ValueError("SDK inventory requires regular portable files")
+    paths = canonical_relative_posix_paths(
+        tuple(file.path for file in files), label="SDK file"
+    )
+    if any(part.casefold() == "node_modules" for path in paths for part in path.parts):
+        raise ValueError("SDK inventory contains a reserved dependency namespace")
+    prefixes = {}
+    for path in paths:
+        for depth in range(1, len(path.parts) + 1):
+            prefix = "/".join(path.parts[:depth])
+            alias = unicodedata.normalize("NFC", prefix.casefold())
+            if prefixes.setdefault(alias, prefix) != prefix:
+                raise ValueError("SDK directory paths alias on a supported filesystem")
+    if sum(len(file.content) for file in files) > MAX_SDK_BYTES:
+        raise ValueError("SDK inventory exceeds its byte budget")
+    return tuple(sorted(files, key=lambda file: file.path))
+
+
+@dataclass(frozen=True, slots=True)
+class NodeSDKCompositionPlan:
+    consumer: ContentIdentity
+    source: ContentIdentity
+    target: ContentIdentity
+    compiler: ContentIdentity
+    node: ContentIdentity
+    packer: ContentIdentity
+    bindings: tuple[LibraryConsumerBinding, ...]
+    files: tuple[DirectoryExportFile, ...]
+    providers: JavaScriptLibraryImports
+
+    def __post_init__(self):
+        if any(
+            not isinstance(value, ContentIdentity)
+            for value in (
+                self.consumer,
+                self.source,
+                self.target,
+                self.compiler,
+                self.node,
+                self.packer,
+            )
+        ):
+            raise TypeError("SDK plan identities must be typed")
+        if (
+            not isinstance(self.providers, JavaScriptLibraryImports)
+            or self.providers.consumer != self.consumer
+        ):
+            raise ValueError("SDK plan carries a different consumer")
+        if _files(self.files) != self.files:
+            raise ValueError("SDK plan files must be canonical")
+        if not isinstance(self.bindings, tuple) or any(
+            not isinstance(binding, LibraryConsumerBinding)
+            or binding.consumer_component_revision != self.consumer
+            or binding.target_identity != self.target
+            for binding in self.bindings
+        ):
+            raise ValueError("SDK plan bindings differ from its consumer/target")
+
+    @property
+    def identity(self) -> ContentIdentity:
+        return canonical_identity(self.to_dict())
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": SCHEMA,
+            "consumer": self.consumer.to_dict(),
+            "source": self.source.to_dict(),
+            "target": self.target.to_dict(),
+            "compiler": self.compiler.to_dict(),
+            "node": self.node.to_dict(),
+            "packer": self.packer.to_dict(),
+            "bindings": [binding.to_dict() for binding in self.bindings],
+            "providers": self.providers.identity.to_dict(),
+            "files": [_file_record(file) for file in self.files],
+            "packer_arguments": ["pack", "--ignore-scripts", "--offline", "--json"],
+            "packer_policy": "owned-config-cache-output@1",
+            "tool_environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
+            "mode_policy": "npm-executable-0755-other-0644",
+        }
+
+
+def prepare_node_sdk_composition(
+    consumer: ComponentCommandContract,
+    *,
+    source: ContentIdentity,
+    compiler: ContentIdentity,
+    node: ContentIdentity,
+    packer: ContentIdentity,
+    name: str,
+    version: str,
+    entrypoints: tuple[NodeSDKEntrypoint, ...],
+    compiled: tuple[DirectoryExportFile, ...],
+    licenses: tuple[DirectoryExportFile, ...],
+    providers: tuple[ArtifactExport, ...],
+    generation_bindings: tuple[LibraryConsumerBinding, ...],
+    build_bindings: tuple[LibraryConsumerBinding, ...],
+    contracts: Mapping[str, ComponentCommandContract],
+    read_blob: Callable[[BlobRef], bytes],
+    builtin_modules: frozenset[str],
+) -> NodeSDKCompositionPlan:
+    """Bind current compiler output and exact direct providers without a resolver.
+
+    Compiler inputs/results and independent provider acceptance must be admitted
+    by the calling generated/retained lifecycle before invoking this owner.
+    """
+    if not isinstance(consumer, ComponentCommandContract):
+        raise ValueError("Node SDK composition requires its current typed consumer")
+    if any(
+        not isinstance(value, ContentIdentity)
+        for value in (source, compiler, node, packer)
+    ):
+        raise TypeError("Node SDK composition requires exact source/tool identities")
+    if (
+        not isinstance(name, str)
+        or len(name) > 214
+        or not _NAME.fullmatch(name)
+        or name in {"node_modules", "_providers"}
+        or not isinstance(version, str)
+        or len(version) > 128
+    ):
+        raise ValueError("SDK name/version must be bounded native package metadata")
+    if str(SemanticVersion.parse(version)) != version:
+        raise ValueError("SDK version must use canonical SemVer")
+    if (
+        not isinstance(entrypoints, tuple)
+        or not 1 <= len(entrypoints) <= 128
+        or any(not isinstance(item, NodeSDKEntrypoint) for item in entrypoints)
+    ):
+        raise ValueError("SDK requires explicit bounded public entrypoints")
+    public = tuple(item.public for item in entrypoints)
+    if (
+        public != tuple(sorted(set(public)))
+        or "." not in public
+        or len({value.casefold() for value in public}) != len(public)
+    ):
+        raise ValueError("SDK public exports require a canonical root and subpaths")
+    if not all(
+        isinstance(items, tuple)
+        and all(isinstance(item, LibraryConsumerBinding) for item in items)
+        for items in (generation_bindings, build_bindings)
+    ):
+        raise TypeError("SDK requires typed generation and build bindings")
+    generation = tuple(sorted(generation_bindings, key=lambda item: item.identity.uri))
+    bindings = tuple(sorted(build_bindings, key=lambda item: item.identity.uri))
+    if generation != bindings or not bindings:
+        raise ValueError("SDK generation/build provider bindings differ or are empty")
+    if (
+        len(providers) > 32
+        or sum(provider.blob.size for provider in providers) > MAX_SDK_BYTES
+    ):
+        raise ValueError("SDK providers exceed the closed profile budget")
+    imports = prepare_javascript_library_imports(
+        consumer,
+        providers,
+        bindings,
+        contracts,
+        read_blob,
+        builtin_modules=builtin_modules,
+    )
+    if any(
+        not package.surface.declarations
+        or package.provider.dependency_artifact_identities
+        for package in imports.packages
+    ):
+        raise ValueError(
+            "SDK v1 requires direct declaration-bearing dependency-free providers"
+        )
+    if (
+        name.casefold() in {package.name.casefold() for package in imports.packages}
+        or name in builtin_modules
+    ):
+        raise ValueError("SDK name collides with a provider or Node builtin")
+    outputs = _files(compiled)
+    legal = _files(licenses)
+    if any(
+        not (
+            file.path.startswith(("cjs/", "esm/"))
+            and file.path.endswith((".js", ".d.ts"))
+        )
+        for file in outputs
+    ):
+        raise ValueError(
+            "SDK compiler outputs must be JavaScript or declarations in format roots"
+        )
+    if any(
+        "/" in file.path or not file.path.startswith(("LICENSE", "NOTICE"))
+        for file in legal
+    ):
+        raise ValueError("SDK licenses must be explicit root license/notice files")
+    files = {file.path: file for file in (*outputs, *legal)}
+    if len(files) != len(outputs) + len(legal):
+        raise ValueError("SDK compiler/license namespace collision")
+    modules = {
+        (
+            file.path.split("/", 1)[1][:-5]
+            if file.path.endswith(".d.ts")
+            else file.path.split("/", 1)[1][:-3]
+        )
+        for file in outputs
+    }
+    if any(
+        directory + "/" + module + suffix not in files
+        for module in modules
+        for directory in ("cjs", "esm")
+        for suffix in (".js", ".d.ts")
+    ):
+        raise ValueError("SDK compilation must close both runtime/declaration formats")
+    exports = {}
+    for entry in entrypoints:
+        conditions = {}
+        for condition, directory in (("require", "cjs"), ("import", "esm")):
+            runtime, declaration = (
+                directory + "/" + entry.module + ".js",
+                directory + "/" + entry.module + ".d.ts",
+            )
+            if runtime not in files or declaration not in files:
+                raise ValueError("SDK public runtime/declarations are missing")
+            conditions[condition] = {
+                "types": "./" + declaration,
+                "default": "./" + runtime,
+            }
+        exports[entry.public] = conditions
+    for directory, kind in (("cjs", "commonjs"), ("esm", "module")):
+        files[directory + "/package.json"] = DirectoryExportFile(
+            directory + "/package.json",
+            (json.dumps({"type": kind}) + "\n").encode(),
+            _data_mode(),
+        )
+    for package in imports.packages:
+        prefix = "_providers/" + package.provider.component_revision.digest
+        files[prefix + "/package.json"] = DirectoryExportFile(
+            prefix + "/package.json",
+            b'{"type":"commonjs","private":true}\n',
+            _data_mode(),
+        )
+        for file in package.files:
+            if any(part.casefold() == "node_modules" for part in file.path.split("/")):
+                raise ValueError("SDK provider contains a nested dependency namespace")
+            if file.path.rsplit("/", 1)[-1] == "package.json":
+                metadata = json.loads(file.content)
+                if not isinstance(metadata, dict) or any(
+                    metadata.get(key)
+                    for key in (
+                        "dependencies",
+                        "optionalDependencies",
+                        "peerDependencies",
+                        "bundledDependencies",
+                        "bundleDependencies",
+                    )
+                ):
+                    raise ValueError(
+                        "SDK provider format or dependency authority differs"
+                    )
+            path = prefix + "/artifact/" + file.path
+            if path in files:
+                raise ValueError("SDK provider namespace collision")
+            files[path] = DirectoryExportFile(path, file.content, file.mode)
+    package = {
+        "name": name,
+        "version": version,
+        "private": False,
+        "type": "commonjs",
+        "exports": exports,
+        "files": ["cjs", "esm", "_providers", *(file.path for file in legal)],
+    }
+    files["package.json"] = DirectoryExportFile(
+        "package.json",
+        (json.dumps(package, separators=(",", ":")) + "\n").encode(),
+        _data_mode(),
+    )
+    return NodeSDKCompositionPlan(
+        consumer.component_revision,
+        source,
+        consumer.artifact_export.target_identity,
+        compiler,
+        node,
+        packer,
+        bindings,
+        _files(tuple(files.values())),
+        imports,
+    )
+
+
+def materialize_node_sdk(
+    plan: NodeSDKCompositionPlan,
+    destination: Path,
+    *,
+    require_current: Callable[[], None],
+) -> None:
+    """Create one fresh object projection; failed/uncertain projections are retained."""
+    if not isinstance(plan, NodeSDKCompositionPlan):
+        raise TypeError("SDK materialization requires its prepared composition plan")
+    require_current()
+    require_safe_directory(destination.parent)
+    destination.mkdir()
+    for file in plan.files:
+        require_current()
+        path = destination.joinpath(
+            *canonical_relative_posix_path(file.path, label="SDK file").parts
+        )
+        path.parent.mkdir(parents=True, exist_ok=True)
+        require_safe_directory(path.parent)
+        with path.open("xb") as stream:
+            stream.write(file.content)
+        path.chmod(file.mode)
+    require_node_sdk_projection(plan, destination, require_current=require_current)
+
+
+def require_node_sdk_projection(
+    plan: NodeSDKCompositionPlan, root: Path, *, require_current: Callable[[], None]
+) -> None:
+    """Readback and cache reuse admit only the complete exact planned inventory."""
+    from literate_ai.adapters.directory_artifacts import require_materialized_files
+
+    require_current()
+    require_materialized_files(root, plan.files)
+    require_current()

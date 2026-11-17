@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
+from pathlib import PurePosixPath
+
 from literate_ai.contracts import ContentIdentity, CppLibraryLayout
 from literate_ai.contracts.elixir_libraries import elixir_namespace
 from literate_ai.contracts.executable_components.commands import (
@@ -9,6 +13,46 @@ from literate_ai.contracts.executable_components.commands import (
     LibraryImportSurface,
 )
 from literate_ai.contracts.library_imports import AuthoredLibraryImport
+
+
+def javascript_module_paths(
+    surface: LibraryImportSurface, module: str
+) -> tuple[str, str | None]:
+    """Resolve only declared public authority; preserve the established @1 path."""
+    if surface.language != "javascript" or module not in {
+        item.module for item in surface.capabilities
+    }:
+        raise ValueError("module is not a public JavaScript library import")
+    if surface.declarations:
+        declared = next(item for item in surface.declarations if item.module == module)
+        return declared.runtime, declared.declaration
+    return "source/" + module + ".js", None
+
+
+def require_declared_commonjs_files(
+    surface: LibraryImportSurface, files: Mapping[str, bytes]
+) -> None:
+    """Require the explicit format boundary before any consumer can load @2."""
+    if not surface.declarations:
+        return
+    for declared in surface.declarations:
+        if declared.runtime not in files or declared.declaration not in files:
+            raise ValueError(
+                "JavaScript provider runtime or declaration is absent from sealed bytes"
+            )
+    for path, content in files.items():
+        if PurePosixPath(path).name != "package.json":
+            continue
+        if len(content) > 65536:
+            raise ValueError("CommonJS package boundary exceeds its metadata bound")
+        metadata = json.loads(content)
+        if (
+            not isinstance(metadata, dict)
+            or metadata.get("type", "commonjs") != "commonjs"
+        ):
+            raise ValueError(
+                "declared CommonJS provider has a conflicting package boundary"
+            )
 
 
 def project_library_import_surface(
@@ -35,6 +79,18 @@ def project_library_import_surface(
             raise ValueError(
                 "native import declarations must cover every current interface"
             )
+        module_files = {}
+        for item in selected:
+            if item.node_module is not None:
+                previous = module_files.setdefault(item.module, item.node_module)
+                if previous != item.node_module:
+                    raise ValueError(
+                        "conflicting declaration files for one public module"
+                    )
+        if module_files and any(item.node_module is None for item in selected):
+            raise ValueError(
+                "declaration-bearing surfaces require complete module authority"
+            )
         return LibraryImportSurface(
             language,
             selected[0].package,
@@ -47,6 +103,7 @@ def project_library_import_surface(
                 )
                 for item in selected
             ),
+            declarations=tuple(module_files[name] for name in sorted(module_files)),
         )
     package = component_name.replace("-", "_")
     imports = []

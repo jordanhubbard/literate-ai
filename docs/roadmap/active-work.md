@@ -404,9 +404,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       tracks distributable TypeScript/npm SDK consumers. The generic JavaScript
       tree adapter does not authorize package-npm composition: npm resolution,
       artifact materialization and declaration packaging are separate gates.
-      The next action for this boundary is explicit directing-user review of
-      proposed [ADR 0073](../decisions/0073-sealed-node-sdk-composition.md),
-      before implementation under ADR 0006. Bind exact provider revision,
+      The directing user accepted [ADR 0073](../decisions/0073-sealed-node-sdk-composition.md)
+      on 2026-11-16 under ADR 0006. The shared plan/materializer, bounded immutable
+      compiler snapshot and offline full-tarball readback now have local fixture
+      coverage and independent state/security review. The latest
+      local smoke run passed 658 tests with six declared skips, including actual
+      TypeScript compiler, offline npm pack, relocation and negative controls.
+      Review corrections cover Windows virtual paths, reference confinement,
+      compiler-library isolation, tar member kinds and ambient tool writers.
+      These are internal fixture results, not lifecycle qualification. The next
+      action is the opt-in SDK policy and generated/retained adapters, followed by
+      authoritative declaration acceptance and native/installed qualification.
+      Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
       Acceptance must exercise an ordinary generated consumer and an actual packed,
@@ -414,6 +423,12 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       with the producer checkout and ambient resolution unavailable. Preserve all
       failed attempts and older qualification evidence. No downstream SDK cutover
       follows from the existing JavaScript importer fixtures.
+      Implement in dependency order: versioned declaration-bearing CommonJS import
+      surfaces; one shared Node SDK plan/materializer and closed declaration reader;
+      opt-in TypeScript library and package-node-sdk policy; generated and retained
+      adapters sharing that owner; real packed/relocated CJS/ESM and compiler
+      acceptance; native-platform and installed-wheel qualification. Preserve the
+      separate registry-revision, browser and downstream cutover gates.
 - **Owner:** Standard lifecycle Component kinds and in-process library artifacts
 - **Direction:** Pure in-process library logic can be specified and accepted as
       portable-application, but consumers cannot import the qualified artifact; they must shell out

@@ -407,6 +407,12 @@ def _render_library_import(item: AuthoredLibraryImport) -> list[str]:
         for key in ("language", "package", "capability", "module")
     ]
     _append_scalar_list(lines, "symbols", item.symbols)
+    if item.node_module is not None:
+        lines.append("node_module:")
+        lines.extend(
+            f"  {key}: {_yaml_string(value)}"
+            for key, value in item.node_module.to_dict().items()
+        )
     return lines
 
 

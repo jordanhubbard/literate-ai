@@ -7,6 +7,7 @@ from ._validation import fail, fields, string_tuple, string_value
 from .cpp_libraries import is_cpp_name, validate_cpp_header
 from .elixir_libraries import elixir_namespace, is_elixir_module, is_elixir_symbol
 from .executable_components._common import portable_name, tuple_value
+from .node_sdk import CommonJSModuleDeclaration
 
 
 @dataclass(frozen=True, slots=True)
@@ -16,6 +17,7 @@ class AuthoredLibraryImport:
     capability: str
     module: str
     symbols: tuple[str, ...]
+    node_module: CommonJSModuleDeclaration | None = None
 
     def __post_init__(self) -> None:
         string_value(self.language, "AuthoredLibraryImport.language")
@@ -60,7 +62,11 @@ class AuthoredLibraryImport:
                     "AuthoredLibraryImport.module",
                     "must remain inside the named package",
                 )
-            if self.language == "javascript" and not suffix:
+            if (
+                self.language == "javascript"
+                and not suffix
+                and self.node_module is None
+            ):
                 fail(
                     "AuthoredLibraryImport.module",
                     "requires an explicit package subpath",
@@ -84,15 +90,27 @@ class AuthoredLibraryImport:
             fail(
                 "AuthoredLibraryImport.symbols", "requires canonical native identifiers"
             )
+        if self.node_module is not None and (
+            self.language != "javascript"
+            or not isinstance(self.node_module, CommonJSModuleDeclaration)
+            or self.node_module.module != self.module
+        ):
+            fail(
+                "AuthoredLibraryImport.node_module",
+                "requires the same typed JavaScript module",
+            )
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "language": self.language,
             "package": self.package,
             "capability": self.capability,
             "module": self.module,
             "symbols": list(self.symbols),
         }
+        if self.node_module is not None:
+            result["node_module"] = self.node_module.to_dict()
+        return result
 
     @classmethod
     def from_dict(cls, value, *, path="AuthoredLibraryImport"):
@@ -102,6 +120,7 @@ class AuthoredLibraryImport:
             required=frozenset(
                 {"language", "package", "capability", "module", "symbols"}
             ),
+            optional=frozenset({"node_module"}),
         )
         return cls(
             data["language"],
@@ -109,6 +128,11 @@ class AuthoredLibraryImport:
             data["capability"],
             data["module"],
             string_tuple(data["symbols"], f"{path}.symbols"),
+            CommonJSModuleDeclaration.from_dict(
+                data["node_module"], path=f"{path}.node_module"
+            )
+            if "node_module" in data
+            else None,
         )
 
 
@@ -140,4 +164,12 @@ def validate_library_imports(
             fail(
                 "library_imports",
                 "requires every capability in one package per language",
+            )
+        declared = [item.node_module for item in selected]
+        if any(item is not None for item in declared) and any(
+            item is None for item in declared
+        ):
+            fail(
+                "library_imports",
+                "declaration-bearing surfaces must cover every capability",
             )

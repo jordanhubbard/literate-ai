@@ -94,6 +94,16 @@ goals require a specific unreleased Literate AI capability.
 
 ## Completeness
 
+Accepted [ADR 0073](docs/decisions/0073-sealed-node-sdk-composition.md) is being
+implemented under LIBRARY-ARTIFACT-001. Declaration-bearing CommonJS import
+authority, shared projection, immutable-snapshot TypeScript compiler and offline
+npm tarball readback have local fixture coverage and independent state/security
+review. Real compiler checks cover both formats, Node16/NodeNext consumers and
+negative declaration controls; packed fixtures run after relocation. The opt-in
+SDK profile, public generated/retained adapters, authoritative declaration
+acceptance and native/installed-lifecycle qualification remain unfinished. These
+internal checks do not authorize downstream SDK or registered-child cutover.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
