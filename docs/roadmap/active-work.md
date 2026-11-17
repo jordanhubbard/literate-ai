@@ -8632,47 +8632,42 @@ slice here before implementation so this file always names the resumable frontie
 ### [~] RELEASE-CLOSURE-001 — Make release closure executable and continuous
 
 - **Priority:** P0
-- **Release target:** 1.1.0
-- **Previous release target:** 0.10.0
-- **Owner:** release-project skills, release policy, release CLI, publication adapters, and release gates
-- **Direction:** For 0.10.0, turn the 0.9.0 omissions into executable release policy: every major or minor release must regenerate, validate, preflight, publish, export back, and verify its terminal document pair; every release cycle must repeatedly inventory and disposition current tracker work, reviews, unmerged branches, worktrees, and external contributions before publication.
-- **Conclusion:** The 0.9.0 failure was a split contract: prose required terminal collateral and broad peer review, but release plans, receipts, gates, and published verification bound neither. The release engineer must consume deterministic Python inventory and publication helpers, make semantic scope decisions, leave machine-readable milestone plus audit-comment dispositions, and repeat the sweep until no current-release blocker or unclassified contribution remains.
+- **Release target:** 1.4.0
+- **Historical scope:** The obsolete 0.10 recovery/candidate/publication instructions
+  are [archived with their original checkboxes](../history/roadmap/release-closure-0.10.md).
+  This reconciliation does not assert publication of the later operator-adoption
+  document pair or qualify the current release.
+- **Owner:** Existing release policy, release CLI, provider observation and publication adapters
+- **Direction:** Carry the framework review's current release-safety recommendations
+  into this existing owner, preserving exact source, policy, artifact and remote
+  identities while removing obsolete historical execution instructions.
+- **Conclusion:** Recovered implementations and the portable fixture are present in
+  original 0.10.1 history. Keep the later document-publication proof gap historical.
+  The active work is current CI selection, explicit coverage authority and exact
+  candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
-- **Next action:** Preserve the published `v0.10.0` tag, land the portable preflight-test fixture on `main`, and complete a versioned recovery containing the three intended 0.10 operator-adoption commits that the stale release line omitted. This late CI correction was applied before queue recording as reversible emergency containment after the exact-head matrix exposed the invalid fixture.
+- **Completion prerequisites:** none
+- **Next action:** Qualify the current CI-selection correction in the combined
+  candidate, then resolve aggregate-CI coverage attribution through explicit
+  native evidence rather than treating a workflow success as every platform cell.
 - **Implementation:**
-  - [x] Add an accepted ADR and release policy for release-class derivation, required collateral, authenticated publication preflight, exact publication receipts, and continuous contribution disposition.
-  - [x] Add Python-owned release contribution inventory and validation covering open issues, open reviews, remote branches, attached worktrees, milestones, durable release-disposition comments, and exact-head branch-lifecycle markers for GitHub and GitLab tracker contracts.
-  - [x] Bind the current contribution sweep and required major/minor collateral receipt into release planning, prepared-candidate checking, publication, and post-publication verification without requiring live credentials on verification workers.
-  - [x] Make the document-pair publisher preflight both stable resources and the explicit active account before either mutation, support idempotent recovery, export accepted remote state back to local authority, and emit release-bound hashes and resource identities.
-  - [x] Update release-project, evidence, verification, presentation, tracking, and user-work skills plus Make targets and generated template copies so the virtual release engineer follows one executable loop.
-  - [~] Repair 0.10.0 packaging metadata drift and continuously triage newly discovered regressions or blocking contributions into 0.10.0, deferring the rest with explicit next-cycle annotations until the release closes.
-  - [~] Recover the premature stable cut without rewriting `v0.10.0`: the published tag is rooted at `03d3257e`, while intended 0.10 commits `ce88a6d8`, `2f4a34a1`, and `4b739a92` remained on `main`.
-  - [x] Replace the project-index preflight tests' fabricated `/project` root with a real platform-native temporary directory while retaining strict production path resolution.
-  - [x] Enforce in Python that a first stable initial, major, or minor candidate contains the live remote default branch throughout plan, prepare, check, and publish; keep patch selection independent of unrelated later trunk work.
-  - [x] Derive checked-in Homebrew metadata from one Ruby version constant, declare it as a release version mirror, and restore its 0.11.0 value after the automatic default-branch version advance so patch preparation can update it atomically.
-  - [x] Persist repair-gate completion in global execution order, invalidate anything other than the exact current fail-fast prefix, and require a clean follow-up pass after repaired completion before accepting release evidence.
-  - [x] Treat an attached clean default-branch checkout as release authority when a
-        patch is planned from a linked `release/*` worktree, rather than requiring a
-        contribution disposition for `main` that branch enumeration intentionally
-        excludes.
-  - [x] Use a platform-native absolute synthetic executable in the Codex
-        unauthenticated-status regression so Windows exercises the authentication
-        probe and no-model-request invariant instead of failing fixture construction.
+  - [x] Archive obsolete historical execution with source/fixture comparison and
+        the document-publication proof gap explicitly preserved.
+  - [~] Bind release decisions to the newest exact workflow/run/attempt; refuse
+        pending, failed, ambiguous or drifting observations and recheck before tagging.
+  - [ ] Bind delegated CI coverage to the actual required job/cell contract without
+        adding another matrix scheduler or silently changing legacy policy semantics.
+  - [ ] Preserve exact artifact, current contribution, required collateral,
+        branch ancestry and remote-state checks through the combined candidate.
 - **Evidence:**
-  - [x] Contract, parser, policy, tracker-adapter, contribution-inventory, publication-preflight, partial-failure, receipt, release-plan, prepare/check/publish/verify, and generated-template parity tests pass in focused suites.
-  - [~] A no-write dry run inventories this repository current issues, reviews, unmerged branches, and worktrees; unresolved items fail closed. Tracker dispositions and exact-head lifecycle markers are being bound before the final repeated sweep.
-  - [x] Remote tag, release, wheel, ancestry, and changelog inspection proves that stable `v0.10.0` omitted the final operator-adoption commits; the tag remains immutable.
-  - [ ] The focused project-index preflight regression, full Python gate, and fresh exact-head cross-platform CI pass with the portable fixture.
-  - [x] Release-plan contract tests reject a stale first stable line at plan, prepare, check, and publish while accepting a selective patch line; historical verification remains valid after the default branch advances, and release preparation atomically renders an indented quoted-constant package mirror while skill/template parity plus the Homebrew renderer test pass.
-  - [x] Inserted prerequisites and cross-pin gate reordering force a restart; a successful repaired run exits with rerun-required status 2, and only the subsequent gate-one pass exits 0.
-  - [x] The linked-release-worktree regression reproduces the false unresolved `main`
-        result before the classifier correction and passes afterward; the live 0.10.1
-        sweep now classifies `main` only by its actual worktree state. The Windows CI
-        traceback identifies the POSIX-only `/tools/codex` fixture before the
-        authentication call, and the focused operator-adoption suite passes with a
-        host-native absolute path.
-  - [ ] The 0.10.0 document pair validates locally, publication preflight reports the active account and both resource capabilities before mutation, authenticated publication and export-back produce an exact receipt, and post-publication verification proves the bound artifacts.
-  - [ ] Focused checks pass first, then release-relevant gates and exact-head CI pass for the 0.10.0 candidate.
+  - [x] [Historical reconciliation](../../verification/historical-release-closure-reconciliation.json)
+        distinguishes original source history from imported historical marker tags.
+  - [ ] Complete combined source, installed and affected native CI qualification;
+        no stale run or weaker head policy may satisfy a release gate.
+  - [ ] Missing/skipped platform jobs remain unqualified; native CI handoff records
+        distinguish associated source, actual tested tree and promoted artifacts.
+  - [ ] The current release sweep, collateral policy and publication readback bind
+        the same exact candidate; live publication still requires authorization.
 
 ### [x] STANDARD-CACHE-PUBLICATION-001 — Publish source only after project acceptance
 
@@ -19136,14 +19131,14 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 ### [ ] TEST-PARALLEL-001 — Run release-gate tests in parallel (checkpointed, fail-fast)
 
 - **GitHub issue:** [#56](https://github.com/jordanhubbard/literate-ai/issues/56)
-- **Current release target:** 1.3.0 (2026-10-18 reconciliation)
+- **Current release target:** 1.4.0 (2026-11-16 remaining measurement reconciliation)
 
 - **Priority:** P1
 - **Owner:** framework authority and qualification named by the linked issue
 - **Direction:** Run release-gate tests in parallel (checkpointed, fail-fast)
-- **Conclusion:** The current installed checkpoint runner executes the entire suite in one process. Add bounded process-level module scheduling while preserving one controller-owned marker ledger and source/context binding. Keep the existing serial API for in-memory suites; make CLI/Make worker count explicit, defaulting to the available CPU count. The Windows gate retains pytest/JUnit and uses isolated file-group workers with fail-fast.
+- **Conclusion:** Bounded process-level module scheduling is implemented with one controller-owned marker ledger and source/context binding. The remaining work is measured performance and final platform qualification. Preserve the serial API for in-memory suites and explicit CLI/Make worker counts. The Windows gate retains its separate pytest/JUnit execution path.
 - **Depends on:** existing pin dispatch, known-failure contracts and owned-process-tree cleanup
-- **Next action (in progress):** Collect final-source native timing comparisons and require the full exact-head CI matrix before landing. The complete local suite, installed wheel and newly current lifecycle receipt have passed; eight-core Windows performance acceptance remains pending capacity.
+- **Next action (in progress):** Qualify parent-owned module timing on the next complete source run, investigate measured long modules, then collect native serial/parallel comparisons and exact-head platform results. Historical suite/wheel/receipt passes do not attest later source changes; eight-core Windows performance acceptance remains pending capacity.
 - **Implementation:**
   - [x] Execute importable module groups in private process/temp/object environments with explicit serial barriers and configurable worker count.
   - [x] Record validated per-case outcomes only in the parent; retain exact failure/skip/subtest/fixture counts and bounded diagnostics.
@@ -19177,6 +19172,19 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   rebuilds the entire ledger index. Qualify overlap, serial barriers, crash and
   cancellation through real public-runner processes before changing scheduling.
   One-worker and native Windows pytest coverage remain explicit measurement gaps.
+
+- **Timing implementation checkpoint:** The parent now writes one finite diagnostic
+  artifact and registers it once with the existing evidence owner. A real-process
+  control covers overlap, a serial barrier, worker crash, peer cancellation and
+  never-dispatched work. Forcing timing writes to fail preserves the same ordered
+  outcome report and exit status. Reader controls retain unknown interrupted
+  endings, reject invalid clocks and duplicate phases, and refuse missing or
+  nonregular files. These focused checks do not establish a complete-suite speedup
+  or native Windows performance acceptance; the parent goal remains open.
+  Independent review found omitted scratch-deletion time and incomplete phase
+  validation. Maintained delayed/failed-deletion controls now require scratch
+  work in total cleanup and preserve unknown completion on failure. Missing/late
+  exit observations and malformed dispositions remain artifact diagnostics.
 
 ### [x] MERMAID-SCOPE-001 — Mermaid documentation check scans gitignored build output (generated/)
 

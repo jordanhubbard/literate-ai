@@ -330,6 +330,9 @@
       },
       {
         "id": "RUNTIME-CAPABILITY-ENV-001"
+      },
+      {
+        "id": "RELEASE-CLOSURE-001"
       }
     ]
   }

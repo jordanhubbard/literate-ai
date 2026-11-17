@@ -1,0 +1,66 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-reviewed-local-qualified",
+  "reviewer": "sdlc_review",
+  "base_revision": "51afb59ca17676f4df89825b59bffba66f873542",
+  "review_identity": "sha256:c5451f33173b8311e1e57562f26c2774d79f217ee46016018f544a87914836e3",
+  "source_subjects": [
+    {
+      "path": "src/literate_ai/adapters/cache/http_reference.py",
+      "sha256": "0a3298c9fbea6a47c111e4c645377cb8dd903a3c7db606f522e9d883dad6388c",
+      "bytes": 15743
+    },
+    {
+      "path": "tests/critical/test_http_reference_cache.py",
+      "sha256": "182cb84dc3d95cceadc8d33d439f601f20471c9aca9663d306ce6e846e4e0fb4",
+      "bytes": 16053
+    },
+    {
+      "path": "tests/smoke/test_parallel_unittests.py",
+      "sha256": "ef19b9ebe2a5a3411520b7dcd60c08b14dbadb8495777e6706105b2410c82726",
+      "bytes": 40762
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "5bad5abbfacc1b787620c46cdcc81b03eafb724ae4bce328dbed070a145732d9",
+      "bytes": 42061
+    }
+  ],
+  "resolved_findings": [
+    "WR-1: namespace and policy failures use the pre-body bounded rejection path; post-body failures never reread request content."
+  ],
+  "controls": {
+    "independent_selected": 11,
+    "independent_passed": 11,
+    "independent_seconds": 13.388,
+    "author_selected": 11,
+    "author_passed": 11,
+    "author_seconds": 13.277,
+    "scheduler_module_selected": 18,
+    "scheduler_module_passed": 18,
+    "scheduler_module_seconds": 41.298
+  },
+  "limits": [
+    "Exact-head CI, composed-candidate and native platform qualification remain pending.",
+    "Local macOS delayed-body reset proof does not establish the exact Windows10053 cause or native qualification.",
+    "Windows Git fixture commit setup20s timeout remains unexplained; deadline unchanged.",
+    "No release, Pages publication or deployment authorized by this review."
+  ],
+  "full_local_gate": {
+    "selected": 2896,
+    "passed": 2804,
+    "skipped": 92,
+    "failed": 0,
+    "seconds": 3165.451,
+    "workers": 2,
+    "report_identity": "sha256:4d1b9e5e60faa23ebacbb758aec94f10b37154efee7f822afb03b9c93a327f82",
+    "log_identity": "sha256:1b291ce46beda060d18c67e25923c3814378f464cecf79623440d928ff12cfa1",
+    "other_gates": [
+      "driver-review",
+      "runner-review",
+      "documentation-review",
+      "lint",
+      "format-check"
+    ]
+  }
+}

@@ -22,6 +22,7 @@ from typing import Any
 from packaging.version import InvalidVersion, Version
 
 from literate_ai.adapters._processes import run_with_tree_kill
+from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.execution_dispatch import (
     ExecutionDispatchAdapterError,
     load_execution_worker_catalog,
@@ -3446,58 +3447,61 @@ def _run_tiered_qualification(
 
 
 def _github_run_matches(
-    root: Path, repository: str, branch: str, revision: str, workflow: str = "CI"
+    root: Path,
+    repository: str,
+    branch: str,
+    revision: str,
+    workflow: str = "CI",
+    *,
+    timeout_seconds: float = 60,
 ) -> list[dict[str, object]]:
+    from literate_ai.adapters.github_observation import (
+        GitHubObservationError,
+        workflow_runs,
+    )
+
     try:
-        completed = subprocess.run(
-            (
-                "gh",
-                "run",
-                "list",
-                "--repo",
-                repository,
-                "--branch",
-                branch,
-                "--workflow",
-                workflow,
-                "--json",
-                "databaseId,headSha,status,conclusion,url",
-                "--limit",
-                "50",
-            ),
-            cwd=root,
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=60,
+        return workflow_runs(
+            root,
+            repository,
+            branch,
+            revision,
+            workflow,
+            timeout_seconds=timeout_seconds,
+            execute=run_bounded_process,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
-        raise ProjectReleaseError(
-            "release.provider_unavailable",
-            "GitHub run polling requires an authenticated gh command",
-        ) from exc
-    if completed.returncode:
-        raise ProjectReleaseError(
-            "release.provider_unavailable",
-            f"gh run list failed with exit status {completed.returncode}",
-        )
-    try:
-        runs = json.loads(completed.stdout)
-    except json.JSONDecodeError as exc:
-        raise ProjectReleaseError(
-            "release.provider_response_invalid",
-            "gh run list did not return valid JSON",
-        ) from exc
-    if not isinstance(runs, list):
-        raise ProjectReleaseError(
-            "release.provider_response_invalid",
-            "gh run list did not return a JSON array",
-        )
-    return [
-        item
-        for item in runs
-        if isinstance(item, dict) and item.get("headSha") == revision
-    ]
+    except GitHubObservationError as exc:
+        code = {
+            "timeout": "release.gate_timeout",
+            "invalid": "release.provider_response_invalid",
+            "unavailable": "release.provider_unavailable",
+        }[exc.code]
+        raise ProjectReleaseError(code, str(exc)) from exc
+
+
+def _github_run_identity(run: dict[str, object]) -> tuple[object, ...]:
+    from literate_ai.adapters.github_observation import run_identity
+
+    return run_identity(run)
+
+
+def _optional_github_success(runs: list[dict[str, object]]) -> dict[str, object] | None:
+    """Optional CI cannot hide an unresolved failure behind a pending retry."""
+    for run in runs:
+        if run["status"] == "completed":
+            if run["conclusion"] == "success":
+                return run
+            if run["conclusion"] not in {"neutral", "skipped"}:
+                raise ProjectReleaseError(
+                    "release.rc_ci_failed", "an unresolved exact-head GitHub run failed"
+                )
+        if run["attempt"] > 1:
+            raise ProjectReleaseError(
+                "release.rc_ci_unavailable",
+                "an unfinished or non-successful retry cannot establish "
+                "its prior outcome",
+            )
+    return None
 
 
 def _run_release_gate_via_github(
@@ -3518,15 +3522,51 @@ def _run_release_gate_via_github(
     workflow = getattr(_repository_policy(root), "release_ci_workflow", "CI")
     deadline = time.monotonic() + policy.gate_timeout_seconds
     run: dict[str, object] | None = None
+    observed: dict[str, object] | None = None
+    observed_numbers: dict[object, tuple[object, object]] = {}
     while True:
         matches = _github_run_matches(
-            root, policy.provider_repository, branch, revision, workflow
+            root,
+            policy.provider_repository,
+            branch,
+            revision,
+            workflow,
+            timeout_seconds=max(0, deadline - time.monotonic()),
         )
-        completed_matches = [
-            item for item in matches if item.get("status") == "completed"
-        ]
-        if completed_matches:
-            run = completed_matches[0]
+        selected = matches[0] if matches else None
+        for current in matches:
+            immutable = (current["workflowDatabaseId"], current["number"])
+            if (
+                observed_numbers.setdefault(current["databaseId"], immutable)
+                != immutable
+            ):
+                raise ProjectReleaseError(
+                    "release.provider_response_invalid",
+                    "GitHub changed the workflow or number of an observed run",
+                )
+        if len(observed_numbers) > 50:
+            raise ProjectReleaseError(
+                "release.provider_response_invalid",
+                "GitHub observation history exceeds the exact-head run bound",
+            )
+        if observed is not None and (
+            selected is None
+            or selected["workflowDatabaseId"] != observed["workflowDatabaseId"]
+            or (selected["number"], selected["attempt"])
+            < (observed["number"], observed["attempt"])
+            or (
+                selected["number"] == observed["number"]
+                and selected["databaseId"] != observed["databaseId"]
+            )
+        ):
+            raise ProjectReleaseError(
+                "release.provider_response_invalid",
+                "GitHub observation lost or regressed the selected run",
+            )
+        if selected is not None:
+            observed = selected
+        if selected is not None and selected["status"] == "completed":
+            run = selected
             break
         if time.monotonic() >= deadline:
             raise ProjectReleaseError(
@@ -3535,7 +3575,7 @@ def _run_release_gate_via_github(
                 f"{policy.gate_timeout_seconds} seconds",
             )
         time.sleep(
-            max(1, min(_GITHUB_POLL_INTERVAL_SECONDS, deadline - time.monotonic()))
+            max(0, min(_GITHUB_POLL_INTERVAL_SECONDS, deadline - time.monotonic()))
         )
     conclusion = run.get("conclusion")
     target: dict[str, object] = {
@@ -3543,6 +3583,13 @@ def _run_release_gate_via_github(
         "run_id": run.get("databaseId"),
         "run_url": run.get("url"),
         "conclusion": conclusion,
+        "repository": policy.provider_repository,
+        "workflow_id": run["workflowDatabaseId"],
+        "run_number": run["number"],
+        "attempt": run["attempt"],
+        "revision": revision,
+        "branch": branch,
+        "policy_identity": policy.identity,
     }
     if conclusion != "success":
         if evidence_node is not None:
@@ -4109,44 +4156,35 @@ def create_release_candidate(
     left_tiers = _left_tier_qualification(
         root, policy, qualification, revision=str(snapshot["head"])
     )
-    green = None
-    matches = _github_run_matches(
-        root,
-        policy.provider_repository,
-        str(snapshot["branch"]),
-        str(snapshot["head"]),
-        getattr(_repository_policy(root), "release_ci_workflow", "CI"),
-    )
-    if left_tiers is not None:
-        # CI is optional here, but a run that completed and failed is still
-        # evidence against this head; only pending or absent runs are waived.
-        if any(
-            item.get("status") == "completed"
-            and item.get("conclusion") not in {"success", "neutral", "skipped"}
-            for item in matches
-        ):
-            raise ProjectReleaseError(
-                "release.rc_ci_failed",
-                "an exact-head GitHub CI run failed; a qualification record "
-                "does not waive failing CI",
-            )
-    else:
-        green = next(
-            (
-                item
-                for item in matches
-                if item.get("status") == "completed"
-                and item.get("conclusion") == "success"
-            ),
-            None,
+    deadline = time.monotonic() + policy.gate_timeout_seconds
+    workflow = getattr(_repository_policy(root), "release_ci_workflow", "CI")
+
+    def selected_ci():
+        matches = _github_run_matches(
+            root,
+            policy.provider_repository,
+            str(snapshot["branch"]),
+            str(snapshot["head"]),
+            workflow,
+            timeout_seconds=max(0, deadline - time.monotonic()),
         )
-        if green is None:
+        if left_tiers is not None:
+            return _optional_github_success(matches)
+        selected = matches[0] if matches else None
+        if selected is None or selected["status"] != "completed":
             raise ProjectReleaseError(
                 "release.rc_ci_unavailable",
-                "RC tagging requires successful exact-head GitHub CI evidence, "
-                "or a qualification record whose host and worker tiers cover "
-                "every platform and action (litai release qualify)",
+                "RC tagging requires successful current exact-head GitHub CI, "
+                "or complete host/worker qualification when CI is optional",
             )
+        if selected["conclusion"] != "success":
+            raise ProjectReleaseError(
+                "release.rc_ci_failed",
+                "the current exact-head GitHub run did not succeed",
+            )
+        return selected
+
+    green = selected_ci()
     tag = f"{policy.tag_prefix}{canonical}"
     if _local_tag_revision(root, tag) is not None:
         raise ProjectReleaseError(
@@ -4157,6 +4195,27 @@ def create_release_candidate(
         raise ProjectReleaseError(
             "release.tag_exists", f"release tag already exists: {tag}"
         )
+    fresh_ci = selected_ci()
+    if (None if green is None else _github_run_identity(green)) != (
+        None if fresh_ci is None else _github_run_identity(fresh_ci)
+    ):
+        raise ProjectReleaseError(
+            "release.rc_ci_changed", "CI run or attempt changed before RC tagging"
+        )
+    fresh_root, fresh_policy = load_release_policy(root)
+    fresh_snapshot = _git_snapshot(root)
+    if (
+        fresh_root != root
+        or fresh_policy.identity != policy.identity
+        or not fresh_snapshot["clean"]
+        or fresh_snapshot["head"] != snapshot["head"]
+        or fresh_snapshot["branch"] != snapshot["branch"]
+        or getattr(_repository_policy(root), "release_ci_workflow", "CI") != workflow
+    ):
+        raise ProjectReleaseError(
+            "release.rc_source_changed",
+            "RC source or policy changed during CI observation",
+        )
     _git(
         root,
         "tag",
@@ -4164,6 +4223,7 @@ def create_release_candidate(
         tag,
         "-m",
         f"Release candidate {tag}",
+        str(snapshot["head"]),
     )
     _git(root, "push", policy.remote, f"refs/tags/{tag}")
     # Build wheel and create a prerelease GitHub Release with the asset
@@ -4214,6 +4274,12 @@ def create_release_candidate(
             "run_id": green.get("databaseId"),
             "run_url": green.get("url"),
             "conclusion": "success",
+            "repository": policy.provider_repository,
+            "workflow_id": green["workflowDatabaseId"],
+            "run_number": green["number"],
+            "attempt": green["attempt"],
+            "revision": snapshot["head"],
+            "policy_identity": policy.identity,
         },
         **(
             {"qualification_identity": left_tiers["identity"]}

@@ -196,6 +196,7 @@ class NativeProjectBootstrapTests(NativeRepositoryFixture):
         self.assertEqual(before_update, after_update)
         self.assert_original()
         source = self.root / "src/native.py"
+        original_source = source.read_bytes()
         source.write_text("def value():\n    return 5\n")
         failed = subprocess.run(
             [sys.executable, "-m", "unittest", "discover", "-s", "tests"],
@@ -204,7 +205,7 @@ class NativeProjectBootstrapTests(NativeRepositoryFixture):
             timeout=30,
         )
         self.assertNotEqual(failed.returncode, 0)
-        source.write_text("def value():\n    return 4\n")
+        source.write_bytes(original_source)
         # Avoid timestamp-based native bytecode reuse during the immediate repair.
         fixed = subprocess.run(
             [

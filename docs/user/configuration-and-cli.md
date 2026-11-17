@@ -103,6 +103,7 @@ litai project worktree location
 litai project worktree discover
 litai project parent checkout
 litai project ci-plan
+litai project ci verify
 litai project guidance
 litai project mac-contract
 litai project adopt-original
@@ -521,6 +522,7 @@ root-integration acceptance still remain.
 | `status [--project PATH]` | Compose project authority, adopted conversion stage, Component locks, the current receipt, tracker state, host preflight, and the next operator verb in one versioned snapshot. |
 | `onboard create PATH [--from URL[#REVISION]] [--refine REQUEST] [--apply --acknowledge] [--expect-plan SHA256]` | Plan creation without writes, then revalidate and call the existing init mutator only after explicit acknowledgement. |
 | `onboard adopt PATH [--profile native\|convert] [--default-branch BRANCH] [--apply --acknowledge] [--expect-plan SHA256]` | Default native adoption creates a contained `litai/` profile, preserving native source/build/CI and establishing no build qualification. Explicit `--profile convert` selects detected Flavors, quarantine and retained runners at `wrapped`; conversion-only options include `--from`, `--root-plan` and `--run-baseline`. |
+| `project ci verify [PATH] --pr NUMBER` | Read the accepted base policy's configured native GitHub Actions jobs for an open same-repository PR. Refuse missing, skipped, failed, ambiguous or stale results; start no jobs and grant no merge or release authority. See [native adoption](getting-started.md). |
 | `init [PATH] [--from URL[#REVISION]] [--repository-fetch-total-seconds N] [--repository-fetch-no-progress-seconds N] [--repository-fetch-connect-seconds N]` | Create a canonical project, optionally inheriting a complete repository ancestor DAG under an explicit bounded fetch policy. |
 | `graph [--format text\|json\|mermaid\|dot\|svg] [--output PATH] [--kind KIND] [--provenance PROJECT] [--ownership local\|inherited] [--inheritance inheritable\|private] [--edge-kind KIND]` | Solve effective repository/catalog authority, reject cycles, filter a closed view, and export the provenance DAG. Repeat kind, provenance, and edge-kind filters for unions. |
 | `update [PATH] [--apply] [--adopt-added] [--take-upstream PATH] [--keep-local PATH] [--repository-fetch-*-seconds N]` | Plan or safely apply inherited-catalog and framework-scaffold changes while preserving local authority and reporting the selected bounded fetch policy. Repeat resolution flags only for explicitly reviewed inherited-catalog paths. |
