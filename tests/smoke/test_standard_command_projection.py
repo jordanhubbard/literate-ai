@@ -27,6 +27,7 @@ from literate_ai.adapters.standard_project import (
     project_locked_standard_toolchain_closure,
 )
 from literate_ai.application.component_execution_planning import (
+    authored_assets_from_lock,
     plan_component_execution,
 )
 from literate_ai.application.component_lock_resolution import ComponentLockResolver
@@ -351,6 +352,7 @@ def _locked_snapshot(
     )
     execution = plan_component_execution(
         lock,
+        assets=authored_assets_from_lock(lock),
         model_identities={
             node.revision.identity.uri: canonical_identity(
                 {"model": node.revision.identity.uri}

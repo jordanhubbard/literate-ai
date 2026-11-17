@@ -524,7 +524,24 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       An earlier five-minute verifier grant expired during packing and rejected the
       operation; the successful full-build fixture issues a fresh fifteen-minute
       grant at entry, without changing live grants or production expiry checks.
-      Model generation, generic independent legal-byte custody, SDK acceptance and
+      An internal read-only legal comparison now joins bounded caller-captured
+      SDK files to original locked Component assets with the `node-sdk-legal` role
+      and exact selected packaging profile. It reuses the snapshot's original
+      asset pins and shared profile decoder, without selecting a license or
+      granting later custody/execution. The canonical fixture now declares a
+      separate root legal asset, clears that asset from the JavaScript provider,
+      and compares both source and built legal bytes to the original lock.
+      All 18 selected checks pass without skips: thirteen legal/canonical/Flavor/
+      cross-language checks, including actual authored BUILD/cache/TEST/EXEC and
+      original invocation ownership, plus five ordinary projection regressions.
+      Independent state/security source review passes. This does not qualify
+      production acceptance wiring or a model-generated/native/installed SDK.
+      Next action: retain original root-package custody and explicit tarball
+      resource binding through typed SDK/v2 independent acceptance, including
+      legal-byte comparison and separate current verifier authorization. The
+      packed archive is outside the library export and cannot become a package
+      input merely through its sibling path. Keep the legacy v2 refusal intact.
+      Model generation, final legal-byte acceptance wiring, SDK acceptance and
       full generated/retained/native/installed qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately

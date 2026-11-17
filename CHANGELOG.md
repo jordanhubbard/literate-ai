@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add an internal SDK legal-byte comparison against the original locked Component
+  immutable assets and selected packaging profile. Missing authority, changed bytes,
+  stale original inputs and substituted filename policies are rejected. This is a
+  read-only foundation; final SDK acceptance wiring remains unfinished.
+
 - Verify authored SDK source through the real canonical owned invocation: strict
   bound-recipe registration, separately authorized BUILD, shared compilation/packing,
   cache reuse, TEST and EXEC. The shared canonical fixture now supplies explicit

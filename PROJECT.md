@@ -139,14 +139,22 @@ a current fixture-only verifier grant to the owned SDK invocation. Its escaped
 guard is rejected after exit. That same canonical owned invocation now registers
 bound-recipe authored SDK source, obtains separate build authorization, compiles and
 packs through the shared owner, reuses its cache and passes actual TEST and EXEC.
-The Component declares precise addition behavior and fixture-only legal text before
-locking; the package retains the text and exact provider/compiler evidence. These
+The Component declares precise addition behavior and a fixture-only immutable legal
+asset before locking; the source and package match its locked bytes and retain
+exact provider/compiler evidence. These
 prove authored local seams, not model generation or independent SDK acceptance.
 Earlier foundation `8c2e108f` passed a whole-wheel
 fixture gate; later changes are not covered by that installed-wheel evidence.
 
-Remaining gates are exact Component-authorized legal-byte custody, public runtime
-admission configuration, ordinary generated/retained canonical SDK lifecycle,
+A read-only SDK legal comparison now joins caller-owned captured files to the
+original locked Component assets with the explicit `node-sdk-legal` role and exact
+selected packaging profile. It reuses original snapshot pin checks and profile
+decoding; source presence, a model assertion or a different filename policy supplies
+no legal authority. This internal comparison grants no execution or continuing
+custody and is not yet wired into final SDK acceptance.
+
+Remaining gates are final Component-authorized legal-byte acceptance wiring, public
+runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,
 original v2 independent SDK acceptance, arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,
 packed SDK output publication, supported native platforms and fresh noneditable

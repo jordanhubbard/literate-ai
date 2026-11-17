@@ -13,6 +13,7 @@ from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
 
+from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.generation_preparation import (
     FilesystemComponentWorkspaceAllocator,
     LockedComponentNodePreparationAdapter,
@@ -21,6 +22,7 @@ from literate_ai.adapters.lifecycle import LocalSourceTreeRegistry
 from literate_ai.adapters.node_library_acceptance import load_node_library_acceptance
 from literate_ai.adapters.node_sdk_admission import LocalNodeSDKGenerationAdmission
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
+from literate_ai.adapters.node_sdk_legal import require_locked_node_sdk_legal_files
 from literate_ai.adapters.standard_project import (
     assemble_standard_lifecycle_ports,
     project_locked_standard_toolchain_closure,
@@ -66,6 +68,16 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 "export const add=provider.add;\n"
             )
             (source / "LICENSE").write_text(FIXTURE_LEGAL_TEXT)
+            require_locked_node_sdk_legal_files(
+                fixture.snapshot,
+                component_revision=invocation.prepared.plan.component_revision,
+                profile=fixture.target.profile,
+                files=(
+                    DirectoryExportFile(
+                        "LICENSE", (source / "LICENSE").read_bytes(), 0o644
+                    ),
+                ),
+            )
             (source / "source/tests/litai_test.cjs").write_text(
                 "const p=require('node:path'),"
                 "sdk=require(p.join(process.argv[2],'cjs/index.js'));"
@@ -100,6 +112,20 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             self.assertEqual(
                 (ports.artifact_path(built.exports[0]) / "LICENSE").read_text(),
                 FIXTURE_LEGAL_TEXT,
+            )
+            require_locked_node_sdk_legal_files(
+                fixture.snapshot,
+                component_revision=invocation.prepared.plan.component_revision,
+                profile=fixture.target.profile,
+                files=(
+                    DirectoryExportFile(
+                        "LICENSE",
+                        (
+                            ports.artifact_path(built.exports[0]) / "LICENSE"
+                        ).read_bytes(),
+                        0o644,
+                    ),
+                ),
             )
             metadata = json.loads((artifact / "node-sdk.json").read_bytes())
             self.assertEqual(

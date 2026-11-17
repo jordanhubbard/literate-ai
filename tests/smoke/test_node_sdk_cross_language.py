@@ -38,6 +38,17 @@ def with_provider(root, *, declared=True, build_system=None, corrupt_profile=Fal
             }
             for kind in ("generation", "build")
         ]
+        (component / "legal").mkdir()
+        (component / "legal/LICENSE").write_text(FIXTURE_LEGAL_TEXT)
+        value["assets"] = [
+            {
+                "asset_id": "sdk-license",
+                "source": "legal/LICENSE",
+                "path": "LICENSE",
+                "role": "node-sdk-legal",
+                "media_type": "text/plain",
+            }
+        ]
         source.write_bytes(render_authoring_markdown(value, body))
         (component / "specs/spec.md").write_text(
             "# Addition SDK\n\n### Requirement: Exact integer addition\n\n"
@@ -73,6 +84,7 @@ def with_provider(root, *, declared=True, build_system=None, corrupt_profile=Fal
         ]
         child.update(
             display_name="Sealed counter provider",
+            assets=[],
             requires=[],
             provides=[
                 {
