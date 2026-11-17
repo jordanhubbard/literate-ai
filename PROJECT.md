@@ -142,7 +142,8 @@ packs through the shared owner, reuses its cache and passes actual TEST and EXEC
 The Component declares precise addition behavior and a fixture-only immutable legal
 asset before locking; the source and package match its locked bytes and retain
 exact provider/compiler evidence. These
-prove authored local seams, not model generation or independent SDK acceptance.
+prove authored source/build seams; the explicit root acceptance checkpoint below
+adds independent verification. Ordinary model generation remains unqualified.
 Earlier foundation `8c2e108f` passed a whole-wheel
 fixture gate; later changes are not covered by that installed-wheel evidence.
 
@@ -150,8 +151,9 @@ A read-only SDK legal comparison now joins caller-owned captured files to the
 original locked Component assets with the explicit `node-sdk-legal` role and exact
 selected packaging profile. It reuses original snapshot pin checks and profile
 decoding; source presence, a model assertion or a different filename policy supplies
-no legal authority. This internal comparison grants no execution or continuing
-custody and is not yet wired into final SDK acceptance.
+no legal authority. Explicit internal SDK project acceptance now runs the comparison
+against the registered packaged export through the final decision. The comparison
+itself grants no execution or continuing custody.
 
 Explicit local SDK packaging now binds its tarball as a typed package resource to
 original registered BUILD custody of the complete artifact tree. Bounded captures
@@ -164,12 +166,21 @@ before separate source-cache publication. Original graph/link/package identities
 remain pinned across callbacks. Packaged TEST and EXEC reuse the shared SDK runner,
 with protected original test source and the fixed packaged export under additive
 liveness checks. Original package plan/result objects and CIDs are pinned before
-staging. Independent v2 SDK acceptance and public admission configuration remain
-unfinished; these internal seams do not qualify a complete generated SDK lifecycle.
+staging. An explicitly configured internal root policy now retains the original
+snapshot, accepted invocation, registered package and loaded root v2 oracle. It
+requires complete original component plans and actual packaged TEST/EXEC evidence,
+then obtains separate verifier authorization and uses the shared provider/runtime/
+declaration owner. Original oracle, package, BUILD and locked-input stamp checks
+close after the final clock. A canonical authored port-level fixture passes actual
+packaged SDK acceptance with six TypeScript children and both runtime formats;
+missing/wrong grants, copied authority, invented stages and late locked-input
+rewrites are refused. The complete authored fixture takes about 22 minutes, so
+revalidation overhead needs profiling before broader use. Public admission and a
+complete generated SDK lifecycle remain unfinished.
 
-Remaining gates are final Component-authorized legal-byte acceptance wiring, public
+Remaining gates are bounded verification performance without weaker guards, public
 runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,
-original v2 independent SDK acceptance, arbitrary declared provider layouts,
+arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,
 packed SDK output publication, supported native platforms and fresh noneditable
 installed qualification. Legacy single-harness acceptance refuses the stronger

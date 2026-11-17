@@ -266,3 +266,36 @@ def require_node_sdk_build_intent(
     except BaseException:
         scope.active = False
         raise
+
+
+def capture_node_sdk_finalization(execution_plan, invocation):
+    """Capture an already-live exact invocation for blocking and finite closes.
+
+    Neither callback opens an operation or grants execution. The first retains
+    the full original owner; the second only closes original scope/identity after
+    the caller's final potentially blocking reads and clock.
+    """
+    scope = _CURRENT.get()
+    if scope is None:
+        raise ValueError("SDK finalization lacks original invocation ownership")
+    expected = invocation.identity
+    execution = execution_plan.identity
+
+    def close():
+        try:
+            scope._values_identity()
+            if (
+                execution_plan.identity != execution
+                or scope.execution != execution
+                or invocation.identity != expected
+                or scope.invocation.identity != expected
+            ):
+                raise ValueError("SDK finalization invocation changed")
+        except BaseException:
+            scope.active = False
+            raise
+
+    scope.guard()
+    scope._values(execution_plan, invocation.prepared)
+    close()
+    return scope.guard, close

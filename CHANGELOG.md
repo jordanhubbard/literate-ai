@@ -2,11 +2,19 @@
 
 ## Unreleased
 
+- Add explicit internal SDK project acceptance using the shared Node verifier
+  lifecycle. Require original complete component plans, registered package and
+  TEST/EXEC evidence, locked legal bytes, the loaded root oracle and a separate
+  verifier grant. Final clock callbacks cannot replace original oracle, package
+  or locked inputs unnoticed. The authored canonical fixture passes actual dual
+  runtime and declaration checks; public admission and generated SDK qualification
+  remain open, with verification overhead still requiring profiling.
+
 - Retain exact accepted SDK ownership across root finalization, separately from
   source-cache publication. Pin graph, link and package identities through later
   callbacks. Packaged SDK TEST/EXEC share the existing runner and protected source
-  custody; path and coordinated metadata substitutions are rejected. Independent
-  SDK acceptance and full lifecycle qualification remain unfinished.
+  custody; path and coordinated metadata substitutions are rejected. This
+  foundation does not qualify a complete SDK lifecycle.
 
 - Bind local SDK tarballs as explicit package resources using original complete
   BUILD custody. SDK packaging writes validated immutable library blob rows and

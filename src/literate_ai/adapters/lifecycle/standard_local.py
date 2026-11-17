@@ -1089,6 +1089,9 @@ class LocalStandardLifecyclePorts:
             item.component_revision.uri: item for item in node_sdk_targets
         }
         self._node_sdk_compiled_plans = {}
+        # Explicit trusted-host root verifier policy; inactive by default.
+        self.node_sdk_project_acceptance = None
+        self._node_sdk_project_stages = {}
         self._node_sdk_cache_lock = threading.RLock()
         if len(self.node_sdk_targets) != len(node_sdk_targets) or set(
             self.node_sdk_targets
@@ -6000,6 +6003,55 @@ class LocalStandardLifecyclePorts:
         cannot survive callback return; asynchronous generation and later build or
         cache publication require separate fresh admission, never returned checks.
         """
+        return self._with_verified_node_library_checks(
+            scope,
+            revision=revision,
+            oracle=oracle,
+            compiler=compiler,
+            authorization=authorization,
+            workspace=workspace,
+            require_current=require_current,
+            consume=consume,
+            environment=environment,
+            observe_process=observe_process,
+            provider=scope.export,
+            describe_request=lambda: self.library_provider_verifier_request(
+                scope, revision=revision, oracle=oracle, compiler=compiler
+            ),
+            inputs_identity=lambda: _node_provider_verifier_inputs(
+                scope, oracle, compiler
+            ),
+            require_subject=lambda: self.require_library_provider_custody(scope),
+            require_membership=lambda _now: self._require_library_provider_membership(
+                scope
+            ),
+        )
+
+    def _with_verified_node_library_checks(
+        self,
+        scope,
+        *,
+        revision,
+        oracle,
+        compiler,
+        authorization,
+        workspace,
+        require_current,
+        consume,
+        environment,
+        describe_request,
+        inputs_identity,
+        require_subject,
+        require_membership,
+        provider,
+        observe_process=None,
+    ):
+        """Shared synchronous verifier lifetime; subject owners supply no grants.
+
+        Provider and SDK package owners separately describe their closed request
+        and current custody. This private runner holds the original oracle and
+        explicit authorization through checks, consume, context close and ACK.
+        """
         from literate_ai.adapters.directory_artifacts import capture_materialized_files
         from literate_ai.adapters.node_library_acceptance import (
             capture_loaded_node_library_verifier_inputs,
@@ -6017,9 +6069,7 @@ class LocalStandardLifecyclePorts:
                 raise TypeError("provider verifier callbacks must be synchronous")
             require_node_sdk_process_observer(callback)
         require_node_sdk_process_observer(observe_process)
-        request = self.library_provider_verifier_request(
-            scope, revision=revision, oracle=oracle, compiler=compiler
-        )
+        request = describe_request()
         if type(authorization) is not BuildAuthorization:
             raise TypeError("provider verifier requires an explicit execution grant")
         configured = node_sdk_tool_environment(dict(environment))
@@ -6048,14 +6098,19 @@ class LocalStandardLifecyclePorts:
                 authorization.profile is not SecurityProfile.CONSTRAINED
                 or authorization.privileges != request.requested_privileges
                 or revision.identity.uri != request.effective_revision_digest
-                or _node_provider_verifier_inputs(scope, oracle, compiler).uri
-                != request.source_bundle_digest
+                or inputs_identity().uri != request.source_bundle_digest
             ):
                 raise LocalStandardLifecycleError(
                     "provider verifier inputs changed at validation close"
                 )
-            authorization.require_valid(request, now=self.clock())
-            self._require_library_provider_membership(scope)
+            now = self.clock()
+            authorization.require_valid(request, now=now)
+            require_membership(now)
+            # Host clocks and subject closes may run callbacks. Retain the
+            # original finite cuts across oracle __exit__; never adopt a new
+            # stamp baseline after the final callback.
+            close_files()
+            oracle_stamps()
 
         def require_live():
             nonlocal active
@@ -6067,16 +6122,13 @@ class LocalStandardLifecyclePorts:
                 if (
                     authorization.profile is not SecurityProfile.CONSTRAINED
                     or authorization.privileges != request.requested_privileges
-                    or self.library_provider_verifier_request(
-                        scope, revision=revision, oracle=oracle, compiler=compiler
-                    )
-                    != request
+                    or describe_request() != request
                 ):
                     raise LocalStandardLifecycleError(
                         "provider verifier authority changed"
                     )
                 verifier()
-                self.require_library_provider_custody(scope)
+                require_subject()
                 require_owner()
                 verifier()
                 require_close()
@@ -6086,6 +6138,7 @@ class LocalStandardLifecyclePorts:
 
         try:
             with capture_loaded_node_library_verifier_inputs(oracle) as verifier:
+                oracle_stamps = verifier.capture_stamps()
                 require_live()
                 try:
                     checks = check_node_library(
@@ -6101,7 +6154,7 @@ class LocalStandardLifecyclePorts:
                         environment=configured,
                         require_current=require_live,
                         observe_process=observe_process,
-                        provider=scope.export,
+                        provider=provider,
                     )
                     require_live()
                     with process_liveness(require_live):
@@ -7321,11 +7374,13 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "packaged root integration test did not pass every exact generated case"
             )
-        return self._process_observation(
+        identity = self._process_observation(
             completed,
             phase="packaged-root-generated-test",
             plan_identity=package_plan.identity,
         )
+        self._remember_node_sdk_project_stage(custody, identity, test=True)
+        return identity
 
     def execute_packaged_project(
         self,
@@ -7430,11 +7485,28 @@ class LocalStandardLifecyclePorts:
         self.project_execution_stdout[package_result.identity.uri] = (
             completed.stdout.strip()
         )
-        return self._process_observation(
+        identity = self._process_observation(
             completed,
             phase="packaged-project-execution",
             plan_identity=package_plan.identity,
         )
+        self._remember_node_sdk_project_stage(custody, identity, test=False)
+        return identity
+
+    def _remember_node_sdk_project_stage(self, custody, identity, *, test):
+        if custody.node_sdk_resources is None:
+            return
+        custody.node_sdk_resources.command_inputs(custody)
+        key = custody.package_result.identity.uri
+        previous = self._node_sdk_project_stages.get(key)
+        if previous is None or previous[0] is not custody:
+            previous = (custody, None, None)
+        self._node_sdk_project_stages[key] = (
+            custody,
+            identity if test else previous[1],
+            previous[2] if test else identity,
+        )
+        custody.node_sdk_resources.command_inputs(custody)
 
     def _service_acceptance_identity(self, document, scope):
         if scope.evidence_identity is None:
@@ -8627,6 +8699,26 @@ class LocalStandardLifecyclePorts:
         ):
             from literate_ai.adapters.component_acceptance import LibraryAcceptance
 
+            if root_contract.component_revision.uri in self.node_sdk_targets:
+                from literate_ai.adapters.node_sdk_project_acceptance import (
+                    LocalNodeSDKProjectAcceptance,
+                )
+
+                policy = self.node_sdk_project_acceptance
+                if type(policy) is not LocalNodeSDKProjectAcceptance:
+                    raise LocalStandardLifecycleError(
+                        "SDK independent acceptance requires explicit original policy"
+                    )
+                return policy.accept(
+                    self,
+                    component_lock,
+                    execution_plan,
+                    project_build_plan,
+                    package_plan,
+                    package_result,
+                    root_integration_test_identity,
+                    packaged_execution_identity,
+                )
             oracle = self.independent_acceptance_oracle
             if not isinstance(oracle, LibraryAcceptance):
                 raise LocalStandardLifecycleError(

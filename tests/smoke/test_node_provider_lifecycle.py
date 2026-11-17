@@ -30,6 +30,7 @@ from literate_ai.contracts import (
     canonical_identity,
 )
 from literate_ai.contracts.node_sdk import CommonJSModuleDeclaration
+from literate_ai.projects import PinnedInputClosureError
 from literate_ai.security.policy import (
     AuthorizationError,
     BuildAuthorization,
@@ -734,3 +735,79 @@ class NodeProviderLifecycleTests(unittest.TestCase):
             for cut in ("revoke", "expire", "retire"):
                 with self.subTest(cut=cut):
                     exercise(cut)
+
+    def test_final_clock_same_byte_oracle_rewrite_withholds_result(self):
+        self._final_clock_rewrite(oracle=True)
+
+    def test_final_clock_same_byte_artifact_rewrite_withholds_result(self):
+        self._final_clock_rewrite(oracle=False)
+
+    def _final_clock_rewrite(self, *, oracle):
+        original_capture = (
+            oracle_fixture.owner.capture_loaded_node_library_verifier_inputs
+        )
+        original_clock = self.ports.clock
+        depth = 0
+        armed = False
+        mutated = []
+        escaped = []
+
+        @contextmanager
+        def capture(value):
+            nonlocal depth
+            depth += 1
+            try:
+                with original_capture(value) as verifier:
+                    yield verifier
+            finally:
+                depth -= 1
+
+        context = self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        )
+        scope = context.__enter__()
+        try:
+            grant = self.grant(scope)
+            path = (
+                self.input.root / self.input.document["harness"]
+                if oracle
+                else scope.root / scope.files[0].path
+            )
+            before = path.stat()
+            content = path.read_bytes()
+
+            def clock():
+                if armed and depth == 0 and not mutated:
+                    path.write_bytes(content)
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    mutated.append(path)
+                return original_clock()
+
+            def consume(_checks, live):
+                nonlocal armed
+                escaped.append(live)
+                armed = True
+                return "must not escape final clock rewrite"
+
+            with (
+                mock.patch.object(
+                    oracle_fixture.owner,
+                    "capture_loaded_node_library_verifier_inputs",
+                    capture,
+                ),
+                mock.patch.object(self.ports, "clock", clock),
+                self.assertRaises((ValueError, PinnedInputClosureError)),
+            ):
+                self.run_join(scope, consume, authorization=grant)
+            self.assertEqual(mutated, [path])
+            self.assertEqual(path.read_bytes(), content)
+            self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
+                escaped[0]()
+        finally:
+            if oracle:
+                context.__exit__(None, None, None)
+            else:
+                # Original outer custody also refuses the rewritten artifact.
+                with self.assertRaises(ValueError):
+                    context.__exit__(None, None, None)

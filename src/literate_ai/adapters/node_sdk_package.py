@@ -291,6 +291,14 @@ class LocalNodeSDKPackageResources:
         self._stamps()
         self._source_stamps()
         now = ports.clock()
+        self._require_original_membership(current)
+        self._inputs.authorization.grant.require_valid(
+            self._inputs.intent.build_request, now=now
+        )
+
+    def _require_original_membership(self, current):
+        """Finite original membership/stamp close without host callbacks."""
+        ports, plan, export = self._ports, self._plan, self._export
         self._require_original_resources()
         self._require_package_metadata()
         if (
@@ -330,9 +338,6 @@ class LocalNodeSDKPackageResources:
             ):
                 raise ValueError("SDK package original export membership changed")
             stamps()
-        self._inputs.authorization.grant.require_valid(
-            self._inputs.intent.build_request, now=now
-        )
 
     def owns_blob(self, reference):
         return reference == self._blob
@@ -459,6 +464,9 @@ class LocalNodeSDKPackageResources:
         selected runtime and phase permission. No arbitrary packaged path lookup.
         """
         self.require_packaged(custody.root)
+        return self._command_metadata(custody)
+
+    def _command_metadata(self, custody):
         export = self._export
         path = custody.root / "root" / export.export_id
         if (
@@ -478,3 +486,40 @@ class LocalNodeSDKPackageResources:
         ):
             raise ValueError("SDK command differs from original packaged custody")
         return self._contract, self._source_root, path
+
+    def verification_inputs(self, custody):
+        """Return original SDK export DATA after current registered custody checks."""
+        contract, _source, path = self.command_inputs(custody)
+        # Graph manifests may carry an equal value projection. Only the
+        # original export retained from this ports' registry supplies rows.
+        entries = tuple(
+            (export, rows)
+            for export, identity, _root, _content, rows, _stamps in self._export_inputs
+            if identity == self._export.identity
+            and export == self._export
+            and self._ports._exports_by_identity.get(identity.uri) is export
+        )
+        if len(entries) != 1:
+            raise ValueError("SDK verifier lost its original registered root export")
+        export, rows = entries[0]
+        return (
+            contract,
+            export,
+            path,
+            tuple(DirectoryExportFile(*row) for row in rows),
+        )
+
+    def require_verification_close(self, custody, *, now):
+        """Close original package/source/BUILD stamps after the verifier's clock.
+
+        The operation owner must run its blocking reads first. This finite cut
+        supplies no execution grant and cannot reopen the original operation.
+        """
+        self._require_original_membership(self._evidence)
+        self._command_metadata(custody)
+        if self._package_root != custody.root or self._package_stamps is None:
+            raise ValueError("SDK verifier lost original package stamps")
+        self._package_stamps()
+        self._inputs.authorization.grant.require_valid(
+            self._inputs.intent.build_request, now=now
+        )

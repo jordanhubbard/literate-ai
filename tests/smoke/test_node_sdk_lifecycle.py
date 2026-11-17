@@ -16,6 +16,7 @@ from literate_ai.adapters.candidate_repair import (
     FilesystemStandardCandidateRepairAdapter,
 )
 from literate_ai.application.standard_node_sdk_admission import (
+    capture_node_sdk_finalization,
     capture_node_sdk_lifecycle,
     require_node_sdk_build_intent,
     require_node_sdk_source,
@@ -629,3 +630,30 @@ class NodeSDKLifecycleTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_finalization_capture_requires_exact_live_invocation_and_retires(self):
+        escaped = []
+
+        def operation(invocation, _guard):
+            live, close = capture_node_sdk_finalization(self.execution, invocation)
+            live()
+            close()
+            escaped.extend((live, close))
+            return "owned"
+
+        self.assertEqual(self.run_owned(operation), "owned")
+        for callback in escaped:
+            with self.assertRaises(ValueError):
+                callback()
+        with self.assertRaises(ValueError):
+            capture_node_sdk_finalization(self.execution, self.fixture.bind())
+
+    def test_finalization_foreign_invocation_is_terminal_even_when_caught(self):
+        def operation(invocation, guard):
+            foreign = replace(invocation, base_recipe=canonical_identity("foreign"))
+            with self.assertRaises(ValueError):
+                capture_node_sdk_finalization(self.execution, foreign)
+            guard()
+
+        with self.assertRaises(ValueError):
+            self.run_owned(operation)

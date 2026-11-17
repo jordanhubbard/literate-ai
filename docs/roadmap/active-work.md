@@ -568,12 +568,33 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       quoting, and an earlier focused candidate had a corrected test-import error;
       neither failed attempt counts as a pass. Independent state/security source
       review finds no remaining blocker for this increment.
-      Next action: wire typed SDK/v2 independent acceptance with packaged legal-byte
-      comparison and separate current verifier authorization. Reuse the shared
-      runtime/declaration verifier and keep the legacy v2 refusal intact. This
-      checkpoint does not establish independent SDK acceptance or public admission.
-      Model generation, final legal-byte acceptance wiring, SDK acceptance and
-      full generated/retained/native/installed qualification remain open.
+      Explicit internal root SDK acceptance now uses the same verifier lifecycle
+      as original CommonJS providers, with separate subject/request construction
+      and no default activation. It requires the original snapshot and invocation,
+      exact registered package, complete original component plan objects and CIDs,
+      actual packaged TEST/EXEC observations, original loaded root v2 oracle and a
+      separate current constrained verifier grant. Packaged legal bytes are checked
+      against original locked assets through the final decision. Original oracle,
+      artifact and locked-input finite stamps close after the final clock and
+      context exits; the original BUILD grant shares the captured final time.
+      The canonical authored port-level fixture passes actual BUILD/cache/TEST/
+      EXEC/PACKAGE, packaged TEST/EXEC and root independent acceptance: six actual
+      TypeScript children and both CJS/ESM runtime checks. It also refuses copied
+      authority, invented stages, missing/wrong grants and a late same-byte locked
+      input rewrite. The full fixture passes in 1,344.510 seconds without extending
+      active grants; this is not ordinary model-generated or installed qualification.
+      Focused checks pass 33/33 and actual provider/admission checks pass 26/26.
+      Standard-prefix and Node-SDK-prefix Make checks pass with prerequisite skips
+      retained. An interrupted candidate and a genuine export-row selection failure
+      remain distinct; the corrected selector uses the retained registry original
+      even when the graph carries an equal value projection. Its regression also
+      rejects copied registry replacement. Earlier new-test failures were assertion/
+      cleanup expectations corrected without weakening production refusals.
+      Next action: profile repeated ownership/identity validation overhead while
+      preserving every original guard and expiry check, then wire explicit public
+      SDK admission configuration and ordinary generated/retained lifecycle proof.
+      Legacy CommonJS v2 refusal remains intact. Public admission, model generation,
+      and full generated/retained/native/installed qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.

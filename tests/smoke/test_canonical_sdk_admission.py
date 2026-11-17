@@ -1,14 +1,17 @@
 """Authored provider stages joined to an actual canonical SDK recipe.
 
-Authored source only; no model generation or independent SDK acceptance.
+Authored source only; explicit local independent SDK acceptance is opt-in here.
 """
 
+import inspect
 import json
 import os
 import shutil
 import sys
 import tempfile
 import unittest
+from contextlib import contextmanager
+from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -24,6 +27,9 @@ from literate_ai.adapters.node_library_acceptance import load_node_library_accep
 from literate_ai.adapters.node_sdk_admission import LocalNodeSDKGenerationAdmission
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.node_sdk_legal import require_locked_node_sdk_legal_files
+from literate_ai.adapters.node_sdk_project_acceptance import (
+    LocalNodeSDKProjectAcceptance,
+)
 from literate_ai.adapters.standard_project import (
     assemble_standard_lifecycle_ports,
     project_locked_standard_toolchain_closure,
@@ -39,12 +45,19 @@ from literate_ai.application.component_generation_preparation import (
     PreparedComponentGenerationNode,
 )
 from literate_ai.application.standard_node_sdk_admission import run_node_sdk_lifecycle
+from literate_ai.application.standard_project_lifecycle import StandardProjectBuildPlan
 from literate_ai.contracts import canonical_identity
 from literate_ai.contracts.executable_components.artifacts import (
     artifact_driver_composition_identity,
 )
-from literate_ai.security.policy import BuildAuthorization, SecurityProfile
+from literate_ai.projects import PinnedInputClosureError
+from literate_ai.security.policy import (
+    AuthorizationError,
+    BuildAuthorization,
+    SecurityProfile,
+)
 from tests.smoke import test_node_library_acceptance as oracle_fixture
+from tests.smoke import test_node_library_execution as runtime_fixture
 from tests.smoke import test_node_library_verification as verifier_fixture
 from tests.smoke.test_node_sdk_cross_language import FIXTURE_LEGAL_TEXT, with_provider
 from tests.support.fixtures_test_component_generation_context import _budget
@@ -167,6 +180,18 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 manifests=manifests,
                 link_roots=(built.exports[0].identity,),
             )
+            project_plan = StandardProjectBuildPlan(
+                fixture.execution.identity,
+                tuple(
+                    sorted(
+                        (
+                            ports._plans_by_revision[p.component_revision.uri]
+                            for p in (provider, built.exports[0])
+                        ),
+                        key=lambda p: p.component_revision.uri,
+                    )
+                ),
+            )
             # Packaging binds original BUILD custody, not this acceleration cache.
             ports._node_sdk_compiled_plans.clear()
             with mock.patch(
@@ -178,7 +203,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 package_plan, package_result = ports.create_project_package(
                     fixture.snapshot.authority.lock,
                     fixture.execution,
-                    SimpleNamespace(),
+                    project_plan,
                     graph,
                     graph.link_plans[0],
                 )
@@ -213,14 +238,14 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 root_test = ports.test_root_integration(
                     fixture.snapshot.authority.lock,
                     fixture.execution,
-                    SimpleNamespace(),
+                    project_plan,
                     package_plan,
                     package_result,
                 )
                 executed = ports.execute_packaged_project(
                     fixture.snapshot.authority.lock,
                     fixture.execution,
-                    SimpleNamespace(),
+                    project_plan,
                     package_plan,
                     package_result,
                 )
@@ -230,9 +255,234 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 "node-sdk-loadability",
                 ports.project_execution_stdout[package_result.identity.uri],
             )
+            self._accept_sdk_project(
+                fixture,
+                invocation,
+                owner,
+                project_plan,
+                package_plan,
+                package_result,
+                root_test,
+                executed,
+            )
             return built.evidence.identity
 
-        self.with_canonical_sdk(operation, verifier_lifetime=timedelta(minutes=15))
+        self.with_canonical_sdk(operation, verifier_lifetime=timedelta(minutes=30))
+
+    def _accept_sdk_project(
+        self,
+        fixture,
+        invocation,
+        owner,
+        project_plan,
+        package_plan,
+        package_result,
+        root_test,
+        executed,
+    ):
+        original = oracle_fixture.NodeLibraryOracleTests()
+        original.setUp()
+        self.addCleanup(original.doCleanups)
+        revision = next(
+            n.revision
+            for n in fixture.snapshot.authority.lock.nodes
+            if n.revision.identity == fixture.execution.root_revision
+        )
+        surface = fixture.ports._contract(revision.identity).library_import_surface
+        document = original.document
+        document.update(
+            component=revision.coordinate.name,
+            language="typescript",
+            specification_set_identity=revision.specification_set_identity.uri,
+            public_interface_identities=sorted(
+                i.identity.uri for i in revision.public_interfaces
+            ),
+            import_surface_identity=surface.identity.uri,
+        )
+        capability = surface.capabilities[0]
+        document["cases"][0]["capability"] = capability.capability
+        document["declaration_cases"][0]["capability"] = capability.capability
+        module = json.dumps(capability.module)
+        sources = (
+            "import library=require(" + module + ");const n:number=library.add(1,2);",
+            "import library=require(" + module + ");library.add('bad',2);",
+            "import {add} from " + module + ";const n:number=add(1,2);",
+            "import {add} from " + module + ";add('bad',2);",
+        )
+        for field, source in zip(
+            oracle_fixture.owner._SOURCE_FIELDS, sources, strict=True
+        ):
+            content = source.encode()
+            ref = document["declaration_cases"][0][field]
+            (original.root / ref["path"]).write_bytes(content)
+            ref["identity"] = oracle_fixture._sha(content)
+        for field, text in (
+            ("harness", runtime_fixture._CJS),
+            ("esm_harness", runtime_fixture._ESM),
+        ):
+            content = text.encode()
+            (original.root / document[field]).write_bytes(content)
+            document[field + "_identity"] = oracle_fixture._sha(content)
+        original.write_document()
+        oracle = load_node_library_acceptance(original.path, revision.coordinate.name)
+        mode = ["missing"]
+        requests = []
+
+        def authorize(request):
+            requests.append(request)
+            if mode[0] == "missing":
+                return None
+            now = fixture.ports.clock()
+            digest = canonical_identity(request.to_dict()).uri
+            grant = BuildAuthorization(
+                "canonical-sdk-root-verifier-fixture",
+                digest,
+                digest,
+                request.effective_revision_digest,
+                "fixture-operator",
+                "separate explicit authored root SDK verifier",
+                SecurityProfile.CONSTRAINED,
+                request.requested_privileges,
+                now,
+                now + timedelta(minutes=15),
+            )
+            if mode[0] == "wrong":
+                return replace(grant, request_digest=canonical_identity("wrong").uri)
+            return grant
+
+        ports = fixture.ports
+        arguments = (
+            fixture.snapshot.authority.lock,
+            fixture.execution,
+            project_plan,
+            package_plan,
+            package_result,
+            root_test,
+            executed,
+        )
+        with self.assertRaisesRegex(RuntimeError, "explicit original policy"):
+            ports.accept_project_independently(*arguments)
+        policy = LocalNodeSDKProjectAcceptance(
+            ports=ports,
+            snapshot=fixture.snapshot,
+            execution_plan=fixture.execution,
+            invocation=invocation,
+            oracle=oracle,
+            authorize_verifier=authorize,
+            require_current=owner,
+            environment=dict(os.environ),
+        )
+        ports.node_sdk_project_acceptance = policy
+        ports.independent_acceptance_oracle = oracle
+        ports.independent_acceptance_oracle = replace(oracle)
+        with self.assertRaisesRegex(ValueError, "original configuration"):
+            ports.accept_project_independently(*arguments)
+        ports.independent_acceptance_oracle = oracle
+        # Equal copied records and invented stage evidence cannot open the verifier.
+        for index, value in (
+            (0, replace(arguments[0])),
+            (1, replace(arguments[1])),
+            (5, canonical_identity("invented root TEST")),
+        ):
+            changed = list(arguments)
+            changed[index] = value
+            with self.assertRaises(ValueError):
+                ports.accept_project_independently(*changed)
+        self.assertEqual(requests, [])
+        with self.assertRaisesRegex(TypeError, "separate explicit"):
+            ports.accept_project_independently(*arguments)
+        mode[0] = "wrong"
+        with self.assertRaises(AuthorizationError):
+            ports.accept_project_independently(*arguments)
+        mode[0] = "valid"
+        from literate_ai.adapters import node_library_verification
+
+        actual_check = node_library_verification.check_node_library
+        checked = []
+
+        def check(*args, **kwargs):
+            result = actual_check(*args, **kwargs)
+            self.assertEqual(len(result.declarations.processes), 6)
+            self.assertEqual(len(result.runtime.results), 2)
+            self.assertEqual(
+                kwargs["artifact_root"],
+                ports._project_packages[package_result.identity.uri].artifact_paths[
+                    package_plan.root_artifact_identity.uri
+                ],
+            )
+            checked.append(result)
+            return result
+
+        with mock.patch.object(
+            node_library_verification, "check_node_library", side_effect=check
+        ):
+            accepted = ports.accept_project_independently(*arguments)
+        self.assertTrue(accepted.digest)
+        self.assertEqual(len(checked), 1)
+        self.assertEqual(len(requests), 3)
+        self.assertTrue(
+            all(r.builder_id == "local-node-sdk-project-verifier@1" for r in requests)
+        )
+        # Closing-only negative: substitute prior observations for the checker,
+        # then rewrite original locked authority at the final clock. This is not
+        # another qualification run; old checks cannot bypass the current cut.
+        path = next(
+            entry.path
+            for entry in fixture.snapshot._input_closure._entries.values()
+            if entry.path.is_relative_to(fixture.root)
+            and entry.path.name == "component.md"
+        )
+        before = path.stat()
+        content = path.read_bytes()
+        original_clock = ports.clock
+        original_capture = (
+            oracle_fixture.owner.capture_loaded_node_library_verifier_inputs
+        )
+        depth = 0
+        mutated = []
+
+        @contextmanager
+        def capture(value):
+            nonlocal depth
+            depth += 1
+            try:
+                with original_capture(value) as verifier:
+                    yield verifier
+            finally:
+                depth -= 1
+
+        def clock():
+            frame = inspect.currentframe()
+            caller = frame.f_back
+            root_close = (
+                caller.f_code.co_name == "require_close"
+                and getattr(caller.f_locals.get("scope"), "contract", None)
+                is policy.contract
+            )
+            del frame, caller
+            if depth == 0 and root_close and not mutated:
+                path.write_bytes(content)
+                os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                mutated.append(path)
+            return original_clock()
+
+        with (
+            mock.patch.object(
+                node_library_verification, "check_node_library", return_value=checked[0]
+            ),
+            mock.patch.object(
+                oracle_fixture.owner,
+                "capture_loaded_node_library_verifier_inputs",
+                capture,
+            ),
+            mock.patch.object(ports, "clock", clock),
+            self.assertRaises(PinnedInputClosureError),
+        ):
+            ports.accept_project_independently(*arguments)
+        self.assertEqual(mutated, [path])
+        self.assertEqual(path.read_bytes(), content)
+        self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+        return accepted
 
     def with_canonical_sdk(
         self, operation=None, *, verifier_lifetime=timedelta(minutes=5)
