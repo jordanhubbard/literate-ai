@@ -19208,14 +19208,14 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 ### [ ] TEST-PARALLEL-001 — Run release-gate tests in parallel (checkpointed, fail-fast)
 
 - **GitHub issue:** [#56](https://github.com/jordanhubbard/literate-ai/issues/56)
-- **Current release target:** 1.3.0 (2026-10-18 reconciliation)
+- **Current release target:** 1.4.0 (2026-11-16 remaining measurement reconciliation)
 
 - **Priority:** P1
 - **Owner:** framework authority and qualification named by the linked issue
 - **Direction:** Run release-gate tests in parallel (checkpointed, fail-fast)
-- **Conclusion:** The current installed checkpoint runner executes the entire suite in one process. Add bounded process-level module scheduling while preserving one controller-owned marker ledger and source/context binding. Keep the existing serial API for in-memory suites; make CLI/Make worker count explicit, defaulting to the available CPU count. The Windows gate retains pytest/JUnit and uses isolated file-group workers with fail-fast.
+- **Conclusion:** Bounded process-level module scheduling is implemented with one controller-owned marker ledger and source/context binding. The remaining work is measured performance and final platform qualification. Preserve the serial API for in-memory suites and explicit CLI/Make worker counts. The Windows gate retains its separate pytest/JUnit execution path.
 - **Depends on:** existing pin dispatch, known-failure contracts and owned-process-tree cleanup
-- **Next action (in progress):** Collect final-source native timing comparisons and require the full exact-head CI matrix before landing. The complete local suite, installed wheel and newly current lifecycle receipt have passed; eight-core Windows performance acceptance remains pending capacity.
+- **Next action (in progress):** Qualify parent-owned module timing on the next complete source run, investigate measured long modules, then collect native serial/parallel comparisons and exact-head platform results. Historical suite/wheel/receipt passes do not attest later source changes; eight-core Windows performance acceptance remains pending capacity.
 - **Implementation:**
   - [x] Execute importable module groups in private process/temp/object environments with explicit serial barriers and configurable worker count.
   - [x] Record validated per-case outcomes only in the parent; retain exact failure/skip/subtest/fixture counts and bounded diagnostics.
@@ -19249,6 +19249,19 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   rebuilds the entire ledger index. Qualify overlap, serial barriers, crash and
   cancellation through real public-runner processes before changing scheduling.
   One-worker and native Windows pytest coverage remain explicit measurement gaps.
+
+- **Timing implementation checkpoint:** The parent now writes one finite diagnostic
+  artifact and registers it once with the existing evidence owner. A real-process
+  control covers overlap, a serial barrier, worker crash, peer cancellation and
+  never-dispatched work. Forcing timing writes to fail preserves the same ordered
+  outcome report and exit status. Reader controls retain unknown interrupted
+  endings, reject invalid clocks and duplicate phases, and refuse missing or
+  nonregular files. These focused checks do not establish a complete-suite speedup
+  or native Windows performance acceptance; the parent goal remains open.
+  Independent review found omitted scratch-deletion time and incomplete phase
+  validation. Maintained delayed/failed-deletion controls now require scratch
+  work in total cleanup and preserve unknown completion on failure. Missing/late
+  exit observations and malformed dispositions remain artifact diagnostics.
 
 ### [x] MERMAID-SCOPE-001 — Mermaid documentation check scans gitignored build output (generated/)
 

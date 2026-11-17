@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/development-timing-review@1",
+  "reviewer": "sdlc_review",
+  "base_commit": "b2465356af5fdc8b0838b14c075df20ed3c67011",
+  "review_record_sha256": "e057ba51423e8f8735cd5b51198007416ae919155bd4ee6099211a72054f457f",
+  "prior_review_record_sha256": "aa5dd6e0870b2d060602afac69d6bec526e6227447186dca8fa9e246b4c00ad1",
+  "subjects": {
+    "src/literate_ai/parallel_unittest_timing.py": "8cede260c6cb03bfeef9764df9e98dd63ce9aa18c02e3e6af8964b6494ded752",
+    "src/literate_ai/parallel_unittests.py": "5e70d42fdefa06265bca2a31d7cda249424b707bc085f51d84f5fcafe4e05c28",
+    "src/literate_ai/evidence_timing.py": "c748dc6217402418c30e030924a9c9e0f3460b80bcc102ef5b54bed89fa4388d",
+    "src/literate_ai/cli/release.py": "14a79530a2d206cc25e6dd079e65b9b05f66d7b8b94d3a0e7068b163fd06e97b",
+    "tests/smoke/test_parallel_unittests.py": "136536e121be00a84fb14d133c0cb93ccb7d42c0308f4f7d0eeaa7cfd46e3925",
+    "tests/smoke/test_evidence_timing.py": "8f65940cfb6eaefa7b8b10a7fab0642e3e142d4c9ec188b5499fa311388f873d",
+    "docs/architecture/project-releases.md": "482521d07980f50efd556d6112239defe70ea0b40b16a7b9d637d71fd71af471",
+    "docs/roadmap/active-work.md": "8ef48ccaca9994a70c73453579310db93b95ef6d45adfee9ddcf4acda0a52c38"
+  },
+  "controls": {
+    "runner_module": {
+      "tests": 17,
+      "seconds": 44.302,
+      "result": "passed"
+    },
+    "reader_module": {
+      "tests": 11,
+      "seconds": 0.009,
+      "result": "passed"
+    },
+    "independent_review_fixes": {
+      "tests": 14,
+      "seconds": 5.818,
+      "result": "passed"
+    },
+    "independent_record_bound": {
+      "tests": 11,
+      "seconds": 0.007,
+      "result": "passed"
+    },
+    "bind_order": {
+      "tests": 12,
+      "author_seconds": 0.78,
+      "independent_seconds": 0.742,
+      "result": "passed",
+      "negative_control": "Same public control fails with previous _start ordering."
+    }
+  },
+  "findings_resolved": [
+    "Include successful scratch deletion in module/cleanup envelopes; failed deletion remains unknown.",
+    "Require coherent exit/cleanup/report phases before complete diagnostic coverage.",
+    "Malformed dispositions remain artifact diagnostics without aborting the command.",
+    "Bound decoded row count as well as encoded bytes.",
+    "Bind worker ownership before writing launch diagnostics, preserving the sampled Popen return time."
+  ],
+  "preserved_authority": [
+    "Worker event validator owns outcomes and checkpoint eligibility.",
+    "Original worker timeout origin, worker count and cleanup policy unchanged.",
+    "One diagnostic registration per invocation; no per-module ledger index rebuild."
+  ],
+  "limits": [
+    "Development controls only; complete source/wheel/platform qualification remains separate.",
+    "No measured suite speedup; serial in-process unittest and native Windows pytest timing remain unavailable.",
+    "Overlapping module envelopes do not establish CPU use, billable runner time or a dependency critical path."
+  ],
+  "qualification_base_commit": "101315c4a699579534a06141e975439951166e1d",
+  "composition": "Fast-forwarded the separately reviewed native-path repair; all eight timing subjects remain byte-identical to their approved hashes.",
+  "bind_order_review_sha256": "068f259250c729833b305dd03f3483923ea6e011611d85ec88ac361241b8c2b9",
+  "interrupted_qualification": {
+    "invocation": "3405af4e71e9",
+    "completed_checkpoint_cases": 2115,
+    "closed_module_envelopes": 433,
+    "interrupted_modules": 4,
+    "coverage": "incomplete",
+    "elapsed_seconds": null,
+    "reason": "Superseded to bind process ownership before diagnostic I/O; not acceptance."
+  }
+}

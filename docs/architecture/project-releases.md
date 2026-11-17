@@ -510,3 +510,29 @@ new release checks. Older runs retain their original instrumentation gaps. Node
 nesting does not prove scheduling dependencies or exclusive runner occupancy, so
 critical-path and runner-use totals remain unknown rather than summing overlapping
 nodes. These timings never satisfy a release gate or authorize receipt reuse.
+
+Process-isolated unittest runs retain `module-timing.ndjson` beside their worker
+logs and register that directory once with the owning evidence run. The timing
+reader consumes only these explicit registrations. One parent monotonic clock
+records module selection, setup, process launch/exit observations, cancellation,
+cleanup and final validated-report observations. Module timing never supplies
+test outcomes or repair markers and does not move the worker timeout origin.
+Diagnostic write failure emits one warning and leaves the test result unchanged.
+
+The report distinguishes cancelled, failed, incomplete and undispatched modules.
+It retains unknown endings after interruption and identifies truncated, missing,
+redirected or oversized artifacts. Records are limited to 8 KiB and each invocation
+to 16 MiB and 100,000 records, bounding decoded-row amplification as well as bytes.
+One command accepts at most 32 registrations and 64 MiB of records.
+A final bounded read can exceed the remaining byte budget before refusal.
+Writes are flushed
+for process-crash visibility, without a power-loss durability guarantee. File I/O
+latency itself is not bounded by these byte limits. Closed module envelopes yield
+wall-time union, occupancy sums and observed overlap; these are neither CPU time
+nor a dependency-derived critical path. Admission delays include unattributed
+parent work, slot waits and serial barriers. Serial in-process unittest and native
+Windows pytest runs remain outside this instrumentation's coverage.
+Process-owner cleanup and scratch removal have separate observations; module and
+total-cleanup durations include successful scratch deletion. Failure paths retain
+scratch by their existing policy. An interrupted or failed deletion has no
+invented cleanup end.
