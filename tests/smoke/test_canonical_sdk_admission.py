@@ -1,6 +1,6 @@
 """Authored provider stages joined to an actual canonical SDK recipe.
 
-No model source, SDK BUILD or SDK acceptance is established by this operation.
+Authored source only; no model generation or independent SDK acceptance.
 """
 
 import json
@@ -11,6 +11,7 @@ import tempfile
 import unittest
 from datetime import timedelta
 from pathlib import Path
+from types import SimpleNamespace
 
 from literate_ai.adapters.generation_preparation import (
     FilesystemComponentWorkspaceAllocator,
@@ -19,6 +20,7 @@ from literate_ai.adapters.generation_preparation import (
 from literate_ai.adapters.lifecycle import LocalSourceTreeRegistry
 from literate_ai.adapters.node_library_acceptance import load_node_library_acceptance
 from literate_ai.adapters.node_sdk_admission import LocalNodeSDKGenerationAdmission
+from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.standard_project import (
     assemble_standard_lifecycle_ports,
     project_locked_standard_toolchain_closure,
@@ -34,7 +36,7 @@ from literate_ai.contracts import canonical_identity
 from literate_ai.security.policy import BuildAuthorization, SecurityProfile
 from tests.smoke import test_node_library_acceptance as oracle_fixture
 from tests.smoke import test_node_library_verification as verifier_fixture
-from tests.smoke.test_node_sdk_cross_language import with_provider
+from tests.smoke.test_node_sdk_cross_language import FIXTURE_LEGAL_TEXT, with_provider
 from tests.support.fixtures_test_component_generation_context import _budget
 from tests.support.standard_source_evidence_fixture import register_strict_source
 
@@ -47,6 +49,74 @@ from tests.support.standard_source_evidence_fixture import register_strict_sourc
 )
 class CanonicalSDKAdmissionTests(unittest.TestCase):
     def test_real_canonical_provider_stages_and_owned_invocation(self):
+        self.with_canonical_sdk()
+
+    def test_canonical_sdk_build_cache_tests_and_execution(self):
+        def operation(invocation, owner, fixture):
+            source = fixture.root / "sdk-source"
+            (source / "src").mkdir(parents=True)
+            (source / "source/tests").mkdir(parents=True)
+            provider = fixture.provider
+            declaration = fixture.provider_contract.library_import_surface.declarations[
+                0
+            ]
+            wrapper, _ = node_sdk_provider_module_paths(provider, declaration)
+            (source / "src/index.ts").write_text(
+                "import provider=require(" + json.dumps("../" + wrapper) + ");"
+                "export const add=provider.add;\n"
+            )
+            (source / "LICENSE").write_text(FIXTURE_LEGAL_TEXT)
+            (source / "source/tests/litai_test.cjs").write_text(
+                "const p=require('node:path'),"
+                "sdk=require(p.join(process.argv[2],'cjs/index.js'));"
+                "for(const [a,b,n] of [[1,2,3],[0,0,0],[-1,1,0]])"
+                "if(sdk.add(a,b)!==n)throw Error('bad SDK sum');"
+                "console.log(JSON.stringify({schema:'literate-ai/generated-test-results@1',"
+                "cases:['example','boundary','invariant'].map(x=>"
+                "({case_id:'fixture-'+x,outcome:'passed'}))}));"
+            )
+            ports = fixture.ports
+            candidate = register_strict_source(
+                ports.source_trees,
+                source,
+                snapshot=fixture.snapshot,
+                generation_plan=invocation.prepared.plan,
+                identity_namespace="canonical authored SDK build fixture",
+                recipe=invocation.prepared.recipe,
+            )
+            intent = ports.create(
+                fixture.execution, invocation.prepared.plan, candidate, (provider,), ()
+            )
+            index = ports.index(candidate.component_revision, candidate.tree_identity)
+            plan = ports.finalize(intent, ports.authorize(intent, index))
+            built = ports.build(plan, (provider,))
+            owner()
+            self.assertEqual(ports.build(plan, (provider,)), built)
+            self.assertEqual(ports.build_cache_hits, 1)
+            ports.test(plan, built.exports)
+            ports.execute(plan, built.exports)
+            artifact = ports.artifact_path(built.exports[0]).parent
+            self.assertTrue((artifact / "node-sdk.tgz").is_file())
+            self.assertEqual(
+                (ports.artifact_path(built.exports[0]) / "LICENSE").read_text(),
+                FIXTURE_LEGAL_TEXT,
+            )
+            metadata = json.loads((artifact / "node-sdk.json").read_bytes())
+            self.assertEqual(
+                metadata["composition"]["compiler"]["digest"],
+                fixture.target.typescript.compiler.identity.digest,
+            )
+            self.assertIn(
+                provider.blob.digest,
+                ports.resolved_sbom_content(built.evidence).decode(),
+            )
+            return built.evidence.identity
+
+        self.with_canonical_sdk(operation, verifier_lifetime=timedelta(minutes=15))
+
+    def with_canonical_sdk(
+        self, operation=None, *, verifier_lifetime=timedelta(minutes=5)
+    ):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
             _, snapshot, execution = with_provider(root / "authority")
@@ -206,7 +276,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                     SecurityProfile.CONSTRAINED,
                     request.requested_privileges,
                     now,
-                    now + timedelta(minutes=5),
+                    now + verifier_lifetime,
                 )
                 grants.append(grant)
                 return grant
@@ -236,6 +306,20 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 self.assertNotIn(
                     "PRIVATE_PROVIDER", invocation.prepared.request.prompt.decode()
                 )
+                if operation is not None:
+                    return operation(
+                        invocation,
+                        owner,
+                        SimpleNamespace(
+                            root=root,
+                            ports=ports,
+                            snapshot=snapshot,
+                            execution=execution,
+                            target=target,
+                            provider=built.exports[0],
+                            provider_contract=provider_contract,
+                        ),
+                    )
                 return invocation.identity
 
             result = run_node_sdk_lifecycle(

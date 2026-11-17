@@ -133,16 +133,20 @@ Node children and coding-agent children share process liveness and cleanup.
 
 Current evidence includes actual authored SDK compilation/packing, bounded cache
 reuse, relocated CJS/ESM root/subpath imports and positive/negative TypeScript
-consumers. A canonical filesystem graph now joins strict authored JavaScript
+consumers. A canonical filesystem graph joins strict authored JavaScript
 provider BUILD/TEST/EXEC stages on macOS, original v2 runtime/declaration checks and
 a current fixture-only verifier grant to the owned SDK invocation. Its escaped
-guard is rejected after exit. The latest preparation/projection and refusal runs
-pass 27 and 14 checks respectively. These prove local seams, not model generation
-or independent SDK acceptance. Earlier foundation `8c2e108f` passed a whole-wheel
+guard is rejected after exit. That same canonical owned invocation now registers
+bound-recipe authored SDK source, obtains separate build authorization, compiles and
+packs through the shared owner, reuses its cache and passes actual TEST and EXEC.
+The Component declares precise addition behavior and fixture-only legal text before
+locking; the package retains the text and exact provider/compiler evidence. These
+prove authored local seams, not model generation or independent SDK acceptance.
+Earlier foundation `8c2e108f` passed a whole-wheel
 fixture gate; later changes are not covered by that installed-wheel evidence.
 
 Remaining gates are exact Component-authorized legal-byte custody, public runtime
-admission configuration, SDK BUILD through the complete canonical lifecycle,
+admission configuration, ordinary generated/retained canonical SDK lifecycle,
 original v2 independent SDK acceptance, arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,
 packed SDK output publication, supported native platforms and fresh noneditable

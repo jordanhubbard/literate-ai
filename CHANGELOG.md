@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Verify authored SDK source through the real canonical owned invocation: strict
+  bound-recipe registration, separately authorized BUILD, shared compilation/packing,
+  cache reuse, TEST and EXEC. The shared canonical fixture now supplies explicit
+  addition behavior and fixture-only legal text before locking. Exact compiler and
+  provider evidence is checked in build metadata/resolved BOM. This establishes
+  authored integration, not model generation or independent SDK acceptance.
+
 - Canonical SDK recipes can now reference declaration-bearing JavaScript libraries
   under an explicit TypeScript dual-library SDK policy. Preparation and execution
   share pinned profile decoding and language-shape checks. Other language mismatches,

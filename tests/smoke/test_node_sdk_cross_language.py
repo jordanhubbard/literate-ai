@@ -18,6 +18,9 @@ from literate_ai.contracts.node_sdk import CommonJSModuleDeclaration
 from tests.smoke.test_node_sdk_flavors import canonical_snapshot
 
 ROOT = Path(__file__).resolve().parents[2]
+FIXTURE_LEGAL_TEXT = (
+    "Fixture-only packaging text. No distribution license is granted.\n"
+)
 
 
 def with_provider(root, *, declared=True, build_system=None, corrupt_profile=False):
@@ -36,6 +39,23 @@ def with_provider(root, *, declared=True, build_system=None, corrupt_profile=Fal
             for kind in ("generation", "build")
         ]
         source.write_bytes(render_authoring_markdown(value, body))
+        (component / "specs/spec.md").write_text(
+            "# Addition SDK\n\n### Requirement: Exact integer addition\n\n"
+            "The SDK SHALL expose add(a,b), returning the sum of its integer inputs "
+            "through its declared sealed counter provider.\n\n"
+            "#### Scenario: Forward addition\n\n- **WHEN** add(1,2) is called\n"
+            "- **THEN** it returns 3\n\n"
+            "### Requirement: Fixture-only legal input\n\n"
+            "The fixture root LICENSE SHALL contain exactly:\n\n```text\n"
+            + FIXTURE_LEGAL_TEXT
+            + "```\n\n#### Scenario: Package fixture text\n\n"
+            "- **WHEN** this isolated fixture is packed\n"
+            "- **THEN** its LICENSE retains those exact bytes\n"
+        )
+        (component / "interfaces/library.md").write_text(
+            "# Addition SDK interface\n\nThe public add(a,b) function returns "
+            "the exact sum of two integers through its sealed provider.\n"
+        )
         provider = component / "counter"
         (provider / "interfaces").mkdir(parents=True)
         (provider / "specs").mkdir()

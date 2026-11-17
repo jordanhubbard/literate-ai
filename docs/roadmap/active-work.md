@@ -514,6 +514,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       integration uses the conventional `source/<package>` manifest/export map.
       A passing conventional layout does not prove the generic driver honors every
       explicit v2 runtime/declaration path.
+      The same canonical owned invocation now carries authored SDK source through
+      bound-recipe registration, separate build authorization, shared compile/pack,
+      cache reuse, actual TEST and EXEC. The original provider fixture/setup is
+      shared; no canonical plan/contract is replaced with an inert substitute.
+      Precise addition behavior and fixture-only legal text enter Component authority
+      before locking. The actual output retains that text and exact compiler/provider
+      evidence. The full-build fixture passes, as do four ownership/static regressions.
+      An earlier five-minute verifier grant expired during packing and rejected the
+      operation; the successful full-build fixture issues a fresh fifteen-minute
+      grant at entry, without changing live grants or production expiry checks.
+      Model generation, generic independent legal-byte custody, SDK acceptance and
+      full generated/retained/native/installed qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.
