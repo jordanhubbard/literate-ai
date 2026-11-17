@@ -400,10 +400,84 @@ def _init_namespace(args: Namespace, *, convert: bool) -> Namespace:
 
 def onboard_from_args(args: Namespace) -> dict[str, Any]:
     mode = args.onboard_command
+    if mode == "remove":
+        from literate_ai.adapters.native_project_removal import (
+            apply_native_project_removal,
+            plan_native_project_removal,
+        )
+
+        try:
+            options = {"source": args.source, "only": tuple(args.only)}
+            if args.apply:
+                return apply_native_project_removal(
+                    Path(args.path).expanduser(),
+                    expected=args.expect_plan,
+                    acknowledge=args.acknowledge,
+                    **options,
+                )
+            return plan_native_project_removal(Path(args.path).expanduser(), **options)
+        except (OSError, ValueError, ProjectLifecycleLockError) as exc:
+            # Removal may include the finite recovery argv after a partial Git
+            # operation. Preserve that bounded diagnostic rather than truncating
+            # the exact immutable source or selected paths.
+            raise _translate_error(exc, message_limit=8192) from exc
+    native = mode == "adopt" and getattr(args, "adoption_profile", "native") == "native"
+    native_plan: dict[str, object] = {}
+
+    def plan_native() -> dict[str, Any]:
+        from literate_ai.adapters.native_project_bootstrap import (
+            plan_native_project_bootstrap,
+        )
+
+        conversion_options = (
+            "flavors",
+            "repository_from",
+            "root_plan",
+            "run_baseline",
+            "allow_unready",
+            "baseline_timeout_seconds",
+            "baseline_diagnostic_chars",
+            "harness_workspace_link",
+        )
+        if (
+            any(getattr(args, key, None) for key in conversion_options)
+            or getattr(args, "source_intelligence_provider", "none") != "none"
+        ):
+            raise OperatorAdoptionError(
+                "operator.native_profile_options",
+                "Generation/conversion options require --profile convert",
+            )
+        native_plan.clear()
+        native_plan.update(
+            plan_native_project_bootstrap(
+                Path(args.path).expanduser(),
+                project_id=args.project_id,
+                default_branch=args.default_branch,
+            )
+        )
+        return dict(native_plan)
+
+    def apply_native() -> dict[str, Any]:
+        from literate_ai.adapters.native_project_bootstrap import (
+            apply_native_project_bootstrap,
+        )
+
+        return apply_native_project_bootstrap(
+            Path(args.path).expanduser(),
+            expected=str(native_plan["bootstrap_identity"]),
+            acknowledge=bool(args.acknowledge),
+            project_id=args.project_id,
+            default_branch=args.default_branch,
+        )
+
     builder = (
-        (lambda: _create_plan(args))
-        if mode == "create"
-        else (lambda: _adopt_plan(args))
+        plan_native
+        if native
+        else (
+            (lambda: _create_plan(args))
+            if mode == "create"
+            else (lambda: _adopt_plan(args))
+        )
     )
     try:
         if not args.apply and (args.acknowledge or args.expect_plan is not None):
@@ -423,8 +497,12 @@ def onboard_from_args(args: Namespace) -> dict[str, Any]:
         result = service.apply(
             mode,
             builder=builder,
-            mutator=lambda: init_project_from_args(
-                _init_namespace(args, convert=mode == "adopt")
+            mutator=apply_native
+            if native
+            else (
+                lambda: init_project_from_args(
+                    _init_namespace(args, convert=mode == "adopt")
+                )
             ),
             acknowledged=bool(args.acknowledge),
             expected_plan_identity=args.expect_plan,

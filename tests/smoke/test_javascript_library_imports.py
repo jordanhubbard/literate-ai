@@ -332,7 +332,10 @@ class JavaScriptLibraryImportTests(unittest.TestCase):
         self.assertNotEqual(first.identity, self.prepare((other,), (binding,)).identity)
 
     def test_current_node_builtin_names_are_rejected_before_blob_reads(self):
-        for name in ["fs", "path", "crypto", "_stream_readable"]:
+        # Internal builtins differ by Node version. Exercise the selected runtime's
+        # actual namespace, retaining stable public names as mandatory controls.
+        internal = sorted(name for name in self.builtins if name.startswith("_"))
+        for name in ["fs", "path", "crypto", *internal]:
             with self.subTest(name=name):
                 self.assertIn(name, self.builtins)
                 capability = replace(self.capability, module=name)

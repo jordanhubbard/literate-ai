@@ -2,6 +2,50 @@
 
 ## Unreleased
 
+- Existing repositories default to a contained native adoption profile under
+  `litai/`, preserving source, build tools, CI and custom instructions. Explicit
+  `--profile convert` retains conversion. Native policy updates use three-way
+  merging; committed removal preserves custom files and staging, binds exact Git
+  before-images and exposes recovery without automatic index restoration.
+  Catalog imports, reparenting and framework release execution remain unavailable
+  in this minimal profile; bootstrap does not establish execution qualification.
+- Reject incompatible installed live-model selection before creating a runtime
+  or installing a candidate; offline installation remains model-independent.
+
+- Managed SSH jobs require a fresh lease covering their execution deadline and
+  configured cleanup waits. Release drains the recorded active attempt; explicit
+  cancellation binds its exact attempt ID. Lost controllers retain outstanding
+  work, and cancelled or expired attempts cannot supply accepted results.
+
+- Rerun checks when the project dependency authority cannot be resolved; a suite
+  name or unchanged test module alone no longer authorizes checkpoint reuse.
+
+- Prevent recursive Make dry-run, query and touch modes from recording unexecuted
+  release gates as successful or clearing retained repair progress.
+
+- Share one exact qualified wheel across release installation checks, with immutable
+  candidate selection, source/version/origin checks and staged byte verification.
+  Preserve independent source installation and all installed behavior checks.
+
+- `release-check` refuses stale driver, runner and documentation review before starting expensive
+  qualification; its later driver check and clean release rerun rule remain intact.
+- Recorded dynamic workers support explicit lease lookup and acknowledged,
+  idempotent release through an optional private management command. Lost replies
+  retain recovery intent; changed registrations and static workers are preserved.
+
+- Optional contribution roadmap manifests now round-trip without weakening required
+  milestone, unknown-field or path validation (upstream PR 442, issue 441).
+- Export checks preserve their denied-reference coverage while avoiding repeated
+  scanning of long suffix-free inputs (upstream PR 428, issue 427).
+- Windows process cleanup avoids redundant `taskkill` after confirmed Job Object
+  termination; uncertain ownership still uses fallback cleanup (upstream PR 428,
+  issue 426).
+
+- Release evidence now times artifact qualification and final receipt validation.
+  `litai release evidence timing` reads the latest ledger records and reports
+  elapsed intervals, overlapping child coverage and gaps without double-counting
+  nested jobs or inventing durations for interrupted runs. Timing is diagnostic;
+  source, artifact and receipt qualification requirements remain in force.
 - Materialize generic JavaScript direct-library imports from exact sealed provider
   artifacts, with native Node export maps, truthful generic source-BOM declarations
   and rejection of built-in or consumer-scope collisions (#447).

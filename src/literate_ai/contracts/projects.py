@@ -1194,10 +1194,33 @@ class ProjectDefinition:
     html_render_requests: tuple[HtmlRenderRequest, ...] = ()
     repository_orchestration: RepositoryOrchestration | None = None
     scale_limits: ProjectScaleLimits | None = None
+    framework_directory: str | None = None
+    agent_entrypoints: tuple[str, ...] | None = None
 
     SCHEMA: ClassVar[str] = PROJECT_DEFINITION_SCHEMA
 
     def __post_init__(self) -> None:
+        if self.framework_directory not in (None, "litai"):
+            fail(
+                "ProjectDefinition.framework_directory",
+                "must be 'litai' when contained framework storage is declared",
+            )
+        if self.agent_entrypoints is not None:
+            allowed = {
+                "AGENTS.md",
+                "CLAUDE.md",
+                ".cursor/rules/literate-ai.mdc",
+                "agents/openai.yaml",
+            }
+            if (
+                not isinstance(self.agent_entrypoints, tuple)
+                or len(set(self.agent_entrypoints)) != len(self.agent_entrypoints)
+                or any(item not in allowed for item in self.agent_entrypoints)
+            ):
+                fail(
+                    "ProjectDefinition.agent_entrypoints",
+                    "must select unique supported agent discovery files",
+                )
         if self.scale_limits is not None and not isinstance(
             self.scale_limits, ProjectScaleLimits
         ):
@@ -1248,6 +1271,7 @@ class ProjectDefinition:
             protected_files = {
                 PurePosixPath(self.agent_skill),
                 PurePosixPath("literate.project.json"),
+                PurePosixPath("litai/literate.project.json"),
             }
             roots = tuple(
                 PurePosixPath(item)
@@ -1487,6 +1511,10 @@ class ProjectDefinition:
             value["repository_orchestration"] = self.repository_orchestration.to_dict()
         if self.scale_limits is not None:
             value["scale_limits"] = self.scale_limits.to_dict()
+        if self.framework_directory is not None:
+            value["framework_directory"] = self.framework_directory
+        if self.agent_entrypoints is not None:
+            value["agent_entrypoints"] = list(self.agent_entrypoints)
         return value
 
     @classmethod
@@ -1508,6 +1536,12 @@ class ProjectDefinition:
                 fail(
                     path,
                     "legacy project definitions do not admit orchestration authority",
+                )
+            if "framework_directory" in value:
+                fail(path, "legacy project definitions do not admit contained storage")
+            if "agent_entrypoints" in value:
+                fail(
+                    path, "legacy project definitions do not admit entrypoint selection"
                 )
             legacy = dict(value)
             raw_source_index = legacy.pop("source_index", None)
@@ -1585,10 +1619,22 @@ class ProjectDefinition:
                     "html_render_requests",
                     "repository_orchestration",
                     "scale_limits",
+                    "framework_directory",
+                    "agent_entrypoints",
                 }
             ),
         )
         return cls(
+            agent_entrypoints=(
+                string_tuple(data["agent_entrypoints"], f"{path}.agent_entrypoints")
+                if "agent_entrypoints" in data
+                else None
+            ),
+            framework_directory=(
+                string_value(data["framework_directory"], f"{path}.framework_directory")
+                if "framework_directory" in data
+                else None
+            ),
             scale_limits=(
                 ProjectScaleLimits.from_dict(data["scale_limits"])
                 if "scale_limits" in data

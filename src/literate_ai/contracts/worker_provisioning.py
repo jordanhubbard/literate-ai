@@ -16,6 +16,7 @@ class WorkerProvisioner:
     help_argument: str = "--help"
     timeout_seconds: int = 300
     inspection_command: tuple[str, ...] = ()
+    management_command: tuple[str, ...] = ()
 
     SCHEMA = "urn:literate-ai:schema:v1:worker-provisioner"
 
@@ -31,6 +32,16 @@ class WorkerProvisioner:
         if len(inspection) > 64 or any("\0" in arg for arg in inspection):
             fail(
                 "WorkerProvisioner.inspection_command",
+                "requires at most 64 non-NUL arguments",
+            )
+        if type(self.management_command) is not tuple:
+            fail("WorkerProvisioner.management_command", "requires an immutable tuple")
+        management = string_tuple(
+            self.management_command, "WorkerProvisioner.management_command"
+        )
+        if len(management) > 64 or any("\0" in arg for arg in management):
+            fail(
+                "WorkerProvisioner.management_command",
                 "requires at most 64 non-NUL arguments",
             )
         bool_value(self.enabled, "WorkerProvisioner.enabled")
@@ -57,6 +68,8 @@ class WorkerProvisioner:
         }
         if self.inspection_command:
             value["inspection_command"] = list(self.inspection_command)
+        if self.management_command:
+            value["management_command"] = list(self.management_command)
         return value
 
     @classmethod
@@ -76,7 +89,7 @@ class WorkerProvisioner:
                     "timeout_seconds",
                 }
             ),
-            optional=frozenset({"inspection_command"}),
+            optional=frozenset({"inspection_command", "management_command"}),
         )
         if "inspection_command" in data and (
             not isinstance(data["inspection_command"], list)
@@ -85,6 +98,14 @@ class WorkerProvisioner:
             fail(
                 "WorkerProvisioner.inspection_command",
                 "explicit inspection command must be nonempty",
+            )
+        if "management_command" in data and (
+            not isinstance(data["management_command"], list)
+            or not data["management_command"]
+        ):
+            fail(
+                "WorkerProvisioner.management_command",
+                "explicit management command must be nonempty",
             )
         return cls(
             string_tuple(data["command"], "WorkerProvisioner.command"),
@@ -100,5 +121,9 @@ class WorkerProvisioner:
             string_tuple(
                 data.get("inspection_command", ()),
                 "WorkerProvisioner.inspection_command",
+            ),
+            string_tuple(
+                data.get("management_command", ()),
+                "WorkerProvisioner.management_command",
             ),
         )

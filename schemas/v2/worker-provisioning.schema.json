@@ -16,6 +16,12 @@
     },
     {
       "$ref": "urn:literate-ai:schema:v1:retained-allocation-inspection-response"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v1:worker-lease-request"
+    },
+    {
+      "$ref": "urn:literate-ai:schema:v1:worker-lease-response"
     }
   ],
   "$defs": {
@@ -78,6 +84,18 @@
           "type": "integer",
           "minimum": 1,
           "maximum": 3600
+        },
+        "management_command": {
+          "description": "Optional separate command for read-only lease lookup and explicit idempotent release of recorded allocations.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "pattern": "^[^\\u0000]*$"
+          }
         }
       }
     },
@@ -236,6 +254,134 @@
           "const": true
         }
       }
+    },
+    "lease_request": {
+      "$id": "urn:literate-ai:schema:v1:worker-lease-request",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "operation",
+        "nonce",
+        "provision_request_identity",
+        "request_id",
+        "worker_id",
+        "lease_id"
+      ],
+      "properties": {
+        "schema": {
+          "const": "urn:literate-ai:schema:v1:worker-lease-request"
+        },
+        "operation": {
+          "enum": [
+            "observe",
+            "release"
+          ]
+        },
+        "nonce": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "provision_request_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$"
+        },
+        "worker_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9](?:[a-z0-9._-]{0,62}[a-z0-9])?$"
+        },
+        "lease_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1,
+          "maxLength": 1024
+        }
+      }
+    },
+    "lease_response": {
+      "$id": "urn:literate-ai:schema:v1:worker-lease-response",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "request_identity",
+        "status",
+        "provision_response",
+        "expires_at"
+      ],
+      "properties": {
+        "schema": {
+          "const": "urn:literate-ai:schema:v1:worker-lease-response"
+        },
+        "request_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "status": {
+          "enum": [
+            "pending",
+            "ready",
+            "absent",
+            "released"
+          ]
+        },
+        "provision_response": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "urn:literate-ai:schema:v1:worker-provision-response"
+            }
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time",
+          "pattern": "Z$",
+          "maxLength": 64
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "ready"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "provision_response": {
+                "type": "object"
+              },
+              "expires_at": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "provision_response": {
+                "type": "null"
+              },
+              "expires_at": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

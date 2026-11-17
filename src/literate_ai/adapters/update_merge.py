@@ -15,6 +15,7 @@ from dataclasses import replace
 from pathlib import Path, PurePosixPath
 
 from literate_ai.contracts import ContentIdentity, ProjectUpdateClassification
+from literate_ai.projects import ProjectConfigurationStore
 
 CHECKPOINT = ".literate/update-bases.json"
 SCHEMA = "literate-ai/update-bases@1"
@@ -48,7 +49,14 @@ class UpdateBases:
         from .project_updates import ProjectUpdateError
 
         self.root = root
-        path = safe_path(root, CHECKPOINT)
+        context = ProjectConfigurationStore.context(root)
+        self.checkpoint = (
+            context.framework_path(CHECKPOINT).relative_to(root).as_posix()
+        )
+        self.metadata_prefix = (
+            context.framework_path(".literate").relative_to(root).as_posix() + "/"
+        )
+        path = safe_path(root, self.checkpoint)
         if path.is_file() and path.stat().st_size > MAX_BYTES:
             raise ProjectUpdateError(
                 "project.update_base_oversized", "update baseline exceeds byte limit"
@@ -77,7 +85,7 @@ class UpdateBases:
             for scope in self.scopes:
                 for relative, key in value[scope].items():
                     safe_path(root, relative)
-                    if relative.startswith(".literate/"):
+                    if relative.startswith(self.metadata_prefix):
                         raise ValueError("update metadata cannot be a merge target")
                     ContentIdentity.parse_uri(key)
                     self.scopes[scope][relative] = key
@@ -123,7 +131,7 @@ class UpdateBases:
         from .project_update_apply import _write_exact
         from .project_updates import ProjectUpdateError
 
-        path = safe_path(self.root, CHECKPOINT)
+        path = safe_path(self.root, self.checkpoint)
         observed = path.read_bytes() if path.is_file() else None
         if observed != self.original:
             raise ProjectUpdateError(
@@ -159,7 +167,7 @@ class UpdateBases:
     def rollback(self) -> None:
         from .project_update_apply import _write_exact
 
-        path = safe_path(self.root, CHECKPOINT)
+        path = safe_path(self.root, self.checkpoint)
         if self.original is None:
             path.unlink(missing_ok=True)
         else:

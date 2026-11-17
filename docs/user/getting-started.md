@@ -1,7 +1,8 @@
 # Getting started
 
-Literate AI treats the specification as durable project authority and generated source
-as a disposable, verifiable build artifact. The shortest useful introduction starts
+Literate AI can govern an existing repository while preserving its native source,
+build tools and CI. Optional generation profiles treat specifications as durable
+authority and generated source as a disposable, verifiable build artifact. The shortest useful introduction starts
 from an installed release wheel, checks the host, and follows one reviewed onboarding
 plan into either a new project or an adopted source tree.
 
@@ -61,7 +62,8 @@ flowchart LR
 
 ## 1. Prepare the host
 
-You need Python 3.11 or newer, Git, and one authenticated coding CLI: Codex, Claude,
+Minimal native adoption needs Python 3.11 or newer and Git. Model-backed
+generation additionally needs an authenticated coding CLI: Codex, Claude,
 Cursor Agent, or OpenCode. The selected language and build Flavors add their own compiler or runtime
 requirements at planning/rebuild time.
 
@@ -122,25 +124,70 @@ litai status
 litai project validate
 ```
 
-To adopt an existing source tree, the same plan/apply contract shows detected Flavors,
-the quarantine map, retained runners, Gitlink blockers, and the initial `wrapped`
-authority stage:
+For an existing repository, start with the contained native profile:
 
 ```console
 litai onboard adopt path/to/existing
-litai onboard adopt path/to/existing --apply --acknowledge
-cd path/to/existing
-litai status
-litai project test-receipt run-retained /tmp/retained.json --project .
-litai project test-receipt update /tmp/retained.json --project .
-litai project convert-stage advance --to retained --project .
-litai status
+litai onboard adopt path/to/existing --apply --acknowledge --expect-plan PLAN_ID
+litai status --project path/to/existing
+litai project validate path/to/existing
 ```
 
-Use a platform-appropriate candidate path instead of `/tmp/retained.json` on Windows.
-The transition is explicit: `wrapped` → `retained` → `drafted` → `qualified`.
-Original source remains release authority until regenerative qualification is current;
-onboard never treats a wrapped repository as specification-authoritative.
+Use the `plan_identity` from the reviewed plan as `PLAN_ID`. The default profile
+creates only `litai/` in the repository. Source, Make/Cargo/CMake/package files,
+GitHub workflows and custom agent instructions stay where they are. Continue
+using the repository's native checks. No model, build, worker allocation or
+release occurs during bootstrap. A clean Git baseline is required; pass
+`--default-branch` when the canonical remote HEAD is unavailable.
+
+The minimal profile has no automatic agent discovery adapter. Open
+`litai/SKILL.md` explicitly. Optional provider delegates and native CI steps are
+separate integrations; an existing repository does not need every provider's
+root files. `litai update PATH` plans framework template updates and `--apply`
+uses the existing three-way merger, retaining custom changes and unresolved
+conflicts. A changed policy needs renewed documentation review. Catalog import,
+parent changes and framework release execution currently refuse this minimal
+profile. Continue using native build, CI and release tooling; contained execution
+and migration remain separate roadmap work.
+
+After committing the native profile, inspect removal through the same front door:
+
+```console
+litai onboard remove path/to/existing
+litai onboard remove path/to/existing --apply --acknowledge --expect-plan PLAN_ID
+```
+
+Removal stages deletions of unchanged owned files without making a commit. It
+preserves customized documents, untracked files, runtime caches and coordination
+files. Modified authority metadata or staged edits require explicit disposition
+before proceeding. Review the native Git diff and commit it through the host
+repository's usual process. This command supports the minimal committed Git
+profile; it does not remove a conversion or generation profile.
+
+Retain the plan's `recovery_argv` before applying. An interrupted operation uses
+that exact source commit and finite path set to produce a fresh plan, including
+when the manifest is already absent. Apply that new plan only after inspection.
+Recovery preserves new custom content and refuses an existing unknown Git index
+lock or an unstaged remaining file whose index entry is absent. Resolve those
+states through native Git before inspecting a new plan. It does not restore an
+index entry over a concurrent writer's staged change. It never restores
+working-tree bytes or guesses a previous operation from repository history.
+
+Conversion is an explicit alternative that installs the larger generation and
+retained-harness profile and may relocate source:
+
+```console
+litai onboard adopt path/to/existing --profile convert
+litai onboard adopt path/to/existing --profile convert --apply --acknowledge
+```
+
+Review its quarantine map, detected Flavors, retained runners and blockers before
+applying. Conversion starts at `wrapped`; publishing a current retained-harness
+receipt permits an explicit advance to `retained`. The later `drafted` and
+`qualified` transitions retain their independent evidence gates. Original source
+remains release authority until regenerative qualification is current. See the
+[framework flow](framework-flow.md) and open
+`skills/agent/convert-project/SKILL.md` for that optional workflow. Minimal native bootstrap does not establish retained-harness evidence.
 
 ### Retained JavaScript dependencies
 
@@ -154,7 +201,7 @@ and installation workflow. Keep it outside, and disjoint from, the project tree.
 Bind it explicitly when running adoption:
 
 ```console
-litai onboard adopt path/to/existing --apply --acknowledge --run-baseline --harness-workspace-link node_modules=/absolute/dependency-cache/node_modules
+litai onboard adopt path/to/existing --profile convert --apply --acknowledge --run-baseline --harness-workspace-link node_modules=/absolute/dependency-cache/node_modules
 ```
 
 The binding creates a `node_modules` sibling of the disposable source tree;

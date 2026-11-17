@@ -22,7 +22,7 @@ from pathlib import Path
 from literate_ai.contracts import ExecutionWorker, ExecutionWorkerKind
 from literate_ai.contracts.execution_dispatch import MAX_REMOTE_EVIDENCE_BUNDLE_BYTES
 
-from .builders._process import run_bounded_process
+from .builders._process import remote_cleanup_wait_seconds, run_bounded_process
 from .builders.python import BuildError
 from .ssh_transport import (
     MAX_SSH_DIAGNOSTIC_BYTES,
@@ -44,6 +44,10 @@ class BoundedRemoteProcessRunner:
     holding the channel open. This does not prove that a disconnected remote
     mutation stopped; its receiver fence and evidence owner still decide that.
     """
+
+    @staticmethod
+    def cleanup_wait_seconds() -> float:
+        return remote_cleanup_wait_seconds()
 
     def run(
         self,

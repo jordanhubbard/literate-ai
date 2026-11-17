@@ -143,6 +143,8 @@ class ConversionFailureStoreTests(unittest.TestCase):
                 "none",
                 "--baseline-diagnostic-chars",
                 "4096",
+                "--profile",
+                "convert",
             )
         self.assertEqual(status, 2, result)
         message = result["error"]["message"]

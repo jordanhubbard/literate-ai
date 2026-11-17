@@ -36,7 +36,13 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
 
     def plan(self):
         status, envelope = invoke(
-            "onboard", "adopt", ".", "--source-intelligence-provider", "none"
+            "onboard",
+            "adopt",
+            ".",
+            "--source-intelligence-provider",
+            "none",
+            "--profile",
+            "convert",
         )
         self.assertEqual(status, 0, envelope)
         self.assertFalse(envelope["result"]["writes"])
@@ -119,6 +125,8 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
             "main",
             "--source-intelligence-provider",
             "none",
+            "--profile",
+            "convert",
         )
         selection_path.write_text(json.dumps({**selection, "components": []}))
         status, refused = invoke(*arguments)
@@ -305,6 +313,8 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
                 "--acknowledge",
                 "--expect-plan",
                 first["plan_identity"],
+                "--profile",
+                "convert",
             )
             self.assertEqual(status, 0, applied)
             retained = (
@@ -343,6 +353,8 @@ class OnboardReadOnlyPlanTests(unittest.TestCase):
                 "--acknowledge",
                 "--expect-plan",
                 plan["plan_identity"],
+                "--profile",
+                "convert",
             )
             self.assertEqual(status, 2, result)
             self.assertEqual(result["error"]["code"], "operator.onboard_plan_changed")

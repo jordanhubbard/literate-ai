@@ -86,7 +86,7 @@ def read_retained_provider_authority(
         maximum_total_bytes=maximum_file_bytes,
     )
     inputs.pin(
-        root / PROJECT_FILENAME,
+        ProjectConfigurationStore.manifest_path(root),
         boundary=root,
         label=PROJECT_FILENAME,
         expected_content=configuration.content,

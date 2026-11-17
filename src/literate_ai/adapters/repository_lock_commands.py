@@ -17,7 +17,6 @@ from literate_ai.adapters.repository_locks import RepositoryLockStore
 from literate_ai.adapters.repository_orchestration import OrchestrationInventoryError
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.projects import (
-    PROJECT_FILENAME,
     ProjectConfigurationStore,
     ProjectError,
 )
@@ -43,7 +42,7 @@ def _errors():
 def repository_root(selected: Path) -> Path | None:
     """Classify only the selected directory, never infer an ancestor or child scope."""
     root = Path(selected).absolute()
-    manifest = root / PROJECT_FILENAME
+    manifest = ProjectConfigurationStore.manifest_path(root)
     if not os.path.lexists(manifest):
         return None
     with _errors():

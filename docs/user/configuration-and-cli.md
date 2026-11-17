@@ -22,6 +22,7 @@ important, and it is not an invariant against later combinable aliases.
 litai doctor
 litai onboard create
 litai onboard adopt
+litai onboard remove
 litai onboard orchestrate plan
 litai onboard orchestrate check
 litai onboard orchestrate initialize
@@ -76,6 +77,7 @@ litai release rc
 litai release state
 litai release state set
 litai release evidence explain
+litai release evidence timing --run RUN_ID
 litai release evidence index
 litai release evidence show
 litai release evidence prune
@@ -162,7 +164,9 @@ litai worker provisioner command-help
 litai worker provisioner configure
 litai worker provisioner disable
 litai worker provisioner enable
+litai worker provisioner observe
 litai worker provisioner recover
+litai worker provisioner release
 litai worker provisioner remove
 litai worker provisioner show
 litai worker provisioner status
@@ -516,7 +520,7 @@ root-integration acceptance still remain.
 | `doctor` | Inspect platform-resolved user paths, native host dependencies, and coding-CLI authentication without requiring a project or invoking a model. |
 | `status [--project PATH]` | Compose project authority, adopted conversion stage, Component locks, the current receipt, tracker state, host preflight, and the next operator verb in one versioned snapshot. |
 | `onboard create PATH [--from URL[#REVISION]] [--refine REQUEST] [--apply --acknowledge] [--expect-plan SHA256]` | Plan creation without writes, then revalidate and call the existing init mutator only after explicit acknowledgement. |
-| `onboard adopt PATH [--from URL[#REVISION]] [--root-plan SELECTION.json] [--run-baseline] [--apply --acknowledge] [--expect-plan SHA256]` | Plan brownfield conversion with detected Flavors, candidate build roots, quarantine entries and retained runners. Default adoption lands at `wrapped`; explicit multi-root selection is read-only pending per-Component materialization. |
+| `onboard adopt PATH [--profile native\|convert] [--default-branch BRANCH] [--apply --acknowledge] [--expect-plan SHA256]` | Default native adoption creates a contained `litai/` profile, preserving native source/build/CI and establishing no build qualification. Explicit `--profile convert` selects detected Flavors, quarantine and retained runners at `wrapped`; conversion-only options include `--from`, `--root-plan` and `--run-baseline`. |
 | `init [PATH] [--from URL[#REVISION]] [--repository-fetch-total-seconds N] [--repository-fetch-no-progress-seconds N] [--repository-fetch-connect-seconds N]` | Create a canonical project, optionally inheriting a complete repository ancestor DAG under an explicit bounded fetch policy. |
 | `graph [--format text\|json\|mermaid\|dot\|svg] [--output PATH] [--kind KIND] [--provenance PROJECT] [--ownership local\|inherited] [--inheritance inheritable\|private] [--edge-kind KIND]` | Solve effective repository/catalog authority, reject cycles, filter a closed view, and export the provenance DAG. Repeat kind, provenance, and edge-kind filters for unions. |
 | `update [PATH] [--apply] [--adopt-added] [--take-upstream PATH] [--keep-local PATH] [--repository-fetch-*-seconds N]` | Plan or safely apply inherited-catalog and framework-scaffold changes while preserving local authority and reporting the selected bounded fetch policy. Repeat resolution flags only for explicitly reviewed inherited-catalog paths. |
@@ -564,7 +568,7 @@ root-integration acceptance still remain.
 | `project source-intelligence sync [PATH] [--binary COMMAND]` | Synchronize and verify the bounded project-local artifact for an explicitly configured external provider. |
 | `project source-intelligence check [PATH] [--binary COMMAND]` | Verify the configured external provider, current source binding, and project-local artifact without changing the project. |
 | `project documentation-update [PATH] [--apply --allow-model-egress] [--model MODEL]` | Produce a deterministic, read-only documentation-drift plan by default; with both explicit authorizations, request bounded documentation-only replacements from the selected coding CLI. |
-| `project documentation-review [PATH] [--record]` | Calculate the exact marker for the current reviewed authority and documentation graph; `--record` atomically replaces the one existing marker and verifies it became current. |
+| `project documentation-review [PATH] [--record] [--require-current]` | Calculate the exact marker for the current reviewed authority and documentation graph; `--record` atomically replaces the one existing marker and verifies it became current. `--require-current` refuses a stale or missing review and is used by the Make gate. |
 | `project agent-entrypoints [PATH]` | Audit owned coding-agent delegates against the declared onboarding skill without writes; exit 1 reports missing, stale or unsafe entries requiring reviewed authored repair. |
 | `project parent-readme [PATH] [--apply] [--browser-url REPOSITORY=URL]` | Plan or reconcile root README links to validated direct parents using the installed framework runtime; preserve authored content and require explicit browser identity for local-only parents. |
 | `spec scxml-review CHART [--trace SIDECAR ...]` | Read-only bounded structural validation and supported-subset trace replay for one exact SCXML 1.0 chart and its explicit JSON sidecars. |
@@ -2274,7 +2278,7 @@ Video walkthrough:
 [Adopt an existing project](../courses/03-adopt-an-existing-project/03-adopt-an-existing-project.mp4)
 ([captions](../courses/03-adopt-an-existing-project/03-adopt-an-existing-project.vtt)).
 
-`litai onboard adopt PATH` reports `conversion.build_root_candidates`. A marker
+`litai onboard adopt PATH --profile convert` reports `conversion.build_root_candidates`. A marker
 such as `kit/repo.toml` is a candidate, not a selected Component or a proven
 independent build. The default continues to use one retained wrapper.
 
@@ -2308,7 +2312,7 @@ example a two-root repository with a shared directory:
 ```
 
 ```console
-litai onboard adopt PATH --root-plan SELECTION.json
+litai onboard adopt PATH --profile convert --root-plan SELECTION.json
 ```
 
 Adapt the example to the real files and commands. Every captured source file outside
@@ -2721,8 +2725,96 @@ Registration conflicts preserve the existing worker. Timeouts, invalid responses
 and interrupted operations remain uncertain; inspect the provider using the saved
 request identity before taking manual recovery action. Removing a registration or
 provisioner configuration does not delete allocation records or remote machines.
-This hook is explicit on-demand provisioning; automatic scheduling and provider
-resource deletion remain separate work under `WORKER-001`.
+This hook is explicit on-demand provisioning. Automatic scheduling remains separate
+work under `WORKER-001`.
+
+For provider lookup and resource release, configure an optional separate
+`management_command` argument array **before allocating**. It receives only the
+versioned lease protocol; the framework never calls the allocation command for
+lookup or cleanup. The original configuration identity binds the command and
+credential bindings. Disabling allocation preserves explicit management access;
+changing the provider configuration refuses management of old records until their
+ownership is reconciled. Existing configurations without this field keep their
+existing serialization and manual provider recovery behavior.
+
+Managed registrations carry a `provisioning_identity` binding the original request,
+provider configuration and lease ID. A static registration with identical connection
+details lacks that binding and cannot be removed as though it were the allocation.
+This is registration ownership, not independent proof of a provider instance.
+
+```sh
+litai worker provisioner observe new-linux
+litai worker provisioner recover new-linux
+litai worker provisioner release new-linux --acknowledge
+litai worker provisioner release new-linux --expired-only --acknowledge
+```
+
+`observe` asks the provider about the exact saved allocation request. A ready reply
+must identify the same worker, requirements and lease, and include a UTC expiry.
+The response can recover a lost allocation reply without allocating a second
+worker; `recover` then explicitly registers it. An observed pending, absent or
+expired worker loses only its still-matching registration. An unfinished lookup,
+expired observation or release intent cannot authorize recovery. Observation is
+read-only at the provider but updates the local journal and may remove an invalid
+registration. `status` remains a local read without a provider call.
+
+`release` requires acknowledgement and removes the exact owned registration before
+asking the provider to release it. The request is durably saved first. A timeout,
+crash or pending provider reply leaves `releasing`; repeat the command to use the
+same idempotency key. A completed release retains a tombstone and never allocates
+again under that worker ID. Lookup after a failed release preserves that release
+intent. `--expired-only` requires an observed expiry in the past before the first
+release attempt. A changed registration, unrelated static worker or changed
+provider configuration is never deleted by this operation.
+
+Managed SSH dispatch observes the lease before each attempt and requires enough
+remaining lifetime for the full job deadline plus the actual remote runner's
+configured cleanup waits and deadline rounding (18 seconds on POSIX controllers,
+48 seconds with the Windows fallback). It rechecks after publishing the attempt
+and passes an absolute monotonic deadline into SSH, so execution cannot restart
+its full budget after delayed publication. It binds the exact registration and records the attempt before
+invoking SSH. One active or uncertain attempt is admitted per managed worker.
+Static workers retain their existing dispatch path.
+
+An active job makes ordinary release save its intent, withdraw registration and
+return `dispatch_draining` without contacting the provider. The active attempt may
+finish collecting its result and artifacts; repeat release afterward. A controller
+crash or transport error retains an active or uncertain attempt, preventing silent
+reuse. Inspect `worker provisioner status WORKER` to obtain its attempt ID. To
+terminate that exact attempt and its lease, use:
+
+```sh
+litai worker provisioner release WORKER --cancel-attempt ATTEMPT --acknowledge
+```
+
+A different or completed attempt refuses cancellation. An accepted cancellation
+survives a lost release reply; later retries keep the same release request.
+Results arriving after cancellation cannot satisfy dispatch. This command cancels
+the allocation; it does not claim to recover artifacts lost with that worker.
+
+The lease request schema is `urn:literate-ai:schema:v1:worker-lease-request`:
+`operation` (`observe` or `release`), fresh observation `nonce`,
+`provision_request_identity`, original `request_id`, `worker_id` and known
+`lease_id` (otherwise null). Release retries preserve their original nonce and
+complete request. Replies use `urn:literate-ai:schema:v1:worker-lease-response`
+with the exact management `request_identity`, `status`, `provision_response` and
+`expires_at`. A `ready` observation carries a validated original provision response
+and an ISO UTC timestamp ending in `Z`. Other states carry null response and
+expiry. `pending` and `absent` observations grant no registration or reallocation
+authority. A release reply must be `pending` or `released`; `released` means the
+provider has terminated the recorded lease or cancelled its pending allocation
+intent. The provider must enforce request idempotency and must not create a new
+resource while handling either operation. Process and stream limits are the same
+as allocation. Provider responses do not establish native hardware qualification.
+
+Background reaping, provider-enforced expiration and a live-provider pilot remain
+open. Local expiry uses UTC and a monotonic elapsed-time floor within the attempt,
+so a backward clock step cannot extend that attempt's admission. Provider and
+controller clocks must still agree on UTC. The cleanup allowance covers configured
+waits; it does not bound native system calls, blocking stream closure, scheduling
+delay or remote descendant death. Failures retain uncertain attempts. Local
+fixtures prove protocol behavior,
+not remote hardware execution, provider TTL enforcement or live cleanup.
 
 For retained secondary-identity execution, the development contract also accepts
 an optional `inspection_command` argument array. Omit it to preserve existing

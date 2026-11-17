@@ -64,7 +64,6 @@ from literate_ai.contracts import (
     source_cache_model_selector,
 )
 from literate_ai.projects import (
-    PROJECT_FILENAME,
     PinnedInputClosure,
     ProjectConfigurationStore,
     ProjectError,
@@ -181,7 +180,7 @@ def _project_discovery_inputs(
     markers: dict[Path, bytes | None] = {}
     for definition in paths:
         for root in (definition.parent, *definition.parent.parents):
-            path = root / PROJECT_FILENAME
+            path = ProjectConfigurationStore.manifest_path(root)
             if path not in markers:
                 markers[path] = (
                     _bounded_file_content(
@@ -406,7 +405,7 @@ def _pin_project_manifest(
             "Literate AI project manifest changed while generation inputs were loaded",
         )
     closure.pin(
-        snapshot.root / PROJECT_FILENAME,
+        ProjectConfigurationStore.manifest_path(snapshot.root),
         boundary=project.root,
         label=f"{label_prefix}:project-manifest",
         expected_content=snapshot.content,

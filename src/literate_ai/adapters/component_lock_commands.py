@@ -46,8 +46,8 @@ from literate_ai.application.component_lock_resolution import (
 from literate_ai.application.generation_preparation import GenerationPreparationError
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.projects import (
-    PROJECT_FILENAME,
     PinnedInputClosureError,
+    ProjectConfigurationStore,
     discover_project,
 )
 
@@ -475,7 +475,7 @@ def _component_roots(selected: Path, *, allow_empty: bool = False) -> tuple[Path
     if (
         project is None
         or resolved != project.root
-        or not (resolved / PROJECT_FILENAME).is_file()
+        or not (ProjectConfigurationStore.manifest_path(resolved)).is_file()
     ):
         raise LockCommandError(
             "component_lock.component_missing",

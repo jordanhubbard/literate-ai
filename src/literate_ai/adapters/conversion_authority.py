@@ -38,7 +38,12 @@ from literate_ai.contracts.operator_adoption import (
     ConversionAuthorityState,
     advance_conversion_authority,
 )
-from literate_ai.projects import LoadedProject, ProjectError, load_project
+from literate_ai.projects import (
+    LoadedProject,
+    ProjectConfigurationStore,
+    ProjectError,
+    load_project,
+)
 from literate_ai.source_to_specification.promotion_materialization import (
     SourcePromotionError,
     verify_source_promotion_evidence,
@@ -142,7 +147,7 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
             if child.root != child_root.resolve(strict=True):
                 raise ValueError
             definition_value = json.loads(
-                (child.root / "literate.project.json").read_bytes()
+                (ProjectConfigurationStore.manifest_path(child.root)).read_bytes()
             )
             project_id = entry["project_id"]
             if (
@@ -202,7 +207,9 @@ def _register_native_project(project: LoadedProject, child_root: Path) -> None:
             ".literate/native-projects",
         )
     child = load_project(resolved)
-    definition_value = json.loads((resolved / "literate.project.json").read_bytes())
+    definition_value = json.loads(
+        (ProjectConfigurationStore.manifest_path(resolved)).read_bytes()
+    )
     entry = {
         "path": resolved.relative_to(project.root).as_posix(),
         "project_id": child.definition.project_id,
@@ -261,8 +268,10 @@ class FilesystemConversionAuthorityStore:
 
     def __init__(self, project_root: Path) -> None:
         self.root = Path(project_root).resolve(strict=True)
-        self.path = self.root.joinpath(*Path(CONVERSION_AUTHORITY_FILE).parts)
-        self.lock_path = self.root.joinpath(*Path(_CONVERSION_AUTHORITY_LOCK).parts)
+        context = ProjectConfigurationStore.context(self.root)
+        self.root = context.root
+        self.path = context.framework_path(CONVERSION_AUTHORITY_FILE)
+        self.lock_path = context.framework_path(_CONVERSION_AUTHORITY_LOCK)
 
     def load_optional(self) -> ConversionAuthorityState | None:
         if not self.path.exists() and not self.path.is_symlink():

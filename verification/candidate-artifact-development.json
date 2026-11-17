@@ -1,0 +1,44 @@
+{
+  "schema": "literate-ai/candidate-artifact-development@1",
+  "revision": "d90d8704c26f7192224238727526e72a1f4eceb4",
+  "qualified_files_manifest": {
+    "files": [
+      {
+        "identity": "sha256:2ef9e1dc02770185980f076d23014f6b26c8200c3694449ae61a24aa1da23e7a",
+        "path": "_build/ci-wheels/run-ogr2bmnj/literate_ai-1.4.0-py3-none-any.whl",
+        "role": "wheel",
+        "size": 4265114
+      }
+    ],
+    "identity": "sha256:438bd60e33505ce1cb40df0c76fef61c7218c98362579301ecc1bce470b3ff73",
+    "revision": "d90d8704c26f7192224238727526e72a1f4eceb4",
+    "schema": "literate-ai/qualified-release-files@1",
+    "version": "1.4.0"
+  },
+  "wheel_check_passed": true,
+  "offline_install_check_passed": true,
+  "live_installed_project_check_passed": true,
+  "shared_identity": "sha256:2ef9e1dc02770185980f076d23014f6b26c8200c3694449ae61a24aa1da23e7a",
+  "offline_identity": "sha256:2ef9e1dc02770185980f076d23014f6b26c8200c3694449ae61a24aa1da23e7a",
+  "live_identity": "sha256:2ef9e1dc02770185980f076d23014f6b26c8200c3694449ae61a24aa1da23e7a",
+  "live_generated_starter_rebuilt": true,
+  "live_starter_output_verified": true,
+  "prior_failed_attempt": {
+    "target": "installed-project-e2e",
+    "error": "coding_cli.test_selection_mismatch",
+    "generation_started": false,
+    "resolution": "Clear only invocation CODING_CLI/LITAI_LIVE_MODEL overrides; use the existing configured CLI/model pair."
+  },
+  "limits": [
+    "macOS local host; fixtures and actual configured model generation, not remote provider/GPU/platform matrix qualification",
+    "The installation target uses --live; roundtrip-suite environment switches do not disable it.",
+    "No production allocation, release publication or deployment.",
+    "Runner occupancy and per-stage elapsed time not inferred from bare make exit status."
+  ],
+  "log_sha256": {
+    "clean-candidate-wheel.log": "b2d33c6a7131d654fadb4db41c8fe642dc52ae05bb807806ea26a59269fba9a7",
+    "clean-candidate-install.log": "fac6ba6f4cd588ba40d9a97fdf154bd615a054d7fe531daf2c450030beaa3b68",
+    "clean-candidate-live-install.log": "cbc93d82469ab90ab8658b9e24909ae58ae7b25a1090001244827b1ae587cdaf"
+  },
+  "recorded_at": "2026-11-16T16:57:04.347882+00:00"
+}

@@ -192,7 +192,9 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         "schema": PLAN_SCHEMA,
         "project": str(root),
         "project_id": project.definition.project_id,
-        "project_identity": _identity((root / "literate.project.json").read_bytes()),
+        "project_identity": _identity(
+            (ProjectConfigurationStore.manifest_path(root)).read_bytes()
+        ),
         "authority_review": review,
         "review_document_identity": _identity(review_path.read_bytes()),
         "conversion_identity": state.identity.uri,
@@ -255,7 +257,7 @@ def apply_retained_scope_refresh(
         root = project.root
         inventory_path = _safe_path(root, INVENTORY)
         review_path = _safe_path(root, plan["authority_review"]["document"])
-        manifest_path = root / "literate.project.json"
+        manifest_path = ProjectConfigurationStore.manifest_path(root)
         before = {
             path: path.read_bytes()
             for path in (inventory_path, manifest_path, review_path)

@@ -82,14 +82,14 @@ def configure(path, config=None, *, enabled=None):
     return config
 
 
-def admitted(path, environment):
+def admitted(path, environment, *, allow_disabled=False):
     if not path.exists():
         refuse(
             "not_configured",
             "Configure a local provisioner before enabling dynamic workers.",
         )
     config = WorkerProvisioner.from_dict(read_private(path))
-    if not config.enabled:
+    if not config.enabled and not allow_disabled:
         refuse(
             "disabled",
             "Dynamic workers are disabled; explicitly enable the "
@@ -186,6 +186,24 @@ def register(path, worker):
     return change_registry(path, transform)[0]
 
 
+def registered_worker(record):
+    """Bind managed registration to its allocation, not just connection details."""
+    worker = validate_response(record["response"], record["request"])
+    if record.get("managed"):
+        return replace(
+            worker,
+            provisioning_identity=canonical_identity(
+                {
+                    "schema": "literate-ai/worker-provisioning-binding@1",
+                    "request_identity": record["request_identity"],
+                    "config_identity": record["config_identity"],
+                    "lease_id": record["response"]["lease_id"],
+                }
+            ),
+        )
+    return worker
+
+
 def provision(
     config_path,
     state,
@@ -233,7 +251,11 @@ def provision(
                     "allocation.",
                 )
             if previous.get("status") == "registered":
-                saved = ExecutionWorker.from_dict(previous["response"]["worker"])
+                if "management" in previous:
+                    from .worker_lease_management import require_recoverable_lease
+
+                    require_recoverable_lease(previous)
+                saved = registered_worker(previous)
                 if saved not in read_registry(catalog_path).workers:
                     refuse(
                         "registration_changed",
@@ -265,12 +287,13 @@ def provision(
             "catalog_path": str(catalog_path),
             "status": "uncertain",
             "response": None,
+            **({"managed": True} if config.management_command else {}),
         }
         write_private(path, record, limit=3 * LIMIT)
         # Failures, invalid output and termination leave uncertain state.
         output = invoke(config, child, request=request)
         response = json.loads(output)
-        worker = validate_response(response, request)
+        validate_response(response, request)
         record.update(status="ready", response=dict(response))
         write_private(path, record, limit=3 * LIMIT)
         if WorkerProvisioner.from_dict(read_private(config_path)) != config:
@@ -279,7 +302,7 @@ def provision(
                 "Provisioner configuration changed; the validated "
                 "response is retained for explicit recovery.",
             )
-        register(catalog_path, worker)
+        register(catalog_path, registered_worker(record))
         record["status"] = "registered"
         write_private(path, record, limit=3 * LIMIT)
         return record
@@ -302,6 +325,7 @@ def validate_response(value, request):
         or worker.kind != ExecutionWorkerKind.SSH
         or worker.target_profile != request["target_profile"]
         or worker.requirements.to_dict() != request["requirements"]
+        or worker.provisioning_identity is not None
     ):
         refuse(
             "response_mismatch",
@@ -326,6 +350,7 @@ def read_record(path):
                     "response",
                 }
             ),
+            optional=frozenset({"management", "managed", "dispatch"}),
         )
     )
     request = contract_fields(
@@ -339,15 +364,32 @@ def read_record(path):
     _identifier(request["request_id"], "request_id")
     _identifier(request["worker_id"], "worker_id")
     ExecutionRequirements.from_dict(request["requirements"])
+    if "managed" in record and record["managed"] is not True:
+        refuse(
+            "invalid_state", "Managed provisioning records require an explicit binding."
+        )
     if (
         record["request_identity"] != canonical_identity(request).uri
-        or record["status"] not in ("uncertain", "ready", "registered")
+        or record["status"]
+        not in ("uncertain", "ready", "registered", "releasing", "released")
         or request["worker_id"] != path.stem
         or not Path(string_value(record["catalog_path"], "catalog_path")).is_absolute()
     ):
         refuse("invalid_state", "Saved provisioning state is inconsistent.")
-    if record["status"] != "uncertain":
+    if record["response"] is not None:
         validate_response(record["response"], request)
+    elif record["status"] in ("ready", "registered"):
+        refuse("invalid_state", "A ready worker requires a validated response.")
+    if "management" in record:
+        from .worker_lease_management import validate_saved_management
+
+        validate_saved_management(record)
+    elif record["status"] in ("releasing", "released"):
+        refuse("invalid_state", "Lease release requires its durable request.")
+    if "dispatch" in record:
+        from .worker_lease_dispatch import validate_saved_dispatch
+
+        validate_saved_dispatch(record)
     return record
 
 
@@ -355,6 +397,10 @@ def recover(state, worker_id):
     path = operation_path(state, worker_id)
     with exclusive_cache_lock(path.with_suffix(".lock")):
         record = read_record(path)
+        if "management" in record:
+            from .worker_lease_management import require_recoverable_lease
+
+            require_recoverable_lease(record)
         if record.get("status") not in ("ready", "registered") or not record.get(
             "response"
         ):
@@ -364,7 +410,7 @@ def recover(state, worker_id):
                 "provider allocation using the saved request ID; no "
                 "automatic retry is safe.",
             )
-        worker = validate_response(record["response"], record["request"])
+        worker = registered_worker(record)
         if worker.worker_id != worker_id:
             refuse(
                 "response_mismatch",

@@ -266,6 +266,8 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
             "--apply",
             "--acknowledge",
             "--run-baseline",
+            "--profile",
+            "convert",
         )
         self.assertEqual(status, 2, result)
         self.assertEqual(result["error"]["code"], "project.convert_legacy_gate_failed")
@@ -314,6 +316,8 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
                 "--apply",
                 "--acknowledge",
                 "--run-baseline",
+                "--profile",
+                "convert",
             )
         self.assertEqual(status, 2, result)
         self.assertEqual(
@@ -376,6 +380,8 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
                 "--apply",
                 "--acknowledge",
                 "--run-baseline",
+                "--profile",
+                "convert",
             )
         self.assertEqual(status, 2, result)
         self.assertEqual(result["error"]["code"], "project.convert_rollback_failed")
@@ -423,6 +429,8 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
                 "--apply",
                 "--acknowledge",
                 "--run-baseline",
+                "--profile",
+                "convert",
             )
         self.assertEqual(status, 2, result)
         self.assertEqual(result["error"]["code"], "project.convert_rollback_failed")
@@ -479,6 +487,8 @@ class TrackedIgnoredConversionTests(unittest.TestCase):
             "--apply",
             "--acknowledge",
             "--run-baseline",
+            "--profile",
+            "convert",
         )
         self.assertEqual(status, 0, result)
         retained = self.root / "components/legacy-project-wrapper/implementation"

@@ -1,17 +1,21 @@
 ---
 name: literate-ai
-description: Use Literate AI to create, change, generate, validate, build, test, review, or explain specification-led Components, Flavors, skills, workflows, routing policies, and project layouts. Use whenever a repository contains literate.project.json or the user asks to work with the Literate AI framework or one of its projects.
+description: Manage native repository delivery and optional specification-led generation with Literate AI. Use when a repository contains literate.project.json or litai/literate.project.json, or the user asks to work with this framework.
 metadata:
   author: Literate AI maintainers <literate-ai-maintainers@users.noreply.github.com>
 ---
 
 # Literate AI
 
-Treat specifications as application authority and generated source as disposable output.
-The operator front door is `litai doctor`, then `litai onboard create` for a new
+Preserve existing repositories' native source, build tools and CI as authority.
+For generation profiles, specifications are application authority and generated
+source is disposable output. The operator front door is `litai doctor`, then `litai onboard create` for a new
 tree or `litai onboard adopt` for an existing tree. Inspect the read-only plan,
-apply it only with acknowledgement, then use `litai status`, `verify`, `lock`,
-`plan`, `rebuild`, and versioned `release`. The lower-level `litai init` and
+apply it only with acknowledgement, then use `litai status`. Native adoption
+installs a minimal `litai/` profile and leaves native tools in charge; it does not
+qualify a build or release. Select `--profile convert` explicitly when conversion
+is intended. Use `verify`, `lock`, `plan`, `rebuild`, and versioned `release` only
+with the corresponding configured authority and execution profile. The lower-level `litai init` and
 `litai init --convert` mutators remain available. Run `litai help` for flags,
 errors, and identity rules. Do not restate those in this file.
 
@@ -63,11 +67,11 @@ sent.
    authority. After an intentional non-editable framework-wheel upgrade, use the
    reviewed `litai project lifecycle rebind-standard` plan/apply flow before rebuild;
    never hand-edit or silently advance a Standard distribution pin during update.
-   `litai project validate` is the authority gate alone. `litai onboard` calls the
-   existing `litai init` / `litai init --convert` mutators after an acknowledged,
-   revalidated plan; those mutators and `litai catalog copy` continue to own their
-   selectors, deadlines, and fail-closed collisions. Follow
-   `skills/agent/convert-project/SKILL.md` after adoption.
+   `litai project validate` is the authority gate alone. `litai onboard create` and
+   `litai onboard adopt --profile convert` call the existing initialization and
+   conversion owners after an acknowledged, revalidated plan. Default native
+   adoption uses the contained bootstrap without moving source. Follow
+   `skills/agent/convert-project/SKILL.md` only for explicitly selected conversion.
 3. Read the selected `component.md`, its local behavioral documents, direct public
    interface contracts, and acceptance contract. Do not flatten transitive internals.
    `litai lock` and `litai plan` own resolution, assets, and identities.

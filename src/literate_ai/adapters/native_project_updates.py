@@ -122,7 +122,7 @@ def _capture_unchecked(parent_path: Path, child_path: Path) -> _RegisteredChild:
     except ValueError:
         relative = absolute_child.relative_to(parent.root)
     child = parent.root / relative
-    require_native_project_path(parent, child / "literate.project.json")
+    require_native_project_path(parent, ProjectConfigurationStore.manifest_path(child))
     registry = _read(parent.root / NATIVE_PROJECTS_FILE)
     roots = _native_project_roots(parent)
     if _read(parent.root / NATIVE_PROJECTS_FILE) != registry:
@@ -134,8 +134,8 @@ def _capture_unchecked(parent_path: Path, child_path: Path) -> _RegisteredChild:
         _error(
             "child_not_registered", "selected child is not registered by this parent"
         )
-    manifest = _read(child / "literate.project.json")
-    parent_manifest = _read(parent.root / "literate.project.json")
+    manifest = _read(ProjectConfigurationStore.manifest_path(child))
+    parent_manifest = _read(ProjectConfigurationStore.manifest_path(parent.root))
     entry = next(
         item
         for item in json.loads(registry)["projects"]
@@ -343,7 +343,7 @@ def _apply_locked(
     parent = captured.parent
     child = captured.child
     registry_path = parent.root / NATIVE_PROJECTS_FILE
-    manifest_path = child / "literate.project.json"
+    manifest_path = ProjectConfigurationStore.manifest_path(child)
     rebind = _validated_plan(plan["rebind"])
     proposed = replace(
         parse_project_configuration(captured.manifest),
@@ -384,7 +384,8 @@ def _apply_locked(
                 "rebound child changed before registration",
             )
         if (
-            _read(parent.root / "literate.project.json") != captured.parent_manifest
+            _read(ProjectConfigurationStore.manifest_path(parent.root))
+            != captured.parent_manifest
             or _read(registry_path) != captured.registry
         ):
             _error("registered_metadata_changed", "parent changed during child update")

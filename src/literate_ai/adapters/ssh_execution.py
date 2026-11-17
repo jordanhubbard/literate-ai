@@ -189,12 +189,18 @@ class SshLifecycleRequestHandler:
     def __init__(self, runner: SshProcessRunner | None = None) -> None:
         self.runner = runner or BoundedRemoteProcessRunner()
 
+    @staticmethod
+    def cleanup_wait_seconds() -> float:
+        # _Deadline.remaining permits up to one second of rounding at its edge.
+        return BoundedRemoteProcessRunner.cleanup_wait_seconds() + 1
+
     def execute(
         self,
         worker: ExecutionWorker,
         request: ExecutionDispatchRequest,
         *,
         cwd: Path,
+        deadline_monotonic: float | None = None,
     ) -> ExecutionDispatchResult:
         if not worker.is_remote or worker.workspace is None:
             raise ExecutionDispatchAdapterError(
@@ -207,8 +213,13 @@ class SshLifecycleRequestHandler:
             phase=request.action.value,
         ):
             deadline = _Deadline(
-                time.monotonic() + request.timeout_seconds, request.timeout_seconds
+                min(
+                    time.monotonic() + request.timeout_seconds,
+                    float("inf") if deadline_monotonic is None else deadline_monotonic,
+                ),
+                request.timeout_seconds,
             )
+            deadline.remaining()
             # The request identity is stable across exact retries, while custody
             # workspaces are attempt-scoped.  A nonce prevents a failed or concurrent
             # attempt from deleting or colliding with another attempt's staging tree.

@@ -3,8 +3,12 @@ from __future__ import annotations
 import json
 import multiprocessing
 import os
+import shutil
 import tempfile
+import threading
 import unittest
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from unittest import mock
@@ -46,6 +50,173 @@ def _definition() -> ProjectDefinition:
 
 
 class ProjectConfigurationStoreTests(unittest.TestCase):
+    def test_identical_replacement_directories_require_fresh_snapshots(self):
+        for replaced in ("framework", "application"):
+            with self.subTest(replaced=replaced), tempfile.TemporaryDirectory() as raw:
+                parent = Path(raw).resolve()
+                root = parent / "app"
+                root.mkdir()
+                store = ProjectConfigurationStore(root)
+                snapshot = store.create(
+                    replace(_definition(), framework_directory="litai")
+                )
+                target = root / "litai" if replaced == "framework" else root
+                retained = parent / "retained"
+                target.rename(retained)
+                shutil.copytree(retained, target)
+                with self.assertRaises(ProjectError) as refused:
+                    store.update(
+                        snapshot, replace(snapshot.definition, version="2.0.0")
+                    )
+                self.assertEqual(refused.exception.code, "project.manifest_stale")
+                self.assertEqual(snapshot.manifest_path.read_bytes(), snapshot.content)
+                current = store.read()
+                store.update(current, replace(current.definition, version="2.0.0"))
+                self.assertEqual(store.read().definition.version, "2.0.0")
+
+    def test_competing_layout_creators_have_one_winner(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            ready = threading.Barrier(2)
+
+            class CompetingStore(ProjectConfigurationStore):
+                @classmethod
+                @contextmanager
+                def layout_lock(cls, root):
+                    ready.wait(timeout=10)
+                    with ProjectConfigurationStore.layout_lock(root):
+                        yield
+
+            def create(contained):
+                definition = replace(
+                    _definition(), framework_directory="litai" if contained else None
+                )
+                try:
+                    CompetingStore(root).create(definition)
+                except ProjectError as exc:
+                    return exc.code
+                return "created"
+
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                outcomes = sorted(pool.map(create, (False, True)))
+            self.assertEqual(outcomes, ["created", "project.manifest_exists"])
+            self.assertEqual(
+                sum(
+                    path.is_file()
+                    for path in (
+                        root / PROJECT_FILENAME,
+                        root / "litai" / PROJECT_FILENAME,
+                    )
+                ),
+                1,
+            )
+            ProjectConfigurationStore(root).read()
+
+    def test_redirected_contained_discovery_refuses_from_every_entry_coordinate(self):
+        with tempfile.TemporaryDirectory() as raw:
+            parent = Path(raw).resolve()
+            app, other = parent / "app", parent / "other"
+            app.mkdir()
+            other.mkdir()
+            ProjectConfigurationStore(other).create(
+                replace(_definition(), framework_directory="litai")
+            )
+            docs = other / "litai/docs"
+            docs.mkdir()
+            (docs / "policy.md").write_text("Native policy")
+            try:
+                (app / "litai").symlink_to(other / "litai", target_is_directory=True)
+            except OSError:
+                if os.name == "nt":
+                    self.skipTest("native symlink privilege unavailable")
+                raise
+            for selected in (
+                app,
+                app / "litai",
+                app / "litai/docs",
+                app / "litai/docs/policy.md",
+            ):
+                with self.subTest(selected=selected), self.assertRaises(ProjectError):
+                    ProjectConfigurationStore.discover(selected)
+
+    def test_contained_authority_preserves_application_coordinates_and_nested_projects(
+        self,
+    ):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            definition = replace(
+                _definition(), framework_directory="litai", agent_skill="litai/SKILL.md"
+            )
+            store = ProjectConfigurationStore(root)
+            snapshot = store.create(definition)
+            self.assertEqual(snapshot.manifest_path, root / "litai" / PROJECT_FILENAME)
+            source = root / "src"
+            source.mkdir()
+            for selected in (root, source, root / "litai"):
+                discovered = ProjectConfigurationStore.discover(selected)
+                self.assertEqual(discovered.root, root)
+                self.assertEqual(discovered.content, snapshot.content)
+            from_framework = ProjectConfigurationStore(root / "litai")
+            changed = from_framework.update(
+                snapshot, replace(definition, version="2.0.0")
+            )
+            self.assertEqual(changed.root, root)
+            self.assertFalse((root / PROJECT_FILENAME).exists())
+            nested = source / "litai"
+            nested.mkdir()
+            independent = ProjectConfigurationStore(nested).create(_definition())
+            self.assertEqual(
+                ProjectConfigurationStore.discover(nested).root, independent.root
+            )
+            self.assertEqual(ProjectConfigurationStore.discover(source).root, root)
+
+    def test_contained_authority_refuses_ambiguous_and_redirected_locations(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            store = ProjectConfigurationStore(root)
+            snapshot = store.create(replace(_definition(), framework_directory="litai"))
+            direct = root / PROJECT_FILENAME
+            direct.write_bytes(serialize_project_configuration(_definition()))
+            for selected in (root, root / "litai"):
+                with self.assertRaisesRegex(ProjectError, "cannot coexist"):
+                    ProjectConfigurationStore.discover(selected)
+            with self.assertRaises(ProjectError):
+                store.update(snapshot, replace(snapshot.definition, version="2.0.0"))
+            self.assertEqual(snapshot.manifest_path.read_bytes(), snapshot.content)
+            direct.unlink()
+            saved = root / "saved"
+            (root / "litai").rename(saved)
+            try:
+                (root / "litai").symlink_to(saved, target_is_directory=True)
+            except OSError:
+                saved.rename(root / "litai")
+                if os.name == "nt":
+                    return
+                raise
+            with self.assertRaises(ProjectError):
+                store.update(snapshot, replace(snapshot.definition, version="2.0.0"))
+            self.assertEqual((saved / PROJECT_FILENAME).read_bytes(), snapshot.content)
+
+    def test_moved_manifest_cannot_reuse_a_location_bound_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            store = ProjectConfigurationStore(root)
+            snapshot = store.create(_definition())
+            # A reviewed migration must renew the snapshot, not reuse the former
+            # root-coordinate authority after moving and declaring containment.
+            moved = replace(snapshot.definition, framework_directory="litai")
+            (root / "litai").mkdir()
+            snapshot.manifest_path.rename(root / "litai" / PROJECT_FILENAME)
+            (root / "litai" / PROJECT_FILENAME).write_bytes(
+                serialize_project_configuration(moved)
+            )
+            with self.assertRaisesRegex(ProjectError, "location changed"):
+                store.update(snapshot, moved)
+            current = store.read()
+            self.assertEqual(current.definition, moved)
+            store.update(current, replace(moved, version="2.0.0"))
+            self.assertEqual(store.read().definition.version, "2.0.0")
+
     def test_scoped_parsing_isolates_callers_and_rechecks_current_bytes_and_limits(
         self,
     ):
@@ -105,9 +276,8 @@ class ProjectConfigurationStoreTests(unittest.TestCase):
                 try:
                     with self.assertRaises(ProjectError):
                         store.read()
-                    self.assertEqual(
-                        ProjectConfigurationStore.discover(child).root, outer
-                    )
+                    with self.assertRaises(ProjectError):
+                        ProjectConfigurationStore.discover(child)
                 finally:
                     store.path.unlink()
                     backup.rename(store.path)

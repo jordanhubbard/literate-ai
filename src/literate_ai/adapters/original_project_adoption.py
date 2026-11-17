@@ -123,7 +123,7 @@ def apply_original_project_adoption(root, *, expected_plan_identity, acknowledge
         raise OriginalProjectAdoptionError(
             "plan-changed", "Original adoption plan differs from the reviewed identity"
         )
-    directory = ensure_safe_directory(project.root / ".literate")
+    directory = ensure_safe_directory(project.framework_root / ".literate")
     evidence = directory / "original-adoption.json"
     try:
         with evidence.open("xb") as output:
@@ -135,7 +135,10 @@ def apply_original_project_adoption(root, *, expected_plan_identity, acknowledge
         ) from exc
     # Own metadata is the sole permitted difference. Never silently admit a source
     # edit that appeared between review and projection. Failed evidence stays.
-    if _plan(project, allowed_new=(EVIDENCE_PATH,)) != plan:
+    if (
+        _plan(project, allowed_new=(evidence.relative_to(project.root).as_posix(),))
+        != plan
+    ):
         raise OriginalProjectAdoptionError(
             "plan-changed", "Project changed before original authority publication"
         )

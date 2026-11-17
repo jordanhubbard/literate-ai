@@ -1,0 +1,164 @@
+{
+  "baseline": "f34debb73b62f9fff59a138f86b3640d7be65183",
+  "changed_since_snapshot": [],
+  "decision": "Approved reviewed source for independent TCB review; no confirmed source correctness blocker. Repair the documented evidence link before integration.",
+  "executed": [
+    {
+      "kind": "maintained focused source fixtures",
+      "passed": 41,
+      "retained_log_sha256": "f2dea23013ee87cd133ee53253ac1f3816adab39cbc076a560a6b5926af47e36",
+      "seconds": 12.888,
+      "selected": 44,
+      "skip_scope": "Three native Windows Job Object cases on macOS",
+      "skipped": 3
+    },
+    {
+      "kind": "optional contribution policy and roadmap summary fixtures",
+      "passed": 7,
+      "retained_log_sha256": "11edde8448b8f54de7821d8b045fb4981799d9b418d3d902c40c4ffca64ed5fc",
+      "seconds": 0.369,
+      "selected": 7,
+      "skipped": 0
+    },
+    {
+      "kind": "additional real-child allocator fixture",
+      "result": "one allocation and one release of a lost allocation reply with unknown lease ID; repeat release/observe reuse terminal tombstone",
+      "retained_log_sha256": "295d892f03389f1a53bb64a5ff71491f069b3918e14dac83a30ba52c17f366b3"
+    },
+    {
+      "kind": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "kind": "snapshot and development evidence source hashes",
+      "result": "all current bytes match"
+    },
+    {
+      "kind": "roadmap structural reconciliation",
+      "result": "611 original unique IDs preserved; 613 current unique IDs; 356 archived completed entries have no unchecked acceptance; all 75 original 1.4 manifest records and all 18 original 1.3.1 records unchanged; four 1.4 goals added"
+    }
+  ],
+  "finding": {
+    "confidence": "high",
+    "fix": "Use ../../../verification/1.3.1-windows-qualification-exception.json.",
+    "line": 20,
+    "path": "docs/history/roadmap/1.3.1-release-execution.md",
+    "problem": "Moved document retains an old relative link to the Windows qualification waiver; it resolves to nonexistent docs/verification/1.3.1-windows-qualification-exception.json.",
+    "resolution": "Corrected the relative evidence target after the frozen full source run ended.",
+    "severity": "P3",
+    "verification": "Resolve the relative Markdown target from the archive directory; rerun documentation validation and renew the documentation marker after the reviewed repair."
+  },
+  "inspected": [
+    "Every changed/new Python, Make and schema file in the 82-path snapshot, including all new helpers, callers and changed tests.",
+    "Lease request/response binding, durable intent and retries, registration ownership, lost replies, disabled allocation management, process bounds and schema compatibility.",
+    "Immutable wheel selection, staging/hash/origin/version/revision custody, native installer handoff and unchanged release qualification assertions.",
+    "Make nonexecution guard, unknown-authority reuse refusal, documentation currentness and cheap release preflight.",
+    "Windows Job fallback semantics, export matcher equivalence, contribution optional field, and unchanged legacy manifest/lock coordinates.",
+    "ADR0074, report, current program, active roadmap and historical dispositions. Large archived content was checked structurally and with changed obligations; it was not independently requalified."
+  ],
+  "limits": [
+    "No native Windows/FreeBSD/Linux/GPU, real provider, SSH, model, publication or deployment run was performed.",
+    "No full suite or full clean actual-framework wheel qualification was run by the reviewer; author is running the combined source suite separately.",
+    "The tiny installable wheel tests prove custody and installer behavior only, not framework distribution qualification.",
+    "Historical release data and upstream skill comparisons in the report were reviewed for source consistency and honest scope, not independently re-fetched or re-executed.",
+    "This review covers this exact consolidated snapshot, not the separate l1 optimization, future containment/expiry/drain/result-reuse work, or release acceptance.",
+    "No workspace files or trust pins were changed by the reviewer."
+  ],
+  "record_scope": "Independent review of the frozen consolidated implementation; subsequent test-fixture follow-up is recorded separately.",
+  "review_record_sha256": "689ed948587fb85a69d0081630f67fcbbeb4e201c7b3504d728134675f283b07",
+  "reviewed_at": "2026-11-16T15:09:26.138995+00:00",
+  "reviewed_paths": 82,
+  "reviewed_source_schema_make_paths": 49,
+  "reviewer": "/root/sdlc_review",
+  "reviewer_authored_implementation": false,
+  "schema": "literate-ai/independent-review-note@1",
+  "snapshot_manifest_sha256": "e200ea6bbf33aa42d8bbd0033ef05a6926ecbb60438a1133cb3b019b6f6cf5b1",
+  "source_sha256": {
+    "Makefile": "242dca658864f1b1949359f8b36ee2d64fd2478e604fae8bd685d0934e6364a2",
+    "schemas/v2/execution-dispatch.schema.json": "06bb3794467ed2ce2b2515cb673b65b67771f22203909ff839a4728fbae34791",
+    "schemas/v2/index.json": "0a92e1328263c07f6ce3551bac0431c07aff4467c3af6f05e0998655ba7f2d86",
+    "schemas/v2/worker-provisioning.schema.json": "ef207103c350bb8784385c1b462f376e030547aa636b38216ad6d230ebc211a1",
+    "scripts/check_public_export.py": "f09fffabf8f0f2cda27f14185a9a8839345b00dfe71f0952410508c3246fb12e",
+    "scripts/install_litai.py": "0b747ff8e036ef99e01e19ecd8b2aabbd00c60e71e3d61592e9e807a4acce535",
+    "scripts/installed_project_smoke.py": "75caff2e828e8f7b9743980332282919bab33f53fff3254f63582ede4c862428",
+    "scripts/summarize_release_roadmap.py": "7b7e070cd1580d14275b39a661c6d2ecf7ae9ee767df00b2dc1b4d4456cb0db0",
+    "scripts/wheel_smoke.py": "558edda75b460152017cb5749524cfe671efb00dcddfd80ef8caf8dd3c33eabe",
+    "src/literate_ai/adapters/_processes.py": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c",
+    "src/literate_ai/adapters/cache/filesystem.py": "4b702fb46ff3034a0081620231d8294449e890060b4c025c1107e89bb0e0b975",
+    "src/literate_ai/adapters/catalog_import.py": "b39f048fa84def19cdc5b5840648b42d744999c7a8b98b0b2b7a4bdf02c50b1b",
+    "src/literate_ai/adapters/component_lock_commands.py": "6dc7040278d74ea6102006d5114645b2d4095320b9bc4488ae4ad6bce267fa9c",
+    "src/literate_ai/adapters/component_lock_planning.py": "159b1162319affd4c8aa794d3e81f8a1ec894a6ce0141eb02ea341c471d18c78",
+    "src/literate_ai/adapters/conversion_authority.py": "885cc052941896baa6df822514a7ac1d4b048a869c662e8b142d21675739323a",
+    "src/literate_ai/adapters/documentation_update.py": "9ba1bf6b18959064807492340825bba1b99b5b499db72c55c403e113aede91ef",
+    "src/literate_ai/adapters/legacy_generation_catalog.py": "3b62e18222e543d05474d5514255458523f14bf8497017ef66545bdfd4024e26",
+    "src/literate_ai/adapters/native_child_replacement.py": "a49ab3057618e8ae1f806fad51c3568032c792fc98b3f24a0a77ff7fad559ec8",
+    "src/literate_ai/adapters/native_project_updates.py": "8bfe44d96a2f110078a47bea08d94df5f064517c515dd16412b20a4c056ba3c0",
+    "src/literate_ai/adapters/project_identity_migration.py": "cc36d9c51115b2149ab7c2cc6a680e4724c963ae6ab081f77375620f3082dcd6",
+    "src/literate_ai/adapters/project_initialization.py": "ab40530c7878df9750f9529beb3c6bc63467106e0f32bb889942a84e12a51a38",
+    "src/literate_ai/adapters/qualified_wheel_installation.py": "8a8e865c615e5946485d5e1cd281aee7607c934929692aead818aa5bf1bb0b4d",
+    "src/literate_ai/adapters/repository_lifecycle.py": "083b35a485b0e36385c3f0e1fd40eef96eabffb8c5f0a1b5d8959959d0e9e2cf",
+    "src/literate_ai/adapters/repository_lock_commands.py": "108e32c388d037b0bf894672309658bad7bb2e07764e26045b154c63f98887af",
+    "src/literate_ai/adapters/repository_refresh.py": "71c9896f10877a354ca974760ce13d3aec201d72eb347ef32057ee862f67fa64",
+    "src/literate_ai/adapters/repository_refresh_reservations.py": "329796ea3f44ee3aad3d2ca95a0b91a65e10d9cf385e50d106b98685d9af0faf",
+    "src/literate_ai/adapters/retained_cargo_current.py": "1f39ac307ab4a15aa8e7ebbc8232b44e1c71271ece809a19f160b90d43d1834c",
+    "src/literate_ai/adapters/retained_cargo_files.py": "0c738cd122bac3a7345298eadfee8443f5da800a956a9c401717a8cd25460661",
+    "src/literate_ai/adapters/retained_cargo_review_v2.py": "786affa0d4e431c7b8c91e971220eb8000ec24085122a1cbf47b2e3d60d64ff2",
+    "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": "58df1d6704c473ccf5821ac4976ef2cc6862efb927fa6c9d4616d2e01d5992b7",
+    "src/literate_ai/adapters/retained_provider_authority.py": "ae8d894c8a8f8262058cb034101044852f08cbfc3a8d9b05305481a57f7e7b01",
+    "src/literate_ai/adapters/retained_scope_refresh.py": "43bc0cf66dd833b302e2eb181ff4fc483fa5b5389703a892045cacb971d21ab8",
+    "src/literate_ai/adapters/worker_lease_management.py": "0870c51146d984cea7fe8ed0607d9c57c4c5d637e0ffc607a3ce72a50b89b012",
+    "src/literate_ai/adapters/worker_provisioning.py": "59055c0817e7c9a1e8c647d3ecd347098781b782bf852a3f4b4ff1296118847b",
+    "src/literate_ai/cli/catalog.py": "5dbdca8643502a59c9bbf28bc3419caa25b703bd03ccb41424076d40a4bc3088",
+    "src/literate_ai/cli/component_authoring.py": "1a6f35c8a76e7af6e89c1f815b1c2c0ffe948e533923d60e17ed3ff094cf3b90",
+    "src/literate_ai/cli/dispatch.py": "eff927da8453b0ab0728f9763be6145427d275a0e28f4b5c8e1cf2673c6662fd",
+    "src/literate_ai/cli/project.py": "a3a22b9fa5b62884e41a2f2928889fc7e30b2bc96b47832af2c588bc275896be",
+    "src/literate_ai/cli/rebuild.py": "3737d758ca0462e68784f0897c54ddaddcd3b756ab0228ecb91c2312236c5f73",
+    "src/literate_ai/cli/release.py": "dc19ce3f3b746407e23798351064ad8301b0b195dc8d4f0f31a49936276fa29c",
+    "src/literate_ai/cli/source_to_specification.py": "00612505ee232cd68e9fc474947daa7046cd8ff7742876112adf83d5b9396caa",
+    "src/literate_ai/cli/worker_provisioning.py": "8dde331fb69ac11102800991a6ee56f2c07ecd591fddd34597b9ecdd182f9972",
+    "src/literate_ai/contracts/execution_dispatch.py": "8f9e1abf49d59069a78a102e13e63c132b32107afc26c3032488fe523f49a99f",
+    "src/literate_ai/contracts/worker_provisioning.py": "7b776d66dd341cdfc78dcc8ba1d137dd26da3fe60ba102e3476a605d212129c8",
+    "src/literate_ai/evidence_timing.py": "be0c6ac5fbe84f952d286d8e992fc611c4ce8517918cd5b81854e52a42e7d46e",
+    "src/literate_ai/project_releases.py": "b9c48e334e17eba203a553a1a2117a57a38938c86d6c79949568f6a8a5377589",
+    "src/literate_ai/projects.py": "f068fc7d3d32e1a8d2a950854adde09b5bacbb83bfd62a18d00a90e8443da8c8",
+    "src/literate_ai/test_checkpointing.py": "4986afcbea0e6adeaf45d41a0f0129ed7de3fe32c562fb3af53db51b94a2b4e1",
+    "src/literate_ai/version_check.py": "8cb17ac5a489de06c5349dd9cfc2562c8c60081047ffd3f97fc7d03c0cacfbc8"
+  },
+  "test_followup": {
+    "addenda": [
+      {
+        "decision": "Approved; terminal. Only string literal line split changed; reconstructed prior bytes exactly match approved hash and AST is identical. All 49 approved production hashes unchanged. No test rerun necessary for identical executable AST.",
+        "path": "tests/smoke/test_parallel_unittests.py",
+        "previous_sha256": "63ef0da8a65b56d30478b6455585dcbc302821101552dd38e2068a6d3d399363",
+        "reviewed_at": "2026-11-16T15:45:02.340109+00:00",
+        "sha256": "8e938963c94f12c3472401d1a4d148413c759ca5bd8f6e8c1312ae45747a96e7",
+        "workspace_changes_by_reviewer": false
+      }
+    ],
+    "coverage": [
+      "Real on-disk declared driver authority computed through actual loader and identity; production authority predicate and subprocess runner remain exercised.",
+      "Out-of-order declared repair preserves original status2 and non-reexecution counts; unmanaged repairs require status0 and full reexecution; third fresh run retained.",
+      "Known failure same-context declared arm preserves known_failed1 with no extra body execution; unmanaged arm requires known_failed0 and another body execution.",
+      "Changed context remains nonpassing with known_failed0. Final release-evidence run must execute and pass; cumulative counts are3 declared and4 unmanaged."
+    ],
+    "decision": "Approved; no blocking findings. This review pass is terminal.",
+    "path": "tests/smoke/test_parallel_unittests.py",
+    "reviewed_at": "2026-11-16T15:40:02.635966+00:00",
+    "reviewer": "/root/sdlc_review",
+    "schema": "literate-ai/independent-review-note@1",
+    "scope": "Only final diff HEAD -- tests/smoke/test_parallel_unittests.py at recorded hash. Prior 49 production-file approval unchanged; not full release qualification.",
+    "sha256": "63ef0da8a65b56d30478b6455585dcbc302821101552dd38e2068a6d3d399363",
+    "validation": {
+      "approved_production_hashes": 49,
+      "archived_waiver_link": "Previously reported P3 corrected to ../../../verification/1.3.1-windows-qualification-exception.json",
+      "diff_check": "passed for test module",
+      "earlier_reviewer_out_of_order": "reviewer/parallel-fixture-tests.log:1 test passed in6.511s; corresponding code unchanged since narrow approval",
+      "limits": "No full source rerun, native platforms, pin/marker semantic approval, live workers, or release acceptance in this narrow pass.",
+      "production_drift": [],
+      "retained_author_module": "parallel-final.log:14 tests passed in36.782s",
+      "reviewer_focused_test": "test_known_failures_context_and_release_evidence_keep_their_semantics passed; reviewer/parallel-final-known-failures.log",
+      "workspace_changes_by_reviewer": false
+    },
+    "record_sha256": "ba6258f5303fac48050d5fd1d8adf134d3b4fd840df53945306f9d8bb10e58b3"
+  }
+}

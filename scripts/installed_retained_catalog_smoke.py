@@ -360,6 +360,8 @@ def main() -> int:
         "onboard",
         "adopt",
         str(project),
+        "--profile",
+        "convert",
         "--from",
         parent_source,
         "--source-intelligence-provider",

@@ -1,6 +1,6 @@
 # ADR 0071: Contain derived-project framework authority and state under litai/
 
-- Status: Proposed
+- Status: Accepted under the directing-user implementation delegation in ADR 0074
 - Date: 2026-11-10
 - Decision owners: directing user and literate-ai maintainers
 - Release target: 1.4.0
@@ -22,7 +22,7 @@ package metadata and user-owned documentation need not move. ADR 0057 separately
 permits retained implementation at the repository root; framework containment
 must compose with that requirement without relocating retained application bytes.
 
-## Proposed decision
+## Decision
 
 ### One project, one framework directory
 
@@ -114,5 +114,8 @@ and the full integrated release gates before closing the requirement.
 Derived projects gain a clear framework boundary while retaining native application
 layouts. This affects public discovery, configuration, templates and lifecycle
 identities, so migration and end-to-end qualification are release deliverables.
-The requirement remains included in 1.4.0. This proposed design requires explicit
-directing-user acceptance before implementation; no existing release goal is deferred.
+The requirement remains included in 1.4.0. [ADR 0074](0074-existing-repository-delivery.md)
+records the subsequent explicit delegation to implement the review recommendations
+in this release, including containment through this shared context. This records
+delegated implementation authority, not a claim of a separate user review of this
+text. No existing release goal is deferred.
