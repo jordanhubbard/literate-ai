@@ -31,6 +31,7 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.executable_components.commands import LibraryConsumerBinding
 from literate_ai.contracts.node_sdk import (
+    CommonJSModuleDeclaration,
     is_node_sdk_package_name,
     node_sdk_package_boundary_files,
 )
@@ -168,6 +169,7 @@ class NodeSDKCompositionPlan:
             "files": [_file_record(file) for file in self.files],
             "packer_arguments": ["pack", "--ignore-scripts", "--offline", "--json"],
             "packer_policy": "owned-config-cache-output@1",
+            "provider_import_policy": "artifact-preserving-cjs-forwarders@1",
             "tool_environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
             "mode_policy": "npm-executable-0755-other-0644",
         }
@@ -222,6 +224,28 @@ def prepare_node_sdk_providers(
     return imports
 
 
+def node_sdk_provider_module_paths(
+    provider: ArtifactExport, module: CommonJSModuleDeclaration
+) -> tuple[str, str]:
+    """Derive consumer-owned entry paths; this grants no provider admission.
+
+    A .cjs/.d.cts pair lets ordinary downstream TypeScript resolve the exact
+    authority-declared .d.ts even when it is not adjacent to the original runtime.
+    The original complete provider artifact remains byte-for-byte unchanged.
+    """
+    if not isinstance(provider, ArtifactExport) or not isinstance(
+        module, CommonJSModuleDeclaration
+    ):
+        raise TypeError("SDK provider paths require typed artifact/module metadata")
+    stem = (
+        "_providers/"
+        + provider.component_revision.digest
+        + "/imports/"
+        + hashlib.sha256(module.module.encode("utf-8")).hexdigest()
+    )
+    return stem + ".cjs", stem + ".d.cts"
+
+
 def node_sdk_provider_files(
     imports: JavaScriptLibraryImports,
 ) -> tuple[DirectoryExportFile, ...]:
@@ -264,6 +288,46 @@ def node_sdk_provider_files(
             if path in files:
                 raise ValueError("SDK provider namespace collision")
             files[path] = DirectoryExportFile(path, file.content, file.mode)
+        names = {file.path for file in package.files}
+        folded_names = {name.casefold() for name in names}
+        for module in package.surface.declarations:
+            if module.runtime not in names or module.declaration not in names:
+                raise ValueError(
+                    "SDK provider entry files are absent from its artifact"
+                )
+            # A .js type reference resolves .ts/.tsx before .d.ts in native
+            # TypeScript. Deny those shadows rather than compile another file.
+            stem = module.declaration[:-5]
+            if any(
+                (stem + suffix).casefold() in folded_names for suffix in (".ts", ".tsx")
+            ):
+                raise ValueError(
+                    "SDK provider declared types are shadowed by TypeScript source"
+                )
+            runtime, declaration = node_sdk_provider_module_paths(
+                package.provider, module
+            )
+            # The runtime forwards the identical CommonJS value; declarations
+            # re-export its exact declared type namespace. No provider is edited.
+            runtime_source = (
+                '"use strict";\nmodule.exports=require('
+                + json.dumps("../artifact/" + module.runtime)
+                + ");\n"
+            )
+            type_source = (
+                "import provider = require("
+                + json.dumps("../artifact/" + module.declaration[:-5] + ".js")
+                + ");\nexport = provider;\n"
+            )
+            for path, content in (
+                (runtime, runtime_source),
+                (declaration, type_source),
+            ):
+                if path in files:
+                    raise ValueError("SDK provider forwarding namespace collision")
+                files[path] = DirectoryExportFile(
+                    path, content.encode("utf-8"), _data_mode()
+                )
     return _files(tuple(files.values()))
 
 

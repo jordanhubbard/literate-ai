@@ -445,6 +445,16 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       projection checks. Thirty-seven focused tests and independent review cover
       this internal hook; timeouts and uncertain closure still need separate
       failure evidence. No lifecycle receipt is inferred from the hook itself.
+      Checkpoint `2b6fb2a3` passed the macOS whole-wheel gate with 1,382 installed
+      members; the exact compiler/bootstrap/capture resources were read back from
+      that wheel. Later process hooks are outside that checkpoint. Consumer-owned
+      `.cjs`/`.d.cts` forwarding modules now preserve every original provider byte
+      while selecting explicit non-adjacent declarations through ordinary native
+      TypeScript resolution. Ambiguous `.ts`/`.tsx` shadows are denied. Forty-eight
+      focused tests and independent review cover packing, relocation, adjacent
+      decoys, both runtimes, four typing combinations and CommonJS `__esModule`
+      behavior. This still does not close the public SDK lifecycle, independent
+      declaration-acceptance, native-platform or downstream cutover gates.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

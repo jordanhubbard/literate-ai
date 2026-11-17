@@ -20,6 +20,7 @@ from literate_ai.adapters.builders.typescript_sdk import (
 )
 from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.node_sdk_build import compile_node_sdk_plan
+from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.node_sdk_packaging import (
     pack_node_sdk,
     require_node_sdk_tarball,
@@ -148,9 +149,9 @@ class TypeScriptCompilerTests(unittest.TestCase):
         )
         self.source = file(
             "src/index.ts",
-            "import provider from "
+            "import provider = require("
             + json.dumps(f.relative)
-            + ";export const "
+            + ");export const "
             + f.symbol
             + "=provider."
             + f.symbol
@@ -240,6 +241,9 @@ class TypeScriptCompilerTests(unittest.TestCase):
 
     @unittest.skipUnless(shutil.which("npm"), "requires selected local npm")
     def test_real_shared_compile_pack_relocate_and_type_consumers(self):
+        self._assert_shared_compile_pack_relocate_and_type_consumers()
+
+    def _assert_shared_compile_pack_relocate_and_type_consumers(self):
         import io
         import subprocess
         import tarfile
@@ -799,3 +803,122 @@ class TypeScriptCompilerTests(unittest.TestCase):
         self.assertEqual(len(observed), 2)
         self.assertTrue(all(value.returncode == 0 for value in observed))
         self.assertFalse(bodies)
+
+    def _configure_nonadjacent_provider(self, *, shadow=None):
+        f = self.fixture
+        original = f.provider_contract.library_import_surface
+        package = original.package
+        module = replace(
+            original.declarations[0],
+            runtime="source/" + package + "/runtime/value.cjs",
+            declaration="source/" + package + "/types/api.d.ts",
+        )
+        surface = replace(original, declarations=(module,))
+        contract = replace(f.provider_contract, library_import_surface=surface)
+        body = (
+            "Object.defineProperty(exports,'__esModule',{value:true});"
+            "exports.CounterError=class CounterError extends Error{};exports."
+            + f.symbol
+            + "=(a,b)=>a+b;"
+        )
+        types = (
+            "export declare class CounterError extends Error{}\n"
+            "export declare function " + f.symbol + "(a:number,b:number):number;"
+        )
+        decoy = (
+            "export declare const "
+            + f.symbol
+            + ":any;export declare const CounterError:any;"
+        )
+        extra = (
+            file(module.runtime, body),
+            file(module.declaration, types),
+            file("source/" + package + "/runtime/value.d.cts", decoy),
+        )
+        if shadow:
+            extra += (file("source/" + package + "/types/api" + shadow, decoy),)
+        artifact, binding = f.fixture.provider(contract, body, extra=extra)
+        f.provider_contract, f.artifact, f.binding = contract, artifact, binding
+        f.arguments.update(
+            providers=(artifact,),
+            generation_bindings=(binding,),
+            build_bindings=(binding,),
+            contracts={contract.component_revision.uri: contract},
+        )
+        f.relative = "../" + node_sdk_provider_module_paths(artifact, module)[0]
+        self.source = file(
+            "src/index.ts",
+            "import provider = require(" + json.dumps(f.relative) + ");"
+            "export const " + f.symbol + "=provider." + f.symbol + ";"
+            "export const CounterError=provider.CounterError;",
+        )
+        plan = f.prepare()
+        self.provider_files = tuple(
+            item for item in plan.files if item.path.startswith("_providers/")
+        )
+        return module
+
+    @unittest.skipUnless(shutil.which("npm"), "requires selected local npm")
+    def test_nonadjacent_cjs_declarations_ignore_decoy_after_pack_and_relocation(self):
+        module = self._configure_nonadjacent_provider()
+        files = {item.path: item.content for item in self.provider_files}
+        prefix = (
+            "_providers/"
+            + self.fixture.artifact.component_revision.digest
+            + "/artifact/"
+        )
+        self.assertIn(prefix + module.runtime, files)
+        self.assertIn(prefix + module.declaration, files)
+        # This exercises native Node and TypeScript after ordinary npm packing;
+        # no compiler-only resolution override can make it pass.
+        self._assert_shared_compile_pack_relocate_and_type_consumers()
+
+    def test_explicit_declared_type_cannot_be_shadowed_by_typescript_source(self):
+        for suffix in (".ts", ".tsx"):
+            with (
+                self.subTest(suffix=suffix),
+                self.assertRaisesRegex(ValueError, "shadowed"),
+            ):
+                self._configure_nonadjacent_provider(shadow=suffix)
+
+    def test_forwarded_declarations_cannot_escape_own_provider(self):
+        forwarded = next(
+            item.path
+            for item in self.provider_files
+            if "/imports/" in item.path and item.path.endswith(".d.cts")
+        )
+        cases = (
+            ("../../../outside.js", "outside.d.ts"),
+            (
+                "../../other/artifact/source/other.js",
+                "_providers/other/artifact/source/other.d.ts",
+            ),
+        )
+        for reference, target in cases:
+            altered = tuple(
+                file(
+                    item.path,
+                    "export {CounterError,"
+                    + self.fixture.symbol
+                    + "} from "
+                    + json.dumps(reference)
+                    + ";",
+                )
+                if item.path == forwarded
+                else item
+                for item in self.provider_files
+            )
+            outside = file(
+                target,
+                "export declare class CounterError extends Error{}\n"
+                "export declare const " + self.fixture.symbol + ":any;",
+            )
+            with (
+                self.subTest(reference=reference),
+                self.assertRaisesRegex(ValueError, "provider.*inventory"),
+            ):
+                self.run_compiler(
+                    (*altered, outside, self.source),
+                    ("src/index.ts",),
+                    operation="compile",
+                )

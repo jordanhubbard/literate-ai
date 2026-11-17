@@ -13,6 +13,7 @@ from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.node_sdk_composition import (
     NodeSDKEntrypoint,
     materialize_node_sdk,
+    node_sdk_provider_module_paths,
     prepare_node_sdk_composition,
     require_node_sdk_projection,
 )
@@ -64,10 +65,7 @@ class NodeSDKCompositionTests(unittest.TestCase):
             ),
         )
         self.relative = (
-            "../_providers/"
-            + self.artifact.component_revision.digest
-            + "/artifact/"
-            + declaration.runtime
+            "../" + node_sdk_provider_module_paths(self.artifact, declaration)[0]
         )
         cjs = "module.exports=require(" + json.dumps(self.relative) + ");"
         esm = (

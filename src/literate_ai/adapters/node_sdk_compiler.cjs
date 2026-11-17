@@ -7,6 +7,12 @@ const compilerRoot = '/__literate_compiler__';
 const virtualRoot = '/__literate_sdk__';
 const canonical = value => path.posix.resolve(value.replaceAll('\\', '/'));
 const own = (value, keys) => value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).sort().join('|') === keys.sort().join('|');
+function providerBoundary(name) {
+  const artifact=name.match(/^(.*\/_providers\/[^/]+\/artifact)\//);
+  if(artifact)return artifact[1];
+  return name.match(/^(.*\/_providers\/[^/]+)\/imports\//)?.[1]??null;
+}
+
 function relative(value) {
   if (typeof value !== 'string' || !value || value.length > 512 || value.normalize('NFC') !== value || value.includes('\\') || value.startsWith('/') || value.includes(':') || /[%#?<>\"|*\x00-\x1f]/.test(value) || value.split('/').some(part => !part || part === '.' || part === '..' || /[ .]$/.test(part) || /^(con|prn|aux|nul|conin\$|conout\$|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(part))) throw Error('invalid relative compiler path');
   return value;
@@ -100,7 +106,7 @@ module.exports = function compileNodeSDK(request) {
         if (content === undefined) return undefined;
         loaded.add(normalized);
         const source=ts.createSourceFile(normalized, content, languageVersion);
-        const provider=normalized.match(/^(.*\/_providers\/[^/]+\/artifact)\//);
+        const provider=providerBoundary(normalized);
         if(files.has(normalized)) {
           if(source.libReferenceDirectives.length || source.hasNoDefaultLib) throw Error('candidate cannot expand selected ES2022 compiler libraries');
           if(provider && source.typeReferenceDirectives.length) throw Error('sealed provider cannot import registry type directives');
@@ -108,7 +114,7 @@ module.exports = function compileNodeSDK(request) {
             const label=provider?'sealed provider reference':'candidate reference';
             if(path.posix.isAbsolute(reference.fileName) || /[\\:]/.test(reference.fileName)) throw Error(label+' must remain relative');
             const target=path.posix.resolve(path.posix.dirname(normalized),reference.fileName);
-            if(!files.has(target) || provider && !target.startsWith(provider[1]+'/')) throw Error(label+' leaves supplied inventory');
+            if(!files.has(target) || provider && !target.startsWith(provider+'/')) throw Error(label+' leaves supplied inventory');
           }
         }
         return source;
@@ -134,8 +140,8 @@ module.exports = function compileNodeSDK(request) {
       const resolution=ts.resolveModuleName(literal.text,containingFile,options,host,undefined,redirectedReference,ts.getModeForUsageLocation(containingSourceFile,literal,options));
       const resolved=resolution.resolvedModule?.resolvedFileName;
       if(!resolved || !files.has(canonical(resolved))) throw Error('declaration or source module has no physical resolution in supplied inventory');
-      const provider=canonical(containingFile).match(/^(.*\/_providers\/[^/]+\/artifact)\//);
-      if(provider && !canonical(resolved).startsWith(provider[1]+'/')) throw Error('sealed provider declaration leaves provider inventory');
+      const provider=providerBoundary(canonical(containingFile));
+      if(provider && !canonical(resolved).startsWith(provider+'/')) throw Error('sealed provider declaration leaves provider inventory');
       return resolution;
     });
     host.resolveTypeReferenceDirectiveReferences = (references, containingFile, redirectedReference, options, containingSourceFile) => references.map(reference => {
