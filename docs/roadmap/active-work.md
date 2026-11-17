@@ -19483,6 +19483,87 @@ small-fixture snapshot custody; it is not a full source-tree snapshot, canonical
 native catalog registration or Component action/package/lifecycle acceptance.
 Full-suite, installed and native qualification remain separate gates.
 
+Source snapshot integration checkpoint: explicit v2
+`InternalSymlinkSnapshotPolicy` now preserves raw target SHA-256, link kind and
+closed POSIX namespace custody through Git/local capture, quarantine reopen and
+aggregate materialization. It shares the retained-input closure validator and
+holds no-follow ancestor descriptors during link and regular payload reads.
+Default v1 policy serialization and source identities remain unchanged. Sealing
+and failed-copy cleanup do not follow links. Link-unaware source intelligence
+fails before invoking the provider.
+
+Eighteen focused checks pass locally, including the actual 114,872-entry Git
+source corpus at `7bac8a17251a380924472e621480f640adf8e5eb`, all 138 raw link
+targets and independent streamed SHA-256 comparison against every committed Git
+blob (1,540,895,823 bytes). Its source snapshot is
+`sha256:f334c40290bfdf14596570890045dc2de21828047b9a12694bb7a6df367569e9`.
+The final 53-case source regression run (one explicit corpus skip), three
+existing SDK source-build cases, three Git acquisition cases and 64-case
+link/retained-link run (one explicit corpus skip) also pass. Lint, formatting,
+repository layout and public-export checks pass. These are source custody and
+existing-path regression results; full-suite, installed and native platform
+qualification remain open.
+
+The broader retained-project run executed 216 cases: 209 passed, six skipped
+and one receiver-composition case expired its existing 120-second capability
+budget while measuring receiver code. The same case fails in an isolated
+18-case run (17 pass). Neither the deadline nor the test is relaxed. An
+unchanged `f34debb73` source-export control reproduces the same failure with
+17 passes and one error in 139.538 seconds; the candidate's isolated run took
+139.133 seconds. Exact baseline test and receiver-code bytes match Git. The
+identical `30dbe1c7` candidate exported to temporary RAM-backed source passes all
+24 selected runtime cases in 28.757 seconds with the same 120-second deadline,
+including warm revocation. The temporary export was removed after evidence
+retention. This establishes a source-placement-sensitive qualification failure
+that also occurs before this patch; it does not diagnose the underlying NAS
+latency or turn the failed NFS run into a pass. The same candidate also passes
+the complete 222-case retained-project subset from RAM-backed source in 113.066
+seconds (216 passes, six configured skips), with no deadline or guard changes.
+Both temporary source exports were removed after their reports were retained.
+The POSIX source-link fixture resolves its temporary root before direct
+no-follow reads so ordinary macOS temporary-directory aliases do not redirect
+the fixture's declared root; all seventeen focused fixture cases pass.
+
+Next action (in progress): bind the explicit link policy through authored SDK
+source-lock selection, actual recapture, immutable inspection, live authorization
+and per-command build checks. The follow-up selects strict boolean
+`allow_internal_symlinks` per authored repository dependency, omitting the
+legacy false default from serialized identities. Acquisition carries the same
+selection in its typed checkout; source locking rejects a selection mismatch.
+SDK inspection composes existing regular-only pinned input custody with exact
+link-target checks and the shared closed-namespace validator. Scan terminal file
+aliases under each alias filename so suffix-based scanning cannot be bypassed;
+charge expanded alias content to the existing finite source-scan budget. Native
+index/provider metadata is versioned for this capability. Required intelligence
+continues to refuse unsupported link inputs; no required policy is downgraded.
+[PR #445](https://github.com/jordanhubbard/literate-ai/pull/445) owns this
+SDK follow-up; PR #444 remains the separate snapshot/quarantine groundwork
+review. FreeBSD bootstrap detection found only the declared CMake capability
+missing for the selected OS/CMake profile; native validation is pending its
+authorized prerequisite installation.
+
+SDK integration checkpoint: seven scoped native cases pass on Linux ARM64,
+including actual authored locking, compilation through a source symlink,
+quarantine retention and relocated independent library execution after producer
+removal. Changed raw target text blocks grant issuance and later compilation;
+live revocation and missing execution acknowledgement also refuse admission.
+Scanner control uses a suffix-changing code alias with the existing explicit
+blocking policy and no host override; production policy and budgets are unchanged.
+Eight contract/custody controls pass, and the real Git corpus additionally pins
+all 114,734 regular inputs plus all 138 link targets (1,540,895,823 bytes) under
+the existing SDK source limits in 60.769 seconds. Its snapshot remains
+`sha256:f334c40290bfdf14596570890045dc2de21828047b9a12694bb7a6df367569e9`.
+The old SDK source-build cases (three), Git acquisition cases (three), critical
+Component lock checks (three), Component smoke checks (eleven) and source
+regressions (53, one explicit corpus skip) also pass. Initial test-only failures
+were an incorrectly ordered reduced-budget fixture and a scanner-denial fixture
+that still enabled the existing host override; both were corrected without
+relaxing production behavior. Installed/native-platform, full-suite and full
+SDK/catalog/action/package/lifecycle qualification remain required. Preserve the regular-only project input owner and
+public unqualified retained execution guard. Link-aware source-intelligence,
+full native catalog/action/package/lifecycle qualification remain open under
+issue #74.
+
 A lock-reader test exposed an additional full-catalog graph case: declaring two
 Component directories directly as separate catalog roots gives both the local
 name `.` and makes lock planning refuse duplicate graph node IDs. The reader
@@ -23940,6 +24021,52 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Dependency development evidence:** [Source/build/installed and canonical offline bootstrap record](../../verification/python315-worker-dependency-development.json) retains exact artifact identities. Its existing framework artifact is bound to `7078bc96b`; it does not qualify the later new wheel-gate projection or a final release candidate.
 
 - **Current complete local qualification:** [Minimum/current Python source and whole-wheel record](../../verification/python-worker-wheel-inputs-linux.json) binds software `c733d96f80cd80b802e7aa4387cab2d7740e219a`. Both native Python 3.11.14 and 3.15.2 select 2,783 source cases: 2,683 pass, 100 retain declared skips, and all 599 raw groups reconcile with no failed or known-failed cases. Both complete noneditable wheel gates pass with the same framework distribution identity and exact reviewed pure PyYAML bytes; ordinary and uv worker paths install respectively 38 and 37 distributions with matching framework identities. Real empty/redirected input refusals precede installation. The earlier source-prefix failure and unconfigured binary-export failure remain preserved separately. Parent completion and issue closure await independent/exact integrated acceptance; no release acceptance is claimed.
+
+### [ ] PINNED-READ-ALLOCATION-001 — Bound transient reads independently of the pinned-input capability ceiling
+
+- **GitHub issue:** [#462](https://github.com/jordanhubbard/literate-ai/issues/462)
+
+- **Priority:** P1
+- **Owner:** Framework core pinned-input capture; PROJECT Goal 4
+- **Direction:** Preserve the complete supported source corpus and one-GiB per-file capability while avoiding a ceiling-sized temporary allocation for every small pinned input.
+- **Conclusion:** The public native pin profile attributes nearly all large-ceiling cost to BufferedReader.read. Stream complete bytes through bounded requests, retaining the witness byte, immutable identity, accounting and closing path checks. Do not change the allocator, dataset, source limits or worker deadline.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [x] Replace the monolithic ceiling-sized input read with bounded complete streaming and preserve existing refusal codes and identities.
+  - [x] Add allocation-request and complete-content/limit regressions, including reads that grow during capture.
+- **Evidence:**
+  - [x] Demonstrate regression failure on the unchanged owner and pass on the repair; run existing pinned-input refusal tests and native SDK cases.
+  - [x] Repeat native large-ceiling profiling and all nine original full-source policy cases against all 115,624 entries without skips or relaxed bounds.
+
+- **Development evidence:** The unchanged reader fails the allocation-request
+  regression with a 1,073,741,825-byte request and separately accepts a fixture
+  that grows beyond its ceiling during the read. The repair passes all five
+  pinned-input cases and all 68 existing SDK critical cases through the managed
+  Make runner; focused Ruff and formatting checks pass.
+- **Native evidence:** Exact code revision `cd9818c0d084ff72f871478ba385daa781f97223`
+  passes all 116 selected native FreeBSD amd64 cases: five pinned-input,
+  68 SDK critical, 34 SDK end-to-end and nine full-source policy cases, with
+  no skips or known failures. Independent review checks every distinct outcome,
+  the unchanged 5,336 framework Git blobs/modes and unchanged host packages.
+  Full source input custody covers 115,624 entries (115,472 regular files and
+  152 literal symlinks), 152 file aliases and 1,546,083,067 payload bytes at
+  snapshot `sha256:1663952cbe2c9d379eb2d6768e3cafc5bd97513b9ddb74c5001e77227b9d4f9f`.
+  With the same one-GiB file ceiling and native allocator, 1,000 public pin calls
+  over the same one-KiB input improve from 217.364686 to 0.450664 seconds.
+  The original full-source deadline and input limits remain unchanged.
+- **Current integration:** Consolidate the source-custody and SDK review histories
+  with current main `ebf88985be10f733dd64f469b7cd4aa685ce9083` while preserving
+  its native adoption work and archived closed roadmap records. The bounded
+  reader method remains semantically identical to the native-qualified code;
+  integrated source, installed and native qualification must be recorded
+  separately. Documentation review must bind the final integrated authority.
+- **Remaining integration gate:**
+  - [ ] Review and exact-head CI, including independent documentation authority
+    re-attestation, pass before landing. Keep this item partial until then.
+  Earlier 102-case native SDK evidence belongs to `51906343`. Its genuine
+  installed-wheel refresh failure remains independently open in #461; the
+  116 cases do not qualify the whole installed-wheel or canonical SDK lifecycle.
 
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 

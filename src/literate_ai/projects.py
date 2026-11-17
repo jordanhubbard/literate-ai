@@ -1264,7 +1264,15 @@ class PinnedInputClosure:
             )
         try:
             with resolved.open("rb") as stream:
-                content = stream.read(self.maximum_file_bytes + 1)
+                remaining = self.maximum_file_bytes + 1
+                chunks = []
+                while remaining > 0:
+                    chunk = stream.read(min(64 * 1024, remaining))
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                    remaining -= len(chunk)
+                content = b"".join(chunks)
         except OSError as exc:
             raise PinnedInputClosureError(
                 "inputs.closure_unavailable",

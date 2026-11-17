@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+- Pinned inputs use bounded read requests while preserving their complete bytes,
+  per-file capability limits and closing source checks. Large source ceilings no
+  longer size each small file's temporary read buffer (#462).
+
+- SDK repository dependencies can explicitly select closed POSIX source links
+  through authored policy. Native inspection scans file aliases under their
+  observable names and rechecks link custody during authorization and builds;
+  default dependency identities and regular-only project pinning stay compatible.
+  Full SDK/catalog and installed qualification remain open (#74).
+
+- Source snapshots offer explicit POSIX internal-link custody, preserving raw
+  target identity and immutable quarantine aliases through reopen and aggregate
+  verification. Default v1 selection and identities remain compatible. Link-aware
+  SDK lock/build policy and source-intelligence integration remain open (#74).
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way

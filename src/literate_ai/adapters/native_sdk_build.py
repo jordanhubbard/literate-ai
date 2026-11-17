@@ -50,7 +50,11 @@ from literate_ai.security import (
     BuildRequest,
     FailClosedBuildAuthorizationVerifier,
 )
-from literate_ai.sources import SourceCapture
+from literate_ai.sources import (
+    InternalSymlinkSnapshotPolicy,
+    SourceCapture,
+    SourceSnapshotter,
+)
 from literate_ai.storage.cas import FileSystemCAS
 
 
@@ -178,7 +182,19 @@ class NativeSdkRepositoryBuilder:
         require_safe_directory(root)
 
         def require_source() -> None:
-            actual = GitSourceAdapter().capture(root)
+            if (
+                checkout.allow_internal_symlinks
+                != lock.dependency.allow_internal_symlinks
+            ):
+                raise ValueError("SDK checkout differs from authored link policy")
+            adapter = GitSourceAdapter(
+                snapshotter=(
+                    SourceSnapshotter(InternalSymlinkSnapshotPolicy())
+                    if lock.dependency.allow_internal_symlinks
+                    else None
+                )
+            )
+            actual = adapter.capture(root)
             if (
                 actual.git is None
                 or actual.git.dirty

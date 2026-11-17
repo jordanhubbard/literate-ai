@@ -345,8 +345,15 @@ real authored catalog, preserve target-specific lock and source authority
 boundaries, and scale to complete native trees. Explicit POSIX symlink custody
 must retain bounded relative target text, complete internal target coverage and
 immutable snapshots; it must not dereference source links or weaken default
-refusal and legacy identities. Native action, package and
-independent acceptance qualification remain required beyond ownership planning.
+refusal and legacy identities. Explicit source snapshot and quarantine custody
+now pass focused POSIX checks, including an entire real Git source corpus with
+all 138 link targets and independently compared committed blob hashes. Authored
+SDK source-lock policy, scoped link inspection and per-command build
+checks now pass a small real native-compiler/cache/relocation fixture. The
+complete real Git input corpus also passes scoped SDK input pinning. Installed
+SDK/native catalog acceptance and link-aware source intelligence remain open.
+Native action, package and independent acceptance qualification remain required
+beyond ownership planning.
 
 RETAINED-FS-001 extends Goals 1 and 4 with independent observation of retained
 products' filesystem effects. Development cases bind private fixtures, exact
