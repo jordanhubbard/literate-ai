@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Close original SDK operation input witnesses after the final clock callback.
+  Actual regressions reproduced escaped results after oracle/file writes or
+  oracle-selection replacement at that cut. Preserve the original finite
+  baselines, current membership and one sampled time for all verifier grants.
+
 - Qualify explicit Python SDK host orchestration through actual `runtime.execute`
   with a deterministic authored generator. The native fixture passes in 1081.895
   seconds, including original provider admission, finalization re-admission,

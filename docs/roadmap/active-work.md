@@ -657,6 +657,23 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       policy, real clock and closing expiry checks remain unchanged. No active
       grant extension, live model, durable cache/recovery or installed acceptance
       is claimed by this authored orchestration experiment.
+      Provider-count preparation reproduced an actual final-clock closing gap:
+      all three original native controls fail in 29.788 seconds because a
+      completed operation returns after post-scope same-byte/restored-mtime
+      changes to the original loaded oracle or materialized provider file, or an
+      equal-value copied oracle selection. The minimal correction samples time
+      once after the final owner callback, then closes the already captured
+      oracle/file witnesses, original membership and configuration before checking
+      every grant at that same time. No baseline is recaptured, operation replayed
+      or active grant extended. All 12 actual native operation cases pass in
+      127.354 seconds, including the three corrected refusals, original owner/
+      grant-loss controls, fresh exact renewal and publication-scope ownership.
+      The broader SDK Make gate selects 168 cases: 107 pass and 61 retain
+      prerequisite skips (103.275 seconds). Independent state/security review
+      finds no remaining blocker for this bounded repair.
+      This is actual accepted-provider custody with an inert consumer plan,
+      not a new generated SDK or installed qualification. Retain the one-provider
+      admission restriction until separate actual multi-provider closing proof.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.

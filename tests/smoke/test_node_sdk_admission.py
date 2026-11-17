@@ -4,6 +4,7 @@ The consumer plan is inert contract DATA. No generated SDK, selected public
 Flavor, actual model output or end-to-end lifecycle qualification is claimed.
 """
 
+import inspect
 import os
 import unittest
 from concurrent.futures import Future
@@ -416,6 +417,69 @@ class NodeSDKAdmissionTests(unittest.TestCase):
         with self.assertRaisesRegex(PinnedInputClosureError, "changed before close"):
             self.invoke(self.admission(require_current=owner), consume)
         self.assertEqual(len(changed), 2)
+
+    def _assert_final_clock_drift(self, cut):
+        from literate_ai.adapters.node_library_acceptance import _LOADED
+
+        admission = self.admission()
+        ports = self.fixture.ports
+        original_clock = ports.clock
+        completed = []
+        changed = []
+        paths = []
+        if cut == "oracle":
+            witness = _LOADED[id(self.fixture.oracle)]
+            paths.append(next(iter(witness.authority._entries.values())).path)
+
+        def consume(_invocation, guard):
+            guard()
+            if cut == "files":
+                scope = next(iter(ports._library_provider_scopes.values()))[0]
+                paths.append(scope.root / scope.files[0].path)
+            completed.append(True)
+            return "must not escape the final clock cut"
+
+        def clock():
+            frame = inspect.currentframe()
+            caller = frame.f_back
+            final_cut = (
+                caller.f_code.co_name == "final_inputs"
+                and caller.f_locals.get("live_membership") is False
+            )
+            del frame, caller
+            if final_cut and completed and not changed:
+                self.assertFalse(ports._library_provider_scopes)
+                if cut == "configuration":
+                    key = self.fixture.revision.identity.uri
+                    admission.oracles[key] = replace(admission.oracles[key])
+                else:
+                    path = paths[0]
+                    before = path.stat()
+                    content = path.read_bytes()
+                    path.write_bytes(content)
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                changed.append(cut)
+                print("SDK final clock mutation executed: " + cut, flush=True)
+            return original_clock()
+
+        error = {
+            "oracle": PinnedInputClosureError,
+            "files": ValueError,
+            "configuration": NodeSDKAdmissionError,
+        }[cut]
+        with mock.patch.object(ports, "clock", clock), self.assertRaises(error):
+            self.invoke(admission, consume)
+        self.assertEqual(completed, [True])
+        self.assertEqual(changed, [cut])
+
+    def test_final_clock_oracle_write_withholds_result(self):
+        self._assert_final_clock_drift("oracle")
+
+    def test_final_clock_provider_write_withholds_result(self):
+        self._assert_final_clock_drift("files")
+
+    def test_final_clock_configuration_replacement_withholds_result(self):
+        self._assert_final_clock_drift("configuration")
 
     def test_asynchronous_operation_is_rejected_before_verification(self):
         async def consume(*_args):

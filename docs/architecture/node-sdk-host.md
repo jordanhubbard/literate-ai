@@ -46,6 +46,12 @@ registered TEST/EXEC evidence, expiry and final finite checks remain enforced by
 the existing shared verifier. Configuring this Python API adds no CLI flag,
 serialized private policy or default activation.
 
+Operation closing checks also follow the final clock callback: sample once,
+then check every original oracle/file stamp, required live membership and host
+configuration before validating all verifier grants at that captured time.
+The closing cut retains the original baselines; it does not recapture changed
+files or allow a completed operation to escape after a callback changes them.
+
 Development acceptance is tracked under LIBRARY-ARTIFACT-001 in the
 [active work queue](../roadmap/active-work.md). A deterministic authored generator
 now exercises complete `runtime.execute` orchestration on the native macOS cell:

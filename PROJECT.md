@@ -208,6 +208,13 @@ this does not establish durable cache restoration. Production code and grant
 policy remain unchanged; live model generation and installed qualification remain
 separate gates.
 
+SDK operation closing now samples the final clock before checking its original
+oracle/file witnesses, membership and configuration, then validates every verifier
+grant at that same captured time. Three native final-clock mutations reproduced
+escaped results before the repair; the complete 12-case native operation suite
+now passes without recapturing baselines or extending active grants. Multiple
+providers remain refused pending their own actual ownership and closing proof.
+
 Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
 arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,

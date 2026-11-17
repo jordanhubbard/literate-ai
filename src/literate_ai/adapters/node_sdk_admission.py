@@ -257,9 +257,11 @@ class LocalNodeSDKGenerationAdmission:
         def final_inputs(*, live_membership):
             for entry in entries:
                 entry["oracle"]()
-            # Byte reads can block. Recheck the actual owner afterward, then
-            # close original stamps without another callback or byte read.
+            # Byte reads and callbacks can change earlier inputs. Recheck the
+            # owner, sample time once, then close every original finite witness
+            # without another owner/clock callback or byte read.
             self._require_config()
+            now = self.ports.clock()
             for entry in entries:
                 entry["oracle_stamps"]()
             for entry in entries:
@@ -267,7 +269,6 @@ class LocalNodeSDKGenerationAdmission:
                 if live_membership:
                     self.ports._require_library_provider_membership(entry["scope"])
             self._require_config_bytes()
-            now = self.ports.clock()
             for entry in entries:
                 entry["grant"].require_valid(entry["request"], now=now)
                 if (
