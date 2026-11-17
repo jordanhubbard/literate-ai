@@ -300,6 +300,19 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       passing; 37 focused checks and independent review cover the newer combined
       owner, including the complete CommonJS path. Public SDK admission, generated
       and retained lifecycle integration and qualification remain unfinished.
+      Merged-source checkpoint `b57e6687` passed 795 source smoke tests with six
+      declared skips, including all 127 Node SDK outcomes. Its macOS whole-wheel
+      gate passed with 1,394 installed members. The exact noneditable wheel also
+      passed all five synthetic joined-verifier checks on Python 3.14.7,
+      Node 22.23.4 and TypeScript 6.0.3, with 388 framework module origins confined
+      to the installed prefix and unchanged selected tool identities. Wheel
+      `sha256:dd2e345ab4fde486a05d640213522b3ff6ce24558506d8bf3989520052a79400`
+      binds installed distribution
+      `sha256:25d4dfcf42e84689538c326cef6eeee875d5cce83649b8f56c342faec2d33444`.
+      These checks cover the shared internal verifier, not public SDK admission.
+      Next, join exact accepted provider evidence and live original-oracle checks
+      before SDK recipe construction or cache lookup; retain that binding through
+      build admission. Existing generation remains interface-only for other profiles.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
