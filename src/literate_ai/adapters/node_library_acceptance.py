@@ -14,12 +14,15 @@ import os
 import re
 import threading
 import weakref
+from collections.abc import Callable
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import NamedTuple
 
 from literate_ai.adapters.component_acceptance import (
     ComponentAcceptanceError,
+    DeclaredLibraryAcceptanceCase,
     LibraryAcceptance,
     load_library_acceptance,
 )
@@ -128,6 +131,45 @@ class NodeLibraryAcceptance(LibraryAcceptance):
         return document
 
 
+class NodeLibraryRuntimeInputs(NamedTuple):
+    """Loader-owned immutable payload data, without execution authority."""
+
+    oracle_identity: str
+    harness_content: bytes
+    esm_harness_content: bytes
+    cases_content: bytes
+    expected_content: bytes
+
+    def __repr__(self):
+        return f"NodeLibraryRuntimeInputs(oracle_identity={self.oracle_identity!r})"
+
+    @property
+    def identity(self):
+        return ContentIdentity.parse_uri(self.oracle_identity)
+
+    @property
+    def cases(self):
+        # Fresh result-comparison values; no reference back into the mutable
+        # original oracle is exposed to the executor or its process observer.
+        return tuple(
+            DeclaredLibraryAcceptanceCase(
+                row["case_id"],
+                row["capability"],
+                row["arguments"],
+                row["expected_result"],
+            )
+            for row in json.loads(self.expected_content)
+        )
+
+
+class NodeLibraryVerifierScope(NamedTuple):
+    inputs: NodeLibraryRuntimeInputs
+    require_unchanged: Callable[[], None]
+
+    def __call__(self):
+        self.require_unchanged()
+
+
 class _LoadedOracle:
     def __init__(self, original, authority):
         key = id(original)
@@ -143,6 +185,36 @@ class _LoadedOracle:
         self.identity = original.identity
         self.harness_content = original.harness_content
         self.esm_harness_content = original.esm_harness_content
+        rows = [
+            {
+                "case_id": case.case_id,
+                "capability": case.capability,
+                "arguments": case.arguments,
+                "expected_result": case.expected_result,
+            }
+            for case in original.cases
+        ]
+        self.runtime_inputs = NodeLibraryRuntimeInputs(
+            original.identity.uri,
+            self.harness_content,
+            self.esm_harness_content,
+            product_json_bytes(
+                [
+                    {
+                        key: value
+                        for key, value in row.items()
+                        if key != "expected_result"
+                    }
+                    for row in rows
+                ]
+            ),
+            product_json_bytes(rows),
+        )
+        self.retained_bytes = (
+            authority.total_bytes
+            + len(self.runtime_inputs.cases_content)
+            + len(self.runtime_inputs.expected_content)
+        )
 
     def require_original(self, oracle):
         if (
@@ -277,8 +349,8 @@ def load_node_library_acceptance(path: Path, component_name: str, *, read_bytes=
         witness.require_unchanged(result)
         with _LOCK:
             if len(_LOADED) >= _MAX_LOADED or (
-                sum(item.authority.total_bytes for item in _LOADED.values())
-                + authority.total_bytes
+                sum(item.retained_bytes for item in _LOADED.values())
+                + witness.retained_bytes
                 > _MAX_LOADED_BYTES
             ):
                 _refuse()
@@ -304,7 +376,8 @@ def load_node_library_acceptance(path: Path, component_name: str, *, read_bytes=
 def capture_loaded_node_library_verifier_inputs(oracle):
     """Fence the exact original files before and after a verifier operation.
 
-    The yielded callback performs a full bounded byte revalidation. Use it at
+    The yielded scope is callable for a full bounded byte revalidation and
+    supplies immutable loader-owned runtime payloads. Use its revalidation at
     process boundaries; keep the execution owner's independent live-call guard
     on process polling. This context grants no command or artifact authority.
     """
@@ -316,6 +389,8 @@ def capture_loaded_node_library_verifier_inputs(oracle):
         _refuse()
     witness.require_unchanged(oracle)
     try:
-        yield lambda: witness.require_unchanged(oracle)
+        yield NodeLibraryVerifierScope(
+            witness.runtime_inputs, lambda: witness.require_unchanged(oracle)
+        )
     finally:
         witness.require_unchanged(oracle)

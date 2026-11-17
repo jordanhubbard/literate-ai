@@ -103,6 +103,12 @@ artifact admission, execution authorization and lifecycle publication. The
 internal Node oracle loader is not a public lifecycle dispatcher until those
 remaining checks are integrated.
 
+The internal runtime runner supplies the reviewed harness with bounded JSON on
+stdin: the exact artifact location, import surface and case arguments, without
+expected answers. Both formats must return every exact case through the shared
+library result validator. Its observations remain data until the lifecycle joins
+them with declaration checks, current artifact admission and execution ownership.
+
 The first retained adapter may coexist with the SDK's separately admitted existing
 registry closure. Those registry dependencies retain their original exact lockfile,
 install authorization and complete inventory checks. They cannot satisfy sealed

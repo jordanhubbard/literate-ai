@@ -89,6 +89,22 @@ class NodeLibraryOracleTests(unittest.TestCase):
         javascript = self.load()
         self.assertNotEqual(oracle.identity, javascript.identity)
 
+    def test_scope_payloads_remain_immutable_loader_owned_snapshots(self):
+        oracle = self.load()
+        with owner.capture_loaded_node_library_verifier_inputs(oracle) as scope:
+            inputs = scope.inputs
+            self.assertEqual(inputs.identity, oracle.identity)
+            self.assertEqual(inputs.harness_content, oracle.harness_content)
+            self.assertNotIn(b"expected_result", inputs.cases_content)
+            self.assertIn(b"expected_result", inputs.expected_content)
+            with self.assertRaises(AttributeError):
+                object.__setattr__(inputs, "harness_content", b"substituted")
+            oracle.cases[0].arguments.append(99)
+            self.assertEqual(inputs.cases[0].arguments, [1, 2])
+            oracle.cases[0].arguments.pop()
+            inputs.cases[0].arguments.append(99)
+            self.assertEqual(inputs.cases[0].arguments, [1, 2])
+
     def test_all_referenced_files_and_original_document_reopen(self):
         for name in ("counter.json", *self.files):
             with self.subTest(name=name):

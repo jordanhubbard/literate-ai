@@ -8580,50 +8580,21 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "independent library acceptance mutated immutable package custody"
             )
+        from literate_ai.adapters.library_harness_results import (
+            LibraryHarnessResultError,
+            validate_library_harness_results,
+        )
+
         try:
-            result = json.loads(completed.stdout)
-        except (json.JSONDecodeError, TypeError) as exc:
-            raise LocalStandardLifecycleError(
-                "independent library acceptance emitted invalid JSON"
-            ) from exc
-        raw_cases = result.get("cases") if isinstance(result, dict) else None
-        if (
-            not isinstance(result, dict)
-            or set(result) != {"schema", "cases"}
-            or result.get("schema") != "literate-ai/library-acceptance-results@1"
-            or not isinstance(raw_cases, list)
-        ):
-            raise LocalStandardLifecycleError(
-                "independent library acceptance emitted an invalid protocol"
+            observed = validate_library_harness_results(
+                oracle, completed.stdout, oracle_identity=oracle_identity
             )
-        observed = {}
-        for item in raw_cases:
-            if (
-                not isinstance(item, dict)
-                or set(item) != {"case_id", "capability", "result"}
-                or not isinstance(item.get("case_id"), str)
-                or item["case_id"] in observed
-            ):
-                raise LocalStandardLifecycleError(
-                    "independent library acceptance emitted a malformed case"
-                )
-            observed[item["case_id"]] = item
+        except LibraryHarnessResultError as exc:
+            raise LocalStandardLifecycleError(str(exc)) from exc
         expected = {item.case_id: item for item in oracle.cases}
-        if set(observed) != set(expected):
-            raise LocalStandardLifecycleError(
-                "independent library acceptance did not run every exact case"
-            )
-        if oracle.identity != oracle_identity:
-            raise LocalStandardLifecycleError("library acceptance oracle changed")
         observations = []
         for case_id, case in expected.items():
             item = observed[case_id]
-            if item["capability"] != case.capability or not product_json_values_equal(
-                item["result"], case.expected_result
-            ):
-                raise LocalStandardLifecycleError(
-                    f"independent library acceptance result differs for {case_id!r}"
-                )
             observations.append(
                 {
                     "case_id": case_id,
