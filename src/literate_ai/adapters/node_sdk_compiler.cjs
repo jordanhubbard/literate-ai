@@ -84,10 +84,11 @@ module.exports = function compileNodeSDK(request) {
   }
   const roots = request.roots.map(name => canonical(path.posix.join(virtualRoot, relative(name))));
   if (new Set(roots).size !== roots.length || roots.some(name => !files.has(name))) throw Error('compiler root absent');
-  const outputs = new Map(), loaded = new Set(); let outputBytes=0;
+  const outputs = new Map(), loaded = new Set(), modeInputs=[]; let outputBytes=0;
   const modes = request.operation === 'compile' ? ['cjs', 'esm'] : ['node16', 'nodenext'];
   const diagnostics = [];
   for (const mode of modes) {
+    const modeLoaded=new Set();
     const context = new Map(all);
     if (request.operation === 'compile') context.set(virtualRoot+'/package.json', JSON.stringify({type:mode==='esm'?'module':'commonjs'}));
     const options = {
@@ -104,7 +105,7 @@ module.exports = function compileNodeSDK(request) {
       getSourceFile(name, languageVersion) {
         const normalized = canonical(name), content = context.get(normalized);
         if (content === undefined) return undefined;
-        loaded.add(normalized);
+        loaded.add(normalized);modeLoaded.add(normalized);
         const source=ts.createSourceFile(normalized, content, languageVersion);
         const provider=providerBoundary(normalized);
         if(files.has(normalized)) {
@@ -154,6 +155,7 @@ module.exports = function compileNodeSDK(request) {
     const program = ts.createProgram(roots, options, host);
     const errors = ts.getPreEmitDiagnostics(program);
     if (!errors.length && request.operation === 'compile') errors.push(...program.emit().diagnostics);
+    modeInputs.push({mode,inputs:[...modeLoaded].filter(name=>files.has(name)).map(name=>name.slice(virtualRoot.length+1)).sort()});
     if(diagnostics.length+errors.length>128) throw Error('compiler diagnostic count bound');
     for (const error of errors) {
       const message=ts.flattenDiagnosticMessageText(error.messageText,'\n');
@@ -161,6 +163,6 @@ module.exports = function compileNodeSDK(request) {
       diagnostics.push({mode,code:error.code,category:error.category,message});
     }
   }
-  const result = {version:1, compiler:ts.version, success:diagnostics.length === 0, diagnostics, inputs:[...loaded].filter(name => files.has(name)).map(name => name.slice(virtualRoot.length+1)).sort(), outputs:[...(diagnostics.length ? new Map() : outputs)].sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0).map(([name,content])=>({path:name.slice(virtualRoot.length+1),content:Buffer.from(content).toString('base64')}))};
+  const result = {version:1, compiler:ts.version, success:diagnostics.length === 0, diagnostics, inputs_by_mode:modeInputs, inputs:[...loaded].filter(name => files.has(name)).map(name => name.slice(virtualRoot.length+1)).sort(), outputs:[...(diagnostics.length ? new Map() : outputs)].sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0).map(([name,content])=>({path:name.slice(virtualRoot.length+1),content:Buffer.from(content).toString('base64')}))};
   return result;
 };

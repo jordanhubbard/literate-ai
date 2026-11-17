@@ -137,6 +137,7 @@ class TypeScriptResult:
     diagnostics: tuple[dict[str, str | int], ...]
     inputs: tuple[str, ...]
     outputs: tuple[DirectoryExportFile, ...]
+    inputs_by_mode: tuple[tuple[str, tuple[str, ...]], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -336,6 +337,7 @@ class NodeSDKTypeScriptCompiler:
                     "success",
                     "diagnostics",
                     "inputs",
+                    "inputs_by_mode",
                     "outputs",
                 }
                 or result["version"] != 1
@@ -365,6 +367,40 @@ class NodeSDKTypeScriptCompiler:
                 name not in names for name in inputs
             ):
                 raise ValueError("TypeScript compiler read unselected inputs")
+            expected_modes = (
+                ("cjs", "esm") if operation == "compile" else ("node16", "nodenext")
+            )
+            rows = result["inputs_by_mode"]
+            if not isinstance(rows, list) or len(rows) != 2:
+                raise ValueError(
+                    "TypeScript compiler requires both per-mode input sets"
+                )
+            mode_inputs = []
+            for mode, row in zip(expected_modes, rows, strict=True):
+                if (
+                    not isinstance(row, dict)
+                    or set(row) != {"mode", "inputs"}
+                    or row["mode"] != mode
+                    or not isinstance(row["inputs"], list)
+                    or len(row["inputs"]) > 4096
+                    or any(
+                        not isinstance(name, str) or name not in names
+                        for name in row["inputs"]
+                    )
+                ):
+                    raise ValueError("TypeScript compiler per-mode inputs are invalid")
+                observed = tuple(row["inputs"])
+                if observed != tuple(sorted(set(observed))):
+                    raise ValueError(
+                        "TypeScript compiler per-mode inputs are not canonical"
+                    )
+                mode_inputs.append((mode, observed))
+            if set(inputs) != {
+                name for _, selected in mode_inputs for name in selected
+            }:
+                raise ValueError(
+                    "TypeScript compiler input union differs from its mode sets"
+                )
             outputs = []
             for row in result["outputs"]:
                 if not isinstance(row, dict) or set(row) != {"path", "content"}:
@@ -394,7 +430,11 @@ class NodeSDKTypeScriptCompiler:
             ):
                 raise ValueError("TypeScript compiler result is incomplete")
             return TypeScriptResult(
-                result["success"], tuple(result["diagnostics"]), inputs, tuple(outputs)
+                result["success"],
+                tuple(result["diagnostics"]),
+                inputs,
+                tuple(outputs),
+                tuple(mode_inputs),
             )
         except (KeyError, TypeError, UnicodeError, json.JSONDecodeError) as exc:
             raise ValueError("TypeScript compiler result is malformed") from exc

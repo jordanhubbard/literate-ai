@@ -455,6 +455,15 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       decoys, both runtimes, four typing combinations and CommonJS `__esModule`
       behavior. This still does not close the public SDK lifecycle, independent
       declaration-acceptance, native-platform or downstream cutover gates.
+      The exact `2b6fb2a3` wheel also passed a fresh noneditable Python 3.14.7
+      shared-owner fixture with 200 owner checks, 320 installed module origins,
+      relocated runtime/types and explicit rejection of any-weakened declarations.
+      The newer internal declaration checker now tests each consumer format and
+      compiler mode independently, rejects suppression directives and unrelated
+      negative errors, and bounds aggregate process evidence before retention.
+      Fifty-nine focused tests and independent review cover this checker and its
+      shared provider projection. Original oracle custody, public SDK admission
+      and ordinary lifecycle qualification are still separate unfinished work.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

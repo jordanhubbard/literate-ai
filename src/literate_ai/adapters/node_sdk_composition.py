@@ -21,11 +21,13 @@ from literate_ai.adapters.lifecycle.javascript_libraries import (
     prepare_javascript_library_imports,
 )
 from literate_ai.adapters.node_sdk_tools import SDK_TOOL_ENVIRONMENT_POLICY
+from literate_ai.application.library_artifacts import require_declared_commonjs_files
 from literate_ai.contracts import (
     ArtifactExport,
     BlobRef,
     ComponentCommandContract,
     ContentIdentity,
+    LibraryImportSurface,
     SemanticVersion,
     canonical_identity,
 )
@@ -246,88 +248,111 @@ def node_sdk_provider_module_paths(
     return stem + ".cjs", stem + ".d.cts"
 
 
+def node_sdk_provider_package_files(
+    provider: ArtifactExport,
+    surface: LibraryImportSurface,
+    provider_files: tuple[DirectoryExportFile, ...],
+) -> tuple[DirectoryExportFile, ...]:
+    """One byte-preserving package projection for already admitted inputs.
+
+    SDK consumers and independent declaration verifiers share this owner. The
+    caller retains artifact readback, current interface/target and execution
+    authority; projecting data never admits a consumer or creates acceptance.
+    """
+    if (
+        not isinstance(provider, ArtifactExport)
+        or not isinstance(surface, LibraryImportSurface)
+        or not surface.declarations
+        or provider.role != "library"
+        or provider.dependency_artifact_identities
+    ):
+        raise ValueError(
+            "SDK v1 requires a direct declaration-bearing CommonJS library"
+        )
+    provider_files = _files(provider_files)
+    require_declared_commonjs_files(
+        surface, {file.path: file.content for file in provider_files}
+    )
+    files: dict[str, DirectoryExportFile] = {}
+    prefix = "_providers/" + provider.component_revision.digest
+    files[prefix + "/package.json"] = DirectoryExportFile(
+        prefix + "/package.json",
+        b'{"type":"commonjs","private":true}\n',
+        _data_mode(),
+    )
+    for file in provider_files:
+        if any(part.casefold() == "node_modules" for part in file.path.split("/")):
+            raise ValueError("SDK provider contains a nested dependency namespace")
+        if file.path.rsplit("/", 1)[-1] == "package.json":
+            metadata = json.loads(file.content)
+            if not isinstance(metadata, dict) or any(
+                metadata.get(key)
+                for key in (
+                    "dependencies",
+                    "optionalDependencies",
+                    "peerDependencies",
+                    "bundledDependencies",
+                    "bundleDependencies",
+                )
+            ):
+                raise ValueError("SDK provider format or dependency authority differs")
+        path = prefix + "/artifact/" + file.path
+        if path in files:
+            raise ValueError("SDK provider namespace collision")
+        files[path] = DirectoryExportFile(path, file.content, file.mode)
+    names = {file.path for file in provider_files}
+    folded_names = {name.casefold() for name in names}
+    for module in surface.declarations:
+        if module.runtime not in names or module.declaration not in names:
+            raise ValueError("SDK provider entry files are absent from its artifact")
+        # A .js type reference resolves .ts/.tsx before .d.ts in native
+        # TypeScript. Deny those shadows rather than compile another file.
+        stem = module.declaration[:-5]
+        if any(
+            (stem + suffix).casefold() in folded_names for suffix in (".ts", ".tsx")
+        ):
+            raise ValueError(
+                "SDK provider declared types are shadowed by TypeScript source"
+            )
+        runtime, declaration = node_sdk_provider_module_paths(provider, module)
+        # The runtime forwards the identical CommonJS value; declarations
+        # re-export its exact declared type namespace. No provider is edited.
+        runtime_source = (
+            '"use strict";\nmodule.exports=require('
+            + json.dumps("../artifact/" + module.runtime)
+            + ");\n"
+        )
+        type_source = (
+            "import provider = require("
+            + json.dumps("../artifact/" + module.declaration[:-5] + ".js")
+            + ");\nexport = provider;\n"
+        )
+        for path, content in (
+            (runtime, runtime_source),
+            (declaration, type_source),
+        ):
+            if path in files:
+                raise ValueError("SDK provider forwarding namespace collision")
+            files[path] = DirectoryExportFile(
+                path, content.encode("utf-8"), _data_mode()
+            )
+    return _files(tuple(files.values()))
+
+
 def node_sdk_provider_files(
     imports: JavaScriptLibraryImports,
 ) -> tuple[DirectoryExportFile, ...]:
     """Use the identical private provider layout for compilation and packing."""
-    if not isinstance(imports, JavaScriptLibraryImports) or any(
-        not package.surface.declarations
-        or package.provider.dependency_artifact_identities
-        for package in imports.packages
-    ):
-        raise ValueError(
-            "SDK v1 requires declaration-bearing direct CommonJS providers"
-        )
-    files: dict[str, DirectoryExportFile] = {}
+    if not isinstance(imports, JavaScriptLibraryImports):
+        raise ValueError("SDK providers require typed resolved imports")
+    files = {}
     for package in imports.packages:
-        prefix = "_providers/" + package.provider.component_revision.digest
-        files[prefix + "/package.json"] = DirectoryExportFile(
-            prefix + "/package.json",
-            b'{"type":"commonjs","private":true}\n',
-            _data_mode(),
-        )
-        for file in package.files:
-            if any(part.casefold() == "node_modules" for part in file.path.split("/")):
-                raise ValueError("SDK provider contains a nested dependency namespace")
-            if file.path.rsplit("/", 1)[-1] == "package.json":
-                metadata = json.loads(file.content)
-                if not isinstance(metadata, dict) or any(
-                    metadata.get(key)
-                    for key in (
-                        "dependencies",
-                        "optionalDependencies",
-                        "peerDependencies",
-                        "bundledDependencies",
-                        "bundleDependencies",
-                    )
-                ):
-                    raise ValueError(
-                        "SDK provider format or dependency authority differs"
-                    )
-            path = prefix + "/artifact/" + file.path
-            if path in files:
+        for file in node_sdk_provider_package_files(
+            package.provider, package.surface, package.files
+        ):
+            if file.path in files:
                 raise ValueError("SDK provider namespace collision")
-            files[path] = DirectoryExportFile(path, file.content, file.mode)
-        names = {file.path for file in package.files}
-        folded_names = {name.casefold() for name in names}
-        for module in package.surface.declarations:
-            if module.runtime not in names or module.declaration not in names:
-                raise ValueError(
-                    "SDK provider entry files are absent from its artifact"
-                )
-            # A .js type reference resolves .ts/.tsx before .d.ts in native
-            # TypeScript. Deny those shadows rather than compile another file.
-            stem = module.declaration[:-5]
-            if any(
-                (stem + suffix).casefold() in folded_names for suffix in (".ts", ".tsx")
-            ):
-                raise ValueError(
-                    "SDK provider declared types are shadowed by TypeScript source"
-                )
-            runtime, declaration = node_sdk_provider_module_paths(
-                package.provider, module
-            )
-            # The runtime forwards the identical CommonJS value; declarations
-            # re-export its exact declared type namespace. No provider is edited.
-            runtime_source = (
-                '"use strict";\nmodule.exports=require('
-                + json.dumps("../artifact/" + module.runtime)
-                + ");\n"
-            )
-            type_source = (
-                "import provider = require("
-                + json.dumps("../artifact/" + module.declaration[:-5] + ".js")
-                + ");\nexport = provider;\n"
-            )
-            for path, content in (
-                (runtime, runtime_source),
-                (declaration, type_source),
-            ):
-                if path in files:
-                    raise ValueError("SDK provider forwarding namespace collision")
-                files[path] = DirectoryExportFile(
-                    path, content.encode("utf-8"), _data_mode()
-                )
+            files[file.path] = file
     return _files(tuple(files.values()))
 
 
