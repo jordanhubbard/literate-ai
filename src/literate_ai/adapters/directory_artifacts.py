@@ -297,6 +297,24 @@ def require_transported_library_package(
 def require_materialized_files(
     root: Path, files: tuple[DirectoryExportFile, ...]
 ) -> None:
+    _capture_materialized_files(root, files)
+
+
+def capture_materialized_files(root: Path, files: tuple[DirectoryExportFile, ...]):
+    """Read exact bytes once and return a finite original-namespace stamp guard.
+
+    The guard is DATA observation only, with no admission or execution authority.
+    It closes the same stamps after caller/authority checks without retrying or
+    adopting a changed tree. Existing require_materialized_files returns None.
+    Long-lived custody requires POSIX metadata-change timestamps; Windows ctime
+    is creation time and cannot fence same-size writes with restored mtime.
+    """
+    if os.name != "posix":
+        raise ValueError("live file custody requires POSIX change timestamps")
+    return _capture_materialized_files(root, files)
+
+
+def _capture_materialized_files(root, files):
     # Enumerate only the finite original namespace. Unexpected nodes stop before
     # recursion; file reads allocate at most the pinned original length plus one.
     expected = {item.path: item for item in files}
@@ -369,12 +387,16 @@ def require_materialized_files(
                     if (
                         before.st_dev,
                         before.st_ino,
+                        before.st_mode,
+                        before.st_nlink,
                         before.st_size,
                         before.st_mtime_ns,
                         before.st_ctime_ns,
                     ) != (
                         after.st_dev,
                         after.st_ino,
+                        after.st_mode,
+                        after.st_nlink,
                         after.st_size,
                         after.st_mtime_ns,
                         after.st_ctime_ns,
@@ -385,33 +407,39 @@ def require_materialized_files(
     if seen != set(expected) | directories:
         raise ValueError("materialized JavaScript provider namespace differs")
 
-    for directory, expected_stamp in directory_stamps.items():
-        current = directory.lstat()
-        observed_stamp = (
-            current.st_dev,
-            current.st_ino,
-            current.st_mode,
-            current.st_nlink,
-            current.st_mtime_ns,
-            current.st_ctime_ns,
-        )
-        if (
-            path_is_link_or_reparse(directory)
-            or not stat.S_ISDIR(current.st_mode)
-            or observed_stamp != expected_stamp
-        ):
-            raise ValueError("materialized directory changed before inventory close")
+    def require_snapshot():
+        for directory, expected_stamp in directory_stamps.items():
+            current = directory.lstat()
+            observed_stamp = (
+                current.st_dev,
+                current.st_ino,
+                current.st_mode,
+                current.st_nlink,
+                current.st_mtime_ns,
+                current.st_ctime_ns,
+            )
+            if (
+                path_is_link_or_reparse(directory)
+                or not stat.S_ISDIR(current.st_mode)
+                or observed_stamp != expected_stamp
+            ):
+                raise ValueError(
+                    "materialized directory changed before inventory close"
+                )
 
-    for path, expected_stamp in stamps.items():
-        current = path.lstat()
-        observed_stamp = (
-            current.st_dev,
-            current.st_ino,
-            current.st_mode,
-            current.st_nlink,
-            current.st_size,
-            current.st_mtime_ns,
-            current.st_ctime_ns,
-        )
-        if path_is_link_or_reparse(path) or observed_stamp != expected_stamp:
-            raise ValueError("materialized file changed before inventory close")
+        for path, expected_stamp in stamps.items():
+            current = path.lstat()
+            observed_stamp = (
+                current.st_dev,
+                current.st_ino,
+                current.st_mode,
+                current.st_nlink,
+                current.st_size,
+                current.st_mtime_ns,
+                current.st_ctime_ns,
+            )
+            if path_is_link_or_reparse(path) or observed_stamp != expected_stamp:
+                raise ValueError("materialized file changed before inventory close")
+
+    require_snapshot()
+    return require_snapshot

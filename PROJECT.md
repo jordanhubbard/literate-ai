@@ -117,6 +117,14 @@ single-harness acceptance, including copied or subclassed values. This preserves
 its additional original-input, second-runtime and declaration obligations while
 the opt-in SDK lifecycle is unfinished; rejection does not supply admission.
 
+An internal live provider scope now reopens genuine registered acceptance stages,
+source, sealed bytes and materialized files under the current build grant. Original
+owner membership, aggregate bounds and closing file stamps reject copied, closed,
+concurrently retired or changed custody. Long-lived file custody requires POSIX
+change timestamps and refuses unsupported platforms; macOS fixtures do not qualify
+Windows. This is provider custody only. Original Node verification, SDK recipe/cache
+binding, public profile admission and installed lifecycle qualification remain open.
+
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records

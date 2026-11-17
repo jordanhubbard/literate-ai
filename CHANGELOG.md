@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Library providers: add bounded internal live custody of genuine registered
+  acceptance stages, current build authority, sealed bytes and original files.
+  Closing checks reject changed or retired scopes, including same-size rewrites
+  with restored modification times. Long-lived custody refuses platforms without
+  POSIX change timestamps; public Node SDK lifecycle admission remains unfinished.
+
 - Library acceptance refuses the new Node runtime/declaration oracle at legacy
   single-harness entry points, before custody lookup or evidence publication.
   Original-input, ESM and declaration requirements cannot be discarded through

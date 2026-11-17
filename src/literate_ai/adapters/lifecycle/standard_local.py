@@ -366,6 +366,33 @@ _MAX_NPM_INSTALLED_FILE_BYTES = 128 * 1024 * 1024
 _MAX_NPM_INSTALLED_TREE_BYTES = 1024 * 1024 * 1024
 
 
+_MAX_LIBRARY_PROVIDER_SCOPES = 32
+_MAX_LIBRARY_PROVIDER_SCOPE_BYTES = 128 * 1024 * 1024
+
+
+def _local_standard_acceptance_policy():
+    return {
+        "schema": "literate-ai/local-standard-acceptance-policy@1",
+        "requires": ["build", "generated-tests", "execution"],
+    }
+
+
+@dataclass(frozen=True, slots=True)
+class LocalLibraryProviderCustody:
+    """DATA checked only by its originating ports' live scope registry.
+
+    This is neither independent library acceptance nor execution authorization.
+    Consumers must call that exact owner's require_library_provider_custody()
+    through publication; copies and deserialized values have no membership.
+    """
+
+    acceptance: StandardComponentAcceptanceEvidence
+    contract: ComponentCommandContract
+    export: ArtifactExport
+    root: Path
+    files: tuple = field(repr=False)
+
+
 @dataclass(frozen=True, slots=True)
 class LocalProjectPackageCustody:
     package_plan: PackagePlan
@@ -1134,6 +1161,10 @@ class LocalStandardLifecyclePorts:
         self._sdk_build_authorizations: dict[
             str, tuple[BuildRequest, BuildAuthorization]
         ] = {}
+        self._library_provider_scope_lock = threading.RLock()
+        self._library_provider_scopes = {}
+        self._library_provider_scope_count = 0
+        self._library_provider_scope_bytes = 0
         self._planned_exports: dict[str, ArtifactExport] = {}
         self._exports_by_identity: dict[str, ArtifactExport] = {}
         self._artifact_paths: dict[str, Path] = {}
@@ -5508,10 +5539,7 @@ class LocalStandardLifecyclePorts:
             generated_tests=generated_tests,
             execution=execution,
             acceptance_policy_identity=self._record_evidence(
-                {
-                    "schema": "literate-ai/local-standard-acceptance-policy@1",
-                    "requires": ["build", "generated-tests", "execution"],
-                }
+                _local_standard_acceptance_policy()
             ),
         )
         if self._evidence_recorder is not None:
@@ -5539,6 +5567,238 @@ class LocalStandardLifecyclePorts:
         ):
             raise LocalStandardLifecycleError("ACCEPT registered stages differ")
         return build, tests, execution
+
+    def _current_library_provider(self, receipt):
+        from literate_ai.application.standard_provider_receipts import (
+            select_build_provider_receipts,
+        )
+
+        if type(receipt) is not StandardComponentAcceptanceEvidence:
+            raise LocalStandardLifecycleError(
+                "library provider requires typed acceptance"
+            )
+        plan = self._plans_by_revision.get(receipt.component_revision.uri)
+        if plan is None:
+            raise LocalStandardLifecycleError("library provider has no current plan")
+        build, tests, execution = self.acceptance_stage_evidence(
+            plan, receipt.generated_tests.identity, receipt.execution.identity
+        )
+        source = self.source_trees.evidence(plan.request.source_tree_identity)
+        expected = StandardComponentAcceptanceEvidence(
+            component_revision=plan.component_revision,
+            source_generation_identity=source.source_generation_identity,
+            generated_test_suite_identity=ContentIdentity.parse_uri(
+                source.generated_test_suite.content_identity
+            ),
+            build=build,
+            generated_tests=tests,
+            execution=execution,
+            acceptance_policy_identity=canonical_identity(
+                _local_standard_acceptance_policy()
+            ),
+        )
+        contract = self._contract(plan.component_revision)
+        if (
+            canonical_json_bytes(receipt.to_dict())
+            != canonical_json_bytes(expected.to_dict())
+            or not contract.is_library
+            or len(build.exports) != 1
+        ):
+            raise LocalStandardLifecycleError(
+                "library provider acceptance or contract differs"
+            )
+        export = build.exports[0]
+        if (
+            export.role != "library"
+            or export.component_revision != plan.component_revision
+            or export.target_identity != contract.artifact_export.target_identity
+            or export.dependency_artifact_identities
+            or self._exports_by_identity.get(export.identity.uri) != export
+            or select_build_provider_receipts((export,), (receipt,)) != (receipt,)
+        ):
+            raise LocalStandardLifecycleError(
+                "library provider export differs or has dependencies"
+            )
+        return plan, contract, export
+
+    @contextmanager
+    def accepted_library_provider(self, receipt, *, require_current):
+        """Hold one original current pure-library provider, without verifier authority.
+
+        The existing current build-grant requirement remains in force. Historical
+        renewal, original independent oracles, selected verifier execution policy
+        and generation/cache/build binding are separate consuming obligations.
+        """
+        from literate_ai.adapters.action_build_limits import (
+            MAX_BUILD_ARCHIVE_BYTES,
+            MAX_BUILD_ARCHIVE_FILES,
+        )
+        from literate_ai.adapters.directory_artifacts import (
+            capture_materialized_files,
+            read_directory_export,
+        )
+
+        if not callable(require_current):
+            raise TypeError("library provider requires a current live owner")
+
+        def owner():
+            if require_current() is not None:
+                raise LocalStandardLifecycleError(
+                    "library provider owner must be synchronous"
+                )
+
+        owner()
+        plan, contract, export = self._current_library_provider(receipt)
+        owner()
+        receipt_bytes = canonical_json_bytes(receipt.to_dict())
+        contract_bytes = canonical_json_bytes(contract.to_dict())
+        plan_bytes = canonical_json_bytes(plan.to_dict())
+        # Stored directory exports cannot expand. Reserve before reading, with
+        # room for decoded payload/path copies and the pinned authority documents.
+        charge = (
+            3 * export.blob.size
+            + len(receipt_bytes)
+            + len(contract_bytes)
+            + len(plan_bytes)
+        )
+        with self._library_provider_scope_lock:
+            if (
+                self._library_provider_scope_count >= _MAX_LIBRARY_PROVIDER_SCOPES
+                or charge
+                > _MAX_LIBRARY_PROVIDER_SCOPE_BYTES - self._library_provider_scope_bytes
+            ):
+                raise LocalStandardLifecycleError(
+                    "library provider custody capacity exhausted"
+                )
+            self._library_provider_scope_count += 1
+            self._library_provider_scope_bytes += charge
+        scope = None
+        try:
+            blob = self.read_artifact_blob(export.blob)
+            files = read_directory_export(
+                blob,
+                export.blob,
+                max_bytes=MAX_BUILD_ARCHIVE_BYTES,
+                max_entries=MAX_BUILD_ARCHIVE_FILES,
+            )
+            registered_path = self._artifact_paths[export.identity.uri]
+            root = self.artifact_path(export)
+            if root == self.object_root or not root.is_relative_to(self.object_root):
+                raise LocalStandardLifecycleError(
+                    "library provider escapes object custody"
+                )
+            require_safe_directory(root)
+            root_stat = root.lstat()
+            root_identity = (
+                root_stat.st_dev,
+                root_stat.st_ino,
+                root_stat.st_uid,
+                root_stat.st_gid,
+                root_stat.st_mode,
+            )
+            scope = LocalLibraryProviderCustody(receipt, contract, export, root, files)
+            require_files = capture_materialized_files(root, files)
+            file_inputs = tuple((item.path, item.content, item.mode) for item in files)
+
+            def require_authority():
+                current_plan, current_contract, current_export = (
+                    self._current_library_provider(receipt)
+                )
+                if (
+                    current_plan is not plan
+                    or current_contract is not contract
+                    or canonical_json_bytes(current_plan.to_dict()) != plan_bytes
+                    or canonical_json_bytes(current_contract.to_dict())
+                    != contract_bytes
+                    or canonical_json_bytes(receipt.to_dict()) != receipt_bytes
+                    or current_export != export
+                    or scope.acceptance is not receipt
+                    or scope.contract is not contract
+                    or scope.export is not export
+                    or scope.root != root
+                    or self._artifact_paths.get(export.identity.uri) != registered_path
+                    or self.artifact_path(export) != root
+                ):
+                    raise LocalStandardLifecycleError(
+                        "library provider custody changed"
+                    )
+
+            def validate():
+                owner()
+                require_authority()
+                if (
+                    self.read_artifact_blob(export.blob) != blob
+                    or tuple(
+                        (item.path, item.content, item.mode) for item in scope.files
+                    )
+                    != file_inputs
+                ):
+                    raise LocalStandardLifecycleError(
+                        "library provider custody changed"
+                    )
+                require_safe_directory(root)
+                observed = root.lstat()
+                if (
+                    observed.st_dev,
+                    observed.st_ino,
+                    observed.st_uid,
+                    observed.st_gid,
+                    observed.st_mode,
+                ) != root_identity:
+                    raise LocalStandardLifecycleError(
+                        "library provider root identity changed"
+                    )
+                require_files()
+                owner()
+                require_authority()
+                # Closing owner/authority reads may block or run callbacks. The
+                # final finite stamp fence must follow them, not precede them.
+                require_files()
+                observed = root.lstat()
+                if (
+                    observed.st_dev,
+                    observed.st_ino,
+                    observed.st_uid,
+                    observed.st_gid,
+                    observed.st_mode,
+                ) != root_identity:
+                    raise LocalStandardLifecycleError(
+                        "library provider root identity changed"
+                    )
+
+            with self._library_provider_scope_lock:
+                self._library_provider_scopes[id(scope)] = (scope, validate)
+            self.require_library_provider_custody(scope)
+            try:
+                yield scope
+            finally:
+                self.require_library_provider_custody(scope)
+        finally:
+            with self._library_provider_scope_lock:
+                if scope is not None:
+                    self._library_provider_scopes.pop(id(scope), None)
+                self._library_provider_scope_count -= 1
+                self._library_provider_scope_bytes -= charge
+
+    def require_library_provider_custody(self, scope):
+        """Require original membership; any validation failure retires that scope."""
+        with self._library_provider_scope_lock:
+            entry = self._library_provider_scopes.get(id(scope))
+            if entry is None or entry[0] is not scope:
+                raise LocalStandardLifecycleError(
+                    "library provider scope is not live here"
+                )
+        try:
+            entry[1]()
+            with self._library_provider_scope_lock:
+                if self._library_provider_scopes.get(id(scope)) is not entry:
+                    raise LocalStandardLifecycleError(
+                        "library provider scope closed during validation"
+                    )
+        except BaseException:
+            with self._library_provider_scope_lock:
+                self._library_provider_scopes.pop(id(scope), None)
+            raise
 
     def admit_transferred_acceptance(
         self,

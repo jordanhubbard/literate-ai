@@ -322,9 +322,20 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       declarations. All 28 focused oracle/result/Python lifecycle checks pass,
       preserving the legacy actual-Node cases, with independent security review.
       The older whole-wheel checkpoint does not cover this later boundary repair.
-      Next, join exact accepted provider evidence and live original-oracle checks
-      before SDK recipe construction or cache lookup; retain that binding through
-      build admission. Existing generation remains interface-only for other profiles.
+      Internal original-instance, bounded live provider custody now reopens the
+      registered acceptance stages and both sealed-blob/materialized-file checks.
+      It holds current plan, contract, source and owner through validation and exit;
+      copies, closing/failing scopes and foreign lifecycle owners cannot reuse it.
+      Finite original file stamps close after callbacks, including same-size writes
+      with restored mtime; concurrent context closure retires membership. The new
+      long-lived guard requires POSIX change timestamps and refuses unsupported
+      platforms, preserving the existing immediate file-check API. The macOS suite
+      passes 48 checks with one declared skip, covering genuine
+      build/test/execute/accept, original Node runtime/import regressions and custody
+      mutations, with independent state/security review; no Windows,
+      whole-wheel or public SDK qualification follows from this checkpoint.
+      In progress: join original Node-oracle/tool checks before SDK recipe construction or
+      cache lookup; retain that exact binding through build admission. Existing generation remains interface-only for other profiles.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
