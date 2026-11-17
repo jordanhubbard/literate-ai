@@ -8,6 +8,7 @@ carry exact provider artifacts into consumer command environments.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import json
 import os
 import re
@@ -375,6 +376,45 @@ def _local_standard_acceptance_policy():
         "schema": "literate-ai/local-standard-acceptance-policy@1",
         "requires": ["build", "generated-tests", "execution"],
     }
+
+
+def _require_library_oracle_authority(oracle, revision, surface):
+    expected_interfaces = tuple(
+        sorted(
+            (item.identity for item in revision.public_interfaces),
+            key=lambda item: item.uri,
+        )
+    )
+    if (
+        oracle.component != revision.coordinate.name
+        or oracle.specification_set_identity != revision.specification_set_identity
+        or oracle.public_interface_identities != expected_interfaces
+        or oracle.import_surface_identity != surface.identity
+        or oracle.language != surface.language
+    ):
+        raise LocalStandardLifecycleError(
+            "library acceptance oracle differs from exact locked authority"
+        )
+    capabilities = {item.capability for item in surface.capabilities}
+    if any(item.capability not in capabilities for item in oracle.cases):
+        raise LocalStandardLifecycleError(
+            "library acceptance oracle names an undeclared capability"
+        )
+
+
+def _node_provider_verifier_inputs(scope, oracle, compiler):
+    return canonical_identity(
+        {
+            "schema": "literate-ai/local-node-provider-verifier-inputs@1",
+            "acceptance": scope.acceptance.identity.uri,
+            "artifact": scope.export.identity.uri,
+            "contract": scope.contract.identity.uri,
+            "oracle": oracle.identity.uri,
+            "surface": scope.contract.library_import_surface.identity.uri,
+            "compiler": compiler.identity.uri,
+            "node": compiler.node.identity,
+        }
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -5780,14 +5820,19 @@ class LocalStandardLifecyclePorts:
                 self._library_provider_scope_count -= 1
                 self._library_provider_scope_bytes -= charge
 
-    def require_library_provider_custody(self, scope):
-        """Require original membership; any validation failure retires that scope."""
+    def _require_library_provider_membership(self, scope):
+        """Check original live membership without reopening bytes or callbacks."""
         with self._library_provider_scope_lock:
             entry = self._library_provider_scopes.get(id(scope))
             if entry is None or entry[0] is not scope:
                 raise LocalStandardLifecycleError(
                     "library provider scope is not live here"
                 )
+            return entry
+
+    def require_library_provider_custody(self, scope):
+        """Require original membership; any validation failure retires that scope."""
+        entry = self._require_library_provider_membership(scope)
         try:
             entry[1]()
             with self._library_provider_scope_lock:
@@ -5799,6 +5844,192 @@ class LocalStandardLifecyclePorts:
             with self._library_provider_scope_lock:
                 self._library_provider_scopes.pop(id(scope), None)
             raise
+
+    def library_provider_verifier_request(self, scope, *, revision, oracle, compiler):
+        """Describe exact verifier execution; constructing a request grants nothing."""
+        from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+        from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
+        from literate_ai.contracts.component_locking.locks import (
+            LockedComponentRevision,
+        )
+
+        self.require_library_provider_custody(scope)
+        if (
+            type(revision) is not LockedComponentRevision
+            or revision.identity != scope.export.component_revision
+            or type(oracle) is not NodeLibraryAcceptance
+            or type(compiler) is not NodeSDKTypeScriptCompiler
+            or compiler.selection_identity is None
+        ):
+            raise LocalStandardLifecycleError(
+                "provider verifier requires exact locked authority and selected tools"
+            )
+        surface = scope.contract.library_import_surface
+        if (
+            surface is None
+            or surface.language != "javascript"
+            or not surface.declarations
+            or surface.node_sdk_exports
+        ):
+            raise LocalStandardLifecycleError(
+                "provider verifier requires declared CommonJS library files"
+            )
+        _require_library_oracle_authority(oracle, revision, surface)
+        inputs = _node_provider_verifier_inputs(scope, oracle, compiler)
+        return BuildRequest(
+            effective_revision_digest=revision.identity.uri,
+            source_bundle_digest=inputs.uri,
+            builder_id="local-node-provider-verifier@1",
+            toolchain_digest=compiler.identity.uri,
+            sandbox_profile="local-explicit-host-process",
+            requested_privileges=("execute-library-verifier",),
+            allowed_outputs=("verifier-workspace", "stdout", "stderr"),
+        )
+
+    def with_verified_node_library_provider(
+        self,
+        scope,
+        *,
+        revision,
+        oracle,
+        compiler,
+        authorization,
+        workspace,
+        require_current,
+        consume,
+        environment,
+        observe_process=None,
+    ):
+        """Run an explicitly granted verifier and consume DATA within live custody.
+
+        This synchronous boundary issues no acceptance or SDK admission. Its guard
+        cannot survive callback return; asynchronous generation and later build or
+        cache publication require separate fresh admission, never returned checks.
+        """
+        from literate_ai.adapters.directory_artifacts import capture_materialized_files
+        from literate_ai.adapters.node_library_acceptance import (
+            capture_loaded_node_library_verifier_inputs,
+        )
+        from literate_ai.adapters.node_library_verification import check_node_library
+        from literate_ai.adapters.node_sdk_tools import (
+            node_sdk_tool_environment,
+            require_node_sdk_process_observer,
+        )
+
+        self._require_full_command_scope()
+        for callback in (require_current, consume):
+            if not callable(callback):
+                raise TypeError("provider verifier callbacks must be synchronous")
+            require_node_sdk_process_observer(callback)
+        require_node_sdk_process_observer(observe_process)
+        request = self.library_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+        if type(authorization) is not BuildAuthorization:
+            raise TypeError("provider verifier requires an explicit execution grant")
+        configured = node_sdk_tool_environment(dict(environment))
+        close_files = capture_materialized_files(scope.root, scope.files)
+        active = True
+
+        def require_owner():
+            returned = require_current()
+            if returned is not None:
+                if inspect.iscoroutine(returned):
+                    returned.close()
+                raise TypeError("provider verifier owner must return None")
+
+        def require_close():
+            # No custody context is reopened here. This also runs after the
+            # original oracle context's blocking __exit__, before DATA escapes.
+            if not active:
+                raise LocalStandardLifecycleError("provider verifier scope ended")
+            require_owner()
+            close_files()
+            self._require_full_command_scope()
+            _require_library_oracle_authority(
+                oracle, revision, scope.contract.library_import_surface
+            )
+            if (
+                authorization.profile is not SecurityProfile.CONSTRAINED
+                or authorization.privileges != request.requested_privileges
+                or revision.identity.uri != request.effective_revision_digest
+                or _node_provider_verifier_inputs(scope, oracle, compiler).uri
+                != request.source_bundle_digest
+            ):
+                raise LocalStandardLifecycleError(
+                    "provider verifier inputs changed at validation close"
+                )
+            authorization.require_valid(request, now=self.clock())
+            self._require_library_provider_membership(scope)
+
+        def require_live():
+            nonlocal active
+            try:
+                if not active:
+                    raise LocalStandardLifecycleError("provider verifier scope ended")
+                require_owner()
+                authorization.require_valid(request, now=self.clock())
+                if (
+                    authorization.profile is not SecurityProfile.CONSTRAINED
+                    or authorization.privileges != request.requested_privileges
+                    or self.library_provider_verifier_request(
+                        scope, revision=revision, oracle=oracle, compiler=compiler
+                    )
+                    != request
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider verifier authority changed"
+                    )
+                verifier()
+                self.require_library_provider_custody(scope)
+                require_owner()
+                verifier()
+                require_close()
+            except BaseException:
+                active = False
+                raise
+
+        try:
+            with capture_loaded_node_library_verifier_inputs(oracle) as verifier:
+                require_live()
+                try:
+                    checks = check_node_library(
+                        oracle,
+                        subject=scope.export.component_revision,
+                        artifact=scope.export.identity,
+                        surface=scope.contract.library_import_surface,
+                        files=scope.files,
+                        artifact_root=scope.root,
+                        workspace=workspace,
+                        node=compiler.node,
+                        compiler=compiler,
+                        environment=configured,
+                        require_current=require_live,
+                        observe_process=observe_process,
+                        provider=scope.export,
+                    )
+                    require_live()
+                    result = consume(checks, require_live)
+                    if (
+                        inspect.isawaitable(result)
+                        or inspect.isgenerator(result)
+                        or inspect.isasyncgen(result)
+                    ):
+                        if inspect.iscoroutine(result) or inspect.isgenerator(result):
+                            result.close()
+                        raise TypeError(
+                            "provider verifier consumer must finish synchronously"
+                        )
+                finally:
+                    if active:
+                        try:
+                            compiler.node.require_unchanged(configured)
+                        finally:
+                            require_live()
+            require_close()
+            return result
+        finally:
+            active = False
 
     def admit_transferred_acceptance(
         self,
@@ -8538,28 +8769,7 @@ class LocalStandardLifecyclePorts:
         assert surface is not None
         if self._evidence_recorder is not None:
             self._record_evidence(surface.to_dict())
-        expected_interfaces = tuple(
-            sorted(
-                (item.identity for item in root_node.revision.public_interfaces),
-                key=lambda item: item.uri,
-            )
-        )
-        if (
-            oracle.component != root_node.revision.coordinate.name
-            or oracle.specification_set_identity
-            != root_node.revision.specification_set_identity
-            or oracle.public_interface_identities != expected_interfaces
-            or oracle.import_surface_identity != surface.identity
-            or oracle.language != surface.language
-        ):
-            raise LocalStandardLifecycleError(
-                "library acceptance oracle differs from exact locked authority"
-            )
-        capabilities = {item.capability for item in surface.capabilities}
-        if any(item.capability not in capabilities for item in oracle.cases):
-            raise LocalStandardLifecycleError(
-                "library acceptance oracle names an undeclared capability"
-            )
+        _require_library_oracle_authority(oracle, root_node.revision, surface)
         root_export = self._planned_exports[component_lock.root_revision.uri]
         try:
             export = custody.artifact_paths[root_export.identity.uri].resolve(

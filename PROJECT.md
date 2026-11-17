@@ -122,8 +122,16 @@ source, sealed bytes and materialized files under the current build grant. Origi
 owner membership, aggregate bounds and closing file stamps reject copied, closed,
 concurrently retired or changed custody. Long-lived file custody requires POSIX
 change timestamps and refuses unsupported platforms; macOS fixtures do not qualify
-Windows. This is provider custody only. Original Node verification, SDK recipe/cache
-binding, public profile admission and installed lifecycle qualification remain open.
+Windows. This establishes artifact/stage custody; SDK recipe/cache binding, public
+profile admission and installed lifecycle qualification remain open.
+
+The local lifecycle can now explicitly join that live provider with its exact
+locked specification/interfaces, original Node oracle and selected compiler under
+a separate current verifier execution grant. Full local command scope is required.
+Actual type checks and both runtime harnesses precede synchronous consumption;
+guards retire on every exit, and publication follows closing oracle revalidation
+and a final current-grant check. Returned data grants no subsequent admission.
+SDK recipe/cache integration and asynchronous lifecycle qualification remain open.
 
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The

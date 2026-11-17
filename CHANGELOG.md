@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Node library verification: join genuine accepted provider custody to exact locked
+  specifications, original oracle files and selected compiler/Node tools under a
+  separate explicit execution grant. Controller-only runtimes cannot execute the
+  verifier. Synchronous results are withheld after owner/grant loss, including loss
+  during closing oracle reads; returned data does not grant SDK admission.
+
 - Library providers: add bounded internal live custody of genuine registered
   acceptance stages, current build authority, sealed bytes and original files.
   Closing checks reject changed or retired scopes, including same-size rewrites

@@ -334,8 +334,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       build/test/execute/accept, original Node runtime/import regressions and custody
       mutations, with independent state/security review; no Windows,
       whole-wheel or public SDK qualification follows from this checkpoint.
-      In progress: join original Node-oracle/tool checks before SDK recipe construction or
-      cache lookup; retain that exact binding through build admission. Existing generation remains interface-only for other profiles.
+      The synchronous local join now binds exact locked provider specifications and
+      interfaces, original loaded oracle and selected Node/compiler to a separate
+      explicit current verifier execution grant. Full local command scope is
+      required; a liveness callback alone grants nothing. Real declaration checks
+      and both original runtime harnesses precede guarded synchronous consumption.
+      Escaped guards retire on every exit, and returned results remain data. Final
+      publication follows the outer oracle context's closing read and a bounded
+      non-reopening current-grant/owner/input fence. Actual accepted JavaScript
+      fixtures cover permission loss, locked-oracle mismatch, copied inputs,
+      asynchronous callbacks and grant loss or provider retirement during closing
+      read. The final membership fence uses the original lifecycle owner's locked
+      registry without reopening custody. All 36 checks pass with one declared skip
+      across the actual joined lifecycle, original combined verifier, legacy
+      acceptance, local command adapter and materialized-file suites on macOS,
+      with independent state/security review. Broader qualification remains open.
+      In progress: carry that exact binding into SDK recipe construction before
+      cache lookup and through build admission. Asynchronous generation and later
+      cache/build publication require fresh lifetime-aware admission. Existing
+      generation remains interface-only for other profiles.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
