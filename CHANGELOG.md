@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Bind local SDK tarballs as explicit package resources using original complete
+  BUILD custody. SDK packaging writes validated immutable library blob rows and
+  checks finite source, export and staged-package inventories through registration.
+  Late resource substitution and expired grants are rejected. Public finalization
+  and independent SDK acceptance remain unfinished.
+
 - Add an internal SDK legal-byte comparison against the original locked Component
   immutable assets and selected packaging profile. Missing authority, changed bytes,
   stale original inputs and substituted filename policies are rejected. This is a

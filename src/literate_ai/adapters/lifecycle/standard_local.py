@@ -450,6 +450,7 @@ class LocalProjectPackageCustody:
     native_sdk_execution_scope: NativeSdkPackageExecutionScope | None = None
     python_dependency_observer: StandardPythonDependencyObserver | None = None
     python_artifact_tree_identity: ContentIdentity | None = None
+    node_sdk_resources: object | None = None
 
 
 def _directory_export_bytes(root: Path) -> bytes:
@@ -6403,6 +6404,18 @@ class LocalStandardLifecyclePorts:
         root_plan = self._plans_by_revision.get(component_lock.root_revision.uri)
         if root_plan is None:
             raise LocalStandardLifecycleError("root build plan has no local custody")
+        node_sdk_resources = None
+        if root_plan.component_revision.uri in self.node_sdk_targets:
+            from literate_ai.adapters.directory_artifacts import (
+                capture_materialized_files,
+            )
+            from literate_ai.adapters.node_sdk_package import (
+                LocalNodeSDKPackageResources,
+            )
+
+            node_sdk_resources = LocalNodeSDKPackageResources(
+                self, root_plan, root_export, exports=closure
+            )
         # ACCEPTANCE-SERVICE-001 (#213): carry the Component's REAL declared
         # entrypoint kind into the package plan instead of hard-coding
         # "application". A persistent-service Component must package with
@@ -6533,6 +6546,7 @@ class LocalStandardLifecyclePorts:
             resource_inputs=(
                 *python_resources,
                 *(() if sdk_resources is None else sdk_resources.inputs),
+                *(() if node_sdk_resources is None else node_sdk_resources.inputs),
             ),
             entrypoints=self._root_package_entrypoints(
                 component_lock, exports_by_id, destinations
@@ -6560,6 +6574,10 @@ class LocalStandardLifecyclePorts:
         )
 
         def read_package_blob(reference: BlobRef) -> bytes:
+            if node_sdk_resources is not None and node_sdk_resources.owns_blob(
+                reference
+            ):
+                return node_sdk_resources.read_blob(reference)
             if reference in python_resource_blobs:
                 return python_resource_blobs[reference]
             if sdk_resources is not None and sdk_resources.owns_blob(reference):
@@ -6584,26 +6602,29 @@ class LocalStandardLifecyclePorts:
         artifact_paths: dict[str, Path] = {}
         try:
             for export in closure:
-                self.read_artifact_blob(export.blob)
-                source = self.artifact_path(export)
                 destination = staging.joinpath(
                     *Path(destinations[export.identity.uri]).parts
                 )
                 destination.parent.mkdir(parents=True, exist_ok=True)
-                if source.is_symlink():
-                    raise LocalStandardLifecycleError(
-                        "package input cannot be a symbolic link"
-                    )
-                if source.is_dir():
-                    shutil.copytree(source, destination)
-                    copied = _directory_export_bytes(destination)
-                elif source.is_file():
-                    shutil.copy2(source, destination)
-                    copied = destination.read_bytes()
+                if node_sdk_resources is not None:
+                    copied = node_sdk_resources.materialize_export(export, destination)
                 else:
-                    raise LocalStandardLifecycleError(
-                        "package input must be a regular file or directory"
-                    )
+                    self.read_artifact_blob(export.blob)
+                    source = self.artifact_path(export)
+                    if source.is_symlink():
+                        raise LocalStandardLifecycleError(
+                            "package input cannot be a symbolic link"
+                        )
+                    if source.is_dir():
+                        shutil.copytree(source, destination)
+                        copied = _directory_export_bytes(destination)
+                    elif source.is_file():
+                        shutil.copy2(source, destination)
+                        copied = destination.read_bytes()
+                    else:
+                        raise LocalStandardLifecycleError(
+                            "package input must be a regular file or directory"
+                        )
                 if (
                     len(copied) != export.blob.size
                     or hashlib.sha256(copied).hexdigest() != export.blob.digest
@@ -6624,6 +6645,8 @@ class LocalStandardLifecyclePorts:
                 destination.chmod(0o755 if item.executable else 0o644)
             if sdk_resources is not None:
                 sdk_resources.materialize(staging)
+            if node_sdk_resources is not None:
+                node_sdk_resources.materialize(staging)
             if python_observer is not None:
                 staged_python_root = artifact_paths[root_export.identity.uri].parent
                 if local_tree_identity(staged_python_root) != python_artifact_tree:
@@ -6637,9 +6660,19 @@ class LocalStandardLifecyclePorts:
                     python_observer.source,
                     python_observer.toolchain,
                 )()
+            package_files = package_stamps = None
+            if node_sdk_resources is not None:
+                package_files, package_stamps = node_sdk_resources.capture_package(
+                    staging, plan, read_package_blob
+                )
             staged_identity = local_tree_identity(staging)
+            if node_sdk_resources is not None:
+                node_sdk_resources.require_current()
+                package_stamps()
             destination_root = package_parent / plan.identity.digest
             if destination_root.exists():
+                if node_sdk_resources is not None:
+                    capture_materialized_files(destination_root, package_files)()
                 if (
                     destination_root.is_symlink()
                     or not destination_root.is_dir()
@@ -6655,6 +6688,8 @@ class LocalStandardLifecyclePorts:
                 uri: destination_root / path.relative_to(staging)
                 for uri, path in artifact_paths.items()
             }
+            if node_sdk_resources is not None:
+                node_sdk_resources.bind_package(destination_root, package_files)
         except Exception:
             if staging.exists():
                 shutil.rmtree(staging)
@@ -6684,7 +6719,10 @@ class LocalStandardLifecyclePorts:
                 )
             ),
             python_artifact_tree,
+            node_sdk_resources,
         )
+        if node_sdk_resources is not None:
+            node_sdk_resources.require_packaged(destination_root)
         self._project_packages[result.identity.uri] = custody
         return plan, result
 
@@ -6697,12 +6735,16 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "project package has no local immutable custody"
             ) from exc
+        if custody.node_sdk_resources is not None:
+            custody.node_sdk_resources.require_packaged(custody.root)
         if (
             custody.package_plan != plan
             or custody.package_result != result
             or local_tree_identity(custody.root) != custody.tree_identity
         ):
             raise LocalStandardLifecycleError("project package custody changed")
+        if custody.node_sdk_resources is not None:
+            custody.node_sdk_resources.require_packaged(custody.root)
         return custody
 
     def _packaged_environment(

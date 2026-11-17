@@ -536,11 +536,28 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       original invocation ownership, plus five ordinary projection regressions.
       Independent state/security source review passes. This does not qualify
       production acceptance wiring or a model-generated/native/installed SDK.
-      Next action: retain original root-package custody and explicit tarball
-      resource binding through typed SDK/v2 independent acceptance, including
-      legal-byte comparison and separate current verifier authorization. The
-      packed archive is outside the library export and cannot become a package
-      input merely through its sibling path. Keep the legacy v2 refusal intact.
+      Explicit local SDK packaging now binds its tarball as a typed resource to
+      original registered BUILD custody of the complete artifact tree. Shared
+      bounded archive readback ties it to the exact library files. Every linked
+      export materializes from validated immutable blob rows, without producer
+      traversal. Original source/export/ancestry stamps, primitive resource-input
+      fingerprints and final grant time close through package registration;
+      staged files must independently match the complete planned input inventory.
+      The actual canonical authored fixture clears the acceleration cache and
+      packages with generic copytree forbidden. It passes alongside 24 distinct
+      selected checks; one existing macOS persistent-service check remains skipped.
+      Review found and corrected late payload/provenance mutation, final-time and
+      provider-copy gaps. An actual earlier package attempt failed because the
+      plan-input record has no identity property; the guard now snapshots its real
+      fields, and unit fixtures use the real record type. Two deliberately cancelled
+      candidates and that failed run remain distinct from the successful proof.
+      These are internal package seams, not independent or installed qualification.
+      Next action: retain exact original SDK ownership across root finalization,
+      then wire typed SDK/v2 independent acceptance with packaged legal-byte
+      comparison and separate current verifier authorization. Reuse the shared
+      runtime/declaration verifier and keep the legacy v2 refusal intact. Public
+      finalization currently remains outside the SDK operation and fails closed;
+      packaged TEST also needs its original generated test-source custody.
       Model generation, final legal-byte acceptance wiring, SDK acceptance and
       full generated/retained/native/installed qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from

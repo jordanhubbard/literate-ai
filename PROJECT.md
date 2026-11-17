@@ -153,6 +153,14 @@ decoding; source presence, a model assertion or a different filename policy supp
 no legal authority. This internal comparison grants no execution or continuing
 custody and is not yet wired into final SDK acceptance.
 
+Explicit local SDK packaging now binds its tarball as a typed package resource to
+original registered BUILD custody of the complete artifact tree. Bounded captures
+and original namespace stamps precede generic hashing. All linked library exports
+materialize from validated immutable blob rows, without traversing producer trees.
+Original invocation, source/build membership and current grant checks close through
+package materialization and registration. This is internal port-only packaging;
+public finalization ownership and independent SDK acceptance remain unfinished.
+
 Remaining gates are final Component-authorized legal-byte acceptance wiring, public
 runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,
 original v2 independent SDK acceptance, arbitrary declared provider layouts,

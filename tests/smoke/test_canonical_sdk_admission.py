@@ -12,6 +12,7 @@ import unittest
 from datetime import timedelta
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.generation_preparation import (
@@ -27,6 +28,10 @@ from literate_ai.adapters.standard_project import (
     assemble_standard_lifecycle_ports,
     project_locked_standard_toolchain_closure,
 )
+from literate_ai.application.artifact_graph import (
+    create_artifact_build_graph,
+    realize_manifest,
+)
 from literate_ai.application.component_generation_context import (
     prepare_component_generation_context,
 )
@@ -35,6 +40,9 @@ from literate_ai.application.component_generation_preparation import (
 )
 from literate_ai.application.standard_node_sdk_admission import run_node_sdk_lifecycle
 from literate_ai.contracts import canonical_identity
+from literate_ai.contracts.executable_components.artifacts import (
+    artifact_driver_composition_identity,
+)
 from literate_ai.security.policy import BuildAuthorization, SecurityProfile
 from tests.smoke import test_node_library_acceptance as oracle_fixture
 from tests.smoke import test_node_library_verification as verifier_fixture
@@ -135,6 +143,61 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             self.assertIn(
                 provider.blob.digest,
                 ports.resolved_sbom_content(built.evidence).decode(),
+            )
+            manifests = tuple(
+                realize_manifest(
+                    ports._plans_by_revision[export.component_revision.uri].manifest,
+                    (export,),
+                )
+                for export in (provider, built.exports[0])
+            )
+            drivers = tuple(
+                sorted(
+                    {m.build_system_driver_identity for m in manifests},
+                    key=lambda identity: identity.uri,
+                )
+            )
+            graph = create_artifact_build_graph(
+                build_system_driver_identity=(
+                    drivers[0]
+                    if len(drivers) == 1
+                    else artifact_driver_composition_identity(drivers)
+                ),
+                driver_composition=drivers if len(drivers) > 1 else (),
+                manifests=manifests,
+                link_roots=(built.exports[0].identity,),
+            )
+            # Packaging binds original BUILD custody, not this acceleration cache.
+            ports._node_sdk_compiled_plans.clear()
+            with mock.patch(
+                "literate_ai.adapters.lifecycle.standard_local.shutil.copytree",
+                side_effect=AssertionError(
+                    "SDK packaging cannot traverse producer trees"
+                ),
+            ):
+                package_plan, package_result = ports.create_project_package(
+                    fixture.snapshot.authority.lock,
+                    fixture.execution,
+                    SimpleNamespace(),
+                    graph,
+                    graph.link_plans[0],
+                )
+            custody = ports.project_package_custody(package_plan, package_result)
+            distribution = next(
+                item
+                for item in package_plan.inputs
+                if item.role == "node-sdk-distribution"
+            )
+            self.assertEqual(
+                distribution.source_identity, built.evidence.artifact_custody_identity
+            )
+            self.assertEqual(
+                (custody.root / distribution.path).read_bytes(),
+                (artifact / "node-sdk.tgz").read_bytes(),
+            )
+            self.assertEqual(
+                custody.node_sdk_resources.read_blob(distribution.blob),
+                (artifact / "node-sdk.tgz").read_bytes(),
             )
             return built.evidence.identity
 

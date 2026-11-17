@@ -20,6 +20,7 @@ from literate_ai.adapters.node_sdk_composition import (
     MAX_SDK_BYTES,
     MAX_SDK_FILES,
     NodeSDKCompositionPlan,
+    _files,
     materialize_node_sdk,
     require_node_sdk_projection,
 )
@@ -44,6 +45,17 @@ def require_node_sdk_tarball(plan: NodeSDKCompositionPlan, content: bytes) -> No
     """
     if not isinstance(plan, NodeSDKCompositionPlan) or not isinstance(content, bytes):
         raise TypeError("SDK tarball readback requires a prepared plan and bytes")
+    require_node_sdk_tarball_files(plan.files, content)
+
+
+def require_node_sdk_tarball_files(files, content):
+    """Compare a distribution to an independently held bounded SDK file table.
+
+    File records describe bytes, not build/acceptance authority. The packaging
+    caller must separately bind them to original registered BUILD custody.
+    """
+    if _files(files) != files or not isinstance(content, bytes):
+        raise ValueError("SDK tarball readback requires canonical captured files")
     if not 1 <= len(content) <= _MAX_ARCHIVE:
         raise ValueError("SDK tarball exceeds its compressed byte bound")
     try:
@@ -51,7 +63,7 @@ def require_node_sdk_tarball(plan: NodeSDKCompositionPlan, content: bytes) -> No
             raw = stream.read(_MAX_ARCHIVE + 1)
         if len(raw) > _MAX_ARCHIVE:
             raise ValueError("SDK tarball exceeds its decompressed byte bound")
-        expected = {"package/" + item.path: item for item in plan.files}
+        expected = {"package/" + item.path: item for item in files}
         seen: set[str] = set()
         total = 0
         with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as archive:
