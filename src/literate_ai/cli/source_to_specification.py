@@ -2537,6 +2537,8 @@ def _complete_standard_lifecycle_qualification(
     )
     retained_store = getattr(args, "retained_evidence_store", None)
     retained_evidence = None
+    adapter = None
+    plan = None
     try:
         if retained_store is not None:
             store_path = Path(retained_store).absolute()
@@ -2651,14 +2653,41 @@ def _complete_standard_lifecycle_qualification(
                     for capture in adapter.library_captures
                 ],
             }
-    except (
-        FilesystemQualificationError,
-        SourceToSpecificationError,
-        ComponentAcceptanceError,
-    ) as exc:
+    except ComponentAcceptanceError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+    except (FilesystemQualificationError, SourceToSpecificationError) as exc:
+        code = getattr(exc, "code", "qualification.lifecycle_failed")
+        message = getattr(exc, "message", str(exc))
+        if retained_store is not None and adapter is not None and plan is not None:
+            try:
+                from literate_ai.adapters.qualification_diagnostics import (
+                    publish_qualification_failure_diagnostic,
+                )
+
+                reference = publish_qualification_failure_diagnostic(
+                    Path(retained_store).absolute(),
+                    plan,
+                    code,
+                    adapter.diagnostic_evidence_blobs,
+                    max_bytes=adapter.max_capture_bytes,
+                    case_records=adapter.diagnostic_case_record_identities,
+                    active_case=adapter.diagnostic_active_case,
+                )
+            except Exception:
+                # Diagnostic publication must never replace the original refusal
+                # or expose an exception's potentially private stream/path text.
+                suffix = "failure diagnostics unavailable"
+            else:
+                suffix = (
+                    "failure diagnostic in retained-store/diagnostics: "
+                    + json.dumps(
+                        reference.to_dict(), sort_keys=True, separators=(",", ":")
+                    )
+                )
+            message = suffix + "; " + message[: max(0, 510 - len(suffix))]
         raise CliFailure(
-            getattr(exc, "code", "qualification.lifecycle_failed"),
-            getattr(exc, "message", str(exc)),
+            code,
+            message,
         ) from exc
     except PinnedInputClosureError as exc:
         raise CliFailure(exc.code, exc.message) from exc
@@ -4251,7 +4280,8 @@ def add_spec_parser(commands: argparse._SubParsersAction) -> None:
         "--retained-evidence-store",
         help=(
             "explicit local immutable evidence store for captured library packages "
-            "and qualification records; does not authorize importer admission"
+            "and qualification records, plus separate failed-run diagnostics; "
+            "does not authorize importer admission"
         ),
     )
     qualify.add_argument(

@@ -1,0 +1,68 @@
+{
+  "classification": "private-state source integration and native process-lifetime fixture repair; complete acceptance pending",
+  "current_source_sha256": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5",
+  "documentation_review": "Merged documentation initially stale; supported documentation-review-record renews its marker, then project validation passes. No driver pin renewal.",
+  "driver_pin_renewed": false,
+  "focused_reports": {
+    "codex-cleanup-generation-report": {
+      "release_evidence": false,
+      "sha256": "15886fa92be83a28ab1d7afed3b3654765105afa4f6ddb66b677f6c5470f6765",
+      "summary": {
+        "executed": 25,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 25,
+        "selected": 25,
+        "skipped": 0
+      }
+    },
+    "codex-runtime-integration-report": {
+      "release_evidence": false,
+      "sha256": "c4db00fd8afede267b40a1ddcdf5cff1071d7db8cd30f91f68d7ede835ee6a65",
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      }
+    }
+  },
+  "full_source_subject_unchanged": "The separate running 79af4dfce gate does not cover this later coding CLI integration.",
+  "goal": "CODEX-STATE-001",
+  "integration_merge": "bd7da80d995c61eb3a751d73b172a42420f16652",
+  "issues": [
+    365,
+    412
+  ],
+  "native_fixture_sha256": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4",
+  "peer_head": "7ad91075d939162305921ab650218cd47eaeb703",
+  "predecessor": {
+    "failing_subtests": 2,
+    "log_sha256": "0b02de793d0191fc4915125e5e2a69a380a8087a13c23bb10e6806e456f93935",
+    "native_launcher_exit_codes": [
+      0,
+      7
+    ],
+    "peer_source_sha256": "e8572f3a1fd5a4dfc00c10066efd6c3d2217e4b8c6b130620a04cd6ffa52c95f",
+    "platform_scope": "actual POSIX process group and SQLite helper, with controlled provider launcher",
+    "selected_methods": 1
+  },
+  "project_validation": true,
+  "release_attestation": false,
+  "remaining": [
+    "independent review of the new process-lifetime guard before driver renewal",
+    "complete source and installed/native qualification of the integrated subject",
+    "current-head/resulting-main integration",
+    "all other roadmap and release requirements"
+  ],
+  "repair": "Retire the owned process tree in the original bounded runner finally block before pipe-reader joins and before private provider state can be removed; preserve the launcher exit and captured streams.",
+  "schema": "literate-ai/verification-record@1",
+  "source_review": {
+    "closing_guard": "authored by this integrating agent; independent review remains pending",
+    "independent_review_of_new_guard_claimed": false,
+    "peer_private_state_diff": "non-author inspection of task, generation and authentication paths; private state allocation and lifetime; argument quoting; preserved HOME, routing, sandbox and caller limits; non-Codex behavior"
+  },
+  "static_checks_exit": 0
+}

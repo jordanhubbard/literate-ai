@@ -1648,6 +1648,19 @@ def parent_checkout_from_args(args) -> dict[str, Any]:
         raise CliFailure(exc.code, exc.message) from None
 
 
+def project_ci_verify_from_args(args) -> dict[str, Any]:
+    """Observe the base policy's native CI contract without executing jobs."""
+    from literate_ai.adapters.native_ci import NativeCIError, verify_project_ci
+    from literate_ai.adapters.original_project_adoption import (
+        OriginalProjectAdoptionError,
+    )
+
+    try:
+        return verify_project_ci(Path(args.path), pull_request=args.pr)
+    except (NativeCIError, ProjectError, OriginalProjectAdoptionError) as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+
+
 __all__ = [
     "agent_entrypoints_from_args",
     "PROJECT_INITIALIZATION_SCHEMA",
@@ -1658,6 +1671,7 @@ __all__ = [
     "parent_checkout_from_args",
     "parent_readme_from_args",
     "project_ci_plan_from_args",
+    "project_ci_verify_from_args",
     "project_guidance_from_args",
     "project_peer_work_from_args",
     "project_source_intelligence_from_args",

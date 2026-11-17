@@ -119,7 +119,8 @@ Then re-run `make documentation-review` (read-only) to confirm `"state": "curren
 
 ## Before every commit
 
-Run the full gate locally so CI doesn't surprise you:
+Run the full gate for code, tests, tools, CI, dependencies, templates, skills,
+specifications, Flavors, policy or authority changes, and whenever scope is uncertain:
 
 ```
 make python-check driver-review documentation-review lint format-check
@@ -129,6 +130,43 @@ These explicit targets run the project's Python test suite, both checks above
 (`driver-review`, `documentation-review`), lint, and formatting checks.
 `make python-check` alone does not run the other four gates. Resolve their findings
 before pushing; a passing test suite does not establish current authority pins.
+
+A narrow presentation-only exception covers prose, links and formatting in static
+HTML reports under `docs/architecture/`, and progress or evidence updates in
+`docs/roadmap/*.md`. Roadmap edits must be narrative only: goal completion, deferral,
+retirement, release-target, disposition, dependency or acceptance changes require
+the full gate. The exception also excludes executable HTML/JavaScript, changed
+requirements, new policy or authorization, release-goal manifests and changes to
+the checks themselves. The documentation marker may change only through the
+supported recorder, with the rest of its document unchanged. An independent reviewer
+must confirm the exact diff fits this scope; otherwise use the full gate above.
+
+For that scope, run the applicable checks against the final content:
+
+```
+make driver-review documentation-review lint format-check documentation-check
+npm ci --prefix tools/openspec --ignore-scripts
+node scripts/build_conference_site.mjs
+python3 scripts/verify_conference_site.py
+```
+
+`documentation-check` validates the actual roadmap dependency graph and renders
+documentation diagrams. The site check validates the rendered routes, assets and
+offline archive; source-only Markdown links can pass other checks and still fail
+after rendering. Run these commands with the worktree's normal Make environment.
+Record the selected scope, independent review and check results in the PR.
+
+This is a reviewed local check selection, not an automatic classifier or reused test
+result. Require successful current-head checks for the selected CI profile before
+merge. Documentation-only CI already omits the full conformance matrix; do not call
+it full qualification. Code and policy changes retain their complete local gate,
+and release qualification remains unchanged. The change introducing this exception
+is itself a policy/CI change and requires the full gate.
+
+Relevant PRs targeting `main` validate the conference site with read-only repository
+permissions. Only a separate job on `main` can publish after validation; it owns
+Pages/OIDC permissions and the `github-pages` environment, following
+[GitHub's separate build and deploy workflow](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 At cycle boundaries, inspect peer work with `litai project peer-work survey --when
 start|end`. Before deleting a local branch, record an exact `merged` or reason-bearing
@@ -152,9 +190,10 @@ OpenSpec and documentation gates in that same conformance job. Three redundant
 standalone documentation jobs are removed. Native install/uninstall/reinstall
 and sample composition remain on Linux, macOS and Windows; real C++ library
 consumption remains on Linux and Windows. Both macOS and Windows also run focused
-launcher/update smoke checks. The matrix is declared in `.github/ci-matrix.json`;
-`scripts/select_ci_profile.py` selects nine PR cells or all fourteen qualification
-cells. The four full macOS partitions are additional qualification jobs.
+launcher/update and native-adoption/source-preservation smoke checks. The matrix is declared in `.github/ci-matrix.json`;
+`scripts/select_ci_profile.py` selects the applicable PR feedback or full
+qualification cells from that matrix. Full macOS partitions are additional
+qualification jobs.
 
 Dependency download caches are keyed by Python/platform and dependency inputs.
 pip uses a 60-second network timeout and three transport retries; failed tests
