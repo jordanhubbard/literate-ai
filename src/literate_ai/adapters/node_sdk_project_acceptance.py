@@ -126,6 +126,10 @@ class LocalNodeSDKProjectAcceptance:
         )
 
     def _require_config_bytes(self, *, installed=True):
+        from literate_ai.adapters.node_sdk_host import (
+            current_node_sdk_project_acceptance,
+        )
+
         current = (
             self.ports,
             self.snapshot,
@@ -160,7 +164,7 @@ class LocalNodeSDKProjectAcceptance:
             or (
                 installed
                 and (
-                    self.ports.node_sdk_project_acceptance is not self
+                    current_node_sdk_project_acceptance(self.ports) is not self
                     or self.ports.independent_acceptance_oracle is not self.oracle
                 )
             )

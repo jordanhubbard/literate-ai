@@ -1091,6 +1091,7 @@ class LocalStandardLifecyclePorts:
         self._node_sdk_compiled_plans = {}
         # Explicit trusted-host root verifier policy; inactive by default.
         self.node_sdk_project_acceptance = None
+        self._node_sdk_host_binding = None
         self._node_sdk_project_stages = {}
         self._node_sdk_cache_lock = threading.RLock()
         if len(self.node_sdk_targets) != len(node_sdk_targets) or set(
@@ -8700,11 +8701,14 @@ class LocalStandardLifecyclePorts:
             from literate_ai.adapters.component_acceptance import LibraryAcceptance
 
             if root_contract.component_revision.uri in self.node_sdk_targets:
+                from literate_ai.adapters.node_sdk_host import (
+                    current_node_sdk_project_acceptance,
+                )
                 from literate_ai.adapters.node_sdk_project_acceptance import (
                     LocalNodeSDKProjectAcceptance,
                 )
 
-                policy = self.node_sdk_project_acceptance
+                policy = current_node_sdk_project_acceptance(self)
                 if type(policy) is not LocalNodeSDKProjectAcceptance:
                     raise LocalStandardLifecycleError(
                         "SDK independent acceptance requires explicit original policy"

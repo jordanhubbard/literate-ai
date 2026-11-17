@@ -12,7 +12,11 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from literate_ai.adapters.node_sdk_host import LocalNodeSDKHostConfiguration
+
 
 from literate_ai.adapters.builders import (
     DEFAULT_ZIG_MINIMUM_VERSION,
@@ -3503,6 +3507,20 @@ class FilesystemStandardProjectRuntime:
         FilesystemForwardGenerationContextEvidenceRecorder | None
     ) = None
 
+    node_sdk_host: LocalNodeSDKHostConfiguration | None = None
+
+    def _require_sdk_host(self, snapshot):
+        from literate_ai.adapters.node_sdk_host import LocalNodeSDKHostConfiguration
+
+        binding = getattr(self.lifecycle_ports, "_node_sdk_host_binding", None)
+        if self.node_sdk_host is None:
+            if binding is not None:
+                raise ValueError("SDK runtime lost its explicit host configuration")
+            return
+        if type(self.node_sdk_host) is not LocalNodeSDKHostConfiguration:
+            raise TypeError("SDK runtime requires an original host configuration")
+        self.node_sdk_host.require_runtime(self, snapshot)
+
     def plan(
         self,
         snapshot: LockedGenerationAuthoritySnapshot,
@@ -3554,6 +3572,7 @@ class FilesystemStandardProjectRuntime:
             raise TypeError("snapshot must provide locked generation authority")
         if not isinstance(request, StandardProjectExecutionRequest):
             raise TypeError("request must be a StandardProjectExecutionRequest")
+        self._require_sdk_host(snapshot)
         cache = self.lifecycle_ports.shared_cache
         if cache is not None and cache.compiler_tool is not None:
             cache.require_unchanged()
@@ -3804,6 +3823,14 @@ class FilesystemStandardProjectRuntime:
             != planned.execution_plan.component_lock_identity
         ):
             blockers.add("toolchain-closure-plan-mismatch")
+        if getattr(self.toolchain_closure, "node_sdk_targets", ()):
+            if self.node_sdk_host is None:
+                blockers.add("node-sdk-host-unconfigured")
+            else:
+                try:
+                    self._require_sdk_host(self.node_sdk_host.snapshot)
+                except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+                    blockers.add("node-sdk-host-invalid")
         if not self.indexer_configured:
             blockers.add("indexer-unconfigured")
         if not self.durable_source_cache_configured:
@@ -3950,9 +3977,23 @@ def assemble_filesystem_standard_project_runtime(
     native_sdk_inputs=None,
     bazel_cache_arguments: tuple[str, ...] = (),
     shared_cache: BoundSharedCache | None = None,
+    node_sdk_host: LocalNodeSDKHostConfiguration | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> FilesystemStandardProjectRuntime:
     """Wire an explicit component-scoped host runtime, never a default CLI claim."""
+
+    if node_sdk_host is not None:
+        from literate_ai.adapters.node_sdk_host import LocalNodeSDKHostConfiguration
+
+        if type(node_sdk_host) is not LocalNodeSDKHostConfiguration:
+            raise TypeError("SDK host configuration must be an original typed policy")
+        node_sdk_host._require_bytes()
+        if (
+            independent_acceptance_oracle is not None
+            and independent_acceptance_oracle is not node_sdk_host.root_oracle
+        ):
+            raise ValueError("SDK host and runtime selected different root oracles")
+        independent_acceptance_oracle = node_sdk_host.root_oracle
 
     registry = source_trees or LocalSourceTreeRegistry()
     composition = assemble_standard_lifecycle_ports(
@@ -3971,6 +4012,9 @@ def assemble_filesystem_standard_project_runtime(
     )
     ports = composition.ports
     toolchain_closure = composition.toolchain_closure
+    node_sdk_admissions = (
+        None if node_sdk_host is None else node_sdk_host.bind(ports, toolchain_closure)
+    )
     planned_cache_key = getattr(generator, "planned_cache_key", None)
 
     def context_cache_key(
@@ -4020,6 +4064,7 @@ def assemble_filesystem_standard_project_runtime(
         candidate_repair_port=FilesystemStandardCandidateRepairAdapter(
             ports.failure_diagnostics
         ),
+        node_sdk_admissions=node_sdk_admissions,
         clock=clock,
     )
     return FilesystemStandardProjectRuntime(
@@ -4039,6 +4084,7 @@ def assemble_filesystem_standard_project_runtime(
         source_cache_restorer,
         checkpoint_store,
         context_evidence_recorder,
+        node_sdk_host,
     )
 
 

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Add opt-in Python host configuration for a Node SDK root and one sealed
+  CommonJS provider. Bind the original runtime, snapshot, graph and loaded
+  oracles; select root acceptance only during its owned invocation. Retired or
+  foreign contexts and callback delegate replacement refuse without rollback.
+  Separate verifier grants and the shared native checker remain required.
+  The authored assembled-runtime fixture passes build, cache, package and root
+  acceptance in 995.361 seconds; complete runtime orchestration remains pending.
+  Ordinary model-generated, retained and installed qualification remain open.
+
 - Reduce repeated root SDK validation by separating host ownership from package
   custody within the existing shared verifier. Preserve original snapshot, legal
   bytes, source/package stamps and grant expiry checks. The extended authored

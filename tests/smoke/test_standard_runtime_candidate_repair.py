@@ -75,8 +75,11 @@ class RecomposedRuntimeCandidateRepairTests(unittest.TestCase):
             mock.patch.object(standard_project, "FilesystemStandardSourceRestorer"),
         ):
             root = Path(raw).resolve()
-            standard_project.compose_filesystem_standard_lifecycle_checkpoints(
-                _runtime(repair, sdk_admissions), checkpoint_root=root / "checkpoints"
+            checkpoint_runtime = _runtime(repair, sdk_admissions)
+            checkpoint_composed = (
+                standard_project.compose_filesystem_standard_lifecycle_checkpoints(
+                    checkpoint_runtime, checkpoint_root=root / "checkpoints"
+                )
             )
             target = SourceCacheTarget(
                 target_id="repair",
@@ -92,13 +95,23 @@ class RecomposedRuntimeCandidateRepairTests(unittest.TestCase):
                 ),
                 {target.target_id: FileSystemSourceCache("repair", root / "cache")},
             )
-            standard_project.compose_filesystem_standard_source_cache(
-                _runtime(repair, sdk_admissions),
+            cache_runtime = _runtime(repair, sdk_admissions)
+            cache_composed = standard_project.compose_filesystem_standard_source_cache(
+                cache_runtime,
                 generator=mock.Mock(),
                 resolver=resolver,
                 caller_cas=FileSystemCAS(root / "cas"),
                 indexer=mock.Mock(),
             )
+        # Recomposition must retain host ownership, beyond forwarding the
+        # admission selection. These sentinel identities establish wiring only;
+        # no original SDK authority or native admission is manufactured here.
+        for original, composed in (
+            (checkpoint_runtime, checkpoint_composed),
+            (cache_runtime, cache_composed),
+        ):
+            for name in ("node_sdk_host", "lifecycle_ports", "toolchain_closure"):
+                self.assertIs(getattr(composed, name), getattr(original, name))
         self.assertEqual(assemble.call_count, 2)
         for call in assemble.call_args_list:
             self.assertIs(call.kwargs["candidate_repair_port"], repair)

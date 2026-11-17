@@ -610,11 +610,37 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       previous full fixture took 1,344.510 seconds with fewer refusal cases; these
       local runs show an initial improvement, not a performance guarantee. The
       broader Node SDK Make check passes with prerequisite skips retained.
-      Next action: wire explicit public SDK admission configuration and ordinary
-      generated/retained lifecycle proof, retaining bounded time and current grants
-      for the actual selected project.
-      Legacy CommonJS v2 refusal remains intact. Public admission, model generation,
-      and full generated/retained/native/installed qualification remain open.
+      Explicit Python SDK host configuration now binds runtime assembly to the
+      original snapshot, one-root/one-CommonJS-provider graph, loaded oracle
+      inventory and separate verifier authorizer. Root policy selection is scoped
+      to the actual owned invocation, without replacing the manual policy field.
+      Retired/foreign/malformed/copied contexts refuse without fallback or
+      configuration rollback. Exact graph/target inventory, source registry,
+      object root and tool binding identities remain pinned across callbacks.
+      Actual provider/scope verification passes in 142.131 seconds. The separate
+      owned intent-redirection control passes in 146.165 seconds after final
+      metadata pins: a callback-replaced delegate receives no intent operation.
+      Six context-selection fixtures and 22 existing foundations pass together;
+      broader Standard and Node SDK Make checks pass with prerequisite skips
+      retained. Source-cache/checkpoint recomposition forwards the existing
+      admissions and retains the original host field through dataclass replacement.
+      These observations do not qualify recovery or model generation. See the
+      [Python host boundary](../architecture/node-sdk-host.md).
+      The full authored assembled-runtime fixture passes in 995.361 seconds:
+      actual SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged TEST/EXEC and root
+      independent acceptance through the original six-TypeScript/two-runtime
+      checker. Measured source remained frozen and no active grant was extended.
+      This proves direct owned port operations from actual runtime assembly,
+      not complete runtime.execute orchestration or ordinary model generation.
+      All four existing repair/recomposition controls pass with new original
+      host/ports/closure identity assertions; those sentinel assertions establish
+      wiring, not native admission. Independent state/security review finds no
+      remaining blocker for this scoped local-source increment.
+      Next qualify full orchestration, including its original finalization
+      re-admission, ordinary generated/retained lifecycle behavior and actual
+      selected-project time/grant bounds. Legacy CommonJS v2 refusal remains
+      intact. Complete public admission and generated/retained/native/installed
+      qualification remain open.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.

@@ -183,7 +183,21 @@ revocation refusals. One current root guard measures 2.18 seconds; this is an in
 local improvement, not a performance guarantee. Public admission and a complete
 generated SDK lifecycle remain unfinished.
 
-Remaining gates are public runtime admission configuration, ordinary generated/retained canonical SDK lifecycle,
+An [explicit Python SDK host configuration](docs/architecture/node-sdk-host.md)
+now connects runtime assembly to the existing provider admission and root
+acceptance owners for one root SDK and one CommonJS provider. It binds original
+snapshot, graph, loaded oracles, ports and measured closure, retaining selection
+through runtime recomposition. Root policy selection exists only within the
+current accepted invocation; foreign, malformed or retired copied contexts
+refuse without fallback or configuration rollback. The authored assembled-runtime
+fixture passes actual SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged TEST/EXEC and
+root independent acceptance in 995.361 seconds, with six TypeScript child checks
+and both runtime formats. Native scope and delegate-redirection controls pass
+separately. This exercises owned ports, not complete `runtime.execute` or model
+generation. Configuration supplies no execution grant and does not activate a
+CLI or default policy.
+
+Remaining gates are complete public runtime qualification, ordinary generated/retained canonical SDK lifecycle,
 arbitrary declared provider layouts,
 multiple-provider closing cuts, ordinary generated and retained SDK products,
 packed SDK output publication, supported native platforms and fresh noneditable

@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import contextmanager
+from contextvars import copy_context
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -26,11 +27,17 @@ from literate_ai.adapters.lifecycle import LocalSourceTreeRegistry
 from literate_ai.adapters.node_library_acceptance import load_node_library_acceptance
 from literate_ai.adapters.node_sdk_admission import LocalNodeSDKGenerationAdmission
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
+from literate_ai.adapters.node_sdk_host import (
+    LocalNodeSDKHostConfiguration,
+    NodeSDKHostConfigurationError,
+    current_node_sdk_project_acceptance,
+)
 from literate_ai.adapters.node_sdk_legal import require_locked_node_sdk_legal_files
 from literate_ai.adapters.node_sdk_project_acceptance import (
     LocalNodeSDKProjectAcceptance,
 )
 from literate_ai.adapters.standard_project import (
+    assemble_filesystem_standard_project_runtime,
     assemble_standard_lifecycle_ports,
     project_locked_standard_toolchain_closure,
 )
@@ -75,6 +82,32 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self.with_canonical_sdk()
 
     def test_canonical_sdk_build_cache_tests_and_execution(self):
+        self._exercise_sdk_build()
+
+    def test_public_host_build_package_and_acceptance(self):
+        self._exercise_sdk_build(public_host=True)
+
+    def test_public_host_configures_canonical_invocation(self):
+        self.with_canonical_sdk(public_host=True)
+
+    def test_public_host_intent_cannot_redirect_original_admission(self):
+        replacements = []
+
+        def operation(invocation, _owner, fixture):
+            replacement = mock.Mock()
+            replacements.append(replacement)
+            replacement.require_build_intent.side_effect = AssertionError(
+                "replacement intent invoked"
+            )
+            fixture.host_controls["replace_base"] = replacement
+            return fixture.admission.require_build_intent(invocation, fixture.execution)
+
+        with self.assertRaises(NodeSDKHostConfigurationError):
+            self.with_canonical_sdk(operation, public_host=True)
+        self.assertEqual(len(replacements), 1)
+        replacements[0].require_build_intent.assert_not_called()
+
+    def _exercise_sdk_build(self, *, public_host=False):
         def operation(invocation, owner, fixture):
             source = fixture.root / "sdk-source"
             (source / "src").mkdir(parents=True)
@@ -267,7 +300,9 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             )
             return built.evidence.identity
 
-        self.with_canonical_sdk(operation, verifier_lifetime=timedelta(minutes=30))
+        self.with_canonical_sdk(
+            operation, verifier_lifetime=timedelta(minutes=30), public_host=public_host
+        )
 
     def _accept_sdk_project(
         self,
@@ -280,51 +315,27 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         root_test,
         executed,
     ):
-        original = oracle_fixture.NodeLibraryOracleTests()
-        original.setUp()
-        self.addCleanup(original.doCleanups)
-        revision = next(
-            n.revision
-            for n in fixture.snapshot.authority.lock.nodes
-            if n.revision.identity == fixture.execution.root_revision
+        if fixture.public_host:
+            policy = current_node_sdk_project_acceptance(fixture.ports)
+            self.assertIs(policy.invocation, invocation)
+            self.assertIs(policy.execution, fixture.execution)
+            self.assertIs(policy.oracle, fixture.root_oracle)
+            accepted, _checked = self._verify_sdk_project(
+                fixture.ports,
+                (
+                    fixture.snapshot.authority.lock,
+                    fixture.execution,
+                    project_plan,
+                    package_plan,
+                    package_result,
+                    root_test,
+                    executed,
+                ),
+            )
+            return accepted
+        oracle = self._root_oracle(
+            fixture.snapshot, fixture.ports._contract(fixture.execution.root_revision)
         )
-        surface = fixture.ports._contract(revision.identity).library_import_surface
-        document = original.document
-        document.update(
-            component=revision.coordinate.name,
-            language="typescript",
-            specification_set_identity=revision.specification_set_identity.uri,
-            public_interface_identities=sorted(
-                i.identity.uri for i in revision.public_interfaces
-            ),
-            import_surface_identity=surface.identity.uri,
-        )
-        capability = surface.capabilities[0]
-        document["cases"][0]["capability"] = capability.capability
-        document["declaration_cases"][0]["capability"] = capability.capability
-        module = json.dumps(capability.module)
-        sources = (
-            "import library=require(" + module + ");const n:number=library.add(1,2);",
-            "import library=require(" + module + ");library.add('bad',2);",
-            "import {add} from " + module + ";const n:number=add(1,2);",
-            "import {add} from " + module + ";add('bad',2);",
-        )
-        for field, source in zip(
-            oracle_fixture.owner._SOURCE_FIELDS, sources, strict=True
-        ):
-            content = source.encode()
-            ref = document["declaration_cases"][0][field]
-            (original.root / ref["path"]).write_bytes(content)
-            ref["identity"] = oracle_fixture._sha(content)
-        for field, text in (
-            ("harness", runtime_fixture._CJS),
-            ("esm_harness", runtime_fixture._ESM),
-        ):
-            content = text.encode()
-            (original.root / document[field]).write_bytes(content)
-            document[field + "_identity"] = oracle_fixture._sha(content)
-        original.write_document()
-        oracle = load_node_library_acceptance(original.path, revision.coordinate.name)
         mode = ["missing"]
         requests = []
         grants = []
@@ -420,28 +431,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         mode[0] = "valid"
         from literate_ai.adapters import node_library_verification
 
-        actual_check = node_library_verification.check_node_library
-        checked = []
-
-        def check(*args, **kwargs):
-            result = actual_check(*args, **kwargs)
-            self.assertEqual(len(result.declarations.processes), 6)
-            self.assertEqual(len(result.runtime.results), 2)
-            self.assertEqual(
-                kwargs["artifact_root"],
-                ports._project_packages[package_result.identity.uri].artifact_paths[
-                    package_plan.root_artifact_identity.uri
-                ],
-            )
-            checked.append(result)
-            return result
-
-        with mock.patch.object(
-            node_library_verification, "check_node_library", side_effect=check
-        ):
-            accepted = ports.accept_project_independently(*arguments)
-        self.assertTrue(accepted.digest)
-        self.assertEqual(len(checked), 1)
+        accepted, checked = self._verify_sdk_project(ports, arguments)
         self.assertEqual(len(requests), 3)
         self.assertTrue(
             all(r.builder_id == "local-node-sdk-project-verifier@1" for r in requests)
@@ -536,8 +526,128 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         checker.assert_not_called()
         return accepted
 
+    def _root_oracle(self, snapshot, consumer):
+        original = oracle_fixture.NodeLibraryOracleTests()
+        original.setUp()
+        self.addCleanup(original.doCleanups)
+        revision = next(
+            n.revision
+            for n in snapshot.authority.lock.nodes
+            if n.revision.identity == snapshot.authority.lock.root_revision
+        )
+        surface = consumer.library_import_surface
+        document = original.document
+        document.update(
+            component=revision.coordinate.name,
+            language="typescript",
+            specification_set_identity=revision.specification_set_identity.uri,
+            public_interface_identities=sorted(
+                i.identity.uri for i in revision.public_interfaces
+            ),
+            import_surface_identity=surface.identity.uri,
+        )
+        capability = surface.capabilities[0]
+        document["cases"][0]["capability"] = capability.capability
+        document["declaration_cases"][0]["capability"] = capability.capability
+        module = json.dumps(capability.module)
+        sources = (
+            "import library=require(" + module + ");const n:number=library.add(1,2);",
+            "import library=require(" + module + ");library.add('bad',2);",
+            "import {add} from " + module + ";const n:number=add(1,2);",
+            "import {add} from " + module + ";add('bad',2);",
+        )
+        for field, source in zip(
+            oracle_fixture.owner._SOURCE_FIELDS, sources, strict=True
+        ):
+            content = source.encode()
+            ref = document["declaration_cases"][0][field]
+            (original.root / ref["path"]).write_bytes(content)
+            ref["identity"] = oracle_fixture._sha(content)
+        for field, text in (
+            ("harness", runtime_fixture._CJS),
+            ("esm_harness", runtime_fixture._ESM),
+        ):
+            content = text.encode()
+            (original.root / document[field]).write_bytes(content)
+            document[field + "_identity"] = oracle_fixture._sha(content)
+        original.write_document()
+        return load_node_library_acceptance(original.path, revision.coordinate.name)
+
+    def _provider_oracle(self, revision, provider_contract):
+        original = oracle_fixture.NodeLibraryOracleTests()
+        original.setUp()
+        self.addCleanup(original.doCleanups)
+        document = original.document
+        surface = provider_contract.library_import_surface
+        document.update(
+            component=revision.coordinate.name,
+            language="javascript",
+            specification_set_identity=revision.specification_set_identity.uri,
+            public_interface_identities=sorted(
+                r.identity.uri for r in revision.public_interfaces
+            ),
+            import_surface_identity=surface.identity.uri,
+        )
+        document["cases"][0]["capability"] = "counter.add"
+        document["declaration_cases"][0]["capability"] = "counter.add"
+        module = json.dumps(surface.capabilities[0].module)
+        positive = (
+            "import library=require(" + module + ");const n:number=library.add(1,2);"
+        ).encode()
+        negative = (
+            "import library=require(" + module + ");library.add('bad',2);"
+        ).encode()
+        for field, content in zip(
+            oracle_fixture.owner._SOURCE_FIELDS,
+            (positive, negative, positive, negative),
+            strict=True,
+        ):
+            ref = document["declaration_cases"][0][field]
+            (original.root / ref["path"]).write_bytes(content)
+            ref["identity"] = oracle_fixture._sha(content)
+        for field, content in (
+            ("harness", verifier_fixture._CJS_PROVIDER.encode()),
+            ("esm_harness", verifier_fixture._ESM_PROVIDER.encode()),
+        ):
+            (original.root / document[field]).write_bytes(content)
+            document[field + "_identity"] = oracle_fixture._sha(content)
+        original.write_document()
+        return load_node_library_acceptance(original.path, revision.coordinate.name)
+
+    def _verify_sdk_project(self, ports, arguments):
+        from literate_ai.adapters import node_library_verification
+
+        package_plan, package_result = arguments[3:5]
+        actual_check = node_library_verification.check_node_library
+        checked = []
+
+        def check(*args, **kwargs):
+            result = actual_check(*args, **kwargs)
+            self.assertEqual(len(result.declarations.processes), 6)
+            self.assertEqual(len(result.runtime.results), 2)
+            self.assertEqual(
+                kwargs["artifact_root"],
+                ports._project_packages[package_result.identity.uri].artifact_paths[
+                    package_plan.root_artifact_identity.uri
+                ],
+            )
+            checked.append(result)
+            return result
+
+        with mock.patch.object(
+            node_library_verification, "check_node_library", side_effect=check
+        ):
+            accepted = ports.accept_project_independently(*arguments)
+        self.assertTrue(accepted.digest)
+        self.assertEqual(len(checked), 1)
+        return accepted, checked
+
     def with_canonical_sdk(
-        self, operation=None, *, verifier_lifetime=timedelta(minutes=5)
+        self,
+        operation=None,
+        *,
+        verifier_lifetime=timedelta(minutes=5),
+        public_host=False,
     ):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
@@ -551,11 +661,6 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 environment=environment,
             )
             registry = LocalSourceTreeRegistry()
-            ports = assemble_standard_lifecycle_ports(
-                object_root=root / "objects",
-                toolchain_closure=closure,
-                source_trees=registry,
-            ).ports
             target = closure.node_sdk_targets[0]
             consumer = next(
                 c
@@ -577,6 +682,119 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 for c in closure.contracts
                 if c.component_revision == provider_plan.component_revision
             )
+            revision = provider_node.revision
+            oracle = self._provider_oracle(revision, provider_contract)
+            grants = []
+
+            def authorize(request):
+                now = ports.clock()
+                grant = BuildAuthorization(
+                    (
+                        "canonical-sdk-root-verifier-fixture"
+                        if request.builder_id == "local-node-sdk-project-verifier@1"
+                        else "canonical-sdk-verifier-fixture"
+                    ),
+                    canonical_identity(request.to_dict()).uri,
+                    canonical_identity(request.to_dict()).uri,
+                    request.effective_revision_digest,
+                    "fixture-operator",
+                    "exact isolated fixture verifier",
+                    SecurityProfile.CONSTRAINED,
+                    request.requested_privileges,
+                    now,
+                    now
+                    + (
+                        timedelta(minutes=15)
+                        if request.builder_id == "local-node-sdk-project-verifier@1"
+                        else verifier_lifetime
+                    ),
+                )
+                grants.append(grant)
+                return grant
+
+            root_oracle = None
+            runtime = None
+            configuration = None
+            host_controls = {"replace_base": None}
+            if public_host:
+                root_oracle = self._root_oracle(snapshot, consumer)
+
+                def live_request():
+                    # The configuration itself revalidates the typed snapshot.
+                    # This independent request owner runs no tool children.
+                    replacement = host_controls["replace_base"]
+                    if replacement is not None:
+                        configuration._binding._base = replacement
+                        host_controls["replace_base"] = None
+                    return None
+
+                configuration = LocalNodeSDKHostConfiguration(
+                    snapshot=snapshot,
+                    expected_execution=execution,
+                    provider_oracles={revision.identity.uri: oracle},
+                    root_oracle=root_oracle,
+                    authorize_verifier=authorize,
+                    require_current=live_request,
+                    environment=environment,
+                )
+
+                def no_generation(_prepared):
+                    raise AssertionError(
+                        "authored fixture must not claim model generation"
+                    )
+
+                runtime = assemble_filesystem_standard_project_runtime(
+                    generator=no_generation,
+                    object_root=root / "objects",
+                    toolchain_closure=closure,
+                    source_trees=registry,
+                    node_sdk_host=configuration,
+                )
+                ports = runtime.lifecycle_ports
+                runtime._require_sdk_host(snapshot)
+                bound = configuration._binding
+                self.assertEqual(grants, [])
+                for field, value in (
+                    ("source_trees", object()),
+                    ("object_root", root / "foreign-objects"),
+                    ("_native_sdk_inputs", object()),
+                ):
+                    previous = getattr(ports, field)
+                    try:
+                        setattr(ports, field, value)
+                        with self.assertRaises(NodeSDKHostConfigurationError):
+                            bound.require_current()
+                    finally:
+                        setattr(ports, field, previous)
+                ports.node_sdk_targets[provider_plan.component_revision.uri] = target
+                try:
+                    with self.assertRaises(NodeSDKHostConfigurationError):
+                        bound.require_current()
+                finally:
+                    del ports.node_sdk_targets[provider_plan.component_revision.uri]
+                self.assertEqual(grants, [])
+                original_base = bound._base
+                replacement = mock.Mock()
+                replacement.with_invocation.side_effect = AssertionError(
+                    "replacement admission invoked"
+                )
+                host_controls["replace_base"] = replacement
+                try:
+                    with self.assertRaises(NodeSDKHostConfigurationError):
+                        bound.with_invocation(
+                            execution, None, (), consume=lambda *_args: None
+                        )
+                    replacement.with_invocation.assert_not_called()
+                finally:
+                    # Explicit disposable-fixture reset, never runtime cleanup.
+                    bound._base = original_base
+                runtime._require_sdk_host(snapshot)
+            else:
+                ports = assemble_standard_lifecycle_ports(
+                    object_root=root / "objects",
+                    toolchain_closure=closure,
+                    source_trees=registry,
+                ).ports
             source = root / "provider-source"
             (source / "source/counter").mkdir(parents=True)
             (source / "source/tests").mkdir()
@@ -617,50 +835,6 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             executed = ports.execute(plan, built.exports)
             accepted = ports.accept(plan, tested.identity, executed.identity)
 
-            original = oracle_fixture.NodeLibraryOracleTests()
-            original.setUp()
-            self.addCleanup(original.doCleanups)
-            document = original.document
-            revision = provider_node.revision
-            surface = provider_contract.library_import_surface
-            document.update(
-                component=revision.coordinate.name,
-                language="javascript",
-                specification_set_identity=revision.specification_set_identity.uri,
-                public_interface_identities=sorted(
-                    r.identity.uri for r in revision.public_interfaces
-                ),
-                import_surface_identity=surface.identity.uri,
-            )
-            document["cases"][0]["capability"] = "counter.add"
-            document["declaration_cases"][0]["capability"] = "counter.add"
-            module = json.dumps(surface.capabilities[0].module)
-            positive = (
-                "import library=require("
-                + module
-                + ");const n:number=library.add(1,2);"
-            ).encode()
-            negative = (
-                "import library=require(" + module + ");library.add('bad',2);"
-            ).encode()
-            for field, content in zip(
-                oracle_fixture.owner._SOURCE_FIELDS,
-                (positive, negative, positive, negative),
-                strict=True,
-            ):
-                ref = document["declaration_cases"][0][field]
-                (original.root / ref["path"]).write_bytes(content)
-                ref["identity"] = oracle_fixture._sha(content)
-            for field, content in (
-                ("harness", verifier_fixture._CJS_PROVIDER.encode()),
-                ("esm_harness", verifier_fixture._ESM_PROVIDER.encode()),
-            ):
-                (original.root / document[field]).write_bytes(content)
-                document[field + "_identity"] = oracle_fixture._sha(content)
-            original.write_document()
-            oracle = load_node_library_acceptance(
-                original.path, revision.coordinate.name
-            )
             consumer_plan = next(
                 p
                 for p in execution.generation_plans
@@ -684,41 +858,43 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 request,
                 FilesystemComponentWorkspaceAllocator(root).allocate(consumer_plan),
             )
-            grants = []
-
-            def authorize(request):
-                now = ports.clock()
-                grant = BuildAuthorization(
-                    "canonical-sdk-verifier-fixture",
-                    canonical_identity(request.to_dict()).uri,
-                    canonical_identity(request.to_dict()).uri,
-                    request.effective_revision_digest,
-                    "fixture-operator",
-                    "exact isolated fixture verifier",
-                    SecurityProfile.CONSTRAINED,
-                    request.requested_privileges,
-                    now,
-                    now + verifier_lifetime,
+            if public_host:
+                admission = runtime.application.lifecycle.node_sdk_admissions[
+                    execution.root_revision.uri
+                ]
+            else:
+                admission = LocalNodeSDKGenerationAdmission(
+                    ports=ports,
+                    consumer=consumer,
+                    profile=target.profile,
+                    compiler=target.typescript.compiler,
+                    revisions={revision.identity.uri: revision},
+                    oracles={revision.identity.uri: oracle},
+                    authorize_verifier=authorize,
+                    require_current=snapshot.require_unchanged,
+                    environment=environment,
                 )
-                grants.append(grant)
-                return grant
-
-            admission = LocalNodeSDKGenerationAdmission(
-                ports=ports,
-                consumer=consumer,
-                profile=target.profile,
-                compiler=target.typescript.compiler,
-                revisions={revision.identity.uri: revision},
-                oracles={revision.identity.uri: oracle},
-                authorize_verifier=authorize,
-                require_current=snapshot.require_unchanged,
-                environment=environment,
-            )
             escaped = []
+            contexts = []
+            selected_execution = replace(execution) if public_host else execution
 
             def consume(invocation, owner):
                 owner()
                 escaped.append(owner)
+                if public_host:
+                    policy = current_node_sdk_project_acceptance(ports)
+                    self.assertIs(policy.invocation, invocation)
+                    self.assertIs(policy.execution, selected_execution)
+                    self.assertIsNot(
+                        selected_execution, configuration.expected_execution
+                    )
+                    self.assertEqual(
+                        selected_execution.identity,
+                        configuration.expected_execution.identity,
+                    )
+                    self.assertIsNone(ports.node_sdk_project_acceptance)
+                    policy._require_config_bytes()
+                    contexts.append(copy_context())
                 self.assertIs(invocation.prepared.plan, consumer_plan)
                 self.assertEqual(invocation.base_recipe.uri, prepared.recipe.identity)
                 self.assertEqual(
@@ -736,7 +912,11 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                             root=root,
                             ports=ports,
                             snapshot=snapshot,
-                            execution=execution,
+                            execution=selected_execution,
+                            public_host=public_host,
+                            root_oracle=root_oracle,
+                            admission=admission,
+                            host_controls=host_controls,
                             target=target,
                             provider=built.exports[0],
                             provider_contract=provider_contract,
@@ -745,9 +925,18 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 return invocation.identity
 
             result = run_node_sdk_lifecycle(
-                admission, execution, prepared, (accepted,), consume
+                admission, selected_execution, prepared, (accepted,), consume
             )
             self.assertTrue(result.digest)
-            self.assertEqual(len(grants), 1)
+            self.assertEqual(
+                len(grants), 2 if public_host and operation is not None else 1
+            )
             with self.assertRaises((ValueError, RuntimeError)):
                 escaped[0]()
+            if public_host:
+                self.assertIsNone(current_node_sdk_project_acceptance(ports))
+                with self.assertRaises(NodeSDKHostConfigurationError):
+                    contexts[0].run(current_node_sdk_project_acceptance, ports)
+                with self.assertRaises(ValueError):
+                    replace(runtime, node_sdk_host=None)._require_sdk_host(snapshot)
+                runtime._require_sdk_host(snapshot)
