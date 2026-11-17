@@ -107,8 +107,8 @@ fixture evidence, not ordinary SDK lifecycle qualification.
 The subsequent additive dual-export surface and common compile-to-plan path
 passed 674 local smoke tests (six declared skips) and independent state/security
 review. Existing import wire formats remain unchanged; the application profile
-explicitly refuses the new SDK surface. The opt-in SDK profile, compiler
-tool selection, public generated/retained adapters, authoritative declaration
+explicitly refuses the new SDK surface. Canonical opt-in SDK Flavors and generation
+policy, public generated/retained adapters, authoritative declaration
 acceptance and native/installed-lifecycle qualification remain unfinished. These
 checks do not authorize downstream SDK or registered-child cutover.
 
@@ -179,8 +179,18 @@ Dependency evidence preserves exact bundled-provider revision and content hashes
 Bounded original-product checks precede cache hashing, and runtime commands receive
 no producer checkout paths. An authored-source fixture exercises actual compilation,
 packing, cache reuse and relocated CJS/ESM plus TypeScript consumers. This is local
-target integration, not public-profile selection, generated SDK acceptance or
+target integration, not canonical profile delivery, generated SDK acceptance or
 native/installed lifecycle qualification; downstream SDK adoption remains gated.
+
+Explicit locally authored SDK profiles now project that same target through the
+locked toolchain closure and ordinary runtime assembly. The selected packaging
+Flavor, exact Node/npm/compiler authority and full command/version constraints
+must agree. The compiler is captured from an explicitly located TypeScript package;
+no implicit installation or registry resolution supplies it. Host dependency
+evidence includes immutable compiler-image identities. Command scope and original
+target membership remain guarded, including after authority callbacks. Canonical
+opt-in Flavors and generation policy, cross-language recipe preparation, independent
+SDK acceptance and generated/native/installed qualification remain open.
 
 The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The

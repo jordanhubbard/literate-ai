@@ -469,8 +469,24 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       Node16/NodeNext resolution. Oversized, linked and FIFO cached archives are
       refused. Final owner-callback target loss withholds registration/cache-hit
       success, and revoked build grants prevent compiler execution/publication.
-      Keep locked public profile selection and independent SDK acceptance gated
-      until their actual dispatcher is wired; this step does not complete ADR 0073.
+      Canonical SDK profile delivery and independent SDK acceptance remain gated;
+      this step does not complete ADR 0073.
+      Explicit locally authored SDK profiles now flow through locked command
+      projection, captured compiler selection, original toolchain-closure guards
+      and ordinary runtime assembly using the same local target. Exact SDK/library
+      shape and selected packaging Flavor are required; competing application/build
+      profiles remain refused. Existing application identities and command scopes
+      are preserved. All command pins and minimum/exclusive/required-version fields
+      are checked for the selected compiler, npm and Node. Closing target tuple
+      membership follows authority callbacks; compiler-image identities appear in
+      host dependency evidence. Nine actual-tool projection checks, nineteen
+      ordinary regression checks and six isolated local child-process/assembly
+      checks pass without skips. Next: canonical opt-in Flavors and generation
+      policy, exact cross-language recipe preparation, and original v2 independent
+      SDK acceptance before ordinary generated and retained lifecycle qualification.
+      No automatic verifier/build grants or v1 acceptance fallback follows from
+      tool/profile projection; generated/retained SDK admission stays separately
+      owned and downstream adoption remains gated on complete qualification.
       Multi-provider support, default/public profile activation, remote/recovery
       support and complete source-cache lifecycle qualification remain open.
       Bind exact provider revision,

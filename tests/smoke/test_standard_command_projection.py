@@ -79,6 +79,7 @@ def _locked_snapshot(
     no_entrypoint: bool = False,
     cpp_library_kind: str | None = None,
     duplicate_entrypoint: bool = False,
+    before_lock=None,
 ):
     component, flavors = _fixture(root)
     if generation_ready:
@@ -312,6 +313,8 @@ def _locked_snapshot(
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copytree(source, destination)
         selectors.append("+flavor://literate-ai/" + package_name)
+    if before_lock is not None:
+        before_lock(component, flavors)
     target = "standard-command-test"
     planner = FilesystemComponentLockPlanner()
     plan = planner.plan(

@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Explicit Node SDK profiles now project the shared SDK target through locked
+  toolchain closure and ordinary runtime assembly. Compiler selection captures an
+  explicitly located TypeScript image and enforces its original Node, exact
+  command/version constraints and selected packaging Flavor. SDK npm selection
+  obeys the same complete constraints. Scoped runtime bindings and closing target
+  membership checks remain enforced. Canonical SDK Flavors/generation policy and
+  independent SDK lifecycle acceptance remain unfinished.
+
 - Node SDK local build integration: explicitly selected targets bind the compiler,
   offline packer, profile and dual-export surface to the command contract. BUILD
   retains original invocation custody and a separately current build grant through

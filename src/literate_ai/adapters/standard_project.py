@@ -37,6 +37,10 @@ from literate_ai.adapters.builders.cpp import bazel_sdk_build_options
 from literate_ai.adapters.builders.elixir import ElixirToolchain
 from literate_ai.adapters.builders.hex import HexToolchain
 from literate_ai.adapters.builders.rust import RustToolchain
+from literate_ai.adapters.builders.typescript_sdk import (
+    TypeScriptSDKToolchain,
+    capture_typescript_sdk_toolchain,
+)
 from literate_ai.adapters.cache import (
     CachedCodingCliSourceGenerator,
     FilesystemStandardAcceptedSourcePublisher,
@@ -80,6 +84,7 @@ from literate_ai.adapters.lifecycle.standard_mix import (
     StandardMixLifecyclePorts,
     StandardMixTarget,
 )
+from literate_ai.adapters.lifecycle.standard_node_sdk import StandardNodeSDKTarget
 from literate_ai.adapters.lifecycle.standard_npm import StandardNpmTarget
 from literate_ai.adapters.lifecycle.standard_python import StandardPythonTarget
 from literate_ai.adapters.lifecycle.standard_runtime import (
@@ -174,6 +179,7 @@ from literate_ai.contracts import (
     StandardLifecycleStageEvidence,
     StandardMakeCommandProfile,
     StandardMixCommandProfile,
+    StandardNodeSDKCommandProfile,
     StandardNpmCommandProfile,
     StandardPlatformCommandProfile,
     StandardPythonWheelCommandProfile,
@@ -346,8 +352,16 @@ class ProjectedStandardToolchainClosure:
     rust_harness_compilers: _RustHarnessCompilerObservations | None = field(
         default=None, repr=False, compare=False
     )
+    node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = ()
 
     def require_unchanged(self) -> None:
+        original_sdk_targets = self.node_sdk_targets
+        if any(
+            type(t) is not StandardNodeSDKTarget for t in self.node_sdk_targets
+        ) or len({t.component_revision.uri for t in self.node_sdk_targets}) != len(
+            self.node_sdk_targets
+        ):
+            raise ValueError("Standard SDK target membership changed after projection")
         if self.rust_harness_compilers is not None:
             if (
                 type(self.rust_harness_compilers)
@@ -358,7 +372,7 @@ class ProjectedStandardToolchainClosure:
         if self.dependency_guard is not None:
             self.dependency_guard()
         required = required_command_toolchains(
-            self.contracts, self.command_phases, self.npm_targets
+            self.contracts, self.command_phases, self.npm_targets, self.node_sdk_targets
         )
         if (
             len({item.toolchain_identity.uri for item in self.tool_bindings})
@@ -370,9 +384,14 @@ class ProjectedStandardToolchainClosure:
             binding.require_unchanged()
         for authority in self.toolchain_authorities:
             authority.require_unchanged()
+        if self.node_sdk_targets is not original_sdk_targets:
+            raise ValueError("Standard SDK target membership changed during validation")
         contracts = {
             item.component_revision.uri: item.identity for item in self.contracts
         }
+        contract_values = {item.component_revision.uri: item for item in self.contracts}
+        for target in self.node_sdk_targets:
+            target.require_contract(contract_values[target.component_revision.uri])
         targets = {
             item.component_revision.uri: item.identity
             for item in (
@@ -381,6 +400,7 @@ class ProjectedStandardToolchainClosure:
                 *self.npm_targets,
                 *self.python_targets,
                 *self.mix_targets,
+                *self.node_sdk_targets,
             )
         }
         authority_revisions = {
@@ -1115,6 +1135,7 @@ def _profile_contributions(snapshot, node) -> tuple[object, ...]:
                 ),
                 FlavorAxis.PACKAGING: (
                     StandardNpmCommandProfile,
+                    StandardNodeSDKCommandProfile,
                     StandardPythonWheelCommandProfile,
                 ),
                 FlavorAxis.PLATFORM_OS: StandardPlatformCommandProfile,
@@ -1194,6 +1215,31 @@ def _toolchain_constraints(snapshot, node) -> dict[str, ToolchainConstraint]:
         name: merge_toolchain_constraints(tuple(values))
         for name, values in by_name.items()
     }
+
+
+def _require_sdk_tool_constraint(tool, constraint):
+    """Check every selected field; recording a constraint CID grants no compliance."""
+    from packaging.version import Version
+
+    release = Version(tool.version).release
+
+    def floor(prefix):
+        return (*prefix, *(0 for _ in range(max(0, 3 - len(prefix)))))
+
+    if (
+        (constraint.command is not None and tuple(constraint.command) != tool.command)
+        or (constraint.minimum_version and release < floor(constraint.minimum_version))
+        or (
+            constraint.maximum_exclusive_version
+            and release >= floor(constraint.maximum_exclusive_version)
+        )
+        or (
+            constraint.required_version
+            and release[: len(constraint.required_version)]
+            != constraint.required_version
+        )
+    ):
+        raise ValueError("SDK tool differs from selected command/version constraint")
 
 
 def _discover_toolchain(
@@ -1504,6 +1550,8 @@ def _command_contract(
     npm_flavor_revision_identity: ContentIdentity | None = None,
     python_profile: StandardPythonWheelCommandProfile | None = None,
     python_flavor_revision_identity: ContentIdentity | None = None,
+    node_sdk_profile: StandardNodeSDKCommandProfile | None = None,
+    node_sdk_flavor_revision_identity: ContentIdentity | None = None,
 ):
     cpp_library = language.target == "cpp" and authoring.resolved_kind == "library"
     if cpp_library and (
@@ -1526,6 +1574,32 @@ def _command_contract(
         if not entrypoints
         else None
     )
+    if node_sdk_profile is not None:
+        if (
+            library_surface is None
+            or not library_surface.node_sdk_exports
+            or language.target != "typescript"
+            or node_sdk_flavor_revision_identity is None
+            or build_system is not None
+            or npm_profile is not None
+            or python_profile is not None
+            or accelerator is not None
+        ):
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_profile_unsupported",
+                "Node SDK requires an explicit TypeScript dual library without "
+                "competing build, packaging or accelerator authority",
+            )
+        target = StandardNodeSDKTarget(
+            plan.component_revision,
+            node_sdk_flavor_revision_identity,
+            node_sdk_profile,
+            target_profile_identity,
+            str(authoring.version),
+            tools["typescript"],
+            tools["npm"],
+        )
+        return target.command_contract(library_surface), target, language
     if library_surface is not None and library_surface.node_sdk_exports:
         raise StandardCommandProjectionError(
             "standard_command.node_sdk_profile_required",
@@ -2289,6 +2363,10 @@ def project_locked_standard_toolchain_closure(
     | None = None,
     npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
     | None = None,
+    typescript_toolchain_discoverer: Callable[
+        [object, ToolchainConstraint, Mapping[str, str]], TypeScriptSDKToolchain
+    ]
+    | None = None,
     dependency_observer: Callable[
         [tuple[tuple[str, ...], ...]], HostDependencyObservation
     ]
@@ -2385,6 +2463,8 @@ def project_locked_standard_toolchain_closure(
             ContentIdentity | None,
             StandardPythonWheelCommandProfile | None,
             ContentIdentity | None,
+            StandardNodeSDKCommandProfile | None,
+            ContentIdentity | None,
         ],
     ] = {}
     constraints: dict[str, list[ToolchainConstraint]] = {}
@@ -2449,6 +2529,41 @@ def project_locked_standard_toolchain_closure(
             required=False,
             label="Python wheel packaging command",
         )
+        node_sdk_profile = _one_profile(
+            profiles,
+            StandardNodeSDKCommandProfile,
+            required=False,
+            label="Node SDK packaging command",
+        )
+        node_sdk_flavor_revision_identity = (
+            None
+            if node_sdk_profile is None
+            else _selected_flavor_revision_identity(
+                snapshot,
+                node,
+                axis=FlavorAxis.PACKAGING,
+                target=node_sdk_profile.target,
+            )
+        )
+        if node_sdk_profile is not None and (
+            language.target != "typescript"
+            or language.build_strategy
+            is not StandardLanguageBuildStrategy.TYPESCRIPT_TREE
+            or language.runtime_strategy
+            is not StandardLanguageRuntimeStrategy.JAVASCRIPT
+            or language.artifact_layout is not StandardArtifactLayout.TREE
+            or authoring.resolved_kind != "library"
+            or authoring.entrypoints
+            or build_system is not None
+            or accelerator is not None
+            or npm_profile is not None
+            or python_profile is not None
+        ):
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_profile_unsupported",
+                "Node SDK requires an explicit TypeScript tree dual library "
+                "without competing packaging, build or accelerator authority",
+            )
         python_flavor_revision_identity = (
             None
             if python_profile is None
@@ -2537,6 +2652,8 @@ def project_locked_standard_toolchain_closure(
             npm_flavor_revision_identity,
             python_profile,
             python_flavor_revision_identity,
+            node_sdk_profile,
+            node_sdk_flavor_revision_identity,
         )
         if (
             accelerator is not None
@@ -2553,12 +2670,14 @@ def project_locked_standard_toolchain_closure(
                 build_system, (StandardMakeCommandProfile, StandardCMakeCommandProfile)
             ):
                 required_tool_names.add("python")
-        elif npm_profile is None:
+        elif npm_profile is None and node_sdk_profile is None:
             required_tool_names.add("python")
-        if not authoring.entrypoints:
+        if not authoring.entrypoints and node_sdk_profile is None:
             required_tool_names.add("python")
         if npm_profile is not None:
             required_tool_names.add(npm_profile.toolchain)
+        if node_sdk_profile is not None:
+            required_tool_names.update(("node", "npm", "typescript"))
         if (
             language.runtime_strategy
             is StandardLanguageRuntimeStrategy.NATIVE_EXECUTABLE
@@ -2573,7 +2692,7 @@ def project_locked_standard_toolchain_closure(
     discover = toolchain_discoverer or _discover_toolchain
     tools = {
         name: discover(name, merged_constraints.get(name), configured)
-        for name in sorted(required_tool_names - {"npm", "hex"})
+        for name in sorted(required_tool_names - {"npm", "hex", "typescript"})
     }
     if "hex" in required_tool_names:
         elixir = tools.get("elixir")
@@ -2665,6 +2784,63 @@ def project_locked_standard_toolchain_closure(
                 "standard_command.npm_toolchain_unavailable",
                 "supported npm from the selected Node.js installation is unavailable",
             ) from exc
+    if "typescript" in required_tool_names:
+        constraint = merged_constraints.get("typescript")
+        if constraint is None:
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_compiler_constraint_missing",
+                "Node SDK requires explicit bounded TypeScript constraint authority",
+            )
+        try:
+            version_range = constraint.version_range()
+
+            def discover_typescript(node, selected_constraint, environment):
+                from literate_ai.storage.cas import FileSystemCAS
+
+                location = environment.get("LITAI_TYPESCRIPT_SDK")
+                if not location or not Path(location).is_absolute():
+                    raise ValueError("select an absolute LITAI_TYPESCRIPT_SDK package")
+                with tempfile.TemporaryDirectory(
+                    prefix="litai-typescript-capture-"
+                ) as root:
+                    return capture_typescript_sdk_toolchain(
+                        Path(location),
+                        node=node,
+                        store=FileSystemCAS(Path(root) / "cas"),
+                        constraint_identity=selected_constraint.identity,
+                        version_constraint=selected_constraint.version_range(),
+                        environment=environment,
+                        require_current=snapshot.require_unchanged,
+                    )
+
+            compiler_discover = typescript_toolchain_discoverer or discover_typescript
+            selected = compiler_discover(tools["node"], constraint, configured)
+            if (
+                type(selected) is not TypeScriptSDKToolchain
+                or selected.constraint_identity != constraint.identity
+                or selected.version_constraint != version_range
+                or selected.node.identity != tools["node"].identity
+            ):
+                raise ValueError(
+                    "TypeScript selection differs from locked constraint/Node"
+                )
+            _require_sdk_tool_constraint(selected, constraint)
+            npm = tools["npm"]
+            npm_constraint = merged_constraints["npm"]
+            if (
+                npm.constraint_identity != npm_constraint.identity.uri
+                or npm.version_constraint != npm_constraint.version_range()
+            ):
+                raise ValueError("SDK npm differs from selected constraint authority")
+            _require_sdk_tool_constraint(npm, npm_constraint)
+            if merged_constraints.get("node") is not None:
+                _require_sdk_tool_constraint(tools["node"], merged_constraints["node"])
+            tools["typescript"] = selected
+        except Exception as exc:
+            raise StandardCommandProjectionError(
+                "standard_command.node_sdk_compiler_unavailable",
+                "explicit captured TypeScript package differs from selected authority",
+            ) from exc
     for name, tool in tools.items():
         if (
             not isinstance(getattr(tool, "command", None), tuple)
@@ -2689,6 +2865,7 @@ def project_locked_standard_toolchain_closure(
     cargo_targets = []
     mix_targets = []
     npm_targets = []
+    node_sdk_targets = []
     python_targets = []
     language_by_revision = {}
     single_file_revisions = set()
@@ -2708,6 +2885,8 @@ def project_locked_standard_toolchain_closure(
             profiles[5],
             profiles[6],
             profiles[7],
+            profiles[8],
+            profiles[9],
         )
         if plan.component_revision.uri in sdk_runtime_revisions:
             contract = project_native_sdk_commands(
@@ -2730,9 +2909,11 @@ def project_locked_standard_toolchain_closure(
             npm_targets.append(target)
         elif isinstance(target, StandardPythonTarget):
             python_targets.append(target)
+        elif type(target) is StandardNodeSDKTarget:
+            node_sdk_targets.append(target)
     bindings_by_identity = {}
     scoped_identities = required_command_toolchains(
-        tuple(contracts), command_phases, tuple(npm_targets)
+        tuple(contracts), command_phases, tuple(npm_targets), tuple(node_sdk_targets)
     )
     for contract in contracts:
         for identity in contract.execution_toolchain_identities:
@@ -2745,6 +2926,13 @@ def project_locked_standard_toolchain_closure(
                 identity.uri,
                 LocalComponentToolBinding.from_observed_toolchain(tool),
             )
+    for target in node_sdk_targets:
+        for tool in (target.typescript, target.npm, target.typescript.node):
+            if tool.identity in scoped_identities:
+                bindings_by_identity.setdefault(
+                    tool.identity,
+                    LocalComponentToolBinding.from_observed_toolchain(tool),
+                )
     provider_environment = {}
     contracts_by_revision = {item.component_revision.uri: item for item in contracts}
     provider_edges = {
@@ -2822,6 +3010,40 @@ def project_locked_standard_toolchain_closure(
         )
     else:
         observation = dependency_observer(commands)
+    if node_sdk_targets:
+        root_ref = f"urn:literate-ai:component:{execution_plan.root_revision.digest}"
+        images = {
+            target.typescript.identity: target.typescript for target in node_sdk_targets
+        }
+        components = []
+        edges = []
+        for identity, image in sorted(images.items()):
+            ref = "node-sdk-compiler-image:" + image.compiler.identity.digest
+            components.append(
+                {
+                    "type": "library",
+                    "bom-ref": ref,
+                    "name": "typescript",
+                    "version": image.version,
+                    "properties": [
+                        {"name": "literate-ai:dependency-kind", "value": "toolchain"},
+                        {"name": "literate-ai:dependency-scope", "value": "build"},
+                        {"name": "literate-ai:toolchain-identity", "value": identity},
+                        {
+                            "name": "literate-ai:typescript-snapshot",
+                            "value": image.snapshot_identity.uri,
+                        },
+                        {
+                            "name": "literate-ai:typescript-image",
+                            "value": image.compiler.sdk.identity.uri,
+                        },
+                    ],
+                }
+            )
+            edges.append((root_ref, ref))
+        observation = HostDependencyObservation(
+            (*observation.components, *components), (*observation.edges, *edges)
+        )
     snapshot.require_unchanged()
     for tool in tools.values():
         tool.require_unchanged()
@@ -2846,6 +3068,7 @@ def project_locked_standard_toolchain_closure(
         cargo_targets=tuple(cargo_targets),
         mix_targets=tuple(mix_targets),
         npm_targets=tuple(npm_targets),
+        node_sdk_targets=tuple(node_sdk_targets),
         python_targets=tuple(python_targets),
         provider_environment=provider_environment,
         toolchain_authorities=_observed_tool_authorities(tools),
@@ -2911,6 +3134,7 @@ def project_standard_toolchain_closure(
     cargo_targets: tuple[StandardCargoTarget, ...] = (),
     mix_targets: tuple[StandardMixTarget, ...] = (),
     npm_targets: tuple[StandardNpmTarget, ...] = (),
+    node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
     python_targets: tuple[StandardPythonTarget, ...] = (),
     provider_environment: Mapping[str, tuple[str, str]] | None = None,
     toolchain_authorities: tuple[LocalObservedToolchainAuthority, ...] = (),
@@ -2941,6 +3165,8 @@ def project_standard_toolchain_closure(
         raise TypeError("npm_targets must contain StandardNpmTarget values")
     if any(not isinstance(item, StandardPythonTarget) for item in python_targets):
         raise TypeError("python_targets must contain StandardPythonTarget values")
+    if any(type(item) is not StandardNodeSDKTarget for item in node_sdk_targets):
+        raise TypeError("node_sdk_targets must contain exact SDK targets")
     if any(
         not isinstance(item, LocalObservedToolchainAuthority)
         for item in toolchain_authorities
@@ -2966,12 +3192,16 @@ def project_standard_toolchain_closure(
         *mix_targets,
         *npm_targets,
         *python_targets,
+        *node_sdk_targets,
     )
     target_map = {item.component_revision.uri: item for item in all_targets}
     if len(target_map) != len(all_targets) or not set(target_map).issubset(planned):
         raise ValueError("build targets must name unique planned Components")
     for revision, target in target_map.items():
         contract = contract_map[revision]
+        if type(target) is StandardNodeSDKTarget:
+            target.require_contract(contract)
+            continue
         if (
             contract.locked_build_authority_identity != target.identity
             or contract.build_system_resolver_identity
@@ -3003,7 +3233,7 @@ def project_standard_toolchain_closure(
 
     binding_map = {item.toolchain_identity.uri: item for item in tool_bindings}
     required_bindings = required_command_toolchains(
-        contracts, command_phases, npm_targets
+        contracts, command_phases, npm_targets, node_sdk_targets
     )
     if len(binding_map) != len(tool_bindings) or set(binding_map) != required_bindings:
         raise ValueError("tool bindings must cover every and only execution toolchain")
@@ -3023,6 +3253,15 @@ def project_standard_toolchain_closure(
         raise ValueError("Python target command differs from its locked tool binding")
     for binding in tool_bindings:
         binding.require_unchanged()
+    for target in node_sdk_targets:
+        for tool in (target.typescript, target.npm, target.typescript.node):
+            if (
+                tool.identity in binding_map
+                and binding_map[tool.identity].command != tool.command
+            ):
+                raise ValueError(
+                    "SDK target command differs from its locked tool binding"
+                )
     if not toolchain_authorities:
         toolchain_authorities = tuple(
             LocalObservedToolchainAuthority(
@@ -3114,6 +3353,7 @@ def project_standard_toolchain_closure(
         command_phases,
         dependency_guard,
         mix_targets,
+        node_sdk_targets=node_sdk_targets,
     )
 
 
@@ -3610,7 +3850,10 @@ def assemble_standard_lifecycle_ports(
         )
     toolchain_closure.require_unchanged()
     required_tools = required_command_toolchains(
-        toolchain_closure.contracts, command_phases, toolchain_closure.npm_targets
+        toolchain_closure.contracts,
+        command_phases,
+        toolchain_closure.npm_targets,
+        toolchain_closure.node_sdk_targets,
     )
     if not set(command_phases).issubset(toolchain_closure.command_phases):
         raise ValueError("assembly command scope exceeds projected command scope")
@@ -3657,6 +3900,7 @@ def assemble_standard_lifecycle_ports(
         "command_phases": command_phases,
         "tool_bindings": tool_bindings,
         "npm_targets": toolchain_closure.npm_targets,
+        "node_sdk_targets": toolchain_closure.node_sdk_targets,
         "python_targets": toolchain_closure.python_targets,
         "python_wheelhouse": python_wheelhouse,
         "provider_environment": provider_environment,
