@@ -18378,20 +18378,19 @@ unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
 
 ARM64 host-install follow-up (issue #67; PROJECT Goals 1, 5 and 6):
 the canonical native detector reports freebsd/arm64/none, while native
-worker/package ABI identity remains aarch64. Actual FreeBSD ARM64 bootstrap
+worker/package ABI identity remains aarch64. The actual FreeBSD ARM64 baseline
 at f23678d8 refuses host-install.target-unsupported before probes or
-installation, with unchanged host packages. The existing realization covers
-only amd64. Extend the exact native pkg realization with the same capability,
-version, provenance, consent and behavioral-probe requirements; preserve
-unsupported-target/provider refusals and the existing architecture normalization.
-A cached native ARM64 repository lists the declared packages, which is
-feasibility evidence rather than installation or qualification.
+installation, with unchanged host packages; that realization covered only amd64.
+The added native pkg plan retains the same capability, version, provenance,
+consent and behavioral-probe requirements, unsupported-target/provider refusals
+and existing architecture normalization. The initial cached package query was
+feasibility evidence; actual installation and qualification are recorded below.
 
 - [x] Declare the canonical freebsd/arm64 realization and its
   packaged-template copy; require native package provenance and exact probes.
 - [x] Qualify canonical/template parity, both ARM aliases, complete capability
   closure, amd64 stability and unsupported/foreign/provider/version refusals.
-- [ ] In progress: run the authored bootstrap on a separate actual native ARM64 worker,
+- [x] Run the authored bootstrap on a separate actual native ARM64 worker,
   retain missing-package failures, align it and independently review package
   provenance plus executable/SQLite/GNU Make behavior and unchanged base tools.
 - [ ] Retain full native SDK, installed lifecycle, model authentication and
@@ -18404,8 +18403,32 @@ consent, old-agent, package/probe, SQLite and provider-refusal controls. After
 formatting and the specific foreign-plan error assertion, all 30 affected
 host-install and seven bootstrap cases pass without skips. Lint, formatting,
 repository-layout, public-export and strict OpenSpec checks pass. The AMD64 plan
-is byte-identical. Actual ARM64 toolchain installation, complete local/remote
-integration and current documentation review remain pending.
+is byte-identical.
+
+Native ARM64 evidence at `88462797d1a6c275c32bb2ad7ee1f791b8f51661`:
+the original declared bootstrap passes on a separate allocated FreeBSD 16 ARM64
+KVM worker. It adds 63 native or architecture-independent packages with no
+removals or replacements. Independent review repeats the original read-only
+behavioral probes, checks package ABI/provenance, verifies all 5,376 Git input
+blobs and modes, and confirms unchanged base kernel, loader, shell, libc,
+compiler, Make and header bytes. Private worker alignment passes with the model
+call explicitly skipped.
+
+All 153 selected native cases pass with zero skips or failures: 37 affected
+host-install/bootstrap cases and 116 pinned-input, SDK critical/end-to-end and
+real-source policy cases. Fresh independent discovery matches every reported
+case identity and status. Source and package inventories remain unchanged. The
+complete 115,624-entry source corpus retains 152 literal links and 152 file
+aliases, and its snapshot identity matches the native AMD64 result:
+`sha256:1663952cbe2c9d379eb2d6768e3cafc5bd97513b9ddb74c5001e77227b9d4f9f`.
+Complete native evidence archive identity:
+`sha256:4c82feb670659759d5c014530ef6defe714e408365d03d897170524ed53fb26a`.
+
+The complete local managed suite is running separately against that frozen
+revision with the exact pinned pip prerequisite supplied. Full local/hosted
+integration, installed-wheel renewal, canonical per-unit SDK/lifecycle
+qualification, model authentication and current human documentation review
+remain open. The selected native cases do not close FREEBSD-001.
 
 
 Native full-suite renewal at `33f1e62` with the accepted-ADR documentation union

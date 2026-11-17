@@ -376,9 +376,10 @@ execution and current artifact/acceptance evidence. It is open; registering a
 POSIX endpoint or passing mocked dispatch tests alone does not establish support.
 See framework issue #67 and the active queue. Existing three-platform behavior
 and retained-source authority must remain intact.
-The native host-install catalog now declares AMD64 and ARM64 pkg plans. ARM64
-bootstrap and package/probe qualification remain open; a declared plan alone does
-not establish native SDK, model or release acceptance.
+The native host-install catalog now declares AMD64 and ARM64 pkg plans. Actual
+ARM64 bootstrap, native package provenance and declared behavioral probes pass;
+selected native SDK/source-policy cases also pass. Complete platform, installed
+lifecycle, model and release acceptance remain open.
 A native pkg provider is being implemented under the same issue, with explicit
 ABI/dependency/payload projection, bound static pkg tooling and independent
 manifest/file/checksum inspection. Portable format checks do not establish native
