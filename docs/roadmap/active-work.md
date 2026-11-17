@@ -34626,17 +34626,31 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Replace the monolithic ceiling-sized input read with bounded complete streaming and preserve existing refusal codes and identities.
-  - [ ] Add allocation-request and complete-content/limit regressions, including reads that grow during capture.
+  - [x] Replace the monolithic ceiling-sized input read with bounded complete streaming and preserve existing refusal codes and identities.
+  - [x] Add allocation-request and complete-content/limit regressions, including reads that grow during capture.
 - **Evidence:**
-  - [ ] Demonstrate regression failure on the unchanged owner and pass on the repair; run existing pinned-input refusal tests and native SDK cases.
-  - [ ] Repeat native large-ceiling profiling and all nine original full-source policy cases against all 115,624 entries without skips or relaxed bounds.
+  - [x] Demonstrate regression failure on the unchanged owner and pass on the repair; run existing pinned-input refusal tests and native SDK cases.
+  - [x] Repeat native large-ceiling profiling and all nine original full-source policy cases against all 115,624 entries without skips or relaxed bounds.
 
 - **Development evidence:** The unchanged reader fails the allocation-request
   regression with a 1,073,741,825-byte request and separately accepts a fixture
   that grows beyond its ceiling during the read. The repair passes all five
   pinned-input cases and all 68 existing SDK critical cases through the managed
-  Make runner; focused Ruff and formatting checks pass. Native whole-corpus and
-  repaired-revision SDK qualification remain open. Earlier 102-case native SDK
-  evidence belongs to `51906343`, while its installed-wheel failure is tracked
-  independently by #461.
+  Make runner; focused Ruff and formatting checks pass.
+- **Native evidence:** Exact code revision `cd9818c0d084ff72f871478ba385daa781f97223`
+  passes all 116 selected native FreeBSD amd64 cases: five pinned-input,
+  68 SDK critical, 34 SDK end-to-end and nine full-source policy cases, with
+  no skips or known failures. Independent review checks every distinct outcome,
+  the unchanged 5,336 framework Git blobs/modes and unchanged host packages.
+  Full source input custody covers 115,624 entries (115,472 regular files and
+  152 literal symlinks), 152 file aliases and 1,546,083,067 payload bytes at
+  snapshot `sha256:1663952cbe2c9d379eb2d6768e3cafc5bd97513b9ddb74c5001e77227b9d4f9f`.
+  With the same one-GiB file ceiling and native allocator, 1,000 public pin calls
+  over the same one-KiB input improve from 217.364686 to 0.450664 seconds.
+  The original full-source deadline and input limits remain unchanged.
+- **Remaining integration gate:**
+  - [ ] Review and exact-head CI, including independent documentation authority
+    re-attestation, pass before landing. Keep this item partial until then.
+  Earlier 102-case native SDK evidence belongs to `51906343`. Its genuine
+  installed-wheel refresh failure remains independently open in #461; the
+  116 cases do not qualify the whole installed-wheel or canonical SDK lifecycle.
