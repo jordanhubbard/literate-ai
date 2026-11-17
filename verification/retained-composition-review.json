@@ -1,0 +1,360 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-reviewed-local-qualified",
+  "reviewer": "sdlc_review",
+  "base_revision": "101315c4a699579534a06141e975439951166e1d",
+  "incoming_revision": "d35a4fc1631c9a6aa6ae16d6006ded856d4ef18d",
+  "review_identity": "sha256:aa08f9e0da5ca1cdf9030d640a1e6138d08faa8a582aa4f9728b1fce81365c2b",
+  "coverage": {
+    "reviewed_changed_paths": 193,
+    "reviewed_source_paths": 71
+  },
+  "resolved_findings": [
+    "RC-1: real SIGINT during original launch observation now reaches process and pipe cleanup while preserving interruption; registration stays before reader/waiter startup."
+  ],
+  "source_subjects": [
+    {
+      "path": "src/literate_ai/adapters/action_command_dispatch.py",
+      "sha256": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff"
+    },
+    {
+      "path": "src/literate_ai/adapters/action_slots.py",
+      "sha256": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87"
+    },
+    {
+      "path": "src/literate_ai/adapters/builders/_process.py",
+      "sha256": "054459ecc9bf300f9d57fbb2b5a49273cbabb3e4054ada9dedd1d9bc2d139524"
+    },
+    {
+      "path": "src/literate_ai/adapters/candidate_repair.py",
+      "sha256": "78e46a566635b42288856150b832dc0e77d11da6a8da8cdbd86e788336068ab5"
+    },
+    {
+      "path": "src/literate_ai/adapters/harness_inventory.py",
+      "sha256": "ee67287daa69ef6dd323b8fbb4f1a27f8af4f03816f814b72e3cc3debd3da2ce"
+    },
+    {
+      "path": "src/literate_ai/adapters/harness_tree.py",
+      "sha256": "52effc9dd06b3ffc069dc98490ae0439844407e782fbb4a82713a576556cc6ac"
+    },
+    {
+      "path": "src/literate_ai/adapters/lifecycle/standard_bazel.py",
+      "sha256": "97da31699d4818c47df47882f13cfb13f13513c2cba64278edbf874b87de619a"
+    },
+    {
+      "path": "src/literate_ai/adapters/lifecycle/standard_cargo.py",
+      "sha256": "d46998af694d08470b2278f7bb8ce105d603014270a203bce1dedede1ea38a78"
+    },
+    {
+      "path": "src/literate_ai/adapters/lifecycle/standard_local.py",
+      "sha256": "e5aebd811a07f61af9c23a566d5cd4d068c27ebd214f1570254994693cfe946d"
+    },
+    {
+      "path": "src/literate_ai/adapters/models/coding_cli.py",
+      "sha256": "671ceba7cede4e926ec2a074597cbea313075c575c6f023da613d952e0608f5e"
+    },
+    {
+      "path": "src/literate_ai/adapters/native_candidate_verification.py",
+      "sha256": "e69363e9af16b9c9d9524da79b8816529d7378e0256328f98a95cca952c3059b"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_initialization.py",
+      "sha256": "810900e58c4871c63e232f01dec5f3549401bb2ec2827fcb8d6de9d6f7b15efd"
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "sha256": "66bfe70ab8dacd47d19063af01f1985ec00971e90185e3932976e539a55f8657"
+    },
+    {
+      "path": "src/literate_ai/adapters/qualification.py",
+      "sha256": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9"
+    },
+    {
+      "path": "src/literate_ai/adapters/qualification_capture.py",
+      "sha256": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1"
+    },
+    {
+      "path": "src/literate_ai/adapters/qualification_diagnostics.py",
+      "sha256": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_admission_v2.py",
+      "sha256": "a50a4630c045d3d95ab70cca26ea4b8d6990aedbd6c3fc0cccf0f2e21ba2c50b"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_build_outputs.py",
+      "sha256": "985210b5f2dad0017604369a195751434c4407e2bf39e6ff669fde31b95fd61d"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_current_v2.py",
+      "sha256": "6f4847254f36b87ab0a9af0e805f6119810887ac0e95fb987d9e52b8901645ed"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_execution_inputs_v2.py",
+      "sha256": "271390f62bf34e7c1abab571fd67f899b677eaf0d0b6f2cced015d3f80c1dec8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_execution_v2.py",
+      "sha256": "56b86e1063cce4f9352c43067662f9c649f2833ac963c26c5d1087dd6535d769"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_materialization_v2.py",
+      "sha256": "916eccbf62c9129846ab47d65d62a8af297fb674cc9e11b423231c2f7b84a0d9"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_runtime_files.py",
+      "sha256": "c98d7525f3dab99aa7c45186ec1a4701b4f817eef59e0e47e7320bb648f71470"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_test_execution.py",
+      "sha256": "eaa5e3fc19adebef705b90a39ca53ca0cacdcc27775d19c161332169bf106047"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_test_execution_v2.py",
+      "sha256": "78ef5a0937b893ee96bce4a3adad46244de3dc3090634adf7e30c5fb34a52797"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_test_observation.py",
+      "sha256": "c78b380a57bf892637287ee1942bfaaeb5cd8af4bb1828eefc378c603f4a7c51"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_test_selection_v2.py",
+      "sha256": "fc14a272b079f2e546013076dc6760053da80072e85c41b3a62bbfe2cca4ec71"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "dbd724a86dbb4a25e172cc89b3907b6bc6c9f31822694ef70fe03c4730c3d3fa"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_evidence_migration.py",
+      "sha256": "860450d53d086f3a83a620506bad853adeb41cc4823e11f21ddc333c1a6168ca"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_harness_readmission.py",
+      "sha256": "bb8f56a0313dfeb589fd1ba67d084e6486ec0af4794d80dd0ced17b0a3097b50"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_harness_receipts.py",
+      "sha256": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout.py",
+      "sha256": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_provider_native.py",
+      "sha256": "a377835b6f0b01670f65e721c86830dadd503b0d13a7f4012249b26c3f6c3d91"
+    },
+    {
+      "path": "src/literate_ai/adapters/rust_library_harness_execution.py",
+      "sha256": "5bc0b5cf549c521af98d57720c71c80c28c7aebef425e64e19ef7bbc928e52dd"
+    },
+    {
+      "path": "src/literate_ai/adapters/source_materialization.py",
+      "sha256": "ca9690e8b10464666460d56243219d1bca2566ef8fd06cd76791a64b02e9b75e"
+    },
+    {
+      "path": "src/literate_ai/adapters/standard_project.py",
+      "sha256": "73abd209b9ddeb8bec82999f3c52fead988ff79068ace341a72a82cb48e0468a"
+    },
+    {
+      "path": "src/literate_ai/adapters/standard_rebuild.py",
+      "sha256": "36daf232f8cf6315b1530cb42f1d00aa948e4a7322e259dfc145974416816ea0"
+    },
+    {
+      "path": "src/literate_ai/adapters/streamed_file_custody.py",
+      "sha256": "309002bb4f934a7babe8fa813d4a4eed180f45775263a8a5ffc5ff422b86a2cb"
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_telemetry_authentication.py",
+      "sha256": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4"
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_telemetry_processes.py",
+      "sha256": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90"
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_telemetry_wire.py",
+      "sha256": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518"
+    },
+    {
+      "path": "src/literate_ai/application/standard_lifecycle_ports.py",
+      "sha256": "d26590ff73b5030a88569d8c05a2c47e8ece6437f5ce2f6fe9d2eea297128288"
+    },
+    {
+      "path": "src/literate_ai/application/standard_project_lifecycle.py",
+      "sha256": "c1c64ccef78d7814fd078f027fd520f9206f21c7e41724f1ecebdc16269fb2fd"
+    },
+    {
+      "path": "src/literate_ai/application/standard_project_services.py",
+      "sha256": "0e21e106f1aead60c5873fa798b5118179a8f27a55fc5f3eab7336d13dfa2d50"
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_authentication.py",
+      "sha256": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee"
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_authorization.py",
+      "sha256": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe"
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_polling.py",
+      "sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d"
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_reservations.py",
+      "sha256": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c"
+    },
+    {
+      "path": "src/literate_ai/cli/dispatch.py",
+      "sha256": "1b5316e0f85661e4dd15809271dc1bfa8fce26a51f1ad442d7bb620b6d07241b"
+    },
+    {
+      "path": "src/literate_ai/cli/operator.py",
+      "sha256": "39a98361ad5ad65527d7a07319e7f7c853207fd65b932176747e77b61e7690e5"
+    },
+    {
+      "path": "src/literate_ai/cli/source_to_specification.py",
+      "sha256": "f3f79b574f09ab79d24f80a65d45d3296e050bad3677b25460a3cd71063c5cb0"
+    },
+    {
+      "path": "src/literate_ai/compatibility/ova/shadow.py",
+      "sha256": "225282059a05cac83db32558405f4b65672a33be9182dfcf542991280bfabe03"
+    },
+    {
+      "path": "src/literate_ai/contracts/executable_components/candidate_repair.py",
+      "sha256": "e353e2b12c0d919b3ba5935016d21c629d930244ab215be0ebd016c837247573"
+    },
+    {
+      "path": "src/literate_ai/contracts/retained_cargo_native_custody.py",
+      "sha256": "ba110bb8fa8a66f40e65f243d8fbcb0e8143dc04e3bd0d225a94287c135b66e1"
+    },
+    {
+      "path": "src/literate_ai/contracts/retained_cargo_policy.py",
+      "sha256": "f2087188fb4d5ae932b39de3cd60bf98fea7b148e83ffe5bc34fdab085631d31"
+    },
+    {
+      "path": "src/literate_ai/contracts/retained_cargo_workspace_v2.py",
+      "sha256": "3a0981928d39b231f1e85bede0908635a1db8cbde226a9c228f1e5ae2bb88fcc"
+    },
+    {
+      "path": "src/literate_ai/contracts/worker_telemetry.py",
+      "sha256": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8"
+    },
+    {
+      "path": "src/literate_ai/contracts/worker_telemetry_observations.py",
+      "sha256": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed"
+    },
+    {
+      "path": "src/literate_ai/project_source_index.py",
+      "sha256": "96ced30f49311ecc4619ae6a6a5a18e303d3f9145685f66681ff564b63f8fb47"
+    },
+    {
+      "path": "src/literate_ai/project_template/AGENTS.md",
+      "sha256": "dbfea66caa1cdd7242e0423ee7fffe613c6932db5274146ecc763343d8ee2293"
+    },
+    {
+      "path": "src/literate_ai/project_template/CLAUDE.md",
+      "sha256": "dbfea66caa1cdd7242e0423ee7fffe613c6932db5274146ecc763343d8ee2293"
+    },
+    {
+      "path": "src/literate_ai/project_template/SKILL.md",
+      "sha256": "5201332c0d1821b4089c17d003241bd1924608fa877e6f18095e230493a51ba4"
+    },
+    {
+      "path": "src/literate_ai/project_template/docs/user/bootstrap.md",
+      "sha256": "55bb8fc1e60736fbb66565281939789f205cba4f9b67d8b5248b7c1aa501abdf"
+    },
+    {
+      "path": "src/literate_ai/project_template/project.gitignore",
+      "sha256": "5e886b693cb89b38063f87c6c00e8cb9b38cf0c3263dac8a5797f2f0e446ffda"
+    },
+    {
+      "path": "src/literate_ai/project_template/scripts/__init__.py",
+      "sha256": "ccc9c90a439facecfe7b77f925c84b08ef3d1fdd4a186960a6cfb00433f1a6ac"
+    },
+    {
+      "path": "src/literate_ai/project_template/scripts/_bootstrap_processes.py",
+      "sha256": "6427c9d3cdaa72e21f10c4b3b49982cc54474ff800ef0678c19d6e010fb57ff1"
+    },
+    {
+      "path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+      "sha256": "de4b283e604486f6f56ca17a0e59197129276de1cef0f6488d5473f9296abab2"
+    },
+    {
+      "path": "src/literate_ai/project_template/skills/agent/SKILL.md",
+      "sha256": "e960ab6a0c940f4ac0d1d7b1b3f771c1c8eac36fdcd8944818b4f7f5a546f43c"
+    },
+    {
+      "path": "src/literate_ai/project_template/skills/agent/use-connected-a2a-peers/SKILL.md",
+      "sha256": "2255d4b35439002f60373a53ac63f3426107fe1008aafc3ab9ac2ce1f22a0f88"
+    },
+    {
+      "path": "src/literate_ai/schema_catalog.py",
+      "sha256": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9"
+    },
+    {
+      "path": "src/literate_ai/source_to_specification/inventory.py",
+      "sha256": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da"
+    }
+  ],
+  "independent_controls": {
+    "initial_maintained_passes": 141,
+    "repair_maintained_passes": 27,
+    "additional_real_interruption_controls": 3,
+    "before_source_negative_control": "failed as expected; own child reaped by fixture"
+  },
+  "author_controls": {
+    "repair_suite_selected": 45,
+    "repair_suite_skipped": 15,
+    "repair_suite_failed": 0,
+    "repair_suite_seconds": 5.003,
+    "bootstrap_suite_selected": 13,
+    "bootstrap_suite_seconds": 8.97,
+    "fresh_complete_source": {
+      "selected": 3129,
+      "passed": 3026,
+      "skipped": 103,
+      "failed": 0,
+      "elapsed_seconds": 2657.514,
+      "workers": 4,
+      "run": "retained-composition-final",
+      "report_sha256": "25bd08d65eacb71beadbfa612c763355b40cc423ef2324983043dce6637c300d",
+      "gates": [
+        "python-check",
+        "driver-review",
+        "runner-review",
+        "documentation-review",
+        "lint",
+        "format-check"
+      ]
+    }
+  },
+  "roadmap_dispositions": {
+    "mandatory_indexing": "retired under accepted ADR0019; not qualification",
+    "product_indexer_provisioning": "retired under accepted ADR0019; not qualification",
+    "preserved": [
+      "INDEX-001",
+      "explicit required provider refusal",
+      "native worker and platform qualification"
+    ]
+  },
+  "site_link_repair": {
+    "path": "docs/architecture/existing-repository-review.html",
+    "sha256": "f5143ed3016b58457b26db1638458ef67fb9ab06940784c8f6dd4e99bb72754f",
+    "html_pages": 1742,
+    "local_links_checked": 14121,
+    "findings": [],
+    "node_version": "26.8.1",
+    "ci_node_version": "24",
+    "publication": false
+  },
+  "qualification_limits": [
+    "Fresh complete local source checks passed; installed composed candidate checks remain pending.",
+    "Native platform/provider qualification is separate from local and stub controls.",
+    "PR437 d35 GitGuardian incident coordinates remain unresolved; hash provenance is not a security waiver.",
+    "Later unpublished l1 relocation and transaction work is excluded.",
+    "No release or deployment publication authorized by this review.",
+    "Post-merge main CI exposed a Windows native fixture newline restoration bug, a Linux scheduling fixture race, and a Windows setup timeout and HTTP disconnect. Their repairs and native platform confirmation remain separate work; this local pass does not waive those failures."
+  ]
+}

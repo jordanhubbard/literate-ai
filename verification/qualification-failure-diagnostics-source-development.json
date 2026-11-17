@@ -1,0 +1,92 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "QUALIFICATION-DIAGNOSTICS-001",
+  "issue": 389,
+  "classification": "source development qualification; native generation and admission remain open",
+  "source_base": "8b83f5b967a3abfcd92bfbc93704f30c740718c4",
+  "source_sha256": {
+    "src/literate_ai/adapters/qualification.py": "10f4605aeaa68850581cd379f78c4e468305388c6c5913aa9b84f8e3fa7df9b9",
+    "src/literate_ai/adapters/qualification_capture.py": "d213ab7af014c2e9a150f5a9c1cef0d51cda67809d8eea53b28e47cf27e87df1",
+    "src/literate_ai/adapters/qualification_diagnostics.py": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9",
+    "src/literate_ai/cli/source_to_specification.py": "cad6b0e6cfbdcb3cc8991da7f9cd97630773e11a0250862df0df68d3b3f2f81b",
+    "tests/critical/test_qualification_diagnostics.py": "62a78bfeb993ed63ddf53019bd37f3496de088262e911d2d5746232d5adbb253",
+    "tests/smoke/test_cli_library_qualification.py": "e1760ab6f86458d205bdc2b9bd8fc8ef6f2c8140556ff03b0a7bb1144da89239"
+  },
+  "source_gate": {
+    "python": "3.12.3",
+    "platform": "Linux",
+    "architecture": "aarch64",
+    "summary": {
+      "executed": 2666,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 2666,
+      "selected": 2786,
+      "skipped": 120
+    },
+    "groups": 598,
+    "complete_case_event_join": true,
+    "root_exit": 0,
+    "source_bytes_and_modes_unchanged": true,
+    "report_sha256": "191452a2bfba11af63cf319bd67d1acf97ffdf63a1f0e1bb1dcd7e7373d38082",
+    "case_event_audit_sha256": "0598f8990d1b269841bd8ae3859c0b631bc69e13177b651950c910aeb3dbf86c",
+    "input_identity": {
+      "head": "8b83f5b967a3abfcd92bfbc93704f30c740718c4",
+      "diff_sha256": "80d7203137af93abed12d0f8640313ded858e73564729157ab1fe4f5a567e85f",
+      "untracked": {
+        "src/literate_ai/adapters/qualification_diagnostics.py": "dacba469769bfafd761981e8d1717eb3579ee7bdcd66c43d5b2e1c26ad4a87f9",
+        "tests/critical/test_qualification_diagnostics.py": "62a78bfeb993ed63ddf53019bd37f3496de088262e911d2d5746232d5adbb253"
+      }
+    },
+    "candidate_packet_files": 10
+  },
+  "related_gate": {
+    "python": "3.12.3",
+    "summary": {
+      "executed": 50,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 50,
+      "selected": 68,
+      "skipped": 18
+    },
+    "report_sha256": "d8b3e42d5f50ae641e1ec8d577f6db475c6a6897f933dc2c07cfe092a0b74f45"
+  },
+  "actual_process_controls": [
+    "nonzero generated exit7 with original stderr retained",
+    "invalid JSON with original process observation retained",
+    "later clean-run failure after an earlier passing case",
+    "actual timeout with bounded partial stdout/stderr and active run/case retained; POSIX child absence checked",
+    "missing generated executable retains launch_failed status and prior baseline observation"
+  ],
+  "control_scope": {
+    "cli_error_serialization": "Existing mocked lifecycle fixture exercises the actual public CLI, actual immutable store, scratch cleanup, foreign-path refusal and diagnostic-helper import failure. It is not native model generation.",
+    "bounds": "Injected timeout output separately verifies unchanged per-stream and aggregate limits without replacing the original refusal.",
+    "admission": "Qualified archive reader rejects diagnostic archives; rehashed success, cross-plan case and partial-context/stream changes refuse. Process stdout cannot label itself a case record."
+  },
+  "old_adapter_counterfactual": {
+    "revision": "a42e27392b891c2e6cf85725e76d949ce57ee526",
+    "module_sha256": "0c4ae4b06de8e4c9c8095d971b4c3f2bc17f863b526a5fd137890dc377698068",
+    "actual_process_observations_before_cleanup": 2,
+    "generated_exit": 7,
+    "original_stderr_before_cleanup": true,
+    "original_observations_unavailable_after_failure": true,
+    "scope": "Isolated execution of the exact old qualification module with the actual-process development fixture; ancillary source is the development checkout. Not an independent source review or a whole-revision release gate."
+  },
+  "driver_review": {
+    "state": "stale",
+    "pinned_identity": "sha256:cf5258ef8902ea7aacfb92f99bee74487d47147c56d270fd044a75c5360d6b68",
+    "computed_identity": "sha256:ecb478d581b607230d02d4ae9c90d535c97b4973b03025c84421b308d0748a18",
+    "recorded": false,
+    "new_module_in_scope": "src/literate_ai is a declared implementation directory; raw filesystem hashing includes the new module even while untracked."
+  },
+  "remaining": [
+    "independent source review before driver repin",
+    "noneditable installed and native model-backed qualification",
+    "exact candidate and resulting-main integration gates"
+  ],
+  "goal_complete": false,
+  "release_attestation": false,
+  "evidence_update_scope": "Source and test bytes match the frozen candidate packet; subsequent roadmap and verification-record updates do not relabel the original source-gate subject.",
+  "review": 391
+}

@@ -1,0 +1,32 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Complete repaired-bootstrap macOS source gate",
+  "tested_revision": "50a06b692fb4d4da5d857ea707dfb04141b49b79",
+  "summary": {
+    "executed": 2929,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2929,
+    "selected": 3032,
+    "skipped": 103
+  },
+  "unique_outcomes": 3032,
+  "report_identity": {
+    "algorithm": "sha256",
+    "digest": "4969198df96a963ca59e3c2a1005fcf2a6a43e1cc42d092205f5767dee776d43"
+  },
+  "original_step_and_final_evidence_owner_passed": true,
+  "original_test_checkpoint_retired_on_success": true,
+  "matching_successor_revision": "59b7ee828a0ce37fe6a395c770fa9fdeaba056b9",
+  "exact_matching_git_subtrees": {
+    "src": "f2e132236d5115af0d564c0e416f6e2e1307d22e",
+    "tests": "f7e7e9ce72ba4893cf156adf131718a2dfba9716",
+    "skills": "7c5764e0579d1a8ab294482b19730c95f2e55719",
+    "components": "7db33621ecf5baa4f7e8b6475a5d03daf7ffd4b8",
+    "flavors": "82186a43e562886edf6f4c48e8ca8f385ea5ba94",
+    "workflows": "fae3e7a9a94b01d64d46a3ea4d8770d4dae60746",
+    "routing": "aaf0f8fff664da6f698d5c91121d72c364f6c1a0"
+  },
+  "successor_delta": "One reviewed literal installed case added plus metadata; the complete source run remains attributed to50a06b692, while59b7ee828 has fresh whole-wheel/native installed acceptance.",
+  "native_windows_or_release_qualified": false
+}
