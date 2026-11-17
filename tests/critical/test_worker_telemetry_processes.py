@@ -118,7 +118,8 @@ class _NativeJob:
 
         def spawn(*args, **kwargs):
             try:
-                return subprocess.Popen(*args, **kwargs, pass_fds=(read_end,))
+                self.process = subprocess.Popen(*args, **kwargs, pass_fds=(read_end,))
+                return self.process
             finally:
                 os.close(read_end)
 
@@ -192,14 +193,46 @@ class WorkerTelemetryProcessTests(unittest.TestCase):
         self.assertFalse(job.owner.registration_failed)
         probes = job.owner.active()
         self.assertEqual(len(probes), 1)
+        # The owned child is blocked until finish(), so its kernel storage
+        # counters are stable. tmpfs writes count toward wchar but legitimately
+        # contribute zero write_bytes; compare the collector to the native OS
+        # oracle rather than assuming the temporary root is block-backed.
+        self.assertIsNone(job.process.poll())
+        kernel_io = {
+            key: int(value)
+            for key, value in (
+                line.split(":", 1)
+                for line in Path(f"/proc/{job.process.pid}/io").read_text().splitlines()
+            )
+        }
+        self.assertGreaterEqual(kernel_io["wchar"], 4 * 1024 * 1024)
         first = probes[0].sample()
         second = probes[0].sample()
+        kernel_after = {
+            key: int(value)
+            for key, value in (
+                line.split(":", 1)
+                for line in Path(f"/proc/{job.process.pid}/io").read_text().splitlines()
+            )
+        }
+        self.assertIsNone(job.process.poll())
+        self.assertEqual(kernel_io["write_bytes"], kernel_after["write_bytes"])
+        self.assertGreaterEqual(
+            second.storage_write_accounted_bytes, first.storage_write_accounted_bytes
+        )
+        self.assertEqual(
+            second.storage_write_accounted_bytes, kernel_after["write_bytes"]
+        )
         self.assertEqual(first.launch_identity, probes[0].identity)
         self.assertEqual(second.process_start_identity, first.process_start_identity)
         self.assertGreater(first.user_cpu_time_ns + first.system_cpu_time_ns, 0)
         self.assertGreaterEqual(second.user_cpu_time_ns, first.user_cpu_time_ns)
         self.assertGreater(first.rss_estimate_bytes, 4 * 1024 * 1024)
-        self.assertGreaterEqual(first.storage_write_accounted_bytes, 4 * 1024 * 1024)
+        self.assertEqual(first.storage_write_accounted_bytes, kernel_io["write_bytes"])
+        self.assertEqual(first.storage_read_bytes, kernel_io["read_bytes"])
+        self.assertEqual(
+            first.storage_cancelled_write_bytes, kernel_io["cancelled_write_bytes"]
+        )
         self.assertGreater(second.observed_monotonic_ns, first.observed_monotonic_ns)
         self.assertEqual(job.payload.stat().st_size, 4 * 1024 * 1024)
         self.assertNotIn("secret", repr(dataclasses.asdict(first)))

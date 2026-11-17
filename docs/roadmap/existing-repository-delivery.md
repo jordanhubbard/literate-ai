@@ -706,3 +706,52 @@ Do not opt the framework into this contract before an actual producer/transport
 pilot, including partial reruns. Keep legacy aggregate delegation explicit;
 strict opt-in must never fall back to it. This records design progress without
 closing or weakening any existing release acceptance requirement.
+
+## Explicit CI coverage consumer implementation
+
+SDLC-001 and RELEASE-CLOSURE-001 own this in-progress implementation. Start with
+an opt-in qualification/evidence-preparation consumer: parse one versioned report
+binding, reuse the selected workflow and bounded job history, validate exact
+source/policy/action/cell facts, and collect one finite attempt-specific archive.
+Keep native execution and matrix selection in the host workflow. Strict mode must
+refuse unsupported promotion and target shortcuts before writes; compatibility
+without the opt-in remains explicit. Do not enable this profile in the framework
+until the real producer/transport and native action contract are proven.
+
+The implementation-boundary review identifies a concrete mismatch: Linux/macOS CI
+runs `make validate` and `wheel-check`, while the configured `release-gate` action
+is `make release-check`, which additionally includes installation, live installed
+project, samples, export and receipt gates. Windows category overlap also lacks a
+receipt proving the complete script/shard equivalence. A full-CI label cannot
+supply those missing action facts. Use a small real native fixture action for the
+first failure/recovery controls; never stamp the framework's release-gate from
+job names or a matrix profile alone. The reviewed design identity is
+`sha256:1b04d0627a746183e293ad352f5f834b43e7f6dc0e6f343d251cfdbd4655fd34`.
+
+Acceptance remains open for the complete consumer's wrong-source/policy/action,
+missing/skipped cell, stale/retried attempt, invalid archive, drift and mutation
+bypass controls; a noneditable wheel; an actual hosted producer including partial
+retry; strict promotion and exact tested artifacts; and the final release gates.
+This slice adds no new execution scheduler, release authority or publication.
+
+The first consumer implementation has independent source approval after correcting
+Git-state, missing-object, malformed-job and worker-thread context findings. The
+public release-CI module passes 15 methods in 31.452 seconds; the final two
+strengthened missing-object/worker controls pass in 3.176 seconds. The worker
+regression fails against the pre-fix source, while the corrected probe adds no
+objects, changes no refs and uploads nothing. These use actual temporary Git and
+local commands with simulated provider/remote transport. See the
+[scoped review record](../../verification/ci-coverage-review.json). Full source,
+installed/native and actual hosted producer qualification remain pending, and
+strict promotion remains explicitly unsupported. No release acceptance is closed.
+
+The first Linux source gate stopped after 1,770 passes, 95 skips and one failure
+in 420.071 seconds: the existing telemetry fixture assumed a 4 MiB temporary-file
+write must increment Linux storage-accounted bytes. Actual kernel observations
+show `/tmp` is tmpfs and reports `wchar=4194304`, `write_bytes=0`; ext4 reports
+`write_bytes=4194304` for the same fsynced workload, and the unchanged test passes
+there. Correct the fixture's oracle against the owned blocked child's independent
+`/proc/<pid>/io` reading, retain actual payload/CPU/RSS/lifetime assertions, and
+exercise both tmpfs and file-backed temporary roots. Production telemetry must
+continue reporting storage accounting without substituting syscall byte counts.
+Retain the failed gate and run a fresh complete gate after the reviewed correction.

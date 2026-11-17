@@ -198,84 +198,9 @@ def _associated_run(value: object, selected: dict, pr: dict, workflow: str) -> N
 def _jobs(
     root: Path, deadline: float, repository: str, selected: dict, revision: str
 ) -> list[dict]:
-    """Read complete bounded history of this run; never combine different runs."""
-    rows: list[dict] = []
-    expected_count = None
-    for page in range(1, 6):
-        result = _api(
-            root,
-            deadline,
-            f"repos/{repository}/actions/runs/{selected['databaseId']}/jobs?filter=all&per_page=100&page={page}",
-        )
-        if not isinstance(result, dict) or type(result.get("total_count")) is not int:
-            _invalid("GitHub job inventory has no complete count")
-        count, jobs = result["total_count"], result.get("jobs")
-        if not 0 <= count <= 500 or not isinstance(jobs, list) or len(jobs) > 100:
-            _invalid("GitHub job inventory exceeds the observation bound")
-        if expected_count is not None and count != expected_count:
-            raise NativeCIError(
-                "stale", "GitHub job inventory changed during collection"
-            )
-        expected_count = count
-        rows.extend(jobs)
-        if len(rows) == count:
-            break
-        if len(rows) > count or len(jobs) != 100:
-            _invalid("GitHub job inventory is incomplete")
-    if len(rows) != expected_count:
-        _invalid("GitHub job inventory is incomplete")
-    seen = set()
-    result = []
-    for row in rows:
-        if not isinstance(row, dict) or any(
-            not _positive(row.get(key)) for key in ("id", "run_id", "run_attempt")
-        ):
-            _invalid("GitHub job identity is missing")
-        if (
-            row["id"] in seen
-            or row["run_id"] != selected["databaseId"]
-            or row.get("head_sha") != revision
-            or row["run_attempt"] > selected["attempt"]
-            or not _text(row.get("name"))
-        ):
-            _invalid("GitHub job identity is ambiguous or outside this run")
-        seen.add(row["id"])
-        status, conclusion = row.get("status"), row.get("conclusion")
-        if (
-            status not in {"queued", "in_progress", "waiting", "pending", "completed"}
-            or (
-                status == "completed"
-                and conclusion
-                not in {
-                    "success",
-                    "failure",
-                    "cancelled",
-                    "skipped",
-                    "neutral",
-                    "timed_out",
-                    "action_required",
-                    "stale",
-                    "startup_failure",
-                }
-            )
-            or (status != "completed" and conclusion not in (None, ""))
-        ):
-            _invalid("GitHub returned an invalid job result")
-        result.append(
-            {
-                key: row.get(key)
-                for key in (
-                    "id",
-                    "run_id",
-                    "run_attempt",
-                    "head_sha",
-                    "name",
-                    "status",
-                    "conclusion",
-                )
-            }
-        )
-    return result
+    from literate_ai.adapters.github_observation import workflow_jobs
+
+    return workflow_jobs(root, deadline, repository, selected, revision)
 
 
 def _verify_project_ci(
