@@ -104,6 +104,18 @@ class NodeLibraryOracleTests(unittest.TestCase):
             oracle.cases[0].arguments.pop()
             inputs.cases[0].arguments.append(99)
             self.assertEqual(inputs.cases[0].arguments, [1, 2])
+            case = oracle.declaration_cases[0]
+            original_source = case.cjs_positive
+            try:
+                object.__setattr__(case, "cjs_positive", b"substituted source")
+                self.assertEqual(
+                    inputs.declaration_cases[0].cjs_positive, original_source
+                )
+            finally:
+                object.__setattr__(case, "cjs_positive", original_source)
+            copied_case = inputs.declaration_cases[0]
+            object.__setattr__(copied_case, "cjs_positive", b"substituted copy")
+            self.assertEqual(inputs.declaration_cases[0].cjs_positive, original_source)
 
     def test_all_referenced_files_and_original_document_reopen(self):
         for name in ("counter.json", *self.files):

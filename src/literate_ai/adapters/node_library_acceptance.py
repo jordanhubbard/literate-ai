@@ -131,7 +131,20 @@ class NodeLibraryAcceptance(LibraryAcceptance):
         return document
 
 
-class NodeLibraryRuntimeInputs(NamedTuple):
+class NodeLibraryDeclarationInputs(NamedTuple):
+    case_id: str
+    capability: str
+    cjs_positive: bytes
+    cjs_negative: bytes
+    esm_positive: bytes
+    esm_negative: bytes
+    diagnostic_codes: tuple[int, ...]
+
+    def __repr__(self):
+        return f"NodeLibraryDeclarationInputs(case_id={self.case_id!r})"
+
+
+class NodeLibraryVerifierInputs(NamedTuple):
     """Loader-owned immutable payload data, without execution authority."""
 
     oracle_identity: str
@@ -139,9 +152,14 @@ class NodeLibraryRuntimeInputs(NamedTuple):
     esm_harness_content: bytes
     cases_content: bytes
     expected_content: bytes
+    declaration_inputs: tuple[NodeLibraryDeclarationInputs, ...]
 
     def __repr__(self):
-        return f"NodeLibraryRuntimeInputs(oracle_identity={self.oracle_identity!r})"
+        return f"NodeLibraryVerifierInputs(oracle_identity={self.oracle_identity!r})"
+
+    @property
+    def declaration_cases(self):
+        return tuple(NodeDeclarationCase(*row) for row in self.declaration_inputs)
 
     @property
     def identity(self):
@@ -163,7 +181,7 @@ class NodeLibraryRuntimeInputs(NamedTuple):
 
 
 class NodeLibraryVerifierScope(NamedTuple):
-    inputs: NodeLibraryRuntimeInputs
+    inputs: NodeLibraryVerifierInputs
     require_unchanged: Callable[[], None]
 
     def __call__(self):
@@ -194,7 +212,7 @@ class _LoadedOracle:
             }
             for case in original.cases
         ]
-        self.runtime_inputs = NodeLibraryRuntimeInputs(
+        self.verifier_inputs = NodeLibraryVerifierInputs(
             original.identity.uri,
             self.harness_content,
             self.esm_harness_content,
@@ -209,11 +227,17 @@ class _LoadedOracle:
                 ]
             ),
             product_json_bytes(rows),
+            tuple(
+                NodeLibraryDeclarationInputs(
+                    case.case_id, case.capability, *case.sources, case.diagnostic_codes
+                )
+                for case in original.declaration_cases
+            ),
         )
         self.retained_bytes = (
             authority.total_bytes
-            + len(self.runtime_inputs.cases_content)
-            + len(self.runtime_inputs.expected_content)
+            + len(self.verifier_inputs.cases_content)
+            + len(self.verifier_inputs.expected_content)
         )
 
     def require_original(self, oracle):
@@ -377,8 +401,8 @@ def capture_loaded_node_library_verifier_inputs(oracle):
     """Fence the exact original files before and after a verifier operation.
 
     The yielded scope is callable for a full bounded byte revalidation and
-    supplies immutable loader-owned runtime payloads. Use its revalidation at
-    process boundaries; keep the execution owner's independent live-call guard
+    supplies immutable loader-owned runtime and declaration payloads. Revalidate
+    at process boundaries; keep the execution owner's independent live-call guard
     on process polling. This context grants no command or artifact authority.
     """
     if type(oracle) is not NodeLibraryAcceptance:
@@ -390,7 +414,7 @@ def capture_loaded_node_library_verifier_inputs(oracle):
     witness.require_unchanged(oracle)
     try:
         yield NodeLibraryVerifierScope(
-            witness.runtime_inputs, lambda: witness.require_unchanged(oracle)
+            witness.verifier_inputs, lambda: witness.require_unchanged(oracle)
         )
     finally:
         witness.require_unchanged(oracle)
