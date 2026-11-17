@@ -18376,6 +18376,38 @@ unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
 
 ### [ ] FREEBSD-001 — Add first-class FreeBSD native workers and targets
 
+ARM64 host-install follow-up (issue #67; PROJECT Goals 1, 5 and 6):
+the canonical native detector reports freebsd/arm64/none, while native
+worker/package ABI identity remains aarch64. Actual FreeBSD ARM64 bootstrap
+at f23678d8 refuses host-install.target-unsupported before probes or
+installation, with unchanged host packages. The existing realization covers
+only amd64. Extend the exact native pkg realization with the same capability,
+version, provenance, consent and behavioral-probe requirements; preserve
+unsupported-target/provider refusals and the existing architecture normalization.
+A cached native ARM64 repository lists the declared packages, which is
+feasibility evidence rather than installation or qualification.
+
+- [x] Declare the canonical freebsd/arm64 realization and its
+  packaged-template copy; require native package provenance and exact probes.
+- [x] Qualify canonical/template parity, both ARM aliases, complete capability
+  closure, amd64 stability and unsupported/foreign/provider/version refusals.
+- [ ] In progress: run the authored bootstrap on a separate actual native ARM64 worker,
+  retain missing-package failures, align it and independently review package
+  provenance plus executable/SQLite/GNU Make behavior and unchanged base tools.
+- [ ] Retain full native SDK, installed lifecycle, model authentication and
+  release admission as separate gates; this tuple does not close FREEBSD-001.
+
+Portable development evidence: the new ARM64 selection first fails against the
+missing plan with host-install.target-unsupported. Adding the native plan makes
+all 21 selected FreeBSD host-install cases pass without skips, including inherited
+consent, old-agent, package/probe, SQLite and provider-refusal controls. After
+formatting and the specific foreign-plan error assertion, all 30 affected
+host-install and seven bootstrap cases pass without skips. Lint, formatting,
+repository-layout, public-export and strict OpenSpec checks pass. The AMD64 plan
+is byte-identical. Actual ARM64 toolchain installation, complete local/remote
+integration and current documentation review remain pending.
+
+
 Native full-suite renewal at `33f1e62` with the accepted-ADR documentation union
 stopped after 874 passes, 36 skips and one process-tree timeout test failure;
 2,658 tests were selected and the remaining cases were not executed. The outer

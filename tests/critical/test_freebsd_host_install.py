@@ -21,16 +21,19 @@ from literate_ai.bootstrap.host_install_requirements import (
 
 
 class FreeBSDHostInstallTests(unittest.TestCase):
+    architecture = "x86_64"
+    machine = "amd64"
+
     def setUp(self):
         self.root = Path(__file__).resolve().parents[2]
         self.path, self.sbom = host_install.load_host_install_sbom(
             self.root / "flavors",
-            HostInstallTarget("freebsd", "x86_64"),
+            HostInstallTarget("freebsd", self.architecture),
             flavor_names=("lang-python", "build-make"),
         )
 
     def test_native_tuple_and_template_agree(self):
-        target = detect_host_install_target(system="FreeBSD", machine="amd64")
+        target = detect_host_install_target(system="FreeBSD", machine=self.machine)
         self.assertEqual(target, self.sbom.target)
         self.assertEqual(self.sbom.package_manager.identifier, "pkg")
         self.assertEqual(self.sbom.artifacts, ())
@@ -338,3 +341,93 @@ class FreeBSDHostInstallTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FreeBSDArm64HostInstallTests(FreeBSDHostInstallTests):
+    architecture = "arm64"
+    machine = "arm64"
+
+    def test_both_native_arm_aliases_select_the_complete_pkg_closure(self):
+        for machine in ("arm64", "aarch64"):
+            with self.subTest(machine=machine):
+                target = detect_host_install_target(system="FreeBSD", machine=machine)
+                self.assertEqual(target, HostInstallTarget("freebsd", "arm64"))
+                path, sbom = host_install.load_host_install_sbom(
+                    self.root / "flavors",
+                    target,
+                    flavor_names=(
+                        "os-freebsd",
+                        "build-cmake",
+                        "lang-rust",
+                        "build-cargo",
+                        "build-make",
+                        "lang-typescript",
+                        "package-npm",
+                    ),
+                )
+                self.assertEqual(
+                    path.relative_to(self.root / "flavors").as_posix(),
+                    "os-freebsd/host-install/freebsd/arm64/none.cdx.json",
+                )
+                self.assertEqual(
+                    {requirement.capability for requirement in sbom.packages},
+                    {
+                        "python",
+                        "python-venv",
+                        "python-sqlite3",
+                        "git",
+                        "git-lfs",
+                        "codex",
+                        "make",
+                        "node",
+                        "npm",
+                        "rustc",
+                        "cargo",
+                        "cmake",
+                    },
+                )
+                self.assertEqual(sbom.package_manager.identifier, "pkg")
+                self.assertEqual(sbom.artifacts, ())
+
+    def test_foreign_architecture_document_is_rejected(self):
+        foreign = (
+            self.root / "flavors/os-freebsd/host-install/freebsd/x86_64/none.cdx.json"
+        )
+        catalog = compose_toolchain_sboms(
+            (
+                self.sbom.base,
+                *host_install._load_flavor_toolchains(self.root / "flavors").values(),
+            )
+        )
+        with self.assertRaises(HostInstallRequirementError) as raised:
+            parse_host_install_sbom(
+                json.loads(foreign.read_bytes()),
+                base=self.sbom.base,
+                catalog=catalog,
+                expected_target=self.sbom.target,
+            )
+        self.assertEqual(raised.exception.code, "host-install.sbom-target-mismatch")
+
+    def test_unrealized_target_refuses_before_commands_or_downloads(self):
+        def forbidden(*args, **kwargs):
+            self.fail("unrealized target must refuse before ambient side effects")
+
+        for target in (
+            HostInstallTarget("freebsd", "armv7"),
+            HostInstallTarget("freebsd", "aarch64"),
+            HostInstallTarget("freebsd", "arm64", "cuda"),
+        ):
+            with (
+                self.subTest(target=target),
+                self.assertRaises(host_install.HostInstallError) as raised,
+            ):
+                host_install.ensure_host_install_dependencies(
+                    sbom_root=self.root / "flavors",
+                    target=target,
+                    environment={"LITAI_INSTALL_DEPENDENCIES": "yes"},
+                    runner=forbidden,
+                    locator=forbidden,
+                    downloader=forbidden,
+                    interactive=False,
+                )
+            self.assertEqual(raised.exception.code, "host-install.target-unsupported")

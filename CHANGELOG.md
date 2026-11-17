@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- FreeBSD host installation declares an ARM64 native pkg plan alongside AMD64,
+  retaining package provenance, version, consent and behavioral-probe requirements.
+  The existing detector selects the arm64 plan for either native ARM alias;
+  unsupported targets and providers retain their refusals (#67).
+
 - Pinned inputs use bounded read requests while preserving their complete bytes,
   per-file capability limits and closing source checks. Large source ceilings no
   longer size each small file's temporary read buffer (#462).
