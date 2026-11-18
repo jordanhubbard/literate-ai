@@ -848,3 +848,158 @@ module-resolution/cache paths as well as Make. Run independent source review,
 full source qualification and affected hosted checks before landing. OpenSpec and
 release readiness remain blocked until an actual dependency repair or separately
 reviewed policy decision exists; this work closes no release acceptance item.
+
+### Observed local source, wheel and installation qualification
+
+[PR 470](https://github.com/jordanhubbard/literate-ai/pull/470) records the
+documentation/OpenSpec separation at exact commit
+`18d98aab3588b3112323ead2fdd959fd785803f4`. Its complete local macOS ARM64 / Python
+3.14 source gate selected 3,182 cases: 3,079 passed, 103 retained their declared
+skips, and none failed. The Python suite took 2,683.591 seconds; the complete
+source/review/lint/format invocation ran 04:21:55–05:07:02 UTC on 2026-11-18.
+The retained canonical test report has SHA-256
+`281bb05a91800f429f7cdf3424e8fff4bb71632020d89a0a4ff5fa4aaf5e6afd`.
+
+The canonical local noneditable wheel gate passed at the same clean commit,
+05:25:21–05:39:00 UTC. All 182 retained operation-timing spans report success;
+their durations overlap and must not be summed as release wall time. The tested
+wheel has identity
+`sha256:7d06fb98510f526e6d75b7a6e43e3c94d01a1ba31a3517193725e2f7ab680215`.
+Its installed native-adoption journey preserves five application files, writes
+zero external files, detects and repairs the native test failure, and preserves
+custom policy during no-churn update and staged owned removal. This renews that
+local installed journey; it does not establish an upgrade between two released
+framework versions or qualification on another platform.
+
+A separate canonical model-free `install-check` then passed, 05:55:41–05:58:35 UTC,
+installing those same wheel bytes through the supported qualified-wheel exporter
+and installer. The first invocation supplied a portable retained manifest where
+the installer requires repository-relative paths; it refused before installation.
+That caller error and its log remain separate from the corrected passing run.
+No wheel was rebuilt or substituted, no live model was used, and no source or
+release acceptance was changed. OpenSpec's dependency advisory, unresolved
+security-check findings, exact-head hosted checks and the remaining native and
+release requirements remain separate gates.
+
+The subsequent hosted Linux / Python 3.11 job in
+[run 44243126217](https://github.com/jordanhubbard/literate-ai/actions/runs/44243126217)
+is terminal-failed, not green: its raw unittest summary reports 3,142 tests with
+114 skips and no failures in 3,101.812 seconds, followed by the required OpenSpec
+audit refusal for the same advisory. These are raw unittest counts, not a new
+canonical unique-case reconciliation. The job spans 05:17:01–06:09:44 UTC;
+installation already reports four derived high findings at 05:17:32.477 UTC,
+while strict audit refusal arrives at 06:09:40.736 UTC, 52 minutes 8.259 seconds
+later. RELEASE-CLOSURE-001's existing early-refusal work therefore has another
+measured case: preserve the dependency audit and move cheap failure feedback
+ahead of the long suite. This would avoid long execution on this already-bad
+candidate, not eliminate the suite from a repaired release. No new gate ordering,
+latency improvement or waived check is claimed by this observation.
+
+### Controlled OpenCode V1 ambient-configuration evidence
+
+SDLC-001's existing isolation review and OPENCODE-COMPAT-001 retain ownership of
+this evidence. At the reviewed adapter bytes in `18d98aa`, the actual pinned
+OpenCode 1.19.5 CLI retains a synthetic global instruction file and a disabled MCP
+entry despite the product's inline `instructions: []`, `mcp: {}` and wildcard
+tool denial. The empty-global control retains neither entry. These prompt-free
+checks run with synthetic default-discovery roots, OS-level network denial and
+writes limited to the disposable fixture; actual user configuration is untouched.
+
+A second controlled run uses the production command/environment owners, the same
+synthetic roots, an owned stdio helper and a loopback provider that always returns
+HTTP 400. The OS permits only that fixture's loopback port. The seeded global
+configuration starts the stdio helper and places the instruction sentinel in the
+captured provider request; the empty-global control does neither. Both requests
+retain the explicit task sentinel and both end with the expected provider refusal.
+No real provider credential, model inference, external MCP or live deployment is
+involved. An initial sandbox-profile parse refusal is retained independently;
+it is not evidence about CLI behavior.
+
+This establishes the pre-fix mechanism under controlled global inputs, not an
+observation of this user's actual configuration or production egress. Existing
+empty-global native tests and permission-map assertions do not cover the merge
+boundary. Saved-login and custom-provider compatibility remain required; importing
+an entire global configuration or copying opaque account state into a private
+directory would not establish isolation. The source repair and its compatibility,
+installed/native and release checks remain unperformed; this narrative neither
+closes nor changes any existing acceptance obligation.
+
+### Observed hosted producer and interrupted-export recovery
+
+[PR 465](https://github.com/jordanhubbard/literate-ai/pull/465) supplied actual
+GitHub-hosted evidence on exact source `af11434c90d58489a923114a8d8f0c7bdb1ebba0`.
+[Attempt 1](https://github.com/jordanhubbard/literate-ai/actions/runs/44128504174/attempts/1)
+completed native Linux and Windows build/test jobs and a dependent exporter. The
+production adapter consumed all four cells using actual provider transport and
+verified the 820-byte uploaded archive, artifact `14349306208`, against digest
+`sha256:2fcb34e8005101a1320c4053dd724952168237d4fe6801bae678235ff484f5d8`.
+The first job start to last completion was 60 seconds; summed job envelopes were
+68 seconds (Linux 11, Windows 26, exporter 31). These fixture intervals measure
+neither a full framework release nor CPU or billed runner use.
+
+The bounded recovery experiment reran only this pilot workflow. Both native jobs
+finished before cancellation; the exporter was cancelled during dependency
+installation in attempt 2. This proves interrupted export, not interruption of a
+native build/test action. With that attempt terminal-cancelled, the unchanged
+production adapter refused coverage with `incomplete`, despite the retained
+attempt-1 success and archive. Failed-jobs retry created a fresh attempt-3
+exporter, job `134202153982`, while GitHub retained both native successes under
+new current-attempt job IDs with their original attempt-2 execution timestamps.
+[Attempt 3](https://github.com/jordanhubbard/literate-ai/actions/runs/44128504174/attempts/3)
+completed successfully, and actual adapter consumption again accepted all four
+cells. The new 821-byte archive, artifact `14349336871`, has digest
+`sha256:61a7834414e1c3b60457f53d58345e83504c744f4671e1319935a5a178f2a420`.
+The older source-review record's pending hosted fields describe its earlier
+checkpoint; these later observed results add evidence without changing its scope.
+
+The pilot demonstrates actual native Python execution on hosted Linux and Windows,
+artifact transfer and interrupted-export retry. It does not establish other
+languages, CPU/GPU targets, installed-consumer or consuming-repository public
+release qualification, binary artifact custody, strict promotion, deployment or
+recovery of a delivered application. Those existing acceptance requirements and
+all unresolved security findings remain in force; no roadmap goal is closed or
+weakened by this narrative.
+
+### Completed supplied-guidance measurement, acceptance boundaries retained
+
+SDLC-001 now has 45 actual fresh-cohort attempts: three native tasks, three arms,
+five randomized repetitions per task/arm on one pinned CLI/toolchain and configured
+model selector. The current native-adoption SKILL plus linked policy is compared
+with pinned Superpowers verification-before-completion and no optional guidance.
+The provider's immutable model revision is unavailable. This exercises supplied
+guidance, not natural activation, an installed governed PR, or a platform matrix.
+
+Independent review finds 44 normal completions with correct repairs, preserved
+original test semantics/authority and model-performed fresh local checks. Nine
+completed attempts nevertheless make unsupported release-readiness claims. One
+remaining baseline attempt patches correctly but aborts after malformed tool calls
+before verification/reporting; it stays a failed attempt and is never replaced.
+A prospective reviewed continuation resumes only untouched slots. The nine earlier
+exploratory attempts, whose strict byte guard falsely rejected valid Go test
+changes, remain separate. Raw verdicts and interrupted output are not rewritten.
+
+| Arm | Native/private checks complete | Overall success | Median CLI seconds | Median tool events |
+| --- | --- | --- | --- | --- |
+| Current native-adoption guidance | 15/15 | 13/15 | 41.473 | 20 |
+| Superpowers verification-before-completion | 15/15 | 9/15 | 46.643 | 19 |
+| No optional skill | 14/15 | 13/15 | 36.563 | 17 |
+
+The shared prompt requests `release_ready`; required macOS/Windows platforms are
+in immutable repository policy, with expanded prose only in the handoff task.
+These are unsupported claims, not nine bad repairs or observed unsafe releases.
+The current arm reads all three supplied resources on every attempt but does not
+establish an overall success gain over baseline in this small sample. Keep the
+minimal context and deterministic qualification; do not infer a need for more
+prompt ceremony or a justification to retire all guidance.
+
+The measured cohort spans 3,193.280 seconds between first recorded start and last
+finish: 1,975.786 seconds summed CLI time, 1,139.635 seconds of interruption-to-next-
+attempt review/continuation gap, and 77.858 seconds unattributed. This is not pure
+inference or release time. Setup, review labor, underlying model weights and actual
+billing remain incompletely observed. Reported token/cache counters are separate
+fields; reported zero cost does not mean free inference.
+
+The [dated report update](../architecture/existing-repository-review.html)
+contains per-task outcomes, usage, protocol/aggregate identities and limitations.
+This records a completed bounded measurement, not completion of SDLC-001 or its
+activation, governed-adoption, changed-version upgrade, platform or release gates.
