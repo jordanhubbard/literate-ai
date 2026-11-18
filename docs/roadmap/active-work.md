@@ -2683,62 +2683,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
 - **Depends on:** landed 0.8.0 catalog merges on `main` (`390cc7ec`)
 - **Historical completion:** [Preserved implementation and evidence](../history/roadmap/completed-before-sdlc-review.md#x-sample-pin-001-re-pin-sample-harness-identities-after-080-catalog-merges). Current-release qualification remains separate.
 
-### [ ] RELEASE-016 — Prepare the 0.8.0-RC1 cut from `main`
+### RELEASE-016 — Prepare the 0.8.0-RC1 cut from main
 
-- **Release target:** 1.1.0
+**Archived as superseded cut instructions.** The [unchanged historical record](../history/roadmap/release-016-obsolete-cut.md)
+retains the completed preparation work and unchecked old release-plan evidence.
+The literal 0.8.0-RC1 cut and old branch/worktree cleanup instructions are retired;
+this is archival, not a claim that the original release plan passed.
 
-- **Priority:** P0 (0.8.0 break-glass)
-- **Owner:** default-branch landing queue, `src/literate_ai/cli/` diagnostics,
-      release gates, `litai release plan/prepare`
-- **Direction:** User-directed: prepare a `0.8.0-RC1` release. The work happens
-      on `main`, but `main` is explicitly not release-ready: the local installed
-      `litai` launcher fails to import (`ImportError: cannot import name
-      'debug_diagnostics' from 'literate_ai.diagnostics'`) because
-      `cli/source_to_specification.py` imports a symbol main's `diagnostics.py`
-      does not define. All open roadmap items and branches must be landed in the
-      correct order before planning the cut.
-- **Conclusion:** Branch reconciliation (2026-08-30) found exactly one unmerged
-      branch head: `feat/cli-sdlc-debug` (34 commits ahead of `main`, 0 behind)
-      which already contains the three identical worktree branches
-      `feat/cache-005-007-leftovers`, `feat/skill-dep-workflow-leftovers`, and
-      `feat/spec-refinement-001-pi-service` (all at `d41c9f5b`) and repairs the
-      `debug_diagnostics` inconsistency. `pr-197` is stale: SAMPLE-PIN-001
-      records it closed without merge and its unique commit `78989809` is
-      already contained in `feat/cli-sdlc-debug`. Merge
-      `feat/cli-sdlc-debug` into `main` (merge-tree is conflict-free), delete the
-      contained branches and their worktrees, reinstall the local launcher from
-      source, then close remaining gates before `litai release plan`.
-- **Depends on:** landed 0.8.0 catalog merges on `main` (`390cc7ec`);
-      RELEASE-017 is explicitly deferred from the 0.9.0 gate
-- **Implementation:**
-  - [x] Record this item; merge `feat/cli-sdlc-debug` into `main`.
-  - [x] Remove worktrees and delete contained branches
-        (`feat/cache-005-007-leftovers`, `feat/skill-dep-workflow-leftovers`,
-        `feat/spec-refinement-001-pi-service`, `pr-197`).
-  - [x] Reinstall the local `litai` launcher from the merged source and verify
-        `litai verify` / `litai project tracker inspect` run clean.
-        `litai version check` and `litai project validate` both green.
-        `litai verify` passes authority; receipt remains stale until
-        the release gate produces one.
-  - [x] Fix CLI inconsistencies discovered during gate run:
-        command-reference missing `litai project guidance` and
-        `litai release merge-pr`; doc-toolchain `.venv` fallback when
-        `OBJ_DIR` is explicit; v1 wire-contract test missing
-        `repository_policy` v2-only field drop.
-  - [x] Close remaining repository gates (`python-check`, lint, format)
-        on the merged `main`. `make python-check` passes 3041 tests with
-        21 skips (2026-08-30, session `rc1-prep`). `make lint` and
-        `make format-check` pass.
-  - [ ] Run the optional RELEASE-017 upgrade smoke when that compatibility work is
-        scheduled.
-  - [ ] `litai release plan --version 0.8.0rc1` and review the plan.
-- **Evidence:**
-  - [x] Merge commit on `main` containing the full 34-commit stack (`3130bf48`).
-  - [x] `litai version check` and `litai project validate` green from the
-        installed launcher on the prepared tree (`0d75a25e`).
-  - [x] `make python-check` passes 3041 tests; `make lint` and
-        `make format-check` pass; `make skills-check` passes.
-  - [ ] Release plan produced and reviewed.
+[RELEASE-017](#release-017-optional-upgrade-path-between-consecutive-minor-releases)
+retains consecutive-minor compatibility work. Current release planning and exact
+source, CI, artifact, collateral and ancestry checks remain with
+[RELEASE-CLOSURE-001](#release-closure-001-make-release-closure-executable-and-continuous)
+and RELEASE-INTEGRATION-005; their acceptance is unchanged.
 
 ### [ ] RELEASE-017 — Optional upgrade path between consecutive minor releases
 
@@ -24250,6 +24206,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Ownership prerequisite (in progress):** [Issue 481](https://github.com/jordanhubbard/literate-ai/issues/481)
+  records the shared provenance needed by future layout planning. Initialization
+  baselines, framework/catalog update bases, imported authority, current topology,
+  local generation inputs and retained application boundaries remain distinct
+  signals. The read-only inventory must combine them without treating a baseline
+  entry, exclusion or directory name as permission to relocate content. A standalone
+  production extraction was held after review because its sole caller flattened
+  the labels back into the existing set; introduce that shared view with its actual
+  layout consumer. Existing update protections remain intact. This implementation
+  ordering changes no release target or migration acceptance requirement.
+
 - **Release target:** 1.4.0
 - **Completion prerequisites:** none
 - **Accepted implementation direction:** [ADR 0071](../decisions/0071-derived-project-litai-directory.md) specifies the shared project context, finite root integrations and recoverable migration. [ADR 0074](../decisions/0074-existing-repository-delivery.md) records the subsequent explicit user delegation to implement the review recommendations in this release.
@@ -24472,6 +24439,35 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Tracker reconciliation:** [Current issue/PR ownership and dispositions](existing-repository-delivery.md#current-tracker-reconciliation) maps the previously unlinked current-forge requests to existing owners; historical forge numbers remain distinct.
 - **Next action:** Qualify the consolidated timing, checkpoint, artifact and lease
   changes; complete contained native adoption through the shared layout owner.
+- **Current batch at `96c404e18`:** The fresh macOS source gate passes 3,096
+  tests with 101 declared skips; the exact committed wheel passes 182 whole-wheel
+  spans and separate canonical installation. Independent closing review binds
+  those results to the same clean source and artifact. A genuine published 1.3.1
+  runtime then upgrades to that 1.4 wheel without changing the older converted
+  project. Its public Standard rebind refuses missing authorization, applies the
+  exact acknowledged plan, preserves the custom retained-parity receipt policy
+  and all other project entries, and converges to a no-change rebind plan. No new
+  lifecycle receipt is created. These are local installed and controlled upgrade
+  milestones; current native-worker, foreign-platform and release acceptance
+  remain open.
+- **Upgrade cache follow-up:** **GitHub issue:** [#482](https://github.com/jordanhubbard/literate-ai/issues/482)
+  records redundant immutable-parent fetching in the existing repository provider.
+  The subsequent cold-cache public update plan stops at its explicit 90-second
+  fetch deadline; it does not apply templates or complete the project upgrade.
+  Resolve and catalog both currently fetch, while separate object directories
+  create separate caches. A separate fresh plan using a verified copy of the
+  earlier exact-commit bare cache also stops at the 90-second fetch deadline;
+  the project, input cache and runtime remain unchanged. The source candidate now
+  shares exact-commit handling across resolution and catalog reads. A paired
+  source-mode public CLI control denies Git transport: old code fails its fetch,
+  while the candidate produces a read-only plan with no transport and unchanged
+  project/cache bytes. The plan preserves all 259 inherited files and reports one
+  framework roadmap conflict. The repository cohort passes 79 tests; seven Git
+  cases also pass with an actual private Git 2.43 build using local-file transport.
+  Keep these scoped source controls separate from installed qualification, a
+  successful latency comparison, conflict resolution and containment migration.
+  Next complete older-Git transport fallback evidence, final source review and
+  the full candidate gate before committing this implementation.
 - **Installed qualification follow-up:** [#477](https://github.com/jordanhubbard/literate-ai/issues/477)
   records a harness-owned macOS temporary-path alias rejected by the existing
   verified-wheel input guard. Canonicalize the newly created runtime directory,

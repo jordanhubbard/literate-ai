@@ -1548,6 +1548,19 @@ Results identify the canonical policy plus per-field `framework-default`,
 `project-policy`, or `cli` provenance; this operational evidence does not change the
 exact repository-lineage identity.
 
+The lineage provider reuses a locally available full commit object from
+`OBJ_DIR/repository-lineage` for an exact pinned revision. Mutable branches and
+tags still refresh, and a missing commit uses the bounded fetch policy above.
+Project and catalog identity checks still run; missing authority or catalog
+content refuses. A different object directory selects a different cache.
+Local object reads disable replacement and implicit transport. Reuse requires
+a direct object store without redirected backing files, borrowed objects,
+partial-clone configuration or delegated configuration. Its no-follow object
+metadata inventory is bounded to 131,072 entries; packed object contents are not
+expanded for that count. Unsafe or unsupported inputs report
+`repository_lineage.cache_unsafe`. Selecting a fresh object directory permits
+ordinary bounded reconstruction without changing project authority.
+
 `litai update [PATH]` is an initialized-project migration planner. Planning is always
 read-only; writing requires an explicit flag. It reads the canonical initialization
 origin and baseline, re-resolves the complete recorded repository lineage, composes its

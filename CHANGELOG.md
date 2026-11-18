@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Reuse locally available exact parent commits during lineage and catalog reads.
+  Keep mutable-reference refresh, bounded missing-commit fetches and current
+  project/catalog checks. Refuse redirected or partial parent caches before
+  reusing their object storage.
+
 - Add explicit terminal RUN release for a selected managed remote worker. Collect
   this RUN's evidence, save its outcome and release intent, then stop health
   polling before provider release. Keep defaults reusable. The opt-in permits
