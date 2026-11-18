@@ -3,7 +3,7 @@
 // names that exact advisory and package. An unavailable audit always fails.
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const GATING = new Set(["high", "critical"]);
@@ -76,7 +76,8 @@ export function auditViolations(report, exceptions, today) {
 }
 
 function main() {
-  const root = dirname(dirname(fileURLToPath(import.meta.url)));
+  if (process.argv.length !== 3) throw new Error("Expected one audited project path");
+  const root = resolve(process.argv[2]);
   const exceptions = JSON.parse(
     readFileSync(join(root, "audit-exceptions.json"), "utf8"),
   ).exceptions;

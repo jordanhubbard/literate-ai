@@ -21,7 +21,8 @@ on:
       - 'CONTRIBUTING.md'
       - 'scripts/build_conference_site.mjs'
       - 'scripts/verify_conference_site.py'
-      - 'tools/openspec/package*.json'
+      - 'tools/documentation/**'
+      - 'tools/npm-audit/**'
       - '.github/workflows/conference-pages.yml'
   push:
     branches: [main]
@@ -42,7 +43,8 @@ on:
       - 'CONTRIBUTING.md'
       - 'scripts/build_conference_site.mjs'
       - 'scripts/verify_conference_site.py'
-      - 'tools/openspec/package*.json'
+      - 'tools/documentation/**'
+      - 'tools/npm-audit/**'
       - '.github/workflows/conference-pages.yml'
 
 permissions:
@@ -65,9 +67,11 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: tools/documentation/package-lock.json
       - name: Install locked documentation tools without lifecycle scripts
-        run: npm ci --prefix tools/openspec --ignore-scripts
+        run: npm ci --prefix tools/documentation --ignore-scripts
+      - name: Audit documentation dependencies
+        run: npm --prefix tools/documentation run dependencies:check
       - name: Build documentation, conference materials and offline kit
         run: node scripts/build_conference_site.mjs
       - name: Check attendee links and offline download integrity

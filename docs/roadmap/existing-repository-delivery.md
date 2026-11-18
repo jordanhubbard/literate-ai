@@ -816,3 +816,35 @@ worker intervals, not CPU, billed runner use or an attributed historical release
 critical path. The update preserves all remaining hosted, artifact-promotion,
 legacy-adoption, skill-comparison and native acceptance boundaries; no queue item
 is closed, moved or weakened by the narrative.
+
+
+### Separate documentation and specification tool dependency ownership
+
+RELEASE-CLOSURE-001 owns this in-progress follow-up to the measured dependency
+failure. The final documentation gate and hosted PR 465 CI stopped on
+[GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) in
+OpenSpec's picomatch dependency. The actual OpenSpec public status command on an
+owned disposable repository completes a normal pattern in 0.475 seconds, while a
+hostile schema output pattern exceeds a three-second subprocess bound. The risk
+is reachable; no audit exception or unreviewed upstream parser patch is justified
+by an earlier passing check.
+
+Documentation rendering never invokes OpenSpec. Give the browser-bearing
+Mermaid/Puppeteer/yauzl toolchain its own locked package and retain the pinned
+OpenSpec CLI in a separate package. Reuse the existing safe Node-tool staging
+owner and one shared audit implementation. Each package must audit its complete
+development dependency graph before execution; unavailable audit, high/critical
+advisories, expired or stale exceptions must still fail. Add the missing explicit
+audit to OpenSpec validation. Preserve both checks in full CI, Windows qualification
+and release qualification. Ordinary documentation work must not install the CLI
+or its unused dependency tree. Do not duplicate browsers, change browser sandbox
+policy or claim that a dependency split remediates OpenSpec's vulnerability.
+
+Verify the split through actual Make and npm entry points with isolated disposable
+object roots: documentation audits/renders normally without OpenSpec installed,
+while OpenSpec validation refuses the currently vulnerable locked graph before
+validation. Check direct Windows CI/qualification commands and the website's
+module-resolution/cache paths as well as Make. Run independent source review,
+full source qualification and affected hosted checks before landing. OpenSpec and
+release readiness remain blocked until an actual dependency repair or separately
+reviewed policy decision exists; this work closes no release acceptance item.

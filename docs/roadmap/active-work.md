@@ -8647,9 +8647,12 @@ slice here before implementation so this file always names the resumable frontie
   candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
 - **Completion prerequisites:** none
-- **Next action:** Qualify the current CI-selection correction in the combined
-  candidate, then resolve aggregate-CI coverage attribution through explicit
-  native evidence rather than treating a workflow success as every platform cell.
+- **Next action:** Separate documentation rendering from the unused OpenSpec
+  dependency graph, auditing each tool before its own execution without removing
+  either from full CI or release qualification. Preserve the observed hosted
+  coverage/retry evidence and complete the combined candidate's remaining native,
+  installed, artifact and release acceptance. The unpatched OpenSpec dependency
+  advisory continues to block its gate and release readiness.
 - **Implementation:**
   - [x] Archive obsolete historical execution with source/fixture comparison and
         the document-publication proof gap explicitly preserved.

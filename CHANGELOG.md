@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Separate documentation-rendering dependencies from the OpenSpec CLI, so a
+  documentation-only check installs only its own tools. Audit both locked graphs
+  before their respective checks; full CI, Windows and release qualification keep
+  both. This separation does not waive or remediate an OpenSpec advisory.
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way

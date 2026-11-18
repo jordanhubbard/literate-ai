@@ -145,7 +145,7 @@ For that scope, run the applicable checks against the final content:
 
 ```
 make driver-review documentation-review lint format-check documentation-check
-npm ci --prefix tools/openspec --ignore-scripts
+npm ci --prefix tools/documentation --ignore-scripts
 node scripts/build_conference_site.mjs
 python3 scripts/verify_conference_site.py
 ```
