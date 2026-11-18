@@ -340,6 +340,96 @@ class NodeSDKAdmissionTests(unittest.TestCase):
             )
         self.assertEqual(original.base_recipe.uri, self.prepared.recipe.identity)
 
+    @staticmethod
+    def _cause_messages(error):
+        messages, seen = [], set()
+        while error is not None and id(error) not in seen:
+            seen.add(id(error))
+            messages.append(str(error))
+            error = error.__cause__ or error.__context__
+        return messages
+
+    def test_owner_loss_after_binding_prevents_operation_entry(self):
+        from literate_ai.adapters import node_sdk_admission as module
+
+        bind = module.bind_node_sdk_generation_invocation
+        reached, consume_called = [], []
+
+        def revoked_binding(*args, **kwargs):
+            result = bind(*args, **kwargs)
+            reached.append(True)
+            self.policy_alive = False
+            return result
+
+        def consume(*_):
+            consume_called.append(True)
+            self.fail("revoked owner entered")
+
+        with (
+            mock.patch.object(
+                module, "bind_node_sdk_generation_invocation", revoked_binding
+            ),
+            self.assertRaises(Exception) as caught,
+        ):
+            self.invoke(self.admission(), consume)
+        self.assertEqual(reached, [True])
+        self.assertEqual(consume_called, [])
+        self.assertTrue(
+            any(
+                "SDK policy ended" in item
+                for item in self._cause_messages(caught.exception)
+            )
+        )
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+
+    def _assert_body_return_revocation(self, cut):
+        completed, escaped = [], []
+
+        def consume(_invocation, guard):
+            escaped.append(guard)
+            if cut == "owner":
+                self.policy_alive = False
+            elif cut == "grant":
+                object.__setattr__(self.grants[-1], "revoked", True)
+            else:
+                export = self.fixture.accepted.build.exports[0]
+                root = self.fixture.ports.artifact_path(export)
+                path = next(item for item in root.rglob("*") if item.is_file())
+                path.write_bytes(path.read_bytes() + b" altered at body return")
+            completed.append(True)
+            return "DATA must be withheld"
+
+        with self.assertRaises(Exception) as caught:
+            self.invoke(self.admission(), consume)
+        self.assertEqual(completed, [True])
+        messages = self._cause_messages(caught.exception)
+        if cut == "owner":
+            self.assertTrue(
+                any("SDK policy ended" in item for item in messages), messages
+            )
+        elif cut == "grant":
+            self.assertTrue(
+                any("authorization_revoked" in item for item in messages), messages
+            )
+        else:
+            self.assertTrue(
+                any("materializ" in item and "changed" in item for item in messages),
+                messages,
+            )
+        with self.assertRaisesRegex(NodeSDKAdmissionError, "scope ended"):
+            escaped[0]()
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.fixture.ports._library_provider_scopes, {})
+
+    def test_owner_loss_at_body_return_withholds_operation_result(self):
+        self._assert_body_return_revocation("owner")
+
+    def test_grant_loss_at_body_return_withholds_operation_result(self):
+        self._assert_body_return_revocation("grant")
+
+    def test_provider_write_at_body_return_withholds_operation_result(self):
+        self._assert_body_return_revocation("files")
+
     def test_post_scope_grant_loss_withholds_operation_result(self):
         completed = False
 

@@ -62,6 +62,12 @@ custody scope while later providers are verified. Closing checks every original
 witness and independent verifier grant, including after nested contexts retire.
 Nested error cleanup can surface a retired-scope error above the original witness
 or expiry failure; the exception chain retains that original diagnostic.
+The terminal SDK operation uses the shared process-liveness context for entry and
+successful-exit validation. Standalone calls immediately adjacent to that context
+are redundant and removed. The context still polls the complete original cohort;
+recursive provider exits and the post-exit finite input/grant checks remain.
+Owner loss after binding prevents consumption; owner, grant or provider-file loss
+at body return withholds the result and retires escaped operation guards.
 A substituted delegate cannot acquire an owned invocation or build-intent
 operation. Host-currentness failure retires an active managed scope.
 

@@ -1129,6 +1129,32 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       establish a sufficient complete-lifecycle margin. Investigate the exact
       closing validation path before another full run, retaining all original
       callback/effect/clock/namespace boundaries and the original child matrix.
+      Independent review confirms the operation body returned before the first
+      observed expiry, without establishing that it returned before absolute
+      expiry. The terminal visit now delegates entry/successful-exit polling to
+      the existing shared process-liveness context, removing only two adjacent
+      duplicate SDK checks. Recursive provider exits, original witnesses, final
+      inputs and all grants/clocks are unchanged. The source review reproduces
+      `sha256:6a101bce2ef073462e672da393ab01a0691c4238d96164c194f3158eca9be42c`.
+      The 29 actual-provider/process-liveness controls pass in 159.705 seconds;
+      a strengthened zero-consume entry assertion separately passes in 9.866
+      seconds. Its initial assertion could be masked by cleanup and was corrected;
+      a formatting-mismatch edit trial did not apply and is not fresh coverage.
+      The broader SDK Make check selects 211 cases: 142 pass and 69 retain
+      prerequisite skips in 114.035 seconds. Lint/format pass; independent source
+      review approves this exact one-file production delta and corrected entry
+      control, and its source identity is recorded. No sufficient full-lifecycle
+      speed or complete SDK pass is established.
+      Additional DATA-only probes reject native-container canonicalization
+      (0.66% local gain), per-file anchored initial reads (21.6% slower), a shared
+      view with all-directory checks per read (21.3% slower), and a narrow
+      per-reference-group fused view (3.14% gain). A provisional catalog-local
+      fused-path/read prototype measures 14.14% over 24 alternating pairs, but
+      remains unimplemented: production must close the capture view before
+      discovery/final closure validation, reserve fallback descriptors, preserve
+      error/fallback policies and avoid remote/custom-reader overlap. Prototype
+      monkeypatches and private-cell inspection are benchmark-only DATA, not
+      source, error-path, descriptor-limit or native SDK qualification.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.

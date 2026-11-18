@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Share SDK operation entry/exit validation with the existing process-liveness
+  context, removing only adjacent duplicate checks. Provider custody, final
+  witnesses, callback cuts and original authorization expiry remain unchanged.
+
 - Validate pinned inputs through bounded, fresh POSIX directory handles while
   preserving ordinary-reader fallback and file/namespace checks. Saved stamp
   guards now retain primitive entry values so in-place entry metadata changes

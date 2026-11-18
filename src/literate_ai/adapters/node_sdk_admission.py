@@ -308,7 +308,8 @@ class LocalNodeSDKGenerationAdmission:
                     raise NodeSDKAdmissionError(
                         "fresh SDK inputs differ from original invocation"
                     )
-                require_live()
+                # The shared cohort checks this owner on entry and successful
+                # exit; keep those cuts in one owner rather than repeat them.
                 with process_liveness(require_live):
                     result = consume(invocation, require_live)
                     if (
@@ -320,7 +321,6 @@ class LocalNodeSDKGenerationAdmission:
                         if inspect.iscoroutine(result) or inspect.isgenerator(result):
                             result.close()
                         raise TypeError("SDK operation must finish synchronously")
-                require_live()
                 return result
             key = required[index]
             with self.ports.accepted_library_provider(
