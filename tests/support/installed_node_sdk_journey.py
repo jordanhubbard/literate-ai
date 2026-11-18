@@ -172,9 +172,19 @@ def run_runtime_cases(case_type):
         "original SDK runtime case inventory changed",
     )
     with redirect_stdout(sys.stderr):
-        return unittest.TextTestRunner(verbosity=2).run(
+        result = unittest.TextTestRunner(verbosity=2).run(
             unittest.TestSuite(case_type(method) for method in METHODS)
         )
+        # unittest already measured these through case cleanup. Reporting them
+        # here adds no clocks or callbacks inside an active native lifetime.
+        durations = getattr(result, "collectedDurations", ())
+        if durations:
+            rows = [
+                (str(case)[:512], seconds)
+                for case, seconds in durations[: len(METHODS)]
+            ]
+            print("Installed SDK case elapsed: " + json.dumps(rows), file=sys.stderr)
+        return result
 
 
 def wheel_payload(wheel, expected_sha256):

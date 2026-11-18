@@ -231,6 +231,14 @@ qualified-wheel export follows. Preserve the original grants, deadlines and full
 matrices; hold heavy reruns until fresh resource recovery observations, while
 investigating shared freshness cost without weakening custody.
 
+The harness reports `unittest`'s already-collected per-case elapsed times on
+stderr after the original runner returns, when that standard result supports
+them. This diagnostic includes cleanup time; it is not remaining grant lifetime.
+Older result objects remain supported. Add no clocks, profiler, in-case callback,
+verdict change or stdout protocol data. Fifteen focused guard checks pass,
+including unchanged success/error verdicts, stdout isolation and older results
+without elapsed observations. This reporting does not establish native success.
+
 
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native

@@ -280,7 +280,8 @@ class InstalledSDKGuardTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "changed before inventory close"):
             guard()
 
-    def test_original_fixture_prints_do_not_enter_stdout_protocol(self):
+    @staticmethod
+    def noisy_cases(should_fail=False):
         class NoisyCases(unittest.TestCase):
             def test_authored_runtime_execution_reenters_finalization_before_publication(  # noqa: E501
                 self,
@@ -289,15 +290,53 @@ class InstalledSDKGuardTests(unittest.TestCase):
 
             def test_two_provider_root_subpath_runtime_execution(self):
                 print("Authored SDK runtime: stage two")
+                if should_fail:
+                    raise RuntimeError("owned diagnostic fixture failure")
+
+        return NoisyCases
+
+    def test_original_fixture_prints_do_not_enter_stdout_protocol(self):
+        for should_fail in (False, True):
+            with self.subTest(should_fail=should_fail):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    result = fixture.run_runtime_cases(self.noisy_cases(should_fail))
+                self.assertEqual(result.wasSuccessful(), not should_fail)
+                self.assertEqual(len(result.errors), int(should_fail))
+                self.assertEqual(result.testsRun, 2)
+                self.assertEqual(stdout.getvalue(), "")
+                self.assertIn("Authored SDK runtime: stage one", stderr.getvalue())
+                self.assertIn("Authored SDK runtime: stage two", stderr.getvalue())
+                if hasattr(result, "collectedDurations"):
+                    prefix = "Installed SDK case elapsed: "
+                    line = next(
+                        row
+                        for row in stderr.getvalue().splitlines()
+                        if row.startswith(prefix)
+                    )
+                    rows = json.loads(line.removeprefix(prefix))
+                    self.assertEqual(len(rows), 2)
+                    for method in fixture.METHODS:
+                        self.assertTrue(any(row[0].startswith(method) for row in rows))
+                    for label, seconds in rows:
+                        self.assertLessEqual(len(label), 512)
+                        self.assertGreaterEqual(seconds, 0)
+
+    def test_legacy_result_without_elapsed_data_preserves_verdict(self):
+        class LegacyResult(unittest.TextTestResult):
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                if hasattr(self, "collectedDurations"):
+                    del self.collectedDurations
 
         stdout, stderr = io.StringIO(), io.StringIO()
-        with redirect_stdout(stdout), redirect_stderr(stderr):
-            result = fixture.run_runtime_cases(NoisyCases)
+        with patch.object(unittest.TextTestRunner, "resultclass", LegacyResult):
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                result = fixture.run_runtime_cases(self.noisy_cases())
         self.assertTrue(result.wasSuccessful())
         self.assertEqual(result.testsRun, 2)
         self.assertEqual(stdout.getvalue(), "")
-        self.assertIn("Authored SDK runtime: stage one", stderr.getvalue())
-        self.assertIn("Authored SDK runtime: stage two", stderr.getvalue())
+        self.assertNotIn("Installed SDK case elapsed:", stderr.getvalue())
 
     def test_private_prefix_bypasses_real_stale_installer_bytecode(self):
         modules = self.root / "modules"

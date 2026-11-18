@@ -1383,6 +1383,10 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       causation. No installed result is admitted; preserve full matrices/grants/
       deadlines, retain the failure and await fresh resource recovery before
       another heavy run while investigating shared freshness cost.
+      Post-run per-case elapsed diagnostics now reuse the existing unittest
+      result, preserving legacy result compatibility and every verdict. All
+      fifteen focused guard checks pass. These observations supply no grant
+      margin, new clock or qualification claim.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
