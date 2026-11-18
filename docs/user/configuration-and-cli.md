@@ -2804,6 +2804,50 @@ survives a lost release reply; later retries keep the same release request.
 Results arriving after cancellation cannot satisfy dispatch. This command cancels
 the allocation; it does not claim to recover artifacts lost with that worker.
 
+For the last RUN on a managed remote worker, request release as part of that
+operation:
+
+```sh
+litai run samples/hello-component --worker new-linux --release-managed-worker
+```
+
+This explicit flag authorizes disposal of that allocation and its caches. It
+preserves this RUN's verified execution evidence; the input executable and prior
+worker cache may be lost, and later runs may require rebuilding. It does not copy
+the executable again or turn its worker-bound export into a local artifact.
+Without the flag, the worker remains reusable. Static, local and command-only
+workers refuse this opt-in before application execution; BUILD and TEST retain
+their existing behavior.
+
+The original attempt, application outcome, custody references and release intent
+are saved together before release. Active health polling stops, and the existing
+failed-application diagnostics finish, before the provider is asked to stop the
+worker. A failed application stays failed. Once that completion is durable, a
+missing reply, pending cleanup or later publication failure retains the original
+outcome and release request; inspect
+`worker provisioner status WORKER` and retry the existing acknowledged release
+command, including when allocation is disabled. Do not rerun the application to
+recover cleanup. Both automatic release and this recovery command recheck the
+current RUN evidence before calling the provider. Missing or changed evidence
+keeps release pending; restore the original verified evidence before retrying.
+If that evidence is irretrievably lost, this terminal-profile release remains
+blocked; the command has no force-disposal bypass. Ordinary nonterminal release
+behavior is unchanged.
+If the initial completion cannot be saved, the earlier active or uncertain attempt
+still blocks retry, but a saved outcome and release intent are not guaranteed.
+Inspect status and use the existing exact-attempt cancellation flow when needed.
+
+This opt-in shares one worker-timeout budget across lease observation, dispatch,
+custody and provider release, including the existing process cleanup reserves.
+The application receives only the remaining budget after reserving the configured
+provider timeout and cleanup waits. A timeout shorter than those reserves refuses
+launch even if the provider usually responds quickly.
+Health cycles consume that budget; an already-started aggregate inspection may
+finish after it, leaving cleanup pending without a new provider invocation. This
+is not a hard whole-CLI wall-time guarantee or a provision-to-release deadline.
+It does not add a successful-run final health gate, automatic background recovery
+or evidence that a particular provider has been qualified.
+
 The lease request schema is `urn:literate-ai:schema:v1:worker-lease-request`:
 `operation` (`observe` or `release`), fresh observation `nonce`,
 `provision_request_identity`, original `request_id`, `worker_id` and known

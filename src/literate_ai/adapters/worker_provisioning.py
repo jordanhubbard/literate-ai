@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from dataclasses import replace
 from pathlib import Path
 
@@ -22,7 +23,7 @@ from literate_ai.contracts.execution_dispatch import _identifier
 from literate_ai.contracts.worker_provisioning import WorkerProvisioner
 from literate_ai.diagnostics import redact_secrets
 
-from .builders._process import run_bounded_process
+from .builders._process import remote_cleanup_wait_seconds, run_bounded_process
 from .builders.python import BuildError
 from .execution_dispatch import ExecutionDispatchAdapterError
 from .worker_registry import change_registry, read_registry
@@ -129,7 +130,25 @@ def admitted(path, environment, *, allow_disabled=False):
     return config, inherited, secrets
 
 
-def invoke(config, environment, *, help_mode=False, request=None):
+def require_deadline(deadline_monotonic):
+    if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+        refuse(
+            "deadline_exceeded",
+            "Managed worker operation exhausted its deadline; inspect retained "
+            "status before retrying.",
+        )
+
+
+def invoke(
+    config, environment, *, help_mode=False, request=None, deadline_monotonic=None
+):
+    execution_deadline = (
+        None
+        if deadline_monotonic is None
+        else deadline_monotonic
+        - remote_cleanup_wait_seconds(has_stdin_writer=not help_mode)
+    )
+    require_deadline(execution_deadline)
     try:
         result = run_bounded_process(
             (*config.command, config.help_argument) if help_mode else config.command,
@@ -143,6 +162,14 @@ def invoke(config, environment, *, help_mode=False, request=None):
             error_prefix="worker.provisioner",
             trace=False,
             input_bytes=None if help_mode else canonical_json_bytes(request),
+            **(
+                {}
+                if deadline_monotonic is None
+                else {
+                    "deadline_monotonic": execution_deadline,
+                    "terminate_descendants": True,
+                }
+            ),
         )
     except BuildError:
         refuse(

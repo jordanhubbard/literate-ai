@@ -6276,6 +6276,21 @@ the reported failure.
 
 ### [ ] WORKER-001 — Route build, test, and run through declared execution workers
 
+- **Terminal managed RUN release (in progress):** [Issue 480](https://github.com/jordanhubbard/literate-ai/issues/480)
+  adds an explicit operation-scoped release opt-in for an existing managed SSH
+  allocation, after the exact acknowledgement guard in issue 479. Keep default,
+  static and BUILD/TEST reuse behavior unchanged. Fence the admitted attempt and
+  atomically retain its original outcome/custody references with the existing
+  release intent; stop health polling and finish diagnostics before releasing.
+  Reuse management idempotency and one absolute opt-in deadline through locks and
+  provider invocation. Prove failed-app preservation, lost replies, interruption,
+  cancellation and same-key recovery with allocation disabled, without rerunning
+  the application. Local logical providers grant no live allocation/stop authority
+  or full worker-lifetime, platform or release qualification.
+  This first slice retains only the current RUN evidence: the explicit disposal
+  may lose the input executable and prior worker cache. Prior artifact retention
+  remains a separate acceptance obligation; no old export becomes locally runnable.
+
 - **Cleanup acknowledgement consistency (in progress):** [Issue 479](https://github.com/jordanhubbard/literate-ai/issues/479)
   records that the SSH coordinator currently accepts a well-formed opaque cleanup
   digest without recomputing its request/manifest/bundle/token binding. Share the

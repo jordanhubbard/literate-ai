@@ -21,7 +21,40 @@ from types import SimpleNamespace
 from unittest import mock
 
 from literate_ai.adapters import worker_telemetry_processes as native
-from literate_ai.adapters.builders import run_bounded_process
+from literate_ai.adapters.builders import BuildError, run_bounded_process
+
+
+class OriginalLaunchDeadlineTests(unittest.TestCase):
+    def test_deadline_consumed_by_guard_cannot_launch_a_child(self):
+        # The interrupt callback may spend the caller's last budget before Popen.
+        # A real process must never start once that absolute deadline has passed.
+        now, launches = [1.0], []
+
+        def guard():
+            now[0] = 2.0
+
+        def spawn(*args, **kwargs):
+            launches.append((args, kwargs))
+            raise AssertionError("expired command must not launch")
+
+        with self.assertRaises(BuildError) as raised:
+            run_bounded_process(
+                [sys.executable, "-c", "raise SystemExit(0)"],
+                cwd=None,
+                environment=os.environ,
+                timeout_seconds=30,
+                stdout_limit_bytes=1024,
+                stderr_limit_bytes=1024,
+                error_prefix="guard_deadline",
+                deadline_monotonic=1.5,
+                interrupt_guard=guard,
+                clock=lambda: now[0],
+                process_factory=spawn,
+                terminate_descendants=True,
+                trace=False,
+            )
+        self.assertEqual(raised.exception.code, "guard_deadline_timeout")
+        self.assertEqual(launches, [])
 
 
 @unittest.skipUnless(os.name == "posix", "actual POSIX launch interruption")

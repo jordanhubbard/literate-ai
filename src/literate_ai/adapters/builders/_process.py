@@ -31,15 +31,31 @@ _PROCESS_EXIT_WAIT_SECONDS = 5
 _STREAM_JOIN_SECONDS = 1
 
 
-def remote_cleanup_wait_seconds(*, platform_name: str | None = None) -> float:
-    """Conservative configured waits for descendant cleanup with no stdin writer.
+def remote_cleanup_wait_seconds(
+    *, platform_name: str | None = None, has_stdin_writer: bool = False
+) -> float:
+    """Conservative configured waits for owned descendants and optional stdin.
 
-    The long pipe-close path has three termination calls, two shared reader
+    Without stdin, the long pipe-close path has three termination calls, two reader
     deadlines, two final reader joins and a final process wait. The timeout path
     has two termination calls, two process waits and two reader joins. Native
     calls and blocking stream.close are not bounded by this wait arithmetic.
+    A stdin writer adds its joins and a possible fourth termination fallback
+    after the second reader-close phase; all formulas use the same owner limits.
     """
     terminate = process_tree_termination_wait_seconds(platform_name=platform_name)
+    if has_stdin_writer:
+        return max(
+            2 * terminate + 2 * _PROCESS_EXIT_WAIT_SECONDS + 3 * _STREAM_JOIN_SECONDS,
+            3 * terminate
+            + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
+            + 3 * _STREAM_JOIN_SECONDS
+            + _PROCESS_EXIT_WAIT_SECONDS,
+            4 * terminate
+            + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
+            + 2 * _STREAM_JOIN_SECONDS
+            + _PROCESS_EXIT_WAIT_SECONDS,
+        )
     return max(
         3 * terminate
         + 2 * _PIPE_CLOSE_TIMEOUT_SECONDS
@@ -73,6 +89,7 @@ def run_bounded_process(
     cwd: Path | None,
     environment: Mapping[str, str],
     timeout_seconds: float,
+    deadline_monotonic: float | None = None,
     stdout_limit_bytes: int,
     stderr_limit_bytes: int,
     error_prefix: str,
@@ -93,6 +110,8 @@ def run_bounded_process(
     An explicit caller-owned binary stdout sink avoids retaining archive bytes
     in memory. Its written bytes count against the same stdout limit; stdout in
     the result is empty in that mode. The caller owns flush/close and publication.
+    An optional absolute deadline uses the supplied clock's monotonic domain and
+    caps the ordinary relative execution timeout without restarting its budget.
     """
 
     if timeout_seconds <= 0:
@@ -118,6 +137,10 @@ def run_bounded_process(
         not isinstance(input_bytes, bytes) or len(input_bytes) > input_limit_bytes
     ):
         raise ValueError("tool process input exceeds its configured byte limit")
+    if deadline_monotonic is not None and clock() >= deadline_monotonic:
+        raise BuildError(
+            f"{error_prefix}_timeout", "Tool deadline expired before launch"
+        )
     if interrupt_guard is not None:
         interrupt_guard()
     if stdout_sink is not None and not stdout_sink.writable():
@@ -130,6 +153,10 @@ def run_bounded_process(
         if trace:
             trace_subprocess(
                 command, cwd=cwd or Path.cwd(), environment=child_environment
+            )
+        if deadline_monotonic is not None and clock() >= deadline_monotonic:
+            raise BuildError(
+                f"{error_prefix}_timeout", "Tool deadline expired before launch"
             )
         process = process_factory(
             list(command),
@@ -146,6 +173,9 @@ def run_bounded_process(
         raise BuildError(
             f"{error_prefix}_launch_failed", "Tool process could not start"
         ) from exc
+    except BaseException:
+        ownership.release()
+        raise
     observation = None
     writer = None
     try:
@@ -253,6 +283,8 @@ def run_bounded_process(
                 with state_lock:
                     inactive = now - last_activity[0]
                 total_remaining = timeout_seconds - elapsed
+                if deadline_monotonic is not None:
+                    total_remaining = min(total_remaining, deadline_monotonic - now)
                 inactive_remaining = (
                     None
                     if inactivity_timeout_seconds is None
@@ -260,7 +292,13 @@ def run_bounded_process(
                 )
                 if total_remaining <= 0:
                     timeout_kind = "total"
-                    deadline = timeout_seconds
+                    deadline = (
+                        timeout_seconds
+                        if deadline_monotonic is None
+                        else min(
+                            timeout_seconds, deadline_monotonic - started_monotonic
+                        )
+                    )
                     break
                 if inactive_remaining is not None and inactive_remaining <= 0:
                     timeout_kind = "no-progress"

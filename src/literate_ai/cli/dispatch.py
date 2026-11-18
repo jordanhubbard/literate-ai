@@ -1761,6 +1761,16 @@ def _parser() -> JsonArgumentParser:
     )
     add_execution_worker_arguments(run_command)
     run_command.add_argument(
+        "--release-managed-worker",
+        action="store_true",
+        help=(
+            "release the explicitly selected managed worker after this terminal RUN's "
+            "evidence is collected; the input executable and prior worker cache may "
+            "be lost, so later runs may require rebuilding; shares the worker timeout "
+            "budget through dispatch and release (health diagnostics may overrun it)"
+        ),
+    )
+    run_command.add_argument(
         "--flavor",
         action="append",
         default=[],

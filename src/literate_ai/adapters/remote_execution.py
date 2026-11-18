@@ -11,6 +11,7 @@ import re
 import shutil
 import tarfile
 import tempfile
+import time
 import uuid
 import zipfile
 from dataclasses import dataclass, replace
@@ -53,6 +54,7 @@ from literate_ai.contracts import (
     RemoteLifecycleEvidenceManifest,
     canonical_identity,
     canonical_json_bytes,
+    coordinator_evidence_import_identity,
     remote_cleanup_acknowledgement_identity,
 )
 from literate_ai.contracts.library_products import (
@@ -146,11 +148,41 @@ class RemoteLifecycleRebuilder(Protocol):
     ) -> dict[str, object]: ...
 
 
-def _file_identity(path: Path) -> ContentIdentity:
+def _evidence_budget(deadline_monotonic):
+    if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_timeout", "Evidence verification budget expired"
+        )
+
+
+def _file_identity(
+    path: Path, *, expected_size=None, deadline_monotonic=None
+) -> ContentIdentity:
+    _evidence_budget(deadline_monotonic)
     digest = hashlib.sha256()
+    count = 0
     with path.open("rb") as stream:
-        while chunk := stream.read(1024 * 1024):
+        while True:
+            _evidence_budget(deadline_monotonic)
+            limit = (
+                1024 * 1024
+                if expected_size is None
+                else min(1024 * 1024, expected_size - count + 1)
+            )
+            chunk = stream.read(limit)
+            if not chunk:
+                break
+            count += len(chunk)
+            if expected_size is not None and count > expected_size:
+                raise RemoteExecutionError(
+                    "execution.remote_evidence_file_mismatch",
+                    "Imported blob size changed",
+                )
             digest.update(chunk)
+    if expected_size is not None and count != expected_size:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_file_mismatch", "Imported blob size changed"
+        )
     return ContentIdentity(HashAlgorithm.SHA256, digest.hexdigest())
 
 
@@ -1666,17 +1698,97 @@ def import_remote_evidence_bundle(
                 "coordinator evidence manifest CAS contains conflicting bytes",
             )
         imported_identities = tuple(sorted(set(imported), key=lambda item: item.uri))
-        store_identity = canonical_identity(
-            {
-                "schema": "literate-ai/coordinator-evidence-import@1",
-                "manifest_identity": manifest.identity.uri,
-                "bundle_identity": expected_bundle_identity.uri,
-                "file_identities": [item.uri for item in imported_identities],
-            }
+        store_identity = coordinator_evidence_import_identity(
+            manifest_identity=manifest.identity,
+            bundle_identity=expected_bundle_identity,
+            file_identities=imported_identities,
         )
         return store_identity, imported_identities
     finally:
         shutil.rmtree(temporary, ignore_errors=True)
+
+
+def verify_imported_remote_evidence_store(
+    store_root: Path,
+    *,
+    manifest_identity: ContentIdentity,
+    bundle_identity: ContentIdentity,
+    deadline_monotonic: float | None = None,
+) -> tuple[
+    RemoteLifecycleEvidenceManifest, ContentIdentity, tuple[ContentIdentity, ...]
+]:
+    """Recheck one current imported manifest and its blobs without importing again."""
+    _evidence_budget(deadline_monotonic)
+    root = Path(store_root).absolute()
+    try:
+        require_safe_directory(root)
+        marker = root / "manifests" / "sha256" / f"{manifest_identity.digest}.json"
+        require_safe_directory(marker.parent)
+        if (
+            marker.is_symlink()
+            or not marker.is_file()
+            or marker.stat().st_size > MAX_REMOTE_EVIDENCE_MANIFEST_BYTES
+        ):
+            raise ValueError
+        with marker.open("rb") as stream:
+            raw = stream.read(MAX_REMOTE_EVIDENCE_MANIFEST_BYTES + 1)
+        if (
+            len(raw) > MAX_REMOTE_EVIDENCE_MANIFEST_BYTES
+            or hashlib.sha256(raw).hexdigest() != manifest_identity.digest
+        ):
+            raise ValueError
+        manifest = RemoteLifecycleEvidenceManifest.from_dict(json.loads(raw))
+        if (
+            canonical_json_bytes(manifest.to_dict()) != raw
+            or manifest.identity != manifest_identity
+        ):
+            raise ValueError
+        if len(manifest.files) > _MAX_EVIDENCE_FILES:
+            raise ValueError
+        total = 0
+        for item in manifest.files:
+            _evidence_budget(deadline_monotonic)
+            total += item.size
+            if total > _MAX_EVIDENCE_BYTES:
+                raise ValueError
+            blob = (
+                root
+                / "blobs"
+                / "sha256"
+                / item.identity.digest[:2]
+                / item.identity.digest
+            )
+            require_safe_directory(blob.parent)
+            if (
+                blob.is_symlink()
+                or not blob.is_file()
+                or blob.stat().st_size != item.size
+                or _file_identity(
+                    blob, expected_size=item.size, deadline_monotonic=deadline_monotonic
+                )
+                != item.identity
+            ):
+                raise ValueError
+    except RemoteExecutionError:
+        raise
+    except (OSError, ValueError, UnsafeFilesystemPathError) as exc:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_store_invalid",
+            "Current imported evidence manifest or blobs are unavailable or changed",
+        ) from exc
+    _evidence_budget(deadline_monotonic)
+    identities = tuple(
+        sorted({item.identity for item in manifest.files}, key=lambda item: item.uri)
+    )
+    return (
+        manifest,
+        coordinator_evidence_import_identity(
+            manifest_identity=manifest.identity,
+            bundle_identity=bundle_identity,
+            file_identities=identities,
+        ),
+        identities,
+    )
 
 
 def load_and_import_remote_evidence_bundle(

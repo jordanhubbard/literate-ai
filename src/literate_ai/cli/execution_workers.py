@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import time
 from argparse import Namespace
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -113,6 +114,7 @@ def admit_execution_worker_health(
     loader=None,
     inspector=None,
     active_job=False,
+    deadline_monotonic=None,
 ) -> dict[str, Any] | None:
     """Bounded fresh preflight; inspection itself never authorizes dispatch."""
 
@@ -124,6 +126,16 @@ def admit_execution_worker_health(
             "execution.worker_health_catalog_required",
             "--worker-health-config requires an explicitly configured worker",
         )
+
+    def require_budget():
+        if deadline_monotonic is not None and time.monotonic() >= deadline_monotonic:
+            raise CliFailure(
+                "execution.worker_health_deadline",
+                "Worker health observation exhausted the managed operation budget; "
+                "inspect retained status before further work.",
+            )
+
+    require_budget()
     if loader is None or inspector is None:
         from literate_ai.adapters.worker_health import (
             inspect_worker_storage,
@@ -140,11 +152,13 @@ def admit_execution_worker_health(
         )
         result = None
         for attempt in range(inputs.policy.maximum_retries + 1):
+            require_budget()
             result, status = inspector(
                 inputs,
                 job_identity=job_identity,
                 attempt=attempt,
             )
+            require_budget()
             if status == 0:
                 return result
             if status != 2:
@@ -179,6 +193,7 @@ def dispatch_with_worker_health_poll(
     dispatch,
     *,
     admission=admit_execution_worker_health,
+    deadline_monotonic=None,
 ):
     """Poll explicit health policy while preserving the active job's ownership."""
 
@@ -189,11 +204,28 @@ def dispatch_with_worker_health_poll(
     with ThreadPoolExecutor(max_workers=1, thread_name_prefix="litai-dispatch") as pool:
         future = pool.submit(dispatch)
         while True:
+            # An already-started inspection/dispatch keeps its own bounded
+            # ownership. Exhaustion stops new diagnostic cycles, not cleanup.
+            if (
+                deadline_monotonic is not None
+                and time.monotonic() >= deadline_monotonic
+            ):
+                return future.result(), tuple(polls)
             try:
-                result = future.result(timeout=interval)
+                wait = (
+                    interval
+                    if deadline_monotonic is None
+                    else min(interval, max(0.0, deadline_monotonic - time.monotonic()))
+                )
+                result = future.result(timeout=wait)
                 return result, tuple(polls)
             except TimeoutError:
                 if future.done():
+                    return future.result(), tuple(polls)
+                if (
+                    deadline_monotonic is not None
+                    and time.monotonic() >= deadline_monotonic
+                ):
                     return future.result(), tuple(polls)
                 try:
                     observed = admission(
@@ -201,6 +233,11 @@ def dispatch_with_worker_health_poll(
                         selected,
                         job_identity,
                         active_job=True,
+                        **(
+                            {}
+                            if deadline_monotonic is None
+                            else {"deadline_monotonic": deadline_monotonic}
+                        ),
                     )
                 except CliFailure as exc:
                     observed = {

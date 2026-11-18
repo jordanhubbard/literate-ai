@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add explicit terminal RUN release for a selected managed remote worker. Collect
+  this RUN's evidence, save its outcome and release intent, then stop health
+  polling before provider release. Keep defaults reusable. The opt-in permits
+  discarding the executable and prior worker cache; uncertain cleanup retains
+  the original outcome and the same release request for explicit recovery.
+
 - Verify SSH cleanup acknowledgement identities against the exact imported
   request, manifest, bundle and cleanup token before accepting custody. Preserve
   the worker's existing identity format and bounded acknowledgement retries.

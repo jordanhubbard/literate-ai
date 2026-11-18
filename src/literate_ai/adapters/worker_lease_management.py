@@ -27,6 +27,7 @@ from .worker_provisioning import (
     read_record,
     refuse,
     registered_worker,
+    require_deadline,
     validate_response,
     write_private,
 )
@@ -166,7 +167,7 @@ def require_recoverable_lease(record):
         )
 
 
-def _unregister_owned(record):
+def _unregister_owned(record, *, deadline_monotonic=None):
     def transform(catalog):
         existing = next(
             (
@@ -187,7 +188,15 @@ def _unregister_owned(record):
             tuple(w for w in catalog.workers if w != existing)
         )
 
-    change_registry(Path(record["catalog_path"]), transform)
+    change_registry(
+        Path(record["catalog_path"]),
+        transform,
+        **(
+            {}
+            if deadline_monotonic is None
+            else {"deadline_monotonic": deadline_monotonic}
+        ),
+    )
 
 
 def _configuration(config_path, environment, record):
@@ -211,6 +220,37 @@ def _configuration(config_path, environment, record):
     return config, child
 
 
+def _management_request(record, operation):
+    previous = record.get("management")
+    release = previous["release_request"] if previous else None
+    if operation == "release" and release is not None:
+        return release
+    return {
+        "schema": REQUEST_SCHEMA,
+        "operation": operation,
+        "nonce": secrets.token_hex(32),
+        "provision_request_identity": record["request_identity"],
+        "request_id": record["request"]["request_id"],
+        "worker_id": record["request"]["worker_id"],
+        "lease_id": record["response"]["lease_id"] if record["response"] else None,
+    }
+
+
+def _set_management_intent(record, request):
+    previous = record.get("management")
+    release = previous["release_request"] if previous else None
+    if request["operation"] == "release":
+        release = request
+        record["status"] = "releasing"
+    record["management"] = {
+        "schema": JOURNAL_SCHEMA,
+        "state": "pending",
+        "request": request,
+        "response": None,
+        "release_request": release,
+    }
+
+
 def manage_lease(
     config_path,
     state,
@@ -220,6 +260,9 @@ def manage_lease(
     operation,
     expired_only=False,
     cancel_attempt=None,
+    deadline_monotonic=None,
+    completion_attempt=None,
+    completion_identity=None,
 ):
     if operation not in ("observe", "release") or (
         expired_only and operation != "release"
@@ -227,14 +270,31 @@ def manage_lease(
         raise ValueError("invalid lease management operation")
     if cancel_attempt is not None and operation != "release":
         raise ValueError("attempt cancellation requires release")
+    if (completion_attempt is None) != (completion_identity is None) or (
+        completion_attempt is not None
+        and (
+            operation != "release"
+            or cancel_attempt is not None
+            or deadline_monotonic is None
+        )
+    ):
+        raise ValueError("terminal completion requires its exact release binding")
+    timing = (
+        {} if deadline_monotonic is None else {"deadline_monotonic": deadline_monotonic}
+    )
+    require_deadline(deadline_monotonic)
     path = operation_path(state, worker_id)
-    with exclusive_cache_lock(path.with_suffix(".lock")):
+    with exclusive_cache_lock(path.with_suffix(".lock"), **timing):
         record = read_record(path)
+        if completion_attempt is not None:
+            from .worker_lease_dispatch import require_terminal_completion
+
+            require_terminal_completion(record, completion_attempt, completion_identity)
         if record["status"] == "released":
             from .worker_lease_dispatch import release_dispatch
 
             release_dispatch(record, cancel_attempt)
-            _unregister_owned(record)
+            _unregister_owned(record, **timing)
             return record
         config, child = _configuration(config_path, environment, record)
         previous = record.get("management")
@@ -251,47 +311,43 @@ def manage_lease(
                     "lease_not_expired",
                     "No observed expired lease is available for cleanup.",
                 )
-        request = (
-            release
-            if operation == "release" and release is not None
-            else {
-                "schema": REQUEST_SCHEMA,
-                "operation": operation,
-                "nonce": secrets.token_hex(32),
-                "provision_request_identity": record["request_identity"],
-                "request_id": record["request"]["request_id"],
-                "worker_id": record["request"]["worker_id"],
-                "lease_id": record["response"]["lease_id"]
-                if record["response"]
-                else None,
-            }
-        )
+        request = _management_request(record, operation)
         if operation == "release":
             from .worker_lease_dispatch import release_dispatch
 
             draining = release_dispatch(record, cancel_attempt)
             release = request
-            record["status"] = "releasing"
-        record["management"] = {
-            "schema": JOURNAL_SCHEMA,
-            "state": "pending",
-            "request": request,
-            "response": None,
-            "release_request": release,
-        }
+        _set_management_intent(record, request)
         write_private(path, record, limit=3 * LIMIT)
+        require_deadline(deadline_monotonic)
         if operation == "release":
             # Stop future selections before asking the provider to terminate it.
             # A crash here retains the exact release request for an idempotent retry.
-            _unregister_owned(record)
+            _unregister_owned(record, **timing)
             if draining:
                 refuse(
                     "dispatch_draining",
                     "Release intent is saved and new jobs are blocked; retry after "
                     "the active attempt finishes, or cancel its exact attempt ID.",
                 )
+        if operation == "release" and record.get("dispatch", {}).get("completion"):
+            from .builders._process import remote_cleanup_wait_seconds
+            from .worker_lease_dispatch import require_terminal_custody
+
+            require_terminal_custody(
+                record,
+                deadline_monotonic=(
+                    None
+                    if deadline_monotonic is None
+                    else deadline_monotonic
+                    - remote_cleanup_wait_seconds(has_stdin_writer=True)
+                ),
+            )
         output = invoke(
-            replace(config, command=config.management_command), child, request=request
+            replace(config, command=config.management_command),
+            child,
+            request=request,
+            **timing,
         )
         response = _response(json.loads(output), request, record)
         current = WorkerProvisioner.from_dict(read_private(config_path))
@@ -317,5 +373,6 @@ def manage_lease(
                 and _expiry(response["expires_at"]) <= datetime.now(UTC)
             )
         ):
-            _unregister_owned(record)
+            _unregister_owned(record, **timing)
+        require_deadline(deadline_monotonic)
         return record
