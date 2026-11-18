@@ -1,6 +1,6 @@
 # Design traceability
 
-<!-- literate-ai:authority-reviewed sha256:e6f3ffb63a1d3827f2d57d5ec969b8368a610c58244e281f8bd7c66943beab0e -->
+<!-- literate-ai:authority-reviewed sha256:a644c2668acccbcf9bd173456cc03365e162bd125214d7e4f108817200a6ab3c -->
 
 This matrix is the short map from product concepts to code and proof. Start here; read a
 deeper document only for the row being changed.

@@ -234,3 +234,13 @@ or a guarantee of expiry margin. The earlier failed full attempts remain evidenc
 This explicit staged host case does not replace multi-provider `runtime.execute`,
 ordinary model generation, durable cold recovery, installed/platform qualification,
 default activation or downstream Aviation cutover.
+
+### Absent process observers
+
+The original library verifier keeps oracle checks on both sides of every process
+observation. If no observer is supplied (`None`), one full owner/authority guard
+runs between those oracle checks; no callback or other effect separates an
+additional adjacent guard. With an observer, the original before/after guards
+and `finally` cleanup remain in force, including mutation and exception paths.
+This local deduplication does not cache authority, change grants or establish
+multi-provider orchestration expiry margin.

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Remove one adjacent duplicate library custody check only when the optional
+  process observer is absent. Keep both oracle checks, all callback guards and
+  original authorization deadlines. Multi-provider orchestration remains open.
+
 - Qualify current one-provider authored-generator `runtime.execute` orchestration,
   retaining original provider re-admission, independent acceptance and publication
   ordering. Multi-provider orchestration and ordinary model generation remain open.

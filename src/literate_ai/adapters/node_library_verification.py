@@ -134,10 +134,13 @@ def check_node_library(
         def observed(process):
             scope()
             require_current()
-            try:
-                if observe_process is not None:
-                    return observe_process(process)
+            if observe_process is None:
+                # No callback/effect/read occurs here. Preserve both original
+                # oracle closures without repeating the adjacent full guard.
+                scope()
                 return None
+            try:
+                return observe_process(process)
             finally:
                 require_current()
                 scope()

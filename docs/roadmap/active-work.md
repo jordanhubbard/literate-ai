@@ -1271,6 +1271,22 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       complete compiler/runtime matrix, original clocks and deadlines unchanged;
       retain profile data only after the owned fixture finishes. An instrumented
       result must not replace the separate uninstrumented orchestration gate.
+      The diagnostic at clean `dbd7b034` terminates after 1,905.068 seconds
+      with one error and no skips: the original provider BUILD authorization
+      again expires during packaged-root runtime process observation. All 2,016
+      frozen Python files and Node identity remain unchanged. The first profiled
+      package guard succeeds in 1.998 seconds; it is not the failing guard.
+      Its 26 configuration-currentness traversals identify cost, but neither
+      that one sample nor 267 wrapper calls establishes total timing attribution.
+      Independent design review admits one narrow candidate: when the optional
+      process observer is exactly absent, retain both original oracle closures
+      and one full owner/authority guard, removing only its adjacent duplicate
+      across no intervening callback, filesystem operation or clock read. Keep
+      non-null observers' original before/after/finally behavior. Regressions
+      must cover the actual six declaration children and both original runtimes,
+      owner/grant/oracle loss and observer mutation/exception. No broader nested
+      guard consolidation, identity cache, deadline extension, authorization
+      renewal, sufficient expiry margin or native pass follows from this plan.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
