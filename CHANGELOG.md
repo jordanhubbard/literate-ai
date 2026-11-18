@@ -8,6 +8,20 @@
   logins and SDKs before prompting while preserving original user state. Set a
   fixed V1 session title to avoid a separate title-generation model request.
 
+- Run framework validation preflight before its long Python, skill and installed
+  checks, including with parallel Make. Check cheap release gates before Python
+  while retaining the later driver recheck and every existing release gate.
+
+- Reuse immutable skill metadata for identical bytes within an existing project
+  parse scope. Bound retained syntax data and restore isolated frames; catalog
+  discovery, content hashing, dependency/reference checks and native custody
+  guards remain fresh.
+
+- Start the measured long native-Cargo test module earlier using an opt-in
+  bounded module priority. Default discovery order, intact case groups and serial
+  barriers remain. Failure can change which peers had started, while existing
+  fail-fast, source binding, cancellation and outcome checks remain authoritative.
+
 - Separate documentation-rendering dependencies from the OpenSpec CLI, so a
   documentation-only check installs only its own tools. Audit both locked graphs
   before their respective checks; full CI, Windows and release qualification keep

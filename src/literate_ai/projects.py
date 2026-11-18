@@ -29,6 +29,7 @@ from literate_ai._filesystem import (
 from literate_ai.application.agent_skill_catalog import (
     AgentSkillCatalog,
     AgentSkillCatalogError,
+    read_only_agent_skill_metadata_parses,
 )
 from literate_ai.contracts import (
     CANONICAL_PROJECT_PROFILE,
@@ -150,14 +151,15 @@ def read_only_project_configuration_parses(*, isolated: bool = False) -> Iterato
     An isolated frame restores any ambient frame on exit and retains no new
     templates in that ambient frame.
     """
-    if not isolated and _PROJECT_CONFIGURATION_PARSES.get() is not None:
-        yield
-        return
-    token = _PROJECT_CONFIGURATION_PARSES.set(_ProjectConfigurationParses())
-    try:
-        yield
-    finally:
-        _PROJECT_CONFIGURATION_PARSES.reset(token)
+    with read_only_agent_skill_metadata_parses(isolated=isolated):
+        if not isolated and _PROJECT_CONFIGURATION_PARSES.get() is not None:
+            yield
+            return
+        token = _PROJECT_CONFIGURATION_PARSES.set(_ProjectConfigurationParses())
+        try:
+            yield
+        finally:
+            _PROJECT_CONFIGURATION_PARSES.reset(token)
 
 
 def parse_project_configuration(content: bytes) -> ProjectDefinition:

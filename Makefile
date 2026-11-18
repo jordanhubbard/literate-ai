@@ -74,7 +74,7 @@ OPENSPEC ?= $(OPENSPEC_RUNTIME_DIR)/node_modules/.bin/openspec
 SAMPLE_PYTHON := tests/conformance/support/sample_runner.py scripts/run_samples.py tests/conformance/support/self_hosting_proof.py scripts/run_source_to_specification_fixtures.py scripts/capture_migration_baseline.py scripts/refresh_migration_characterization.py scripts/fanout_samples.py scripts/remote_sample_worker.py scripts/remote_source_guard.py scripts/install_litai.py scripts/uninstall_litai.py scripts/installed_project_smoke.py scripts/installed_roundtrip.py scripts/run_checkpointed_gates.py scripts/run_checkpointed_unittests.py scripts/check_public_export.py
 PACKAGE_SAMPLE_PATTERNS ?= --sample hello-component --sample generated-library --sample dependency-planner
 MATRIX_FLAVORS ?= --flavor=os.*
-RELEASE_GATES := repository-layout-check public-export-check python-check lint format-check openspec-check documentation-check driver-review skills-check installed-e2e wheel-check install-check installed-project-e2e samples test-receipt-current
+RELEASE_GATES := repository-layout-check public-export-check lint format-check openspec-check documentation-check python-check driver-review skills-check installed-e2e wheel-check install-check installed-project-e2e samples test-receipt-current
 RELEASE_CHECKPOINT := $(OBJ_DIR)/release-checkpoint.json
 PYTHON_TEST_CHECKPOINT := $(OBJ_DIR)/python-test-checkpoint.json
 PYTHON_TEST_REPORT ?= $(OBJ_DIR)/python-test-report.json
@@ -326,7 +326,14 @@ runner-review: python-version $(RUNTIME_PREREQUISITE) ## Require a current sampl
 runner-review-record: python-version $(RUNTIME_PREREQUISITE) ## Re-pin the reviewed sample test-runner source closure.
 	$(RUN_PYTHON_COMMAND) scripts/review_test_runner.py --record
 
-validate: repository-layout-check python-check lint format-check openspec-check documentation-check driver-review runner-review skills-check installed-e2e ## Run every current repository gate.
+# A prerequisite barrier, rather than prerequisite order alone, also holds under
+# parallel Make and indirect callers such as bootstrap. Explicit sibling goals
+# remain independently requested work under normal Make semantics.
+.PHONY: validate-preflight
+validate-preflight: repository-layout-check lint format-check openspec-check documentation-check driver-review runner-review ## Refuse cheap validation failures before the long workload.
+
+validate: validate-preflight ## Run every current repository gate.
+	$(MAKE) python-check skills-check installed-e2e
 
 release: python-version $(RUNTIME_PREREQUISITE) ## Check the exact plan in RELEASE_PLAN; publication remains an explicit litai release publish command.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) -m literate_ai.cli release check "$(RELEASE_PLAN)" --project . --output "$(RELEASE_PREPARED)"

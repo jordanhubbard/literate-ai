@@ -1,0 +1,5912 @@
+{
+  "kind": "observed completed module timing + fixed-duration counterfactual scheduling, not an executed scheduling change",
+  "source_revision": "18d98aab3588b3112323ead2fdd959fd785803f4",
+  "source_timing_sha256": "e9ef726b21b3c09a443e981a6fd9769554e3a205c9616b94062c3c6b0e2646c7",
+  "workers": 4,
+  "modules": 644,
+  "cases": 3182,
+  "serial_modules": 0,
+  "observed_suite_seconds": 2683.588523667,
+  "observed_module_occupied_slot_seconds": 8035.90835675,
+  "native_receiving": {
+    "module": "tests.smoke.test_retained_cargo_receiving_native_v2",
+    "module_id": 2940,
+    "cases": 8,
+    "start": 1692.169651167,
+    "end": 2683.585675834,
+    "seconds": 991.416024667
+  },
+  "last_other_module_end_seconds": 1789.752679125,
+  "observed_native_only_tail_seconds": 893.8329967090001,
+  "simulated_fifo_seconds": 2683.561339338,
+  "simulated_native_first_seconds": 2018.3298102779993,
+  "simulated_longest_first_oracle_seconds": 2009.2096609569994,
+  "simulation_makespan_difference_seconds": 665.2315290600006,
+  "assumptions": [
+    "fixed observed setup-through-scratch-removal duration per intact module",
+    "same four slots, all modules independent and no serial barriers in this trace",
+    "no queue/poll gaps or changes in host contention, dependency caches or fixture behavior",
+    "native-first preserves internal case order and all other discovery order",
+    "LPT is an oracle lower comparator, not a prediction or implemented policy"
+  ],
+  "top_modules": [
+    {
+      "module": "tests.smoke.test_retained_cargo_receiving_native_v2",
+      "module_id": 2940,
+      "cases": 8,
+      "start": 1692.169651167,
+      "end": 2683.585675834,
+      "seconds": 991.416024667
+    },
+    {
+      "module": "tests.critical.test_command_link_dependencies",
+      "module_id": 384,
+      "cases": 1,
+      "start": 80.626734042,
+      "end": 546.020032459,
+      "seconds": 465.393298417
+    },
+    {
+      "module": "tests.e2e.test_cli_model_free_rebuild",
+      "module_id": 1992,
+      "cases": 7,
+      "start": 810.425064292,
+      "end": 1228.049681125,
+      "seconds": 417.624616833
+    },
+    {
+      "module": "tests.e2e.test_accepted_retained_source_export",
+      "module_id": 1925,
+      "cases": 6,
+      "start": 741.710021,
+      "end": 1030.021335167,
+      "seconds": 288.311314167
+    },
+    {
+      "module": "tests.e2e.test_native_candidate_repair",
+      "module_id": 2085,
+      "cases": 7,
+      "start": 999.258600334,
+      "end": 1266.997764625,
+      "seconds": 267.739164291
+    },
+    {
+      "module": "tests.e2e.test_rust_library_test_driver",
+      "module_id": 2412,
+      "cases": 6,
+      "start": 1418.786701084,
+      "end": 1681.024428792,
+      "seconds": 262.237727708
+    },
+    {
+      "module": "tests.critical.test_retained_project_sdks",
+      "module_id": 1429,
+      "cases": 13,
+      "start": 547.168460417,
+      "end": 802.789477917,
+      "seconds": 255.6210175
+    },
+    {
+      "module": "tests.e2e.test_retained_sdk_public",
+      "module_id": 2392,
+      "cases": 11,
+      "start": 1392.556059,
+      "end": 1629.937821667,
+      "seconds": 237.381762667
+    },
+    {
+      "module": "tests.critical.test_retained_project_receipt",
+      "module_id": 1374,
+      "cases": 16,
+      "start": 449.606108875,
+      "end": 676.798405834,
+      "seconds": 227.192296959
+    },
+    {
+      "module": "tests.e2e.test_retained_sdk_runtime_context",
+      "module_id": 2403,
+      "cases": 7,
+      "start": 1392.752481,
+      "end": 1591.35285775,
+      "seconds": 198.60037675
+    }
+  ],
+  "observed_modules": [
+    {
+      "module": "tests.conformance.test_bazel_read_only_cache",
+      "module_id": 0,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 0.005590334,
+      "end_seconds": 8.051977667,
+      "duration_seconds": 8.046387333
+    },
+    {
+      "module": "tests.conformance.test_compiler_cache",
+      "module_id": 1,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 0.010529625,
+      "end_seconds": 0.421245,
+      "duration_seconds": 0.410715375
+    },
+    {
+      "module": "tests.conformance.test_durable_split_service_portfolio",
+      "module_id": 4,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 0.0136745,
+      "end_seconds": 4.730895792,
+      "duration_seconds": 4.717221292
+    },
+    {
+      "module": "tests.conformance.test_elixir_mix_graph_qualification",
+      "module_id": 6,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 0.016962959,
+      "end_seconds": 0.534681292,
+      "duration_seconds": 0.517718333
+    },
+    {
+      "module": "tests.conformance.test_elixir_mix_library_qualification",
+      "module_id": 8,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 0.421262,
+      "end_seconds": 0.844482334,
+      "duration_seconds": 0.423220334
+    },
+    {
+      "module": "tests.conformance.test_elixir_mix_qualification",
+      "module_id": 11,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 0.534698875,
+      "end_seconds": 0.95821675,
+      "duration_seconds": 0.423517875
+    },
+    {
+      "module": "tests.conformance.test_elixir_mix_shared_qualification",
+      "module_id": 17,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 0.844501209,
+      "end_seconds": 1.267901084,
+      "duration_seconds": 0.423399875
+    },
+    {
+      "module": "tests.conformance.test_elixir_native_qualification",
+      "module_id": 18,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 0.95822925,
+      "end_seconds": 2.038818084,
+      "duration_seconds": 1.080588834
+    },
+    {
+      "module": "tests.conformance.test_inverse_regenerative_parity",
+      "module_id": 24,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1.267913459,
+      "end_seconds": 3.847659625,
+      "duration_seconds": 2.579746166
+    },
+    {
+      "module": "tests.conformance.test_live_bidirectional_roundtrip",
+      "module_id": 26,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 2.038831625,
+      "end_seconds": 2.591619,
+      "duration_seconds": 0.552787375
+    },
+    {
+      "module": "tests.conformance.test_live_composed_roundtrip",
+      "module_id": 28,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 2.591632084,
+      "end_seconds": 3.125904834,
+      "duration_seconds": 0.53427275
+    },
+    {
+      "module": "tests.conformance.test_sample_acceptance_interfaces",
+      "module_id": 29,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 3.12591825,
+      "end_seconds": 4.1480625,
+      "duration_seconds": 1.02214425
+    },
+    {
+      "module": "tests.conformance.test_sample_ladder",
+      "module_id": 32,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 3.847705209,
+      "end_seconds": 48.534328084,
+      "duration_seconds": 44.686622875
+    },
+    {
+      "module": "tests.conformance.test_self_hosting",
+      "module_id": 42,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 4.148075959,
+      "end_seconds": 108.34516125,
+      "duration_seconds": 104.197085291
+    },
+    {
+      "module": "tests.conformance.test_standard_locked_command_projection",
+      "module_id": 45,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 4.730908834,
+      "end_seconds": 17.722717,
+      "duration_seconds": 12.991808166
+    },
+    {
+      "module": "tests.critical.test_accept_handoff",
+      "module_id": 49,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 8.05199425,
+      "end_seconds": 14.102371875,
+      "duration_seconds": 6.050377625
+    },
+    {
+      "module": "tests.critical.test_accept_reservation_admission",
+      "module_id": 56,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 14.1023875,
+      "end_seconds": 14.755901084,
+      "duration_seconds": 0.653513584
+    },
+    {
+      "module": "tests.critical.test_accept_runtime_custody",
+      "module_id": 58,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 14.755915125,
+      "end_seconds": 15.494543334,
+      "duration_seconds": 0.738628209
+    },
+    {
+      "module": "tests.critical.test_action_authorization",
+      "module_id": 61,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 15.494557667,
+      "end_seconds": 18.333131,
+      "duration_seconds": 2.838573333
+    },
+    {
+      "module": "tests.critical.test_action_blob_source",
+      "module_id": 63,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 17.722731417,
+      "end_seconds": 21.5836065,
+      "duration_seconds": 3.860875083
+    },
+    {
+      "module": "tests.critical.test_action_build_action",
+      "module_id": 70,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 18.333144,
+      "end_seconds": 19.716348167,
+      "duration_seconds": 1.383204167
+    },
+    {
+      "module": "tests.critical.test_action_build_result",
+      "module_id": 72,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 19.716361417,
+      "end_seconds": 21.455496875,
+      "duration_seconds": 1.739135458
+    },
+    {
+      "module": "tests.critical.test_action_finalize",
+      "module_id": 74,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 21.455516542,
+      "end_seconds": 22.591806084,
+      "duration_seconds": 1.136289542
+    },
+    {
+      "module": "tests.critical.test_action_finalize_authority",
+      "module_id": 78,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 21.583690459,
+      "end_seconds": 22.980534417,
+      "duration_seconds": 1.396843958
+    },
+    {
+      "module": "tests.critical.test_action_finalize_grant",
+      "module_id": 86,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 22.591822334,
+      "end_seconds": 24.242522334,
+      "duration_seconds": 1.6507
+    },
+    {
+      "module": "tests.critical.test_action_finalize_package",
+      "module_id": 93,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 22.980553709,
+      "end_seconds": 23.632914,
+      "duration_seconds": 0.652360291
+    },
+    {
+      "module": "tests.critical.test_action_finalize_process",
+      "module_id": 96,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 23.632938625,
+      "end_seconds": 27.610321834,
+      "duration_seconds": 3.977383209
+    },
+    {
+      "module": "tests.critical.test_action_finalize_record",
+      "module_id": 103,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 24.242558792,
+      "end_seconds": 25.664046625,
+      "duration_seconds": 1.421487833
+    },
+    {
+      "module": "tests.critical.test_action_finalize_result",
+      "module_id": 111,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 25.664062084,
+      "end_seconds": 27.363919042,
+      "duration_seconds": 1.699856958
+    },
+    {
+      "module": "tests.critical.test_action_finalize_result_record",
+      "module_id": 120,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 27.363939834,
+      "end_seconds": 28.846626042,
+      "duration_seconds": 1.482686208
+    },
+    {
+      "module": "tests.critical.test_action_finalize_stages",
+      "module_id": 126,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 27.6103375,
+      "end_seconds": 28.769299584,
+      "duration_seconds": 1.158962084
+    },
+    {
+      "module": "tests.critical.test_action_finalize_startup",
+      "module_id": 133,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 28.76931975,
+      "end_seconds": 29.487222792,
+      "duration_seconds": 0.717903042
+    },
+    {
+      "module": "tests.critical.test_action_generate_action",
+      "module_id": 136,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 28.846663417,
+      "end_seconds": 30.782293209,
+      "duration_seconds": 1.935629792
+    },
+    {
+      "module": "tests.critical.test_action_generate_execution",
+      "module_id": 142,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 29.487241959,
+      "end_seconds": 31.583060209,
+      "duration_seconds": 2.09581825
+    },
+    {
+      "module": "tests.critical.test_action_generate_import",
+      "module_id": 153,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 30.782308542,
+      "end_seconds": 32.546850917,
+      "duration_seconds": 1.764542375
+    },
+    {
+      "module": "tests.critical.test_action_generate_process",
+      "module_id": 160,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 31.58307825,
+      "end_seconds": 34.885202792,
+      "duration_seconds": 3.302124542
+    },
+    {
+      "module": "tests.critical.test_action_generate_record",
+      "module_id": 165,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 32.546865959,
+      "end_seconds": 34.039819459,
+      "duration_seconds": 1.4929535
+    },
+    {
+      "module": "tests.critical.test_action_generate_result",
+      "module_id": 174,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 34.039834417,
+      "end_seconds": 35.784185292,
+      "duration_seconds": 1.744350875
+    },
+    {
+      "module": "tests.critical.test_action_generate_source",
+      "module_id": 183,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 34.885240209,
+      "end_seconds": 36.833749625,
+      "duration_seconds": 1.948509416
+    },
+    {
+      "module": "tests.critical.test_action_link",
+      "module_id": 190,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 35.784211834,
+      "end_seconds": 40.768796042,
+      "duration_seconds": 4.984584208
+    },
+    {
+      "module": "tests.critical.test_action_link_dependencies",
+      "module_id": 195,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 36.8337675,
+      "end_seconds": 43.011146917,
+      "duration_seconds": 6.177379417
+    },
+    {
+      "module": "tests.critical.test_action_link_proof",
+      "module_id": 201,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 40.768812459,
+      "end_seconds": 44.634986584,
+      "duration_seconds": 3.866174125
+    },
+    {
+      "module": "tests.critical.test_action_link_receiver",
+      "module_id": 205,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 43.011162875,
+      "end_seconds": 47.582577334,
+      "duration_seconds": 4.571414459
+    },
+    {
+      "module": "tests.critical.test_action_link_record",
+      "module_id": 207,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 44.635007,
+      "end_seconds": 48.170627,
+      "duration_seconds": 3.53562
+    },
+    {
+      "module": "tests.critical.test_action_link_result",
+      "module_id": 211,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 47.582592125,
+      "end_seconds": 51.650955209,
+      "duration_seconds": 4.068363084
+    },
+    {
+      "module": "tests.critical.test_action_package",
+      "module_id": 215,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 48.170642167,
+      "end_seconds": 49.147567667,
+      "duration_seconds": 0.9769255
+    },
+    {
+      "module": "tests.critical.test_action_package_record",
+      "module_id": 219,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 48.53434525,
+      "end_seconds": 49.644281042,
+      "duration_seconds": 1.109935792
+    },
+    {
+      "module": "tests.critical.test_action_package_worker",
+      "module_id": 225,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 49.147581,
+      "end_seconds": 58.931358375,
+      "duration_seconds": 9.783777375
+    },
+    {
+      "module": "tests.critical.test_action_retained_source",
+      "module_id": 230,
+      "cases": 15,
+      "serial": false,
+      "start_seconds": 49.644295625,
+      "end_seconds": 50.268130667,
+      "duration_seconds": 0.623835042
+    },
+    {
+      "module": "tests.critical.test_action_ssh_transport",
+      "module_id": 245,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 50.268150959,
+      "end_seconds": 55.308492959,
+      "duration_seconds": 5.040342
+    },
+    {
+      "module": "tests.critical.test_action_tool_selectors",
+      "module_id": 249,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 51.650974167,
+      "end_seconds": 77.427803917,
+      "duration_seconds": 25.77682975
+    },
+    {
+      "module": "tests.critical.test_application_generation",
+      "module_id": 250,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 55.308509084,
+      "end_seconds": 55.695346542,
+      "duration_seconds": 0.386837458
+    },
+    {
+      "module": "tests.critical.test_application_settings",
+      "module_id": 254,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 55.695380834,
+      "end_seconds": 56.04397925,
+      "duration_seconds": 0.348598416
+    },
+    {
+      "module": "tests.critical.test_artifact_graph_contracts",
+      "module_id": 257,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 56.043995417,
+      "end_seconds": 56.971460542,
+      "duration_seconds": 0.927465125
+    },
+    {
+      "module": "tests.critical.test_authorized_host_execution",
+      "module_id": 262,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 56.97147925,
+      "end_seconds": 60.339545792,
+      "duration_seconds": 3.368066542
+    },
+    {
+      "module": "tests.critical.test_authorized_observations",
+      "module_id": 269,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 58.931373834,
+      "end_seconds": 59.252934625,
+      "duration_seconds": 0.321560791
+    },
+    {
+      "module": "tests.critical.test_bazel_builder",
+      "module_id": 271,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 59.252967709,
+      "end_seconds": 59.677058625,
+      "duration_seconds": 0.424090916
+    },
+    {
+      "module": "tests.critical.test_build_cache_directories",
+      "module_id": 273,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 59.677073959,
+      "end_seconds": 61.801039625,
+      "duration_seconds": 2.123965666
+    },
+    {
+      "module": "tests.critical.test_build_execution_inputs",
+      "module_id": 283,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 60.339585584,
+      "end_seconds": 61.527500459,
+      "duration_seconds": 1.187914875
+    },
+    {
+      "module": "tests.critical.test_build_grant_consumption",
+      "module_id": 285,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 61.527515584,
+      "end_seconds": 62.342950042,
+      "duration_seconds": 0.815434458
+    },
+    {
+      "module": "tests.critical.test_cache_lock",
+      "module_id": 288,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 61.801055292,
+      "end_seconds": 62.165053292,
+      "duration_seconds": 0.363998
+    },
+    {
+      "module": "tests.critical.test_cached_coding_cli_source_generation_runner",
+      "module_id": 289,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 62.165087375,
+      "end_seconds": 63.328131667,
+      "duration_seconds": 1.163044292
+    },
+    {
+      "module": "tests.critical.test_cas_read_bounds",
+      "module_id": 292,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 62.342965042,
+      "end_seconds": 62.67611325,
+      "duration_seconds": 0.333148208
+    },
+    {
+      "module": "tests.critical.test_ci_action_pins",
+      "module_id": 294,
+      "cases": 15,
+      "serial": false,
+      "start_seconds": 62.676128334,
+      "end_seconds": 63.040927334,
+      "duration_seconds": 0.364799
+    },
+    {
+      "module": "tests.critical.test_ci_impact_run",
+      "module_id": 309,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 63.040939875,
+      "end_seconds": 63.510571959,
+      "duration_seconds": 0.469632084
+    },
+    {
+      "module": "tests.critical.test_claude_skillspector_hook",
+      "module_id": 311,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 63.328146417,
+      "end_seconds": 63.952048209,
+      "duration_seconds": 0.623901792
+    },
+    {
+      "module": "tests.critical.test_cli_generation",
+      "module_id": 313,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 63.510588,
+      "end_seconds": 64.022514125,
+      "duration_seconds": 0.511926125
+    },
+    {
+      "module": "tests.critical.test_cli_locked_generation",
+      "module_id": 314,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 63.952064,
+      "end_seconds": 65.544382667,
+      "duration_seconds": 1.592318667
+    },
+    {
+      "module": "tests.critical.test_cli_retained_cargo_https",
+      "module_id": 317,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 64.022529209,
+      "end_seconds": 67.674715667,
+      "duration_seconds": 3.652186458
+    },
+    {
+      "module": "tests.critical.test_cli_verbose",
+      "module_id": 320,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 65.544398542,
+      "end_seconds": 65.860913084,
+      "duration_seconds": 0.316514542
+    },
+    {
+      "module": "tests.critical.test_codex_runtime_state",
+      "module_id": 323,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 65.860926292,
+      "end_seconds": 67.038659959,
+      "duration_seconds": 1.177733667
+    },
+    {
+      "module": "tests.critical.test_coding_cli_generation",
+      "module_id": 327,
+      "cases": 22,
+      "serial": false,
+      "start_seconds": 67.0386745,
+      "end_seconds": 69.619962334,
+      "duration_seconds": 2.581287834
+    },
+    {
+      "module": "tests.critical.test_coding_cli_success_cleanup",
+      "module_id": 349,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 67.674730042,
+      "end_seconds": 69.854405584,
+      "duration_seconds": 2.179675542
+    },
+    {
+      "module": "tests.critical.test_command_acceptor",
+      "module_id": 350,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 69.619979917,
+      "end_seconds": 80.626718709,
+      "duration_seconds": 11.006738792
+    },
+    {
+      "module": "tests.critical.test_command_builder",
+      "module_id": 359,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 69.854420209,
+      "end_seconds": 71.729603625,
+      "duration_seconds": 1.875183416
+    },
+    {
+      "module": "tests.critical.test_command_executor",
+      "module_id": 361,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 71.729617292,
+      "end_seconds": 73.238353834,
+      "duration_seconds": 1.508736542
+    },
+    {
+      "module": "tests.critical.test_command_finalizer",
+      "module_id": 362,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 73.238368875,
+      "end_seconds": 75.54752625,
+      "duration_seconds": 2.309157375
+    },
+    {
+      "module": "tests.critical.test_command_generate_worker",
+      "module_id": 370,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 75.547541084,
+      "end_seconds": 90.149339209,
+      "duration_seconds": 14.601798125
+    },
+    {
+      "module": "tests.critical.test_command_generator",
+      "module_id": 372,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 77.427838167,
+      "end_seconds": 83.769459542,
+      "duration_seconds": 6.341621375
+    },
+    {
+      "module": "tests.critical.test_command_link_dependencies",
+      "module_id": 384,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 80.626734042,
+      "end_seconds": 546.020032459,
+      "duration_seconds": 465.393298417
+    },
+    {
+      "module": "tests.critical.test_command_linker",
+      "module_id": 385,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 83.769476667,
+      "end_seconds": 99.352799292,
+      "duration_seconds": 15.583322625
+    },
+    {
+      "module": "tests.critical.test_command_packager",
+      "module_id": 392,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 90.149358209,
+      "end_seconds": 91.78805275,
+      "duration_seconds": 1.638694541
+    },
+    {
+      "module": "tests.critical.test_compiler_cache",
+      "module_id": 402,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 91.788068542,
+      "end_seconds": 92.190067167,
+      "duration_seconds": 0.401998625
+    },
+    {
+      "module": "tests.critical.test_compiler_cache_dependencies",
+      "module_id": 403,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 92.190084292,
+      "end_seconds": 92.823356084,
+      "duration_seconds": 0.633271792
+    },
+    {
+      "module": "tests.critical.test_component_authority",
+      "module_id": 405,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 92.823375334,
+      "end_seconds": 93.1582915,
+      "duration_seconds": 0.334916166
+    },
+    {
+      "module": "tests.critical.test_component_command_contracts",
+      "module_id": 408,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 93.158306542,
+      "end_seconds": 93.514002959,
+      "duration_seconds": 0.355696417
+    },
+    {
+      "module": "tests.critical.test_component_generation_context",
+      "module_id": 410,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 93.514019417,
+      "end_seconds": 93.861752667,
+      "duration_seconds": 0.34773325
+    },
+    {
+      "module": "tests.critical.test_component_lock_store",
+      "module_id": 411,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 93.861769459,
+      "end_seconds": 94.211469125,
+      "duration_seconds": 0.349699666
+    },
+    {
+      "module": "tests.critical.test_component_resolution_audit_store",
+      "module_id": 414,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 94.211485,
+      "end_seconds": 94.548794125,
+      "duration_seconds": 0.337309125
+    },
+    {
+      "module": "tests.critical.test_component_workers",
+      "module_id": 415,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 94.548810417,
+      "end_seconds": 95.087451917,
+      "duration_seconds": 0.5386415
+    },
+    {
+      "module": "tests.critical.test_configured_finalize_worker",
+      "module_id": 418,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 95.087467959,
+      "end_seconds": 96.05511425,
+      "duration_seconds": 0.967646291
+    },
+    {
+      "module": "tests.critical.test_configured_generate_worker",
+      "module_id": 424,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 96.055128834,
+      "end_seconds": 101.927096667,
+      "duration_seconds": 5.871967833
+    },
+    {
+      "module": "tests.critical.test_contracts_identity",
+      "module_id": 430,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 99.352817334,
+      "end_seconds": 99.693726709,
+      "duration_seconds": 0.340909375
+    },
+    {
+      "module": "tests.critical.test_current_component_locks",
+      "module_id": 431,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 99.693743625,
+      "end_seconds": 104.15581875,
+      "duration_seconds": 4.462075125
+    },
+    {
+      "module": "tests.critical.test_debian_packaging",
+      "module_id": 439,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 101.927113209,
+      "end_seconds": 102.9456105,
+      "duration_seconds": 1.018497291
+    },
+    {
+      "module": "tests.critical.test_dependency_inspector_process",
+      "module_id": 440,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 102.945629042,
+      "end_seconds": 103.544171167,
+      "duration_seconds": 0.598542125
+    },
+    {
+      "module": "tests.critical.test_directory_export_reader",
+      "module_id": 443,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 103.544185709,
+      "end_seconds": 103.879433042,
+      "duration_seconds": 0.335247333
+    },
+    {
+      "module": "tests.critical.test_docker_container_flavor",
+      "module_id": 447,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 103.879448375,
+      "end_seconds": 104.438771584,
+      "duration_seconds": 0.559323209
+    },
+    {
+      "module": "tests.critical.test_document_pair_oracle",
+      "module_id": 448,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 104.155835959,
+      "end_seconds": 104.489207209,
+      "duration_seconds": 0.33337125
+    },
+    {
+      "module": "tests.critical.test_documentation_update",
+      "module_id": 450,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 104.438787625,
+      "end_seconds": 104.849319792,
+      "duration_seconds": 0.410532167
+    },
+    {
+      "module": "tests.critical.test_dsse_evidence",
+      "module_id": 453,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 104.489221209,
+      "end_seconds": 104.8300315,
+      "duration_seconds": 0.340810291
+    },
+    {
+      "module": "tests.critical.test_elixir_hex_staging",
+      "module_id": 456,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 104.830048042,
+      "end_seconds": 105.236039959,
+      "duration_seconds": 0.405991917
+    },
+    {
+      "module": "tests.critical.test_elixir_hex_toolchain",
+      "module_id": 462,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 104.849337834,
+      "end_seconds": 105.266388292,
+      "duration_seconds": 0.417050458
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_builder",
+      "module_id": 470,
+      "cases": 24,
+      "serial": false,
+      "start_seconds": 105.236075459,
+      "end_seconds": 105.836225959,
+      "duration_seconds": 0.6001505
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_dependencies",
+      "module_id": 494,
+      "cases": 27,
+      "serial": false,
+      "start_seconds": 105.26640975,
+      "end_seconds": 105.702798875,
+      "duration_seconds": 0.436389125
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_projects",
+      "module_id": 521,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 105.70281275,
+      "end_seconds": 106.044957542,
+      "duration_seconds": 0.342144792
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_provider_sources",
+      "module_id": 532,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 105.8362395,
+      "end_seconds": 107.440191167,
+      "duration_seconds": 1.603951667
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_providers",
+      "module_id": 537,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 106.044972042,
+      "end_seconds": 106.440037375,
+      "duration_seconds": 0.395065333
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_resolution",
+      "module_id": 546,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 106.440052917,
+      "end_seconds": 107.382948834,
+      "duration_seconds": 0.942895917
+    },
+    {
+      "module": "tests.critical.test_elixir_mix_toolchain",
+      "module_id": 558,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 107.382963834,
+      "end_seconds": 107.811697584,
+      "duration_seconds": 0.42873375
+    },
+    {
+      "module": "tests.critical.test_elixir_standard_mix",
+      "module_id": 566,
+      "cases": 13,
+      "serial": false,
+      "start_seconds": 107.44021075,
+      "end_seconds": 109.8276465,
+      "duration_seconds": 2.38743575
+    },
+    {
+      "module": "tests.critical.test_evidence_cancellation",
+      "module_id": 579,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 107.811711792,
+      "end_seconds": 129.452367667,
+      "duration_seconds": 21.640655875
+    },
+    {
+      "module": "tests.critical.test_evidence_graph",
+      "module_id": 580,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 108.345176792,
+      "end_seconds": 108.713259084,
+      "duration_seconds": 0.368082292
+    },
+    {
+      "module": "tests.critical.test_evidence_partition_manifest",
+      "module_id": 583,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 108.713273334,
+      "end_seconds": 109.031062042,
+      "duration_seconds": 0.317788708
+    },
+    {
+      "module": "tests.critical.test_evidence_records",
+      "module_id": 584,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 109.031078792,
+      "end_seconds": 110.916644334,
+      "duration_seconds": 1.885565542
+    },
+    {
+      "module": "tests.critical.test_evidence_storage",
+      "module_id": 587,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 109.827662792,
+      "end_seconds": 110.714838375,
+      "duration_seconds": 0.887175583
+    },
+    {
+      "module": "tests.critical.test_evidence_trust",
+      "module_id": 591,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 110.714853875,
+      "end_seconds": 112.664682459,
+      "duration_seconds": 1.949828584
+    },
+    {
+      "module": "tests.critical.test_exclusive_directory",
+      "module_id": 594,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 110.916660459,
+      "end_seconds": 111.260330167,
+      "duration_seconds": 0.343669708
+    },
+    {
+      "module": "tests.critical.test_execution_dispatch_adapter",
+      "module_id": 599,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 111.260347875,
+      "end_seconds": 111.590541,
+      "duration_seconds": 0.330193125
+    },
+    {
+      "module": "tests.critical.test_execution_dispatch_contracts",
+      "module_id": 601,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 111.590557292,
+      "end_seconds": 111.96836475,
+      "duration_seconds": 0.377807458
+    },
+    {
+      "module": "tests.critical.test_explicit_action_inputs",
+      "module_id": 604,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 111.968377667,
+      "end_seconds": 112.285386375,
+      "duration_seconds": 0.317008708
+    },
+    {
+      "module": "tests.critical.test_finalize_execution_policy",
+      "module_id": 605,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 112.285401292,
+      "end_seconds": 115.173348584,
+      "duration_seconds": 2.887947292
+    },
+    {
+      "module": "tests.critical.test_finalize_grant_request",
+      "module_id": 607,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 112.664697875,
+      "end_seconds": 113.255540875,
+      "duration_seconds": 0.590843
+    },
+    {
+      "module": "tests.critical.test_finalize_verification",
+      "module_id": 608,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 113.255557542,
+      "end_seconds": 113.766495834,
+      "duration_seconds": 0.510938292
+    },
+    {
+      "module": "tests.critical.test_finalize_worker",
+      "module_id": 609,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 113.766522209,
+      "end_seconds": 115.085817292,
+      "duration_seconds": 1.319295083
+    },
+    {
+      "module": "tests.critical.test_freebsd_dependencies",
+      "module_id": 617,
+      "cases": 17,
+      "serial": false,
+      "start_seconds": 115.08583175,
+      "end_seconds": 116.060910667,
+      "duration_seconds": 0.975078917
+    },
+    {
+      "module": "tests.critical.test_freebsd_host_install",
+      "module_id": 634,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 115.173368042,
+      "end_seconds": 115.566329542,
+      "duration_seconds": 0.3929615
+    },
+    {
+      "module": "tests.critical.test_freebsd_package_elf",
+      "module_id": 643,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 115.566343292,
+      "end_seconds": 115.90150025,
+      "duration_seconds": 0.335156958
+    },
+    {
+      "module": "tests.critical.test_freebsd_packaging",
+      "module_id": 649,
+      "cases": 19,
+      "serial": false,
+      "start_seconds": 115.90151225,
+      "end_seconds": 117.46480975,
+      "duration_seconds": 1.5632975
+    },
+    {
+      "module": "tests.critical.test_freebsd_platform",
+      "module_id": 668,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 116.060926125,
+      "end_seconds": 116.551437792,
+      "duration_seconds": 0.490511667
+    },
+    {
+      "module": "tests.critical.test_freebsd_pressure",
+      "module_id": 672,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 116.55145125,
+      "end_seconds": 116.9484885,
+      "duration_seconds": 0.39703725
+    },
+    {
+      "module": "tests.critical.test_freebsd_tree_packaging",
+      "module_id": 676,
+      "cases": 15,
+      "serial": false,
+      "start_seconds": 116.948502084,
+      "end_seconds": 120.934398959,
+      "duration_seconds": 3.985896875
+    },
+    {
+      "module": "tests.critical.test_full_onboarding_compile",
+      "module_id": 691,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 117.464823959,
+      "end_seconds": 117.7771525,
+      "duration_seconds": 0.312328541
+    },
+    {
+      "module": "tests.critical.test_full_onboarding_prepare",
+      "module_id": 694,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 117.777165834,
+      "end_seconds": 118.107593709,
+      "duration_seconds": 0.330427875
+    },
+    {
+      "module": "tests.critical.test_generated_rust_crate_root",
+      "module_id": 695,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 118.107605292,
+      "end_seconds": 118.500311417,
+      "duration_seconds": 0.392706125
+    },
+    {
+      "module": "tests.critical.test_generation_ready_queue",
+      "module_id": 706,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 118.500324417,
+      "end_seconds": 119.25016125,
+      "duration_seconds": 0.749836833
+    },
+    {
+      "module": "tests.critical.test_generation_workspace",
+      "module_id": 712,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 119.250175834,
+      "end_seconds": 120.482625875,
+      "duration_seconds": 1.232450041
+    },
+    {
+      "module": "tests.critical.test_github_evidence_keys",
+      "module_id": 718,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 120.482639334,
+      "end_seconds": 120.934888417,
+      "duration_seconds": 0.452249083
+    },
+    {
+      "module": "tests.critical.test_github_evidence_oidc",
+      "module_id": 720,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 120.934902875,
+      "end_seconds": 121.459549792,
+      "duration_seconds": 0.524646917
+    },
+    {
+      "module": "tests.critical.test_github_run_evidence",
+      "module_id": 723,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 120.9387655,
+      "end_seconds": 121.439546959,
+      "duration_seconds": 0.500781459
+    },
+    {
+      "module": "tests.critical.test_go_runtime_source",
+      "module_id": 725,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 121.43956025,
+      "end_seconds": 131.836216334,
+      "duration_seconds": 10.396656084
+    },
+    {
+      "module": "tests.critical.test_google_workspace_publication",
+      "module_id": 732,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 121.459565917,
+      "end_seconds": 121.795615042,
+      "duration_seconds": 0.336049125
+    },
+    {
+      "module": "tests.critical.test_guarded_builder",
+      "module_id": 734,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 121.79562775,
+      "end_seconds": 125.197562,
+      "duration_seconds": 3.40193425
+    },
+    {
+      "module": "tests.critical.test_guarded_rust_builder",
+      "module_id": 740,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 125.197603,
+      "end_seconds": 126.469668084,
+      "duration_seconds": 1.272065084
+    },
+    {
+      "module": "tests.critical.test_guarded_swift_builder",
+      "module_id": 741,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 126.469685375,
+      "end_seconds": 130.641194709,
+      "duration_seconds": 4.171509334
+    },
+    {
+      "module": "tests.critical.test_host_install",
+      "module_id": 744,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 129.452383792,
+      "end_seconds": 130.018745334,
+      "duration_seconds": 0.566361542
+    },
+    {
+      "module": "tests.critical.test_host_probe_alias",
+      "module_id": 753,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 130.018759292,
+      "end_seconds": 130.7505925,
+      "duration_seconds": 0.731833208
+    },
+    {
+      "module": "tests.critical.test_host_self_update",
+      "module_id": 757,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 130.641210625,
+      "end_seconds": 131.062724209,
+      "duration_seconds": 0.421513584
+    },
+    {
+      "module": "tests.critical.test_host_uninstall",
+      "module_id": 760,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 130.750645042,
+      "end_seconds": 131.155830334,
+      "duration_seconds": 0.405185292
+    },
+    {
+      "module": "tests.critical.test_html_publication",
+      "module_id": 762,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 131.062738209,
+      "end_seconds": 132.036115084,
+      "duration_seconds": 0.973376875
+    },
+    {
+      "module": "tests.critical.test_html_source_excerpts",
+      "module_id": 764,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 131.155845375,
+      "end_seconds": 133.188315334,
+      "duration_seconds": 2.032469959
+    },
+    {
+      "module": "tests.critical.test_html_tree_journal",
+      "module_id": 765,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 131.836228542,
+      "end_seconds": 133.693754917,
+      "duration_seconds": 1.857526375
+    },
+    {
+      "module": "tests.critical.test_html_tree_publication_races",
+      "module_id": 770,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 132.036126875,
+      "end_seconds": 136.538913792,
+      "duration_seconds": 4.502786917
+    },
+    {
+      "module": "tests.critical.test_http_reference_cache",
+      "module_id": 779,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 133.188329,
+      "end_seconds": 142.341585625,
+      "duration_seconds": 9.153256625
+    },
+    {
+      "module": "tests.critical.test_http_shared_artifacts",
+      "module_id": 789,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 133.693771834,
+      "end_seconds": 135.655779625,
+      "duration_seconds": 1.962007791
+    },
+    {
+      "module": "tests.critical.test_inherited_session_provider",
+      "module_id": 792,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 135.65579475,
+      "end_seconds": 136.116885375,
+      "duration_seconds": 0.461090625
+    },
+    {
+      "module": "tests.critical.test_isolation_contracts",
+      "module_id": 796,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 136.116899125,
+      "end_seconds": 136.452338084,
+      "duration_seconds": 0.335438959
+    },
+    {
+      "module": "tests.critical.test_javascript_builder",
+      "module_id": 799,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 136.452361292,
+      "end_seconds": 141.229503084,
+      "duration_seconds": 4.777141792
+    },
+    {
+      "module": "tests.critical.test_later_phase_admission",
+      "module_id": 804,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 136.538941709,
+      "end_seconds": 138.539333125,
+      "duration_seconds": 2.000391416
+    },
+    {
+      "module": "tests.critical.test_legacy_release_line",
+      "module_id": 806,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 138.539359667,
+      "end_seconds": 139.89682375,
+      "duration_seconds": 1.357464083
+    },
+    {
+      "module": "tests.critical.test_library_import_command",
+      "module_id": 807,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 139.896839459,
+      "end_seconds": 141.001218292,
+      "duration_seconds": 1.104378833
+    },
+    {
+      "module": "tests.critical.test_lifecycle_lock",
+      "module_id": 811,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 141.00125425,
+      "end_seconds": 141.670248792,
+      "duration_seconds": 0.668994542
+    },
+    {
+      "module": "tests.critical.test_lineage_flavor_observation",
+      "module_id": 813,
+      "cases": 17,
+      "serial": false,
+      "start_seconds": 141.229517292,
+      "end_seconds": 149.518058667,
+      "duration_seconds": 8.288541375
+    },
+    {
+      "module": "tests.critical.test_local_accept_handoff",
+      "module_id": 830,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 141.670262625,
+      "end_seconds": 162.326804625,
+      "duration_seconds": 20.656542
+    },
+    {
+      "module": "tests.critical.test_local_accept_link_handoff",
+      "module_id": 831,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 142.3416035,
+      "end_seconds": 146.841257417,
+      "duration_seconds": 4.499653917
+    },
+    {
+      "module": "tests.critical.test_local_attestation",
+      "module_id": 835,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 146.841309292,
+      "end_seconds": 147.227616,
+      "duration_seconds": 0.386306708
+    },
+    {
+      "module": "tests.critical.test_local_observation_sandbox",
+      "module_id": 837,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 147.227632125,
+      "end_seconds": 147.659928125,
+      "duration_seconds": 0.432296
+    },
+    {
+      "module": "tests.critical.test_locked_generation_authority",
+      "module_id": 841,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 147.659983542,
+      "end_seconds": 148.294097125,
+      "duration_seconds": 0.634113583
+    },
+    {
+      "module": "tests.critical.test_locked_source_promotion",
+      "module_id": 843,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 148.294110792,
+      "end_seconds": 149.189437834,
+      "duration_seconds": 0.895327042
+    },
+    {
+      "module": "tests.critical.test_monorepo_input_reads",
+      "module_id": 848,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 149.1894515,
+      "end_seconds": 149.719769875,
+      "duration_seconds": 0.530318375
+    },
+    {
+      "module": "tests.critical.test_msvc_environment_arguments",
+      "module_id": 850,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 149.518082459,
+      "end_seconds": 149.959159375,
+      "duration_seconds": 0.441076916
+    },
+    {
+      "module": "tests.critical.test_native_project_registry",
+      "module_id": 852,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 149.719791417,
+      "end_seconds": 150.3592475,
+      "duration_seconds": 0.639456083
+    },
+    {
+      "module": "tests.critical.test_native_sdk_custody",
+      "module_id": 854,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 149.959177375,
+      "end_seconds": 150.360457417,
+      "duration_seconds": 0.401280042
+    },
+    {
+      "module": "tests.critical.test_native_sdk_freebsd",
+      "module_id": 857,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 150.360505875,
+      "end_seconds": 150.813542625,
+      "duration_seconds": 0.45303675
+    },
+    {
+      "module": "tests.critical.test_native_sdk_qualification_harness",
+      "module_id": 862,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 150.367369084,
+      "end_seconds": 154.651206834,
+      "duration_seconds": 4.28383775
+    },
+    {
+      "module": "tests.critical.test_native_sdk_runtime",
+      "module_id": 874,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 150.81355775,
+      "end_seconds": 151.350310542,
+      "duration_seconds": 0.536752792
+    },
+    {
+      "module": "tests.critical.test_native_sdk_tree_custody",
+      "module_id": 881,
+      "cases": 17,
+      "serial": false,
+      "start_seconds": 151.350390167,
+      "end_seconds": 194.8613135,
+      "duration_seconds": 43.510923333
+    },
+    {
+      "module": "tests.critical.test_native_sdk_tree_products",
+      "module_id": 898,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 154.651224042,
+      "end_seconds": 155.1947275,
+      "duration_seconds": 0.543503458
+    },
+    {
+      "module": "tests.critical.test_native_sdk_trees",
+      "module_id": 908,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 155.194750334,
+      "end_seconds": 155.87331925,
+      "duration_seconds": 0.678568916
+    },
+    {
+      "module": "tests.critical.test_openai_compatible_adapter",
+      "module_id": 922,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 155.873337125,
+      "end_seconds": 156.298086959,
+      "duration_seconds": 0.424749834
+    },
+    {
+      "module": "tests.critical.test_opencode_cli",
+      "module_id": 924,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 156.298103459,
+      "end_seconds": 157.830653667,
+      "duration_seconds": 1.532550208
+    },
+    {
+      "module": "tests.critical.test_operational_regenerative_qualification",
+      "module_id": 929,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 157.830671167,
+      "end_seconds": 158.17174725,
+      "duration_seconds": 0.341076083
+    },
+    {
+      "module": "tests.critical.test_package_tree_inputs",
+      "module_id": 931,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 158.171762709,
+      "end_seconds": 158.572278459,
+      "duration_seconds": 0.40051575
+    },
+    {
+      "module": "tests.critical.test_pe_toolchain_inputs",
+      "module_id": 936,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 158.572314334,
+      "end_seconds": 158.990988667,
+      "duration_seconds": 0.418674333
+    },
+    {
+      "module": "tests.critical.test_pinned_input_closure",
+      "module_id": 940,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 158.991004584,
+      "end_seconds": 159.340535584,
+      "duration_seconds": 0.349531
+    },
+    {
+      "module": "tests.critical.test_pinned_test_dispatch",
+      "module_id": 942,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 159.340550792,
+      "end_seconds": 159.691877459,
+      "duration_seconds": 0.351326667
+    },
+    {
+      "module": "tests.critical.test_process_tree",
+      "module_id": 944,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 159.691893334,
+      "end_seconds": 161.325301167,
+      "duration_seconds": 1.633407833
+    },
+    {
+      "module": "tests.critical.test_production_build_binding",
+      "module_id": 950,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 161.325325334,
+      "end_seconds": 161.706869542,
+      "duration_seconds": 0.381544208
+    },
+    {
+      "module": "tests.critical.test_project_configuration",
+      "module_id": 952,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 161.706885,
+      "end_seconds": 162.191307667,
+      "duration_seconds": 0.484422667
+    },
+    {
+      "module": "tests.critical.test_project_host_flavors",
+      "module_id": 963,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 162.191326709,
+      "end_seconds": 166.840218542,
+      "duration_seconds": 4.648891833
+    },
+    {
+      "module": "tests.critical.test_project_lifecycle_driver_adapter",
+      "module_id": 970,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 162.326826959,
+      "end_seconds": 162.802778125,
+      "duration_seconds": 0.475951166
+    },
+    {
+      "module": "tests.critical.test_project_mcp",
+      "module_id": 974,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 162.802793167,
+      "end_seconds": 163.132175792,
+      "duration_seconds": 0.329382625
+    },
+    {
+      "module": "tests.critical.test_project_scale_limits",
+      "module_id": 976,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 163.132191334,
+      "end_seconds": 169.246878542,
+      "duration_seconds": 6.114687208
+    },
+    {
+      "module": "tests.critical.test_promotion_build_preferences",
+      "module_id": 982,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 166.840236625,
+      "end_seconds": 174.637223542,
+      "duration_seconds": 7.796986917
+    },
+    {
+      "module": "tests.critical.test_prompt_master_agent_skill",
+      "module_id": 986,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 169.24689425,
+      "end_seconds": 169.579084834,
+      "duration_seconds": 0.332190584
+    },
+    {
+      "module": "tests.critical.test_public_export_check",
+      "module_id": 987,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 169.579102917,
+      "end_seconds": 169.971096125,
+      "duration_seconds": 0.391993208
+    },
+    {
+      "module": "tests.critical.test_published_release_identity",
+      "module_id": 991,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 169.971125667,
+      "end_seconds": 172.820120459,
+      "duration_seconds": 2.848994792
+    },
+    {
+      "module": "tests.critical.test_published_repository_pack",
+      "module_id": 993,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 172.82014725,
+      "end_seconds": 175.181674334,
+      "duration_seconds": 2.361527084
+    },
+    {
+      "module": "tests.critical.test_published_schema_immutability",
+      "module_id": 995,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 174.637239334,
+      "end_seconds": 174.983530292,
+      "duration_seconds": 0.346290958
+    },
+    {
+      "module": "tests.critical.test_python_installed",
+      "module_id": 997,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 174.983544667,
+      "end_seconds": 175.405748667,
+      "duration_seconds": 0.422204
+    },
+    {
+      "module": "tests.critical.test_python_resolution",
+      "module_id": 1001,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 175.181688542,
+      "end_seconds": 180.374730834,
+      "duration_seconds": 5.193042292
+    },
+    {
+      "module": "tests.critical.test_python_source_projection",
+      "module_id": 1003,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 175.405760334,
+      "end_seconds": 175.805827375,
+      "duration_seconds": 0.400067041
+    },
+    {
+      "module": "tests.critical.test_python_wheel_archive",
+      "module_id": 1012,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 175.805846625,
+      "end_seconds": 176.212568417,
+      "duration_seconds": 0.406721792
+    },
+    {
+      "module": "tests.critical.test_python_wheel_lock",
+      "module_id": 1015,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 176.212582625,
+      "end_seconds": 176.620553959,
+      "duration_seconds": 0.407971334
+    },
+    {
+      "module": "tests.critical.test_python_wheelhouse",
+      "module_id": 1017,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 176.6205855,
+      "end_seconds": 177.025772125,
+      "duration_seconds": 0.405186625
+    },
+    {
+      "module": "tests.critical.test_qualification_archive",
+      "module_id": 1019,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 177.025786709,
+      "end_seconds": 177.515256709,
+      "duration_seconds": 0.48947
+    },
+    {
+      "module": "tests.critical.test_qualification_authority",
+      "module_id": 1020,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 177.515273542,
+      "end_seconds": 177.879357084,
+      "duration_seconds": 0.364083542
+    },
+    {
+      "module": "tests.critical.test_qualification_capture",
+      "module_id": 1021,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 177.8793745,
+      "end_seconds": 180.37528575,
+      "duration_seconds": 2.49591125
+    },
+    {
+      "module": "tests.critical.test_qualification_diagnostics",
+      "module_id": 1025,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 180.375300084,
+      "end_seconds": 182.239563625,
+      "duration_seconds": 1.864263541
+    },
+    {
+      "module": "tests.critical.test_qualification_lifecycle_runner",
+      "module_id": 1033,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 180.379173875,
+      "end_seconds": 180.742879917,
+      "duration_seconds": 0.363706042
+    },
+    {
+      "module": "tests.critical.test_refresh_framework_locks",
+      "module_id": 1035,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 180.74289775,
+      "end_seconds": 196.512526584,
+      "duration_seconds": 15.769628834
+    },
+    {
+      "module": "tests.critical.test_refresh_publication_ownership",
+      "module_id": 1038,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 182.239581042,
+      "end_seconds": 207.372399375,
+      "duration_seconds": 25.132818333
+    },
+    {
+      "module": "tests.critical.test_refresh_tree_capture",
+      "module_id": 1042,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 194.86133275,
+      "end_seconds": 203.469238584,
+      "duration_seconds": 8.607905834
+    },
+    {
+      "module": "tests.critical.test_registered_generation",
+      "module_id": 1043,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 196.512546417,
+      "end_seconds": 199.64397525,
+      "duration_seconds": 3.131428833
+    },
+    {
+      "module": "tests.critical.test_release_files",
+      "module_id": 1047,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 199.643989875,
+      "end_seconds": 200.126790042,
+      "duration_seconds": 0.482800167
+    },
+    {
+      "module": "tests.critical.test_release_readme",
+      "module_id": 1049,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 200.126806792,
+      "end_seconds": 200.821076042,
+      "duration_seconds": 0.69426925
+    },
+    {
+      "module": "tests.critical.test_release_semver_requirement",
+      "module_id": 1056,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 200.821090417,
+      "end_seconds": 201.903995084,
+      "duration_seconds": 1.082904667
+    },
+    {
+      "module": "tests.critical.test_remote_execution",
+      "module_id": 1057,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 201.904012459,
+      "end_seconds": 202.565410792,
+      "duration_seconds": 0.661398333
+    },
+    {
+      "module": "tests.critical.test_remote_file_ceiling",
+      "module_id": 1061,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 202.56542725,
+      "end_seconds": 206.067553375,
+      "duration_seconds": 3.502126125
+    },
+    {
+      "module": "tests.critical.test_remote_library_artifacts",
+      "module_id": 1063,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 203.469256334,
+      "end_seconds": 203.912184,
+      "duration_seconds": 0.442927666
+    },
+    {
+      "module": "tests.critical.test_remote_source_guard",
+      "module_id": 1065,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 203.9122105,
+      "end_seconds": 204.270910625,
+      "duration_seconds": 0.358700125
+    },
+    {
+      "module": "tests.critical.test_repository_file_custody",
+      "module_id": 1069,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 204.270936625,
+      "end_seconds": 204.757662584,
+      "duration_seconds": 0.486725959
+    },
+    {
+      "module": "tests.critical.test_repository_index_observation",
+      "module_id": 1073,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 204.75767975,
+      "end_seconds": 205.404995625,
+      "duration_seconds": 0.647315875
+    },
+    {
+      "module": "tests.critical.test_repository_lineage",
+      "module_id": 1074,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 205.405012375,
+      "end_seconds": 205.740039042,
+      "duration_seconds": 0.335026667
+    },
+    {
+      "module": "tests.critical.test_repository_lineage_store",
+      "module_id": 1075,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 205.740053875,
+      "end_seconds": 206.214706959,
+      "duration_seconds": 0.474653084
+    },
+    {
+      "module": "tests.critical.test_repository_lock_store",
+      "module_id": 1077,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 206.067571625,
+      "end_seconds": 211.765449834,
+      "duration_seconds": 5.697878209
+    },
+    {
+      "module": "tests.critical.test_repository_object_install",
+      "module_id": 1081,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 206.214723834,
+      "end_seconds": 225.470027417,
+      "duration_seconds": 19.255303583
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_application_transitions",
+      "module_id": 1084,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 207.372416584,
+      "end_seconds": 207.891973167,
+      "duration_seconds": 0.519556583
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_inputs",
+      "module_id": 1086,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 207.892026084,
+      "end_seconds": 286.212262959,
+      "duration_seconds": 78.320236875
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_performance",
+      "module_id": 1093,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 211.765466709,
+      "end_seconds": 226.208137334,
+      "duration_seconds": 14.442670625
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_publication",
+      "module_id": 1094,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 225.470068209,
+      "end_seconds": 246.082162042,
+      "duration_seconds": 20.612093833
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_reservations",
+      "module_id": 1096,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 226.208152125,
+      "end_seconds": 237.405862334,
+      "duration_seconds": 11.197710209
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_staging",
+      "module_id": 1098,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 237.4058785,
+      "end_seconds": 238.434154334,
+      "duration_seconds": 1.028275834
+    },
+    {
+      "module": "tests.critical.test_repository_refresh_worktrees",
+      "module_id": 1100,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 238.434176125,
+      "end_seconds": 239.521848959,
+      "duration_seconds": 1.087672834
+    },
+    {
+      "module": "tests.critical.test_retained_allocation",
+      "module_id": 1101,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 239.521867292,
+      "end_seconds": 242.576453125,
+      "duration_seconds": 3.054585833
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_build_output_v2",
+      "module_id": 1112,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 242.576481209,
+      "end_seconds": 282.824699959,
+      "duration_seconds": 40.24821875
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_consumer_tools",
+      "module_id": 1120,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 246.082184084,
+      "end_seconds": 268.453052625,
+      "duration_seconds": 22.370868541
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_fixture_environment",
+      "module_id": 1125,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 268.453072667,
+      "end_seconds": 269.194276292,
+      "duration_seconds": 0.741203625
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_guard_dedup_v2",
+      "module_id": 1129,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 269.194294125,
+      "end_seconds": 270.758157459,
+      "duration_seconds": 1.563863334
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_isolated_parses",
+      "module_id": 1134,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 270.758173792,
+      "end_seconds": 404.081942834,
+      "duration_seconds": 133.323769042
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_materialization",
+      "module_id": 1141,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 282.824720167,
+      "end_seconds": 299.296952792,
+      "duration_seconds": 16.472232625
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_native_custody",
+      "module_id": 1144,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 286.212321709,
+      "end_seconds": 286.874114334,
+      "duration_seconds": 0.661792625
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_receiving_v2",
+      "module_id": 1156,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 286.874135417,
+      "end_seconds": 342.15924825,
+      "duration_seconds": 55.285112833
+    },
+    {
+      "module": "tests.critical.test_retained_cargo_runtime_files",
+      "module_id": 1160,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 299.296968959,
+      "end_seconds": 300.062625959,
+      "duration_seconds": 0.765657
+    },
+    {
+      "module": "tests.critical.test_retained_component_ownership",
+      "module_id": 1162,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 300.062644459,
+      "end_seconds": 301.476068417,
+      "duration_seconds": 1.413423958
+    },
+    {
+      "module": "tests.critical.test_retained_generation_proof",
+      "module_id": 1172,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 301.476083709,
+      "end_seconds": 303.3258815,
+      "duration_seconds": 1.849797791
+    },
+    {
+      "module": "tests.critical.test_retained_input_lexical",
+      "module_id": 1175,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 303.32595875,
+      "end_seconds": 304.750507584,
+      "duration_seconds": 1.424548834
+    },
+    {
+      "module": "tests.critical.test_retained_input_walk",
+      "module_id": 1187,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 304.750632209,
+      "end_seconds": 309.661979167,
+      "duration_seconds": 4.911346958
+    },
+    {
+      "module": "tests.critical.test_retained_layout",
+      "module_id": 1201,
+      "cases": 15,
+      "serial": false,
+      "start_seconds": 309.661995875,
+      "end_seconds": 310.189842375,
+      "duration_seconds": 0.5278465
+    },
+    {
+      "module": "tests.critical.test_retained_native_file_custody",
+      "module_id": 1216,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 310.189871209,
+      "end_seconds": 310.668731,
+      "duration_seconds": 0.478859791
+    },
+    {
+      "module": "tests.critical.test_retained_native_observation_scope",
+      "module_id": 1218,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 310.668747667,
+      "end_seconds": 314.14100875,
+      "duration_seconds": 3.472261083
+    },
+    {
+      "module": "tests.critical.test_retained_posix_acl",
+      "module_id": 1223,
+      "cases": 21,
+      "serial": false,
+      "start_seconds": 314.141028334,
+      "end_seconds": 314.765599667,
+      "duration_seconds": 0.624571333
+    },
+    {
+      "module": "tests.critical.test_retained_project_acceptance",
+      "module_id": 1244,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 314.765617625,
+      "end_seconds": 336.699729417,
+      "duration_seconds": 21.934111792
+    },
+    {
+      "module": "tests.critical.test_retained_project_boms",
+      "module_id": 1258,
+      "cases": 13,
+      "serial": false,
+      "start_seconds": 336.699746584,
+      "end_seconds": 357.8627315,
+      "duration_seconds": 21.162984916
+    },
+    {
+      "module": "tests.critical.test_retained_project_completion",
+      "module_id": 1271,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 342.159279125,
+      "end_seconds": 415.011847834,
+      "duration_seconds": 72.852568709
+    },
+    {
+      "module": "tests.critical.test_retained_project_dependencies",
+      "module_id": 1280,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 357.862747459,
+      "end_seconds": 371.096028584,
+      "duration_seconds": 13.233281125
+    },
+    {
+      "module": "tests.critical.test_retained_project_environment",
+      "module_id": 1288,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 371.096043917,
+      "end_seconds": 393.590555667,
+      "duration_seconds": 22.49451175
+    },
+    {
+      "module": "tests.critical.test_retained_project_execution",
+      "module_id": 1299,
+      "cases": 27,
+      "serial": false,
+      "start_seconds": 393.590571917,
+      "end_seconds": 448.472951292,
+      "duration_seconds": 54.882379375
+    },
+    {
+      "module": "tests.critical.test_retained_project_filesystem",
+      "module_id": 1326,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 404.08196075,
+      "end_seconds": 429.397966,
+      "duration_seconds": 25.31600525
+    },
+    {
+      "module": "tests.critical.test_retained_project_freebsd_package",
+      "module_id": 1337,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 415.011866209,
+      "end_seconds": 464.484812709,
+      "duration_seconds": 49.4729465
+    },
+    {
+      "module": "tests.critical.test_retained_project_inputs",
+      "module_id": 1342,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 429.397981667,
+      "end_seconds": 429.828820709,
+      "duration_seconds": 0.430839042
+    },
+    {
+      "module": "tests.critical.test_retained_project_package",
+      "module_id": 1347,
+      "cases": 15,
+      "serial": false,
+      "start_seconds": 429.828835417,
+      "end_seconds": 590.799202417,
+      "duration_seconds": 160.970367
+    },
+    {
+      "module": "tests.critical.test_retained_project_planning_graph",
+      "module_id": 1362,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 448.472983459,
+      "end_seconds": 449.093627459,
+      "duration_seconds": 0.620644
+    },
+    {
+      "module": "tests.critical.test_retained_project_platform",
+      "module_id": 1365,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 449.093697084,
+      "end_seconds": 449.606072834,
+      "duration_seconds": 0.51237575
+    },
+    {
+      "module": "tests.critical.test_retained_project_receipt",
+      "module_id": 1374,
+      "cases": 16,
+      "serial": false,
+      "start_seconds": 449.606108875,
+      "end_seconds": 676.798405834,
+      "duration_seconds": 227.192296959
+    },
+    {
+      "module": "tests.critical.test_retained_project_release",
+      "module_id": 1390,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 464.484829542,
+      "end_seconds": 465.072237542,
+      "duration_seconds": 0.587408
+    },
+    {
+      "module": "tests.critical.test_retained_project_runtime",
+      "module_id": 1398,
+      "cases": 24,
+      "serial": false,
+      "start_seconds": 465.072270709,
+      "end_seconds": 633.120563125,
+      "duration_seconds": 168.048292416
+    },
+    {
+      "module": "tests.critical.test_retained_project_sbom",
+      "module_id": 1422,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 546.020047875,
+      "end_seconds": 547.1684395,
+      "duration_seconds": 1.148391625
+    },
+    {
+      "module": "tests.critical.test_retained_project_sdks",
+      "module_id": 1429,
+      "cases": 13,
+      "serial": false,
+      "start_seconds": 547.168460417,
+      "end_seconds": 802.789477917,
+      "duration_seconds": 255.6210175
+    },
+    {
+      "module": "tests.critical.test_retained_project_testing",
+      "module_id": 1442,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 590.799222084,
+      "end_seconds": 591.269232167,
+      "duration_seconds": 0.470010083
+    },
+    {
+      "module": "tests.critical.test_retained_project_tree_inputs",
+      "module_id": 1452,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 591.26924975,
+      "end_seconds": 591.8585215,
+      "duration_seconds": 0.58927175
+    },
+    {
+      "module": "tests.critical.test_retained_provider_observer_custody",
+      "module_id": 1466,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 591.858569584,
+      "end_seconds": 593.798159792,
+      "duration_seconds": 1.939590208
+    },
+    {
+      "module": "tests.critical.test_retained_readonly_views",
+      "module_id": 1469,
+      "cases": 15,
+      "serial": false,
+      "start_seconds": 593.798177625,
+      "end_seconds": 594.380259042,
+      "duration_seconds": 0.582081417
+    },
+    {
+      "module": "tests.critical.test_retained_receipt_promotion",
+      "module_id": 1484,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 594.380286959,
+      "end_seconds": 722.183462875,
+      "duration_seconds": 127.803175916
+    },
+    {
+      "module": "tests.critical.test_retained_receiver_planning",
+      "module_id": 1485,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 633.120579584,
+      "end_seconds": 805.565698125,
+      "duration_seconds": 172.445118541
+    },
+    {
+      "module": "tests.critical.test_retained_remote_platform",
+      "module_id": 1494,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 676.798423375,
+      "end_seconds": 677.84329825,
+      "duration_seconds": 1.044874875
+    },
+    {
+      "module": "tests.critical.test_retained_return_blob",
+      "module_id": 1501,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 677.843314834,
+      "end_seconds": 678.420045167,
+      "duration_seconds": 0.576730333
+    },
+    {
+      "module": "tests.critical.test_retained_sdk_metadata_batch",
+      "module_id": 1508,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 678.420060292,
+      "end_seconds": 678.935278209,
+      "duration_seconds": 0.515217917
+    },
+    {
+      "module": "tests.critical.test_retained_secondary_access",
+      "module_id": 1517,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 678.935346417,
+      "end_seconds": 679.475641667,
+      "duration_seconds": 0.54029525
+    },
+    {
+      "module": "tests.critical.test_retained_secondary_evidence",
+      "module_id": 1529,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 679.475659584,
+      "end_seconds": 679.830644417,
+      "duration_seconds": 0.354984833
+    },
+    {
+      "module": "tests.critical.test_retained_secondary_native_receipt",
+      "module_id": 1535,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 679.830661334,
+      "end_seconds": 680.409433084,
+      "duration_seconds": 0.57877175
+    },
+    {
+      "module": "tests.critical.test_retained_source_admission",
+      "module_id": 1536,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 680.409449459,
+      "end_seconds": 682.640680167,
+      "duration_seconds": 2.231230708
+    },
+    {
+      "module": "tests.critical.test_retained_source_cache_trust",
+      "module_id": 1541,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 682.640708084,
+      "end_seconds": 683.661446542,
+      "duration_seconds": 1.020738458
+    },
+    {
+      "module": "tests.critical.test_retained_source_no_agent",
+      "module_id": 1542,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 683.661461542,
+      "end_seconds": 684.1695565,
+      "duration_seconds": 0.508094958
+    },
+    {
+      "module": "tests.critical.test_retained_symlink_inputs",
+      "module_id": 1550,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 684.169571792,
+      "end_seconds": 684.592819167,
+      "duration_seconds": 0.423247375
+    },
+    {
+      "module": "tests.critical.test_retained_test_identity",
+      "module_id": 1562,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 684.592833459,
+      "end_seconds": 684.981288792,
+      "duration_seconds": 0.388455333
+    },
+    {
+      "module": "tests.critical.test_retained_update_layout",
+      "module_id": 1571,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 684.98130425,
+      "end_seconds": 685.45882925,
+      "duration_seconds": 0.477525
+    },
+    {
+      "module": "tests.critical.test_retained_windows_context",
+      "module_id": 1574,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 685.460314292,
+      "end_seconds": 685.826626917,
+      "duration_seconds": 0.366312625
+    },
+    {
+      "module": "tests.critical.test_roadmap_dependencies",
+      "module_id": 1580,
+      "cases": 21,
+      "serial": false,
+      "start_seconds": 685.826642917,
+      "end_seconds": 687.188829625,
+      "duration_seconds": 1.362186708
+    },
+    {
+      "module": "tests.critical.test_runtime_capability_environment",
+      "module_id": 1601,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 687.188865875,
+      "end_seconds": 690.561577209,
+      "duration_seconds": 3.372711334
+    },
+    {
+      "module": "tests.critical.test_schema_catalog_check_scope",
+      "module_id": 1610,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 690.5615935,
+      "end_seconds": 694.45000375,
+      "duration_seconds": 3.88841025
+    },
+    {
+      "module": "tests.critical.test_sdk_runtime_equivalence",
+      "module_id": 1617,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 694.450019584,
+      "end_seconds": 694.9220635,
+      "duration_seconds": 0.472043916
+    },
+    {
+      "module": "tests.critical.test_security",
+      "module_id": 1620,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 694.922078959,
+      "end_seconds": 695.261441584,
+      "duration_seconds": 0.339362625
+    },
+    {
+      "module": "tests.critical.test_security_scanning",
+      "module_id": 1624,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 695.261455459,
+      "end_seconds": 695.59677875,
+      "duration_seconds": 0.335323291
+    },
+    {
+      "module": "tests.critical.test_semantic_refinement_service",
+      "module_id": 1627,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 695.596794834,
+      "end_seconds": 695.917238042,
+      "duration_seconds": 0.320443208
+    },
+    {
+      "module": "tests.critical.test_service_http_transport",
+      "module_id": 1629,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 695.917262084,
+      "end_seconds": 697.388174209,
+      "duration_seconds": 1.470912125
+    },
+    {
+      "module": "tests.critical.test_service_process_cleanup",
+      "module_id": 1631,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 697.388188084,
+      "end_seconds": 697.897911584,
+      "duration_seconds": 0.5097235
+    },
+    {
+      "module": "tests.critical.test_shared_artifact_cache",
+      "module_id": 1632,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 697.897929292,
+      "end_seconds": 698.820808709,
+      "duration_seconds": 0.922879417
+    },
+    {
+      "module": "tests.critical.test_shared_cache",
+      "module_id": 1636,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 698.820846292,
+      "end_seconds": 699.138179667,
+      "duration_seconds": 0.317333375
+    },
+    {
+      "module": "tests.critical.test_shared_cache_config",
+      "module_id": 1637,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 699.138196334,
+      "end_seconds": 699.512039667,
+      "duration_seconds": 0.373843333
+    },
+    {
+      "module": "tests.critical.test_snapshot_platform",
+      "module_id": 1640,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 699.512055834,
+      "end_seconds": 699.979614584,
+      "duration_seconds": 0.46755875
+    },
+    {
+      "module": "tests.critical.test_source_cache",
+      "module_id": 1642,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 699.979630125,
+      "end_seconds": 701.151907292,
+      "duration_seconds": 1.172277167
+    },
+    {
+      "module": "tests.critical.test_source_cache_hardening",
+      "module_id": 1650,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 701.151922709,
+      "end_seconds": 701.608925167,
+      "duration_seconds": 0.457002458
+    },
+    {
+      "module": "tests.critical.test_source_cache_retirement",
+      "module_id": 1652,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 701.608943125,
+      "end_seconds": 702.867116042,
+      "duration_seconds": 1.258172917
+    },
+    {
+      "module": "tests.critical.test_source_inventory_credentials",
+      "module_id": 1655,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 702.867132792,
+      "end_seconds": 703.249756584,
+      "duration_seconds": 0.382623792
+    },
+    {
+      "module": "tests.critical.test_source_inventory_modules",
+      "module_id": 1660,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 703.249773959,
+      "end_seconds": 703.705414792,
+      "duration_seconds": 0.455640833
+    },
+    {
+      "module": "tests.critical.test_source_inventory_targets",
+      "module_id": 1664,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 703.705429792,
+      "end_seconds": 704.389520125,
+      "duration_seconds": 0.684090333
+    },
+    {
+      "module": "tests.critical.test_source_materialization",
+      "module_id": 1670,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 704.389536334,
+      "end_seconds": 705.575153625,
+      "duration_seconds": 1.185617291
+    },
+    {
+      "module": "tests.critical.test_source_promotion_materialization",
+      "module_id": 1673,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 705.575168625,
+      "end_seconds": 705.9434775,
+      "duration_seconds": 0.368308875
+    },
+    {
+      "module": "tests.critical.test_source_transfer_revocation",
+      "module_id": 1676,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 705.943493125,
+      "end_seconds": 707.104785125,
+      "duration_seconds": 1.161292
+    },
+    {
+      "module": "tests.critical.test_source_verification_workspace",
+      "module_id": 1677,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 707.104802334,
+      "end_seconds": 707.716140459,
+      "duration_seconds": 0.611338125
+    },
+    {
+      "module": "tests.critical.test_sources_intelligence",
+      "module_id": 1680,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 707.716156875,
+      "end_seconds": 709.063748584,
+      "duration_seconds": 1.347591709
+    },
+    {
+      "module": "tests.critical.test_spec_merge",
+      "module_id": 1683,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 709.063763334,
+      "end_seconds": 709.968002084,
+      "duration_seconds": 0.90423875
+    },
+    {
+      "module": "tests.critical.test_ssh_transport",
+      "module_id": 1684,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 709.968018584,
+      "end_seconds": 713.700712709,
+      "duration_seconds": 3.732694125
+    },
+    {
+      "module": "tests.critical.test_standard_action_authorization",
+      "module_id": 1690,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 713.700727167,
+      "end_seconds": 722.203664459,
+      "duration_seconds": 8.502937292
+    },
+    {
+      "module": "tests.critical.test_standard_artifact_assembly",
+      "module_id": 1692,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 722.183477,
+      "end_seconds": 722.984165625,
+      "duration_seconds": 0.800688625
+    },
+    {
+      "module": "tests.critical.test_standard_authorization",
+      "module_id": 1697,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 722.203682334,
+      "end_seconds": 723.30707925,
+      "duration_seconds": 1.103396916
+    },
+    {
+      "module": "tests.critical.test_standard_build_authority",
+      "module_id": 1698,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 722.98418575,
+      "end_seconds": 724.150669542,
+      "duration_seconds": 1.166483792
+    },
+    {
+      "module": "tests.critical.test_standard_lifecycle_binding_adapter",
+      "module_id": 1700,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 723.307098584,
+      "end_seconds": 723.697080125,
+      "duration_seconds": 0.389981541
+    },
+    {
+      "module": "tests.critical.test_standard_link_scheduling",
+      "module_id": 1707,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 723.697095625,
+      "end_seconds": 724.679533375,
+      "duration_seconds": 0.98243775
+    },
+    {
+      "module": "tests.critical.test_standard_project_finalizer",
+      "module_id": 1713,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 724.150687292,
+      "end_seconds": 724.790630667,
+      "duration_seconds": 0.639943375
+    },
+    {
+      "module": "tests.critical.test_standard_python_evidence",
+      "module_id": 1717,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 724.679550584,
+      "end_seconds": 728.7661275,
+      "duration_seconds": 4.086576916
+    },
+    {
+      "module": "tests.critical.test_standard_receiver_custody",
+      "module_id": 1719,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 724.790650084,
+      "end_seconds": 728.105876917,
+      "duration_seconds": 3.315226833
+    },
+    {
+      "module": "tests.critical.test_standard_source_admission",
+      "module_id": 1731,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 728.105892292,
+      "end_seconds": 728.436252042,
+      "duration_seconds": 0.33035975
+    },
+    {
+      "module": "tests.critical.test_standard_transferred_build",
+      "module_id": 1733,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 728.436266917,
+      "end_seconds": 729.816596542,
+      "duration_seconds": 1.380329625
+    },
+    {
+      "module": "tests.critical.test_storage_settings_publication",
+      "module_id": 1735,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 728.766144125,
+      "end_seconds": 729.125112167,
+      "duration_seconds": 0.358968042
+    },
+    {
+      "module": "tests.critical.test_test_runner_authority",
+      "module_id": 1738,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 729.125128625,
+      "end_seconds": 729.517700209,
+      "duration_seconds": 0.392571584
+    },
+    {
+      "module": "tests.critical.test_test_worker",
+      "module_id": 1739,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 729.517715542,
+      "end_seconds": 730.019120834,
+      "duration_seconds": 0.501405292
+    },
+    {
+      "module": "tests.critical.test_tool_bootstrap",
+      "module_id": 1740,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 729.816612792,
+      "end_seconds": 730.162768667,
+      "duration_seconds": 0.346155875
+    },
+    {
+      "module": "tests.critical.test_tree_packages",
+      "module_id": 1741,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 730.019135209,
+      "end_seconds": 731.544350084,
+      "duration_seconds": 1.525214875
+    },
+    {
+      "module": "tests.critical.test_user_config_migration",
+      "module_id": 1751,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 730.162782959,
+      "end_seconds": 730.521053459,
+      "duration_seconds": 0.3582705
+    },
+    {
+      "module": "tests.critical.test_wheel_smoke_custody",
+      "module_id": 1753,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 730.521067834,
+      "end_seconds": 731.523044959,
+      "duration_seconds": 1.001977125
+    },
+    {
+      "module": "tests.critical.test_windows_gate_isolation",
+      "module_id": 1755,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 731.523062125,
+      "end_seconds": 737.382283834,
+      "duration_seconds": 5.859221709
+    },
+    {
+      "module": "tests.critical.test_windows_job_fallback",
+      "module_id": 1769,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 731.544392959,
+      "end_seconds": 731.972941167,
+      "duration_seconds": 0.428548208
+    },
+    {
+      "module": "tests.critical.test_wire_contract_versions",
+      "module_id": 1776,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 731.972953834,
+      "end_seconds": 733.958415709,
+      "duration_seconds": 1.985461875
+    },
+    {
+      "module": "tests.critical.test_worker_alignment_fixture",
+      "module_id": 1778,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 733.958430125,
+      "end_seconds": 734.378048334,
+      "duration_seconds": 0.419618209
+    },
+    {
+      "module": "tests.critical.test_worker_capabilities",
+      "module_id": 1780,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 734.378062542,
+      "end_seconds": 735.71259075,
+      "duration_seconds": 1.334528208
+    },
+    {
+      "module": "tests.critical.test_worker_cleanup_execution",
+      "module_id": 1787,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 735.712605042,
+      "end_seconds": 736.036833875,
+      "duration_seconds": 0.324228833
+    },
+    {
+      "module": "tests.critical.test_worker_forge_credentials",
+      "module_id": 1789,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 736.036848709,
+      "end_seconds": 736.556955625,
+      "duration_seconds": 0.520106916
+    },
+    {
+      "module": "tests.critical.test_worker_host_bootstrap",
+      "module_id": 1793,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 736.55696825,
+      "end_seconds": 736.961829167,
+      "duration_seconds": 0.404860917
+    },
+    {
+      "module": "tests.critical.test_worker_quota_probe",
+      "module_id": 1799,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 736.96184225,
+      "end_seconds": 737.293707875,
+      "duration_seconds": 0.331865625
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_authentication",
+      "module_id": 1800,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 737.293730875,
+      "end_seconds": 737.862479917,
+      "duration_seconds": 0.568749042
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_authorization",
+      "module_id": 1811,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 737.382295667,
+      "end_seconds": 737.863065959,
+      "duration_seconds": 0.480770292
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_contracts",
+      "module_id": 1825,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 737.863100834,
+      "end_seconds": 738.425475,
+      "duration_seconds": 0.562374166
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_polling",
+      "module_id": 1834,
+      "cases": 22,
+      "serial": false,
+      "start_seconds": 737.866968667,
+      "end_seconds": 738.508763542,
+      "duration_seconds": 0.641794875
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_processes",
+      "module_id": 1856,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 738.425489459,
+      "end_seconds": 738.98921575,
+      "duration_seconds": 0.563726291
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_reservations",
+      "module_id": 1868,
+      "cases": 16,
+      "serial": false,
+      "start_seconds": 738.508779417,
+      "end_seconds": 739.580631542,
+      "duration_seconds": 1.071852125
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_schemas",
+      "module_id": 1884,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 738.989228792,
+      "end_seconds": 739.867639917,
+      "duration_seconds": 0.878411125
+    },
+    {
+      "module": "tests.critical.test_worker_telemetry_wire",
+      "module_id": 1889,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 739.580649084,
+      "end_seconds": 740.030643959,
+      "duration_seconds": 0.449994875
+    },
+    {
+      "module": "tests.critical.test_worker_tool_selectors",
+      "module_id": 1901,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 739.867653792,
+      "end_seconds": 740.281428875,
+      "duration_seconds": 0.413775083
+    },
+    {
+      "module": "tests.critical.test_workspace",
+      "module_id": 1902,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 740.030657625,
+      "end_seconds": 740.368564125,
+      "duration_seconds": 0.3379065
+    },
+    {
+      "module": "tests.critical.test_write_reservations",
+      "module_id": 1904,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 740.281444709,
+      "end_seconds": 741.426044625,
+      "duration_seconds": 1.144599916
+    },
+    {
+      "module": "tests.critical.test_zero_argument_coverage_evidence",
+      "module_id": 1907,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 740.36858125,
+      "end_seconds": 741.3114435,
+      "duration_seconds": 0.94286225
+    },
+    {
+      "module": "tests.critical.test_zero_argument_generated_tests",
+      "module_id": 1915,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 741.311458084,
+      "end_seconds": 741.710006584,
+      "duration_seconds": 0.3985485
+    },
+    {
+      "module": "tests.critical.test_zip_packaging",
+      "module_id": 1923,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 741.42605775,
+      "end_seconds": 741.93448475,
+      "duration_seconds": 0.508427
+    },
+    {
+      "module": "tests.e2e.test_accepted_retained_source_export",
+      "module_id": 1925,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 741.710021,
+      "end_seconds": 1030.021335167,
+      "duration_seconds": 288.311314167
+    },
+    {
+      "module": "tests.e2e.test_action_accept_process",
+      "module_id": 1931,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 741.934520167,
+      "end_seconds": 745.212295,
+      "duration_seconds": 3.277774833
+    },
+    {
+      "module": "tests.e2e.test_action_artifact_dispatch",
+      "module_id": 1932,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 745.212308042,
+      "end_seconds": 745.570149,
+      "duration_seconds": 0.357840958
+    },
+    {
+      "module": "tests.e2e.test_action_build_process",
+      "module_id": 1938,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 745.57016275,
+      "end_seconds": 750.114350625,
+      "duration_seconds": 4.544187875
+    },
+    {
+      "module": "tests.e2e.test_action_build_providers",
+      "module_id": 1942,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 750.114365709,
+      "end_seconds": 759.61491325,
+      "duration_seconds": 9.500547541
+    },
+    {
+      "module": "tests.e2e.test_action_build_source",
+      "module_id": 1943,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 759.614929125,
+      "end_seconds": 760.862382917,
+      "duration_seconds": 1.247453792
+    },
+    {
+      "module": "tests.e2e.test_action_dag_scheduler",
+      "module_id": 1944,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 760.862399375,
+      "end_seconds": 761.204477625,
+      "duration_seconds": 0.34207825
+    },
+    {
+      "module": "tests.e2e.test_action_dispatch_wire",
+      "module_id": 1946,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 761.204495042,
+      "end_seconds": 766.134143084,
+      "duration_seconds": 4.929648042
+    },
+    {
+      "module": "tests.e2e.test_action_execute_process",
+      "module_id": 1951,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 766.134158042,
+      "end_seconds": 768.894809625,
+      "duration_seconds": 2.760651583
+    },
+    {
+      "module": "tests.e2e.test_action_resource_dispatch",
+      "module_id": 1952,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 768.894824875,
+      "end_seconds": 769.562574875,
+      "duration_seconds": 0.66775
+    },
+    {
+      "module": "tests.e2e.test_action_retry_dispatch",
+      "module_id": 1958,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 769.562589209,
+      "end_seconds": 770.102308709,
+      "duration_seconds": 0.5397195
+    },
+    {
+      "module": "tests.e2e.test_action_test_process",
+      "module_id": 1965,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 770.102323959,
+      "end_seconds": 772.860189792,
+      "duration_seconds": 2.757865833
+    },
+    {
+      "module": "tests.e2e.test_action_unknown_ownership",
+      "module_id": 1966,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 772.86020425,
+      "end_seconds": 773.264417584,
+      "duration_seconds": 0.404213334
+    },
+    {
+      "module": "tests.e2e.test_adopted_promotion_journey",
+      "module_id": 1971,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 773.264435084,
+      "end_seconds": 805.500407334,
+      "duration_seconds": 32.23597225
+    },
+    {
+      "module": "tests.e2e.test_adoption_failure_evidence",
+      "module_id": 1975,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 802.78949525,
+      "end_seconds": 806.689164667,
+      "duration_seconds": 3.899669417
+    },
+    {
+      "module": "tests.e2e.test_adoption_node_dependencies",
+      "module_id": 1981,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 805.500438959,
+      "end_seconds": 812.813420167,
+      "duration_seconds": 7.312981208
+    },
+    {
+      "module": "tests.e2e.test_cli_arbitrary_source",
+      "module_id": 1983,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 805.565732917,
+      "end_seconds": 825.314843875,
+      "duration_seconds": 19.749110958
+    },
+    {
+      "module": "tests.e2e.test_cli_build_identity",
+      "module_id": 1989,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 806.689180125,
+      "end_seconds": 810.425049459,
+      "duration_seconds": 3.735869334
+    },
+    {
+      "module": "tests.e2e.test_cli_model_free_rebuild",
+      "module_id": 1992,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 810.425064292,
+      "end_seconds": 1228.049681125,
+      "duration_seconds": 417.624616833
+    },
+    {
+      "module": "tests.e2e.test_cli_package",
+      "module_id": 1999,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 812.813438375,
+      "end_seconds": 813.421587334,
+      "duration_seconds": 0.608148959
+    },
+    {
+      "module": "tests.e2e.test_cli_rebuild",
+      "module_id": 2006,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 813.421602125,
+      "end_seconds": 819.40631975,
+      "duration_seconds": 5.984717625
+    },
+    {
+      "module": "tests.e2e.test_cli_repository_locks",
+      "module_id": 2014,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 819.406354875,
+      "end_seconds": 840.774441667,
+      "duration_seconds": 21.368086792
+    },
+    {
+      "module": "tests.e2e.test_cli_review_authority",
+      "module_id": 2017,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 825.314877875,
+      "end_seconds": 828.101851792,
+      "duration_seconds": 2.786973917
+    },
+    {
+      "module": "tests.e2e.test_cli_source_admission",
+      "module_id": 2020,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 828.1018725,
+      "end_seconds": 829.277274875,
+      "duration_seconds": 1.175402375
+    },
+    {
+      "module": "tests.e2e.test_cli_source_to_specification",
+      "module_id": 2022,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 829.27729,
+      "end_seconds": 832.290678584,
+      "duration_seconds": 3.013388584
+    },
+    {
+      "module": "tests.e2e.test_coalescing_command_build",
+      "module_id": 2025,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 832.290692375,
+      "end_seconds": 836.302922167,
+      "duration_seconds": 4.012229792
+    },
+    {
+      "module": "tests.e2e.test_command_build_worker",
+      "module_id": 2029,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 836.302935792,
+      "end_seconds": 903.442430209,
+      "duration_seconds": 67.139494417
+    },
+    {
+      "module": "tests.e2e.test_command_execute_provider",
+      "module_id": 2030,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 840.774478584,
+      "end_seconds": 930.566864084,
+      "duration_seconds": 89.7923855
+    },
+    {
+      "module": "tests.e2e.test_configured_accept_worker",
+      "module_id": 2031,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 903.442444834,
+      "end_seconds": 920.3097565,
+      "duration_seconds": 16.867311666
+    },
+    {
+      "module": "tests.e2e.test_configured_execute_worker",
+      "module_id": 2032,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 920.30977125,
+      "end_seconds": 928.599288834,
+      "duration_seconds": 8.289517584
+    },
+    {
+      "module": "tests.e2e.test_configured_test_worker",
+      "module_id": 2033,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 928.599304084,
+      "end_seconds": 936.973691959,
+      "duration_seconds": 8.374387875
+    },
+    {
+      "module": "tests.e2e.test_conversion_git_boundaries",
+      "module_id": 2034,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 930.566880334,
+      "end_seconds": 934.2423515,
+      "duration_seconds": 3.675471166
+    },
+    {
+      "module": "tests.e2e.test_conversion_tracked_ignored",
+      "module_id": 2036,
+      "cases": 16,
+      "serial": false,
+      "start_seconds": 934.242388209,
+      "end_seconds": 955.25636475,
+      "duration_seconds": 21.013976541
+    },
+    {
+      "module": "tests.e2e.test_cpp_bazel_outputs",
+      "module_id": 2052,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 936.973706417,
+      "end_seconds": 999.258577084,
+      "duration_seconds": 62.284870667
+    },
+    {
+      "module": "tests.e2e.test_current_evidence",
+      "module_id": 2054,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 955.256391667,
+      "end_seconds": 967.07704575,
+      "duration_seconds": 11.820654083
+    },
+    {
+      "module": "tests.e2e.test_doc_toolchain_regenerate",
+      "module_id": 2057,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 967.07706425,
+      "end_seconds": 967.46831325,
+      "duration_seconds": 0.391249
+    },
+    {
+      "module": "tests.e2e.test_finalize_grant_refusal",
+      "module_id": 2059,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 967.468348917,
+      "end_seconds": 967.979714625,
+      "duration_seconds": 0.511365708
+    },
+    {
+      "module": "tests.e2e.test_harness_inventory",
+      "module_id": 2062,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 967.979730917,
+      "end_seconds": 988.742004459,
+      "duration_seconds": 20.762273542
+    },
+    {
+      "module": "tests.e2e.test_library_exports",
+      "module_id": 2074,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 988.742019167,
+      "end_seconds": 989.44851675,
+      "duration_seconds": 0.706497583
+    },
+    {
+      "module": "tests.e2e.test_local_test_handoff",
+      "module_id": 2075,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 989.44853125,
+      "end_seconds": 991.267948667,
+      "duration_seconds": 1.819417417
+    },
+    {
+      "module": "tests.e2e.test_monorepo_components",
+      "module_id": 2077,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 991.267964459,
+      "end_seconds": 994.165658917,
+      "duration_seconds": 2.897694458
+    },
+    {
+      "module": "tests.e2e.test_native_bootstrap_publication",
+      "module_id": 2082,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 994.165675042,
+      "end_seconds": 1000.390591875,
+      "duration_seconds": 6.224916833
+    },
+    {
+      "module": "tests.e2e.test_native_candidate_repair",
+      "module_id": 2085,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 999.258600334,
+      "end_seconds": 1266.997764625,
+      "duration_seconds": 267.739164291
+    },
+    {
+      "module": "tests.e2e.test_native_child_replacement",
+      "module_id": 2092,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 1000.390609084,
+      "end_seconds": 1092.934611292,
+      "duration_seconds": 92.544002208
+    },
+    {
+      "module": "tests.e2e.test_native_ci",
+      "module_id": 2103,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1030.021379584,
+      "end_seconds": 1042.021457167,
+      "duration_seconds": 12.000077583
+    },
+    {
+      "module": "tests.e2e.test_native_project_bootstrap",
+      "module_id": 2111,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1042.021473334,
+      "end_seconds": 1071.214790875,
+      "duration_seconds": 29.193317541
+    },
+    {
+      "module": "tests.e2e.test_native_project_removal",
+      "module_id": 2118,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 1071.214811209,
+      "end_seconds": 1133.201163875,
+      "duration_seconds": 61.986352666
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_acquisition",
+      "module_id": 2130,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1092.934643584,
+      "end_seconds": 1120.9889115,
+      "duration_seconds": 28.054267916
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_build",
+      "module_id": 2131,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1120.988928125,
+      "end_seconds": 1130.089500334,
+      "duration_seconds": 9.100572209
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_closure",
+      "module_id": 2133,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1130.0895155,
+      "end_seconds": 1160.911274584,
+      "duration_seconds": 30.821759084
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_consumer",
+      "module_id": 2134,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1133.201186667,
+      "end_seconds": 1147.056615917,
+      "duration_seconds": 13.85542925
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_consumer_build",
+      "module_id": 2135,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1147.056632375,
+      "end_seconds": 1160.591557084,
+      "duration_seconds": 13.534924709
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_dependencies",
+      "module_id": 2136,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1160.59157375,
+      "end_seconds": 1176.278164084,
+      "duration_seconds": 15.686590334
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_execution",
+      "module_id": 2137,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1160.911290334,
+      "end_seconds": 1198.327052167,
+      "duration_seconds": 37.415761833
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_library",
+      "module_id": 2139,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1176.278193042,
+      "end_seconds": 1202.646172584,
+      "duration_seconds": 26.367979542
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_package",
+      "module_id": 2140,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1198.327088667,
+      "end_seconds": 1210.365701084,
+      "duration_seconds": 12.038612417
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_packaged_execution",
+      "module_id": 2141,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1202.646188834,
+      "end_seconds": 1222.611298292,
+      "duration_seconds": 19.965109458
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_recipes",
+      "module_id": 2142,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1210.365718042,
+      "end_seconds": 1215.296405042,
+      "duration_seconds": 4.930687
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_service",
+      "module_id": 2143,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1215.296435334,
+      "end_seconds": 1237.515990959,
+      "duration_seconds": 22.219555625
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_source_build",
+      "module_id": 2144,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1222.611318917,
+      "end_seconds": 1268.409537084,
+      "duration_seconds": 45.798218167
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_standard_authority",
+      "module_id": 2147,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1228.049698042,
+      "end_seconds": 1240.8570295,
+      "duration_seconds": 12.807331458
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_tree_build",
+      "module_id": 2148,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1237.516006917,
+      "end_seconds": 1253.210140959,
+      "duration_seconds": 15.694134042
+    },
+    {
+      "module": "tests.e2e.test_native_sdk_tree_consumer",
+      "module_id": 2150,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1240.857046292,
+      "end_seconds": 1294.553652667,
+      "duration_seconds": 53.696606375
+    },
+    {
+      "module": "tests.e2e.test_native_template_update",
+      "module_id": 2157,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1253.2101575,
+      "end_seconds": 1266.391582584,
+      "duration_seconds": 13.181425084
+    },
+    {
+      "module": "tests.e2e.test_onboard_plan_readonly",
+      "module_id": 2160,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 1266.391607959,
+      "end_seconds": 1298.990528084,
+      "duration_seconds": 32.598920125
+    },
+    {
+      "module": "tests.e2e.test_opencode_native",
+      "module_id": 2169,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1266.997800125,
+      "end_seconds": 1267.423109959,
+      "duration_seconds": 0.425309834
+    },
+    {
+      "module": "tests.e2e.test_package_adapters",
+      "module_id": 2171,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1267.423128125,
+      "end_seconds": 1270.72393,
+      "duration_seconds": 3.300801875
+    },
+    {
+      "module": "tests.e2e.test_parent_checkout",
+      "module_id": 2174,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1268.409555334,
+      "end_seconds": 1300.718208042,
+      "duration_seconds": 32.308652708
+    },
+    {
+      "module": "tests.e2e.test_project_cli",
+      "module_id": 2177,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1270.723946334,
+      "end_seconds": 1293.612762125,
+      "duration_seconds": 22.888815791
+    },
+    {
+      "module": "tests.e2e.test_project_identity_migration",
+      "module_id": 2185,
+      "cases": 13,
+      "serial": false,
+      "start_seconds": 1293.612779125,
+      "end_seconds": 1314.401857917,
+      "duration_seconds": 20.789078792
+    },
+    {
+      "module": "tests.e2e.test_retained_scope_refresh",
+      "module_id": 2198,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1294.553667792,
+      "end_seconds": 1307.406328042,
+      "duration_seconds": 12.85266025
+    },
+    {
+      "module": "tests.e2e.test_project_initialization_adapter",
+      "module_id": 2201,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 1298.990555375,
+      "end_seconds": 1305.714471792,
+      "duration_seconds": 6.723916417
+    },
+    {
+      "module": "tests.e2e.test_project_releases",
+      "module_id": 2211,
+      "cases": 17,
+      "serial": false,
+      "start_seconds": 1300.718224375,
+      "end_seconds": 1311.562522959,
+      "duration_seconds": 10.844298584
+    },
+    {
+      "module": "tests.e2e.test_project_runtime_ignore",
+      "module_id": 2228,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1305.714489125,
+      "end_seconds": 1307.426256542,
+      "duration_seconds": 1.711767417
+    },
+    {
+      "module": "tests.e2e.test_project_update_adapter",
+      "module_id": 2230,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1307.4063475,
+      "end_seconds": 1308.988775625,
+      "duration_seconds": 1.582428125
+    },
+    {
+      "module": "tests.e2e.test_project_update_apply",
+      "module_id": 2232,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1307.426273084,
+      "end_seconds": 1307.910923,
+      "duration_seconds": 0.484649916
+    },
+    {
+      "module": "tests.e2e.test_project_update_compatibility",
+      "module_id": 2235,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 1307.910935584,
+      "end_seconds": 1316.496618959,
+      "duration_seconds": 8.585683375
+    },
+    {
+      "module": "tests.e2e.test_project_update_merge",
+      "module_id": 2245,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 1308.9887885,
+      "end_seconds": 1313.412607292,
+      "duration_seconds": 4.423818792
+    },
+    {
+      "module": "tests.e2e.test_published_repository_tree",
+      "module_id": 2254,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1311.562539709,
+      "end_seconds": 1313.557676334,
+      "duration_seconds": 1.995136625
+    },
+    {
+      "module": "tests.e2e.test_python_install",
+      "module_id": 2256,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1313.412622042,
+      "end_seconds": 1316.886568792,
+      "duration_seconds": 3.47394675
+    },
+    {
+      "module": "tests.e2e.test_python_wheel_runtime",
+      "module_id": 2259,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1313.557710292,
+      "end_seconds": 1315.952098542,
+      "duration_seconds": 2.39438825
+    },
+    {
+      "module": "tests.e2e.test_qualified_wheel_install",
+      "module_id": 2261,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1314.401876334,
+      "end_seconds": 1320.011838834,
+      "duration_seconds": 5.6099625
+    },
+    {
+      "module": "tests.e2e.test_rebuild_source_cache_protocol",
+      "module_id": 2264,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1315.952124709,
+      "end_seconds": 1316.951961292,
+      "duration_seconds": 0.999836583
+    },
+    {
+      "module": "tests.e2e.test_refresh_file_custody",
+      "module_id": 2266,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1316.496635417,
+      "end_seconds": 1332.381036792,
+      "duration_seconds": 15.884401375
+    },
+    {
+      "module": "tests.e2e.test_release_ci_selection",
+      "module_id": 2268,
+      "cases": 16,
+      "serial": false,
+      "start_seconds": 1316.886583667,
+      "end_seconds": 1357.210465792,
+      "duration_seconds": 40.323882125
+    },
+    {
+      "module": "tests.e2e.test_release_contributions",
+      "module_id": 2284,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1316.95197725,
+      "end_seconds": 1320.061711,
+      "duration_seconds": 3.10973375
+    },
+    {
+      "module": "tests.e2e.test_release_contributions_cli",
+      "module_id": 2291,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1320.011868084,
+      "end_seconds": 1320.560856375,
+      "duration_seconds": 0.548988291
+    },
+    {
+      "module": "tests.e2e.test_release_contributions_policy",
+      "module_id": 2294,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1320.061728709,
+      "end_seconds": 1320.497926875,
+      "duration_seconds": 0.436198166
+    },
+    {
+      "module": "tests.e2e.test_remote_sample_fanout",
+      "module_id": 2298,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1320.497952084,
+      "end_seconds": 1322.120360125,
+      "duration_seconds": 1.622408041
+    },
+    {
+      "module": "tests.e2e.test_remote_worker_bootstrap",
+      "module_id": 2304,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 1320.56087125,
+      "end_seconds": 1330.270418584,
+      "duration_seconds": 9.709547334
+    },
+    {
+      "module": "tests.e2e.test_repository_catalogs",
+      "module_id": 2318,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1322.120378042,
+      "end_seconds": 1322.475419209,
+      "duration_seconds": 0.355041167
+    },
+    {
+      "module": "tests.e2e.test_repository_checkout_skill",
+      "module_id": 2320,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1322.475461042,
+      "end_seconds": 1333.330168959,
+      "duration_seconds": 10.854707917
+    },
+    {
+      "module": "tests.e2e.test_repository_git",
+      "module_id": 2324,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1330.270439417,
+      "end_seconds": 1333.944539417,
+      "duration_seconds": 3.6741
+    },
+    {
+      "module": "tests.e2e.test_repository_initialization_e2e",
+      "module_id": 2327,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1332.381065209,
+      "end_seconds": 1361.359383,
+      "duration_seconds": 28.978317791
+    },
+    {
+      "module": "tests.e2e.test_repository_lifecycle",
+      "module_id": 2328,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1333.330204334,
+      "end_seconds": 1344.798861375,
+      "duration_seconds": 11.468657041
+    },
+    {
+      "module": "tests.e2e.test_repository_lineage_git_adapter",
+      "module_id": 2334,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1333.94455575,
+      "end_seconds": 1337.011470917,
+      "duration_seconds": 3.066915167
+    },
+    {
+      "module": "tests.e2e.test_repository_orchestration",
+      "module_id": 2339,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1337.011494709,
+      "end_seconds": 1338.903201542,
+      "duration_seconds": 1.891706833
+    },
+    {
+      "module": "tests.e2e.test_repository_publication",
+      "module_id": 2343,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1338.903219667,
+      "end_seconds": 1342.253911292,
+      "duration_seconds": 3.350691625
+    },
+    {
+      "module": "tests.e2e.test_repository_refresh_application",
+      "module_id": 2349,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1342.253926209,
+      "end_seconds": 1427.949116125,
+      "duration_seconds": 85.695189916
+    },
+    {
+      "module": "tests.e2e.test_repository_refresh_cli",
+      "module_id": 2354,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1344.798879792,
+      "end_seconds": 1412.050146084,
+      "duration_seconds": 67.251266292
+    },
+    {
+      "module": "tests.e2e.test_repository_refresh_cli_surface",
+      "module_id": 2356,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1357.210481917,
+      "end_seconds": 1357.679950917,
+      "duration_seconds": 0.469469
+    },
+    {
+      "module": "tests.e2e.test_repository_refresh_planning",
+      "module_id": 2357,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1357.679967917,
+      "end_seconds": 1363.012454375,
+      "duration_seconds": 5.332486458
+    },
+    {
+      "module": "tests.e2e.test_retained_cargo_accounting",
+      "module_id": 2358,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1361.359422542,
+      "end_seconds": 1374.000188667,
+      "duration_seconds": 12.640766125
+    },
+    {
+      "module": "tests.e2e.test_retained_catalog_discovery",
+      "module_id": 2363,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1363.012470792,
+      "end_seconds": 1375.303151417,
+      "duration_seconds": 12.290680625
+    },
+    {
+      "module": "tests.e2e.test_retained_failure_diagnostics",
+      "module_id": 2367,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1374.0002045,
+      "end_seconds": 1377.431489334,
+      "duration_seconds": 3.431284834
+    },
+    {
+      "module": "tests.e2e.test_retained_harness_readmission",
+      "module_id": 2368,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1375.30318325,
+      "end_seconds": 1388.93838625,
+      "duration_seconds": 13.635203
+    },
+    {
+      "module": "tests.e2e.test_retained_harness_receipts",
+      "module_id": 2374,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1377.431504042,
+      "end_seconds": 1392.556041875,
+      "duration_seconds": 15.124537833
+    },
+    {
+      "module": "tests.e2e.test_retained_harness_remote",
+      "module_id": 2381,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1388.938402792,
+      "end_seconds": 1392.752464792,
+      "duration_seconds": 3.814062
+    },
+    {
+      "module": "tests.e2e.test_retained_sdk_public",
+      "module_id": 2392,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 1392.556059,
+      "end_seconds": 1629.937821667,
+      "duration_seconds": 237.381762667
+    },
+    {
+      "module": "tests.e2e.test_retained_sdk_runtime_context",
+      "module_id": 2403,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1392.752481,
+      "end_seconds": 1591.35285775,
+      "duration_seconds": 198.60037675
+    },
+    {
+      "module": "tests.e2e.test_rust_javascript_builder",
+      "module_id": 2410,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1412.0501605,
+      "end_seconds": 1418.7866855,
+      "duration_seconds": 6.736525
+    },
+    {
+      "module": "tests.e2e.test_rust_library_test_driver",
+      "module_id": 2412,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1418.786701084,
+      "end_seconds": 1681.024428792,
+      "duration_seconds": 262.237727708
+    },
+    {
+      "module": "tests.e2e.test_semantic_payload_readmission",
+      "module_id": 2418,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 1427.949132375,
+      "end_seconds": 1428.721517125,
+      "duration_seconds": 0.77238475
+    },
+    {
+      "module": "tests.e2e.test_signed_binary_adoption",
+      "module_id": 2429,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1428.721534375,
+      "end_seconds": 1429.427701417,
+      "duration_seconds": 0.706167042
+    },
+    {
+      "module": "tests.e2e.test_stage5_acceptance",
+      "module_id": 2436,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1429.427716,
+      "end_seconds": 1431.463065834,
+      "duration_seconds": 2.035349834
+    },
+    {
+      "module": "tests.e2e.test_standard_provider_worker",
+      "module_id": 2439,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1431.46308175,
+      "end_seconds": 1446.733796084,
+      "duration_seconds": 15.270714334
+    },
+    {
+      "module": "tests.e2e.test_standard_root_receipts",
+      "module_id": 2440,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1446.733812459,
+      "end_seconds": 1449.879162459,
+      "duration_seconds": 3.14535
+    },
+    {
+      "module": "tests.e2e.test_tree_html_freshness",
+      "module_id": 2442,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1449.879178959,
+      "end_seconds": 1464.165997292,
+      "duration_seconds": 14.286818333
+    },
+    {
+      "module": "tests.e2e.test_update_follow_plan",
+      "module_id": 2444,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1464.166011542,
+      "end_seconds": 1487.789986417,
+      "duration_seconds": 23.623974875
+    },
+    {
+      "module": "tests.e2e.test_video_courses",
+      "module_id": 2446,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 1487.790001709,
+      "end_seconds": 1492.851194084,
+      "duration_seconds": 5.061192375
+    },
+    {
+      "module": "tests.e2e.test_worker_alignment",
+      "module_id": 2455,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1492.851210667,
+      "end_seconds": 1497.867549625,
+      "duration_seconds": 5.016338958
+    },
+    {
+      "module": "tests.e2e.test_worker_cleanup",
+      "module_id": 2461,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1497.86757375,
+      "end_seconds": 1498.204755625,
+      "duration_seconds": 0.337181875
+    },
+    {
+      "module": "tests.e2e.test_worker_cleanup_adapter",
+      "module_id": 2462,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1498.204769875,
+      "end_seconds": 1498.627191959,
+      "duration_seconds": 0.422422084
+    },
+    {
+      "module": "tests.e2e.test_worker_pressure_adapter",
+      "module_id": 2463,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1498.627206334,
+      "end_seconds": 1499.040603709,
+      "duration_seconds": 0.413397375
+    },
+    {
+      "module": "tests.e2e.test_worker_pressure_windows_cpu",
+      "module_id": 2464,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1499.0406195,
+      "end_seconds": 1499.543623542,
+      "duration_seconds": 0.503004042
+    },
+    {
+      "module": "tests.e2e.test_worker_storage",
+      "module_id": 2472,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1499.543637375,
+      "end_seconds": 1500.167921084,
+      "duration_seconds": 0.624283709
+    },
+    {
+      "module": "tests.e2e.test_workflow_markdown",
+      "module_id": 2475,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1500.167935084,
+      "end_seconds": 1513.860700084,
+      "duration_seconds": 13.692765
+    },
+    {
+      "module": "tests.smoke.test_action_admission",
+      "module_id": 2477,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1513.860717334,
+      "end_seconds": 1517.029141625,
+      "duration_seconds": 3.168424291
+    },
+    {
+      "module": "tests.smoke.test_action_capabilities",
+      "module_id": 2479,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1517.029155917,
+      "end_seconds": 1582.938980792,
+      "duration_seconds": 65.909824875
+    },
+    {
+      "module": "tests.smoke.test_action_execution_config",
+      "module_id": 2482,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1582.938996167,
+      "end_seconds": 1588.453602709,
+      "duration_seconds": 5.514606542
+    },
+    {
+      "module": "tests.smoke.test_action_source_index",
+      "module_id": 2485,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1588.453617334,
+      "end_seconds": 1590.7547005,
+      "duration_seconds": 2.301083166
+    },
+    {
+      "module": "tests.smoke.test_agent_entrypoints",
+      "module_id": 2487,
+      "cases": 26,
+      "serial": false,
+      "start_seconds": 1590.754715792,
+      "end_seconds": 1604.074101125,
+      "duration_seconds": 13.319385333
+    },
+    {
+      "module": "tests.smoke.test_agent_skill_catalog",
+      "module_id": 2513,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1591.352873042,
+      "end_seconds": 1591.713793292,
+      "duration_seconds": 0.36092025
+    },
+    {
+      "module": "tests.smoke.test_agent_skill_catalog_template",
+      "module_id": 2515,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1591.713815167,
+      "end_seconds": 1592.039438959,
+      "duration_seconds": 0.325623792
+    },
+    {
+      "module": "tests.smoke.test_app_stack_skills",
+      "module_id": 2516,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1592.039455417,
+      "end_seconds": 1592.360840125,
+      "duration_seconds": 0.321384708
+    },
+    {
+      "module": "tests.smoke.test_bazelisk_npm_launcher",
+      "module_id": 2517,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1592.36085475,
+      "end_seconds": 1592.957957375,
+      "duration_seconds": 0.597102625
+    },
+    {
+      "module": "tests.smoke.test_bootstrap_litai",
+      "module_id": 2521,
+      "cases": 13,
+      "serial": false,
+      "start_seconds": 1592.957972334,
+      "end_seconds": 1602.301195459,
+      "duration_seconds": 9.343223125
+    },
+    {
+      "module": "tests.smoke.test_browser_acceptance",
+      "module_id": 2534,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1602.301218959,
+      "end_seconds": 1602.786598625,
+      "duration_seconds": 0.485379666
+    },
+    {
+      "module": "tests.smoke.test_candidate_rejection_diagnostics",
+      "module_id": 2537,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1602.7866145,
+      "end_seconds": 1603.402047792,
+      "duration_seconds": 0.615433292
+    },
+    {
+      "module": "tests.smoke.test_cargo_workspace_graph",
+      "module_id": 2543,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1603.402066042,
+      "end_seconds": 1603.833765459,
+      "duration_seconds": 0.431699417
+    },
+    {
+      "module": "tests.smoke.test_cargo_wrapper_adoption",
+      "module_id": 2545,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1603.833781875,
+      "end_seconds": 1607.893482959,
+      "duration_seconds": 4.059701084
+    },
+    {
+      "module": "tests.smoke.test_catalog_import",
+      "module_id": 2546,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 1604.074114709,
+      "end_seconds": 1607.893988292,
+      "duration_seconds": 3.819873583
+    },
+    {
+      "module": "tests.smoke.test_checkpointed_gates",
+      "module_id": 2557,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1607.894002709,
+      "end_seconds": 1610.924658834,
+      "duration_seconds": 3.030656125
+    },
+    {
+      "module": "tests.smoke.test_checkpointed_unittests",
+      "module_id": 2561,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1607.900202834,
+      "end_seconds": 1608.962659209,
+      "duration_seconds": 1.062456375
+    },
+    {
+      "module": "tests.smoke.test_cli_cache_clean",
+      "module_id": 2563,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1608.962676417,
+      "end_seconds": 1609.624640625,
+      "duration_seconds": 0.661964208
+    },
+    {
+      "module": "tests.smoke.test_cli_component_authoring",
+      "module_id": 2565,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1609.624662459,
+      "end_seconds": 1610.422543542,
+      "duration_seconds": 0.797881083
+    },
+    {
+      "module": "tests.smoke.test_cli_component_locks",
+      "module_id": 2568,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1610.422559292,
+      "end_seconds": 1613.090534125,
+      "duration_seconds": 2.667974833
+    },
+    {
+      "module": "tests.smoke.test_cli_config_migration",
+      "module_id": 2574,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1610.924695334,
+      "end_seconds": 1611.542129292,
+      "duration_seconds": 0.617433958
+    },
+    {
+      "module": "tests.smoke.test_cli_help",
+      "module_id": 2575,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1611.542142959,
+      "end_seconds": 1614.754204292,
+      "duration_seconds": 3.212061333
+    },
+    {
+      "module": "tests.smoke.test_cli_library_qualification",
+      "module_id": 2577,
+      "cases": 19,
+      "serial": false,
+      "start_seconds": 1613.090556709,
+      "end_seconds": 1614.245768625,
+      "duration_seconds": 1.155211916
+    },
+    {
+      "module": "tests.smoke.test_cli_retained_cargo",
+      "module_id": 2596,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1614.245788542,
+      "end_seconds": 1617.122557209,
+      "duration_seconds": 2.876768667
+    },
+    {
+      "module": "tests.smoke.test_cli_scxml_review",
+      "module_id": 2599,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1614.754221125,
+      "end_seconds": 1615.348165334,
+      "duration_seconds": 0.593944209
+    },
+    {
+      "module": "tests.smoke.test_cli_specification_corpus",
+      "module_id": 2600,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1615.348179292,
+      "end_seconds": 1616.011114875,
+      "duration_seconds": 0.662935583
+    },
+    {
+      "module": "tests.smoke.test_cli_worker_health",
+      "module_id": 2602,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1616.011134709,
+      "end_seconds": 1616.781688375,
+      "duration_seconds": 0.770553666
+    },
+    {
+      "module": "tests.smoke.test_cli_worker_registry",
+      "module_id": 2606,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1616.781702417,
+      "end_seconds": 1618.369316584,
+      "duration_seconds": 1.587614167
+    },
+    {
+      "module": "tests.smoke.test_coding_cli_quota_fallback",
+      "module_id": 2611,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1617.122571959,
+      "end_seconds": 1617.981623084,
+      "duration_seconds": 0.859051125
+    },
+    {
+      "module": "tests.smoke.test_component_generation_scheduling",
+      "module_id": 2613,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1617.981637042,
+      "end_seconds": 1618.348714584,
+      "duration_seconds": 0.367077542
+    },
+    {
+      "module": "tests.smoke.test_component_lock_planning",
+      "module_id": 2614,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1618.348729334,
+      "end_seconds": 1618.800390625,
+      "duration_seconds": 0.451661291
+    },
+    {
+      "module": "tests.smoke.test_course_demo_regressions",
+      "module_id": 2615,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1618.369338709,
+      "end_seconds": 1620.145534375,
+      "duration_seconds": 1.776195666
+    },
+    {
+      "module": "tests.smoke.test_coverage_gaps",
+      "module_id": 2617,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1618.800404917,
+      "end_seconds": 1619.145746917,
+      "duration_seconds": 0.345342
+    },
+    {
+      "module": "tests.smoke.test_cursor_inherited_session",
+      "module_id": 2619,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1619.1457595,
+      "end_seconds": 1619.702767625,
+      "duration_seconds": 0.557008125
+    },
+    {
+      "module": "tests.smoke.test_cyclonedx_sbom",
+      "module_id": 2621,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1619.702781917,
+      "end_seconds": 1620.574863792,
+      "duration_seconds": 0.872081875
+    },
+    {
+      "module": "tests.smoke.test_cyclonedx_uniqueness",
+      "module_id": 2623,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1620.145547084,
+      "end_seconds": 1621.234523167,
+      "duration_seconds": 1.088976083
+    },
+    {
+      "module": "tests.smoke.test_dependency_lifecycle",
+      "module_id": 2628,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1620.574878375,
+      "end_seconds": 1621.777272,
+      "duration_seconds": 1.202393625
+    },
+    {
+      "module": "tests.smoke.test_dmn_adapter",
+      "module_id": 2633,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1621.234535875,
+      "end_seconds": 1621.571383959,
+      "duration_seconds": 0.336848084
+    },
+    {
+      "module": "tests.smoke.test_doc_toolchain_bootstrap",
+      "module_id": 2635,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1621.571398459,
+      "end_seconds": 1621.911145834,
+      "duration_seconds": 0.339747375
+    },
+    {
+      "module": "tests.smoke.test_documentation",
+      "module_id": 2637,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1621.777306959,
+      "end_seconds": 1622.23058975,
+      "duration_seconds": 0.453282791
+    },
+    {
+      "module": "tests.smoke.test_elixir_adoption",
+      "module_id": 2644,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1621.911159084,
+      "end_seconds": 1622.444658334,
+      "duration_seconds": 0.53349925
+    },
+    {
+      "module": "tests.smoke.test_elixir_flavor",
+      "module_id": 2649,
+      "cases": 14,
+      "serial": false,
+      "start_seconds": 1622.230603667,
+      "end_seconds": 1628.884243375,
+      "duration_seconds": 6.653639708
+    },
+    {
+      "module": "tests.smoke.test_elixir_library",
+      "module_id": 2663,
+      "cases": 13,
+      "serial": false,
+      "start_seconds": 1622.444671209,
+      "end_seconds": 1658.11701875,
+      "duration_seconds": 35.672347541
+    },
+    {
+      "module": "tests.smoke.test_elixir_mix_projection",
+      "module_id": 2676,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1628.88425775,
+      "end_seconds": 1631.841005959,
+      "duration_seconds": 2.956748209
+    },
+    {
+      "module": "tests.smoke.test_elixir_qualification_tools",
+      "module_id": 2682,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1629.937840417,
+      "end_seconds": 1630.286982667,
+      "duration_seconds": 0.34914225
+    },
+    {
+      "module": "tests.smoke.test_evidence_ledger",
+      "module_id": 2684,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1630.286997542,
+      "end_seconds": 1630.726276,
+      "duration_seconds": 0.439278458
+    },
+    {
+      "module": "tests.smoke.test_evidence_timing",
+      "module_id": 2688,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 1630.72628925,
+      "end_seconds": 1631.433079417,
+      "duration_seconds": 0.706790167
+    },
+    {
+      "module": "tests.smoke.test_evidence_verification_cli",
+      "module_id": 2700,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1631.4330955,
+      "end_seconds": 1634.141886417,
+      "duration_seconds": 2.708790917
+    },
+    {
+      "module": "tests.smoke.test_flavor_add",
+      "module_id": 2704,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1631.841021542,
+      "end_seconds": 1633.325360917,
+      "duration_seconds": 1.484339375
+    },
+    {
+      "module": "tests.smoke.test_flavor_markdown",
+      "module_id": 2706,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1633.325377334,
+      "end_seconds": 1633.677128542,
+      "duration_seconds": 0.351751208
+    },
+    {
+      "module": "tests.smoke.test_grpc_lifecycle",
+      "module_id": 2707,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1633.677142417,
+      "end_seconds": 1637.245166334,
+      "duration_seconds": 3.568023917
+    },
+    {
+      "module": "tests.smoke.test_grpc_transport",
+      "module_id": 2709,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1634.14190075,
+      "end_seconds": 1634.68540875,
+      "duration_seconds": 0.543508
+    },
+    {
+      "module": "tests.smoke.test_homebrew_formula",
+      "module_id": 2710,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1634.685423292,
+      "end_seconds": 1635.010741084,
+      "duration_seconds": 0.325317792
+    },
+    {
+      "module": "tests.smoke.test_html_emitter",
+      "module_id": 2711,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1635.010757,
+      "end_seconds": 1637.655261125,
+      "duration_seconds": 2.644504125
+    },
+    {
+      "module": "tests.smoke.test_html_render",
+      "module_id": 2713,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1637.245180542,
+      "end_seconds": 1639.717950375,
+      "duration_seconds": 2.472769833
+    },
+    {
+      "module": "tests.smoke.test_html_staleness",
+      "module_id": 2716,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1637.65527525,
+      "end_seconds": 1648.480153209,
+      "duration_seconds": 10.824877959
+    },
+    {
+      "module": "tests.smoke.test_install_litai",
+      "module_id": 2723,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1639.717963042,
+      "end_seconds": 1643.664621917,
+      "duration_seconds": 3.946658875
+    },
+    {
+      "module": "tests.smoke.test_installed_lock_health_smoke",
+      "module_id": 2727,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1643.66463575,
+      "end_seconds": 1649.257966625,
+      "duration_seconds": 5.593330875
+    },
+    {
+      "module": "tests.smoke.test_installed_project_preflight",
+      "module_id": 2728,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1648.4801685,
+      "end_seconds": 1649.64052325,
+      "duration_seconds": 1.16035475
+    },
+    {
+      "module": "tests.smoke.test_intent_refinement",
+      "module_id": 2729,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1649.257982167,
+      "end_seconds": 1649.942968584,
+      "duration_seconds": 0.684986417
+    },
+    {
+      "module": "tests.smoke.test_ipc_surface_acceptance",
+      "module_id": 2730,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1649.64053775,
+      "end_seconds": 1650.265656625,
+      "duration_seconds": 0.625118875
+    },
+    {
+      "module": "tests.smoke.test_javascript_generation_self_check",
+      "module_id": 2733,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1649.943021084,
+      "end_seconds": 1650.991932917,
+      "duration_seconds": 1.048911833
+    },
+    {
+      "module": "tests.smoke.test_javascript_library_acceptance",
+      "module_id": 2737,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1650.265671459,
+      "end_seconds": 1652.906534625,
+      "duration_seconds": 2.640863166
+    },
+    {
+      "module": "tests.smoke.test_javascript_library_imports",
+      "module_id": 2740,
+      "cases": 20,
+      "serial": false,
+      "start_seconds": 1650.991947959,
+      "end_seconds": 1661.88166025,
+      "duration_seconds": 10.889712291
+    },
+    {
+      "module": "tests.smoke.test_known_failure_checkpoints",
+      "module_id": 2760,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1652.906549375,
+      "end_seconds": 1653.608221334,
+      "duration_seconds": 0.701671959
+    },
+    {
+      "module": "tests.smoke.test_learning",
+      "module_id": 2763,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1653.6082365,
+      "end_seconds": 1654.278330334,
+      "duration_seconds": 0.670093834
+    },
+    {
+      "module": "tests.smoke.test_lint_render_acceptance",
+      "module_id": 2765,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1654.278345084,
+      "end_seconds": 1654.905381709,
+      "duration_seconds": 0.627036625
+    },
+    {
+      "module": "tests.smoke.test_local_lifecycle_adapters",
+      "module_id": 2767,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1654.905396375,
+      "end_seconds": 1655.635205917,
+      "duration_seconds": 0.729809542
+    },
+    {
+      "module": "tests.smoke.test_mcp_runtime",
+      "module_id": 2769,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1655.635221375,
+      "end_seconds": 1656.027470209,
+      "duration_seconds": 0.392248834
+    },
+    {
+      "module": "tests.smoke.test_mcp_server",
+      "module_id": 2771,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1656.02748525,
+      "end_seconds": 1656.554686709,
+      "duration_seconds": 0.527201459
+    },
+    {
+      "module": "tests.smoke.test_model_source_to_specification",
+      "module_id": 2774,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1656.554700542,
+      "end_seconds": 1658.784290042,
+      "duration_seconds": 2.2295895
+    },
+    {
+      "module": "tests.smoke.test_models_workflows",
+      "module_id": 2778,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1658.117034334,
+      "end_seconds": 1658.471817,
+      "duration_seconds": 0.354782666
+    },
+    {
+      "module": "tests.smoke.test_monorepo_adoption",
+      "module_id": 2781,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1658.471830625,
+      "end_seconds": 1659.619361459,
+      "duration_seconds": 1.147530834
+    },
+    {
+      "module": "tests.smoke.test_multi_entrypoint_build",
+      "module_id": 2785,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1658.784304292,
+      "end_seconds": 1659.201322709,
+      "duration_seconds": 0.417018417
+    },
+    {
+      "module": "tests.smoke.test_native_candidate_contract",
+      "module_id": 2786,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1659.201338834,
+      "end_seconds": 1659.576364209,
+      "duration_seconds": 0.375025375
+    },
+    {
+      "module": "tests.smoke.test_native_cli_acceptance",
+      "module_id": 2788,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1659.576380084,
+      "end_seconds": 1660.3418965,
+      "duration_seconds": 0.765516416
+    },
+    {
+      "module": "tests.smoke.test_native_project_updates",
+      "module_id": 2790,
+      "cases": 18,
+      "serial": false,
+      "start_seconds": 1659.619376334,
+      "end_seconds": 1660.6205,
+      "duration_seconds": 1.001123666
+    },
+    {
+      "module": "tests.smoke.test_native_sdk_fixture",
+      "module_id": 2808,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1660.34191075,
+      "end_seconds": 1661.345011584,
+      "duration_seconds": 1.003100834
+    },
+    {
+      "module": "tests.smoke.test_nonhost_lock_health",
+      "module_id": 2809,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1660.620515459,
+      "end_seconds": 1664.685096417,
+      "duration_seconds": 4.064580958
+    },
+    {
+      "module": "tests.smoke.test_operator_adoption",
+      "module_id": 2815,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1661.345026125,
+      "end_seconds": 1662.035680917,
+      "duration_seconds": 0.690654792
+    },
+    {
+      "module": "tests.smoke.test_orchestration_initialization",
+      "module_id": 2819,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1661.881673959,
+      "end_seconds": 1669.50197825,
+      "duration_seconds": 7.620304291
+    },
+    {
+      "module": "tests.smoke.test_orchestration_planning",
+      "module_id": 2822,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1662.035694209,
+      "end_seconds": 1665.394270375,
+      "duration_seconds": 3.358576166
+    },
+    {
+      "module": "tests.smoke.test_original_project_adoption",
+      "module_id": 2824,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 1664.685117084,
+      "end_seconds": 1679.154515542,
+      "duration_seconds": 14.469398458
+    },
+    {
+      "module": "tests.smoke.test_ova_shadow",
+      "module_id": 2836,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1665.394285042,
+      "end_seconds": 1665.786865709,
+      "duration_seconds": 0.392580667
+    },
+    {
+      "module": "tests.smoke.test_packaged_skills",
+      "module_id": 2837,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1665.786880417,
+      "end_seconds": 1666.395885959,
+      "duration_seconds": 0.609005542
+    },
+    {
+      "module": "tests.smoke.test_parallel_unittests",
+      "module_id": 2839,
+      "cases": 18,
+      "serial": false,
+      "start_seconds": 1666.395899584,
+      "end_seconds": 1709.616187584,
+      "duration_seconds": 43.220288
+    },
+    {
+      "module": "tests.smoke.test_parent_readme",
+      "module_id": 2857,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 1669.50199375,
+      "end_seconds": 1673.941797084,
+      "duration_seconds": 4.439803334
+    },
+    {
+      "module": "tests.smoke.test_peer_work",
+      "module_id": 2867,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1673.941810042,
+      "end_seconds": 1676.098479959,
+      "duration_seconds": 2.156669917
+    },
+    {
+      "module": "tests.smoke.test_pip_build_environment",
+      "module_id": 2871,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1676.098495792,
+      "end_seconds": 1676.463387125,
+      "duration_seconds": 0.364891333
+    },
+    {
+      "module": "tests.smoke.test_plugin_bundle",
+      "module_id": 2872,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1676.463401167,
+      "end_seconds": 1676.962085959,
+      "duration_seconds": 0.498684792
+    },
+    {
+      "module": "tests.smoke.test_product_json_acceptance",
+      "module_id": 2874,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1676.962101834,
+      "end_seconds": 1677.5127985,
+      "duration_seconds": 0.550696666
+    },
+    {
+      "module": "tests.smoke.test_project_command_imports",
+      "module_id": 2876,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1677.512811584,
+      "end_seconds": 1679.200228667,
+      "duration_seconds": 1.687417083
+    },
+    {
+      "module": "tests.smoke.test_project_guidance",
+      "module_id": 2878,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1679.154532542,
+      "end_seconds": 1679.792811917,
+      "duration_seconds": 0.638279375
+    },
+    {
+      "module": "tests.smoke.test_project_reparenting",
+      "module_id": 2880,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1679.200247875,
+      "end_seconds": 1680.724317125,
+      "duration_seconds": 1.52406925
+    },
+    {
+      "module": "tests.smoke.test_project_source_index",
+      "module_id": 2882,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1679.792827375,
+      "end_seconds": 1681.637995792,
+      "duration_seconds": 1.845168417
+    },
+    {
+      "module": "tests.smoke.test_project_test_receipt_cli",
+      "module_id": 2884,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1680.724330667,
+      "end_seconds": 1687.199450709,
+      "duration_seconds": 6.475120042
+    },
+    {
+      "module": "tests.smoke.test_project_tracker",
+      "module_id": 2887,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1681.024444542,
+      "end_seconds": 1681.758498417,
+      "duration_seconds": 0.734053875
+    },
+    {
+      "module": "tests.smoke.test_project_verify",
+      "module_id": 2892,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1681.638036875,
+      "end_seconds": 1685.919915917,
+      "duration_seconds": 4.281879042
+    },
+    {
+      "module": "tests.smoke.test_project_worktrees",
+      "module_id": 2895,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1681.75851725,
+      "end_seconds": 1682.646609584,
+      "duration_seconds": 0.888092334
+    },
+    {
+      "module": "tests.smoke.test_prompt_routing",
+      "module_id": 2897,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1682.64662325,
+      "end_seconds": 1683.14478375,
+      "duration_seconds": 0.4981605
+    },
+    {
+      "module": "tests.smoke.test_provider_resolution",
+      "module_id": 2899,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1683.144804292,
+      "end_seconds": 1684.228319209,
+      "duration_seconds": 1.083514917
+    },
+    {
+      "module": "tests.smoke.test_python_library_verifier_isolation",
+      "module_id": 2901,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1684.228336084,
+      "end_seconds": 1685.854075875,
+      "duration_seconds": 1.625739791
+    },
+    {
+      "module": "tests.smoke.test_python_target",
+      "module_id": 2903,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1685.854093292,
+      "end_seconds": 1686.797418084,
+      "duration_seconds": 0.943324792
+    },
+    {
+      "module": "tests.smoke.test_python_toolchain",
+      "module_id": 2905,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1685.919935459,
+      "end_seconds": 1686.815199,
+      "duration_seconds": 0.895263541
+    },
+    {
+      "module": "tests.smoke.test_registry_composition",
+      "module_id": 2912,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1686.797434834,
+      "end_seconds": 1687.17998275,
+      "duration_seconds": 0.382547916
+    },
+    {
+      "module": "tests.smoke.test_release_preflight",
+      "module_id": 2915,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1686.815226667,
+      "end_seconds": 1687.520176,
+      "duration_seconds": 0.704949333
+    },
+    {
+      "module": "tests.smoke.test_release_roadmap_summary",
+      "module_id": 2916,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1687.179997917,
+      "end_seconds": 1687.970287084,
+      "duration_seconds": 0.790289167
+    },
+    {
+      "module": "tests.smoke.test_remote_library_transport",
+      "module_id": 2919,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1687.199473917,
+      "end_seconds": 1688.032150917,
+      "duration_seconds": 0.832677
+    },
+    {
+      "module": "tests.smoke.test_remote_standard_toolchains",
+      "module_id": 2922,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1687.520209834,
+      "end_seconds": 1751.291981834,
+      "duration_seconds": 63.771772
+    },
+    {
+      "module": "tests.smoke.test_repository_lock_planning",
+      "module_id": 2928,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1687.970302584,
+      "end_seconds": 1690.488248625,
+      "duration_seconds": 2.517946041
+    },
+    {
+      "module": "tests.smoke.test_repository_updates",
+      "module_id": 2930,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1688.03216975,
+      "end_seconds": 1690.267278167,
+      "duration_seconds": 2.235108417
+    },
+    {
+      "module": "tests.smoke.test_retained_build_frontend",
+      "module_id": 2933,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1690.267298792,
+      "end_seconds": 1691.063998209,
+      "duration_seconds": 0.796699417
+    },
+    {
+      "module": "tests.smoke.test_retained_cargo_admission",
+      "module_id": 2936,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1690.48826225,
+      "end_seconds": 1692.169636417,
+      "duration_seconds": 1.681374167
+    },
+    {
+      "module": "tests.smoke.test_retained_cargo_execution",
+      "module_id": 2937,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1691.064014125,
+      "end_seconds": 1695.053865,
+      "duration_seconds": 3.989850875
+    },
+    {
+      "module": "tests.smoke.test_retained_cargo_receiving_native_v2",
+      "module_id": 2940,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1692.169651167,
+      "end_seconds": 2683.585675834,
+      "duration_seconds": 991.416024667
+    },
+    {
+      "module": "tests.smoke.test_retained_cargo_test_execution",
+      "module_id": 2948,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1695.0538815,
+      "end_seconds": 1735.934806375,
+      "duration_seconds": 40.880924875
+    },
+    {
+      "module": "tests.smoke.test_retained_cargo_tree_currentness",
+      "module_id": 2950,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1709.616238625,
+      "end_seconds": 1710.195286792,
+      "duration_seconds": 0.579048167
+    },
+    {
+      "module": "tests.smoke.test_retained_output_diagnostics",
+      "module_id": 2958,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1710.1953065,
+      "end_seconds": 1711.171526292,
+      "duration_seconds": 0.976219792
+    },
+    {
+      "module": "tests.smoke.test_rust_adoption_detection",
+      "module_id": 2960,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1711.171544625,
+      "end_seconds": 1711.791502959,
+      "duration_seconds": 0.619958334
+    },
+    {
+      "module": "tests.smoke.test_sample_driver_entrypoint",
+      "module_id": 2963,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1711.791519542,
+      "end_seconds": 1713.308595042,
+      "duration_seconds": 1.5170755
+    },
+    {
+      "module": "tests.smoke.test_sample_model_stage_retries",
+      "module_id": 2964,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1713.308690625,
+      "end_seconds": 1713.984494709,
+      "duration_seconds": 0.675804084
+    },
+    {
+      "module": "tests.smoke.test_scheduler_lease_reference",
+      "module_id": 2970,
+      "cases": 11,
+      "serial": false,
+      "start_seconds": 1713.984543125,
+      "end_seconds": 1715.061636459,
+      "duration_seconds": 1.077093334
+    },
+    {
+      "module": "tests.smoke.test_schema_catalog",
+      "module_id": 2981,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1715.0616605,
+      "end_seconds": 1715.47113225,
+      "duration_seconds": 0.40947175
+    },
+    {
+      "module": "tests.smoke.test_scxml_adapter",
+      "module_id": 2983,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1715.47116725,
+      "end_seconds": 1715.892922084,
+      "duration_seconds": 0.421754834
+    },
+    {
+      "module": "tests.smoke.test_skill_evaluation_gate",
+      "module_id": 2985,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1715.892936625,
+      "end_seconds": 1716.594172834,
+      "duration_seconds": 0.701236209
+    },
+    {
+      "module": "tests.smoke.test_skill_routing_evaluation",
+      "module_id": 2987,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1716.594189084,
+      "end_seconds": 1717.342790875,
+      "duration_seconds": 0.748601791
+    },
+    {
+      "module": "tests.smoke.test_snapshot_cache_reference",
+      "module_id": 2989,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 1717.342812,
+      "end_seconds": 1717.908864209,
+      "duration_seconds": 0.566052209
+    },
+    {
+      "module": "tests.smoke.test_source_cache_publication",
+      "module_id": 2999,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1717.908877875,
+      "end_seconds": 1718.584474625,
+      "duration_seconds": 0.67559675
+    },
+    {
+      "module": "tests.smoke.test_source_promotion_service",
+      "module_id": 3001,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1718.584495042,
+      "end_seconds": 1718.971184542,
+      "duration_seconds": 0.3866895
+    },
+    {
+      "module": "tests.smoke.test_source_to_specification",
+      "module_id": 3002,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1718.97120075,
+      "end_seconds": 1719.358719042,
+      "duration_seconds": 0.387518292
+    },
+    {
+      "module": "tests.smoke.test_specification_corpus_service",
+      "module_id": 3005,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1719.358736125,
+      "end_seconds": 1719.720868084,
+      "duration_seconds": 0.362131959
+    },
+    {
+      "module": "tests.smoke.test_ssh_execution",
+      "module_id": 3006,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1719.720885167,
+      "end_seconds": 1720.196252459,
+      "duration_seconds": 0.475367292
+    },
+    {
+      "module": "tests.smoke.test_standard_bazel_lifecycle",
+      "module_id": 3008,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1720.196268042,
+      "end_seconds": 1722.926275417,
+      "duration_seconds": 2.730007375
+    },
+    {
+      "module": "tests.smoke.test_standard_cargo_lifecycle",
+      "module_id": 3011,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 1722.926295959,
+      "end_seconds": 1727.648761709,
+      "duration_seconds": 4.72246575
+    },
+    {
+      "module": "tests.smoke.test_standard_command_projection",
+      "module_id": 3021,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1727.648776834,
+      "end_seconds": 1732.15177025,
+      "duration_seconds": 4.502993416
+    },
+    {
+      "module": "tests.smoke.test_standard_lifecycle_rebind",
+      "module_id": 3026,
+      "cases": 18,
+      "serial": false,
+      "start_seconds": 1732.15180625,
+      "end_seconds": 1733.122834875,
+      "duration_seconds": 0.971028625
+    },
+    {
+      "module": "tests.smoke.test_standard_local_command_adapter",
+      "module_id": 3044,
+      "cases": 6,
+      "serial": false,
+      "start_seconds": 1733.122851542,
+      "end_seconds": 1735.478187792,
+      "duration_seconds": 2.35533625
+    },
+    {
+      "module": "tests.smoke.test_standard_npm_lifecycle",
+      "module_id": 3050,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1735.478201417,
+      "end_seconds": 1737.002021667,
+      "duration_seconds": 1.52382025
+    },
+    {
+      "module": "tests.smoke.test_standard_project_cli_planning",
+      "module_id": 3053,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1735.934821625,
+      "end_seconds": 1737.362314542,
+      "duration_seconds": 1.427492917
+    },
+    {
+      "module": "tests.smoke.test_standard_project_factory",
+      "module_id": 3054,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1737.002036,
+      "end_seconds": 1737.825687459,
+      "duration_seconds": 0.823651459
+    },
+    {
+      "module": "tests.smoke.test_standard_project_lifecycle",
+      "module_id": 3057,
+      "cases": 5,
+      "serial": false,
+      "start_seconds": 1737.362331167,
+      "end_seconds": 1738.237201875,
+      "duration_seconds": 0.874870708
+    },
+    {
+      "module": "tests.smoke.test_standard_python_lifecycle",
+      "module_id": 3062,
+      "cases": 8,
+      "serial": false,
+      "start_seconds": 1737.825701459,
+      "end_seconds": 1775.330003542,
+      "duration_seconds": 37.504302083
+    },
+    {
+      "module": "tests.smoke.test_standard_python_projection",
+      "module_id": 3070,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1738.237216584,
+      "end_seconds": 1741.709221334,
+      "duration_seconds": 3.47200475
+    },
+    {
+      "module": "tests.smoke.test_standard_python_source_projection",
+      "module_id": 3074,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1741.709239709,
+      "end_seconds": 1758.172885959,
+      "duration_seconds": 16.46364625
+    },
+    {
+      "module": "tests.smoke.test_standard_runtime_candidate_repair",
+      "module_id": 3078,
+      "cases": 4,
+      "serial": false,
+      "start_seconds": 1751.291996667,
+      "end_seconds": 1752.436865834,
+      "duration_seconds": 1.144869167
+    },
+    {
+      "module": "tests.smoke.test_standard_source_cache_roundtrip",
+      "module_id": 3082,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1752.436882334,
+      "end_seconds": 1753.870511167,
+      "duration_seconds": 1.433628833
+    },
+    {
+      "module": "tests.smoke.test_step_harness",
+      "module_id": 3084,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1753.87052925,
+      "end_seconds": 1754.949802917,
+      "duration_seconds": 1.079273667
+    },
+    {
+      "module": "tests.smoke.test_target_matrices",
+      "module_id": 3086,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1754.949819209,
+      "end_seconds": 1755.298759125,
+      "duration_seconds": 0.348939916
+    },
+    {
+      "module": "tests.smoke.test_target_matrix_cli",
+      "module_id": 3088,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1755.298780625,
+      "end_seconds": 1755.926425125,
+      "duration_seconds": 0.6276445
+    },
+    {
+      "module": "tests.smoke.test_validation",
+      "module_id": 3089,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1755.926444667,
+      "end_seconds": 1756.290895542,
+      "duration_seconds": 0.364450875
+    },
+    {
+      "module": "tests.smoke.test_version_authority",
+      "module_id": 3091,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1756.290910542,
+      "end_seconds": 1760.123083167,
+      "duration_seconds": 3.832172625
+    },
+    {
+      "module": "tests.smoke.test_vfi_context_scaling",
+      "module_id": 3094,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1758.172901625,
+      "end_seconds": 1759.558624542,
+      "duration_seconds": 1.385722917
+    },
+    {
+      "module": "tests.smoke.test_wheel_smoke",
+      "module_id": 3095,
+      "cases": 7,
+      "serial": false,
+      "start_seconds": 1759.558639084,
+      "end_seconds": 1760.973134875,
+      "duration_seconds": 1.414495791
+    },
+    {
+      "module": "tests.smoke.test_worker_capacity",
+      "module_id": 3102,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1760.123114667,
+      "end_seconds": 1760.546647625,
+      "duration_seconds": 0.423532958
+    },
+    {
+      "module": "tests.smoke.test_worker_lease_management",
+      "module_id": 3104,
+      "cases": 24,
+      "serial": false,
+      "start_seconds": 1760.54666375,
+      "end_seconds": 1767.436766,
+      "duration_seconds": 6.89010225
+    },
+    {
+      "module": "tests.smoke.test_worker_provisioning",
+      "module_id": 3128,
+      "cases": 3,
+      "serial": false,
+      "start_seconds": 1760.97315025,
+      "end_seconds": 1762.022798542,
+      "duration_seconds": 1.049648292
+    },
+    {
+      "module": "tests.smoke.test_worker_storage_command",
+      "module_id": 3131,
+      "cases": 2,
+      "serial": false,
+      "start_seconds": 1762.022821,
+      "end_seconds": 1762.493849167,
+      "duration_seconds": 0.471028167
+    },
+    {
+      "module": "tests.smoke.test_worker_tool_dependencies",
+      "module_id": 3133,
+      "cases": 1,
+      "serial": false,
+      "start_seconds": 1762.493865375,
+      "end_seconds": 1763.39113225,
+      "duration_seconds": 0.897266875
+    },
+    {
+      "module": "tests.smoke.test_worktree_audit_inputs",
+      "module_id": 3134,
+      "cases": 12,
+      "serial": false,
+      "start_seconds": 1763.3911465,
+      "end_seconds": 1773.588136709,
+      "duration_seconds": 10.196990209
+    },
+    {
+      "module": "tests.smoke.test_worktree_audit_journal",
+      "module_id": 3146,
+      "cases": 10,
+      "serial": false,
+      "start_seconds": 1767.436785875,
+      "end_seconds": 1789.752679125,
+      "duration_seconds": 22.31589325
+    },
+    {
+      "module": "tests.smoke.test_worktree_discovery",
+      "module_id": 3156,
+      "cases": 17,
+      "serial": false,
+      "start_seconds": 1773.588153542,
+      "end_seconds": 1779.779200875,
+      "duration_seconds": 6.191047333
+    },
+    {
+      "module": "tests.smoke.test_worktree_operation_inputs",
+      "module_id": 3173,
+      "cases": 9,
+      "serial": false,
+      "start_seconds": 1775.330020334,
+      "end_seconds": 1782.879467417,
+      "duration_seconds": 7.549447083
+    }
+  ]
+}

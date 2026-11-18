@@ -6,8 +6,11 @@ import hashlib
 import json
 import os
 import re
+import threading
 from collections import deque
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -34,6 +37,61 @@ class AgentSkillDependency:
     skill_id: str
     version: str | None = None
     identity: str | None = None
+
+
+_ManifestMetadata = tuple[str, str | None, tuple[AgentSkillDependency, ...]]
+_MetadataKey = tuple[bytes, PurePosixPath]
+_MAX_METADATA_ENTRIES = 128
+_MAX_METADATA_CONTENT_BYTES = 8192
+_MAX_METADATA_SOURCE_CHARACTERS = 1024
+_MAX_METADATA_KEY_BYTES = 1024 * 1024
+
+
+class _SkillMetadataParses:
+    def __init__(self) -> None:
+        self.entries: dict[_MetadataKey, _ManifestMetadata] = {}
+        self.lock = threading.Lock()
+
+    def parse(self, content: bytes, source: PurePosixPath) -> _ManifestMetadata:
+        with self.lock:
+            key = (content, source)
+            if key in self.entries:
+                return self.entries[key]
+            metadata = _parse_manifest_metadata(content, source)
+            # Charge key payloads conservatively; count and individual-size
+            # bounds also limit immutable metadata and object overhead.
+            size = len(content) + 4 * len(str(source))
+            retained = sum(
+                len(data) + 4 * len(str(path)) for data, path in self.entries
+            )
+            if (
+                len(self.entries) < _MAX_METADATA_ENTRIES
+                and retained + size <= _MAX_METADATA_KEY_BYTES
+            ):
+                self.entries[key] = metadata
+            return metadata
+
+
+_METADATA_PARSES: ContextVar[_SkillMetadataParses | None] = ContextVar(
+    "read_only_skill_metadata_parses", default=None
+)
+
+
+@contextmanager
+def read_only_agent_skill_metadata_parses(*, isolated: bool = False) -> Iterator[None]:
+    """Reuse immutable syntax results; every catalog still reads and validates.
+
+    Joined project parse scopes own this lifetime. No success/currentness result,
+    exception, filesystem observation or mutable catalog is retained here.
+    """
+    if not isolated and _METADATA_PARSES.get() is not None:
+        yield
+        return
+    token = _METADATA_PARSES.set(_SkillMetadataParses())
+    try:
+        yield
+    finally:
+        _METADATA_PARSES.reset(token)
 
 
 @dataclass(frozen=True, slots=True)
@@ -501,6 +559,19 @@ def _logical_path(value: str | PurePosixPath) -> PurePosixPath:
 def _manifest_metadata(
     content: bytes, source: PurePosixPath
 ) -> tuple[str, str | None, tuple[AgentSkillDependency, ...]]:
+    parses = _METADATA_PARSES.get()
+    if (
+        parses is None
+        or len(content) > _MAX_METADATA_CONTENT_BYTES
+        or len(str(source)) > _MAX_METADATA_SOURCE_CHARACTERS
+    ):
+        return _parse_manifest_metadata(content, source)
+    return parses.parse(content, source)
+
+
+def _parse_manifest_metadata(
+    content: bytes, source: PurePosixPath
+) -> _ManifestMetadata:
     if source.name == "skill.json":
         try:
             frontmatter = json.loads(content.decode("utf-8"))

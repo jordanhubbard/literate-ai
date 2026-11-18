@@ -8647,12 +8647,13 @@ slice here before implementation so this file always names the resumable frontie
   candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
 - **Completion prerequisites:** none
-- **Next action:** Separate documentation rendering from the unused OpenSpec
-  dependency graph, auditing each tool before its own execution without removing
-  either from full CI or release qualification. Preserve the observed hosted
-  coverage/retry evidence and complete the combined candidate's remaining native,
-  installed, artifact and release acceptance. The unpatched OpenSpec dependency
-  advisory continues to block its gate and release readiness.
+- **Next action:** Move the existing cheap Make validation gates before expensive
+  qualification work, preserving every gate and refusal under parallel Make. The
+  reviewed documentation/OpenSpec split is in PR 470; its hosted Linux suite passes
+  before the known audit refuses after a 52-minute job. Keep that audit mandatory,
+  qualify the reordered entry points, and preserve the observed hosted coverage/retry
+  evidence and combined candidate's remaining native, installed, artifact and release
+  acceptance. The unpatched dependency advisory still blocks its gate and release.
 - **Implementation:**
   - [x] Archive obsolete historical execution with source/fixture comparison and
         the document-publication proof gap explicitly preserved.
@@ -19141,13 +19142,16 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 - **Direction:** Run release-gate tests in parallel (checkpointed, fail-fast)
 - **Conclusion:** Bounded process-level module scheduling is implemented with one controller-owned marker ledger and source/context binding. The remaining work is measured performance and final platform qualification. Preserve the serial API for in-memory suites and explicit CLI/Make worker counts. The Windows gate retains its separate pytest/JUnit execution path.
 - **Depends on:** existing pin dispatch, known-failure contracts and owned-process-tree cleanup
-- **Next action (in progress):** Qualify parent-owned module timing on the next complete source run, investigate measured long modules, then collect native serial/parallel comparisons and exact-head platform results. Historical suite/wheel/receipt passes do not attest later source changes; eight-core Windows performance acceptance remains pending capacity.
+- **Next action (in progress):** Use the completed module trace to test an opt-in priority for the measured long native-Cargo module, preserving whole-module/case order and serial barriers. Verify default compatibility, real worker dispatch, cancellation and exact outcomes, then measure the composed full run. Native serial/parallel three-host and eight-core Windows acceptance remain open; simulation does not qualify them.
 - **Implementation:**
   - [x] Execute importable module groups in private process/temp/object environments with explicit serial barriers and configurable worker count.
   - [x] Record validated per-case outcomes only in the parent; retain exact failure/skip/subtest/fixture counts and bounded diagnostics.
   - [x] Stop dispatch on failure, terminate only owned worker/descendant processes, and preserve completed repair markers.
   - [x] Keep known-failure/context/release-evidence behavior and required repaired-exit-2 followed by a clean from-zero pass.
   - [x] Integrate Make and Windows pytest worker configuration, audit fixed shared state, and document limits and wheel-check timing findings.
+  - [ ] Admit a bounded module-level scheduling priority only within existing
+        nonserial segments; default order, serial barriers, module identities,
+        complete tests and all outcome/timeout/recovery gates remain unchanged.
 - **Evidence:**
   - [x] Real processes prove overlap, isolation, serial barriers, deterministic failure order, fail-fast child cleanup, crash/protocol refusal and out-of-order resume.
   - [ ] Serial and parallel runs produce identical ordered case outcomes and receipt summaries, including duplicates, class/module fixtures and subtests.
@@ -19159,6 +19163,20 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 - **Review follow-up:** Eighteen focused checkpoint tests pass. A deterministic 100-case stream reproduced failure starvation before bounded polling; the controller now observes the other module's reported failure after at most eight passing-case callbacks, stops execution, and retains all 100 already-flushed passes. Class/module teardown skips preserve completed body outcomes, and subtest diagnostics retain their parameter labels. The earlier `9ce03a77` and `58849d2d` candidates each passed the complete 1,547-test macOS suite with 35 declared skips, plus installed-wheel qualification; final source adds the fairness regression and requires fresh complete qualification.
 
 - **Final local qualification:** Frozen implementation `7652c2ed` passed the complete macOS suite: 1,548 selected, 1,513 passed, 35 declared skips and zero failures in 879.384 seconds. All 18 focused checkpoint cases, repository/export checks, lint/format, OpenSpec, 121 documentation diagrams, 21 Node tests and current driver/runner reviews pass. Installed wheel `sha256:c4dc5f2f1e8161554727af03bd792177b9bd37a368d9829c345f9a5ff8ba2df4` passes its full qualification and installed two-process probe (four selected, two passed, two skipped). A fresh finalized host lifecycle passes 230 tests; supported receipt promotion, candidate comparison, require-current and `litai verify` pass. This does not establish native eight-core Windows timing or the full serial/parallel three-host acceptance.
+
+- **Observed late-module tail:** The completed four-worker source trace at
+  `18d98aab3` selects 644 module groups and 3,182 cases. The intact native-Cargo
+  receiving group starts at 1,692.170s and finishes at 2,683.586s; every other
+  module has finished by 1,789.753s, leaving a measured 893.833s single-module
+  tail. A fixed-duration FIFO replay gives 2,683.561s versus 2,683.589s observed;
+  moving only that group first gives 2,018.330s in simulation. This assumes fixed
+  module durations and no changed contention/caches, and is not a measured
+  speedup. The [replay inputs](../../verification/module-priority-replay.json)
+  retain all module durations and explicit limits. Use one opt-in
+  `LITAI_TEST_PRIORITY` integer from 0 through 100 (default 0), stable ordering
+  within nonserial segments, and preserve serial modules at their original
+  barriers. Mark only the measured long module. This is existing orchestration
+  policy, not a new release gate, duration database or consuming-repo file.
 
 - **Wheel timing investigation:** The initial macOS candidate recorded 552.19 seconds in subprocess spans; installed HTML observability accounted for 289.41 seconds. Those HTML scenarios mutate the same golden project and cannot safely be fanned out without separate fixture custody. Independent environment setup offers a smaller opportunity. These observations came from a busy macOS host and do not establish a Windows wheel speedup. Native gate timings and the requested performance target remain open.
 
@@ -21805,15 +21823,13 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 - **Conclusion:** Select a compatible invocation and isolation profile from the exact executable capabilities. Current generation and preflight require the v1 --pure and --dir help surface; published v2.2.5 help omits both and defaults to a shared background service. Preserve supported v1 behavior and qualify v2 with a private server, explicit workspace custody, provider credentials, bounded diagnostics, and deny-by-default tools. Supported legacy configuration translation alone does not establish equivalent isolation. The earlier adapter and macOS native checks cover both command interfaces; V2 uses fresh provider state and process credentials. A later controlled V1 run found ambient global instructions and an enabled MCP could load before tool restrictions. The current repair narrows import to supported selected API profiles; stored refresh and SDK compatibility still require native ownership or typed refusal. Broader installed/native qualification remains open; the existing SDLC-001 release goal owns this security slice, without closing the broader compatibility item.
 - **Depends on:** none
 - **Completion prerequisites:** none
-- **Next action:** Close the controlled V1 ambient-configuration finding through
-  private invocation state and selected provider/API-credential projection. Preserve
-  supported saved API keys and custom provider behavior; refuse unsupported stored
-  refresh/integration sources before a prompt rather than copying rotating credentials
-  back to user state. Renew native/installed v1 and v2 evidence and the remaining
-  supported-platform and release checks; the earlier local repair did not establish
-  this newly measured boundary. SDLC-001 owns this current-release security slice.
+- **Next action:** Qualify the reviewed composition and installed V1/V2 profile,
+  then renew the remaining native platform and release evidence. The local
+  security repair at `57d31db17` passes the complete source gate and maintained
+  real V1/V2 loopback controls; it does not close refreshing-login/SDK compatibility
+  or another platform. SDLC-001 retains this current-release security slice.
 - **Implementation:**
-  - [ ] Isolate V1 discovery/state before its first child, project only the selected
+  - [x] Isolate V1 discovery/state before its first child, project only the selected
         provider and supported API authentication, and preserve the V2 private profile.
         Keep unsupported stored refresh/integration cases explicit and user state
         unchanged; do not introduce a parallel OAuth manager or silent fallback.
@@ -21883,6 +21899,16 @@ Windows OpenCode qualification and fresh release evidence remain open. Review:
 [PR #228](https://github.com/jordanhubbard/literate-ai/pull/228).
 
 PR #228 conflict-resolution evidence: merged main `9550a17743cf983a790dd22de471fec3a8121185` and preserved both changelog entries. No implementation conflict required editing; all three independently reviewed OpenCode source hashes remain unchanged. Recomputed the combined lifecycle-driver pin and documentation marker; both review checks pass. Managed `make python-check` passes five OpenCode regression tests (two native tests skipped because explicit binaries were not selected) and all eight project CLI tests. Host path policy and diff whitespace checks pass. `litai verify` passes authority, skips the three unselected gates, and retains the existing stale project receipt without claiming new lifecycle qualification. Configured start/end peer surveys still fail through the GitHub alias; direct read-only PR inspection succeeds. Unrelated worktrees remain untouched.
+
+- **Local private-profile qualification:** [Sanitized source/native proof](../../verification/opencode-private-profile-local-source.json)
+  records `57d31db17`: all 3,183 selected cases finish with 3,082 passes, 101
+  declared skips and no failures in 2,694.916s Python time. All 13 reviewed
+  subjects stay exact and supported driver/documentation reviews are current.
+  Real V1.19.5 and V2.2.5 CLIs pass the maintained owned-loopback write and
+  outside-read refusal controls; both exact binary hashes bind before/after the
+  receipted run. These are local development results, not paid model, installed,
+  other-platform or release qualification. Broader acceptance remains open.
+
 
 ### [ ] A2A-001 — Guide agents to use connected A2A peers without adding framework orchestration
 
@@ -24486,6 +24512,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
   not establish release or full-admission speedup. Windows retains its uncached
   fallback. Independent composition review and full qualification remain pending.
 
+
+- **Measured skill-metadata follow-up (in progress):** A bounded native-fixture
+  profile of one live v2 input-currentness call observes 17 project authority
+  validations, 68 catalog constructions and 4,352 skill-metadata parses. Metadata
+  parsing consumes 1.243 of 7.550 instrumented seconds; cumulative scopes nest.
+  Extend the existing operation-local project parsing frame with a bounded cache
+  of immutable metadata keyed by exact manifest bytes and logical source. Keep
+  all fresh directory/file reads, content hashes, name/dependency/reference
+  validation and closing custody checks. Do not cache currentness or failures.
+  Verify changed bytes, namespaces and caller-owned catalog state through the
+  public discovery surface, then compare alternating enabled/disabled live calls
+  on one fixture with equal identities and guard/read counts before independent
+  review and full composed qualification. This remains CARGO-CUSTODY-PERF-001;
+  no new gate or release-goal completion is implied.
+  A [paired native-fixture measurement](../../verification/skill-metadata-parsing-measurement.json)
+  now retains all 17 wrapper guards, 6,630 document reads and 4,352 manifest hashes
+  per call. Metadata parses fall from 4,352 to 667, including first observations
+  and uncached oversized manifests. Two ABBA blocks give four samples per arm: medians 3.795s
+  disabled and 3.472s enabled (8.5% observed reduction). This is one fixture on a
+  shared host, not a complete admission/release speedup. The first prototype's
+  copied-context race was independently reproduced, then repaired with a per-frame
+  lock. Public filesystem/concurrent-catalog controls pass; final lock/cap/lifetime
+  review and complete composed source/installed qualification remain open.
 
 ### [ ] WINDOWS-JOB-FALLBACK-001 — Avoid redundant Windows tree fallback after successful Job termination
 

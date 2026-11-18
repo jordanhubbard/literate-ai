@@ -422,6 +422,82 @@ class ParallelUnittestTests(unittest.TestCase):
         result = self.run_suite()
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_priority_dispatch_preserves_groups_ties_and_serial_barriers(self) -> None:
+        for name in "abcdefg":
+            priority = 100 if name == "d" else 10 if name in "cfg" else 0
+            self.module(
+                name,
+                f'''
+                import unittest
+                from pathlib import Path
+                LITAI_TEST_PRIORITY = {priority}
+                LITAI_TEST_SERIAL = {name == "d"}
+                class Tests(unittest.TestCase):
+                    def test_01(self):
+                        if "{name}" == "d":
+                            for before in "abc":
+                                self.assertEqual(
+                                    Path(before + ".sequence").read_text(), "12"
+                                )
+                            for after in "efg":
+                                self.assertFalse(Path(after + ".sequence").exists())
+                        elif "{name}" in "efg":
+                            self.assertEqual(Path("d.sequence").read_text(), "12")
+                        Path("{name}.sequence").write_text("1")
+                        with Path("starts").open("a") as output:
+                            output.write("{name}\\n")
+                    def test_02(self):
+                        self.assertEqual(Path("{name}.sequence").read_text(), "1")
+                        Path("{name}.sequence").write_text("12")
+                ''',
+            )
+        completed = self.run_suite()
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(json.loads(self.report.read_text())["summary"]["passed"], 14)
+        paths = list(self.root.rglob(FILENAME))
+        self.assertEqual(len(paths), 1)
+        records, issues, _size = read_module_timing(
+            paths[0].parent.resolve(), paths[0].parent.name
+        )
+        self.assertEqual(issues, [])
+        names = {
+            row["module_id"]: row["module"]
+            for row in records
+            if row["kind"] == "selected"
+        }
+        self.assertEqual(
+            [
+                names[row["module_id"]]
+                for row in records
+                if row["kind"] == "setup_begin"
+            ],
+            ["test_c", "test_a", "test_b", "test_d", "test_f", "test_g", "test_e"],
+        )
+        workers = self.root / "workers"
+        before = set(workers.iterdir())
+        for name in "abcdefg":
+            (self.root / (name + ".sequence")).unlink()
+        (self.root / "starts").unlink()
+        serial = self.run_suite(workers=1)
+        self.assertEqual(serial.returncode, 0, serial.stderr)
+        self.assertEqual(
+            (self.root / "starts").read_text().splitlines(), list("abcdefg")
+        )
+        original = (self.root / "test_c.py").read_text()
+        self.report.unlink()
+        for invalid in ("True", "101", "-1", '"10"'):
+            with self.subTest(invalid=invalid):
+                (self.root / "test_c.py").write_text(
+                    original.replace(
+                        "LITAI_TEST_PRIORITY = 10", "LITAI_TEST_PRIORITY = " + invalid
+                    )
+                )
+                rejected = self.run_suite()
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertIn("LITAI_TEST_PRIORITY must be an integer", rejected.stderr)
+                self.assertEqual(set(workers.iterdir()), before)
+                self.assertFalse(self.report.exists())
+
     def _declare_checkpoint_authority(self) -> None:
         source = ProjectConfigurationStore(SOURCE.parent).read().definition
         (self.root / "driver.py").write_text("# Immutable fixture driver authority.\n")

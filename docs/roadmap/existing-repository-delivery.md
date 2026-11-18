@@ -1051,6 +1051,80 @@ instructions/MCP remain absent, a deliberately enabled parent-discovery positive
 control is detected, and a literal placeholder credential reaches the endpoint
 unchanged. This is native transport/refusal evidence on macOS ARM64, not successful
 model delivery. The maintained native V1 workspace-write/outside-read checks pass;
-V2 remains an explicit skip without its native binary. Independent final review,
-current authority pins and full source/installed/platform qualification remain
-open before claiming this implementation complete.
+V2 was initially skipped because its native binary was unavailable. The later
+source/native qualification below supersedes that local skip; installed and
+other-platform acceptance remain open.
+
+### Early Make refusal before expensive qualification work
+
+RELEASE-CLOSURE-001 owns this in-progress implementation of the measured late
+audit finding. Keep the same validation and release gates, existing safe tool
+staging, dependency audits, source checks, checkpoint freshness and exact wheel
+custody. Complete cheap validation before starting the long Python workload;
+ordinary `python-check` remains independently runnable for source diagnosis.
+Parallel Make must not race the expensive phase past a failing preflight. The
+implementation must remain compatible with the native GNU Make 3.81 entry point.
+
+Verify the real Make entry points with bounded controls: a failing dependency or
+authority gate must not start expensive work, including under parallel execution;
+the passing control must retain every original gate. Reorder the existing release
+gate sequence without changing its membership or allowing diagnostic repair state
+to become release admission. A changed gate order must retain the existing
+checkpoint-plan reset/refusal behavior. Renew the complete source gate and affected
+documentation/CI checks after independent source review. This slice changes the
+framework's own Make harness; it does not replace a consuming repository's native
+tools or waive the advisory, security incidents, installed or platform acceptance.
+
+### Repeated skill metadata parsing under native currentness
+
+CARGO-CUSTODY-PERF-001 owns the next bounded cost reduction. An instrumented
+single native-fixture currentness call rebuilds 68 catalogs while retaining its
+17 wrapper authority checks. Reuse only immutable parsed metadata for identical
+manifest bytes within the existing project-parse lifetime. Every read, namespace
+check, digest, dependency/reference decision and process boundary stays live.
+Bound entry count, individual key size and total retained key bytes, restore
+ambient frames after isolated calls, and fall back to uncached parsing at limits.
+Validate semantic drift/refusal and equivalent identities before any performance
+claim. A profiled call is not a release critical path or a paired speedup result.
+
+The [paired metadata observation](../../verification/skill-metadata-parsing-measurement.json)
+uses one real retained native fixture and toggles only the new syntax cache.
+All eight calls return the same identity and retain 17 wrapper guards, 6,630
+current document reads and 4,352 manifest hashes each. Four samples per arm show
+3.795s versus 3.472s median currentness time; 667 parses remain, including first
+observations and oversized manifests that bypass the 8 KiB admission limit. Keep the claim scoped:
+this is an 8.5% observed single-fixture reduction, not a release speedup or proof
+that more custody checks should be removed. Independent final review, memory/
+concurrency controls and full composed qualification remain prerequisites.
+
+### Module scheduling after observing the complete tail
+
+TEST-PARALLEL-001 owns a small dispatch change justified by the completed parent
+module trace. Keep every module intact and preserve default order and serial
+barriers. Admit an explicit bounded `LITAI_TEST_PRIORITY` hint on test modules,
+stably ordering only contiguous nonserial segments; mark the observed expensive
+native-Cargo group. Successful qualification still requires every selected case;
+none is reused or independently split. Fail-fast may change which peers had
+started before a failure; validated outcomes and cleanup remain authoritative. Compare
+real subprocess dispatch and the next complete run against the fixed-duration
+[counterfactual replay](../../verification/module-priority-replay.json). The
+simulation is a candidate scheduling estimate, not achieved release latency.
+
+### Reviewed source composition checkpoint — 2026-11-18
+
+The [private-profile local proof](../../verification/opencode-private-profile-local-source.json)
+records the frozen source gate committed as `57d31db17`: 3,183 selected cases,
+3,082 passed, 101 declared skips and zero failed/known-failed; Python time
+2,694.916s. All 13 independently reviewed subjects remain exact. A receipted
+native run binds both real V1.19.5/V2.2.5 binaries and passes two owned-loopback
+write/outside-read cases without skips. This supersedes the earlier unavailable-V2
+checkpoint, not installed, paid-model, foreign-platform or release acceptance.
+
+The next candidate combines that source with the independently reviewed early
+Make gates, bounded metadata parsing and measured-module priority. Runtime,
+maintained test and evidence bytes are copied exactly from their approvals;
+roadmap/changelog conflicts are additive unions. Record new supported authority
+pins only after independent composition review, then freeze and qualify the
+whole union. Prior source, CI, wheel and installation results do not qualify it.
+The actual 57-second audit refusal belongs to Make source `d383f294`, while the
+665-second scheduling improvement is still a fixed-duration simulation.
