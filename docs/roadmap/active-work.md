@@ -1315,6 +1315,14 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       BUILD/TEST/EXEC/ACCEPT and original packaged-root acceptance. This initial
       cold cell does not enable whole-node/checkpoint recovery, cross-acceptance
       SDK source reuse, live-model generation or downstream cutover.
+      The first native cold case at clean `109a9cb5` ends with one error after
+      1,265.063 seconds: the complete seed lifecycle/cache publication returns
+      accepted, but a contradictory authority-change/no-regeneration decision
+      stops the cold request before execution. All 2,017 Python inputs and
+      selected Node/TypeScript bytes remain unchanged. Preserve this failure;
+      construct both valid phase decisions before seed work, retaining the
+      contract rejection and using source replacement for restored-source work.
+      No cold result or deadline failure is inferred from this fixture error.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

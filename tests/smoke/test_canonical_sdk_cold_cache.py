@@ -11,7 +11,6 @@ import shutil
 import sys
 import tempfile
 import unittest
-from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
 
@@ -52,6 +51,58 @@ from tests.smoke import test_canonical_sdk_admission as admission
 from tests.smoke.test_canonical_sdk_runtime import _authored_source
 from tests.smoke.test_node_sdk_cross_language import with_provider
 from tests.support.fixtures_test_component_generation_context import _budget
+
+
+def _phase_invalidations(root_revision, nodes):
+    # Validate BOTH requests before the seed lifecycle starts. Restoring source
+    # retains authority and rebuilds/retests; it is not a new authority change.
+    return {
+        "seed": ComponentInvalidationDecision(
+            "authored-sdk-seed",
+            root_revision,
+            ComponentChangeSurface.LOCAL_AUTHORITY,
+            nodes,
+            nodes,
+            nodes,
+        ),
+        "cold": ComponentInvalidationDecision(
+            "authored-sdk-cold",
+            root_revision,
+            ComponentChangeSurface.SOURCE_REPLACEMENT,
+            (),
+            nodes,
+            nodes,
+        ),
+    }
+
+
+class ColdCachePlanningTests(unittest.TestCase):
+    def test_both_phase_decisions_are_valid_before_native_execution(self):
+        root, provider = canonical_identity("root"), canonical_identity("provider")
+        nodes = tuple(sorted((root, provider), key=lambda value: value.uri))
+        decisions = _phase_invalidations(root, nodes)
+        self.assertEqual(decisions["seed"].regenerate, nodes)
+        self.assertEqual(decisions["cold"].regenerate, ())
+        for decision in decisions.values():
+            self.assertEqual(decision.rebuild, nodes)
+            self.assertEqual(decision.retest, nodes)
+            self.assertEqual(
+                ComponentInvalidationDecision.from_dict(decision.to_dict()), decision
+            )
+
+    def test_empty_regeneration_still_refuses_an_authority_change(self):
+        from literate_ai.contracts._validation import ContractValidationError
+
+        root = canonical_identity("root")
+        with self.assertRaisesRegex(ContractValidationError, "contradicts"):
+            ComponentInvalidationDecision(
+                "invalid-cold",
+                root,
+                ComponentChangeSurface.LOCAL_AUTHORITY,
+                (),
+                (root,),
+                (root,),
+            )
 
 
 def _authorizer(phase, grants, phase_grants, ports_reference):
@@ -189,14 +240,7 @@ class CanonicalSDKColdCacheTests(unittest.TestCase):
                 "sha256:" + hashlib.sha256(interpreter.read_bytes()).hexdigest(),
             )
             nodes = tuple(p.component_revision for p in execution.generation_plans)
-            invalidation = ComponentInvalidationDecision(
-                "authored-sdk-cold-cache",
-                execution.root_revision,
-                ComponentChangeSurface.LOCAL_AUTHORITY,
-                nodes,
-                nodes,
-                nodes,
-            )
+            invalidations = _phase_invalidations(execution.root_revision, nodes)
             target = SourceCacheTarget(
                 target_id="cold-sdk",
                 root_kind=SourceCacheRootKind.OPERATOR_BOUND,
@@ -263,9 +307,7 @@ class CanonicalSDKColdCacheTests(unittest.TestCase):
                     StandardProjectExecutionRequest(
                         PlannedStandardProject(selection, execution),
                         phase_root / "workspaces",
-                        invalidation
-                        if phase == "seed"
-                        else replace(invalidation, regenerate=()),
+                        invalidations[phase],
                         max_parallelism=1,
                         budget=_budget(),
                         fresh_source=phase == "seed",

@@ -144,7 +144,14 @@ source/recovery, the supported-platform matrix or noneditable installed
 qualification. Downstream SDK cutover remains gated on those separate obligations.
 
 The opt-in cold-start regression in `test_canonical_sdk_cold_cache.py` is under
-qualification. It retains the accepted cache/CAS and locked inputs while creating
+qualification. The first native attempt at `109a9cb5` completed its seed
+lifecycle and accepted-source publications, but failed before cold execution:
+its empty-regeneration record incorrectly retained the authority-change surface.
+The one-case run ended with one error after 1,265.063 seconds; all 2,017 frozen
+Python files and selected Node/TypeScript bytes remained unchanged. Both phase
+records are now validated before seed work, and cold source restoration uses the
+existing source-replacement surface. This preserves the contract refusal and is
+not a native cold-pass claim. It retains the accepted cache/CAS and locked inputs while creating
 fresh host bindings, ports, registries and workspaces, with the seed workspace and
 object paths unavailable. Old ports remain only for identity comparison. Provider
 source must restore into the new workspace and undergo fresh execution/acceptance;
