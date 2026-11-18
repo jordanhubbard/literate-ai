@@ -2,14 +2,11 @@
 
 ## Unreleased
 
-- Preserve private cached provider artifacts while creating SDK-owned copies with
-  explicit npm mode projection. Keep generic SDK inventories strict, and bind the
-  new provider-copy policy and original artifact identity separately. Native cold
-  qualification remains pending.
-
-- Add an opt-in native cold-start SDK regression for durable provider source
-  restoration and receipt-driven SDK regeneration, with fresh runtime ownership
-  and unchanged authorization deadlines. Native qualification is tracked separately.
+- Qualify authored macOS cold-start provider restoration and receipt-driven SDK
+  regeneration with fresh runtime custody and unchanged authorization deadlines.
+  Preserve private cached artifacts while projecting separate SDK-owned copies
+  under an explicit npm mode policy; generic inventories remain strict. Installed,
+  broader recovery/platform and downstream qualification remain separate.
 
 - Remove one adjacent duplicate library custody check only when the optional
   process observer is absent. Keep both oracle checks, all callback guards and

@@ -1327,20 +1327,37 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       fails cold SDK processing after 1,320.109 seconds: private cache restoration
       correctly produces mode-0600 provider files, but SDK package projection
       accepts only 0644/0755. All 2,017 Python inputs and selected tools remain
-      unchanged. Next in progress: preserve original sealed provider modes and
-      artifact identity, admit exact private non-executable 0600 inputs only at
-      the provider-copy boundary, and explicitly project consumer-owned SDK copies
-      using the existing npm modes under a versioned composition policy. Keep
-      generic SDK inventory rules and cache privacy unchanged. Require focused
-      private-provider, input-identity, unsafe-mode, projection-custody and package
-      controls plus a fresh original native cold run; do not infer a cold pass.
+      unchanged. The correction preserves original sealed provider modes and
+      artifact identity, admits exact private non-executable 0600 inputs only at
+      the provider-copy boundary, and explicitly projects consumer-owned SDK copies
+      using existing npm modes under a versioned composition policy. Generic SDK
+      inventory rules and cache privacy remain unchanged. That earlier failure
+      supplies no cold acceptance.
       The reviewed provider-copy implementation keeps generic inventories strict
       and binds original artifact identity plus explicit copy policy v2. Its SDK
       Make gate passes 146 of 215 selected cases, with 69 prerequisite skips and
       zero failures (114.328 seconds); private input/copy identity, unsafe modes,
       callback-time mode cuts and tar mode controls pass. Independent review
       approves the exact two-file production drift and canonical TCB repin.
-      Fresh native cold execution remains the next qualification action.
+      The original native cold cell then passes at clean `91aaa4bf`: one real
+      seed/cold lifecycle case plus two planning controls, three executed passes,
+      zero skips/failures, in 2,518.249 seconds. All 2,017 Python hashes/modes,
+      Node 22.23.4 and 140 TypeScript 6.0.3 files match before/after. Independent
+      evidence review confirms fresh provider restoration/custody/acceptance,
+      changed SDK recipe/lookup key and SDK regeneration with original packaged
+      root acceptance. Original 30-minute grants, child deadlines and real
+      checker/lifecycle paths remain unchanged. Preserve both earlier failures;
+      no cold SDK hit, whole-node recovery, live-model, installed/platform,
+      default activation or downstream cutover follows.
+      Next in progress: implement the reviewed authored noneditable installed-API
+      qualification using the two original runtime controls and existing wheel
+      runner, exact wheel custody and installed-distribution observer. Freeze only
+      test helpers; source Flavors/skills and schemas from the installed wheel;
+      check exact payload/resource/helper bytes and initial/lazy module origins.
+      Use a fresh outside-checkout scope, no bundle src, explicit private config
+      and MCP off. Preserve matrices, grants and deadlines. Further source-cache
+      fault/recovery, model, retained, native-platform/browser and default/cutover
+      qualifications remain open.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.
