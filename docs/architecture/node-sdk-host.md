@@ -17,8 +17,9 @@ count ceiling shares the composition profile's existing 32-provider bound;
 aggregate byte/custody and liveness budgets remain independent and can refuse a
 smaller inventory. Native qualification covers the complete explicit two-provider
 SDK lifecycle and independent packaged root/subpath acceptance on the macOS cell.
-It does not cover a 32-provider performance cell or complete current-candidate
-`runtime.execute` orchestration. Zero providers, mixed native toolchain graphs,
+Current one-provider authored-generator `runtime.execute` orchestration is also
+qualified separately below. Multi-provider orchestration and a 32-provider
+performance cell remain open. Zero providers, mixed native toolchain graphs,
 and dependency-bearing provider layouts remain outside this host configuration's
 supported boundary.
 Identical public-interface bytes from distinct selected providers are rendered
@@ -109,11 +110,20 @@ real provider admission before SDK generation, distinct finalization policy with
 the same original invocation identity, retirement of the generation context,
 original packaged six-TypeScript/two-runtime verification, and source membership
 publication after root acceptance. That retained fixture passed in 1081.895
-seconds. Subsequent custody repairs have separate focused checks; complete
-current-candidate orchestration remains required. Its generator binds actual
-prepared source requests, recipes and workspaces;
+seconds. At clean commit `71f2c585`, the current one-provider authored-generator
+orchestration case passes in 830.255 seconds with all 2,016 frozen Python files
+unchanged. It retains six TypeScript compiler checks and the existing two runtime formats;
+this cell's ESM harness uses its existing file URL, not the separate staged case's
+bare root/subpath namespace. Its provider and root verifier grants each retain
+their original 30-minute policy, alongside ordinary 30-minute BUILD authorization.
+Fresh explicit grant requests have distinct IDs; no live grant is extended. The
+generator binds actual prepared source requests, recipes and workspaces;
 all build and acceptance evidence comes from the runtime. The local default
-publisher observes membership identity, not durable cache persistence.
+publisher observes membership identity, not durable cache persistence. The
+original checker, acceptance and publisher run behind observation wrappers;
+finalization re-enters the original host binding after the generation context
+retires. Original packaged-root acceptance returns before both source membership
+publications. Multi-provider orchestration remains required.
 
 Authored orchestration does not establish ordinary model generation, retained
 source/recovery, the supported-platform matrix or noneditable installed
@@ -221,6 +231,6 @@ No grant is renewed or replayed to get this result. All 2,016 frozen
 Python source files remain unchanged and the source tree stays clean. Late CPU
 samples were busy; this pass is not a paired full-lifecycle performance measurement
 or a guarantee of expiry margin. The earlier failed full attempts remain evidence.
-This explicit staged host case does not replace current-candidate `runtime.execute`,
+This explicit staged host case does not replace multi-provider `runtime.execute`,
 ordinary model generation, durable cold recovery, installed/platform qualification,
 default activation or downstream Aviation cutover.

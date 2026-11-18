@@ -1209,6 +1209,22 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       implementation, then close multi-provider orchestration, ordinary model,
       durable cold-cache/recovery, platform/installed and default/cutover gates.
       The full staged fixture alone does not establish those separate outcomes.
+      The existing one-provider authored-generator `runtime.execute` case then
+      passes in 830.255 seconds at clean `71f2c585`. It retains actual source
+      request/recipe/workspace/provenance binding, genuine runtime staging,
+      provider re-admission under a distinct finalization policy and the same
+      original invocation/binding, retired generation context, original checker
+      and root acceptance, and both source publications only after acceptance.
+      Its original matrix is six TypeScript compiler checks plus two runtime formats, with
+      the existing file-URL ESM harness; it is not the staged two-provider case's
+      bare root/subpath matrix. All four explicit verifier requests retain unique
+      IDs and their original 30-minute policy, alongside ordinary 30-minute BUILD
+      grants. All 2,016 frozen Python files match, with clean source and exit zero.
+      Next extend this actual orchestration fixture to both real producers and
+      root/subpath consumers, preserving the one-provider regression, original
+      execution/acceptance owners, budgets and deadlines. No ordinary-model,
+      cold-cache/recovery, installed/platform, activation or Aviation cutover is
+      established by this authored one-provider result.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.

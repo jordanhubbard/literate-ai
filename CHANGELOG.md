@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Qualify current one-provider authored-generator `runtime.execute` orchestration,
+  retaining original provider re-admission, independent acceptance and publication
+  ordering. Multi-provider orchestration and ordinary model generation remain open.
+
 - Qualify the opt-in Python SDK host's complete native two-provider build,
   cache, test, execution, packaging and independent packaged acceptance path,
   including CommonJS/ESM root and subpath declarations/runtime probes. Retain
