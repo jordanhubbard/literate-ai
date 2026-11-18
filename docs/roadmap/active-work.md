@@ -6276,6 +6276,15 @@ the reported failure.
 
 ### [ ] WORKER-001 — Route build, test, and run through declared execution workers
 
+- **Cleanup acknowledgement consistency (in progress):** [Issue 479](https://github.com/jordanhubbard/literate-ai/issues/479)
+  records that the SSH coordinator currently accepts a well-formed opaque cleanup
+  digest without recomputing its request/manifest/bundle/token binding. Share the
+  existing worker identity computation and verify it before publishing custody.
+  Preserve bounded acknowledgement retries and import-before-ack ordering; prove
+  refusal of a valid-looking wrong digest and preserve the genuine native path.
+  This is consistency validation, not proof of physical cleanup by an untrusted
+  worker. Automatic managed release remains a subsequent, explicitly scoped task.
+
 - **Release target:** 1.4.0
 - **Previous release targets:** 1.1.0; 0.9.0 (re-scoped 2026-09-01).
 - **Current-release ownership:** ADR 0074 / SDLC-001 brings the remaining worker
@@ -21627,6 +21636,15 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 <a id="release-integration-005"></a>
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
+
+- **Current pre-release authority reconciliation (in progress):** [Issue 478](https://github.com/jordanhubbard/literate-ai/issues/478)
+  records that the project/roadmap target 1.4 while executable repository policy
+  still targets 1.3. The public read-only 1.4 release plan refuses with
+  `release.state_mismatch`, and the peer survey classifies the 1.4 review as
+  another release. Use the existing authenticated release-state owner to align
+  the local policy with 1.4; verify before/after public behavior and classification.
+  Retain strict actor, source, contribution, collateral, CI and security gates.
+  This correction grants no merge, release-line creation, tag or publication.
 
 - **Repaired bootstrap evidence admitted:** Independent non-author [admission](../../verification/bootstrap-successor-independent-admission.json)
   verifies the original source/wheel evidence-owner states and retained hashes,

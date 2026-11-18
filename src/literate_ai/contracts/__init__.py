@@ -574,6 +574,7 @@ from .remote_evidence import (
     RemoteEvidenceFile,
     RemoteFailureDiagnostic,
     RemoteLifecycleEvidenceManifest,
+    remote_cleanup_acknowledgement_identity,
 )
 from .repositories import (
     REPOSITORY_BUILD_PLAN_SCHEMA,
@@ -1349,6 +1350,7 @@ __all__ = [
     "RemoteEvidenceFile",
     "RemoteFailureDiagnostic",
     "RemoteLifecycleEvidenceManifest",
+    "remote_cleanup_acknowledgement_identity",
     "REPOSITORY_BUILD_PLAN_SCHEMA",
     "REPOSITORY_SOURCE_ADMISSION_SCHEMA",
     "REPOSITORY_SOURCE_DEPENDENCY_CONTENT_KIND",

@@ -53,6 +53,7 @@ from literate_ai.contracts import (
     RemoteLifecycleEvidenceManifest,
     canonical_identity,
     canonical_json_bytes,
+    remote_cleanup_acknowledgement_identity,
 )
 from literate_ai.contracts.library_products import (
     LibraryArtifactProduct,
@@ -1880,15 +1881,11 @@ def acknowledge_remote_evidence_cleanup(
             "acknowledged remote custody cleanup failed after bounded retries: "
             + "; ".join(failures),
         )
-    acknowledgement = canonical_identity(
-        {
-            "schema": "literate-ai/remote-evidence-cleanup-acknowledgement@1",
-            "request_identity": request.uri,
-            "manifest_identity": manifest_identity.uri,
-            "bundle_identity": bundle_identity.uri,
-            "cleanup_token": value["cleanup_token"],
-            "status": "cleaned",
-        }
+    acknowledgement = remote_cleanup_acknowledgement_identity(
+        request_identity=request,
+        manifest_identity=manifest_identity,
+        bundle_identity=bundle_identity,
+        cleanup_token=value["cleanup_token"],
     )
     ack_path.write_bytes(
         canonical_json_bytes(

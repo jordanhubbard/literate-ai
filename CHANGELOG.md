@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Verify SSH cleanup acknowledgement identities against the exact imported
+  request, manifest, bundle and cleanup token before accepting custody. Preserve
+  the worker's existing identity format and bounded acknowledgement retries.
+
+- Align this development line's executable pre-release target with 1.4 through
+  the existing authenticated state owner. Retain the other release gates.
+
 - Canonicalize the installed-wheel harness’s own temporary workspace so reviewed
   local dependency wheels work with macOS temporary-path aliases. Keep redirected
   user-input directories refused.
