@@ -1211,3 +1211,18 @@ The maintained real-Git contribution fixture reproduces both errors on the old
 reader while space/x controls pass. All seven contribution methods pass after the
 correction in 3.238 seconds. No goal, release target or manifest membership changes;
 full source/authority qualification remains a separate gate.
+
+### Owned wheel workspace path aliases
+
+The complete clean-candidate wheel gate at c37ea0c fails twice during uv dependency
+installation: first a package-index route failure, then a dependency-read timeout.
+A third complete attempt using independently reviewed local native dependency
+wheels passes uv installation, then fails the verified-wheel source-path guard.
+The harness created its own snapshot beneath macOS’s redirected `/var` temporary
+root. An actual installed public-CLI causal probe rejects that lexical spelling
+and accepts the canonical `/private/var` spelling with the same 36 wheel hashes
+unchanged. [Issue 477](https://github.com/jordanhubbard/literate-ai/issues/477) owns
+canonicalizing only the newly created harness workspace before staging snapshots.
+Arbitrary redirected user-input paths retain their fail-closed guard. The probe
+is diagnostic evidence; a fresh complete source gate and complete installed-wheel
+gate remain required, and none of the three failed attempts qualifies c37ea0c.

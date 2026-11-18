@@ -24396,6 +24396,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Tracker reconciliation:** [Current issue/PR ownership and dispositions](existing-repository-delivery.md#current-tracker-reconciliation) maps the previously unlinked current-forge requests to existing owners; historical forge numbers remain distinct.
 - **Next action:** Qualify the consolidated timing, checkpoint, artifact and lease
   changes; complete contained native adoption through the shared layout owner.
+- **Installed qualification follow-up:** [#477](https://github.com/jordanhubbard/literate-ai/issues/477)
+  records a harness-owned macOS temporary-path alias rejected by the existing
+  verified-wheel input guard. Canonicalize the newly created runtime directory,
+  retain redirected-user-input refusal, then rerun the complete source and
+  provided-input installed-wheel gates. The causal installed-CLI probe passes
+  only the canonical spelling with all 36 dependency wheel bytes unchanged;
+  the earlier network and aliased-input failures remain unqualified attempts.
 
 - **Priority:** P0
 - **Owner:** Original adoption, project context, release observation and worker provisioning owners

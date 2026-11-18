@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Canonicalize the installed-wheel harness’s own temporary workspace so reviewed
+  local dependency wheels work with macOS temporary-path aliases. Keep redirected
+  user-input directories refused.
+
 - Recognize in-progress roadmap goals during release contribution sweeps. Keep
   them incomplete and keep their release targets within their own sections.
 

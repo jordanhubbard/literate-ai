@@ -597,7 +597,8 @@ _INTERPRETER_RESOLUTION_ENVIRONMENT_VARIABLES = (
 
 @contextmanager
 def _runtime_directory():
-    root = Path(tempfile.mkdtemp(prefix="literate-wheel-smoke-"))
+    # Canonicalize our new workspace before passing owned snapshots to path guards.
+    root = Path(tempfile.mkdtemp(prefix="literate-wheel-smoke-")).resolve(strict=True)
     with retained_directory(
         root,
         node_path="installed/wheel-smoke/runtime",
