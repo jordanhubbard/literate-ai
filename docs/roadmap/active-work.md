@@ -8647,12 +8647,15 @@ slice here before implementation so this file always names the resumable frontie
   candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
 - **Completion prerequisites:** none
-- **Next action:** Move the existing cheap Make validation gates before expensive
-  qualification work, preserving every gate and refusal under parallel Make. The
-  reviewed documentation/OpenSpec split is in PR 470; its hosted Linux suite passes
-  before the known audit refuses after a 52-minute job. Keep that audit mandatory,
-  qualify the reordered entry points, and preserve the observed hosted coverage/retry
-  evidence and combined candidate's remaining native, installed, artifact and release
+- **Next action:** Qualify the contribution reader correction in [issue 476](https://github.com/jordanhubbard/literate-ai/issues/476).
+  It must recognize existing in-progress goals as incomplete and preserve their
+  section boundaries; the current reader incorrectly reports two goals missing
+  and assigns a release target to the preceding historical item. Keep every
+  manifest obligation. The early Make barrier is now locally qualified in
+  [PR 475](https://github.com/jordanhubbard/literate-ai/pull/475): actual hosted Linux
+  refuses the same mandatory dependency advisory in 44 seconds before the full
+  Python suite, versus the retained pre-barrier 52m43s job. Preserve all gates,
+  coverage/retry evidence and remaining native, installed, artifact and release
   acceptance. The unpatched dependency advisory still blocks its gate and release.
 - **Implementation:**
   - [x] Archive obsolete historical execution with source/fixture comparison and

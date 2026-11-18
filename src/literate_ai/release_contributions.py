@@ -36,7 +36,7 @@ _VERSION = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?")
 _REMOTE = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]{0,127}")
 _GOAL_ID = re.compile(r"[A-Z][A-Z0-9-]*-[0-9]+")
 _ROADMAP_HEADING = re.compile(
-    r"^### \[(?P<state>[ x])\] (?P<id>[A-Z][A-Z0-9-]*-[0-9]+)\b",
+    r"^### \[(?P<state>[ x~])\] (?P<id>[A-Z][A-Z0-9-]*-[0-9]+)\b",
     re.MULTILINE,
 )
 _RELEASE_TARGET = re.compile(

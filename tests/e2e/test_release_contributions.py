@@ -173,17 +173,32 @@ class ReleaseContributionsTests(unittest.TestCase):
         )
 
     def test_roadmap_goal_gate_requires_documented_complete_goals(self) -> None:
-        with tempfile.TemporaryDirectory() as temporary:
-            root = self.repository(Path(temporary))
-            result = self.roadmap_sweep(
-                root,
-                roadmap=("### [ ] COURSE-004 — Film\n\n- **Release target:** 1.3.1\n"),
-                releases={"1.3.1": [{"id": "COURSE-004"}]},
-            )
-            self.assertEqual(result["roadmap_goals"]["open"], ["COURSE-004"])
-            with self.assertRaises(ReleaseContributionsError) as blocked:
-                require_release_contributions_ready(result)
-            self.assertEqual(blocked.exception.code, "release.roadmap_goals_incomplete")
+        for state in (" ", "~", "x"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as temporary:
+                root = self.repository(Path(temporary))
+                result = self.roadmap_sweep(
+                    root,
+                    roadmap=(
+                        "### [x] PRIOR-001 — Historical work\n\n"
+                        "- **Historical completion:** Retained separately.\n\n"
+                        f"### [{state}] COURSE-004 — Film\n\n"
+                        "- **Release target:** 1.3.1\n"
+                    ),
+                    releases={"1.3.1": [{"id": "COURSE-004"}]},
+                )
+                self.assertEqual(result["roadmap_goals"]["invalid"], [])
+                self.assertEqual(
+                    result["roadmap_goals"]["open"],
+                    [] if state == "x" else ["COURSE-004"],
+                )
+                if state == "x":
+                    require_release_contributions_ready(result)
+                else:
+                    with self.assertRaises(ReleaseContributionsError) as blocked:
+                        require_release_contributions_ready(result)
+                    self.assertEqual(
+                        blocked.exception.code, "release.roadmap_goals_incomplete"
+                    )
 
     def test_roadmap_goal_gate_rejects_goal_omitted_from_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

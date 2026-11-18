@@ -48,8 +48,8 @@ coverage waiver, not a Windows pass.
 | Support and optional capabilities | Current native/GPU/SDK goals and RELEASE-COLLATERAL-001 | Revision-bound support cells; native adoption does not require generator/media setup; production deployment boundary is explicit. |
 
 The table combines execution ownership; it does not mark the listed goals
-complete. The current release's existing 79 goal records remain obligations until
-their own terminal evidence or an explicit recorded disposition establishes
+complete. Every goal record in the current release manifest remains an obligation
+until its own terminal evidence or an explicit recorded disposition establishes
 otherwise. Add new obligations to the same manifest instead of inventing a
 second release-readiness authority.
 
@@ -1128,3 +1128,86 @@ pins only after independent composition review, then freeze and qualify the
 whole union. Prior source, CI, wheel and installation results do not qualify it.
 The actual 57-second audit refusal belongs to Make source `d383f294`, while the
 665-second scheduling improvement is still a fixed-duration simulation.
+
+### Qualified local composition and early hosted refusal
+
+[PR 475](https://github.com/jordanhubbard/literate-ai/pull/475) publishes exact
+commit `8ada5c649a14539c2882f57618b364ba55b0067b`, combining the independently
+reviewed OpenCode private profile, early Make barrier, bounded immutable skill
+metadata parsing and explicit module priorities. Its fresh complete local source
+gate selected 3,185 cases: 3,084 passed, 101 retained their declared skips, none
+failed. Python took 1,971.460 seconds and the complete invocation 1,996.558 seconds.
+The canonical report SHA-256 is
+`ec1b9f507a7da46d2e841c8aef1d656f2ef236f116c650e85ed11bc33bd128d3`.
+Driver/documentation reviews, lint, formatting, documentation, layout and exports
+passed. All 25 reviewed subjects remained exact during qualification.
+
+The actual eight-case native Cargo group began setup at 0.030 seconds and
+finished before the suite's final module; the earlier native-only tail was absent.
+The preceding qualified source invocation took 2,720.671 seconds. This observed
+pair combines multiple changes and shared-host/cache effects, so it establishes
+neither a causal per-change speedup nor a general release-time reduction.
+
+The canonical noneditable wheel gate passed at that clean commit with all 182
+recorded operation spans successful, 09:48:36–10:02:29 UTC on 2026-11-18. Its
+wheel identity is
+`sha256:55fb5b9e916fb24fe8f5c54fa3f80d27b0da4e113483edf878f3b4b6d1b92b47`.
+The separate canonical model-free installation check passed using those same
+exported bytes, 10:02:52–10:05:48 UTC (176.191 seconds). Dependency installation
+used the configured package source; this is not a network-offline run or
+foreign-platform/release qualification.
+
+Actual exact-head [CI run 44282187110](https://github.com/jordanhubbard/literate-ai/actions/runs/44282187110)
+Linux job `134725632383` failed its mandatory OpenSpec dependency audit on
+`GHSA-fc5q-39xc-vjpf` in picomatch before the complete Python suite began. The
+job ran 10:06:36–10:07:20 UTC, 44 seconds. The retained pre-barrier job took
+52m43s before the same refusal. This proves earlier refusal while preserving
+the failed dependency gate. GitGuardian also fails; incident disposition,
+remaining current-head checks, landing and release acceptance stay open.
+
+### Additional local Rust adoption fixture
+
+A realistic dependency-free Rust/Cargo fixture uses native Cargo manifests,
+lockfile, source, tests, Make wrapper and its existing CI file. Actual installed
+baseline 18d98aab3 preserves all eight original files and adds 15 files only under
+`litai/`; plan takes 0.937 seconds and apply 1.481 seconds. Public authority
+validation and read-only parent-README/agent-entrypoint audits succeed, with no
+README change. A seeded overflow case fails real Cargo tests in both debug and
+release modes; checked addition repairs both. This is an owned local macOS ARM64
+fixture and uneven-coverage experiment, not a hosted governed PR or additional
+platform qualification. Original application bytes are restored after probing.
+A separate reviewed hosted Python pilot awaits publication authorization.
+
+The authentic installed 18d98aab3-to-8ada5c6 revision transition subsequently
+passes for both Python and Rust fixtures. Both distributions declare 1.4.0;
+this is not a changed-version migration. The supported installer reuses the
+exact qualified current wheel, and installed import paths and archive digests
+are checked before and after. Native file hashes, custom policy, Git HEAD/index
+and durable framework metadata are unchanged. The first update's stable ignored
+lifecycle lock is inventoried separately. Unchanged templates mean this also
+does not establish changed-template migration behavior.
+
+A separate current-wheel Rust removal journey preserves all eight native files,
+the custom operating note and HEAD while staging fourteen owned deletions.
+Repeated adoption first returns `original_adoption.already-initialized` without
+file/index changes. After removal, Cargo's original ordinary-quantity test still
+passes in release compilation mode; the overflow regression/repair is the
+separate earlier experiment. Deleting the owned ignore file exposes retained
+`.litai-locks/` as untracked, so the removed fixture is deliberately not reported
+clean. An earlier caller parsed error JSON from stdout instead of its actual
+stderr channel and stopped before removal; that failed attempt is retained.
+Neither journey is a hosted governed PR, release publication or foreign-platform
+qualification. Independent closing review rechecked the logs and preserved bytes.
+
+### In-progress release goals remain incomplete
+
+The read-only 1.4 contribution sweep at 8ada5c6 reports two existing in-progress
+goals as missing and one historical item as absent from the manifest. Its reader
+accepts only space/x checkbox states, skipping the supported `~` section boundary
+and attributing the following release target to the historical item. The narrow
+correction in [issue 476](https://github.com/jordanhubbard/literate-ai/issues/476)
+recognizes that boundary and keeps `~` incomplete; only `x` establishes completion.
+The maintained real-Git contribution fixture reproduces both errors on the old
+reader while space/x controls pass. All seven contribution methods pass after the
+correction in 3.238 seconds. No goal, release target or manifest membership changes;
+full source/authority qualification remains a separate gate.

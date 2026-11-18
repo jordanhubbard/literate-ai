@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Recognize in-progress roadmap goals during release contribution sweeps. Keep
+  them incomplete and keep their release targets within their own sections.
+
 - Isolate OpenCode state before its first child, including V1. Project only the
   selected provider/model API configuration and credentials; exclude ambient
   instructions, MCP, plugins and unrelated models. Refuse unsupported refreshing
