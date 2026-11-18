@@ -239,6 +239,27 @@ verdict change or stdout protocol data. Fifteen focused guard checks pass,
 including unchanged success/error verdicts, stdout isolation and older results
 without elapsed observations. This reporting does not establish native success.
 
+The subsequent complete R3 wheel run at exact source `403386cb` passes both
+original installed SDK runtime cases with no skips. The canonical qualified-wheel
+manifest binds revision `403386cbde600d616f8d5bbc91fa947f40c1de83` and wheel
+`sha256:fd1508c9e9c88279637520c3c0cb9fec581ed99f1af545be92d10894f0e646d5`.
+Its noneditable distribution is
+`sha256:9ca69ebb4b2139a6a05203c7e4fabe9b2fc3ae317a2e1737e558bba77497df55`
+with 1,418 installed members. Independent artifact review verifies both manifest
+identities, all 25 test-helper hashes, 364 wheel-resource bindings, installed-module
+origins and original namespace custody. All 2,020 frozen Python files/modes, selected
+Node 22.23.4 and 140 TypeScript 6.0.3 files remain unchanged. Production TCB stays
+`sha256:81c412259f316a6159f6ed617dfe2d936b3d19d2878bf0ccfa8094be54532d4d`.
+The original matrices, separate 30-minute grants and deadlines remain intact.
+
+This qualifies the authored macOS noneditable installed Python API at that exact
+source. R1 and R2 remain failed attempts; no grant renewal, clock alteration,
+profiler or success replacement supplies R3. Successful child stderr and per-case
+durations were not retained after its temporary directory was removed; no per-case
+timing or expiry-margin claim follows. Other platforms, ordinary model generation,
+broader cache/fault/recovery, CLI/default activation and downstream consumer/SDK
+cutover remain separate gates. No wheel publication or installed-user upgrade occurs.
+
 
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native

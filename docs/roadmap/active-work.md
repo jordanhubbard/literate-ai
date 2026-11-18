@@ -1387,6 +1387,20 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       result, preserving legacy result compatibility and every verdict. All
       fifteen focused guard checks pass. These observations supply no grant
       margin, new clock or qualification claim.
+      The subsequent full R3 wheel run at exact source `403386cb` passes both
+      original installed runtime cases with zero skips. Its canonical manifest
+      binds wheel `sha256:fd1508c9e9c88279637520c3c0cb9fec581ed99f1af545be92d10894f0e646d5`
+      and noneditable distribution
+      `sha256:9ca69ebb4b2139a6a05203c7e4fabe9b2fc3ae317a2e1737e558bba77497df55`.
+      Independent artifact review confirms both manifests, all 25 helpers,
+      364 resources, installed origins/namespace custody and unchanged 2,020
+      Python files/modes plus selected Node/140 TypeScript files. Original full
+      matrices, separate 30-minute grants and deadlines remain unchanged; the
+      production TCB remains `81c41225...54532d4d`. This closes the authored macOS
+      installed Python API cell only. Successful child stderr/per-case elapsed
+      observations were not retained, so no timing or grant-margin claim follows.
+      Preserve R1/R2 failures; no publication, CLI/default or downstream cutover
+      follows from this result.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
