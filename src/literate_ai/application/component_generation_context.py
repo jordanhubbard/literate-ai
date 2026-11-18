@@ -146,6 +146,26 @@ def _allowed_identity_order(
     }
 
 
+def canonical_direct_interface_sources(
+    plan: ComponentGenerationPlan,
+) -> dict[str, ContentIdentity]:
+    """Choose one selected source representative per exact public-byte identity.
+
+    The complete plan retains every edge and provider-resolution identity. This
+    DATA projection neither makes a representative the sole origin nor admits
+    any provider or interface absent from that plan.
+    """
+    sources: dict[str, ContentIdentity] = {}
+    for edge in plan.direct_generation_edges:
+        if edge.public_interface_identity is None:
+            continue
+        uri = edge.public_interface_identity.uri
+        prior = sources.get(uri)
+        if prior is None or edge.provider_revision.uri < prior.uri:
+            sources[uri] = edge.provider_revision
+    return sources
+
+
 def _canonical_inputs(
     plan: ComponentGenerationPlan,
     inputs: tuple[PromptSegmentInput, ...],
@@ -155,11 +175,7 @@ def _canonical_inputs(
         (kind, uri) for kind, identities in orders.items() for uri in identities
     }
     seen: dict[tuple[ContextAuthorityKind, str], PromptSegmentInput] = {}
-    provider_by_interface = {
-        edge.public_interface_identity.uri: edge.provider_revision
-        for edge in plan.direct_generation_edges
-        if edge.public_interface_identity is not None
-    }
+    provider_by_interface = canonical_direct_interface_sources(plan)
     for item in inputs:
         if not isinstance(item, PromptSegmentInput):
             raise TypeError("context inputs must be PromptSegmentInput values")
@@ -347,8 +363,10 @@ def prepare_component_generation_context(
         "estimated_tokens": manifest.estimated_tokens,
         "document_count": len(manifest.segments),
         "direct_interface_bytes": sum(item.byte_count for item in direct_segments),
+        # Shared public bytes have one displayed representative, but every
+        # distinct selected provider still consumes the original fan-in budget.
         "dependency_fan_in": len(
-            {item.source_component_revision.uri for item in direct_segments}
+            {edge.provider_revision.uri for edge in plan.direct_generation_edges}
         ),
     }
     limits = {
@@ -402,5 +420,6 @@ __all__ = [
     "PreparedComponentGenerationRequest",
     "PromptSegmentInput",
     "bind_component_generation_context_cache_key",
+    "canonical_direct_interface_sources",
     "prepare_component_generation_context",
 ]

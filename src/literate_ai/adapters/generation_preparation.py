@@ -36,7 +36,10 @@ from literate_ai.adapters.standard_command_profiles import (
     is_node_sdk_language_profile,
     read_standard_profile_contribution,
 )
-from literate_ai.application.component_generation_context import PromptSegmentInput
+from literate_ai.application.component_generation_context import (
+    PromptSegmentInput,
+    canonical_direct_interface_sources,
+)
 from literate_ai.application.component_generation_preparation import (
     ComponentGenerationWorkspaceDescriptor,
     LockedNodeGenerationProjection,
@@ -1550,6 +1553,8 @@ def _node_authority_segments(
             )
         )
     nodes = {item.revision.identity.uri: item for item in snapshot.authority.lock.nodes}
+    sources = canonical_direct_interface_sources(plan)
+    interfaces: dict[str, tuple[ContentIdentity, bytes, int, str]] = {}
     for edge in plan.direct_generation_edges:
         provider = nodes[edge.provider_revision.uri]
         references = tuple(
@@ -1563,15 +1568,46 @@ def _node_authority_segments(
                 "direct dependency does not expose its exact planned public interface",
             )
         reference = references[0]
+        # Read EVERY selected origin before deduplicating shared public bytes.
+        # The original snapshot owns reference/file custody independently.
+        content = snapshot.component_content(
+            provider.revision.authoring_identity, reference
+        )
+        prior = interfaces.get(reference.identity.uri)
+        if prior is None:
+            interfaces[reference.identity.uri] = (
+                reference.identity,
+                content,
+                1,
+                edge.requirement_id,
+            )
+        else:
+            if content != prior[1]:
+                _error(
+                    "component_preparation.direct_interface_drift",
+                    "selected origins disagree on exact shared public-interface bytes",
+                )
+            interfaces[reference.identity.uri] = (
+                prior[0],
+                prior[1],
+                prior[2] + 1,
+                prior[3],
+            )
+    for identity, content, count, requirement in interfaces.values():
         segments.append(
             PromptSegmentInput(
                 ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE,
-                provider.revision.identity,
-                f"direct public interface for requirement {edge.requirement_id}",
-                reference.identity,
-                snapshot.component_content(
-                    provider.revision.authoring_identity, reference
+                sources[identity.uri],
+                (
+                    f"direct public interface for requirement {requirement}"
+                    if count == 1
+                    else (
+                        f"direct public interface shared by {count} selected "
+                        "dependency requirements; canonical source representative"
+                    )
                 ),
+                identity,
+                content,
             )
         )
     return tuple(segments)

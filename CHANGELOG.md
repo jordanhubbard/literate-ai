@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Attribute shared public-interface bytes deterministically across selected
+  providers. Validate every origin, render equal bytes once, retain all exact
+  dependency facts, and enforce provider fan-in from the original graph rather
+  than its displayed representatives.
+
 - Retain original SDK output observations through packing, metadata writes,
   package moves and final owner callbacks. Create reserved evidence exclusively,
   reject redirected parents and refuse unknown occupied SDK output/checkpoint

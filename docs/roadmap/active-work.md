@@ -897,8 +897,8 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       Node probe deadline and all expiry controls.
       This namespace seam does not itself qualify canonical public aliases or
       Windows custody. Complete full-root acceptance remains open.
-      The next action in progress is one cumulative custody/binding repair batch
-      before repeating the full candidate. Independent comparison reconstructs
+      The cumulative custody/binding repair batch is recorded locally at
+      `4db6cb63` before repeating the full candidate. Independent comparison reconstructs
       the original TCB pin exactly from baseline 101315c4a699579534a06141e975439951166e1d;
       the frozen dirty TCB is 81d1b1df9c0dcfa7f86a9d2069366c395bf457dee8e88d085dd0768e4f05af41.
       Its 65 changed paths contain 10,850 insertions and 565 deletions. Contract,
@@ -1026,8 +1026,53 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       148.722 seconds: lowering only the fixture budget to its first live charge
       refuses the second actual provider and unwinds both accounting counters to
       zero. This proves budget refusal/accounting, not a 32-provider performance
-      cell or an SDK lifecycle. Qualify shared-byte interface attribution
-      separately before claiming general multi-provider graph support.
+      cell or an SDK lifecycle. Shared-byte interface attribution is implemented
+      and locally checked before claiming general multi-provider graph support.
+      Retain every exact selected graph edge and provider-resolution identity;
+      validate each provider's original public reference before deduplicating
+      equal interface bytes. Emit one segment per interface identity with the
+      lexicographically least selected provider revision URI as its canonical
+      source representative. Shared-byte reasons must be truthful rather than
+      claiming the representative is the only origin. The bounded context owner
+      must require that same representative independent of edge/input order and
+      preserve duplicate, foreign-source, missing-source and drift refusals. This
+      is a selected DATA projection correction, not new runtime admission or a
+      context schema that enumerates all origins. Require maintained red/green
+      controls and independent review before recording its source pin. Also
+      preserve dependency fan-in accounting from every distinct selected provider
+      in the original plan; counting only representative prompt segments can hide
+      additional origins beneath shared bytes. Diagnose that budget join before
+      recording the attribution candidate's source pin. Six maintained controls
+      reproduce five failures and one context error in 0.734 seconds after fixing
+      an initial fixture's mistaken assumption that capability providers populate
+      repository-provider resolution records. The shared selector and all-origin
+      read pass the expanded context/recipe controls. A later explicit budget
+      diagnostic exposes two selected providers accepted under fan-in one; its
+      maintained refusal fails in 0.010 seconds before correction. Fan-in now
+      counts distinct original plan providers, while display measures still count
+      the rendered bytes. All 14 focused context, canonical recipe and private
+      canary controls pass in 2.318 seconds, including the same-provider/multiple
+      requirements control, reverse-edge DATA selection and physical alteration
+      or removal of the nonrepresentative origin. One earlier native run is
+      deliberately interrupted with SIGINT after 159.317 seconds upon discovering
+      the budget cut; retain its interruption/retired-scope cause chain, with no
+      pass or product-failure claim. The final native shared-interface public-host
+      invocation passes in 243.099 seconds: both actual producers complete their
+      stages and enter the owned invocation, with one rendered public segment,
+      both exact SDK provider records/graph edges and a fan-in charge of two.
+      All five inventoried Python files remain unchanged through the run. Independent
+      review verifies the two-source-file delta and exact candidate TCB
+      `sha256:b5ac89347b3df939bed7b3f376ccd9522fdde9d1dc49efe583f73502ead90af1`;
+      this supersedes the earlier pre-budget source ACK. The broader SDK Make gate
+      selects 207 cases: 142 pass and 65 retain prerequisite skips in 112.692
+      seconds. Lint/format, layout, host-path policy, documentation authority and
+      project validation pass. The exact independently reviewed pin is recorded
+      for this local source checkpoint; no full SDK lifecycle,
+      installed or downstream-cutover acceptance follows. The next action in
+      progress after that checkpoint is profiling current repeated locked-snapshot
+      planning. Remove only proven redundant pure planning work; preserve original
+      source/catalog/audit/lock custody, callback and clock boundaries, verifier
+      grants, process cancellation and the ordinary 30-minute BUILD policy.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.

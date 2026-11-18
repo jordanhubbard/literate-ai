@@ -59,7 +59,7 @@ from literate_ai.application.component_generation_preparation import (
 )
 from literate_ai.application.standard_node_sdk_admission import run_node_sdk_lifecycle
 from literate_ai.application.standard_project_lifecycle import StandardProjectBuildPlan
-from literate_ai.contracts import canonical_identity
+from literate_ai.contracts import ContextAuthorityKind, canonical_identity
 from literate_ai.contracts.executable_components.artifacts import (
     artifact_driver_composition_identity,
 )
@@ -196,6 +196,41 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             second_provider=True,
             public_host=True,
             before_invocation=before,
+            verifier_lifetime=timedelta(minutes=10),
+        )
+
+    def test_two_shared_interface_providers_enter_public_host_owned_invocation(self):
+        def operation(invocation, owner, fixture):
+            owner()
+            self.assertEqual(len(fixture.providers), 2)
+            self.assertEqual(
+                invocation.prepared.request.request.budget_decision.dependency_fan_in, 2
+            )
+            manifest = invocation.prepared.request.request.context_manifest
+            public = tuple(
+                segment
+                for segment in manifest.segments
+                if segment.authority_kind
+                is ContextAuthorityKind.DIRECT_PUBLIC_INTERFACE
+            )
+            self.assertEqual(len(public), 1)
+            self.assertEqual(
+                public[0].source_component_revision,
+                min(
+                    (row.revision.identity for row in fixture.providers),
+                    key=lambda source: source.uri,
+                ),
+            )
+            self.assertEqual(len(invocation.prepared.plan.direct_generation_edges), 2)
+            self.assertEqual(len(invocation.prepared.recipe.node_sdk_providers), 2)
+            owner()
+            return invocation.identity
+
+        self.with_canonical_sdk(
+            operation,
+            second_provider=True,
+            shared_interfaces=True,
+            public_host=True,
             verifier_lifetime=timedelta(minutes=10),
         )
 
@@ -1160,6 +1195,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         provider_runtime="source/counter/api.js",
         second_provider=False,
         public_subpath=False,
+        shared_interfaces=False,
         before_invocation=None,
         verifier_observer=None,
     ):
@@ -1170,6 +1206,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 provider_runtime=provider_runtime,
                 second_provider=second_provider,
                 public_subpath=public_subpath,
+                shared_interfaces=shared_interfaces,
             )
             environment = dict(os.environ)
             environment["LITAI_TYPESCRIPT_SDK"] = environment["LITERATE_TYPESCRIPT_SDK"]

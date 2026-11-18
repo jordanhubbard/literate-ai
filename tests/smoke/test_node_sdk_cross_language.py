@@ -36,6 +36,7 @@ def with_provider(
     provider_runtime="source/counter/api.js",
     second_provider=False,
     public_subpath=False,
+    shared_interfaces=False,
 ):
     def configure(component, flavors):
         source = component / "component.md"
@@ -187,10 +188,15 @@ def with_provider(
                     "source/counter-extra/types/api.d.ts",
                 ).to_dict(),
             )
-            (extra / "interfaces/public.md").write_text(
-                "# Second addition provider\n\nThe counter-extra/api add function "
-                "returns the exact sum of its two integer inputs.\n"
-            )
+            if shared_interfaces:
+                (extra / "interfaces/public.md").write_bytes(
+                    (provider / "interfaces/public.md").read_bytes()
+                )
+            else:
+                (extra / "interfaces/public.md").write_text(
+                    "# Second addition provider\n\nThe counter-extra/api add function "
+                    "returns the exact sum of its two integer inputs.\n"
+                )
             (extra / "component.md").write_bytes(
                 render_authoring_markdown(
                     extra_child, "# Second counter\nIndependent original provider."

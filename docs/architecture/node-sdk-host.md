@@ -19,8 +19,16 @@ smaller inventory. Native qualification currently covers two distinct-interface
 providers, not a 32-provider performance cell or a complete multi-provider SDK
 lifecycle. Zero providers, mixed native toolchain graphs and dependency-bearing
 provider layouts remain outside this host configuration's supported boundary.
-Identical public-interface bytes from distinct providers currently refuse during
-context attribution and remain a separate qualification/implementation obligation.
+Identical public-interface bytes from distinct selected providers are rendered
+once. Both the locked adapter and bounded-context owner use the least selected
+provider revision URI as the source representative. Every selected origin is
+read and validated before deduplication, and the exact graph edges, provider
+resolution identities and recipe imports remain intact. The segment describes a
+shared interface rather than claiming a sole origin. Distinct selected providers
+still count separately against the dependency fan-in budget; displayed byte,
+token and document counts reflect the rendered projection. This DATA attribution
+rule supplies no provider admission or execution grant. Complete current-candidate
+multi-provider SDK acceptance remains a separate qualification obligation.
 
 A declaration-bearing `LibraryImportSurface@2` carries its complete runtime and
 TypeScript declaration records into the existing JavaScript library EXEC owner.
