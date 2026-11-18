@@ -1452,7 +1452,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       and builder-output refusals, unbound recipe refusal and identity mutation
       at child return/collection. Twenty-one diagnostic/installer guards, 25
       coding-CLI regressions and 22 source-cache tests pass with zero skips.
-      The failed installed run is not a passing lifecycle receipt. Independent design review accepts
+      A fresh installed retry passed source collection, then failed the checkpoint
+      contract: the attempt records the static recipe while SDK stage evidence
+      records the dynamically bound invocation recipe. All frozen inputs remained
+      unchanged. Failure retention captured all four diagnostic files. **Next
+      unchecked correction:** join checkpoint attempt ownership to the original
+      live bound SDK invocation before recording its stage; preserve immutable
+      lineage, original recipe/evidence equality and stale/reuse refusals. Add
+      deterministic checkpoint controls and repeat installed acceptance after
+      independent review. The local correction defers SDK attempts until original
+      live admission, validates captured preparation and durable predecessors,
+      reserves binding against swallowed recursion and retires failed allocations.
+      Seventeen checkpoint controls, four ordinary repair, five lifecycle and seven
+      SDK generation controls pass without skips. Historical SDK checkpoint
+      recovery remains refused. Neither failed run is a passing lifecycle receipt.
+      Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
       reviewed exact-request verifier-authorization owner before model-backed

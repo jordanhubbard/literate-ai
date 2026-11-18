@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Defer SDK checkpoint attempts until live admission binds the exact recipe,
+  preserving immutable attempt lineage and rejecting stale, substituted or
+  reentrant binding. SDK checkpoint records remain unavailable for historical
+  source recovery; installed rebuild acceptance still requires qualification.
+
 - Collect TypeScript SDK source from `src/` only for a bound SDK recipe, preserving
   ordinary application confinement and rejection of package/build output. Reject
   recipe changes during generation and keep failed installed-preflight diagnostics

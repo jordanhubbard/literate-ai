@@ -3208,6 +3208,12 @@ class StandardProjectLifecycleService:
         ) = args
 
         def run(invocation, guard):
+            if self.checkpoint_recorder is not None:
+                guard()
+                self.checkpoint_recorder.start_node_sdk_attempt(
+                    execution_plan, prepared, invocation
+                )
+                guard()
             membership = cached
             if (
                 membership is None

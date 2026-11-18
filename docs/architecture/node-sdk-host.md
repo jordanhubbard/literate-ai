@@ -375,6 +375,25 @@ rejecting macOS temporary-parent aliases. The controller canonicalizes its newly
 created temporary root once, before child paths exist; failed case roots and log
 members remain subject to no-follow custody.
 
+The second installed attempt passed source collection, then rejected checkpoint
+stage evidence because its attempt had been published against the static recipe.
+It retained all four diagnostic files and unchanged frozen inputs; it remains a
+failed lifecycle attempt.
+
+SDK checkpoint startup now keeps the original static preparation pending without
+publishing an attempt. Inside live admission, before source lookup or generation,
+the recorder validates original execution/preparation pointers and captured
+plan/key/workspace/recipe values, the permitted bound recipe transformation and
+unchanged durable predecessors. It publishes a new immutable attempt for the
+bound recipe with normal attempt numbering and lineage. Complete fences follow
+live callbacks; recursive binding/reset/replacement poisons the pending entry
+even when the nested refusal is swallowed. Failure retires that allocation.
+Repairs retain the bound recipe. Ordinary attempts keep their existing behavior;
+SDK checkpoint records remain audit DATA and refuse historical source recovery.
+
+Seventeen deterministic checkpoint controls pass, together with four ordinary
+repair, five lifecycle and seven SDK generation controls, all without skips.
+These are source/DATA regression checks, not installed lifecycle acceptance.
 Focused actual-child and diagnostic controls accompany these fixes. The earlier
 zero-child probe passed full project authority validation, two-node preparation
 and canonical workflow compilation. A fresh installed authored rebuild is still
