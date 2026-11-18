@@ -1118,6 +1118,17 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       documentation review and project authority validation pass; the exact
       reviewed source identity is recorded. Complete current SDK acceptance
       remains required, preserving the ordinary 30-minute BUILD grant.
+      The fresh complete two-provider/root-subpath run at `1391004c` fails after
+      1,902.073 seconds with `security.authorization_expired`. It passes SDK
+      BUILD/cache/TEST/EXEC/PACKAGE and reaches independent packaged acceptance;
+      its first recorded expiry is in the enclosing process-liveness exit, with
+      later retired-scope exceptions retained as cleanup consequences. All 1,009
+      frozen Python inputs remain unchanged and the source tree is clean at
+      termination. This is failed full acceptance, not an authorization renewal
+      or a qualified consumer result. Local 4.7–5.4% reader benchmarks do not
+      establish a sufficient complete-lifecycle margin. Investigate the exact
+      closing validation path before another full run, retaining all original
+      callback/effect/clock/namespace boundaries and the original child matrix.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
