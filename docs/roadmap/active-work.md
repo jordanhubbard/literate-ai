@@ -1355,7 +1355,14 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       test helpers; source Flavors/skills and schemas from the installed wheel;
       check exact payload/resource/helper bytes and initial/lazy module origins.
       Use a fresh outside-checkout scope, no bundle src, explicit private config
-      and MCP off. Preserve matrices, grants and deadlines. Further source-cache
+      and MCP off. The opt-in `WHEEL_NODE_SDK_RUNTIME=1` runner is implemented;
+      fourteen guard controls and seven existing wheel controls pass without
+      skips. Its isolated installed interpreter uses a fresh empty private
+      bytecode prefix with writes disabled. Original package/metadata/schema/
+      helper/cache custody spans execution; bounded shared regular-file reads
+      reject substituted symlinks and FIFOs before capture. The actual installed
+      runtime matrix remains pending. Preserve matrices, grants and deadlines.
+      Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
       Bind exact provider revision,

@@ -251,8 +251,16 @@ migration-baseline-refresh: python-version $(RUNTIME_PREREQUISITE) ## Refresh th
 test-receipt-current: python-version $(RUNTIME_PREREQUISITE) ## Require the current local Git test assertion; this is not remote attestation.
 	PYTHONPATH=src $(STEP) test-receipt-current -- $(RUN_PYTHON_COMMAND) -m literate_ai.cli project test-receipt require-current --project .
 
-wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout.
-	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+WHEEL_NODE_SDK_RUNTIME ?= 0
+ifneq ($(words $(WHEEL_NODE_SDK_RUNTIME)),1)
+$(error WHEEL_NODE_SDK_RUNTIME must be 0 or 1)
+endif
+ifneq ($(filter-out 0 1,$(WHEEL_NODE_SDK_RUNTIME)),)
+$(error WHEEL_NODE_SDK_RUNTIME must be 0 or 1)
+endif
+
+wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout; optional WHEEL_NODE_SDK_RUNTIME=1 adds authored SDK cases.
+	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(filter 1,$(WHEEL_NODE_SDK_RUNTIME)),--node-sdk-runtime,) $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
 
 format: $(DEV_PREREQUISITE) ## Format Python source and tests.
 	$(RUFF) format src tests scripts $(SAMPLE_PYTHON)

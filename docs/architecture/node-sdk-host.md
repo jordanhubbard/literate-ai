@@ -192,6 +192,16 @@ runtime methods. Preserve their actual lifecycle, full matrices, separate grants
 and deadlines. This reviewed plan grants no installed result, model execution,
 CLI/default activation, retained-adapter, other-platform or browser qualification.
 
+The opt-in runner is implemented as `make wheel-check WHEEL_NODE_SDK_RUNTIME=1`;
+the default wheel gate retains its existing selection. The installed interpreter
+uses `-I -B` and a fresh empty private bytecode-cache prefix so stale installer
+bytecode cannot supersede the verified source. Controller and child retain the
+same original namespace observations through execution, including package,
+metadata, schemas, helpers and private cache. Resource and pre-capture reads reuse
+the shared bounded no-follow/nonblocking regular-file reader. Fourteen focused
+controls and seven existing wheel controls pass with no skips. The installed
+runtime matrix itself is still pending; these controls do not establish it.
+
 
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native
