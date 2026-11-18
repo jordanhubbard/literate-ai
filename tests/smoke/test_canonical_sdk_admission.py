@@ -25,8 +25,12 @@ from literate_ai.adapters.generation_preparation import (
     LockedComponentNodePreparationAdapter,
 )
 from literate_ai.adapters.lifecycle import LocalSourceTreeRegistry
+from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecycleError
 from literate_ai.adapters.node_library_acceptance import load_node_library_acceptance
-from literate_ai.adapters.node_sdk_admission import LocalNodeSDKGenerationAdmission
+from literate_ai.adapters.node_sdk_admission import (
+    LocalNodeSDKGenerationAdmission,
+    NodeSDKAdmissionError,
+)
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.node_sdk_host import (
     LocalNodeSDKHostConfiguration,
@@ -37,6 +41,7 @@ from literate_ai.adapters.node_sdk_legal import require_locked_node_sdk_legal_fi
 from literate_ai.adapters.node_sdk_project_acceptance import (
     LocalNodeSDKProjectAcceptance,
 )
+from literate_ai.adapters.process_liveness import ProcessLivenessError
 from literate_ai.adapters.standard_project import (
     assemble_filesystem_standard_project_runtime,
     assemble_standard_lifecycle_ports,
@@ -97,6 +102,254 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self._exercise_sdk_build(
             public_host=True, provider_runtime="source/counter/runtime/add.cjs"
         )
+
+    def test_two_actual_providers_enter_owned_invocation(self):
+        def before(fixture):
+            def forbidden(*_args):
+                raise AssertionError("invalid receipts entered an owned invocation")
+
+            policy = fixture.admission
+            for count in (0, 33):
+                with self.assertRaisesRegex(ValueError, "bounded exact"):
+                    LocalNodeSDKGenerationAdmission(
+                        ports=policy.ports,
+                        consumer=policy.consumer,
+                        profile=policy.profile,
+                        compiler=policy.compiler,
+                        revisions={
+                            str(i): fixture.providers[0].revision for i in range(count)
+                        },
+                        oracles={
+                            str(i): fixture.providers[0].oracle for i in range(count)
+                        },
+                        authorize_verifier=policy.authorize_verifier,
+                        require_current=policy.require_current,
+                        environment=policy.environment,
+                    )
+            receipts = fixture.receipts
+            for invalid in (
+                (),
+                receipts[:1],
+                (receipts[0], receipts[0]),
+            ):
+                with self.assertRaises(NodeSDKAdmissionError):
+                    fixture.admission.with_invocation(
+                        fixture.execution,
+                        fixture.prepared,
+                        invalid,
+                        consume=forbidden,
+                    )
+                self.assertEqual(fixture.grants, [])
+            # This is consistent typed DATA with an unregistered policy, not
+            # genuine acceptance from another live registry.
+            unregistered = replace(
+                receipts[0],
+                acceptance_policy_identity=canonical_identity(
+                    "unregistered fixture acceptance policy"
+                ),
+            )
+            with self.assertRaisesRegex(
+                LocalStandardLifecycleError,
+                "library provider acceptance or contract differs",
+            ):
+                fixture.admission.with_invocation(
+                    fixture.execution,
+                    fixture.prepared,
+                    (unregistered, receipts[1]),
+                    consume=forbidden,
+                )
+            self.assertEqual(fixture.grants, [])
+
+        self.with_canonical_sdk(
+            second_provider=True,
+            before_invocation=before,
+            verifier_lifetime=timedelta(minutes=10),
+        )
+
+    def test_two_actual_providers_enter_public_host_owned_invocation(self):
+        def before(fixture):
+            configuration = fixture.configuration
+            for count in (0, 33):
+                with self.assertRaisesRegex(ValueError, "bounded set"):
+                    LocalNodeSDKHostConfiguration(
+                        snapshot=configuration.snapshot,
+                        expected_execution=configuration.expected_execution,
+                        provider_oracles={
+                            str(i): fixture.providers[0].oracle for i in range(count)
+                        },
+                        root_oracle=configuration.root_oracle,
+                        authorize_verifier=configuration.authorize_verifier,
+                        require_current=configuration.require_current,
+                        environment=configuration.environment,
+                    )
+            self.assertEqual(fixture.grants, [])
+
+        self.with_canonical_sdk(
+            second_provider=True,
+            public_host=True,
+            before_invocation=before,
+            verifier_lifetime=timedelta(minutes=10),
+        )
+
+    def _assert_later_provider_cannot_lose_earlier_input(self, cut):
+        changed, consumed = [], []
+
+        def observer(_request, rows, grants, ports):
+            if len(grants) != 1 or changed:
+                return
+            self.assertEqual(len(rows), 2)
+            self.assertEqual(len(ports._library_provider_scopes), 2)
+            if cut == "oracle":
+                from literate_ai.adapters.node_library_acceptance import _LOADED
+
+                witness = _LOADED[id(rows[0].oracle)]
+                path = next(iter(witness.authority._entries.values())).path
+            elif cut == "files":
+                scopes = [v[0] for v in ports._library_provider_scopes.values()]
+                scope = next(
+                    s
+                    for s in scopes
+                    if s.export.component_revision == rows[0].revision.identity
+                )
+                path = scope.root / scope.files[0].path
+            else:
+                object.__setattr__(
+                    grants[0], "expires_at", ports.clock() - timedelta(seconds=1)
+                )
+            if cut != "grant":
+                before = path.stat()
+                path.write_bytes(path.read_bytes())
+                os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+            changed.append(cut)
+            print("SDK later-provider mutation executed: " + cut, flush=True)
+
+        def consume(*_args):
+            consumed.append(True)
+            raise AssertionError("SDK consumed a changed earlier provider")
+
+        error = {
+            "oracle": PinnedInputClosureError,
+            "files": ValueError,
+            "grant": AuthorizationError,
+        }[cut]
+        # Nested cleanup retires every scope, so its final refusal can be
+        # surfaced above the original witness/grant failure. Require both exact
+        # fences; an unrelated exception or an operation result is not success.
+        surfaced = (
+            LocalStandardLifecycleError if cut == "files" else ProcessLivenessError
+        )
+        with self.assertRaises(surfaced) as raised:
+            self.with_canonical_sdk(
+                consume,
+                second_provider=True,
+                public_host=True,
+                verifier_observer=observer,
+                verifier_lifetime=timedelta(minutes=10),
+            )
+        chain = []
+        current = raised.exception
+        while current is not None and all(current is not item for item in chain):
+            chain.append(current)
+            current = current.__cause__ or current.__context__
+        message = {
+            "oracle": "pinned inputs changed before close",
+            "files": "materialized file changed before inventory close",
+            "grant": "security.authorization_expired",
+        }[cut]
+        self.assertTrue(
+            any(isinstance(item, error) and str(item) == message for item in chain),
+            [(type(item).__name__, str(item)) for item in chain],
+        )
+        self.assertFalse(any(isinstance(item, AssertionError) for item in chain))
+        self.assertEqual(changed, [cut])
+        self.assertEqual(consumed, [])
+
+    def test_later_provider_verification_cannot_change_earlier_oracle(self):
+        self._assert_later_provider_cannot_lose_earlier_input("oracle")
+
+    def test_later_provider_verification_cannot_change_earlier_files(self):
+        self._assert_later_provider_cannot_lose_earlier_input("files")
+
+    def test_later_provider_verification_cannot_expire_earlier_grant(self):
+        self._assert_later_provider_cannot_lose_earlier_input("grant")
+
+    def _assert_two_provider_final_clock_loss(self, cut):
+        completed, changed, returned, grants_seen = [], [], [], []
+        original_runner = run_node_sdk_lifecycle
+
+        def observe(*args, **kwargs):
+            result = original_runner(*args, **kwargs)
+            returned.append(result)
+            return result
+
+        def verifier_observer(_request, _rows, grants, _ports):
+            if not grants_seen:
+                grants_seen.append(grants)
+
+        def consume(_invocation, owner, fixture):
+            from literate_ai.adapters.node_library_acceptance import _LOADED
+
+            owner()
+            self.assertEqual(len(grants_seen[0]), 2)
+            path = next(
+                iter(
+                    _LOADED[id(fixture.providers[0].oracle)].authority._entries.values()
+                )
+            ).path
+            original_clock = fixture.ports.clock
+
+            def clock():
+                frame = inspect.currentframe()
+                caller = frame.f_back
+                final_cut = (
+                    caller.f_code.co_name == "final_inputs"
+                    and caller.f_locals.get("live_membership") is False
+                )
+                del frame, caller
+                if completed and final_cut and not changed:
+                    self.assertFalse(fixture.ports._library_provider_scopes)
+                    if cut == "oracle":
+                        before = path.stat()
+                        path.write_bytes(path.read_bytes())
+                        os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    else:
+                        object.__setattr__(
+                            grants_seen[0][0],
+                            "expires_at",
+                            original_clock() - timedelta(seconds=1),
+                        )
+                    changed.append(cut)
+                    print(
+                        "SDK two-provider final clock mutation executed: " + cut,
+                        flush=True,
+                    )
+                return original_clock()
+
+            patcher = mock.patch.object(fixture.ports, "clock", clock)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+            completed.append(True)
+            return _invocation.identity
+
+        error = PinnedInputClosureError if cut == "oracle" else AuthorizationError
+        with mock.patch(__name__ + ".run_node_sdk_lifecycle", side_effect=observe):
+            with self.assertRaises(error):
+                self.with_canonical_sdk(
+                    consume,
+                    second_provider=True,
+                    public_host=True,
+                    verifier_observer=verifier_observer,
+                    verifier_lifetime=timedelta(minutes=10),
+                )
+        self.assertEqual(completed, [True])
+        self.assertEqual(changed, [cut])
+        self.assertEqual(returned, [])
+
+    def test_two_provider_final_clock_cannot_change_earlier_oracle(self):
+        self._assert_two_provider_final_clock_loss("oracle")
+
+    def test_two_provider_final_clock_cannot_expire_earlier_grant(self):
+        self._assert_two_provider_final_clock_loss("grant")
 
     def test_public_host_configures_canonical_invocation(self):
         self.with_canonical_sdk(public_host=True)
@@ -681,8 +934,10 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             ),
             import_surface_identity=surface.identity.uri,
         )
-        document["cases"][0]["capability"] = "counter.add"
-        document["declaration_cases"][0]["capability"] = "counter.add"
+        document["cases"][0]["capability"] = surface.capabilities[0].capability
+        document["declaration_cases"][0]["capability"] = surface.capabilities[
+            0
+        ].capability
         module = json.dumps(surface.capabilities[0].module)
         positive = (
             "import library=require(" + module + ");const n:number=library.add(1,2);"
@@ -735,6 +990,93 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self.assertEqual(len(checked), 1)
         return accepted, checked
 
+    def _build_canonical_provider(
+        self,
+        root,
+        *,
+        ports,
+        registry,
+        snapshot,
+        execution,
+        provider_plan,
+        provider_contract,
+    ):
+        source = root
+        surface = provider_contract.library_import_surface
+        package_path = source / "source" / surface.package
+        package_path.mkdir(parents=True)
+        (source / "source/tests").mkdir()
+        declared_runtime = provider_contract.library_import_surface.declarations[
+            0
+        ].runtime
+        runtime_path = source / declared_runtime
+        runtime_path.parent.mkdir(parents=True, exist_ok=True)
+        runtime_path.write_text("exports.add=(a,b)=>a+b;\n")
+        if (
+            declared_runtime
+            != "source/" + provider_contract.library_import_surface.package + "/api.js"
+        ):
+            (package_path / "api.js").write_text(
+                "throw Error('undeclared conventional runtime evaluated');\n"
+            )
+        package_relative = runtime_path.relative_to(package_path).as_posix()
+        (package_path / "package.json").write_text(
+            json.dumps(
+                {
+                    "name": provider_contract.library_import_surface.package,
+                    "type": "commonjs",
+                    "exports": {"./api": "./" + package_relative},
+                },
+                separators=(",", ":"),
+            )
+            + "\n"
+        )
+        declaration_path = (
+            source
+            / provider_contract.library_import_surface.declarations[0].declaration
+        )
+        declaration_path.parent.mkdir(parents=True, exist_ok=True)
+        declaration_path.write_text(
+            "export declare function add(a:number,b:number):number;\n"
+        )
+        (source / "source/main.js").write_text(
+            "if(process.argv[2]==='--litai-test')require('./tests/litai_test.js');\n"
+        )
+        (source / "source/tests/litai_test.js").write_text(
+            "const {add}=require("
+            + json.dumps(
+                "../"
+                + provider_contract.library_import_surface.package
+                + "/"
+                + package_relative
+            )
+            + ");"
+            "for(const [a,b,n] of [[1,2,3],[0,0,0],[-1,1,0]])"
+            "if(add(a,b)!==n)throw Error('bad sum');"
+            "console.log(JSON.stringify({schema:'literate-ai/generated-test-results@1',"
+            "cases:['example','boundary','invariant'].map(x=>"
+            "({case_id:'fixture-'+x,outcome:'passed'}))}));"
+        )
+        provider_projection = LockedComponentNodePreparationAdapter().project(
+            snapshot, provider_plan
+        )
+        candidate = register_strict_source(
+            registry,
+            source,
+            snapshot=snapshot,
+            generation_plan=provider_plan,
+            identity_namespace="canonical SDK provider fixture",
+            recipe=provider_projection.recipe,
+        )
+        intent = ports.create(execution, provider_plan, candidate, (), ())
+        index = ports.index(candidate.component_revision, candidate.tree_identity)
+        plan = ports.finalize(intent, ports.authorize(intent, index))
+        built = ports.build(plan, ())
+        tested = ports.test(plan, built.exports)
+        executed = ports.execute(plan, built.exports)
+        accepted = ports.accept(plan, tested.identity, executed.identity)
+        return built, accepted, source
+
     def with_canonical_sdk(
         self,
         operation=None,
@@ -743,11 +1085,16 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         public_host=False,
         root_acceptance=False,
         provider_runtime="source/counter/api.js",
+        second_provider=False,
+        before_invocation=None,
+        verifier_observer=None,
     ):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
             _, snapshot, execution = with_provider(
-                root / "authority", provider_runtime=provider_runtime
+                root / "authority",
+                provider_runtime=provider_runtime,
+                second_provider=second_provider,
             )
             environment = dict(os.environ)
             environment["LITAI_TYPESCRIPT_SDK"] = environment["LITERATE_TYPESCRIPT_SDK"]
@@ -764,26 +1111,37 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 for c in closure.contracts
                 if c.component_revision == execution.root_revision
             )
-            provider_plan = next(
-                p
-                for p in execution.generation_plans
-                if p.component_revision != execution.root_revision
-            )
-            provider_node = next(
-                n
-                for n in snapshot.authority.lock.nodes
-                if n.revision.identity == provider_plan.component_revision
-            )
-            provider_contract = next(
-                c
-                for c in closure.contracts
-                if c.component_revision == provider_plan.component_revision
-            )
-            revision = provider_node.revision
-            oracle = self._provider_oracle(revision, provider_contract)
+            provider_rows = []
+            for provider_plan in execution.generation_plans:
+                if provider_plan.component_revision == execution.root_revision:
+                    continue
+                provider_node = next(
+                    n
+                    for n in snapshot.authority.lock.nodes
+                    if n.revision.identity == provider_plan.component_revision
+                )
+                provider_contract = next(
+                    c
+                    for c in closure.contracts
+                    if c.component_revision == provider_plan.component_revision
+                )
+                revision = provider_node.revision
+                provider_rows.append(
+                    SimpleNamespace(
+                        plan=provider_plan,
+                        contract=provider_contract,
+                        revision=revision,
+                        oracle=self._provider_oracle(revision, provider_contract),
+                    )
+                )
+            provider_plan = provider_rows[0].plan
+            provider_contract = provider_rows[0].contract
+            revision = provider_rows[0].revision
             grants = []
 
             def authorize(request):
+                if verifier_observer is not None:
+                    verifier_observer(request, tuple(provider_rows), grants, ports)
                 now = ports.clock()
                 grant = BuildAuthorization(
                     (
@@ -828,7 +1186,9 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 configuration = LocalNodeSDKHostConfiguration(
                     snapshot=snapshot,
                     expected_execution=execution,
-                    provider_oracles={revision.identity.uri: oracle},
+                    provider_oracles={
+                        row.revision.identity.uri: row.oracle for row in provider_rows
+                    },
                     root_oracle=root_oracle,
                     authorize_verifier=authorize,
                     require_current=live_request,
@@ -902,67 +1262,17 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                     toolchain_closure=closure,
                     source_trees=registry,
                 ).ports
-            source = root / "provider-source"
-            (source / "source/counter").mkdir(parents=True)
-            (source / "source/tests").mkdir()
-            declared_runtime = provider_contract.library_import_surface.declarations[
-                0
-            ].runtime
-            runtime_path = source / declared_runtime
-            runtime_path.parent.mkdir(parents=True, exist_ok=True)
-            runtime_path.write_text("exports.add=(a,b)=>a+b;\n")
-            if declared_runtime != "source/counter/api.js":
-                (source / "source/counter/api.js").write_text(
-                    "throw Error('undeclared conventional runtime evaluated');\n"
+            for row in provider_rows:
+                row.built, row.accepted, row.source = self._build_canonical_provider(
+                    root / ("provider-" + row.contract.library_import_surface.package),
+                    ports=ports,
+                    registry=registry,
+                    snapshot=snapshot,
+                    execution=execution,
+                    provider_plan=row.plan,
+                    provider_contract=row.contract,
                 )
-            package_relative = runtime_path.relative_to(
-                source / "source/counter"
-            ).as_posix()
-            (source / "source/counter/package.json").write_text(
-                json.dumps(
-                    {
-                        "name": "counter",
-                        "type": "commonjs",
-                        "exports": {"./api": "./" + package_relative},
-                    },
-                    separators=(",", ":"),
-                )
-                + "\n"
-            )
-            (source / "source/counter/api.d.ts").write_text(
-                "export declare function add(a:number,b:number):number;\n"
-            )
-            (source / "source/main.js").write_text(
-                "if(process.argv[2]==='--litai-test')require('./tests/litai_test.js');\n"
-            )
-            (source / "source/tests/litai_test.js").write_text(
-                "const {add}=require("
-                + json.dumps("../counter/" + package_relative)
-                + ");"
-                "for(const [a,b,n] of [[1,2,3],[0,0,0],[-1,1,0]])"
-                "if(add(a,b)!==n)throw Error('bad sum');"
-                "console.log(JSON.stringify({schema:'literate-ai/generated-test-results@1',"
-                "cases:['example','boundary','invariant'].map(x=>"
-                "({case_id:'fixture-'+x,outcome:'passed'}))}));"
-            )
-            provider_projection = LockedComponentNodePreparationAdapter().project(
-                snapshot, provider_plan
-            )
-            candidate = register_strict_source(
-                registry,
-                source,
-                snapshot=snapshot,
-                generation_plan=provider_plan,
-                identity_namespace="canonical SDK provider fixture",
-                recipe=provider_projection.recipe,
-            )
-            intent = ports.create(execution, provider_plan, candidate, (), ())
-            index = ports.index(candidate.component_revision, candidate.tree_identity)
-            plan = ports.finalize(intent, ports.authorize(intent, index))
-            built = ports.build(plan, ())
-            tested = ports.test(plan, built.exports)
-            executed = ports.execute(plan, built.exports)
-            accepted = ports.accept(plan, tested.identity, executed.identity)
+            built = provider_rows[0].built
 
             consumer_plan = next(
                 p
@@ -997,8 +1307,12 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                     consumer=consumer,
                     profile=target.profile,
                     compiler=target.typescript.compiler,
-                    revisions={revision.identity.uri: revision},
-                    oracles={revision.identity.uri: oracle},
+                    revisions={
+                        row.revision.identity.uri: row.revision for row in provider_rows
+                    },
+                    oracles={
+                        row.revision.identity.uri: row.oracle for row in provider_rows
+                    },
                     authorize_verifier=authorize,
                     require_current=snapshot.require_unchanged,
                     environment=environment,
@@ -1027,8 +1341,14 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 self.assertIs(invocation.prepared.plan, consumer_plan)
                 self.assertEqual(invocation.base_recipe.uri, prepared.recipe.identity)
                 self.assertEqual(
-                    invocation.prepared.recipe.node_sdk_providers[0].artifact,
-                    built.exports[0],
+                    {
+                        provider.artifact.component_revision.uri: provider.artifact
+                        for provider in invocation.prepared.recipe.node_sdk_providers
+                    },
+                    {
+                        row.revision.identity.uri: row.built.exports[0]
+                        for row in provider_rows
+                    },
                 )
                 self.assertNotIn(
                     "PRIVATE_PROVIDER", invocation.prepared.request.prompt.decode()
@@ -1049,15 +1369,36 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                             target=target,
                             provider=built.exports[0],
                             provider_contract=provider_contract,
+                            providers=tuple(provider_rows),
                         ),
                     )
                 return invocation.identity
 
+            receipts = tuple(row.accepted for row in provider_rows)
+            if before_invocation is not None:
+                before_invocation(
+                    SimpleNamespace(
+                        admission=admission,
+                        configuration=configuration,
+                        ports=ports,
+                        execution=selected_execution,
+                        prepared=prepared,
+                        providers=tuple(provider_rows),
+                        receipts=receipts,
+                        grants=grants,
+                    )
+                )
             result = run_node_sdk_lifecycle(
-                admission, selected_execution, prepared, (accepted,), consume
+                admission,
+                selected_execution,
+                prepared,
+                receipts,
+                consume,
             )
             self.assertTrue(result.digest)
-            self.assertEqual(len(grants), 2 if public_host and root_acceptance else 1)
+            self.assertEqual(
+                len(grants), len(provider_rows) + int(public_host and root_acceptance)
+            )
             with self.assertRaises((ValueError, RuntimeError)):
                 escaped[0]()
             if public_host:

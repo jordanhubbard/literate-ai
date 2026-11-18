@@ -4,6 +4,7 @@ import json
 import shutil
 import tempfile
 import unittest
+from copy import deepcopy
 from pathlib import Path
 
 from literate_ai.adapters.generation_preparation import (
@@ -30,6 +31,7 @@ def with_provider(
     build_system=None,
     corrupt_profile=False,
     provider_runtime="source/counter/api.js",
+    second_provider=False,
 ):
     def configure(component, flavors):
         source = component / "component.md"
@@ -141,6 +143,43 @@ def with_provider(
         (provider / "acceptance/execution.json").write_text(
             '{"private":"PRIVATE_PROVIDER_ORACLE"}\n'
         )
+        if second_provider:
+            extra = component / "counter-extra"
+            shutil.copytree(provider, extra)
+            extra_child = deepcopy(child)
+            extra_child["display_name"] = "Second sealed counter provider"
+            extra_child["provides"][0]["name"] = "counter-extra.add"
+            extra_child["library_imports"][0].update(
+                package="counter-extra",
+                capability="counter-extra.add",
+                module="counter-extra/api",
+                node_module=CommonJSModuleDeclaration(
+                    "counter-extra/api",
+                    "source/counter-extra/runtime/add.cjs",
+                    "source/counter-extra/types/api.d.ts",
+                ).to_dict(),
+            )
+            (extra / "interfaces/public.md").write_text(
+                "# Second addition provider\n\nThe counter-extra/api add function "
+                "returns the exact sum of its two integer inputs.\n"
+            )
+            (extra / "component.md").write_bytes(
+                render_authoring_markdown(
+                    extra_child, "# Second counter\nIndependent original provider."
+                )
+            )
+            value["requires"].extend(
+                {
+                    "requirement_id": "counter-extra-" + kind,
+                    "capability": "counter-extra.add",
+                    "version_range": ">=1,<2",
+                    "dependency_kind": kind,
+                    "optional": False,
+                    "constraints": [],
+                }
+                for kind in ("generation", "build")
+            )
+            source.write_bytes(render_authoring_markdown(value, body))
         shutil.copytree(ROOT / "flavors/lang-javascript", flavors / "lang-javascript")
         shutil.copytree(
             ROOT
@@ -161,6 +200,14 @@ def with_provider(
         additional_flavor_selectors=(
             "component://examples/counter::-flavor://literate-ai/lang-typescript-library",
             "component://examples/counter::+flavor://literate-ai/lang-javascript",
+            *(
+                (
+                    "component://examples/counter-extra::-flavor://literate-ai/lang-typescript-library",
+                    "component://examples/counter-extra::+flavor://literate-ai/lang-javascript",
+                )
+                if second_provider
+                else ()
+            ),
         ),
     )
 

@@ -723,7 +723,7 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       recovery or installed qualification. Independent source/security review
       confirms the source and final evidence with no remaining reviewed blocker.
       The original repository lifecycle-driver pin is still stale across the
-      accumulated SDK contribution (64 tracked TCB paths since its last pin);
+      accumulated SDK contribution (65 tracked TCB paths in the current report);
       the current scoped review does not authorize repinning that whole closure.
       Preserve this refusal as an open integration/activation gate. Documentation
       authority is renewed separately; no default policy or installed activation
@@ -732,8 +732,65 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       No automatic verifier/build grants or v1 acceptance fallback follows from
       tool/profile projection; generated/retained SDK admission stays separately
       owned and downstream adoption remains gated on complete qualification.
-      Multi-provider support, default/public profile activation, remote/recovery
-      support and complete source-cache lifecycle qualification remain open.
+      Bounded multi-provider admission now has an actual two-provider canonical
+      locked graph with distinct exact revisions, interfaces, runtime/declaration
+      files, original oracles and verifier grants. The original single-provider
+      refusal remained in place for the initial red proof. Native coverage now
+      checks earlier-provider ownership through later-provider callbacks,
+      operation completion and cleanup, exact receipt inventories, expiry and
+      retired copied contexts through the same base/public-host path. The initial
+      two-provider fixture reaches context
+      preparation after native producer stages, then refuses in 80.065 seconds
+      because its cloned public interfaces have identical bytes: current context
+      attribution maps each interface identity to only one source Component.
+      Preserve that outcome as a separate interface-aliasing limitation, not the
+      admission-policy red result. The corrected distinct-interface fixture
+      reaches the unchanged admission owner after both actual producer BUILD,
+      TEST, EXEC and acceptance stages; it refuses the two-provider inventory
+      in 80.500 seconds. The candidate uses the existing composition budget of
+      at most 32 providers as one shared constant, retains exact oracle/receipt
+      sets, and keeps the same recursive original custody and closing checks.
+      The broader SDK Make gate selects 168 cases: 107 pass and 61 retain
+      prerequisite skips (102.862 seconds). The first three-case native run
+      completes in 474.705 seconds: the original single-provider control and
+      public-host two-provider positive pass; the base case errors while its
+      attempted foreign receipt is rejected by the composed-stage contract before
+      admission. Preserve this as a test construction failure, not a successful
+      foreign-receipt refusal or production defect. The corrected case changes
+      only an acceptance-policy identity in consistent typed DATA and requires
+      exact lower-owner refusal before grants; it does not claim a receipt from
+      another genuine live registry. The five-case mutation run completes in
+      1019.566 seconds: both original final-clock oracle/expiry checks pass. The
+      other three error because nested cleanup surfaces retired-scope errors
+      above the intended original pinned-oracle, file-stamp or expiry refusal.
+      Corrected assertions require both the exact surfaced fence and the exact
+      original class/message in its exception chain, no AssertionError, an actual
+      mutation and no consumer entry. Independent review accepts these corrections.
+      All production bytes and prior passing test/shared-helper ASTs remain
+      unchanged. All four corrected native cases pass: base ownership plus
+      earlier-oracle loss in 394.057 seconds, and earlier-file loss plus grant
+      expiry in 302.601 seconds. These results combine with the unchanged passing
+      public-host/control, both final-clock cases and aggregate-budget case;
+      they are scoped native evidence, not one all-green combined suite. The
+      final SDK Make gate selects 169 cases: 107 pass and 62 retain prerequisite
+      skips, including the separately qualified native budget case (100.326
+      seconds). All seven measured Python files remain byte-identical afterward;
+      lint, formatting and whitespace checks pass. The original TCB pin remains
+      unchanged/stale across 65 tracked implementation paths. Independent
+      state/security review accepts the source, corrected checks and evidence
+      scope for this local source-only checkpoint. The next action is actual
+      two-provider SDK BUILD/cache/TEST/EXEC/PACKAGE and relocated original root
+      acceptance; no complete multi-provider SDK lifecycle is claimed yet.
+      Genuine foreign-registry receipt coverage remains a separate obligation. The
+      independent actual aggregate custody-byte-budget refusal passes in
+      148.722 seconds: lowering only the fixture budget to its first live charge
+      refuses the second actual provider and unwinds both accounting counters to
+      zero. This proves budget refusal/accounting, not a 32-provider performance
+      cell or an SDK lifecycle. Qualify shared-byte interface attribution
+      separately before claiming general multi-provider graph support.
+      Keep zero-provider policy separately refused.
+      Default/public profile activation, remote/recovery support and complete
+      source-cache lifecycle qualification remain open.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

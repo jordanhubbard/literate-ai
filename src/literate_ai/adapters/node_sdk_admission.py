@@ -36,6 +36,7 @@ from literate_ai.contracts.component_locking.locks import LockedComponentRevisio
 from literate_ai.contracts.executable_components.standard_command_profiles import (
     StandardNodeSDKCommandProfile,
 )
+from literate_ai.contracts.node_sdk import MAX_NODE_SDK_PROVIDERS
 from literate_ai.security.policy import BuildAuthorization, SecurityProfile
 
 
@@ -91,11 +92,11 @@ class LocalNodeSDKGenerationAdmission:
             compiler,
         )
         self.revisions, self.oracles = dict(revisions), dict(oracles)
-        # Multi-provider closing cuts need their own actual-provider fixtures
-        # before this inactive integration owner can accept them.
-        if len(self.revisions) != 1 or set(self.revisions) != set(self.oracles):
+        if not 1 <= len(self.revisions) <= MAX_NODE_SDK_PROVIDERS or set(
+            self.revisions
+        ) != set(self.oracles):
             raise ValueError(
-                "SDK admission currently requires one exact provider/oracle"
+                "SDK admission requires a bounded exact provider/oracle set"
             )
         for key, revision in self.revisions.items():
             if (

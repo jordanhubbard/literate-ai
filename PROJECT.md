@@ -213,7 +213,13 @@ oracle/file witnesses, membership and configuration, then validates every verifi
 grant at that same captured time. Three native final-clock mutations reproduced
 escaped results before the repair; the complete 12-case native operation suite
 now passes without recapturing baselines or extending active grants. Multiple
-providers remain refused pending their own actual ownership and closing proof.
+providers now use a bounded admission inventory with the original recursive
+ownership and closing checks. Scoped native two-provider positives, earlier-input
+and expiry refusals, final-clock closure and aggregate budget unwind pass. The
+actual fixtures use distinct public-interface bytes; identical-interface source
+attribution, genuine foreign-registry receipts and complete multi-provider SDK
+build/package/root acceptance remain open. The shared ceiling of 32 providers is
+a bound, not a 32-provider performance qualification.
 
 The public host also pins the original snapshot input-closure object and captures
 its validated authority stamps before each owned operation. After the lower owner

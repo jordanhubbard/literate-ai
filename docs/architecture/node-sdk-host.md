@@ -11,10 +11,16 @@ Construct it with the original `LockedGenerationAuthoritySnapshot`, an
 `expected_execution` plan, `provider_oracles` keyed by exact provider revision URI,
 the original loaded `root_oracle`, an explicit `authorize_verifier` callback,
 a synchronous `require_current` callback and the selected clean `environment`.
-The current graph supports one TypeScript dual-format SDK root and one sealed
-CommonJS JavaScript provider with declarations. Zero or multiple providers,
-mixed native toolchain graphs and dependency-bearing provider layouts remain
-outside this host configuration's supported boundary.
+The configuration requires one TypeScript dual-format SDK root and a nonempty
+exact inventory of sealed CommonJS JavaScript providers with declarations. Its
+count ceiling shares the composition profile's existing 32-provider bound;
+aggregate byte/custody and liveness budgets remain independent and can refuse a
+smaller inventory. Native qualification currently covers two distinct-interface
+providers, not a 32-provider performance cell or a complete multi-provider SDK
+lifecycle. Zero providers, mixed native toolchain graphs and dependency-bearing
+provider layouts remain outside this host configuration's supported boundary.
+Identical public-interface bytes from distinct providers currently refuse during
+context attribution and remain a separate qualification/implementation obligation.
 
 A declaration-bearing `LibraryImportSurface@2` carries its complete runtime and
 TypeScript declaration records into the existing JavaScript library EXEC owner.
@@ -43,9 +49,13 @@ the configuration while retaining its ports binding is refused.
 `require_current` must be child-free because process polling calls it. Native
 toolchain checks remain in the existing closure and command owners. The host
 retains original callback, tool binding, source registry, target, oracle and graph
-identities across callbacks. A substituted delegate cannot acquire an owned
-invocation or build-intent operation. Host-currentness failure retires an active
-managed scope.
+identities across callbacks. Each earlier provider remains in its original
+custody scope while later providers are verified. Closing checks every original
+witness and independent verifier grant, including after nested contexts retire.
+Nested error cleanup can surface a retired-scope error above the original witness
+or expiry failure; the exception chain retains that original diagnostic.
+A substituted delegate cannot acquire an owned invocation or build-intent
+operation. Host-currentness failure retires an active managed scope.
 
 The root acceptance policy exists only inside the accepted provider invocation.
 Its context selects the original policy without replacing the ports' manual

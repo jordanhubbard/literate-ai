@@ -25,6 +25,7 @@ from literate_ai.adapters.node_sdk_tools import (
     require_node_sdk_process_observer,
 )
 from literate_ai.contracts import ComponentExecutionPlan, canonical_identity
+from literate_ai.contracts.node_sdk import MAX_NODE_SDK_PROVIDERS
 
 _CURRENT = ContextVar("local_node_sdk_host_policy", default=None)
 
@@ -143,11 +144,13 @@ class LocalNodeSDKHostConfiguration:
             root_oracle,
         )
         self.provider_oracles = dict(provider_oracles)
-        if len(self.provider_oracles) != 1 or any(
+        if not 1 <= len(self.provider_oracles) <= MAX_NODE_SDK_PROVIDERS or any(
             type(k) is not str or type(v) is not NodeLibraryAcceptance
             for k, v in self.provider_oracles.items()
         ):
-            raise ValueError("SDK host currently requires one original provider oracle")
+            raise ValueError(
+                "SDK host requires a bounded set of original provider oracles"
+            )
         self.authorize_verifier, self.require_current = (
             authorize_verifier,
             require_current,

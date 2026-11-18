@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Permit bounded exact provider sets in opt-in SDK operation admission and Python
+  host configuration, sharing the existing 32-provider composition ceiling.
+  Preserve nonempty matched oracle/receipt inventories, original recursive
+  custody, independent verifier grants and aggregate scope quotas. Native
+  qualification covers two distinct-interface providers; complete multi-provider
+  SDK lifecycle and shared-interface attribution remain separate gates.
+
 - Honor exact declared CommonJS runtime paths in JavaScript library EXEC,
   including nested `.cjs` files and root/subpath aliases. Preserve complete v2
   declaration facts, reuse CommonJS metadata and membership checks, and pin fixed

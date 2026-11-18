@@ -10,6 +10,8 @@ from ._validation import contract_fields, fail, string_value
 from .identity import ContentIdentity, contract_identity
 from .paths import canonical_relative_posix_path
 
+MAX_NODE_SDK_PROVIDERS = 32
+
 COMMONJS_MODULE_DECLARATION_SCHEMA = (
     "urn:literate-ai:schema:v2:commonjs-module-declaration@1"
 )

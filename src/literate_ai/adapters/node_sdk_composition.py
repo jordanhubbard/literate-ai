@@ -33,6 +33,7 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.executable_components.commands import LibraryConsumerBinding
 from literate_ai.contracts.node_sdk import (
+    MAX_NODE_SDK_PROVIDERS,
     CommonJSModuleDeclaration,
     is_node_sdk_package_name,
     node_sdk_package_boundary_files,
@@ -203,7 +204,7 @@ def prepare_node_sdk_providers(
     if generation != bindings or not bindings:
         raise ValueError("SDK generation/build provider bindings differ or are empty")
     if (
-        len(providers) > 32
+        len(providers) > MAX_NODE_SDK_PROVIDERS
         or sum(provider.blob.size for provider in providers) > MAX_SDK_BYTES
     ):
         raise ValueError("SDK providers exceed the closed profile budget")
