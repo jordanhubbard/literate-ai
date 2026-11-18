@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Route an explicitly owned Node SDK host through the Standard rebuild adapter,
+  checking original snapshot and actual plan ownership while refusing unsupported
+  retained/action-worker execution before generation. Nine routing controls pass;
+  actual rebuild execution and ordinary CLI integration remain separate gates.
+
 - Qualify authored macOS cold-start provider restoration and receipt-driven SDK
   regeneration with fresh runtime custody and unchanged authorization deadlines.
   Preserve private cached artifacts while projecting separate SDK-owned copies

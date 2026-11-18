@@ -261,6 +261,41 @@ broader cache/fault/recovery, CLI/default activation and downstream consumer/SDK
 cutover remain separate gates. No wheel publication or installed-user upgrade occurs.
 
 
+### Explicit Standard rebuild adapter routing
+
+The filesystem Standard rebuild assembler accepts the original optional
+`LocalNodeSDKHostConfiguration` and forwards that same object to the existing
+runtime assembler. Before generation it checks original prepared-snapshot
+ownership and agreement with the actual planned execution. It refuses retained
+source, a competing native SDK input owner, explicit action workers and configured
+action execution before worker admission. An explicit different root oracle
+refuses; an omitted oracle preserves the lower runtime's original default.
+The existing host remains the authority for supported graph shape and binding.
+No callback, verifier grant or cached receipt is serialized or manufactured.
+
+Nine maintained assembler-routing controls pass through focused `make
+python-check`, with no skips. They intentionally mock configuration integrity and
+stop the positive control at the existing runtime assembler. They establish
+pre-generation routing/refusal only, not original SDK admission, generated-source
+execution, cache recovery or CLI acceptance. The unchanged baseline lacks this
+parameter and fails the new supported-call controls.
+
+An additional direct run of two support fixture classes and their action/finalize
+consumers remains failed: 23 tests, nine passing and 14 errors, with no skips.
+Every ordered test/error signature matches the unchanged assembler baseline:
+six missing explicit worker-result transports and eight stale receipt-policy
+fixture objects. Keep this diagnostic failure separate from the passing focused
+gate; it is neither a full compatibility pass nor a new SDK lifecycle result.
+Independent review confirms the routing delta and its exact 1,277-member TCB
+`sha256:9c07d5d88d8acb82a15d756522a56d66812d1b2c43a793916d27544bb26db2fc`.
+The earlier installed wheel remains qualified only at source `403386cb`.
+
+The next action is actual authored generation through this rebuild adapter,
+followed by ordinary model-backed CLI integration with verifier-owned oracle
+resolution and a separately constrained verifier-authorization owner. Build-intent
+authorization does not authorize the SDK verifier's exact `BuildRequest`.
+
+
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native
 bare ESM package resolution without a new resolver or package acquisition. It

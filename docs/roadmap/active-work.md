@@ -1401,6 +1401,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       observations were not retained, so no timing or grant-margin claim follows.
       Preserve R1/R2 failures; no publication, CLI/default or downstream cutover
       follows from this result.
+      **Local adapter routing checkpoint:** The optional original SDK host now
+      reaches the existing filesystem Standard runtime assembler unchanged.
+      Nine focused canonical routing controls pass with zero skips; exact
+      snapshot/actual-plan, oracle, retained/native-owner and explicit/configured
+      worker refusals precede generation/admission. Independent source review
+      confirms the sole production delta and candidate TCB `9c07d5d8...26db2fc`.
+      An additional 23-test direct support-fixture diagnostic remains failed with
+      14 errors; all ordered test/error signatures match the unchanged baseline.
+      See [scope and retained limits](../architecture/node-sdk-host.md#explicit-standard-rebuild-adapter-routing).
+      **Next action in progress:** Exercise actual authored generation through
+      this rebuild adapter, preserving lower binding, cache/checkpoint custody
+      and separate grants. This adapter step does not complete ordinary CLI
+      integration: resolve verifier-owned oracles and implement a separately
+      reviewed exact-request verifier-authorization owner before model-backed
+      CLI acceptance. Never mint production grants from fixture request hashes.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
