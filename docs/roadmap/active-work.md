@@ -1362,6 +1362,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       helper/cache custody spans execution; bounded shared regular-file reads
       reject substituted symlinks and FIFOs before capture. The actual installed
       runtime matrix remains pending. Preserve matrices, grants and deadlines.
+      The first opt-in wheel attempt at `886ccf14` stopped before SDK execution:
+      the existing installed public Rust rebuild rejected the assembler's shared
+      `node_sdk_targets` argument. All 2,019 frozen Python files and selected
+      tools remained unchanged. A reviewed Cargo/Bazel constructor correction
+      forwards that optional typed selection to the existing base validator;
+      Mix inherits the Cargo fix. Focused Cargo execution then reproduced the
+      specialized SBOM overrides' missing `write_evidence` keyword; all three
+      overrides now forward the original writer through fallback and selected
+      resolution, retaining shared custody. All 38 focused projection, argument/
+      writer and Cargo/Bazel/Mix checks pass without skips. Independent source
+      review approves the three-file correction. Preserve both failures; a fresh
+      complete installed-wheel attempt remains required.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.

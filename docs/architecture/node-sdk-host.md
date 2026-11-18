@@ -202,6 +202,22 @@ the shared bounded no-follow/nonblocking regular-file reader. Fourteen focused
 controls and seven existing wheel controls pass with no skips. The installed
 runtime matrix itself is still pending; these controls do not establish it.
 
+The first complete opt-in wheel attempt at `886ccf14` stopped before either SDK
+case: the existing installed public Rust rebuild rejected the shared assembler's
+`node_sdk_targets` argument. All 2,019 frozen Python files and selected Node and
+TypeScript inputs remained unchanged. The specialized Cargo and Bazel ports now
+forward that optional typed selection to their existing shared validator; Mix
+inherits the Cargo correction. Focused Cargo execution also reproduced a second
+shared-interface mismatch: specialized SBOM overrides did not accept the base
+owner's `write_evidence` keyword. Cargo, Bazel and Mix now preserve that exact
+writer through both fallback and selected resolution rather than bypassing its
+custody. The original failed attempt remains evidence,
+with no installed SDK result. Thirty-eight focused checks pass with no skips:
+ten SDK projections, two argument/writer controls, ten Cargo lifecycle checks,
+three Bazel lifecycle checks and thirteen Mix authority checks. Independent
+source review approves the three-file correction; fresh complete installed-wheel
+qualification remains required before it establishes an installed outcome.
+
 
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native

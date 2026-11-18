@@ -16,6 +16,9 @@ from unittest import mock
 import yaml
 
 from literate_ai.adapters.lifecycle import LocalSourceTreeRegistry
+from literate_ai.adapters.lifecycle.standard_bazel import StandardBazelLifecyclePorts
+from literate_ai.adapters.lifecycle.standard_cargo import StandardCargoLifecyclePorts
+from literate_ai.adapters.lifecycle.standard_mix import StandardMixLifecyclePorts
 from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
 from literate_ai.adapters.standard_project import (
     StandardCommandProjectionError,
@@ -172,6 +175,31 @@ class NodeSDKProjectionTests(unittest.TestCase):
             command_phases=phases,
         )
         return closure
+
+    def test_selected_sdk_targets_survive_specialized_backend_construction(self):
+        closure = self.project()
+        for backend, selected in (
+            (StandardCargoLifecyclePorts, {"cargo_targets": ()}),
+            (StandardBazelLifecyclePorts, {"bazel_targets": ()}),
+            (StandardMixLifecyclePorts, {"mix_targets": ()}),
+        ):
+            with self.subTest(backend=backend.__name__):
+                arguments = dict(
+                    source_trees=LocalSourceTreeRegistry(),
+                    object_root=self.root / backend.__name__,
+                    contracts=closure.contracts,
+                    tool_bindings=closure.tool_bindings,
+                    node_sdk_targets=closure.node_sdk_targets,
+                    **selected,
+                )
+                ports = backend(**arguments)
+                target = closure.node_sdk_targets[0]
+                self.assertIs(
+                    ports.node_sdk_targets[target.component_revision.uri], target
+                )
+                with self.assertRaisesRegex(TypeError, "exact SDK targets"):
+                    backend(**{**arguments, "node_sdk_targets": (object(),)})
+        closure.require_unchanged()
 
     def test_real_selected_target_assembles_and_retains_exact_membership(self):
         closure = self.project()

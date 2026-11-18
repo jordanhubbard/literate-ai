@@ -46,6 +46,7 @@ from .standard_local import (
     local_generated_source_tree_identity,
     local_tree_identity,
 )
+from .standard_node_sdk import StandardNodeSDKTarget
 from .standard_npm import StandardNpmTarget
 from .standard_python import StandardPythonTarget
 
@@ -213,6 +214,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         cargo_targets: tuple[StandardCargoTarget, ...],
         rust_harness_compilers: _RustHarnessCompilerObservations | None = None,
         npm_targets: tuple[StandardNpmTarget, ...] = (),
+        node_sdk_targets: tuple[StandardNodeSDKTarget, ...] = (),
         python_targets: tuple[StandardPythonTarget, ...] = (),
         python_wheelhouse: Path | None = None,
         provider_environment: Mapping[str, tuple[str, str]] | None = None,
@@ -234,6 +236,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             command_phases=command_phases,
             tool_bindings=tool_bindings,
             npm_targets=npm_targets,
+            node_sdk_targets=node_sdk_targets,
             python_targets=python_targets,
             python_wheelhouse=python_wheelhouse,
             provider_environment=provider_environment,
@@ -462,10 +465,16 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         }
 
     def _write_resolved_sbom(
-        self, plan: StandardComponentBuildPlan, artifact_root: Path
+        self,
+        plan: StandardComponentBuildPlan,
+        artifact_root: Path,
+        *,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> CycloneDxBomBinding:
         if plan.component_revision.uri not in self.cargo_targets:
-            return super()._write_resolved_sbom(plan, artifact_root)
+            return super()._write_resolved_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
         evidence = self._validated_cargo_evidence(plan, artifact_root)
         manifest_digest = evidence["evidence_manifest_digest"]
         assert isinstance(manifest_digest, str)
@@ -480,6 +489,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             artifact_root,
             artifact_digest=manifest_digest,
             additional_build_evidence=additional,
+            write_evidence=write_evidence,
         )
 
     def _build_locked(
