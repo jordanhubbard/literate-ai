@@ -1307,6 +1307,14 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
+      Next in progress: qualify actual durable provider-source restoration into a
+      fresh host/runtime, with the original workspace/object paths unavailable.
+      Fresh acceptance binds fresh generation custody and therefore changes the
+      SDK's receipt-bound recipe: require an exact SDK cache miss and new authored
+      SDK generation, never an old receipt graft or recipe retag. Re-run native
+      BUILD/TEST/EXEC/ACCEPT and original packaged-root acceptance. This initial
+      cold cell does not enable whole-node/checkpoint recovery, cross-acceptance
+      SDK source reuse, live-model generation or downstream cutover.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

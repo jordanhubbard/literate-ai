@@ -143,6 +143,18 @@ Authored orchestration does not establish ordinary model generation, retained
 source/recovery, the supported-platform matrix or noneditable installed
 qualification. Downstream SDK cutover remains gated on those separate obligations.
 
+The opt-in cold-start regression in `test_canonical_sdk_cold_cache.py` is under
+qualification. It retains the accepted cache/CAS and locked inputs while creating
+fresh host bindings, ports, registries and workspaces, with the seed workspace and
+object paths unavailable. Old ports remain only for identity comparison. Provider
+source must restore into the new workspace and undergo fresh execution/acceptance;
+its original acceptance is never transplanted. That fresh generation custody
+changes the exact acceptance identity carried in the SDK recipe. The cell therefore
+requires an SDK cache miss and fresh authored SDK generation, followed by ordinary
+packaged-root verification. It supplies no cold SDK hit, cross-acceptance semantic
+rebinding, whole-node/checkpoint recovery, model, installed or downstream claim.
+
+
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native
 bare ESM package resolution without a new resolver or package acquisition. It

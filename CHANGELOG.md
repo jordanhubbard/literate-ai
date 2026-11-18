@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add an opt-in native cold-start SDK regression for durable provider source
+  restoration and receipt-driven SDK regeneration, with fresh runtime ownership
+  and unchanged authorization deadlines. Native qualification is tracked separately.
+
 - Remove one adjacent duplicate library custody check only when the optional
   process observer is absent. Keep both oracle checks, all callback guards and
   original authorization deadlines.
