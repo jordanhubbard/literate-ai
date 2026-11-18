@@ -1,0 +1,37 @@
+{
+  "basis": [
+    "CUDA evidence alone receives the bounded attribution view; original hashing, classification, symbols, other detector text and prompt-injection inspection retain original input.",
+    "Recognized SPDX/copyright comments omit attribution continuations through their original C/XML close; closing-line code and suffix/compiler/header/API signals survive. No executable source parsing or input rewriting added."
+  ],
+  "classification": "independent non-author source guard review; no installed/platform/release acceptance",
+  "decision": "approved",
+  "findings": [],
+  "goal": "CUDA-SIGNAL-001",
+  "release_attestation": false,
+  "remaining": [
+    "Noneditable installed/native acceptance of attribution correction",
+    "Exact integrated/resulting-main qualification",
+    "All remaining CUDA-SIGNAL-001 and release requirements"
+  ],
+  "reviewed_head": "7a3658da503b89016315aabec99934b80a6bfecc",
+  "reviewer_role": "separate explicitly authorized reviewer agent",
+  "schema": "literate-ai/verification-record@1",
+  "source_sha256": {
+    "src/literate_ai/source_to_specification/inventory.py": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da",
+    "tests/critical/test_source_inventory_targets.py": "b25457efc1ea264e0e19e028ec98e3cfb88d825df7bd86ef606120876b69ae38"
+  },
+  "supplementary": {
+    "passed": 6,
+    "scope": "Direct _signals controls: inline and multiline XML closing remainders with real cuInit, C closing remainder, XML attribution negative, unchanged Linux/Metal signals, CUDA beyond 131072-character bound excluded."
+  },
+  "tests_rerun": {
+    "command_prefix": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src _build/python-envs/roadmap-cm1/bin/python -m unittest",
+    "exit_code": 0,
+    "failed": 0,
+    "modules": [
+      "tests.critical.test_source_inventory_targets"
+    ],
+    "passed": 6,
+    "skipped": 0
+  }
+}

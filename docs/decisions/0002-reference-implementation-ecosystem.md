@@ -76,7 +76,11 @@ environments but do not convert tooling dependencies into runtime dependencies.
 - `make install` follows [ADR 0032](0032-tuple-specific-native-install-sboms.md): it
   proves or explicitly installs tuple-specific native prerequisites, then installs the
   package and its pinned Python dependency closure in a private environment.
-- `make tools-install` installs npm dependencies only beneath `tools/openspec/`.
+- `make tools-install` stages the authored `tools/openspec/` and
+  `tools/documentation/` packages under the disposable object directory; their
+  shared audit helper is authored under `tools/npm-audit/`. Documentation-only
+  checks install only the rendering package. Both audited checks remain required
+  for full qualification.
 - Python import/unit checks run independently of Node.js.
 - dependency-direction tests will prevent domain imports of optional adapters/UI/native
   helpers.

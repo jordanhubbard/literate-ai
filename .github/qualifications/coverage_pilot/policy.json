@@ -1,0 +1,95 @@
+{
+  "schema": "literate-ai/release-policy@1",
+  "version_scheme": "semver",
+  "version_authority": {
+    "path": "project.json",
+    "format": "json-pointer",
+    "selectors": [
+      "/version"
+    ]
+  },
+  "allowed_transitions": [
+    "patch",
+    "minor",
+    "major",
+    "explicit"
+  ],
+  "gate": {
+    "argv": [
+      "python",
+      ".github/qualifications/coverage_pilot/native.py",
+      "test",
+      "--output",
+      "_build/coverage-pilot/native"
+    ],
+    "timeout_seconds": 120
+  },
+  "qualification": {
+    "platforms": [
+      "linux",
+      "windows"
+    ],
+    "actions": [
+      {
+        "name": "build",
+        "argv": [
+          "python",
+          ".github/qualifications/coverage_pilot/native.py",
+          "build",
+          "--output",
+          "_build/coverage-pilot/native"
+        ],
+        "windows_argv": [
+          "python",
+          ".github/qualifications/coverage_pilot/native.py",
+          "build",
+          "--output",
+          "_build/coverage-pilot/native"
+        ]
+      },
+      {
+        "name": "test",
+        "argv": [
+          "python",
+          ".github/qualifications/coverage_pilot/native.py",
+          "test",
+          "--output",
+          "_build/coverage-pilot/native"
+        ],
+        "windows_argv": [
+          "python",
+          ".github/qualifications/coverage_pilot/native.py",
+          "test",
+          "--output",
+          "_build/coverage-pilot/native"
+        ]
+      }
+    ],
+    "ci": {
+      "mandatory": true,
+      "platforms": [
+        "linux",
+        "windows"
+      ],
+      "coverage": {
+        "schema": "literate-ai/github-ci-coverage-binding@1",
+        "artifact_name": "native-coverage-{attempt}",
+        "producer_job": "Export native coverage"
+      }
+    }
+  },
+  "changelog": {
+    "path": "CHANGELOG.md",
+    "unreleased_heading": "## Unreleased"
+  },
+  "tag": {
+    "prefix": "v",
+    "signed": false
+  },
+  "remote": "origin",
+  "provider": {
+    "kind": "github",
+    "repository": "jordanhubbard/literate-ai"
+  },
+  "version_mirrors": []
+}

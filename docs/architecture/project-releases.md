@@ -258,7 +258,8 @@ covered by the leftmost tier that can run it:
 2. one configured `workers.json` SSH worker covers each remaining platform, tried in
    worker-id order; a worker that is unreachable or cannot be synced falls through to
    the next worker, then to CI;
-3. a successful exact-revision CI run covers its declared platforms.
+3. by default, a successful exact-revision CI run is trusted to cover its declared
+   platforms. The optional coverage contract below requires explicit action facts.
 
 A runner proves a platform only through facts it declares or observes; a worker
 without a declared architecture cannot satisfy an architecture-qualified platform.
@@ -294,12 +295,14 @@ blocks the merge. Without such a record both commands require CI as before.
 
 This repository declares `linux`, `macos` and `windows`. `make release-check`
 needs a POSIX shell, so its `windows_argv` is `scripts/windows_release_gate.py`,
-which runs exactly the steps hosted CI runs for Windows (the `windows-gates` and
-`windows-tests` jobs): tool preflight, an isolated environment, compilation, lint
+which requires seven categories broadly corresponding to the hosted Windows jobs:
+tool preflight, an isolated environment, compilation, lint
 and format, OpenSpec and documentation checks, the installed-wheel smoke test and
 the full test suite. It never installs system tools; a missing MSVC, Rust, LLVM,
 Node or Git is a preflight failure. With a reachable Windows worker at the exact
-revision, the repository's release needs no CI.
+revision and passing complete native qualification for every required platform,
+CI may be optional. Category overlap alone does not establish exact equivalence
+between the script, its diagnostic `--only` subsets and the hosted shards.
 
 The Windows gate retains wheel-operation timings in a unique
 `_build/wg-*/wheel-timings.json` file for each attempt; its wheel command prints
@@ -308,6 +311,71 @@ interrupted later write preserves the previous report. The current interrupted
 operation may have no completed span. Labels exclude command arguments and
 workspace paths. These timings diagnose slow stages; they are not qualification
 receipts, and a timing report does not establish that the wheel or full gate passed.
+
+### Opt-in native CI coverage preparation
+
+An existing GitHub workflow can publish explicit source/action coverage for
+`litai release qualify` and `litai release check`. This profile currently prepares
+qualification evidence; RC publication, release-line merge, publication and
+published-release verification explicitly refuse it. Enable it only when the
+native producer implements the contract and these limits fit the workflow.
+This repository has not enabled the profile: its POSIX CI runs `make validate`
+and `wheel-check`, which omit several configured `make release-check` actions.
+Its actual producer/transport and native qualification pilots remain open.
+
+Add a binding to the existing `qualification.ci` object:
+
+```json
+{
+  "coverage": {
+    "schema": "literate-ai/github-ci-coverage-binding@1",
+    "artifact_name": "native-coverage-{attempt}",
+    "producer_job": "Export native coverage"
+  }
+}
+```
+
+The existing repository `release_ci_workflow` selects the workflow. `{attempt}`
+occurs exactly once and becomes the selected run attempt. There is no second
+platform matrix or framework executor. Optional CI must prove every cell it
+supplies; mandatory CI must additionally prove all declared `ci.platforms` times
+all qualification actions, even when local/worker tiers also pass. Explicit
+`--target github` needs every required cell; `local` and other target shortcuts
+refuse the strict profile.
+
+The producer uploads one ZIP containing a regular `coverage.json`, using the
+[versioned report schema](../../schemas/v2/project-release.schema.json).
+The archive is bounded to 16 MiB and the JSON member to 4 MiB. Extra members,
+comments, ambiguous names, symlinks, duplicate JSON keys, invalid compressed data
+and oversized content refuse. An ordinary one-entry ZIP directory is required;
+bounded local ZIP64 size fields are supported. No files are extracted.
+
+The report binds immutable repository/workflow/run/attempt IDs, associated head,
+actual checked-out commit/tree, full release and qualification policies, the
+producer job and explicit platform/action cells. Each cell names the configured
+complete invocation, its action identity, native OS/CPU facts, successful current
+job IDs and zero exit status. Version 1 does not infer shard equivalence, GPU facts
+or tested binary identities. A job name or `full_qualification` flag cannot prove
+an action. The reviewed native workflow remains the authority for execution facts;
+this consumer supplies no independent hardware or execution attestation.
+
+The exact artifact name, run/head association and archive digest must match.
+GitHub's artifact API supplies no attempt field, so the observer corroborates the
+report's attempt with a successful producer that actually started in that attempt
+and an artifact created during its execution. Earlier successful supporting jobs
+may be carried forward as provider-confirmed rows in the current attempt; the
+producer itself must execute freshly. The native aggregation job must depend on
+all contributing jobs so failed-job reruns also rerun that producer. This must be
+tested with real provider history before adoption, including timestamp behavior.
+
+Source and policy are checked against committed authority (Git 2.45+; no replacement
+objects or lazy fetch), and the selected run and artifact are observed again before
+recording success. Prepared-record checks repeat that observation after artifact
+and receipt work. Stored proof lives in the existing `ci.coverage` slot and never
+waives a live check. An archive digest proves report integrity; existing qualified
+release-file custody still owns deliverable bytes. A missing, stale or invalid
+strict proof never falls back to aggregate workflow success. Policies without the
+binding retain their existing serialization and aggregate behavior.
 
 ## Versioned release lines
 
@@ -510,3 +578,30 @@ new release checks. Older runs retain their original instrumentation gaps. Node
 nesting does not prove scheduling dependencies or exclusive runner occupancy, so
 critical-path and runner-use totals remain unknown rather than summing overlapping
 nodes. These timings never satisfy a release gate or authorize receipt reuse.
+
+Process-isolated unittest runs attached to evidence retain `module-timing.ndjson`
+beneath the owning evidence node and register its relative invocation directory
+once. Standalone runs without attached evidence keep timing in their worker spool.
+The timing reader consumes only explicit registrations. One parent monotonic clock
+records module selection, setup, process launch/exit observations, cancellation,
+cleanup and final validated-report observations. Module timing never supplies
+test outcomes or repair markers and does not move the worker timeout origin.
+Diagnostic write failure emits one warning and leaves the test result unchanged.
+
+The report distinguishes cancelled, failed, incomplete and undispatched modules.
+It retains unknown endings after interruption and identifies truncated, missing,
+redirected or oversized artifacts. Records are limited to 8 KiB and each invocation
+to 16 MiB and 100,000 records, bounding decoded-row amplification as well as bytes.
+One command accepts at most 32 registrations and 64 MiB of records.
+A final bounded read can exceed the remaining byte budget before refusal.
+Writes are flushed
+for process-crash visibility, without a power-loss durability guarantee. File I/O
+latency itself is not bounded by these byte limits. Closed module envelopes yield
+wall-time union, occupancy sums and observed overlap; these are neither CPU time
+nor a dependency-derived critical path. Admission delays include unattributed
+parent work, slot waits and serial barriers. Serial in-process unittest and native
+Windows pytest runs remain outside this instrumentation's coverage.
+Process-owner cleanup and scratch removal have separate observations; module and
+total-cleanup durations include successful scratch deletion. Failure paths retain
+scratch by their existing policy. An interrupted or failed deletion has no
+invented cleanup end.

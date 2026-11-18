@@ -22,6 +22,7 @@ EXCLUDED_DIRECTORY_NAMES = frozenset(
         ".ruff_cache",
         ".tox",
         ".venv",
+        ".litai-venv",
         "__pycache__",
         "build",
         "build-win",
@@ -429,7 +430,7 @@ def _excluded_summary(
 
 def _excluded_class(path: str) -> str:
     names = set(PurePosixPath(path).parts)
-    if names & {".venv", "venv", ".tox"}:
+    if names & {".venv", ".litai-venv", "venv", ".tox"}:
         return "virtual-environment"
     if names & {".pytest_cache", "__pycache__", ".mypy_cache", ".ruff_cache"}:
         return "test-or-analysis-cache"

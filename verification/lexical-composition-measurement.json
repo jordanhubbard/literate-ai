@@ -1,0 +1,83 @@
+{
+  "schema": "lexical-composition-measurement@1",
+  "status": "completed",
+  "method": "One real 1024-file,64-directory corpus; two ABBA blocks. Baseline disables only the new lexical cache. Native-call counts measured separately from timings. Both are local source experiments, not independent distributions or release timings.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_cargo_tree_v2.py": "37a132f1d5a09d8048dacce2347a9d41f583097940c0808eefb444a9aee29be9",
+    "src/literate_ai/adapters/retained_project_inputs.py": "04c78b049d028fac033244966841e7287d14c6145240429f4f9444a3365d80a9"
+  },
+  "files": 1024,
+  "directories": 64,
+  "counts": [
+    {
+      "enabled": false,
+      "native_calls": {
+        "stat": 82450,
+        "lstat": 10,
+        "fstat": 2449,
+        "open": 1428,
+        "close": 404
+      },
+      "stream_calls": 1024,
+      "lexical_calls": 6592
+    },
+    {
+      "enabled": true,
+      "native_calls": {
+        "stat": 82450,
+        "lstat": 10,
+        "fstat": 2449,
+        "open": 1428,
+        "close": 404
+      },
+      "stream_calls": 1024,
+      "lexical_calls": 1088
+    }
+  ],
+  "timings": [
+    {
+      "enabled": false,
+      "elapsed_seconds": 0.26474762498401105
+    },
+    {
+      "enabled": true,
+      "elapsed_seconds": 0.22001116606406868
+    },
+    {
+      "enabled": true,
+      "elapsed_seconds": 0.19426670903339982
+    },
+    {
+      "enabled": false,
+      "elapsed_seconds": 0.23790833400562406
+    },
+    {
+      "enabled": false,
+      "elapsed_seconds": 0.27123645797837526
+    },
+    {
+      "enabled": true,
+      "elapsed_seconds": 0.2656042920425534
+    },
+    {
+      "enabled": true,
+      "elapsed_seconds": 0.22335025004576892
+    },
+    {
+      "enabled": false,
+      "elapsed_seconds": 0.2511259160237387
+    }
+  ],
+  "medians": {
+    "False": 0.25793677050387487,
+    "True": 0.2216807080549188
+  },
+  "identities_and_physical_observations_equal": true,
+  "all_source_hashes_unchanged": true,
+  "limitations": [
+    "Four observations per arm on one local corpus; this is not a release or whole-admission timing.",
+    "Other local qualification jobs were active; host load was not isolated. ABBA order limits but does not remove load bias.",
+    "The baseline is the same implementation with lexical caching disabled; fresh filesystem observations remain identical.",
+    "POSIX directory access only; Windows uses the existing uncached fallback and is not qualified by this experiment."
+  ]
+}
