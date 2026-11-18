@@ -1349,7 +1349,7 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       checker/lifecycle paths remain unchanged. Preserve both earlier failures;
       no cold SDK hit, whole-node recovery, live-model, installed/platform,
       default activation or downstream cutover follows.
-      Next in progress: implement the reviewed authored noneditable installed-API
+      Next in progress: qualify the implemented authored noneditable installed-API
       qualification using the two original runtime controls and existing wheel
       runner, exact wheel custody and installed-distribution observer. Freeze only
       test helpers; source Flavors/skills and schemas from the installed wheel;
@@ -1374,6 +1374,15 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       writer and Cargo/Bazel/Mix checks pass without skips. Independent source
       review approves the three-file correction. Preserve both failures; a fresh
       complete installed-wheel attempt remains required.
+      The second attempt at `d692f0e1` reaches both installed SDK cases: one
+      passes, while the two-provider/root-subpath case first rejects original
+      provider BUILD expiry during packaged-root runtime pre-launch validation.
+      Two cases take 2,746.365 seconds; one pass, one error, zero skips, no outer
+      timeout. Independent review confirms unchanged 2,020 Python files/modes,
+      Node and all 140 TypeScript files. Observed CPU saturation is not proven
+      causation. No installed result is admitted; preserve full matrices/grants/
+      deadlines, retain the failure and await fresh resource recovery before
+      another heavy run while investigating shared freshness cost.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.

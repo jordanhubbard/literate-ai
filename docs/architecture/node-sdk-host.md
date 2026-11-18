@@ -218,6 +218,19 @@ three Bazel lifecycle checks and thirteen Mix authority checks. Independent
 source review approves the three-file correction; fresh complete installed-wheel
 qualification remains required before it establishes an installed outcome.
 
+The second complete wheel attempt at `d692f0e1` reaches both original installed
+SDK cases. The one-provider case passes; the two-provider/root-subpath case
+first fails on `security.authorization_expired` for an original provider BUILD
+grant in packaged-root runtime pre-launch liveness validation. Later retired-scope
+cleanup errors are secondary. The two-case class runs for 2,746.365 seconds with
+one pass, one error and no skips; the original one-hour outer bound does not expire.
+Independent evidence review confirms all 2,020 frozen Python files/modes and the
+selected Node and 140 TypeScript files remain unchanged. CPU saturation was
+observed, but causation was not established. No installed qualification or
+qualified-wheel export follows. Preserve the original grants, deadlines and full
+matrices; hold heavy reruns until fresh resource recovery observations, while
+investigating shared freshness cost without weakening custody.
+
 
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native
