@@ -37,6 +37,13 @@ conformance and 28m11s in installed-wheel verification. Queue/setup did not
 dominate that job. The historical 1.3.1 Windows exception remains an explicit
 coverage waiver, not a Windows pass.
 
+The review report distinguishes its 16 November baseline from later experiments.
+A status reconciliation on 18 November found an obsolete passage in the dated
+17 November update that still called the guidance comparison unfinished. The
+completed 45-attempt comparison is recorded in the report's later evidence
+section; automatic skill activation remains untested. This narrative correction
+changes no acceptance requirement, release goal, disposition or completion state.
+
 ## Consolidated ownership
 
 | Workstream | Existing owners to reuse | Added acceptance |
