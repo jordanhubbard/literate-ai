@@ -1412,7 +1412,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       See [scope and retained limits](../architecture/node-sdk-host.md#explicit-standard-rebuild-adapter-routing).
       **Next action in progress:** Exercise actual authored generation through
       this rebuild adapter, preserving lower binding, cache/checkpoint custody
-      and separate grants. This adapter step does not complete ordinary CLI
+      and separate grants. First qualify an actual deterministic fixture CLI
+      through the unchanged source runner/cache, preserving original candidate
+      lookup and provenance. Four macOS source preflight controls now pass:
+      actual child/key/provenance and accepted-cache replay, changed-key second
+      child with exact stale-suite refusal, unsafe payload refusal and actual
+      locked SDK-provider source capture. The original runtime scenario shares
+      only its extracted writer; no candidate/receipt is adapted into a generator
+      result. These source controls qualify no SDK build, model or installation.
+      See [authored source-runner scope](../architecture/node-sdk-host.md#authored-source-runner-preflight).
+      Do not adapt completed authored candidates or fake cache bookkeeping. Then build an explicitly unqualified candidate wheel
+      and use fresh isolated installation/origin custody for the authored rebuild
+      cell. Reuse the existing installer and namespace owners, with a closed
+      separate case inventory and no qualified-wheel manifest; preserve the
+      original two-case installed SDK gate. Independent design review accepts
+      this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
       reviewed exact-request verifier-authorization owner before model-backed
       CLI acceptance. Never mint production grants from fixture request hashes.

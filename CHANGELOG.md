@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add an authored fixture CLI preflight through the original source generator and
+  cache, checking provenance, replay and changed-recipe refusal before qualifying
+  SDK rebuild integration. Preserve the original SDK runtime scenarios.
+
 - Route an explicitly owned Node SDK host through the Standard rebuild adapter,
   checking original snapshot and actual plan ownership while refusing unsupported
   retained/action-worker execution before generation. Nine routing controls pass;

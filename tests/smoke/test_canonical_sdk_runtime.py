@@ -42,10 +42,8 @@ from tests.support.fixtures_test_component_generation_context import _budget
 from tests.support.standard_source_evidence_fixture import write_strict_source_evidence
 
 
-def _authored_source(prepared, root_revision, provider_contracts):
-    """Return source evidence only; the actual runtime registers and accepts it."""
-    root = Path(prepared.workspace.locator)
-    recipe = prepared.recipe
+def _write_authored_source_files(root, recipe, provider_contracts, component_revision):
+    """Write authored content and current-recipe metadata, without a candidate."""
     tests = root / "source/tests"
     tests.mkdir(parents=True)
     if recipe.node_sdk_providers:
@@ -76,9 +74,7 @@ def _authored_source(prepared, root_revision, provider_contracts):
             "const {add}=sdk;"
         )
     else:
-        surface = provider_contracts[
-            prepared.plan.component_revision
-        ].library_import_surface
+        surface = provider_contracts[component_revision].library_import_surface
         assert len(surface.declarations) == 1
         declaration = surface.declarations[0]
         package_name, module_name = declaration.module.rsplit("/", 1)
@@ -125,6 +121,16 @@ def _authored_source(prepared, root_revision, provider_contracts):
     )
     bom, suite = write_strict_source_evidence(
         root, recipe=recipe, component_name=recipe.application_id
+    )
+    return bom, suite
+
+
+def _authored_source(prepared, root_revision, provider_contracts):
+    """Return source evidence only; the actual runtime registers and accepts it."""
+    root = Path(prepared.workspace.locator)
+    recipe = prepared.recipe
+    bom, suite = _write_authored_source_files(
+        root, recipe, provider_contracts, prepared.plan.component_revision
     )
     request = prepared.request.request
     tree = local_generated_source_tree_identity(root)

@@ -296,6 +296,37 @@ resolution and a separately constrained verifier-authorization owner. Build-inte
 authorization does not authorize the SDK verifier's exact `BuildRequest`.
 
 
+### Authored source-runner preflight
+
+A deterministic fixture executable now supplies files through the supported
+coding-CLI command shape. Its explicit environment contains the fixture PATH
+and provider selection, with no copied credentials. The original generator and
+cached source runner retain ownership of workspace validation, dynamic recipe
+metadata, invocation provenance, candidate lookup and accepted-cache publication.
+The child is controlled test code, not a model, full protocol emulator or hostile
+filesystem writer. The copied executable includes the selected absolute Python path and is
+checked against its actual executable digest.
+
+Four macOS preflight controls exercise an actual child and exact candidate-key /
+request / recipe provenance, accepted-cache replay without another child, changed
+recipe key plus a second child and exact stale-suite refusal, and unsafe payload
+path refusal. The locked SDK-provider source case reuses the existing
+scenario's extracted write-only content/metadata helper. The real generator keeps
+implementation/suite bytes and reconciles authoritative source-SBOM components and
+edges; the returned SBOM binding names that recipe's managed graph and matches
+an independent byte digest of the actual resulting file. No native SDK build, independent
+acceptance, model or installed-wheel result follows from these source controls.
+
+The extraction preserves the two original runtime tests, their shared exercise,
+grants, matrices and candidate/provenance suffix. A source AST comparison confirms
+the moved write/metadata statements differ only by a plain Component-revision
+argument. Production TCB remains `9c07d5d8...26db2fc`. The next installed authored
+rebuild case must use fresh candidate wheel bytes and the existing installation,
+namespace and module-origin guards. Give that focused case a separate closed
+inventory; preserve the original two-case wheel gate and forbid qualified-wheel
+manifest output for a focused preflight.
+
+
 The shared independent SDK checker stages the canonical declaration projection's
 exact package image beside the original runtime harnesses. This supplies native
 bare ESM package resolution without a new resolver or package acquisition. It
