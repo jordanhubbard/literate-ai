@@ -4,16 +4,17 @@
 
 - Remove one adjacent duplicate library custody check only when the optional
   process observer is absent. Keep both oracle checks, all callback guards and
-  original authorization deadlines. Multi-provider orchestration remains open.
+  original authorization deadlines.
 
-- Qualify current one-provider authored-generator `runtime.execute` orchestration,
-  retaining original provider re-admission, independent acceptance and publication
-  ordering. Multi-provider orchestration and ordinary model generation remain open.
+- Qualify authored-generator `runtime.execute` orchestration for the one-provider
+  control and two-provider/root-subpath cell under unchanged original grants,
+  retaining provider re-admission, independent acceptance and publication order.
+  Ordinary model generation and performance with larger provider sets remain open.
 
 - Qualify the opt-in Python SDK host's complete native two-provider build,
   cache, test, execution, packaging and independent packaged acceptance path,
   including CommonJS/ESM root and subpath declarations/runtime probes. Retain
-  separate orchestration, model, recovery, installed and downstream-cutover gates.
+  separate authored/model, recovery, installed and downstream-cutover evidence.
 
 - Share bounded original directory topology across local catalog-reference reads,
   retaining fresh file/namespace checks and ordinary fallback. Fence reentrant

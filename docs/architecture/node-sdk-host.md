@@ -17,9 +17,9 @@ count ceiling shares the composition profile's existing 32-provider bound;
 aggregate byte/custody and liveness budgets remain independent and can refuse a
 smaller inventory. Native qualification covers the complete explicit two-provider
 SDK lifecycle and independent packaged root/subpath acceptance on the macOS cell.
-Current one-provider authored-generator `runtime.execute` orchestration is also
-qualified separately below. Multi-provider orchestration and a 32-provider
-performance cell remain open. Zero providers, mixed native toolchain graphs,
+Authored-generator `runtime.execute` orchestration is also qualified separately
+below for the one-provider control and two-provider/root-subpath cell. A
+32-provider performance cell remains open. Zero providers, mixed native toolchain graphs,
 and dependency-bearing provider layouts remain outside this host configuration's
 supported boundary.
 Identical public-interface bytes from distinct selected providers are rendered
@@ -110,7 +110,7 @@ real provider admission before SDK generation, distinct finalization policy with
 the same original invocation identity, retirement of the generation context,
 original packaged six-TypeScript/two-runtime verification, and source membership
 publication after root acceptance. That retained fixture passed in 1081.895
-seconds. At clean commit `71f2c585`, the current one-provider authored-generator
+seconds. At clean commit `71f2c585`, the retained one-provider authored-generator
 orchestration case passes in 830.255 seconds with all 2,016 frozen Python files
 unchanged. It retains six TypeScript compiler checks and the existing two runtime formats;
 this cell's ESM harness uses its existing file URL, not the separate staged case's
@@ -123,7 +123,21 @@ publisher observes membership identity, not durable cache persistence. The
 original checker, acceptance and publisher run behind observation wrappers;
 finalization re-enters the original host binding after the generation context
 retires. Original packaged-root acceptance returns before both source membership
-publications. Multi-provider orchestration remains required.
+publications. Multi-provider orchestration remained required at that checkpoint.
+
+At clean commit `f4f9781c`, the uninstrumented serial class now passes both the
+revised one-provider control and two-provider/root-subpath orchestration cases
+in 2,655.489 seconds total, with no skips, errors or failures. All 2,016 frozen
+Python files, clean Git/head and the selected Node 22.23.4 binary remain unchanged;
+loaded test and verifier origins bind to that checkout. Both original packaged
+root acceptances return before accepted-source membership publication and the
+original `runtime.execute` returns. The two-provider cell retains the complete
+twelve-TypeScript/two-bare-runtime root/subpath matrix. All ordinary BUILD and
+explicit verifier grants retain their original 30-minute policies, and all child
+deadlines remain unchanged. No profiler, success replacement, grant renewal or
+clock/deadline extension supplies this pass. Earlier failed ordinary and diagnostic
+runs remain retained. This qualifies these authored orchestration cells, not
+32-provider performance or a quantified expiry-margin guarantee.
 
 Authored orchestration does not establish ordinary model generation, retained
 source/recovery, the supported-platform matrix or noneditable installed
@@ -231,8 +245,8 @@ No grant is renewed or replayed to get this result. All 2,016 frozen
 Python source files remain unchanged and the source tree stays clean. Late CPU
 samples were busy; this pass is not a paired full-lifecycle performance measurement
 or a guarantee of expiry margin. The earlier failed full attempts remain evidence.
-This explicit staged host case does not replace multi-provider `runtime.execute`,
-ordinary model generation, durable cold recovery, installed/platform qualification,
+This explicit staged host case is separate from the authored `runtime.execute`
+qualification above. It does not establish ordinary model generation, durable cold recovery, installed/platform qualification,
 default activation or downstream Aviation cutover.
 
 ### Absent process observers

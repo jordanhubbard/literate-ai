@@ -1220,12 +1220,13 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       bare root/subpath matrix. All four explicit verifier requests retain unique
       IDs and their original 30-minute policy, alongside ordinary 30-minute BUILD
       grants. All 2,016 frozen Python files match, with clean source and exit zero.
-      Next extend this actual orchestration fixture to both real producers and
-      root/subpath consumers, preserving the one-provider regression, original
-      execution/acceptance owners, budgets and deadlines. No ordinary-model,
+      At that checkpoint the next obligation was extending this orchestration
+      fixture to both real producers and root/subpath consumers, preserving the
+      one-provider regression, execution/acceptance owners, budgets and deadlines.
+      No ordinary-model,
       cold-cache/recovery, installed/platform, activation or Aviation cutover is
       established by this authored one-provider result.
-      The authored orchestration fixture now has a two-provider/root-subpath
+      The subsequent authored orchestration fixture adds a two-provider/root-subpath
       candidate sharing the original one-provider driver. Provider source follows
       each exact declared runtime/types path, retaining throwing undeclared-path
       decoys, and the SDK composes both independently bound provider records.
@@ -1265,8 +1266,8 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       review rejects promoting it: nested contract subclasses and patched getters
       make a sound fallback substantially more complex than the small saving
       warrants. No production expression, authority cut or grant policy changes.
-      The next action is a diagnostic-only observation of one original package
-      resource guard during the actual two-provider packaged-root acceptance.
+      The selected diagnostic observes one original package resource guard
+      during the actual two-provider packaged-root acceptance.
       Keep its return/exception, all callbacks, filesystem checks, source closure,
       complete compiler/runtime matrix, original clocks and deadlines unchanged;
       retain profile data only after the owned fixture finishes. An instrumented
@@ -1287,6 +1288,22 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       owner/grant/oracle loss and observer mutation/exception. No broader nested
       guard consolidation, identity cache, deadline extension, authorization
       renewal, sufficient expiry margin or native pass follows from this plan.
+      The independently reviewed None-only implementation and test follow-up
+      then reach clean `f4f9781c`. The original uninstrumented serial class
+      passes both the revised one-provider control and two-provider/root-subpath
+      authored-generator cases in 2,655.489 seconds total, zero skips, errors or
+      failures. All 2,016 frozen Python files, clean Git/head and selected
+      Node 22.23.4 identity match before and after; imported test/verifier origins
+      bind to the same checkout. Both original packaged-root acceptances return
+      before accepted-source publication and the actual `runtime.execute` return.
+      The full two-provider twelve-TypeScript/two-bare-runtime matrix, all ordinary
+      BUILD and explicit verifier 30-minute grants, and child deadlines remain
+      unchanged. No profiler, successful replacement delegate, grant renewal or
+      clock/deadline extension supplies the ordinary pass. Independent evidence
+      review confirms these authored orchestration cells. Preserve the earlier
+      failures; this does not quantify expiry margin or qualify 32-provider
+      performance, live-model generation, cold recovery, installed/platform,
+      default activation or downstream Aviation cutover.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
