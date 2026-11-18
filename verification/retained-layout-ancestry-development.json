@@ -1,0 +1,55 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "ADOPT-RELOCATE-001",
+  "classification": "source development evidence; broader source review pending",
+  "predecessor": "6fc67588e0ce2755dec4dcb186b9b88639a35351",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_layout.py": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e",
+    "tests/critical/test_retained_layout.py": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+    "tests/critical/test_retained_update_layout.py": "88461f57d211713a102b95517c519e929cd1a9073f19ef90d04adef43b9d1bc2"
+  },
+  "regression": {
+    "methods": 2,
+    "old_source_subtest_failures": 12,
+    "dimensions": {
+      "ancestor": [
+        "metadata directory",
+        "project root",
+        "ancestor above project"
+      ],
+      "mutation": [
+        "symlink redirect",
+        "direct directory replacement retaining file inode"
+      ],
+      "phase": [
+        "before actual file open",
+        "during canonical encoding"
+      ]
+    },
+    "port_scope": "actual local rename/symlink/hardlink and descriptors; controlled open/encoding call ports schedule mutations; no spontaneous native race claim",
+    "file_bytes_and_identity_preserved": true
+  },
+  "repair": [
+    "Capture all original direct ancestry directory identities before declaration file inspection",
+    "After read/parse/canonical encoding, reobserve safe direct ancestry and compare identities",
+    "Close final-file identity/link checks after encoding, preserving original complete-read and byte ceiling",
+    "Absent legacy behavior and canonical complete reads remain covered"
+  ],
+  "focused_summary": {
+    "executed": 18,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 18,
+    "selected": 18,
+    "skipped": 0
+  },
+  "focused_report_sha256": "be01aa3a5326fbee71027e2e5449035f7d0fa9bfa8f5a5e05b21d0efe22cb6a8",
+  "independent_review": "Exact repaired source and all9file peer context approved;18 focused and5 supplementary controls pass. See retained-layout-independent-review.json.",
+  "driver_pin_renewed": false,
+  "release_attestation": false,
+  "remaining": [
+    "Independent repaired-source review and supported driver renewal",
+    "Complete source and noneditable/native/exact integration",
+    "Accepted selected-placement apply, relocation transaction/rollback and receipt qualification"
+  ]
+}

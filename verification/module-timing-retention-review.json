@@ -1,0 +1,85 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-reviewed-local-qualified",
+  "reviewer": "sdlc_review",
+  "base_revision": "51afb59ca17676f4df89825b59bffba66f873542",
+  "review_identity": "sha256:2d11a3bc2bb6ed13e52dc8cfd563eb2882615e793aa82fe0b4977e736e51c96f",
+  "subjects": [
+    {
+      "path": "src/literate_ai/parallel_unittest_timing.py",
+      "size": 9884,
+      "sha256": "be84f0154047d6e244115c2f0d5909eac6073143feff9bb7ac0c26169f8647c8"
+    },
+    {
+      "path": "tests/smoke/test_parallel_unittests.py",
+      "size": 41642,
+      "sha256": "29df06f470d049262648f836f5bc92e834f742b9851d0cca91a0e4a1f5efcbff"
+    },
+    {
+      "path": "tests/smoke/test_evidence_timing.py",
+      "size": 16512,
+      "sha256": "5926d0bd05bf778e344da8f5bf35ae3773fbc68fc8deb6e571dc6046566a4340"
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "size": 41759,
+      "sha256": "ded57b0ff09803145037dfb942be491f6c46fa4ba44b35ca37cbebcad4322c53"
+    }
+  ],
+  "observed_ci_failure": {
+    "run": 43991908658,
+    "artifact": 14292940153,
+    "members": 60,
+    "uncompressed_bytes": 580603,
+    "timing_members": 0,
+    "cause": "registered absolute worker spool lies outside uploaded evidence directory"
+  },
+  "resolved_findings": [
+    "Attached traces reside under the actual evidence node with a relative pointer; null evidence keeps the private spool.",
+    "Absent artifacts and empty traces are unavailable at invocation and aggregate levels."
+  ],
+  "controls": {
+    "archive_relocation_before": {
+      "failed": 1,
+      "seconds": 0.788
+    },
+    "author_full_reader_scheduler": {
+      "selected": 30,
+      "passed": 30,
+      "seconds": 40.095
+    },
+    "author_final_empty_trace": {
+      "selected": 13,
+      "passed": 13,
+      "seconds": 0.781
+    },
+    "independent_final": {
+      "selected": 13,
+      "passed": 13,
+      "seconds": 0.808
+    },
+    "authority": "Actual attached-run and step-wrapper timing I/O failures preserve passing and failing test outcomes and process return codes; diagnostic node state is not gate authority."
+  },
+  "remaining": [
+    "Exact corrected CI archive download and relocated reader control.",
+    "Applicable combined candidate and native platform qualification."
+  ],
+  "release_qualification": false,
+  "full_local_gate": {
+    "selected": 2895,
+    "passed": 2803,
+    "skipped": 92,
+    "failed": 0,
+    "seconds": 3279.625,
+    "workers": 2,
+    "report_identity": "sha256:aaa65a8ce5c2fbfac22bf71d861ea239127d770d6f28fe14136a00b02e183e82",
+    "log_identity": "sha256:9b38d85c9553547e01d0e2f9ac2835ac3d01e9b493ec1e37f6b8249b2a0e2e48",
+    "other_gates": [
+      "driver-review",
+      "runner-review",
+      "documentation-review",
+      "lint",
+      "format-check"
+    ]
+  }
+}

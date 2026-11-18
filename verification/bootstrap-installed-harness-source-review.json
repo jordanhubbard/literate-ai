@@ -1,0 +1,39 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Bootstrap installed-maintained harness source approval",
+  "decision": "approved",
+  "report_identity": {
+    "algorithm": "sha256",
+    "digest": "18f2425d382954fe4b582bd331782a94998cb443044bcada1ba580e0307c6e03"
+  },
+  "current_subject": {
+    "scripts/installed_maintained_controls.py": {
+      "algorithm": "sha256",
+      "digest": "110f9b6c4d3a880ad794d1b53069cab7c6eaa7d60890551187275bb08d3821b9"
+    },
+    "tests/smoke/test_bootstrap_litai.py": {
+      "algorithm": "sha256",
+      "digest": "fef2a172ca6918340843ef991ff2e1264c132463234e7951867d9fcb3f1fe122"
+    },
+    "src/literate_ai/project_template/scripts/__init__.py": {
+      "algorithm": "sha256",
+      "digest": "ccc9c90a439facecfe7b77f925c84b08ef3d1fdd4a186960a6cfb00433f1a6ac"
+    }
+  },
+  "portable_bootstrap_methods": 10,
+  "posix_bootstrap_methods": 3,
+  "independent_source_passed": 13,
+  "independent_source_skipped": 0,
+  "missing_case_byte_mismatch_skip_refusals": 6,
+  "source_fixture_body_preservation": "All13 methods and4fixture helpers exactly reconstruct prior approved source; class partition changes only ownership of methods.",
+  "validators": "Full-class inventory, zero applicable skips and installed module file origins remain unchanged.",
+  "installed_expected": {
+    "macos": 201,
+    "linux": 212,
+    "windows": 172
+  },
+  "installed_qualified": false,
+  "native_windows_qualified": false,
+  "full_source_qualified": false,
+  "remaining": "Supported pin renewal and exact integrated source/noneditable-wheel/native/head/main qualification"
+}

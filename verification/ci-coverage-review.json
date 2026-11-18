@@ -1,0 +1,93 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-approved-full-qualification-pending",
+  "reviewer": "sdlc_review",
+  "base_revision": "0686ca7ed5adb1392571c9666fb06fba0c8a2cf2",
+  "review_identity": "sha256:b83728ce99ab7a25027d6d21b489cadbe6bc8c22e87b32a48696f17f9b8a9c5d",
+  "subjects": [
+    {
+      "path": "src/literate_ai/release_qualification.py",
+      "sha256": "debd334ee9bf73eb217842b2d2b2116c8715bd729a2dea25154dfc486f7b2851",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "src/literate_ai/release_ci_coverage.py",
+      "sha256": "228eceaec046613aba20041f5424aa4d9e267404f52963749c9396013d8cfeee",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/github_observation.py",
+      "sha256": "cdb7956bc8c8d89750c6fc0c412cd633ea38695f26fda238a3dff38b0e451568",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/native_ci.py",
+      "sha256": "d439b920db2789ccbc610263c568dfcabac4a6653aaa3a0235b6d2a6d1c38e35",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/release_ci_coverage.py",
+      "sha256": "f72d35b08d79d93dac0fbed1fe9c11b6679214dde9c1ff3f7ade7e7a78cc2653",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "src/literate_ai/project_releases.py",
+      "sha256": "2bd5c3a7911ce31631007eadec42fdba858258c95488062696df0ec919180222",
+      "unchanged_since_boundary_review": false
+    },
+    {
+      "path": "tests/e2e/test_release_ci_selection.py",
+      "sha256": "7045aae0b51abc5ee167bb64f5dd18412b223a165484e8008ed90bcd3a458efd",
+      "unchanged_since_boundary_review": false
+    },
+    {
+      "path": "schemas/v2/project-release.schema.json",
+      "sha256": "2e443223ccfcac8ebf849ed00366b0fffa51ccd4beedf53ec1395873e99c13f1",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "schemas/v2/index.json",
+      "sha256": "75f0e559879d4370fb7255ca4eea316badd814f86b927a8c302e7b5a1ed466dd",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "docs/architecture/project-releases.md",
+      "sha256": "aa2e55fa480f51c6d7efc53dc3312f1228f34b2a20a9653862476050cfac7680",
+      "unchanged_since_boundary_review": true
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "916add62a55e2a306996653c41b7329cd9eedcc8224f256ceb987dcdd8e22978",
+      "unchanged_since_boundary_review": true
+    }
+  ],
+  "closed_findings": [
+    "CC-1 actual Git scope and source-observation flags",
+    "CC-2 bounded no-replace/no-lazy Git reads throughout strict check/qualification",
+    "CC-3 typed malformed job metadata refusal",
+    "CC-4 fresh execution context per worker task"
+  ],
+  "focused_controls": {
+    "passed": 15,
+    "seconds": 31.452,
+    "final_strengthened_controls": {
+      "passed": 2,
+      "seconds": 3.176
+    },
+    "causal_control": "Worker regression fails against the pre-fix executor source by reaching forbidden upload. Corrected source adds no objects, uploads no source and changes no refs."
+  },
+  "evidence_kind": "Real temporary Git repositories, small actual local build/test commands and local-only promisor; provider and remote transports simulated.",
+  "qualification": {
+    "full_source": "pending",
+    "installed_consumer": "pending",
+    "native_platforms": "pending",
+    "hosted_producer_and_partial_retry": "pending",
+    "strict_promotion": "explicitly unsupported"
+  },
+  "limits": [
+    "Framework release policy has not opted into this contract.",
+    "Legacy aggregate workflow delegation remains only without opt-in.",
+    "No release, publication or GitGuardian waiver follows."
+  ],
+  "release_qualification": false
+}

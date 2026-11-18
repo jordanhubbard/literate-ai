@@ -1,0 +1,114 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-reviewed-local-qualified",
+  "reviewer": "sdlc_review",
+  "base_revision": "8839ffc915604e72f13cfc19e8639807ffbb8059",
+  "review_identity": "sha256:6b7af27f960c12aae5f5df0ad7954ada4c5febcda407ce62abfb905be8d1e262",
+  "prior_isolated_parse_review_identity": "sha256:38f4c075a787819959b7d9dfa7448eefb1e0c181a08fc9b2d8358a8d8474d544",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/retained_project_inputs.py",
+      "bytes": 35353,
+      "sha256": "04c78b049d028fac033244966841e7287d14c6145240429f4f9444a3365d80a9"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "bytes": 13149,
+      "sha256": "37a132f1d5a09d8048dacce2347a9d41f583097940c0808eefb444a9aee29be9"
+    },
+    {
+      "path": "tests/critical/test_retained_input_lexical.py",
+      "bytes": 12265,
+      "sha256": "edc2c44eacf49597cafdf128438fd5269368df933de6074eb4d35a20f37ab49d"
+    },
+    {
+      "path": "docs/roadmap/active-work.md",
+      "bytes": 2139488,
+      "sha256": "cb67d6e9111abbe259ae440f5d753fc3d6de78d26493da71b3bf163b4bbf2d28"
+    },
+    {
+      "path": "verification/lexical-composition-measurement.json",
+      "bytes": 2481,
+      "sha256": "4a0f82cb9fa51855ea019b8496d9ec6dbc6e28cbbe72b3a12e505ac1708107ab"
+    },
+    {
+      "path": "src/literate_ai/projects.py",
+      "sha256": "1c54d4add66903e4ad6feb3825168ddeb8d41a6ad5702a58a8b54bee50fe27d2",
+      "bytes": 70188
+    },
+    {
+      "path": "src/literate_ai/adapters/locked_generation_authority.py",
+      "sha256": "49d6f3dff00fc61b781a2c59b1df7f5d659c82797b7f508f71e12c41e69e2cad",
+      "bytes": 13036
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_execution_inputs_v2.py",
+      "sha256": "6041ff61c3825055c62ddcb2cafc57bdc67c38cc1534bf8393f0998c4439b5a4",
+      "bytes": 7080
+    },
+    {
+      "path": "tests/critical/test_retained_cargo_isolated_parses.py",
+      "sha256": "cca327a3ded9a079aa5c9f6ce6a8713d0910c70c831db78572ccf1efbbfba767",
+      "bytes": 13895
+    },
+    {
+      "path": "verification/isolated-parse-composition-measurement.json",
+      "sha256": "86b8d514c45cb4f27c846a1196ce72feb581e637c6d87076c7b786bd2fff12b5",
+      "bytes": 3063
+    },
+    {
+      "path": "tests/critical/test_retained_cargo_receiving_v2.py",
+      "sha256": "d4c6e7448197c2a23a92bd68f89193906256b3440b15ee7360169510970aa06d",
+      "bytes": 5033
+    },
+    {
+      "path": "tests/support/fixtures_retained_cargo_receiving_v2.py",
+      "sha256": "494ff35ce40d86dc0295b5c52b9a84a441957893d06d4e01f9a0bbad6bd83987",
+      "bytes": 2249
+    }
+  ],
+  "controls": {
+    "author_lexical": {
+      "selected": 12,
+      "passed": 12,
+      "seconds": 0.539
+    },
+    "author_compatibility": {
+      "selected": 53,
+      "passed": 51,
+      "skipped": 2,
+      "seconds": 4.68
+    },
+    "independent": {
+      "selected": 25,
+      "passed": 24,
+      "skipped": 1
+    },
+    "fresh_complete_source": {
+      "executed": 3045,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 3045,
+      "selected": 3148,
+      "skipped": 103,
+      "seconds": 4536.697,
+      "workers": 2,
+      "report_sha256": "ac464330b893ef4a0a1a71a77be1e9950bfa086c3754dfb039006fe806ce77e2",
+      "log_sha256": "5353fe2c521cd0e4a89ec7256d23ec20541e2bd1bc6774c542d23dbe2256e4ac",
+      "additional_gates": [
+        "driver-review",
+        "runner-review",
+        "documentation-review",
+        "lint",
+        "format-check"
+      ]
+    }
+  },
+  "remaining": [
+    "Installed composed candidate qualification.",
+    "Native platform qualification.",
+    "Performance measurements cover narrow capture/observation scopes, not full admission or release."
+  ],
+  "release_qualification": false,
+  "historical_record_note": "The earlier isolated-parse review records the pre-lexical checkpoint; this record binds the current composed source and supersedes its pending full-gate and unapplied-lexical notes."
+}

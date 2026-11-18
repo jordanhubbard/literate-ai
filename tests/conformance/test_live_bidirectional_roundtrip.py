@@ -12,8 +12,11 @@ from contextlib import nullcontext
 from pathlib import Path
 from unittest import mock
 
+from literate_ai.adapters.builders.bazel import discover_bazel_toolchain
+from literate_ai.adapters.live_test_selection import resolve_live_test_selection
 from literate_ai.adapters.models import CodingCliSemanticComparator
 from literate_ai.cli import main
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.source_to_specification import (
     DraftScenario,
     DraftStatement,
@@ -143,8 +146,14 @@ def locked_sample_copy(
         f"+{host_flavor()}",
         "--flavor",
         f"+{language}",
+        "--flavor",
+        "+bazel",
     )
-    invoke("project", "source-intelligence", "sync", str(project))
+    snapshot = ProjectConfigurationStore.discover(project)
+    if snapshot is None:
+        raise AssertionError("round-trip authority has no project configuration")
+    if snapshot.definition.source_intelligence.provider_id != "none":
+        invoke("project", "source-intelligence", "sync", str(project))
     return component
 
 
@@ -190,7 +199,7 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
         source_symlinks: Path,
         root: Path,
         key: Path,
-        bazel: str,
+        bazel: tuple[str, ...],
         execution: dict[str, object],
         expected: dict[str, object],
     ) -> dict[str, object]:
@@ -238,7 +247,7 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                     ),
                     "profile_id": f"regenerative-roundtrip-{language}@1",
                     "build_command": [
-                        bazel,
+                        *bazel,
                         "--output_base={build_root}",
                         "build",
                         "--symlink_prefix={build_root}/links/",
@@ -246,7 +255,7 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                     ],
                     "test_commands": [
                         [
-                            bazel,
+                            *bazel,
                             "--output_base={build_root}",
                             "run",
                             "--symlink_prefix={build_root}/links/",
@@ -256,7 +265,7 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                         ]
                     ],
                     "source_command": [
-                        bazel,
+                        *bazel,
                         f"--output_base={source_build_root}",
                         "run",
                         f"--symlink_prefix={source_symlinks}/",
@@ -264,7 +273,7 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                         "--",
                     ],
                     "generated_command": [
-                        bazel,
+                        *bazel,
                         "--output_base={build_root}",
                         "run",
                         "--symlink_prefix={build_root}/links/",
@@ -330,6 +339,8 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
             "--scratch-root",
             str(root),
             "--allow-host-execution",
+            "--model",
+            resolve_live_test_selection(project_root=REPO_ROOT).model,
         )
         self.assertTrue(qualification["qualified"])
         self.assertEqual(
@@ -341,9 +352,8 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
     def test_selected_languages_reach_semantic_and_regenerative_qualification(
         self,
     ) -> None:
-        bazel = shutil.which("bazel") or shutil.which("bazelisk")
-        if bazel is None:
-            self.skipTest("Bazel is required for the live round-trip")
+        bazel = discover_bazel_toolchain(workspace_root=REPO_ROOT).command
+        selection = resolve_live_test_selection(project_root=REPO_ROOT)
         execution = json.loads(EXECUTION.read_text())
         requirement_graph = NormalizedRequirementGraph.from_dict(
             json.loads(REQUIREMENTS.read_text())
@@ -382,13 +392,17 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                     f"+{host_flavor()}",
                     "--flavor",
                     f"+{language}",
+                    "--flavor",
+                    "+bazel",
+                    "--model",
+                    selection.model,
                 )
                 module_files = sorted(output.rglob("MODULE.bazel"))
                 self.assertEqual(len(module_files), 1, (language, module_files))
                 source = module_files[0].parent
                 build_root = root / f"bazel-{language}"
                 symlinks = root / f"bazel-links-{language}"
-                common = [bazel, f"--output_base={build_root}"]
+                common = [*bazel, f"--output_base={build_root}"]
                 generated_tests = json.loads(
                     run(
                         [
@@ -465,6 +479,8 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                     str(attestation_path),
                     "--trust-key",
                     str(key),
+                    "--model",
+                    selection.model,
                 )
                 diagnostic_bundle = root / f"{language}-bundle.json"
                 diagnostic_bundle.write_text(
@@ -478,7 +494,9 @@ class LiveBidirectionalRoundTripTests(unittest.TestCase):
                     )
                 )
                 draft = bundle["result"]["draft"]
-                semantic_result = CodingCliSemanticComparator().compare(
+                semantic_result = CodingCliSemanticComparator(
+                    model=selection.model
+                ).compare(
                     graph=requirement_graph,
                     inverse_draft_identity=draft["draft_id"],
                     inverse_statements=draft_statements(bundle, language=language),

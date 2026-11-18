@@ -1,0 +1,35 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Original controller reservation publication primitives; no public/native feed acceptance",
+  "predecessor": "0a8f7a885221811e042788a5a7fbb9413bc23203",
+  "subject_files": {
+    "src/literate_ai/application/worker_telemetry_reservations.py": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c",
+    "tests/critical/test_worker_telemetry_reservations.py": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1"
+  },
+  "counterexample": {
+    "controls": [
+      "bind versus actual capacity quarantine",
+      "bind versus capacity-created owner retirement"
+    ],
+    "old_source_failures": 2,
+    "harness": "Maintained exact methods against predecessor production module in the same Make-managed environment; real CommandActionSlots and ReservedAction with bounded thread barriers"
+  },
+  "repaired": {
+    "make_selection": "tests/critical/test_worker_telemetry*.py",
+    "selected": 100,
+    "passed": 89,
+    "skipped": 11,
+    "skip_scope": "Linux-only process controls on macOS",
+    "reservation_methods": 16,
+    "invariants": [
+      "unknown and retired flags cannot be overwritten by binding",
+      "retired owner cannot reenter",
+      "old completion cannot clear successor binding",
+      "original operation results and unresolved capacity preserved",
+      "readers do not acquire publication or capacity lock",
+      "original completion does not wait for slow observation clock"
+    ]
+  },
+  "independent_review": "Exact repaired source and prior production/schema context approved; independent16 reservation methods passed. See worker-telemetry-independent-review.json.",
+  "completion": false
+}

@@ -140,12 +140,14 @@ jobs:
           node-version: "24"
           package-manager-cache: false
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: |
+            tools/openspec/package-lock.json
+            tools/documentation/package-lock.json
       - name: Install documentation validation tools
         if: matrix.task == 'documentation'
         run: |
           python -m pip install -e .
-          make tools-install PYTHON=python
+          make documentation-tools-install PYTHON=python
       - name: Validate documentation and presentation artifacts
         if: matrix.task == 'documentation'
         run: >-
@@ -290,7 +292,9 @@ jobs:
           node-version: "24"
           package-manager-cache: false
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: |
+            tools/openspec/package-lock.json
+            tools/documentation/package-lock.json
       - name: Verify native SBOM prerequisites and install, uninstall, and reinstall the CLI
         if: matrix.task == 'sample-composition'
         env:
@@ -330,7 +334,9 @@ jobs:
           node-version: "24"
           package-manager-cache: false
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: |
+            tools/openspec/package-lock.json
+            tools/documentation/package-lock.json
       - name: Install Python contributor tools
         if: matrix.task == 'conformance'
         run: python -m pip install -e ".[dev]"
@@ -369,7 +375,7 @@ jobs:
           PYTHONPATH: src
         run: python -m literate_ai.cli release evidence explain --project .
 
-      # platform-smoke: real prefix upgrade plus installation/launcher and native C++.
+      # platform-smoke: installation/launcher, native adoption and native C++.
       # Separate sample-composition cells exercise native make install/uninstall.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         if: matrix.task == 'platform-smoke'
@@ -394,7 +400,10 @@ jobs:
           tests.critical.test_host_install
           tests.critical.test_host_self_update
           tests.e2e.test_cli_build_identity
+          tests.e2e.test_native_project_bootstrap
+          tests.e2e.test_native_bootstrap_publication
           tests.critical.test_guarded_builder.GuardedCppBuilderTests
+          tests.smoke.test_bootstrap_litai.GeneratedBootstrapTests
       - name: Upload smoke diagnostics (not release evidence)
         if: matrix.task == 'platform-smoke' && (always())
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -420,13 +429,19 @@ jobs:
           node-version: "24"
           package-manager-cache: false
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: |
+            tools/openspec/package-lock.json
+            tools/documentation/package-lock.json
       - name: Install Python contributor tools
         if: matrix.task == 'windows-gates'
         run: python -m pip install -e ".[dev]"
       - name: Install isolated contributor tools
         if: matrix.task == 'windows-gates'
-        run: npm --prefix tools/openspec ci
+        run: |
+          npm --prefix tools/openspec ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm --prefix tools/documentation ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Detect, install, and expose required native toolchains
         if: matrix.task == 'windows-gates'
         shell: pwsh
@@ -470,6 +485,7 @@ jobs:
 
           @(
             (Resolve-Path "tools/openspec/node_modules/.bin").Path,
+            (Resolve-Path "tools/documentation/node_modules/.bin").Path,
             "C:\Program Files\LLVM\bin",
             "C:\ProgramData\chocolatey\bin"
           ) | ForEach-Object { Add-WorkflowPath $_ }
@@ -538,7 +554,9 @@ jobs:
         shell: pwsh
         run: |
           npm --prefix tools/openspec run openspec:check
-          npm --prefix tools/openspec run documentation:check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm --prefix tools/documentation run documentation:check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Verify the installed wheel outside the checkout
         if: matrix.task == 'windows-gates'
         run: python scripts/wheel_smoke.py
@@ -580,13 +598,19 @@ jobs:
           node-version: "24"
           package-manager-cache: false
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: |
+            tools/openspec/package-lock.json
+            tools/documentation/package-lock.json
       - name: Install Python contributor tools
         if: matrix.task == 'windows-tests'
         run: python -m pip install -e ".[dev]"
       - name: Install isolated contributor tools
         if: matrix.task == 'windows-tests'
-        run: npm --prefix tools/openspec ci
+        run: |
+          npm --prefix tools/openspec ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm --prefix tools/documentation ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Detect, install, and expose required native toolchains
         if: matrix.task == 'windows-tests'
         shell: pwsh
@@ -630,6 +654,7 @@ jobs:
 
           @(
             (Resolve-Path "tools/openspec/node_modules/.bin").Path,
+            (Resolve-Path "tools/documentation/node_modules/.bin").Path,
             "C:\Program Files\LLVM\bin",
             "C:\ProgramData\chocolatey\bin"
           ) | ForEach-Object { Add-WorkflowPath $_ }
@@ -961,7 +986,9 @@ jobs:
           node-version: "24"
           package-manager-cache: false
           cache: npm
-          cache-dependency-path: tools/openspec/package-lock.json
+          cache-dependency-path: |
+            tools/openspec/package-lock.json
+            tools/documentation/package-lock.json
       - name: Install contributor tools
         timeout-minutes: 15
         run: python -m pip install -e ".[dev]"

@@ -327,6 +327,12 @@
       },
       {
         "id": "TEST-CACHE-001"
+      },
+      {
+        "id": "RUNTIME-CAPABILITY-ENV-001"
+      },
+      {
+        "id": "RELEASE-CLOSURE-001"
       }
     ]
   }

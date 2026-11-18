@@ -1,31 +1,17 @@
-# Repository documentation and OpenSpec tooling
+# OpenSpec validation tooling
 
-This directory isolates the repository-pinned OpenSpec and Mermaid CLIs, Puppeteer, and
-their npm dependency graph. The tools validate behavioral specifications and render every
-Mermaid fence through one sandboxed browser session; they are not part of the Python
-framework package and are not required to install, import, or run the kernel.
+This locked package owns the pinned OpenSpec CLI. It is separate from
+[documentation rendering](../documentation/README.md), which does not use it.
+Neither package is part of the Python framework's runtime dependencies.
 
-Contributor tooling requires Node.js 22.12 or newer (CI uses Node 24). Puppeteer
-25 removes the vulnerable `extract-zip` and js-yaml dependency chains from the
-lock. Puppeteer then extracts its browser with a host `unzip`, so the lock pins the
-optional `yauzl` extractor instead; hosts without `unzip` would otherwise leave an empty
-browser folder that fails every later render. These are documentation-tool requirements,
-not changes to generated applications' selected runtimes. Keep browser sandbox defaults
-enabled.
+`make openspec-check` and `npm --prefix tools/openspec run openspec:check`
+audit this complete development dependency graph before validation. High or
+critical findings and unavailable audits fail. The shared audit owner is
+`tools/npm-audit/check-npm-audit.mjs`; this package owns its own
+`audit-exceptions.json`. No development dependencies are omitted.
 
-`make documentation-check` first audits the staged locked dependency graph. High or
-critical findings, or an unavailable audit service, fail the gate; do not substitute
-`--omit=dev`, because these development dependencies are the tooling being qualified.
-The only allowance is `audit-exceptions.json`: each entry names one advisory and
-package, with a reason, tracking issue and expiry date. Expired entries and entries that
-no longer match a finding also fail the gate.
-The gate needs access to the configured npm registry's audit endpoint. Parser and
-rendering checks still run after a passing audit.
-
-Install and run it from the repository root:
-
-```bash
-make tools-install
-make openspec-check
-make documentation-check
-```
+`make tools-install` installs both contributor toolchains. A documentation-only
+`make documentation-check` installs only its browser-bearing toolchain and the
+shared audit helper. Full CI, Windows qualification and release qualification
+retain both checks. Separating these packages does not remediate an OpenSpec
+advisory or permit release while its audit fails.

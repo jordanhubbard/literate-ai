@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
+.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install documentation-tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
 
 PREFIX ?=
 BUILD_DIR ?= $(CURDIR)/generated
@@ -56,6 +56,14 @@ UV ?= uv
 SKILL_EVALUATOR ?= skillevaluator
 SKILL_EVALUATOR_COMMIT := 0827e0fab5ca93d525cb8ff1ec2af3d7dfcf6d5d
 SKILL_EVALUATOR_SOURCE := skillevaluator[all] @ git+https://github.com/NVIDIA/SkillEvaluator.git@$(SKILL_EVALUATOR_COMMIT)
+NODE_AUDIT_DIR := tools/npm-audit
+NODE_AUDIT_RUNTIME_DIR := $(OBJ_DIR)/tools/npm-audit
+NODE_AUDIT_SOURCES := $(wildcard $(NODE_AUDIT_DIR)/*.mjs $(NODE_AUDIT_DIR)/test/*)
+NODE_AUDIT_STAMP := $(NODE_AUDIT_RUNTIME_DIR)/.staged
+DOCUMENTATION_TOOL_DIR := tools/documentation
+DOCUMENTATION_RUNTIME_DIR := $(OBJ_DIR)/tools/documentation
+DOCUMENTATION_TOOL_SOURCES := $(wildcard $(DOCUMENTATION_TOOL_DIR)/*.json $(DOCUMENTATION_TOOL_DIR)/scripts/* $(DOCUMENTATION_TOOL_DIR)/test/*)
+DOCUMENTATION_TOOL_STAMP := $(DOCUMENTATION_RUNTIME_DIR)/.installed
 OPENSPEC_TOOL_DIR := tools/openspec
 OPENSPEC_RUNTIME_DIR := $(OBJ_DIR)/tools/openspec
 OPENSPEC_TOOL_SOURCES := $(wildcard $(OPENSPEC_TOOL_DIR)/*.json $(OPENSPEC_TOOL_DIR)/scripts/* $(OPENSPEC_TOOL_DIR)/test/*)
@@ -66,7 +74,7 @@ OPENSPEC ?= $(OPENSPEC_RUNTIME_DIR)/node_modules/.bin/openspec
 SAMPLE_PYTHON := tests/conformance/support/sample_runner.py scripts/run_samples.py tests/conformance/support/self_hosting_proof.py scripts/run_source_to_specification_fixtures.py scripts/capture_migration_baseline.py scripts/refresh_migration_characterization.py scripts/fanout_samples.py scripts/remote_sample_worker.py scripts/remote_source_guard.py scripts/install_litai.py scripts/uninstall_litai.py scripts/installed_project_smoke.py scripts/installed_roundtrip.py scripts/run_checkpointed_gates.py scripts/run_checkpointed_unittests.py scripts/check_public_export.py
 PACKAGE_SAMPLE_PATTERNS ?= --sample hello-component --sample generated-library --sample dependency-planner
 MATRIX_FLAVORS ?= --flavor=os.*
-RELEASE_GATES := repository-layout-check public-export-check python-check lint format-check openspec-check documentation-check driver-review skills-check installed-e2e wheel-check install-check installed-project-e2e samples test-receipt-current
+RELEASE_GATES := repository-layout-check public-export-check lint format-check openspec-check documentation-check python-check driver-review skills-check installed-e2e wheel-check install-check installed-project-e2e samples test-receipt-current
 RELEASE_CHECKPOINT := $(OBJ_DIR)/release-checkpoint.json
 PYTHON_TEST_CHECKPOINT := $(OBJ_DIR)/python-test-checkpoint.json
 PYTHON_TEST_REPORT ?= $(OBJ_DIR)/python-test-report.json
@@ -104,7 +112,7 @@ $(DEV_STAMP): $(RUNTIME_STAMP) pyproject.toml
 	$(RUN_PYTHON_COMMAND) scripts/run_pip.py install -e ".[dev]"
 	@touch "$@"
 
-bootstrap: install dev-install tools-install skill-evaluator-install validate ## First-time setup: install all runtime and contributor tools, then validate.
+bootstrap: install dev-install tools-install documentation-tools-install skill-evaluator-install validate ## First-time setup: install all runtime and contributor tools, then validate.
 
 install: python-version ## Verify native dependencies, then install litai to the host-native user prefix.
 	$(PYTHON_COMMAND) scripts/install_litai.py --source "$(CURDIR)" $(if $(strip $(PREFIX)),--prefix "$(PREFIX)",)
@@ -134,9 +142,20 @@ installed-e2e: python-version $(RUNTIME_PREREQUISITE) ## Offline installed-CLI/c
 installed-e2e-status: python-version $(RUNTIME_PREREQUISITE) ## Report whether the installed-CLI E2E sentinel is current.
 	$(RUN_PYTHON_COMMAND) scripts/installed_e2e_gate.py --repository "$(CURDIR)" --build-root "$(OBJ_DIR)" --status
 
-tools-install: $(OPENSPEC_TOOL_STAMP) ## Install pinned contributor tools under disposable OBJ_DIR.
+tools-install: $(OPENSPEC_TOOL_STAMP) $(DOCUMENTATION_TOOL_STAMP) ## Install both pinned contributor toolchains under disposable OBJ_DIR.
 
-$(OPENSPEC_TOOL_STAMP): $(OPENSPEC_TOOL_SOURCES) scripts/stage_node_tool.py
+documentation-tools-install: $(DOCUMENTATION_TOOL_STAMP) ## Install documentation tools without the OpenSpec CLI.
+
+$(NODE_AUDIT_STAMP): $(NODE_AUDIT_SOURCES) scripts/stage_node_tool.py
+	$(PYTHON_COMMAND) scripts/stage_node_tool.py --source "$(NODE_AUDIT_DIR)" --destination "$(NODE_AUDIT_RUNTIME_DIR)" --object-root "$(OBJ_DIR)"
+	@$(PYTHON_COMMAND) -c 'from pathlib import Path; Path(r"$(NODE_AUDIT_STAMP)").touch()'
+
+$(DOCUMENTATION_TOOL_STAMP): $(DOCUMENTATION_TOOL_SOURCES) scripts/stage_node_tool.py | $(NODE_AUDIT_STAMP)
+	$(PYTHON_COMMAND) scripts/stage_node_tool.py --source "$(DOCUMENTATION_TOOL_DIR)" --destination "$(DOCUMENTATION_RUNTIME_DIR)" --object-root "$(OBJ_DIR)"
+	$(NPM) --prefix "$(DOCUMENTATION_RUNTIME_DIR)" ci
+	@$(PYTHON_COMMAND) -c 'from pathlib import Path; Path(r"$(DOCUMENTATION_TOOL_STAMP)").touch()'
+
+$(OPENSPEC_TOOL_STAMP): $(OPENSPEC_TOOL_SOURCES) scripts/stage_node_tool.py | $(NODE_AUDIT_STAMP)
 	$(PYTHON_COMMAND) scripts/stage_node_tool.py --source "$(OPENSPEC_TOOL_DIR)" --destination "$(OPENSPEC_RUNTIME_DIR)" --object-root "$(OBJ_DIR)"
 	$(NPM) --prefix "$(OPENSPEC_RUNTIME_DIR)" ci
 	@$(PYTHON_COMMAND) -c 'from pathlib import Path; Path(r"$(OPENSPEC_TOOL_STAMP)").touch()'
@@ -264,11 +283,12 @@ lint: $(DEV_PREREQUISITE) ## Run strict Python lint checks.
 	$(STEP) lint -- $(RUFF) check src tests scripts $(SAMPLE_PYTHON)
 
 openspec-check: python-version $(RUNTIME_PREREQUISITE) $(OPENSPEC_TOOL_STAMP) ## Strictly validate all OpenSpec changes and specifications.
+	$(STEP) openspec-dependencies -- $(NPM) --prefix "$(OPENSPEC_RUNTIME_DIR)" run dependencies:check
 	$(STEP) openspec-check -- $(OPENSPEC) validate --all --strict --no-interactive
 
-documentation-check: python-version $(RUNTIME_PREREQUISITE) $(OPENSPEC_TOOL_STAMP) ## Extract and render every Mermaid diagram in Markdown.
+documentation-check: python-version $(RUNTIME_PREREQUISITE) $(DOCUMENTATION_TOOL_STAMP) ## Extract and render every Mermaid diagram in Markdown.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) scripts/check_roadmap_dependencies.py .
-	$(STEP) documentation-check -- $(NPM) --prefix "$(OPENSPEC_RUNTIME_DIR)" run documentation:check -- "$(CURDIR)"
+	$(STEP) documentation-check -- $(NPM) --prefix "$(DOCUMENTATION_RUNTIME_DIR)" run documentation:check -- "$(CURDIR)"
 
 documentation-review: python-version $(RUNTIME_PREREQUISITE) ## Require the reviewed documentation authority marker to be current.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) -m literate_ai.cli project documentation-review . --require-current
@@ -306,7 +326,14 @@ runner-review: python-version $(RUNTIME_PREREQUISITE) ## Require a current sampl
 runner-review-record: python-version $(RUNTIME_PREREQUISITE) ## Re-pin the reviewed sample test-runner source closure.
 	$(RUN_PYTHON_COMMAND) scripts/review_test_runner.py --record
 
-validate: repository-layout-check python-check lint format-check openspec-check documentation-check driver-review runner-review skills-check installed-e2e ## Run every current repository gate.
+# A prerequisite barrier, rather than prerequisite order alone, also holds under
+# parallel Make and indirect callers such as bootstrap. Explicit sibling goals
+# remain independently requested work under normal Make semantics.
+.PHONY: validate-preflight
+validate-preflight: repository-layout-check lint format-check openspec-check documentation-check driver-review runner-review ## Refuse cheap validation failures before the long workload.
+
+validate: validate-preflight ## Run every current repository gate.
+	$(MAKE) python-check skills-check installed-e2e
 
 release: python-version $(RUNTIME_PREREQUISITE) ## Check the exact plan in RELEASE_PLAN; publication remains an explicit litai release publish command.
 	PYTHONPATH=src $(RUN_PYTHON_COMMAND) -m literate_ai.cli release check "$(RELEASE_PLAN)" --project . --output "$(RELEASE_PREPARED)"
