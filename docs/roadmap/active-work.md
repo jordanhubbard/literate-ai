@@ -1256,6 +1256,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       and diagnose the original custody/authority validation cost before another
       native attempt. Do not infer native multi-provider orchestration success,
       sufficient expiry margin, or load causation from this result.
+      A DATA-only profile then observes repeated canonical identity serialization
+      during fresh snapshot validation. A four-expression private prototype
+      preserves the original resolution identity over 24 alternating pairs and
+      reduces that local median from 24.044 to 22.445 milliseconds (6.65%). Child
+      launches and grant construction are explicitly forbidden during the DATA
+      experiment; all 2,016 Python files remain unchanged. Independent design
+      review rejects promoting it: nested contract subclasses and patched getters
+      make a sound fallback substantially more complex than the small saving
+      warrants. No production expression, authority cut or grant policy changes.
+      The next action is a diagnostic-only observation of one original package
+      resource guard during the actual two-provider packaged-root acceptance.
+      Keep its return/exception, all callbacks, filesystem checks, source closure,
+      complete compiler/runtime matrix, original clocks and deadlines unchanged;
+      retain profile data only after the owned fixture finishes. An instrumented
+      result must not replace the separate uninstrumented orchestration gate.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
