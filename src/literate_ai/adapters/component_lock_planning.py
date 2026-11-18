@@ -10,12 +10,14 @@ import tempfile
 import urllib.error
 import urllib.request
 from collections import Counter
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
+    _ReadonlyDirectoryScope,
     require_safe_directory,
     stat_is_link_or_reparse,
 )
@@ -56,6 +58,7 @@ from literate_ai.composition import version_satisfies
 from literate_ai.contracts import RepositorySourceDependency, RepositorySourceLock
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.component_locking import (
+    ComponentAssetSelector,
     ComponentAuthoring,
     ComponentContentSelector,
     ComponentLock,
@@ -64,6 +67,7 @@ from literate_ai.contracts.component_locking import (
 )
 from literate_ai.contracts.flavors import (
     CandidateStatus,
+    ContributionReference,
     FlavorCardinality,
     FlavorDefinition,
     FlavorRevision,
@@ -1872,8 +1876,12 @@ def _reference(root: Path, kind: str, uri: str, *, boundary: Path) -> ContentRef
     )
 
 
+def _configured_content_path(root: Path, uri: str) -> Path:
+    return Path(os.path.abspath(root.joinpath(*Path(uri).parts)))
+
+
 def _resolve_path(root: Path, uri: str, *, boundary: Path) -> Path:
-    configured = Path(os.path.abspath(root.joinpath(*Path(uri).parts)))
+    configured = _configured_content_path(root, uri)
     return _safe_regular_file(
         configured,
         boundary=boundary,
@@ -2043,6 +2051,179 @@ def _remote_asset_to_cas(uri: str, *, media_type: str, cas: FileSystemCAS) -> Bl
         temporary.unlink(missing_ok=True)
 
 
+def _plain_content_identity(value):
+    return (
+        type(value) is ContentIdentity
+        and type(value.algorithm) is HashAlgorithm
+        and type(value.digest) is str
+    )
+
+
+def _plain_local_capture_asset(asset):
+    return (
+        type(asset) is ResolvedComponentAsset
+        and type(asset.selector) is ComponentAssetSelector
+        and all(
+            type(getattr(asset.selector, key)) is str
+            for key in (
+                "asset_id",
+                "source",
+                "path",
+                "role",
+                "media_type",
+            )
+        )
+        and (asset.selector.pin is None or _plain_content_identity(asset.selector.pin))
+        and not asset.selector.source.startswith(("http://", "https://"))
+        and type(asset.blob) is BlobRef
+        and all(
+            type(getattr(asset.blob, key)) is str
+            for key in (
+                "algorithm",
+                "digest",
+                "media_type",
+            )
+        )
+        and type(asset.blob.size) is int
+    )
+
+
+def _prepare_capture_asset(capture, closure, asset):
+    if (
+        capture is not None
+        and not capture.closed
+        and (
+            not closure._supports_direct_capture()
+            or not _plain_local_capture_asset(asset)
+        )
+    ):
+        _close_reference_capture(capture)
+
+
+def _prepare_capture_flavor(capture, closure, flavor):
+    if (
+        capture is not None
+        and not capture.closed
+        and (
+            not closure._supports_direct_capture()
+            or type(flavor) is not _LoadedFlavor
+            or type(flavor.definition) is not FlavorDefinition
+            or type(flavor.path) is not type(Path())
+            or not _plain_content_identity(flavor.source_identity)
+            or any(
+                type(getattr(flavor.definition, key)) is not tuple
+                for key in (
+                    "specification_fragments",
+                    "authoring_inputs",
+                    "contributions",
+                )
+            )
+            or any(
+                type(item) is not ContributionReference
+                or type(item.content) is not ContentReference
+                for item in flavor.definition.contributions
+            )
+        )
+    ):
+        _close_reference_capture(capture)
+
+
+def _close_reference_capture(capture, *, require_success=True):
+    if capture is None:
+        return
+    try:
+        capture.close(require_success=require_success)
+    except UnsafeFilesystemPathError as exc:
+        raise ComponentLockPlanningError(
+            "component_lock.content_unsafe",
+            "Component content traverses an unsafe directory",
+        ) from exc
+    except OSError as exc:
+        raise ComponentLockPlanningError(
+            "component_lock.content_unavailable", "Component content is unavailable"
+        ) from exc
+
+
+@contextmanager
+def _reference_capture_scope(closure):
+    if (
+        type(closure) is not PinnedInputClosure
+        or not closure._supports_direct_capture()
+    ):
+        yield None
+        return
+    # Legacy direct-path fallback can temporarily hold TWO directory handles.
+    capture = _ReadonlyDirectoryScope(reserved_descriptors=2)
+    capture.__enter__()
+    completed = False
+    try:
+        yield capture
+        completed = True
+    finally:
+        _close_reference_capture(capture, require_success=completed)
+
+
+def _pin_catalog_reference(
+    closure,
+    root,
+    reference,
+    *,
+    boundary,
+    label,
+    component,
+    capture,
+):
+    if capture is not None and capture.failed:
+        _close_reference_capture(capture)
+    if capture is not None and not capture.closed:
+        if (
+            not closure._supports_direct_capture()
+            or type(root) is not type(Path())
+            or type(boundary) is not type(Path())
+            or type(reference) is not ContentReference
+            or type(reference.kind) is not str
+            or type(reference.uri) is not str
+            or not _plain_content_identity(reference.identity)
+        ):
+            # No handles are held across custom/default-reader dispatch changes.
+            _close_reference_capture(capture)
+        else:
+            base = (
+                _selector_base(root, reference.kind, boundary=boundary)
+                if component
+                else root
+            )
+            configured = _configured_content_path(base, reference.uri)
+            expected_uri = reference.identity.uri
+            content = closure._try_pin_direct(
+                configured,
+                boundary=boundary,
+                label=label,
+                directories=capture,
+                expected_identity=expected_uri,
+                unsafe_code="component_lock.content_unsafe",
+                unavailable_code="component_lock.content_unavailable",
+            )
+            if content is not None:
+                return content
+            if not closure._supports_direct_capture():
+                _close_reference_capture(capture)
+            # A declined attempt still retains its original requested path and
+            # hash. Re-enter the full old path owner, never a bare reader retry.
+            path = _resolve_path(configured.parent, configured.name, boundary=boundary)
+            return closure.pin(
+                path, boundary=boundary, label=label, expected_identity=expected_uri
+            )
+    path = (
+        _component_reference_path(root, reference, boundary=boundary)
+        if component
+        else _resolve_path(root, reference.uri, boundary=boundary)
+    )
+    return closure.pin(
+        path, boundary=boundary, label=label, expected_identity=reference.identity
+    )
+
+
 def _require_inputs_unchanged(
     *,
     root: Path,
@@ -2089,67 +2270,103 @@ def _require_inputs_unchanged(
         roots_by_identity = {
             item.authoring.identity.uri: item.root for item in authorings
         }
-        for node_index, node in enumerate(nodes):
-            node_root = roots_by_identity[node.authoring.identity.uri]
-            references = (
-                *node.specifications,
-                *node.authoring_inputs,
-                node.workflow_definition,
-                node.routing_policy,
-                *node.acceptance_contracts,
-                *node.public_interfaces,
-                *(
-                    item.dependency.integration_contract
-                    for item in node.repository_sources
-                    if item.dependency.integration_contract is not None
-                ),
-            )
-            for reference_index, reference in enumerate(references):
-                closure.pin(
-                    _component_reference_path(node_root, reference, boundary=boundary),
-                    boundary=boundary,
-                    label=f"component-content:{node_index}:{reference_index}",
-                    expected_identity=reference.identity,
-                )
-            for asset_index, asset in enumerate(node.assets):
-                current = _resolved_asset(node_root, asset.selector, boundary=boundary)
-                if current.blob != asset.blob:
-                    raise ComponentLockPlanningError(
-                        "component_lock.asset_changed",
-                        f"asset {asset.selector.asset_id!r} changed during lock "
-                        "planning",
+        with _reference_capture_scope(closure) as capture:
+            for node_index, node in enumerate(nodes):
+                if (
+                    capture is not None
+                    and not capture.closed
+                    and (
+                        type(node) is not ResolvedComponentNodeInput
+                        or type(node.authoring) is not ComponentAuthoring
+                        or any(
+                            type(getattr(node, key)) is not tuple
+                            for key in (
+                                "specifications",
+                                "authoring_inputs",
+                                "acceptance_contracts",
+                                "public_interfaces",
+                                "repository_sources",
+                                "assets",
+                            )
+                        )
+                        or node.repository_sources
                     )
-                local_path = _asset_local_path(
-                    node_root, asset.selector.source, boundary=boundary
+                ):
+                    # External/custom catalog IO stays wholly ordinary.
+                    _close_reference_capture(capture)
+                node_root = roots_by_identity[node.authoring.identity.uri]
+                references = (
+                    *node.specifications,
+                    *node.authoring_inputs,
+                    node.workflow_definition,
+                    node.routing_policy,
+                    *node.acceptance_contracts,
+                    *node.public_interfaces,
+                    *(
+                        item.dependency.integration_contract
+                        for item in node.repository_sources
+                        if item.dependency.integration_contract is not None
+                    ),
                 )
-                if local_path is not None:
-                    closure.pin(
-                        local_path,
+                for reference_index, reference in enumerate(references):
+                    _pin_catalog_reference(
+                        closure,
+                        node_root,
+                        reference,
                         boundary=boundary,
-                        label=f"component-asset:{node_index}:{asset_index}",
-                        expected_identity=ContentIdentity.parse_uri(
-                            asset.blob.identity
-                        ),
+                        label=f"component-content:{node_index}:{reference_index}",
+                        component=True,
+                        capture=capture,
                     )
-        for flavor_index, flavor in enumerate(flavors):
-            closure.pin(
-                flavor.path,
-                boundary=boundary,
-                label=f"flavor-manifest:{flavor_index}",
-                expected_identity=flavor.source_identity,
-            )
-            references = (
-                *flavor.definition.specification_fragments,
-                *flavor.definition.authoring_inputs,
-                *(item.content for item in flavor.definition.contributions),
-            )
-            for reference_index, reference in enumerate(references):
+                for asset_index, asset in enumerate(node.assets):
+                    _prepare_capture_asset(capture, closure, asset)
+                    current = _resolved_asset(
+                        node_root, asset.selector, boundary=boundary
+                    )
+                    _prepare_capture_asset(capture, closure, asset)
+                    if current.blob != asset.blob:
+                        raise ComponentLockPlanningError(
+                            "component_lock.asset_changed",
+                            f"asset {asset.selector.asset_id!r} changed during lock "
+                            "planning",
+                        )
+                    local_path = _asset_local_path(
+                        node_root, asset.selector.source, boundary=boundary
+                    )
+                    if local_path is not None:
+                        _prepare_capture_asset(capture, closure, asset)
+                        closure.pin(
+                            local_path,
+                            boundary=boundary,
+                            label=f"component-asset:{node_index}:{asset_index}",
+                            expected_identity=ContentIdentity.parse_uri(
+                                asset.blob.identity
+                            ),
+                        )
+            for flavor_index, flavor in enumerate(flavors):
+                _prepare_capture_flavor(capture, closure, flavor)
                 closure.pin(
-                    _resolve_path(flavor.path.parent, reference.uri, boundary=boundary),
+                    flavor.path,
                     boundary=boundary,
-                    label=f"flavor-content:{flavor_index}:{reference_index}",
-                    expected_identity=reference.identity,
+                    label=f"flavor-manifest:{flavor_index}",
+                    expected_identity=flavor.source_identity,
                 )
+                _prepare_capture_flavor(capture, closure, flavor)
+                references = (
+                    *flavor.definition.specification_fragments,
+                    *flavor.definition.authoring_inputs,
+                    *(item.content for item in flavor.definition.contributions),
+                )
+                for reference_index, reference in enumerate(references):
+                    _pin_catalog_reference(
+                        closure,
+                        flavor.path.parent,
+                        reference,
+                        boundary=boundary,
+                        label=f"flavor-content:{flavor_index}:{reference_index}",
+                        component=False,
+                        capture=capture,
+                    )
         if (
             _component_markdown_paths(
                 authoring_roots, boundary=boundary, scale_limits=scale_limits

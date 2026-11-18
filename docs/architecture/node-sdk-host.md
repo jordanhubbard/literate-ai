@@ -180,3 +180,27 @@ original paths, boundaries, bytes and labels. Equal-value idempotent pinning is
 ordinary DATA; changing an aliased frozen entry cannot silently retarget an
 already captured observation. Local read benchmarks do not establish complete
 SDK throughput or extend the ordinary 30-minute BUILD authorization.
+
+
+Local catalog-reference capture also shares bounded original directory topology
+within one synchronous validation. The strict default POSIX reader holds at most
+62 directory descriptors, reserving two for legacy fallback. Each payload uses
+its original entry's parent FD and complete original ancestor chain, with fresh
+named/held checks before and after bounded reading. No currentness or payload
+result is cached. The constructor's immutable tuple slot retains its original
+cleanup stack independently of mutable lookup/projection fields; substitution
+refuses admission while cleanup closes only original handles. This does not claim
+protection against arbitrary changes to trusted methods or ExitStack internals.
+Reentrant include/read/close attempts permanently fail the active capture even
+when a callback catches their immediate exception.
+
+Expected content identity is detached before blocking reads in both the ordinary
+pin and strict capture paths. A declined strict read preserves its original path
+and expectation through the complete ordinary validation path. Capacity or
+unavailable native identity declines before payload reading; I/O, drift and
+cleanup failures never retry. Remote/custom/unsupported reference or Flavor
+shapes close the shared view before ordinary dispatch, including a second Flavor
+shape check after its blocking manifest read. Local asset resolution remains on
+its existing owner; catalog membership discovery and final input-closure
+validation run after the shared view closes. These checks add no execution grant
+or BUILD duration and do not qualify native Windows or identity-less filesystems.

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Share bounded original directory topology across local catalog-reference reads,
+  retaining fresh file/namespace checks and ordinary fallback. Fence reentrant
+  reads, preserve original cleanup ownership and snapshot expected identities
+  before blocking I/O. Discovery, asset handling and authorization stay live.
+
 - Share SDK operation entry/exit validation with the existing process-liveness
   context, removing only adjacent duplicate checks. Provider custody, final
   witnesses, callback cuts and original authorization expiry remain unchanged.

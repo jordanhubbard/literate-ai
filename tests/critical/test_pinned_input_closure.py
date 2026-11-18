@@ -1,14 +1,41 @@
 from __future__ import annotations
 
+import hashlib
 import os
 import tempfile
 import unittest
 from pathlib import Path
 
+from literate_ai.contracts.identity import canonical_identity
 from literate_ai.projects import PinnedInputClosure, PinnedInputClosureError
 
 
 class PinnedInputClosureTests(unittest.TestCase):
+    def test_expected_identity_is_detached_before_ordinary_read(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            path = root / "authority"
+            content = b"actual pinned input"
+            path.write_bytes(content)
+            expected = canonical_identity("different original expectation")
+            correct = hashlib.sha256(content).hexdigest()
+            closure = PinnedInputClosure()
+            read = closure._read
+
+            def changed(*args, **kwargs):
+                result = read(*args, **kwargs)
+                object.__setattr__(expected, "digest", correct)
+                return result
+
+            closure._read = changed
+            with self.assertRaises(PinnedInputClosureError) as caught:
+                closure.pin(
+                    path, boundary=root, label="original", expected_identity=expected
+                )
+            self.assertEqual(caught.exception.code, "inputs.closure_identity_changed")
+            self.assertEqual(expected.digest, correct)
+            self.assertEqual(closure.file_count, 0)
+
     def test_mutation_is_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

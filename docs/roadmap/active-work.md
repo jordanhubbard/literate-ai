@@ -1155,6 +1155,43 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       error/fallback policies and avoid remote/custom-reader overlap. Prototype
       monkeypatches and private-cell inspection are benchmark-only DATA, not
       source, error-path, descriptor-limit or native SDK qualification.
+      Production now implements that bounded local-reference capture: retain
+      original immutable topology while checking current descriptor/name identities
+      on every read; close the view before discovery and final closure validation.
+      The strict default POSIX path reserves two of 64 descriptors for ordinary
+      fallback, keeps local asset handling on its original owner, and retires before
+      remote/custom/unsupported metadata dispatch. An actual manifest-read injection
+      checks that a late nonstandard Flavor contribution is retired before its
+      getter executes. Capture owns the whole payload read through file close and
+      rejects swallowed reentry. Immutable tuple ownership prevents a substituted
+      cleanup projection from closing foreign handles or leaking original ones.
+      Expected identities are snapshotted before blocking I/O in both ordinary and
+      strict paths; two maintained red controls reproduced wrong-expectation
+      admission before correction. The original expectation/path also survives
+      a declined strict read into the full ordinary fallback. All 89 connected
+      input, closure, cache, planning and command-projection checks pass in 12.128
+      seconds on the final candidate. Independent read-only source review verifies
+      all 1,277 members, the exact three-path production delta and
+      `sha256:a178141cac243213311bf2ba5c9f9ba65f1811d59e9a4e1e1f21ec12b241429d`.
+      A fresh 24-pair alternating DATA-only comparison to exact committed
+      `78206040` methods measures 30.955 versus 25.972 ms medians (16.10% local
+      reduction); source hashes remain frozen. No children, grants or lifecycle
+      are exercised by that benchmark. The preceding actual implementation probe
+      measured only 1.31%; the later topology-record implementation measures
+      the larger reduction in this separate paired run.
+      One diagnostic rerun accidentally overwrote the original `41de5846`
+      benchmark's raw JSON samples and pstats. Its original text log, including
+      the historical 31.113 ms result and textual profile, survives. The new
+      outputs were renamed as current probes and an explicit artifact-loss record
+      retained. The lost raw evidence is not reconstructed or claimed available;
+      the new balanced comparisons have separate preserved outputs. The broader
+      SDK Make gate selects 211 cases: 142 pass and 69 retain prerequisite skips
+      in 116.953 seconds. All 29 actual-provider/process-liveness controls pass
+      in 153.970 seconds with the local TypeScript SDK enabled. Independent review
+      approves the source and documentation, including the artifact-loss limit;
+      the exact reviewed source pin is recorded. Complete two-provider acceptance
+      still determines qualification; neither local timing nor source review
+      establishes sufficient expiry margin.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
