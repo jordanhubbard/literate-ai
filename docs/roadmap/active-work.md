@@ -778,10 +778,250 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       lint, formatting and whitespace checks pass. The original TCB pin remains
       unchanged/stale across 65 tracked implementation paths. Independent
       state/security review accepts the source, corrected checks and evidence
-      scope for this local source-only checkpoint. The next action is actual
-      two-provider SDK BUILD/cache/TEST/EXEC/PACKAGE and relocated original root
-      acceptance; no complete multi-provider SDK lifecycle is claimed yet.
-      Genuine foreign-registry receipt coverage remains a separate obligation. The
+      scope for this local source-only checkpoint. The next action in progress
+      is actual two-provider SDK BUILD/cache/TEST/EXEC/PACKAGE and relocated
+      original root acceptance. Extend the same authored SDK fixture to compose
+      both original providers, retain every provider blob in SBOM/graph/package
+      custody, and run the existing six-TypeScript/two-runtime root checker.
+      This remains owned-port fixture qualification, not runtime orchestration,
+      model output or installed acceptance. No complete multi-provider SDK
+      lifecycle is claimed. The first full two-provider case terminates with
+      an error in 1303.920 seconds after actual BUILD/cache/TEST/EXEC, during
+      PACKAGE, before original root acceptance. A Node revalidation probe exceeds
+      its unchanged 15-second total deadline at 17.054 seconds and is wrapped as
+      a toolchain-change refusal. Preserve the failed outcome; do not call it
+      tool-byte drift or relax deadlines. Three fresh bare Node discovery and
+      revalidation samples take 0.078–0.084 seconds. The next diagnostic profiles
+      actual SDK cohort guard overhead with original scopes and a real probe;
+      no callback, catalog revalidation or grant fence may be removed to obtain
+      a pass. A diagnostic import-path setup failure is retained separately.
+      The actual two-provider diagnostic completes: an unprofiled original
+      owned-guard read takes 0.645 seconds; a profiled guarded Node probe returns
+      successfully in 19.523 seconds including final checks. The profile records
+      240 full snapshot/catalog checks and 32 public request-description calls
+      that repeat custody validation (5.392 seconds cumulative), alongside 32
+      separate full subject checks. Profiling overhead affects elapsed time; this
+      does not reproduce the full PACKAGE failure or establish a normal latency.
+      The candidate keeps the public validating request API and all catalog,
+      inherited liveness, subject, oracle/file and grant checks, but moves fixed
+      request description inside the established provider verifier to a private
+      metadata-only role. Pin original registry-entry and scope-field identities,
+      reject retargeting before initial file reads, and close that same entry and
+      request metadata after the final clock without removing replacement state.
+      Both new native boundary checks fail against the original owner in 9.271
+      seconds: retargeting after validation reaches an unowned initial file
+      capture, and replacing the final registry entry allows a result to return.
+      The candidate pins original entry, scope/path/file primitives and request
+      metadata, closes mapping callbacks before initial capture, retains full
+      subject validation, and checks that same entry after the last clock.
+      Retire only an original failed entry; preserve replacement registry state.
+      Corrected cuts pass in 8.583 seconds; all 31 actual provider/admission
+      cases pass in 228.846 seconds. Source bytes remain unchanged across those
+      runs. Matched diagnostic profiling then records an ordinary owner check of
+      0.503 seconds and a successful profiled probe of 14.328 seconds; inherited
+      guard calls remain 24, separate full subject checks remain 32 and full
+      snapshot checks fall from 240 to 176 by removing only duplicated custody
+      from request description. Profiling is diagnostic, not a general latency
+      or full PACKAGE qualification. No deadline or catalog/liveness validation
+      is relaxed. Independent source/security review accepts this role boundary.
+      The authored
+      cell selects fresh finite 45-minute constrained provider-verifier grants
+      before entering either scope; the prior one-provider cell retains 30
+      minutes. Ordinary SDK BUILD and the separate root verifier retain their
+      existing 30-minute and 15-minute bounds. Keep real clock sampling and do
+      not extend active grants. The first full attempt used unchanged product code
+      from the bounded admission checkpoint. That canonical fixture declared only
+      its root public module; provider subpaths were not public SDK subpath acceptance. Existing public root/subpath runtime
+      checks use synthetic compiled composition fixtures. Qualify an actual
+      canonical packed SDK with explicit public subpath exports separately.
+      The original current ESM harness loads the declared runtime file, while
+      CJS uses the package specifier; do not claim bare ESM package-resolution
+      coverage from this active cell. Preserve both obligations before closing
+      the broader packed root/subpath acceptance requirement. A separate small
+      native runtime check will reproduce bare ESM root/subpath resolution with
+      an original loaded oracle and the actual current runtime owner before any
+      implementation change. That real two-child check fails in 1.249 seconds:
+      CJS bare root/subpath imports pass, while ESM reports ERR_MODULE_NOT_FOUND
+      from the fresh verifier workspace, which has no SDK package binding.
+      Future namespace staging must retain complete original/package-copy bytes,
+      membership and callback/child-boundary custody; it supplies no new grant
+      or resolver and must preserve explicit platform qualification limits.
+      Product source now has the separately reviewed provider-role candidate.
+      The namespace candidate reuses the canonical declaration projection's exact
+      node_modules file image and the runtime's existing fresh writer. It snapshots
+      bounded path/bytes/mode primitives before callbacks, preserves legacy runtime
+      identities when absent, binds supplied namespace identity into runtime DATA,
+      and holds complete original POSIX namespace stamps through children,
+      observers and final oracle exit. Unsupported namespace custody refuses
+      before files; there is no weaker platform fallback or new grant/resolver.
+      The first combined runtime run selects 21 cases: 20 pass, one negative
+      fixture expects ERR_MODULE_NOT_FOUND but its own realpath preflight emits
+      ENOENT for an absent target. Preserve that outcome; refine the case to an
+      unexported subpath requiring native ERR_PACKAGE_PATH_NOT_EXPORTED, then rerun.
+      The corrected export-map case and combined runtime suite pass all 26
+      selected cases in 36.276 seconds. An added high-level unsupported-host case
+      initially fails from a missing test import; its corrected rerun passes in
+      1.141 seconds before any compiler child or runtime stage.
+      Independent review then finds two original-stamp gaps: per-file staging
+      callbacks precede the initial complete capture, and high-level callbacks
+      and outer oracle exit follow the runtime owner's close. Both deterministic
+      actual checks reproduce escaped results in 8.740 seconds. The corrected
+      candidate writes the bounded immutable batch without callbacks, captures
+      immediately, and retains the same guard through a private outer ExitStack;
+      standalone closure remains unconditional. No deadline, grant or platform
+      fallback changes. The stronger full two-provider root-plus-public-math
+      fixture is authored with separate original declaration cases (twelve actual
+      TypeScript children) and bare root/subpath CJS/ESM harnesses. Its first r2
+      attempt was interrupted by this agent for those review repairs before any
+      product edit; retain the KeyboardInterrupt outcome and source inventory.
+      All 29 final runtime/namespace/joined-verifier checks pass in 43.520 seconds,
+      including both review cuts. Independent review accepts that source slice.
+      The SDK Make gate selects 180 cases: 117 pass, 63 retain prerequisite skips,
+      zero fail (123.237 seconds). Fresh actual foreign-registry qualification on
+      the combined candidate passes in 338.819 seconds.
+      The fresh full two-provider root-plus-math attempt reaches PACKAGE, packaged
+      TEST/EXEC and the original declaration phase, then fails during root runtime
+      verification after 1904.962 seconds. The original first provider BUILD grant
+      expires at its unchanged finite 30-minute lifetime; cleanup subsequently
+      surfaces retired-scope errors while preserving authorization_expired in the
+      exception chain. Both provider-verifier grants had fresh 45-minute bounds;
+      those did not extend the independent ordinary producer BUILD grant. All nine
+      recorded Python source hashes remain unchanged. Original root acceptance
+      does not return, so this is not a full passing qualification. Never extend
+      that expired grant or suppress its validation. Further source inspection
+      confirms StandardAuthorizationInputs hardcodes the independent 30-minute
+      BUILD lifetime and exact authorization comparison. There is no current
+      fixture knob for a longer ordinary grant. Do not monkeypatch policy, alter
+      clocks or renew old grants to obtain a pass. Reduce legitimate overhead or
+      obtain separate reviewed finite-duration policy work; preserve the original
+      Node probe deadline and all expiry controls.
+      This namespace seam does not itself qualify canonical public aliases or
+      Windows custody. Complete full-root acceptance remains open.
+      The next action in progress is one cumulative custody/binding repair batch
+      before repeating the full candidate. Independent comparison reconstructs
+      the original TCB pin exactly from baseline 101315c4a699579534a06141e975439951166e1d;
+      the frozen dirty TCB is 81d1b1df9c0dcfa7f86a9d2069366c395bf457dee8e88d085dd0768e4f05af41.
+      Its 65 changed paths contain 10,850 insertions and 565 deletions. Contract,
+      schema and shipped/canonical Flavor/skill partitions have no reviewed
+      blocker (26 TCB paths plus corresponding schemas/canonical files). Compiler
+      and verifier partitions expose additional open cuts; this is no blanket
+      cumulative approval or permission to repin. Remaining joins are under review.
+      Actual isolated lower-owner reproductions establish these repair obligations:
+      projection final callbacks can rewrite equal bytes; fresh projection guards
+      can adopt an offline npm observer's replacement; a redirected ancestor can
+      retain every descendant stamp; actual compiler and declaration children can
+      be relabeled from callback-mutated caller DTOs; repeated declaration paths
+      retain 960,752 source bytes while charging 243,491 under a 524,288-byte quota;
+      cache callbacks can redirect publication or substitute staged payloads.
+      Source review additionally identifies membership-unlink and complete package
+      destination lifetime cuts, including resource/export writes, package capture
+      and binding. Add maintained red/green coverage for every claimed repair.
+      Reuse original finite guards and immutable primitive snapshots across joins;
+      hold original copy custody through children, observers and final callbacks.
+      Share ancestor identity checks without rejecting unrelated sibling writes.
+      Keep strong SDK namespace custody explicitly POSIX-only; generic cache must
+      preserve reliable Windows handle identity rather than a weaker inode guess
+      or blanket Windows refusal. No TCB repin, installation, activation or complete
+      multi-provider acceptance follows from these partial observations.
+      The first maintained four binding/quota/environment checks reproduce three
+      failed assertions and one actual-child error in 9.713 seconds; the repaired
+      snapshots, conservative source charging and environment policy v2 pass all
+      four in 9.997 seconds. Shared ancestor closure reproduces two escapes out of
+      three checks, then passes all seven ancestry/pinned-input checks in 0.038
+      seconds. Five composition/npm boundary checks reproduce four escapes and an
+      unsupported-host setup error in 24.834 seconds; the persistent original copy
+      scope and bounded callback-free writer pass all 23 composition/package
+      checks in 95.486 seconds. The former per-file callback-count assertion is
+      replaced by explicit failure-boundary checks; failed writes remain retained.
+      Cache effect repair keeps original configuration, held parent/object
+      identities, anchored POSIX effects and original-only cleanup. The first six
+      reds include a retirement fixture whose trigger missed a liveness wrapper;
+      preserve that provisional result. The corrected trigger against the exact
+      original HEAD retirement method confirms actual foreign-file deletion.
+      The corrected effect/retirement/hardening set passes 11 cases; extended cache
+      coverage passes 21 in 1.029 seconds. Nine final effect cases pass in 0.519
+      seconds, including controlled native-ID fallback for zero Python inode and
+      unavailable-identity refusal. These facade cases are POSIX-hosted, not native
+      Windows qualification. Independent source review accepts the cache delta;
+      its two facade cases are explicitly limited to their POSIX test machinery.
+      Package destinations now retain bounded original partial-file/export
+      observations through later writes, capture and binding, then close against
+      the complete original namespace before retiring those partial observations.
+      Independent review also requires exact original-root containment and a
+      reconstructed relative path/content/mode inventory; equal counts and bytes
+      cannot retire one tree's originals in favor of another tree. That correction
+      is in place. A single-use read-only move observation preserves descendant
+      stamps and
+      permits only the known exclusive rename's root-ctime change. All 26 package
+      and move-custody controls pass in 0.053 seconds, including equal-byte
+      rewrites at the capture/bind boundary, occupied destinations and foreign
+      children. The package caller uses the existing exclusive publication owner
+      and immediately transfers its retained witness without an intervening
+      callback. Original staging ancestry is bound before the first export's
+      callback. SDK parent creation uses the shared no-follow directory owner so a
+      prior-export callback's alias cannot create descendants in a foreign tree.
+      All 29 package/move checks pass in 0.090 seconds on this refinement.
+      Unknown occupied SDK destinations refuse; failed SDK stages remain
+      retained rather than recursively deleting another writer's files.
+      BUILD handoff and reserved-output repair have source review; final native
+      checks remain in progress.
+      The maintained actual compiler/packer tarball-link control against the
+      exact original HEAD BUILD function confirms an outside file is overwritten
+      (failed assertion, 43.951 seconds). Its earlier trial stops at a later
+      alias-reader error; preserve that provisional result. The SDK writer now
+      creates reserved tarball, metadata, manifest and resolved-SBOM files
+      exclusively, retaining each original witness through subsequent callbacks.
+      The original export spans packing, and the complete workspace must match
+      exactly those owned outputs before exclusive publication and observation
+      transfer. Known live compiled-plan cache reuse remains; unknown cold output
+      and checkpoint destinations refuse rather than replace existing data.
+      SDK checkpoint publication avoids the predictable legacy temporary name,
+      checks ancestors before creating children and retains its original file
+      observation through the remaining BUILD callbacks. Three focused checkpoint
+      controls and the eight pre-final BUILD cases pass as an 11-case batch in
+      342.571 seconds. Subsequent review extends the original cached-output
+      witness through final liveness close and retains the same private output
+      observations outside the entire BUILD consume operation, after its last
+      owner callbacks. The original object root is pinned before BUILD/package
+      callbacks as well. The final-source batch passes all 15 cases in 537.141
+      seconds, including cache reuse, actual compiler/packer reserved-path
+      refusals, original-copy and final-context-exit rewrites, root redirection,
+      packaged TEST/EXEC and relocated consumers. All 33 inventoried Python files
+      remain unchanged through that run. The 21 shared CycloneDX/cache effect,
+      retirement and hardening checks also pass in 0.597 seconds. These scoped
+      results are not complete multi-provider runtime approval. Independent cumulative
+      source review reconstructs the actual baseline and its 1,238-member pin,
+      matches all 67 changed paths and the current 1,277-member TCB identity
+      `sha256:5c8d35cd199fd3a194d832dc36c9e2fc557adc4c9c7d609533740ef6aec81b78`,
+      and finds no remaining source blocker after the seven partition reviews and
+      repair joins. The source pin is recorded at exactly that independently
+      reviewed TCB after the 15-case native batch passes. The broader SDK Make
+      gate selects 197 cases: 132 pass and 65 retain prerequisite skips in 116.730
+      seconds. Lint/format, repository layout, host-path policy, documentation
+      authority and project validation pass. Ordinary local-adapter and legacy
+      runtime coverage selects 18 cases: 17 pass and one retains its declared skip
+      in 10.257 seconds. This reviewed source checkpoint retains SDK cold recovery,
+      full current-candidate orchestration and downstream activation as open gates.
+      After recording the checkpoint, address shared-interface attribution and
+      profile repeated locked-snapshot planning before another expensive full
+      two-provider/root-subpath acceptance run. Preserve callback/expiry checks
+      and the ordinary 30-minute BUILD policy throughout that performance work.
+      This evidence supplies no complete-runtime,
+      installed, platform, downstream-cutover or activation acceptance.
+      Genuine foreign-registry receipt coverage is a separate native subproof
+      alongside the frozen full SDK run. Use two actual independently built and
+      accepted provider inventories with identical locked revisions/interfaces
+      but distinct authored source bytes. Keep the foreign original scopes live
+      while attempting reuse in the local owner; require registered-stage refusal
+      before a verifier grant, preserve both scope registries and finish the
+      original local invocation afterward. Existing frozen fixture helpers and
+      product source must remain unchanged. This genuine live-foreign-registry
+      native case passes in 388.722 seconds: both foreign artifacts have different
+      sealed source bytes but the same original locked graph/revisions, their
+      original scopes remain live during local registered-stage refusal before
+      verifier grants, both owners unwind their counters, and the local owned
+      invocation subsequently passes. Independent scope review covers this test;
+      final evidence review is pending. The
       independent actual aggregate custody-byte-budget refusal passes in
       148.722 seconds: lowering only the fixture budget to its first live charge
       refuses the second actual provider and unwinds both accounting counters to

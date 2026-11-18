@@ -19,7 +19,10 @@ from pathlib import Path
 
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.builders.javascript import NodeToolchain
-from literate_ai.adapters.directory_artifacts import DirectoryExportFile
+from literate_ai.adapters.directory_artifacts import (
+    DirectoryExportFile,
+    snapshot_directory_file,
+)
 from literate_ai.adapters.node_sdk_tools import (
     SDK_TOOL_ENVIRONMENT_POLICY,
     NodeSDKToolProcess,
@@ -42,6 +45,7 @@ def _inventory(
 ) -> tuple[DirectoryExportFile, ...]:
     if not isinstance(files, tuple) or not 1 <= len(files) <= maximum:
         raise ValueError("TypeScript file inventory exceeds its bound")
+    files = tuple(snapshot_directory_file(item) for item in files)
     total = 0
     for item in files:
         if (

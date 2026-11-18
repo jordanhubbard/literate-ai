@@ -19,6 +19,7 @@ from unittest import mock
 from literate_ai.adapters.builders.javascript import discover_npm_toolchain
 from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.lifecycle import LocalComponentToolBinding
+from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecycleError
 from literate_ai.adapters.lifecycle.standard_node_sdk import StandardNodeSDKTarget
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
@@ -315,6 +316,226 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
                         ["node16", "node16", "nodenext", "nodenext"],
                     )
 
+    def _reserved_output_fault(self, reserved):
+        """Actual compiler/packer plus an occupied path at the last write boundary."""
+        from literate_ai.adapters import node_sdk_packaging
+        from literate_ai.adapters.dependencies import CycloneDxLifecycleResolver
+
+        outside = self.f.fixture.root / "reserved-path-outside"
+        outside.write_bytes(b"preserve outside bytes")
+        injected = []
+        real_pack = node_sdk_packaging.pack_node_sdk
+        real_manifest = self.ports._write_artifact_manifest
+        real_record = self.ports._record_evidence
+        real_resolve = CycloneDxLifecycleResolver.resolve
+        manifest_root = []
+
+        def occupy(path):
+            path.parent.mkdir(exist_ok=True)
+            path.symlink_to(outside)
+            injected.append(path)
+
+        def pack(*args, **kwargs):
+            result = real_pack(*args, **kwargs)
+            if reserved in {"node-sdk.tgz", "node-sdk.json"}:
+                occupy(Path(args[1]).parent / "artifact" / reserved)
+            return result
+
+        def manifest(plan, root, *args, **kwargs):
+            manifest_root[:] = [root]
+            return real_manifest(plan, root, *args, **kwargs)
+
+        def record(document):
+            result = real_record(document)
+            if (
+                reserved == "artifact-manifest.json"
+                and document.get("schema") == "literate-ai/local-build-observation@1"
+                and manifest_root
+            ):
+                occupy(manifest_root[0] / reserved)
+            return result
+
+        def resolve(resolver, *args, **kwargs):
+            if reserved == ".literate/resolved-sbom.cdx.json":
+                occupy(resolver.evidence_path)
+            return real_resolve(resolver, *args, **kwargs)
+
+        def build(invocation, _guard):
+            providers, _ = self.prepare(invocation)
+            initial_misses = self.ports.build_cache_misses
+            with (
+                mock.patch.object(node_sdk_packaging, "pack_node_sdk", pack),
+                mock.patch.object(self.ports, "_write_artifact_manifest", manifest),
+                mock.patch.object(self.ports, "_record_evidence", record),
+                mock.patch.object(CycloneDxLifecycleResolver, "resolve", resolve),
+            ):
+                with self.assertRaises(
+                    (ValueError, OSError, LocalStandardLifecycleError)
+                ):
+                    self.ports.build(self.plan, providers)
+            self.assertEqual(
+                len(injected), 1, "fault did not reach actual write boundary"
+            )
+            self.assertTrue(
+                injected[0].is_symlink(), "foreign reserved name was removed"
+            )
+            self.assertEqual(outside.read_bytes(), b"preserve outside bytes")
+            self.assertEqual(self.ports.build_cache_misses, initial_misses)
+            self.assertFalse(self.ports._node_sdk_compiled_plans)
+
+        self.owned(build)
+
+    def test_actual_pack_cannot_redirect_reserved_tarball_write(self):
+        self._reserved_output_fault("node-sdk.tgz")
+
+    def test_actual_pack_cannot_redirect_reserved_metadata_write(self):
+        self._reserved_output_fault("node-sdk.json")
+
+    def test_last_evidence_callback_cannot_redirect_manifest_write(self):
+        self._reserved_output_fault("artifact-manifest.json")
+
+    def test_resolver_cannot_replace_occupied_reserved_sbom_name(self):
+        self._reserved_output_fault(".literate/resolved-sbom.cdx.json")
+
+    def test_build_original_projection_survives_packer_callback(self):
+        from literate_ai.adapters import node_sdk_packaging
+
+        real_pack = node_sdk_packaging.pack_node_sdk
+        changed = []
+
+        def pack(composition, pack_root, **kwargs):
+            packed = real_pack(composition, pack_root, **kwargs)
+            row = next(row for row in composition.files if row.path.startswith("cjs/"))
+            path = (
+                Path(pack_root).parent
+                / "artifact"
+                / self.f.consumer.artifact_export.export_id
+                / row.path
+            )
+            before = path.stat()
+            path.write_bytes(path.read_bytes())
+            os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+            changed.append(path)
+            return packed
+
+        def build(invocation, _guard):
+            providers, _ = self.prepare(invocation)
+            with mock.patch.object(node_sdk_packaging, "pack_node_sdk", pack):
+                with self.assertRaisesRegex(
+                    ValueError, "changed before inventory close"
+                ):
+                    self.ports.build(self.plan, providers)
+            self.assertEqual(len(changed), 1)
+            self.assertTrue(changed[0].is_file())
+            self.assertFalse(self.ports._node_sdk_compiled_plans)
+
+        self.owned(build)
+
+    def test_initial_build_clock_cannot_redirect_original_object_root(self):
+        import inspect
+
+        def build(invocation, _guard):
+            providers, _ = self.prepare(invocation)
+            original_root = self.ports.object_root
+            outside = original_root.parent / "foreign-sdk-output"
+            outside.mkdir()
+            real_clock = self.ports.clock
+            changed = []
+
+            def clock():
+                now = real_clock()
+                if not changed and any(
+                    frame.function == "guard"
+                    and frame.filename.endswith("/lifecycle/standard_node_sdk.py")
+                    for frame in inspect.stack()
+                ):
+                    self.ports.object_root = outside
+                    changed.append(True)
+                return now
+
+            try:
+                self.ports.clock = clock
+                with self.assertRaisesRegex(
+                    ValueError, "configuration changed at close"
+                ):
+                    self.ports.build(self.plan, providers)
+            finally:
+                self.ports.clock = real_clock
+                self.ports.object_root = original_root
+            self.assertEqual(changed, [True])
+            self.assertEqual(tuple(outside.iterdir()), ())
+            self.assertFalse(self.ports._node_sdk_compiled_plans)
+
+        self.owned(build)
+
+    def _cache_exit_rewrite(self, boundary):
+        import inspect
+
+        from literate_ai.application import standard_node_sdk_admission as admission
+
+        def build(invocation, _guard):
+            providers, _ = self.prepare(invocation)
+            built = self.ports.build(self.plan, providers)
+            path = self.ports.artifact_path(built.exports[0]).parent / "node-sdk.tgz"
+            changed = []
+
+            def rewrite():
+                before = path.stat()
+                path.write_bytes(path.read_bytes())
+                os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                changed.append(True)
+
+            real_clock = self.ports.clock
+            real_consume = admission.consume_node_sdk_build
+
+            def clock():
+                now = real_clock()
+                if (
+                    not changed
+                    and boundary == "liveness"
+                    and any(
+                        frame.function == "process_liveness"
+                        and frame.frame.f_locals.get("completed") is True
+                        and getattr(
+                            getattr(
+                                frame.frame.f_locals.get("require_current"),
+                                "__code__",
+                                None,
+                            ),
+                            "co_filename",
+                            "",
+                        ).endswith("/lifecycle/standard_node_sdk.py")
+                        for frame in inspect.stack()
+                    )
+                ):
+                    rewrite()
+                return now
+
+            def consume(*args, **kwargs):
+                result = real_consume(*args, **kwargs)
+                if boundary == "consume" and not changed:
+                    rewrite()
+                return result
+
+            self.ports.clock = clock
+            try:
+                with mock.patch.object(admission, "consume_node_sdk_build", consume):
+                    with self.assertRaisesRegex(
+                        ValueError, "changed before inventory close"
+                    ):
+                        self.ports.build(self.plan, providers)
+            finally:
+                self.ports.clock = real_clock
+            self.assertEqual(changed, [True], "fault did not reach final callback")
+
+        self.owned(build)
+
+    def test_cached_original_output_survives_final_liveness_callback(self):
+        self._cache_exit_rewrite("liveness")
+
+    def test_cached_original_output_survives_outer_consume_callback(self):
+        self._cache_exit_rewrite("consume")
+
     def test_revoked_build_grant_cannot_compile_or_publish(self):
         def build(invocation, _guard):
             providers, authorization = self.prepare(invocation)
@@ -470,6 +691,99 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
                 self.ports.node_sdk_targets[uri] = self.target
 
         self.owned(build)
+
+
+@unittest.skipUnless(os.name == "posix", "requires original checkpoint stamps")
+class SDKCheckpointObservationTests(unittest.TestCase):
+    def _fixture(self, root):
+        from literate_ai.adapters.lifecycle.standard_local import (
+            LocalStandardLifecyclePorts,
+        )
+
+        cache = canonical_identity("checkpoint unit cache")
+        artifact = root / "artifact"
+        artifact.mkdir()
+        (artifact / "index.js").write_bytes(b"original")
+        path = root / ".literate/artifact-checkpoints" / (cache.digest + ".json")
+        ports = SimpleNamespace(
+            object_root=root,
+            _artifact_checkpoint_path=lambda _cache: path,
+            _artifact_checkpoints={},
+        )
+        plan = SimpleNamespace(
+            identity=canonical_identity("unit plan"),
+            request=SimpleNamespace(
+                authorization_identity=canonical_identity("unit grant")
+            ),
+        )
+        return (
+            ports,
+            plan,
+            cache,
+            artifact,
+            path,
+            LocalStandardLifecyclePorts._publish_artifact_checkpoint,
+        )
+
+    def test_occupied_final_name_is_preserved_at_last_owner_callback(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            ports, plan, cache, artifact, path, publish = self._fixture(root)
+            outside = root / "outside"
+            outside.write_bytes(b"preserve")
+            calls = []
+
+            def current():
+                calls.append(True)
+                if len(calls) == 2:
+                    path.symlink_to(outside)
+
+            with self.assertRaises(FileExistsError):
+                publish(ports, cache, plan, artifact, require_current=current)
+            self.assertTrue(path.is_symlink())
+            self.assertEqual(outside.read_bytes(), b"preserve")
+            self.assertFalse(ports._artifact_checkpoints)
+
+    def test_predictable_legacy_temporary_name_is_not_used(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            ports, plan, cache, artifact, path, publish = self._fixture(root)
+            path.parent.mkdir(parents=True)
+            outside = root / "outside"
+            outside.write_bytes(b"preserve")
+            temporary = path.parent / ("." + cache.digest + ".json.tmp")
+            temporary.symlink_to(outside)
+            observations = []
+            tree = publish(
+                ports,
+                cache,
+                plan,
+                artifact,
+                require_current=lambda: None,
+                retain_observation=observations.append,
+            )
+            self.assertEqual(ports._artifact_checkpoints[cache.uri], tree)
+            self.assertEqual(len(observations), 1)
+            observations[0]()
+            self.assertTrue(temporary.is_symlink())
+            self.assertEqual(outside.read_bytes(), b"preserve")
+            before = path.stat()
+            path.write_bytes(path.read_bytes())
+            os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+            with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+                observations[0]()
+
+    def test_ancestor_alias_refuses_before_creating_redirected_child(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            ports, plan, cache, artifact, _path, publish = self._fixture(root)
+            outside = root / "outside"
+            outside.mkdir()
+            (root / ".literate").symlink_to(outside, target_is_directory=True)
+            with self.assertRaises(RuntimeError):
+                publish(ports, cache, plan, artifact, require_current=lambda: None)
+            self.assertFalse((outside / "artifact-checkpoints").exists())
+            self.assertFalse(ports._artifact_checkpoints)
 
 
 if __name__ == "__main__":

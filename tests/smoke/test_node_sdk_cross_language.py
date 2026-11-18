@@ -15,7 +15,10 @@ from literate_ai.contracts.authoring_markdown import (
     parse_authoring_markdown,
     render_authoring_markdown,
 )
-from literate_ai.contracts.node_sdk import CommonJSModuleDeclaration
+from literate_ai.contracts.node_sdk import (
+    CommonJSModuleDeclaration,
+    NodeSDKExportDeclaration,
+)
 from tests.smoke.test_node_sdk_flavors import canonical_snapshot
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -32,6 +35,7 @@ def with_provider(
     corrupt_profile=False,
     provider_runtime="source/counter/api.js",
     second_provider=False,
+    public_subpath=False,
 ):
     def configure(component, flavors):
         source = component / "component.md"
@@ -58,6 +62,11 @@ def with_provider(
                 "media_type": "text/plain",
             }
         ]
+        if public_subpath:
+            package = value["library_imports"][0]["package"]
+            value["library_imports"][0]["node_sdk_exports"].append(
+                NodeSDKExportDeclaration(package + "/math", "index").to_dict()
+            )
         source.write_bytes(render_authoring_markdown(value, body))
         (component / "specs/spec.md").write_text(
             "# Addition SDK\n\n### Requirement: Exact integer addition\n\n"
@@ -76,6 +85,25 @@ def with_provider(
             "# Addition SDK interface\n\nThe public add(a,b) function returns "
             "the exact sum of two integers through its sealed provider.\n"
         )
+        if public_subpath:
+            alias_text = (
+                "The SDK exposes add(a,b) from both "
+                + package
+                + " and "
+                + package
+                + "/math with the same integer-addition and type contract.\n"
+            )
+            interface = component / value["provides"][0]["interface"]["uri"]
+            interface.write_text(interface.read_text() + "\n" + alias_text)
+            specification = component / "specs/spec.md"
+            specification.write_text(
+                specification.read_text()
+                + "\n### Requirement: Equivalent public module aliases\n\n"
+                + "The SDK SHALL expose the same typed addition function from its root "
+                + "and /math subpath.\n\n#### Scenario: Import either alias\n\n"
+                + "- **WHEN** add(1,2) is called through either public module\n"
+                + "- **THEN** it returns 3 in both CJS and ESM consumers\n"
+            )
         provider = component / "counter"
         (provider / "interfaces").mkdir(parents=True)
         (provider / "specs").mkdir()

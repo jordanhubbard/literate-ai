@@ -9,12 +9,14 @@ import stat
 import tempfile
 from pathlib import Path, PurePosixPath
 
-from literate_ai._filesystem import require_safe_directory
+from literate_ai._filesystem import capture_directory_ancestries, require_safe_directory
 from literate_ai.adapters.directory_artifacts import (
     DirectoryExportFile,
+    capture_materialized_file_stamps,
     capture_materialized_files,
     encode_directory_export,
     read_directory_export,
+    snapshot_directory_file,
 )
 from literate_ai.adapters.native_sdk_tree_custody import capture_native_sdk_tree
 from literate_ai.adapters.node_sdk_packaging import require_node_sdk_tarball_files
@@ -26,30 +28,173 @@ from literate_ai.contracts.executable_components.packages import (
     PackageFileKind,
     PackageInput,
 )
+from literate_ai.contracts.node_sdk import MAX_NODE_SDK_PROVIDERS
+from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.contracts.retained_project import RetainedProjectLimits
 from literate_ai.storage.cas import FileSystemCAS
 
 _LIMITS = RetainedProjectLimits(8192, 40 * 1024**2, 128 * 1024**2)
 
 
+class _PackageDestinations:
+    """Bounded original output observations; no admission or execution authority."""
+
+    def __init__(self):
+        self._state = self._original_state = ((), 0, 0, None)
+        self._stage = self._original_stage = None
+
+    def bind_staging(self, root):
+        if self._stage is not None or self._original() != ((), 0, 0, None):
+            raise ValueError("SDK package staging already bound")
+        root = Path(str(root))
+        self._stage = self._original_stage = (
+            root,
+            capture_directory_ancestries((root,)),
+        )
+
+    def _original(self):
+        if self._state is not self._original_state:
+            raise ValueError("SDK package destination observations changed")
+        return self._state
+
+    def _set(self, entries, count, size, complete):
+        self._state = self._original_state = (entries, count, size, complete)
+
+    def current(self):
+        if self._stage is not self._original_stage:
+            raise ValueError("SDK package staging observation changed")
+        if self._stage is not None:
+            self._stage[1]()
+        entries, _count, _size, complete = self._original()
+        for _key, _root, _rows, guard in entries:
+            if guard is None:
+                raise ValueError("SDK package destination write is incomplete")
+            guard()
+        if complete is not None:
+            complete[2]()
+
+    def reserve(self, key, root, files):
+        self.current()
+        entries, count, size, complete = self._original()
+        root = Path(str(root))
+        rows = self._rows(files)
+        if not root.is_absolute() or ".." in root.parts:
+            raise ValueError("SDK package destination root is unsafe")
+        for path, _content, _mode in rows:
+            canonical_relative_posix_path(path, label="package destination")
+        added_count, added_size = len(rows), sum(len(row[1]) for row in rows)
+        if (
+            complete is not None
+            or len(entries) >= MAX_NODE_SDK_PROVIDERS + 2
+            or any(
+                saved == key or path == root for saved, path, _rows, _guard in entries
+            )
+            or count + added_count > _LIMITS.max_entries
+            or size + added_size > _LIMITS.max_total_bytes
+        ):
+            raise ValueError(
+                "SDK package destination inventory exceeds original bounds"
+            )
+        self._set(
+            (*entries, (key, root, rows, None)),
+            count + added_count,
+            size + added_size,
+            None,
+        )
+
+    def finish(self, key, root, guard):
+        entries, count, size, complete = self._original()
+        if (
+            not entries
+            or entries[-1][:2] != (key, root)
+            or entries[-1][3] is not None
+            or complete is not None
+        ):
+            raise ValueError("SDK package destination reservation changed")
+        for _saved, _path, _rows, prior in entries[:-1]:
+            prior()
+        guard()
+        self._set(
+            (*entries[:-1], (key, root, entries[-1][2], guard)), count, size, None
+        )
+
+    @staticmethod
+    def _rows(files):
+        if type(files) is not tuple or len(files) > _LIMITS.max_entries:
+            raise ValueError(
+                "SDK package destination inventory exceeds original bounds"
+            )
+        return tuple(
+            (row.path, row.content, row.mode)
+            for row in (snapshot_directory_file(item) for item in files)
+        )
+
+    def complete(self, root, files, guard):
+        self.current()
+        entries, count, size, previous = self._original()
+        rows = self._rows(files)
+        if self._stage is not None and root != self._stage[0]:
+            raise ValueError("SDK complete package differs from original staging")
+        if previous is not None:
+            if root != previous[0] or rows != previous[1]:
+                raise ValueError("SDK package complete destination changed")
+            return previous[2]
+        if (
+            len(rows) > _LIMITS.max_entries
+            or sum(len(row[1]) for row in rows) > _LIMITS.max_total_bytes
+            or (
+                entries
+                and (count != len(rows) or size != sum(len(row[1]) for row in rows))
+            )
+        ):
+            raise ValueError(
+                "SDK package complete inventory differs from original writes"
+            )
+        original_rows = {}
+        for _key, original_root, original_files, _original_guard in entries:
+            try:
+                prefix = original_root.relative_to(root)
+            except ValueError as error:
+                raise ValueError(
+                    "SDK complete package differs from original destinations"
+                ) from error
+            for path, content, mode in original_files:
+                relative = (prefix / path).as_posix()
+                if relative in original_rows:
+                    raise ValueError("SDK package original destination paths overlap")
+                original_rows[relative] = (content, mode)
+        if entries and (
+            len(original_rows) != len(rows)
+            or original_rows != {path: (content, mode) for path, content, mode in rows}
+        ):
+            raise ValueError("SDK complete package differs from original destinations")
+        guard()
+        # Every partial witness closes against the complete original view before
+        # retirement. No owner callback occurs during this observation handoff.
+        self._set((), count, size, (Path(str(root)), rows, guard))
+        self._stage = self._original_stage = None
+        self.current()
+        return guard
+
+    def original(self, root, files):
+        self.current()
+        complete = self._original()[3]
+        if complete is None or root != complete[0] or self._rows(files) != complete[1]:
+            raise ValueError("SDK package has no original complete destination")
+        return complete[2]
+
+    def after_owned_move(self, root, *, expected_parent):
+        entries, count, size, complete = self._original()
+        if entries or complete is None:
+            raise ValueError("SDK package move lacks complete original custody")
+        guard = complete[2].after_owned_move(root, expected_parent=expected_parent)
+        self._set((), count, size, (Path(str(root)), complete[1], guard))
+        self.current()
+
+
 def _original_stamps(root, files):
     require_safe_directory(root)
-    files_current = capture_materialized_files(root, files)
-    parents = tuple(
-        (parent, (value.st_dev, value.st_ino, stat.S_IFMT(value.st_mode)))
-        for parent in root.parents
-        for value in (parent.lstat(),)
-    )
-
-    def close():
-        for parent, expected in parents:
-            value = parent.lstat()
-            if (value.st_dev, value.st_ino, stat.S_IFMT(value.st_mode)) != expected:
-                raise ValueError("SDK package original directory ancestry changed")
-        files_current()
-
-    close()
-    return close
+    return capture_materialized_files(root, files)
 
 
 def _capture(root, parent):
@@ -126,13 +271,16 @@ class LocalNodeSDKPackageResources:
         self._owner = owner
         self._ports, self._plan, self._export = ports, plan, export
         self._original_ports = ports
+        self._object_root = Path(str(ports.object_root))
+        self._object_root_stamps = capture_directory_ancestries((self._object_root,))
+        self._original_object_root = (self._object_root, self._object_root_stamps)
         self._root = ports.artifact_path(export).parent
         self._target = ports.node_sdk_targets[plan.component_revision.uri]
         self._contract = ports._contract(plan.component_revision)
         self._target.require_contract(self._contract)
         # The first access is a bounded capture, not a generic tree hash.
         owner()
-        files = _capture(self._root, ports.object_root)
+        files = _capture(self._root, self._object_root)
         self._stamps = _original_stamps(self._root, files)
         self._source_root = ports.source_trees.registered_root(
             plan.request.source_tree_identity
@@ -140,7 +288,7 @@ class LocalNodeSDKPackageResources:
         self._source_custody = ports.source_trees.registered_evidence(
             plan.request.source_tree_identity
         )
-        source_files = _capture(self._source_root, ports.object_root)
+        source_files = _capture(self._source_root, self._object_root)
         self._source_stamps = _original_stamps(self._source_root, source_files)
         self._original_stamps = self._stamps
         self._original_source_stamps = self._source_stamps
@@ -151,6 +299,8 @@ class LocalNodeSDKPackageResources:
         self._target_identity = self._target.identity
         self._original_owner = owner
         self._original_resources = None
+        self._destinations = _PackageDestinations()
+        self._original_destinations = self._destinations
         self._package_records = None
         self._export_inputs = self._original_export_inputs = ()
         self.require_current()
@@ -302,11 +452,14 @@ class LocalNodeSDKPackageResources:
         self._require_original_resources()
         self._require_package_metadata()
         if (
-            self._owner is not self._original_owner
+            self._original_object_root != (self._object_root, self._object_root_stamps)
+            or ports.object_root != self._object_root
+            or self._owner is not self._original_owner
             or self._ports is not self._original_ports
             or self._stamps is not self._original_stamps
             or self._source_stamps is not self._original_source_stamps
             or self._export_inputs is not self._original_export_inputs
+            or self._destinations is not self._original_destinations
             or ports._plans_by_revision.get(plan.component_revision.uri) is not plan
             or ports._contract(plan.component_revision) is not self._contract
             or ports.node_sdk_targets.get(plan.component_revision.uri)
@@ -338,6 +491,8 @@ class LocalNodeSDKPackageResources:
             ):
                 raise ValueError("SDK package original export membership changed")
             stamps()
+        self._object_root_stamps()
+        self._destinations.current()
 
     def owns_blob(self, reference):
         return reference == self._blob
@@ -350,16 +505,32 @@ class LocalNodeSDKPackageResources:
         self.require_current()
         return content
 
+    def bind_staging(self, root):
+        """Retain the caller-created original stage before any export callback."""
+        if self._destinations is not self._original_destinations:
+            raise ValueError("SDK package destination observations changed")
+        self._destinations.bind_staging(root)
+
     def materialize(self, root):
         self.require_current()
         destination = root / "root/node-sdk.tgz"
         content = self._original_resources[2]
+        files = (DirectoryExportFile(destination.name, content, 0o644),)
+        self._destinations.reserve("distribution", destination.parent, files)
         require_safe_directory(root)
         require_safe_directory(destination.parent)
         with destination.open("xb") as stream:
             stream.write(content)
         destination.chmod(0o644)
-        self.require_current()
+        self._destinations.finish(
+            "distribution",
+            destination.parent,
+            capture_materialized_file_stamps(destination.parent, files),
+        )
+        try:
+            self.require_current()
+        finally:
+            self._destinations.current()
 
     def materialize_export(self, export, destination):
         """Write immutable validated rows; never copy or traverse producer paths."""
@@ -370,6 +541,9 @@ class LocalNodeSDKPackageResources:
         if len(entries) != 1:
             raise ValueError("SDK package export is outside the original closure")
         _original, _identity, _source, content, rows, _stamps = entries[0]
+        files = tuple(DirectoryExportFile(*row) for row in rows)
+        key = "export:" + _identity.uri
+        self._destinations.reserve(key, destination, files)
         require_safe_directory(destination.parent)
         destination.mkdir()
         for path, payload, mode in rows:
@@ -379,13 +553,13 @@ class LocalNodeSDKPackageResources:
             with target.open("xb") as stream:
                 stream.write(payload)
             target.chmod(mode)
-        self.require_current()
-        _original_stamps(
-            destination,
-            tuple(
-                DirectoryExportFile(path, payload, mode) for path, payload, mode in rows
-            ),
-        )()
+        self._destinations.finish(
+            key, destination, _original_stamps(destination, files)
+        )
+        try:
+            self.require_current()
+        finally:
+            self._destinations.current()
         return content
 
     def capture_package(self, root, plan, read_blob):
@@ -420,20 +594,30 @@ class LocalNodeSDKPackageResources:
             if total > _LIMITS.max_total_bytes or len(expected) > _LIMITS.max_entries:
                 raise ValueError("SDK package exceeds capture limits")
         expected = tuple(sorted(expected, key=lambda row: row.path))
-        files = _capture(root, self._ports.object_root)
+        self._destinations.current()
+        files = _capture(root, self._object_root)
         if tuple(sorted(files, key=lambda row: row.path)) != expected:
             raise ValueError(
                 "SDK materialized package differs from exact planned inputs"
             )
-        self.require_current()
         stamps = _original_stamps(root, files)
-        stamps()
+        stamps = self._destinations.complete(root, files, stamps)
+        try:
+            self.require_current()
+        finally:
+            stamps()
         return files, stamps
+
+    def after_package_move(self, root, *, expected_parent):
+        """Observe the same package after the caller's exclusive owned move."""
+        if self._destinations is not self._original_destinations:
+            raise ValueError("SDK package destination observations changed")
+        self._destinations.after_owned_move(root, expected_parent=expected_parent)
 
     def bind_package(self, root, files):
         self.require_current()
         self._package_root = root
-        self._package_stamps = _original_stamps(root, files)
+        self._package_stamps = self._destinations.original(root, files)
         self.require_packaged(root)
 
     def bind_package_metadata(self, plan, result, *, plan_identity, result_identity):

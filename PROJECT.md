@@ -217,8 +217,10 @@ providers now use a bounded admission inventory with the original recursive
 ownership and closing checks. Scoped native two-provider positives, earlier-input
 and expiry refusals, final-clock closure and aggregate budget unwind pass. The
 actual fixtures use distinct public-interface bytes; identical-interface source
-attribution, genuine foreign-registry receipts and complete multi-provider SDK
-build/package/root acceptance remain open. The shared ceiling of 32 providers is
+attribution and complete multi-provider SDK build/package/root acceptance remain
+open. A separate actual two-owner foreign-registry refusal passes while both
+foreign scopes remain live; it establishes registry isolation, not full lifecycle
+acceptance. The shared ceiling of 32 providers is
 a bound, not a 32-provider performance qualification.
 
 The public host also pins the original snapshot input-closure object and captures

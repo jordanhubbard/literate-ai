@@ -276,6 +276,25 @@ def check_node_declarations(
         or any(not isinstance(case, NodeDeclarationCase) for case in cases)
     ):
         raise ValueError("declaration cases must be bounded immutable records")
+    # The same detached data supplies every child and its final identity. Original
+    # caller DTOs remain DATA and may not relabel already observed processes.
+    projection = NodeDeclarationProjection(
+        *(
+            ContentIdentity.parse_uri(value.uri)
+            for value in (projection.subject, projection.artifact, projection.surface)
+        ),
+        _inventory(projection.files, maximum=4094),
+        tuple(tuple(row) for row in projection.capabilities),
+        tuple(
+            (path, tuple(symbols)) for path, symbols in projection.public_declarations
+        ),
+    )
+    cases = tuple(
+        NodeDeclarationCase(
+            row.case_id, row.capability, *row.sources, tuple(row.diagnostic_codes)
+        )
+        for row in cases
+    )
     ids = tuple(case.case_id for case in cases)
     if ids != tuple(sorted(set(ids))) or {case.capability for case in cases} != {
         row[0] for row in projection.capabilities

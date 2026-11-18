@@ -239,6 +239,22 @@ class TypeScriptCompilerTests(unittest.TestCase):
             self.compile_plan(read_blob=changed)
         self.assertEqual(reads, 2)
 
+    def test_observer_cannot_relabel_compiled_outputs_with_mutated_source(self):
+        baseline = self.compile_plan()
+        observed = []
+
+        def observe(process):
+            observed.append(process)
+            object.__setattr__(
+                self.source, "content", self.source.content + b"\n// after child\n"
+            )
+
+        result = self.compile_plan(observe_process=observe)
+        self.assertEqual(len(observed), 1)
+        self.assertEqual(observed[0].returncode, 0)
+        self.assertEqual(result.plan.source, baseline.plan.source)
+        self.assertEqual(result.plan.files, baseline.plan.files)
+
     @unittest.skipUnless(shutil.which("npm"), "requires selected local npm")
     def test_real_shared_compile_pack_relocate_and_type_consumers(self):
         self._assert_shared_compile_pack_relocate_and_type_consumers()

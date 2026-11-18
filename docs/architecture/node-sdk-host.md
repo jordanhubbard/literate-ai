@@ -87,16 +87,64 @@ withholds results if the lower operation's last clock changes host inputs; a
 later caller-side runtime guard cannot substitute for this return-boundary check.
 
 Development acceptance is tracked under LIBRARY-ARTIFACT-001 in the
-[active work queue](../roadmap/active-work.md). A deterministic authored generator
-now exercises complete `runtime.execute` orchestration on the native macOS cell:
+[active work queue](../roadmap/active-work.md). An earlier deterministic authored
+candidate exercised complete `runtime.execute` orchestration on the native macOS cell:
 real provider admission before SDK generation, distinct finalization policy with
 the same original invocation identity, retirement of the generation context,
 original packaged six-TypeScript/two-runtime verification, and source membership
-publication after root acceptance. The fixture passes in 1081.895 seconds.
-Its generator binds actual prepared source requests, recipes and workspaces;
+publication after root acceptance. That retained fixture passed in 1081.895
+seconds. Subsequent custody repairs have separate focused checks; complete
+current-candidate orchestration remains required. Its generator binds actual
+prepared source requests, recipes and workspaces;
 all build and acceptance evidence comes from the runtime. The local default
 publisher observes membership identity, not durable cache persistence.
 
 Authored orchestration does not establish ordinary model generation, retained
 source/recovery, the supported-platform matrix or noneditable installed
 qualification. Downstream SDK cutover remains gated on those separate obligations.
+
+The shared independent SDK checker stages the canonical declaration projection's
+exact package image beside the original runtime harnesses. This supplies native
+bare ESM package resolution without a new resolver or package acquisition. It
+snapshots bounded immutable path/bytes/mode data before callbacks, binds the image
+identity into runtime observations, and writes the fresh bounded batch without
+callbacks before capturing original POSIX stamps. The same guard closes after
+runtime children, observers and the combined verifier's outer oracle exit.
+Unsupported strong namespace custody refuses before compiler children; ordinary
+legacy runtime checks retain their existing two-file namespace and identities.
+This mechanism is not native Windows or complete multi-provider qualification.
+
+Within provider verification, fixed request description is separate from full
+subject custody. The public description API still performs full validation;
+the established verifier uses pinned original registry-entry and scope-field
+identities for its private metadata-only checks. Full subject/catalog, oracle,
+file, process and grant checks remain at their original boundaries. Failed
+original membership is retired without deleting concurrent replacement state.
+
+
+SDK BUILD keeps each original export and reserved-file observation through
+compiler/packer observers, manifest and resolved-SBOM creation, and the final
+owned invocation close. The complete output must match exactly the bounded
+original projection and reserved records. Native exclusive directory publication
+never replaces an occupied destination; a read-only single-use observation
+transfer permits only the known rename's root-ctime change while retaining every
+original descendant stamp. The package owner uses the same shared observations
+and exclusive mover, retaining partial copies until their exact path/content/mode
+inventory joins the whole package. Parent creation uses the shared no-follow
+directory owner before any redirected descendant can be created.
+
+Unknown occupied SDK artifact, package and checkpoint destinations refuse.
+Known live compiled-plan cache hits retain their original output witness through
+closing callbacks. Failed or uncertain SDK stages remain for diagnosis; recursive
+cleanup must not discard a callback's unknown files. These conservative refusals
+do not qualify durable cold-cache recovery. Strong original namespace custody
+remains POSIX-only; generic cache publication separately uses Windows native
+handle identity and does not infer persistent identity from a zero Python inode.
+
+Compiler and declaration operations snapshot caller-supplied path/bytes/mode and
+identity data before callbacks; result labels bind those same snapshots. Oracle
+retention budgets charge every declaration-case source reference conservatively,
+including repeated paths. The shared SDK tool environment policy v2 removes
+case-insensitive `NODE_`, `NPM_` and `LITAI_PROVIDER_` ambient variables after host
+binding composition, while retaining the explicitly selected clean tool inputs.
+None of these observations supplies an execution grant or extends BUILD expiry.

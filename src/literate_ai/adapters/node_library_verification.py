@@ -8,6 +8,7 @@ checks without manufacturing Component identities or issuing acceptance authorit
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from contextlib import ExitStack
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -19,6 +20,7 @@ from literate_ai.adapters.node_library_acceptance import (
 )
 from literate_ai.adapters.node_library_execution import (
     NodeLibraryRuntimeChecks,
+    _runtime_namespace,
     check_node_library_runtime,
 )
 from literate_ai.adapters.node_library_projection import (
@@ -103,7 +105,8 @@ def check_node_library(
         or not callable(require_current)
     ):
         raise ValueError("Node library checks require exact joined verifier tools/data")
-    if surface.node_sdk_exports:
+    sdk_namespace = bool(surface.node_sdk_exports)
+    if sdk_namespace:
         if provider is not None:
             raise ValueError("a dual SDK cannot impersonate a CommonJS provider")
         projection = project_node_sdk_declarations(
@@ -117,7 +120,15 @@ def check_node_library(
         projection = project_commonjs_library_declarations(provider, surface, files)
     else:
         raise ValueError("CommonJS checks require the exact real provider artifact")
-    with capture_loaded_node_library_verifier_inputs(oracle) as scope:
+    # Freeze the shared projection before callbacks or compiler children. A
+    # host without strong namespace custody refuses this profile immediately.
+    runtime_namespace, _namespace_identity = _runtime_namespace(
+        projection.files if sdk_namespace else ()
+    )
+    with (
+        ExitStack() as namespace_lifetime,
+        capture_loaded_node_library_verifier_inputs(oracle) as scope,
+    ):
         inputs = scope.inputs
 
         def observed(process):
@@ -153,6 +164,8 @@ def check_node_library(
             environment=environment,
             require_current=require_current,
             observe_process=observed,
+            namespace_files=runtime_namespace,
+            _namespace_lifetime=namespace_lifetime,
         )
         scope()
         require_current()

@@ -811,3 +811,133 @@ class NodeProviderLifecycleTests(unittest.TestCase):
                 # Original outer custody also refuses the rewritten artifact.
                 with self.assertRaises(ValueError):
                     context.__exit__(None, None, None)
+
+    def test_retarget_during_upfront_validation_cannot_capture_foreign_files(self):
+        from literate_ai.adapters import directory_artifacts
+
+        context = self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        )
+        scope = context.__enter__()
+        original_root = scope.root
+        grant = self.grant(scope)
+        original_require = self.ports.require_library_provider_custody
+        original_capture = directory_artifacts.capture_materialized_files
+        mutated, captured = [], []
+
+        def validate_then_retarget(value):
+            original_require(value)
+            if not mutated:
+                object.__setattr__(scope, "root", self.root / "unowned-root")
+                mutated.append(True)
+
+        def capture(root, files):
+            captured.append(root)
+            if root != original_root:
+                raise AssertionError("attempted to capture an unowned provider root")
+            return original_capture(root, files)
+
+        try:
+            with (
+                mock.patch.object(
+                    self.ports,
+                    "require_library_provider_custody",
+                    validate_then_retarget,
+                ),
+                mock.patch.object(
+                    directory_artifacts, "capture_materialized_files", capture
+                ),
+                self.assertRaisesRegex(
+                    LocalStandardLifecycleError,
+                    "provider verifier original scope changed",
+                ),
+            ):
+                self.ports.with_verified_node_library_provider(
+                    scope,
+                    revision=self.revision,
+                    oracle=self.oracle,
+                    compiler=self.compiler,
+                    authorization=grant,
+                    workspace=self.root / "verify",
+                    require_current=self.owner,
+                    consume=lambda *_args: self.fail(
+                        "retargeted scope entered consumer"
+                    ),
+                    environment=self.environment,
+                    observe_process=self.processes.append,
+                )
+            self.assertEqual(mutated, [True])
+            self.assertEqual(captured, [])
+            self.assertEqual(self.processes, [])
+            self.assertNotIn(id(scope), self.ports._library_provider_scopes)
+        finally:
+            # Disposable fixture data reset never restores scope membership.
+            object.__setattr__(scope, "root", original_root)
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "not live here"):
+                context.__exit__(None, None, None)
+        self.assertEqual(self.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.ports._library_provider_scope_bytes, 0)
+
+    def test_final_clock_registry_entry_replacement_withholds_provider_result(self):
+        original_capture = (
+            oracle_fixture.owner.capture_loaded_node_library_verifier_inputs
+        )
+        original_clock = self.ports.clock
+        depth = 0
+        armed = False
+        changed, returned, escaped = [], [], []
+
+        @contextmanager
+        def capture(value):
+            nonlocal depth
+            depth += 1
+            try:
+                with original_capture(value) as verifier:
+                    yield verifier
+            finally:
+                depth -= 1
+
+        context = self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        )
+        scope = context.__enter__()
+        replacement = (scope, lambda: None)
+        try:
+            grant = self.grant(scope)
+
+            def clock():
+                if armed and depth == 0 and not changed:
+                    self.ports._library_provider_scopes[id(scope)] = replacement
+                    changed.append(True)
+                    print("Provider final-clock registry entry replaced", flush=True)
+                return original_clock()
+
+            def consume(_checks, live):
+                nonlocal armed
+                escaped.append(live)
+                armed = True
+                return "must not escape a replaced registry entry"
+
+            with (
+                mock.patch.object(
+                    oracle_fixture.owner,
+                    "capture_loaded_node_library_verifier_inputs",
+                    capture,
+                ),
+                mock.patch.object(self.ports, "clock", clock),
+                self.assertRaisesRegex(
+                    LocalStandardLifecycleError,
+                    "provider verifier original scope changed",
+                ),
+            ):
+                returned.append(self.run_join(scope, consume, authorization=grant))
+            self.assertEqual(changed, [True])
+            self.assertEqual(returned, [])
+            self.assertIs(self.ports._library_provider_scopes[id(scope)], replacement)
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
+                escaped[0]()
+        finally:
+            # Preserve the replacement for its original context to clean up.
+            context.__exit__(None, None, None)
+        self.assertEqual(self.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.ports._library_provider_scope_bytes, 0)

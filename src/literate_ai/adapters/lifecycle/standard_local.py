@@ -32,6 +32,8 @@ from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Protocol
 
 from literate_ai._filesystem import (
+    capture_directory_ancestries,
+    ensure_safe_directory,
     name_or_magic_is_native_or_wasm,
     path_is_link_or_reparse,
     require_safe_directory,
@@ -66,6 +68,10 @@ from literate_ai.adapters.dependencies.python_source import (
     prepare_python_source_authority,
 )
 from literate_ai.adapters.dependencies.python_target import observe_python_wheel_target
+from literate_ai.adapters.exclusive_directory import (
+    directory_node,
+    publish_directory_exclusive,
+)
 from literate_ai.adapters.lifecycle._service_http import open_service_request
 from literate_ai.adapters.lifecycle.standard_node_sdk import (
     StandardNodeSDKTarget,
@@ -418,6 +424,47 @@ def _node_provider_verifier_inputs(scope, oracle, compiler):
             "compiler": compiler.identity.uri,
             "node": compiler.node.identity,
         }
+    )
+
+
+def _node_provider_verifier_request(scope, *, revision, oracle, compiler):
+    """Describe immutable request DATA; no custody or execution is admitted here."""
+    from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+    from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
+    from literate_ai.contracts.component_locking.locks import (
+        LockedComponentRevision,
+    )
+
+    if (
+        type(revision) is not LockedComponentRevision
+        or revision.identity != scope.export.component_revision
+        or type(oracle) is not NodeLibraryAcceptance
+        or type(compiler) is not NodeSDKTypeScriptCompiler
+        or compiler.selection_identity is None
+    ):
+        raise LocalStandardLifecycleError(
+            "provider verifier requires exact locked authority and selected tools"
+        )
+    surface = scope.contract.library_import_surface
+    if (
+        surface is None
+        or surface.language != "javascript"
+        or not surface.declarations
+        or surface.node_sdk_exports
+    ):
+        raise LocalStandardLifecycleError(
+            "provider verifier requires declared CommonJS library files"
+        )
+    _require_library_oracle_authority(oracle, revision, surface)
+    inputs = _node_provider_verifier_inputs(scope, oracle, compiler)
+    return BuildRequest(
+        effective_revision_digest=revision.identity.uri,
+        source_bundle_digest=inputs.uri,
+        builder_id="local-node-provider-verifier@1",
+        toolchain_digest=compiler.identity.uri,
+        sandbox_profile="local-explicit-host-process",
+        requested_privileges=("execute-library-verifier",),
+        allowed_outputs=("verifier-workspace", "stdout", "stderr"),
     )
 
 
@@ -2219,15 +2266,24 @@ class LocalStandardLifecyclePorts:
         }
 
     def _write_resolved_sbom(
-        self, plan: StandardComponentBuildPlan, artifact_root: Path
+        self,
+        plan: StandardComponentBuildPlan,
+        artifact_root: Path,
+        *,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> CycloneDxBomBinding:
         if plan.component_revision.uri in self.python_targets:
             observer = self._python_observers[str(artifact_root.resolve())]
             return self._resolve_and_write_sbom(
-                plan, artifact_root, python_observer=observer
+                plan,
+                artifact_root,
+                python_observer=observer,
+                write_evidence=write_evidence,
             )
         if plan.component_revision.uri not in self.npm_targets:
-            return self._resolve_and_write_sbom(plan, artifact_root)
+            return self._resolve_and_write_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
         evidence = self._validated_npm_evidence(plan, artifact_root)
         manifest_digest = evidence["evidence_manifest_digest"]
         assert isinstance(manifest_digest, str)
@@ -2242,6 +2298,7 @@ class LocalStandardLifecyclePorts:
             artifact_root,
             artifact_digest=manifest_digest,
             additional_build_evidence=additional,
+            write_evidence=write_evidence,
         )
 
     @staticmethod
@@ -2284,6 +2341,7 @@ class LocalStandardLifecyclePorts:
         python_observer: StandardPythonDependencyObserver | None = None,
         mix_observer: MixDependencyObserver | None = None,
         additional_observation: HostDependencyObservation | None = None,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> CycloneDxBomBinding:
         source = self.source_trees.evidence(plan.request.source_tree_identity)
         from literate_ai.adapters.native_sdk_dependencies import (
@@ -2341,8 +2399,9 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError(
                 "build output occupied the reserved resolved-SBOM evidence path"
             )
-        evidence_directory.mkdir(parents=True, exist_ok=True)
-        if evidence_directory.resolve(strict=True).parent != artifact_root.resolve(
+        if write_evidence is None:
+            evidence_directory.mkdir(parents=True, exist_ok=True)
+        if evidence_directory.parent.resolve(strict=True) != artifact_root.resolve(
             strict=True
         ):
             raise LocalStandardLifecycleError(
@@ -2382,6 +2441,7 @@ class LocalStandardLifecyclePorts:
             managed_graph=source.managed_graph,
             observer=_RecordedHostDependencyObserver(dependency_inventory),
             evidence_path=destination,
+            write_evidence=write_evidence,
             additional_components=sdk_observation.components,
             additional_edges=sdk_observation.edges,
             repository_resolutions=sdk_resolutions,
@@ -2423,6 +2483,7 @@ class LocalStandardLifecyclePorts:
         process_observation: ContentIdentity,
         *,
         additional_observation: HostDependencyObservation | None = None,
+        write_evidence: Callable[[Path, bytes], None] | None = None,
     ) -> None:
         manifest_path = artifact_root / _ARTIFACT_MANIFEST
         if manifest_path.exists() or manifest_path.is_symlink():
@@ -2430,10 +2491,15 @@ class LocalStandardLifecyclePorts:
                 "build output occupied the reserved artifact evidence path"
             )
         resolved_sbom = (
-            self._write_resolved_sbom(plan, artifact_root)
+            self._write_resolved_sbom(
+                plan, artifact_root, write_evidence=write_evidence
+            )
             if additional_observation is None
             else self._resolve_and_write_sbom(
-                plan, artifact_root, additional_observation=additional_observation
+                plan,
+                artifact_root,
+                additional_observation=additional_observation,
+                write_evidence=write_evidence,
             )
         )
         artifact_tree = self._record_evidence(_local_tree_document(artifact_root))
@@ -2455,7 +2521,10 @@ class LocalStandardLifecyclePorts:
             sort_keys=True,
             separators=(",", ":"),
         ).encode()
-        manifest_path.write_bytes(manifest_bytes)
+        if write_evidence is None:
+            manifest_path.write_bytes(manifest_bytes)
+        else:
+            write_evidence(manifest_path, manifest_bytes)
         if self._evidence_recorder is not None:
             self._evidence_recorder.remember_bytes(manifest_bytes)
         self._build_observations[str(artifact_root.resolve())] = observation
@@ -4015,11 +4084,26 @@ class LocalStandardLifecyclePorts:
         cache_identity: ContentIdentity,
         plan: StandardComponentBuildPlan,
         artifact: Path,
+        *,
+        require_current: Callable[[], None] | None = None,
+        retain_observation: Callable[[Callable[[], None]], None] | None = None,
     ) -> ContentIdentity:
+        if require_current is not None:
+            require_current()
         tree = local_tree_identity(artifact)
         path = self._artifact_checkpoint_path(cache_identity)
         parent = path.parent
-        parent.mkdir(parents=True, exist_ok=True)
+        if require_current is None:
+            parent.mkdir(parents=True, exist_ok=True)
+        else:
+            # Create each SDK-owned parent only after checking its predecessor;
+            # a preexisting ancestor link must not redirect directory creation.
+            current_parent = self.object_root
+            require_safe_directory(current_parent)
+            for name in parent.relative_to(self.object_root).parts:
+                current_parent = current_parent / name
+                current_parent.mkdir(exist_ok=True)
+                require_safe_directory(current_parent)
         if path_is_link_or_reparse(parent) or not parent.is_dir():
             raise LocalStandardLifecycleError("artifact checkpoint directory is unsafe")
         if path.exists() and (path_is_link_or_reparse(path) or not path.is_file()):
@@ -4033,9 +4117,34 @@ class LocalStandardLifecyclePorts:
                 "cache_identity": cache_identity.uri,
             }
         )
-        temporary = parent / f".{cache_identity.digest}.json.tmp"
-        temporary.write_bytes(payload)
-        os.replace(temporary, path)
+        if require_current is None:
+            temporary = parent / f".{cache_identity.digest}.json.tmp"
+            temporary.write_bytes(payload)
+            os.replace(temporary, path)
+        else:
+            # SDK output has an owned original witness; unknown checkpoints
+            # refuse rather than replace a peer's file or follow a reserved tmp.
+            from literate_ai.adapters.directory_artifacts import (
+                DirectoryExportFile,
+                capture_materialized_file_stamps,
+            )
+
+            require_safe_directory(parent)
+            parents = capture_directory_ancestries((parent,))
+            require_current()
+            parents()
+            with path.open("xb") as stream:
+                stream.write(payload)
+            path.chmod(0o644)
+            original = capture_materialized_file_stamps(
+                parent, (DirectoryExportFile(path.name, payload, 0o644),)
+            )
+            try:
+                if retain_observation is not None:
+                    retain_observation(original)
+                require_current()
+            finally:
+                original()
         self._artifact_checkpoints[cache_identity.uri] = tree
         return tree
 
@@ -5944,44 +6053,10 @@ class LocalStandardLifecyclePorts:
             raise
 
     def library_provider_verifier_request(self, scope, *, revision, oracle, compiler):
-        """Describe exact verifier execution; constructing a request grants nothing."""
-        from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
-        from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
-        from literate_ai.contracts.component_locking.locks import (
-            LockedComponentRevision,
-        )
-
+        """Validate live custody before describing request DATA; grant nothing."""
         self.require_library_provider_custody(scope)
-        if (
-            type(revision) is not LockedComponentRevision
-            or revision.identity != scope.export.component_revision
-            or type(oracle) is not NodeLibraryAcceptance
-            or type(compiler) is not NodeSDKTypeScriptCompiler
-            or compiler.selection_identity is None
-        ):
-            raise LocalStandardLifecycleError(
-                "provider verifier requires exact locked authority and selected tools"
-            )
-        surface = scope.contract.library_import_surface
-        if (
-            surface is None
-            or surface.language != "javascript"
-            or not surface.declarations
-            or surface.node_sdk_exports
-        ):
-            raise LocalStandardLifecycleError(
-                "provider verifier requires declared CommonJS library files"
-            )
-        _require_library_oracle_authority(oracle, revision, surface)
-        inputs = _node_provider_verifier_inputs(scope, oracle, compiler)
-        return BuildRequest(
-            effective_revision_digest=revision.identity.uri,
-            source_bundle_digest=inputs.uri,
-            builder_id="local-node-provider-verifier@1",
-            toolchain_digest=compiler.identity.uri,
-            sandbox_profile="local-explicit-host-process",
-            requested_privileges=("execute-library-verifier",),
-            allowed_outputs=("verifier-workspace", "stdout", "stderr"),
+        return _node_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
         )
 
     def with_verified_node_library_provider(
@@ -6004,6 +6079,88 @@ class LocalStandardLifecyclePorts:
         cannot survive callback return; asynchronous generation and later build or
         cache publication require separate fresh admission, never returned checks.
         """
+        from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+
+        self._require_full_command_scope()
+        entry = self._require_library_provider_membership(scope)
+        original_values = (
+            scope.acceptance,
+            scope.contract,
+            scope.export,
+            scope.root,
+            scope.files,
+        )
+        original_root = str(scope.root)
+        original_files = tuple(
+            (item.path, item.content, item.mode) for item in scope.files
+        )
+
+        def retire_original():
+            with self._library_provider_scope_lock:
+                if self._library_provider_scopes.get(id(scope)) is entry:
+                    self._library_provider_scopes.pop(id(scope), None)
+
+        def require_original():
+            try:
+                values = (
+                    scope.acceptance,
+                    scope.contract,
+                    scope.export,
+                    scope.root,
+                    scope.files,
+                )
+                if (
+                    self._require_library_provider_membership(scope) is not entry
+                    or any(
+                        a is not b for a, b in zip(values, original_values, strict=True)
+                    )
+                    or str(scope.root) != original_root
+                    or tuple(
+                        (item.path, item.content, item.mode) for item in scope.files
+                    )
+                    != original_files
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider verifier original scope changed"
+                    )
+            except BaseException:
+                retire_original()
+                raise
+
+        def require_subject():
+            require_original()
+            self.require_library_provider_custody(scope)
+            require_original()
+
+        require_subject()
+        original_request = _node_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+
+        def describe_request():
+            try:
+                require_original()
+                request = _node_provider_verifier_request(
+                    scope, revision=revision, oracle=oracle, compiler=compiler
+                )
+                if request != original_request:
+                    raise LocalStandardLifecycleError(
+                        "provider verifier original scope changed"
+                    )
+                return request
+            except BaseException:
+                retire_original()
+                raise
+
+        def require_membership(_now):
+            # Join the final clock cut to this exact original registry entry and
+            # request metadata; never remove a replacement or reopen file reads.
+            describe_request()
+
+        # Normalize caller mappings before the shared runner can capture files.
+        # Any mapping callback must close against the same original metadata.
+        configured = node_sdk_tool_environment(dict(environment))
+        describe_request()
         return self._with_verified_node_library_checks(
             scope,
             revision=revision,
@@ -6013,19 +6170,15 @@ class LocalStandardLifecyclePorts:
             workspace=workspace,
             require_current=require_current,
             consume=consume,
-            environment=environment,
+            environment=configured,
             observe_process=observe_process,
             provider=scope.export,
-            describe_request=lambda: self.library_provider_verifier_request(
-                scope, revision=revision, oracle=oracle, compiler=compiler
-            ),
+            describe_request=describe_request,
             inputs_identity=lambda: _node_provider_verifier_inputs(
                 scope, oracle, compiler
             ),
-            require_subject=lambda: self.require_library_provider_custody(scope),
-            require_membership=lambda _now: self._require_library_provider_membership(
-                scope
-            ),
+            require_subject=require_subject,
+            require_membership=require_membership,
         )
 
     def _with_verified_node_library_checks(
@@ -6460,9 +6613,6 @@ class LocalStandardLifecyclePorts:
             raise LocalStandardLifecycleError("root build plan has no local custody")
         node_sdk_resources = None
         if root_plan.component_revision.uri in self.node_sdk_targets:
-            from literate_ai.adapters.directory_artifacts import (
-                capture_materialized_files,
-            )
             from literate_ai.adapters.node_sdk_package import (
                 LocalNodeSDKPackageResources,
             )
@@ -6660,20 +6810,35 @@ class LocalStandardLifecyclePorts:
                 result_identity=package_result_identity,
             )
         package_parent = self.object_root / "project-packages"
-        package_parent.mkdir(parents=True, exist_ok=True)
+        if node_sdk_resources is None:
+            package_parent.mkdir(parents=True, exist_ok=True)
+        else:
+            ensure_safe_directory(package_parent)
+        package_parent_node = package_parent_stamps = None
+        if node_sdk_resources is not None:
+            require_safe_directory(package_parent)
+            package_parent_node = directory_node(package_parent)
+            package_parent_stamps = capture_directory_ancestries((package_parent,))
+            node_sdk_resources.require_current()
+            package_parent_stamps()
         staging = Path(
             tempfile.mkdtemp(prefix=f"{plan.identity.digest[:16]}-", dir=package_parent)
         )
+        if node_sdk_resources is not None:
+            node_sdk_resources.bind_staging(staging)
         artifact_paths: dict[str, Path] = {}
         try:
             for export in closure:
                 destination = staging.joinpath(
                     *Path(destinations[export.identity.uri]).parts
                 )
-                destination.parent.mkdir(parents=True, exist_ok=True)
                 if node_sdk_resources is not None:
+                    # A previous export callback may have inserted a parent
+                    # link. Refuse before creating any redirected descendants.
+                    ensure_safe_directory(destination.parent)
                     copied = node_sdk_resources.materialize_export(export, destination)
                 else:
+                    destination.parent.mkdir(parents=True, exist_ok=True)
                     self.read_artifact_blob(export.blob)
                     source = self.artifact_path(export)
                     if source.is_symlink():
@@ -6731,13 +6896,28 @@ class LocalStandardLifecyclePorts:
                     staging, plan, read_package_blob
                 )
             staged_identity = local_tree_identity(staging)
+            stage_node = None
             if node_sdk_resources is not None:
+                stage_node = directory_node(staging)
                 node_sdk_resources.require_current()
                 package_stamps()
+                package_parent_stamps()
             destination_root = package_parent / plan.identity.digest
-            if destination_root.exists():
-                if node_sdk_resources is not None:
-                    capture_materialized_files(destination_root, package_files)()
+            if node_sdk_resources is not None:
+                # Unknown existing output is not an owned cache hit. Refuse it
+                # without replacing, merging or deleting either namespace.
+                publish_directory_exclusive(
+                    staging,
+                    destination_root,
+                    expected_source=stage_node,
+                    expected_parent=package_parent_node,
+                )
+                # No callback between the owned move and the read-only rekeying
+                # of the ORIGINAL file observations.
+                node_sdk_resources.after_package_move(
+                    destination_root, expected_parent=package_parent_node
+                )
+            elif destination_root.exists():
                 if (
                     destination_root.is_symlink()
                     or not destination_root.is_dir()
@@ -6756,7 +6936,9 @@ class LocalStandardLifecyclePorts:
             if node_sdk_resources is not None:
                 node_sdk_resources.bind_package(destination_root, package_files)
         except Exception:
-            if staging.exists():
+            # Failed SDK stages can contain a callback's unknown files. Retain
+            # them for diagnosis rather than recursively deleting foreign data.
+            if node_sdk_resources is None and staging.exists():
                 shutil.rmtree(staging)
             raise
         source_custody = self.source_trees.evidence(

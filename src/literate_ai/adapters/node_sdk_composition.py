@@ -11,16 +11,22 @@ import json
 import os
 import unicodedata
 from collections.abc import Callable, Mapping
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
 from literate_ai._filesystem import require_safe_directory
-from literate_ai.adapters.directory_artifacts import DirectoryExportFile
+from literate_ai.adapters.directory_artifacts import (
+    DirectoryExportFile,
+    capture_materialized_files,
+    snapshot_directory_file,
+)
 from literate_ai.adapters.lifecycle.javascript_libraries import (
     JavaScriptLibraryImports,
     prepare_javascript_library_imports,
 )
 from literate_ai.adapters.node_sdk_tools import SDK_TOOL_ENVIRONMENT_POLICY
+from literate_ai.adapters.process_liveness import process_liveness
 from literate_ai.application.library_artifacts import require_declared_commonjs_files
 from literate_ai.contracts import (
     ArtifactExport,
@@ -536,20 +542,41 @@ def prepare_node_sdk_composition(
     )
 
 
-def materialize_node_sdk(
+def _require_projection_custody():
+    if os.name != "posix":
+        raise ValueError("strong SDK projection custody requires POSIX change stamps")
+
+
+def _projection_inputs(plan):
+    if type(plan) is not NodeSDKCompositionPlan:
+        raise TypeError("SDK materialization requires its prepared composition plan")
+    files = _files(tuple(snapshot_directory_file(row) for row in plan.files))
+    original_identity = plan.identity.uri
+
+    def require_plan():
+        if plan.identity.uri != original_identity:
+            raise ValueError("SDK projection plan changed during ownership callback")
+
+    return files, require_plan
+
+
+@contextmanager
+def _materialized_node_sdk(
     plan: NodeSDKCompositionPlan,
     destination: Path,
     *,
     require_current: Callable[[], None],
-) -> None:
-    """Create one fresh object projection; failed/uncertain projections are retained."""
-    if not isinstance(plan, NodeSDKCompositionPlan):
-        raise TypeError("SDK materialization requires its prepared composition plan")
+):
+    """Keep one original copy through an owner's entire bounded operation."""
+    _require_projection_custody()
+    files, require_plan = _projection_inputs(plan)
     require_current()
+    require_plan()
     require_safe_directory(destination.parent)
     destination.mkdir()
-    for file in plan.files:
-        require_current()
+    # Complete this bounded immutable write batch before any owner callback can
+    # replace an earlier file and have its stamps adopted as an initial baseline.
+    for file in files:
         path = destination.joinpath(
             *canonical_relative_posix_path(file.path, label="SDK file").parts
         )
@@ -558,15 +585,49 @@ def materialize_node_sdk(
         with path.open("xb") as stream:
             stream.write(file.content)
         path.chmod(file.mode)
-    require_node_sdk_projection(plan, destination, require_current=require_current)
+    original_copy = capture_materialized_files(destination, files)
+
+    def close():
+        try:
+            require_current()
+        finally:
+            try:
+                require_plan()
+            finally:
+                original_copy()
+
+    try:
+        close()
+        with process_liveness(original_copy):
+            yield original_copy
+    finally:
+        close()
+
+
+def materialize_node_sdk(
+    plan: NodeSDKCompositionPlan,
+    destination: Path,
+    *,
+    require_current: Callable[[], None],
+) -> None:
+    """Create a fresh projection; retain failed or uncertain writes without reuse."""
+    with _materialized_node_sdk(plan, destination, require_current=require_current):
+        pass
 
 
 def require_node_sdk_projection(
     plan: NodeSDKCompositionPlan, root: Path, *, require_current: Callable[[], None]
 ) -> None:
     """Readback and cache reuse admit only the complete exact planned inventory."""
-    from literate_ai.adapters.directory_artifacts import require_materialized_files
-
+    _require_projection_custody()
+    files, require_plan = _projection_inputs(plan)
     require_current()
-    require_materialized_files(root, plan.files)
-    require_current()
+    require_plan()
+    original_copy = capture_materialized_files(root, files)
+    try:
+        require_current()
+    finally:
+        try:
+            require_plan()
+        finally:
+            original_copy()

@@ -106,6 +106,30 @@ class NodeDeclarationChecksTests(unittest.TestCase):
         self.assertEqual(result.compiler, self.compiler.identity)
         self.assertEqual(result.case_identities, (self.case.identity,))
 
+    def test_final_observer_cannot_relabel_case_or_projection(self):
+        initial_case = self.case.identity
+        initial_projection = self.projection.identity
+        observations = []
+
+        def observe(process):
+            observations.append(process)
+            if len(observations) == 6:
+                object.__setattr__(
+                    self.case,
+                    "cjs_positive",
+                    self.case.cjs_positive + b"\n// after all actual children\n",
+                )
+                object.__setattr__(
+                    self.projection, "subject", canonical_identity("late subject")
+                )
+
+        result = self.check(observe_process=observe)
+        self.assertEqual(len(observations), 6)
+        self.assertNotEqual(self.case.identity, initial_case)
+        self.assertNotEqual(self.projection.identity, initial_projection)
+        self.assertEqual(result.case_identities, (initial_case,))
+        self.assertEqual(result.projection, initial_projection)
+
     def test_already_any_typed_public_api_is_rejected(self):
         public = dict(self.projection.public_declarations)
         body = (

@@ -1,6 +1,7 @@
 """Real imports from synthetic compiled SDK fixtures, not lifecycle qualification."""
 
 import json
+import os
 import shutil
 import subprocess
 import unittest
@@ -133,16 +134,15 @@ class NodeSDKCompositionTests(unittest.TestCase):
             self.fixture.consumer, **dict(self.arguments, **changes)
         )
 
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
     def test_relocated_cjs_esm_root_subpath_and_error_identity(self):
         plan = self.prepare()
         before = dict(self.fixture.blobs)
         root = self.fixture.root / "projection"
-        checks = []
-        materialize_node_sdk(plan, root, require_current=lambda: checks.append(True))
+        materialize_node_sdk(plan, root, require_current=lambda: None)
         moved = self.fixture.root / "app/node_modules/counter-sdk"
         moved.parent.mkdir(parents=True)
         root.rename(moved)
-        self.assertGreater(len(checks), len(plan.files))
         for esm in [False, True]:
             code = (
                 "import * as root from 'counter-sdk';"
@@ -216,6 +216,7 @@ class NodeSDKCompositionTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "collides"):
             self.prepare(name=self.provider_contract.library_import_surface.package)
 
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
     def test_complete_inventory_rejects_extra_missing_or_substituted_bytes(self):
         plan = self.prepare()
         for change in ["extra", "missing", "changed"]:
@@ -230,6 +231,7 @@ class NodeSDKCompositionTests(unittest.TestCase):
             with self.subTest(change=change), self.assertRaises(ValueError):
                 require_node_sdk_projection(plan, root, require_current=lambda: None)
 
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
     def test_live_owner_cut_retains_partial_projection(self):
         plan = self.prepare()
         root = self.fixture.root / "interrupted"
@@ -246,6 +248,68 @@ class NodeSDKCompositionTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             materialize_node_sdk(plan, root, require_current=lambda: None)
 
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
+    def test_final_projection_owner_cannot_rewrite_equal_bytes(self):
+        plan = self.prepare()
+        root = self.fixture.root / "final-callback"
+        materialize_node_sdk(plan, root, require_current=lambda: None)
+        calls = []
+
+        def current():
+            calls.append(True)
+            if len(calls) == 2:
+                path = root / "cjs/index.js"
+                before = path.stat()
+                path.write_bytes(path.read_bytes())
+                os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+
+        with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+            require_node_sdk_projection(plan, root, require_current=current)
+        self.assertEqual(len(calls), 2)
+
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
+    def test_materializer_owner_cannot_adopt_rewritten_earlier_file(self):
+        plan = self.prepare()
+        root = self.fixture.root / "staging-callback"
+        changed = []
+
+        def current():
+            path = root / plan.files[0].path
+            if path.exists() and not changed:
+                before = path.stat()
+                path.write_bytes(path.read_bytes())
+                os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                changed.append(True)
+
+        with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+            materialize_node_sdk(plan, root, require_current=current)
+        self.assertEqual(changed, [True])
+
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
+    def test_callback_plan_retargeting_refuses_before_materialization(self):
+        plan = self.prepare()
+        root = self.fixture.root / "retargeted-plan"
+        changed = []
+
+        def current():
+            if not changed:
+                object.__setattr__(plan.files[0], "content", b"substituted")
+                changed.append(True)
+
+        with self.assertRaisesRegex(ValueError, "plan changed"):
+            materialize_node_sdk(plan, root, require_current=current)
+        self.assertEqual(changed, [True])
+        self.assertFalse(root.exists())
+
+    def test_unsupported_projection_custody_refuses_before_stage(self):
+        plan = self.prepare()
+        root = self.fixture.root / "unsupported"
+        with patch("literate_ai.adapters.node_sdk_composition.os.name", "nt"):
+            with self.assertRaisesRegex(ValueError, "POSIX"):
+                materialize_node_sdk(plan, root, require_current=lambda: None)
+        self.assertFalse(root.exists())
+
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
     def test_late_namespace_addition_is_seen_by_closing_fence(self):
         plan = self.prepare()
         root = self.fixture.root / "late-addition"
@@ -265,6 +329,7 @@ class NodeSDKCompositionTests(unittest.TestCase):
         ):
             require_node_sdk_projection(plan, root, require_current=lambda: None)
 
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
     def test_directory_replacement_is_seen_by_closing_fence(self):
         plan = self.prepare()
         root = self.fixture.root / "directory-replacement"

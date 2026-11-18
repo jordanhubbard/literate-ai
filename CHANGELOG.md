@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+- Retain original SDK output observations through packing, metadata writes,
+  package moves and final owner callbacks. Create reserved evidence exclusively,
+  reject redirected parents and refuse unknown occupied SDK output/checkpoint
+  destinations. Known live compiled-plan reuse remains available; durable cold
+  recovery still requires separate qualification.
+
+- Snapshot SDK compiler/declaration inputs before callbacks, account for repeated
+  retained oracle sources, and remove ambient producer bindings from SDK tool
+  environments. Cache publication and retirement retain original native object
+  identity through their filesystem effects, preserving foreign replacements.
+
+- Preserve original provider registry and scope metadata through verifier closing,
+  while separating fixed request description from full custody validation. Reject
+  initial retargeting and late registry substitution without removing replacement
+  state or relaxing subject, oracle, clock, grant or catalog checks.
+
+- Supply the shared independent SDK runtime checker with the bounded canonical
+  package projection so original harnesses can resolve bare ESM root and subpath
+  imports. Bind namespace identity and retain original POSIX file stamps across
+  children, callbacks and combined oracle closure. Legacy direct-runtime checks
+  keep their identities; unsupported strong namespace custody refuses early.
+
 - Permit bounded exact provider sets in opt-in SDK operation admission and Python
   host configuration, sharing the existing 32-provider composition ceiling.
   Preserve nonempty matched oracle/receipt inventories, original recursive

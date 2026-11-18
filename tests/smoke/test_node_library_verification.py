@@ -4,6 +4,7 @@ import os
 import shutil
 import unittest
 from dataclasses import replace
+from unittest import mock
 
 from literate_ai.adapters.node_library_verification import check_node_library
 from literate_ai.contracts import canonical_identity
@@ -94,6 +95,13 @@ class NodeLibraryVerificationTests(unittest.TestCase):
         oracle = changes.pop("oracle", self.oracle)
         return check_node_library(oracle, **dict(arguments, **changes))
 
+    def test_unsupported_sdk_namespace_refuses_before_compiler_children(self):
+        with mock.patch("literate_ai.adapters.node_library_execution.os.name", "nt"):
+            with self.assertRaisesRegex(ValueError, "POSIX"):
+                self.check()
+        self.assertEqual(self.runtime.observations, [])
+        self.assertFalse((self.runtime.root / "verify").exists())
+
     def test_original_oracle_joins_six_actual_type_children_and_both_runtimes(self):
         result = self.check()
         self.assertEqual(len(result.declarations.processes), 6)
@@ -102,6 +110,7 @@ class NodeLibraryVerificationTests(unittest.TestCase):
         self.assertEqual(result.oracle, self.oracle.identity)
         self.assertEqual(result.surface, self.surface.identity)
         self.assertEqual(result.runtime.oracle, result.oracle)
+        self.assertIsNotNone(result.runtime.namespace)
         self.assertTrue(result.identity.uri.startswith("sha256:"))
 
     def test_weakened_types_refuse_before_any_runtime_harness(self):
@@ -122,6 +131,32 @@ class NodeLibraryVerificationTests(unittest.TestCase):
             self.check(files=files)
         self.assertFalse((self.runtime.root / "verify").exists())
         self.assertTrue(self.runtime.observations)
+
+    def test_combined_outer_oracle_exit_cannot_rewrite_runtime_namespace(self):
+        from contextlib import contextmanager
+
+        from literate_ai.adapters import node_library_verification as owner
+
+        original_capture = owner.capture_loaded_node_library_verifier_inputs
+        changed = []
+
+        @contextmanager
+        def capture(oracle):
+            with original_capture(oracle) as scope:
+                yield scope
+            path = self.runtime.root / "verify/harness.cjs"
+            before = path.stat()
+            path.write_bytes(path.read_bytes())
+            os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+            changed.append(True)
+
+        with mock.patch.object(
+            owner, "capture_loaded_node_library_verifier_inputs", capture
+        ):
+            with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+                self.check()
+        self.assertEqual(changed, [True])
+        self.assertEqual(len(self.runtime.observations), 8)
 
     def test_copied_oracle_or_unjoined_provider_cannot_start_any_child(self):
         for changes in (

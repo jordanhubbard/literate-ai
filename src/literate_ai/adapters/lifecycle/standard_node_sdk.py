@@ -194,6 +194,8 @@ class StandardNodeSDKTarget:
 
 def build_standard_node_sdk(ports, plan, providers, contract, target):
     """Execute the real local BUILD phase, inside original invocation custody."""
+    from contextlib import ExitStack
+
     from literate_ai.application.standard_node_sdk_admission import (
         consume_node_sdk_build,
     )
@@ -201,32 +203,61 @@ def build_standard_node_sdk(ports, plan, providers, contract, target):
     source_custody = ports.source_trees.registered_evidence(
         plan.request.source_tree_identity
     )
-    return consume_node_sdk_build(
-        contract,
-        source_custody.candidate,
-        providers,
-        lambda invocation, owner: _build(
-            ports, plan, providers, contract, target, source_custody, invocation, owner
-        ),
-    )
+    output_stamps = []
+
+    def close_outputs():
+        # Observations only: no retired owner, clocks or authority reopening.
+        for original_output in output_stamps:
+            original_output()
+
+    with ExitStack() as lifetime:
+        lifetime.callback(close_outputs)
+        return consume_node_sdk_build(
+            contract,
+            source_custody.candidate,
+            providers,
+            lambda invocation, owner: _build(
+                ports,
+                plan,
+                providers,
+                contract,
+                target,
+                source_custody,
+                invocation,
+                owner,
+                output_stamps,
+            ),
+        )
 
 
-def _build(ports, plan, providers, contract, target, custody, invocation, owner):
+def _build(
+    ports, plan, providers, contract, target, custody, invocation, owner, output_stamps
+):
     import hashlib
     import stat
     import tempfile
     import time
     from pathlib import Path
 
+    from literate_ai._filesystem import (
+        capture_directory_ancestries,
+        require_safe_directory,
+    )
     from literate_ai.adapters.directory_artifacts import (
         DirectoryExportFile,
+        capture_materialized_file_stamps,
         capture_materialized_files,
+        snapshot_directory_file,
+    )
+    from literate_ai.adapters.exclusive_directory import (
+        directory_node,
+        publish_directory_between_owned_parents_exclusive,
     )
     from literate_ai.adapters.native_sdk_tree_custody import capture_native_sdk_tree
     from literate_ai.adapters.node_sdk_build import compile_node_sdk_plan
     from literate_ai.adapters.node_sdk_composition import (
         NodeSDKEntrypoint,
-        materialize_node_sdk,
+        _materialized_node_sdk,
         require_node_sdk_projection,
     )
     from literate_ai.adapters.node_sdk_packaging import (
@@ -242,6 +273,9 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
     from literate_ai.contracts.retained_project import RetainedProjectLimits
     from literate_ai.storage.cas import FileSystemCAS
 
+    object_root = Path(str(ports.object_root))
+    require_safe_directory(object_root)
+    object_root_stamps = capture_directory_ancestries((object_root,))
     target.require_contract(contract)
     if invocation.profile != target.profile.identity:
         raise ValueError("SDK build profile differs from original invocation")
@@ -264,7 +298,8 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
 
     def closing_inputs():
         if (
-            ports.node_sdk_targets.get(plan.component_revision.uri) is not target
+            ports.object_root != object_root
+            or ports.node_sdk_targets.get(plan.component_revision.uri) is not target
             or target.identity != original_target
             or ports.contracts.get(plan.component_revision.uri) is not contract
             or ports._plan_inputs_by_revision.get(plan.component_revision.uri)
@@ -295,11 +330,14 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
         closing_inputs()
         if source_stamps is not None:
             source_stamps()
+        object_root_stamps()
+        for original_output in output_stamps:
+            original_output()
         inputs.authorization.grant.require_valid(inputs.intent.build_request, now=now)
 
     guard()
     started = time.monotonic()
-    staging = Path(tempfile.mkdtemp(prefix="standard-node-sdk-", dir=ports.object_root))
+    staging = Path(tempfile.mkdtemp(prefix="standard-node-sdk-", dir=object_root))
     store = FileSystemCAS(staging / "source-snapshot")
     captured = capture_native_sdk_tree(
         source,
@@ -367,7 +405,7 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
             "providers": [item.identity.uri for item in providers],
         }
     )
-    artifact = ports.object_root / cache_identity.digest
+    artifact = object_root / cache_identity.digest
     materials = ports._provider_materials(
         providers, consumer_revision=plan.component_revision
     )
@@ -409,6 +447,7 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
             # readers, so links, FIFOs, oversized and foreign files cannot enter
             # their unbounded ordinary-artifact hashing path.
             product_stamps = capture_materialized_files(artifact, prior_files)
+            output_stamps.append(product_stamps)
 
             def validate_cached():
                 product_stamps()
@@ -498,56 +537,129 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
                 ) from exc
             raise
         composition = compiled.plan
+        projection_files = tuple(
+            snapshot_directory_file(row) for row in composition.files
+        )
         workspace.mkdir()
-        materialize_node_sdk(
+        workspace_ancestry = capture_directory_ancestries((workspace,))
+        output_stamps.append(workspace_ancestry)
+        written = {}
+        reserved = {
+            "node-sdk.tgz",
+            "node-sdk.json",
+            "artifact-manifest.json",
+            ".literate/resolved-sbom.cdx.json",
+        }
+
+        def write_owned(path, content):
+            # Trusted host-only writer: exact reserved paths and bounded immutable
+            # bytes; no callbacks during exclusive creation and initial capture.
+            path = Path(path)
+            relative = path.relative_to(workspace).as_posix()
+            if (
+                relative not in reserved
+                or relative in written
+                or type(content) is not bytes
+            ):
+                raise ValueError("SDK evidence write differs from reserved output")
+            if len(content) > 40 * 1024**2:
+                raise ValueError("SDK evidence exceeds output limit")
+            guard()
+            workspace_ancestry()
+            if path.parent != workspace:
+                # The only nested reserved destination is the resolved SBOM.
+                # Do not create it before closing the original workspace.
+                path.parent.mkdir(exist_ok=True)
+            require_safe_directory(path.parent)
+            with path.open("xb") as stream:
+                stream.write(content)
+            path.chmod(0o644)
+            row = DirectoryExportFile(relative, content, 0o644)
+            original = capture_materialized_file_stamps(workspace, (row,))
+            output_stamps.append(original)
+            written[relative] = row
+            original()
+
+        with _materialized_node_sdk(
             composition,
             workspace / contract.artifact_export.export_id,
             require_current=guard,
-        )
-        packed = pack_node_sdk(
-            composition,
-            staging / "pack",
-            npm=target.npm,
-            environment=environment,
-            require_current=guard,
-            observe_process=observe,
-        )
-        if len(processes) != 2:
-            raise ValueError(
-                "SDK build requires actual compiler and packer observations"
+        ) as original_projection:
+            output_stamps.append(original_projection)
+            packed = pack_node_sdk(
+                composition,
+                staging / "pack",
+                npm=target.npm,
+                environment=environment,
+                require_current=guard,
+                observe_process=observe,
             )
-        (workspace / "node-sdk.tgz").write_bytes(packed.content)
-        record = {
-            "schema": "literate-ai/local-node-sdk-build@1",
-            "target": target.identity.uri,
-            "composition": composition.to_dict(),
-            "packed": packed.identity.uri,
-            "tarball_sha256": hashlib.sha256(packed.content).hexdigest(),
-            "processes": processes,
-        }
-        (workspace / "node-sdk.json").write_bytes(canonical_json_bytes(record))
+            if len(processes) != 2:
+                raise ValueError(
+                    "SDK build requires actual compiler and packer observations"
+                )
+            write_owned(workspace / "node-sdk.tgz", packed.content)
+            record = {
+                "schema": "literate-ai/local-node-sdk-build@1",
+                "target": target.identity.uri,
+                "composition": composition.to_dict(),
+                "packed": packed.identity.uri,
+                "tarball_sha256": hashlib.sha256(packed.content).hexdigest(),
+                "processes": processes,
+            }
+            write_owned(workspace / "node-sdk.json", canonical_json_bytes(record))
+            guard()
+            ports._write_artifact_manifest(
+                plan,
+                workspace,
+                materials,
+                ports._record_evidence(record),
+                additional_observation=_observation(
+                    composition, providers, custody.managed_graph.root_ref
+                ),
+                write_evidence=write_owned,
+            )
+            guard()
+            product_files = product_snapshot(workspace)
+            expected = tuple(
+                DirectoryExportFile(
+                    contract.artifact_export.export_id + "/" + row.path,
+                    row.content,
+                    row.mode,
+                )
+                for row in projection_files
+            ) + tuple(written.values())
+            if (
+                sorted(product_files, key=lambda row: row.path)
+                != sorted(expected, key=lambda row: row.path)
+                or set(written) != reserved
+            ):
+                raise ValueError("SDK workspace differs from original owned outputs")
+            product_stamps = capture_materialized_files(workspace, product_files)
+            # Retire partial observations only after they close against the
+            # complete original namespace. No callbacks during this handoff.
+            for original_output in output_stamps:
+                original_output()
+            product_stamps()
+            output_stamps[:] = [product_stamps]
+        stage_node = directory_node(workspace)
+        source_parent_node = directory_node(staging)
+        destination_parent_node = directory_node(artifact.parent)
+        parents = capture_directory_ancestries((staging, artifact.parent))
         guard()
-        ports._write_artifact_manifest(
-            plan,
+        parents()
+        publish_directory_between_owned_parents_exclusive(
             workspace,
-            materials,
-            ports._record_evidence(record),
-            additional_observation=_observation(
-                composition, providers, custody.managed_graph.root_ref
-            ),
-        )
-        guard()
-        product_files = product_snapshot(workspace)
-        if artifact.exists():
-            capture_materialized_files(artifact, product_files)()
-        ports._install_sealed_artifact(
-            cache_identity,
             artifact,
-            workspace,
-            conflict="SDK artifact has conflicting sealed bytes",
+            expected_source=stage_node,
+            expected_source_parent=source_parent_node,
+            expected_destination_parent=destination_parent_node,
         )
+        product_stamps = product_stamps.after_owned_move(
+            artifact, expected_parent=destination_parent_node
+        )
+        output_stamps[:] = [product_stamps]
         validate_product(composition)
-        product_stamps = capture_materialized_files(artifact, product_files)
 
         def before_register():
             product_stamps()
@@ -560,7 +672,13 @@ def _build(ports, plan, providers, contract, target, custody, invocation, owner)
             before_register=before_register,
         )
         guard()
-        ports._publish_artifact_checkpoint(cache_identity, plan, artifact)
+        ports._publish_artifact_checkpoint(
+            cache_identity,
+            plan,
+            artifact,
+            require_current=guard,
+            retain_observation=output_stamps.append,
+        )
         validate_product(composition)
         product_stamps()
         with ports._node_sdk_cache_lock:

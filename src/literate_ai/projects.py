@@ -23,6 +23,7 @@ from pathlib import Path
 from literate_ai._cache_lock import _is_windows, _windows_identity_matches
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
+    capture_directory_ancestries,
     path_is_link_or_reparse,
     require_safe_directory,
 )
@@ -1133,7 +1134,6 @@ class PinnedInputClosure:
             raise ValueError("live pinned files require POSIX change timestamps")
         entries = tuple(self._entries.items())
         files = {}
-        directories = {}
 
         def file_stamp(path):
             value = path.lstat()
@@ -1151,27 +1151,21 @@ class PinnedInputClosure:
                 value.st_ctime_ns,
             )
 
-        def directory_stamp(path):
-            value = path.lstat()
-            if not stat.S_ISDIR(value.st_mode):
-                raise PinnedInputClosureError(
-                    "inputs.closure_changed", "pinned directory changed"
-                )
-            return value.st_dev, value.st_ino, value.st_mode
-
         for _, entry in entries:
             files[entry.path] = file_stamp(entry.path)
-            for parent in entry.path.parents:
-                directories[parent] = directory_stamp(parent)
+        directories_current = capture_directory_ancestries(
+            tuple(dict.fromkeys(entry.path.parent for _, entry in entries))
+        )
 
         def require_stamps():
-            if (
-                tuple(self._entries.items()) != entries
-                or any(
-                    directory_stamp(path) != value
-                    for path, value in directories.items()
-                )
-                or any(file_stamp(path) != value for path, value in files.items())
+            try:
+                directories_current()
+            except (OSError, UnsafeFilesystemPathError) as error:
+                raise PinnedInputClosureError(
+                    "inputs.closure_changed", "pinned directory changed"
+                ) from error
+            if tuple(self._entries.items()) != entries or any(
+                file_stamp(path) != value for path, value in files.items()
             ):
                 raise PinnedInputClosureError(
                     "inputs.closure_changed", "pinned inputs changed before close"

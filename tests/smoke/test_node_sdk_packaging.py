@@ -93,7 +93,7 @@ class NodeSDKTarballTests(unittest.TestCase):
 
 
 @unittest.skipUnless(
-    shutil.which("node") and shutil.which("npm"),
+    os.name == "posix" and shutil.which("node") and shutil.which("npm"),
     "requires selected local Node/npm tools",
 )
 class NodeSDKOfflinePackTests(unittest.TestCase):
@@ -216,6 +216,31 @@ class NodeSDKOfflinePackTests(unittest.TestCase):
             (workspace / "sdk/package.json").write_bytes(b"{}\n")
 
         with self.assertRaises(ValueError):
+            pack_node_sdk(
+                self.plan,
+                workspace,
+                npm=self.npm,
+                environment=self.environment,
+                require_current=lambda: None,
+                observe_process=observe,
+            )
+        self.assertEqual(len(observations), 1)
+        self.assertEqual(observations[0].returncode, 0)
+        self.assertTrue(list((workspace / "packed").glob("*.tgz")))
+
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
+    def test_original_projection_guard_spans_actual_npm_observer(self):
+        workspace = self.fixture.fixture.root / "same-byte-observer"
+        observations = []
+
+        def observe(value):
+            observations.append(value)
+            path = workspace / "sdk/cjs/index.js"
+            before = path.stat()
+            path.write_bytes(path.read_bytes())
+            os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+
+        with self.assertRaisesRegex(ValueError, "changed before inventory close"):
             pack_node_sdk(
                 self.plan,
                 workspace,

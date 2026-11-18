@@ -21,7 +21,8 @@ from literate_ai.adapters.node_sdk_composition import (
     MAX_SDK_FILES,
     NodeSDKCompositionPlan,
     _files,
-    materialize_node_sdk,
+    _materialized_node_sdk,
+    _require_projection_custody,
     require_node_sdk_projection,
 )
 from literate_ai.adapters.node_sdk_tools import (
@@ -184,6 +185,7 @@ def pack_node_sdk(
         npm, NpmToolchain
     ):
         raise TypeError("SDK packing requires prepared plan and selected npm")
+    _require_projection_custody()
     if plan.node.uri != npm.node.identity or plan.packer.uri != npm.identity:
         raise ValueError("SDK packing tools differ from the prepared plan")
     if not callable(require_current):
@@ -204,86 +206,88 @@ def pack_node_sdk(
         with path.open("xb"):
             pass
         path.chmod(0o600)
-    materialize_node_sdk(plan, projection, require_current=require_current)
-    child_environment = node_sdk_tool_environment(environment)
-    npm.require_unchanged(child_environment)
-    require_node_sdk_projection(plan, projection, require_current=require_current)
-    command = (
-        *npm.command,
-        "pack",
-        "--ignore-scripts",
-        "--offline",
-        "--json",
-        "--pack-destination",
-        str(packed),
-        "--cache",
-        str(cache),
-        "--userconfig",
-        str(user_config),
-        "--globalconfig",
-        str(global_config),
-        "--audit=false",
-        "--fund=false",
-        "--update-notifier=false",
-    )
-    result = run_bounded_process(
-        command,
-        cwd=projection,
-        environment=child_environment,
-        timeout_seconds=120,
-        stdout_limit_bytes=2 * 1024 * 1024,
-        stderr_limit_bytes=1024 * 1024,
-        error_prefix="Node SDK offline npm pack",
-        interrupt_guard=require_current,
-        terminate_descendants=True,
-        trace=False,
-    )
-    npm.require_unchanged(child_environment)
-    require_node_sdk_projection(plan, projection, require_current=require_current)
-    if observe_process is not None:
+    with _materialized_node_sdk(plan, projection, require_current=require_current):
+        child_environment = node_sdk_tool_environment(environment)
+        npm.require_unchanged(child_environment)
+        require_node_sdk_projection(plan, projection, require_current=require_current)
+        command = (
+            *npm.command,
+            "pack",
+            "--ignore-scripts",
+            "--offline",
+            "--json",
+            "--pack-destination",
+            str(packed),
+            "--cache",
+            str(cache),
+            "--userconfig",
+            str(user_config),
+            "--globalconfig",
+            str(global_config),
+            "--audit=false",
+            "--fund=false",
+            "--update-notifier=false",
+        )
+        result = run_bounded_process(
+            command,
+            cwd=projection,
+            environment=child_environment,
+            timeout_seconds=120,
+            stdout_limit_bytes=2 * 1024 * 1024,
+            stderr_limit_bytes=1024 * 1024,
+            error_prefix="Node SDK offline npm pack",
+            interrupt_guard=require_current,
+            terminate_descendants=True,
+            trace=False,
+        )
+        npm.require_unchanged(child_environment)
+        require_node_sdk_projection(plan, projection, require_current=require_current)
+        if observe_process is not None:
+            try:
+                notify_node_sdk_process(observe_process, command=command, result=result)
+            finally:
+                require_current()
+                npm.require_unchanged(child_environment)
+                require_node_sdk_projection(
+                    plan, projection, require_current=require_current
+                )
+        if result.returncode:
+            raise ValueError(
+                "offline npm pack failed: "
+                + result.stderr.decode("utf-8", errors="replace")[:8192]
+            )
         try:
-            notify_node_sdk_process(observe_process, command=command, result=result)
-        finally:
-            require_current()
-            npm.require_unchanged(child_environment)
+            records = json.loads(result.stdout)
+            if (
+                not isinstance(records, list)
+                or len(records) != 1
+                or not isinstance(records[0], dict)
+            ):
+                raise ValueError("npm pack must report exactly one artifact")
+            record = records[0]
+            metadata = json.loads(
+                next(item.content for item in plan.files if item.path == "package.json")
+            )
+            expected_name = (
+                metadata["name"].replace("@", "").replace("/", "-")
+                + "-"
+                + metadata["version"]
+                + ".tgz"
+            )
+            if (
+                record.get("filename") != expected_name
+                or record.get("name") != metadata["name"]
+                or record.get("version") != metadata["version"]
+            ):
+                raise ValueError("npm pack reported a different package")
+            if sorted(path.name for path in packed.iterdir()) != [expected_name]:
+                raise ValueError(
+                    "npm pack output inventory differs from the selected artifact"
+                )
+            content = read_node_sdk_tarball(plan, packed / expected_name)
             require_node_sdk_projection(
                 plan, projection, require_current=require_current
             )
-    if result.returncode:
-        raise ValueError(
-            "offline npm pack failed: "
-            + result.stderr.decode("utf-8", errors="replace")[:8192]
-        )
-    try:
-        records = json.loads(result.stdout)
-        if (
-            not isinstance(records, list)
-            or len(records) != 1
-            or not isinstance(records[0], dict)
-        ):
-            raise ValueError("npm pack must report exactly one artifact")
-        record = records[0]
-        metadata = json.loads(
-            next(item.content for item in plan.files if item.path == "package.json")
-        )
-        expected_name = (
-            metadata["name"].replace("@", "").replace("/", "-")
-            + "-"
-            + metadata["version"]
-            + ".tgz"
-        )
-        if (
-            record.get("filename") != expected_name
-            or record.get("name") != metadata["name"]
-            or record.get("version") != metadata["version"]
-        ):
-            raise ValueError("npm pack reported a different package")
-        if sorted(path.name for path in packed.iterdir()) != [expected_name]:
-            raise ValueError(
-                "npm pack output inventory differs from the selected artifact"
-            )
-        content = read_node_sdk_tarball(plan, packed / expected_name)
-        require_node_sdk_projection(plan, projection, require_current=require_current)
-        return PackedNodeSDK(plan.identity, content)
-    except (KeyError, TypeError, json.JSONDecodeError) as exc:
-        raise ValueError("npm pack response is malformed") from exc
+            return PackedNodeSDK(plan.identity, content)
+        except (KeyError, TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("npm pack response is malformed") from exc

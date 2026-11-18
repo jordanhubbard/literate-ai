@@ -287,3 +287,21 @@ class NodeLibraryOracleTests(unittest.TestCase):
         with mock.patch.object(owner, "_MAX_LOADED_BYTES", 1):
             with self.assertRaises(ComponentAcceptanceError):
                 self.load()
+
+    def test_repeated_source_paths_cannot_undercharge_private_case_bytes(self):
+        from copy import deepcopy
+
+        case = self.document["declaration_cases"][0]
+        for field in owner._SOURCE_FIELDS:
+            reference = case[field]
+            path = self.root / reference["path"]
+            content = b"//" + b"x" * 60000 + b"\n" + path.read_bytes()
+            path.write_bytes(content)
+            reference["identity"] = _sha(content)
+        self.document["declaration_cases"] = [
+            dict(deepcopy(case), case_id="case" + str(index)) for index in range(4)
+        ]
+        self.write_document()
+        with mock.patch.object(owner, "_MAX_LOADED_BYTES", 512 * 1024):
+            with self.assertRaises(ComponentAcceptanceError):
+                self.load()

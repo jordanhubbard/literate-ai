@@ -18,6 +18,7 @@ from literate_ai.adapters.node_sdk_package import (
     LocalNodeSDKPackageResources,
     _capture,
     _original_stamps,
+    _PackageDestinations,
     require_node_sdk_build_custody,
 )
 from literate_ai.application.standard_plan_finalization import (
@@ -113,6 +114,9 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
         resource._original_owner = resource._owner
         resource._ports, resource._plan, resource._export = ports, plan, export
         resource._original_ports = ports
+        ports.object_root = resource._object_root = root
+        resource._object_root_stamps = lambda: None
+        resource._original_object_root = (root, resource._object_root_stamps)
         resource._root = resource._source_root = root
         resource._source_custody = custody
         resource._target, resource._target_identity = target, target.identity
@@ -123,6 +127,8 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
         resource._original_stamps = resource._stamps
         resource._original_source_stamps = resource._source_stamps
         resource._original_resources = None
+        resource._destinations = _PackageDestinations()
+        resource._original_destinations = resource._destinations
         resource._package_records = None
         resource._export_inputs = resource._original_export_inputs = ()
         return resource, ports, times, issued
@@ -357,6 +363,20 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
             with self.assertRaises(AuthorizationError):
                 resource.require_current()
 
+    def test_final_clock_cannot_redirect_original_package_object_root(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            resource, ports, _times, issued = self.guard_fixture(root)
+
+            def clock():
+                ports.object_root = root / "foreign"
+                return issued
+
+            ports.clock = clock
+            with self.assertRaisesRegex(ValueError, "original.*changed"):
+                resource.require_current()
+            self.assertFalse((root / "foreign").exists())
+
     def test_in_place_input_mutation_cannot_change_original_provenance(self):
         for field, value in (
             ("path", "elsewhere/node-sdk.tgz"),
@@ -424,7 +444,10 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
             )
             resource = object.__new__(LocalNodeSDKPackageResources)
             resource._ports = SimpleNamespace(object_root=parent)
+            resource._object_root = parent
             resource.require_current = lambda: None
+            resource._destinations = _PackageDestinations()
+            resource._original_destinations = resource._destinations
             files, stamps = resource.capture_package(root, plan, lambda _blob: content)
             stamps()
             self.assertEqual(files[0].content, b"original")
@@ -433,7 +456,9 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
                 path.write_bytes(b"modified")
                 return content
 
-            with self.assertRaisesRegex(ValueError, "exact planned inputs"):
+            with self.assertRaisesRegex(
+                ValueError, "exact planned inputs|changed before inventory close"
+            ):
                 resource.capture_package(root, plan, substituted)
 
     @unittest.skipUnless(os.name == "posix", "live capture needs POSIX change stamps")
@@ -530,6 +555,295 @@ class NodeSDKPackageCustodyTests(unittest.TestCase):
             self.assertEqual(
                 (destination / "source/api.js").read_bytes(), path.read_bytes()
             )
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_export_copy_cannot_adopt_final_clock_rewrite(self):
+        with tempfile.TemporaryDirectory() as raw:
+            parent = Path(raw).resolve()
+            resource, ports, _times, issued = self.guard_fixture(parent / "sdk")
+            source = parent / "provider/library"
+            (source / "source").mkdir(parents=True)
+            original = source / "source/api.js"
+            original.write_bytes(b"exports.value=1;")
+            original.chmod(0o644)
+            files = (
+                DirectoryExportFile("source/api.js", original.read_bytes(), 0o644),
+            )
+            content = encode_directory_export(files, max_bytes=4096, max_entries=10)
+            provider = SimpleNamespace(identity=canonical_identity("provider"))
+            ports._exports_by_identity[provider.identity.uri] = provider
+            ports._artifact_paths[provider.identity.uri] = source.parent
+            resource._export_inputs = (
+                (
+                    provider,
+                    provider.identity,
+                    source,
+                    content,
+                    (("source/api.js", original.read_bytes(), 0o644),),
+                    _original_stamps(source, files),
+                ),
+            )
+            resource._original_export_inputs = resource._export_inputs
+            destination = parent / "destination"
+            target, changed = destination / "source/api.js", []
+
+            def clock():
+                if target.exists() and not changed:
+                    before = target.stat()
+                    target.write_bytes(target.read_bytes())
+                    os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    changed.append(True)
+                return issued
+
+            ports.clock = clock
+            with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+                resource.materialize_export(provider, destination)
+            self.assertEqual(changed, [True])
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_resource_copy_cannot_adopt_final_clock_rewrite(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            resource, ports, _times, issued = self.guard_fixture(root / "sdk")
+            content = b"original distribution"
+            blob = BlobRef(hashlib.sha256(content).hexdigest(), len(content))
+            resource.inputs = (
+                PackageInput(
+                    "root/node-sdk.tgz",
+                    "node-sdk-distribution",
+                    PackageFileKind.RESOURCE,
+                    canonical_identity("custody"),
+                    canonical_identity("target"),
+                    blob,
+                ),
+            )
+            resource._blob, resource._content = blob, content
+            resource._original_resources = (resource.inputs, blob, content)
+            resource._original_resource_identity = resource._resource_identity()
+            stage = root / "package"
+            (stage / "root").mkdir(parents=True)
+            target, changed = stage / "root/node-sdk.tgz", []
+
+            def clock():
+                if target.exists() and not changed:
+                    before = target.stat()
+                    target.write_bytes(target.read_bytes())
+                    os.utime(target, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    changed.append(True)
+                return issued
+
+            ports.clock = clock
+            with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+                resource.materialize(stage)
+            self.assertEqual(changed, [True])
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_later_destination_write_cannot_retire_rewritten_earlier_copy(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve()
+            cohort = _PackageDestinations()
+            rows = (DirectoryExportFile("index.js", b"original", 0o644),)
+            for name in ("first", "second"):
+                destination = root / name
+                cohort.reserve(name, destination, rows)
+                destination.mkdir()
+                path = destination / "index.js"
+                path.write_bytes(b"original")
+                path.chmod(0o644)
+                guard = capture_materialized_files(destination, rows)
+                if name == "second":
+                    first = root / "first/index.js"
+                    before = first.stat()
+                    first.write_bytes(first.read_bytes())
+                    os.utime(first, ns=(before.st_atime_ns, before.st_mtime_ns))
+                    with self.assertRaisesRegex(
+                        ValueError, "changed before inventory close"
+                    ):
+                        cohort.finish(name, destination, guard)
+                else:
+                    cohort.finish(name, destination, guard)
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_capture_last_callback_cannot_adopt_equal_byte_rewrite(self):
+        with tempfile.TemporaryDirectory() as raw:
+            parent = Path(raw).resolve()
+            root = parent / "stage"
+            (root / "library").mkdir(parents=True)
+            path = root / "library/index.js"
+            path.write_bytes(b"original")
+            path.chmod(0o644)
+            encoded = encode_directory_export(
+                (DirectoryExportFile("index.js", b"original", 0o644),),
+                max_bytes=4096,
+                max_entries=10,
+            )
+            blob = BlobRef(hashlib.sha256(encoded).hexdigest(), len(encoded))
+            plan = SimpleNamespace(
+                inputs=(
+                    PackageInput(
+                        "library",
+                        "library",
+                        PackageFileKind.ARTIFACT,
+                        canonical_identity("export"),
+                        canonical_identity("target"),
+                        blob,
+                    ),
+                )
+            )
+            resource = object.__new__(LocalNodeSDKPackageResources)
+            resource._ports = SimpleNamespace(object_root=parent)
+            resource._object_root = parent
+            resource._destinations = _PackageDestinations()
+            resource._original_destinations = resource._destinations
+            callbacks = []
+
+            def current():
+                callbacks.append(True)
+                if len(callbacks) == 2:
+                    before = path.stat()
+                    path.write_bytes(path.read_bytes())
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+
+            resource.require_current = current
+            with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+                resource.capture_package(root, plan, lambda _blob: encoded)
+            self.assertEqual(len(callbacks), 2)
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_bind_after_owned_move_keeps_original_file_observations(self):
+        from literate_ai.adapters.exclusive_directory import (
+            directory_node,
+            publish_directory_exclusive,
+        )
+
+        for move in (False, True):
+            with self.subTest(move=move), tempfile.TemporaryDirectory() as raw:
+                parent = Path(raw).resolve()
+                root = parent / "stage"
+                root.mkdir()
+                path = root / "index.js"
+                path.write_bytes(b"original")
+                path.chmod(0o644)
+                rows = (DirectoryExportFile("index.js", b"original", 0o644),)
+                resource, ports, _times, issued = self.guard_fixture(parent / "sdk")
+                resource._destinations.complete(
+                    root, rows, capture_materialized_files(root, rows)
+                )
+                if move:
+                    destination = parent / "published"
+                    parent_node = directory_node(parent)
+                    publish_directory_exclusive(
+                        root,
+                        destination,
+                        expected_source=directory_node(root),
+                        expected_parent=parent_node,
+                    )
+                    resource.after_package_move(
+                        destination, expected_parent=parent_node
+                    )
+                    root, path = destination, destination / "index.js"
+                changed = []
+
+                def clock(path=path, changed=changed, issued=issued):
+                    if not changed:
+                        before = path.stat()
+                        path.write_bytes(path.read_bytes())
+                        os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                        changed.append(True)
+                    return issued
+
+                ports.clock = clock
+                with self.assertRaisesRegex(
+                    ValueError, "changed before inventory close"
+                ):
+                    resource.bind_package(root, rows)
+                self.assertEqual(changed, [True])
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_complete_package_cannot_retire_different_tree_originals(self):
+        with tempfile.TemporaryDirectory() as raw:
+            parent = Path(raw).resolve()
+            first, second = parent / "first", parent / "second"
+            rows = (DirectoryExportFile("index.js", b"original", 0o644),)
+            cohort = _PackageDestinations()
+            cohort.reserve("export", first, rows)
+            for root in (first, second):
+                root.mkdir()
+                (root / "index.js").write_bytes(b"original")
+                (root / "index.js").chmod(0o644)
+            original = capture_materialized_files(first, rows)
+            cohort.finish("export", first, original)
+            with self.assertRaisesRegex(ValueError, "original destinations"):
+                cohort.complete(second, rows, capture_materialized_files(second, rows))
+            cohort.current()
+            original()
+            self.assertIs(cohort.complete(first, rows, original), original)
+
+    @unittest.skipUnless(os.name == "posix", "requires original destination stamps")
+    def test_prior_export_callback_cannot_redirect_next_parent_creation(self):
+        from literate_ai._filesystem import ensure_safe_directory
+
+        with tempfile.TemporaryDirectory() as raw:
+            parent = Path(raw).resolve()
+            source = parent / "provider/library"
+            source.mkdir(parents=True)
+            (source / "index.js").write_bytes(b"original")
+            (source / "index.js").chmod(0o644)
+            rows = (DirectoryExportFile("index.js", b"original", 0o644),)
+            content = encode_directory_export(rows, max_bytes=4096, max_entries=10)
+            resource, ports, _times, issued = self.guard_fixture(parent / "sdk")
+            provider = SimpleNamespace(identity=canonical_identity("provider"))
+            ports._exports_by_identity[provider.identity.uri] = provider
+            ports._artifact_paths[provider.identity.uri] = source.parent
+            resource._export_inputs = resource._original_export_inputs = (
+                (
+                    provider,
+                    provider.identity,
+                    source,
+                    content,
+                    (("index.js", b"original", 0o644),),
+                    _original_stamps(source, rows),
+                ),
+            )
+            stage = parent / "stage"
+            (stage / "root").mkdir(parents=True)
+            resource.bind_staging(stage)
+            destination = stage / "root/library"
+            outside = parent / "outside"
+            outside.mkdir()
+            changed = []
+
+            def clock():
+                if (destination / "index.js").exists() and not changed:
+                    (stage / "components").symlink_to(outside, target_is_directory=True)
+                    changed.append(True)
+                return issued
+
+            ports.clock = clock
+            resource.materialize_export(provider, destination)
+            self.assertEqual(changed, [True])
+            # This is the exact shared owner used by the SDK package caller,
+            # after a prior export's real closing clock inserted the alias.
+            with self.assertRaises(RuntimeError):
+                ensure_safe_directory(stage / "components/next-revision")
+            self.assertEqual(tuple(outside.iterdir()), ())
+            self.assertTrue((stage / "components").is_symlink())
+
+    def test_destination_budget_and_duplicate_reservations_refuse_before_writes(self):
+        row = DirectoryExportFile("index.js", b"original", 0o644)
+        cohort = _PackageDestinations()
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw).resolve() / "not-created"
+            with self.assertRaisesRegex(ValueError, "bounds"):
+                cohort.reserve("too-many", root, (row,) * 8193)
+            self.assertFalse(root.exists())
+            cohort.reserve("first", root, (row,))
+            cohort.finish("first", root, lambda: None)
+            with self.assertRaisesRegex(ValueError, "bounds"):
+                cohort.reserve("first", root.parent / "other", (row,))
+            with self.assertRaisesRegex(ValueError, "bounds"):
+                cohort.reserve("other", root, (row,))
+            self.assertFalse(root.exists())
 
 
 if __name__ == "__main__":

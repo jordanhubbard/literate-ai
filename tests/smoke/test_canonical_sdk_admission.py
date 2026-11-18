@@ -12,7 +12,7 @@ import tempfile
 import unittest
 from contextlib import contextmanager
 from contextvars import copy_context
-from copy import copy
+from copy import copy, deepcopy
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -101,6 +101,14 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
     def test_public_host_nested_provider_build_package_and_acceptance(self):
         self._exercise_sdk_build(
             public_host=True, provider_runtime="source/counter/runtime/add.cjs"
+        )
+
+    def test_two_provider_public_host_build_package_and_acceptance(self):
+        self._exercise_sdk_build(
+            public_host=True,
+            provider_runtime="source/counter/runtime/add.cjs",
+            second_provider=True,
+            public_subpath=True,
         )
 
     def test_two_actual_providers_enter_owned_invocation(self):
@@ -441,7 +449,12 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self._assert_public_final_clock_drift("authority")
 
     def _exercise_sdk_build(
-        self, *, public_host=False, provider_runtime="source/counter/api.js"
+        self,
+        *,
+        public_host=False,
+        provider_runtime="source/counter/api.js",
+        second_provider=False,
+        public_subpath=False,
     ):
         def operation(invocation, owner, fixture):
             print(
@@ -450,15 +463,43 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             source = fixture.root / "sdk-source"
             (source / "src").mkdir(parents=True)
             (source / "source/tests").mkdir(parents=True)
-            provider = fixture.provider
-            declaration = fixture.provider_contract.library_import_surface.declarations[
-                0
-            ]
-            wrapper, _ = node_sdk_provider_module_paths(provider, declaration)
-            (source / "src/index.ts").write_text(
-                "import provider=require(" + json.dumps("../" + wrapper) + ");"
-                "export const add=provider.add;\n"
+            providers = tuple(
+                sorted(
+                    (row.built.exports[0] for row in fixture.providers),
+                    key=lambda provider: provider.identity.uri,
+                )
             )
+            if second_provider:
+                self.assertEqual(len(providers), 2)
+                imports = []
+                for index, row in enumerate(fixture.providers):
+                    declaration = row.contract.library_import_surface.declarations[0]
+                    wrapper, _ = node_sdk_provider_module_paths(
+                        row.built.exports[0],
+                        declaration,
+                    )
+                    imports.append(
+                        "import provider"
+                        + str(index)
+                        + "=require("
+                        + json.dumps("../" + wrapper)
+                        + ");"
+                    )
+                root_source = "".join(imports) + (
+                    "export const add=(a:number,b:number):number=>"
+                    "provider1.add(provider0.add(a,b),0);\n"
+                )
+            else:
+                self.assertEqual(len(providers), 1)
+                declaration = (
+                    fixture.provider_contract.library_import_surface.declarations[0]
+                )
+                wrapper, _ = node_sdk_provider_module_paths(providers[0], declaration)
+                root_source = (
+                    "import provider=require(" + json.dumps("../" + wrapper) + ");"
+                    "export const add=provider.add;\n"
+                )
+            (source / "src/index.ts").write_text(root_source)
             (source / "LICENSE").write_text(FIXTURE_LEGAL_TEXT)
             require_locked_node_sdk_legal_files(
                 fixture.snapshot,
@@ -489,14 +530,14 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 recipe=invocation.prepared.recipe,
             )
             intent = ports.create(
-                fixture.execution, invocation.prepared.plan, candidate, (provider,), ()
+                fixture.execution, invocation.prepared.plan, candidate, providers, ()
             )
             index = ports.index(candidate.component_revision, candidate.tree_identity)
             plan = ports.finalize(intent, ports.authorize(intent, index))
             print("Canonical SDK acceptance: SDK BUILD", flush=True)
-            built = ports.build(plan, (provider,))
+            built = ports.build(plan, providers)
             owner()
-            self.assertEqual(ports.build(plan, (provider,)), built)
+            self.assertEqual(ports.build(plan, providers), built)
             self.assertEqual(ports.build_cache_hits, 1)
             print("Canonical SDK acceptance: SDK cache, TEST and EXEC", flush=True)
             ports.test(plan, built.exports)
@@ -526,16 +567,15 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 metadata["composition"]["compiler"]["digest"],
                 fixture.target.typescript.compiler.identity.digest,
             )
-            self.assertIn(
-                provider.blob.digest,
-                ports.resolved_sbom_content(built.evidence).decode(),
-            )
+            sbom = ports.resolved_sbom_content(built.evidence).decode()
+            for provider in providers:
+                self.assertIn(provider.blob.digest, sbom)
             manifests = tuple(
                 realize_manifest(
                     ports._plans_by_revision[export.component_revision.uri].manifest,
                     (export,),
                 )
-                for export in (provider, built.exports[0])
+                for export in (*providers, built.exports[0])
             )
             drivers = tuple(
                 sorted(
@@ -559,7 +599,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                     sorted(
                         (
                             ports._plans_by_revision[p.component_revision.uri]
-                            for p in (provider, built.exports[0])
+                            for p in (*providers, built.exports[0])
                         ),
                         key=lambda p: p.component_revision.uri,
                     )
@@ -644,10 +684,12 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
 
         self.with_canonical_sdk(
             operation,
-            verifier_lifetime=timedelta(minutes=30),
+            verifier_lifetime=timedelta(minutes=45 if second_provider else 30),
             public_host=public_host,
             root_acceptance=public_host,
             provider_runtime=provider_runtime,
+            second_provider=second_provider,
+            public_subpath=public_subpath,
         )
 
     def _accept_sdk_project(
@@ -895,24 +937,52 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         capability = surface.capabilities[0]
         document["cases"][0]["capability"] = capability.capability
         document["declaration_cases"][0]["capability"] = capability.capability
-        module = json.dumps(capability.module)
-        sources = (
-            "import library=require(" + module + ");const n:number=library.add(1,2);",
-            "import library=require(" + module + ");library.add('bad',2);",
-            "import {add} from " + module + ";const n:number=add(1,2);",
-            "import {add} from " + module + ";add('bad',2);",
+        base_case = deepcopy(document["declaration_cases"][0])
+        document["declaration_cases"] = []
+        modules = (
+            capability.module,
+            *(
+                entry.module
+                for entry in surface.node_sdk_exports
+                if entry.module != capability.module
+            ),
         )
-        for field, source in zip(
-            oracle_fixture.owner._SOURCE_FIELDS, sources, strict=True
-        ):
-            content = source.encode()
-            ref = document["declaration_cases"][0][field]
-            (original.root / ref["path"]).write_bytes(content)
-            ref["identity"] = oracle_fixture._sha(content)
-        for field, text in (
-            ("harness", runtime_fixture._CJS),
-            ("esm_harness", runtime_fixture._ESM),
-        ):
+        for index, selected_module in enumerate(modules):
+            row = deepcopy(base_case)
+            if index:
+                row["case_id"] += "-alias-" + str(index)
+            module = json.dumps(selected_module)
+            sources = (
+                "import library=require("
+                + module
+                + ");const n:number=library.add(1,2);",
+                "import library=require(" + module + ");library.add('bad',2);",
+                "import {add} from " + module + ";const n:number=add(1,2);",
+                "import {add} from " + module + ";add('bad',2);",
+            )
+            for field, source in zip(
+                oracle_fixture.owner._SOURCE_FIELDS, sources, strict=True
+            ):
+                content = source.encode()
+                ref = row[field]
+                if index:
+                    ref["path"] = "alias" + str(index) + "-" + ref["path"]
+                (original.root / ref["path"]).write_bytes(content)
+                ref["identity"] = oracle_fixture._sha(content)
+            document["declaration_cases"].append(row)
+        document["declaration_cases"].sort(key=lambda row: row["case_id"])
+        if len(modules) > 1:
+            # Reuse the original bare-specifier harnesses; every selected SDK
+            # alias must be exercised by each actual runtime child.
+            from tests.smoke import test_node_sdk_package_specifiers as specifiers
+
+            harnesses = (("harness", specifiers._CJS), ("esm_harness", specifiers._ESM))
+        else:
+            harnesses = (
+                ("harness", runtime_fixture._CJS),
+                ("esm_harness", runtime_fixture._ESM),
+            )
+        for field, text in harnesses:
             content = text.encode()
             (original.root / document[field]).write_bytes(content)
             document[field + "_identity"] = oracle_fixture._sha(content)
@@ -971,7 +1041,10 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
 
         def check(*args, **kwargs):
             result = actual_check(*args, **kwargs)
-            self.assertEqual(len(result.declarations.processes), 6)
+            self.assertEqual(
+                len(result.declarations.processes),
+                6 * len(args[0].declaration_cases),
+            )
             self.assertEqual(len(result.runtime.results), 2)
             self.assertEqual(
                 kwargs["artifact_root"],
@@ -1086,6 +1159,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         root_acceptance=False,
         provider_runtime="source/counter/api.js",
         second_provider=False,
+        public_subpath=False,
         before_invocation=None,
         verifier_observer=None,
     ):
@@ -1095,6 +1169,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 root / "authority",
                 provider_runtime=provider_runtime,
                 second_provider=second_provider,
+                public_subpath=public_subpath,
             )
             environment = dict(os.environ)
             environment["LITAI_TYPESCRIPT_SDK"] = environment["LITERATE_TYPESCRIPT_SDK"]

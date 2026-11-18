@@ -57,6 +57,44 @@ def path_is_link_or_reparse(path: Path) -> bool:
     return stat_is_link_or_reparse(metadata)
 
 
+def capture_directory_ancestries(paths: tuple[Path, ...]):
+    """Close original directory identities without pinning sibling activity.
+
+    Callers bound their input inventory. This finite observation grants no path
+    or execution authority and invokes no caller callbacks. Filesystems lacking
+    usable inode identity require their platform's handle-based owner instead.
+    """
+    if type(paths) is not tuple:
+        raise TypeError("directory ancestry capture requires finite path DATA")
+    directories = {}
+    for raw in paths:
+        directory = Path(str(raw))
+        if not directory.is_absolute() or ".." in directory.parts:
+            raise UnsafeFilesystemPathError("directory ancestry must be absolute")
+        for ancestor in (*reversed(directory.parents), directory):
+            directories.setdefault(ancestor, None)
+
+    def identity(path):
+        value = path.lstat()
+        if (
+            stat_is_link_or_reparse(value)
+            or not stat.S_ISDIR(value.st_mode)
+            or value.st_ino == 0
+        ):
+            raise UnsafeFilesystemPathError("directory ancestry identity unavailable")
+        return value.st_dev, value.st_ino, value.st_mode
+
+    original = tuple((path, identity(path)) for path in directories)
+
+    def close():
+        for path, expected in original:
+            if identity(path) != expected:
+                raise UnsafeFilesystemPathError("original directory ancestry changed")
+
+    close()
+    return close
+
+
 def name_or_magic_is_native_or_wasm(name: str, magic: bytes) -> bool:
     """Recognize portable native-object and WebAssembly payload indicators."""
 

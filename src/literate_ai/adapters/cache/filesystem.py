@@ -16,6 +16,16 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
+from literate_ai._cache_lock import (
+    _default_get_osfhandle,
+    _default_windows_kernel32,
+    _is_windows,
+)
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    capture_directory_ancestries,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.dependencies import (
     CycloneDxBomError,
     validate_cyclonedx_bom,
@@ -90,6 +100,257 @@ class SourceCacheError(RuntimeError):
         super().__init__(message)
         self.code = code
         self.message = message
+
+
+def _effect_failure():
+    return SourceCacheError(
+        "source-cache.effect-input-changed",
+        "original cache publication or retirement input changed",
+    )
+
+
+def _native_effect_identity(kernel, handle):
+    identity = kernel.file_identity(handle)
+    if identity[1:] == (0, 0):
+        raise SourceCacheError(
+            "source-cache.effect-identity-unavailable",
+            "original cache path identity could not be established",
+        )
+    return identity
+
+
+def _effect_descriptor_identity(descriptor):
+    if _is_windows():
+        return _native_effect_identity(
+            _default_windows_kernel32(), _default_get_osfhandle(descriptor)
+        )
+    value = os.fstat(descriptor)
+    if not value.st_ino:
+        raise _effect_failure()
+    return value.st_dev, value.st_ino
+
+
+class _CacheEffectDirectories:
+    """Hold original effect parents, without pinning unrelated sibling activity."""
+
+    def __init__(self, paths):
+        self.paths = tuple(dict.fromkeys(Path(str(path)) for path in paths))
+        self.windows = _is_windows()
+        self.kernel = _default_windows_kernel32() if self.windows else None
+        self.handles = {}
+        self.original = {}
+        self.ancestors = None
+
+    def __enter__(self):
+        try:
+            if self.windows:
+                paths = dict.fromkeys(
+                    parent
+                    for path in self.paths
+                    for parent in (*reversed(path.parents), path)
+                )
+                for path in paths:
+                    metadata = path.lstat()
+                    if stat_is_link_or_reparse(metadata) or not stat.S_ISDIR(
+                        metadata.st_mode
+                    ):
+                        raise _effect_failure()
+                    handle = self.kernel.open_reparse_aware(
+                        str(path), share_delete=False
+                    )
+                    self.handles[path] = handle
+                    identity = _native_effect_identity(self.kernel, handle)
+                    self.original[path] = identity, metadata.st_mode
+            else:
+                self.ancestors = capture_directory_ancestries(self.paths)
+                for path in self.paths:
+                    descriptor = os.open(
+                        path,
+                        os.O_RDONLY
+                        | os.O_DIRECTORY
+                        | os.O_NOFOLLOW
+                        | getattr(os, "O_CLOEXEC", 0),
+                    )
+                    self.handles[path] = descriptor
+                    value = os.fstat(descriptor)
+                    self.original[path] = value.st_dev, value.st_ino, value.st_mode
+            self.current()
+            return self
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
+
+    def current(self):
+        if self.ancestors is not None:
+            self.ancestors()
+        for path, original in self.original.items():
+            value = path.lstat()
+            if stat_is_link_or_reparse(value) or not stat.S_ISDIR(value.st_mode):
+                raise _effect_failure()
+            if self.windows:
+                handle = self.kernel.open_reparse_aware(str(path))
+                try:
+                    current = (
+                        _native_effect_identity(self.kernel, handle),
+                        value.st_mode,
+                    )
+                finally:
+                    self.kernel.close(handle)
+            else:
+                current = value.st_dev, value.st_ino, value.st_mode
+            if current != original:
+                raise _effect_failure()
+
+    def identity_at(self, path):
+        if self.windows:
+            metadata = path.lstat()
+            if stat_is_link_or_reparse(metadata) or not stat.S_ISREG(metadata.st_mode):
+                raise _effect_failure()
+            handle = self.kernel.open_reparse_aware(str(path))
+            try:
+                return _native_effect_identity(self.kernel, handle)
+            finally:
+                self.kernel.close(handle)
+        metadata = os.stat(
+            path.name, dir_fd=self.handles[path.parent], follow_symlinks=False
+        )
+        if not stat.S_ISREG(metadata.st_mode):
+            raise _effect_failure()
+        return metadata.st_dev, metadata.st_ino
+
+    def unlink_original(self, path, identity):
+        if self.identity_at(path) != identity:
+            raise _effect_failure()
+        if self.windows:
+            self.current()
+            path.unlink()
+        else:
+            os.unlink(path.name, dir_fd=self.handles[path.parent])
+
+    def link(self, source, destination):
+        if self.windows:
+            os.link(source, destination)
+        else:
+            os.link(
+                source.name,
+                destination.name,
+                src_dir_fd=self.handles[source.parent],
+                dst_dir_fd=self.handles[destination.parent],
+                follow_symlinks=False,
+            )
+
+    def __exit__(self, *_error):
+        for handle in reversed(tuple(self.handles.values())):
+            if self.windows:
+                self.kernel.close(handle)
+            else:
+                os.close(handle)
+        self.handles.clear()
+
+
+class _CacheEffectFile:
+    """Original held object; Windows uses native identity and denies new writers."""
+
+    def __init__(self, path, content, *, expected_identity=None):
+        self.path, self.content = Path(str(path)), content
+        self.windows = _is_windows()
+        self.kernel = _default_windows_kernel32() if self.windows else None
+        self.handle = None
+        self.expected_identity = expected_identity
+
+    @staticmethod
+    def _stamp(value):
+        if stat_is_link_or_reparse(value) or not stat.S_ISREG(value.st_mode):
+            raise _effect_failure()
+        return (
+            value.st_dev,
+            value.st_ino,
+            value.st_mode,
+            value.st_nlink,
+            value.st_size,
+            value.st_mtime_ns,
+            value.st_ctime_ns,
+        )
+
+    def __enter__(self):
+        try:
+            self._stamp(self.path.lstat())
+            if self.windows:
+                self.handle = self.kernel.open_reparse_aware(
+                    str(self.path), share_write=False
+                )
+                self.identity = _native_effect_identity(self.kernel, self.handle)
+                self.original = self.path.lstat().st_mode
+            else:
+                self.handle = os.open(
+                    self.path,
+                    os.O_RDONLY
+                    | os.O_NOFOLLOW
+                    | os.O_NONBLOCK
+                    | getattr(os, "O_CLOEXEC", 0),
+                )
+                self.original = self._stamp(os.fstat(self.handle))
+                self.identity = self.original[:2]
+                if not self.identity[1]:
+                    raise _effect_failure()
+            if (
+                self.expected_identity is not None
+                and self.identity != self.expected_identity
+            ):
+                raise _effect_failure()
+            self._bytes()
+            self.current()
+            return self
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
+
+    def _bytes(self):
+        if self.windows:
+            with self.path.open("rb") as stream:
+                content = stream.read(len(self.content) + 1)
+        else:
+            os.lseek(self.handle, 0, os.SEEK_SET)
+            with os.fdopen(os.dup(self.handle), "rb") as stream:
+                content = stream.read(len(self.content) + 1)
+        if content != self.content:
+            raise _effect_failure()
+
+    def current(self):
+        metadata = self.path.lstat()
+        stamp = self._stamp(metadata)
+        if self.windows:
+            handle = self.kernel.open_reparse_aware(str(self.path), share_write=False)
+            try:
+                identity = _native_effect_identity(self.kernel, handle)
+            finally:
+                self.kernel.close(handle)
+            if identity != self.identity or metadata.st_mode != self.original:
+                raise _effect_failure()
+        elif (
+            stamp != self.original
+            or self._stamp(os.fstat(self.handle)) != self.original
+        ):
+            raise _effect_failure()
+
+    def settle_owned_link_change(self):
+        # Only the caller's own link/unlink may precede this cut, with no intervening
+        # owner callback. Keep the same held object and exact original bytes.
+        self._bytes()
+        if not self.windows:
+            value = self._stamp(os.fstat(self.handle))
+            if value[:2] != self.identity or self._stamp(self.path.lstat()) != value:
+                raise _effect_failure()
+            self.original = value
+        self.current()
+
+    def __exit__(self, *_error):
+        if self.handle is not None:
+            if self.windows:
+                self.kernel.close(self.handle)
+            else:
+                os.close(self.handle)
+            self.handle = None
 
 
 class FinalPathSourceIntelligenceVerifier(Protocol):
@@ -715,79 +976,101 @@ class FileSystemSourceCache:
             )
 
     def _retire_current(self, key, *, keep, require_current):
-        require_current()
-
         if not isinstance(key, SourceDerivationCacheKey):
             raise TypeError("membership retirement requires a SourceDerivationCacheKey")
         if not isinstance(keep, ContentIdentity):
             raise TypeError(
                 "membership retirement requires the ContentIdentity to keep"
             )
-        if not self.writable:
-            raise SourceCacheError(
-                "source-cache.write-disabled",
-                "this cache target was opened without write authority",
-            )
-        if not self.available or self.cas is None:
-            return
-        lookup_identity = key.accepted_source_lookup_identity
-        key_directory = self.keys / lookup_identity.digest
-        if key_directory.is_symlink():
-            raise SourceCacheError(
-                "source-cache.path-unsafe", "cache key directory is symbolic"
-            )
-        if not key_directory.exists():
-            return
-        self._require_directory(key_directory)
-        retired = False
-        for membership in sorted(key_directory.iterdir()):
-            if membership.name == ".retired":
-                self._require_directory(membership)
-                continue
-            if membership.is_symlink() or not membership.is_file():
-                raise SourceCacheError(
-                    "source-cache.membership-invalid",
-                    "cache key membership must be a regular file",
-                )
-            if not membership.name.endswith(".json"):
-                raise SourceCacheError(
-                    "source-cache.membership-invalid",
-                    "cache key directory contains an unknown object",
-                )
-            if membership.name == f"{keep.digest}.json":
-                continue
-            entry_digest = membership.name.removesuffix(".json")
-            _require_hex_digest(entry_digest, label="retired entry membership")
-            document, _ = _read_canonical_json_object(
-                membership,
-                maximum_bytes=4096,
-                code="source-cache.membership-invalid",
-            )
-            if document != {
-                "schema": _MEMBERSHIP_SCHEMA,
-                "accepted_source_lookup_identity": lookup_identity.uri,
-                "entry_identity": f"sha256:{entry_digest}",
-            }:
-                raise SourceCacheError(
-                    "source-cache.membership-invalid",
-                    "retired membership does not bind its exact entry and key",
-                )
-            directory = key_directory / ".retired"
-            directory.mkdir(mode=0o700, exist_ok=True)
-            self._require_directory(directory)
-            self._publish_immutable_bytes(
-                directory / membership.name,
-                canonical_json_bytes(
-                    {**document, "schema": _RETIRED_MEMBERSHIP_SCHEMA}
-                ),
-                require_current=require_current,
-            )
+        lookup_identity = ContentIdentity.parse_uri(
+            key.accepted_source_lookup_identity.uri
+        )
+        keep = ContentIdentity.parse_uri(keep.uri)
+        configuration, original_cas = self._effect_configuration(), self.cas
+
+        def require_configuration():
+            if (
+                self.cas is not original_cas
+                or self._effect_configuration() != configuration
+            ):
+                raise _effect_failure()
+
+        try:
             require_current()
-            membership.unlink()
-            retired = True
-        if retired:
-            _fsync_directory(key_directory)
-        require_current()
+            require_configuration()
+            if not self.writable:
+                raise SourceCacheError(
+                    "source-cache.write-disabled",
+                    "this cache target was opened without write authority",
+                )
+            if not self.available or self.cas is None:
+                return
+            key_directory = self.keys / lookup_identity.digest
+            if key_directory.is_symlink():
+                raise SourceCacheError(
+                    "source-cache.path-unsafe", "cache key directory is symbolic"
+                )
+            if not key_directory.exists():
+                return
+            self._require_directory(key_directory)
+            retired = False
+            with _CacheEffectDirectories((self._io_root, key_directory)) as directories:
+                for membership in sorted(key_directory.iterdir()):
+                    if membership.name == ".retired":
+                        self._require_directory(membership)
+                        continue
+                    if membership.is_symlink() or not membership.is_file():
+                        raise SourceCacheError(
+                            "source-cache.membership-invalid",
+                            "cache key membership must be a regular file",
+                        )
+                    if not membership.name.endswith(".json"):
+                        raise SourceCacheError(
+                            "source-cache.membership-invalid",
+                            "cache key directory contains an unknown object",
+                        )
+                    if membership.name == f"{keep.digest}.json":
+                        continue
+                    entry_digest = membership.name.removesuffix(".json")
+                    _require_hex_digest(entry_digest, label="retired entry membership")
+                    document, raw = _read_canonical_json_object(
+                        membership,
+                        maximum_bytes=4096,
+                        code="source-cache.membership-invalid",
+                    )
+                    if document != {
+                        "schema": _MEMBERSHIP_SCHEMA,
+                        "accepted_source_lookup_identity": lookup_identity.uri,
+                        "entry_identity": f"sha256:{entry_digest}",
+                    }:
+                        raise SourceCacheError(
+                            "source-cache.membership-invalid",
+                            "retired membership does not bind its exact entry and key",
+                        )
+                    with _CacheEffectFile(membership, raw) as original:
+                        directory = key_directory / ".retired"
+                        directory.mkdir(mode=0o700, exist_ok=True)
+                        self._require_directory(directory)
+                        self._publish_immutable_bytes(
+                            directory / membership.name,
+                            canonical_json_bytes(
+                                {**document, "schema": _RETIRED_MEMBERSHIP_SCHEMA}
+                            ),
+                            require_current=require_current,
+                        )
+                        require_current()
+                        require_configuration()
+                        directories.current()
+                        original.current()
+                        directories.unlink_original(membership, original.identity)
+                        retired = True
+                if retired:
+                    _fsync_directory(key_directory)
+                require_current()
+                require_configuration()
+                directories.current()
+        except (OSError, UnsafeFilesystemPathError) as error:
+            raise _effect_failure() from error
 
     def _intelligence_attachment(self, digest: str) -> SourceIntelligenceAttachment:
         _require_hex_digest(digest, label="intelligence attachment")
@@ -1032,72 +1315,140 @@ class FileSystemSourceCache:
                 f"cached {label} evidence is not one canonical versioned object",
             )
 
+    def _effect_configuration(self):
+        return (
+            self.target_id,
+            type(self.writable),
+            self.writable,
+            type(self.available),
+            self.available,
+            *(
+                str(getattr(self, field))
+                for field in (
+                    "root",
+                    "staging",
+                    "entries",
+                    "keys",
+                    "intelligence",
+                    "intelligence_by_source",
+                )
+            ),
+            id(self.cas),
+            str(getattr(self.cas, "root", "")),
+        )
+
     def _publish_immutable_bytes(
         self, destination: Path, content: bytes, *, require_current=None
     ) -> None:
         guard = (
             capture_process_liveness() if require_current is None else require_current
         )
-        guard()
-        if not self.writable:
-            raise SourceCacheError(
-                "source-cache.write-disabled",
-                "read-only cache target cannot publish immutable bytes",
-            )
-        self._require_directory(destination.parent)
-        if destination.is_symlink():
-            raise SourceCacheError(
-                "source-cache.path-unsafe", "immutable cache path is symbolic"
-            )
-        if destination.exists():
+        if type(content) is not bytes:
+            raise TypeError("immutable publication requires exact byte DATA")
+        configuration, original_cas = self._effect_configuration(), self.cas
+        destination = Path(_native_filesystem_path(Path(str(destination)).absolute()))
+        staging, cache_root = Path(str(self.staging)), Path(str(self._io_root))
+
+        def require_configuration():
             if (
-                _read_regular_file(
-                    destination,
-                    maximum_bytes=max(len(content), 1) + 1,
-                    code="source-cache.immutable-collision",
-                )
-                != content
+                self.cas is not original_cas
+                or self._effect_configuration() != configuration
             ):
-                raise SourceCacheError(
-                    "source-cache.immutable-collision",
-                    "immutable cache path contains different bytes",
-                )
-            guard()
-            return
-        descriptor, temporary_name = tempfile.mkstemp(
-            prefix=".publish-", dir=self.staging
-        )
-        temporary = Path(temporary_name)
+                raise _effect_failure()
+
         try:
-            with os.fdopen(descriptor, "wb") as output:
-                output.write(content)
-                output.flush()
-                os.fsync(output.fileno())
-            os.chmod(temporary, 0o600)
             guard()
-            try:
-                os.link(
-                    _native_filesystem_path(temporary),
-                    _native_filesystem_path(destination),
+            require_configuration()
+            if not self.writable:
+                raise SourceCacheError(
+                    "source-cache.write-disabled",
+                    "read-only cache target cannot publish immutable bytes",
                 )
-            except FileExistsError:
-                if (
-                    _read_regular_file(
-                        destination,
-                        maximum_bytes=max(len(content), 1) + 1,
-                        code="source-cache.immutable-collision",
-                    )
-                    != content
-                ):
+            self._require_directory(destination.parent)
+            self._require_directory(staging)
+            with _CacheEffectDirectories(
+                (cache_root, staging, destination.parent)
+            ) as directories:
+                if destination.is_symlink():
                     raise SourceCacheError(
-                        "source-cache.immutable-collision",
-                        "immutable cache path contains different bytes",
-                    ) from None
-            else:
-                _fsync_directory(destination.parent)
-        finally:
-            temporary.unlink(missing_ok=True)
-        guard()
+                        "source-cache.path-unsafe", "immutable cache path is symbolic"
+                    )
+                if destination.exists():
+                    if (
+                        _read_regular_file(
+                            destination,
+                            maximum_bytes=max(len(content), 1) + 1,
+                            code="source-cache.immutable-collision",
+                        )
+                        != content
+                    ):
+                        raise SourceCacheError(
+                            "source-cache.immutable-collision",
+                            "immutable cache path contains different bytes",
+                        )
+                    with _CacheEffectFile(destination, content) as original:
+                        guard()
+                        require_configuration()
+                        directories.current()
+                        original.current()
+                    return
+                descriptor, name = tempfile.mkstemp(prefix=".publish-", dir=staging)
+                temporary = Path(name)
+                stage_identity, removed = None, False
+                try:
+                    with os.fdopen(descriptor, "wb") as output:
+                        output.write(content)
+                        output.flush()
+                        os.fsync(output.fileno())
+                        stage_identity = _effect_descriptor_identity(output.fileno())
+                    temporary.chmod(0o600)
+                    with _CacheEffectFile(
+                        temporary, content, expected_identity=stage_identity
+                    ) as original:
+                        guard()
+                        require_configuration()
+                        directories.current()
+                        original.current()
+                        created = False
+                        try:
+                            directories.link(temporary, destination)
+                            created = True
+                        except FileExistsError:
+                            if (
+                                _read_regular_file(
+                                    destination,
+                                    maximum_bytes=max(len(content), 1) + 1,
+                                    code="source-cache.immutable-collision",
+                                )
+                                != content
+                            ):
+                                raise SourceCacheError(
+                                    "source-cache.immutable-collision",
+                                    "immutable cache path contains different bytes",
+                                ) from None
+                        with _CacheEffectFile(destination, content) as published:
+                            if created and published.identity != stage_identity:
+                                raise _effect_failure()
+                            directories.unlink_original(temporary, stage_identity)
+                            removed = True
+                            if created:
+                                published.settle_owned_link_change()
+                                _fsync_directory(destination.parent)
+                            guard()
+                            require_configuration()
+                            directories.current()
+                            published.current()
+                finally:
+                    if not removed and stage_identity is not None:
+                        try:
+                            # Cleanup owns only this original name/object in the
+                            # held staging parent, never a replacement writer's file.
+                            if directories.identity_at(temporary) == stage_identity:
+                                directories.unlink_original(temporary, stage_identity)
+                        except (FileNotFoundError, SourceCacheError):
+                            pass
+        except (OSError, UnsafeFilesystemPathError) as error:
+            raise _effect_failure() from error
 
     @property
     def _io_root(self) -> Path:

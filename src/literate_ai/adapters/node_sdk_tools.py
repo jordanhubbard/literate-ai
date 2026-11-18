@@ -9,7 +9,7 @@ from subprocess import CompletedProcess
 from literate_ai.adapters.builders.javascript import controlled_node_environment
 from literate_ai.contracts import ContentIdentity
 
-SDK_TOOL_ENVIRONMENT_POLICY = "literate-ai/node-sdk-tool-environment@1"
+SDK_TOOL_ENVIRONMENT_POLICY = "literate-ai/node-sdk-tool-environment@2"
 
 
 def node_sdk_tool_environment(environment: Mapping[str, str]) -> dict[str, str]:
@@ -23,7 +23,7 @@ def node_sdk_tool_environment(environment: Mapping[str, str]) -> dict[str, str]:
     result = {
         name: value
         for name, value in controlled.items()
-        if not name.upper().startswith(("NODE_", "NPM_"))
+        if not name.upper().startswith(("NODE_", "NPM_", "LITAI_PROVIDER_"))
     }
     result["NODE_DISABLE_COMPILE_CACHE"] = "1"
     return result

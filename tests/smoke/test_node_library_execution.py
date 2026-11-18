@@ -11,7 +11,6 @@ from literate_ai.adapters.builders.python import BuildError
 from literate_ai.adapters.directory_artifacts import require_materialized_files
 from literate_ai.adapters.node_library_acceptance import load_node_library_acceptance
 from literate_ai.adapters.node_library_execution import check_node_library_runtime
-from literate_ai.adapters.node_sdk_composition import materialize_node_sdk
 from literate_ai.contracts import canonical_identity
 from tests.smoke import test_node_library_acceptance as oracle_fixture
 from tests.smoke import test_node_sdk_composition as composition_fixture
@@ -68,9 +67,14 @@ class NodeLibraryExecutionTests(unittest.TestCase):
         self.plan = self.fixture.prepare()
         self.surface = self.fixture.fixture.consumer.library_import_surface
         self.artifact_root = self.root / "sdk"
-        materialize_node_sdk(
-            self.plan, self.artifact_root, require_current=lambda: None
-        )
+        # Authored synthetic runtime input, independent of the SDK projection
+        # owner's stronger platform-specific publication boundary.
+        self.artifact_root.mkdir()
+        for row in self.plan.files:
+            path = self.artifact_root / row.path
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(row.content)
+            path.chmod(row.mode)
         self.node = discover_node_toolchain(environment=dict(os.environ))
         capability = self.surface.capabilities[0].capability
         self.input.document["import_surface_identity"] = self.surface.identity.uri

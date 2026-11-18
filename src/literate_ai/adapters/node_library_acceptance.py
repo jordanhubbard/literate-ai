@@ -239,6 +239,11 @@ class _LoadedOracle:
             authority.total_bytes
             + len(self.verifier_inputs.cases_content)
             + len(self.verifier_inputs.expected_content)
+            + sum(
+                len(source)
+                for case in original.declaration_cases
+                for source in case.sources
+            )
         )
 
     def require_original(self, oracle):

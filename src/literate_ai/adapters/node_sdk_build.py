@@ -20,7 +20,10 @@ from literate_ai.adapters.node_sdk_tools import (
     NodeSDKToolProcess,
     require_node_sdk_process_observer,
 )
-from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
+from literate_ai.adapters.node_sdk_typescript import (
+    NodeSDKTypeScriptCompiler,
+    _inventory,
+)
 from literate_ai.contracts import (
     ArtifactExport,
     BlobRef,
@@ -74,6 +77,10 @@ def compile_node_sdk_plan(
         or not callable(require_current)
     ):
         raise TypeError("SDK compilation requires exact source/tools and current owner")
+    source_files = _inventory(source_files, maximum=MAX_SDK_FILES)
+    licenses = _inventory(licenses, maximum=MAX_SDK_FILES)
+    source_authority = ContentIdentity.parse_uri(source_authority.uri)
+    packer = ContentIdentity.parse_uri(packer.uri)
     if (
         not isinstance(source_files, tuple)
         or not 1 <= len(source_files) <= MAX_SDK_FILES
@@ -93,6 +100,9 @@ def compile_node_sdk_plan(
         or any(not isinstance(item, NodeSDKEntrypoint) for item in entrypoints)
     ):
         raise ValueError("SDK compilation requires explicit public entrypoints")
+    entrypoints = tuple(
+        NodeSDKEntrypoint(row.public, row.module) for row in entrypoints
+    )
     public = tuple(item.public for item in entrypoints)
     if public != tuple(sorted(set(public))) or "." not in public:
         raise ValueError("SDK compilation requires a canonical root and subpaths")
