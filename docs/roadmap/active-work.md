@@ -8647,12 +8647,13 @@ slice here before implementation so this file always names the resumable frontie
   candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
 - **Completion prerequisites:** none
-- **Next action:** Separate documentation rendering from the unused OpenSpec
-  dependency graph, auditing each tool before its own execution without removing
-  either from full CI or release qualification. Preserve the observed hosted
-  coverage/retry evidence and complete the combined candidate's remaining native,
-  installed, artifact and release acceptance. The unpatched OpenSpec dependency
-  advisory continues to block its gate and release readiness.
+- **Next action:** Move the existing cheap Make validation gates before expensive
+  qualification work, preserving every gate and refusal under parallel Make. The
+  reviewed documentation/OpenSpec split is in PR 470; its hosted Linux suite passes
+  before the known audit refuses after a 52-minute job. Keep that audit mandatory,
+  qualify the reordered entry points, and preserve the observed hosted coverage/retry
+  evidence and combined candidate's remaining native, installed, artifact and release
+  acceptance. The unpatched dependency advisory still blocks its gate and release.
 - **Implementation:**
   - [x] Archive obsolete historical execution with source/fixture comparison and
         the document-publication proof gap explicitly preserved.

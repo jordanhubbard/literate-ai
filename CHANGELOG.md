@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Run framework validation preflight before its long Python, skill and installed
+  checks, including with parallel Make. Check cheap release gates before Python
+  while retaining the later driver recheck and every existing release gate.
+
 - Separate documentation-rendering dependencies from the OpenSpec CLI, so a
   documentation-only check installs only its own tools. Audit both locked graphs
   before their respective checks; full CI, Windows and release qualification keep

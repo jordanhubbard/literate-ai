@@ -1003,3 +1003,23 @@ The [dated report update](../architecture/existing-repository-review.html)
 contains per-task outcomes, usage, protocol/aggregate identities and limitations.
 This records a completed bounded measurement, not completion of SDLC-001 or its
 activation, governed-adoption, changed-version upgrade, platform or release gates.
+
+### Early Make refusal before expensive qualification work
+
+RELEASE-CLOSURE-001 owns this in-progress implementation of the measured late
+audit finding. Keep the same validation and release gates, existing safe tool
+staging, dependency audits, source checks, checkpoint freshness and exact wheel
+custody. Complete cheap validation before starting the long Python workload;
+ordinary `python-check` remains independently runnable for source diagnosis.
+Parallel Make must not race the expensive phase past a failing preflight. The
+implementation must remain compatible with the native GNU Make 3.81 entry point.
+
+Verify the real Make entry points with bounded controls: a failing dependency or
+authority gate must not start expensive work, including under parallel execution;
+the passing control must retain every original gate. Reorder the existing release
+gate sequence without changing its membership or allowing diagnostic repair state
+to become release admission. A changed gate order must retain the existing
+checkpoint-plan reset/refusal behavior. Renew the complete source gate and affected
+documentation/CI checks after independent source review. This slice changes the
+framework's own Make harness; it does not replace a consuming repository's native
+tools or waive the advisory, security incidents, installed or platform acceptance.
