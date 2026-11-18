@@ -45,6 +45,118 @@ class InstalledSDKGuardTests(unittest.TestCase):
             fixture.file_table(self.root / "helpers"), manifest["files"]
         )
 
+    def test_explicit_rebuild_hooks_refuse_missing_or_different_graph_before_work(self):
+        from tests.smoke import test_canonical_sdk_runtime as scenario
+        from tests.smoke.test_canonical_sdk_rebuild import AuthoredSDKRebuildSetup
+
+        exercise = scenario.CanonicalSDKRuntimeTests._exercise_authored_runtime
+        with patch.object(scenario, "with_provider") as graph:
+            with self.assertRaisesRegex(TypeError, "explicit authored rebuild"):
+                exercise(self, rebuild_setup=object())
+            setup = AuthoredSDKRebuildSetup(self)
+            setup.execute = None
+            with self.assertRaisesRegex(TypeError, "complete authored rebuild hooks"):
+                exercise(self, rebuild_setup=setup)
+            with self.assertRaisesRegex(ValueError, "separate rebuild cell"):
+                exercise(
+                    self,
+                    rebuild_setup=AuthoredSDKRebuildSetup(self),
+                    second_provider=True,
+                )
+            graph.assert_not_called()
+
+    def test_rebuild_helpers_are_additive_and_separate(self):
+        repository = Path(__file__).resolve().parents[2]
+        digest, originals = wheel_smoke.stage_node_sdk_rebuild_helpers(
+            repository, self.root
+        )
+        self.assertEqual(set(originals), set(wheel_smoke.NODE_SDK_REBUILD_HELPERS))
+        self.assertEqual(
+            set(originals) - set(wheel_smoke.NODE_SDK_HELPERS),
+            {
+                "tests/smoke/test_canonical_sdk_rebuild.py",
+                "tests/support/authored_coding_cli.py",
+            },
+        )
+        self.assertEqual(
+            hashlib.sha256((self.root / "helpers.json").read_bytes()).hexdigest(),
+            digest,
+        )
+        self.assertFalse((self.root / "helpers/src").exists())
+
+    def test_focused_rebuild_mode_refuses_qualification_and_supplied_wheel(self):
+        for incompatible in (
+            ["--node-sdk-runtime"],
+            ["--qualified-wheel-manifest", "unused.json"],
+            ["--wheel", "unused.whl"],
+        ):
+            with self.subTest(incompatible=incompatible):
+                with (
+                    patch.object(
+                        sys,
+                        "argv",
+                        [
+                            "wheel_smoke.py",
+                            "--node-sdk-rebuild-preflight",
+                            *incompatible,
+                        ],
+                    ),
+                    patch.object(
+                        wheel_smoke, "require_node_sdk_prerequisites"
+                    ) as tools,
+                    redirect_stderr(io.StringIO()),
+                    self.assertRaises(SystemExit) as raised,
+                ):
+                    wheel_smoke._main()
+                self.assertEqual(raised.exception.code, 2)
+                tools.assert_not_called()
+
+    def test_rebuild_inventory_never_runs_the_legacy_matrix(self):
+        class RebuildCase(unittest.TestCase):
+            def test_original_installed_adapter_rebuild_returns_bound_receipts(self):
+                print("authored rebuild controlled output")
+
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with redirect_stdout(stdout), redirect_stderr(stderr):
+            result = fixture.run_rebuild_case(RebuildCase)
+        self.assertEqual(result.testsRun, 1)
+        self.assertTrue(result.wasSuccessful())
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("authored rebuild controlled output", stderr.getvalue())
+        with self.assertRaisesRegex(RuntimeError, "rebuild case inventory"):
+            fixture.run_rebuild_case(self.noisy_cases())
+        with self.assertRaisesRegex(
+            RuntimeError, "original SDK runtime case inventory"
+        ):
+            fixture.run_runtime_cases(RebuildCase)
+
+    def test_failed_rebuild_retains_failure_and_refuses_linked_diagnostics(self):
+        case = self.root / "case"
+        case.mkdir()
+        (case / "stdout.log").write_text("bounded fixture diagnostic")
+        (case / "attempt.json").write_text('{"qualified":false}')
+        wheel = self.root / "fixture.whl"
+        wheel.write_bytes(b"controlled unqualified artifact")
+        outside = self.root / "private.txt"
+        outside.write_text("must not copy")
+        try:
+            (case / "stderr.log").symlink_to(outside)
+        except OSError:
+            self.skipTest("requires symbolic diagnostic fixture")
+        retained = wheel_smoke._retain_node_sdk_rebuild_failure(
+            self.root,
+            wheel,
+            revision="f" * 40,
+            case_root=case,
+            failure="ControlledFailure",
+        )
+        manifest = json.loads((retained / "manifest.json").read_text())
+        self.assertIs(manifest["qualified"], False)
+        self.assertIs(manifest["preflight_passed"], False)
+        self.assertEqual(manifest["diagnostics"]["stdout.log"]["state"], "captured")
+        self.assertEqual(manifest["diagnostics"]["stderr.log"]["state"], "unknown")
+        self.assertFalse((retained / "stderr.log").exists())
+
     def test_unexpected_files_and_empty_directories_are_refused(self):
         root = self.root / "payload"
         root.mkdir()

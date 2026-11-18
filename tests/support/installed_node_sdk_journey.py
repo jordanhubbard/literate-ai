@@ -22,6 +22,7 @@ METHODS = (
     "test_authored_runtime_execution_reenters_finalization_before_publication",
     "test_two_provider_root_subpath_runtime_execution",
 )
+REBUILD_METHODS = ("test_original_installed_adapter_rebuild_returns_bound_receipts",)
 MAX_FILES = 100_000
 MAX_BYTES = 256 * 1024 * 1024
 
@@ -187,6 +188,19 @@ def run_runtime_cases(case_type):
         return result
 
 
+def run_rebuild_case(case_type):
+    """One separate authored rebuild case; the original two-case owner is unchanged."""
+    require(
+        tuple(unittest.defaultTestLoader.getTestCaseNames(case_type))
+        == REBUILD_METHODS,
+        "authored rebuild case inventory changed",
+    )
+    with redirect_stdout(sys.stderr):
+        return unittest.TextTestRunner(verbosity=2).run(
+            unittest.TestSuite(case_type(method) for method in REBUILD_METHODS)
+        )
+
+
 def wheel_payload(wheel, expected_sha256):
     """Reuse the wheel validator and installed observer's logical path policy."""
     from literate_ai.adapters.standard_lifecycle_binding import _logical_payload_path
@@ -272,17 +286,18 @@ def stage_resources(bundle, package, prefix, payload):
 
 
 def main():
+    rebuild_preflight = len(sys.argv) == 8 and sys.argv[7] == "--authored-rebuild"
     require(
         __debug__
         and sys.flags.isolated
         and sys.dont_write_bytecode
-        and len(sys.argv) == 7,
+        and (len(sys.argv) == 7 or rebuild_preflight),
         "isolated installed Python and exact SDK inputs required",
     )
     root, installation, wheel = (
         Path(value).resolve(strict=True) for value in sys.argv[1:4]
     )
-    expected_distribution, expected_wheel, expected_manifest = sys.argv[4:]
+    expected_distribution, expected_wheel, expected_manifest = sys.argv[4:7]
     checkout = Path(__file__).resolve().parents[2]
     require(not root.is_relative_to(checkout), "outside-checkout SDK root required")
     require(
@@ -428,7 +443,18 @@ def main():
         "foreign test package already loaded",
     )
     sys.path.insert(0, str(bundle))
-    from tests.smoke.test_canonical_sdk_runtime import CanonicalSDKRuntimeTests
+    if rebuild_preflight:
+        require(
+            os.environ.get("LITAI_NODE_SDK_REBUILD_PREFLIGHT") == "1",
+            "explicit installed rebuild mode required",
+        )
+        from tests.smoke import test_canonical_sdk_rebuild as rebuild_fixture
+
+        case_type = rebuild_fixture.AuthoredInstalledSDKRebuildTests
+    else:
+        from tests.smoke.test_canonical_sdk_runtime import CanonicalSDKRuntimeTests
+
+        case_type = CanonicalSDKRuntimeTests
 
     installed()
     require(
@@ -437,7 +463,15 @@ def main():
     )
     require_framework_origins(bundle / "tests", bundle_before, "tests")
     bundle_guard()
-    result = run_runtime_cases(CanonicalSDKRuntimeTests)
+    result = (
+        run_rebuild_case(case_type)
+        if rebuild_preflight
+        else run_runtime_cases(case_type)
+    )
+    if rebuild_preflight:
+        with (root / "attempt.json").open("x") as stream:
+            json.dump(rebuild_fixture.REBUILD_ATTEMPT, stream, sort_keys=True)
+
     require(
         file_table(bundle, bundle_before) == bundle_before,
         "SDK helper/resource bytes changed",
@@ -452,7 +486,7 @@ def main():
         "SDK fixture driver changed",
     )
     require(
-        result.testsRun == 2
+        result.testsRun == (1 if rebuild_preflight else 2)
         and result.wasSuccessful()
         and not result.skipped
         and not result.expectedFailures,
@@ -479,6 +513,20 @@ def main():
         "helpers": manifest["files"],
         "resources": resources,
     }
+    if rebuild_preflight:
+        require(
+            type(rebuild_fixture.REBUILD_EVIDENCE) is dict,
+            "actual authored rebuild receipt evidence required",
+        )
+        report.update(
+            schema="literate-ai/installed-node-sdk-rebuild-preflight@1",
+            qualified=False,
+            preflight_passed=True,
+            scope="authored-macos-installed-rebuild-adapter",
+            selected=1,
+            passed=1,
+            rebuild=rebuild_fixture.REBUILD_EVIDENCE,
+        )
     content = (json.dumps(report, sort_keys=True, indent=2) + "\n").encode()
     with (root / "result.json").open("xb") as stream:
         stream.write(content)

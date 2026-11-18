@@ -198,15 +198,43 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
         second_provider=False,
         public_subpath=False,
         provider_runtime="source/counter/api.js",
+        rebuild_setup=None,
     ):
+        if rebuild_setup is not None:
+            from tests.smoke.test_canonical_sdk_rebuild import AuthoredSDKRebuildSetup
+
+            if type(rebuild_setup) is not AuthoredSDKRebuildSetup:
+                raise TypeError("explicit authored rebuild setup required")
+            if any(
+                not callable(getattr(rebuild_setup, name, None))
+                for name in (
+                    "prepare_authority",
+                    "require_current",
+                    "assemble",
+                    "generate",
+                    "execute",
+                )
+            ):
+                raise TypeError("complete authored rebuild hooks required")
+            if (
+                second_provider
+                or public_subpath
+                or provider_runtime != "source/counter/api.js"
+            ):
+                raise ValueError("the separate rebuild cell owns one fixed graph")
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
-            _, snapshot, execution = with_provider(
-                root / "authority",
-                second_provider=second_provider,
-                public_subpath=public_subpath,
-                provider_runtime=provider_runtime,
-            )
+            if rebuild_setup is None:
+                _, snapshot, execution = with_provider(
+                    root / "authority",
+                    second_provider=second_provider,
+                    public_subpath=public_subpath,
+                    provider_runtime=provider_runtime,
+                )
+            else:
+                snapshot, execution = rebuild_setup.prepare_authority(
+                    root / "authority"
+                )
             environment = dict(os.environ)
             environment["LITAI_TYPESCRIPT_SDK"] = environment["LITERATE_TYPESCRIPT_SDK"]
             closure = project_locked_standard_toolchain_closure(
@@ -254,6 +282,8 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 print("Authored SDK runtime: " + message, flush=True)
 
             def host_current():
+                if rebuild_setup is not None:
+                    rebuild_setup.require_current()
                 return None
 
             def authorize(request):
@@ -303,9 +333,12 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                         self.assertTrue(record.checks.digest)
                     generation_policies.append(policy)
                     generation_contexts.append(copy_context())
-                output = _authored_source(
-                    prepared, execution.root_revision, provider_contracts
-                )
+                if rebuild_setup is None:
+                    output = _authored_source(
+                        prepared, execution.root_revision, provider_contracts
+                    )
+                else:
+                    output = rebuild_setup.generate(prepared, provider_contracts)
                 self.assertEqual(
                     output.candidate.source_generation_request_identity,
                     prepared.request.request.identity,
@@ -326,12 +359,15 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 require_current=host_current,
                 environment=environment,
             )
-            runtime = assemble_filesystem_standard_project_runtime(
-                generator=generate,
-                object_root=root / "objects",
-                toolchain_closure=closure,
-                node_sdk_host=configuration,
-            )
+            if rebuild_setup is None:
+                runtime = assemble_filesystem_standard_project_runtime(
+                    generator=generate,
+                    object_root=root / "objects",
+                    toolchain_closure=closure,
+                    node_sdk_host=configuration,
+                )
+            else:
+                runtime = rebuild_setup.assemble(configuration, generate)
             ports = runtime.lifecycle_ports
             actual_accept = ports.accept_project_independently
             actual_publish = ports.publish
@@ -416,17 +452,24 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 ),
             ):
                 stage("enter runtime.execute")
-                result = runtime.execute(
-                    snapshot,
-                    StandardProjectExecutionRequest(
-                        PlannedStandardProject(selection, execution),
-                        root / "workspaces",
-                        invalidation,
-                        max_parallelism=1,
+                if rebuild_setup is None:
+                    result = runtime.execute(
+                        snapshot,
+                        StandardProjectExecutionRequest(
+                            PlannedStandardProject(selection, execution),
+                            root / "workspaces",
+                            invalidation,
+                            max_parallelism=1,
+                            budget=_budget(),
+                            fresh_source=True,
+                        ),
+                    )
+                else:
+                    result = rebuild_setup.execute(
+                        source_root=root / "workspaces",
+                        invalidation=invalidation,
                         budget=_budget(),
-                        fresh_source=True,
-                    ),
-                )
+                    )
                 stage("runtime.execute returned")
             self.assertTrue(
                 result.lifecycle.successful,

@@ -691,6 +691,13 @@ NODE_SDK_HELPERS = (
 )
 
 
+NODE_SDK_REBUILD_HELPERS = (
+    *NODE_SDK_HELPERS,
+    "tests/smoke/test_canonical_sdk_rebuild.py",
+    "tests/support/authored_coding_cli.py",
+)
+
+
 def require_node_sdk_prerequisites():
     if (
         sys.platform != "darwin"
@@ -704,11 +711,19 @@ def require_node_sdk_prerequisites():
 
 
 def stage_node_sdk_helpers(repository: Path, root: Path):
+    return _stage_node_sdk_helper_paths(repository, root, NODE_SDK_HELPERS)
+
+
+def stage_node_sdk_rebuild_helpers(repository: Path, root: Path):
+    return _stage_node_sdk_helper_paths(repository, root, NODE_SDK_REBUILD_HELPERS)
+
+
+def _stage_node_sdk_helper_paths(repository: Path, root: Path, paths):
     bundle = root / "helpers"
     bundle.mkdir(mode=0o700)
     rows, originals = {}, {}
     total = 0
-    for relative in NODE_SDK_HELPERS:
+    for relative in paths:
         source = repository / relative
         if source.is_symlink() or not source.resolve(strict=True).is_relative_to(
             repository.resolve()
@@ -739,6 +754,22 @@ def stage_node_sdk_helpers(repository: Path, root: Path):
 
 
 def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, expected):
+    return _installed_node_sdk_cell(
+        repository, installation, python, cwd, wheel, expected, rebuild_preflight=False
+    )
+
+
+def preflight_installed_node_sdk_rebuild(
+    repository, installation, python, cwd, wheel, expected
+):
+    return _installed_node_sdk_cell(
+        repository, installation, python, cwd, wheel, expected, rebuild_preflight=True
+    )
+
+
+def _installed_node_sdk_cell(
+    repository, installation, python, cwd, wheel, expected, *, rebuild_preflight
+):
     import runpy
 
     from literate_ai.adapters.standard_lifecycle_binding import (
@@ -751,13 +782,17 @@ def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, exp
     )
 
     require_node_sdk_prerequisites()
-    root = cwd / "node-sdk"
+    root = cwd / ("node-sdk-rebuild" if rebuild_preflight else "node-sdk")
     root.mkdir(mode=0o700)
     root = root.resolve(strict=True)
     installation = installation.resolve(strict=True)
     cache = root / "bytecode-cache"
     cache.mkdir(mode=0o700)
-    manifest_hash, helpers = stage_node_sdk_helpers(repository, root)
+    manifest_hash, helpers = (
+        stage_node_sdk_rebuild_helpers(repository, root)
+        if rebuild_preflight
+        else stage_node_sdk_helpers(repository, root)
+    )
     driver = repository / "tests/support/installed_node_sdk_journey.py"
     driver_identity = file_identity(driver)
     wheel_identity = file_identity(wheel)
@@ -786,6 +821,8 @@ def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, exp
         "LITAI_CONFIG_DIR": str(root / "config"),
         "LITAI_MCP_TRANSPORT": "off",
     }
+    if rebuild_preflight:
+        environment["LITAI_NODE_SDK_REBUILD_PREFLIGHT"] = "1"
     try:
         packages = _site_packages(installation)
         roots = (
@@ -832,6 +869,7 @@ def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, exp
                 expected,
                 wheel_identity.removeprefix("sha256:"),
                 manifest_hash,
+                *(("--authored-rebuild",) if rebuild_preflight else ()),
             ),
             cwd=root,
             environment=environment,
@@ -861,11 +899,16 @@ def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, exp
             raise RuntimeError("installed SDK evidence changed or exceeded its bound")
         report = json.loads(evidence)
         for key, value in (
-            ("qualified", True),
-            ("selected", 2),
-            ("passed", 2),
+            ("qualified", not rebuild_preflight),
+            ("selected", 1 if rebuild_preflight else 2),
+            ("passed", 1 if rebuild_preflight else 2),
             ("skipped", 0),
-            ("scope", "authored-macos-installed-python-api"),
+            (
+                "scope",
+                "authored-macos-installed-rebuild-adapter"
+                if rebuild_preflight
+                else "authored-macos-installed-python-api",
+            ),
             ("framework_distribution", expected),
             ("wheel_sha256", wheel_identity.removeprefix("sha256:")),
             ("helper_manifest_sha256", manifest_hash),
@@ -881,6 +924,18 @@ def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, exp
                 or observed.get(key) != value
             ):
                 raise RuntimeError("installed SDK result mismatch")
+        if rebuild_preflight:
+            if (
+                report.get("schema")
+                != "literate-ai/installed-node-sdk-rebuild-preflight@1"
+                or report.get("preflight_passed") is not True
+                or type(report.get("rebuild")) is not dict
+                or report.get("rebuild") != observed.get("rebuild")
+                or observed.get("preflight_passed") is not True
+                or observed.get("schema") != report.get("schema")
+                or report["rebuild"].get("framework_distribution") != expected
+            ):
+                raise RuntimeError("original authored rebuild evidence required")
         return {"requested": True, **observed, "_evidence_path": str(evidence_path)}
     finally:
         try:
@@ -2568,6 +2623,129 @@ def _retain_qualified_wheel(
     return manifest
 
 
+def _retain_node_sdk_rebuild_preflight(repository, wheel, *, revision, result):
+    """Retain exact focused evidence without creating release qualification data."""
+    import base64
+
+    from literate_ai.adapters.repository_file_custody import _node
+
+    evidence = Path(result["_evidence_path"])
+    captured = _node(evidence.parent, evidence.name, frozenset(), 8 * 1024 * 1024)
+    if captured.kind != "file":
+        raise RuntimeError("regular authored rebuild evidence required")
+    content = captured.content
+    if (
+        len(content) > 8 * 1024 * 1024
+        or hashlib.sha256(content).hexdigest() != result["evidence_sha256"]
+    ):
+        raise RuntimeError("authored rebuild evidence changed")
+    report = json.loads(content)
+    if (
+        report.get("qualified") is not False
+        or report.get("preflight_passed") is not True
+        or report.get("scope") != "authored-macos-installed-rebuild-adapter"
+    ):
+        raise RuntimeError("separate unqualified rebuild evidence required")
+    wheel_identity = file_identity(wheel)
+    if wheel_identity != "sha256:" + report["wheel_sha256"]:
+        raise RuntimeError("authored rebuild wheel changed")
+    program = base64.b64decode(
+        report["rebuild"]["fixture_program_base64"], validate=True
+    )
+    if (
+        len(program) > 65536
+        or "sha256:" + hashlib.sha256(program).hexdigest()
+        != report["rebuild"]["fixture_program_sha256"]
+    ):
+        raise RuntimeError("original authored fixture executable bytes required")
+    output = release_file_path(repository, "_build/node-sdk-rebuild-preflight")
+    output.mkdir(parents=True, exist_ok=True)
+    retained = Path(tempfile.mkdtemp(prefix="run-", dir=output))
+    shutil.copy2(wheel, retained / wheel.name)
+    if file_identity(retained / wheel.name) != wheel_identity:
+        raise RuntimeError("retained candidate wheel changed")
+    (retained / "result.json").write_bytes(content)
+    (retained / "authored-coding-cli").write_bytes(program)
+    for name in ("stdout.log", "stderr.log"):
+        captured = _node(evidence.parent, name, frozenset(), 1024 * 1024)
+        if captured.kind != "file":
+            raise RuntimeError("regular authored rebuild output required")
+        (retained / name).write_bytes(captured.content)
+    (retained / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "literate-ai/retained-node-sdk-rebuild-preflight@1",
+                "qualified": False,
+                "preflight_passed": True,
+                "source_revision": revision,
+                "wheel": {"path": wheel.name, "identity": wheel_identity},
+                "evidence": {
+                    "path": "result.json",
+                    "identity": file_identity(retained / "result.json"),
+                },
+                "fixture_program": {
+                    "path": "authored-coding-cli",
+                    "identity": report["rebuild"]["fixture_program_sha256"],
+                },
+            },
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n"
+    )
+    return retained
+
+
+def _retain_node_sdk_rebuild_failure(
+    repository, wheel, *, revision, case_root, failure
+):
+    """Keep bounded diagnostics for a failed focused attempt; retain its failure."""
+    from literate_ai.adapters.repository_file_custody import _node
+
+    output = release_file_path(repository, "_build/node-sdk-rebuild-preflight")
+    output.mkdir(parents=True, exist_ok=True)
+    retained = Path(tempfile.mkdtemp(prefix="failed-", dir=output))
+    rows = {}
+    for name, maximum in (
+        ("stdout.log", 1024 * 1024),
+        ("stderr.log", 1024 * 1024),
+        ("helpers.json", 65536),
+        ("attempt.json", 256 * 1024),
+    ):
+        try:
+            captured = _node(case_root, name, frozenset(), maximum)
+            if captured.kind != "file":
+                raise RuntimeError("regular diagnostic required")
+            (retained / name).write_bytes(captured.content)
+            rows[name] = {
+                "state": "captured",
+                "identity": file_identity(retained / name),
+            }
+        except (OSError, ValueError, RuntimeError):
+            rows[name] = {"state": "unknown"}
+    shutil.copy2(wheel, retained / wheel.name)
+    (retained / "manifest.json").write_text(
+        json.dumps(
+            {
+                "schema": "literate-ai/failed-node-sdk-rebuild-preflight@1",
+                "qualified": False,
+                "preflight_passed": False,
+                "source_revision": revision,
+                "failure_type": failure,
+                "wheel": {
+                    "path": wheel.name,
+                    "identity": file_identity(retained / wheel.name),
+                },
+                "diagnostics": rows,
+            },
+            sort_keys=True,
+            indent=2,
+        )
+        + "\n"
+    )
+    return retained
+
+
 def _host_flavor(platform_name: str) -> str:
     """Independent wheel-smoke expectation for the native OS Flavor."""
     if platform_name == "win32":
@@ -2605,8 +2783,21 @@ def _main() -> int:
         action="store_true",
         help="also require the authored macOS installed Node SDK runtime matrix",
     )
+    parser.add_argument(
+        "--node-sdk-rebuild-preflight",
+        action="store_true",
+        help="run only the authored installed rebuild preflight; never qualify a wheel",
+    )
     arguments = parser.parse_args()
-    if arguments.node_sdk_runtime:
+    if arguments.node_sdk_rebuild_preflight and (
+        arguments.node_sdk_runtime
+        or arguments.qualified_wheel_manifest is not None
+        or arguments.wheel is not None
+    ):
+        parser.error(
+            "rebuild preflight requires a fresh candidate and cannot qualify a wheel"
+        )
+    if arguments.node_sdk_runtime or arguments.node_sdk_rebuild_preflight:
         require_node_sdk_prerequisites()
     _TIMING_REPORT = arguments.timing_report
     _TIMINGS.clear()
@@ -2638,6 +2829,13 @@ def _main() -> int:
         run("git", "remote", "get-url", "origin", cwd=repository).stdout.strip()
     )
     git_revision = run("git", "rev-parse", "HEAD", cwd=repository).stdout.strip()
+    if (
+        arguments.node_sdk_rebuild_preflight
+        and run(
+            "git", "status", "--porcelain", "--untracked-files=all", cwd=repository
+        ).stdout.strip()
+    ):
+        raise RuntimeError("authored rebuild preflight requires committed clean source")
     build_environment = {
         **_subprocess_environment(),
         "LITAI_BUILD_REPOSITORY_URL": repository_url,
@@ -2733,6 +2931,55 @@ def _main() -> int:
         standard_binding = json.loads(
             run(str(python), "-c", STANDARD_BINDING_PROBE, cwd=root).stdout
         )
+        if arguments.node_sdk_rebuild_preflight:
+            try:
+                result = preflight_installed_node_sdk_rebuild(
+                    repository,
+                    environment,
+                    python,
+                    root,
+                    wheel_files[0],
+                    standard_binding["distribution"],
+                )
+            except Exception as exc:
+                try:
+                    _retain_node_sdk_rebuild_failure(
+                        repository,
+                        wheel_files[0],
+                        revision=git_revision,
+                        case_root=root / "node-sdk-rebuild",
+                        failure=type(exc).__name__,
+                    )
+                except Exception as retention_error:
+                    print(
+                        "Authored rebuild diagnostic retention failed: "
+                        + type(retention_error).__name__,
+                        file=sys.stderr,
+                    )
+                raise
+            retained = _retain_node_sdk_rebuild_preflight(
+                repository,
+                wheel_files[0],
+                revision=git_revision,
+                result=result,
+            )
+            print(
+                json.dumps(
+                    {
+                        "schema": (
+                            "literate-ai/installed-node-sdk-rebuild-preflight-summary@1"
+                        ),
+                        "qualified": False,
+                        "preflight_passed": True,
+                        "retained_evidence": retained.relative_to(
+                            repository
+                        ).as_posix(),
+                        "wheel": tested_wheel_identity,
+                    },
+                    sort_keys=True,
+                )
+            )
+            return 0
         runtime_environment = {
             "seeded": seeded_runtime,
             **assert_wheel_runtime_environment(

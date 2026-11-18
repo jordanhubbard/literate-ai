@@ -317,14 +317,53 @@ edges; the returned SBOM binding names that recipe's managed graph and matches
 an independent byte digest of the actual resulting file. No native SDK build, independent
 acceptance, model or installed-wheel result follows from these source controls.
 
-The extraction preserves the two original runtime tests, their shared exercise,
-grants, matrices and candidate/provenance suffix. A source AST comparison confirms
-the moved write/metadata statements differ only by a plain Component-revision
-argument. Production TCB remains `9c07d5d8...26db2fc`. The next installed authored
+At source checkpoint `945f0aec`, the extraction preserves the two original
+runtime tests, shared exercise, grants, matrices and candidate/provenance suffix.
+A source AST comparison confirms the moved write/metadata statements differ only
+by a plain Component-revision argument. The later explicit rebuild hooks extend
+the shared exercise while preserving both original test methods and their default
+runtime path, original assertions and 30-minute verifier grants. Production TCB remains `9c07d5d8...26db2fc`. The next installed authored
 rebuild case must use fresh candidate wheel bytes and the existing installation,
 namespace and module-origin guards. Give that focused case a separate closed
 inventory; preserve the original two-case wheel gate and forbid qualified-wheel
 manifest output for a focused preflight.
+
+
+### Installed authored rebuild preflight
+
+`make wheel-sdk-rebuild-preflight` uses the existing wheel builder, fresh isolated
+installer, installed module-origin checks and namespace custody. It selects one
+separate fixed authored rebuild method. The source must be committed and clean;
+Node/npm and the explicit TypeScript SDK are required. The ordinary `wheel-check`
+and its original optional two-case runtime matrix retain their own inventory.
+The focused script mode refuses supplied wheels, the runtime-matrix flag and any
+qualified-wheel manifest argument. Its retained reports always say
+`qualified: false`; success would qualify only the named authored case.
+
+The case initializes a real project, places reusable Components under
+`components/`, replaces fixture-only workflow/routing references with canonical
+project references, then creates fresh locks/audits and records the normal review
+marker for those authored inputs. Public preparation captures the final authority.
+The Standard binding comes from the actual isolated installed wheel. A test-only
+source observer calls the captured original runner exactly once and returns its
+unchanged output, delegating key lookup and publication to that original owner.
+Declared assets are omitted from the fixture CLI payload only after matching their
+exact admitted CAS bytes; the normal runner materializes them.
+
+Explicit hooks call actual `adapter.rebuild`, preserve shared generation/acceptance/
+publication checks, and verify the receipt/finalized candidate against the real
+project, lock, driver, installed distribution and invocation. Missing hooks or a
+different graph refuse before work. No completed candidate, provenance record or
+cache bookkeeping is synthesized. The fixture CLI supplies authored files; no
+model is called. Success/failure outputs, exact candidate wheel, helper hashes and
+fixture-program bytes are retained privately beneath the build directory; failed
+attempts remain failed and unavailable diagnostic files are recorded as unknown.
+
+Twenty focused harness controls pass. A separate zero-child probe passes full
+project authority validation, two-node preparation and canonical workflow
+compilation. The installed authored case is not yet executed at this source
+checkpoint. No installed lifecycle, full-wheel qualification, ordinary CLI/model
+integration or downstream cutover follows from these controls.
 
 
 The shared independent SDK checker stages the canonical declaration projection's

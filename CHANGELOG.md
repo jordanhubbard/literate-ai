@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a separate authored installed SDK rebuild preflight using the canonical
+  installer and real receipt checks, with explicit unqualified evidence retention.
+  Native execution and ordinary model-backed CLI acceptance remain unqualified.
+
 - Add an authored fixture CLI preflight through the original source generator and
   cache, checking provenance, replay and changed-recipe refusal before qualifying
   SDK rebuild integration. Preserve the original SDK runtime scenarios.

@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
+.PHONY: help bootstrap install uninstall install-check installed-project-e2e installed-e2e installed-e2e-status dev-install tools-install skill-evaluator-install skills-check repository-layout-check public-export-check python-version python-check source-intelligence-check provider-resolution-check source-admission-check remote-evidence-check inherited-session-check target-matrix-check native-toolchain-check samples samples-packages roundtrip-host samples-platform-regression migration-baseline-refresh test-receipt-current wheel-check wheel-sdk-rebuild-preflight format format-check lint openspec-check documentation-check documentation-review documentation-review-record driver-review driver-review-record doc-toolchain-bootstrap release-contributions release-contributions-check release-collateral-regenerate release-collateral-preflight release-collateral-publish plugin-bundle validate release release-check release-check-reset clean really-clean
 
 PREFIX ?=
 BUILD_DIR ?= $(CURDIR)/generated
@@ -261,6 +261,9 @@ endif
 
 wheel-check: python-version $(RUNTIME_PREREQUISITE) ## Build and smoke-test the installed wheel outside this checkout; optional WHEEL_NODE_SDK_RUNTIME=1 adds authored SDK cases.
 	$(STEP) wheel-check -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py $(if $(filter 1,$(WHEEL_NODE_SDK_RUNTIME)),--node-sdk-runtime,) $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",) $(if $(strip $(QUALIFIED_WHEEL_MANIFEST)),--qualified-wheel-manifest "$(QUALIFIED_WHEEL_MANIFEST)",)
+
+wheel-sdk-rebuild-preflight: python-version $(RUNTIME_PREREQUISITE) ## Run the authored installed SDK rebuild case; retain an unqualified candidate.
+	$(STEP) wheel-sdk-rebuild-preflight -- $(RUN_PYTHON_COMMAND) scripts/wheel_smoke.py --node-sdk-rebuild-preflight $(if $(strip $(WHEEL_WORKER_DIRECTORY)),--worker-wheel-directory "$(WHEEL_WORKER_DIRECTORY)",)
 
 format: $(DEV_PREREQUISITE) ## Format Python source and tests.
 	$(RUFF) format src tests scripts $(SAMPLE_PYTHON)

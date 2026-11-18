@@ -1425,7 +1425,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       and use fresh isolated installation/origin custody for the authored rebuild
       cell. Reuse the existing installer and namespace owners, with a closed
       separate case inventory and no qualified-wheel manifest; preserve the
-      original two-case installed SDK gate. Independent design review accepts
+      original two-case installed SDK gate. The next authored case reuses the
+      canonical runtime assertions through explicit test-only rebuild hooks:
+      real initialized project, fresh lock/audit and public preparation, original
+      installed binding, one captured original runner call per node, and actual
+      `adapter.rebuild` receipt/finalization checks. Missing hooks refuse rather
+      than falling back to the older runtime case. Independent design review
+      accepts this route; Aviation issue #442 still requires native consumer
+      acceptance before cutover. The zero-child two-node preparation/workflow
+      probe is planning evidence only. The focused Make target now shares the
+      existing wheel/install/custody owners, with a separate one-case inventory,
+      explicit unqualified retention and no release manifest. Twenty harness
+      guards pass; full disposable-project authority validation passes after
+      preserving reusable Component taxonomy and recording the normal reviewed
+      fixture marker. Installed authored execution remains the next unchecked
+      action; its code is not a passing lifecycle receipt. Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
       reviewed exact-request verifier-authorization owner before model-backed
