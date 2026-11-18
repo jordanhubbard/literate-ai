@@ -1465,7 +1465,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       reserves binding against swallowed recursion and retires failed allocations.
       Seventeen checkpoint controls, four ordinary repair, five lifecycle and seven
       SDK generation controls pass without skips. Historical SDK checkpoint
-      recovery remains refused. Neither failed run is a passing lifecycle receipt.
+      recovery remains refused. The third installed attempt generated both nodes
+      with unchanged frozen inputs, then exposed failure-checkpoint reporting
+      still using static preparation. This masks the original node failure with
+      a generation-identity rejection. **Next unchecked action:** record failed
+      stage evidence against the exact returned preparation, retain bounded
+      authored-case failure diagnostics before temporary cleanup, and expose the
+      original failure before further correction. The one-line lifecycle fix
+      and bounded private failure capture now pass 19 SDK lifecycle and 23
+      diagnostic/installer controls, including original failure/exception
+      preservation and aggregate escaped-JSON bounds. Rerun the installed case
+      to identify its original failure. All three installed attempts remain
+      failed; no installed lifecycle acceptance follows.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately

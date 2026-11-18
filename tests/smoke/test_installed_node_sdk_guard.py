@@ -211,6 +211,61 @@ class InstalledSDKGuardTests(unittest.TestCase):
                     manifest["diagnostics"]["stderr.log"]["state"], "unknown"
                 )
 
+    def test_authored_failure_diagnostics_fit_aggregate_keeper_budget(self):
+        from tests.smoke.test_canonical_sdk_rebuild import _bounded_failure_observation
+
+        failure_type = type("E" * 4096, (RuntimeError,), {})
+        message = ('\x00\n\t\\"' + "😺") * 16384
+        diagnostics = {str(index) + message: message for index in range(12)}
+        observation = _bounded_failure_observation(failure_type(message), diagnostics)
+        content = json.dumps(observation, sort_keys=True).encode("utf-8")
+        self.assertLessEqual(len(content), 65536)
+        self.assertIs(observation["qualified"], False)
+        self.assertIs(observation["truncated"], True)
+        self.assertEqual(len(observation["diagnostics"]), 8)
+        self.assertLessEqual(len(json.dumps(observation["exception_type"])), 128)
+        self.assertEqual(json.loads(content), observation)
+
+    def test_authored_failure_capture_preserves_original_exception(self):
+        from unittest.mock import Mock
+
+        from tests.smoke import test_canonical_sdk_rebuild as rebuild
+
+        original = RuntimeError("controlled original build failure")
+        for diagnostics, state in (
+            ({"fixture": "underlying build detail"}, "captured"),
+            (None, "unknown"),
+            ({"fixture": object()}, "unknown"),
+        ):
+            with self.subTest(state=state, malformed=type(diagnostics).__name__):
+                setup = rebuild.AuthoredSDKRebuildSetup(self)
+                setup.prepared = object()
+                setup.adapter = types.SimpleNamespace(
+                    rebuild=Mock(side_effect=original),
+                    runtime=types.SimpleNamespace(
+                        lifecycle_ports=types.SimpleNamespace(
+                            failure_diagnostics=diagnostics
+                        )
+                    ),
+                )
+                with patch.object(
+                    rebuild, "FilesystemStandardRebuildRequest", return_value=object()
+                ):
+                    with self.assertRaises(RuntimeError) as raised:
+                        setup.execute(
+                            source_root=self.root,
+                            invalidation=object(),
+                            budget=object(),
+                        )
+                self.assertIs(raised.exception, original)
+                self.assertEqual(setup.failure_observation["state"], state)
+                self.assertIs(setup.failure_observation["qualified"], False)
+                if state == "captured":
+                    self.assertEqual(
+                        setup.failure_observation["diagnostics"][0]["message"],
+                        "underlying build detail",
+                    )
+
     def test_unexpected_files_and_empty_directories_are_refused(self):
         root = self.root / "payload"
         root.mkdir()

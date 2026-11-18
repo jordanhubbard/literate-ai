@@ -87,12 +87,60 @@ class _ObservedRunner:
             self.setup.last_output = None
 
 
+def _bounded_failure_observation(failure, diagnostics):
+    """Keep at most 64 KiB serialized, reserving the attempt's other 192 KiB."""
+    import json
+
+    if type(diagnostics) is not dict:
+        raise TypeError("authored diagnostic table required")
+    maximum = 65536
+    count = min(len(diagnostics), 8)
+    message_budget = min(16384, (maximum - 4096) // (count + 1))
+    truncated = len(diagnostics) > count
+
+    def text(value, budget):
+        nonlocal truncated
+        if type(value) is not str:
+            raise TypeError("authored diagnostic must be text")
+        # Bound before encoding, then account for the actual keeper's JSON
+        # escaping, including control characters and non-BMP Unicode.
+        captured = value[: budget - 2]
+        while len(json.dumps(captured, ensure_ascii=True)) > budget:
+            captured = captured[: len(captured) // 2]
+        truncated |= len(captured) != len(value)
+        return captured
+
+    rows = []
+    for index, (revision, diagnostic) in enumerate(diagnostics.items()):
+        if index == count:
+            break
+        rows.append(
+            {
+                "component_revision": text(revision, 256),
+                "message": text(diagnostic, message_budget),
+            }
+        )
+    message = text(str(failure), message_budget)
+    exception_type = text(type(failure).__name__, 128)
+    observation = {
+        "qualified": False,
+        "state": "captured",
+        "exception_type": exception_type,
+        "message": message,
+        "diagnostics": rows,
+        "truncated": truncated,
+    }
+    if len(json.dumps(observation, sort_keys=True).encode("utf-8")) > maximum:
+        raise ValueError("authored diagnostic observation exceeded serialized budget")
+    return observation
+
+
 class AuthoredSDKRebuildSetup:
     def __init__(self, owner):
         self.owner = owner
         self.active_node = self.last_output = self.original_runner = None
         self.generated = self.attempts = 0
-        self.evidence = self.program_observation = None
+        self.evidence = self.program_observation = self.failure_observation = None
 
     def prepare_authority(self, root):
         if not sys.flags.isolated or not Path(
@@ -289,16 +337,25 @@ class AuthoredSDKRebuildSetup:
         return output
 
     def execute(self, *, source_root, invalidation, budget):
-        result = self.adapter.rebuild(
-            FilesystemStandardRebuildRequest(
-                self.prepared,
-                source_root,
-                invalidation,
-                update_receipt=False,
-                max_parallelism=1,
-                budget=budget,
+        try:
+            result = self.adapter.rebuild(
+                FilesystemStandardRebuildRequest(
+                    self.prepared,
+                    source_root,
+                    invalidation,
+                    update_receipt=False,
+                    max_parallelism=1,
+                    budget=budget,
+                )
             )
-        )
+        except Exception as failure:
+            try:
+                self.failure_observation = _bounded_failure_observation(
+                    failure, self.adapter.runtime.lifecycle_ports.failure_diagnostics
+                )
+            except Exception:
+                self.failure_observation = {"qualified": False, "state": "unknown"}
+            raise
         owner = self.owner
         lock = self.snapshot.authority.lock.identity
         expected_project = rebuild_project_authority_identity(
@@ -384,6 +441,7 @@ class AuthoredInstalledSDKRebuildTests(unittest.TestCase):
                 "fixture_program": setup.program_observation,
                 "source_attempts": setup.attempts,
                 "generated_nodes": setup.generated,
+                "failure": setup.failure_observation,
             }
         self.assertIsNotNone(setup.evidence)
         REBUILD_EVIDENCE = setup.evidence

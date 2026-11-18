@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Preserve the original SDK node failure when recording its checkpoint by using
+  the returned bound preparation. Retain bounded private authored-rebuild failure
+  diagnostics before temporary cleanup without replacing the original exception.
+
 - Defer SDK checkpoint attempts until live admission binds the exact recipe,
   preserving immutable attempt lineage and rejecting stale, substituted or
   reentrant binding. SDK checkpoint records remain unavailable for historical

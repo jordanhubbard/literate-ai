@@ -394,6 +394,19 @@ SDK checkpoint records remain audit DATA and refuse historical source recovery.
 Seventeen deterministic checkpoint controls pass, together with four ordinary
 repair, five lifecycle and seven SDK generation controls, all without skips.
 These are source/DATA regression checks, not installed lifecycle acceptance.
+
+The third installed attempt generated both nodes, then failed while recording a
+node failure against its static preparation. Failure reporting now uses the
+returned bound preparation, preserving the original failure rather than masking
+it with a generation-identity error. The authored fixture retains lower-level
+failure text before temporary cleanup: its observation is capped at 64 KiB of
+serialized JSON, reserving the rest of the attempt keeper's 256 KiB envelope for
+the fixture program and other metadata. Escaping, type names, keys, row count and
+messages are bounded; malformed diagnostic capture records unknown and rethrows
+the exact original exception. This data is private and never a success receipt.
+Nineteen SDK lifecycle and 23 diagnostic/installer controls pass without skips.
+A fresh installed attempt must still expose and resolve the original node
+failure before lifecycle acceptance can be claimed.
 Focused actual-child and diagnostic controls accompany these fixes. The earlier
 zero-child probe passed full project authority validation, two-node preparation
 and canonical workflow compilation. A fresh installed authored rebuild is still

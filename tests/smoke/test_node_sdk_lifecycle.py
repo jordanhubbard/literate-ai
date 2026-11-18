@@ -469,6 +469,36 @@ class NodeSDKLifecycleTests(unittest.TestCase):
             ports.events.index(("publish", "pricing")),
         )
 
+    def test_failed_sdk_checkpoint_preserves_bound_recipe_and_original_failure(self):
+        service, ports, admission, args = self.configured_service(
+            fail_build=("pricing",)
+        )
+        records = []
+        service.checkpoint_recorder = SimpleNamespace(
+            record=records.append,
+            start_node_sdk_attempt=lambda *args: None,
+            start_replacement=lambda *args: None,
+        )
+        result = service.execute(self.execution, **args)
+        self.assertFalse(result.successful)
+        revision = self.fixture.prepared.plan.component_revision
+        node = next(n for n in result.node_results if n.component_revision == revision)
+        self.assertEqual(node.failure_evidence.phase.value, "build")
+        self.assertNotEqual(node.failure_code, "lifecycle.failed")
+        failed = [
+            r
+            for r in records
+            if r.component_revision == revision and r.failure_code is not None
+        ]
+        self.assertEqual(len(failed), 1)
+        self.assertEqual(failed[0].failure_code, node.failure_code)
+        self.assertEqual(
+            failed[0].recipe_identity, node.source_output.candidate.recipe_identity
+        )
+        self.assertNotEqual(
+            failed[0].recipe_identity.uri, self.fixture.prepared.recipe.identity
+        )
+
     def test_failed_provider_prevents_sdk_admission_and_generation(self):
         service, ports, admission, args = self.configured_service(fail_build=("money",))
         result = service.execute(self.execution, **args)

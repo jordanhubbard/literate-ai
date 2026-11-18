@@ -2446,7 +2446,7 @@ class StandardProjectLifecycleService:
                                 self._record_stage(
                                     execution_plan,
                                     generation_plans[uri],
-                                    nodes[uri],
+                                    evidence_prepared,
                                     result.source_output,
                                     failed_stage,
                                     failure.subject_identity,
