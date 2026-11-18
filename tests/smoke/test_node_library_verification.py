@@ -116,8 +116,9 @@ class NodeLibraryVerificationTests(unittest.TestCase):
     def test_no_observer_keeps_all_original_type_and_runtime_children(self):
         result = self.check(observe_process=None)
         self.assertEqual(len(result.declarations.processes), 6)
-        self.assertEqual(tuple(mode for mode, _ in result.runtime.results),
-                         ("commonjs", "module"))
+        self.assertEqual(
+            tuple(mode for mode, _ in result.runtime.results), ("commonjs", "module")
+        )
         self.assertEqual(result.oracle, self.oracle.identity)
         self.assertEqual(result.surface, self.surface.identity)
         self.assertEqual(result.runtime.oracle, result.oracle)
@@ -126,65 +127,109 @@ class NodeLibraryVerificationTests(unittest.TestCase):
 
     def test_observation_cuts_preserve_loss_and_callback_unwind(self):
         from contextlib import contextmanager
+
         from literate_ai.adapters import node_library_verification as owner
         from literate_ai.security.policy import AuthorizationError
 
         original_capture = owner.capture_loaded_node_library_verifier_inputs
+
         class StoppedAfterObservation(Exception):
             pass
+
         class OracleLost(Exception):
             pass
+
         class CallbackFailed(Exception):
             pass
+
         # Negative seam only: the original declaration owner is stopped at its
         # observation boundary, never replaced with a successful result. Actual
         # children and acceptance are exercised by the positive native cases.
-        for fault in ("none", "owner", "grant", "oracle-before", "oracle-after",
-                      "callback-owner", "callback-error"):
-            with self.subTest(fault=fault):
-                events = []
-                observing = False
-                @contextmanager
-                def capture(oracle):
-                    with original_capture(oracle) as original:
-                        def scope():
-                            events.append("oracle")
-                            if fault == "oracle-before" or (fault == "oracle-after" and len(events) > 1):
-                                raise OracleLost()
-                            return original()
-                        scope.inputs = original.inputs
-                        yield scope
-                def current():
-                    events.append("owner")
-                    if observing and fault == "grant":
-                        raise AuthorizationError("security.authorization_expired")
-                    if observing and (fault == "owner" or (fault == "callback-owner" and "callback" in events)):
-                        raise ValueError("live execution owner ended")
-                    self.runtime.require_current()
-                def observer(process):
-                    events.append("callback")
-                    if fault == "callback-error":
-                        raise CallbackFailed()
-                def stopped(*args, **kwargs):
-                    nonlocal observing
-                    observing = True
-                    events.clear()
-                    kwargs["observe_process"](None)
-                    raise StoppedAfterObservation()
-                expected = (OracleLost if fault.startswith("oracle") else
-                            AuthorizationError if fault == "grant" else
-                            ValueError if fault in ("owner", "callback-owner") else
-                            CallbackFailed if fault == "callback-error" else StoppedAfterObservation)
-                with mock.patch.object(owner, "capture_loaded_node_library_verifier_inputs", capture), \
-                     mock.patch.object(owner, "check_node_declarations", stopped):
-                    with self.assertRaises(expected):
-                        self.check(require_current=current,
-                                   observe_process=observer if fault.startswith("callback") else None)
-                if fault == "none":
-                    self.assertEqual(events, ["oracle", "owner", "oracle"])
+        def exercise(fault):
+            events = []
+            observing = False
+
+            @contextmanager
+            def capture(oracle):
+                with original_capture(oracle) as original:
+
+                    def scope():
+                        events.append("oracle")
+                        if fault == "oracle-before" or (
+                            fault == "oracle-after" and len(events) > 1
+                        ):
+                            raise OracleLost()
+                        return original()
+
+                    scope.inputs = original.inputs
+                    yield scope
+
+            def current():
+                events.append("owner")
+                if observing and fault == "grant":
+                    raise AuthorizationError("security.authorization_expired")
+                if observing and (
+                    fault == "owner"
+                    or (fault == "callback-owner" and "callback" in events)
+                ):
+                    raise ValueError("live execution owner ended")
+                self.runtime.require_current()
+
+            def observer(process):
+                events.append("callback")
                 if fault == "callback-error":
-                    self.assertEqual(events, ["oracle", "owner", "callback", "owner", "oracle"])
-                self.assertEqual(self.runtime.observations, [])
+                    raise CallbackFailed()
+
+            def stopped(*args, **kwargs):
+                nonlocal observing
+                observing = True
+                events.clear()
+                kwargs["observe_process"](None)
+                raise StoppedAfterObservation()
+
+            expected = (
+                OracleLost
+                if fault.startswith("oracle")
+                else AuthorizationError
+                if fault == "grant"
+                else ValueError
+                if fault in ("owner", "callback-owner")
+                else CallbackFailed
+                if fault == "callback-error"
+                else StoppedAfterObservation
+            )
+            with (
+                mock.patch.object(
+                    owner, "capture_loaded_node_library_verifier_inputs", capture
+                ),
+                mock.patch.object(owner, "check_node_declarations", stopped),
+            ):
+                with self.assertRaises(expected):
+                    self.check(
+                        require_current=current,
+                        observe_process=observer
+                        if fault.startswith("callback")
+                        else None,
+                    )
+            if fault == "none":
+                self.assertEqual(events, ["oracle", "owner", "oracle"])
+            if fault == "callback-error":
+                self.assertEqual(
+                    events, ["oracle", "owner", "callback", "owner", "oracle"]
+                )
+            self.assertEqual(self.runtime.observations, [])
+
+        for fault in (
+            "none",
+            "owner",
+            "grant",
+            "oracle-before",
+            "oracle-after",
+            "callback-owner",
+            "callback-error",
+        ):
+            with self.subTest(fault=fault):
+                exercise(fault)
 
     def test_weakened_types_refuse_before_any_runtime_harness(self):
         symbols = self.surface.capabilities[0].symbols
