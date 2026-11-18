@@ -48,6 +48,11 @@ from literate_ai.adapters.retained_harness_remote import (
     RetainedHarnessSshExecutor,
     retained_harness_runtime_requirements,
 )
+from literate_ai.adapters.retained_layout import (
+    ResolvedRetainedLayout,
+    RetainedLayoutError,
+    resolve_legacy_layout,
+)
 from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
 from literate_ai.contracts import (
     ContentIdentity,
@@ -114,33 +119,16 @@ def _load_json(path: Path) -> dict[str, Any]:
     return value
 
 
-def _implementation(root: Path) -> tuple[str, Path]:
+def _layout(root: Path) -> ResolvedRetainedLayout:
     lift_shift = _load_json(_safe_path(root, LIFT_SHIFT))
     if lift_shift.get("state") != "passed":
         _fail("lift_shift_unqualified", "retained lift-and-shift has not passed")
-    relative = lift_shift.get("implementation_directory")
-    if not isinstance(relative, str):
-        _fail("lift_shift_invalid", "lift-and-shift omits the implementation path")
-    raw = PurePosixPath(relative)
-    if (
-        raw.is_absolute()
-        or raw.as_posix() != relative
-        or any(part in {"", ".", ".."} for part in raw.parts)
-    ):
-        _fail("lift_shift_invalid", "retained implementation path is unsafe")
-    path = root
-    for part in raw.parts:
-        path = path / part
-        if path.is_symlink():
-            _fail("lift_shift_invalid", "retained implementation traverses a link")
     try:
-        resolved = path.resolve(strict=True)
-        resolved.relative_to(root)
-    except (OSError, ValueError):
-        _fail("lift_shift_invalid", "retained implementation escapes the project")
-    if path.is_symlink() or not resolved.is_dir():
-        _fail("lift_shift_invalid", "retained implementation must be one directory")
-    return relative, resolved
+        return resolve_legacy_layout(root, lift_shift)
+    except RetainedLayoutError:
+        _fail(
+            "lift_shift_invalid", "retained implementation path is unsafe or redirected"
+        )
 
 
 def _conversion(root: Path, project_id: str) -> dict[str, Any]:
@@ -285,7 +273,9 @@ def plan_retained_harness_readmission(
     project = load_project(selected)
     root = project.root
     conversion = _conversion(root, project.definition.project_id)
-    implementation_relative, implementation = _implementation(root)
+    layout = _layout(root)
+    implementation_relative = layout.implementation_directory
+    implementation = layout.implementation_root
     inventory_path = _safe_path(root, INVENTORY)
     baseline_path = _safe_path(root, BASELINE)
     parity_path = _safe_path(root, PARITY)
@@ -327,6 +317,7 @@ def plan_retained_harness_readmission(
             "state": "passed",
             "phases": expected_phases,
         },
+        wrapper_component=layout.wrapper_component,
     )
     review = FilesystemProjectValidationAdapter().documentation_review(root)
     document = review.get("document")
@@ -345,7 +336,7 @@ def plan_retained_harness_readmission(
     }
     for relative in shim:
         old_documents[relative] = _identity(_safe_path(root, relative).read_bytes())
-    component_root = root / "components/legacy-project-wrapper"
+    component_root = layout.wrapper_root
     for path in (
         component_root / "component.lock.json",
         component_root / "component.resolution-audit.host.json",
@@ -355,6 +346,7 @@ def plan_retained_harness_readmission(
     plan: dict[str, Any] = {
         "schema": PLAN_SCHEMA,
         "project_id": project.definition.project_id,
+        "wrapper_component": layout.wrapper_component,
         "implementation": implementation_relative,
         "conversion_authority": conversion,
         "old_documents": old_documents,
@@ -721,7 +713,9 @@ def apply_retained_harness_readmission(
             project_id=project.definition.project_id,
             executor=executor,
         )
-        shim = legacy_shim_authority(inventory, baseline)
+        shim = legacy_shim_authority(
+            inventory, baseline, wrapper_component=plan["wrapper_component"]
+        )
         paths = {
             INVENTORY: _safe_path(root, INVENTORY),
             BASELINE: _safe_path(root, BASELINE),
@@ -732,9 +726,10 @@ def apply_retained_harness_readmission(
         }
         for relative in shim:
             paths[relative] = _safe_path(root, relative)
+        wrapper_component = plan["wrapper_component"]
         for relative in (
-            "components/legacy-project-wrapper/component.lock.json",
-            "components/legacy-project-wrapper/component.resolution-audit.host.json",
+            f"{wrapper_component}/component.lock.json",
+            f"{wrapper_component}/component.resolution-audit.host.json",
         ):
             paths[relative] = _safe_path(root, relative)
         before = {name: path.read_bytes() for name, path in paths.items()}
@@ -798,13 +793,13 @@ def apply_retained_harness_readmission(
             )
 
             lock_paths = (
-                "components/legacy-project-wrapper/component.lock.json",
-                "components/legacy-project-wrapper/component.resolution-audit.host.json",
+                f"{wrapper_component}/component.lock.json",
+                f"{wrapper_component}/component.resolution-audit.host.json",
             )
             try:
                 lock_result, lock_status = _component_locks_from_args(
                     Namespace(
-                        component=str(root / "components/legacy-project-wrapper"),
+                        component=str(root / wrapper_component),
                         target="host",
                         flavor_root=[],
                         flavor=[],

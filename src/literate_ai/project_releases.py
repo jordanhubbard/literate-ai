@@ -14,14 +14,17 @@ import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import nullcontext
+from contextvars import ContextVar, copy_context
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
+from functools import wraps
 from pathlib import Path
 from typing import Any
 
 from packaging.version import InvalidVersion, Version
 
 from literate_ai.adapters._processes import run_with_tree_kill
+from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.execution_dispatch import (
     ExecutionDispatchAdapterError,
     load_execution_worker_catalog,
@@ -1212,12 +1215,55 @@ def current_release_version(root: Path, policy: ReleasePolicy) -> str:
     return values[0]
 
 
+_STRICT_CI_GIT_READS: ContextVar[bool] = ContextVar(
+    "strict_ci_git_reads", default=False
+)
+
+
+def _strict_ci_observation(operation):
+    @wraps(operation)
+    def observe(project, *arguments, **options):
+        _, policy = load_release_policy(project)
+        strict = _strict_ci_coverage(policy)
+        if strict:
+            _require_strict_git_scope()
+        token = _STRICT_CI_GIT_READS.set(strict)
+        try:
+            return operation(project, *arguments, **options)
+        finally:
+            _STRICT_CI_GIT_READS.reset(token)
+
+    return observe
+
+
+def _require_strict_git_scope():
+    from literate_ai.adapters.native_project_bootstrap import _require_actual_git_scope
+
+    try:
+        _require_actual_git_scope()
+    except ValueError as exc:
+        raise ProjectReleaseError(
+            "release.ci_coverage_source_stale",
+            "strict coverage requires actual worktree Git state",
+        ) from exc
+
+
 def _git(
     root: Path, *arguments: str, check: bool = True
 ) -> subprocess.CompletedProcess[str]:
     try:
         return run_with_tree_kill(
-            ("git", "-C", str(root), *arguments),
+            (
+                "git",
+                "-C",
+                str(root),
+                *(
+                    ("--no-optional-locks", "--no-replace-objects", "--no-lazy-fetch")
+                    if _STRICT_CI_GIT_READS.get()
+                    else ()
+                ),
+                *arguments,
+            ),
             check=check,
             text=True,
             timeout=30,
@@ -1228,13 +1274,36 @@ def _git(
         ) from exc
 
 
-def _git_snapshot(root: Path) -> dict[str, object]:
-    head = _git(root, "rev-parse", "HEAD").stdout.strip()
-    branch = _git(root, "symbolic-ref", "--short", "HEAD").stdout.strip()
+def _git_snapshot(root: Path, *, read_only: bool = False) -> dict[str, object]:
+    if read_only:
+        _require_strict_git_scope()
+        entries = _git(
+            root,
+            "--no-optional-locks",
+            "--no-replace-objects",
+            "--no-lazy-fetch",
+            "ls-files",
+            "-v",
+            "-z",
+        ).stdout
+        if any(
+            row and (row[0].islower() or row[0] == "S") for row in entries.split("\0")
+        ):
+            raise ProjectReleaseError(
+                "release.ci_coverage_source_stale",
+                "strict coverage refuses assume-unchanged or skip-worktree flags",
+            )
+    prefix = (
+        ("--no-optional-locks", "--no-replace-objects", "--no-lazy-fetch")
+        if read_only
+        else ()
+    )
+    head = _git(root, *prefix, "rev-parse", "HEAD").stdout.strip()
+    branch = _git(root, *prefix, "symbolic-ref", "--short", "HEAD").stdout.strip()
     status = tuple(
         line
         for line in _git(
-            root, "status", "--porcelain=v1", "--untracked-files=all"
+            root, *prefix, "status", "--porcelain=v1", "--untracked-files=all"
         ).stdout.splitlines()
         if line
     )
@@ -3178,7 +3247,8 @@ def _run_release_gate_on_workers(
     outcomes: dict[str, dict[str, object] | ProjectReleaseError] = {}
     with ThreadPoolExecutor(max_workers=len(workers)) as executor:
         future_to_worker = {
-            executor.submit(dispatch, worker): worker for worker in workers
+            executor.submit(copy_context().run, dispatch, worker): worker
+            for worker in workers
         }
         for future in as_completed(future_to_worker):
             worker = future_to_worker[future]
@@ -3273,6 +3343,8 @@ def _run_tiered_qualification(
     """
 
     qualification = policy.qualification
+    if _strict_ci_coverage(policy):
+        _strict_ci_source(root, policy, snapshot)
     assert qualification is not None
     host = _host_platform()
     workers, excluded = _qualification_workers(root)
@@ -3371,7 +3443,7 @@ def _run_tiered_qualification(
     ]
     with ThreadPoolExecutor(max_workers=max(1, len(pending))) as executor:
         worker_futures = {
-            platform: executor.submit(qualify_on_workers, platform)
+            platform: executor.submit(copy_context().run, qualify_on_workers, platform)
             for platform in pending
         }
         if plan.local:
@@ -3416,7 +3488,18 @@ def _run_tiered_qualification(
                 "no available local host, worker or declared CI platform can "
                 "provide " + ", ".join(missing),
             )
-        _, ci = _run_release_gate_via_github(root, policy, snapshot)
+        _, ci = _run_release_gate_via_github(
+            root,
+            policy,
+            snapshot,
+            **(
+                {"ci_platforms": tuple(remaining)}
+                if _strict_ci_coverage(policy)
+                else {}
+            ),
+        )
+        if _strict_ci_coverage(policy):
+            ci["coverage"] = ci.pop("ci")["coverage"]
         for platform in remaining:
             covered[platform] = {"tier": "ci", "run_id": ci.get("run_id")}
     try:
@@ -3446,58 +3529,206 @@ def _run_tiered_qualification(
 
 
 def _github_run_matches(
-    root: Path, repository: str, branch: str, revision: str, workflow: str = "CI"
+    root: Path,
+    repository: str,
+    branch: str,
+    revision: str,
+    workflow: str = "CI",
+    *,
+    timeout_seconds: float = 60,
 ) -> list[dict[str, object]]:
+    from literate_ai.adapters.github_observation import (
+        GitHubObservationError,
+        workflow_runs,
+    )
+
     try:
-        completed = subprocess.run(
-            (
-                "gh",
-                "run",
-                "list",
-                "--repo",
-                repository,
-                "--branch",
-                branch,
-                "--workflow",
-                workflow,
-                "--json",
-                "databaseId,headSha,status,conclusion,url",
-                "--limit",
-                "50",
-            ),
-            cwd=root,
-            check=False,
-            capture_output=True,
-            text=True,
-            timeout=60,
+        return workflow_runs(
+            root,
+            repository,
+            branch,
+            revision,
+            workflow,
+            timeout_seconds=timeout_seconds,
+            execute=run_bounded_process,
         )
-    except (OSError, subprocess.TimeoutExpired) as exc:
+    except GitHubObservationError as exc:
+        code = {
+            "timeout": "release.gate_timeout",
+            "invalid": "release.provider_response_invalid",
+            "unavailable": "release.provider_unavailable",
+        }[exc.code]
+        raise ProjectReleaseError(code, str(exc)) from exc
+
+
+def _github_run_identity(run: dict[str, object]) -> tuple[object, ...]:
+    from literate_ai.adapters.github_observation import run_identity
+
+    return run_identity(run)
+
+
+def _strict_ci_coverage(policy: ReleasePolicy) -> bool:
+    return (
+        policy.qualification is not None
+        and policy.qualification.ci_coverage is not None
+    )
+
+
+def _require_supported_ci_promotion(policy: ReleasePolicy, operation: str) -> None:
+    if _strict_ci_coverage(policy):
         raise ProjectReleaseError(
-            "release.provider_unavailable",
-            "GitHub run polling requires an authenticated gh command",
-        ) from exc
-    if completed.returncode:
-        raise ProjectReleaseError(
-            "release.provider_unavailable",
-            f"gh run list failed with exit status {completed.returncode}",
+            "release.ci_coverage_promotion_unsupported",
+            "strict CI coverage currently supports qualification/check preparation, "
+            f"not {operation}",
         )
+
+
+def _strict_ci_source(root: Path, policy: ReleasePolicy, snapshot: dict) -> str:
+    """Bind committed policy semantics and the actual Git tree, without fetching.
+
+    JSON whitespace/line-ending conversion is not a policy change. Duplicate keys,
+    replacement refs, missing objects and hidden policy changes are not accepted.
+    """
+    from literate_ai.projects import ProjectConfigurationStore
+
+    def git(*arguments):
+        return _git(
+            root,
+            "--no-optional-locks",
+            "--no-replace-objects",
+            "--no-lazy-fetch",
+            *arguments,
+        ).stdout
+
+    def unique_object(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate policy field")
+            result[key] = value
+        return result
+
     try:
-        runs = json.loads(completed.stdout)
-    except json.JSONDecodeError as exc:
+        _git_snapshot(root, read_only=True)
+        if (
+            Path(git("rev-parse", "--show-toplevel").strip()).resolve()
+            != root.resolve()
+            or git("rev-parse", "HEAD^{commit}").strip() != snapshot["head"]
+            or git("symbolic-ref", "--short", "HEAD").strip() != snapshot["branch"]
+            or git("status", "--porcelain=v1", "--untracked-files=all").strip()
+            or not snapshot["clean"]
+        ):
+            raise ValueError("source/branch/clean state changed")
+        tree = git("rev-parse", f"{snapshot['head']}^{{tree}}").strip()
+        paths = [root / RELEASE_POLICY_FILE]
+        configuration = ProjectConfigurationStore.discover(root)
+        if configuration is not None:
+            if configuration.root.resolve() != root.resolve():
+                raise ValueError("repository policy belongs to another root")
+            paths.append(configuration.manifest_path)
+        for path in paths:
+            relative = path.relative_to(root).as_posix()
+            entry = git("ls-tree", "-z", str(snapshot["head"]), "--", relative)
+            if (
+                path.is_symlink()
+                or path.resolve() != root.resolve() / relative
+                or not entry.endswith("\0")
+                or entry.count("\0") != 1
+                or entry.split(" ", 2)[:2]
+                not in (["100644", "blob"], ["100755", "blob"])
+            ):
+                raise ValueError("policy must be a committed regular file")
+            committed = json.loads(
+                git("show", f"{snapshot['head']}:{relative}"),
+                object_pairs_hook=unique_object,
+            )
+            current = json.loads(
+                path.read_text(encoding="utf-8"), object_pairs_hook=unique_object
+            )
+            if canonical_identity(committed) != canonical_identity(current):
+                raise ValueError("working policy differs from its committed source")
+        if load_release_policy(root)[1].identity != policy.identity:
+            raise ValueError("effective release policy changed")
+        return tree
+    except (OSError, ValueError) as exc:
         raise ProjectReleaseError(
-            "release.provider_response_invalid",
-            "gh run list did not return valid JSON",
+            "release.ci_coverage_source_stale",
+            "strict CI source/policy cannot be bound to this clean commit",
         ) from exc
-    if not isinstance(runs, list):
+
+
+def _observe_release_ci_coverage(
+    root: Path,
+    policy: ReleasePolicy,
+    snapshot: dict,
+    *,
+    platforms: tuple[str, ...],
+    deadline: float,
+    expected_run: dict | None = None,
+) -> dict:
+    from literate_ai.adapters.github_observation import GitHubObservationError
+    from literate_ai.adapters.release_ci_coverage import observe_ci_coverage
+    from literate_ai.release_ci_coverage import CICoverageError
+
+    qualification = policy.qualification
+    assert qualification is not None and qualification.ci_coverage is not None
+    if policy.provider_kind != "github" or not policy.provider_repository:
         raise ProjectReleaseError(
-            "release.provider_response_invalid",
-            "gh run list did not return a JSON array",
+            "release.target_unconfigured",
+            "strict CI coverage requires the configured GitHub provider",
         )
-    return [
-        item
-        for item in runs
-        if isinstance(item, dict) and item.get("headSha") == revision
-    ]
+    tree = _strict_ci_source(root, policy, snapshot)
+    workflow = getattr(_repository_policy(root), "release_ci_workflow", "CI")
+    required = {
+        (platform, action.name)
+        for platform in platforms
+        for action in qualification.actions
+    }
+    try:
+        proof = observe_ci_coverage(
+            root,
+            repository=policy.provider_repository,
+            branch=str(snapshot["branch"]),
+            revision=str(snapshot["head"]),
+            tree=tree,
+            policy_identity=policy.identity,
+            workflow=workflow,
+            qualification=qualification,
+            required_cells=required,
+            deadline=deadline,
+            expected_run=expected_run,
+            execute=run_bounded_process,
+        )
+    except (GitHubObservationError, CICoverageError) as exc:
+        raise ProjectReleaseError(f"release.ci_coverage_{exc.code}", str(exc)) from exc
+    if (
+        _strict_ci_source(root, policy, snapshot) != tree
+        or getattr(_repository_policy(root), "release_ci_workflow", "CI") != workflow
+    ):
+        raise ProjectReleaseError(
+            "release.ci_coverage_source_stale",
+            "source or workflow policy changed during coverage observation",
+        )
+    return proof
+
+
+def _optional_github_success(runs: list[dict[str, object]]) -> dict[str, object] | None:
+    """Optional CI cannot hide an unresolved failure behind a pending retry."""
+    for run in runs:
+        if run["status"] == "completed":
+            if run["conclusion"] == "success":
+                return run
+            if run["conclusion"] not in {"neutral", "skipped"}:
+                raise ProjectReleaseError(
+                    "release.rc_ci_failed", "an unresolved exact-head GitHub run failed"
+                )
+        if run["attempt"] > 1:
+            raise ProjectReleaseError(
+                "release.rc_ci_unavailable",
+                "an unfinished or non-successful retry cannot establish "
+                "its prior outcome",
+            )
+    return None
 
 
 def _run_release_gate_via_github(
@@ -3506,6 +3737,7 @@ def _run_release_gate_via_github(
     snapshot: dict[str, object],
     *,
     evidence_node: EvidenceNode | None = None,
+    ci_platforms: tuple[str, ...] | None = None,
 ) -> tuple[dict[str, object], dict[str, object]]:
     if policy.provider_kind != "github" or not policy.provider_repository:
         raise ProjectReleaseError(
@@ -3518,15 +3750,51 @@ def _run_release_gate_via_github(
     workflow = getattr(_repository_policy(root), "release_ci_workflow", "CI")
     deadline = time.monotonic() + policy.gate_timeout_seconds
     run: dict[str, object] | None = None
+    observed: dict[str, object] | None = None
+    observed_numbers: dict[object, tuple[object, object]] = {}
     while True:
         matches = _github_run_matches(
-            root, policy.provider_repository, branch, revision, workflow
+            root,
+            policy.provider_repository,
+            branch,
+            revision,
+            workflow,
+            timeout_seconds=max(0, deadline - time.monotonic()),
         )
-        completed_matches = [
-            item for item in matches if item.get("status") == "completed"
-        ]
-        if completed_matches:
-            run = completed_matches[0]
+        selected = matches[0] if matches else None
+        for current in matches:
+            immutable = (current["workflowDatabaseId"], current["number"])
+            if (
+                observed_numbers.setdefault(current["databaseId"], immutable)
+                != immutable
+            ):
+                raise ProjectReleaseError(
+                    "release.provider_response_invalid",
+                    "GitHub changed the workflow or number of an observed run",
+                )
+        if len(observed_numbers) > 50:
+            raise ProjectReleaseError(
+                "release.provider_response_invalid",
+                "GitHub observation history exceeds the exact-head run bound",
+            )
+        if observed is not None and (
+            selected is None
+            or selected["workflowDatabaseId"] != observed["workflowDatabaseId"]
+            or (selected["number"], selected["attempt"])
+            < (observed["number"], observed["attempt"])
+            or (
+                selected["number"] == observed["number"]
+                and selected["databaseId"] != observed["databaseId"]
+            )
+        ):
+            raise ProjectReleaseError(
+                "release.provider_response_invalid",
+                "GitHub observation lost or regressed the selected run",
+            )
+        if selected is not None:
+            observed = selected
+        if selected is not None and selected["status"] == "completed":
+            run = selected
             break
         if time.monotonic() >= deadline:
             raise ProjectReleaseError(
@@ -3535,7 +3803,7 @@ def _run_release_gate_via_github(
                 f"{policy.gate_timeout_seconds} seconds",
             )
         time.sleep(
-            max(1, min(_GITHUB_POLL_INTERVAL_SECONDS, deadline - time.monotonic()))
+            max(0, min(_GITHUB_POLL_INTERVAL_SECONDS, deadline - time.monotonic()))
         )
     conclusion = run.get("conclusion")
     target: dict[str, object] = {
@@ -3543,6 +3811,13 @@ def _run_release_gate_via_github(
         "run_id": run.get("databaseId"),
         "run_url": run.get("url"),
         "conclusion": conclusion,
+        "repository": policy.provider_repository,
+        "workflow_id": run["workflowDatabaseId"],
+        "run_number": run["number"],
+        "attempt": run["attempt"],
+        "revision": revision,
+        "branch": branch,
+        "policy_identity": policy.identity,
     }
     if conclusion != "success":
         if evidence_node is not None:
@@ -3592,7 +3867,71 @@ def _run_release_gate_via_github(
         "stdout_digest": _digest_text(json.dumps(run, sort_keys=True)),
         "stderr_digest": _digest_text(""),
     }
+    if _strict_ci_coverage(policy):
+        qualification = policy.qualification
+        assert qualification is not None
+        platforms = qualification.platforms if ci_platforms is None else ci_platforms
+        if qualification.ci_mandatory:
+            platforms = tuple(dict.fromkeys((*platforms, *qualification.ci_platforms)))
+        target["ci"] = {
+            "coverage": _observe_release_ci_coverage(
+                root,
+                policy,
+                snapshot,
+                platforms=platforms,
+                deadline=deadline,
+                expected_run=run,
+            )
+        }
     return gate, target
+
+
+def _close_release_ci_coverage(
+    root: Path, policy: ReleasePolicy, snapshot: dict, target: dict
+) -> None:
+    if not _strict_ci_coverage(policy):
+        return
+    qualification = policy.qualification
+    assert qualification is not None
+    _strict_ci_source(root, policy, snapshot)
+    ci = target.get("ci")
+    if ci is None:
+        if qualification.ci_mandatory or any(
+            cell.get("tier") == "ci" for cell in target.get("coverage", [])
+        ):
+            raise ProjectReleaseError(
+                "release.ci_coverage_incomplete", "strict CI proof is required"
+            )
+        return
+    if not isinstance(ci, dict) or not isinstance(ci.get("coverage"), dict):
+        raise ProjectReleaseError(
+            "release.ci_coverage_incomplete", "strict CI proof is missing"
+        )
+    platforms = (
+        qualification.platforms
+        if target.get("kind") == "github"
+        else tuple(
+            dict.fromkeys(
+                cell["platform"]
+                for cell in target.get("coverage", [])
+                if cell["tier"] == "ci"
+            )
+        )
+    )
+    if qualification.ci_mandatory:
+        platforms = tuple(dict.fromkeys((*platforms, *qualification.ci_platforms)))
+    current = _observe_release_ci_coverage(
+        root,
+        policy,
+        snapshot,
+        platforms=platforms,
+        deadline=time.monotonic() + min(300, policy.gate_timeout_seconds),
+    )
+    if current["identity"] != ci["coverage"].get("identity"):
+        raise ProjectReleaseError(
+            "release.ci_coverage_stale",
+            "CI proof changed before recording qualification",
+        )
 
 
 def _release_record_destination(root: Path, output: Path) -> Path:
@@ -3646,7 +3985,9 @@ def _check_release(
             allow_break_glass=plan["transition"] == "patch",
             break_glass_reason=break_glass_reason,
         )
-    snapshot = _git_snapshot(root)
+    snapshot = _git_snapshot(
+        root, **({"read_only": True} if _strict_ci_coverage(policy) else {})
+    )
     if evidence_node is not None:
         evidence_node.add_pins(
             plan_identity=plan.get("identity"),
@@ -3757,6 +4098,11 @@ def _check_release(
         if target is None and policy.qualification is not None
         else _resolve_release_target(root, target)
     )
+    if _strict_ci_coverage(policy) and resolved_target not in {"tiered", "github"}:
+        raise ProjectReleaseError(
+            "release.ci_coverage_target_unsupported",
+            "strict CI coverage requires tiered or explicit GitHub qualification",
+        )
     if evidence_node is not None:
         evidence_node.add_pins(resolved_target=resolved_target)
     if resolved_target == "tiered" and policy.qualification is None:
@@ -3882,6 +4228,7 @@ def _check_release(
     )
     with receipt_context:
         authenticated_receipt = _require_authenticated_release_receipt(root, policy)
+    _close_release_ci_coverage(root, policy, snapshot, target_evidence)
     result: dict[str, object] = {
         "schema": LEGACY_PREPARED_RELEASE_SCHEMA,
         "plan_identity": plan["identity"],
@@ -3928,6 +4275,7 @@ def _check_release(
     return {**result, "record": str(destination)}
 
 
+@_strict_ci_observation
 def check_release(
     project: Path,
     plan_path: Path,
@@ -3984,6 +4332,7 @@ def check_release(
             run.close(state)
 
 
+@_strict_ci_observation
 def qualify_release(project: Path, *, output: Path) -> dict[str, object]:
     """Cover the policy's platform x action matrix at the exact clean HEAD.
 
@@ -3997,16 +4346,24 @@ def qualify_release(project: Path, *, output: Path) -> dict[str, object]:
             "release.target_unconfigured",
             "release qualification requires release_policy.qualification",
         )
-    snapshot = _git_snapshot(root)
+    snapshot = _git_snapshot(
+        root, **({"read_only": True} if _strict_ci_coverage(policy) else {})
+    )
     if not snapshot["clean"]:
         raise ProjectReleaseError(
             "release.check_dirty", "release qualification requires a clean commit"
         )
     gate, target = _run_tiered_qualification(root, policy, snapshot)
-    if _git_snapshot(root)["head"] != snapshot["head"]:
+    if (
+        _git_snapshot(
+            root, **({"read_only": True} if _strict_ci_coverage(policy) else {})
+        )["head"]
+        != snapshot["head"]
+    ):
         raise ProjectReleaseError(
             "release.qualification_stale", "HEAD moved during qualification"
         )
+    _close_release_ci_coverage(root, policy, snapshot, target)
     record: dict[str, object] = {
         "schema": QUALIFICATION_RECORD_SCHEMA,
         "revision": snapshot["head"],
@@ -4016,6 +4373,16 @@ def qualify_release(project: Path, *, output: Path) -> dict[str, object]:
         **{key: value for key, value in target.items() if key != "kind"},
     }
     record["identity"] = canonical_identity(record).uri
+    if _strict_ci_coverage(policy):
+        try:
+            require_qualification_record(
+                record,
+                policy.qualification,
+                revision=str(snapshot["head"]),
+                release_policy_identity=policy.identity,
+            )
+        except ReleaseQualificationError as exc:
+            raise ProjectReleaseError(exc.code, str(exc)) from exc
     destination = _release_record_destination(root, output)
     destination.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write_text(
@@ -4043,7 +4410,12 @@ def _left_tier_qualification(
         )
     try:
         record = json.loads(Path(qualification).read_text(encoding="utf-8"))
-        require_qualification_record(record, policy.qualification, revision=revision)
+        require_qualification_record(
+            record,
+            policy.qualification,
+            revision=revision,
+            release_policy_identity=policy.identity,
+        )
     except (OSError, ValueError) as exc:
         if isinstance(exc, ReleaseQualificationError):
             raise ProjectReleaseError(exc.code, str(exc)) from exc
@@ -4079,6 +4451,7 @@ def create_release_candidate(
             "rc requires --authorize-external-write",
         )
     root, policy = load_release_policy(project)
+    _require_supported_ci_promotion(policy, "RC publication")
     _require_semver_release(policy)
     authorization = _authorize(
         root, policy, actor=actor, operation="release candidate publication"
@@ -4109,44 +4482,35 @@ def create_release_candidate(
     left_tiers = _left_tier_qualification(
         root, policy, qualification, revision=str(snapshot["head"])
     )
-    green = None
-    matches = _github_run_matches(
-        root,
-        policy.provider_repository,
-        str(snapshot["branch"]),
-        str(snapshot["head"]),
-        getattr(_repository_policy(root), "release_ci_workflow", "CI"),
-    )
-    if left_tiers is not None:
-        # CI is optional here, but a run that completed and failed is still
-        # evidence against this head; only pending or absent runs are waived.
-        if any(
-            item.get("status") == "completed"
-            and item.get("conclusion") not in {"success", "neutral", "skipped"}
-            for item in matches
-        ):
-            raise ProjectReleaseError(
-                "release.rc_ci_failed",
-                "an exact-head GitHub CI run failed; a qualification record "
-                "does not waive failing CI",
-            )
-    else:
-        green = next(
-            (
-                item
-                for item in matches
-                if item.get("status") == "completed"
-                and item.get("conclusion") == "success"
-            ),
-            None,
+    deadline = time.monotonic() + policy.gate_timeout_seconds
+    workflow = getattr(_repository_policy(root), "release_ci_workflow", "CI")
+
+    def selected_ci():
+        matches = _github_run_matches(
+            root,
+            policy.provider_repository,
+            str(snapshot["branch"]),
+            str(snapshot["head"]),
+            workflow,
+            timeout_seconds=max(0, deadline - time.monotonic()),
         )
-        if green is None:
+        if left_tiers is not None:
+            return _optional_github_success(matches)
+        selected = matches[0] if matches else None
+        if selected is None or selected["status"] != "completed":
             raise ProjectReleaseError(
                 "release.rc_ci_unavailable",
-                "RC tagging requires successful exact-head GitHub CI evidence, "
-                "or a qualification record whose host and worker tiers cover "
-                "every platform and action (litai release qualify)",
+                "RC tagging requires successful current exact-head GitHub CI, "
+                "or complete host/worker qualification when CI is optional",
             )
+        if selected["conclusion"] != "success":
+            raise ProjectReleaseError(
+                "release.rc_ci_failed",
+                "the current exact-head GitHub run did not succeed",
+            )
+        return selected
+
+    green = selected_ci()
     tag = f"{policy.tag_prefix}{canonical}"
     if _local_tag_revision(root, tag) is not None:
         raise ProjectReleaseError(
@@ -4157,6 +4521,27 @@ def create_release_candidate(
         raise ProjectReleaseError(
             "release.tag_exists", f"release tag already exists: {tag}"
         )
+    fresh_ci = selected_ci()
+    if (None if green is None else _github_run_identity(green)) != (
+        None if fresh_ci is None else _github_run_identity(fresh_ci)
+    ):
+        raise ProjectReleaseError(
+            "release.rc_ci_changed", "CI run or attempt changed before RC tagging"
+        )
+    fresh_root, fresh_policy = load_release_policy(root)
+    fresh_snapshot = _git_snapshot(root)
+    if (
+        fresh_root != root
+        or fresh_policy.identity != policy.identity
+        or not fresh_snapshot["clean"]
+        or fresh_snapshot["head"] != snapshot["head"]
+        or fresh_snapshot["branch"] != snapshot["branch"]
+        or getattr(_repository_policy(root), "release_ci_workflow", "CI") != workflow
+    ):
+        raise ProjectReleaseError(
+            "release.rc_source_changed",
+            "RC source or policy changed during CI observation",
+        )
     _git(
         root,
         "tag",
@@ -4164,6 +4549,7 @@ def create_release_candidate(
         tag,
         "-m",
         f"Release candidate {tag}",
+        str(snapshot["head"]),
     )
     _git(root, "push", policy.remote, f"refs/tags/{tag}")
     # Build wheel and create a prerelease GitHub Release with the asset
@@ -4214,6 +4600,12 @@ def create_release_candidate(
             "run_id": green.get("databaseId"),
             "run_url": green.get("url"),
             "conclusion": "success",
+            "repository": policy.provider_repository,
+            "workflow_id": green["workflowDatabaseId"],
+            "run_number": green["number"],
+            "attempt": green["attempt"],
+            "revision": snapshot["head"],
+            "policy_identity": policy.identity,
         },
         **(
             {"qualification_identity": left_tiers["identity"]}
@@ -4303,6 +4695,7 @@ def merge_release_pull_request(
             "release-line PR merge requires --authorize-external-write",
         )
     root, policy = load_release_policy(project)
+    _require_supported_ci_promotion(policy, "release-line merge")
     _require_semver_release(policy)
     if policy.provider_kind != "github" or not policy.provider_repository:
         raise ProjectReleaseError(
@@ -5005,6 +5398,7 @@ def publish_release(
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
+    _require_supported_ci_promotion(policy, "release publication")
     _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
@@ -5248,6 +5642,7 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
+    _require_supported_ci_promotion(policy, "published-release coverage verification")
     _require_semver_release(policy)
     if policy.identity != prepared["policy_identity"]:
         raise ProjectReleaseError(

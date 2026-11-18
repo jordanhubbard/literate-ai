@@ -1,0 +1,32 @@
+{
+  "schema": "literate-ai/independent-design-review@1",
+  "state": "design-reviewed-implementation-pending",
+  "reviewer": "sdlc_review",
+  "review_identity": "sha256:f79680887db44f8bc942b45e32bf5b0bfdd8d6729dc089844495c209c7b29f12",
+  "source_revision": "8839ffc915604e72f13cfc19e8639807ffbb8059",
+  "scope": "Native contained CI observation; not release or merge authority",
+  "real_evidence": {
+    "run": 44000908565,
+    "attempt": 1,
+    "pr": 458,
+    "head": "48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68",
+    "jobs": 13,
+    "tested_tree_revision": null,
+    "required_check_view": "no requirements reported"
+  },
+  "controlled_coverage_probe": {
+    "cases": 3,
+    "cells_recorded_each": 2,
+    "job_inventory_requests": 0,
+    "seconds": 1.903,
+    "provider_transport": "simulated",
+    "git_and_policy": "real temporary fixture"
+  },
+  "acceptance_remaining": [
+    "Implementation and independent source review",
+    "Successful and failed public native CI fixture journeys",
+    "Partial retry provider evidence",
+    "Fresh source and installed/platform qualification"
+  ],
+  "release_qualification": false
+}

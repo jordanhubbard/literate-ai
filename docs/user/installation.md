@@ -459,6 +459,10 @@ same validated temporary root through Win32's extended-length path namespace; th
 required because a compact root can still contain a ruleset-owned runfiles leaf beyond
 the classic path limit.
 
+The following commands are preserved evidence of the recorded support run with
+its then-combined tool package. They are historical; use the current tool commands
+after this excerpt for the separated packages.
+
 Framework packages stayed out of the system interpreter. Native Windows setup used an
 ignored project environment and the repository's Node lockfile:
 
@@ -487,6 +491,21 @@ $env:PYTHONPATH = "src"
 & .\tools\openspec\node_modules\.bin\openspec.cmd validate `
   --all --strict --no-interactive
 npm --prefix tools\openspec run documentation:check
+```
+
+Current tool setup and checks use separate locks and a shared audit helper. These
+updated commands are not evidence of a new native Windows qualification; either
+audit can stop this sequence before its validation or rendering command:
+
+```powershell
+npm --prefix tools\openspec ci
+if ($LASTEXITCODE -ne 0) { throw "OpenSpec tool installation failed" }
+npm --prefix tools\documentation ci
+if ($LASTEXITCODE -ne 0) { throw "Documentation tool installation failed" }
+npm --prefix tools\openspec run openspec:check
+if ($LASTEXITCODE -ne 0) { throw "OpenSpec audit or validation failed" }
+npm --prefix tools\documentation run documentation:check
+if ($LASTEXITCODE -ne 0) { throw "Documentation audit or rendering failed" }
 ```
 
 The platform run also established that the self-hosted replication proof needs a
@@ -580,7 +599,8 @@ Make invokes it directly, does not create or use `.venv`, and does not fall
 back when its version check or a downstream operation fails.
 
 Contributor OpenSpec and documentation tooling are repository-pinned
-under `tools/openspec/`. Install them when changing this framework:
+under `tools/openspec/` and `tools/documentation/`, with one shared audit helper
+under `tools/npm-audit/`. Install both when changing this framework:
 
 ```console
 make tools-install

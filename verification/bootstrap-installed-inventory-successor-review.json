@@ -1,0 +1,29 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Complete installed maintained class inventory successor",
+  "base_revision": "50a06b692fb4d4da5d857ea707dfb04141b49b79",
+  "independent_review": "approved",
+  "review_identity": {
+    "algorithm": "sha256",
+    "digest": "91879b718af6a3b9c853c1364cd2e0f897b776e6ca1ec210e52456e775130c8a"
+  },
+  "harness_identity": {
+    "algorithm": "sha256",
+    "digest": "8d3f8f68924b2c717fdd0f01f91ffe35eabeff10d39b876d336a28a518ff7699"
+  },
+  "change": "Add exactly the new AppArmor refusal method to the existing coding CLI literal list; validator AST unchanged.",
+  "all_class_inventories_exact": 24,
+  "coding_cli_source_passed": 27,
+  "coding_cli_source_skipped": 0,
+  "prior_runtime_schema_test_bytes_unchanged": true,
+  "prior_unique_module_subjects": 37,
+  "prior_fixture_subjects": 21,
+  "prior_failed_wheel": "50a06b692 actual installed probe refused incomplete class inventory; original failure retained.",
+  "required_installed_totals": {
+    "macos": 202,
+    "linux": 213,
+    "windows": 172
+  },
+  "installed_qualified": false,
+  "full_source_or_release_qualified": false
+}

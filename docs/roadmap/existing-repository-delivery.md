@@ -110,6 +110,70 @@ artifact custody, independent acceptance, bounded execution and update conflict
 preservation remain mandatory through simplification. Do not widen budgets or
 drop platform/feature goals to manufacture a faster green release.
 
+## Native CI verification implementation
+
+SDLC-001 and ORIGINAL-ADOPT-001 own the next contained-adoption slice; no new
+roadmap owner or local execution lifecycle is introduced. The independent design
+review selects a read-only `litai project ci verify --pr NUMBER` observation of
+native CI. The initial supported contract is one GitHub Actions workflow and a
+finite exact required-job set in the existing contained repository policy.
+Complete, provenanced forge-required-check discovery is preferred when supported;
+an empty or incomplete reported-check list is unconfigured, never success.
+
+The base commit's policy governs a PR so its head cannot certify a reduction in
+requirements. Bind the actual configured remote, open same-repository PR, local
+HEAD, base/head identities, workflow, run, attempt and job provenance. Refuse
+missing, skipped, failed or ambiguous required jobs and drift during observation.
+Keep native execution, retries, matrix selection and merge policy in the host CI.
+Return observations on stdout without another cache, receipt or scheduler.
+Native bootstrap remains unadmitted; release entry refusal stays intact.
+
+Observed PR 458 metadata associates CI run `44000908565` and all 13 jobs with
+head `48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68`; it does not identify the tree
+actually checked out. The verifier must report that distinction. GitHub CLI's
+required-check view reports no required checks for that PR, so it supplies no
+acceptance set. That observation does not establish that all forge rules are absent.
+
+**In progress:** compose the reviewed CI selector with retained process cleanup,
+add the opt-in policy and thin observer, then exercise a legacy fixture's successful
+PR, failure/retry, missing-job refusal, policy reduction, upgrade and removal.
+Require real provider history before claiming how partial retries are represented.
+The acceptance target is zero duplicate native jobs and no edits outside `litai/`.
+
+The development observer and extracted shared collector pass a 32-case public
+native/release cohort in 31.245 seconds. The native fixture uses real Git and
+public onboarding/verification/update/removal entry points with simulated GitHub
+transport; it is not a hosted CI or installed-wheel qualification. Missing and
+skipped jobs, stale attempt, base-policy reduction and hidden local policy edits
+refuse. Upgrade preserves configured policy; removal preserves modified authority
+by refusing pending explicit disposition. The first bounded real-provider history
+search found a whole one-job retry. An expanded search and independent inspection
+of runs `42474316001` and `42472364032` subsequently found 16 earlier successful
+executions represented by new job IDs in the current attempt. The unchanged
+collector accepts these provider-confirmed rows; older-only or unconfirmed rows
+remain incomplete. This historical collector observation is not a hosted adopted-PR
+pilot: the old runs no longer supply the required PR association. Independent review
+reproduced a base-policy
+bypass through Git replacement refs, an implicit promisor fetch and a case-only
+remote refusal. The corrected observer ignores replacement refs, disables lazy
+fetches, distinguishes absent from unreadable base policy and preserves immutable
+repository-ID checks across spelling differences. Actual private Git fixtures
+cover missing commit/tree/blob objects without object-store writes; an unsupported
+Git refusal is simulated. This command requires Git 2.45+. Independent source and
+composition reviews passed; full combined source, installed and native platform
+qualification remain pending. See the [development evidence](../../verification/native-ci-development.json)
+and [subsequent provider observations](../../verification/native-ci-provider-observations.json).
+
+RELEASE-CLOSURE-001 separately owns the aggregate-coverage assurance gap. A public
+`qualify_release` experiment over real temporary Git/policy with simulated provider
+metadata records both Linux and Windows cells for three successful-workflow arms:
+both jobs successful, Windows missing and Windows skipped. It asks for no jobs;
+all three arms complete in 1.903 seconds without a build, allocation, tag or
+publication. This matches the documented aggregate delegation, but cannot prove a
+selected CI profile enforces every declared cell. Review an explicit native
+aggregate/cell contract and compatibility transition before changing release
+semantics. This observation is not a claim that a published release missed a cell.
+
 ## Containment inventory and implementation boundary
 
 The current native implementation is a development checkpoint, not completion of
@@ -479,3 +543,463 @@ local source gate passed 2,836 selected cases: 2,744 passes and 92 skips in
 Live round trips were disabled; installed, native-provider and exact-candidate CI
 qualification remain separate. The corrected source hashes match the reviewed
 subject, and no full worker-program or release completion is claimed.
+
+## Preserve module timing through CI handoff
+
+Timing candidate `51afb59ca17676f4df89825b59bffba66f873542` passes ordinary PR
+CI run `43991908658` (11 successful jobs, two declared skips). Downloading its
+actual evidence artifact `14292940153` exposes a retention gap: all 60 members
+omit the module timing file, while the ledger points to an absolute worker spool
+outside the uploaded evidence directory. The reader correctly has no module
+elapsed time after download, but its aggregate availability label was misleading.
+
+The correction writes attached timing beneath its owning evidence node and
+registers a relative pointer. Standalone or disabled evidence keeps the original
+private spool; a disabled node cannot redirect writes into the current directory.
+One registration, record/byte bounds, fail-soft diagnostics, process ownership and
+test deadlines stay unchanged. Missing records report unavailable at both levels.
+
+The maintained real-subprocess control now archives only the ordinary evidence
+upload directory, removes the original evidence and worker spool, and reopens the
+archive at a different path. It fails on the original writer in 0.788s and passes
+after the correction; 13 reader/retention controls pass in 0.771s. The combined
+reader/scheduler cohort passes all 30 controls in 40.095s, including the previously
+reviewed shutdown-barrier repair for the fixed-sleep fixture race. Independent
+review and fresh complete source checks passed at corrected head
+`af4ab36e03b0784d7758b5599f16fb79ff28fbb2`. Exact CI `44011402262` passed;
+its actual artifact `14298408131` was downloaded and unpacked at a different
+local path. The public reader reports all 611 modules complete with zero issues,
+without the original runner files. This establishes portable diagnostic timing;
+it does not establish release qualification or CPU/billed runner time.
+## Post-merge platform failure recovery
+
+Main `ebf88985be10f733dd64f469b7cd4aa685ce9083`, CI run `43990299543`,
+exposed failures that the ordinary PR profile did not catch. These remain failed
+qualification evidence until corrected candidates pass the affected native cells.
+
+- Linux/Python3.14's checkpoint repair fixture assumed another process would
+  finish within a 300ms sleep. Delaying that worker by 700ms reproduced the exact
+  `b\n` versus `b\nb\n` execution-count mismatch. A bounded completion barrier
+  now waits for the other worker's shutdown marker after it flushes its report. The same
+  delayed-process control passes in 8.080s; all 18 scheduler-module controls pass
+  in 41.298s. Checkpoint reuse and fail-fast behavior are unchanged.
+- Windows/Python3.12 shard1 lost an HTTP403 response with WinError10053. The
+  cache's pre-body rejection closed over an unread upload. A real local loopback
+  control with a delayed 25-byte body reproduced a connection reset, establishing
+  the transport defect but not the exact native Windows error sequence. Rejected
+  finite PUT bodies now have bounded disposal after the error response and write
+  half-close, under the original connection timer. Invalid framing, Expect and
+  oversized bodies receive no drain; discarded bytes never enter publication.
+  Native Windows confirmation remains required.
+- The same Windows shard timed out during fixture Git commit setup after 20s,
+  before its public-planning assertion. The log does not identify Git execution,
+  inherited hooks, descendant-held pipes or contention as the cause. The timeout
+  remains unchanged; targeted native diagnosis is still open.
+
+The native bootstrap byte-restoration failure is handled by the separately
+reviewed documentation/CI batch. No failure is waived by a local or simulated
+pass, and no test budgets, skips or required platform cells are relaxed.
+
+## Qualification cost and documentation checks after the first landing
+
+The initial native-adoption/worker/review batch landed through
+[PR 450](https://github.com/jordanhubbard/literate-ai/pull/450) at
+`ebf88985be10f733dd64f469b7cd4aa685ce9083`. Its exact source candidate `101315c4`
+passed [ordinary PR CI run 43984309076](https://github.com/jordanhubbard/literate-ai/actions/runs/43984309076):
+11 successful jobs, two declared skips, 42m45s wall time. The longest Linux job
+spent 28m22s in conformance and 13m in installed-wheel verification. Summed job
+spans were 4,973 seconds; they include setup and idle and are not CPU or billable
+runner time. This is ordinary PR evidence, not full release qualification.
+
+The timing follow-up at `51afb59ca17676f4df89825b59bffba66f873542`
+([PR 456](https://github.com/jordanhubbard/literate-ai/pull/456)) passed 2,894 selected
+local tests: 2,802 passed, 92 skipped, zero failures, 1,587.324 seconds. All 611
+module envelopes are accounted for without reader issues. The diagnostic file is
+1,169,864 bytes across 6,112 records. Four concurrent slots were occupied almost
+continuously; module envelopes sum to 6,320.705 seconds. These are overlapping
+observations on a busy macOS host, not a critical path or speedup comparison.
+
+The two slowest observed modules were model-free CLI rebuild (434.629 seconds,
+seven cases) and command LINK dependencies (415.543 seconds, one case with its
+shared PACKAGE/FINALIZE controls). More than 99.99% of their combined envelope
+was inside their test subprocesses. A separate controlled run of the seven CLI
+setup/cleanup cycles measured 8.968 seconds of setup, including 8.961 seconds of
+initialization, and 0.110 seconds of cleanup. It used actual local initialization
+with no builds or live model calls. This different timing window cannot be
+subtracted from the full-suite trace as exact attribution. Even ideal reuse of
+six initializations would save about 7.7 seconds before copying costs. Prioritize
+measuring lifecycle, proof decoding and verified CAS reads before optimizing
+fixtures or removing safeguards. No such production optimization is claimed here.
+
+The subsequent [site run 43990299670](https://github.com/jordanhubbard/literate-ai/actions/runs/43990299670)
+failed before publication because the raw HTML report linked to a Markdown route
+that the site rendered as HTML. Full Python conformance had passed. The existing
+site verifier caught the missing route in approximately 1.6 seconds. The report
+now links to the repository roadmap, which works both in the checkout and copied
+site. On the independently reviewed retained-layout composition, a local full-site
+check passed 1,742 pages and 14,121 local links. That run used Node 26.8.1; CI
+retains Node 24 selection. This is separate from this follow-up's qualification.
+
+The SDLC-001 follow-up therefore adds the existing site build/link check to
+relevant PRs, with read-only permissions and no publication job for PR events.
+The deployment job depends on validation of the same run's artifact. The local
+presentation/roadmap exception in CONTRIBUTING requires independent scope review,
+actual roadmap/diagram/site checks and current authority; code, templates, skills,
+policy, acceptance and uncertain changes still require the complete local suite.
+Documentation-only CI already selects a focused profile. Neither that profile nor
+this exception is full release qualification or an authorization to publish.
+This policy/CI change itself must pass the full local gate before landing.
+
+
+The exact post-merge Windows shard
+[133728953509](https://github.com/jordanhubbard/literate-ai/actions/runs/43990299543/job/133728953509)
+reported 707 passes, 113 skips and one failure in 1,176.68 seconds. Native adoption
+and update passed their source-preservation checks; the fixture's final repair
+used text-mode writing, converting the original LF source to CRLF. The observed
+hashes exactly match the LF and CRLF forms of the fixture. Capture and restore the
+original bytes instead, retaining the strict digest/mode/Git assertion and fresh
+bytecode directory. A local Windows-newline simulation reproduced the original
+failure; it is not native Windows qualification. Add the existing adoption and
+publication modules to both platform smoke cells so this behavior is exercised
+before merge. Repaired head `48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68` passed 27 actual
+Windows smoke controls in run `44000908565`, including native bootstrap and
+publication refusals. Combined-candidate platform qualification remains open. This is
+another reason to choose platform checks by changed behavior rather than relying
+on a passing generic installation smoke check.
+
+
+## Combined qualification after independent batch review
+
+SDLC-001, RELEASE-INTEGRATION-005 and the existing focused owners retain this
+work. Compose the independently reviewed timing-retention, platform-repair and
+CI/documentation-gate batches with the native CI observer and qualified retained
+Cargo parsing batch. Preserve each exact reviewed production subject; merge only
+the existing CI fixture list, byte-restoration test and roadmap narrative where
+the branches overlap. Reuse the identical scheduler completion-barrier repair.
+
+The next full source run must cover this combined candidate. Current individual
+passes and review records establish their own subjects, not the composition.
+Then qualify the noneditable wheel and affected native platform cells. Source
+pin renewal requires independent review of the composition and changed narrative.
+GitGuardian incident classification, the unresolved native Windows Git setup
+timeout and publication authorization remain explicit outstanding boundaries.
+The first native observer still reports only a configured CI observation; no
+bootstrap admission, artifact provenance, merge readiness or release claim follows.
+
+The first combined full run selected 3,173 tests and stopped after 2,461 passes,
+102 skips and one failure in 2,059.805 seconds. The maintained command-reference
+check found the new `litai project ci verify` verb missing from the reference.
+Add its public reference entry, correct the retry limitation from the later actual
+provider observations and remove the archive's extra final blank line in one
+reviewed batch before a fresh full gate. Preserve this failed run; unexecuted
+tests and prior branch passes do not qualify this composition.
+
+RELEASE-CLOSURE-001 retains the next opt-in coverage contract. Reuse the existing
+workflow selector and native matrix; a finite CI-produced report must identify
+the actual tested source, policy, completed platform/action cells, supporting
+jobs and any tested deliverable digests. Resolve its exact attempt-specific
+artifact and corroborate a freshly executed producer before closing the run
+observation. An actual diagnostic archive (`14298408131`, run `44011402262`)
+matched the provider's SHA-256 and run/head metadata, but that API returned no
+attempt field. Its archive digest proves report integrity, not tested binaries.
+Do not opt the framework into this contract before an actual producer/transport
+pilot, including partial reruns. Keep legacy aggregate delegation explicit;
+strict opt-in must never fall back to it. This records design progress without
+closing or weakening any existing release acceptance requirement.
+
+## Explicit CI coverage consumer implementation
+
+SDLC-001 and RELEASE-CLOSURE-001 own this in-progress implementation. Start with
+an opt-in qualification/evidence-preparation consumer: parse one versioned report
+binding, reuse the selected workflow and bounded job history, validate exact
+source/policy/action/cell facts, and collect one finite attempt-specific archive.
+Keep native execution and matrix selection in the host workflow. Strict mode must
+refuse unsupported promotion and target shortcuts before writes; compatibility
+without the opt-in remains explicit. Do not enable this profile in the framework
+until the real producer/transport and native action contract are proven.
+
+The implementation-boundary review identifies a concrete mismatch: Linux/macOS CI
+runs `make validate` and `wheel-check`, while the configured `release-gate` action
+is `make release-check`, which additionally includes installation, live installed
+project, samples, export and receipt gates. Windows category overlap also lacks a
+receipt proving the complete script/shard equivalence. A full-CI label cannot
+supply those missing action facts. Use a small real native fixture action for the
+first failure/recovery controls; never stamp the framework's release-gate from
+job names or a matrix profile alone. The reviewed design identity is
+`sha256:1b04d0627a746183e293ad352f5f834b43e7f6dc0e6f343d251cfdbd4655fd34`.
+
+Acceptance remains open for the complete consumer's wrong-source/policy/action,
+missing/skipped cell, stale/retried attempt, invalid archive, drift and mutation
+bypass controls; a noneditable wheel; an actual hosted producer including partial
+retry; strict promotion and exact tested artifacts; and the final release gates.
+This slice adds no new execution scheduler, release authority or publication.
+
+The first consumer implementation has independent source approval after correcting
+Git-state, missing-object, malformed-job and worker-thread context findings. The
+public release-CI module passes 15 methods in 31.452 seconds; the final two
+strengthened missing-object/worker controls pass in 3.176 seconds. The worker
+regression fails against the pre-fix source, while the corrected probe adds no
+objects, changes no refs and uploads nothing. These use actual temporary Git and
+local commands with simulated provider/remote transport. See the
+[scoped review record](../../verification/ci-coverage-review.json). Full source,
+installed/native and actual hosted producer qualification remain pending, and
+strict promotion remains explicitly unsupported. No release acceptance is closed.
+
+The first Linux source gate stopped after 1,770 passes, 95 skips and one failure
+in 420.071 seconds: the existing telemetry fixture assumed a 4 MiB temporary-file
+write must increment Linux storage-accounted bytes. Actual kernel observations
+show `/tmp` is tmpfs and reports `wchar=4194304`, `write_bytes=0`; ext4 reports
+`write_bytes=4194304` for the same fsynced workload, and the unchanged test passes
+there. Correct the fixture's oracle against the owned blocked child's independent
+`/proc/<pid>/io` reading, retain actual payload/CPU/RSS/lifetime assertions, and
+exercise both tmpfs and file-backed temporary roots. Production telemetry must
+continue reporting storage accounting without substituting syscall byte counts.
+Retain the failed gate and run a fresh complete gate after the reviewed correction.
+
+## Hosted producer pilot implementation
+
+RELEASE-CLOSURE-001 retains this next in-progress action. Use a dedicated native
+Linux/Windows fixture workflow and small real build/test commands with matching
+committed fixture policy. An exporter depends on all contributing jobs, gathers
+their actual result artifacts and provider execution identities, and uploads the
+versioned coverage report during its own job. Observe it only after the workflow
+completes, through the existing read-only adapter; a dependent job in the same
+workflow cannot require that workflow to be completed. No new public CLI command
+or framework production-policy opt-in is needed for this experiment.
+
+The pilot must refuse complete coverage after native failure/cancellation or a
+missing action, wrong source/command, stale report or copied exporter. A partial
+retry must preserve original successful execution facts and require a freshly
+executed dependent exporter and attempt-specific report. Bind the actual checkout
+commit/tree separately from associated head, exact fixture policy/action identity,
+observed OS/CPU and provider job/run/attempt identities. Prove actual archive
+transfer and matching digest, while retaining that report integrity does not
+qualify binary artifacts. This initial hosted adapter/transport pilot cannot
+close the unchanged public release CLI's consuming-repository acceptance. That
+requires an actual repository whose root owns the selected release policy.
+
+Keep the current source-gate candidate frozen in its own worktree. Pilot workflow,
+fixture commands, exporter and failure/recovery controls require independent
+review and applicable gates before a PR can supply real hosted evidence. Local
+simulation and a workflow declaration alone cannot satisfy that acceptance.
+
+The pilot source has independent approval after correcting a missing required
+policy field, cross-OS Windows executable parsing and a recovery test that reused
+old receipts. Its maintained cohort passes 16 methods in 37.856 seconds, including
+real local native commands, exporter process, ZIP and adapter consumption with
+provider transport and foreign-job facts simulated. Recovery now regenerates the
+native facts after a real seeded failure. See the
+[pilot source review](../../verification/ci-coverage-pilot-review.json). Full gates,
+actual hosted Linux/Windows execution, partial retry, uploaded archive transfer and
+consuming-repository public release qualification remain open.
+
+The existing retained-observation performance owner retains a measured gate-cost
+follow-up. Source inspection finds eight receiving cases each perform adoption
+and three Cargo preparation commands, including three pre-execution refusals that
+never launch a receiving subprocess. During the Linux gate this single module
+was the last active worker; its process remained CPU-active and the final selected
+case was the real patch-workspace/protocol/retired-admission journey. This does
+not attribute that time to Cargo: setup, fresh runtime/source byte checks and
+assertion phases remain unmeasured. Preserve both positive custody paths and the
+qualified parse optimizations. Measure those phases before choosing cheaper refusal
+fixtures, safe immutable pre-capture reuse or distributing the long e2e/critical
+cases through the existing module scheduler. No full-gate case is removed or
+reclassified by this observation. The assessment identity is
+`sha256:8190461757a5afc71da0dc4eb29e8d4c00aab47700a98a0493ea4abe437f254c`.
+
+The architecture review now distinguishes its original baseline from subsequent
+implementation evidence at `c1038afa2`, and records the passed Linux source gate
+and its measured module costs. The three longest observed module envelopes were
+750.615 seconds (retained Cargo receiving), 591.124 seconds (command-link
+dependencies) and 485.934 seconds (model-free rebuild). Those are diagnostic
+worker intervals, not CPU, billed runner use or an attributed historical release
+critical path. The update preserves all remaining hosted, artifact-promotion,
+legacy-adoption, skill-comparison and native acceptance boundaries; no queue item
+is closed, moved or weakened by the narrative.
+
+
+### Separate documentation and specification tool dependency ownership
+
+RELEASE-CLOSURE-001 owns this in-progress follow-up to the measured dependency
+failure. The final documentation gate and hosted PR 465 CI stopped on
+[GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) in
+OpenSpec's picomatch dependency. The actual OpenSpec public status command on an
+owned disposable repository completes a normal pattern in 0.475 seconds, while a
+hostile schema output pattern exceeds a three-second subprocess bound. The risk
+is reachable; no audit exception or unreviewed upstream parser patch is justified
+by an earlier passing check.
+
+Documentation rendering never invokes OpenSpec. Give the browser-bearing
+Mermaid/Puppeteer/yauzl toolchain its own locked package and retain the pinned
+OpenSpec CLI in a separate package. Reuse the existing safe Node-tool staging
+owner and one shared audit implementation. Each package must audit its complete
+development dependency graph before execution; unavailable audit, high/critical
+advisories, expired or stale exceptions must still fail. Add the missing explicit
+audit to OpenSpec validation. Preserve both checks in full CI, Windows qualification
+and release qualification. Ordinary documentation work must not install the CLI
+or its unused dependency tree. Do not duplicate browsers, change browser sandbox
+policy or claim that a dependency split remediates OpenSpec's vulnerability.
+
+Verify the split through actual Make and npm entry points with isolated disposable
+object roots: documentation audits/renders normally without OpenSpec installed,
+while OpenSpec validation refuses the currently vulnerable locked graph before
+validation. Check direct Windows CI/qualification commands and the website's
+module-resolution/cache paths as well as Make. Run independent source review,
+full source qualification and affected hosted checks before landing. OpenSpec and
+release readiness remain blocked until an actual dependency repair or separately
+reviewed policy decision exists; this work closes no release acceptance item.
+
+### Observed local source, wheel and installation qualification
+
+[PR 470](https://github.com/jordanhubbard/literate-ai/pull/470) records the
+documentation/OpenSpec separation at exact commit
+`18d98aab3588b3112323ead2fdd959fd785803f4`. Its complete local macOS ARM64 / Python
+3.14 source gate selected 3,182 cases: 3,079 passed, 103 retained their declared
+skips, and none failed. The Python suite took 2,683.591 seconds; the complete
+source/review/lint/format invocation ran 04:21:55–05:07:02 UTC on 2026-11-18.
+The retained canonical test report has SHA-256
+`281bb05a91800f429f7cdf3424e8fff4bb71632020d89a0a4ff5fa4aaf5e6afd`.
+
+The canonical local noneditable wheel gate passed at the same clean commit,
+05:25:21–05:39:00 UTC. All 182 retained operation-timing spans report success;
+their durations overlap and must not be summed as release wall time. The tested
+wheel has identity
+`sha256:7d06fb98510f526e6d75b7a6e43e3c94d01a1ba31a3517193725e2f7ab680215`.
+Its installed native-adoption journey preserves five application files, writes
+zero external files, detects and repairs the native test failure, and preserves
+custom policy during no-churn update and staged owned removal. This renews that
+local installed journey; it does not establish an upgrade between two released
+framework versions or qualification on another platform.
+
+A separate canonical model-free `install-check` then passed, 05:55:41–05:58:35 UTC,
+installing those same wheel bytes through the supported qualified-wheel exporter
+and installer. The first invocation supplied a portable retained manifest where
+the installer requires repository-relative paths; it refused before installation.
+That caller error and its log remain separate from the corrected passing run.
+No wheel was rebuilt or substituted, no live model was used, and no source or
+release acceptance was changed. OpenSpec's dependency advisory, unresolved
+security-check findings, exact-head hosted checks and the remaining native and
+release requirements remain separate gates.
+
+The subsequent hosted Linux / Python 3.11 job in
+[run 44243126217](https://github.com/jordanhubbard/literate-ai/actions/runs/44243126217)
+is terminal-failed, not green: its raw unittest summary reports 3,142 tests with
+114 skips and no failures in 3,101.812 seconds, followed by the required OpenSpec
+audit refusal for the same advisory. These are raw unittest counts, not a new
+canonical unique-case reconciliation. The job spans 05:17:01–06:09:44 UTC;
+installation already reports four derived high findings at 05:17:32.477 UTC,
+while strict audit refusal arrives at 06:09:40.736 UTC, 52 minutes 8.259 seconds
+later. RELEASE-CLOSURE-001's existing early-refusal work therefore has another
+measured case: preserve the dependency audit and move cheap failure feedback
+ahead of the long suite. This would avoid long execution on this already-bad
+candidate, not eliminate the suite from a repaired release. No new gate ordering,
+latency improvement or waived check is claimed by this observation.
+
+### Controlled OpenCode V1 ambient-configuration evidence
+
+SDLC-001's existing isolation review and OPENCODE-COMPAT-001 retain ownership of
+this evidence. At the reviewed adapter bytes in `18d98aa`, the actual pinned
+OpenCode 1.19.5 CLI retains a synthetic global instruction file and a disabled MCP
+entry despite the product's inline `instructions: []`, `mcp: {}` and wildcard
+tool denial. The empty-global control retains neither entry. These prompt-free
+checks run with synthetic default-discovery roots, OS-level network denial and
+writes limited to the disposable fixture; actual user configuration is untouched.
+
+A second controlled run uses the production command/environment owners, the same
+synthetic roots, an owned stdio helper and a loopback provider that always returns
+HTTP 400. The OS permits only that fixture's loopback port. The seeded global
+configuration starts the stdio helper and places the instruction sentinel in the
+captured provider request; the empty-global control does neither. Both requests
+retain the explicit task sentinel and both end with the expected provider refusal.
+No real provider credential, model inference, external MCP or live deployment is
+involved. An initial sandbox-profile parse refusal is retained independently;
+it is not evidence about CLI behavior.
+
+This establishes the pre-fix mechanism under controlled global inputs, not an
+observation of this user's actual configuration or production egress. Existing
+empty-global native tests and permission-map assertions do not cover the merge
+boundary. Saved-login and custom-provider compatibility remain required; importing
+an entire global configuration or copying opaque account state into a private
+directory would not establish isolation. The source repair and its compatibility,
+installed/native and release checks remain unperformed; this narrative neither
+closes nor changes any existing acceptance obligation.
+
+### Observed hosted producer and interrupted-export recovery
+
+[PR 465](https://github.com/jordanhubbard/literate-ai/pull/465) supplied actual
+GitHub-hosted evidence on exact source `af11434c90d58489a923114a8d8f0c7bdb1ebba0`.
+[Attempt 1](https://github.com/jordanhubbard/literate-ai/actions/runs/44128504174/attempts/1)
+completed native Linux and Windows build/test jobs and a dependent exporter. The
+production adapter consumed all four cells using actual provider transport and
+verified the 820-byte uploaded archive, artifact `14349306208`, against digest
+`sha256:2fcb34e8005101a1320c4053dd724952168237d4fe6801bae678235ff484f5d8`.
+The first job start to last completion was 60 seconds; summed job envelopes were
+68 seconds (Linux 11, Windows 26, exporter 31). These fixture intervals measure
+neither a full framework release nor CPU or billed runner use.
+
+The bounded recovery experiment reran only this pilot workflow. Both native jobs
+finished before cancellation; the exporter was cancelled during dependency
+installation in attempt 2. This proves interrupted export, not interruption of a
+native build/test action. With that attempt terminal-cancelled, the unchanged
+production adapter refused coverage with `incomplete`, despite the retained
+attempt-1 success and archive. Failed-jobs retry created a fresh attempt-3
+exporter, job `134202153982`, while GitHub retained both native successes under
+new current-attempt job IDs with their original attempt-2 execution timestamps.
+[Attempt 3](https://github.com/jordanhubbard/literate-ai/actions/runs/44128504174/attempts/3)
+completed successfully, and actual adapter consumption again accepted all four
+cells. The new 821-byte archive, artifact `14349336871`, has digest
+`sha256:61a7834414e1c3b60457f53d58345e83504c744f4671e1319935a5a178f2a420`.
+The older source-review record's pending hosted fields describe its earlier
+checkpoint; these later observed results add evidence without changing its scope.
+
+The pilot demonstrates actual native Python execution on hosted Linux and Windows,
+artifact transfer and interrupted-export retry. It does not establish other
+languages, CPU/GPU targets, installed-consumer or consuming-repository public
+release qualification, binary artifact custody, strict promotion, deployment or
+recovery of a delivered application. Those existing acceptance requirements and
+all unresolved security findings remain in force; no roadmap goal is closed or
+weakened by this narrative.
+
+### Completed supplied-guidance measurement, acceptance boundaries retained
+
+SDLC-001 now has 45 actual fresh-cohort attempts: three native tasks, three arms,
+five randomized repetitions per task/arm on one pinned CLI/toolchain and configured
+model selector. The current native-adoption SKILL plus linked policy is compared
+with pinned Superpowers verification-before-completion and no optional guidance.
+The provider's immutable model revision is unavailable. This exercises supplied
+guidance, not natural activation, an installed governed PR, or a platform matrix.
+
+Independent review finds 44 normal completions with correct repairs, preserved
+original test semantics/authority and model-performed fresh local checks. Nine
+completed attempts nevertheless make unsupported release-readiness claims. One
+remaining baseline attempt patches correctly but aborts after malformed tool calls
+before verification/reporting; it stays a failed attempt and is never replaced.
+A prospective reviewed continuation resumes only untouched slots. The nine earlier
+exploratory attempts, whose strict byte guard falsely rejected valid Go test
+changes, remain separate. Raw verdicts and interrupted output are not rewritten.
+
+| Arm | Native/private checks complete | Overall success | Median CLI seconds | Median tool events |
+| --- | --- | --- | --- | --- |
+| Current native-adoption guidance | 15/15 | 13/15 | 41.473 | 20 |
+| Superpowers verification-before-completion | 15/15 | 9/15 | 46.643 | 19 |
+| No optional skill | 14/15 | 13/15 | 36.563 | 17 |
+
+The shared prompt requests `release_ready`; required macOS/Windows platforms are
+in immutable repository policy, with expanded prose only in the handoff task.
+These are unsupported claims, not nine bad repairs or observed unsafe releases.
+The current arm reads all three supplied resources on every attempt but does not
+establish an overall success gain over baseline in this small sample. Keep the
+minimal context and deterministic qualification; do not infer a need for more
+prompt ceremony or a justification to retire all guidance.
+
+The measured cohort spans 3,193.280 seconds between first recorded start and last
+finish: 1,975.786 seconds summed CLI time, 1,139.635 seconds of interruption-to-next-
+attempt review/continuation gap, and 77.858 seconds unattributed. This is not pure
+inference or release time. Setup, review labor, underlying model weights and actual
+billing remain incompletely observed. Reported token/cache counters are separate
+fields; reported zero cost does not mean free inference.
+
+The [dated report update](../architecture/existing-repository-review.html)
+contains per-task outcomes, usage, protocol/aggregate identities and limitations.
+This records a completed bounded measurement, not completion of SDLC-001 or its
+activation, governed-adoption, changed-version upgrade, platform or release gates.

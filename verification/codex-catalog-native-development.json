@@ -1,0 +1,345 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "CODEX-STATE-001",
+  "issues": [
+    365,
+    412
+  ],
+  "classification": "native Linux source-generation development proof; independent source review, renewed driver authority, fresh whole source/installed/platform integration and release qualification pending",
+  "source_sha256": {
+    "src/literate_ai/adapters/models/coding_cli.py": "e8572f3a1fd5a4dfc00c10066efd6c3d2217e4b8c6b130620a04cd6ffa52c95f",
+    "tests/critical/test_codex_runtime_state.py": "d547860907f73931ed96df42ca6b12e35a06b6cdf2c7dcb74e1df2db2b3dc20a"
+  },
+  "official_configuration_reference": "https://learn.chatgpt.com/docs/config-file/config-reference",
+  "preflight_current": {
+    "coding_cli": "codex",
+    "model": "gpt-6-sol",
+    "file_limit_bytes": 67108864,
+    "returncode": 0,
+    "envelope": {
+      "command": "worker.verify-model",
+      "ok": true,
+      "result": {
+        "coding_cli": "codex",
+        "coding_cli_provenance": "cli-flag",
+        "model": "gpt-6-sol",
+        "model_provenance": "cli-flag",
+        "resolves": true,
+        "schema": "literate-ai/worker-verify-model-result@1"
+      },
+      "schema": "literate-ai/cli-result@1"
+    }
+  },
+  "failed_generation_before_remote_catalog_exclusion": {
+    "cli_version": "0.166.0",
+    "model": "gpt-6-sol",
+    "generation_succeeded": false,
+    "error_code": "coding_cli.generation_failed",
+    "native_exit": -25,
+    "elapsed_seconds": 184.446,
+    "private_runtime_allocations": 6,
+    "observed_writable_sqlite_descriptors": 59,
+    "all_observed_sqlite_writes_private": true,
+    "all_runtime_allocations_removed": true
+  },
+  "single_attempt_syscall_diagnostic": {
+    "native_exit": -25,
+    "elapsed_seconds": 82.702,
+    "cache_class": "remote_plugin_catalog",
+    "target": "atomic temporary download",
+    "failed_write_bytes": 2193284,
+    "file_bytes_at_failure": 67108864,
+    "soft_and_hard_file_size_bytes": 67108864,
+    "errno": "EFBIG",
+    "signal": "SIGXFSZ",
+    "raw_trace_sha256": "26e6169a425f7905ab43d6dde286d34af58b44501125e149c8144152cd1644cb"
+  },
+  "repaired_current_native": {
+    "schema": "literate-ai/verification-record@1",
+    "goal": "CODEX-STATE-001",
+    "scope": "Native source-generation adapter with authored fixture authority, actual Codex and model; no lifecycle admission or independent application acceptance claimed.",
+    "coding_cli": "codex",
+    "version": "0.166.0",
+    "model": "gpt-6-sol",
+    "elapsed_seconds": 95.523,
+    "finite_file_size_soft_hard": [
+      67108864,
+      67108864
+    ],
+    "HOME_unchanged": true,
+    "private_runtime_instances": [
+      {
+        "outside_generated_workspace": true,
+        "database_files": [
+          "state/.sqlite-maintenance.lock",
+          "state/goals_1.sqlite",
+          "state/memories_1.sqlite",
+          "state/state_5.sqlite-shm",
+          "state/state_5.sqlite-wal",
+          "state/state_5.sqlite",
+          "state/queue_1.sqlite",
+          "log/.sqlite-maintenance.lock",
+          "log/logs_2.sqlite"
+        ],
+        "removed_after_call": true
+      }
+    ],
+    "actual_codex_sqlite_write_fds": [
+      {
+        "executable": "codex",
+        "sqlite_name": "state_5.sqlite",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "state_5.sqlite-journal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "state_5.sqlite-wal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "state_5.sqlite-shm",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "logs_2.sqlite",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "logs_2.sqlite-journal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "logs_2.sqlite-wal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "logs_2.sqlite-shm",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "goals_1.sqlite",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "goals_1.sqlite-journal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "goals_1.sqlite-wal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "goals_1.sqlite-shm",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "memories_1.sqlite",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "memories_1.sqlite-journal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "memories_1.sqlite-wal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "memories_1.sqlite-shm",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "queue_1.sqlite",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "queue_1.sqlite-journal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "queue_1.sqlite-wal",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": "queue_1.sqlite-shm",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": ".sqlite-maintenance.lock",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      },
+      {
+        "executable": "codex",
+        "sqlite_name": ".sqlite-maintenance.lock",
+        "within_private_runtime": true,
+        "file_size_soft_hard": [
+          "67108864",
+          "67108864"
+        ]
+      }
+    ],
+    "generation_succeeded": true,
+    "generated_files": [
+      "source/.literate/sbom.cdx.json",
+      "source/main.py",
+      "source/tests/manifest.json",
+      "source/tests/test_main.py"
+    ],
+    "generated_source_sha256": "618f14fc50c8906716476aa5f08790af3a4f7dbf8ba428d53c83a0cea47cb38d",
+    "failure": null
+  },
+  "minimum_cli_configuration": {
+    "version": "codex-cli 0.153.0",
+    "managed_archive_sha256": "076b2b7512bad8b96e24370c031d2d1311f983e98650af9824639a619fa99be4",
+    "binary_sha256": "c92824b2e068b8cb15eecba45271f7e3dd35a5b3929383593284a36074d40aec",
+    "exit": 0,
+    "feature_rows": [
+      "remote_plugin                            stable             false"
+    ],
+    "stderr": "",
+    "model_invoked": false,
+    "global_installation_changed": false
+  },
+  "minimum_cli_model_limit": {
+    "cli_version": "0.153.0",
+    "model": "gpt-6-sol",
+    "preflight": "failed closed",
+    "provider_error": "model_not_found",
+    "provider_message": "The selected model is not supported by this CLI with the ChatGPT account.",
+    "source_generation_invoked": false,
+    "scope": "Native configuration/feature acceptance passed; model-backed generation is established only for 0.166.0. The rejected model prerequisite is preserved, not counted as generation."
+  },
+  "maintained_controls_before": {
+    "executed": 2,
+    "failed": 1,
+    "known_failed": 0,
+    "passed": 1,
+    "selected": 3,
+    "skipped": 0
+  },
+  "maintained_controls_after": {
+    "executed": 3,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 3,
+    "selected": 3,
+    "skipped": 0
+  },
+  "existing_generation_controls": {
+    "executed": 22,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 22,
+    "selected": 22,
+    "skipped": 0
+  },
+  "driver_pin_advanced": false,
+  "release_attestation": false,
+  "coverage_limit": "Actual Codex/model source generation used synthetic authored fixture authority. Returned files pass adapter manifest/SBOM validation and Python syntax inspection. No Standard lifecycle admission, independent application acceptance, installed runtime or release qualification is claimed."
+}

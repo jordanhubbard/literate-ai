@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { auditViolations } from "../scripts/check-npm-audit.mjs";
+import { auditViolations } from "../check-npm-audit.mjs";
 
 const BRACES = "GHSA-vfj7-8cjw-p6xm";
 
@@ -83,4 +83,51 @@ test("an unavailable audit is an error, not a pass", () => {
     /npm audit unavailable/,
   );
   assert.throws(() => auditViolations({}, [], "2026-10-03"), /lacks vulnerability evidence/);
+});
+
+// Exercise the shared CLI with two real package roots. Only registry transport is
+// replaced; argument selection, exception loading and process status remain real.
+test("the shared audit CLI audits its explicit package, independently of cwd", async () => {
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join, resolve } = await import("node:path");
+  const { fileURLToPath, pathToFileURL } = await import("node:url");
+  const { spawnSync } = await import("node:child_process");
+  const fixture = mkdtempSync(join(tmpdir(), "litai-audit-"));
+  try {
+    const clean = join(fixture, "clean");
+    const vulnerable = join(fixture, "vulnerable");
+    for (const directory of [clean, vulnerable]) {
+      mkdirSync(directory);
+      writeFileSync(join(directory, "audit-exceptions.json"), '{"exceptions":[]}');
+    }
+    writeFileSync(join(clean, "registry.json"), JSON.stringify(report([])));
+    writeFileSync(join(vulnerable, "registry.json"), JSON.stringify(report([advisory("high")])));
+    const hook = join(fixture, "registry.mjs");
+    writeFileSync(hook, `
+      import childProcess from 'node:child_process';
+      import { syncBuiltinESMExports } from 'node:module';
+      import { readFileSync } from 'node:fs';
+      import { join } from 'node:path';
+      childProcess.spawnSync = (command, args, options) => {
+        if (!['npm', 'npm.cmd'].includes(command) || JSON.stringify(args) !== '["audit","--json"]') {
+          throw new Error('Unexpected registry transport');
+        }
+        return { status: 0, stdout: readFileSync(join(options.cwd, 'registry.json'), 'utf8'), stderr: '' };
+      };
+      syncBuiltinESMExports();
+    `);
+    const cli = fileURLToPath(new URL("../check-npm-audit.mjs", import.meta.url));
+    const invoke = (cwd, project) => spawnSync(process.execPath,
+      ["--import", pathToFileURL(hook).href, cli, resolve(project)],
+      { cwd, encoding: "utf8", timeout: 10000 });
+    const rejected = invoke(clean, vulnerable);
+    assert.equal(rejected.status, 1, rejected.stderr);
+    assert.match(rejected.stderr, /GHSA-vfj7-8cjw-p6xm/);
+    const accepted = invoke(vulnerable, clean);
+    assert.equal(accepted.status, 0, accepted.stderr);
+    assert.match(accepted.stdout, /no unexcepted high or critical advisories/);
+  } finally {
+    rmSync(fixture, { recursive: true, force: true });
+  }
 });

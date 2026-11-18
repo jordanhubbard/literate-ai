@@ -25,6 +25,7 @@ _IGNORED_DIRECTORIES = frozenset(
         ".ruff_cache",
         ".tox",
         ".venv",
+        ".litai-venv",
         "__pycache__",
         "node_modules",
         "vendor",
@@ -113,7 +114,16 @@ _TARGET_PATTERNS = (
     ("linux", "platform.os", re.compile(r"(?i)\blinux\b")),
     ("macos", "platform.os", re.compile(r"(?i)\b(?:macos|darwin)\b")),
     ("windows", "platform.os", re.compile(r"(?i)\bwindows\b|\bwin32\b")),
-    ("cuda", "accelerator", re.compile(r"(?i)\b(?:cuda|nvidia|nvcc)\b")),
+    # A vendor name (including SPDX copyright attribution) is not a CUDA
+    # requirement. Keep explicit toolkit, header and runtime/driver API evidence.
+    (
+        "cuda",
+        "accelerator",
+        re.compile(
+            r"(?i)\b(?:cuda|nvcc)\b|\bcuda(?:_runtime(?:_api)?)?\.h\b|"
+            r"\b(?:cuda[A-Z]\w*|cuInit|cuDeviceGet|cuMemAlloc|cuLaunchKernel)\s*\("
+        ),
+    ),
     ("metal", "accelerator", re.compile(r"(?i)\b(?:metal|metalperformance)\b")),
 )
 
@@ -303,13 +313,66 @@ def _python_symbols(text: str) -> tuple[str, ...]:
     return tuple(sorted(names))
 
 
+_CUDA_ATTRIBUTION_LINE = re.compile(
+    r"^(?P<comment>//+|\#+|/\*+|\*|<!--)?[ \t]*"
+    r"(?:SPDX-(?:FileCopyrightText|License-Identifier|FileContributor)[ \t]*:|"
+    r"Copyright[ \t]+(?:(?:\(c\)|©)[ \t]*)?\d{4})",
+    re.IGNORECASE,
+)
+
+
+def _cuda_evidence_text(text: str) -> str:
+    """Omit recognized attribution headers from this bounded evidence view only."""
+    lines = []
+    block_end = None
+    attribution_end = None
+    for line in text.splitlines(keepends=True):
+        if attribution_end is not None:
+            _, closed, remainder = line.partition(attribution_end)
+            if closed:
+                lines.append(remainder)
+                attribution_end = block_end = None
+            continue
+        match = _CUDA_ATTRIBUTION_LINE.match(line.lstrip(" \t\ufeff"))
+        if match is not None:
+            comment = match.group("comment") or ""
+            end = block_end
+            if end is None and (comment.startswith("/*") or comment == "*"):
+                end = "*/"
+            elif end is None and comment == "<!--":
+                end = "-->"
+            if end is not None:
+                _, closed, remainder = line.partition(end)
+                if closed:
+                    lines.append(remainder)
+                    block_end = None
+                else:
+                    attribution_end = end
+            else:
+                lines.append("\n")
+            continue
+        lines.append(line)
+        if block_end is not None:
+            if block_end in line:
+                block_end = None
+        elif line.lstrip().startswith("/*") and "*/" not in line:
+            block_end = "*/"
+        elif line.lstrip().startswith("<!--") and "-->" not in line:
+            block_end = "-->"
+    return "".join(lines)
+
+
 def _signals(path: str, text: str, language: str | None) -> tuple[FlavorSignal, ...]:
-    searchable = f"{path}\n{text[:131072]}"
+    bounded = text[:131072]
+    searchable = f"{path}\n{bounded}"
+    cuda_searchable = f"{path}\n{_cuda_evidence_text(bounded)}"
     result = {
         FlavorSignal(flavor_id, axis)
         for flavor_id, axis, pattern in _TARGET_PATTERNS
-        if pattern.search(searchable)
+        if pattern.search(cuda_searchable if flavor_id == "cuda" else searchable)
     }
+    if PurePosixPath(path).suffix.lower() in {".cu", ".cuh"}:
+        result.add(FlavorSignal("cuda", "accelerator"))
     if language is not None:
         result.add(FlavorSignal(language, "implementation.language-ecosystem"))
     return tuple(sorted(result, key=lambda item: (item.axis, item.flavor_id)))

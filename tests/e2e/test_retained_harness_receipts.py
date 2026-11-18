@@ -435,7 +435,7 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
         # harness-inventory.json with no source_scope. 0.11.0's run-retained
         # front door refuses both until they are migrated.
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
+            root = Path(directory).resolve()
             project = root / "converted"
             shutil.copytree(self.template, project, symlinks=True)
 

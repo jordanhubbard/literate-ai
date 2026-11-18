@@ -1,0 +1,257 @@
+{
+  "decision": "approved_runtime_composition_only",
+  "findings": [],
+  "preview_tree": "8f09a0ed88d91fbfeaa2f208ee695d48907ec847",
+  "parents": {
+    "f1": "d2dfad2203f3537921cd5391b959e9f598aa6150",
+    "retained_layout": "e6dfaa4f0d5af56bdb1bfc26c6e61f3eaaac6a56"
+  },
+  "scope": "Read-only Git-object inspection of preview runtime/schema/test blobs and callers; no checkout or metadata resolution. Approval binds preview tree runtime hashes, not a future candidate commit or its unresolved metadata.",
+  "merged_layout_runtime_manifest": {
+    "src/literate_ai/adapters/harness_inventory.py": {
+      "sha256": "ee67287daa69ef6dd323b8fbb4f1a27f8af4f03816f814b72e3cc3debd3da2ce",
+      "git_blob": "8b7c6755d324b8721645c4221108f5397d0eaf59",
+      "layout_review_sha256": "1d5fb4405cc67f5feb81bd09900da04eef25df196de75f5232f7f99ca9b417d3",
+      "byte_exact_to_approved_layout": false,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/adapters/project_initialization.py": {
+      "sha256": "356b01d2912a5217c59fd03518a31615cd796a9368f8cbe355a753d8982d01c1",
+      "git_blob": "6d7682d3d18c6ad3f8d42d1850ac1cd4f1c9f14e",
+      "layout_review_sha256": "744408b9f68d8d8c9b404a42b489b73f3a1c351531230c4ec05deca68c81c0ca",
+      "byte_exact_to_approved_layout": false,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/adapters/project_updates.py": {
+      "sha256": "a011760559771a097a1b561a0815e5e324e096b42900ab7eccaecda43e2c68e5",
+      "git_blob": "7c2971838d4701f57670ca656d896aa7c93d92e5",
+      "layout_review_sha256": "a011760559771a097a1b561a0815e5e324e096b42900ab7eccaecda43e2c68e5",
+      "byte_exact_to_approved_layout": true,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/adapters/retained_evidence_migration.py": {
+      "sha256": "860450d53d086f3a83a620506bad853adeb41cc4823e11f21ddc333c1a6168ca",
+      "git_blob": "7de214ebd2bfbc0abef001c010239976d5343fee",
+      "layout_review_sha256": "860450d53d086f3a83a620506bad853adeb41cc4823e11f21ddc333c1a6168ca",
+      "byte_exact_to_approved_layout": true,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/adapters/retained_harness_readmission.py": {
+      "sha256": "bb8f56a0313dfeb589fd1ba67d084e6486ec0af4794d80dd0ced17b0a3097b50",
+      "git_blob": "7da835c77f82ff72255bf2a0eb09f909ec1f9a60",
+      "layout_review_sha256": "bb8f56a0313dfeb589fd1ba67d084e6486ec0af4794d80dd0ced17b0a3097b50",
+      "byte_exact_to_approved_layout": true,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/adapters/retained_harness_receipts.py": {
+      "sha256": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47",
+      "git_blob": "94ccec9719341b030e20dc22a6670a414eb46f31",
+      "layout_review_sha256": "95b42e4bd3760130ca2458bb60ef8f819e1548b0964a9cf6efecb933d36afa47",
+      "byte_exact_to_approved_layout": true,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/adapters/retained_layout.py": {
+      "sha256": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e",
+      "git_blob": "64d57251f43d337cfa2b3e7d215de750292859e1",
+      "layout_review_sha256": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e",
+      "byte_exact_to_approved_layout": true,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/cli/dispatch.py": {
+      "sha256": "4b0412d6dc3021affdb4aa1cb4ba9b77c79c36eac3bfc3b88fe903764c9f0632",
+      "git_blob": "57fef8fa6cbd6ea80914b93d013ba86174f54e88",
+      "layout_review_sha256": "fa2285c684356cb7fd093394c0a63c438a0eb530d2851d5e0e10a3ac90331990",
+      "byte_exact_to_approved_layout": false,
+      "byte_exact_to_f1_parent": false
+    },
+    "src/literate_ai/cli/operator.py": {
+      "sha256": "b08d50d83a317609d5ad14672b62c497d2c4b94b8a3368df6249ae92ab6dc80f",
+      "git_blob": "fa767849ce2d002db85be544b01a2a7473e6af55",
+      "layout_review_sha256": "0cb2441a69c93f2f775cf7c75aa724d0aeaaca9c7ed3a45f1a37ddee849951d8",
+      "byte_exact_to_approved_layout": false,
+      "byte_exact_to_f1_parent": false
+    }
+  },
+  "automatic_merges_no_longer_byte_exact_to_layout_review": [
+    "src/literate_ai/adapters/harness_inventory.py",
+    "src/literate_ai/adapters/project_initialization.py",
+    "src/literate_ai/cli/dispatch.py",
+    "src/literate_ai/cli/operator.py"
+  ],
+  "preserved_guard_union_manifest": {
+    "src/literate_ai/source_to_specification/inventory.py": {
+      "sha256": "dc47b1ff56573e4487a95a4da5f6821fa3b3af31b0f9570975ad6d15a14c33da",
+      "matches_approved_guard_union": true
+    },
+    "tests/critical/test_source_inventory_targets.py": {
+      "sha256": "b25457efc1ea264e0e19e028ec98e3cfb88d825df7bd86ef606120876b69ae38",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/_processes.py": {
+      "sha256": "70f056d331cc8fd3666e4ddaeba9a6fa393b44b6cd4fbbe7eab5d61bfa67584c",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/models/coding_cli.py": {
+      "sha256": "207468c6ee6be7de935ccb42fefb57fa38c2676f88ba0bfed4dcc0ff91b133b5",
+      "matches_approved_guard_union": true
+    },
+    "tests/critical/test_codex_runtime_state.py": {
+      "sha256": "d547860907f73931ed96df42ca6b12e35a06b6cdf2c7dcb74e1df2db2b3dc20a",
+      "matches_approved_guard_union": true
+    },
+    "tests/critical/test_coding_cli_generation.py": {
+      "sha256": "b40841aa92d7b0a9178b1ff3c97c9959caeabea8b0919d68e1a6ad8e0905431e",
+      "matches_approved_guard_union": true
+    },
+    "tests/critical/test_coding_cli_success_cleanup.py": {
+      "sha256": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4",
+      "matches_approved_guard_union": true
+    },
+    "schemas/v2/compatibility.json": {
+      "sha256": "a42a9e5579fd4ba0f89439534440518980abbc249be8f9eaa1bdc1d115a4fa6e",
+      "matches_approved_guard_union": true
+    },
+    "schemas/v2/index.json": {
+      "sha256": "d9dcefabfad9fec7388a98b28874696a1a09167bad13e62c13a2e032c7d2e649",
+      "matches_approved_guard_union": true
+    },
+    "schemas/v2/worker-telemetry.schema.json": {
+      "sha256": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/action_command_dispatch.py": {
+      "sha256": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/action_slots.py": {
+      "sha256": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/builders/_process.py": {
+      "sha256": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_authentication.py": {
+      "sha256": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_processes.py": {
+      "sha256": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/adapters/worker_telemetry_wire.py": {
+      "sha256": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/application/worker_telemetry_authentication.py": {
+      "sha256": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/application/worker_telemetry_authorization.py": {
+      "sha256": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/application/worker_telemetry_polling.py": {
+      "sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/application/worker_telemetry_reservations.py": {
+      "sha256": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/contracts/worker_telemetry.py": {
+      "sha256": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/contracts/worker_telemetry_observations.py": {
+      "sha256": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+      "matches_approved_guard_union": true
+    },
+    "src/literate_ai/schema_catalog.py": {
+      "sha256": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9",
+      "matches_approved_guard_union": true
+    },
+    "tests/critical/test_worker_telemetry_reservations.py": {
+      "sha256": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+      "matches_approved_guard_union": true
+    }
+  },
+  "preserved_guard_union_entries": 24,
+  "guard_mismatches": [],
+  "preserved_layout_tests": {
+    "tests/critical/test_retained_layout.py": {
+      "sha256": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+      "matches_approved_layout_test": true
+    },
+    "tests/critical/test_retained_update_layout.py": {
+      "sha256": "88461f57d211713a102b95517c519e929cd1a9073f19ef90d04adef43b9d1bc2",
+      "matches_approved_layout_test": true
+    }
+  },
+  "preserved_installed_guard_harness": {
+    "scripts/installed_maintained_controls.py": {
+      "sha256": "6e4f947aa95c10b5b81d6e416860c70f9784d3bf9b0e74ae14fb392b4013e972",
+      "matches_approved_harness": true
+    },
+    "scripts/wheel_smoke.py": {
+      "sha256": "b434c8e1a35fee515ac976d91f4403f072ac2b91e2cd724534c99ed949ed9517",
+      "matches_approved_harness": true
+    }
+  },
+  "runtime_schema_changed_from_f1": [
+    "src/literate_ai/adapters/harness_inventory.py",
+    "src/literate_ai/adapters/project_initialization.py",
+    "src/literate_ai/adapters/project_updates.py",
+    "src/literate_ai/adapters/retained_evidence_migration.py",
+    "src/literate_ai/adapters/retained_harness_readmission.py",
+    "src/literate_ai/adapters/retained_harness_receipts.py",
+    "src/literate_ai/adapters/retained_layout.py",
+    "src/literate_ai/cli/dispatch.py",
+    "src/literate_ai/cli/operator.py"
+  ],
+  "unreviewed_additional_runtime_schema_paths": [],
+  "four_file_semantic_assessment": {
+    "src/literate_ai/adapters/harness_inventory.py": "Relative to approved layout, only f1 .venv/.litai-venv discovery exclusions differ. Shared layout imports, historical-only native rewrite resolution, selected wrapper keyword/default and source-placement ADR rendering are preserved. Exclusions remain preexisting f1 discovery/capture policy; no implemented root relocation grants new partition/exclusion authority.",
+    "src/literate_ai/adapters/project_initialization.py": "Automatic merge retains selected read-only placement arguments/collision findings and f1 bootstrap/A2A template entries/starter bootstrap link. Collision reservation derives actual current _TEMPLATE_FILES/_STARTER_DOCS, including scripts/bootstrap_litai.py and docs/user/bootstrap.md. No selected placement apply is introduced; no-argument legacy default path remains unchanged.",
+    "src/literate_ai/cli/dispatch.py": "Selected adoption parser options coexist with f1 project identity subcommands and read-only performance-context routing. Option destinations are distinct; both dispatch branches remain present.",
+    "src/literate_ai/cli/operator.py": "Selected options flow into matching plan_convert signature. Any retained_placement unconditionally records unsupported apply and sets apply_supported=False. Existing OperatorAdoptionService checks that before mutator; _init_namespace default-only path cannot bypass this. Independent f1 project identity migration handler is preserved without changing layout qualification."
+  },
+  "caller_assessment": [
+    "Five other layout production modules exactly match approved bytes, including complete declaration-length fence, full original-ancestor identity snapshots through filesystem anchor, post-encoding closure, structural update protection and qualified legacy/readmission/receipt/migration boundaries.",
+    "Selected wrapper protection, missing-evidence refusal, declaration-vs-qualified execution distinction and absent legacy defaults remain intact. Preview does not make root/custom initial apply or relocation available.",
+    "Relevant _filesystem and canonical paths support unchanged from approved layout; bootstrap template, OperatorAdoptionService and harness_tree source-policy blobs unchanged from f1. Lazy component authoring import remains inside structural resolution; no new import-cycle or caller/signature conflict identified.",
+    "All24 prior guard-union entries and both installed acceptance-harness scripts match independently approved hashes. No source/schema changes from f1 beyond these nine reviewed layout paths."
+  ],
+  "unresolved_metadata_excluded": {
+    "CHANGELOG.md": {
+      "blob_sha256": "1ad3d43c67b08f04a09f027444d6617dd59ed85f5377c653a167835e8e4c2dd4",
+      "unresolved_marker_present": true
+    },
+    "docs/architecture/design-traceability.md": {
+      "blob_sha256": "ea9979387a8729f1d1b0511ebba7e4efef306fc54ef97df1b653c5a861521cf7",
+      "unresolved_marker_present": true
+    },
+    "literate.project.json": {
+      "blob_sha256": "db6c6686a95e951ac8db9342e2a519a0bd2dc7d1e87b3e1053f46eef6bc0f104",
+      "unresolved_marker_present": true
+    }
+  },
+  "acceptance_limits": [
+    "Three metadata conflicts remain unresolved in this preview; approval does not cover their future resolution, final documentation markers, driver pins or a final commit.",
+    "Revalidate actual future candidate runtime/schema/test/harness bytes against exact preview/approved manifests before supported pin renewal.",
+    "Existing parent source/installed/platform reports remain evidence at parent subjects, not this new preview. No preview-installed or combined runtime execution acceptance was performed.",
+    "Full source, noneditable installed/native supported platforms and exact integrated/resulting-main acceptance remain required.",
+    "ADR0057 selected-placement apply, transactional relocation/recovery/rollback, full source/link/hardlink partition custody, receipt invalidation/renewal and roadmap/release acceptance remain unfinished."
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "resolved_source_commit": "add6b0a6228be6a6162d80bc60e99a2eeb9b1cd1",
+  "resolved_nonruntime_differences": [
+    "CHANGELOG.md",
+    "docs/architecture/design-traceability.md",
+    "docs/roadmap/active-work.md",
+    "literate.project.json"
+  ],
+  "reviewer_role": "same separately authorized non-author reviewer",
+  "tests_executed_this_composition_review": false,
+  "release_attestation": false
+}
