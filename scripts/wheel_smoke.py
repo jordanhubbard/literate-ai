@@ -596,7 +596,10 @@ _INTERPRETER_RESOLUTION_ENVIRONMENT_VARIABLES = (
 
 @contextmanager
 def _runtime_directory():
-    root = Path(tempfile.mkdtemp(prefix="literate-wheel-smoke-"))
+    # Canonicalize the freshly created, controller-owned parent once, before
+    # children exist. Strict diagnostic custody must not traverse platform aliases
+    # such as macOS /var; never resolve a failed case or its diagnostic members.
+    root = Path(tempfile.mkdtemp(prefix="literate-wheel-smoke-")).resolve(strict=True)
     with retained_directory(
         root,
         node_path="installed/wheel-smoke/runtime",

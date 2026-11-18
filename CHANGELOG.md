@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Collect TypeScript SDK source from `src/` only for a bound SDK recipe, preserving
+  ordinary application confinement and rejection of package/build output. Reject
+  recipe changes during generation and keep failed installed-preflight diagnostics
+  readable through canonical temporary paths without following diagnostic links.
+
 - Add a separate authored installed SDK rebuild preflight using the canonical
   installer and real receipt checks, with explicit unqualified evidence retention.
   Native execution and ordinary model-backed CLI acceptance remain unqualified.

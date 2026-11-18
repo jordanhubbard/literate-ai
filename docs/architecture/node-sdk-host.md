@@ -359,10 +359,26 @@ model is called. Success/failure outputs, exact candidate wheel, helper hashes a
 fixture-program bytes are retained privately beneath the build directory; failed
 attempts remain failed and unavailable diagnostic files are recorded as unknown.
 
-Twenty focused harness controls pass. A separate zero-child probe passes full
-project authority validation, two-node preparation and canonical workflow
-compilation. The installed authored case is not yet executed at this source
-checkpoint. No installed lifecycle, full-wheel qualification, ordinary CLI/model
+The first installed authored rebuild reached SDK generation after the provider
+stage, then failed because the CLI collector required `source/` while the SDK
+compiler requires `src/*.ts`. The frozen source and tool inputs were unchanged.
+The failed attempt remains retained and does not establish lifecycle acceptance.
+
+Collection now captures the exact bound SDK recipe shape before starting the
+child. Only that shape permits TypeScript files under `src/`; ordinary `source/`
+checks and refusal of root package manifests, compiled output and dependencies
+remain. A profile CID is DATA, not profile-content or execution authority: live
+binding, provider admission and build owners retain those responsibilities.
+Recipe identity checks reject changes at child return, collection and result
+construction. The installed attempt also exposed strict diagnostic custody
+rejecting macOS temporary-parent aliases. The controller canonicalizes its newly
+created temporary root once, before child paths exist; failed case roots and log
+members remain subject to no-follow custody.
+
+Focused actual-child and diagnostic controls accompany these fixes. The earlier
+zero-child probe passed full project authority validation, two-node preparation
+and canonical workflow compilation. A fresh installed authored rebuild is still
+required. No installed lifecycle, full-wheel qualification, ordinary CLI/model
 integration or downstream cutover follows from these controls.
 
 

@@ -1438,8 +1438,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       explicit unqualified retention and no release manifest. Twenty harness
       guards pass; full disposable-project authority validation passes after
       preserving reusable Component taxonomy and recording the normal reviewed
-      fixture marker. Installed authored execution remains the next unchecked
-      action; its code is not a passing lifecycle receipt. Independent design review accepts
+      fixture marker. The first installed authored rebuild attempt failed after
+      completing provider generation: the SDK compiler requires `src/`, while the
+      coding-CLI collector still accepts only `source/`. Frozen source/tool inputs
+      were unchanged. **Next action in progress:** admit the SDK layout only for
+      the exact explicit SDK recipe, retain ordinary application and builder-owned
+      output refusals, and repeat isolated installed acceptance after independent
+      review. The failure keeper also reported every diagnostic unavailable;
+      reproduce and correct trusted temporary-parent alias handling without
+      following case-root or diagnostic links. Preserve the failed attempt and
+      require regression coverage for both defects before retrying. Nine authored
+      CLI controls now pass, including actual SDK source collection, ordinary-app
+      and builder-output refusals, unbound recipe refusal and identity mutation
+      at child return/collection. Twenty-one diagnostic/installer guards, 25
+      coding-CLI regressions and 22 source-cache tests pass with zero skips.
+      The failed installed run is not a passing lifecycle receipt. Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
       reviewed exact-request verifier-authorization owner before model-backed

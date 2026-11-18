@@ -4,6 +4,7 @@ import hashlib
 import sys
 import unittest
 from dataclasses import replace
+from unittest.mock import patch
 
 from literate_ai.adapters.cache import CachedCodingCliSourceGenerator
 from literate_ai.adapters.models import CodingCliError, CodingCliSourceGenerator
@@ -164,6 +165,129 @@ class AuthoredCodingCLITests(unittest.TestCase):
             "sha256:" + hashlib.sha256(bom_bytes).hexdigest(),
         )
         self.assertIsNotNone(result.generated_test_suite_identity)
+
+    def _bound_sdk_recipe(self):
+        from tests.smoke.test_node_sdk_generation import NodeSDKGenerationDataTests
+
+        data = NodeSDKGenerationDataTests()
+        data.setUp()
+        bound = data.bind().prepared.recipe
+        from literate_ai.contracts import CycloneDxManagedGraph
+        from tests.support.fixtures_test_component_execution_planning import (
+            _diamond_lock,
+        )
+
+        return replace(
+            bound,
+            managed_sbom_graph=CycloneDxManagedGraph.from_component_lock(
+                _diamond_lock()
+            ),
+        )
+
+    def test_bound_sdk_actual_child_collects_typescript_and_original_evidence(self):
+        recipe = self._bound_sdk_recipe()
+        stage = self.fixture.root / "sdk-source-payload"
+        stage.mkdir()
+        (stage / "src").mkdir()
+        (stage / "src/index.ts").write_text("export const answer:number=42;\n")
+        write_strict_source_evidence(
+            stage, recipe=recipe, component_name=recipe.application_id
+        )
+        files = {
+            p.relative_to(stage).as_posix(): p.read_text()
+            for p in stage.rglob("*")
+            if p.is_file()
+        }
+        self.child.set_files(files)
+        output = self.fixture.root / "bound-sdk-source"
+        result = self.delegate.generate(recipe, output_root=output)
+        self.assertEqual(self.child.executions, 1)
+        self.assertEqual(result.recipe_identity, recipe.identity)
+        self.assertEqual(result.files["src/index.ts"], files["src/index.ts"])
+        self.assertEqual(
+            result.source_sbom.managed_graph_identity,
+            recipe.managed_sbom_graph.identity,
+        )
+        self.assertIsNotNone(result.generated_test_suite_identity)
+
+    def test_ordinary_actual_child_cannot_emit_sdk_source(self):
+        self.child.set_files({**self.files, "src/index.ts": "export const answer=42;"})
+        with self.assertRaises(CodingCliError) as raised:
+            self.delegate.generate(
+                self.fixture.node.recipe, output_root=self.fixture.root / "ordinary-src"
+            )
+        self.assertEqual(raised.exception.code, "coding_cli.unexpected_output")
+        self.assertGreater(self.child.executions, 0)
+
+    def test_sdk_actual_child_cannot_emit_builder_owned_outputs(self):
+        recipe = self._bound_sdk_recipe()
+        for index, name in enumerate(
+            (
+                "package.json",
+                "dist/index.js",
+                "node_modules/pkg/index.js",
+                "src/compiled.js",
+            )
+        ):
+            with self.subTest(name=name):
+                self.child.set_files(
+                    {"src/index.ts": "export const answer=42;", name: "forbidden"}
+                )
+                with self.assertRaises(CodingCliError) as raised:
+                    self.delegate.generate(
+                        recipe,
+                        output_root=self.fixture.root
+                        / ("builder-output-" + str(index)),
+                    )
+                self.assertEqual(raised.exception.code, "coding_cli.unexpected_output")
+        self.assertGreaterEqual(self.child.executions, 4)
+
+    def test_unbound_sdk_recipe_refuses_before_child(self):
+        recipe = self._bound_sdk_recipe()
+        unbound = replace(
+            recipe,
+            resolved_inputs=tuple(
+                (key, value)
+                for key, value in recipe.resolved_inputs
+                if key != "node_sdk_profile"
+            ),
+        )
+        with self.assertRaises(CodingCliError) as raised:
+            self.delegate.generate(
+                unbound, output_root=self.fixture.root / "unbound-sdk"
+            )
+        self.assertEqual(raised.exception.code, "coding_cli.node_sdk_recipe_invalid")
+        self.assertEqual(self.child.executions, 0)
+
+    def test_recipe_mutation_at_child_return_or_collection_refuses_result(self):
+        from literate_ai.adapters.models import coding_cli
+
+        recipe = self.fixture.node.recipe
+        original_name = recipe.application_id
+        for cut in ("child", "collection"):
+            with self.subTest(cut=cut):
+                owner = coding_cli if cut == "child" else self.delegate
+                method = "run_bounded_process" if cut == "child" else "_collect"
+                original = getattr(owner, method)
+
+                def mutate_after_original(*args, _original=original, **kwargs):
+                    result = _original(*args, **kwargs)
+                    object.__setattr__(
+                        recipe, "application_id", original_name + "-changed"
+                    )
+                    return result
+
+                try:
+                    with patch.object(owner, method, side_effect=mutate_after_original):
+                        with self.assertRaises(CodingCliError) as raised:
+                            self.delegate.generate(
+                                recipe,
+                                output_root=self.fixture.root / ("mutation-" + cut),
+                            )
+                    self.assertEqual(raised.exception.code, "coding_cli.recipe_changed")
+                finally:
+                    object.__setattr__(recipe, "application_id", original_name)
+        self.assertEqual(self.child.executions, 2)
 
     def test_payload_refuses_escape_before_child_execution(self):
         with self.assertRaises(ValueError):

@@ -294,6 +294,35 @@ def _prompt_json(document: bytes) -> str:
     return json.dumps(json.loads(document), indent=2, ensure_ascii=False)
 
 
+def _allows_node_sdk_source(recipe: GenerationRecipe) -> bool:
+    """Recognize bound SDK DATA for collection; grant no build authority."""
+    profile = dict(recipe.resolved_inputs).get("node_sdk_profile")
+    surface = recipe.library_import_surface
+    sdk_surface = surface is not None and bool(surface.node_sdk_exports)
+    if not (profile is not None or recipe.node_sdk_providers or sdk_surface):
+        return False
+    if (
+        type(recipe) is not GenerationRecipe
+        or not recipe.node_sdk_providers
+        or not sdk_surface
+        or surface.language != "typescript"
+        or profile is None
+    ):
+        raise CodingCliError(
+            "coding_cli.node_sdk_recipe_invalid",
+            "SDK source collection requires the original bound SDK recipe",
+        )
+    # This CID binds the recipe to the original live binder's profile. Syntax
+    # alone grants no profile-content, tool, provider or execution authority.
+    try:
+        ContentIdentity.parse_uri(profile)
+    except (TypeError, ValueError) as exc:
+        raise CodingCliError(
+            "coding_cli.node_sdk_recipe_invalid", "invalid bound SDK profile identity"
+        ) from exc
+    return True
+
+
 def _reset_generation_output_root(root: Path) -> None:
     """Clear a coding CLI output root between bounded retry attempts.
 
@@ -3456,6 +3485,8 @@ class CodingCliSourceGenerator:
         source_intelligence_reason_code: str | None,
         provider: SourceIntelligenceProvider | None,
     ) -> CodingCliGeneration:
+        recipe_identity = recipe.identity
+        node_sdk_source = _allows_node_sdk_source(recipe)
         request_path = workspace / ".literate-ai-generation-request.md"
         request = (
             _coding_cli_binding_prompt(recipe, self.selection)
@@ -3600,7 +3631,21 @@ class CodingCliSourceGenerator:
             )
             instrument_generated_tree(source)
         try:
-            files = self._collect(workspace, recipe.all_required_entrypoints)
+            if recipe.identity != recipe_identity:
+                raise CodingCliError(
+                    "coding_cli.recipe_changed",
+                    "generation recipe changed during execution",
+                )
+            files = self._collect(
+                workspace,
+                recipe.all_required_entrypoints,
+                _node_sdk_source=node_sdk_source,
+            )
+            if recipe.identity != recipe_identity:
+                raise CodingCliError(
+                    "coding_cli.recipe_changed",
+                    "generation recipe changed during collection",
+                )
         except CodingCliError as exc:
             if exc.code != "coding_cli.empty_generation":
                 raise
@@ -3708,6 +3753,11 @@ class CodingCliSourceGenerator:
             source_intelligence_status = "off"
         request_identity = canonical_identity(request).uri
         command_identity = canonical_identity(tuple(command)).uri
+        if recipe.identity != recipe_identity:
+            raise CodingCliError(
+                "coding_cli.recipe_changed",
+                "generation recipe changed during collection",
+            )
         return CodingCliGeneration(
             files=files,
             coding_cli=self.selection.name,
@@ -3785,7 +3835,11 @@ class CodingCliSourceGenerator:
         )
 
     def _collect(
-        self, root: Path, required_entrypoints: tuple[str, ...]
+        self,
+        root: Path,
+        required_entrypoints: tuple[str, ...],
+        *,
+        _node_sdk_source: bool = False,
     ) -> dict[str, str]:
         result: dict[str, str] = {}
         total_bytes = 0
@@ -3846,7 +3900,19 @@ class CodingCliSourceGenerator:
                     "coding_cli.output_path_limit",
                     "coding CLI generated a path outside the configured limits",
                 )
-            if relative != "source" and not relative.startswith("source/"):
+            sdk_path = _node_sdk_source and (
+                relative == "src" or relative.startswith("src/")
+            )
+            if sdk_path and not path.is_dir() and not relative.endswith(".ts"):
+                raise CodingCliError(
+                    "coding_cli.unexpected_output",
+                    f"coding CLI SDK source must be TypeScript: {relative}",
+                )
+            if (
+                not sdk_path
+                and relative != "source"
+                and not relative.startswith("source/")
+            ):
                 # This bound is for fungible generated application source in the
                 # coding-CLI workspace. It does not confine load-bearing project
                 # authority (catalogs, skills, a self-modifying project's Makefile)

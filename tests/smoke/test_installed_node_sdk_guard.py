@@ -20,6 +20,8 @@ from unittest.mock import patch
 from scripts import wheel_smoke
 from tests.support import installed_node_sdk_journey as fixture
 
+tempfile_mkdtemp = tempfile.mkdtemp
+
 
 class InstalledSDKGuardTests(unittest.TestCase):
     def setUp(self):
@@ -156,6 +158,58 @@ class InstalledSDKGuardTests(unittest.TestCase):
         self.assertEqual(manifest["diagnostics"]["stdout.log"]["state"], "captured")
         self.assertEqual(manifest["diagnostics"]["stderr.log"]["state"], "unknown")
         self.assertFalse((retained / "stderr.log").exists())
+
+    def test_owned_runtime_parent_alias_keeps_failed_diagnostics_readable(self):
+        parent = self.root / "physical"
+        parent.mkdir()
+        alias = self.root / "alias"
+        try:
+            alias.symlink_to(parent, target_is_directory=True)
+        except OSError:
+            self.skipTest("requires platform temporary-parent alias fixture")
+        owned = parent / "owned"
+        owned.mkdir()
+        wheel = self.root / "fixture.whl"
+        wheel.write_bytes(b"controlled unqualified artifact")
+        with patch.object(
+            wheel_smoke.tempfile, "mkdtemp", return_value=str(alias / "owned")
+        ):
+            with wheel_smoke._runtime_directory() as runtime:
+                self.assertEqual(runtime, owned)
+                case = runtime / "node-sdk-rebuild"
+                case.mkdir()
+                (case / "stderr.log").write_text("actual controlled failure")
+                # Retention allocates its own directory through the original tool.
+                with patch.object(
+                    wheel_smoke.tempfile, "mkdtemp", wraps=tempfile_mkdtemp
+                ):
+                    retained = wheel_smoke._retain_node_sdk_rebuild_failure(
+                        self.root,
+                        wheel,
+                        revision="f" * 40,
+                        case_root=case,
+                        failure="ControlledFailure",
+                    )
+                manifest = json.loads((retained / "manifest.json").read_text())
+                self.assertEqual(
+                    manifest["diagnostics"]["stderr.log"]["state"], "captured"
+                )
+                linked = runtime / "linked-case"
+                linked.symlink_to(case, target_is_directory=True)
+                with patch.object(
+                    wheel_smoke.tempfile, "mkdtemp", wraps=tempfile_mkdtemp
+                ):
+                    refused = wheel_smoke._retain_node_sdk_rebuild_failure(
+                        self.root,
+                        wheel,
+                        revision="f" * 40,
+                        case_root=linked,
+                        failure="ControlledFailure",
+                    )
+                manifest = json.loads((refused / "manifest.json").read_text())
+                self.assertEqual(
+                    manifest["diagnostics"]["stderr.log"]["state"], "unknown"
+                )
 
     def test_unexpected_files_and_empty_directories_are_refused(self):
         root = self.root / "payload"
