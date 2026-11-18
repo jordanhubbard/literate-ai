@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Isolate OpenCode state before its first child, including V1. Project only the
+  selected provider/model API configuration and credentials; exclude ambient
+  instructions, MCP, plugins and unrelated models. Refuse unsupported refreshing
+  logins and SDKs before prompting while preserving original user state. Set a
+  fixed V1 session title to avoid a separate title-generation model request.
+
 - Separate documentation-rendering dependencies from the OpenSpec CLI, so a
   documentation-only check installs only its own tools. Audit both locked graphs
   before their respective checks; full CI, Windows and release qualification keep

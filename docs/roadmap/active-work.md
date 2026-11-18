@@ -21802,11 +21802,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 - **Priority:** P1
 - **Owner:** Framework core coding-CLI adapter, host-install Flavors, and setup documentation; PROJECT Goals 1, 3, and 4
 - **Direction:** Support both v1 and v2 of the OpenCode command line without requiring existing v1 users to migrate.
-- **Conclusion:** Select a compatible invocation and isolation profile from the exact executable capabilities. Current generation and preflight require the v1 --pure and --dir help surface; published v2.2.5 help omits both and defaults to a shared background service. Preserve supported v1 behavior and qualify v2 with a private server, explicit workspace custody, provider credentials, bounded diagnostics, and deny-by-default tools. Supported legacy configuration translation alone does not establish equivalent isolation. The adapter implementation and macOS native checks now cover both interfaces; v2 uses fresh provider state and process environment credentials, while v1 retains saved logins. Broader installed/native qualification remains open; no release target is assigned.
+- **Conclusion:** Select a compatible invocation and isolation profile from the exact executable capabilities. Current generation and preflight require the v1 --pure and --dir help surface; published v2.2.5 help omits both and defaults to a shared background service. Preserve supported v1 behavior and qualify v2 with a private server, explicit workspace custody, provider credentials, bounded diagnostics, and deny-by-default tools. Supported legacy configuration translation alone does not establish equivalent isolation. The earlier adapter and macOS native checks cover both command interfaces; V2 uses fresh provider state and process credentials. A later controlled V1 run found ambient global instructions and an enabled MCP could load before tool restrictions. The current repair narrows import to supported selected API profiles; stored refresh and SDK compatibility still require native ownership or typed refusal. Broader installed/native qualification remains open; the existing SDLC-001 release goal owns this security slice, without closing the broader compatibility item.
 - **Depends on:** none
 - **Completion prerequisites:** none
-- **Next action:** Qualify installed/native v1 and v2 generation on the remaining supported platforms, then renew fresh release evidence; local development repair coverage is complete.
+- **Next action:** Close the controlled V1 ambient-configuration finding through
+  private invocation state and selected provider/API-credential projection. Preserve
+  supported saved API keys and custom provider behavior; refuse unsupported stored
+  refresh/integration sources before a prompt rather than copying rotating credentials
+  back to user state. Renew native/installed v1 and v2 evidence and the remaining
+  supported-platform and release checks; the earlier local repair did not establish
+  this newly measured boundary. SDLC-001 owns this current-release security slice.
 - **Implementation:**
+  - [ ] Isolate V1 discovery/state before its first child, project only the selected
+        provider and supported API authentication, and preserve the V2 private profile.
+        Keep unsupported stored refresh/integration cases explicit and user state
+        unchanged; do not introduce a parallel OAuth manager or silent fallback.
   - [x] Resolve PR #228 conflicts with current `main`, preserving both branches' changelog entries and implementation changes. Recompute reviewed lifecycle-driver and documentation identities for the integrated tree; run focused OpenCode regression and authority checks before pushing.
   - [x] First capture pinned v1 and v2 CLI help/configuration contracts and define capability detection, version-specific command construction, and fail-closed diagnostics for unsupported executables.
   - [x] Preserve the v1 invocation and add a qualified v2 invocation with --standalone, supported working-directory and logging controls, and version-appropriate configuration/environment handling; preserve executable identity, detached workspace, permission, and credential boundaries.

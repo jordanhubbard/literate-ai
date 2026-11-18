@@ -1003,3 +1003,54 @@ The [dated report update](../architecture/existing-repository-review.html)
 contains per-task outcomes, usage, protocol/aggregate identities and limitations.
 This records a completed bounded measurement, not completion of SDLC-001 or its
 activation, governed-adoption, changed-version upgrade, platform or release gates.
+
+### V1 selected-profile isolation in progress
+
+SDLC-001 and the existing OPENCODE-COMPAT-001 implementation owner retain the
+controlled ambient-input finding in this release. Use the existing coding-CLI
+process/configuration owners: establish private discovery, database, cache and
+temporary roots before the first child, then passively select the requested
+provider and supported API credentials. Preserve selected custom-provider
+configuration, saved API keys, bounded JSONC/file-credential handling and explicit
+model selection. Do not execute native debug configuration against ambient state
+to discover its contents. Preserve the existing V2 profile and detached workspace.
+
+The narrow initial profile supports demonstrable API authentication. Stored
+rotating OAuth, remote integration/account configuration, managed overrides and
+unsupported credential/SDK sources require explicit native ownership support or
+a typed refusal before model execution; they must not silently become API billing
+or another provider. API projection must not rewrite user credentials, and a
+generic copy-back or competing refresh manager is outside this repair. These
+limits are not evidence that OAuth was previously unsupported, nor completion or
+retirement of broader compatibility requirements.
+
+Verify the actual pinned V1 with owned loopback targets and synthetic credentials:
+saved API and custom-provider positives, JSONC/relative credential handling,
+retained explicit task instructions, and refusal or absence of ambient global
+instructions, MCP helpers, optional skills and unsupported stored integration.
+The native project-config flag already suppresses initial ancestor instruction
+discovery; test parent AGENTS/CONTEXT sentinels and a deliberately enabled positive
+control without adding a temporary Git abstraction. Keep nested-read and provider
+internals limitations explicit. Redact individual projected credentials from
+verbose output and retained diagnostics, invalidate the old isolation profile,
+then independently review and renew source, installed/native and platform checks.
+No profile repair or expanded compatibility is claimed by this plan.
+
+The draft additionally filters the selected provider's models to the exact model
+and checks model-level SDK overrides before child execution. Serialize projected
+literal values so native config parsing cannot expand file/env placeholders a
+second time. These two boundaries were found during independent source review;
+maintained public-runner controls cover both, along with saved API, env/file keys,
+refresh/well-known refusal, ambiguous/oversized input, missing model and original
+state preservation. They are repair evidence, not broader provider qualification.
+
+A renewed pinned V1 control uses six synthetic profiles and a write/network-
+restricted loopback provider that deliberately returns HTTP 400. Supported API
+profiles send one task request, the selected refresh profile sends none, global
+instructions/MCP remain absent, a deliberately enabled parent-discovery positive
+control is detected, and a literal placeholder credential reaches the endpoint
+unchanged. This is native transport/refusal evidence on macOS ARM64, not successful
+model delivery. The maintained native V1 workspace-write/outside-read checks pass;
+V2 remains an explicit skip without its native binary. Independent final review,
+current authority pins and full source/installed/platform qualification remain
+open before claiming this implementation complete.
