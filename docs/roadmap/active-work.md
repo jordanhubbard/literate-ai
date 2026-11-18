@@ -1237,9 +1237,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       checks both nested provider layouts, distinct facade imports and loaded root
       oracle rows: one root row/six compiler children, or two root/math rows/twelve
       children. It creates no generation candidate, grant or runtime result and
-      executes no provider or compiler check. Native qualification of the revised
-      one-provider control and new two-provider orchestration remains pending;
-      run them serially from clean frozen source without extending original limits.
+      executes no provider or compiler check. The fresh serial native class at
+      clean `ec465a96` then runs both cases: the revised one-provider control
+      passes, but the new two-provider/root-subpath orchestration errors. The
+      class terminates after 2,679.671 seconds with one error, exit one, zero
+      skips, all 2,016 Python files unchanged and clean exact-commit source.
+      The second case reaches original packaged-root acceptance but does not
+      return from it or publish accepted membership. Its first exception is
+      `security.authorization_expired` while rechecking an original provider
+      BUILD authorization through `acceptance_stage_evidence` /
+      `build_execution_inputs`. Scope-retirement and process-liveness exceptions
+      follow during unwinding; the final missing-provider-scope error is not
+      the initiating failure. All ordinary BUILD and explicit verifier grants
+      retain their original 30-minute policies; no clock, deadline, renewal,
+      retry or acceptance bypass supplies a pass. This is a failed stronger
+      orchestration gate, not a reversal of the separately retained staged
+      two-provider pass or the current one-provider control. Preserve the failure
+      and diagnose the original custody/authority validation cost before another
+      native attempt. Do not infer native multi-provider orchestration success,
+      sufficient expiry margin, or load causation from this result.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
