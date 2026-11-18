@@ -1274,3 +1274,39 @@ seconds. Documentation validation and the native coverage pilot pass; GitGuardia
 a disposition. This continues to demonstrate early refusal rather than remediation.
 The source and wheel evidence above belongs to the exact named candidate; no
 result is promoted to resulting-main or complete-release acceptance.
+
+A fresh installed Linux x86_64/Python 3.14 admission supplies genuine accepted
+source for the canonical receiver in 51.4 seconds. All 37 installed distributions
+are verified and 147 original project/cache files are transferred unchanged. The
+harness neither reads nor directly invokes private acceptance values; the normal
+verifier retains that authority. The same qualified `98c23928a` wheel then passes
+a 65.8-second public SSH lifecycle through the canonical handler, installed
+receiver, actual archive transfer, verified import and cleanup acknowledgement.
+TEST transports the accepted artifact; RUN passes valid input and returns actual
+application exit 1 with a typed failed dispatch for invalid input. All three
+bundles (80 file entries) are independently reimported and their three raw
+acknowledgements verified. RUN reuses the TEST export and transports fresh
+execution evidence, without another artifact copy. Original project bytes remain
+unchanged; exactly one validated execution export is added. A first private
+preflight assertion incorrectly treats explicit Flavor overrides as resolved
+defaults and stops before public dispatch; its failure and separate idle-lease
+recovery remain retained.
+
+A separate 49.8-second controlled fault run changes one byte only after an actual
+SCP download succeeds. Public RUN returns exit 2 with
+`execution.remote_evidence_bundle_mismatch`; the coordinator evidence store stays
+unchanged, the exact managed attempt remains uncertain, and the original worker
+ticket, bundle and work roots remain without a successful acknowledgement.
+Unfaulted real transfer retrieves that same original bundle. The existing importer
+verifies it before the existing public worker acknowledgement path removes the
+exact owned attempt roots and incoming directory. No application rerun occurs.
+The original public failure stays failed; manual custody recovery is recorded
+separately. Exact-attempt cancellation then closes one simulated logical release.
+Prior completed evidence, source inputs and static registrations remain unchanged.
+
+These records establish canonical custody and controlled post-download corruption
+recovery using existing owners. They do not establish a genuine network-failure
+recovery, automatic public dispatch resume, physical provider termination,
+automatic lease release, total allocation-through-cleanup deadlines, Windows/GPU
+acceptance or release readiness. The earlier offline corrupt-copy control still
+represents a distinct check performed after acknowledgement.

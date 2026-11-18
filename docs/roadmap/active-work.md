@@ -6357,6 +6357,16 @@ the reported failure.
   floating-point serialization error before the intended exit and is retained
   as failed, with its separate logical-lease recovery. This is not mid-job
   controller-loss cleanup or canonical lifecycle/custody acceptance.
+- **Canonical custody progress at `98c23928a`:** Genuine installed Linux
+  source admission prepares 147 unchanged inputs in 51.4 seconds. Public SSH
+  TEST, successful RUN and failed-application RUN then pass custody import and
+  acknowledgement in 65.8 seconds; TEST transports the artifact, while RUN
+  reuses its export. A separate 49.8-second controlled post-SCP corruption
+  refuses import and retains the uncertain original attempt. Unfaulted transfer,
+  verified manual import and the existing acknowledgement owner recover that
+  same attempt without rerunning the application; exact cancellation closes only
+  its simulated lease. The failed public result remains failed. This adds no
+  real provider termination, automatic resume or Windows/GPU qualification.
 - **Depends on:** current exact target/Flavor locking, artifact exports, explicit
   project-policy validation, source-cache identities and bounded parallel sample fan-out
 - **GitHub issue:** [#131](https://github.com/NVIDIA-dev/literate-ai/issues/131)
@@ -24449,6 +24459,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
   CI run `44312804737` finishes with 14 passing jobs, one skip and a mandatory
   OpenSpec advisory failure before Python; GitGuardian also fails without a
   disposition. No security, platform, goal or release obligation is waived.
+
+- **Canonical worker acceptance progress:** The installed `98c23928a` wheel
+  now has actual Linux public SSH execution/import/acknowledgement evidence and
+  controlled corrupted-download recovery of the original attempt without rerun.
+  The [delivery review](existing-repository-delivery.md) records successful,
+  application-failed and manually recovered cases with their separate limits.
+  Platform, provider, security and release obligations remain open.
 
 - **Priority:** P0
 - **Owner:** Original adoption, project context, release observation and worker provisioning owners
