@@ -42,22 +42,32 @@ from tests.support.fixtures_test_component_generation_context import _budget
 from tests.support.standard_source_evidence_fixture import write_strict_source_evidence
 
 
-def _authored_source(prepared, root_revision):
+def _authored_source(prepared, root_revision, provider_contracts):
     """Return source evidence only; the actual runtime registers and accepts it."""
     root = Path(prepared.workspace.locator)
     recipe = prepared.recipe
     tests = root / "source/tests"
     tests.mkdir(parents=True)
     if recipe.node_sdk_providers:
-        provider = recipe.node_sdk_providers[0]
-        wrapper, _ = node_sdk_provider_module_paths(
-            provider.artifact, provider.surface.declarations[0]
+        providers = recipe.node_sdk_providers
+        assert len(providers) in (1, 2)
+        imports = []
+        for index, provider in enumerate(providers):
+            wrapper, _ = node_sdk_provider_module_paths(
+                provider.artifact, provider.surface.declarations[0]
+            )
+            name = "provider" if len(providers) == 1 else "provider" + str(index)
+            imports.append(
+                "import " + name + "=require(" + json.dumps("../" + wrapper) + ");"
+            )
+        forwarding = (
+            "export const add=provider.add;\n"
+            if len(providers) == 1
+            else "export const add=(a:number,b:number):number=>"
+            "provider1.add(provider0.add(a,b),0);\n"
         )
         (root / "src").mkdir()
-        (root / "src/index.ts").write_text(
-            "import provider=require(" + json.dumps("../" + wrapper) + ");"
-            "export const add=provider.add;\n"
-        )
+        (root / "src/index.ts").write_text("".join(imports) + forwarding)
         (root / "LICENSE").write_text(FIXTURE_LEGAL_TEXT)
         test = tests / "litai_test.cjs"
         prefix = (
@@ -66,20 +76,46 @@ def _authored_source(prepared, root_revision):
             "const {add}=sdk;"
         )
     else:
-        package = root / "source/counter"
-        package.mkdir()
-        (package / "api.js").write_text("exports.add=(a,b)=>a+b;\n")
-        (package / "api.d.ts").write_text(
-            "export declare function add(a:number,b:number):number;\n"
-        )
+        surface = provider_contracts[
+            prepared.plan.component_revision
+        ].library_import_surface
+        assert len(surface.declarations) == 1
+        declaration = surface.declarations[0]
+        package_name, module_name = declaration.module.rsplit("/", 1)
+        package = root / "source" / package_name
+        runtime = root / declaration.runtime
+        runtime.parent.mkdir(parents=True, exist_ok=True)
+        runtime.write_text("exports.add=(a,b)=>a+b;\n")
+        types = root / declaration.declaration
+        types.parent.mkdir(parents=True, exist_ok=True)
+        types.write_text("export declare function add(a:number,b:number):number;\n")
         (package / "package.json").write_text(
-            '{"name":"counter","type":"commonjs","exports":{"./api":"./api.js"}}\n'
+            json.dumps(
+                {
+                    "name": package_name,
+                    "type": "commonjs",
+                    "exports": {
+                        "./" + module_name: "./"
+                        + runtime.relative_to(package).as_posix()
+                    },
+                },
+                separators=(",", ":"),
+            )
+            + "\n"
         )
+        if runtime != package / "api.js":
+            (package / "api.js").write_text(
+                "throw Error('undeclared provider runtime was selected');\n"
+            )
         (root / "source/main.js").write_text(
             "if(process.argv[2]==='--litai-test')require('./tests/litai_test.js');\n"
         )
         test = tests / "litai_test.js"
-        prefix = "const {add}=require('../counter/api.js');"
+        prefix = (
+            "const {add}=require('../"
+            + Path(declaration.runtime).relative_to("source").as_posix()
+            + "');"
+        )
     test.write_text(
         prefix + "for(const [a,b,n] of [[1,2,3],[0,0,0],[-1,1,0]])"
         "if(add(a,b)!==n)throw Error('bad sum');"
@@ -141,9 +177,30 @@ def _authored_source(prepared, root_revision):
 )
 class CanonicalSDKRuntimeTests(unittest.TestCase):
     def test_authored_runtime_execution_reenters_finalization_before_publication(self):
+        self._exercise_authored_runtime()
+
+    def test_two_provider_root_subpath_runtime_execution(self):
+        self._exercise_authored_runtime(
+            second_provider=True,
+            public_subpath=True,
+            provider_runtime="source/counter/runtime/add.cjs",
+        )
+
+    def _exercise_authored_runtime(
+        self,
+        *,
+        second_provider=False,
+        public_subpath=False,
+        provider_runtime="source/counter/api.js",
+    ):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw).resolve()
-            _, snapshot, execution = with_provider(root / "authority")
+            _, snapshot, execution = with_provider(
+                root / "authority",
+                second_provider=second_provider,
+                public_subpath=public_subpath,
+                provider_runtime=provider_runtime,
+            )
             environment = dict(os.environ)
             environment["LITAI_TYPESCRIPT_SDK"] = environment["LITERATE_TYPESCRIPT_SDK"]
             closure = project_locked_standard_toolchain_closure(
@@ -154,24 +211,30 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 for c in closure.contracts
                 if c.component_revision == execution.root_revision
             )
-            provider = next(
+            providers = tuple(
                 c
                 for c in closure.contracts
                 if c.component_revision != execution.root_revision
             )
-            revision = next(
-                n.revision
-                for n in snapshot.authority.lock.nodes
-                if n.revision.identity == provider.component_revision
-            )
+            self.assertEqual(len(providers), 2 if second_provider else 1)
+            provider_contracts = {c.component_revision: c for c in providers}
+            revisions_by_identity = {
+                n.revision.identity: n.revision for n in snapshot.authority.lock.nodes
+            }
             root_oracle = admission_fixture.CanonicalSDKAdmissionTests._root_oracle(
                 self, snapshot, consumer
             )
-            provider_oracle = (
-                admission_fixture.CanonicalSDKAdmissionTests._provider_oracle(
-                    self, revision, provider
-                )
+            load_provider_oracle = (
+                admission_fixture.CanonicalSDKAdmissionTests._provider_oracle
             )
+            provider_oracles = {
+                provider.component_revision.uri: load_provider_oracle(
+                    self,
+                    revisions_by_identity[provider.component_revision],
+                    provider,
+                )
+                for provider in providers
+            }
             generated = []
             generation_contexts = []
             generation_policies = []
@@ -217,16 +280,26 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                         runtime.lifecycle_ports
                     )
                     self.assertIsNotNone(policy)
-                    self.assertEqual(len(generated), 1)
-                    record = prepared.recipe.node_sdk_providers[0]
+                    self.assertEqual(len(generated), len(providers))
+                    self.assertEqual(set(generated), set(provider_contracts))
+                    records = prepared.recipe.node_sdk_providers
+                    self.assertEqual(len(records), len(providers))
                     self.assertEqual(
-                        record.artifact.component_revision, provider.component_revision
+                        {record.artifact.component_revision for record in records},
+                        set(provider_contracts),
                     )
-                    self.assertTrue(record.acceptance.digest)
-                    self.assertTrue(record.checks.digest)
+                    self.assertEqual(
+                        len({record.artifact.identity for record in records}),
+                        len(providers),
+                    )
+                    for record in records:
+                        self.assertTrue(record.acceptance.digest)
+                        self.assertTrue(record.checks.digest)
                     generation_policies.append(policy)
                     generation_contexts.append(copy_context())
-                output = _authored_source(prepared, execution.root_revision)
+                output = _authored_source(
+                    prepared, execution.root_revision, provider_contracts
+                )
                 self.assertEqual(
                     output.candidate.source_generation_request_identity,
                     prepared.request.request.identity,
@@ -241,7 +314,7 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
             configuration = LocalNodeSDKHostConfiguration(
                 snapshot=snapshot,
                 expected_execution=execution,
-                provider_oracles={provider.component_revision.uri: provider_oracle},
+                provider_oracles=provider_oracles,
                 root_oracle=root_oracle,
                 authorize_verifier=authorize,
                 require_current=host_current,
@@ -261,7 +334,10 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
             def check(*args, **kwargs):
                 result = actual_check(*args, **kwargs)
                 if checking_package:
-                    self.assertEqual(len(result.declarations.processes), 6)
+                    self.assertEqual(
+                        len(result.declarations.processes),
+                        12 if public_subpath else 6,
+                    )
                     self.assertEqual(len(result.runtime.results), 2)
                     self.assertEqual(kwargs["artifact_root"], checking_package[-1])
                     checked.append(result)
@@ -356,13 +432,13 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                     ports.failure_diagnostics,
                 ),
             )
-            self.assertEqual(
-                generated, [provider.component_revision, execution.root_revision]
-            )
+            self.assertEqual(len(generated), len(providers) + 1)
+            self.assertEqual(set(generated[:-1]), set(provider_contracts))
+            self.assertEqual(generated[-1], execution.root_revision)
             self.assertEqual(len(checked), 1)
             self.assertEqual(len(root_acceptances), 1)
-            self.assertEqual(len(publications), 2)
-            self.assertGreaterEqual(len(grants), 3)
+            self.assertEqual(len(publications), len(providers) + 1)
+            self.assertGreaterEqual(len(grants), len(providers) * 2 + 1)
             self.assertEqual(len({g.authorization_id for g in grants}), len(grants))
             self.assertIsNone(current_node_sdk_project_acceptance(ports))
             runtime._require_sdk_host(snapshot)

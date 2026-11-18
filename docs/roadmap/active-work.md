@@ -1225,6 +1225,21 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       execution/acceptance owners, budgets and deadlines. No ordinary-model,
       cold-cache/recovery, installed/platform, activation or Aviation cutover is
       established by this authored one-provider result.
+      The authored orchestration fixture now has a two-provider/root-subpath
+      candidate sharing the original one-provider driver. Provider source follows
+      each exact declared runtime/types path, retaining throwing undeclared-path
+      decoys, and the SDK composes both independently bound provider records.
+      Inventory, original finalization/acceptance and publication ordering checks
+      cover the complete selected provider set. No production code, authorization,
+      original budget, child deadline or success delegate changes. Static independent
+      review approves the test shape. A write-only preflight compares every default
+      provider/SDK authored file byte-for-byte to the exact `d2ff252c` helper and
+      checks both nested provider layouts, distinct facade imports and loaded root
+      oracle rows: one root row/six compiler children, or two root/math rows/twelve
+      children. It creates no generation candidate, grant or runtime result and
+      executes no provider or compiler check. Native qualification of the revised
+      one-provider control and new two-provider orchestration remains pending;
+      run them serially from clean frozen source without extending original limits.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
