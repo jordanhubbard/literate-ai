@@ -1,5 +1,6 @@
 """Real imports from synthetic compiled SDK fixtures, not lifecycle qualification."""
 
+import hashlib
 import json
 import os
 import shutil
@@ -15,10 +16,11 @@ from literate_ai.adapters.node_sdk_composition import (
     NodeSDKEntrypoint,
     materialize_node_sdk,
     node_sdk_provider_module_paths,
+    node_sdk_provider_package_files,
     prepare_node_sdk_composition,
     require_node_sdk_projection,
 )
-from literate_ai.contracts import LibraryImportSurface, canonical_identity
+from literate_ai.contracts import BlobRef, LibraryImportSurface, canonical_identity
 from literate_ai.contracts.node_sdk import (
     CommonJSModuleDeclaration,
     NodeSDKExportDeclaration,
@@ -133,6 +135,95 @@ class NodeSDKCompositionTests(unittest.TestCase):
         return prepare_node_sdk_composition(
             self.fixture.consumer, **dict(self.arguments, **changes)
         )
+
+    def prepare_provider_mode(self, mode):
+        original = self.fixture.blobs[self.artifact.blob.identity]
+        files = directory_artifacts.read_directory_export(
+            original, self.artifact.blob, max_bytes=1048576, max_entries=1000
+        )
+        content = directory_artifacts.encode_directory_export(
+            tuple(replace(file, mode=mode) for file in files),
+            max_bytes=1048576,
+            max_entries=1000,
+        )
+        artifact = replace(
+            self.artifact,
+            blob=BlobRef(
+                hashlib.sha256(content).hexdigest(),
+                len(content),
+                media_type=self.artifact.blob.media_type,
+            ),
+        )
+        self.fixture.blobs[artifact.blob.identity] = content
+        binding = replace(self.binding, artifact_identity=artifact.identity)
+        return self.prepare(
+            providers=(artifact,),
+            generation_bindings=(binding,),
+            build_bindings=(binding,),
+        )
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX private source modes")
+    def test_private_provider_copy_preserves_sealed_input_and_distinguishes_identity(
+        self,
+    ):
+        ordinary = self.prepare()
+        private = self.prepare_provider_mode(0o600)
+        package = private.providers.packages[0]
+        before = dict(self.fixture.blobs)
+        self.assertTrue(all(file.mode == 0o600 for file in package.files))
+        self.assertEqual(private.files, ordinary.files)
+        self.assertNotEqual(private.identity, ordinary.identity)
+        self.assertNotEqual(package.provider.identity, self.artifact.identity)
+        self.assertEqual(
+            private.to_dict()["provider_import_policy"],
+            "artifact-bytes-preserving-npm-modes-cjs-forwarders@2",
+        )
+        projected = node_sdk_provider_package_files(
+            package.provider, package.surface, package.files
+        )
+        prefix = (
+            "_providers/" + package.provider.component_revision.digest + "/artifact/"
+        )
+        for file in package.files:
+            self.assertIn(
+                DirectoryExportFile(prefix + file.path, file.content, 0o644), projected
+            )
+        self.assertEqual(self.fixture.blobs, before)
+        self.assertTrue(all(file.mode == 0o600 for file in package.files))
+        with self.assertRaisesRegex(ValueError, "regular portable files"):
+            replace(
+                private,
+                files=(replace(private.files[0], mode=0o600), *private.files[1:]),
+            )
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX private source modes")
+    def test_private_provider_projection_still_refuses_other_source_modes(self):
+        plan = self.prepare_provider_mode(0o600)
+        package = plan.providers.packages[0]
+        for mode in (0o400, 0o444, 0o666, 0o700, 0o777, 0o4644):
+            with self.subTest(mode=oct(mode)), self.assertRaises(ValueError):
+                node_sdk_provider_package_files(
+                    package.provider,
+                    package.surface,
+                    (replace(package.files[0], mode=mode), *package.files[1:]),
+                )
+
+    @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
+    def test_private_provider_copy_mode_drift_in_closing_callback_is_refused(self):
+        plan = self.prepare_provider_mode(0o600)
+        root = self.fixture.root / "private-mode-cut"
+        materialize_node_sdk(plan, root, require_current=lambda: None)
+        target = next(file for file in plan.files if "/artifact/" in file.path)
+        calls = []
+
+        def current():
+            calls.append(True)
+            if len(calls) == 2:
+                (root / target.path).chmod(0o600)
+
+        with self.assertRaisesRegex(ValueError, "changed before inventory close"):
+            require_node_sdk_projection(plan, root, require_current=current)
+        self.assertEqual(len(calls), 2)
 
     @unittest.skipUnless(os.name == "posix", "requires strong projection custody")
     def test_relocated_cjs_esm_root_subpath_and_error_identity(self):

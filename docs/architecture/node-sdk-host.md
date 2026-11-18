@@ -144,7 +144,27 @@ source/recovery, the supported-platform matrix or noneditable installed
 qualification. Downstream SDK cutover remains gated on those separate obligations.
 
 The opt-in cold-start regression in `test_canonical_sdk_cold_cache.py` is under
-qualification. The first native attempt at `109a9cb5` completed its seed
+qualification. The corrected `67633e19` run completes its seed, then fails cold
+SDK processing after 1,320.109 seconds because mode-0600 restored provider files
+are rejected by the SDK's 0644/0755-only inventory. Cache restoration must retain
+its private modes. The reviewed integration boundary is a new SDK-owned provider
+copy: preserve the original sealed artifact bytes, modes and identity; admit exact
+non-executable 0600 inputs locally; project copy modes under an explicit versioned
+npm policy while keeping generic SDK inventories strict. Focused source and fresh
+native cold qualification remain required. No cold acceptance follows from this
+failure. The provider-copy change now uses composition policy
+`artifact-bytes-preserving-npm-modes-cjs-forwarders@2`: original provider records
+and artifact identity retain 0600; only the new SDK-owned copy becomes 0644.
+Generic inventories still reject private modes. The independent declaration image
+binds its original artifact identity and complete projected files. The focused SDK
+Make suite selects 215 cases: 146 pass, 69 declared prerequisite skips, zero
+failures, in 114.328 seconds. Private sealed-input identity, source preservation,
+unsafe modes, callback-time output-mode drift and canonical tar modes are covered.
+Independent source review approves the two-file production drift and canonical TCB
+`3b4a7a4a3b5591fac413c8e2f46b1afc12f9f0755f6c6e5e25290000c676b3ff`.
+Fresh native cold qualification remains required.
+
+The first native attempt at `109a9cb5` completed its seed
 lifecycle and accepted-source publications, but failed before cold execution:
 its empty-regeneration record incorrectly retained the authority-change surface.
 The one-case run ended with one error after 1,265.063 seconds; all 2,017 frozen

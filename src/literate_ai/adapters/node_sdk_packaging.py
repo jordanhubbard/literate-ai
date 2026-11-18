@@ -40,8 +40,9 @@ def require_node_sdk_tarball(plan: NodeSDKCompositionPlan, content: bytes) -> No
     """Reopen all members and compare their paths, portable modes and exact bytes.
 
     npm normalizes non-executable files to 0644 and executable files to 0755 on
-    every platform. The source plan preserves original provider bytes and modes;
-    this transport rule does not authorize source or provider transformations.
+    every platform. Original sealed provider inventories retain their modes;
+    the separate SDK-owned provider copy uses the versioned composition policy.
+    This transport rule does not authorize source or provider transformations.
     Nothing is extracted or executed, including archive links and metadata.
     """
     if not isinstance(plan, NodeSDKCompositionPlan) or not isinstance(content, bytes):

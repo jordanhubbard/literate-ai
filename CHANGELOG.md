@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Preserve private cached provider artifacts while creating SDK-owned copies with
+  explicit npm mode projection. Keep generic SDK inventories strict, and bind the
+  new provider-copy policy and original artifact identity separately. Native cold
+  qualification remains pending.
+
 - Add an opt-in native cold-start SDK regression for durable provider source
   restoration and receipt-driven SDK regeneration, with fresh runtime ownership
   and unchanged authorization deadlines. Native qualification is tracked separately.

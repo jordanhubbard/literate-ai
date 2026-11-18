@@ -1307,7 +1307,7 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.
-      Next in progress: qualify actual durable provider-source restoration into a
+      The cold cell exercises actual durable provider-source restoration into a
       fresh host/runtime, with the original workspace/object paths unavailable.
       Fresh acceptance binds fresh generation custody and therefore changes the
       SDK's receipt-bound recipe: require an exact SDK cache miss and new authored
@@ -1323,6 +1323,24 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       construct both valid phase decisions before seed work, retaining the
       contract rejection and using source replacement for restored-source work.
       No cold result or deadline failure is inferred from this fixture error.
+      The corrected `67633e19` native rerun completes seed acceptance, then
+      fails cold SDK processing after 1,320.109 seconds: private cache restoration
+      correctly produces mode-0600 provider files, but SDK package projection
+      accepts only 0644/0755. All 2,017 Python inputs and selected tools remain
+      unchanged. Next in progress: preserve original sealed provider modes and
+      artifact identity, admit exact private non-executable 0600 inputs only at
+      the provider-copy boundary, and explicitly project consumer-owned SDK copies
+      using the existing npm modes under a versioned composition policy. Keep
+      generic SDK inventory rules and cache privacy unchanged. Require focused
+      private-provider, input-identity, unsafe-mode, projection-custody and package
+      controls plus a fresh original native cold run; do not infer a cold pass.
+      The reviewed provider-copy implementation keeps generic inventories strict
+      and binds original artifact identity plus explicit copy policy v2. Its SDK
+      Make gate passes 146 of 215 selected cases, with 69 prerequisite skips and
+      zero failures (114.328 seconds); private input/copy identity, unsafe modes,
+      callback-time mode cuts and tar mode controls pass. Independent review
+      approves the exact two-file production drift and canonical TCB repin.
+      Fresh native cold execution remains the next qualification action.
       Bind exact provider revision,
       interface, import surface, artifact bytes, target and declarations; preserve
       complete npm inventory admission and deny namespace/type collisions.

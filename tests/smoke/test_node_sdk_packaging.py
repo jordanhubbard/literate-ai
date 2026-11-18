@@ -68,6 +68,16 @@ class NodeSDKTarballTests(unittest.TestCase):
     def test_complete_tarball_is_reopened(self):
         require_node_sdk_tarball(self.plan, self.archive())
 
+    @unittest.skipUnless(os.name == "posix", "requires POSIX private source modes")
+    def test_private_provider_keeps_original_modes_and_requires_npm_archive_modes(self):
+        self.plan = self.fixture.prepare_provider_mode(0o600)
+        original_files = self.plan.providers.packages[0].files
+        self.assertTrue(all(file.mode == 0o600 for file in original_files))
+        require_node_sdk_tarball(self.plan, self.archive())
+        with self.assertRaisesRegex(ValueError, "mode differs"):
+            require_node_sdk_tarball(self.plan, self.archive(mode=0o600))
+        self.assertTrue(all(file.mode == 0o600 for file in original_files))
+
     def test_missing_changed_duplicate_link_mode_and_trailing_bytes_rejected(self):
         first = self.plan.files[0].path
         for changes in [

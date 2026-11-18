@@ -52,6 +52,7 @@ from literate_ai.contracts.paths import (
 MAX_SDK_FILES = 4096
 MAX_SDK_BYTES = 32 * 1024 * 1024
 SCHEMA = "literate-ai/node-sdk-composition-plan@1"
+PROVIDER_IMPORT_POLICY = "artifact-bytes-preserving-npm-modes-cjs-forwarders@2"
 
 
 def _data_mode() -> int:
@@ -178,7 +179,7 @@ class NodeSDKCompositionPlan:
             "files": [_file_record(file) for file in self.files],
             "packer_arguments": ["pack", "--ignore-scripts", "--offline", "--json"],
             "packer_policy": "owned-config-cache-output@1",
-            "provider_import_policy": "artifact-preserving-cjs-forwarders@1",
+            "provider_import_policy": PROVIDER_IMPORT_POLICY,
             "tool_environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
             "mode_policy": "npm-executable-0755-other-0644",
         }
@@ -260,7 +261,7 @@ def node_sdk_provider_package_files(
     surface: LibraryImportSurface,
     provider_files: tuple[DirectoryExportFile, ...],
 ) -> tuple[DirectoryExportFile, ...]:
-    """One byte-preserving package projection for already admitted inputs.
+    """One byte-preserving, npm-mode package copy of admitted provider inputs.
 
     SDK consumers and independent declaration verifiers share this owner. The
     caller retains artifact readback, current interface/target and execution
@@ -276,7 +277,28 @@ def node_sdk_provider_package_files(
         raise ValueError(
             "SDK v1 requires a direct declaration-bearing CommonJS library"
         )
-    provider_files = _files(provider_files)
+    if (
+        not isinstance(provider_files, tuple)
+        or not 1 <= len(provider_files) <= MAX_SDK_FILES
+    ):
+        raise ValueError("SDK requires a bounded immutable provider inventory")
+    original_files = tuple(snapshot_directory_file(file) for file in provider_files)
+    allowed_modes = (0o666, 0o777) if os.name == "nt" else (0o600, 0o644, 0o755)
+    if any(file.mode not in allowed_modes for file in original_files):
+        raise ValueError("SDK provider inventory requires regular portable files")
+    # Cache restoration intentionally keeps sources private. Preserve the sealed
+    # input's modes and CID; only this new consumer-owned package copy uses npm's
+    # distribution modes. Generic SDK inventories remain strict.
+    provider_files = _files(
+        tuple(
+            DirectoryExportFile(
+                file.path,
+                file.content,
+                _data_mode() if file.mode == 0o600 else file.mode,
+            )
+            for file in original_files
+        )
+    )
     require_declared_commonjs_files(
         surface, {file.path: file.content for file in provider_files}
     )
