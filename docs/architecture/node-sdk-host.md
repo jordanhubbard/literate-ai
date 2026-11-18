@@ -156,3 +156,21 @@ including repeated paths. The shared SDK tool environment policy v2 removes
 case-insensitive `NODE_`, `NPM_` and `LITAI_PROVIDER_` ambient variables after host
 binding composition, while retaining the explicitly selected clean tool inputs.
 None of these observations supplies an execution grant or extends BUILD expiry.
+
+
+Pinned authority revalidation uses a fresh bounded POSIX directory batch when the
+ordinary reader and native descriptor operations support it. It retains every
+ancestor, reserves one of the 64 descriptors for a file, preflights the complete
+file set, reads exact bounded bytes and closes original descriptor/name/directory
+observations and entry metadata before returning. There is no plan, metadata or
+payload cache across calls. Catalog discovery, original lock/audit checks and
+owner/clock/grant boundaries still run. Capacity or unavailable identity declines
+batching before payload validation; drift and I/O/close errors refuse. Windows
+and custom readers retain their existing ordinary path. This underlying reader
+fallback does not relax the SDK profile's separate strong-namespace requirement.
+
+The saved pinned-input stamp observation keeps primitive entry values, including
+original paths, boundaries, bytes and labels. Equal-value idempotent pinning is
+ordinary DATA; changing an aliased frozen entry cannot silently retarget an
+already captured observation. Local read benchmarks do not establish complete
+SDK throughput or extend the ordinary 30-minute BUILD authorization.

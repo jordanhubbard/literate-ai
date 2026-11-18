@@ -63,6 +63,33 @@ class PinnedInputClosureTests(unittest.TestCase):
                 with self.assertRaisesRegex(PinnedInputClosureError, "changed"):
                     guard()
 
+    @unittest.skipUnless(os.name == "posix", "requires original entry observation")
+    def test_original_stamps_reject_in_place_entry_value_changes(self):
+        for field, value in (
+            ("content", b"foreign"),
+            ("labels", ("foreign",)),
+            ("path", "different"),
+            ("boundary", "different"),
+        ):
+            with self.subTest(field=field), tempfile.TemporaryDirectory() as raw:
+                root = Path(raw).resolve()
+                path = root / "authority"
+                path.write_bytes(b"original")
+                closure = PinnedInputClosure()
+                closure.pin(path, boundary=root, label="authority")
+                guard = closure.capture_current_stamps()
+                # Value-equivalent idempotent admission is still ordinary DATA.
+                closure.pin(path, boundary=root, label="authority")
+                guard()
+                # Bind this guard to the actual current entry, rather than the
+                # old equal-value entry replaced by idempotent admission above.
+                guard = closure.capture_current_stamps()
+                entry = next(iter(closure._entries.values()))
+                replacement = root / value if field in {"path", "boundary"} else value
+                object.__setattr__(entry, field, replacement)
+                with self.assertRaisesRegex(PinnedInputClosureError, "changed"):
+                    guard()
+
     @unittest.skipUnless(os.name == "posix", "requires POSIX change timestamps")
     def test_original_stamps_reject_extended_closure(self):
         with tempfile.TemporaryDirectory() as directory:

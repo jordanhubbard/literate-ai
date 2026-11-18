@@ -1073,6 +1073,51 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       planning. Remove only proven redundant pure planning work; preserve original
       source/catalog/audit/lock custody, callback and clock boundaries, verifier
       grants, process cancellation and the ordinary 30-minute BUILD policy.
+      A fresh canonical two-provider/root-subpath DATA-only snapshot benchmark
+      at `41de5846` measures a 31.113 ms median over 20 unchanged validations
+      (30.310–32.590 ms), with no child, grant, model or lifecycle execution.
+      One profiled validation takes 74 ms: `plan_snapshot` accounts for 60 ms,
+      including 40 ms of catalog validation and 114 pinned-input reads. This
+      refines the earlier cumulative profile: repeated filesystem/path work,
+      not only pure planning, dominates. Keep catalog membership and source
+      discovery live; a cache keyed only by in-memory metadata could miss new
+      matching files and is rejected. The next implementation candidate is
+      bounded POSIX batching of already-pinned file validation through original
+      no-follow directory descriptors, sharing the existing safe directory opener.
+      Preserve per-file bytes/limits, final original directory/name checks and
+      source discovery, with unchanged ordinary fallback on Windows/custom readers.
+      Require alias/replacement, nonregular/oversized input, cleanup/descriptor and
+      compatibility controls plus independent source review and measured benefit
+      before using it to repeat complete SDK acceptance. A focused diagnostic
+      additionally shows the saved pinned-input stamp guard retains aliased frozen
+      entry DTOs: in-place content metadata replacement changes closure identity
+      while unchanged file stamps let the guard return. Share a primitive entry
+      value fence between the new read batch and persistent stamp guard; preserve
+      value-equivalent idempotent pinning and add maintained metadata controls.
+      This is an observation-integrity defect, not a demonstrated grant bypass.
+      The corrected maintained alias control reproduces four failed subcases in
+      0.004 seconds; its initial trial detached the entry alias through idempotent
+      pinning and is retained as a fixture-construction miss. Primitive entry-value
+      snapshots close that gap while keeping equal-value idempotent admission.
+      The per-call batch holds all original ancestors within 64 descriptors,
+      reserves one for payloads, preflights every file before any payload read and
+      closes original FD/name/directory, entry and limit observations afterward.
+      Unsupported capacity/identity falls back before payload validation; drift,
+      open and close errors fail without fallback. All 30 input/ancestry/scale
+      controls pass in 4.658 seconds; 29 shared cache/CycloneDX controls pass in
+      1.025 seconds. Controlled zero-ID facades are not native-platform evidence.
+      A balanced same-process 20-pair comparison to the exact committed original
+      read/safe-directory methods measures 48.933 versus 46.280 ms medians (5.4%
+      local reduction); an earlier pair measures 4.7%. This does not establish
+      full SDK throughput or expiry margin. A separate concrete-container
+      canonicalization probe yields only 1.8% and is rejected without source/ABI
+      changes. Independent source review reproduces the exact two-file delta and
+      `sha256:7cf942a2d296e343314b20dde27b61a6e6446cbcc3c56f2b1611953310e96e18`.
+      The broader SDK Make check selects 207 cases: 142 pass and 65 retain
+      prerequisite skips in 112.865 seconds. Lint, format, layout, path policy,
+      documentation review and project authority validation pass; the exact
+      reviewed source identity is recorded. Complete current SDK acceptance
+      remains required, preserving the ordinary 30-minute BUILD grant.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.

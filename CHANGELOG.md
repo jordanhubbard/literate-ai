@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Validate pinned inputs through bounded, fresh POSIX directory handles while
+  preserving ordinary-reader fallback and file/namespace checks. Saved stamp
+  guards now retain primitive entry values so in-place entry metadata changes
+  cannot escape through aliased frozen objects.
+
 - Attribute shared public-interface bytes deterministically across selected
   providers. Validate every origin, render equal bytes once, retain all exact
   dependency facts, and enforce provider fan-in from the original graph rather

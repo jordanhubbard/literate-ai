@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import stat
-from contextlib import suppress
+from contextlib import ExitStack, contextmanager, suppress
 from pathlib import Path
+from types import MappingProxyType
 
 _WINDOWS_REPARSE_POINT = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
 _NATIVE_OR_WASM_SUFFIXES = (
@@ -151,9 +152,7 @@ def require_safe_directory(path: Path, *, allow_missing: bool = False) -> Path:
 def _ensure_safe_directory_posix(
     directory: Path, *, mode: int, create: bool = True, allow_missing: bool = False
 ) -> None:
-    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_CLOEXEC", 0)
-    nofollow = getattr(os, "O_NOFOLLOW", 0)
-    descriptor = os.open(directory.anchor, flags | nofollow)
+    descriptor, _metadata = _open_readonly_directory_component(None, directory.anchor)
     try:
         for part in directory.parts[1:]:
             if part in {"", ".", ".."} or "/" in part:
@@ -161,7 +160,7 @@ def _ensure_safe_directory_posix(
                     f"unsafe directory path component: {part!r}"
                 )
             try:
-                child = os.open(part, flags | nofollow, dir_fd=descriptor)
+                child, _metadata = _open_readonly_directory_component(descriptor, part)
             except FileNotFoundError:
                 if not create:
                     if allow_missing:
@@ -176,7 +175,9 @@ def _ensure_safe_directory_posix(
                     # is a directory and not a link.
                     pass
                 try:
-                    child = os.open(part, flags | nofollow, dir_fd=descriptor)
+                    child, _metadata = _open_readonly_directory_component(
+                        descriptor, part
+                    )
                 except OSError as exc:
                     raise UnsafeFilesystemPathError(
                         f"directory component became unsafe: {part}"
@@ -185,17 +186,102 @@ def _ensure_safe_directory_posix(
                 raise UnsafeFilesystemPathError(
                     f"directory component is unsafe: {part}"
                 ) from exc
-            metadata = os.fstat(child)
-            if not stat.S_ISDIR(metadata.st_mode):
-                os.close(child)
-                raise UnsafeFilesystemPathError(
-                    f"directory component is not a directory: {part}"
-                )
             os.close(descriptor)
             descriptor = child
     finally:
         with suppress(OSError):
             os.close(descriptor)
+
+
+def _open_readonly_directory_component(parent, name):
+    """Open one no-follow directory component; never create any pathname."""
+    flags = (
+        os.O_RDONLY
+        | getattr(os, "O_DIRECTORY", 0)
+        | getattr(os, "O_CLOEXEC", 0)
+        | getattr(os, "O_NOFOLLOW", 0)
+    )
+    descriptor = os.open(name, flags, dir_fd=parent)
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISDIR(metadata.st_mode):
+            raise UnsafeFilesystemPathError("directory component is not a directory")
+        return descriptor, metadata
+    except BaseException:
+        os.close(descriptor)
+        raise
+
+
+@contextmanager
+def _readonly_directory_batch(paths: tuple[Path, ...], *, maximum_descriptors=64):
+    """Hold a bounded fresh POSIX directory view for one synchronous read batch.
+
+    Every ancestor consumes the descriptor budget, reserving one descriptor for
+    a file read. None means capacity or usable identity was unavailable BEFORE
+    file validation; drift and I/O/close failures never request fallback. There
+    are no writes, callbacks, cross-call caches or execution permissions here.
+    """
+    if type(paths) is not tuple or type(maximum_descriptors) is not int:
+        raise TypeError("read directory batch requires finite path and limit DATA")
+    if maximum_descriptors < 1:
+        raise ValueError("read directory descriptor limit must be positive")
+    inventory = {}
+    for raw in paths:
+        directory = Path(str(raw))
+        if not directory.is_absolute() or ".." in directory.parts:
+            raise UnsafeFilesystemPathError("read directory must be absolute")
+        for parent in (*reversed(directory.parents), directory):
+            inventory.setdefault(parent, None)
+            if len(inventory) + 1 > maximum_descriptors:
+                yield None
+                return
+
+    with ExitStack() as stack:
+        descriptors, originals = {}, {}
+        unavailable = False
+        for directory in inventory:
+            parent = descriptors.get(directory.parent)
+            name = directory.anchor if directory.parent == directory else directory.name
+            descriptor, value = _open_readonly_directory_component(parent, name)
+            stack.callback(os.close, descriptor)
+            descriptors[directory] = descriptor
+            if not value.st_ino:
+                unavailable = True
+                break
+            originals[directory] = value.st_dev, value.st_ino, value.st_mode
+
+        if not unavailable:
+
+            def current():
+                for directory, original in originals.items():
+                    held = os.fstat(descriptors[directory])
+                    named = (
+                        os.stat(directory, follow_symlinks=False)
+                        if directory.parent == directory
+                        else os.stat(
+                            directory.name,
+                            dir_fd=descriptors[directory.parent],
+                            follow_symlinks=False,
+                        )
+                    )
+                    if (
+                        (held.st_dev, held.st_ino, held.st_mode) != original
+                        or (named.st_dev, named.st_ino, named.st_mode) != original
+                        or stat_is_link_or_reparse(named)
+                    ):
+                        raise UnsafeFilesystemPathError(
+                            "original read directory binding changed"
+                        )
+
+            current()
+            try:
+                yield MappingProxyType(descriptors), current
+            finally:
+                current()
+            return
+    # Unknown identities are an optional optimization refusal. All descriptors
+    # are already closed, and no file validation has begun.
+    yield None
 
 
 def _ensure_safe_directory_windows(
