@@ -1192,6 +1192,23 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       the exact reviewed source pin is recorded. Complete two-provider acceptance
       still determines qualification; neither local timing nor source review
       establishes sufficient expiry margin.
+      The fresh full canonical two-provider/public-host/root-subpath case at clean
+      commit `e713cc8d` passes in 1,762.745 seconds. Both actual nested CommonJS
+      producers complete admission; SDK BUILD/cache/TEST/EXEC/PACKAGE, packaged
+      TEST/EXEC and independent packaged-root acceptance return successfully.
+      The original twelve-TypeScript/two-bare-CJS-ESM child matrix, original child
+      deadlines, ordinary 30-minute BUILD authorization, explicit 45-minute
+      provider verifier fixture policy and 15-minute root grant are unchanged.
+      No grant renewal/replay, reduced
+      cross-product or new mock supplies the pass. All 2,016 frozen Python files
+      match before/after inventories, with clean exact-commit source at exit zero.
+      Earlier full failures remain retained. Late CPU samples reach 95–100% busy;
+      the terminal pass supplies no paired whole-lifecycle performance claim or
+      guaranteed expiry margin. Next qualify the existing one-provider
+      authored-generator `runtime.execute` orchestration on this current
+      implementation, then close multi-provider orchestration, ordinary model,
+      durable cold-cache/recovery, platform/installed and default/cutover gates.
+      The full staged fixture alone does not establish those separate outcomes.
       Keep zero-provider policy separately refused.
       Default/public profile activation, remote/recovery support and complete
       source-cache lifecycle qualification remain open.

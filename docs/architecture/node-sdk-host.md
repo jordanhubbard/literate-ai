@@ -15,10 +15,12 @@ The configuration requires one TypeScript dual-format SDK root and a nonempty
 exact inventory of sealed CommonJS JavaScript providers with declarations. Its
 count ceiling shares the composition profile's existing 32-provider bound;
 aggregate byte/custody and liveness budgets remain independent and can refuse a
-smaller inventory. Native qualification currently covers two distinct-interface
-providers, not a 32-provider performance cell or a complete multi-provider SDK
-lifecycle. Zero providers, mixed native toolchain graphs and dependency-bearing
-provider layouts remain outside this host configuration's supported boundary.
+smaller inventory. Native qualification covers the complete explicit two-provider
+SDK lifecycle and independent packaged root/subpath acceptance on the macOS cell.
+It does not cover a 32-provider performance cell or complete current-candidate
+`runtime.execute` orchestration. Zero providers, mixed native toolchain graphs,
+and dependency-bearing provider layouts remain outside this host configuration's
+supported boundary.
 Identical public-interface bytes from distinct selected providers are rendered
 once. Both the locked adapter and bounded-context owner use the least selected
 provider revision URI as the source representative. Every selected origin is
@@ -126,7 +128,8 @@ callbacks before capturing original POSIX stamps. The same guard closes after
 runtime children, observers and the combined verifier's outer oracle exit.
 Unsupported strong namespace custody refuses before compiler children; ordinary
 legacy runtime checks retain their existing two-file namespace and identities.
-This mechanism is not native Windows or complete multi-provider qualification.
+This mechanism alone does not establish native Windows or complete multi-provider
+qualification. The full native case below supplies a separate bounded result.
 
 Within provider verification, fixed request description is separate from full
 subject custody. The public description API still performs full validation;
@@ -204,3 +207,20 @@ shape check after its blocking manifest read. Local asset resolution remains on
 its existing owner; catalog membership discovery and final input-closure
 validation run after the shared view closes. These checks add no execution grant
 or BUILD duration and do not qualify native Windows or identity-less filesystems.
+
+
+At clean commit `e713cc8d`, the complete canonical two-provider public-host case
+passes in 1,762.745 seconds. Both actual producers use their exact nested CommonJS
+runtime paths, with the throwing decoy retained. SDK BUILD/cache/TEST/EXEC/PACKAGE,
+packaged TEST/EXEC and independent packaged-root acceptance complete. The original
+root plus `sample/math` matrix retains twelve TypeScript children and two bare
+CommonJS/ESM runtime children, with the existing child deadlines and ordinary
+30-minute BUILD authorization. Provider verifier grants retain their explicit
+45-minute fixture policy; independent root acceptance retains its 15-minute grant.
+No grant is renewed or replayed to get this result. All 2,016 frozen
+Python source files remain unchanged and the source tree stays clean. Late CPU
+samples were busy; this pass is not a paired full-lifecycle performance measurement
+or a guarantee of expiry margin. The earlier failed full attempts remain evidence.
+This explicit staged host case does not replace current-candidate `runtime.execute`,
+ordinary model generation, durable cold recovery, installed/platform qualification,
+default activation or downstream Aviation cutover.

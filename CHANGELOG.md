@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Qualify the opt-in Python SDK host's complete native two-provider build,
+  cache, test, execution, packaging and independent packaged acceptance path,
+  including CommonJS/ESM root and subpath declarations/runtime probes. Retain
+  separate orchestration, model, recovery, installed and downstream-cutover gates.
+
 - Share bounded original directory topology across local catalog-reference reads,
   retaining fresh file/namespace checks and ordinary fallback. Fence reentrant
   reads, preserve original cleanup ownership and snapshot expected identities
