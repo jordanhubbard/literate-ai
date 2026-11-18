@@ -6336,6 +6336,27 @@ the reported failure.
   automatic path still requires verified artifact/evidence import before cleanup.
   Expiry-aware dispatch, active-job drainage, provider lifetime enforcement and
   native provider pilots remain required. Static workers retain their full backend.
+- **Native protocol evidence at `98c23928a`:** The noneditable current wheel
+  exercises the unchanged managed dispatcher over an existing Linux x86_64 SSH
+  route, using a private simulated provider and explicit fixture lifecycle handler.
+  The bounded experiment passes in 35.6 seconds: insufficient lifetime refuses
+  before launch; release drains an active job; exact cancellation survives a lost
+  reply and retries while new allocation is disabled; the actual late result
+  refuses acceptance; lost allocation recovery invokes the fake allocator once.
+  Both finite remote children finish, all three private aliases reach released,
+  and the real static catalog remains unchanged. This is protocol and transport
+  evidence, not real provider termination, canonical receiver/import/acknowledgement,
+  mid-job controller cleanup, GPU evidence or completion of this item.
+- **Post-result controller interruption at `98c23928a`:** A separate 34.4-second
+  control records an actual completed SSH command, then abruptly exits its
+  coordinator with status 23 before terminal dispatch publication. The durable
+  active attempt blocks retry before the handler; ordinary release drains, an
+  incorrect token leaves the journal unchanged, and exact cancellation/retry
+  reconciles one logical release. The private catalog ends empty and retained
+  static-catalog before/after bytes match. The first attempt stops at a private
+  floating-point serialization error before the intended exit and is retained
+  as failed, with its separate logical-lease recovery. This is not mid-job
+  controller-loss cleanup or canonical lifecycle/custody acceptance.
 - **Depends on:** current exact target/Flavor locking, artifact exports, explicit
   project-policy validation, source-cache identities and bounded parallel sample fan-out
 - **GitHub issue:** [#131](https://github.com/NVIDIA-dev/literate-ai/issues/131)
@@ -24388,6 +24409,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Current complete local qualification:** [Minimum/current Python source and whole-wheel record](../../verification/python-worker-wheel-inputs-linux.json) binds software `c733d96f80cd80b802e7aa4387cab2d7740e219a`. Both native Python 3.11.14 and 3.15.2 select 2,783 source cases: 2,683 pass, 100 retain declared skips, and all 599 raw groups reconcile with no failed or known-failed cases. Both complete noneditable wheel gates pass with the same framework distribution identity and exact reviewed pure PyYAML bytes; ordinary and uv worker paths install respectively 38 and 37 distributions with matching framework identities. Real empty/redirected input refusals precede installation. The earlier source-prefix failure and unconfigured binary-export failure remain preserved separately. Parent completion and issue closure await independent/exact integrated acceptance; no release acceptance is claimed.
 
+- **Fresh integrated candidate evidence at `98c23928a`:** The exact framework wheel
+  `44b2c088b3b55433b6e783cff2b25d9cc5da5b937bef3d60a70876b147394ba0`
+  passes independently reviewed native Linux ARM64 whole-wheel qualification on
+  Python 3.15.2 and 3.11.18. Both runs retain 183 successful spans; ordinary and uv
+  worker paths each install 37 distributions on Python 3.15 and 38 on Python 3.11,
+  with matching framework identity. Actual empty/redirected inputs refuse before
+  observed Python subprocess launch and leave no output. The Python 3.15 source gate passes 2,969 cases with
+  216 declared skips, and a separate explicit-pip fixture supplement passes 20 of
+  those skipped cases. Earlier input, image-loader and historical missing-evidence
+  failures remain separate; this fresh proof does not recreate absent historical
+  raw records or establish resulting-main/release acceptance.
+
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
 - **Release target:** 1.4.0
@@ -24403,6 +24436,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
   provided-input installed-wheel gates. The causal installed-CLI probe passes
   only the canonical spelling with all 36 dependency wheel bytes unchanged;
   the earlier network and aliased-input failures remain unqualified attempts.
+
+- **Qualification progress at `98c23928a`:** The harness-owned path correction
+  passes the fresh full macOS source gate (3,084 passed, 101 declared skips),
+  all 182 whole-wheel spans, and a separate model-free installation using the
+  same qualified wheel. Original network and aliased-input attempts stay failed.
+  A real Linux x86_64/Python 3.14 installed adoption journey separately passes
+  failure/repair, contained unchanged/no-op updates and removal with native files,
+  HEAD, existing
+  application staging and custom content preserved; only owned removals are staged.
+  It is not a hosted governed PR. Current-head
+  CI run `44312804737` finishes with 14 passing jobs, one skip and a mandatory
+  OpenSpec advisory failure before Python; GitGuardian also fails without a
+  disposition. No security, platform, goal or release obligation is waived.
 
 - **Priority:** P0
 - **Owner:** Original adoption, project context, release observation and worker provisioning owners

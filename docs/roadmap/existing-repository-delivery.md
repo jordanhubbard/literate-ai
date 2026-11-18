@@ -1226,3 +1226,51 @@ canonicalizing only the newly created harness workspace before staging snapshots
 Arbitrary redirected user-input paths retain their fail-closed guard. The probe
 is diagnostic evidence; a fresh complete source gate and complete installed-wheel
 gate remain required, and none of the three failed attempts qualifies c37ea0c.
+
+### Fresh candidate platform and worker protocol evidence
+
+At `98c23928add1c8c524a8aa3f36a0555479e59ca0`, the owned-workspace correction
+passes the complete fresh macOS source gate (3,084 pass, 101 declared skips),
+182 complete wheel spans and a separate canonical model-free install. The same
+wheel passes native Linux ARM64/Python 3.15.2 and 3.11.18 complete whole-wheel
+runs, each with 183 successful spans and non-null ordinary/uv worker paths.
+Framework and dependency identities are checked across installation; actual
+empty and redirected dependency-input controls refuse before observed Python
+subprocess launches. The earlier network, alias and copied-interpreter loader
+failures stay failed. Historical missing raw evidence is not reconstructed.
+
+A separate actual static-worker Linux x86_64/Python 3.14 adoption journey passes
+native failure/repair, unchanged/no-op update and removal while preserving
+application bytes,
+HEAD, existing application staging and custom content while staging only owned
+removals. A restricted downloader initially refuses its
+private evidence path; bounded read-only SSH recovers the existing digest-verified
+bundle without rerunning the job. This is not a hosted governed PR or GPU proof.
+
+A 35.6-second experiment then exercises the installed current dispatcher over
+real SSH beneath a private simulated lease provider. It verifies lifetime
+refusal before launch, active-job drain, exact cancellation with lost-reply
+recovery while allocation is disabled, late-result rejection and recovery without
+a duplicate allocation call. Both finite remote children finish; the private
+catalog is empty and actual static registrations are unchanged. The explicit
+fixture lifecycle handler does not prove canonical receiver execution, custody
+import/acknowledgement, real provider termination, mid-job controller cleanup
+or release qualification. Those acceptance boundaries remain open.
+
+A separate 34.4-second post-result interruption control completes a real finite
+SSH command, then exits its coordinator with status 23 before the managed dispatch
+context can record completion. The active journal survives; retry refuses before
+the handler or SSH launch. Ordinary release drains without calling the provider;
+a wrong token leaves the journal unchanged; exact cancellation and retry use one
+logical release. Retained static catalog bytes match before/after. Its first
+attempt fails on a private fixture float in canonical JSON before the intended
+exit; that failed run and separate logical-lease recovery remain preserved.
+This proves the post-result/pre-publication boundary, not mid-job process loss,
+remote physical termination or canonical lifecycle artifact acceptance.
+
+Current-head CI run `44312804737` reports 14 passing jobs, one skip and a mandatory
+OpenSpec advisory failure in the Linux Python 3.11 job, which completes in 62
+seconds. Documentation validation and the native coverage pilot pass; GitGuardian remains failed without
+a disposition. This continues to demonstrate early refusal rather than remediation.
+The source and wheel evidence above belongs to the exact named candidate; no
+result is promoted to resulting-main or complete-release acceptance.
