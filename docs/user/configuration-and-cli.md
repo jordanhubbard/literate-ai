@@ -581,8 +581,8 @@ root-integration acceptance still remain.
 | `video build MANIFEST --output DIR --font FILE [--narration recorded\|say\|espeak]` | Render a new MP4, embedded subtitles, SRT, VTT, and integrity receipt; see [instructional videos](instructional-videos.md). |
 | `video verify RECEIPT [--manifest MANIFEST]` | Verify media integrity, caption timing, and optionally current source identity. |
 | `skills evaluate CORPUS [--project PATH] [--fire-threshold N] [--fragile-threshold N]` | Run a synthetic prompt corpus against the real skill catalog and classify each outcome as correct/misroute/over_greedy/fragile_pass -- a behavioral check that a skill's own description would distinguish it, distinct from validate's structural checks. |
-| `catalog graph [--project PATH]` | Inspect the repository provenance DAG rooted at Literate AI. |
-| `catalog copy SOURCE ITEM [ITEM ...] [--project PATH]` | Copy selected Flavor, Skill, or Component catalog items from another Literate AI project. Exact Git commit pins fetch shallow ancestry and selected catalog directories, requesting blob filtering from the server; initialize only relevant submodules at the selected snapshot. Servers without filtering may transfer extra bytes. Provenance retains the resolved commit. |
+| `catalog graph [--project PATH]` | Inspect the repository provenance DAG rooted at Literate AI. For a declared contained layout, discovery from an application subdirectory resolves the catalog provenance under `litai/.literate`. |
+| `catalog copy SOURCE ITEM [ITEM ...] [--project PATH]` | Copy selected Flavor, Skill, or Component catalog items from another Literate AI project. Exact Git commit pins fetch shallow ancestry and selected catalog directories, requesting blob filtering from the server; initialize only relevant submodules at the selected snapshot. Servers without filtering may transfer extra bytes. Provenance retains the resolved commit. A declared contained source uses `litai/.literate` for its provenance and the existing catalog paths relative to the application. Copy validates contained ancestry and checks any selected import against its recorded file identities using portable paths. The destination uses the legacy root layout. |
 | `clean [--project PATH]` | Remove only the marked host-specific `OBJ_DIR`. |
 | `really-clean [--project PATH]` | Ensure marked `OBJ_DIR` and generated-source `BUILD_DIR` are absent. This also removes deliberately tracked or uncommitted entries beneath `BUILD_DIR`. |
 | `component migrate COMPONENT\|PROJECT [--check\|--diff]` | Non-destructively project legacy `component.json` into readable `component.md`; project mode is one preflighted transaction, preserves every legacy file, and never overwrites authored prose. |
@@ -591,6 +591,9 @@ root-integration acceptance still remain.
 | `project validate [PATH]` | Non-mutating validation of the discovered project, catalogs, pins, skills, and generation inputs. |
 | `project tracker inspect [PATH]` | Read Git remotes and name `gh` or `glab` plus issue/review/CI/land argv. Unknown hosts skip tracker work fail closed. |
 | `project lifecycle rebind-standard [PLAN] [--project PATH] [--registered-parent PATH] [--output FILE] [--apply --authorize-rebind]` | Plan an exact installed-wheel Standard first binding or update without mutation, or compare-and-swap an explicitly reviewed plan while preserving project-owned receipt authority and coordinating a registered parent. |
+| `project layout plan [--project PATH] [--migration] [--rewrite-reference PATH]` | Inventory legacy and contained project placement. Use `--migration` in a retained legacy Git project to inspect the supported manifest and producer-record moves, held paths, and unresolved references. Review each proposed reference edit by repository-relative Markdown path. |
+| `project layout apply --project PATH --plan-identity SHA256 --acknowledge [--rewrite-reference PATH]` | Apply the exact reviewed migration plan. Repeat the same reference approvals. The operation retains rollback data in the project's Git administration directory. |
+| `project layout recover --project APPLICATION_ROOT --plan-identity SHA256 --acknowledge` | Roll back a placement using exact original bytes, modes, and file identities. Recovery requires the application Git root and refuses changed or foreign files. |
 | `project adopt-original [--project PATH] [--apply --acknowledge --expected-plan-identity SHA256]` | Review a validated canonical project's clean Git commit/tree and explicitly select original source authority with metadata-only writes. Preserve source layout; refuse stale plans, dirty or unsafe roots, existing evidence/authority and legacy conversion transitions. This grants no execution or release admission. |
 | `project convert-stage show [--project PATH]` | Read the canonical evidence-bound conversion authority state for an adopted project. |
 | `project convert-stage advance --to retained\|drafted\|qualified [--project PATH]` | Advance exactly one adjacent stage after independently verifying the current receipt or Component-promotion evidence. No command silently promotes a tree. |
@@ -2450,6 +2453,36 @@ The command supports wrapped, retained and drafted converted projects. It refuse
 original-unconverted and specification-qualified authority. After migration,
 refresh retained membership below and run/adopt a fresh retained receipt under
 the new project identity. The rename itself never proves qualification.
+
+### Place retained legacy project metadata
+
+Run the read-only migration plan from the application root or a subdirectory.
+The supported migration places the canonical manifest and recognized retained
+producer records under `litai/`. Native commands still resolve from the
+application root. Review the plan's `held` and `remaining` entries for catalog
+and documentation references, evidence renewal, and paths that need an
+ownership decision. The result reports whether placement is complete.
+
+An ordinary inline Markdown link to a moved file requires explicit approval
+before the migration may rewrite it. Use the same repository-relative
+`--rewrite-reference` values to plan and apply. Shared root integrations and
+native implementation remain under their existing owners.
+
+```sh
+litai project layout plan --migration --project PATH
+litai project layout plan --migration --project PATH --rewrite-reference docs/user/project-layout.md
+litai project layout apply --project PATH --plan-identity sha256:REVIEWED_DIGEST --acknowledge --rewrite-reference docs/user/project-layout.md
+```
+
+After an interruption, use `project layout recover` from the application Git
+root with the same reviewed digest. If recovery reports a conflict, inspect the
+named changed file and retained Git journal before retrying. The placement writer
+requires an exclusive same-filesystem rename on a supported POSIX host.
+
+Refresh retained scope and earn a new native test receipt after placement.
+Verification reports the current authority and receipt gates. During partial
+placement, update reports root template additions and dependent Markdown changes
+that need a contained destination under `layout-pending`.
 
 ### Refreshing retained source membership
 

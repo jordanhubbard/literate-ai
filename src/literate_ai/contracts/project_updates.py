@@ -98,10 +98,15 @@ class ProjectUpdateFile:
             or any(
                 not isinstance(value, str) or not value for value in self.compatibility
             )
-            or not self.compatibility[0].startswith(("project.skill_", "agent_skill."))
+            or (
+                self.compatibility[0] != "project.update_layout_pending"
+                and not self.compatibility[0].startswith(
+                    ("project.skill_", "agent_skill.")
+                )
+            )
         ):
             raise ValueError(
-                "update compatibility must bind a skill-catalog diagnostic"
+                "update compatibility must bind a skill or layout diagnostic"
             )
 
     @property

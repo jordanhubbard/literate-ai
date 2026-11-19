@@ -192,7 +192,12 @@ def apply_project_update(
         if item.compatibility is not None:
             if item.path in resolutions:
                 raise ProjectUpdateError(*item.compatibility)
-            refused.setdefault("dependency-incompatible", []).append(item.path)
+            reason = (
+                "layout-pending"
+                if item.compatibility[0] == "project.update_layout_pending"
+                else "dependency-incompatible"
+            )
+            refused.setdefault(reason, []).append(item.path)
             continue
         if item.path not in selected:
             if item.classification in (
