@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Admit static release checkouts by complete repository identity and verified
+  ownership before synchronization. Hold one exact reservation through transfer
+  and the native gate. Preserve foreign work, older basename checkouts and ignored
+  cache collisions; distinguish repositories addressed through different SSH
+  accounts (#488).
+
 - Add a read-only project containment plan that keeps retained application paths,
   separates producer provenance and shared root integrations, and reports the
   unresolved references and recovery dependencies before migration. Contained

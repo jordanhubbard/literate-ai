@@ -34,7 +34,19 @@ class RetainedCargoInputScopeV2:
 
     @property
     def identity(self):
-        value = {
+        value = self._identity_document()
+        if self._scratch is not None:
+            value["scratch_context"] = self._scratch.context.identity.uri
+        return canonical_identity(value)
+
+    def _captured_identity(self):
+        value = self._identity_document()
+        if self._scratch is not None:
+            value["scratch_context"] = self._scratch.context._captured_identity().uri
+        return canonical_identity(value)
+
+    def _identity_document(self):
+        return {
             "schema": "literate-ai/retained-cargo-input-scope@2",
             "policy": self.policy.identity.uri,
             "environment": self.environment_identity.uri,
@@ -43,9 +55,6 @@ class RetainedCargoInputScopeV2:
                 {"scope": scope, "path": str(root)} for scope, root in self.roots
             ],
         }
-        if self._scratch is not None:
-            value["scratch_context"] = self._scratch.context.identity.uri
-        return canonical_identity(value)
 
     def require_unchanged(self, *, environment: Mapping[str, str]):
         if self._scratch is not None:

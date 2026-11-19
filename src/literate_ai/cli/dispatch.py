@@ -393,6 +393,8 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return report, 0 if report["ready"] else 1
         if args.project_command == "layout":
             report = project_layout_from_args(args)
+            if args.layout_command != "plan" or args.migration:
+                return report, 0
             return report, 0 if report["planning_complete"] else 1
         if args.project_command == "ci-plan":
             return project_ci_plan_from_args(args), 0
@@ -2046,13 +2048,30 @@ def _parser() -> JsonArgumentParser:
     project_validate = project_commands.add_parser("validate")
     project_validate.add_argument("path", nargs="?", default=".")
     project_layout = project_commands.add_parser(
-        "layout", help="inspect a legacy containment plan without writes"
+        "layout", help="plan or apply acknowledged legacy framework placement"
     )
     layout_commands = project_layout.add_subparsers(
         dest="layout_command", required=True, parser_class=JsonArgumentParser
     )
     layout_plan = layout_commands.add_parser("plan")
     layout_plan.add_argument("--project", default=".")
+    layout_plan.add_argument("--migration", action="store_true")
+    layout_plan.add_argument("--place-forward-skills", action="store_true")
+    layout_plan.add_argument("--place-imported-catalogs", action="store_true")
+    layout_plan.add_argument("--place-release-policy", action="store_true")
+    layout_plan.add_argument("--rewrite-reference", action="append", default=[])
+    for operation in ("apply", "recover"):
+        layout_action = layout_commands.add_parser(operation)
+        layout_action.add_argument("--project", default=".")
+        layout_action.add_argument("--plan-identity", required=True)
+        layout_action.add_argument("--acknowledge", action="store_true")
+        if operation == "apply":
+            layout_action.add_argument("--place-forward-skills", action="store_true")
+            layout_action.add_argument("--place-imported-catalogs", action="store_true")
+            layout_action.add_argument("--place-release-policy", action="store_true")
+            layout_action.add_argument(
+                "--rewrite-reference", action="append", default=[]
+            )
     project_guidance = project_commands.add_parser(
         "guidance", help="project configured policy for one repository operation"
     )
