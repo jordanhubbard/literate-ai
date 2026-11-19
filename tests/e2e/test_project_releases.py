@@ -857,7 +857,7 @@ class ProjectReleaseTests(unittest.TestCase):
                 )
 
         with tempfile.TemporaryDirectory() as temporary:
-            parent = Path(temporary)
+            parent = Path(temporary).resolve()
             root, _ = self.initialize(parent)
             home = parent / "worker-home"
             operator = home / "ws"
@@ -911,13 +911,16 @@ class ProjectReleaseTests(unittest.TestCase):
                     return_value=None,
                 ),
             ):
-                checkout = operator / "release" / root.name
                 for change in ("first", "second"):
                     if change == "second":
                         (root / "later.txt").write_text("later\n", encoding="utf-8")
                         self.git(root, "add", "later.txt")
                         self.git(root, "commit", "-m", "Later")
                     record = qualify_release(root, output=root / "_build/q.json")
+                    namespace = operator / ".litai-release-v2"
+                    (checkout,) = (
+                        path for path in namespace.iterdir() if path.is_dir()
+                    )
                     self.assertEqual(record["coverage"][0]["tier"], "worker")
                     self.assertEqual(
                         self.git(checkout, "rev-parse", "HEAD"),
@@ -935,7 +938,11 @@ class ProjectReleaseTests(unittest.TestCase):
                     (operator / "mine.txt").read_text(encoding="utf-8"),
                     "operator work\n",
                 )
-                self.assertFalse((checkout / ".git/litai-sync.bundle").exists())
+                self.assertFalse((operator / "release" / root.name).exists())
+                self.assertEqual(
+                    list((checkout / ".git").glob("litai-sync-*.bundle")), []
+                )
+                self.assertFalse((checkout / ".git/litai-release-reservation").exists())
 
             class HangingGateRunner(LocalRunner):
                 """The sync succeeds; the gate itself then exceeds its deadline."""
