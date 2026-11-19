@@ -11,6 +11,7 @@ from literate_ai.adapters.node_sdk_composition import (
     MAX_SDK_FILES,
     NodeSDKCompositionPlan,
     NodeSDKEntrypoint,
+    node_sdk_legal_package_files,
     node_sdk_provider_files,
     prepare_node_sdk_composition,
     prepare_node_sdk_providers,
@@ -78,7 +79,7 @@ def compile_node_sdk_plan(
     ):
         raise TypeError("SDK compilation requires exact source/tools and current owner")
     source_files = _inventory(source_files, maximum=MAX_SDK_FILES)
-    licenses = _inventory(licenses, maximum=MAX_SDK_FILES)
+    licenses = node_sdk_legal_package_files(_inventory(licenses, maximum=MAX_SDK_FILES))
     source_authority = ContentIdentity.parse_uri(source_authority.uri)
     packer = ContentIdentity.parse_uri(packer.uri)
     if (

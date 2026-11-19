@@ -15,12 +15,15 @@ from literate_ai.adapters.directory_artifacts import DirectoryExportFile
 from literate_ai.adapters.node_sdk_composition import (
     NodeSDKEntrypoint,
     materialize_node_sdk,
+    node_sdk_legal_package_files,
     node_sdk_provider_module_paths,
     node_sdk_provider_package_files,
     prepare_node_sdk_composition,
     require_node_sdk_projection,
 )
+from literate_ai.adapters.source_generation import _materialize_authored_asset
 from literate_ai.contracts import BlobRef, LibraryImportSurface, canonical_identity
+from literate_ai.contracts.executable_components.assets import AuthoredBinaryAsset
 from literate_ai.contracts.node_sdk import (
     CommonJSModuleDeclaration,
     NodeSDKExportDeclaration,
@@ -135,6 +138,64 @@ class NodeSDKCompositionTests(unittest.TestCase):
         return prepare_node_sdk_composition(
             self.fixture.consumer, **dict(self.arguments, **changes)
         )
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX private asset modes")
+    def test_private_authored_legal_asset_has_separate_portable_package_copy(self):
+        content = b"fixture license\n"
+        root = self.fixture.root / "authored-legal"
+        root.mkdir()
+        asset = AuthoredBinaryAsset(
+            self.fixture.consumer.component_revision,
+            "sdk-license",
+            "LICENSE",
+            "node-sdk-legal",
+            self.fixture.consumer.artifact_export.target_identity,
+            BlobRef(hashlib.sha256(content).hexdigest(), len(content)),
+            canonical_identity("explicit authored legal fixture"),
+        )
+        _materialize_authored_asset(root, asset, content)
+        original = DirectoryExportFile(
+            "LICENSE",
+            (root / "LICENSE").read_bytes(),
+            (root / "LICENSE").stat().st_mode & 0o777,
+        )
+        self.assertEqual(original.mode, 0o600)
+        with self.assertRaisesRegex(ValueError, "regular portable"):
+            self.prepare(licenses=(original,))
+        projected = node_sdk_legal_package_files((original,))
+        self.assertEqual(projected, (replace(original, mode=0o644),))
+        self.assertEqual(original.mode, 0o600)
+        self.assertEqual((root / "LICENSE").stat().st_mode & 0o777, 0o600)
+        self.assertEqual((root / "LICENSE").read_bytes(), content)
+        plan = self.prepare(licenses=projected)
+        self.assertEqual(
+            plan.to_dict()["legal_projection_policy"],
+            "authored-legal-bytes-preserving-npm-modes@1",
+        )
+        for mode in (0o644, 0o755):
+            row = replace(original, mode=mode)
+            self.assertEqual(node_sdk_legal_package_files((row,)), (row,))
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX input mode controls")
+    def test_legal_projection_preserves_mode_path_alias_and_count_refusals(self):
+        row = DirectoryExportFile("LICENSE", b"fixture license\n", 0o600)
+        for mode in (0o400, 0o640, 0o664, 0o666, 0o700, 0o777, 0o4644):
+            with self.subTest(mode=oct(mode)), self.assertRaises(ValueError):
+                node_sdk_legal_package_files((replace(row, mode=mode),))
+        for files in (
+            (),
+            (row,) * 4097,
+            (row, row),
+            (row, replace(row, path="license")),
+            (replace(row, path="source/LICENSE"),),
+            (replace(row, path="src/index.ts"),),
+            (replace(row, content=b"x" * (32 * 1024**2 + 1)),),
+        ):
+            with (
+                self.subTest(paths=[r.path for r in files[:2]]),
+                self.assertRaises(ValueError),
+            ):
+                node_sdk_legal_package_files(files)
 
     def prepare_provider_mode(self, mode):
         original = self.fixture.blobs[self.artifact.blob.identity]

@@ -53,6 +53,7 @@ MAX_SDK_FILES = 4096
 MAX_SDK_BYTES = 32 * 1024 * 1024
 SCHEMA = "literate-ai/node-sdk-composition-plan@1"
 PROVIDER_IMPORT_POLICY = "artifact-bytes-preserving-npm-modes-cjs-forwarders@2"
+LEGAL_PROJECTION_POLICY = "authored-legal-bytes-preserving-npm-modes@1"
 
 
 def _data_mode() -> int:
@@ -118,6 +119,40 @@ def _files(files: tuple[DirectoryExportFile, ...]) -> tuple[DirectoryExportFile,
     return tuple(sorted(files, key=lambda file: file.path))
 
 
+def node_sdk_legal_package_files(
+    files: tuple[DirectoryExportFile, ...],
+) -> tuple[DirectoryExportFile, ...]:
+    """Project selected legal DATA into new package copies; retain source custody.
+
+    Authored immutable overlays are private. The caller keeps the original
+    source identity and byte/mode guards; this copy grants no legal authority.
+    Generic SDK inventories continue to require portable distribution modes.
+    """
+    if type(files) is not tuple or not 1 <= len(files) <= MAX_SDK_FILES:
+        raise ValueError("SDK requires a bounded immutable legal inventory")
+    original = tuple(snapshot_directory_file(file) for file in files)
+    allowed_modes = (0o666, 0o777) if os.name == "nt" else (0o600, 0o644, 0o755)
+    if any(
+        file.mode not in allowed_modes
+        or "/" in file.path
+        or not file.path.startswith(("LICENSE", "NOTICE"))
+        for file in original
+    ):
+        raise ValueError(
+            "SDK legal inputs require root legal files and supported modes"
+        )
+    return _files(
+        tuple(
+            DirectoryExportFile(
+                file.path,
+                file.content,
+                _data_mode() if file.mode == 0o600 else file.mode,
+            )
+            for file in original
+        )
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class NodeSDKCompositionPlan:
     consumer: ContentIdentity
@@ -180,6 +215,7 @@ class NodeSDKCompositionPlan:
             "packer_arguments": ["pack", "--ignore-scripts", "--offline", "--json"],
             "packer_policy": "owned-config-cache-output@1",
             "provider_import_policy": PROVIDER_IMPORT_POLICY,
+            "legal_projection_policy": LEGAL_PROJECTION_POLICY,
             "tool_environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
             "mode_policy": "npm-executable-0755-other-0644",
         }

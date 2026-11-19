@@ -450,6 +450,20 @@ Those focused controls substitute unrelated assembly and do not qualify tools,
 oracles or admission. Independent review approves this fixture-only change;
 fresh measurement and unprofiled installed acceptance remain required. Process
 polls, production checks and the 15-second probe deadline are unchanged.
+
+The fresh diagnostic at `213b1fa1` passed its guarded probes and failed later in
+BUILD on legal-file inventory modes (559.920 seconds for the case), with unchanged
+frozen inputs and no observer capture errors. Original authored immutable assets
+are deliberately materialized as private `0600` files. SDK compilation now makes
+a separate byte-preserving legal copy under
+`authored-legal-bytes-preserving-npm-modes@1`, accepting only original private
+`0600` and existing portable modes and mapping private copies to `0644`. Original
+source files, modes, custody identities and stamp guards remain authoritative.
+Root LICENSE/NOTICE paths and inventory bounds/aliases remain enforced; generic
+SDK inventories still reject private modes. Composition and compiled-cache
+identities explicitly bind the new policy, preventing historical cache reuse
+under changed semantics. This preserves Windows mode conventions without
+claiming Windows qualification. Installed acceptance remains required.
 Focused actual-child and diagnostic controls accompany these fixes. The earlier
 zero-child probe passed full project authority validation, two-node preparation
 and canonical workflow compilation. A fresh installed authored rebuild is still

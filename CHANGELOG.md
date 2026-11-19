@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Project private authored SDK legal assets into separate portable package copies,
+  preserving original source custody and mode guards. Bind the legal-copy policy
+  into composition and build-cache identities; generic inventories stay strict.
+
 - Keep authored SDK rebuild project-configuration checks in its callback and
   snapshot validation in the original host owner, removing a duplicate fixture
   traversal without changing production guards or deadlines.

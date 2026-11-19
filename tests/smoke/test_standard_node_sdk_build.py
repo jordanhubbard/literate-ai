@@ -4,6 +4,7 @@ The consumer is authored deterministic fixture source with an inert plan, not
 model output or an installed/public-profile lifecycle qualification.
 """
 
+import hashlib
 import json
 import os
 import shutil
@@ -23,6 +24,7 @@ from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecycle
 from literate_ai.adapters.lifecycle.standard_node_sdk import StandardNodeSDKTarget
 from literate_ai.adapters.node_sdk_composition import node_sdk_provider_module_paths
 from literate_ai.adapters.node_sdk_tools import node_sdk_tool_environment
+from literate_ai.adapters.source_generation import _materialize_authored_asset
 from literate_ai.application.artifact_graph import (
     create_artifact_build_graph,
     realize_manifest,
@@ -33,6 +35,7 @@ from literate_ai.application.component_generation_context import (
 )
 from literate_ai.application.standard_node_sdk_admission import run_node_sdk_lifecycle
 from literate_ai.contracts import (
+    BlobRef,
     ContentIdentity,
     StandardNodeSDKCommandProfile,
     canonical_identity,
@@ -40,6 +43,7 @@ from literate_ai.contracts import (
 from literate_ai.contracts.executable_components.artifacts import (
     artifact_driver_composition_identity,
 )
+from literate_ai.contracts.executable_components.assets import AuthoredBinaryAsset
 from literate_ai.contracts.node_sdk import NodeSDKExportDeclaration
 from literate_ai.security.policy import AuthorizationError
 from tests.smoke import test_node_sdk_admission as admission_fixture
@@ -149,7 +153,20 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
             "import provider = require(" + json.dumps("../" + wrapper) + ");\n"
             "export const add=provider.add;export class SDKError extends Error {}\n"
         )
-        (self.source / "LICENSE").write_text("Fixture license.\n")
+        legal = b"Fixture license.\n"
+        _materialize_authored_asset(
+            self.source,
+            AuthoredBinaryAsset(
+                f.consumer.component_revision,
+                "sdk-license",
+                "LICENSE",
+                "node-sdk-legal",
+                f.consumer.artifact_export.target_identity,
+                BlobRef(hashlib.sha256(legal).hexdigest(), len(legal)),
+                canonical_identity("explicit authored build fixture legal asset"),
+            ),
+            legal,
+        )
         (self.source / "source/tests").mkdir(parents=True)
         (self.source / "source/tests/litai_test.cjs").write_text(
             "const p=require('node:path');"
@@ -220,6 +237,17 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
             self.ports.test(self.plan, built.exports)
             self.ports.execute(self.plan, built.exports)
             metadata = json.loads((artifact / "node-sdk.json").read_bytes())
+            self.assertEqual(
+                (self.source / "LICENSE").read_bytes(), b"Fixture license.\n"
+            )
+            if os.name == "posix":
+                self.assertEqual(
+                    (self.source / "LICENSE").stat().st_mode & 0o777, 0o600
+                )
+            self.assertEqual(
+                metadata["composition"]["legal_projection_policy"],
+                "authored-legal-bytes-preserving-npm-modes@1",
+            )
             bom = json.loads(self.ports.resolved_sbom_content(built.evidence))
             self.assertEqual(
                 ContentIdentity.from_dict(metadata["composition"]["compiler"]),
@@ -241,6 +269,11 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
             archive = root / "sdk.tgz"
             archive.write_bytes(tarball)
             with tarfile.open(archive) as source:
+                legal = source.getmember("package/LICENSE")
+                self.assertEqual(
+                    source.extractfile(legal).read(), b"Fixture license.\n"
+                )
+                self.assertEqual(legal.mode, 0o644)
                 source.extractall(root, filter="data")
             installed = root / "node_modules/fixture-sdk"
             installed.parent.mkdir()
@@ -545,6 +578,37 @@ class StandardNodeSDKBuildTests(unittest.TestCase):
             self.assertNotIn(
                 self.plan.component_revision.uri, self.ports._planned_exports
             )
+
+        self.owned(build)
+
+    @unittest.skipUnless(os.name == "posix", "requires original POSIX mode mutation")
+    def test_legal_projection_callback_cannot_change_original_asset_mode(self):
+        from literate_ai.adapters import node_sdk_build
+
+        original = node_sdk_build.node_sdk_legal_package_files
+
+        def project(files):
+            result = original(files)
+            self.assertEqual(next(f.mode for f in files if f.path == "LICENSE"), 0o600)
+            self.assertEqual(next(f.mode for f in result if f.path == "LICENSE"), 0o644)
+            (self.source / "LICENSE").chmod(0o644)
+            return result
+
+        def build(invocation, _guard):
+            providers, _authorization = self.prepare(invocation)
+            with (
+                mock.patch.object(
+                    node_sdk_build, "node_sdk_legal_package_files", side_effect=project
+                ),
+                mock.patch.object(type(self.compiler), "run") as compiler,
+            ):
+                with self.assertRaises(ValueError):
+                    self.ports.build(self.plan, providers)
+                compiler.assert_not_called()
+            self.assertNotIn(
+                self.plan.component_revision.uri, self.ports._planned_exports
+            )
+            self.assertEqual(self.ports._node_sdk_compiled_plans, {})
 
         self.owned(build)
 

@@ -256,6 +256,7 @@ def _build(
     from literate_ai.adapters.native_sdk_tree_custody import capture_native_sdk_tree
     from literate_ai.adapters.node_sdk_build import compile_node_sdk_plan
     from literate_ai.adapters.node_sdk_composition import (
+        LEGAL_PROJECTION_POLICY,
         NodeSDKEntrypoint,
         _materialized_node_sdk,
         require_node_sdk_projection,
@@ -398,6 +399,7 @@ def _build(
     cache_identity = canonical_identity(
         {
             "schema": "literate-ai/local-standard-node-sdk-cache@1",
+            "legal_projection_policy": LEGAL_PROJECTION_POLICY,
             "plan": plan.identity.uri,
             "target": target.identity.uri,
             "invocation": invocation.identity.uri,

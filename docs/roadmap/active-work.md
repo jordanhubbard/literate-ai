@@ -1508,6 +1508,23 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       remains required before considering another optimization.
       Production driver/runner pins, process polls and the
       15-second deadline remain unchanged; installed acceptance remains open.
+      The diagnostic at `213b1fa1` retained unchanged inputs and successful
+      guarded probes, then failed later in BUILD on the strict portable-file
+      inventory (559.920 seconds for the case). This remains a failed,
+      instrumented run. Original authored immutable assets are deliberately
+      written as `0600`, while SDK legal inventory still requires package modes.
+      **Next unchecked correction:** project only the selected legal inputs to
+      a new byte-preserving SDK-owned `0644` copy, keeping original source modes,
+      CID and stamp guards authoritative. Bind explicit legal-projection policy
+      into composition/cache identities; preserve generic inventory refusal.
+      Verify actual private asset materialization, original-mode drift refusal
+      and packed/cache legal bytes/modes before unprofiled acceptance.
+      The repair now has independent source/evidence approval: 23 fast legal and
+      composition checks pass without skips; two actual native checks pass
+      without skips in 67.682 seconds, including compilation/cache/relocation,
+      exact packed legal bytes/mode and source-mode drift refusal before compile.
+      The reviewed three-file production closure is `618bc873` (1,277 members).
+      Fresh unprofiled installed rebuild acceptance is the next unchecked gate.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
