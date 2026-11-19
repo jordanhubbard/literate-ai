@@ -80,6 +80,54 @@ def _rows(files: tuple[DirectoryExportFile, ...]) -> list[dict[str, str]]:
     ]
 
 
+def _typescript_sdk_identity(files):
+    """Pure original snapshot identity, shared with capture revalidation."""
+    return canonical_identity(
+        {
+            "schema": "literate-ai/typescript-sdk-snapshot@1",
+            "files": [
+                {
+                    "path": item.path,
+                    "size": len(item.content),
+                    "sha256": hashlib.sha256(item.content).hexdigest(),
+                }
+                for item in files
+            ],
+        }
+    )
+
+
+def _typescript_compiler_identity(compiler):
+    """Pure original compiler preimage; never reload framework resources."""
+    return canonical_identity(
+        {
+            "schema": "literate-ai/node-sdk-typescript-compiler@1",
+            "sdk": compiler.sdk.identity.uri,
+            "node": compiler.node.identity,
+            "helper_sha256": hashlib.sha256(
+                compiler._helper.encode("utf-8")
+            ).hexdigest(),
+            "bootstrap_sha256": hashlib.sha256(
+                compiler._bootstrap.encode("utf-8")
+            ).hexdigest(),
+            "sdk_packet_sha256": hashlib.sha256(
+                compiler._sdk_packet.encode("utf-8")
+            ).hexdigest(),
+            "timeout_seconds": _TIMEOUT,
+            "heap_mib": _HEAP_MIB,
+            "input_bytes": _MAX_INPUT,
+            "output_bytes": _MAX_OUTPUT,
+            "environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
+            "command": list(compiler.command),
+            **(
+                {"selection": compiler.selection_identity.to_dict()}
+                if compiler.selection_identity is not None
+                else {}
+            ),
+        }
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class TypeScriptSDK:
     """An explicitly selected tool snapshot; integrity does not grant execution."""
@@ -120,19 +168,7 @@ class TypeScriptSDK:
         object.__setattr__(
             self,
             "identity",
-            canonical_identity(
-                {
-                    "schema": "literate-ai/typescript-sdk-snapshot@1",
-                    "files": [
-                        {
-                            "path": item.path,
-                            "size": len(item.content),
-                            "sha256": hashlib.sha256(item.content).hexdigest(),
-                        }
-                        for item in files
-                    ],
-                }
-            ),
+            _typescript_sdk_identity(files),
         )
 
 
@@ -202,27 +238,7 @@ class NodeSDKTypeScriptCompiler:
         object.__setattr__(
             self,
             "identity",
-            canonical_identity(
-                {
-                    "schema": "literate-ai/node-sdk-typescript-compiler@1",
-                    "sdk": self.sdk.identity.uri,
-                    "node": self.node.identity,
-                    "helper_sha256": self._helper_sha256,
-                    "bootstrap_sha256": hashlib.sha256(bootstrap).hexdigest(),
-                    "sdk_packet_sha256": self._sdk_packet_sha256,
-                    "timeout_seconds": _TIMEOUT,
-                    "heap_mib": _HEAP_MIB,
-                    "input_bytes": _MAX_INPUT,
-                    "output_bytes": _MAX_OUTPUT,
-                    "environment_policy": SDK_TOOL_ENVIRONMENT_POLICY,
-                    "command": list(self.command),
-                    **(
-                        {"selection": self.selection_identity.to_dict()}
-                        if self.selection_identity is not None
-                        else {}
-                    ),
-                }
-            ),
+            _typescript_compiler_identity(self),
         )
 
     @property

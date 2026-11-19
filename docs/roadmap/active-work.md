@@ -1805,6 +1805,28 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       validation and callback-free close. Preserve manual callback identities and
       explicit mutual exclusion, and never derive verifier approval from general
       host-execution acknowledgement.
+      Provider capture now originates in the actual live ports scope and the
+      original loaded oracle. It holds detached artifact/harness/declaration and
+      actual compiler-packet source, separately pinning direct Node binary bytes
+      as identity-only input. It reuses original namespace/oracle/tool finite
+      guards through oracle close, retires on failure/exit, and rejects copied,
+      reentrant and expired handles. Sticky validation poison survives swallowed
+      reentry errors. Slot and retained-byte reservations precede callbacks and
+      tool reads; pending captures share the 33-slot/512-MiB ceiling. The first
+      capture profile explicitly refuses invocation aliases, wrappers and extra
+      Node operands without their own witnessed namespace. Shared pure compiler
+      and SDK identity preimages preserve the original constructor documents and
+      reject pre-entry bootstrap/SDK drift without loading fresh resources.
+      All 17 actual-provider capture controls pass without skips (9.692s),
+      including concurrent in-progress quota refusal, swallowed callback reentry,
+      last oracle-close mutation and cancellation/error preservation. All 35
+      selected TypeScript compiler regressions also pass without skips (74.144s).
+      Independent review accepts the two-file TCB identity
+      `082368269ac506948b80a536d1e58711db31d37de6a6488302f0fe3e6ad20d05`.
+      These 52 checks do not include the installed ordinary SDK lifecycle. Neither
+      captured DATA nor an escaped handle establishes inspection success or
+      admission. **Next:** bring the original package capture under this same
+      owner before scanner/classification, grant issuance or public activation.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
