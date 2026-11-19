@@ -78,6 +78,7 @@ class InstalledSDKGuardTests(unittest.TestCase):
             {
                 "tests/smoke/test_canonical_sdk_rebuild.py",
                 "tests/support/authored_coding_cli.py",
+                "tests/support/sdk_probe_timing.py",
             },
         )
         self.assertEqual(
@@ -112,6 +113,83 @@ class InstalledSDKGuardTests(unittest.TestCase):
                     wheel_smoke._main()
                 self.assertEqual(raised.exception.code, 2)
                 tools.assert_not_called()
+
+    def test_probe_diagnostic_flag_refuses_without_separate_rebuild_before_tools(self):
+        with (
+            patch.object(sys, "argv", ["wheel_smoke.py", "--diagnostic-node-probes"]),
+            patch.object(wheel_smoke, "require_node_sdk_prerequisites") as tools,
+            redirect_stderr(io.StringIO()),
+            self.assertRaises(SystemExit) as raised,
+        ):
+            wheel_smoke._main()
+        self.assertEqual(raised.exception.code, 2)
+        tools.assert_not_called()
+
+    def test_diagnostic_observer_is_explicit_in_original_fixed_case(self):
+        received = []
+
+        class RebuildCase(unittest.TestCase):
+            def test_original_installed_adapter_rebuild_returns_bound_receipts(self):
+                received.append(getattr(self, "sdk_probe_observer", None))
+
+        observer = object()
+        with redirect_stderr(io.StringIO()):
+            self.assertTrue(fixture.run_rebuild_case(RebuildCase).wasSuccessful())
+            self.assertTrue(
+                fixture.run_rebuild_case(RebuildCase, observer=observer).wasSuccessful()
+            )
+        self.assertEqual(received, [None, observer])
+
+    def test_probe_diagnostic_retention_cannot_claim_preflight_acceptance(self):
+        import base64
+
+        for diagnostic in (False, True):
+            with self.subTest(diagnostic=diagnostic):
+                case = self.root / str(diagnostic)
+                case.mkdir()
+                program = b"controlled fixture bytes"
+                wheel = case / "fixture.whl"
+                wheel.write_bytes(b"controlled candidate bytes")
+                report = {
+                    "qualified": False,
+                    "preflight_passed": not diagnostic,
+                    "scope": "diagnostic-authored-macos-installed-rebuild-adapter"
+                    if diagnostic
+                    else "authored-macos-installed-rebuild-adapter",
+                    "wheel_sha256": hashlib.sha256(wheel.read_bytes()).hexdigest(),
+                    "rebuild": {
+                        "fixture_program_base64": base64.b64encode(program).decode(),
+                        "fixture_program_sha256": "sha256:"
+                        + hashlib.sha256(program).hexdigest(),
+                    },
+                }
+                if diagnostic:
+                    report["diagnostic_only"] = True
+                evidence = case / "result.json"
+                evidence.write_text(json.dumps(report))
+                for name in ("stdout.log", "stderr.log"):
+                    (case / name).write_bytes(b"controlled diagnostic")
+                result = {
+                    "_evidence_path": str(evidence),
+                    "evidence_sha256": hashlib.sha256(
+                        evidence.read_bytes()
+                    ).hexdigest(),
+                }
+                with self.assertRaisesRegex(RuntimeError, "separate unqualified"):
+                    wheel_smoke._retain_node_sdk_rebuild_preflight(
+                        case,
+                        wheel,
+                        revision="f" * 40,
+                        result=result,
+                        diagnostic=not diagnostic,
+                    )
+                retained = wheel_smoke._retain_node_sdk_rebuild_preflight(
+                    case, wheel, revision="f" * 40, result=result, diagnostic=diagnostic
+                )
+                manifest = json.loads((retained / "manifest.json").read_text())
+                self.assertIs(manifest["preflight_passed"], not diagnostic)
+                self.assertIs(manifest["qualified"], False)
+                self.assertIs(manifest.get("diagnostic_only", False), diagnostic)
 
     def test_rebuild_inventory_never_runs_the_legacy_matrix(self):
         class RebuildCase(unittest.TestCase):

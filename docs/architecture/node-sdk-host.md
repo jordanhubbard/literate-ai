@@ -405,8 +405,36 @@ the fixture program and other metadata. Escaping, type names, keys, row count an
 messages are bounded; malformed diagnostic capture records unknown and rethrows
 the exact original exception. This data is private and never a success receipt.
 Nineteen SDK lifecycle and 23 diagnostic/installer controls pass without skips.
-A fresh installed attempt must still expose and resolve the original node
-failure before lifecycle acceptance can be claimed.
+The fourth attempt exposed that failure: BUILD toolchain revalidation exceeded
+its unchanged 15-second Node probe deadline after 25.519 seconds. Inputs remained
+unchanged. An original unguarded discovery and three revalidations at the same
+priority took about 70 milliseconds each; this baseline does not establish what
+dominated the guarded timeout or exclude contention.
+
+`make wheel-sdk-rebuild-probe-diagnostic` reuses the same builder, fresh isolated
+installer and fixed authored case, explicitly selecting its test-only observer.
+The ordinary preflight remains uninstrumented. The diagnostic uses a separate
+schema/scope and retention prefix; even a successful case reports
+`qualified: false`, `preflight_passed: false` and `diagnostic_only: true`.
+It cannot supply wheel or final preflight acceptance.
+
+The observer delegates each original operation once, keeps the original Popen
+object, and restores observed methods/functions and data contexts. It records
+bounded probe/guard depth and counts, inclusive and outer guard time, process
+factory, first wait/poll, pipe-close and termination intervals. It retains at most
+32 probes with recent failure coverage and 32 KiB serialized output; overflow is
+explicit. The attempt's existing 256-KiB keeper accommodates this profile beside
+the separately bounded failure and fixture-program data. Capture/restoration
+failures remain secondary to the original outcome and mark data incomplete.
+
+Monotonic reads, locks and wait/poll wrappers add overhead. Inclusive guard,
+wait and poll times overlap; only outer guard time is a nonoverlapping guard
+subtotal. No subtraction establishes an uninstrumented outcome. Six original-call
+observer controls and 26 installer/diagnostic guards pass without skips, including
+post-restoration failure, original exception identity and cross-mode refusal.
+A separate original Node probe exercised the observer successfully without SDK
+scopes; it is instrumentation evidence only. Actual guarded BUILD profiling and
+any justified correction, followed by unprofiled acceptance, remain required.
 Focused actual-child and diagnostic controls accompany these fixes. The earlier
 zero-child probe passed full project authority validation, two-node preparation
 and canonical workflow compilation. A fresh installed authored rebuild is still

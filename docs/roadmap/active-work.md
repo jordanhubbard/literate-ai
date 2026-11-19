@@ -1476,7 +1476,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       diagnostic/installer controls, including original failure/exception
       preservation and aggregate escaped-JSON bounds. Rerun the installed case
       to identify its original failure. All three installed attempts remain
-      failed; no installed lifecycle acceptance follows.
+      failed; no installed lifecycle acceptance follows. The fourth attempt
+      exposed the original BUILD failure: Node toolchain revalidation exceeded
+      its unchanged 15-second deadline after 25.519 seconds. All frozen inputs
+      remained unchanged and bounded original diagnostics were captured. At the
+      same priority, original unguarded discovery and three revalidations took
+      about 70 milliseconds each. **Next action in progress:** measure the actual
+      BUILD cohort's guarded probe with bounded, explicitly diagnostic-only
+      phase observation; retain original calls, identities, deadlines and
+      cancellation. Distinguish nested/inclusive guard cost from outer wall
+      time. Do not infer resource or guard causation from the baseline, delete
+      polls, or widen the deadline. Keep ordinary preflight uninstrumented and
+      require a separate unprofiled acceptance run after any justified fix.
+      The explicit diagnostic mode now shares the original installer and fixed
+      case, remains default-off, and cannot claim preflight acceptance even on
+      case success. Six observer controls and 26 installer/diagnostic guards pass
+      without skips; independent review approves original-call preservation,
+      restoration, bounds and honest mode separation. Actual guarded profiling
+      is the next unchecked execution. Production driver/runner pins remain
+      unchanged; no timeout or production liveness behavior changed.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately

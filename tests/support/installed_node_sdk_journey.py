@@ -188,17 +188,19 @@ def run_runtime_cases(case_type):
         return result
 
 
-def run_rebuild_case(case_type):
+def run_rebuild_case(case_type, *, observer=None):
     """One separate authored rebuild case; the original two-case owner is unchanged."""
     require(
         tuple(unittest.defaultTestLoader.getTestCaseNames(case_type))
         == REBUILD_METHODS,
         "authored rebuild case inventory changed",
     )
+    cases = [case_type(method) for method in REBUILD_METHODS]
+    if observer is not None:
+        for case in cases:
+            case.sdk_probe_observer = observer
     with redirect_stdout(sys.stderr):
-        return unittest.TextTestRunner(verbosity=2).run(
-            unittest.TestSuite(case_type(method) for method in REBUILD_METHODS)
-        )
+        return unittest.TextTestRunner(verbosity=2).run(unittest.TestSuite(cases))
 
 
 def wheel_payload(wheel, expected_sha256):
@@ -286,7 +288,8 @@ def stage_resources(bundle, package, prefix, payload):
 
 
 def main():
-    rebuild_preflight = len(sys.argv) == 8 and sys.argv[7] == "--authored-rebuild"
+    profile_probes = sys.argv[7:] == ["--authored-rebuild", "--profile-node-probes"]
+    rebuild_preflight = sys.argv[7:] == ["--authored-rebuild"] or profile_probes
     require(
         __debug__
         and sys.flags.isolated
@@ -463,8 +466,15 @@ def main():
     )
     require_framework_origins(bundle / "tests", bundle_before, "tests")
     bundle_guard()
+    observer = None
+    if profile_probes:
+        from tests.support.sdk_probe_timing import SDKProbeTiming
+
+        observer = SDKProbeTiming()
     result = (
-        run_rebuild_case(case_type)
+        run_rebuild_case(
+            case_type, **({"observer": observer} if profile_probes else {})
+        )
         if rebuild_preflight
         else run_runtime_cases(case_type)
     )
@@ -526,6 +536,14 @@ def main():
             selected=1,
             passed=1,
             rebuild=rebuild_fixture.REBUILD_EVIDENCE,
+        )
+    if profile_probes:
+        report.update(
+            schema="literate-ai/installed-node-sdk-rebuild-diagnostic@1",
+            scope="diagnostic-authored-macos-installed-rebuild-adapter",
+            preflight_passed=False,
+            diagnostic_only=True,
+            probe_profile=rebuild_fixture.REBUILD_ATTEMPT["probe_profile"],
         )
     content = (json.dumps(report, sort_keys=True, indent=2) + "\n").encode()
     with (root / "result.json").open("xb") as stream:

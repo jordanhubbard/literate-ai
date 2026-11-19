@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add an explicit installed SDK probe diagnostic that observes original process
+  and guard operations under unchanged deadlines. Keep it separate from ordinary
+  preflight acceptance, with bounded private timing data and restored observers.
+
 - Preserve the original SDK node failure when recording its checkpoint by using
   the returned bound preparation. Retain bounded private authored-rebuild failure
   diagnostics before temporary cleanup without replacing the original exception.

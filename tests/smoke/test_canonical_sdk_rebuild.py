@@ -6,6 +6,7 @@ import os
 import shutil
 import sys
 import unittest
+from contextlib import nullcontext
 from dataclasses import replace
 from pathlib import Path
 from unittest import mock
@@ -136,8 +137,15 @@ def _bounded_failure_observation(failure, diagnostics):
 
 
 class AuthoredSDKRebuildSetup:
-    def __init__(self, owner):
+    def __init__(self, owner, *, diagnostic_observer=None):
         self.owner = owner
+        if diagnostic_observer is not None:
+            from tests.support.sdk_probe_timing import SDKProbeTiming
+
+            if type(diagnostic_observer) is not SDKProbeTiming:
+                raise TypeError("original diagnostic observer required")
+        self.diagnostic_observer = diagnostic_observer
+        self.probe_observation = None
         self.active_node = self.last_output = self.original_runner = None
         self.generated = self.attempts = 0
         self.evidence = self.program_observation = self.failure_observation = None
@@ -338,16 +346,21 @@ class AuthoredSDKRebuildSetup:
 
     def execute(self, *, source_root, invalidation, budget):
         try:
-            result = self.adapter.rebuild(
-                FilesystemStandardRebuildRequest(
-                    self.prepared,
-                    source_root,
-                    invalidation,
-                    update_receipt=False,
-                    max_parallelism=1,
-                    budget=budget,
+            with (
+                self.diagnostic_observer.observe()
+                if self.diagnostic_observer is not None
+                else nullcontext()
+            ):
+                result = self.adapter.rebuild(
+                    FilesystemStandardRebuildRequest(
+                        self.prepared,
+                        source_root,
+                        invalidation,
+                        update_receipt=False,
+                        max_parallelism=1,
+                        budget=budget,
+                    )
                 )
-            )
         except Exception as failure:
             try:
                 self.failure_observation = _bounded_failure_observation(
@@ -356,6 +369,16 @@ class AuthoredSDKRebuildSetup:
             except Exception:
                 self.failure_observation = {"qualified": False, "state": "unknown"}
             raise
+        finally:
+            if self.diagnostic_observer is not None:
+                try:
+                    self.probe_observation = self.diagnostic_observer.snapshot()
+                except Exception:
+                    self.probe_observation = {
+                        "qualified": False,
+                        "instrumentation_active": True,
+                        "state": "unknown",
+                    }
         owner = self.owner
         lock = self.snapshot.authority.lock.identity
         expected_project = rebuild_project_authority_identity(
@@ -428,7 +451,9 @@ class AuthoredInstalledSDKRebuildTests(unittest.TestCase):
         global REBUILD_EVIDENCE, REBUILD_ATTEMPT
         if REBUILD_EVIDENCE is not None:
             raise AssertionError("installed authored rebuild case cannot be replayed")
-        setup = AuthoredSDKRebuildSetup(self)
+        setup = AuthoredSDKRebuildSetup(
+            self, diagnostic_observer=getattr(self, "sdk_probe_observer", None)
+        )
         try:
             runtime_fixture.CanonicalSDKRuntimeTests._exercise_authored_runtime(
                 self, rebuild_setup=setup
@@ -442,6 +467,8 @@ class AuthoredInstalledSDKRebuildTests(unittest.TestCase):
                 "source_attempts": setup.attempts,
                 "generated_nodes": setup.generated,
                 "failure": setup.failure_observation,
+                "diagnostic_only": setup.diagnostic_observer is not None,
+                "probe_profile": setup.probe_observation,
             }
         self.assertIsNotNone(setup.evidence)
         REBUILD_EVIDENCE = setup.evidence

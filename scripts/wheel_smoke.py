@@ -698,6 +698,7 @@ NODE_SDK_REBUILD_HELPERS = (
     *NODE_SDK_HELPERS,
     "tests/smoke/test_canonical_sdk_rebuild.py",
     "tests/support/authored_coding_cli.py",
+    "tests/support/sdk_probe_timing.py",
 )
 
 
@@ -763,15 +764,30 @@ def qualify_installed_node_sdk(repository, installation, python, cwd, wheel, exp
 
 
 def preflight_installed_node_sdk_rebuild(
-    repository, installation, python, cwd, wheel, expected
+    repository, installation, python, cwd, wheel, expected, *, profile_probes=False
 ):
     return _installed_node_sdk_cell(
-        repository, installation, python, cwd, wheel, expected, rebuild_preflight=True
+        repository,
+        installation,
+        python,
+        cwd,
+        wheel,
+        expected,
+        rebuild_preflight=True,
+        **({"profile_probes": True} if profile_probes else {}),
     )
 
 
 def _installed_node_sdk_cell(
-    repository, installation, python, cwd, wheel, expected, *, rebuild_preflight
+    repository,
+    installation,
+    python,
+    cwd,
+    wheel,
+    expected,
+    *,
+    rebuild_preflight,
+    profile_probes=False,
 ):
     import runpy
 
@@ -784,6 +800,8 @@ def _installed_node_sdk_cell(
         installed_distribution_identity,
     )
 
+    if type(profile_probes) is not bool or (profile_probes and not rebuild_preflight):
+        raise ValueError("probe profiling requires the separate rebuild diagnostic")
     require_node_sdk_prerequisites()
     root = cwd / ("node-sdk-rebuild" if rebuild_preflight else "node-sdk")
     root.mkdir(mode=0o700)
@@ -873,6 +891,7 @@ def _installed_node_sdk_cell(
                 wheel_identity.removeprefix("sha256:"),
                 manifest_hash,
                 *(("--authored-rebuild",) if rebuild_preflight else ()),
+                *(("--profile-node-probes",) if profile_probes else ()),
             ),
             cwd=root,
             environment=environment,
@@ -908,7 +927,9 @@ def _installed_node_sdk_cell(
             ("skipped", 0),
             (
                 "scope",
-                "authored-macos-installed-rebuild-adapter"
+                "diagnostic-authored-macos-installed-rebuild-adapter"
+                if profile_probes
+                else "authored-macos-installed-rebuild-adapter"
                 if rebuild_preflight
                 else "authored-macos-installed-python-api",
             ),
@@ -930,15 +951,31 @@ def _installed_node_sdk_cell(
         if rebuild_preflight:
             if (
                 report.get("schema")
-                != "literate-ai/installed-node-sdk-rebuild-preflight@1"
-                or report.get("preflight_passed") is not True
+                != (
+                    "literate-ai/installed-node-sdk-rebuild-diagnostic@1"
+                    if profile_probes
+                    else "literate-ai/installed-node-sdk-rebuild-preflight@1"
+                )
+                or report.get("preflight_passed") is not (not profile_probes)
                 or type(report.get("rebuild")) is not dict
                 or report.get("rebuild") != observed.get("rebuild")
-                or observed.get("preflight_passed") is not True
+                or observed.get("preflight_passed") is not (not profile_probes)
+                or report.get("diagnostic_only", False) is not profile_probes
+                or observed.get("diagnostic_only", False) is not profile_probes
                 or observed.get("schema") != report.get("schema")
                 or report["rebuild"].get("framework_distribution") != expected
             ):
                 raise RuntimeError("original authored rebuild evidence required")
+            if profile_probes:
+                profile = report.get("probe_profile")
+                if (
+                    type(profile) is not dict
+                    or profile != observed.get("probe_profile")
+                    or profile.get("qualified") is not False
+                    or profile.get("instrumentation_active") is not True
+                    or len(json.dumps(profile).encode()) > 32768
+                ):
+                    raise RuntimeError("bounded original probe diagnostic required")
         return {"requested": True, **observed, "_evidence_path": str(evidence_path)}
     finally:
         try:
@@ -2626,7 +2663,9 @@ def _retain_qualified_wheel(
     return manifest
 
 
-def _retain_node_sdk_rebuild_preflight(repository, wheel, *, revision, result):
+def _retain_node_sdk_rebuild_preflight(
+    repository, wheel, *, revision, result, diagnostic=False
+):
     """Retain exact focused evidence without creating release qualification data."""
     import base64
 
@@ -2645,8 +2684,14 @@ def _retain_node_sdk_rebuild_preflight(repository, wheel, *, revision, result):
     report = json.loads(content)
     if (
         report.get("qualified") is not False
-        or report.get("preflight_passed") is not True
-        or report.get("scope") != "authored-macos-installed-rebuild-adapter"
+        or report.get("preflight_passed") is not (not diagnostic)
+        or report.get("diagnostic_only", False) is not diagnostic
+        or report.get("scope")
+        != (
+            "diagnostic-authored-macos-installed-rebuild-adapter"
+            if diagnostic
+            else "authored-macos-installed-rebuild-adapter"
+        )
     ):
         raise RuntimeError("separate unqualified rebuild evidence required")
     wheel_identity = file_identity(wheel)
@@ -2663,7 +2708,9 @@ def _retain_node_sdk_rebuild_preflight(repository, wheel, *, revision, result):
         raise RuntimeError("original authored fixture executable bytes required")
     output = release_file_path(repository, "_build/node-sdk-rebuild-preflight")
     output.mkdir(parents=True, exist_ok=True)
-    retained = Path(tempfile.mkdtemp(prefix="run-", dir=output))
+    retained = Path(
+        tempfile.mkdtemp(prefix="diagnostic-" if diagnostic else "run-", dir=output)
+    )
     shutil.copy2(wheel, retained / wheel.name)
     if file_identity(retained / wheel.name) != wheel_identity:
         raise RuntimeError("retained candidate wheel changed")
@@ -2677,9 +2724,12 @@ def _retain_node_sdk_rebuild_preflight(repository, wheel, *, revision, result):
     (retained / "manifest.json").write_text(
         json.dumps(
             {
-                "schema": "literate-ai/retained-node-sdk-rebuild-preflight@1",
+                "schema": "literate-ai/retained-node-sdk-rebuild-diagnostic@1"
+                if diagnostic
+                else "literate-ai/retained-node-sdk-rebuild-preflight@1",
                 "qualified": False,
-                "preflight_passed": True,
+                "preflight_passed": not diagnostic,
+                **({"diagnostic_only": True} if diagnostic else {}),
                 "source_revision": revision,
                 "wheel": {"path": wheel.name, "identity": wheel_identity},
                 "evidence": {
@@ -2791,7 +2841,14 @@ def _main() -> int:
         action="store_true",
         help="run only the authored installed rebuild preflight; never qualify a wheel",
     )
+    parser.add_argument(
+        "--diagnostic-node-probes",
+        action="store_true",
+        help="observe actual SDK probe phases; never establish preflight acceptance",
+    )
     arguments = parser.parse_args()
+    if arguments.diagnostic_node_probes and not arguments.node_sdk_rebuild_preflight:
+        parser.error("probe diagnostics require the separate rebuild case")
     if arguments.node_sdk_rebuild_preflight and (
         arguments.node_sdk_runtime
         or arguments.qualified_wheel_manifest is not None
@@ -2943,6 +3000,11 @@ def _main() -> int:
                     root,
                     wheel_files[0],
                     standard_binding["distribution"],
+                    **(
+                        {"profile_probes": True}
+                        if arguments.diagnostic_node_probes
+                        else {}
+                    ),
                 )
             except Exception as exc:
                 try:
@@ -2965,15 +3027,24 @@ def _main() -> int:
                 wheel_files[0],
                 revision=git_revision,
                 result=result,
+                **({"diagnostic": True} if arguments.diagnostic_node_probes else {}),
             )
             print(
                 json.dumps(
                     {
                         "schema": (
-                            "literate-ai/installed-node-sdk-rebuild-preflight-summary@1"
+                            "literate-ai/installed-node-sdk-rebuild-diagnostic-summary@1"
+                            if arguments.diagnostic_node_probes
+                            else "literate-ai/installed-node-sdk-rebuild-"
+                            "preflight-summary@1"
                         ),
                         "qualified": False,
-                        "preflight_passed": True,
+                        "preflight_passed": not arguments.diagnostic_node_probes,
+                        **(
+                            {"diagnostic_only": True}
+                            if arguments.diagnostic_node_probes
+                            else {}
+                        ),
                         "retained_evidence": retained.relative_to(
                             repository
                         ).as_posix(),
