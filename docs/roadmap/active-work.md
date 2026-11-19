@@ -1786,6 +1786,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       Authority/documentation verification passes. The existing project test
       receipt remains stale; locks, source intelligence and HTML checks remain
       explicit unconfigured skips. No release or complete-project pass is claimed.
+      **Next unchecked action:** capture inspection inputs without issuing a
+      grant. Keep resource capture in the original provider/package owners:
+      provider capture stays inside accepted-provider and loaded-oracle scopes;
+      root capture follows original package/stage validation and loaded-oracle
+      custody. Retain detached bounded executable scan bytes separately from
+      identity-only references, plus original live and finite closing witnesses.
+      A request description or digest lookup cannot establish inspected custody.
+      Refuse foreign/copied/retired captures, byte/mode/membership/oracle/tool
+      drift, reentrant replacement and mutation during callbacks. Independent
+      review must accept that join before adding shared scanner/classification
+      and exact-request policy issuance. The later runtime owner binds original
+      runtime/policy/scanner/revocation semantics; an invocation aggregate holds
+      at most 32 provider grants and the reserved root slot through final close.
+      An arbitrary revocation callback returning a set supplies no finite closing
+      witness: initially support only an explicitly captured immutable-empty
+      production state unless an original versioned feed can supply both live
+      validation and callback-free close. Preserve manual callback identities and
+      explicit mutual exclusion, and never derive verifier approval from general
+      host-execution acknowledgement.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
