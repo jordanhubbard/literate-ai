@@ -433,8 +433,23 @@ subtotal. No subtraction establishes an uninstrumented outcome. Six original-cal
 observer controls and 26 installer/diagnostic guards pass without skips, including
 post-restoration failure, original exception identity and cross-mode refusal.
 A separate original Node probe exercised the observer successfully without SDK
-scopes; it is instrumentation evidence only. Actual guarded BUILD profiling and
-any justified correction, followed by unprofiled acceptance, remain required.
+scopes; it is instrumentation evidence only. Actual guarded BUILD profiling at
+`ff78ea62` reproduced failure with frozen inputs unchanged: 41.628 of the failing
+probe's 41.632 seconds were outer guard work, with 18 guard calls and 0.004 seconds
+in process creation. Its first wait was cleanup, not Node execution latency.
+These are instrumented measurements, not an unprofiled performance result.
+
+The authored rebuild callback now owns only its additional project-configuration
+root, content and directory-binding checks. The original production host owner
+continues to check the full original snapshot after that callback; the fixture's
+preceding duplicate snapshot traversal is removed. Real filesystem controls
+verify callback-before-snapshot ordering, exactly one owner snapshot check,
+refusal of callback-induced locked-input drift and retirement of the affected
+host context, plus changed project bytes and replaced project directories.
+Those focused controls substitute unrelated assembly and do not qualify tools,
+oracles or admission. Independent review approves this fixture-only change;
+fresh measurement and unprofiled installed acceptance remain required. Process
+polls, production checks and the 15-second probe deadline are unchanged.
 Focused actual-child and diagnostic controls accompany these fixes. The earlier
 zero-child probe passed full project authority validation, two-node preparation
 and canonical workflow compilation. A fresh installed authored rebuild is still

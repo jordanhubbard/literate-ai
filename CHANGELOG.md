@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep authored SDK rebuild project-configuration checks in its callback and
+  snapshot validation in the original host owner, removing a duplicate fixture
+  traversal without changing production guards or deadlines.
+
 - Add an explicit installed SDK probe diagnostic that observes original process
   and guard operations under unchanged deadlines. Keep it separate from ordinary
   preflight acceptance, with bounded private timing data and restored observers.

@@ -268,8 +268,9 @@ class AuthoredSDKRebuildSetup:
         self.execution = planning.plan(self.snapshot, assets=assets).execution_plan
         return self.snapshot, self.execution
 
-    def require_current(self):
-        self.snapshot.require_unchanged()
+    def require_project_configuration_current(self):
+        # The production SDK host checks the original snapshot after this
+        # callback. This fixture owns only its additional project configuration.
         current = ProjectConfigurationStore.discover(self.project.root)
         if (
             current is None

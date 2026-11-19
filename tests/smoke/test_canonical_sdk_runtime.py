@@ -209,7 +209,7 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 not callable(getattr(rebuild_setup, name, None))
                 for name in (
                     "prepare_authority",
-                    "require_current",
+                    "require_project_configuration_current",
                     "assemble",
                     "generate",
                     "execute",
@@ -283,7 +283,7 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
 
             def host_current():
                 if rebuild_setup is not None:
-                    rebuild_setup.require_current()
+                    rebuild_setup.require_project_configuration_current()
                 return None
 
             def authorize(request):

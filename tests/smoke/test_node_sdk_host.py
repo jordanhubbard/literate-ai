@@ -1,13 +1,190 @@
 """Context-selection state fixtures, not SDK admission or native qualification."""
 
+import shutil
+import tempfile
 import unittest
+from contextlib import nullcontext
 from contextvars import copy_context
+from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 from literate_ai.adapters import node_sdk_host as host
+from literate_ai.adapters.locked_generation_authority import (
+    LockedGenerationAuthorityReaderError,
+)
 from literate_ai.adapters.node_sdk_project_acceptance import (
     LocalNodeSDKProjectAcceptance,
 )
+from literate_ai.adapters.project_initialization import initialize_project
+from literate_ai.adapters.standard_project import ProjectedStandardToolchainClosure
+from literate_ai.contracts import RepositoryParentSelection
+from literate_ai.projects import ProjectConfigurationStore
+from tests.smoke.test_canonical_sdk_rebuild import AuthoredSDKRebuildSetup
+from tests.smoke.test_node_sdk_cross_language import with_provider
+
+
+class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
+    """Real input bytes and original owner closure; no tool/admission acceptance.
+
+    Unrelated tool, contract and oracle assembly is substituted explicitly. The
+    snapshot and the original host's post-callback check are never substituted.
+    """
+
+    def setUp(self):
+        owner = tempfile.TemporaryDirectory()
+        self.addCleanup(owner.cleanup)
+        self.root = Path(owner.name).resolve()
+        self.setup = AuthoredSDKRebuildSetup(self)
+        project = self.root / "project"
+        initialize_project(
+            project,
+            parent_selection=RepositoryParentSelection.root(),
+            source_intelligence_provider="none",
+            empty=True,
+            bootstrap_tools=False,
+        )
+        self.setup.project = SimpleNamespace(root=project)
+        self.setup.config = ProjectConfigurationStore.discover(project)
+
+    def test_project_configuration_content_change_refuses(self):
+        self.setup.require_project_configuration_current()
+        path = self.setup.config.manifest_path
+        path.write_bytes(path.read_bytes() + b"\n")
+        with self.assertRaisesRegex(AssertionError, "configuration changed"):
+            self.setup.require_project_configuration_current()
+
+    def test_identical_project_bytes_in_replaced_directory_refuse(self):
+        self.setup.require_project_configuration_current()
+        project = self.setup.project.root
+        original = project.with_name("original-project")
+        project.rename(original)
+        shutil.copytree(original, project)
+        self.assertEqual(
+            ProjectConfigurationStore.discover(project).content_identity,
+            self.setup.config.content_identity,
+        )
+        with self.assertRaisesRegex(AssertionError, "configuration changed"):
+            self.setup.require_project_configuration_current()
+
+    def test_original_host_checks_snapshot_once_after_callback_and_retires_on_drift(
+        self,
+    ):
+        component, snapshot, execution = with_provider(self.root / "graph")
+        self.setup.snapshot = snapshot
+        root = execution.root_revision.uri
+        providers = {
+            n.revision.identity.uri: object()
+            for n in snapshot.authority.lock.nodes
+            if n.revision.identity.uri != root
+        }
+        surface = SimpleNamespace(
+            language="javascript", declarations=(object(),), node_sdk_exports=()
+        )
+        export = SimpleNamespace(target_identity="fixture")
+        contracts = {
+            n.revision.identity.uri: SimpleNamespace(
+                component_revision=n.revision.identity,
+                identity=n.revision.identity,
+                is_library=True,
+                library_import_surface=surface,
+                artifact_export=export,
+            )
+            for n in snapshot.authority.lock.nodes
+        }
+        target = SimpleNamespace(
+            identity="fixture",
+            profile=object(),
+            typescript=SimpleNamespace(compiler=object()),
+        )
+        ports = object.__new__(host.LocalStandardLifecyclePorts)
+        ports.__dict__.update(
+            _node_sdk_host_binding=None,
+            node_sdk_project_acceptance=None,
+            _native_sdk_inputs=None,
+            contracts=contracts,
+            node_sdk_targets={root: target},
+            independent_acceptance_oracle=object(),
+            tool_bindings={},
+            source_trees=object(),
+            object_root=self.root / "objects",
+        )
+        closure = object.__new__(ProjectedStandardToolchainClosure)
+        for name, value in dict(
+            record=SimpleNamespace(
+                identity="fixture",
+                execution_plan_identity=execution.identity,
+                component_lock_identity=snapshot.authority.lock.identity,
+            ),
+            contracts=tuple(contracts.values()),
+            node_sdk_targets=(target,),
+        ).items():
+            object.__setattr__(closure, name, value)
+        events = []
+        source = component / "component.md"
+        mutate = False
+
+        def callback():
+            events.append("callback")
+            self.setup.require_project_configuration_current()
+            if mutate:
+                source.write_bytes(source.read_bytes() + b"\nchanged during callback\n")
+
+        configuration = SimpleNamespace(
+            snapshot=snapshot,
+            expected_execution=execution,
+            provider_oracles=providers,
+            root_oracle=ports.independent_acceptance_oracle,
+            authorize_verifier=object(),
+            require_current=callback,
+            environment={},
+        )
+        # Bypass unrelated assembly checks only; exercise the production closure
+        # created by the original constructor and its real snapshot validation.
+        for target_class, name in (
+            (host.LocalStandardLifecyclePorts, "_require_full_command_scope"),
+            (ProjectedStandardToolchainClosure, "require_unchanged"),
+            (host._BoundAdmission, "_require_inputs"),
+            (host._BoundAdmission, "_require_installed"),
+        ):
+            self.enterContext(mock.patch.object(target_class, name))
+        self.enterContext(mock.patch.object(host, "_require_library_oracle_authority"))
+        self.enterContext(
+            mock.patch.object(
+                host,
+                "capture_loaded_node_library_verifier_inputs",
+                side_effect=lambda _oracle: nullcontext(lambda: None),
+            )
+        )
+        self.enterContext(mock.patch.object(host, "LocalNodeSDKGenerationAdmission"))
+        bound = host._BoundAdmission(configuration, ports, closure)
+        original_check = type(snapshot).require_unchanged
+
+        def check(actual):
+            self.assertIs(actual, snapshot)
+            events.append("snapshot")
+            original_check(actual)
+
+        self.enterContext(
+            mock.patch.object(
+                type(snapshot), "require_unchanged", autospec=True, side_effect=check
+            )
+        )
+        bound.require_current()
+        self.assertEqual(events, ["callback", "snapshot"])
+        events.clear()
+        policy = object()
+        scope = host._Scope(bound, execution, policy)
+        token = host._CURRENT.set(scope)
+        self.addCleanup(host._CURRENT.reset, token)
+        copied = copy_context()
+        mutate = True
+        with self.assertRaises(LockedGenerationAuthorityReaderError):
+            bound.require_current()
+        self.assertEqual(events, ["callback", "snapshot"])
+        self.assertFalse(scope.active)
+        with self.assertRaises(host.NodeSDKHostConfigurationError):
+            copied.run(host.current_node_sdk_project_acceptance, ports)
 
 
 class NodeSDKHostScopeTests(unittest.TestCase):

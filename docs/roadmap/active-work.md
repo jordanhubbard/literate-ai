@@ -1492,9 +1492,22 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       case, remains default-off, and cannot claim preflight acceptance even on
       case success. Six observer controls and 26 installer/diagnostic guards pass
       without skips; independent review approves original-call preservation,
-      restoration, bounds and honest mode separation. Actual guarded profiling
-      is the next unchecked execution. Production driver/runner pins remain
-      unchanged; no timeout or production liveness behavior changed.
+      restoration, bounds and honest mode separation. The actual diagnostic at
+      `ff78ea62` failed with unchanged frozen inputs: the failing probe spent
+      41.628 of 41.632 seconds inside outer guard calls (18 calls), while process
+      creation took 0.004 seconds. Its first wait was cleanup; these instrumented
+      measurements do not establish Node execution latency or uninstrumented
+      performance. **Next unchecked correction:** remove only the authored
+      rebuild fixture's duplicate snapshot walk. Its sole caller supplies the
+      public host callback, and the production host validates that same original
+      snapshot after the callback. Retain the fixture's project-configuration
+      checks and prove post-callback snapshot mutation still fails at the original
+      host owner. The fixture-only correction has independent source approval;
+      35 focused host/installer controls pass without skips, and canonical
+      `make python-check` passes the nine host-owner controls. Fresh measurement
+      remains required before considering another optimization.
+      Production driver/runner pins, process polls and the
+      15-second deadline remain unchanged; installed acceptance remains open.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
