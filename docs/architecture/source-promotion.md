@@ -462,3 +462,78 @@ exact commit, inspect and build it in quarantine, then admit its immutable bytes
 external source cache. It does not become a Component. Promotion is the more laborious
 path chosen only when the project wants reviewed regenerative intent to outrank the
 original implementation.
+
+
+### Explicit closed POSIX source links
+
+The ordinary snapshot default remains the v1 `SnapshotPolicy`: symbolic links
+are refused and existing provider identities remain unchanged. A caller may
+explicitly select `InternalSymlinkSnapshotPolicy` for POSIX input custody. Its
+v2 policy identity binds closed-namespace target-text semantics and the
+4,096-byte target bound. A symlink is a typed `SourceEntryType.SYMLINK` with
+normalized mode `0777`; its size and SHA-256 identify the exact UTF-8 target
+text, including lexical `.` components. Target payloads remain separately
+captured regular entries. Directory aliases are inventoried once without
+following them. Unrepresented empty directories are not valid target inputs.
+
+Source snapshots and quarantine share the retained-input closure validator.
+Every target and traversed directory must belong to the selected namespace;
+absolute, escaping, missing and nonterminating targets are refused. Traversal
+through another link or a regular file ancestor is refused. A finite alias to
+its containing directory is permitted. Git selection cannot borrow untracked
+or excluded targets. POSIX reads hold no-follow ancestor descriptors and
+revalidate both ancestors and the leaf; unsupported platforms refuse this
+explicit capability.
+
+Quarantine preserves link kind and raw text, verifies member closures before
+copying, and rechecks links when reopening or verifying aggregate members.
+Permission sealing and failed-copy cleanup never follow aliases. These records
+remain source custody: they grant no execution, source admission, SDK or
+Component qualification. Source-intelligence attachment currently refuses link
+captures until a link-aware provider contract is integrated. The authored SDK policy integration below preserves these custody rules.
+Installed qualification and complete native catalog/action/package acceptance
+remain open under RETAINED-CATALOG-001.
+
+
+### Authored SDK link selection
+
+Repository source dependencies may explicitly select `allow_internal_symlinks:
+true`. The absent or false value retains v1 serialization and refusal. The
+selected value belongs to Component authoring and the exact repository source
+lock, rather than a host-only build override. Git acquisition, actual source
+capture, SDK inspection and every current-source build check must agree with
+that selection. A mismatched checkout cannot produce a passing lock.
+
+Link-aware SDK inspection must preserve the global regular-only project input
+owner. Compose that owner's pinned bytes with scoped, no-follow link custody,
+rechecking target text, identity and closure during live authorization. Source
+scanning must inspect a terminal file alias using its observable filename;
+`code.c` pointing at `code.txt` cannot avoid C rules. Directory aliases are not
+recursively expanded. Count expanded file-alias scan bytes against the same
+finite source budget and refuse overflow before authorization. Bind the new
+semantics in a versioned index/provider while retaining existing v1 identities
+for unselected dependencies. Full SDK and complete native catalog qualification require their independent
+gates.
+
+
+The development implementation carries this selection through constrained
+Component Markdown, canonical dependency schemas, source locks, pre-build BOM
+identity, acquisition and build recapture. Unselected/false policy remains
+omitted from legacy dictionaries. The SDK-specific closure composes ordinary
+pinned regular files with verified target bytes; general project input pinning
+continues to refuse aliases. Link-aware native inventories use
+`native-sdk-source-inventory@2` and `native-sdk-captured-files@2` with exact
+terminal file-alias ownership. Other dependencies retain their v1 inventory and
+provider identities. Source intelligence remains a separate capability and a
+required policy is never silently downgraded.
+
+A real Linux ARM64 fixture selects the policy through authored Component locking,
+compiles a C source alias, admits immutable source with its original link kind,
+removes the producer and runs the relocated native library. Refusal cases cover
+unselected links, changed target text before grant issuance and after configure,
+revocation after configure, missing host execution acknowledgement and a
+suffix-changing alias under blocking scanner policy. The whole real Git input
+corpus at `7bac8a17251a380924472e621480f640adf8e5eb` also passes SDK-scoped input
+pinning: 114,734 regular files, 138 links and 1,540,895,823 bytes. These are source
+custody and small native-fixture results; full SDK, installed and complete native
+Component/catalog/action/package/lifecycle qualification remain open.

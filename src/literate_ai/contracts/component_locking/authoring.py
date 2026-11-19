@@ -279,6 +279,7 @@ class AuthoredRepositorySourceDependency:
     dependency_kind: DependencyKind
     optional: bool = False
     integration_contract: ComponentContentSelector | None = None
+    allow_internal_symlinks: bool = False
 
     def __post_init__(self) -> None:
         # Reuse the repository contract's URL, ID, selector, kind, and optionality
@@ -290,6 +291,7 @@ class AuthoredRepositorySourceDependency:
             self.dependency_kind,
             self.optional,
             None,
+            allow_internal_symlinks=self.allow_internal_symlinks,
         )
         if not isinstance(
             self.integration_contract, (ComponentContentSelector, type(None))
@@ -308,7 +310,7 @@ class AuthoredRepositorySourceDependency:
             )
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        value = {
             "dependency_id": self.dependency_id,
             "repository_url": self.repository_url,
             "revision_selector": self.revision_selector.to_dict(),
@@ -320,6 +322,9 @@ class AuthoredRepositorySourceDependency:
                 else self.integration_contract.to_dict()
             ),
         }
+        if self.allow_internal_symlinks:
+            value["allow_internal_symlinks"] = True
+        return value
 
     @classmethod
     def from_dict(
@@ -328,6 +333,7 @@ class AuthoredRepositorySourceDependency:
         data = fields(
             value,
             path=path,
+            optional=frozenset({"allow_internal_symlinks"}),
             required=frozenset(
                 {
                     "dependency_id",
@@ -354,6 +360,10 @@ class AuthoredRepositorySourceDependency:
             ),
             dependency_kind=kind,
             optional=bool_value(data["optional"], f"{path}.optional"),
+            allow_internal_symlinks=bool_value(
+                data.get("allow_internal_symlinks", False),
+                f"{path}.allow_internal_symlinks",
+            ),
             integration_contract=(
                 None
                 if integration is None
