@@ -12,6 +12,13 @@ from unittest.mock import patch
 from literate_ai.adapters import process_liveness
 from literate_ai.adapters.builders import _process, javascript
 
+_SUBPROCESS_KINDS = {
+    "builder.node_version": "node-version",
+    "builder.npm_version": "npm-version",
+    "builder.npm_dependency_resolution": "npm-dependencies",
+    "builder.npm_literal_dependency_resolution": "npm-literal-dependencies",
+}
+
 
 class SDKProbeTiming:
     def __init__(self):
@@ -163,9 +170,7 @@ class SDKProbeTiming:
                         lambda: self._first(row, label + "_first_return_seconds", ended)
                     )
 
-            def run(*args, **kwargs):
-                if self._row.get() is None:
-                    return original_run(*args, **kwargs)
+            def measured_run(*args, **kwargs):
                 factory = kwargs.get("process_factory", default_factory)
 
                 def create(*factory_args, **factory_kwargs):
@@ -190,7 +195,7 @@ class SDKProbeTiming:
 
                 return original_run(*args, **{**kwargs, "process_factory": create})
 
-            def probe(*args, **kwargs):
+            def operation(original, kind, measurement_scope, *args, **kwargs):
                 if len(self.rows) >= 32:
                     del self.rows[8]
                     self.dropped = min(self.dropped + 1, 2**53 - 1)
@@ -198,13 +203,15 @@ class SDKProbeTiming:
                 row = {
                     "started": self._now(),
                     "scope_depth": len(process_liveness._GUARDS.get()),
+                    "kind": kind,
+                    "measurement_scope": measurement_scope,
                 }
                 self.rows.append(row)
                 token = self._row.set(row)
                 child_stack = ExitStack()
                 stack_token = self._probe_stack.set(child_stack)
                 try:
-                    return original_probe(*args, **kwargs)
+                    return original(*args, **kwargs)
                 except BaseException as failure:
                     self._capture(
                         lambda failure=failure: row.update(
@@ -224,6 +231,22 @@ class SDKProbeTiming:
                     self._capture(child_stack.close)
                     self._capture(lambda: self._probe_stack.reset(stack_token))
                     self._capture(lambda: self._row.reset(token))
+
+            def run(*args, **kwargs):
+                if self._row.get() is not None:
+                    return measured_run(*args, **kwargs)
+                prefix = kwargs.get("error_prefix")
+                kind = _SUBPROCESS_KINDS.get(prefix) if type(prefix) is str else None
+                if kind is None:
+                    return original_run(*args, **kwargs)
+                return operation(
+                    measured_run, kind, "bounded-subprocess", *args, **kwargs
+                )
+
+            def probe(*args, **kwargs):
+                return operation(
+                    original_probe, "node-version", "whole-node-probe", *args, **kwargs
+                )
 
             stack.enter_context(patch.object(javascript, "_probe_node_command", probe))
             stack.enter_context(patch.object(javascript, "_run_bounded_process", run))

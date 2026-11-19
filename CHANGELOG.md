@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Distinguish bounded npm dependency/version subprocess timing from whole Node
+  probes in the explicit SDK diagnostic. Preserve default-off instrumentation,
+  original calls and unqualified results; record no commands or request data.
+
 - Project private authored SDK legal assets into separate portable package copies,
   preserving original source custody and mode guards. Bind the legal-copy policy
   into composition and build-cache identities; generic inventories stay strict.

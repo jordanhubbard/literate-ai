@@ -464,6 +464,24 @@ SDK inventories still reject private modes. Composition and compiled-cache
 identities explicitly bind the new policy, preventing historical cache reuse
 under changed semantics. This preserves Windows mode conventions without
 claiming Windows qualification. Installed acceptance remains required.
+
+The unprofiled installed attempt at `60b686ef` then failed in npm literal
+dependency revalidation: 19.072 seconds exceeded the original 15-second deadline
+(761.738 seconds for the case). Both authored nodes and frozen input identities
+were retained. This is not yet evidence of npm guard domination.
+
+The default-off observer now recognizes only four fixed original JavaScript
+builder prefixes: Node version, npm version, npm dependencies and npm literal
+dependencies. Rows distinguish `whole-node-probe` from `bounded-subprocess`
+measurement. The latter excludes surrounding request-file creation and result
+decoding; compare only the stated scopes. Existing outer Node rows are reused,
+not duplicated. Unknown prefixes and application checks create no new rows.
+Only fixed kind/scope labels, timings and bounded counters/type names are added;
+commands, paths, environment and request data are not captured. Original process
+objects, arguments, calls, deadlines, polls, cleanup, recent-failure ring and
+serialized bounds remain unchanged. Independent source review approves the
+extension; fresh diagnostic measurement and ordinary installed acceptance remain
+separate gates.
 Focused actual-child and diagnostic controls accompany these fixes. The earlier
 zero-child probe passed full project authority validation, two-node preparation
 and canonical workflow compilation. A fresh installed authored rebuild is still

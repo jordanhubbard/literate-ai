@@ -1536,6 +1536,19 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       operation before selecting further validation optimization. The legal
       repair's focused evidence remains valid; installed rebuild, ordinary CLI
       and downstream SDK qualification remain open.
+      The default-off diagnostic extension now has independent source approval:
+      four exact toolchain-probe prefixes receive fixed kind/scope labels, while
+      unknown/application calls pass through and existing whole-Node rows are
+      reused. Thirty-six observer/installer controls pass without skips,
+      preserving actual process identity, original return/failure/arguments,
+      private-input exclusion and bounded recent-failure retention. Fresh guarded
+      npm phase measurement is the next unchecked execution; no npm causation,
+      deadline change or validation optimization follows from these controls.
+      Canonical `make python-check` also passes all ten observer controls. An
+      actual local Node/npm discovery and revalidation captures all four probe
+      kinds in 13 rows with zero capture errors and unchanged helper/Node bytes;
+      unscoped npm literal subprocesses take 75–86 ms. This is instrumentation
+      evidence outside SDK custody, not attribution of the guarded timeout.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
