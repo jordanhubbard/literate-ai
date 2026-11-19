@@ -1717,9 +1717,22 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       cases without skips in 173.211 seconds; the earlier combined fixture error
       stays retained. Final formatting, lint, driver/runner/documentation pins
       and acyclic-roadmap checks pass. Independent source review binds exactly
-      two changed TCB members. A fresh installed original-guard measurement
-      remains required before another full attempt; no speedup, robust grant
-      margin or native lifecycle pass is claimed.
+      two changed TCB members. The independently reviewed fresh noneditable-wheel
+      diagnostic at `ad3d7937` then completes in 227.102 seconds: exactly one
+      original guard returns, normal scope closure/cleanup and all frozen input,
+      TypeScript and installed namespace custody checks pass, and the sole
+      verifier grant remains original. Generator, coding CLI, model and consumer
+      lifecycle execution counts are zero. The instrumented guard takes
+      1.077431 seconds, compared with the earlier separate 1.2203335-second sample;
+      seven host/snapshot checks and 137 input-currentness calls remain. Eight
+      skill catalogs take 0.132098 cumulative seconds, compared with 0.266531
+      before; nested times are not additive. The retained top-32 profile cannot
+      establish parser-call counts. An initial wrong-interpreter controller
+      refusal precedes any child/start marker; the prepared interpreter then
+      runs the single diagnostic. This is one diagnostic sample, not a robust
+      speedup, end-to-end pass or grant-margin guarantee. A full retry requires
+      fresh sufficient resources and a separately reviewed clean-source freeze;
+      retain the earlier publication expiry and every original deadline.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
