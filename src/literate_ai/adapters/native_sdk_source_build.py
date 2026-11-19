@@ -21,6 +21,7 @@ from literate_ai.adapters.native_sdk_recipes import (
     select_native_sdk_recipes,
 )
 from literate_ai.adapters.native_sdk_source_custody import NativeSdkSourceInputClosure
+from literate_ai.adapters.native_sdk_workspace import NativeSdkBuildWorkspace
 from literate_ai.adapters.source.repository_cache import QuarantineRepositorySourceCache
 from literate_ai.adapters.source.repository_git import (
     GitRepositorySourceAcquirer,
@@ -100,6 +101,7 @@ class NativeSdkSourceBuildService:
         host_build_acknowledged: bool = False,
         references: ReferenceIndex | None = None,
         authorization_deadline: datetime | None = None,
+        workspace: NativeSdkBuildWorkspace | None = None,
     ) -> None:
         if selection not in select_native_sdk_recipes(
             snapshot, selection.component_revision
@@ -156,6 +158,7 @@ class NativeSdkSourceBuildService:
             grant_lookup=self._grant,
             environment=environment,
             authorization_verifier=self.verifier,
+            workspace=workspace,
         )
         self.planner = NativeSdkRecipePlanner(
             snapshot=snapshot,
