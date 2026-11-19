@@ -1602,6 +1602,17 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       its existing expiry, preserves that exact error through nested close, and
       proves copied-context retirement and zero scope-quota leakage. Ruff and
       whitespace checks pass. Native rebuild qualification remains open.
+      A separate zero-child/grant prototype measures parsed skill-metadata reuse
+      against that same installed wheel: twelve Flavor-scoped snapshot checks
+      take 0.875/0.872 seconds without the prototype and 0.838 seconds with it,
+      including close. It retains 63 metadata entries keyed by 278,998 input
+      bytes, rebuilds catalog validation and returns fresh dependency DTOs.
+      Package/helper bytes stay unchanged. This roughly four-percent diagnostic
+      difference does not justify adopting another production cache or establish
+      a lifecycle timing margin. **Next measurement:** bounded profiling of an
+      original whole SDK guard, with original authority, grants, clocks and close
+      behavior preserved, before selecting further performance changes. Retain
+      the failed installed gate and do not retry it unchanged or extend lifetimes.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
