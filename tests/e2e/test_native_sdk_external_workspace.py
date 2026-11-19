@@ -244,6 +244,36 @@ class NativeSdkExternalWorkspaceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "environment"):
                 f.approve()
 
+    def test_working_directory_cannot_supply_path_slots(self):
+        f = self.fixture
+        with native_sdk_build_workspace(f.root) as workspace:
+            f.builder = self.builder(workspace)
+            plan = dataclasses.replace(
+                f.plan,
+                commands=(
+                    RepositoryBuildCommand(
+                        "bad",
+                        ("cmake", "--version"),
+                        working_directory="@SDK_WORKSPACE_ROOT@",
+                    ),
+                ),
+            )
+            with self.assertRaisesRegex(ValueError, "only supported in command argv"):
+                f.approve(plan)
+
+    def test_fresh_workspaces_preserve_sdk_bytes_but_bind_different_build_results(self):
+        f = self.fixture
+        products = []
+        f.plan = self.external_plan()
+        for _ in range(2):
+            with native_sdk_build_workspace(f.root) as workspace:
+                f.builder = self.builder(workspace)
+                products.append(f.builder.product(f.verify()))
+        self.assertEqual(products[0].snapshot.identity, products[1].snapshot.identity)
+        self.assertNotEqual(
+            products[0].result_blob.identity, products[1].result_blob.identity
+        )
+
     def test_source_mutation_preserves_partial_work_and_stops_next_command(self):
         f = self.fixture
         with native_sdk_build_workspace(f.root) as workspace:

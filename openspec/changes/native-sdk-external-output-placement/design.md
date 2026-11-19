@@ -14,9 +14,11 @@ working directories. The existing license, snapshot, native loader, authorizatio
 revocation and source-custody owners continue to govern production and capture.
 Record actual expanded command argv and placement identity for external builds.
 
-The public source-build service accepts a live owner. Project acquisition accepts
-an optional trusted-host factory supplying one owner per selected recipe. It
-creates no output workspace implicitly. Physical placement changes build
+The public source-build service accepts a live owner. For recipes explicitly
+using SDK path slots, project acquisition allocates one fresh private scope per
+selected recipe, retaining it through capture. A trusted-host factory can supply
+the live owner instead. Legacy recipes create no external workspace implicitly.
+Physical placement changes build
 authorization identity; portable recipes, layouts and logical paths are unchanged.
 
 Qualification must build the original native fixture with read-only source,

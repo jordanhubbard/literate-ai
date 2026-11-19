@@ -107,6 +107,8 @@ class NativeSdkBuildWorkspace:
         """Only authored argv may contain the three explicit path slots."""
         self.require_unchanged()
         for command in commands:
+            if "@SDK_" in command.working_directory:
+                raise ValueError("SDK path slots are only supported in command argv")
             for argument in command.argv[1:]:
                 _require_slots(argument)
             for item in command.environment:
