@@ -1682,8 +1682,22 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       The initial local selector import failure is retained separately and fixed
       by making that ignored selector directory importable. Fresh alignment finds
       the selected macOS worker ready; other unreachable/low-disk workers are not
-      used. **Next qualification:** a separately reviewed fresh unprofiled native
-      attempt with the corrected observer and unchanged lifecycle limits.
+      used. The separately reviewed follow-up at `4a68d881` fails after
+      2,045.791 seconds (one unittest errors after 2,015.766 seconds), all 5,625
+      frozen bindings unchanged. Original packaged-root acceptance returns, but
+      runtime execution does not return an accepted project: source-cache
+      publication expires its authorization. Two publication entries precede
+      delegation and do not establish two ACKs. The earlier retired-scope masking
+      is absent; the failed archive and stderr remain retained. Independent
+      evidence review confirms this failed qualification. **Current blocker and
+      next action:** reduce measured repeated graph/snapshot cost before another
+      full attempt, retaining original grants/deadlines and every currentness,
+      custody, oracle, budget and retirement check. The existing bounded original
+      guard profile attributes 0.706118 cumulative seconds to graph composition
+      within its 1.2203335-second sample; nested times are not additive. Evaluate
+      bounded reuse of parsed immutable DATA only after fresh original discovery
+      and byte checks, never cached authority or invocation results. No new
+      performance benefit, robust grant margin or full lifecycle is established.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
