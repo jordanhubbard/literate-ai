@@ -6,6 +6,7 @@ consumer commands are discovered natively but this does not execute a workspace.
 """
 
 import shutil
+import stat
 import tempfile
 import unittest
 from dataclasses import replace
@@ -39,6 +40,11 @@ class RetainedCargoConsumerToolsTests(unittest.TestCase):
         original_cargo = discover_cargo_toolchain()
         self.cargo_launcher = self.base / Path(original_cargo.command[0]).name
         shutil.copy2(original_cargo.command[0], self.cargo_launcher)
+        # Package managers may install read-only tools; this owned copy must
+        # permit the drift test's intentional mutation before it is pinned.
+        self.cargo_launcher.chmod(
+            stat.S_IMODE(self.cargo_launcher.stat().st_mode) | stat.S_IWUSR
+        )
         self.cargo = discover_cargo_toolchain(pinned_command=str(self.cargo_launcher))
         self.rustc = discover_rust_toolchain()
         cargo_identity = ContentIdentity.parse_uri(self.cargo.identity)

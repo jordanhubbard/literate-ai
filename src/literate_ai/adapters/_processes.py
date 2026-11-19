@@ -384,7 +384,9 @@ def process_group_options(*, platform_name: str | None = None) -> dict[str, obje
 _TREE_KILL_GRACE_SECONDS = 5
 
 
-def _await_termination_or_give_up(process: subprocess.Popen[Any]) -> None:
+def _await_termination_or_give_up(
+    process: subprocess.Popen[Any],
+) -> tuple[Any, Any] | None:
     """Bound the post-terminate wait; never block indefinitely.
 
     `terminate_process_tree` is best-effort: on a host where tree kill is
@@ -396,14 +398,14 @@ def _await_termination_or_give_up(process: subprocess.Popen[Any]) -> None:
     """
 
     try:
-        process.communicate(timeout=_TREE_KILL_GRACE_SECONDS)
-        return
+        return process.communicate(timeout=_TREE_KILL_GRACE_SECONDS)
     except subprocess.TimeoutExpired:
         pass
     with suppress(OSError):
         process.kill()
     with suppress(subprocess.TimeoutExpired):
-        process.communicate(timeout=_TREE_KILL_GRACE_SECONDS)
+        return process.communicate(timeout=_TREE_KILL_GRACE_SECONDS)
+    return None
 
 
 def run_with_tree_kill(
@@ -447,9 +449,13 @@ def run_with_tree_kill(
         ownership.bind(process.pid)
         try:
             out, err = process.communicate(timeout=timeout)
-        except subprocess.TimeoutExpired:
+        except subprocess.TimeoutExpired as exc:
             terminate_process_tree(process, environment=env, ownership=ownership)
-            _await_termination_or_give_up(process)
+            captured = _await_termination_or_give_up(process)
+            if os.name == "nt" and captured is not None:
+                # Match subprocess.run: Windows reader threads supply output
+                # after pipe closure; POSIX already records raw partial bytes.
+                exc.stdout, exc.stderr = captured
             raise
     finally:
         ownership.release()

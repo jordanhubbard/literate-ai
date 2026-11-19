@@ -21659,6 +21659,25 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Windows timeout diagnostic retention (in progress):** [installed-wheel CI](https://github.com/jordanhubbard/literate-ai/actions/runs/44596004648/job/135814808144)
+  exposes missing partial stream identities after a real qualification timeout.
+  The process-tree wrapper drains output after termination but discards that
+  result; Windows supplies its captured streams during this final communication.
+  Retain those streams on the original timeout exception, preserve bounded tree
+  cleanup and synchronize the bootstrap helper. Independent source review admits
+  the correction; focused process and qualification controls give 28 passes and
+  four platform skips. Actual Windows installed diagnostics remain required
+  before closing this correction.
+
+- **Hosted Cargo fixture portability (in progress):** [macOS CI](https://github.com/jordanhubbard/literate-ai/actions/runs/44596004648/job/135814807194)
+  fails before the consumer-launcher drift assertion because `copy2` preserves a
+  package manager's read-only executable mode. The controlled read-only launcher
+  reproduces the same failure locally. Make only the test-owned copy writable
+  before pinning it; preserve the installed tool and both real drift-refusal
+  assertions. Both the read-only-source and ordinary focused cohorts pass five
+  cases; the source launcher remains unchanged. Fresh current-head CI is still
+  required before closure.
+
 - **Current pre-release authority reconciliation (in progress):** [Issue 478](https://github.com/jordanhubbard/literate-ai/issues/478)
   records that the project/roadmap target 1.4 while executable repository policy
   still targets 1.3. The public read-only 1.4 release plan refuses with

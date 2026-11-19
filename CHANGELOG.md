@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserve captured stdout and stderr on Windows timeout errors after owned
+  process-tree cleanup, including project bootstrap helpers.
+
 - Admit static release checkouts by complete repository identity and verified
   ownership before synchronization. Hold one exact reservation through transfer
   and the native gate. Preserve foreign work, older basename checkouts and ignored

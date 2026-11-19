@@ -15,6 +15,7 @@ import unittest
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from importlib.resources import files
+from itertools import product
 from pathlib import Path
 from unittest import mock
 
@@ -37,6 +38,7 @@ from literate_ai.application.action_dag_scheduler import (
     LifecycleActionWorker,
 )
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
+from literate_ai.project_template.scripts import _bootstrap_processes
 from literate_ai.retained_package_receiver import CONFIG_SCHEMA, _Registration
 
 
@@ -770,6 +772,104 @@ class RunWithTreeKillTests(unittest.TestCase):
     only killed the direct child, leaving helper trees (git/pip/conan/worker
     bootstrap descendants) alive. `run_with_tree_kill` is the drop-in
     replacement every affected call site now routes through."""
+
+    def test_timeout_retains_streams_drained_after_tree_cleanup(self):
+        for helper, text, retry_kill in product(
+            (_processes, _bootstrap_processes), (False, True), (False, True)
+        ):
+            with self.subTest(helper=helper.__name__, text=text, retry_kill=retry_kill):
+                original = subprocess.TimeoutExpired(["owned-tool"], 1)
+                output = ("partial stdout", "partial stderr")
+                if not text:
+                    output = tuple(value.encode() for value in output)
+                process = mock.Mock(pid=1234)
+                calls = [original]
+                if retry_kill:
+                    calls.append(subprocess.TimeoutExpired(["owned-tool"], 5))
+                process.communicate.side_effect = [*calls, output]
+                ownership = mock.Mock(popen_options={})
+                with (
+                    mock.patch.object(helper.os, "name", "nt"),
+                    mock.patch.object(
+                        helper, "create_process_tree_ownership", return_value=ownership
+                    ),
+                    mock.patch.object(helper.subprocess, "Popen", return_value=process),
+                    mock.patch.object(helper, "terminate_process_tree") as terminate,
+                    self.assertRaises(subprocess.TimeoutExpired) as failure,
+                ):
+                    helper.run_with_tree_kill(["owned-tool"], timeout=1, text=text)
+                self.assertIs(failure.exception, original)
+                self.assertEqual(failure.exception.timeout, 1)
+                self.assertEqual(
+                    (failure.exception.stdout, failure.exception.stderr), output
+                )
+                self.assertEqual(
+                    process.communicate.call_args_list,
+                    [mock.call(timeout=1), mock.call(timeout=5)]
+                    + ([mock.call(timeout=5)] if retry_kill else []),
+                )
+                terminate.assert_called_once_with(
+                    process, environment=None, ownership=ownership
+                )
+                self.assertEqual(process.kill.call_count, int(retry_kill))
+                ownership.bind.assert_called_once_with(1234)
+                ownership.release.assert_called_once_with()
+
+    def test_posix_text_timeout_preserves_original_raw_partial_bytes(self):
+        for helper in (_processes, _bootstrap_processes):
+            with self.subTest(helper=helper.__name__):
+                original = subprocess.TimeoutExpired(
+                    ["owned-tool"], 1, output=b"stdout prefix", stderr=b"stderr prefix"
+                )
+                process = mock.Mock(pid=1234)
+                process.communicate.side_effect = [
+                    original,
+                    ("later stdout", "later stderr"),
+                ]
+                ownership = mock.Mock(popen_options={})
+                with (
+                    mock.patch.object(helper.os, "name", "posix"),
+                    mock.patch.object(
+                        helper, "create_process_tree_ownership", return_value=ownership
+                    ),
+                    mock.patch.object(helper.subprocess, "Popen", return_value=process),
+                    mock.patch.object(helper, "terminate_process_tree"),
+                    self.assertRaises(subprocess.TimeoutExpired) as failure,
+                ):
+                    helper.run_with_tree_kill(["owned-tool"], timeout=1, text=True)
+                self.assertIs(failure.exception, original)
+                self.assertEqual(failure.exception.stdout, b"stdout prefix")
+                self.assertEqual(failure.exception.stderr, b"stderr prefix")
+                ownership.release.assert_called_once_with()
+
+    def test_exhausted_cleanup_preserves_original_partial_streams(self):
+        for helper in (_processes, _bootstrap_processes):
+            with self.subTest(helper=helper.__name__):
+                original = subprocess.TimeoutExpired(
+                    ["owned-tool"], 1, output=b"stdout prefix", stderr=b"stderr prefix"
+                )
+                process = mock.Mock(pid=1234)
+                process.communicate.side_effect = [
+                    original,
+                    subprocess.TimeoutExpired(["owned-tool"], 5),
+                    subprocess.TimeoutExpired(["owned-tool"], 5),
+                ]
+                ownership = mock.Mock(popen_options={})
+                with (
+                    mock.patch.object(
+                        helper, "create_process_tree_ownership", return_value=ownership
+                    ),
+                    mock.patch.object(helper.subprocess, "Popen", return_value=process),
+                    mock.patch.object(helper, "terminate_process_tree"),
+                    self.assertRaises(subprocess.TimeoutExpired) as failure,
+                ):
+                    helper.run_with_tree_kill(["owned-tool"], timeout=1)
+                self.assertIs(failure.exception, original)
+                self.assertEqual(failure.exception.stdout, b"stdout prefix")
+                self.assertEqual(failure.exception.stderr, b"stderr prefix")
+                self.assertEqual(process.communicate.call_count, 3)
+                process.kill.assert_called_once_with()
+                ownership.release.assert_called_once_with()
 
     @unittest.skipUnless(os.name == "posix", "requires POSIX process groups")
     def test_timeout_kills_the_whole_process_tree_not_just_the_direct_child(
