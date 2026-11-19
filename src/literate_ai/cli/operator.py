@@ -596,6 +596,23 @@ def human_operator_status_text(result: dict[str, Any]) -> str:
 
 
 def human_onboard_text(result: dict[str, Any]) -> str:
+    if result.get("schema") == "literate-ai/native-project-removal@1":
+        if result.get("state") == "removed":
+            runtime = result["runtime_cleanup"]
+            lines = [
+                f"Staged {len(result['staged_deletions'])} native profile deletions.",
+                f"Runtime state: {runtime['state']}",
+            ]
+            if runtime.get("path"):
+                lines.append(f"Retained {runtime['path']}: {runtime['reason']}")
+            if runtime.get("retirement_slot"):
+                lines.append(f"Retirement slot: {runtime['retirement_slot']}")
+            return "\n".join(lines) + "\n"
+        return (
+            f"Native removal plan {result['plan_identity']}\n"
+            f"Selected {len(result['selected'])} paths. "
+            "Use --json to review custody and recovery arguments.\n"
+        )
     plan = result.get("plan") if result.get("applied") else result
     if not isinstance(plan, dict):
         plan = {}

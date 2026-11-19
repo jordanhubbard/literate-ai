@@ -29,7 +29,7 @@ import platform
 import socket
 import time
 from collections.abc import Callable, Iterator
-from contextlib import contextmanager, suppress
+from contextlib import ExitStack, contextmanager, nullcontext, suppress
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -73,13 +73,16 @@ class LifecycleLockHolder:
         }
 
 
+def _lock_coordinate(root: Path, framework: Path) -> Path:
+    identity = hashlib.sha256(str(root).encode("utf-8")).hexdigest()
+    return framework / ".litai-locks" / identity / "lifecycle.lock"
+
+
 def project_lifecycle_lock_path(project_root: Path) -> Path:
     """Return the stable lifecycle-lock path for one project checkout."""
 
-    root = Path(project_root).resolve(strict=True)
-    context = ProjectConfigurationStore.context(root)
-    identity = hashlib.sha256(str(context.root).encode("utf-8")).hexdigest()
-    return context.framework_root / ".litai-locks" / identity / "lifecycle.lock"
+    context = ProjectConfigurationStore.context(Path(project_root).resolve(strict=True))
+    return _lock_coordinate(context.root, context.framework_root)
 
 
 def _owner_path(lock_path: Path) -> Path:
@@ -128,6 +131,7 @@ def project_lifecycle_lock(
     timeout_seconds: float = _LIFECYCLE_LOCK_TIMEOUT_SECONDS,
     on_locked: Callable[[], None] | None = None,
     require_path: Callable[[Path], None] | None = None,
+    layout_locked: bool = False,
 ) -> Iterator[None]:
     """Hold the one project-scoped mutating-lifecycle lock for ``operation``.
 
@@ -141,7 +145,25 @@ def project_lifecycle_lock(
     and before removing the owner file. The OS handle always closes on exit.
     """
 
-    lock_path = project_lifecycle_lock_path(project_root)
+    root = Path(project_root).resolve(strict=True)
+    context = ProjectConfigurationStore.context(root)
+    contained_git = context.framework_root != context.root and os.path.lexists(
+        context.root / ".git"
+    )
+    if contained_git and any(
+        name in os.environ
+        for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_COMMON_DIR", "GIT_INDEX_FILE")
+    ):
+        raise ProjectLifecycleLockError(
+            "lifecycle.layout_unsafe",
+            "Contained lifecycle coordination requires the actual Git worktree",
+        )
+    reservation = (
+        ProjectConfigurationStore.layout_lock(context.root)
+        if contained_git and not layout_locked
+        else nullcontext()
+    )
+    lock_path = _lock_coordinate(context.root, context.framework_root)
     owner_path = _owner_path(lock_path)
     if require_path is not None:
         require_path(lock_path)
@@ -164,9 +186,23 @@ def project_lifecycle_lock(
             on_locked()
 
     try:
-        with exclusive_cache_lock(
-            lock_path, timeout_seconds=timeout_seconds, on_locked=_publish_owner
-        ):
+        with ExitStack() as held:
+            with reservation:
+                # Select and acquire the old namespace while native publication
+                # and removal are excluded. Keep only the lifecycle lock during
+                # actual work, so competing operations still refuse promptly.
+                if contained_git and ProjectConfigurationStore.context(root) != context:
+                    raise ProjectLifecycleLockError(
+                        "lifecycle.project_changed",
+                        "Native project layout changed before lifecycle acquisition",
+                    )
+                held.enter_context(
+                    exclusive_cache_lock(
+                        lock_path,
+                        timeout_seconds=timeout_seconds,
+                        on_locked=_publish_owner,
+                    )
+                )
             try:
                 yield
             finally:

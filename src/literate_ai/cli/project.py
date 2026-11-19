@@ -687,7 +687,10 @@ def _update_native_project(args, project) -> dict[str, Any]:
         with ProjectConfigurationStore.layout_lock(project.root):
             _require_native_update_git_boundary(project.root, paths)
             with project_lifecycle_lock(
-                project.root, operation="native-update", require_path=require_lock_path
+                project.root,
+                operation="native-update",
+                require_path=require_lock_path,
+                layout_locked=True,
             ):
                 current = adapter.plan(project.root)
                 if canonical_identity(current.to_dict()).uri != identity:
