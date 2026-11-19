@@ -1733,6 +1733,25 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       speedup, end-to-end pass or grant-margin guarantee. A full retry requires
       fresh sufficient resources and a separately reviewed clean-source freeze;
       retain the earlier publication expiry and every original deadline.
+      The separately reviewed unprofiled installed-adapter retry at clean
+      `2319439f` passes in 1,767.365 seconds, with all 5,626 frozen bindings
+      unchanged. Its single canonical unittest passes without skips in
+      1,733.683 seconds. Original packaged-root acceptance returns before source
+      publication; both ACKs return from the captured original publisher and
+      match actual non-null node memberships exactly. The completed fixture
+      verifies project/lock/driver/invocation bindings and finalized-receipt
+      equality. Installed origins and original namespace custody pass through
+      471 loaded framework modules; all 364 resource bindings match. Independent
+      evidence review binds retained wheel
+      `09a8a03ddf2af11914b5151cb4ed7c5501cf596620b57a6eba7db138edd96fe3`
+      and result
+      `97d29dd3b8eca3f44f8d61aec11dd48f6716a98e9ba93c4e668d96be32c336f6`.
+      Original grants and deadlines remain unchanged. This resolves the observed
+      expiry for this authored macOS installed-adapter cell only; retain R9/R10
+      failures, `qualified:false` and `fullWheelQualified:false`. It does not
+      establish robust timing margin, live-model/ordinary CLI authorization,
+      platform/browser coverage or downstream Aviation cutover. Continue those
+      separate gates; no production grant is inferred from this fixture.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
