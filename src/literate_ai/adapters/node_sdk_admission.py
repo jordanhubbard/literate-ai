@@ -25,6 +25,10 @@ from literate_ai.adapters.node_sdk_tools import (
     require_node_sdk_process_observer,
 )
 from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
+from literate_ai.adapters.node_sdk_verifier_runtime import (
+    register_node_verifier_provider,
+    seal_node_verifier_invocation,
+)
 from literate_ai.adapters.process_liveness import process_liveness
 from literate_ai.contracts import (
     ComponentCommandContract,
@@ -204,7 +208,14 @@ class LocalNodeSDKGenerationAdmission:
         self._require_config()
 
     def with_invocation(
-        self, execution_plan, prepared, receipts, *, consume, expected=None
+        self,
+        execution_plan,
+        prepared,
+        receipts,
+        *,
+        consume,
+        expected=None,
+        inspection_operation=None,
     ):
         """Reopen original inputs and run an operation before retiring its guard.
 
@@ -308,6 +319,14 @@ class LocalNodeSDKGenerationAdmission:
                     require_current=require_live,
                     command_contract=self.consumer,
                 )
+                if inspection_operation is not None:
+                    seal_node_verifier_invocation(
+                        inspection_operation,
+                        execution_plan,
+                        prepared,
+                        invocation,
+                        tuple(entry["data"] for entry in entries),
+                    )
                 if expected is not None and invocation.identity != expected.identity:
                     raise NodeSDKAdmissionError(
                         "fresh SDK inputs differ from original invocation"
@@ -333,6 +352,15 @@ class LocalNodeSDKGenerationAdmission:
                 with capture_loaded_node_library_verifier_inputs(
                     self.oracles[key]
                 ) as oracle:
+                    if inspection_operation is not None:
+                        register_node_verifier_provider(
+                            inspection_operation,
+                            self.ports,
+                            scope,
+                            self.revisions[key],
+                            self.oracles[key],
+                            self.compiler,
+                        )
                     request = self.ports.library_provider_verifier_request(
                         scope,
                         revision=self.revisions[key],

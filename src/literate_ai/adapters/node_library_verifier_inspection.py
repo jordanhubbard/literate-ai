@@ -45,6 +45,20 @@ _RESERVED = {}
 _LOCK = threading.RLock()
 
 
+def _report_enrolled_capture(entry, *, failed):
+    if entry is None or entry[5] is None:
+        return
+    from literate_ai.adapters.node_sdk_verifier_runtime import (
+        report_node_verifier_capture,
+    )
+
+    operation_ref, ticket_ref = entry[5]
+    operation, ticket = operation_ref(), ticket_ref()
+    if operation is None or ticket is None:
+        raise ValueError("enrolled inspection lost its original runtime membership")
+    report_node_verifier_capture(operation, ticket, failed=failed)
+
+
 def _current(handle):
     if type(handle) is not NodeLibraryVerifierInspection:
         raise TypeError("inspection requires its exact original handle")
@@ -62,9 +76,12 @@ def _current(handle):
             if _LIVE.get(handle) is not entry or entry[3]:
                 raise ValueError("Node verifier inspection retired during validation")
         return result
-    except BaseException:
+    except BaseException as error:
         with _LOCK:
             entry[3] = True
+            _close_preserving_primary_failure(
+                lambda: _report_enrolled_capture(entry, failed=True), error
+            )
         raise
     finally:
         with _LOCK:
@@ -405,14 +422,22 @@ def _capture_verifier_inspection(owner, reservation):
                 )
                 finite()
                 return rows, description_values
-            except BaseException:
+            except BaseException as error:
                 active = False
+                with _LOCK:
+                    failed_entry = _LIVE.get(handle)
+                    if failed_entry is not None:
+                        failed_entry[3] = True
+                        _close_preserving_primary_failure(
+                            lambda: _report_enrolled_capture(failed_entry, failed=True),
+                            error,
+                        )
                 raise
 
         charge = sum(len(row[2]) for row in rows) + tools.total_bytes
         _reserve_bytes(reservation, charge)
         with _LOCK:
-            _LIVE[handle] = [validate, charge, False, False]
+            _LIVE[handle] = [validate, charge, False, False, owner, None]
         registered = True
         handle.require_current()
         yield handle
@@ -457,6 +482,15 @@ def _capture_verifier_inspection(owner, reservation):
                     _close_preserving_primary_failure(closer, closing_failure)
                 except BaseException as error:
                     closing_failure = error
+            if registered:
+                try:
+                    _report_enrolled_capture(
+                        closing_entry,
+                        failed=closing_failure is not None or primary is not None,
+                    )
+                except BaseException as error:
+                    if closing_failure is None:
+                        closing_failure = error
             if primary is None and closing_failure is not None:
                 raise closing_failure
         finally:
@@ -579,3 +613,29 @@ __all__ = (
     "capture_node_provider_verifier_inspection",
     "capture_node_sdk_project_verifier_inspection",
 )
+
+
+def enroll_runtime_verifier_inspection(operation, handle):
+    """Join an original live capture at a fixed explicitly owned runtime seam.
+
+    This issues a membership ticket only. Capture-only DATA is never sufficient;
+    no scan, policy decision or grant is performed by this private host join.
+    """
+    from literate_ai.adapters.node_sdk_verifier_runtime import (
+        _RuntimeInspectionOperation,
+        enroll_node_verifier_capture,
+    )
+
+    if type(operation) is not _RuntimeInspectionOperation:
+        raise TypeError("inspection enrollment requires original runtime operation")
+    _current(handle)
+    with _LOCK:
+        entry = _LIVE.get(handle)
+        if entry is None or entry[2] or entry[3] or entry[5] is not None:
+            raise ValueError(
+                "inspection capture is retired, reentrant or already enrolled"
+            )
+        owner = entry[4]
+        ticket = enroll_node_verifier_capture(operation, owner, owner.description)
+        entry[5] = weakref.ref(operation), weakref.ref(ticket)
+        return ticket

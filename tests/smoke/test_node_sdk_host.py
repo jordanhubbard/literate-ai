@@ -221,7 +221,15 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
                 "host-current-inside" if frame is not None else "host-current-outside"
             )
 
-        def delegate(execution, prepared, receipts, *, consume, expected):
+        def delegate(
+            execution,
+            prepared,
+            receipts,
+            *,
+            consume,
+            expected,
+            inspection_operation=None,
+        ):
             result = consume(object(), lambda: events.append("live"))
             events.append("base-close")
             return result
@@ -260,6 +268,11 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
             return returned
 
         with (
+            # This fixture isolates catalog/host closing order using injected
+            # assembly, not original runtime inspection admission.
+            mock.patch.object(
+                host, "runtime_inspection_operation", return_value=nullcontext(None)
+            ),
             mock.patch.object(
                 host.LocalNodeSDKProjectAcceptance,
                 "__init__",

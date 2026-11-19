@@ -24,6 +24,10 @@ from literate_ai.adapters.node_sdk_tools import (
     node_sdk_tool_environment,
     require_node_sdk_process_observer,
 )
+from literate_ai.adapters.node_sdk_verifier_runtime import (
+    create_runtime_inspection_binding,
+    runtime_inspection_operation,
+)
 from literate_ai.contracts import ComponentExecutionPlan, canonical_identity
 from literate_ai.contracts.node_sdk import MAX_NODE_SDK_PROVIDERS
 
@@ -399,6 +403,7 @@ class _BoundAdmission:
             environment=configuration.environment,
         )
         self._base = base
+        self._inspection_binding = create_runtime_inspection_binding(self)
         constructing = False
 
     def _require_inputs(self):
@@ -513,6 +518,7 @@ class _BoundAdmission:
                 authorize_verifier=self.configuration.authorize_verifier,
                 require_current=self.require_current,
                 environment=self.configuration.environment,
+                inspection_operation=inspection_operation,
             )
             with _select_policy(self, execution, policy) as scope:
 
@@ -547,23 +553,31 @@ class _BoundAdmission:
         base = self._checked_base()
         authority_inputs = self.configuration._authority_inputs
         authority_stamps = authority_inputs.capture_current_stamps()
-        result = base.with_invocation(
-            execution, prepared, receipts, consume=owned, expected=expected
-        )
-        # The lower operation has closed its clock/input cut and retired its
-        # scopes. Join that cut with original host observations only: no owner
-        # callback, byte reread, new clock or new baseline follows its return.
-        self._require_inputs()
-        self._require_installed()
-        if (
-            self._base is not base
-            or self.configuration._authority_inputs is not authority_inputs
-        ):
-            raise NodeSDKHostConfigurationError(
-                "SDK host original closing owner changed"
+        with runtime_inspection_operation(
+            self, execution, prepared, receipts
+        ) as inspection_operation:
+            result = base.with_invocation(
+                execution,
+                prepared,
+                receipts,
+                consume=owned,
+                expected=expected,
+                inspection_operation=inspection_operation,
             )
-        authority_stamps()
-        return result
+            # The lower operation has closed its clock/input cut and retired its
+            # scopes. Join that cut with original host observations only: no owner
+            # callback, byte reread, new clock or new baseline follows its return.
+            self._require_inputs()
+            self._require_installed()
+            if (
+                self._base is not base
+                or self.configuration._authority_inputs is not authority_inputs
+            ):
+                raise NodeSDKHostConfigurationError(
+                    "SDK host original closing owner changed"
+                )
+            authority_stamps()
+            return result
 
     def require_build_intent(self, invocation, execution, *args):
         self._checked_base()

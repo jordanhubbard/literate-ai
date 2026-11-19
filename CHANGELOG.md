@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Bind Node verifier inspections to their original host operation, provider scope
+  and actual SDK invocation. Opaque membership tickets retire with the operation;
+  capture failures remain sticky and closing checks use pinned storage without
+  serializers. Tickets retain no released source/tool captures and grant no
+  execution permission; installed lifecycle and downstream qualification remain open.
+
 - Distinguish bounded npm dependency/version subprocess timing from whole Node
   probes in the explicit SDK diagnostic. Preserve default-off instrumentation,
   original calls and unqualified results; record no commands or request data.

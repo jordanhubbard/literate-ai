@@ -472,7 +472,7 @@ def _node_provider_verifier_request(scope, *, revision, oracle, compiler):
     )
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, weakref_slot=True)
 class LocalLibraryProviderCustody:
     """DATA checked only by its originating ports' live scope registry.
 

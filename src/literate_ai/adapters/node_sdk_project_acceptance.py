@@ -188,6 +188,7 @@ class LocalNodeSDKProjectAcceptance:
         authorize_verifier,
         require_current,
         environment,
+        inspection_operation=None,
     ):
         if (
             type(ports) is not LocalStandardLifecyclePorts
@@ -233,6 +234,9 @@ class LocalNodeSDKProjectAcceptance:
             self.contract,
             self.revision,
         )
+        self.inspection_operation = self._original_inspection_operation = (
+            inspection_operation
+        )
         self._authority_inputs = snapshot._input_closure
         self._environment = tuple(sorted(self.environment.items()))
         self._identity = self._config_identity()
@@ -270,6 +274,16 @@ class LocalNodeSDKProjectAcceptance:
             self.revision,
         )
         root = self.snapshot.authority.lock.root_revision
+        if self.inspection_operation is not self._original_inspection_operation:
+            raise ValueError("SDK project inspection operation changed")
+        if self.inspection_operation is not None:
+            from literate_ai.adapters.node_sdk_verifier_runtime import (
+                require_node_verifier_invocation,
+            )
+
+            require_node_verifier_invocation(
+                self.inspection_operation, self.ports, self.execution, self.invocation
+            )
         if (
             any(a is not b for a, b in zip(current, self._originals, strict=True))
             or self.snapshot._input_closure is not self._authority_inputs

@@ -1847,16 +1847,52 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       This is not installed-wheel, model-backed CLI, multi-provider or
       downstream Aviation cutover qualification. Source remained fixed; a single
       read-only native stack sample added no retry or deadline extension.
-      **Next unchecked action:** bind inspected mode privately to one original
-      host/runtime operation and its exact inspection registry entries. Ordinary
-      unbound capture handles and copied DATA cannot obtain grants. Preserve
-      manual callback routing/identities with explicit mutual exclusion. Then
-      add the shared scan/classification owner, a separate verifier-specific
-      acknowledgement and narrowly scoped policy issuance. Only a constructor-
-      owned explicit immutable-empty revocation state is initially supported;
-      arbitrary callbacks/unsupported feeds refuse. Retain finite witnesses in
-      bounded live/closing/terminal grant handles through aggregate publication
-      closure; fresh publication reentry gets a new aggregate.
+      The private runtime inspection anchor now explicitly threads each fresh
+      operation through original provider registration, the actual invocation
+      binder and managed root policy. This ownership-only increment
+      keeps legacy callbacks/identities unchanged and exposes no configurable
+      authorization mode. Tickets retain bounded primitive facts and weak
+      membership only, never released inspection rows, closures or tool readsets.
+      Finite metadata witnesses read only pinned original C storage descriptors
+      from a closed framework-type registry, rejecting inherited field shadows,
+      substituted mapping keys and arbitrary dataclasses before callbacks.
+      Exact datetime and path objects are reference observations only; original
+      lifecycle owners retain grant validity, expiry and physical-input checks.
+      Focused gates pass 19 state/storage/capture cases (3.626s), 12 host cases
+      (4.402s), four root cases (0.324s) and 17 shared capture cases (9.682s),
+      all without skips. The first three native two-provider attempts remain
+      failed: their closed registry refused, respectively, SDK export, CommonJS
+      declaration and existing build-grant metadata before SDK generation.
+      Exact known types and adversarial storage controls correct those omissions;
+      an actual original provider execution/accepted-build preflight now passes.
+      The fourth native two-provider/root-subpath run passes without skips in
+      1,913.588 seconds: the actual original provider and root captures enroll in
+      their explicit runtime operations, released tool readsets collect, copied
+      tickets/field substitution refuse, and all operations/tickets retire after
+      original SDK acceptance and source publication. Together these are 53
+      passing cases. The original fixture grants and deadlines are unchanged;
+      the one bounded read-only stack sample supplies no successful substitute.
+      Independent source/evidence review accepts the exact six-file TCB
+      `0e3265f6b6fe977cc28576f2e7821629d6297b0be5e257af1d46b5826f68797a`;
+      its independent 1,280-member recomputation matches the current source.
+      **Next unchecked action:** join a bounded inert scan to the original live
+      CAPTURING capture/ticket. Preserve baseline scan identities by selecting a
+      distinct six-suffix SDK rule policy, bound findings before allocation, and
+      fence scanner/input/report primitives across owner callbacks. Inventory all
+      rows with explicit source-rule coverage versus data/identity-only inputs;
+      return bounded detached metadata and retain only its CID in the operation.
+      No classification or grant follows from a scan. Actual native tool identity
+      preimages and continuing readset witnesses must join before provenance and
+      classification. Then add a separate verifier-specific acknowledgement and
+      narrowly scoped policy issuance, preserving manual callbacks/identities
+      with explicit mutual exclusion. Only constructor-owned immutable-empty
+      revocation state is initially supported; arbitrary callbacks/unsupported
+      feeds refuse. Retain bounded live/closing/terminal grant witnesses through
+      aggregate publication closure; fresh publication reentry gets a new aggregate.
+      Installed-wheel, ordinary model-backed CLI and Aviation cutover remain open.
+      Broad verification passes authority; its existing test-receipt gate remains
+      stale and three unconfigured lock/source-intelligence/HTML gates skip.
+      These scoped passes do not establish whole-project or release readiness.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.
