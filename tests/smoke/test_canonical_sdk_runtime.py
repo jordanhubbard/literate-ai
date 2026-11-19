@@ -370,7 +370,15 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 runtime = rebuild_setup.assemble(configuration, generate)
             ports = runtime.lifecycle_ports
             actual_accept = ports.accept_project_independently
-            actual_publish = ports.publish
+            publisher = runtime.application.lifecycle.source_cache_publisher
+            publish_method = (
+                "publish_accepted"
+                if callable(getattr(publisher, "publish_accepted", None))
+                else "publish"
+            )
+            if rebuild_setup is not None:
+                self.assertEqual(publish_method, "publish_accepted")
+            actual_publish = getattr(publisher, publish_method)
             actual_check = node_library_verification.check_node_library
 
             def check(*args, **kwargs):
@@ -418,10 +426,13 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 stage("original packaged root acceptance returned")
                 return result
 
-            def publish(membership):
+            def publish(publication):
                 stage("publish accepted source membership")
                 self.assertEqual(len(root_acceptances), 1)
-                result = actual_publish(membership)
+                self.assertIs(
+                    runtime.application.lifecycle.source_cache_publisher, publisher
+                )
+                result = actual_publish(publication)
                 publications.append(result)
                 return result
 
@@ -446,7 +457,7 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
                 mock.patch.object(
                     ports, "accept_project_independently", side_effect=accept
                 ),
-                mock.patch.object(ports, "publish", side_effect=publish),
+                mock.patch.object(publisher, publish_method, side_effect=publish),
                 mock.patch.object(
                     node_library_verification, "check_node_library", side_effect=check
                 ),
@@ -487,6 +498,18 @@ class CanonicalSDKRuntimeTests(unittest.TestCase):
             self.assertEqual(len(checked), 1)
             self.assertEqual(len(root_acceptances), 1)
             self.assertEqual(len(publications), len(providers) + 1)
+            memberships = [
+                node.source_cache_membership for node in result.lifecycle.node_results
+            ]
+            self.assertTrue(all(membership is not None for membership in memberships))
+            self.assertEqual(
+                set(publications),
+                {
+                    membership.identity
+                    for membership in memberships
+                    if membership is not None
+                },
+            )
             self.assertGreaterEqual(len(grants), len(providers) * 2 + 1)
             self.assertEqual(len({g.authorization_id for g in grants}), len(grants))
             self.assertIsNone(current_node_sdk_project_acceptance(ports))

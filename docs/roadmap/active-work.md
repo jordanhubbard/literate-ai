@@ -1666,6 +1666,24 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       installed rebuild preflight with original grants/deadlines and diagnostics
       off. Retain the old failed gate; preflight alone cannot qualify the full
       wheel, model-backed CLI or downstream cutover.
+      The fresh unprofiled attempt at `1313b969` fails after 1,934.834 seconds,
+      with all 5,625 frozen bindings unchanged and stderr retained. Original
+      packaged-root acceptance and runtime execution return; bound/finalized
+      receipt checks and lifecycle-success assertions pass. The subsequent test
+      observer expects two publication ACKs but counts zero: it wraps legacy
+      `ports.publish`, while the installed rebuild composes the complete durable
+      `source_cache_publisher.publish_accepted` owner. This remains a failed
+      preflight, not retrospective qualification. The test-only correction wraps
+      the actual selected owner/method, delegates its original exactly once,
+      preserves publication-after-root-acceptance ordering and two ACKs, and adds
+      exact membership-identity comparison. Three canonical publication controls
+      pass (complete typed custody, twelve-key portable roundtrip and destination
+      substitution refusal); Ruff and the unchanged driver/runner pins pass.
+      The initial local selector import failure is retained separately and fixed
+      by making that ignored selector directory importable. Fresh alignment finds
+      the selected macOS worker ready; other unreachable/low-disk workers are not
+      used. **Next qualification:** a separately reviewed fresh unprofiled native
+      attempt with the corrected observer and unchanged lifecycle limits.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
