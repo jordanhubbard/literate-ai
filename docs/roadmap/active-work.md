@@ -1698,6 +1698,28 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       bounded reuse of parsed immutable DATA only after fresh original discovery
       and byte checks, never cached authority or invocation results. No new
       performance benefit, robust grant margin or full lifecycle is established.
+      The next independently reviewed source increment reuses only parsed skill-
+      manifest DATA within the original SDK consume scope. Fresh discovery,
+      bytes, catalog/reference validation and every original guard remain live.
+      Keys own exact bytes and a detached logical path; eligible parsing uses a
+      private path, values retain primitives and hits construct fresh dependency
+      objects. Entry/byte/dependency bounds skip retention rather than reject
+      valid input. Retirement clears retained data and prevents copied/in-flight
+      contexts from admitting entries after closure, before original Flavor close
+      and the original final guard. The canonical focused gate passes all 26
+      cache/host cases without skips (4.254 seconds), including caller-path
+      mutation, concurrent admission, copied-context retirement, fresh filesystem
+      changes and closure ordering. Two earlier path-mutation fixture errors stay
+      retained; their corrected effective-slot control passes with the real parser.
+      The earlier catalog/host gate passes 29 with 18 explicit compiler skips.
+      With the existing selected Node/TypeScript tools, all 18 admission controls
+      pass separately. The corrected combined canonical gate then passes all 48
+      cases without skips in 173.211 seconds; the earlier combined fixture error
+      stays retained. Final formatting, lint, driver/runner/documentation pins
+      and acyclic-roadmap checks pass. Independent source review binds exactly
+      two changed TCB members. A fresh installed original-guard measurement
+      remains required before another full attempt; no speedup, robust grant
+      margin or native lifecycle pass is claimed.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately

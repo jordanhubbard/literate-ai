@@ -7,9 +7,12 @@ import json
 import os
 import re
 from collections import deque
-from collections.abc import Iterable, Mapping
+from collections.abc import Callable, Iterable, Iterator, Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
+from threading import RLock
 from typing import Any
 
 from literate_ai.contracts.yaml_subset import YamlSubsetError, load_yaml_subset
@@ -34,6 +37,110 @@ class AgentSkillDependency:
     skill_id: str
     version: str | None = None
     identity: str | None = None
+
+
+_SkillMetadata = tuple[str, str | None, tuple[AgentSkillDependency, ...]]
+_SCOPED_SKILL_METADATA: ContextVar[
+    Callable[[bytes, PurePosixPath], _SkillMetadata] | None
+] = ContextVar("scoped_skill_manifest_metadata", default=None)
+_SKILL_METADATA_ENTRY_LIMIT = 128
+_SKILL_METADATA_BYTE_LIMIT = 2 * 1024 * 1024
+_SKILL_METADATA_DEPENDENCY_LIMIT = 4096
+_SKILL_METADATA_PER_ENTRY_DEPENDENCIES = 256
+
+
+@contextmanager
+def read_only_skill_manifest_metadata() -> Iterator[None]:
+    """Reuse parsed DATA after fresh discovery; never retain catalog authority.
+
+    Only immutable bytes/path strings and primitive metadata are retained.
+    Payload bytes and object counts are bounded independently. The private
+    closure owns its limits, entries and retirement, including copied contexts.
+    """
+    parser = _parse_manifest_metadata
+    entry_limit, byte_limit, dependency_limit, per_entry_limit = (
+        _SKILL_METADATA_ENTRY_LIMIT,
+        _SKILL_METADATA_BYTE_LIMIT,
+        _SKILL_METADATA_DEPENDENCY_LIMIT,
+        _SKILL_METADATA_PER_ENTRY_DEPENDENCIES,
+    )
+    entries = {}
+    retained_bytes = retained_dependencies = 0
+    active = True
+    lock = RLock()
+
+    def load(content: bytes, source: PurePosixPath) -> _SkillMetadata:
+        nonlocal retained_bytes, retained_dependencies
+        with lock:
+            retired = not active
+        if retired:
+            return _parse_manifest_metadata(content, source)
+        if type(content) is not bytes or type(source) is not PurePosixPath:
+            return parser(content, source)
+        logical = str(source)
+        if source.name != PurePosixPath(logical).name:
+            return parser(content, source)
+        try:
+            input_bytes = len(content) + len(logical.encode("utf-8"))
+        except UnicodeError:
+            return parser(content, source)
+        if input_bytes > byte_limit:
+            return parser(content, source)
+        key = (logical, content)
+        with lock:
+            cached = entries.get(key) if active else None
+            if cached is not None:
+                name, version, dependencies = cached
+                return (
+                    name,
+                    version,
+                    tuple(AgentSkillDependency(*item) for item in dependencies),
+                )
+        # Parser errors always propagate unchanged and are never cached.
+        parsed = parser(content, PurePosixPath(logical))
+        name, version, dependencies = parsed
+        if (
+            type(name) is not str
+            or (version is not None and type(version) is not str)
+            or len(dependencies) > per_entry_limit
+            or any(type(item) is not AgentSkillDependency for item in dependencies)
+        ):
+            return parsed
+        primitive = tuple(
+            (item.skill_id, item.version, item.identity) for item in dependencies
+        )
+        fields = (name, version, *(part for item in primitive for part in item))
+        if any(value is not None and type(value) is not str for value in fields):
+            return parsed
+        try:
+            payload_bytes = input_bytes + sum(
+                len(value.encode("utf-8")) for value in fields if value is not None
+            )
+        except UnicodeError:
+            return parsed
+        with lock:
+            if (
+                active
+                and key not in entries
+                and len(entries) < entry_limit
+                and retained_bytes + payload_bytes <= byte_limit
+                and retained_dependencies + len(primitive) <= dependency_limit
+            ):
+                entries[key] = (name, version, primitive)
+                retained_bytes += payload_bytes
+                retained_dependencies += len(primitive)
+        return parsed
+
+    owner = _SCOPED_SKILL_METADATA
+    token = owner.set(load)
+    try:
+        yield
+    finally:
+        with lock:
+            active = False
+            entries.clear()
+            retained_bytes = retained_dependencies = 0
+        owner.reset(token)
 
 
 @dataclass(frozen=True, slots=True)
@@ -499,6 +606,17 @@ def _logical_path(value: str | PurePosixPath) -> PurePosixPath:
 
 
 def _manifest_metadata(
+    content: bytes, source: PurePosixPath
+) -> tuple[str, str | None, tuple[AgentSkillDependency, ...]]:
+    parser = _SCOPED_SKILL_METADATA.get()
+    return (
+        _parse_manifest_metadata(content, source)
+        if parser is None
+        else parser(content, source)
+    )
+
+
+def _parse_manifest_metadata(
     content: bytes, source: PurePosixPath
 ) -> tuple[str, str | None, tuple[AgentSkillDependency, ...]]:
     if source.name == "skill.json":

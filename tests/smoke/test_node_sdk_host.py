@@ -192,6 +192,7 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
         """Original wrapper/graph/closures; substitute admission, not qualification."""
         from literate_ai import project_authority_graph as graph
         from literate_ai.adapters import legacy_generation_catalog as catalog
+        from literate_ai.application import agent_skill_catalog as skills
 
         _component, snapshot, execution = with_provider(self.root / "scope-graph")
         project = load_project(self.setup.project.root)
@@ -213,6 +214,9 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
 
         def current():
             frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            self.assertEqual(
+                skills._SCOPED_SKILL_METADATA.get() is not None, frame is not None
+            )
             events.append(
                 "host-current-inside" if frame is not None else "host-current-outside"
             )
@@ -232,6 +236,7 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
 
         def check(observation, roots):
             frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            self.assertEqual(skills._SCOPED_SKILL_METADATA.get() is None, frame.closing)
             events.append("flavor-close" if frame.closing else "flavor-read")
             return original(observation, roots)
 
@@ -271,6 +276,7 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
         self.assertIs(result, returned)
         self.assertIsNone(host._CURRENT.get())
         self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+        self.assertIsNone(skills._SCOPED_SKILL_METADATA.get())
         return events
 
     def test_original_invocation_closes_observation_before_live_and_finite_cuts(self):
