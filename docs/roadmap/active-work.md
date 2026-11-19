@@ -1613,6 +1613,23 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       original whole SDK guard, with original authority, grants, clocks and close
       behavior preserved, before selecting further performance changes. Retain
       the failed installed gate and do not retry it unchanged or extend lifetimes.
+      The separately reviewed whole-guard diagnostic now completes against a
+      fresh noneditable wheel from `0afe71c7`. It admits one actual authored
+      provider, observes exactly one original guard and returns normally through
+      every original close. The instrumented guard takes 1.300663 seconds:
+      eight host-currentness calls account for 1.275987 seconds cumulatively,
+      including eight snapshot checks at 1.225771 seconds and graph reconstruction
+      at 0.751852 seconds. These nested times overlap and cannot be added.
+      Setup takes 126.972185 seconds; the full child takes 219.640422 seconds.
+      All 32 frozen inputs and 140 TypeScript bindings remain unchanged; original
+      fixture cleanup and both parent/child custody checks pass. Generator,
+      coding-CLI and model counts remain zero. Independent evidence review
+      confirms this diagnostic, retaining `qualified: false`; it establishes no
+      uninstrumented margin or native consumer lifecycle acceptance. Two earlier
+      harness failures remain retained: supported Python discovery and a missing
+      allocator parent, both before any measured guard and with clean custody.
+      **Next investigation:** graph reconstruction under fresh original proofs;
+      do not cache currentness or extend grants/deadlines to obtain a pass.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
