@@ -64,7 +64,7 @@ def add_provisioning_arguments(commands):
             parser.add_argument(
                 "--expired-only",
                 action="store_true",
-                help="refuse unless the saved lease observation has expired",
+                help="refuse unless the recorded lease has been observed expired",
             )
             parser.add_argument(
                 "--cancel-attempt",

@@ -8642,6 +8642,13 @@ slice here before implementation so this file always names the resumable frontie
 
 ### [~] RELEASE-CLOSURE-001 — Make release closure executable and continuous
 
+- **Visible goal custody (in progress):** [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+  binds release readiness and `work close` to the existing visible typed queue
+  headings. Fenced examples, HTML comments, prefix-sharing IDs and prose
+  subheadings must not change goal status or conceal unchecked acceptance.
+  Compare all current manifest dispositions and run the public close and sweep
+  controls before independent review and composed qualification.
+
 - **Priority:** P0
 - **Release target:** 1.4.0
 - **Historical scope:** The obsolete 0.10 recovery/candidate/publication instructions
@@ -8658,16 +8665,15 @@ slice here before implementation so this file always names the resumable frontie
   candidate closure; RELEASE-INTEGRATION-005 owns the current contribution sweep.
 - **Depends on:** RELEASE-015
 - **Completion prerequisites:** none
-- **Next action:** Qualify the contribution reader correction in [issue 476](https://github.com/jordanhubbard/literate-ai/issues/476).
-  It must recognize existing in-progress goals as incomplete and preserve their
-  section boundaries; the current reader incorrectly reports two goals missing
-  and assigns a release target to the preceding historical item. Keep every
-  manifest obligation. The early Make barrier is now locally qualified in
-  [PR 475](https://github.com/jordanhubbard/literate-ai/pull/475): actual hosted Linux
-  refuses the same mandatory dependency advisory in 44 seconds before the full
-  Python suite, versus the retained pre-barrier 52m43s job. Preserve all gates,
-  coverage/retry evidence and remaining native, installed, artifact and release
-  acceptance. The unpatched dependency advisory still blocks its gate and release.
+- **Next action:** Complete the [review handoff's coverage-to-artifact boundary](existing-repository-delivery.md#consolidated-release-work-packages)
+  through the existing release/artifact owners. Strict CI coverage supports
+  qualification/check preparation and deliberately refuses publication; its
+  `tested_artifacts: false` evidence is not binary custody. Preserve that refusal
+  until exact tested-artifact promotion and recovery are qualified. The contribution
+  reader and early Make barrier are included in qualified B source `96c404e18`;
+  hosted CI `44381132281` passes. The old advisory was withdrawn upstream, not
+  repaired by this branch. Both audits and the unresolved separate GitGuardian
+  disposition remain. Renew all affected evidence for the final combined candidate.
 - **Implementation:**
   - [x] Archive obsolete historical execution with source/fixture comparison and
         the document-publication proof gap explicitly preserved.
@@ -24206,6 +24212,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Native update and removal custody (in progress):** [Issue 484](https://github.com/jordanhubbard/literate-ai/issues/484)
+  reproduces a previously reviewed removal deleting unchanged working files of a
+  newly independent Git checkout under `litai/`. Native update similarly replaces
+  child working files and update metadata. Check direct `.git` markers in the
+  ancestors of selected files and writer-owned metadata below the application
+  root during planning, apply and forward recovery. Recheck before Git refresh,
+  deletion, update publication and rollback. Exercise ordinary and linked nested
+  repositories, unsafe markers, late boundary changes, recovery and unrelated
+  repositories while preserving checkout registration and accepting the outer
+  worktree's own Git marker.
+
+- **Contained work queue custody (in progress):** [Issue 487](https://github.com/jordanhubbard/literate-ai/issues/487)
+  reproduces `work close` mutating a committed application backlog even when
+  a distinct existing framework backlog contains the selected item. Bind the
+  existing work writer and reported path to the declared framework location.
+  Exercise distinct queues, missing or redirected queues, independent nested
+  Git and both public callers while preserving the conventional root profile.
+  The native bootstrap continues to omit a framework work queue.
+
 - **Ownership prerequisite (in progress):** [Issue 481](https://github.com/jordanhubbard/literate-ai/issues/481)
   records the shared provenance needed by future layout planning. Initialization
   baselines, framework/catalog update bases, imported authority, current topology,
@@ -24220,7 +24245,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Release target:** 1.4.0
 - **Completion prerequisites:** none
 - **Accepted implementation direction:** [ADR 0071](../decisions/0071-derived-project-litai-directory.md) specifies the shared project context, finite root integrations and recoverable migration. [ADR 0074](../decisions/0074-existing-repository-delivery.md) records the subsequent explicit user delegation to implement the review recommendations in this release.
-- **Next action:** Complete the owned-path inventory and shared resolver before migration implementation, coordinated through SDLC-001 and the retained-layout owner.
+- **Next action:** Close the independently reproduced CP-4 nested framework
+  Git-index omission and renew exact-source review before the combined full gate.
+  The correction passes all 14 focused public layout cases; the previous full
+  gate was interrupted and is not qualification for these bytes. Then qualify
+  the public read-only containment plan in [#483](https://github.com/jordanhubbard/literate-ai/issues/483), consuming the independent producer provenance in [#481](https://github.com/jordanhubbard/literate-ai/issues/481) before an acknowledged migration writer. Keep application coordinates and existing ProjectContext discovery; expose shared ownership, reference, renewal and writer-fencing blockers rather than claiming relocation readiness.
+- **Current implementation boundary:** `project layout plan --project PATH` has a fixed `litai/` target and emits a bounded exact-input report without creating locks, caches, host configuration, receipts or provider work. Validate the real legacy conversion, independent import/update-base signals, mixed retained wrapper, custom root integrations, changed inputs, unsafe topology and destination collisions through the public front door. This is a step toward the existing migration acceptance, not a new goal or a substitute for apply/recovery and installed/native qualification.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework core: derived-project layout, onboarding, lifecycle, templates and documentation; PROJECT Goals 1, 4 and 6
 - **Direction:** Require all Literate AI files in every derived project to live beneath a project-local litai/ subdirectory; include this requirement in the release currently in progress (1.4.0).
@@ -24274,11 +24304,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CUDA-SIGNAL-001 — Keep vendor-only source attribution out of CUDA requirements
 
-- **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds exact source/test hashes. This completes the source implementation after its focused and complete source gates; supported driver renewal follows the independent review. Noneditable installed and exact integration acceptance remain required.
+- **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds the exact attribution-correction source and test hashes. That correction passed its focused and complete source gates. Positive-signal follow-up and noneditable installed and exact integration acceptance remain open.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#396](https://github.com/jordanhubbard/literate-ai/issues/396)
-- **Next action:** Complete noneditable installed and current-main/resulting-main qualification of the independently reviewed metadata correction; preserve source bytes, genuine CUDA signals and all predecessor failures. The source implementation is complete, while this release goal remains open.
+- **Next action:** Restore the five genuine toolkit, runtime-type and driver-call
+  signals reproduced independently from [PR 410](https://github.com/jordanhubbard/literate-ai/pull/410)
+  on the current source. Retain the reviewed multiline attribution filter and
+  bounded source inventory. Exercise positive, attribution-only and similarly
+  named portable controls before independent review and supported driver renewal,
+  then complete noneditable installed and current-main qualification.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework inert source inventory and proposed Flavor evidence; PROJECT Goals 1, 2, 4 and 5
 - **Direction:** Include newly filed issue396 in 1.4.0: NVIDIA copyright/license attribution alone must not propose a CUDA accelerator requirement for portable source.
@@ -24301,6 +24336,15 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Historical metadata-gap reproduction:** Public inert inventory on the earlier frozen combined candidate proposed CUDA for a portable Rust identity function when only `SPDX-FileCopyrightText` names a CUDA team or `SPDX-License-Identifier` names a CUDA license. Both original byte digests remain unchanged. Vendor-name removal is implemented, but the metadata-exclusion part of the first implementation checkbox is not yet complete. Add a bounded attribution-only evidence view for CUDA detection, preserving exact original bytes, all other signal/classification behavior and genuine source/compiler/header/API evidence, including code after an inline block-comment close. The correction is now included in this reviewed union; its original frozen batch remains unchanged.
 
 - **Metadata correction development evidence:** The separate correction filters recognized SPDX/copyright lines only in the bounded CUDA evidence view, including wrapped C/XML attribution blocks and code following their closing delimiter. Other detectors, classification, prompt-injection observation and source hashes retain original input. New predecessor controls record nine failing metadata assertions before the correction. The final canonical inventory subset passes all 15 selected methods with no failures or skips, including static Rust/Python Flavor derivation, genuine CUDA evidence after attribution, unchanged digests and a bounded long-indentation control. Strict lint and formatting pass for both changed Python files. `verification/cuda-attribution-metadata-development.json` records exact source/report digests. The complete canonical source gate at correction `7f3486fd5` then passes 2,725 methods with 92 declared skips, no failures and no known failures (2,817 selected); it is development evidence, not release attestation. Subsequent independent review approved these exact bytes and renewed the narrow branch pin; noneditable/native and exact integration qualification remain open. No implementation or completion checkbox is advanced by this focused development result.
+
+- **Positive-signal follow-up under review:** The exact `8ba81d598` inventory
+  misses `CUDAToolkit`, `cudaError_t`, `cudaStream_t`, `cuModuleLoadData()` and
+  `cuModuleLoadDataEx()`. The candidate recognizes those explicit names and
+  keeps the existing attribution and classification paths. Sixteen focused
+  inventory methods pass, including exact source hashes, attribution containing
+  the newly recognized names, similar portable identifiers and the existing
+  evidence-window limit. Independent review, supported driver renewal and
+  complete composed qualification remain open.
 
 ### [x] SOURCE-PROMOTION-ROOT-001 — Expose explicit root lineage for standalone source promotion
 
@@ -24433,12 +24477,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
+- **Goal-state reconciliation:** Release work package G uses the shared visible
+  queue parser tracked under RELEASE-CLOSURE-001 and
+  [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486). The current
+  81 manifest obligations and dispositions remain authority.
 - **Release target:** 1.4.0
 - **Detailed roadmap:** [Existing repository delivery](existing-repository-delivery.md)
 - **Decision:** [ADR 0074](../decisions/0074-existing-repository-delivery.md)
 - **Tracker reconciliation:** [Current issue/PR ownership and dispositions](existing-repository-delivery.md#current-tracker-reconciliation) maps the previously unlinked current-forge requests to existing owners; historical forge numbers remain distinct.
-- **Next action:** Qualify the consolidated timing, checkpoint, artifact and lease
-  changes; complete contained native adoption through the shared layout owner.
+- **Next action.** Complete the fresh source and installed qualification of the
+  independently reviewed native writer, test-origin and release artifact checks.
+  Reconcile visible goal identity under [issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
+  in the next batch. The [release work packages](existing-repository-delivery.md#consolidated-release-work-packages)
+  retain the lease-expiry, selective CUDA, native adoption and final-release obligations.
+
 - **Current batch at `96c404e18`:** The fresh macOS source gate passes 3,096
   tests with 101 declared skips; the exact committed wheel passes 182 whole-wheel
   spans and separate canonical installation. Independent closing review binds
@@ -24454,8 +24506,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   records redundant immutable-parent fetching in the existing repository provider.
   The subsequent cold-cache public update plan stops at its explicit 90-second
   fetch deadline; it does not apply templates or complete the project upgrade.
-  Resolve and catalog both currently fetch, while separate object directories
-  create separate caches. A separate fresh plan using a verified copy of the
+  In that installed version, resolve and catalog both fetch, while separate object
+  directories create separate caches. A separate fresh plan using a verified copy of the
   earlier exact-commit bare cache also stops at the 90-second fetch deadline;
   the project, input cache and runtime remain unchanged. The source candidate now
   shares exact-commit handling across resolution and catalog reads. A paired
@@ -24466,15 +24518,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
   cases also pass with an actual private Git 2.43 build using local-file transport.
   Keep these scoped source controls separate from installed qualification, a
   successful latency comparison, conflict resolution and containment migration.
-  Next complete older-Git transport fallback evidence, final source review and
-  the full candidate gate before committing this implementation.
+  Older-Git transport fallback evidence and final source/authority review are now
+  complete. The actual private Git 2.43 control refuses implicit promisor transport
+  with an empty protocol whitelist and succeeds when only local-file transport is
+  permitted. Final composed-candidate source, installed-wheel and native consumer
+  qualification remain required; these scoped controls grant no release admission.
 - **Installed qualification follow-up:** [#477](https://github.com/jordanhubbard/literate-ai/issues/477)
-  records a harness-owned macOS temporary-path alias rejected by the existing
-  verified-wheel input guard. Canonicalize the newly created runtime directory,
-  retain redirected-user-input refusal, then rerun the complete source and
-  provided-input installed-wheel gates. The causal installed-CLI probe passes
-  only the canonical spelling with all 36 dependency wheel bytes unchanged;
-  the earlier network and aliased-input failures remain unqualified attempts.
+  records the original harness-owned macOS temporary-path alias rejected by the
+  verified-wheel input guard. The reviewed harness now canonicalizes its newly
+  created runtime directory while retaining redirected-user-input refusal. The
+  exact `96c404e18` source, whole-wheel and separate canonical installation
+  gates pass. The earlier causal installed-CLI probe keeps all 36 dependency wheel
+  bytes unchanged; original network and aliased-input failures remain failed
+  attempts. These results do not qualify the later composed candidate.
 
 - **Qualification progress at `98c23928a`:** The harness-owned path correction
   passes the fresh full macOS source gate (3,084 passed, 101 declared skips),
@@ -24484,8 +24540,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
   failure/repair, contained unchanged/no-op updates and removal with native files,
   HEAD, existing
   application staging and custom content preserved; only owned removals are staged.
-  It is not a hosted governed PR. Current-head
-  CI run `44312804737` finishes with 14 passing jobs, one skip and a mandatory
+  It is not a hosted governed PR. CI run `44312804737` for that earlier head finishes with 14 passing jobs, one skip and a mandatory
   OpenSpec advisory failure before Python; GitGuardian also fails without a
   disposition. No security, platform, goal or release obligation is waived.
 
@@ -24502,6 +24557,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Conclusion:** Use ADR 0074 and the existing-repository-delivery program to extend existing owners. Preserve current acceptance obligations and exact source, artifact and trust gates. Live provider allocation, publication and deployment are outside this implementation authorization.
 - **Depends on:** none
 - **Completion prerequisites:** none
+- **Review refinement:** Work packages A–H in the linked handoff refine the
+  existing checklist below. They add finite authority-scope controls, pure Cargo
+  identity projection, frozen-candidate qualification and tested-artifact custody
+  through existing owners. Retain the completed 45-attempt supplied-guidance
+  evidence; actual host activation remains separate. Reconcile review ancestry
+  before replaying open work. This is one execution contract, not another queue.
 - **Implementation:**
   - [ ] Reconcile duplicate IDs and obsolete execution guidance with explicit historical dispositions.
   - [ ] Deliver contained native onboarding, safe upgrade and removal through existing project owners.
@@ -24547,6 +24608,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
   maintained qualification remains pending.
 - **Qualification prerequisite:** The next full run reached 1,705 tests and failed the already tracked mixed-interpreter oracle defect [#424](https://github.com/jordanhubbard/literate-ai/issues/424), with 84 declared skips. Reuse the exact reviewed test correction from `5895a62ad6b97a8d3288324cf68348f728e441b5` / PR #425; preserve full byte equality and actual admitted compiler identity. This is a test-only prerequisite, not a new production optimization. The previously failing accepted-source case and the successive-revision control now both pass on the same mixed-interpreter host in 117.259 seconds; the source remains unchanged and the owned test unit has exited. Full maintained qualification remains pending.
 - **Current Linux qualification:** [Source and installed proof](../../verification/retained-cargo-observation-linux.json) binds `8dd7ff04524bc0c2a1c99102f61d669b470ed56b`: 2,682 Python cases pass, 114 retain declared skips, and none fail. Layout, lint, formatting, driver/runner review, installed/offline, wheel, private-prefix installation, specification/documentation/skills and public-export checks pass. The independently collected wheel is SHA256 `7c706eb65964b8b5fc2257ea2dbf588ff8ab40a2aa765f932ce43cf3b8109f13`; all 5,330 source members and eight tools remain unchanged and owned processes have exited. This supersedes the pending source/installed gate status above; complete native receiving, downstream consumer acceptance and whole-guard speedup remain unproven. The original two failed attempts remain historical evidence.
+- **Current 1.4 review refinement (SDLC-001):** Execute [work package B](existing-repository-delivery.md#consolidated-release-work-packages)
+  before another broad optimization: measure the implicit validation in
+  `current_identity -> scope.identity -> scratch.context.identity`, then test
+  private pure projection within the existing live owner. Keep public validating
+  accessors, process/callback guards and all refusal semantics; require paired
+  complete-admission evidence rather than extrapolating one-call timings.
 - **Priority:** P1
 - **Owner:** Framework core; native retained Cargo input observation
 - **Direction:** Keep genuine per-process currentness feasible for complete native inventories without stale observations or relaxed coverage.

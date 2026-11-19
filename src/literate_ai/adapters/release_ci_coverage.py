@@ -18,6 +18,8 @@ from literate_ai.adapters.github_observation import (
 from literate_ai.contracts import canonical_identity
 from literate_ai.release_ci_coverage import (
     MAX_ARCHIVE_BYTES,
+    PROOF_SCHEMA,
+    TESTED_FILE_PROOF_SCHEMA,
     CICoverageError,
     CoverageContext,
     read_coverage_archive,
@@ -66,8 +68,8 @@ def observe_ci_coverage(
     """Verify a fresh producer report and close the selected run/attempt.
 
     The caller owns committed source/policy checks and their closing observation.
-    This profile verifies complete native action invocations and does not claim
-    hardware attestation, binary qualification, merge or publication authority.
+    The reviewed producer supplies native execution and tested-file facts.
+    Provider run metadata corroborates their job and attempt linkage.
     """
     binding = qualification.ci_coverage
     if binding is None:
@@ -317,6 +319,17 @@ def observe_ci_coverage(
     document = read_coverage_archive(
         transfer.stdout, expected_digest=artifact["digest"]
     )
+    fresh_artifact_jobs = None
+    if binding.tested_file is not None:
+        fresh_artifact_jobs = {
+            job["id"]
+            for job in jobs
+            if job["id"] in successes
+            and attempt_started
+            <= _timestamp(job["started_at"])
+            <= _timestamp(job["completed_at"])
+            <= started
+        }
     cells = validate_ci_coverage(
         document,
         context=context,
@@ -324,6 +337,7 @@ def observe_ci_coverage(
         required_cells=required_cells,
         successful_job_ids=successes,
         producer_job_id=producer["id"],
+        fresh_artifact_job_ids=fresh_artifact_jobs,
     )
     closing_artifact = api(f"repos/{repository}/actions/artifacts/{artifact_id}")
     artifact_fields = (
@@ -345,7 +359,7 @@ def observe_ci_coverage(
     ):
         _fail("Coverage source/run/artifact changed during observation", "stale")
     proof = {
-        "schema": "literate-ai/verified-ci-coverage@1",
+        "schema": TESTED_FILE_PROOF_SCHEMA if binding.tested_file else PROOF_SCHEMA,
         "repository_id": repo["id"],
         "repository": repository,
         "workflow_id": context.workflow_id,
@@ -367,6 +381,8 @@ def observe_ci_coverage(
         "artifact_digest": artifact["digest"],
         "artifact_created_at": artifact["created_at"],
         "cells": cells,
-        "tested_artifacts": False,
+        "tested_artifacts": document["tested_artifacts"]
+        if binding.tested_file
+        else False,
     }
     return dict(proof, identity=canonical_identity(proof).uri)

@@ -31,6 +31,10 @@ from literate_ai.adapters.retained_harness_remote import (
     RetainedHarnessRemoteError,
     RetainedHarnessRemoteResult,
 )
+from literate_ai.adapters.retained_layout import (
+    LEGACY_WRAPPER_COMPONENT,
+    RetainedLayoutDeclaration,
+)
 from literate_ai.cli import main
 from literate_ai.contracts import (
     ExecutionRequirements,
@@ -228,6 +232,133 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
             )
             self.assertEqual(status, 2, stale)
             self.assertEqual(stale["error"]["code"], "project.test_receipt_stale")
+
+    def test_contained_retained_receipt_renews_from_explicit_evidence_location(self):
+        with tempfile.TemporaryDirectory() as directory:
+            workspace = Path(directory).resolve()
+            project = workspace / "converted"
+            shutil.copytree(self.template, project, symlinks=True)
+            implementation = project / LEGACY_WRAPPER_COMPONENT / "implementation"
+            workflow = project / ".github/workflows/host.yml"
+            workflow.parent.mkdir(parents=True, exist_ok=True)
+            workflow.write_bytes(b"name: Native host\non: push\njobs: {}\n")
+            note = project / "operator-note.txt"
+            note.write_bytes(b"Keep this custom application file.\n")
+            preserved = {
+                path: path.read_bytes()
+                for path in (*implementation.rglob("*"), workflow, note)
+                if path.is_file()
+            }
+
+            def receipt(command, candidate=None, *, selected=project):
+                extra = (str(candidate),) if candidate else ()
+                return _invoke(
+                    "project",
+                    "test-receipt",
+                    command,
+                    *extra,
+                    "--project",
+                    str(selected),
+                )
+
+            initial = workspace / "legacy-candidate.json"
+            status, result = receipt("run-retained", initial)
+            self.assertEqual(status, 0, result)
+            status, result = receipt("update", initial)
+            self.assertEqual(status, 0, result)
+            status, result = receipt("require-current")
+            self.assertEqual(status, 0, result)
+            current_path = project / result["result"]["path"]
+            historical_receipt = current_path.read_bytes()
+
+            # Construct an explicit partial placement fixture. This test supplies
+            # the owner-selected inputs; it does not exercise a migration writer.
+            framework = project / "litai"
+            selected_metadata = framework / ".literate"
+            selected_metadata.mkdir(parents=True)
+            for name in (
+                "conversion-authority.json",
+                "harness-inventory.json",
+                "imports.json",
+                "initialization-baseline.json",
+                "initialization-origin.json",
+                "legacy-harness-baseline.json",
+                "legacy-lift-shift.json",
+                "legacy-wrapper-parity.json",
+                "repository-lineage.json",
+                "repository-parent.json",
+                "update-bases.json",
+            ):
+                artifact = project / ".literate" / name
+                if artifact.is_file():
+                    artifact.rename(selected_metadata / name)
+            manifest = project / PROJECT_FILENAME
+            authority = json.loads(manifest.read_bytes())
+            authority["framework_directory"] = "litai"
+            (framework / PROJECT_FILENAME).write_bytes(
+                canonical_json_bytes(authority) + b"\n"
+            )
+            manifest.unlink()
+            guide = project / "docs/user/project-layout.md"
+            old_link = b"](../../literate.project.json)"
+            guide_bytes = guide.read_bytes()
+            self.assertEqual(guide_bytes.count(old_link), 1)
+            guide.write_bytes(
+                guide_bytes.replace(old_link, b"](../../litai/literate.project.json)")
+            )
+            status, review = _invoke(
+                "project", "documentation-review", str(implementation), "--record"
+            )
+            self.assertEqual(status, 0, review)
+
+            status, stale = receipt("require-current", selected=implementation)
+            self.assertEqual(status, 2, stale)
+            self.assertEqual(stale["error"]["code"], "project.test_receipt_stale")
+            self.assertEqual(current_path.read_bytes(), historical_receipt)
+
+            renewed = workspace / "contained-candidate.json"
+            status, result = receipt("run-retained", renewed, selected=implementation)
+            self.assertEqual(status, 0, result)
+            self.assertEqual(result["result"]["tests"], 2)
+            status, result = receipt("update", renewed, selected=implementation)
+            self.assertEqual(status, 0, result)
+            status, result = receipt("require-current", selected=implementation)
+            self.assertEqual(status, 0, result)
+            self.assertEqual(result["result"]["state"], "current")
+            self.assertNotEqual(current_path.read_bytes(), historical_receipt)
+            self.assertEqual({path: path.read_bytes() for path in preserved}, preserved)
+
+            # A byte-identical shadow at the old root cannot supply a missing
+            # record for the declared framework directory.
+            inventory = selected_metadata / "harness-inventory.json"
+            original = inventory.read_bytes()
+            (project / ".literate" / inventory.name).write_bytes(original)
+            inventory.unlink()
+            absent_candidate = workspace / "absent-candidate.json"
+            status, missing = receipt("run-retained", absent_candidate)
+            self.assertEqual(status, 2, missing)
+            self.assertEqual(
+                missing["error"]["code"], "retained_receipt.evidence_invalid"
+            )
+            self.assertFalse(absent_candidate.exists())
+            inventory.write_bytes(original)
+
+            layout = RetainedLayoutDeclaration(
+                LEGACY_WRAPPER_COMPONENT,
+                f"{LEGACY_WRAPPER_COMPONENT}/implementation",
+                (),
+                None,
+            )
+            (selected_metadata / "retained-layout.json").write_bytes(
+                canonical_json_bytes(layout.to_dict()) + b"\n"
+            )
+            blocked_candidate = workspace / "declared-candidate.json"
+            status, blocked = receipt("run-retained", blocked_candidate)
+            self.assertEqual(status, 2, blocked)
+            self.assertEqual(
+                blocked["error"]["code"], "retained_receipt.lift_shift_invalid"
+            )
+            self.assertFalse(blocked_candidate.exists())
 
     def test_remote_worker_is_selected_exactly_and_finalized_by_coordinator(
         self,

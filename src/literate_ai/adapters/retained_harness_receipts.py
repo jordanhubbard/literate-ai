@@ -11,6 +11,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
 from literate_ai.adapters.component_lock_application import (
     ProjectComponentLockSetError,
     current_component_lock_identity,
@@ -624,6 +625,14 @@ def _stage_plan(inventory: dict[str, object]) -> list[dict[str, str]]:
 def _load_retained_documents(
     project: LoadedProject,
 ) -> dict[str, dict[str, Any]]:
+    context = project.context
+    try:
+        require_safe_directory(context.framework_path(".literate"))
+    except (OSError, UnsafeFilesystemPathError):
+        _error(
+            "retained_receipt.evidence_invalid",
+            "retained evidence directory must be direct and available",
+        )
     result: dict[str, dict[str, Any]] = {}
     for name, relative in (
         ("inventory", _INVENTORY_PATH),
@@ -631,7 +640,7 @@ def _load_retained_documents(
         ("parity", _PARITY_PATH),
         ("lift_shift", _LIFT_SHIFT_PATH),
     ):
-        value, canonical = _read_canonical_json(project.root / relative, name)
+        value, canonical = _read_canonical_json(context.framework_path(relative), name)
         result[name] = {
             "value": value,
             "identity": canonical_identity(value).uri,

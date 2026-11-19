@@ -73,9 +73,11 @@ from literate_ai.projects import (
     ProjectConfigurationStore,
     ProjectError,
     discover_project,
+    parse_project_configuration,
 )
 from literate_ai.release_qualification import (
     QUALIFICATION_RECORD_SCHEMA,
+    CITestedFile,
     QualificationRunner,
     ReleaseQualificationError,
     ReleaseQualificationPolicy,
@@ -546,6 +548,21 @@ class ReleasePolicy:
                 )
             except ReleaseQualificationError as exc:
                 _fail("release_policy.qualification", str(exc))
+        if (
+            qualification is not None
+            and qualification.ci_coverage is not None
+            and qualification.ci_coverage.tested_file is not None
+            and (
+                artifact_gate is not None
+                or provider_kind != "github"
+                or schema != RELEASE_POLICY_SCHEMA
+            )
+        ):
+            _fail(
+                "release_policy.qualification",
+                "CI tested-file custody requires release policy @2, GitHub, "
+                "and no local artifact_gate",
+            )
         readme = None
         if readme_raw is not None:
             if schema != RELEASE_POLICY_SCHEMA or provider_kind != "github":
@@ -3574,6 +3591,12 @@ def _strict_ci_coverage(policy: ReleasePolicy) -> bool:
     )
 
 
+def _ci_tested_file(policy: ReleasePolicy) -> CITestedFile | None:
+    qualification = policy.qualification
+    binding = qualification.ci_coverage if qualification else None
+    return binding.tested_file if binding else None
+
+
 def _require_supported_ci_promotion(policy: ReleasePolicy, operation: str) -> None:
     if _strict_ci_coverage(policy):
         raise ProjectReleaseError(
@@ -3934,7 +3957,9 @@ def _close_release_ci_coverage(
         )
 
 
-def _release_record_destination(root: Path, output: Path) -> Path:
+def _release_record_destination(
+    root: Path, output: Path, *, tested_file: CITestedFile | None = None
+) -> Path:
     destination = output if output.is_absolute() else root / output
     try:
         resolved_root = root.resolve(strict=True)
@@ -3957,6 +3982,15 @@ def _release_record_destination(root: Path, output: Path) -> Path:
         raise ProjectReleaseError(
             "release.record_unsafe", "prepared-record destination cannot be a symlink"
         )
+    if tested_file is not None:
+        staged = root / tested_file.path
+        if destination.resolve() == staged or (
+            destination.exists() and staged.exists() and destination.samefile(staged)
+        ):
+            raise ProjectReleaseError(
+                "release.record_overlaps_artifact",
+                "release record cannot replace the staged tested file",
+            )
     return destination
 
 
@@ -4204,6 +4238,7 @@ def _check_release(
             gate["stdout_path"] = f"{gate_node_id}/stdout.log"
             gate["stderr_path"] = f"{gate_node_id}/stderr.log"
         target_evidence = {"kind": "legacy-local"}
+    tested_file = _ci_tested_file(policy)
     artifact_context = (
         evidence_run.node(
             "release/artifacts",
@@ -4211,11 +4246,17 @@ def _check_release(
             parent=evidence_node.node_id if evidence_node else None,
             pins={"revision": snapshot["head"], "version": version},
         )
-        if evidence_run is not None and policy.artifact_gate is not None
+        if evidence_run is not None
+        and (policy.artifact_gate is not None or tested_file is not None)
         else nullcontext()
     )
     with artifact_context:
-        artifacts = _qualify_release_files(root, policy, snapshot, version)
+        if tested_file is not None:
+            artifacts = _check_ci_tested_file(
+                root, policy, plan, snapshot, target_evidence
+            )
+        else:
+            artifacts = _qualify_release_files(root, policy, snapshot, version)
     receipt_context = (
         evidence_run.node(
             "release/receipt",
@@ -4266,7 +4307,9 @@ def _check_release(
         }
         result["schema"] = PREPARED_RELEASE_SCHEMA
     result["identity"] = canonical_identity(result).uri
-    destination = _release_record_destination(root, output)
+    destination = _release_record_destination(root, output, tested_file=tested_file)
+    if tested_file is not None:
+        _qualified_release_files(root, policy, result)
     destination.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write_text(
         destination,
@@ -4383,7 +4426,9 @@ def qualify_release(project: Path, *, output: Path) -> dict[str, object]:
             )
         except ReleaseQualificationError as exc:
             raise ProjectReleaseError(exc.code, str(exc)) from exc
-    destination = _release_record_destination(root, output)
+    destination = _release_record_destination(
+        root, output, tested_file=_ci_tested_file(policy)
+    )
     destination.parent.mkdir(parents=True, exist_ok=True)
     _atomic_write_text(
         destination,
@@ -4860,7 +4905,8 @@ def _qualified_release_files(
 ) -> dict[str, Any] | None:
     from literate_ai.release_files import validate_release_files
 
-    if policy.artifact_gate is None:
+    tested_file = _ci_tested_file(policy)
+    if policy.artifact_gate is None and tested_file is None:
         if "artifacts" in prepared:
             raise ProjectReleaseError(
                 "release.artifacts_invalid",
@@ -4868,16 +4914,83 @@ def _qualified_release_files(
             )
         return None
     try:
-        return validate_release_files(
+        result = validate_release_files(
             root,
             prepared.get("artifacts"),
             revision=str(prepared["prepared_revision"]),
             version=str(prepared["version"]),
-            required_roles=tuple(policy.artifact_gate["required_roles"]),
+            required_roles=(
+                (tested_file.role,)
+                if tested_file is not None
+                else tuple(policy.artifact_gate["required_roles"])
+            ),
             check_bytes=check_bytes,
         )
+        if tested_file is not None and result["files"][0]["path"] != tested_file.path:
+            raise ValueError("qualified release file differs from its CI staging path")
+        return result
     except (ValueError, OSError) as exc:
         raise ProjectReleaseError("release.artifacts_invalid", str(exc)) from exc
+
+
+def _check_ci_tested_file(
+    root: Path, policy: ReleasePolicy, plan: dict, snapshot: dict, target: dict
+) -> dict:
+    from literate_ai.release_ci_coverage import TESTED_FILE_PROOF_SCHEMA
+    from literate_ai.release_files import SCHEMA
+
+    proof = target.get("ci", {}).get("coverage", {})
+    if proof.get("schema") != TESTED_FILE_PROOF_SCHEMA:
+        raise ProjectReleaseError(
+            "release.ci_coverage_incomplete", "CI tested-file proof is required"
+        )
+    # Candidate qualification may observe candidate policy; a planned release
+    # must also preserve the release policy and selected workflow from its base.
+    for path in (RELEASE_POLICY_FILE, proof["workflow_path"]):
+        before = _git(root, "ls-tree", "-z", str(plan["source_revision"]), "--", path)
+        tested = _git(root, "ls-tree", "-z", str(snapshot["head"]), "--", path)
+        if before.stdout != tested.stdout or not before.stdout.startswith(
+            ("100644 blob ", "100755 blob ")
+        ):
+            raise ProjectReleaseError(
+                "release.ci_coverage_source_stale",
+                "tested-file release policy or workflow differs from the plan base",
+            )
+    project = ProjectConfigurationStore.discover(root)
+    if project is not None:
+        path = project.manifest_path.relative_to(root).as_posix()
+        before = _git(root, "ls-tree", "-z", str(plan["source_revision"]), "--", path)
+        try:
+            if not before.stdout.startswith(("100644 blob ", "100755 blob ")):
+                raise ValueError(
+                    "project policy is not a regular file at the plan base"
+                )
+            committed = _git(root, "show", f"{plan['source_revision']}:{path}")
+            base_policy = parse_project_configuration(committed.stdout.encode("utf-8"))
+            if base_policy.repository_policy != _repository_policy(root):
+                raise ValueError("repository policy differs from the plan base")
+        except (ProjectError, ValueError) as exc:
+            raise ProjectReleaseError(
+                "release.ci_coverage_source_stale",
+                "tested-file repository policy differs from the plan base",
+            ) from exc
+    file = proof["tested_artifacts"]
+    manifest = {
+        "schema": SCHEMA,
+        "revision": snapshot["head"],
+        "version": plan["next_version"],
+        "files": [{key: file[key] for key in ("role", "path", "size", "identity")}],
+    }
+    manifest["identity"] = canonical_identity(manifest).uri
+    return _qualified_release_files(
+        root,
+        policy,
+        {
+            "prepared_revision": snapshot["head"],
+            "version": plan["next_version"],
+            "artifacts": manifest,
+        },
+    )
 
 
 def _qualify_release_files(

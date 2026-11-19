@@ -6,6 +6,7 @@ import errno
 import hashlib
 import os
 import stat
+import sys
 import time
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -24,6 +25,23 @@ _LOCK_RETRY_SECONDS = 0.01
 
 class CacheLockError(RuntimeError):
     """A cache publication lock could not be acquired safely."""
+
+
+def _lock_cleanup_allowed(
+    path: Path, require_path: Callable[[Path], None] | None
+) -> bool:
+    """Recheck mutable path custody while retaining any existing operation error."""
+    if require_path is None:
+        return True
+    active_error = sys.exception()
+    try:
+        require_path(path)
+    except Exception as refusal:
+        if active_error is None:
+            raise
+        active_error.add_note(str(refusal))
+        return False
+    return True
 
 
 def cache_lock_path(

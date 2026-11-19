@@ -1102,3 +1102,180 @@ class ReleaseCISelectionTests(ReleaseFixture):
         self.assertEqual(pilot.export(recovered_receipts).returncode, 0)
         pilot.complete_and_archive()
         self.assertEqual(len(consume()["cells"]), 4)
+
+    @unittest.skipIf(os.name == "nt", "Fixture uses a POSIX gh transport double")
+    def test_check_binds_staged_file_to_exact_exported_native_test(self):
+        from literate_ai.release_ci_coverage import validate_retained_ci_coverage
+        from tests.support.coverage_pilot_fixture import CoveragePilotFixture
+
+        artifact_path = "_build/ci-release/application.pyc"
+        pilot = CoveragePilotFixture(
+            self.root,
+            self.base,
+            Path(__file__).resolve().parents[2],
+            self.git,
+            tested_file={
+                "role": "bytecode",
+                "path": artifact_path,
+                "platform": "windows",
+                "action": "test",
+            },
+        )
+        plan = releases.create_release_plan(
+            self.root, transition="patch", explicit_version=None
+        )
+        plan_path = self.base / "tested-file-plan.json"
+        self.write_record(plan_path, plan)
+        releases.prepare_release(self.root, plan_path)
+        self.git(self.root, "add", ".")
+        self.git(self.root, "commit", "-m", "Prepare release using tested CI bytes")
+        pilot.bind_candidate()
+        receipts = pilot.receipts()
+        artifact = self.root / artifact_path
+        tested_bytes = (
+            self.root / "_build/coverage-pilot/native/application.pyc"
+        ).read_bytes()
+        artifact.parent.mkdir()
+        artifact.write_bytes(tested_bytes)
+        pilot.configure()
+        exported = pilot.export(receipts)
+        self.assertEqual(exported.returncode, 0, exported.stderr)
+        good_report = pilot.report.read_bytes()
+        catalog = SchemaCatalog(V2_ROOT)
+        catalog.validate("literate-ai/release-ci-coverage@2", json.loads(good_report))
+        catalog.validate(
+            "literate-ai/release-policy@2", json.loads(pilot.policy_path.read_bytes())
+        )
+        pilot.complete_and_archive()
+        path = self.base / "prepared-tested-file.json"
+        policy = releases.load_release_policy(self.root)[1]
+
+        def check(output=path, transport=run_bounded_process):
+            with (
+                patch.dict(os.environ, pilot.environment),
+                patch.object(releases, "run_bounded_process", transport),
+            ):
+                return releases.check_release(
+                    self.root, plan_path, output=output, target="github"
+                )
+
+        checked = check()
+        self.assertEqual(checked["prepared_revision"], pilot.head)
+        proof = checked["target"]["ci"]["coverage"]
+        file = checked["artifacts"]["files"][0]
+        self.assertEqual(
+            file["identity"], "sha256:" + hashlib.sha256(tested_bytes).hexdigest()
+        )
+        self.assertEqual(file["path"], artifact_path)
+        self.assertEqual(proof["tested_artifacts"]["job_id"], 312)
+        self.assertEqual(proof["tree"], pilot.tree)
+        self.assertEqual(
+            validate_retained_ci_coverage(
+                proof,
+                policy=policy.qualification,
+                revision=pilot.head,
+                release_policy_identity=policy.identity,
+                required_cells={("windows", "test")},
+            ),
+            proof,
+        )
+        SchemaCatalog(V2_ROOT).validate(
+            checked["schema"],
+            {key: value for key, value in checked.items() if key != "record"},
+        )
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            check(artifact)
+        self.assertEqual(refused.exception.code, "release.record_overlaps_artifact")
+        self.assertEqual(artifact.read_bytes(), tested_bytes)
+
+        artifact.write_bytes(bytes([tested_bytes[0] ^ 1]) + tested_bytes[1:])
+        rejected = self.base / "substituted.json"
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            check(rejected)
+        self.assertEqual(refused.exception.code, "release.artifacts_invalid")
+        self.assertFalse(rejected.exists())
+        artifact.write_bytes(tested_bytes)
+
+        reads = 0
+
+        def change_file_during_closing_observation(argv, **kwargs):
+            nonlocal reads
+            if argv[-1] == pilot.state["zip_endpoint"]:
+                reads += 1
+                if reads == 2:
+                    artifact.write_bytes(tested_bytes[:-1])
+            return run_bounded_process(argv, **kwargs)
+
+        rejected = self.base / "changed-during-observation.json"
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            check(rejected, transport=change_file_during_closing_observation)
+        self.assertEqual(refused.exception.code, "release.artifacts_invalid")
+        self.assertEqual(reads, 2)
+        self.assertFalse(rejected.exists())
+        artifact.write_bytes(tested_bytes)
+
+        # Provider labels a copied job as part of the latest attempt. It can
+        # support coverage but cannot support this attempt's file custody.
+        pilot.jobs[2]["started_at"] = "2026-11-17T00:00:01Z"
+        pilot.write_state()
+        rejected = self.base / "copied-job.json"
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            check(rejected)
+        self.assertEqual(refused.exception.code, "release.ci_coverage_stale")
+        self.assertFalse(rejected.exists())
+
+        pilot.configure()
+        bad = copy.deepcopy(receipts)
+        bad["windows"]["actions"][1]["environment_identity"] = "sha256:" + "e" * 64
+        exported = pilot.export(bad)
+        self.assertNotEqual(exported.returncode, 0)
+        self.assertIn("environment or file changed", exported.stderr)
+        self.assertFalse(pilot.report.exists())
+        pilot.complete_without_archive()
+        rejected = self.base / "interrupted-export.json"
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            check(rejected)
+        self.assertEqual(refused.exception.code, "release.ci_coverage_incomplete")
+        self.assertFalse(rejected.exists())
+
+        pilot.configure()
+        exported = pilot.export(receipts)
+        self.assertEqual(exported.returncode, 0, exported.stderr)
+        legacy = json.loads(good_report)
+        legacy["schema"] = "literate-ai/release-ci-coverage@1"
+        legacy.pop("tested_artifacts")
+        pilot.report.write_text(json.dumps(legacy))
+        pilot.complete_and_archive()
+        rejected = self.base / "coverage-only.json"
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            check(rejected)
+        self.assertEqual(refused.exception.code, "release.ci_coverage_invalid")
+        self.assertFalse(rejected.exists())
+
+        for field in ("tree", "policy_identity"):
+            invalid = json.loads(good_report)
+            if field == "tree":
+                invalid["checkout"][field] = "a" * 40
+            else:
+                invalid[field] = "sha256:" + "a" * 64
+            pilot.report.write_text(json.dumps(invalid))
+            pilot.complete_and_archive()
+            rejected = self.base / f"wrong-{field}.json"
+            with (
+                self.subTest(field=field),
+                self.assertRaises(releases.ProjectReleaseError) as refused,
+            ):
+                check(rejected)
+            self.assertEqual(refused.exception.code, "release.ci_coverage_invalid")
+            self.assertFalse(rejected.exists())
+
+        pilot.report.write_bytes(good_report)
+        pilot.complete_and_archive()
+        self.assertEqual(check()["artifacts"], checked["artifacts"])
+        with self.assertRaises(releases.ProjectReleaseError) as refused:
+            releases.publish_release(self.root, path, authorize_external_write=True)
+        self.assertEqual(
+            refused.exception.code, "release.ci_coverage_promotion_unsupported"
+        )
+        self.assertEqual(self.git(self.root, "tag", "--list"), "")
+        self.assertFalse(self.publications)

@@ -33,7 +33,11 @@ from contextlib import contextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
 
-from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
+from literate_ai._cache_lock import (
+    CacheLockError,
+    _lock_cleanup_allowed,
+    exclusive_cache_lock,
+)
 from literate_ai.projects import ProjectConfigurationStore
 
 # Reject a contended mutation quickly rather than blocking the caller for the
@@ -123,6 +127,7 @@ def project_lifecycle_lock(
     operation: str,
     timeout_seconds: float = _LIFECYCLE_LOCK_TIMEOUT_SECONDS,
     on_locked: Callable[[], None] | None = None,
+    require_path: Callable[[Path], None] | None = None,
 ) -> Iterator[None]:
     """Hold the one project-scoped mutating-lifecycle lock for ``operation``.
 
@@ -131,12 +136,19 @@ def project_lifecycle_lock(
     mutating lifecycle -- ``rebuild``, ``--update-receipt``, or shared
     checkpoint/cache-index publication -- already holds it. Read-only
     commands never call this and stay available while it is held.
+
+    A caller-supplied path guard is checked before lock and owner-file writes
+    and before removing the owner file. The OS handle always closes on exit.
     """
 
     lock_path = project_lifecycle_lock_path(project_root)
     owner_path = _owner_path(lock_path)
+    if require_path is not None:
+        require_path(lock_path)
 
     def _publish_owner(_descriptor: int) -> None:
+        if require_path is not None:
+            require_path(owner_path)
         owner_path.write_text(
             json.dumps(
                 LifecycleLockHolder(
@@ -158,8 +170,9 @@ def project_lifecycle_lock(
             try:
                 yield
             finally:
-                with suppress(OSError):
-                    owner_path.unlink()
+                if _lock_cleanup_allowed(owner_path, require_path):
+                    with suppress(OSError):
+                        owner_path.unlink()
     except CacheLockError as exc:
         raise ProjectLifecycleLockError(
             "lifecycle.project_locked",

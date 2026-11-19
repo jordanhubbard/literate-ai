@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import io
 import json
+import os
 import subprocess
 import tempfile
 import unittest
@@ -163,6 +165,9 @@ class ReleaseContributionsTests(unittest.TestCase):
             ),
             encoding="utf-8",
         )
+        return self.sweep_existing_roadmap(root, release)
+
+    def sweep_existing_roadmap(self, root: Path, release: str):
         return sweep_release_contributions(
             root,
             release=release,
@@ -171,6 +176,151 @@ class ReleaseContributionsTests(unittest.TestCase):
             run_command=lambda command, _cwd, _timeout: self.completed(command, []),
             refresh_remote=False,
         )
+
+    def test_roadmap_goal_gate_ignores_fenced_and_commented_goal_shadows(self):
+        goal = "### [~] TASK-123 — Actual work\n- **Release target:** 1.3.1\n"
+        fake = "### [x] TASK-123 — Example\n- **Release target:** 1.3.1\n"
+        for shadow in (
+            f"```markdown\n{fake}```\n",
+            f"<!--\n{fake}-->\n",
+            fake.replace("TASK-123 —", "TASK-123<!-- joined text -->-EXTRA —"),
+        ):
+            with self.subTest(shadow=shadow), tempfile.TemporaryDirectory() as temp:
+                root = self.repository(Path(temp))
+                report = self.roadmap_sweep(
+                    root,
+                    roadmap=goal + "\n" + shadow,
+                    releases={"1.3.1": [{"id": "TASK-123"}]},
+                )
+                self.assertEqual(report["roadmap_goals"]["open"], ["TASK-123"])
+                self.assertEqual(report["roadmap_goals"]["invalid"], [])
+                self.assertFalse(report["ready"])
+
+    def test_checked_goal_with_visible_unfinished_acceptance_stays_open(self):
+        for state in (" ", "~"):
+            with self.subTest(state=state), tempfile.TemporaryDirectory() as temp:
+                root = self.repository(Path(temp))
+                result = self.roadmap_sweep(
+                    root,
+                    roadmap=(
+                        "### [x] TASK-123 — Work\n- **Release target:** 1.3.1\n\n"
+                        "### Operational evidence\n"
+                        f"  - [{state}] Actual acceptance\n"
+                    ),
+                    releases={"1.3.1": [{"id": "TASK-123"}]},
+                )
+                self.assertFalse(result["ready"])
+                self.assertEqual(result["roadmap_goals"]["open"], ["TASK-123"])
+
+    def test_literal_comment_openers_cannot_hide_acceptance(self):
+        for prose in (
+            "Show `<!--` to explain the comment syntax.",
+            "Show `` `<!--` `` to explain the comment syntax.",
+            "Show `<!-- across\ncontinued prose` as a literal marker.",
+            "An escaped opener \\<!-- is ordinary prose.",
+        ):
+            with self.subTest(prose=prose), tempfile.TemporaryDirectory() as temp:
+                root = self.repository(Path(temp))
+                result = self.roadmap_sweep(
+                    root,
+                    roadmap=(
+                        "### [x] TASK-123 — Work\n- **Release target:** 1.3.1\n\n"
+                        + prose
+                        + "\n\n"
+                        "<!--\n### [x] TASK-123 — Hidden example\n-->\n"
+                        "  - [ ] Real acceptance\n"
+                    ),
+                    releases={"1.3.1": [{"id": "TASK-123"}]},
+                )
+                self.assertFalse(result["ready"])
+                self.assertEqual(result["roadmap_goals"]["open"], ["TASK-123"])
+
+    def test_roadmap_goal_gate_refuses_duplicate_visible_work(self):
+        goal = "### [x] TASK-123 — Work\n- **Release target:** 1.3.1\n"
+        with tempfile.TemporaryDirectory() as temp:
+            root = self.repository(Path(temp))
+            with self.assertRaises(ReleaseContributionsError) as caught:
+                self.roadmap_sweep(
+                    root,
+                    roadmap=goal + "\n" + goal,
+                    releases={"1.3.1": [{"id": "TASK-123"}]},
+                )
+            self.assertEqual(caught.exception.code, "roadmap.duplicate_work_id")
+
+    def test_roadmap_goal_gate_does_not_borrow_target_from_prose_or_examples(self):
+        goal = "### [x] TASK-123 — Work\n\n"
+        target = "- **Release target:** 1.3.1\n"
+        examples = f"<!--\n{target}-->\n\n### Other program\n{target}"
+        with tempfile.TemporaryDirectory() as temp:
+            root = self.repository(Path(temp))
+            result = self.roadmap_sweep(
+                root,
+                roadmap=goal + examples,
+                releases={"1.3.1": [{"id": "TASK-123"}]},
+            )
+            self.assertFalse(result["ready"])
+            self.assertEqual(
+                result["roadmap_goals"]["invalid"],
+                [
+                    {"id": "TASK-123", "reason": "roadmap-release-target-mismatch"},
+                ],
+            )
+
+    def test_public_close_requires_actual_acceptance_and_matches_sweep(self):
+        from literate_ai.cli import main
+        from literate_ai.mcp_server import _handle
+
+        body = (
+            "### [ ] TASK-123-EXTRA — Other work\n  - [x] Done\n\n"
+            "### [~] TASK-123 — Actual work\n- **Release target:** 1.3.1\n\n"
+            "### Operational evidence\n  - [ ] Actual acceptance\n\n"
+            "```markdown\n  - [ ] Example only\n```\n"
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            root = self.repository(Path(temp)).resolve()
+            project = Path(__file__).resolve().parents[2] / "literate.project.json"
+            (root / project.name).write_bytes(project.read_bytes())
+            self.roadmap_sweep(
+                root,
+                roadmap=body,
+                releases={"1.3.1": [{"id": "TASK-123"}]},
+            )
+            queue = root / "docs/roadmap/active-work.md"
+            with mock.patch.dict(os.environ, {"LITAI_NO_SELF_UPDATE": "1"}):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                status = main(
+                    ["--json", "work", "close", "TASK-123", "--project", str(root)],
+                    stdout=stdout,
+                    stderr=stderr,
+                )
+                self.assertEqual(status, 2)
+                error = json.loads(stderr.getvalue())["error"]
+                self.assertEqual(error["code"], "roadmap_work.incomplete")
+                self.assertEqual(queue.read_text(encoding="utf-8"), body)
+                self.assertFalse(self.sweep_existing_roadmap(root, "1.3.1")["ready"])
+                completed = body.replace(
+                    "- [ ] Actual acceptance", "- [x] Actual acceptance"
+                )
+                queue.write_text(completed, encoding="utf-8")
+                response = _handle(
+                    {
+                        "id": 1,
+                        "method": "tools/call",
+                        "params": {
+                            "name": "work_close",
+                            "arguments": {
+                                "work_id": "TASK-123",
+                                "acknowledge": True,
+                            },
+                        },
+                    },
+                    project_root=root,
+                )["result"]
+                self.assertFalse(response["isError"], response)
+            self.assertEqual(
+                queue.read_text(encoding="utf-8"), completed.replace("[~]", "[x]", 1)
+            )
+            self.assertTrue(self.sweep_existing_roadmap(root, "1.3.1")["ready"])
 
     def test_roadmap_goal_gate_requires_documented_complete_goals(self) -> None:
         for state in (" ", "~", "x"):

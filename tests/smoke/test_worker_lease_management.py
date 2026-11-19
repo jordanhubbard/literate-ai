@@ -773,6 +773,144 @@ with admitted_lease_dispatch(
         self.assertEqual(self.launch()["status"], "registered")
         self.assertEqual([kind for kind, _ in self.calls()], ["allocate", "manage"])
 
+    def lost_allocation_controller(self):
+        self.config = self.root / "config/worker-provisioner.json"
+        self.state = self.root / "state/worker-provisioning"
+        provisioner.configure(self.config, self.settings)
+        environment = {
+            **os.environ,
+            "LITAI_CONFIG_DIR": str(self.root / "config"),
+            "LITAI_STATE_DIR": str(self.root / "state"),
+            "LITAI_NO_SELF_UPDATE": "1",
+            "PYTHONPATH": str(Path(__file__).resolve().parents[2] / "src"),
+        }
+        program = """
+import os, sys
+from literate_ai.adapters import worker_provisioning as provider
+from literate_ai.cli.dispatch import main
+invoke = provider.invoke
+
+def lose_reply(*args, **kwargs):
+    reply = invoke(*args, **kwargs)
+    if kwargs.get("request") is not None:
+        os._exit(23)
+    return reply
+
+provider.invoke = lose_reply
+raise SystemExit(main(sys.argv[1:]))
+"""
+        arguments = (
+            "worker",
+            "provision",
+            "lease-worker",
+            "--request-id",
+            "allocation-one",
+            "--worker-config",
+            str(self.catalog),
+            "--json",
+        )
+        child = subprocess.run(
+            [sys.executable, "-P", "-c", program, *arguments],
+            cwd=self.root,
+            env=environment,
+            capture_output=True,
+            timeout=15,
+        )
+        self.assertEqual(child.returncode, 23, child.stderr.decode())
+        self.assertTrue((self.root / "allocation").is_file())
+        self.assertEqual(self.record()["status"], "uncertain")
+        self.assertIsNone(self.record()["response"])
+        static = replace(self.worker, worker_id="static-worker")
+        change_registry(self.catalog, lambda _: ExecutionWorkerCatalog((static,)))
+
+        def public(*arguments):
+            output = io.StringIO()
+            with patch.dict(os.environ, environment):
+                status = main(
+                    ["worker", "provisioner", *arguments, "--json"],
+                    stdout=output,
+                    stderr=output,
+                )
+            value = json.loads(output.getvalue())
+            return status, value.get("result", value)
+
+        self.assertEqual(public("disable")[0], 0)
+        return public, static
+
+    def test_public_disable_and_absence_require_exact_terminal_acknowledgement(self):
+        public, static = self.lost_allocation_controller()
+        self.mode.write_text("absent")
+        status, result = public("observe", "lease-worker")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(result["request"]["status"], "uncertain")
+        self.assertEqual(
+            result["request"]["management"]["response"]["status"], "absent"
+        )
+        self.assertNotEqual(public("recover", "lease-worker")[0], 0)
+        status, failure = public(
+            "release", "lease-worker", "--expired-only", "--acknowledge"
+        )
+        self.assertNotEqual(status, 0)
+        self.assertEqual(
+            failure["error"]["code"], "worker.provisioner_lease_not_expired"
+        )
+        self.mode.write_text("ok")
+        status, result = public("release", "lease-worker", "--acknowledge")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(result["request"]["status"], "released")
+        self.assertIsNone(result["request"]["management"]["request"]["lease_id"])
+        self.assertNotIn("dispatch", result["request"])
+        self.assertEqual(public("release", "lease-worker", "--acknowledge")[0], 0)
+        self.assertEqual(
+            [kind for kind, _ in self.calls()], ["allocate", "manage", "manage"]
+        )
+        self.assertEqual(read_registry(self.catalog).workers, (static,))
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+
+    def test_public_expired_generation_survives_rollback_and_absent_lookup(self):
+        public, static = self.lost_allocation_controller()
+        self.mode.write_text("expired")
+        status, result = public("observe", "lease-worker")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(read_registry(self.catalog).workers, (static,))
+        rolled_back = datetime.now(UTC) - timedelta(hours=2)
+        with patch.object(
+            leases,
+            "datetime",
+            SimpleNamespace(
+                now=lambda _zone: rolled_back, fromisoformat=datetime.fromisoformat
+            ),
+        ):
+            status, recovery = public("recover", "lease-worker")
+            self.assertNotEqual(status, 0, recovery)
+            self.mode.write_text("ok")
+            status, result = public("observe", "lease-worker")
+            self.assertEqual(status, 0, result)
+            self.assertEqual(result["request"]["status"], "expired")
+            self.assertNotEqual(public("recover", "lease-worker")[0], 0)
+        self.mode.write_text("wrong-lease")
+        self.assertNotEqual(public("observe", "lease-worker")[0], 0)
+        self.assertEqual(self.record()["status"], "expired")
+        self.mode.write_text("absent")
+        status, result = public("observe", "lease-worker")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(result["request"]["status"], "expired")
+        self.mode.write_text("ok")
+        status, result = public(
+            "release", "lease-worker", "--expired-only", "--acknowledge"
+        )
+        self.assertEqual(status, 0, result)
+        record = result["request"]
+        self.assertEqual(record["status"], "released")
+        self.assertEqual(record["management"]["request"]["lease_id"], "lease-one")
+        self.assertNotIn("dispatch", record)
+        self.assertEqual(
+            public("release", "lease-worker", "--expired-only", "--acknowledge")[0], 0
+        )
+        self.assertEqual([kind for kind, _ in self.calls()].count("allocate"), 1)
+        self.assertEqual(read_registry(self.catalog).workers, (static,))
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+
     def test_release_survives_lost_reply_and_uses_one_idempotency_key(self):
         self.launch()
         self.mode.write_text("lost-release")

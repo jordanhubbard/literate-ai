@@ -20,6 +20,10 @@ from literate_ai.contracts import canonical_identity
 from literate_ai.release_qualification import ReleaseQualificationPolicy, satisfies
 
 REPORT_SCHEMA = "literate-ai/release-ci-coverage@1"
+TESTED_FILE_REPORT_SCHEMA = "literate-ai/release-ci-coverage@2"
+PROOF_SCHEMA = "literate-ai/verified-ci-coverage@1"
+TESTED_FILE_PROOF_SCHEMA = "literate-ai/verified-ci-coverage@2"
+_SHA256 = re.compile(r"sha256:[0-9a-f]{64}")
 MAX_ARCHIVE_BYTES = 16 * 1024 * 1024
 MAX_REPORT_BYTES = 4 * 1024 * 1024
 
@@ -145,6 +149,7 @@ def validate_ci_coverage(
     required_cells: set[tuple[str, str]],
     successful_job_ids: set[int],
     producer_job_id: int,
+    fresh_artifact_job_ids: set[int] | None = None,
 ) -> list[dict]:
     """Return only explicit complete cells bound to current provider/source facts.
 
@@ -153,6 +158,8 @@ def validate_ci_coverage(
     Version1 supports actual complete action invocations, not inferred shard or
     differently named command equivalence, GPU qualification or tested artifacts.
     """
+    binding = policy.ci_coverage
+    tested_file = binding.tested_file if binding else None
     document = _fields(
         value,
         {
@@ -165,10 +172,13 @@ def validate_ci_coverage(
             "qualification_identity",
             "producer_job_id",
             "cells",
-        },
+        }
+        | ({"tested_artifacts"} if tested_file else set()),
         "Coverage report",
     )
-    if policy.ci_coverage is None or document["schema"] != REPORT_SCHEMA:
+    if binding is None or document["schema"] != (
+        TESTED_FILE_REPORT_SCHEMA if tested_file else REPORT_SCHEMA
+    ):
         _fail("Coverage contract is absent or unsupported")
     repository = _fields(document["repository"], {"id", "name"}, "Repository")
     if (
@@ -276,6 +286,35 @@ def validate_ci_coverage(
             "Coverage report is missing required platform/action cells",
             code="incomplete",
         )
+    if tested_file is not None:
+        artifact = _fields(
+            document["tested_artifacts"],
+            {"role", "path", "size", "identity", "job_id", "environment_identity"},
+            "Tested release file",
+        )
+        job = artifact["job_id"]
+        if (
+            artifact["role"] != tested_file.role
+            or artifact["path"] != tested_file.path
+            or not _positive(artifact["size"])
+            or not _positive(job)
+            or any(
+                not isinstance(artifact[key], str)
+                or not _SHA256.fullmatch(artifact[key])
+                for key in ("identity", "environment_identity")
+            )
+            or not any(
+                (cell["platform"], cell["action"])
+                == (tested_file.platform, tested_file.action)
+                and cell["job_ids"] == [job]
+                for cell in accepted
+            )
+        ):
+            _fail("Tested release file differs from the policy or its test action")
+        if fresh_artifact_job_ids is not None and job not in fresh_artifact_job_ids:
+            _fail(
+                "Tested release file lacks a fresh supporting execution", code="stale"
+            )
     return accepted
 
 
@@ -319,12 +358,14 @@ def validate_retained_ci_coverage(
         "Retained CI coverage",
     )
     binding = policy.ci_coverage
+    tested_file = binding.tested_file if binding else None
     if (
         binding is None
-        or value["schema"] != "literate-ai/verified-ci-coverage@1"
+        or value["schema"]
+        != (TESTED_FILE_PROOF_SCHEMA if tested_file else PROOF_SCHEMA)
         or value["revision"] != revision
         or value["policy_identity"] != release_policy_identity
-        or value["tested_artifacts"] is not False
+        or (tested_file is None and value["tested_artifacts"] is not False)
         or not _positive(value["artifact_id"])
         or not _positive(value["attempt"])
         or value["artifact_name"] != binding.artifact_for(value["attempt"])
@@ -381,7 +422,7 @@ def validate_retained_ci_coverage(
             jobs.add(job)
     validate_ci_coverage(
         {
-            "schema": REPORT_SCHEMA,
+            "schema": TESTED_FILE_REPORT_SCHEMA if tested_file else REPORT_SCHEMA,
             "repository": {"id": value["repository_id"], "name": value["repository"]},
             "workflow": {
                 "id": value["workflow_id"],
@@ -400,6 +441,7 @@ def validate_retained_ci_coverage(
             "qualification_identity": value["qualification_identity"],
             "producer_job_id": value["producer_job_id"],
             "cells": cells,
+            **({"tested_artifacts": value["tested_artifacts"]} if tested_file else {}),
         },
         context=context,
         policy=policy,
