@@ -19,7 +19,7 @@ from literate_ai.adapters.node_sdk_project_acceptance import (
 from literate_ai.adapters.project_initialization import initialize_project
 from literate_ai.adapters.standard_project import ProjectedStandardToolchainClosure
 from literate_ai.contracts import RepositoryParentSelection
-from literate_ai.projects import ProjectConfigurationStore
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from tests.smoke.test_canonical_sdk_rebuild import AuthoredSDKRebuildSetup
 from tests.smoke.test_node_sdk_cross_language import with_provider
 
@@ -185,6 +185,133 @@ class NodeSDKHostSnapshotOwnerTests(unittest.TestCase):
         self.assertFalse(scope.active)
         with self.assertRaises(host.NodeSDKHostConfigurationError):
             copied.run(host.current_node_sdk_project_acceptance, ports)
+
+    def _exercise_original_invocation_observation_scope(
+        self, ending=lambda _root: None
+    ):
+        """Original wrapper/graph/closures; substitute admission, not qualification."""
+        from literate_ai import project_authority_graph as graph
+        from literate_ai.adapters import legacy_generation_catalog as catalog
+
+        _component, snapshot, execution = with_provider(self.root / "scope-graph")
+        project = load_project(self.setup.project.root)
+        events = self.observation_events = []
+        returned = object()
+        ports = SimpleNamespace(
+            node_sdk_project_acceptance=None, independent_acceptance_oracle=object()
+        )
+        bound = object.__new__(host._BoundAdmission)
+        bound.ports = ports
+        bound.configuration = SimpleNamespace(
+            expected_execution=execution,
+            snapshot=SimpleNamespace(_catalog=SimpleNamespace(project=project)),
+            root_oracle=ports.independent_acceptance_oracle,
+            authorize_verifier=object(),
+            environment={},
+            _authority_inputs=snapshot._input_closure,
+        )
+
+        def current():
+            frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            events.append(
+                "host-current-inside" if frame is not None else "host-current-outside"
+            )
+
+        def delegate(execution, prepared, receipts, *, consume, expected):
+            result = consume(object(), lambda: events.append("live"))
+            events.append("base-close")
+            return result
+
+        base = SimpleNamespace(with_invocation=delegate)
+        bound._base = base
+        bound._checked_base = lambda: base
+        bound.require_current = current
+        bound._require_inputs = lambda: events.append("finite-input")
+        bound._require_installed = lambda: events.append("finite-installed")
+        original = catalog.LegacyFlavorGraphObservation.require_current
+
+        def check(observation, roots):
+            frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            events.append("flavor-close" if frame.closing else "flavor-read")
+            return original(observation, roots)
+
+        def consumer(_invocation, guard):
+            frame = catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            self.assertEqual(
+                frame.allowed_roots,
+                tuple(str(root) for root in project.roots("flavor")),
+            )
+            first = graph.project_authority_graph(
+                project.root, include_component_locks=False
+            )
+            second = graph.project_authority_graph(
+                project.root, include_component_locks=False
+            )
+            self.assertEqual(first, second)
+            self.assertIsNot(first, second)
+            guard()
+            events.append("consumer-final")
+            ending(project.root)
+            return returned
+
+        with (
+            mock.patch.object(
+                host.LocalNodeSDKProjectAcceptance,
+                "__init__",
+                lambda policy, **options: setattr(policy, "ports", options["ports"]),
+            ),
+            mock.patch.object(
+                catalog.LegacyFlavorGraphObservation,
+                "require_current",
+                autospec=True,
+                side_effect=check,
+            ),
+        ):
+            result = bound.with_invocation(execution, None, (), consume=consumer)
+        self.assertIs(result, returned)
+        self.assertIsNone(host._CURRENT.get())
+        self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+        return events
+
+    def test_original_invocation_closes_observation_before_live_and_finite_cuts(self):
+        events = self._exercise_original_invocation_observation_scope()
+        close = events.index("flavor-close")
+        self.assertIn("host-current-inside", events[:close])
+        self.assertEqual(events[close + 1], "host-current-outside")
+        self.assertLess(close, events.index("live", close + 1))
+        lower = events.index("base-close")
+        self.assertEqual(events[lower + 1 :], ["finite-input", "finite-installed"])
+
+    def test_original_invocation_withholds_result_on_final_flavor_mutation(self):
+        from literate_ai.adapters import legacy_generation_catalog as catalog
+
+        def mutate(root):
+            path = next((root / "flavors").glob("*/flavor.md"))
+            path.write_bytes(path.read_bytes() + b"\n")
+
+        with self.assertRaises(ValueError):
+            self._exercise_original_invocation_observation_scope(mutate)
+        self.assertNotIn("base-close", self.observation_events)
+        self.assertNotIn("finite-input", self.observation_events)
+        self.assertIsNone(host._CURRENT.get())
+        self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+
+    def test_original_invocation_preserves_body_failure_during_dirty_cleanup(self):
+        from literate_ai.adapters import legacy_generation_catalog as catalog
+
+        failure = RuntimeError("original SDK consumer failure")
+
+        def fail(root):
+            path = next((root / "flavors").glob("*/flavor.md"))
+            path.write_bytes(path.read_bytes() + b"\n")
+            raise failure
+
+        with self.assertRaises(RuntimeError) as caught:
+            self._exercise_original_invocation_observation_scope(fail)
+        self.assertIs(caught.exception, failure)
+        self.assertNotIn("base-close", self.observation_events)
+        self.assertIsNone(host._CURRENT.get())
+        self.assertIsNone(catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
 
 
 class NodeSDKHostScopeTests(unittest.TestCase):

@@ -1549,6 +1549,34 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       kinds in 13 rows with zero capture errors and unchanged helper/Node bytes;
       unscoped npm literal subprocesses take 75–86 ms. This is instrumentation
       evidence outside SDK custody, not attribution of the guarded timeout.
+      The fresh diagnostic at `257f03c3` failed earlier at Node revalidation
+      (471.153 seconds for the case): 22.581 of 22.590 probe seconds were outer
+      guard work, and the unchanged 15-second budget expired at 15.175 seconds.
+      Frozen inputs remained unchanged; no guarded npm attribution follows.
+      A zero-child/grant profile of the original installed authored setup locates
+      most snapshot cost in full project-lineage graph construction. Twelve
+      original snapshot checks take 1.420/1.410 seconds without parsed Flavor
+      observations versus 0.931 seconds using the existing observation context,
+      including final revalidation. Installed package/helper bytes stay unchanged.
+      **Next unchecked correction:** bound that parsed-DATA reuse to the original
+      SDK project's Flavor-root key during consumption only, closing it before
+      the existing closing guard. Keep every graph/currentness/byte/membership
+      check and all clocks/polls/deadlines. Retain original primitive metadata
+      fences, independent nested scopes and retirement against copied contexts;
+      foreign roots use ordinary fresh loading. No computed authority identity or
+      currentness result is cached. Independent design review accepts this scope;
+      source review, mutation controls and native acceptance remain required.
+      Review found replaceable metadata/index baselines. The revised candidate
+      uses immutable tuple-backed observation and frame anchors, independent
+      original entries, detached primitive metadata and the existing pinned-input
+      entry-value witnesses. Both ordinary and raw attribute replacement refuse;
+      exposed-index clearing/replacement cannot silently discard close obligations.
+      Final canonical checks pass thirty lineage and twelve SDK-host tests without
+      skips, including explicit unframed observations, coordinated file/content
+      edits, actual graph-close mutation and premature retirement refusal. Ruff
+      lint/format and whitespace checks pass. Independent state/security source
+      review approves the corrected candidate; installed native acceptance and
+      any end-to-end performance benefit remain open.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately

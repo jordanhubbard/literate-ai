@@ -523,7 +523,16 @@ class _BoundAdmission:
                     scope.require_values(self.ports)
 
                 guard()
-                result = consume(invocation, guard)
+                # Reuse parsed Flavor DATA only. The context keeps fresh byte/
+                # membership checks and closes BEFORE the original live guard.
+                from literate_ai.adapters.legacy_generation_catalog import (
+                    read_only_flavor_graph_observations,
+                )
+
+                project = self.configuration.snapshot._catalog.project
+                roots = () if project is None else project.roots("flavor")
+                with read_only_flavor_graph_observations(allowed_roots=roots):
+                    result = consume(invocation, guard)
                 guard()
             self.require_current()
             return result
