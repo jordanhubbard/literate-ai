@@ -30,6 +30,7 @@ from literate_ai.adapters.node_sdk_tools import (
     notify_node_sdk_process,
     require_node_sdk_process_observer,
 )
+from literate_ai.adapters.process_liveness import _close_preserving_primary_failure
 from literate_ai.contracts import ContentIdentity, SemanticVersion, canonical_identity
 from literate_ai.contracts.paths import canonical_relative_posix_paths
 
@@ -329,6 +330,7 @@ class NodeSDKTypeScriptCompiler:
         self.node.require_unchanged(child_environment)
         require_current()
         if observe_process is not None:
+            primary = None
             try:
                 notify_node_sdk_process(
                     observe_process,
@@ -336,10 +338,20 @@ class NodeSDKTypeScriptCompiler:
                     result=result,
                     input_bytes=request,
                 )
+            except BaseException as error:
+                primary = error
+                raise
             finally:
-                require_current()
-                self.node.require_unchanged(child_environment)
-                require_current()
+
+                def close():
+                    require_current()
+                    self.node.require_unchanged(child_environment)
+                    require_current()
+
+                try:
+                    _close_preserving_primary_failure(close, primary)
+                finally:
+                    primary = None
         if result.returncode:
             raise ValueError(
                 "TypeScript SDK compiler rejected the request: "

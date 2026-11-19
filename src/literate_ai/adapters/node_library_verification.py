@@ -36,6 +36,7 @@ from literate_ai.adapters.node_sdk_tools import (
     require_node_sdk_process_observer,
 )
 from literate_ai.adapters.node_sdk_typescript import NodeSDKTypeScriptCompiler
+from literate_ai.adapters.process_liveness import _close_preserving_primary_failure
 from literate_ai.contracts import (
     ArtifactExport,
     ContentIdentity,
@@ -139,11 +140,22 @@ def check_node_library(
                 # oracle closures without repeating the adjacent full guard.
                 scope()
                 return None
+            primary = None
             try:
                 return observe_process(process)
+            except BaseException as error:
+                primary = error
+                raise
             finally:
-                require_current()
-                scope()
+
+                def close():
+                    require_current()
+                    scope()
+
+                try:
+                    _close_preserving_primary_failure(close, primary)
+                finally:
+                    primary = None
 
         require_current()
         declarations = check_node_declarations(

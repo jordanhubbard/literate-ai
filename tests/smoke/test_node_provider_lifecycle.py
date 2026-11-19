@@ -1,5 +1,6 @@
 """Actual accepted provider stages joined to original Node verifier execution."""
 
+import gc
 import os
 import shutil
 import sys
@@ -227,6 +228,15 @@ class NodeProviderLifecycleTests(unittest.TestCase):
         )
         self.processes = []
         self.alive = True
+        self.addCleanup(self._release_fixture)
+
+    def _release_fixture(self):
+        # The checkpoint runner keeps completed test objects for its pin. Release
+        # their fixture owners so the real weak-reference oracle registry retires
+        # them; never clear the production registry or raise its capacity.
+        self.oracle = None
+        self.ports = None
+        gc.collect()
 
     def owner(self):
         if not self.alive:
@@ -264,6 +274,91 @@ class NodeProviderLifecycleTests(unittest.TestCase):
         )
         args.update(changes)
         return self.ports.with_verified_node_library_provider(scope, **args)
+
+    def test_request_description_preserves_actual_provider_request_and_grants_nothing(
+        self,
+    ):
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+            request = self.ports.library_provider_verifier_request(
+                scope,
+                revision=self.revision,
+                oracle=self.oracle,
+                compiler=self.compiler,
+            )
+            description = self.ports.library_provider_verifier_description(
+                scope,
+                revision=self.revision,
+                oracle=self.oracle,
+                compiler=self.compiler,
+            )
+            description.require_matches(request, owner_revision=self.revision.identity)
+            self.assertEqual(description.request, request)
+            self.assertEqual(
+                description.inputs_identity.uri, request.source_bundle_digest
+            )
+            self.assertEqual(
+                description.inputs["acceptance"], scope.acceptance.identity.uri
+            )
+            self.assertEqual(description.inputs["oracle"], self.oracle.identity.uri)
+            self.assertEqual(description.inputs["compiler"], self.compiler.identity.uri)
+            self.assertEqual(self.processes, [])
+
+    def test_request_description_requires_original_live_provider_scope(self):
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+            with self.assertRaises(LocalStandardLifecycleError):
+                self.ports.library_provider_verifier_description(
+                    replace(scope),
+                    revision=self.revision,
+                    oracle=self.oracle,
+                    compiler=self.compiler,
+                )
+        with self.assertRaises(LocalStandardLifecycleError):
+            self.ports.library_provider_verifier_description(
+                scope,
+                revision=self.revision,
+                oracle=self.oracle,
+                compiler=self.compiler,
+            )
+        self.assertEqual(self.processes, [])
+
+    def test_request_description_refuses_oracle_drift_during_closing_owner_check(self):
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+            original = self.ports.require_library_provider_custody
+            calls = 0
+
+            def change(current):
+                nonlocal calls
+                original(current)
+                calls += 1
+                if calls == 2:
+                    self.oracle.cases[0].arguments.append(99)
+
+            try:
+                with (
+                    mock.patch.object(
+                        self.ports,
+                        "require_library_provider_custody",
+                        side_effect=change,
+                    ),
+                    self.assertRaises(ValueError),
+                ):
+                    self.ports.library_provider_verifier_description(
+                        scope,
+                        revision=self.revision,
+                        oracle=self.oracle,
+                        compiler=self.compiler,
+                    )
+            finally:
+                if calls >= 2:
+                    self.oracle.cases[0].arguments.pop()
+            self.assertEqual(calls, 2)
+        self.assertEqual(self.processes, [])
 
     def test_actual_stages_types_and_both_runtimes_hold_guard_only_inside_consumer(
         self,
@@ -650,6 +745,26 @@ class NodeProviderLifecycleTests(unittest.TestCase):
                     lambda *_: self.fail("consumer called"),
                     observe_process=observer,
                 )
+        self.assertEqual(len(self.processes), 1)
+
+    def test_observer_cancellation_survives_owner_loss_and_closing_checks(self):
+        cancellation = KeyboardInterrupt("provider observer fixture cancelled")
+
+        def observer(process):
+            self.processes.append(process)
+            self.alive = False
+            raise cancellation
+
+        with self.assertRaises(KeyboardInterrupt) as caught:
+            with self.ports.accepted_library_provider(
+                self.accepted, require_current=self.owner
+            ) as scope:
+                self.run_join(
+                    scope,
+                    lambda *_: self.fail("consumer called"),
+                    observe_process=observer,
+                )
+        self.assertIs(caught.exception, cancellation)
         self.assertEqual(len(self.processes), 1)
 
     def test_separate_verifier_owner_lost_during_read_cannot_start_tools(self):

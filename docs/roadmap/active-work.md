@@ -1757,6 +1757,35 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       integration: resolve verifier-owned oracles and implement a separately
       reviewed exact-request verifier-authorization owner before model-backed
       CLI acceptance. Never mint production grants from fixture request hashes.
+      The reviewed request-description increment retains the existing manifest
+      preimages as bounded detached DATA, with exact schema/builder/compiler and
+      separately captured owner-revision comparisons. Preserve their canonical
+      bytes and complete request identities. This prerequisite grants nothing:
+      join original file/oracle custody, inspected source, constrained policy and
+      finite revocation witnesses before enabling a public host factory or Node
+      oracle dispatch. Keep the existing manual callback path unchanged.
+      The current serial provider gate also exposed retained test fixtures at the
+      bounded oracle limit and an observer-close path that masks its original
+      owner failure. Release completed test-owned roots through normal weak
+      retirement, without clearing or enlarging the production registry. Reuse
+      the shared primary-error-preserving close in the compiler/verifier
+      observers, clearing exception references on unwind. Direct controls verify
+      original error/cancellation identity despite closing failure and refusal
+      after successful-body owner loss; the verifier control isolates its wrapper
+      without substituting any successful acceptance result.
+      Focused canonical Make gates pass without skips: eight request-description
+      controls, four root-policy controls, 26 native provider cases (139.108s),
+      35 selected TypeScript compiler cases (75.310s) and ten shared verifier
+      cases (32.472s). Retain the two earlier provider failures as diagnostic
+      evidence; neither raising the registry cap nor changing verifier privileges
+      was required. These 83 passing controls establish the bounded DATA and
+      observer corrections, not ordinary CLI authorization or SDK qualification.
+      Independent source/evidence review accepts exactly five changed TCB files
+      and implementation identity
+      `159a5409f7d76660fafa4bed9fa762ab9331664dbcbbbefaacba38cd076561ea`.
+      Authority/documentation verification passes. The existing project test
+      receipt remains stale; locks, source intelligence and HTML checks remain
+      explicit unconfigured skips. No release or complete-project pass is claimed.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.

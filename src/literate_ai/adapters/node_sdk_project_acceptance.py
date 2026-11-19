@@ -14,6 +14,9 @@ from literate_ai.adapters.locked_generation_authority import (
     LockedGenerationAuthoritySnapshot,
 )
 from literate_ai.adapters.node_library_acceptance import NodeLibraryAcceptance
+from literate_ai.adapters.node_library_verifier_request import (
+    NodeLibraryVerifierRequestDescription,
+)
 from literate_ai.adapters.node_sdk_generation import BoundNodeSDKGenerationInvocation
 from literate_ai.adapters.node_sdk_legal import require_locked_node_sdk_legal_files
 from literate_ai.adapters.node_sdk_package import LocalNodeSDKPackageResources
@@ -257,25 +260,27 @@ class LocalNodeSDKProjectAcceptance:
         subject = _PackageSubject(contract, export, root, files)
         project_identity = project_build_plan.identity
 
-        def inputs_identity():
-            return canonical_identity(
-                {
-                    "schema": "literate-ai/local-node-sdk-project-verifier-inputs@1",
-                    "policy": self._identity.uri,
-                    "project_plan": project_identity.uri,
-                    "package_plan": package_plan.identity.uri,
-                    "package_result": package_result.identity.uri,
-                    "build_plan": custody.root_plan.identity.uri,
-                    "artifact": export.identity.uri,
-                    "root_test": root_test.uri,
-                    "packaged_execution": packaged_execution.uri,
-                    "oracle": self.oracle.identity.uri,
-                    "compiler": self.target.typescript.compiler.identity.uri,
-                    "node": self.target.typescript.compiler.node.identity,
-                }
-            )
+        def inputs_document():
+            return {
+                "schema": "literate-ai/local-node-sdk-project-verifier-inputs@1",
+                "policy": self._identity.uri,
+                "project_plan": project_identity.uri,
+                "package_plan": package_plan.identity.uri,
+                "package_result": package_result.identity.uri,
+                "build_plan": custody.root_plan.identity.uri,
+                "artifact": export.identity.uri,
+                "root_test": root_test.uri,
+                "packaged_execution": packaged_execution.uri,
+                "oracle": self.oracle.identity.uri,
+                "compiler": self.target.typescript.compiler.identity.uri,
+                "node": self.target.typescript.compiler.node.identity,
+            }
 
-        original_inputs = inputs_identity()
+        def inputs_identity():
+            return canonical_identity(inputs_document())
+
+        original_document = inputs_document()
+        original_inputs = canonical_identity(original_document)
         stages = ports._node_sdk_project_stages.get(package_result.identity.uri)
         if (
             stages is None
@@ -336,6 +341,10 @@ class LocalNodeSDKProjectAcceptance:
             requested_privileges=("execute-library-verifier",),
             allowed_outputs=("verifier-workspace", "stdout", "stderr"),
         )
+        request_description = NodeLibraryVerifierRequestDescription.capture(
+            request, owner_revision=self.revision.identity, inputs=original_document
+        )
+        request = request_description.request
 
         def describe_request():
             # Describe fixed inputs and close their original finite witnesses.

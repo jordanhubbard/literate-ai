@@ -231,6 +231,48 @@ class NodeLibraryVerificationTests(unittest.TestCase):
             with self.subTest(fault=fault):
                 exercise(fault)
 
+    def test_observer_primary_and_successful_body_closing_failures(self):
+        from literate_ai.adapters import node_library_verification as owner
+
+        def exercise(primary):
+            active = True
+            observed = []
+            closing = RuntimeError("closing owner lost")
+
+            def current():
+                if not active:
+                    raise closing
+                self.runtime.require_current()
+
+            def observer(process):
+                nonlocal active
+                observed.append(process)
+                active = False
+                if primary is not None:
+                    raise primary
+
+            def stopped(*args, **kwargs):
+                kwargs["observe_process"](None)
+                self.fail("closing owner loss must refuse publication")
+
+            # Stop at the original declaration observation seam so this control
+            # isolates the verifier wrapper from the compiler's own close.
+            with self.subTest(primary=type(primary).__name__):
+                with mock.patch.object(owner, "check_node_declarations", stopped):
+                    expected = closing if primary is None else primary
+                    with self.assertRaises(type(expected)) as caught:
+                        self.check(require_current=current, observe_process=observer)
+                self.assertIs(caught.exception, expected)
+                self.assertEqual(observed, [None])
+                self.assertEqual(self.runtime.observations, [])
+
+        for primary in (
+            None,
+            ValueError("observer failed"),
+            KeyboardInterrupt("cancelled"),
+        ):
+            exercise(primary)
+
     def test_weakened_types_refuse_before_any_runtime_harness(self):
         symbols = self.surface.capabilities[0].symbols
         weak = "\n".join(

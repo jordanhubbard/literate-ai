@@ -412,18 +412,22 @@ def _require_library_oracle_authority(oracle, revision, surface):
         )
 
 
+def _node_provider_verifier_input_document(scope, oracle, compiler):
+    return {
+        "schema": "literate-ai/local-node-provider-verifier-inputs@1",
+        "acceptance": scope.acceptance.identity.uri,
+        "artifact": scope.export.identity.uri,
+        "contract": scope.contract.identity.uri,
+        "oracle": oracle.identity.uri,
+        "surface": scope.contract.library_import_surface.identity.uri,
+        "compiler": compiler.identity.uri,
+        "node": compiler.node.identity,
+    }
+
+
 def _node_provider_verifier_inputs(scope, oracle, compiler):
     return canonical_identity(
-        {
-            "schema": "literate-ai/local-node-provider-verifier-inputs@1",
-            "acceptance": scope.acceptance.identity.uri,
-            "artifact": scope.export.identity.uri,
-            "contract": scope.contract.identity.uri,
-            "oracle": oracle.identity.uri,
-            "surface": scope.contract.library_import_surface.identity.uri,
-            "compiler": compiler.identity.uri,
-            "node": compiler.node.identity,
-        }
+        _node_provider_verifier_input_document(scope, oracle, compiler)
     )
 
 
@@ -6070,6 +6074,31 @@ class LocalStandardLifecyclePorts:
         return _node_provider_verifier_request(
             scope, revision=revision, oracle=oracle, compiler=compiler
         )
+
+    def library_provider_verifier_description(
+        self, scope, *, revision, oracle, compiler
+    ):
+        """Expose request DATA within original provider custody; grant nothing."""
+        from literate_ai.adapters.node_library_verifier_request import (
+            NodeLibraryVerifierRequestDescription,
+        )
+
+        request = self.library_provider_verifier_request(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+        description = NodeLibraryVerifierRequestDescription.capture(
+            request,
+            owner_revision=revision.identity,
+            inputs=_node_provider_verifier_input_document(scope, oracle, compiler),
+        )
+        self.require_library_provider_custody(scope)
+        description.require_matches(
+            _node_provider_verifier_request(
+                scope, revision=revision, oracle=oracle, compiler=compiler
+            ),
+            owner_revision=revision.identity,
+        )
+        return description
 
     def with_verified_node_library_provider(
         self,

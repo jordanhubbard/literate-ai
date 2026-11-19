@@ -795,6 +795,38 @@ class TypeScriptCompilerTests(unittest.TestCase):
         self.assertEqual(observations[0].returncode, 0)
         self.assertTrue(json.loads(observations[0].stdout)["success"])
 
+    def test_observer_failure_identity_survives_closing_owner_loss(self):
+        def exercise(primary):
+            active = True
+            observations = []
+
+            def current():
+                if not active:
+                    raise RuntimeError("closing owner lost")
+
+            def observe(value):
+                nonlocal active
+                observations.append(value)
+                active = False
+                raise primary
+
+            with self.subTest(primary=type(primary).__name__):
+                with self.assertRaises(type(primary)) as caught:
+                    self.compiler.run(
+                        files=(file("src/index.ts", "export const value=42;"),),
+                        roots=("src/index.ts",),
+                        operation="compile",
+                        environment=self.environment,
+                        require_current=current,
+                        observe_process=observe,
+                    )
+                self.assertIs(caught.exception, primary)
+                self.assertEqual(len(observations), 1)
+                self.assertEqual(observations[0].returncode, 0)
+
+        for primary in (ValueError("observer failed"), KeyboardInterrupt("cancelled")):
+            exercise(primary)
+
     def test_invalid_observer_is_denied_before_compiler_execution(self):
         with patch(
             "literate_ai.adapters.node_sdk_typescript.run_bounded_process"
