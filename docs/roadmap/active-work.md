@@ -21659,6 +21659,24 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Remaining functional CI qualification:** The bootstrap loader's expected
+  digest was not advanced with its reviewed helper. Rebind it to those exact
+  reviewed bytes without weakening tamper checks; all 13 bootstrap controls now
+  pass locally. Fresh Windows and macOS installed checks remain required.
+  Native Linux receiving also refuses a missing target-specific runtime search
+  directory; investigate the actual compile/output layout before changing its
+  custody checks. Windows full shards expose additional repository, native
+  removal and process-lifecycle failures. These are functional qualification
+  work, independent of the non-blocking source-hash false positives.
+
+- **Release-owner false-positive disposition:** The owner directed: "Do not make
+  git guardian's false positives release blockers." The [reproduced provenance](../../verification/release-security-finding-provenance.json)
+  classifies incidents 40026323, 40026324 and 40026325 as source-module SHA-256
+  digests. These verified false positives are informational for release 1.4.0,
+  even while the provider reports failure; provider dismissal is not a release
+  prerequisite. Keep actual security findings, functional CI and platform
+  qualification requirements in force.
+
 - **Windows timeout diagnostic retention (in progress):** [installed-wheel CI](https://github.com/jordanhubbard/literate-ai/actions/runs/44596004648/job/135814808144)
   exposes missing partial stream identities after a real qualification timeout.
   The process-tree wrapper drains output after termination but discards that

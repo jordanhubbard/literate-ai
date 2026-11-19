@@ -83,5 +83,18 @@
   "recipe": "git show <reported_commit>:<reported_file> identifies the value at the reported line. For framework modules, hash git show <source_subject>:<member> without transforming bytes. For PyYAML, verify the registry sdist digest before hashing its lib/yaml/tokens.py member.",
   "review_scope": "PR 421 and intermediate PR 475 heads only. Compare each field to the SHA-256 of the named public source bytes. Each original provider check still reports failure.",
   "schema": "literate-ai/release-security-provenance@1",
-  "unique_incidents": 4
+  "unique_incidents": 4,
+  "release_owner_disposition": {
+    "release": "1.4.0",
+    "decision": "verified_false_positives_are_non_blocking",
+    "authorization": "Do not make git guardian's false positives release blockers",
+    "verified_non_blocking_incidents": [
+      "40026323",
+      "40026324",
+      "40026325"
+    ],
+    "basis": "Each reported field exactly reproduces the SHA-256 of its referenced public source-module bytes.",
+    "provider_dismissal_required_for_release": false,
+    "other_security_and_functional_gates": "unchanged"
+  }
 }
