@@ -544,6 +544,18 @@ class WindowsReleaseWorkerCustodyTests(unittest.TestCase):
             self.assertTrue(gate.stderr.endswith(request.terminal_receipt))
             self.assertEqual(git(checkout, "rev-parse", "HEAD"), revision)
             self.assertFalse((checkout / ".git/litai-release-reservation").exists())
+            # A completed failing gate releases custody for a new successful run.
+            reused = ReleaseWorkerCheckout.create(
+                str(workspace), "b" * 64, windows=True
+            )
+            command(reused.prepare(), 0)
+            command(reused.apply(revision, str(project), uploaded=False), 0)
+            success = command(
+                reused.gate(revision, (sys.executable, "-c", "pass"), {}), 0
+            )
+            self.assertTrue(success.stderr.endswith(reused.terminal_receipt))
+            self.assertEqual(git(checkout, "rev-parse", "HEAD"), revision)
+            self.assertFalse((checkout / ".git/litai-release-reservation").exists())
 
     @unittest.skipUnless(
         os.name == "nt", "requires native Windows junction and PowerShell"

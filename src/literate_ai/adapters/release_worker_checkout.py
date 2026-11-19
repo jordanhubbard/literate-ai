@@ -432,9 +432,9 @@ exit "$gate_status"
 if (-not (Reserved) -or (git rev-parse HEAD) -ne '{revision}') {{ exit 73 }}
 {ps_environment}
 $ErrorActionPreference = 'Continue'
-$LASTEXITCODE = 127
+$global:LASTEXITCODE = 127
 & {ps_argv}
-$gateStatus = $LASTEXITCODE
+$gateStatus = $global:LASTEXITCODE
 $ErrorActionPreference = 'Stop'
 if (-not (Reserved) -or (git rev-parse HEAD) -ne '{revision}') {{ exit 73 }}
 Release-Reservation

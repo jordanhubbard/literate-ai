@@ -13,6 +13,8 @@ import time
 import unittest
 from dataclasses import replace
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from literate_ai.adapters.repository_lineage import (
     REPOSITORY_PARENT_FILE,
@@ -145,6 +147,82 @@ def reference(repository: Path) -> RepositoryParentReference:
 
 
 class GitRepositorySnapshotProviderTests(unittest.TestCase):
+    def test_cached_objects_use_complete_metadata_instead_of_directory_hints(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            repository = create_repository(
+                temporary, "parent", RepositoryParentSelection.root()
+            )
+            revision = git(repository, "rev-parse", "HEAD")
+            pinned = RepositoryParentReference(repository.resolve().as_uri(), revision)
+            provider = GitRepositorySnapshotProvider(temporary / "cache")
+            self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+            actual_scandir = os.scandir
+
+            class CachedDirectoryEntry:
+                def __init__(self, entry):
+                    self.entry = entry
+
+                def __getattr__(self, name):
+                    return getattr(self.entry, name)
+
+                def stat(self, *, follow_symlinks=True):
+                    actual = self.entry.stat(follow_symlinks=follow_symlinks)
+                    fields = {
+                        name: getattr(actual, name)
+                        for name in dir(actual)
+                        if name.startswith("st_")
+                    }
+                    fields["st_nlink"] = 0
+                    return SimpleNamespace(**fields)
+
+            @contextlib.contextmanager
+            def windows_directory_hints(path):
+                with actual_scandir(path) as entries:
+                    yield (CachedDirectoryEntry(entry) for entry in entries)
+
+            with patch.object(os, "scandir", windows_directory_hints):
+                self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+
+    def test_hard_linked_cached_object_is_still_refused(self):
+        with tempfile.TemporaryDirectory() as directory:
+            temporary = Path(directory)
+            repository = create_repository(
+                temporary, "parent", RepositoryParentSelection.root()
+            )
+            revision = git(repository, "rev-parse", "HEAD")
+            pinned = RepositoryParentReference(repository.resolve().as_uri(), revision)
+            cache = temporary / "cache"
+            provider = GitRepositorySnapshotProvider(cache)
+            provider.resolve(pinned)
+            bare = cache / (
+                hashlib.sha256(pinned.repository_url.encode()).hexdigest() + ".git"
+            )
+            backing = next(
+                path for path in (bare / "objects").rglob("*") if path.is_file()
+            )
+            original = backing.read_bytes()
+            mode = stat.S_IMODE(backing.stat().st_mode)
+            outside = temporary / "borrowed-object"
+            try:
+                os.link(backing, outside)
+            except OSError as exc:
+                self.skipTest(f"requires file hard links: {exc}")
+            try:
+                with self.assertRaises(GitRepositoryLineageError) as refused:
+                    provider.resolve(pinned)
+                self.assertEqual(
+                    refused.exception.code, "repository_lineage.cache_unsafe"
+                )
+                self.assertEqual(outside.read_bytes(), original)
+            finally:
+                # Windows Git objects are read-only; restore the owned fixture's
+                # original mode after removing the additional link.
+                outside.chmod(mode | stat.S_IWUSR)
+                outside.unlink()
+                backing.chmod(mode)
+            self.assertEqual(provider.resolve(pinned).resolved_revision, revision)
+
     def test_redirected_cached_object_refuses_before_using_external_backing(
         self,
     ) -> None:

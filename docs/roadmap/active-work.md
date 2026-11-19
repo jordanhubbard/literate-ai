@@ -21659,6 +21659,24 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Windows repository backing metadata (in progress):** Native onboarding and
+  cached-parent reads reject private Git objects because Windows directory-entry
+  stat hints report a zero link count. Obtain complete no-follow file metadata
+  before checking the existing single-link invariant; retain rejection of real
+  hard links, redirected objects and non-regular backing files. Require a
+  zero-link-hint regression and actual Windows confirmation. The complete
+  repository-lineage cohort passes nine local controls, including real hard-link
+  refusal and recovery; native Windows confirmation remains pending.
+
+- **Windows release-checkout exit status (in progress):** The native hosted
+  reservation case completes prepare/apply but refuses custody after a gate
+  that should return 11. The gate's local `LASTEXITCODE` sentinel shadows the
+  global automatic variable updated by native commands. Use the global status
+  for initialization and capture, retain every ownership check and terminal
+  receipt, and require actual Windows nonzero-exit/reuse confirmation. Nine
+  local controls pass; the two Windows-native cases remain explicitly skipped
+  on macOS, including the strengthened nonzero-exit/successful-reuse case.
+
 - **Remaining functional CI qualification:** The bootstrap loader's expected
   digest was not advanced with its reviewed helper. Rebind it to those exact
   reviewed bytes without weakening tamper checks; all 13 bootstrap controls now

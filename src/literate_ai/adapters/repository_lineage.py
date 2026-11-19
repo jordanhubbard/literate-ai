@@ -762,7 +762,8 @@ class GitRepositorySnapshotProvider:
                                 "repository object inventory exceeds "
                                 "the local-cache bound",
                             )
-                        metadata = child.stat(follow_symlinks=False)
+                        # Windows DirEntry hints omit the real hard-link count.
+                        metadata = os.stat(child.path, follow_symlinks=False)
                         if stat_is_link_or_reparse(metadata):
                             raise GitRepositoryLineageError(
                                 "repository_lineage.cache_unsafe",

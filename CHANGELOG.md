@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Preserve a native Windows release gate's exit status after closing its managed
+  checkout reservation.
+- Use complete no-follow metadata for repository object link counts while
+  retaining private backing-file checks on Windows.
+
 - Preserve captured stdout and stderr on Windows timeout errors after owned
   process-tree cleanup, including project bootstrap helpers.
 
