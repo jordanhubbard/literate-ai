@@ -6,6 +6,7 @@ import sys
 import tempfile
 import threading
 import unittest
+from asyncio import CancelledError
 from contextvars import copy_context
 from pathlib import Path
 from unittest import mock
@@ -62,6 +63,79 @@ class ProcessLivenessTests(unittest.TestCase):
             before = len(observations)
             require_process_liveness()
             self.assertEqual(observations[before:], ["outer"])
+        require_process_liveness()
+
+    def test_nested_closing_failures_preserve_the_exact_body_error(self):
+        from literate_ai.security import AuthorizationError
+
+        primary = AuthorizationError("security.authorization_expired")
+        closing = False
+        close_events = []
+
+        def outer():
+            if closing:
+                close_events.append("outer")
+                if close_events.count("outer") > 1:
+                    raise ValueError("secondary outer close failure")
+
+        def inner():
+            if closing:
+                close_events.append("inner")
+                raise RuntimeError("secondary inner close failure")
+
+        with self.assertRaises(AuthorizationError) as caught:
+            with process_liveness(outer):
+                with process_liveness(inner):
+                    copied = copy_context()
+                    closing = True
+                    raise primary
+        self.assertIs(caught.exception, primary)
+        self.assertEqual(close_events, ["outer", "inner", "outer"])
+        with self.assertRaises(ProcessLivenessError):
+            copied.run(require_process_liveness)
+        require_process_liveness()
+        traceback = primary.__traceback__
+        while traceback is not None:
+            if traceback.tb_frame.f_code.co_name == "process_liveness":
+                self.assertIsNone(traceback.tb_frame.f_locals.get("primary"))
+            traceback = traceback.tb_next
+
+    def test_cancellation_is_not_replaced_by_a_secondary_close_failure(self):
+        primary = CancelledError("fixture cancellation")
+        closing = False
+
+        def owner():
+            if closing:
+                raise RuntimeError("secondary cleanup validation")
+
+        with self.assertRaises(CancelledError) as caught:
+            with process_liveness(owner):
+                copied = copy_context()
+                closing = True
+                raise primary
+        self.assertIs(caught.exception, primary)
+        with self.assertRaises(ProcessLivenessError):
+            copied.run(require_process_liveness)
+        require_process_liveness()
+
+    def test_successful_body_still_refuses_a_closing_failure(self):
+        expected = ValueError("closing owner changed")
+        closing = False
+        escaped = False
+
+        def owner():
+            if closing:
+                raise expected
+
+        with self.assertRaises(ValueError) as caught:
+            with process_liveness(owner):
+                copied = copy_context()
+                closing = True
+            escaped = True
+        self.assertIs(caught.exception, expected)
+        self.assertFalse(escaped)
+        with self.assertRaises(ProcessLivenessError):
+            copied.run(require_process_liveness)
         require_process_liveness()
 
     def test_scope_capacity_does_not_replace_an_existing_owner(self):

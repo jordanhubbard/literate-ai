@@ -1180,6 +1180,54 @@ class StandardLocalCommandAdapterTests(unittest.TestCase):
         self.assertEqual(ports._library_provider_scope_count, 0)
         self.assertEqual(ports._library_provider_scope_bytes, 0)
 
+        # Reproduce the installed SDK failure with the actual original BUILD
+        # grant and registered provider, without sleeping or extending lifetime.
+        from contextvars import copy_context
+
+        from literate_ai.adapters.process_liveness import (
+            ProcessLivenessError,
+            process_liveness,
+            require_process_liveness,
+        )
+
+        expires = ports._plan_inputs_by_revision[
+            accepted.component_revision.uri
+        ].authorization.grant.expires_at
+        original_failure = []
+        with self.assertRaises(AuthorizationError) as caught:
+            with ports.accepted_library_provider(
+                accepted, require_current=owner
+            ) as expired:
+                with process_liveness(
+                    lambda: ports.require_library_provider_custody(expired)
+                ):
+                    copied = copy_context()
+                    with mock.patch.object(ports, "clock", return_value=expires):
+                        try:
+                            ports.require_library_provider_custody(expired)
+                        except AuthorizationError as error:
+                            original_failure.append(error)
+                            raise
+        self.assertEqual(len(original_failure), 1)
+        self.assertIs(caught.exception, original_failure[0])
+        self.assertEqual(str(caught.exception), "security.authorization_expired")
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+        self.assertNotIn(id(expired), ports._library_provider_scopes)
+        with self.assertRaisesRegex(LocalStandardLifecycleError, "not live"):
+            ports.require_library_provider_custody(expired)
+        with self.assertRaises(ProcessLivenessError):
+            copied.run(require_process_liveness)
+        require_process_liveness()
+        traceback = caught.exception.__traceback__
+        while traceback is not None:
+            if traceback.tb_frame.f_code.co_name in {
+                "accepted_library_provider",
+                "process_liveness",
+            }:
+                self.assertIsNone(traceback.tb_frame.f_locals.get("primary"))
+            traceback = traceback.tb_next
+
         fake_suite = canonical_identity("foreign suite")
         fake_tests = replace(
             accepted.generated_tests, generated_test_suite_identity=fake_suite

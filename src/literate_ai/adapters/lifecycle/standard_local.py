@@ -5884,6 +5884,9 @@ class LocalStandardLifecyclePorts:
             capture_materialized_files,
             read_directory_export,
         )
+        from literate_ai.adapters.process_liveness import (
+            _close_preserving_primary_failure,
+        )
 
         if not callable(require_current):
             raise TypeError("library provider requires a current live owner")
@@ -6016,10 +6019,19 @@ class LocalStandardLifecyclePorts:
             with self._library_provider_scope_lock:
                 self._library_provider_scopes[id(scope)] = (scope, validate)
             self.require_library_provider_custody(scope)
+            primary = None
             try:
                 yield scope
+            except BaseException as error:
+                primary = error
+                raise
             finally:
-                self.require_library_provider_custody(scope)
+                try:
+                    _close_preserving_primary_failure(
+                        lambda: self.require_library_provider_custody(scope), primary
+                    )
+                finally:
+                    primary = None
         finally:
             with self._library_provider_scope_lock:
                 if scope is not None:

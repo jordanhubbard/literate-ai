@@ -1577,6 +1577,31 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       lint/format and whitespace checks pass. Independent state/security source
       review approves the corrected candidate; installed native acceptance and
       any end-to-end performance benefit remain open.
+      The unprofiled installed attempt at `9fb7ebcb` fails one case after
+      2,020.372 seconds, with two authored attempts/two generated nodes and
+      unchanged frozen inputs. It enters original packaged-root acceptance but
+      never returns from it. The first failure is expiration of the provider's
+      original BUILD authorization; later process-liveness and provider-scope
+      unwind checks mask it with retired-scope errors. Independent evidence
+      review confirms the failed checkpoint. **Next correction:** preserve the
+      exact incoming exception at those two closing boundaries while performing
+      their existing checks and unconditional retirement/reset/quota cleanup;
+      successful bodies must still be withheld on closing failure. Do not extend
+      grants or deadlines. A zero-child/grant profile of the exact installed
+      wheel confirms the scoped Flavor parsing reduction and locates remaining
+      skill-catalog reconstruction cost; this is not native acceptance.
+      The shared exception-precedence helper now has independent source approval.
+      It runs the original two closing callbacks, retains an explicitly captured
+      incoming exception on secondary callback failure, and still withholds a
+      successful body on closing failure. Primary locals are cleared after
+      unwind; retirement/reset/quota cleanup order is unchanged. This does not
+      promise precedence over failures in those separate cleanup operations.
+      Canonical checks pass all sixteen liveness cases and five standard-command
+      cases; the existing macOS persistent-service readiness skip is retained.
+      The actual registered-provider fixture expires its original BUILD grant at
+      its existing expiry, preserves that exact error through nested close, and
+      proves copied-context retirement and zero scope-quota leakage. Ruff and
+      whitespace checks pass. Native rebuild qualification remains open.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately

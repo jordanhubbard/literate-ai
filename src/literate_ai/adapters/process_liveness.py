@@ -82,6 +82,19 @@ def capture_process_liveness():
     return require_original
 
 
+def _close_preserving_primary_failure(close, primary):
+    """Perform the original close, retaining an already propagating body error.
+
+    A failed operation cannot publish a result. Callers still owe unconditional
+    retirement; no exception or traceback is retained beyond that local unwind.
+    """
+    try:
+        close()
+    except BaseException:
+        if primary is None:
+            raise
+
+
 @contextmanager
 def process_liveness(require_current):
     """Keep synchronous owner checks active through child launch, poll and close.
@@ -103,14 +116,21 @@ def process_liveness(require_current):
     guard = _LiveGuard(require_current)
     token = _GUARDS.set((*previous, guard))
     completed = False
+    primary = None
     try:
         require_process_liveness()
         yield
         completed = True
+    except BaseException as error:
+        primary = error
+        raise
     finally:
         try:
             if completed or all(item.is_active() for item in _GUARDS.get()):
-                require_process_liveness()
+                _close_preserving_primary_failure(require_process_liveness, primary)
         finally:
-            guard.retire()
-            _GUARDS.reset(token)
+            try:
+                guard.retire()
+                _GUARDS.reset(token)
+            finally:
+                primary = None
