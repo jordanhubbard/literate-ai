@@ -366,6 +366,10 @@ def _handle(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             return component_authoring_from_args(args)
         raise CliFailure("cli.usage", "a component command is required")
     if args.command == "project":
+        if args.project_command == "qualify":
+            from .authored_qualification import authored_qualification_from_args
+
+            return authored_qualification_from_args(args), 0
         from .project import (
             agent_entrypoints_from_args,
             documentation_review_from_args,
@@ -2045,6 +2049,33 @@ def _parser() -> JsonArgumentParser:
     project_commands = project.add_subparsers(
         dest="project_command", required=True, parser_class=JsonArgumentParser
     )
+    project_qualify = project_commands.add_parser(
+        "qualify", help="qualify genuinely authored Component graphs"
+    )
+    project_qualify_commands = project_qualify.add_subparsers(
+        dest="project_qualify_command", required=True, parser_class=JsonArgumentParser
+    )
+    for name, description in (
+        ("plan", "inspect the current authored graph without writing or executing"),
+        ("apply", "execute an acknowledged authored plan and publish closed evidence"),
+    ):
+        qualify = project_qualify_commands.add_parser(name, help=description)
+        qualify.add_argument(
+            "component", help="root Component path relative to the project root"
+        )
+        qualify.add_argument("--project", default=".")
+        qualify.add_argument("--target", default="host")
+        qualify.add_argument("--flavor", action="append", default=[])
+        qualify.add_argument("--profile", default="litai/qualification.json")
+        qualify.add_argument("--output-root", default="litai/qualification")
+        qualify.add_argument("--model")
+        if name == "apply":
+            qualify.add_argument("--acknowledge-plan", required=True)
+            qualify.add_argument("--allow-host-execution", action="store_true")
+            qualify.add_argument("--scratch-parent")
+            qualify.add_argument("--recover-attempt")
+            qualify.add_argument("--max-parallelism", type=int, default=1)
+            qualify.add_argument("--max-bytes", type=int, default=256 * 1024 * 1024)
     project_validate = project_commands.add_parser("validate")
     project_validate.add_argument("path", nargs="?", default=".")
     project_layout = project_commands.add_parser(
@@ -3494,6 +3525,7 @@ def main(
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
     scoped_native_ci = command == "project.ci"
     scoped_layout = command == "project.layout"
+    scoped_authored_qualification = command == "project.qualify"
     scoped_tree_render = command == "render.tree"
     scoped_orchestration = (
         scoped_orchestration
@@ -3501,6 +3533,7 @@ def main(
         or scoped_agent_entrypoints
         or scoped_native_ci
         or scoped_layout
+        or scoped_authored_qualification
         or scoped_tree_render
         or scoped_retained_promotion
     )
@@ -3577,16 +3610,24 @@ def main(
                 else "project.agent_entrypoints_read_only_options"
                 if scoped_agent_entrypoints
                 else (
-                    "worker.health_read_only_options"
-                    if scoped_worker_health
+                    "qualification.authored.scoped_options"
+                    if scoped_authored_qualification
                     else (
-                        "render.tree.scoped_options"
-                        if scoped_tree_render
-                        else "orchestration.read_only_options"
+                        "worker.health_read_only_options"
+                        if scoped_worker_health
+                        else (
+                            "render.tree.scoped_options"
+                            if scoped_tree_render
+                            else "orchestration.read_only_options"
+                        )
                     )
                 ),
-                "read-only inspection does not admit MCP discovery "
-                "or debug-file output",
+                "qualification does not admit MCP discovery or debug-file output"
+                if scoped_authored_qualification
+                else (
+                    "read-only inspection does not admit MCP discovery "
+                    "or debug-file output"
+                ),
             )
         if (
             args.command not in {"config", "help", "verify"}
