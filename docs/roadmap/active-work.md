@@ -1525,6 +1525,17 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       exact packed legal bytes/mode and source-mode drift refusal before compile.
       The reviewed three-file production closure is `618bc873` (1,277 members).
       Fresh unprofiled installed rebuild acceptance is the next unchecked gate.
+      The unprofiled attempt at `60b686ef` then failed after 761.738 seconds:
+      npm literal-dependency revalidation exceeded its unchanged 15-second
+      deadline at 19.072 seconds. Both authored nodes were generated, frozen
+      Python/TypeScript/Node inputs stayed unchanged, and original failure
+      diagnostics were captured without enabling profiling. **Next unchecked
+      action:** extend the default-off diagnostic to distinguish the original
+      npm dependency subprocess phases from Node-version probes, preserving
+      original calls, output bounds, polls and deadlines. Measure that failing
+      operation before selecting further validation optimization. The legal
+      repair's focused evidence remains valid; installed rebuild, ordinary CLI
+      and downstream SDK qualification remain open.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
