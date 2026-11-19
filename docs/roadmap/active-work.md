@@ -1654,6 +1654,18 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       installed wheel before selecting the next lifecycle qualification. No
       performance benefit, uninstrumented margin, full consumer lifecycle or
       downstream cutover is established by these source/native controls.
+      The renewed installed-wheel guard diagnostic at `1884b634` passes with
+      unchanged wheel/helper inputs, all fifteen controller bindings and 140
+      TypeScript files intact. Exactly one original guard returns and all
+      original closes/cleanup complete normally; generator, coding-CLI and model
+      counts remain zero. Its 1.2203335-second instrumented sample makes seven
+      host/snapshot checks rather than eight, confirming the structural change.
+      Independent evidence review verifies both custody cuts and results. The
+      earlier 1.3006631-second sample does not establish a robust speedup or grant
+      margin. **Next qualification:** one fresh, unprofiled canonical authored
+      installed rebuild preflight with original grants/deadlines and diagnostics
+      off. Retain the old failed gate; preflight alone cannot qualify the full
+      wheel, model-backed CLI or downstream cutover.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately
