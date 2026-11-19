@@ -405,13 +405,34 @@ The effective repository policy and committed release policy and workflow must
 agree with the release plan's base. A missing file, incomplete export, older job,
 or coverage-only report blocks preparation under the version 2 binding.
 
-This handoff ends at a prepared release record. Artifact retrieval and staging
-still belong to the operator or the native workflow. A release publisher must
-secure the exact bytes through upload, revalidate current evidence before
-external writes, and verify the annotated tag, provider release, and downloaded
-bytes. Recovery must distinguish a pushed tag from a completed asset upload and
-verify the same bytes on retry. The existing strict promotion refusal remains
-active until that path is implemented and qualified.
+The single-file binding supports stable publication when the live CI proof covers the
+complete declared platform and action matrix. Use the same prepared checkout and
+supply the staged file on every publish attempt. The existing release-engineer
+authorization applies. The publisher compares the entire retained proof with fresh
+provider evidence, checks the prepared source and its base authority, and copies
+the qualified bytes into a private file before changing Git or GitHub.
+
+Publication retains the exact annotated tag object in a local Git ref bound to
+the prepared evidence before any remote write. It pushes that object and the
+exact commit with Git's atomic, ref-lease protections, then checks that Git and
+the configured GitHub repository report the retained object. The provider release stays in draft while the
+publisher uploads to its recorded release ID and reads back the exact bytes.
+Publication then updates that ID and reobserves the public release and file.
+Provider operations are separate requests. An unsuccessful or interrupted reply
+can leave a tag or draft. Rerun publication from the checkout that retains tag
+custody with the same prepared record and staged file to inspect and recover.
+An existing tag with a different annotation remains a collision even when it
+selects the same commit. An existing matching asset can be reused.
+An incompatible draft or asset must be resolved independently. The publisher
+never deletes, replaces, or overwrites it.
+
+For this profile, read-only `litai release verify-published` requires the prepared
+checkout and current CI evidence, along with the matching remote refs and downloaded
+asset. A fresh checkout of the prepared revision can use
+`--expected-tag-object OBJECT_ID` with the exact `tag_object_id` from a trusted
+publication receipt bound to that prepared identity. Local staged bytes are
+optional for readback. Coverage-only strict policies
+and the strict RC and release-line merge commands retain their promotion refusals.
 
 ## Versioned release lines
 

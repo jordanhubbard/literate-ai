@@ -13,7 +13,7 @@ import tempfile
 import time
 import tomllib
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import nullcontext
+from contextlib import ExitStack, nullcontext
 from contextvars import ContextVar, copy_context
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -836,7 +836,14 @@ def _resolve_actor(root: Path, policy: ReleasePolicy, actor: str | None) -> str:
         )
     try:
         completed = subprocess.run(
-            ("gh", "api", "user", "--jq", ".login"),
+            (
+                "gh",
+                "api",
+                "user",
+                "--jq",
+                ".login",
+                *(("--hostname", "github.com") if _ci_tested_file(policy) else ()),
+            ),
             cwd=root,
             check=False,
             capture_output=True,
@@ -3950,7 +3957,7 @@ def _close_release_ci_coverage(
         platforms=platforms,
         deadline=time.monotonic() + min(300, policy.gate_timeout_seconds),
     )
-    if current["identity"] != ci["coverage"].get("identity"):
+    if current != ci["coverage"]:
         raise ProjectReleaseError(
             "release.ci_coverage_stale",
             "CI proof changed before recording qualification",
@@ -3992,6 +3999,74 @@ def _release_record_destination(
                 "release record cannot replace the staged tested file",
             )
     return destination
+
+
+def _require_prepared_scope(
+    root: Path,
+    policy: ReleasePolicy,
+    snapshot: dict,
+    *,
+    source_revision: str,
+    version: str,
+    transition: str,
+) -> None:
+    ancestor = _git(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        source_revision,
+        str(snapshot["head"]),
+        check=False,
+    )
+    if ancestor.returncode:
+        raise ProjectReleaseError(
+            "release.plan_stale", "prepared commit does not descend from the plan"
+        )
+    changed = frozenset(
+        _git(
+            root,
+            "diff",
+            "--name-only",
+            f"{source_revision}..{snapshot['head']}",
+        ).stdout.splitlines()
+    )
+    # The configured test receipt necessarily binds to the exact prepared
+    # revision (it hashes the full project authority graph), so refreshing
+    # it is only possible *after* prepare's own commit -- exclude it from
+    # the scope check rather than forcing every project with a receipt
+    # policy into an unsatisfiable prepare-then-freeze sequence.
+    project = discover_project(root)
+    definition = getattr(project, "definition", None)
+    test_receipt_path = getattr(definition, "test_receipt", None)
+    reviewed_documentation_path = (
+        None
+        if policy.documentation_authority_paths
+        else _reviewed_documentation_authority_path(root)
+    )
+    declared = frozenset(
+        {
+            policy.changelog_path,
+            policy.version_authority.path,
+            *(item.path for item in policy.version_mirrors),
+            *policy.documentation_authority_paths,
+            *((reviewed_documentation_path,) if reviewed_documentation_path else ()),
+            *((test_receipt_path,) if test_receipt_path else ()),
+        }
+    )
+    recovering_current_version = (
+        not changed
+        and transition == "explicit"
+        and _changelog_version_heading_count(
+            _binding_path(root, policy.changelog_path).read_text(encoding="utf-8"),
+            version,
+        )
+        == 1
+    )
+    if (not changed and not recovering_current_version) or not changed <= declared:
+        raise ProjectReleaseError(
+            "release.prepared_scope_invalid",
+            "prepared commit must change only declared release authority paths",
+        )
 
 
 def _check_release(
@@ -4046,64 +4121,18 @@ def _check_release(
         branch=str(snapshot["branch"]),
         version=str(plan["next_version"]),
     )
-    ancestor = _git(
+    _require_prepared_scope(
         root,
-        "merge-base",
-        "--is-ancestor",
-        str(plan["source_revision"]),
-        str(snapshot["head"]),
-        check=False,
+        policy,
+        snapshot,
+        source_revision=str(plan["source_revision"]),
+        version=str(plan["next_version"]),
+        transition=(
+            str(plan["transition"])
+            if plan["current_version"] == plan["next_version"]
+            else ""
+        ),
     )
-    if ancestor.returncode:
-        raise ProjectReleaseError(
-            "release.plan_stale", "prepared commit does not descend from the plan"
-        )
-    changed = frozenset(
-        _git(
-            root,
-            "diff",
-            "--name-only",
-            f"{plan['source_revision']}..{snapshot['head']}",
-        ).stdout.splitlines()
-    )
-    # The configured test receipt necessarily binds to the exact prepared
-    # revision (it hashes the full project authority graph), so refreshing
-    # it is only possible *after* prepare's own commit -- exclude it from
-    # the scope check rather than forcing every project with a receipt
-    # policy into an unsatisfiable prepare-then-freeze sequence.
-    project = discover_project(root)
-    definition = getattr(project, "definition", None)
-    test_receipt_path = getattr(definition, "test_receipt", None)
-    reviewed_documentation_path = (
-        None
-        if policy.documentation_authority_paths
-        else _reviewed_documentation_authority_path(root)
-    )
-    declared = frozenset(
-        {
-            policy.changelog_path,
-            policy.version_authority.path,
-            *(item.path for item in policy.version_mirrors),
-            *policy.documentation_authority_paths,
-            *((reviewed_documentation_path,) if reviewed_documentation_path else ()),
-            *((test_receipt_path,) if test_receipt_path else ()),
-        }
-    )
-    recovering_current_version = (
-        not changed
-        and plan["transition"] == "explicit"
-        and plan["current_version"] == plan["next_version"]
-        and _changelog_version_heading_count(
-            _binding_path(root, policy.changelog_path).read_text(encoding="utf-8"),
-            plan["next_version"],
-        )
-        == 1
-    )
-    if (not changed and not recovering_current_version) or not changed <= declared:
-        raise ProjectReleaseError(
-            "release.prepared_scope_invalid",
-            "prepared commit must change only declared release authority paths",
-        )
     if policy.identity != plan["policy_identity"]:
         raise ProjectReleaseError(
             "release.plan_stale", "release policy changed after planning"
@@ -4684,7 +4713,9 @@ def _require_local_tag_shape(root: Path, tag: str, *, signed: bool) -> None:
             )
 
 
-def _remote_tag_revision(root: Path, remote: str, tag: str) -> tuple[str | None, bool]:
+def _remote_tag_refs(
+    root: Path, remote: str, tag: str
+) -> tuple[str | None, str | None]:
     completed = _git(
         root,
         "ls-remote",
@@ -4704,8 +4735,11 @@ def _remote_tag_revision(root: Path, remote: str, tag: str) -> tuple[str | None,
         if "\t" in line
         for revision, reference in (line.split("\t", 1),)
     }
-    peeled = refs.get(f"refs/tags/{tag}^{{}}")
-    direct = refs.get(f"refs/tags/{tag}")
+    return refs.get(f"refs/tags/{tag}"), refs.get(f"refs/tags/{tag}^{{}}")
+
+
+def _remote_tag_revision(root: Path, remote: str, tag: str) -> tuple[str | None, bool]:
+    direct, peeled = _remote_tag_refs(root, remote, tag)
     return peeled or direct, peeled is not None
 
 
@@ -4934,7 +4968,13 @@ def _qualified_release_files(
 
 
 def _check_ci_tested_file(
-    root: Path, policy: ReleasePolicy, plan: dict, snapshot: dict, target: dict
+    root: Path,
+    policy: ReleasePolicy,
+    plan: dict,
+    snapshot: dict,
+    target: dict,
+    *,
+    check_bytes: bool = True,
 ) -> dict:
     from literate_ai.release_ci_coverage import TESTED_FILE_PROOF_SCHEMA
     from literate_ai.release_files import SCHEMA
@@ -4990,6 +5030,7 @@ def _check_ci_tested_file(
             "version": plan["next_version"],
             "artifacts": manifest,
         },
+        check_bytes=check_bytes,
     )
 
 
@@ -5179,7 +5220,7 @@ def _upload_wheel_asset(root: Path, repository: str, tag: str, wheel: Path) -> N
 
 
 def _github_release_evidence(
-    root: Path, repository: str, tag: str
+    root: Path, repository: str, tag: str, *, exact: bool = False
 ) -> dict[str, object] | None:
     """Observe the externally meaningful GitHub release, not only its URL."""
 
@@ -5191,9 +5232,10 @@ def _github_release_evidence(
                 "view",
                 tag,
                 "--repo",
-                repository,
+                f"github.com/{repository}" if exact else repository,
                 "--json",
-                "url,isDraft,isPrerelease,body,assets",
+                "url,isDraft,isPrerelease,body,assets"
+                + (",databaseId,tagName,name,targetCommitish" if exact else ""),
             ),
             cwd=root,
             check=False,
@@ -5207,6 +5249,12 @@ def _github_release_evidence(
             "GitHub publication requires an authenticated gh command",
         ) from exc
     if completed.returncode != 0:
+        if exact and (
+            completed.stderr.strip() != "release not found" or completed.stdout.strip()
+        ):
+            raise ProjectReleaseError(
+                "release.provider_unavailable", "cannot determine current release state"
+            )
         return None
     try:
         payload = json.loads(completed.stdout)
@@ -5262,15 +5310,37 @@ def _github_release_evidence(
                 f"GitHub release asset {index} has invalid name, size, state, "
                 "or digest",
             )
+        asset_id = asset.get("id")
+        if exact and (not isinstance(asset_id, str) or not asset_id):
+            raise ProjectReleaseError(
+                "release.provider_response_invalid", "provider asset lacks an exact ID"
+            )
         observed_assets.append(
             {
+                **({"id": asset_id} if exact else {}),
                 "name": name,
                 "size": size,
                 "state": state,
                 **({"digest": digest} if digest is not None else {}),
             }
         )
+    exact_fields = {}
+    if exact:
+        database_id = payload.get("databaseId")
+        if type(database_id) is not int or database_id <= 0:
+            raise ProjectReleaseError(
+                "release.provider_response_invalid",
+                "provider release lacks an exact ID",
+            )
+        exact_fields = {
+            "database_id": database_id,
+            "tag": payload.get("tagName"),
+            "title": payload.get("name"),
+            "target": payload.get("targetCommitish"),
+            "notes_identity": _digest_text(body.strip()),
+        }
     return {
+        **exact_fields,
         "url": url.strip(),
         "draft": draft,
         "prerelease": prerelease,
@@ -5494,6 +5564,601 @@ def _require_authenticated_release_receipt(root: Path, policy: ReleasePolicy):
         ) from exc
 
 
+def _require_promotable_ci_release(
+    root: Path, policy: ReleasePolicy, prepared: dict, snapshot: dict
+) -> dict[str, Any]:
+    for field in ("prepared_revision", "base_revision"):
+        if not isinstance(prepared.get(field), str) or not re.fullmatch(
+            r"[0-9a-f]{40}|[0-9a-f]{64}", prepared[field]
+        ):
+            raise ProjectReleaseError("release.record_invalid", f"invalid {field}")
+    if (
+        not snapshot["clean"]
+        or snapshot["head"] != prepared["prepared_revision"]
+        or snapshot["branch"] != prepared["branch"]
+        or current_release_version(root, policy) != prepared["version"]
+        or prepared["remote"] != policy.remote
+        or prepared.get("provider")
+        != {"kind": "github", "repository": policy.provider_repository}
+    ):
+        raise ProjectReleaseError(
+            "release.prepared_stale",
+            "strict release requires the exact prepared source",
+        )
+    version = prepared["version"]
+    if _is_prerelease(version, policy.version_scheme):
+        _require_supported_ci_promotion(policy, "prerelease publication")
+    release_class = _derived_release_class(
+        version, _released_tag_versions(root, policy), scheme=policy.version_scheme
+    )
+    if prepared["transition"] not in policy.allowed_transitions or release_class != (
+        prepared.get("release_class"),
+        prepared.get("stable_predecessor"),
+    ):
+        raise ProjectReleaseError(
+            "release.prepared_stale",
+            "release class or allowed transition differs from check",
+        )
+    target = prepared.get("target")
+    ci = target.get("ci") if isinstance(target, dict) else None
+    if not isinstance(ci, dict) or not isinstance(ci.get("coverage"), dict):
+        raise ProjectReleaseError(
+            "release.ci_coverage_incomplete", "prepared release requires CI file proof"
+        )
+    _require_prepared_scope(
+        root,
+        policy,
+        snapshot,
+        source_revision=prepared["base_revision"],
+        version=prepared["version"],
+        transition=prepared["transition"],
+    )
+    # Promotion currently admits CI evidence for the complete declared matrix.
+    # An unverified local cell in a prepared record cannot substitute for it.
+    _close_release_ci_coverage(root, policy, snapshot, {**target, "kind": "github"})
+    expected = _check_ci_tested_file(
+        root,
+        policy,
+        {
+            "source_revision": prepared["base_revision"],
+            "next_version": prepared["version"],
+        },
+        snapshot,
+        target,
+        check_bytes=False,
+    )
+    if _qualified_release_files(root, policy, prepared, check_bytes=False) != expected:
+        raise ProjectReleaseError(
+            "release.artifacts_invalid",
+            "prepared release files differ from tested bytes",
+        )
+    return expected
+
+
+def _strict_github_write(root: Path, arguments: list[str]) -> None:
+    from literate_ai.adapters.builders.python import BuildError
+
+    try:
+        result = run_bounded_process(
+            ["gh", *arguments],
+            cwd=root,
+            environment=os.environ,
+            timeout_seconds=120,
+            stdout_limit_bytes=256 * 1024,
+            stderr_limit_bytes=32 * 1024,
+            error_prefix="release_provider_write",
+            trace=False,
+            terminate_descendants=True,
+        )
+    except BuildError as exc:
+        raise ProjectReleaseError(
+            "release.promotion_uncertain",
+            "GitHub write result is unavailable; inspect and retry exact publication",
+        ) from exc
+    if result.returncode:
+        raise ProjectReleaseError(
+            "release.promotion_uncertain",
+            "GitHub write was rejected or interrupted; inspect before retry",
+        )
+
+
+def _require_github_annotated_tag(
+    root: Path, repository: str, branch: str, tag: str, revision: str, *, signed: bool
+) -> str:
+    from urllib.parse import quote
+
+    from literate_ai.adapters.builders.python import BuildError
+
+    def read(endpoint: str) -> dict:
+        result = run_bounded_process(
+            [
+                "gh",
+                "api",
+                "--hostname",
+                "github.com",
+                f"repos/{repository}/git/{endpoint}",
+            ],
+            cwd=root,
+            environment=os.environ,
+            timeout_seconds=30,
+            stdout_limit_bytes=65536,
+            stderr_limit_bytes=8192,
+            error_prefix="release_provider_tag",
+            trace=False,
+        )
+        if result.returncode:
+            raise ValueError("provider tag read failed")
+        data = json.loads(result.stdout)
+        if not isinstance(data, dict):
+            raise ValueError("provider tag response must be an object")
+        return data
+
+    try:
+        branch_ref = read(f"ref/heads/{quote(branch, safe='/')}")
+        if (
+            branch_ref["ref"] != f"refs/heads/{branch}"
+            or branch_ref["object"]["type"] != "commit"
+            or branch_ref["object"]["sha"] != revision
+        ):
+            raise ValueError("provider release line differs from the prepared revision")
+        tag_ref = read(f"ref/tags/{quote(tag, safe='')}")
+        reference = tag_ref["object"]
+        tag_id = reference["sha"]
+        if (
+            tag_ref["ref"] != f"refs/tags/{tag}"
+            or reference["type"] != "tag"
+            or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", tag_id)
+        ):
+            raise ValueError("provider tag is not the selected annotated ref")
+        annotation = read(f"tags/{tag_id}")
+        if (
+            annotation["sha"] != tag_id
+            or annotation["tag"] != tag
+            or annotation["object"]["type"] != "commit"
+            or annotation["object"]["sha"] != revision
+            or (signed and annotation["verification"]["verified"] is not True)
+        ):
+            raise ValueError("provider tag does not bind the exact prepared revision")
+    except (BuildError, KeyError, ValueError, TypeError) as exc:
+        raise ProjectReleaseError(
+            "release.published_tag_mismatch",
+            "the configured GitHub repository does not prove the annotated release tag",
+        ) from exc
+    return tag_id
+
+
+def _tested_release_notes(root: Path, policy: ReleasePolicy, version: str) -> str:
+    changelog = _binding_path(root, policy.changelog_path)
+    return _changelog_release_notes(changelog.read_text(encoding="utf-8"), version)
+
+
+def _read_tested_github_release(
+    root: Path, policy: ReleasePolicy, prepared: dict, artifacts: dict
+) -> dict[str, Any] | None:
+    repository = policy.provider_repository
+    assert repository is not None
+    tag = prepared["tag"]
+    evidence = _github_release_evidence(root, repository, tag, exact=True)
+    if evidence is None:
+        return None
+    version = prepared["version"]
+    if (
+        evidence["tag"] != tag
+        or evidence["title"] != tag
+        or evidence["target"] != prepared["prepared_revision"]
+        or evidence["prerelease"] != _is_prerelease(version, policy.version_scheme)
+        or not evidence["notes_present"]
+        or evidence["notes_identity"]
+        != _digest_text(_tested_release_notes(root, policy, version).strip())
+    ):
+        raise ProjectReleaseError(
+            "release.provider_release_conflict",
+            "existing provider release differs from the prepared tag, target or notes",
+        )
+    item = artifacts["files"][0]
+    name = Path(item["path"]).name
+    assets = evidence["assets"]
+    if assets and (
+        len(assets) != 1
+        or assets[0]["name"] != name
+        or assets[0]["state"] != "uploaded"
+        or assets[0]["size"] != item["size"]
+        or assets[0].get("digest", item["identity"]) != item["identity"]
+    ):
+        raise ProjectReleaseError(
+            "release.published_artifact_mismatch",
+            "existing provider assets differ from the qualified file",
+        )
+    return evidence
+
+
+def _require_tested_github_readback(
+    root: Path, policy: ReleasePolicy, prepared: dict, artifacts: dict
+) -> dict[str, Any]:
+    repository = policy.provider_repository
+    assert repository is not None
+    evidence = _read_tested_github_release(root, policy, prepared, artifacts)
+    if evidence is None or not evidence["assets"]:
+        raise ProjectReleaseError(
+            "release.published_asset_missing",
+            "provider does not retain the tested file",
+        )
+    _verify_release_file_assets(
+        root, f"github.com/{repository}", prepared["tag"], artifacts
+    )
+    if _read_tested_github_release(root, policy, prepared, artifacts) != evidence:
+        raise ProjectReleaseError(
+            "release.promotion_uncertain",
+            "provider release changed during byte readback",
+        )
+    return evidence
+
+
+def _publish_tested_github_release(
+    root: Path,
+    policy: ReleasePolicy,
+    prepared: dict,
+    artifacts: dict,
+    staged: Path,
+    *,
+    revalidate,
+) -> dict[str, Any]:
+    from urllib.parse import urlencode
+
+    from literate_ai.release_files import file_identity
+
+    repository = policy.provider_repository
+    assert repository is not None
+    tag = prepared["tag"]
+    qualified_file = artifacts["files"][0]
+    repo_args = ["--repo", f"github.com/{repository}"]
+    before = _read_tested_github_release(root, policy, prepared, artifacts)
+    if before is None:
+        with tempfile.TemporaryDirectory(prefix="litai-release-notes-") as directory:
+            notes = Path(directory) / "release.md"
+            notes.write_text(
+                _tested_release_notes(root, policy, prepared["version"]),
+                encoding="utf-8",
+            )
+            revalidate()
+            _strict_github_write(
+                root,
+                [
+                    "release",
+                    "create",
+                    tag,
+                    *repo_args,
+                    "--title",
+                    tag,
+                    "--target",
+                    prepared["prepared_revision"],
+                    "--notes-file",
+                    str(notes),
+                    "--verify-tag",
+                    "--draft",
+                    *(
+                        ["--prerelease"]
+                        if _is_prerelease(prepared["version"], policy.version_scheme)
+                        else []
+                    ),
+                ],
+            )
+        before = _read_tested_github_release(root, policy, prepared, artifacts)
+        if before is None:
+            raise ProjectReleaseError(
+                "release.promotion_uncertain", "cannot confirm the newly created draft"
+            )
+    if not before["assets"]:
+        if not before["draft"]:
+            raise ProjectReleaseError(
+                "release.published_asset_missing",
+                "public release lacks the exact asset; publisher will not modify it",
+            )
+        revalidate()
+        if (
+            _read_tested_github_release(root, policy, prepared, artifacts) != before
+            or staged.stat().st_size != qualified_file["size"]
+            or file_identity(staged) != qualified_file["identity"]
+        ):
+            raise ProjectReleaseError(
+                "release.promotion_uncertain",
+                "draft or staged asset changed before upload",
+            )
+        query = urlencode({"name": staged.name})
+        upload_url = (
+            f"https://uploads.github.com/repos/{repository}/releases/"
+            f"{before['database_id']}/assets?{query}"
+        )
+        _strict_github_write(
+            root,
+            [
+                "api",
+                "--hostname",
+                "github.com",
+                "--method",
+                "POST",
+                "--header",
+                "Content-Type: application/octet-stream",
+                "--input",
+                str(staged),
+                upload_url,
+            ],
+        )
+    evidence = _require_tested_github_readback(root, policy, prepared, artifacts)
+    if evidence["database_id"] != before["database_id"]:
+        raise ProjectReleaseError(
+            "release.promotion_uncertain", "provider release changed during promotion"
+        )
+    if evidence["draft"]:
+        revalidate()
+        if _read_tested_github_release(root, policy, prepared, artifacts) != evidence:
+            raise ProjectReleaseError(
+                "release.promotion_uncertain",
+                "provider draft changed before publication",
+            )
+        _strict_github_write(
+            root,
+            [
+                "api",
+                "--hostname",
+                "github.com",
+                "--method",
+                "PATCH",
+                f"repos/{repository}/releases/{evidence['database_id']}",
+                "--field",
+                "draft=false",
+            ],
+        )
+    try:
+        final = _require_tested_github_readback(root, policy, prepared, artifacts)
+        revalidate()
+        if (
+            final["draft"]
+            or final["database_id"] != evidence["database_id"]
+            or _read_tested_github_release(root, policy, prepared, artifacts) != final
+        ):
+            raise ValueError("public release changed")
+    except (ProjectReleaseError, ValueError) as exc:
+        raise ProjectReleaseError(
+            "release.promotion_uncertain", "cannot confirm the exact public release"
+        ) from exc
+    return final
+
+
+def _tested_provider_summary(
+    evidence: dict[str, Any], artifacts: dict
+) -> dict[str, Any]:
+    return {
+        **{
+            key: evidence[key]
+            for key in ("url", "draft", "prerelease", "notes_present")
+        },
+        "assets": [
+            {
+                **{key: value for key, value in item.items() if key != "id"},
+                "digest": artifacts["files"][0]["identity"],
+            }
+            for item in evidence["assets"]
+        ],
+    }
+
+
+def _tested_release_tag_pin(root: Path, prepared: dict) -> tuple[str, str | None]:
+    digest = str(prepared["identity"]).removeprefix("sha256:")
+    if re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+        raise ProjectReleaseError(
+            "release.prepared_stale", "prepared release identity is invalid"
+        )
+    reference = f"refs/litai/tested-promotion/{digest}"
+    observed = _git(
+        root,
+        "for-each-ref",
+        "--count=2",
+        "--format=%(refname)%00%(objectname)%00%(symref)",
+        reference,
+        check=False,
+    )
+    rows = observed.stdout.splitlines()
+    if observed.returncode == 0 and not observed.stderr:
+        if not rows:
+            return reference, None
+        if len(rows) == 1:
+            name, object_id, symbolic = rows[0].split("\0")
+            if (
+                name == reference
+                and not symbolic
+                and re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", object_id)
+            ):
+                return reference, object_id
+    raise ProjectReleaseError(
+        "release.tag_custody_conflict", "cannot read safe local release tag custody"
+    )
+
+
+def _require_tested_tag_object(
+    root: Path, policy: ReleasePolicy, prepared: dict, object_id: str
+) -> None:
+    # Inspect the pinned object, rather than resolving the mutable named tag again.
+    size = _git(root, "cat-file", "-s", object_id, check=False)
+    wanted = [
+        f"object {prepared['prepared_revision']}",
+        "type commit",
+        f"tag {prepared['tag']}",
+    ]
+    if (
+        size.returncode != 0
+        or not size.stdout.strip().isdigit()
+        or int(size.stdout.strip()) > 65536
+        or _git(root, "cat-file", "-t", object_id).stdout.strip() != "tag"
+        or _git(root, "cat-file", "tag", object_id).stdout.splitlines()[:3] != wanted
+        or (
+            policy.signed_tag
+            and _git(root, "verify-tag", object_id, check=False).returncode != 0
+        )
+    ):
+        raise ProjectReleaseError(
+            "release.local_tag_conflict",
+            "local tag object does not bind the exact checked release",
+        )
+
+
+def _expected_tested_tag_object(
+    root: Path, prepared: dict, explicit: str | None
+) -> str:
+    _, pinned = _tested_release_tag_pin(root, prepared)
+    if (
+        explicit is not None
+        and re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", explicit) is None
+    ):
+        raise ProjectReleaseError(
+            "release.tag_custody_conflict",
+            "expected annotated tag object ID is invalid",
+        )
+    if pinned is not None and explicit is not None and explicit != pinned:
+        raise ProjectReleaseError(
+            "release.tag_custody_conflict",
+            "expected tag conflicts with local release custody",
+        )
+    expected = pinned if pinned is not None else explicit
+    if expected is None:
+        raise ProjectReleaseError(
+            "release.tag_custody_missing",
+            "use the publishing checkout or supply the tag object from "
+            "a trusted publication receipt",
+        )
+    return expected
+
+
+def _verify_tested_release_refs(
+    root: Path, policy: ReleasePolicy, prepared: dict, *, expected_tag_object: str
+) -> None:
+    repository = policy.provider_repository
+    assert repository is not None
+    direct, peeled = _remote_tag_refs(root, policy.remote, prepared["tag"])
+    if (
+        direct != expected_tag_object
+        or peeled != prepared["prepared_revision"]
+        or _remote_branch_revision(root, policy.remote, prepared["branch"]) != peeled
+        or _require_github_annotated_tag(
+            root,
+            repository,
+            prepared["branch"],
+            prepared["tag"],
+            peeled,
+            signed=policy.signed_tag,
+        )
+        != expected_tag_object
+    ):
+        raise ProjectReleaseError(
+            "release.published_tag_mismatch",
+            "Git and the provider must report the retained exact annotated tag object",
+        )
+
+
+def _push_tested_release(
+    root: Path,
+    policy: ReleasePolicy,
+    prepared: dict,
+    *,
+    revalidate,
+) -> str:
+    expected = prepared["prepared_revision"]
+    branch = prepared["branch"]
+    tag = prepared["tag"]
+    remote = policy.remote
+    heads = f"refs/heads/{branch}"
+    tags = f"refs/tags/{tag}"
+    # Read and write must select the same remote location.
+    fetch_urls = _git(root, "remote", "get-url", "--all", remote).stdout.splitlines()
+    push_urls = _git(
+        root, "remote", "get-url", "--push", "--all", remote
+    ).stdout.splitlines()
+    if len(fetch_urls) != 1 or push_urls != fetch_urls:
+        raise ProjectReleaseError(
+            "release.remote_conflict",
+            "strict publication requires one common Git remote",
+        )
+    previous = _remote_branch_revision(root, remote, branch)
+    direct, peeled = _remote_tag_refs(root, remote, tag)
+    if previous not in {None, prepared["base_revision"], expected}:
+        raise ProjectReleaseError(
+            "release.remote_branch_conflict", "release line changed outside this plan"
+        )
+    pin_ref, pinned_tag = _tested_release_tag_pin(root, prepared)
+    if direct is not None and (peeled != expected or direct != pinned_tag):
+        raise ProjectReleaseError(
+            "release.remote_tag_conflict",
+            "remote tag differs from retained publication custody",
+        )
+    if pinned_tag is None:
+        revalidate()
+        local = _local_tag_revision(root, tag)
+        if local is None:
+            _git(
+                root,
+                "tag",
+                "-s" if policy.signed_tag else "-a",
+                "-m",
+                f"Release {tag}",
+                tag,
+                expected,
+            )
+        elif local != expected:
+            raise ProjectReleaseError(
+                "release.local_tag_conflict",
+                "local tag differs from the checked revision",
+            )
+        pinned_tag = _git(root, "rev-parse", "--verify", tags).stdout.strip()
+        _require_tested_tag_object(root, policy, prepared, pinned_tag)
+        retained = _git(
+            root, "update-ref", "--no-deref", pin_ref, pinned_tag, "", check=False
+        )
+        if (
+            retained.returncode
+            and _tested_release_tag_pin(root, prepared)[1] != pinned_tag
+        ):
+            raise ProjectReleaseError(
+                "release.tag_custody_conflict",
+                "another operation selected release tag custody",
+            )
+    else:
+        _require_tested_tag_object(root, policy, prepared, pinned_tag)
+    refspecs = []
+    leases = []
+    if previous != expected:
+        leases.append(f"--force-with-lease={heads}:{previous or ''}")
+        refspecs.append(f"{expected}:{heads}")
+    if direct is None:
+        leases.append(f"--force-with-lease={tags}:")
+        refspecs.append(f"{pinned_tag}:{tags}")
+    if refspecs:
+        revalidate()
+        if _tested_release_tag_pin(root, prepared)[1] != pinned_tag:
+            raise ProjectReleaseError(
+                "release.tag_custody_conflict",
+                "release tag custody changed before push",
+            )
+        if any(
+            _git(root, "remote", "get-url", *flags, "--all", remote).stdout.splitlines()
+            != fetch_urls
+            for flags in ((), ("--push",))
+        ):
+            raise ProjectReleaseError("release.remote_conflict", "Git remote changed")
+        try:
+            _git(root, "push", "--atomic", *leases, remote, *refspecs)
+        except ProjectReleaseError as exc:
+            raise ProjectReleaseError(
+                "release.partial_git_publication",
+                "Git refs could not be confirmed; inspect the remote before retrying",
+            ) from exc
+    _verify_tested_release_refs(root, policy, prepared, expected_tag_object=pinned_tag)
+    if _tested_release_tag_pin(root, prepared)[1] != pinned_tag:
+        raise ProjectReleaseError(
+            "release.tag_custody_conflict", "release tag custody changed during push"
+        )
+    return pinned_tag
+
+
 def publish_release(
     project: Path,
     prepared_path: Path,
@@ -5507,11 +6172,32 @@ def publish_release(
             "release.external_authorization_required",
             "publish requires --authorize-external-write",
         )
+    with ExitStack() as custody:
+        return _publish_release(
+            project,
+            prepared_path,
+            actor=actor,
+            break_glass_reason=break_glass_reason,
+            custody=custody,
+        )
+
+
+@_strict_ci_observation
+def _publish_release(
+    project: Path,
+    prepared_path: Path,
+    *,
+    actor: str | None,
+    break_glass_reason: str | None,
+    custody: ExitStack,
+) -> dict[str, object]:
     prepared = _load_record(
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
-    _require_supported_ci_promotion(policy, "release publication")
+    tested_file = _ci_tested_file(policy)
+    if tested_file is None:
+        _require_supported_ci_promotion(policy, "release publication")
     _require_semver_release(policy)
     authorization: dict[str, str | None] | None = None
     if policy.schema == RELEASE_POLICY_SCHEMA:
@@ -5539,7 +6225,9 @@ def publish_release(
                 "break-glass publication must match prepared patch authorization "
                 "on an existing release line",
             )
-    snapshot = _git_snapshot(root)
+    snapshot = _git_snapshot(
+        root, **({"read_only": True} if tested_file is not None else {})
+    )
     if (
         not snapshot["clean"]
         or snapshot["head"] != prepared["prepared_revision"]
@@ -5559,7 +6247,11 @@ def publish_release(
             "release.evidence_changed",
             "authenticated current receipt differs from check",
         )
-    artifacts = _qualified_release_files(root, policy, prepared)
+    artifacts = (
+        _require_promotable_ci_release(root, policy, prepared, snapshot)
+        if tested_file is not None
+        else _qualified_release_files(root, policy, prepared)
+    )
     contributions = _revalidate_release_closure(
         root,
         policy,
@@ -5572,6 +6264,73 @@ def publish_release(
         raise ProjectReleaseError(
             "release.prepared_stale", "release version differs from checked evidence"
         )
+    if tested_file is not None:
+        from literate_ai._filesystem import UnsafeFilesystemPathError
+        from literate_ai.release_files import staged_release_file
+
+        assert artifacts is not None and authorization is not None
+        item = artifacts["files"][0]
+        try:
+            staged = custody.enter_context(staged_release_file(root, item))
+        except (OSError, ValueError, UnsafeFilesystemPathError) as exc:
+            raise ProjectReleaseError("release.artifacts_invalid", str(exc)) from exc
+
+        def revalidate() -> None:
+            _require_promotable_ci_release(root, policy, prepared, snapshot)
+            _revalidate_release_closure(
+                root,
+                policy,
+                prepared,
+                revision=str(snapshot["head"]),
+                require_default_branch_ancestry=True,
+            )
+            if (
+                _require_authenticated_release_receipt(root, policy)
+                != authenticated_receipt
+            ):
+                raise ProjectReleaseError(
+                    "release.evidence_changed", "authenticated release evidence changed"
+                )
+            if _resolve_actor(root, policy, actor) != authorization["actor"]:
+                raise ProjectReleaseError(
+                    "release.actor_mismatch", "authenticated release actor changed"
+                )
+
+        tag_object = _push_tested_release(root, policy, prepared, revalidate=revalidate)
+
+        def revalidate_provider_write() -> None:
+            revalidate()
+            if _tested_release_tag_pin(root, prepared)[1] != tag_object:
+                raise ProjectReleaseError(
+                    "release.tag_custody_conflict",
+                    "release tag custody changed before provider readback",
+                )
+            _verify_tested_release_refs(
+                root, policy, prepared, expected_tag_object=tag_object
+            )
+
+        published = _publish_tested_github_release(
+            root,
+            policy,
+            prepared,
+            artifacts,
+            staged,
+            revalidate=revalidate_provider_write,
+        )
+        provider_release = _tested_provider_summary(published, artifacts)
+        provider_url = str(provider_release["url"])
+        wheel_path = root / item["path"] if item["role"] == "wheel" else None
+        return _release_publication_receipt(
+            policy,
+            prepared,
+            contributions=contributions,
+            authorization=authorization,
+            provider_release=provider_release,
+            provider_url=provider_url,
+            wheel_path=wheel_path,
+            tag_object_id=tag_object,
+        )
+
     expected_revision = str(prepared["prepared_revision"])
     remote_branch = _remote_branch_revision(
         root, policy.remote, str(snapshot["branch"])
@@ -5721,12 +6480,34 @@ def publish_release(
             prerelease=prerelease,
         )
         provider_url = str(provider_release["url"])
+    return _release_publication_receipt(
+        policy,
+        prepared,
+        contributions=contributions,
+        authorization=authorization,
+        provider_release=provider_release,
+        provider_url=provider_url,
+        wheel_path=wheel_path,
+    )
+
+
+def _release_publication_receipt(
+    policy: ReleasePolicy,
+    prepared: dict,
+    *,
+    contributions: dict[str, object] | None,
+    authorization: dict[str, str | None] | None,
+    provider_release: dict[str, object] | None,
+    provider_url: str | None,
+    wheel_path: Path | None,
+    tag_object_id: str | None = None,
+) -> dict[str, object]:
     result: dict[str, object] = {
         "schema": PUBLICATION_RECEIPT_SCHEMA,
         "prepared_release_identity": prepared["identity"],
         "revision": prepared["prepared_revision"],
         "version": prepared["version"],
-        "tag": tag,
+        "tag": prepared["tag"],
         "remote": policy.remote,
         "provider": policy.provider_kind,
         "provider_url": provider_url,
@@ -5741,11 +6522,16 @@ def publish_release(
         result["contributions"] = contributions
     if authorization is not None:
         result["authorization"] = authorization
+    if tag_object_id is not None:
+        result["tag_object_id"] = tag_object_id
     result["identity"] = canonical_identity(result).uri
     return result
 
 
-def verify_published_release(project: Path, prepared_path: Path) -> dict[str, object]:
+@_strict_ci_observation
+def verify_published_release(
+    project: Path, prepared_path: Path, *, expected_tag_object: str | None = None
+) -> dict[str, object]:
     """Prove remote tag, release line, and optional provider match one identity.
 
     Read-only. Never creates, moves, deletes, or force-pushes a tag.
@@ -5755,7 +6541,16 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
         prepared_path, (PREPARED_RELEASE_SCHEMA, LEGACY_PREPARED_RELEASE_SCHEMA)
     )
     root, policy = load_release_policy(project)
-    _require_supported_ci_promotion(policy, "published-release coverage verification")
+    tested_file = _ci_tested_file(policy)
+    if tested_file is None:
+        _require_supported_ci_promotion(
+            policy, "published-release coverage verification"
+        )
+        if expected_tag_object is not None:
+            raise ProjectReleaseError(
+                "release.tag_custody_conflict",
+                "explicit tag custody applies to strict tested-file publication",
+            )
     _require_semver_release(policy)
     if policy.identity != prepared["policy_identity"]:
         raise ProjectReleaseError(
@@ -5763,7 +6558,12 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
         )
     _require_prepared_release_names(policy, prepared)
     branch = str(prepared["branch"])
-    artifacts = _qualified_release_files(root, policy, prepared, check_bytes=False)
+    snapshot = _git_snapshot(root, read_only=True) if tested_file is not None else None
+    artifacts = (
+        _require_promotable_ci_release(root, policy, prepared, snapshot)
+        if snapshot is not None
+        else _qualified_release_files(root, policy, prepared, check_bytes=False)
+    )
     tag = str(prepared["tag"])
     expected = str(prepared["prepared_revision"])
     contributions = _revalidate_release_closure(
@@ -5790,9 +6590,24 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
             "release.published_branch_mismatch",
             f"remote branch {branch} does not select prepared revision {expected}",
         )
+    pinned_tag: str | None = None
     provider_url: str | None = None
     provider_release: dict[str, object] | None = None
-    if policy.provider_kind == "github":
+    if tested_file is not None:
+        assert artifacts is not None
+        pinned_tag = _expected_tested_tag_object(root, prepared, expected_tag_object)
+        _verify_tested_release_refs(
+            root, policy, prepared, expected_tag_object=pinned_tag
+        )
+        github = _require_tested_github_readback(root, policy, prepared, artifacts)
+        if github["draft"]:
+            raise ProjectReleaseError(
+                "release.published_provider_unstable",
+                "qualified release remains a draft",
+            )
+        provider_release = _tested_provider_summary(github, artifacts)
+        provider_url = str(provider_release["url"])
+    elif policy.provider_kind == "github":
         assert policy.provider_repository is not None
         provider_release = _require_published_github_release(
             root,
@@ -5822,6 +6637,25 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
             )
         except ReleaseReadmeError as exc:
             raise ProjectReleaseError(exc.code, exc.message) from exc
+    if snapshot is not None:
+        _require_promotable_ci_release(root, policy, prepared, snapshot)
+        assert pinned_tag is not None
+        if (
+            _expected_tested_tag_object(root, prepared, expected_tag_object)
+            != pinned_tag
+        ):
+            raise ProjectReleaseError(
+                "release.tag_custody_conflict",
+                "release tag custody changed during readback",
+            )
+        _verify_tested_release_refs(
+            root, policy, prepared, expected_tag_object=pinned_tag
+        )
+        if _read_tested_github_release(root, policy, prepared, artifacts) != github:
+            raise ProjectReleaseError(
+                "release.promotion_uncertain",
+                "provider state changed before verification",
+            )
     result: dict[str, object] = {
         "schema": PUBLISHED_VERIFICATION_SCHEMA,
         "prepared_release_identity": prepared["identity"],
@@ -5842,6 +6676,8 @@ def verify_published_release(project: Path, prepared_path: Path) -> dict[str, ob
     }
     if contributions is not None:
         result["contributions"] = contributions
+    if pinned_tag is not None:
+        result["tag_object_id"] = pinned_tag
     result["identity"] = canonical_identity(result).uri
     return result
 

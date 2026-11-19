@@ -70,6 +70,47 @@ def _changes(
     return tuple(result)
 
 
+def _require_existing_contained_parent_authority(project) -> None:
+    if project.definition.framework_directory is None:
+        return
+    from literate_ai.adapters.catalog_import import (
+        CatalogImportError,
+        read_contained_catalog_imports,
+    )
+    from literate_ai.adapters.project_initialization import INITIALIZATION_BASELINE_FILE
+    from literate_ai.adapters.project_updates import ProjectUpdateError, _read_contract
+    from literate_ai.contracts import ProjectInitializationBaseline
+    from literate_ai.projects import ProjectConfigurationStore
+
+    try:
+        baseline = _read_contract(
+            project.root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
+        )
+        if baseline.profile != "native":
+            snapshot = ProjectConfigurationStore(project.root).read()
+            imports = read_contained_catalog_imports(snapshot)
+            recorded = FilesystemRepositoryLineageStore(project.root).load_optional()
+            if (
+                imports is not None
+                and imports.imports
+                and recorded
+                and recorded[1].nodes
+            ):
+                return
+    except (
+        CatalogImportError,
+        ProjectError,
+        ProjectUpdateError,
+        RepositoryLineageStoreError,
+    ) as exc:
+        raise RepositoryReparentError(exc.code, str(exc)) from exc
+    raise RepositoryReparentError(
+        "repository_reparent.native_profile_unsupported",
+        "contained reparent requires a generated baseline and "
+        "existing parent catalog authority",
+    )
+
+
 class FilesystemRepositoryReparentAdapter:
     """Resolve first, expose a plan, then compare-and-swap the lineage authority."""
 
@@ -89,11 +130,7 @@ class FilesystemRepositoryReparentAdapter:
             raise RepositoryReparentError(
                 "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
             )
-        if project.definition.framework_directory is not None:
-            raise RepositoryReparentError(
-                "repository_reparent.native_profile_unsupported",
-                "The contained native profile does not admit parent catalogs",
-            )
+        _require_existing_contained_parent_authority(project)
         store = FilesystemRepositoryLineageStore(project.root)
         try:
             previous = store.load_optional()
@@ -146,6 +183,7 @@ class FilesystemRepositoryReparentAdapter:
             raise RepositoryReparentError(
                 "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
             )
+        _require_existing_contained_parent_authority(project)
         if project.definition.identity != plan.project_identity:
             raise RepositoryReparentError(
                 "repository_reparent.project_changed",

@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -37,6 +39,7 @@ from literate_ai.adapters.retained_layout import (
 )
 from literate_ai.cli import main
 from literate_ai.contracts import (
+    CatalogImportsFile,
     ExecutionRequirements,
     ExecutionWorker,
     ExecutionWorkerCatalog,
@@ -119,6 +122,153 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
             source_intelligence_provider="none",
             convert=True,
         )
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX exclusive rename")
+    def test_public_layout_migration_edits_only_reviewed_link_and_rolls_back(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory).resolve() / "consumer"
+            shutil.copytree(self.template, project)
+            imports = project / CatalogImportsFile.PATH
+            if not imports.exists():
+                CatalogImportsFile(()).save(project)
+            document = project / "docs/user/project-layout.md"
+            document.write_bytes(
+                document.read_bytes()
+                + b"\nSee the [project manifest](../../literate.project.json).\n"
+            )
+            before = document.read_bytes()
+            manifest = project / PROJECT_FILENAME
+            inode = manifest.stat().st_ino
+            original = manifest.read_bytes()
+
+            def git(*arguments):
+                return subprocess.check_output(
+                    ["git", "-C", str(project), *arguments], timeout=15
+                )
+
+            git("init", "-q")
+            git("add", ".")
+            git(
+                "-c",
+                "user.name=Fixture",
+                "-c",
+                "user.email=fixture@example.test",
+                "commit",
+                "-qm",
+                "converted repository",
+            )
+            index = git("ls-files", "--stage", "-z")
+
+            def action(verb, *args):
+                return _invoke(
+                    "--json",
+                    "project",
+                    "layout",
+                    verb,
+                    "--project",
+                    str(project),
+                    *args,
+                )
+
+            status, packet = action("plan", "--migration")
+            self.assertEqual(status, 0, packet)
+            self.assertFalse(packet["result"]["applicable"])
+            arguments = (
+                "--acknowledge",
+                "--plan-identity",
+                packet["result"]["plan_identity"],
+            )
+            status, packet = action("apply", *arguments)
+            self.assertEqual(status, 2, packet)
+            self.assertEqual(
+                packet["error"]["code"], "project.layout.reference_authority"
+            )
+            self.assertTrue(manifest.exists())
+            self.assertFalse((project / "litai").exists())
+            approval = ("--rewrite-reference", "docs/user/project-layout.md")
+            status, packet = action("plan", "--migration", *approval)
+            self.assertEqual(status, 0, packet)
+            edits = packet["result"]["reference_edits"]
+            self.assertEqual(set(edits), {approval[-1]})
+            arguments = (
+                "--acknowledge",
+                "--plan-identity",
+                packet["result"]["plan_identity"],
+            )
+            status, packet = action("apply", *arguments, *approval)
+            self.assertEqual(status, 0, packet)
+            self.assertFalse(manifest.exists())
+            self.assertTrue((project / "litai" / PROJECT_FILENAME).is_file())
+            self.assertEqual(git("ls-files", "--stage", "-z"), index)
+            rewritten = document.read_bytes()
+            self.assertEqual(
+                rewritten,
+                before.replace(
+                    b"../../literate.project.json", b"../../litai/literate.project.json"
+                ),
+            )
+            document.write_bytes(b"local change after placement\n")
+            status, packet = action("recover", *arguments)
+            self.assertEqual(status, 2, packet)
+            self.assertEqual(
+                packet["error"]["code"], "project.layout.recovery_conflict"
+            )
+            self.assertEqual(document.read_bytes(), b"local change after placement\n")
+            document.write_bytes(rewritten)
+            placed = project / "litai"
+            nested = placed / ".literate"
+            for git_root, separate in (
+                (placed, False),
+                (placed, True),
+                (nested, False),
+            ):
+                with self.subTest(path=git_root, separate_gitdir=separate):
+                    storage = project.parent / "independent-gitdir"
+                    init = ("--separate-git-dir", str(storage)) if separate else ()
+                    git("-C", str(git_root), "init", "-q", *init)
+                    git("-C", str(git_root), "add", ".")
+                    marker = git_root / ".git"
+                    administration = storage if separate else marker
+                    files = {
+                        str(path.relative_to(administration)): path.read_bytes()
+                        for path in administration.rglob("*")
+                        if path.is_file()
+                    }
+                    marker_bytes = marker.read_bytes() if separate else None
+                    status, packet = action("recover", *arguments)
+                    self.assertEqual(status, 2, packet)
+                    self.assertEqual(
+                        packet["error"]["code"], "project.layout.git_boundary"
+                    )
+                    self.assertEqual(git("ls-files", "--stage", "-z"), index)
+                    self.assertTrue((placed / PROJECT_FILENAME).is_file())
+                    self.assertEqual(document.read_bytes(), rewritten)
+                    self.assertEqual(
+                        {
+                            str(path.relative_to(administration)): path.read_bytes()
+                            for path in administration.rglob("*")
+                            if path.is_file()
+                        },
+                        files,
+                    )
+                    if separate:
+                        self.assertEqual(marker.read_bytes(), marker_bytes)
+                        marker.unlink()
+                    else:
+                        shutil.rmtree(administration)
+            status, packet = action("recover", *arguments)
+            self.assertEqual(status, 0, packet)
+            self.assertEqual(manifest.read_bytes(), original)
+            self.assertEqual(manifest.stat().st_ino, inode)
+            self.assertEqual(document.read_bytes(), before)
+            self.assertEqual(git("ls-files", "--stage", "-z"), index)
+
+            git("-C", str(document.parent), "init", "-q")
+            status, packet = action("plan", "--migration", *approval)
+            self.assertEqual(status, 2, packet)
+            self.assertEqual(packet["error"]["code"], "project.layout.git_boundary")
+            self.assertEqual(document.read_bytes(), before)
+            self.assertEqual(git("ls-files", "--stage", "-z"), index)
 
     def test_retained_receipt_refuses_redirected_implementation_ancestor(self):
         with tempfile.TemporaryDirectory() as directory:

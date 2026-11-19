@@ -27,6 +27,38 @@ class CiActionPinTests(unittest.TestCase):
         spec.loader.exec_module(selector)
         return selector
 
+    def test_schema_check_precedes_fanout_on_relevant_paths_and_full_profiles(
+        self,
+    ) -> None:
+        selector = self.selector()
+        for path in (
+            "schemas/v2/index.json",
+            "schemas/v2/project-release.schema.json",
+            "src/literate_ai/schema_catalog.py",
+            "tools/build_backend/literate_ai_build_backend.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(
+                    selector.select_schema_preflight(
+                        "pull_request", "main", ("README.md", path)
+                    )
+                )
+        self.assertFalse(
+            selector.select_schema_preflight("pull_request", "main", ("README.md",))
+        )
+        self.assertFalse(
+            selector.select_schema_preflight("push", "refs/heads/main", ("README.md",))
+        )
+        self.assertTrue(selector.select_schema_preflight("pull_request", "main", None))
+        self.assertTrue(
+            selector.select_schema_preflight("workflow_dispatch", "main", ())
+        )
+        self.assertTrue(
+            selector.select_schema_preflight(
+                "pull_request", "release/1.4", ("README.md",)
+            )
+        )
+
     def test_change_scoped_profiles_are_narrow_and_fail_closed(self) -> None:
         selector = self.selector()
 
@@ -48,7 +80,6 @@ class CiActionPinTests(unittest.TestCase):
             "main",
             (
                 "README.md",
-                ".github/workflows/ci.yml",
                 "scripts/select_ci_profile.py",
                 "tests/critical/test_ci_action_pins.py",
             ),
@@ -414,28 +445,383 @@ class CiActionPinTests(unittest.TestCase):
         selector = self.selector()
         with mock.patch.object(selector.subprocess, "run") as run:
             run.return_value = mock.Mock(returncode=0, stdout=b"README.md\0")
-            self.assertEqual(
-                selector._changed_paths("before", "after", push=True), ("README.md",)
-            )
+            self.assertEqual(selector._changed_paths("before", "after"), ("README.md",))
             self.assertEqual(run.call_args.args[0][-2:], ("before", "after"))
-            selector._changed_paths("before", "after")
-            self.assertEqual(run.call_args.args[0][-1], "before...after")
+            # Retain the old path when a schema is moved out of its catalog.
+            self.assertIn("--no-renames", run.call_args.args[0])
             run.return_value = mock.Mock(returncode=128, stdout=b"")
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.side_effect = selector.subprocess.TimeoutExpired("git", 30)
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.side_effect = OSError("git unavailable")
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.side_effect = None
             run.return_value = mock.Mock(returncode=0, stdout=b"\xff\0")
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.reset_mock()
-            self.assertIsNone(selector._changed_paths("", "after", push=True))
+            self.assertIsNone(selector._changed_paths("", "after"))
             run.assert_not_called()
+
+    def test_pr_comparison_uses_one_merge_base(self):
+        selector = self.selector()
+        base = b"a" * 40
+        head = "b" * 40
+        with mock.patch.object(selector.subprocess, "run") as run:
+            run.return_value = mock.Mock(returncode=0, stdout=base + b"\n")
+            self.assertEqual(selector._merge_base("main", head), base.decode())
+            self.assertEqual(
+                run.call_args.args[0], ("git", "merge-base", "--all", "main", head)
+            )
+            run.return_value.stdout += b"c" * 40 + b"\n"
+            self.assertEqual(selector._merge_base("main", head), "")
+
+    def test_changed_action_pins_select_their_actual_runtime_cells(self):
+        selector = self.selector()
+        ci_path = ".github/workflows/ci.yml"
+        sdk_path = ".github/workflows/native-sdk-qualification.yml"
+        ci_before = (ROOT / ci_path).read_text()
+        sdk_before = (ROOT / sdk_path).read_text()
+
+        def update_pin(text, action, old_sha, new_sha):
+            pattern = re.escape(action) + "@[0-9a-f]{40}"
+            before, old_count = re.subn(pattern, action + "@" + old_sha, text)
+            after, new_count = re.subn(pattern, action + "@" + new_sha, text)
+            self.assertEqual((old_count, new_count), (1, 1))
+            return before, after
+
+        bazel = update_pin(
+            ci_before,
+            "bazel-contrib/setup-bazel",
+            "104e3eea9447cdaa4b00d0fb46191a3985d26ab3",
+            "f34d6a05eae3c24acab7fa54587492daeaeffdab",
+        )
+        old_sha = "c46abacb49f09938ca4e1702d15d836285d694cc"
+        new_sha = "811efaaac0668df8bfb8308c3ec997b5ab50037b"
+        freebsd = update_pin(ci_before, "vmactions/freebsd-vm", old_sha, new_sha)
+        sdk = update_pin(sdk_before, "vmactions/freebsd-vm", old_sha, new_sha)
+        for revisions, native_rows, expected_freebsd in (
+            ({ci_path: bazel}, ["ubuntu-latest", "windows-latest"], False),
+            ({ci_path: freebsd, sdk_path: sdk}, [], True),
+        ):
+            paths = tuple(revisions)
+            with mock.patch.object(
+                selector, "_workflow_versions", side_effect=revisions.__getitem__
+            ):
+                delta = selector._workflow_delta(paths)
+            for event, ref in (("pull_request", "main"), ("push", "refs/heads/main")):
+                with self.subTest(paths=paths, event=event):
+                    matrix = selector.select_matrix(event, ref, paths, delta=delta)
+                    self.assertEqual(
+                        [row["task"] for row in matrix["include"]],
+                        ["ci-policy"] + ["cpp-native"] * len(native_rows),
+                    )
+                    self.assertEqual(
+                        [
+                            row["os"]
+                            for row in matrix["include"]
+                            if row["task"] == "cpp-native"
+                        ],
+                        native_rows,
+                    )
+                    self.assertIs(
+                        selector.select_freebsd_acl(event, ref, paths, delta=delta),
+                        expected_freebsd,
+                    )
+                    self.assertIs(delta.freebsd_sdk, expected_freebsd)
+                    self.assertFalse(
+                        selector.select_full_qualification(
+                            event, ref, paths, delta=delta
+                        )
+                    )
+
+    def test_shared_or_unresolved_workflow_changes_use_full_coverage(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        changes = (
+            None,
+            (baseline, baseline.replace("contents: read", "contents: write", 1)),
+            (
+                baseline,
+                baseline.replace("  checks:\n", "  checks:\n    env: {SHARED: true}\n"),
+            ),
+            (
+                baseline,
+                baseline.replace(
+                    "if: matrix.task == 'cpp-native'", "if: matrix.task == 'unknown'", 1
+                ),
+            ),
+            (
+                baseline,
+                baseline.replace(
+                    "if: matrix.task == 'cpp-native'",
+                    "if: matrix.task == 'cpp-native' || success()",
+                    1,
+                ),
+            ),
+        )
+        for change in changes:
+            with (
+                self.subTest(change=changes.index(change)),
+                mock.patch.object(selector, "_workflow_versions", return_value=change),
+            ):
+                delta = selector._workflow_delta((path,))
+                for event, ref in (
+                    ("pull_request", "main"),
+                    ("push", "refs/heads/main"),
+                ):
+                    self.assertTrue(
+                        selector.select_full_qualification(
+                            event, ref, (path,), delta=delta
+                        )
+                    )
+                    self.assertTrue(
+                        selector.select_freebsd_acl(event, ref, (path,), delta=delta)
+                    )
+                    rows = selector.select_matrix(event, ref, (path,), delta=delta)[
+                        "include"
+                    ]
+                    self.assertTrue(
+                        all(
+                            row in rows
+                            for row in selector._matrix_rows()
+                            if "scoped" not in row
+                        )
+                    )
+
+    def test_scoped_workflow_edit_keeps_its_cell_in_a_mixed_main_push(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        changed = baseline.replace(
+            "name: Validate framework documentation ownership",
+            "name: Validate source documentation ownership",
+        )
+        paths = (path, "src/literate_ai/cli/render.py")
+        with mock.patch.object(
+            selector, "_workflow_versions", return_value=(baseline, changed)
+        ):
+            delta = selector._workflow_delta(paths)
+        self.assertEqual(delta.tasks, {"documentation"})
+        rows = selector.select_matrix("push", "refs/heads/main", paths, delta=delta)[
+            "include"
+        ]
+        self.assertIn("documentation", {row["task"] for row in rows})
+        self.assertTrue(
+            selector.select_full_qualification(
+                "push", "refs/heads/main", paths, delta=delta
+            )
+        )
+        release = selector.select_matrix(
+            "push", "refs/heads/release/1.4.x", paths, delta=delta
+        )["include"]
+        self.assertTrue(all("scoped" not in row for row in release))
+
+    def test_broad_fallback_preserves_a_detected_documentation_action(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        edited = baseline.replace(
+            "name: Validate framework documentation ownership",
+            "name: Validate source documentation ownership",
+        )
+        shared_workflow_edit = edited.replace("contents: read", "contents: write", 1)
+        mixed_step = edited.replace(
+            "if: matrix.task == 'cpp-native'",
+            "if: matrix.task == 'cpp-native' || success()",
+            1,
+        )
+        for after, extra in (
+            (edited, (".github/ci-matrix.json",)),
+            (edited, (".github/workflows/unknown-review.yml",)),
+            (shared_workflow_edit, ()),
+            (mixed_step, ()),
+        ):
+            paths = (path, *extra)
+            with mock.patch.object(
+                selector, "_workflow_versions", return_value=(baseline, after)
+            ):
+                delta = selector._workflow_delta(paths)
+            self.assertTrue(delta.broad)
+            self.assertIn("documentation", delta.tasks)
+            for event, ref in (("pull_request", "main"), ("push", "refs/heads/main")):
+                with self.subTest(paths=paths, event=event):
+                    rows = selector.select_matrix(event, ref, paths, delta=delta)[
+                        "include"
+                    ]
+                    self.assertIn("documentation", {row["task"] for row in rows})
+                    self.assertTrue(
+                        all(
+                            row in rows
+                            for row in selector._matrix_rows()
+                            if "scoped" not in row
+                        )
+                    )
+
+    def test_sdk_caller_runtime_edits_select_separate_guest_but_metadata_does_not(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        sdk_path = ".github/workflows/native-sdk-qualification.yml"
+        baseline = (ROOT / path).read_text()
+        scoped = baseline.replace(
+            "    uses: ./.github/workflows/native-sdk-qualification.yml",
+            "    name: Native SDK control\n"
+            "    uses: ./.github/workflows/native-sdk-qualification.yml",
+        )
+        changed = baseline.replace(
+            "candidate_revision: ${{ github.sha }}",
+            "candidate_revision: ${{ github.event.pull_request.head.sha }}",
+        )
+        for candidate, expected in ((scoped, False), (changed, True)):
+            with (
+                self.subTest(expected=expected),
+                mock.patch.object(
+                    selector, "_workflow_versions", return_value=(baseline, candidate)
+                ),
+            ):
+                delta = selector._workflow_delta((path,))
+                self.assertIs(delta.freebsd_sdk, expected)
+                self.assertFalse(delta.freebsd_acl)
+                self.assertFalse(delta.broad)
+        unchanged_sdk = (ROOT / sdk_path).read_text()
+        with mock.patch.object(
+            selector,
+            "_workflow_versions",
+            side_effect=((baseline, changed), (unchanged_sdk, unchanged_sdk)),
+        ):
+            self.assertTrue(selector._workflow_delta((path, sdk_path)).freebsd_sdk)
+
+    def test_unproved_workflow_routing_runs_every_matrix_row(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        added_condition = baseline.replace(
+            "      # sample-composition",
+            "      - name: Additional documentation check\n"
+            "        if: ${{ matrix.task == 'documentation' }}\n"
+            "        run: make documentation-check\n"
+            "      # sample-composition",
+        )
+        anchored_caller = baseline.replace(
+            "env:\n  PYTHONUNBUFFERED", "env: &review_env\n  PYTHONUNBUFFERED", 1
+        ).replace(
+            "candidate_revision: ${{ github.sha }}",
+            "candidate_revision: ${{ github.event.pull_request.head.sha }}",
+        )
+        for edited, other_path, sdk in (
+            (added_condition, (), False),
+            (anchored_caller, (), True),
+            (added_condition, (".github/workflows/unknown-review.yml",), True),
+        ):
+            paths = (path, *other_path)
+            with mock.patch.object(
+                selector, "_workflow_versions", return_value=(baseline, edited)
+            ):
+                delta = selector._workflow_delta(paths)
+            self.assertTrue(delta.broad)
+            self.assertIs(delta.freebsd_sdk, sdk)
+            for event, ref in (("pull_request", "main"), ("push", "refs/heads/main")):
+                with self.subTest(event=event, sdk=sdk, paths=paths):
+                    self.assertEqual(
+                        selector.select_matrix(event, ref, paths, delta=delta)[
+                            "include"
+                        ],
+                        selector._matrix_rows(),
+                    )
+                    self.assertTrue(
+                        selector.select_full_qualification(
+                            event, ref, paths, delta=delta
+                        )
+                    )
+            release_rows = selector.select_matrix(
+                "pull_request", "release/1.4.x", paths, delta=delta
+            )["include"]
+            self.assertEqual(
+                release_rows,
+                [row for row in selector._matrix_rows() if "scoped" not in row],
+            )
+
+    def test_sdk_qualification_remains_selected_after_shared_caller_changes(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        for after in (
+            baseline.replace("  contents: read", "  contents: none", 1),
+            baseline.replace(
+                "  profile:\n    runs-on: ubuntu-latest",
+                "  profile:\n    runs-on: ubuntu-24.04",
+            ),
+        ):
+            self.assertNotEqual(after, baseline)
+            with mock.patch.object(
+                selector, "_workflow_versions", return_value=(baseline, after)
+            ):
+                delta = selector._workflow_delta((path,))
+            self.assertTrue(delta.broad)
+            self.assertTrue(delta.freebsd_sdk)
+            self.assertTrue(delta.freebsd_acl)
+
+    def test_sdk_policy_metadata_does_not_run_native_guest(self):
+        selector = self.selector()
+        path = ".github/workflows/native-sdk-qualification.yml"
+        baseline = (ROOT / path).read_text()
+        with mock.patch.object(
+            selector,
+            "_workflow_versions",
+            return_value=(
+                baseline,
+                "# Scope note\n"
+                + baseline.replace(
+                    "name: Native FreeBSD SDK qualification", "name: Native SDK"
+                ),
+            ),
+        ):
+            self.assertFalse(selector._workflow_delta((path,)).freebsd_sdk)
+
+    def test_sdk_caller_binds_read_only_integration_checkout(self):
+        ci = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        caller = ci["jobs"]["freebsd-native-sdk"]
+        self.assertEqual(caller["if"], "needs.profile.outputs.freebsd_sdk == 'true'")
+        self.assertEqual(
+            caller["uses"], "./.github/workflows/native-sdk-qualification.yml"
+        )
+        self.assertEqual(caller["permissions"], {"contents": "read"})
+        self.assertNotIn("secrets", caller)
+        self.assertEqual(caller["with"]["candidate_revision"], "${{ github.sha }}")
+        sdk = load_yaml_subset((ROOT / caller["uses"]).read_text())
+        self.assertIn("workflow_dispatch", sdk["on"])
+        self.assertTrue(
+            sdk["on"]["workflow_call"]["inputs"]["candidate_revision"]["required"]
+        )
+        self.assertEqual(sdk["permissions"], {"contents": "read"})
+        steps = sdk["jobs"]["public-sdk"]["steps"]
+        self.assertFalse(steps[0]["with"]["persist-credentials"])
+        archive = next(
+            step["run"]
+            for step in steps
+            if step.get("name", "").startswith("Build the exact")
+        )
+        self.assertIn('test "$(git rev-parse HEAD)" = "$GITHUB_SHA"', archive)
+        self.assertIn('test "$(git rev-parse HEAD^2)" = "$PULL_REQUEST_HEAD"', archive)
+        self.assertIn(
+            '"qualification_harness_revision": os.environ["GITHUB_SHA"]', archive
+        )
+        self.assertIn(
+            '"pull_request_head": os.environ.get("PULL_REQUEST_HEAD")', archive
+        )
 
     def test_workflow_runs_only_the_checks_owned_by_each_scoped_profile(self) -> None:
         workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
-        profile = workflow["jobs"]["profile"]["steps"][-1]
+        profile_steps = workflow["jobs"]["profile"]["steps"]
+        profile = next(step for step in profile_steps if step.get("id") == "select")
+        self.assertEqual(workflow["jobs"]["checks"]["needs"], "profile")
+        [schema_check] = [
+            step for step in profile_steps if "make schema-check" in step.get("run", "")
+        ]
+        self.assertEqual(
+            schema_check["if"], "steps.select.outputs.schema_preflight == 'true'"
+        )
+        self.assertLess(profile_steps.index(profile), profile_steps.index(schema_check))
         self.assertEqual(
             profile["env"]["CI_BASE_REF"], "${{ github.base_ref || github.ref }}"
         )
