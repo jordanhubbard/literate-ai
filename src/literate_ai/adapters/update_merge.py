@@ -11,6 +11,7 @@ import hashlib
 import json
 import subprocess
 import tempfile
+from collections.abc import Callable
 from dataclasses import replace
 from pathlib import Path, PurePosixPath
 
@@ -66,6 +67,7 @@ class UpdateBases:
         self.scopes: dict[str, dict[str, str]] = {"framework": {}, "catalog": {}}
         self.sources: dict[str, str] = {}
         self.created_directories: list[Path] = []
+        self._intended_content: bytes | None = None
         if self.original is None:
             return
         try:
@@ -127,7 +129,7 @@ class UpdateBases:
             self.retain(content)
             self.scopes[scope][path] = digest(content)
 
-    def write(self) -> None:
+    def write(self, *, before_write: Callable[[Path], None] | None = None) -> None:
         from .project_update_apply import _write_exact
         from .project_updates import ProjectUpdateError
 
@@ -162,12 +164,44 @@ class UpdateBases:
             while parent != self.root and not parent.exists():
                 self.created_directories.append(parent)
                 parent = parent.parent
+            if before_write is not None:
+                before_write(path)
+                self._intended_content = content
             _write_exact(path, content)
 
-    def rollback(self) -> None:
+    def checkpoint_needs_rollback(self) -> bool:
+        """Check exact bytes even if the write raised after atomic replacement."""
+        from .project_updates import ProjectUpdateError
+
+        if self._intended_content is None:
+            return False
+        path = safe_path(self.root, self.checkpoint)
+        if path.is_file() and path.stat().st_size > MAX_BYTES:
+            raise ProjectUpdateError(
+                "project.update_base_oversized", "update baseline exceeds byte limit"
+            )
+        observed = path.read_bytes() if path.is_file() else None
+        if observed == self.original:
+            return False
+        if observed != self._intended_content:
+            raise ProjectUpdateError(
+                "project.update_base_changed", "update baseline changed before rollback"
+            )
+        return True
+
+    def rollback(
+        self,
+        *,
+        before_write: Callable[[Path], None] | None = None,
+        require_intended: bool = False,
+    ) -> None:
         from .project_update_apply import _write_exact
 
         path = safe_path(self.root, self.checkpoint)
+        if require_intended and not self.checkpoint_needs_rollback():
+            return
+        if before_write is not None:
+            before_write(path)
         if self.original is None:
             path.unlink(missing_ok=True)
         else:

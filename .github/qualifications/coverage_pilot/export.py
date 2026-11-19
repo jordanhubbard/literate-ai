@@ -15,8 +15,13 @@ from native import policy_blob
 
 from literate_ai.adapters.github_observation import read_json, workflow_jobs
 from literate_ai.contracts import canonical_identity
-from literate_ai.project_releases import ReleasePolicy
-from literate_ai.release_ci_coverage import CoverageContext, validate_ci_coverage
+from literate_ai.project_releases import ReleasePolicy, load_release_policy
+from literate_ai.release_ci_coverage import (
+    REPORT_SCHEMA,
+    TESTED_FILE_REPORT_SCHEMA,
+    CoverageContext,
+    validate_ci_coverage,
+)
 
 WORKFLOW = ".github/workflows/ci-coverage-pilot.yml"
 JOBS = (
@@ -145,8 +150,16 @@ def main() -> int:
     assert qualification is not None and qualification.ci_coverage is not None
     if policy.provider_repository != repository:
         raise ValueError("Pilot policy names another repository")
+    tested_contract = qualification.ci_coverage.tested_file
+    if (
+        tested_contract is not None
+        and load_release_policy(root)[1].identity != policy.identity
+    ):
+        raise ValueError("Pilot policy differs from the effective release policy")
+    tested_file = None
     cells = []
     successes = set()
+    fresh_jobs = set()
     for name, os_family, variable in JOBS:
         matches = [
             job for job in jobs if job["name"] == name and job["run_attempt"] == attempt
@@ -169,6 +182,7 @@ def main() -> int:
         if not isinstance(facts, list) or len(facts) != len(qualification.actions):
             raise ValueError("Incomplete native phase facts")
         built = None
+        execution = None
         origins = set()
         for fact, action in zip(facts, qualification.actions, strict=True):
             if (
@@ -222,6 +236,35 @@ def main() -> int:
             if built is not None and digest != built:
                 raise ValueError("Native test did not consume the built bytes")
             built = digest
+            if tested_contract is not None:
+                observed = (
+                    fact.get("output_path"),
+                    fact.get("output_size"),
+                    fact.get("environment_identity"),
+                )
+                if execution is not None and execution != observed:
+                    raise ValueError("Native execution environment or file changed")
+                execution = observed
+                if (os_family, action.name) == (
+                    tested_contract.platform,
+                    tested_contract.action,
+                ):
+                    if (
+                        action.name != "test"
+                        or observed[0] != "_build/coverage-pilot/native/application.pyc"
+                        or Path(tested_contract.path).name != "application.pyc"
+                    ):
+                        raise ValueError(
+                            "The pilot can only stage the file its test executed"
+                        )
+                    tested_file = {
+                        "role": tested_contract.role,
+                        "path": tested_contract.path,
+                        "size": observed[1],
+                        "identity": "sha256:" + digest,
+                        "environment_identity": observed[2],
+                        "job_id": job["id"],
+                    }
             cells.append(
                 {
                     "platform": os_family,
@@ -262,6 +305,8 @@ def main() -> int:
         ):
             raise ValueError("Native execution does not precede the exporter")
         successes.add(job["id"])
+        if origin == attempt:
+            fresh_jobs.add(job["id"])
     context = CoverageContext(
         positive(repo["id"]),
         repository,
@@ -276,7 +321,7 @@ def main() -> int:
         policy.identity,
     )
     document = {
-        "schema": "literate-ai/release-ci-coverage@1",
+        "schema": TESTED_FILE_REPORT_SCHEMA if tested_contract else REPORT_SCHEMA,
         "repository": {"id": context.repository_id, "name": repository},
         "workflow": {"id": context.workflow_id, "path": WORKFLOW, "revision": revision},
         "run": {
@@ -291,6 +336,7 @@ def main() -> int:
         "qualification_identity": qualification.identity,
         "producer_job_id": producer["id"],
         "cells": cells,
+        **({"tested_artifacts": tested_file} if tested_contract else {}),
     }
     validate_ci_coverage(
         document,
@@ -301,6 +347,7 @@ def main() -> int:
         },
         successful_job_ids=successes,
         producer_job_id=producer["id"],
+        fresh_artifact_job_ids=fresh_jobs,
     )
     closing = api(f"repos/{repository}/actions/runs/{run_id}/attempts/{attempt}")
     if any(

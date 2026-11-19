@@ -18,6 +18,10 @@ from literate_ai.adapters.worker_telemetry_processes import (
 )
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
+from .._process_interrupt import (
+    BOUNDED_INTERRUPT_GRACE_SECONDS,
+    relay_process_interrupt,
+)
 from .._processes import (
     create_process_tree_ownership,
     process_tree_termination_wait_seconds,
@@ -178,6 +182,7 @@ def run_bounded_process(
         raise
     observation = None
     writer = None
+    readers: list[threading.Thread] = []
     try:
         ownership.bind(process.pid)
         observation = register_original_process_launch(process)
@@ -394,6 +399,15 @@ def run_bounded_process(
                 started_at=_started,
             )
         return result
+    except KeyboardInterrupt:
+        if terminate_descendants:
+            relay_process_interrupt(
+                process,
+                ownership=ownership,
+                readers=readers,
+                grace_seconds=BOUNDED_INTERRUPT_GRACE_SECONDS,
+            )
+        raise
     finally:
         try:
             retire_original_process_observation(observation)

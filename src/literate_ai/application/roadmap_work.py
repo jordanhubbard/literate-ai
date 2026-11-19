@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass
 
-from .roadmap_dependencies import validate_roadmap_dependencies
-
-_ID = re.compile(r"^[A-Z][A-Z0-9-]{2,63}$")
+from .roadmap_dependencies import (
+    WORK_ID,
+    roadmap_sections,
+    validate_roadmap_sections,
+)
 
 
 class RoadmapWorkError(ValueError):
@@ -31,7 +32,7 @@ class RoadmapWorkRecord:
     completion_prerequisites: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        if _ID.fullmatch(self.work_id) is None:
+        if WORK_ID.fullmatch(self.work_id) is None:
             raise RoadmapWorkError("roadmap_work.id_invalid", "work ID is invalid")
         values = (
             self.title,
@@ -56,7 +57,7 @@ class RoadmapWorkRecord:
 
 
 def record_work(content: str, record: RoadmapWorkRecord) -> str:
-    if re.search(rf"^### \[[ x~]\] {re.escape(record.work_id)}\b", content, re.M):
+    if record.work_id in roadmap_sections(content):
         raise RoadmapWorkError(
             "roadmap_work.duplicate", f"work item already exists: {record.work_id}"
         )
@@ -78,30 +79,30 @@ def record_work(content: str, record: RoadmapWorkRecord) -> str:
         "",
     ]
     updated = content.rstrip() + "\n\n" + "\n".join(lines)
-    validate_roadmap_dependencies(updated)
+    sections = roadmap_sections(updated)
+    if record.work_id not in sections:
+        raise RoadmapWorkError(
+            "roadmap_work.hidden_entry", "the new item would appear inside an example"
+        )
+    validate_roadmap_sections(sections)
     return updated
 
 
 def close_work(content: str, work_id: str) -> str:
-    validate_roadmap_dependencies(content)
-    if _ID.fullmatch(work_id) is None:
+    sections = roadmap_sections(content)
+    validate_roadmap_sections(sections)
+    if WORK_ID.fullmatch(work_id) is None:
         raise RoadmapWorkError("roadmap_work.id_invalid", "work ID is invalid")
-    heading = re.compile(rf"^### \[(?P<state>[ ~x])\] {re.escape(work_id)}\b.*$", re.M)
-    match = heading.search(content)
-    if match is None:
+    section = sections.get(work_id)
+    if section is None:
         raise RoadmapWorkError("roadmap_work.not_found", "work item does not exist")
-    if match.group("state") == "x":
-        return content
-    next_heading = re.search(r"^### ", content[match.end() :], re.M)
-    end = (
-        match.end() + next_heading.start() if next_heading is not None else len(content)
-    )
-    section = content[match.end() : end]
-    if re.search(r"^\s+- \[[ ~]\] ", section, re.M):
+    if section.unchecked:
         raise RoadmapWorkError(
             "roadmap_work.incomplete", "work item has unchecked implementation/evidence"
         )
-    return content[: match.start("state")] + "x" + content[match.end("state") :]
+    if section.complete:
+        return content
+    return content[: section.state_offset] + "x" + content[section.state_offset + 1 :]
 
 
 __all__ = ["RoadmapWorkError", "RoadmapWorkRecord", "close_work", "record_work"]
