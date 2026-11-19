@@ -6227,7 +6227,10 @@ class LocalStandardLifecyclePorts:
             node_sdk_tool_environment,
             require_node_sdk_process_observer,
         )
-        from literate_ai.adapters.process_liveness import process_liveness
+        from literate_ai.adapters.process_liveness import (
+            _close_preserving_primary_failure,
+            process_liveness,
+        )
 
         self._require_full_command_scope()
         for callback in (require_current, consume):
@@ -6306,6 +6309,7 @@ class LocalStandardLifecyclePorts:
             with capture_loaded_node_library_verifier_inputs(oracle) as verifier:
                 oracle_stamps = verifier.capture_stamps()
                 require_live()
+                primary = None
                 try:
                     checks = check_node_library(
                         oracle,
@@ -6335,12 +6339,21 @@ class LocalStandardLifecyclePorts:
                         raise TypeError(
                             "provider verifier consumer must finish synchronously"
                         )
+                except BaseException as error:
+                    primary = error
+                    raise
                 finally:
-                    if active:
-                        try:
-                            compiler.node.require_unchanged(configured)
-                        finally:
-                            require_live()
+                    try:
+                        if active:
+                            try:
+                                _close_preserving_primary_failure(
+                                    lambda: compiler.node.require_unchanged(configured),
+                                    primary,
+                                )
+                            finally:
+                                _close_preserving_primary_failure(require_live, primary)
+                    finally:
+                        primary = None
             require_close()
             return result
         finally:

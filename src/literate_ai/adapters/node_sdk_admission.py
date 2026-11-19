@@ -284,7 +284,11 @@ class LocalNodeSDKGenerationAdmission:
             if not active:
                 raise NodeSDKAdmissionError("SDK operation scope ended")
             try:
-                self._require_config()
+                # The first original provider guard checks this exact owner
+                # before its first clock, read or callback. Share that entry
+                # cut; an empty cohort must still check its owner here.
+                if not entries:
+                    self._require_config()
                 for entry in entries:
                     entry["live"]()
                 final_inputs(live_membership=True)

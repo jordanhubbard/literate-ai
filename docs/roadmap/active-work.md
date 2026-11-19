@@ -1628,8 +1628,32 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       uninstrumented margin or native consumer lifecycle acceptance. Two earlier
       harness failures remain retained: supported Python discovery and a missing
       allocator parent, both before any measured guard and with clean custody.
-      **Next investigation:** graph reconstruction under fresh original proofs;
-      do not cache currentness or extend grants/deadlines to obtain a pass.
+      The reviewed correction shares the nonempty cohort's entry check with the
+      first original provider's identical owner check; its active-state test is
+      the only intervening work. An empty cohort retains its own entry check.
+      The native cohort controls exposed a third masking boundary: closing
+      compiler validation replaced an earlier provider's original failure with
+      retired liveness. The existing explicit-primary helper now covers that
+      compiler/live closing pair, retaining the nested `try/finally`, original
+      order, single active-state decision and successful-body close refusals.
+      Original file, oracle and grant failures now surface directly. Fixture
+      cleanup releases completed ownership through original weak references,
+      and the inert application seam initializes its existing recorder default;
+      production registry limits and all grants/deadlines remain unchanged.
+      The combined canonical gate passes all 28 selected cases without skips in
+      1,237.855 seconds: original callback routing, pre-entry mutation refusal,
+      exact body/cancellation identity, both closing attempts, withheld results,
+      escaped/copied-guard retirement, actual two-provider mutations and final
+      clock refusals. Successful and refused scopes release count/byte quotas.
+      Ruff lint/format and whitespace checks pass. Independent source/evidence
+      review verifies the retained canonical raw logs and all 1,277 TCB members;
+      drift is exactly the two reviewed production files. The reviewed driver pin
+      is `20a280a1ea672dcfcb3f6fa36298343fa7fae573c1e3edee65ddece4e23aa588`;
+      the test-runner pin is unchanged. Earlier failed gates remain retained.
+      **Next measurement:** repeat the original complete guard against a fresh
+      installed wheel before selecting the next lifecycle qualification. No
+      performance benefit, uninstrumented margin, full consumer lifecycle or
+      downstream cutover is established by these source/native controls.
       Independent design review accepts
       this order and the explicit authored-fixture/no-model scope. This adapter step does not complete ordinary CLI
       integration: resolve verifier-owned oracles and implement a separately

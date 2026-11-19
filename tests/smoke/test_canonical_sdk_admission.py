@@ -41,7 +41,6 @@ from literate_ai.adapters.node_sdk_legal import require_locked_node_sdk_legal_fi
 from literate_ai.adapters.node_sdk_project_acceptance import (
     LocalNodeSDKProjectAcceptance,
 )
-from literate_ai.adapters.process_liveness import ProcessLivenessError
 from literate_ai.adapters.standard_project import (
     assemble_filesystem_standard_project_runtime,
     assemble_standard_lifecycle_ports,
@@ -200,7 +199,10 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         )
 
     def test_two_shared_interface_providers_enter_public_host_owned_invocation(self):
+        ports_seen = []
+
         def operation(invocation, owner, fixture):
+            ports_seen.append(fixture.ports)
             owner()
             self.assertEqual(len(fixture.providers), 2)
             self.assertEqual(
@@ -233,11 +235,20 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             public_host=True,
             verifier_lifetime=timedelta(minutes=10),
         )
+        self.assertEqual(len(ports_seen), 1)
+        self._assert_provider_scopes_retired(ports_seen[0])
+
+    def _assert_provider_scopes_retired(self, ports):
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+        self.assertEqual(ports._library_provider_scopes, {})
 
     def _assert_later_provider_cannot_lose_earlier_input(self, cut):
-        changed, consumed = [], []
+        changed, consumed, ports_seen = [], [], []
 
         def observer(_request, rows, grants, ports):
+            if not ports_seen:
+                ports_seen.append(ports)
             if len(grants) != 1 or changed:
                 return
             self.assertEqual(len(rows), 2)
@@ -275,13 +286,8 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
             "files": ValueError,
             "grant": AuthorizationError,
         }[cut]
-        # Nested cleanup retires every scope, so its final refusal can be
-        # surfaced above the original witness/grant failure. Require both exact
-        # fences; an unrelated exception or an operation result is not success.
-        surfaced = (
-            LocalStandardLifecycleError if cut == "files" else ProcessLivenessError
-        )
-        with self.assertRaises(surfaced) as raised:
+        # Each original custody/grant failure survives the closing pair.
+        with self.assertRaises(error) as raised:
             self.with_canonical_sdk(
                 consume,
                 second_provider=True,
@@ -289,6 +295,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
                 verifier_observer=observer,
                 verifier_lifetime=timedelta(minutes=10),
             )
+        self.assertIs(type(raised.exception), error)
         chain = []
         current = raised.exception
         while current is not None and all(current is not item for item in chain):
@@ -306,6 +313,8 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self.assertFalse(any(isinstance(item, AssertionError) for item in chain))
         self.assertEqual(changed, [cut])
         self.assertEqual(consumed, [])
+        self.assertEqual(len(ports_seen), 1)
+        self._assert_provider_scopes_retired(ports_seen[0])
 
     def test_later_provider_verification_cannot_change_earlier_oracle(self):
         self._assert_later_provider_cannot_lose_earlier_input("oracle")
@@ -317,7 +326,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self._assert_later_provider_cannot_lose_earlier_input("grant")
 
     def _assert_two_provider_final_clock_loss(self, cut):
-        completed, changed, returned, grants_seen = [], [], [], []
+        completed, changed, returned, grants_seen, ports_seen = [], [], [], [], []
         original_runner = run_node_sdk_lifecycle
 
         def observe(*args, **kwargs):
@@ -328,6 +337,7 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         def verifier_observer(_request, _rows, grants, _ports):
             if not grants_seen:
                 grants_seen.append(grants)
+                ports_seen.append(_ports)
 
         def consume(_invocation, owner, fixture):
             from literate_ai.adapters.node_library_acceptance import _LOADED
@@ -387,6 +397,8 @@ class CanonicalSDKAdmissionTests(unittest.TestCase):
         self.assertEqual(completed, [True])
         self.assertEqual(changed, [cut])
         self.assertEqual(returned, [])
+        self.assertEqual(len(ports_seen), 1)
+        self._assert_provider_scopes_retired(ports_seen[0])
 
     def test_two_provider_final_clock_cannot_change_earlier_oracle(self):
         self._assert_two_provider_final_clock_loss("oracle")

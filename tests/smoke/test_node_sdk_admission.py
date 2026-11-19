@@ -4,6 +4,7 @@ The consumer plan is inert contract DATA. No generated SDK, selected public
 Flavor, actual model output or end-to-end lifecycle qualification is claimed.
 """
 
+import gc
 import inspect
 import os
 import unittest
@@ -79,8 +80,9 @@ class NodeSDKAdmissionTests(unittest.TestCase):
     def setUp(self):
         self.fixture = f = provider_fixture.NodeProviderLifecycleTests()
         f.node, f.compiler, f.environment = self.node, self.compiler, self.environment
-        f.setUp()
+        self.addCleanup(self._release_fixture)
         self.addCleanup(f.doCleanups)
+        f.setUp()
         provider = f.accepted.build.exports[0]
         producer_plan = next(
             item
@@ -256,6 +258,13 @@ class NodeSDKAdmissionTests(unittest.TestCase):
         self.grants.append(grant)
         return grant
 
+    def _release_fixture(self):
+        # The checkpoint runner retains test objects for its original pin. Let
+        # the loader's weak-reference owner retire this completed fixture even
+        # while that test object remains retained; never clear its registry.
+        self.fixture = None
+        gc.collect()
+
     def owner(self):
         if not self.policy_alive:
             raise ValueError("SDK policy ended")
@@ -286,6 +295,88 @@ class NodeSDKAdmissionTests(unittest.TestCase):
             consume=consume,
             **changes,
         )
+
+    def test_live_cohort_enters_through_original_provider_owner(self):
+        armed = False
+        callers = []
+
+        def owner():
+            self.owner()
+            if armed:
+                frame = inspect.currentframe()
+                try:
+                    caller = frame.f_back.f_back
+                    callers.append(
+                        (caller.f_globals["__name__"], caller.f_code.co_name)
+                    )
+                finally:
+                    del caller, frame
+
+        def consume(_invocation, guard):
+            nonlocal armed
+            armed = True
+            try:
+                guard()
+            finally:
+                armed = False
+
+        self.invoke(self.admission(require_current=owner), consume)
+        self.assertTrue(callers)
+        self.assertEqual(
+            callers[0],
+            ("literate_ai.adapters.lifecycle.standard_local", "require_owner"),
+        )
+        self.assertEqual(self.fixture.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.fixture.ports._library_provider_scope_bytes, 0)
+
+    def test_first_provider_owner_failure_retires_both_live_guards(self):
+        class OwnerEnded(Exception):
+            pass
+
+        primary = OwnerEnded("original first-provider owner failure")
+        armed = False
+        escaped, providers = [], []
+        ports = self.fixture.ports
+        original = ports.with_node_sdk_provider_generation_data
+
+        def owner():
+            self.owner()
+            if armed:
+                raise primary
+
+        def join(*args, consume, **kwargs):
+            def verified(data, live):
+                providers.append(live)
+                return consume(data, live)
+
+            return original(*args, consume=verified, **kwargs)
+
+        def consume(_invocation, guard):
+            nonlocal armed
+            escaped.append(guard)
+            armed = True
+            guard()
+
+        try:
+            with (
+                mock.patch.object(
+                    ports, "with_node_sdk_provider_generation_data", join
+                ),
+                self.assertRaises(OwnerEnded) as caught,
+            ):
+                self.invoke(self.admission(require_current=owner), consume)
+        finally:
+            armed = False
+        self.assertIs(caught.exception, primary)
+        self.assertEqual(len(escaped), 1)
+        self.assertEqual(len(providers), 1)
+        with self.assertRaisesRegex(NodeSDKAdmissionError, "scope ended"):
+            escaped[0]()
+        with self.assertRaisesRegex(Exception, "provider verifier scope ended"):
+            providers[0]()
+        self.assertEqual(ports._library_provider_scope_count, 0)
+        self.assertEqual(ports._library_provider_scope_bytes, 0)
+        self.assertEqual(ports._library_provider_scopes, {})
 
     def test_real_provider_operation_and_fresh_exact_renewal_keep_original_binding(
         self,
@@ -583,6 +674,7 @@ class NodeSDKAdmissionTests(unittest.TestCase):
         # Application seam over genuine provider custody. The consumer candidate
         # remains inert typed DATA, not generated or built SDK output.
         service = object.__new__(StandardProjectLifecycleService)
+        service.checkpoint_recorder = None
         admission = self.admission()
         candidate = None
 

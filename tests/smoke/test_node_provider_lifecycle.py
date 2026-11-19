@@ -6,6 +6,7 @@ import sys
 import tempfile
 import unittest
 from contextlib import contextmanager
+from contextvars import copy_context
 from dataclasses import replace
 from datetime import timedelta
 from pathlib import Path
@@ -558,6 +559,67 @@ class NodeProviderLifecycleTests(unittest.TestCase):
                 with self.subTest(cut=cut):
                     exercise(cut)
         self.assertEqual(self.processes, [])
+
+    def _assert_compiler_close_failure(self, primary):
+        node = self.compiler.node
+        original = type(node).require_unchanged
+        compiler_failure = LookupError("original compiler closing failure")
+        owner_failure = RuntimeError("original owner closing failure")
+        reached = closing = False
+        events, escaped, contexts, returned = [], [], [], []
+
+        def node_current(current, *args, **kwargs):
+            nonlocal closing
+            if current is node and reached:
+                closing = True
+                events.append("compiler")
+                raise compiler_failure
+            return original(current, *args, **kwargs)
+
+        def owner():
+            self.owner()
+            if closing:
+                events.append("owner")
+                raise owner_failure
+
+        def consume(_checks, guard):
+            nonlocal reached
+            escaped.append(guard)
+            contexts.append(copy_context())
+            reached = True
+            if primary is not None:
+                raise primary
+            return "must be withheld"
+
+        expected = primary if primary is not None else owner_failure
+        with self.ports.accepted_library_provider(
+            self.accepted, require_current=self.owner
+        ) as scope:
+            with (
+                mock.patch.object(type(node), "require_unchanged", node_current),
+                self.assertRaises(type(expected)) as caught,
+            ):
+                returned.append(self.run_join(scope, consume, require_current=owner))
+            self.assertIs(caught.exception, expected)
+            self.assertEqual(events, ["compiler", "owner"])
+            self.assertEqual(returned, [])
+            self.assertTrue(self.processes)  # Original native verification ran.
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
+                escaped[0]()
+            with self.assertRaisesRegex(LocalStandardLifecycleError, "scope ended"):
+                contexts[0].run(escaped[0])
+        self.assertEqual(self.ports._library_provider_scope_count, 0)
+        self.assertEqual(self.ports._library_provider_scope_bytes, 0)
+        self.assertEqual(self.ports._library_provider_scopes, {})
+
+    def test_body_error_survives_both_original_closing_failures(self):
+        self._assert_compiler_close_failure(LookupError("original body error"))
+
+    def test_body_cancellation_survives_both_original_closing_failures(self):
+        self._assert_compiler_close_failure(KeyboardInterrupt("original cancellation"))
+
+    def test_successful_body_is_withheld_on_original_closing_failure(self):
+        self._assert_compiler_close_failure(None)
 
     def test_consumer_failure_retires_escaped_guard(self):
         escaped = []
