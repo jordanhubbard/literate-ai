@@ -1827,6 +1827,36 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
       captured DATA nor an escaped handle establishes inspection success or
       admission. **Next:** bring the original package capture under this same
       owner before scanner/classification, grant issuance or public activation.
+      Root preparation now uses a private frozen concrete owner over original
+      package/stage/plan/invocation data. Manual acceptance retains its original
+      host/package/stamp/describe/authorize/check sequence and request preimage.
+      Root capture reserves before callbacks and shares provider capture's rows,
+      tool checks, bounds, sticky poison and retirement. Reentry remains reserved
+      through oracle exit and a fresh final clock; original package, invocation,
+      file, tool and oracle finite witnesses close afterward.
+      Focused Make gates pass without skips: 17 shared provider-capture controls
+      (9.584s), four root-plan controls (0.306s) and 12 host-state controls (4.384s).
+      One actual authored native SDK lifecycle also passes (703.342s). Its
+      observer uses the original policy/eight root arguments, verifies capture
+      emits no grants/evidence, refuses copied/incomplete/equal-replaced inputs,
+      final-oracle stage mutation and swallowed final-clock reentry, then delegates
+      original packaged acceptance. The original fixture verifies the checker,
+      complete root acceptance and both source-membership publications. This is
+      34 passing cases. Independent evidence review accepts the exact two-file
+      TCB `7c767dc7ee58b6b75dc2b4926db59b9b35caec8257930852ae3d74bfccac37c2`.
+      This is not installed-wheel, model-backed CLI, multi-provider or
+      downstream Aviation cutover qualification. Source remained fixed; a single
+      read-only native stack sample added no retry or deadline extension.
+      **Next unchecked action:** bind inspected mode privately to one original
+      host/runtime operation and its exact inspection registry entries. Ordinary
+      unbound capture handles and copied DATA cannot obtain grants. Preserve
+      manual callback routing/identities with explicit mutual exclusion. Then
+      add the shared scan/classification owner, a separate verifier-specific
+      acknowledgement and narrowly scoped policy issuance. Only a constructor-
+      owned explicit immutable-empty revocation state is initially supported;
+      arbitrary callbacks/unsupported feeds refuse. Retain finite witnesses in
+      bounded live/closing/terminal grant handles through aggregate publication
+      closure; fresh publication reentry gets a new aggregate.
       Further source-cache
       fault/recovery, model, retained, native-platform/browser and default/cutover
       qualifications remain open.

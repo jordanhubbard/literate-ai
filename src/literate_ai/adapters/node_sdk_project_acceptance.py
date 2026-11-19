@@ -1,7 +1,7 @@
 """Explicit internal root SDK acceptance; no default admission or implicit grant."""
 
 import inspect
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import uuid4
 
 from literate_ai._filesystem import require_safe_directory
@@ -42,6 +42,130 @@ class _PackageSubject:
     export: object
     root: object
     files: tuple
+
+
+@dataclass(frozen=True, slots=True)
+class _RootVerifierPreparation:
+    """Concrete original package owner; only the acceptance prefix creates it.
+
+    This internal object supplies no grant and accepts no alternate read/inspect
+    implementation. Captured invocation guards originate in finalization custody.
+    """
+
+    policy: object
+    ports: object
+    component_lock: object
+    project_build_plan: object
+    package_plan: object
+    package_result: object
+    root_test: object
+    packaged_execution: object
+    custody: object
+    resources: object
+    subject: object
+    project_identity: object
+    component_identities: tuple
+    stages: tuple
+    invocation_owner: object
+    close_invocation: object
+    original_inputs: object = field(init=False)
+    description: object = field(init=False)
+    request: object = field(init=False)
+
+    def __post_init__(self):
+        document = self.inputs_document()
+        inputs = canonical_identity(document)
+        object.__setattr__(self, "original_inputs", inputs)
+        request = BuildRequest(
+            effective_revision_digest=self.policy.revision.identity.uri,
+            source_bundle_digest=inputs.uri,
+            builder_id="local-node-sdk-project-verifier@1",
+            toolchain_digest=self.policy.target.typescript.compiler.identity.uri,
+            sandbox_profile="local-explicit-host-process",
+            requested_privileges=("execute-library-verifier",),
+            allowed_outputs=("verifier-workspace", "stdout", "stderr"),
+        )
+        description = NodeLibraryVerifierRequestDescription.capture(
+            request, owner_revision=self.policy.revision.identity, inputs=document
+        )
+        object.__setattr__(self, "description", description)
+        object.__setattr__(self, "request", description.request)
+
+    def inputs_document(self):
+        return {
+            "schema": "literate-ai/local-node-sdk-project-verifier-inputs@1",
+            "policy": self.policy._identity.uri,
+            "project_plan": self.project_identity.uri,
+            "package_plan": self.package_plan.identity.uri,
+            "package_result": self.package_result.identity.uri,
+            "build_plan": self.custody.root_plan.identity.uri,
+            "artifact": self.subject.export.identity.uri,
+            "root_test": self.root_test.uri,
+            "packaged_execution": self.packaged_execution.uri,
+            "oracle": self.policy.oracle.identity.uri,
+            "compiler": self.policy.target.typescript.compiler.identity.uri,
+            "node": self.policy.target.typescript.compiler.node.identity,
+        }
+
+    def inputs_identity(self):
+        return canonical_identity(self.inputs_document())
+
+    def close(self, now, authority_stamps):
+        self.policy._require_config_bytes()
+        self.close_invocation()
+        self.policy._require_project_plan(
+            self.project_build_plan,
+            self.custody.root_plan,
+            expected=self.component_identities,
+        )
+        if (
+            self.project_build_plan.identity != self.project_identity
+            or self.package_plan.component_lock_identity != self.component_lock.identity
+            or self.package_plan.root_component_revision
+            != self.policy.revision.identity
+            or (
+                self.package_plan.root_artifact_identity != self.subject.export.identity
+            )
+            or (
+                self.ports._node_sdk_project_stages.get(
+                    self.package_result.identity.uri
+                )
+                is not self.stages
+            )
+            or (self.inputs_identity() != self.original_inputs)
+            or (self.subject.contract is not self.policy.contract)
+            or (self.custody.root_plan not in self.project_build_plan.components)
+        ):
+            raise ValueError("SDK acceptance root/package/stage identity changed")
+        self.resources.require_verification_close(self.custody, now=now)
+        authority_stamps()
+
+    def require_host_current(self):
+        self.policy._require_config_bytes()
+        returned = self.policy.require_current()
+        if returned is not None:
+            if inspect.iscoroutine(returned) or inspect.isgenerator(returned):
+                returned.close()
+            raise TypeError("SDK acceptance owner must return None synchronously")
+        self.policy.snapshot.require_unchanged()
+        self.invocation_owner()
+        self.policy._require_config_bytes()
+
+    def require_package_current(self):
+        self.policy._require_config_bytes()
+        self.resources.command_inputs(self.custody)
+        require_locked_node_sdk_legal_files(
+            self.policy.snapshot,
+            component_revision=self.policy.revision.identity,
+            profile=self.policy.target.profile,
+            files=self.subject.files,
+        )
+        self.policy._require_config_bytes()
+
+    def describe_request(self, authority_stamps):
+        self.policy._require_config_bytes()
+        self.close(self.ports.clock(), authority_stamps)
+        return self.request
 
 
 class LocalNodeSDKProjectAcceptance:
@@ -215,7 +339,7 @@ class LocalNodeSDKProjectAcceptance:
             raise ValueError("SDK acceptance original component plans changed")
         return identities
 
-    def accept(
+    def _prepare_verifier(
         self,
         ports,
         component_lock,
@@ -260,27 +384,6 @@ class LocalNodeSDKProjectAcceptance:
         subject = _PackageSubject(contract, export, root, files)
         project_identity = project_build_plan.identity
 
-        def inputs_document():
-            return {
-                "schema": "literate-ai/local-node-sdk-project-verifier-inputs@1",
-                "policy": self._identity.uri,
-                "project_plan": project_identity.uri,
-                "package_plan": package_plan.identity.uri,
-                "package_result": package_result.identity.uri,
-                "build_plan": custody.root_plan.identity.uri,
-                "artifact": export.identity.uri,
-                "root_test": root_test.uri,
-                "packaged_execution": packaged_execution.uri,
-                "oracle": self.oracle.identity.uri,
-                "compiler": self.target.typescript.compiler.identity.uri,
-                "node": self.target.typescript.compiler.node.identity,
-            }
-
-        def inputs_identity():
-            return canonical_identity(inputs_document())
-
-        original_document = inputs_document()
-        original_inputs = canonical_identity(original_document)
         stages = ports._node_sdk_project_stages.get(package_result.identity.uri)
         if (
             stages is None
@@ -289,70 +392,58 @@ class LocalNodeSDKProjectAcceptance:
         ):
             raise ValueError("SDK acceptance lacks original TEST/EXEC observations")
 
+        return _RootVerifierPreparation(
+            self,
+            ports,
+            component_lock,
+            project_build_plan,
+            package_plan,
+            package_result,
+            root_test,
+            packaged_execution,
+            custody,
+            resources,
+            subject,
+            project_identity,
+            component_identities,
+            stages,
+            owner,
+            close_invocation,
+        )
+
+    def accept(
+        self,
+        ports,
+        component_lock,
+        execution_plan,
+        project_build_plan,
+        package_plan,
+        package_result,
+        root_test,
+        packaged_execution,
+    ):
+        prepared = self._prepare_verifier(
+            ports,
+            component_lock,
+            execution_plan,
+            project_build_plan,
+            package_plan,
+            package_result,
+            root_test,
+            packaged_execution,
+        )
+        subject = prepared.subject
+        original_inputs = prepared.original_inputs
+        request = prepared.request
+        require_host_current = prepared.require_host_current
+        require_package_current = prepared.require_package_current
+        inputs_identity = prepared.inputs_identity
+
         def close(now):
-            self._require_config_bytes()
-            close_invocation()
-            self._require_project_plan(
-                project_build_plan, custody.root_plan, expected=component_identities
-            )
-            if (
-                project_build_plan.identity != project_identity
-                or package_plan.component_lock_identity != component_lock.identity
-                or package_plan.root_component_revision != self.revision.identity
-                or package_plan.root_artifact_identity != export.identity
-                or ports._node_sdk_project_stages.get(package_result.identity.uri)
-                is not stages
-                or inputs_identity() != original_inputs
-                or contract is not self.contract
-                or custody.root_plan not in project_build_plan.components
-            ):
-                raise ValueError("SDK acceptance root/package/stage identity changed")
-            resources.require_verification_close(custody, now=now)
-            authority_stamps()
-
-        def require_host_current():
-            self._require_config_bytes()
-            returned = self.require_current()
-            if returned is not None:
-                if inspect.iscoroutine(returned) or inspect.isgenerator(returned):
-                    returned.close()
-                raise TypeError("SDK acceptance owner must return None synchronously")
-            self.snapshot.require_unchanged()
-            owner()
-            self._require_config_bytes()
-
-        def require_package_current():
-            self._require_config_bytes()
-            resources.command_inputs(custody)
-            require_locked_node_sdk_legal_files(
-                self.snapshot,
-                component_revision=self.revision.identity,
-                profile=self.target.profile,
-                files=files,
-            )
-            self._require_config_bytes()
-
-        request = BuildRequest(
-            effective_revision_digest=self.revision.identity.uri,
-            source_bundle_digest=original_inputs.uri,
-            builder_id="local-node-sdk-project-verifier@1",
-            toolchain_digest=self.target.typescript.compiler.identity.uri,
-            sandbox_profile="local-explicit-host-process",
-            requested_privileges=("execute-library-verifier",),
-            allowed_outputs=("verifier-workspace", "stdout", "stderr"),
-        )
-        request_description = NodeLibraryVerifierRequestDescription.capture(
-            request, owner_revision=self.revision.identity, inputs=original_document
-        )
-        request = request_description.request
+            prepared.close(now, authority_stamps)
 
         def describe_request():
-            # Describe fixed inputs and close their original finite witnesses.
-            # The shared owner/subject callbacks separately perform blocking
-            # currentness reads; constructing request DATA never opens a scope.
-            self._require_config_bytes()
-            close(ports.clock())
-            return request
+            return prepared.describe_request(authority_stamps)
 
         require_host_current()
         require_package_current()

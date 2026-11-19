@@ -10,6 +10,7 @@ import threading
 import unicodedata
 import weakref
 from contextlib import ExitStack, contextmanager
+from dataclasses import dataclass
 from pathlib import Path
 
 from literate_ai.adapters.builders.javascript import (
@@ -218,32 +219,87 @@ class NodeLibraryVerifierInspection:
         return NodeLibraryVerifierRequestDescription(*description)
 
 
+@dataclass(frozen=True, slots=True)
+class _ProviderInspectionOwner:
+    ports: object
+    subject: object
+    revision: object
+    oracle: object
+    compiler: object
+    description: object
+    entry: object
+
+    def require_current(self):
+        self.ports.require_library_provider_custody(self.subject)
+
+    def require_finite(self):
+        if (
+            self.ports._require_library_provider_membership(self.subject)
+            is not self.entry
+        ):
+            raise ValueError("provider inspection lost original membership")
+
+    def request(self):
+        return self.ports.library_provider_verifier_request(
+            self.subject,
+            revision=self.revision,
+            oracle=self.oracle,
+            compiler=self.compiler,
+        )
+
+    def final_clock(self):
+        pass
+
+
+@dataclass(frozen=True, slots=True)
+class _RootInspectionOwner:
+    prepared: object
+    authority_stamps: object
+    ports: object
+    subject: object
+    revision: object
+    oracle: object
+    compiler: object
+    description: object
+    now: object
+
+    def require_current(self):
+        self.prepared.require_host_current()
+        self.prepared.require_package_current()
+        self.final_clock()
+        self.require_finite()
+
+    def require_finite(self):
+        if self.prepared.policy.target.typescript.compiler is not self.compiler:
+            raise ValueError("root inspection lost original compiler")
+        self.prepared.close(self.now, self.authority_stamps)
+
+    def request(self):
+        self.require_finite()
+        return self.prepared.request
+
+    def final_clock(self):
+        object.__setattr__(self, "now", self.ports.clock())
+
+
 @contextmanager
-def _capture_node_provider_verifier_inspection(
-    ports, scope, *, revision, oracle, compiler, reservation
-):
-    """Capture under the actual provider and original loaded-oracle owners.
-
-    No reader, classifier or successful-inspection callback is accepted. Tool
-    binaries remain identity-only readsets; captured JS/TS and oracle source rows
-    are available for a later fixed scanner. This API grants nothing.
-    """
-    from literate_ai.adapters.lifecycle.standard_local import (
-        LocalStandardLifecyclePorts,
+def _capture_verifier_inspection(owner, reservation):
+    """Shared capture engine for the two closed original resource owners."""
+    if type(owner) not in (_ProviderInspectionOwner, _RootInspectionOwner):
+        raise TypeError("inspection requires its original concrete resource owner")
+    ports, scope, revision, oracle, compiler = (
+        owner.ports,
+        owner.subject,
+        owner.revision,
+        owner.oracle,
+        owner.compiler,
     )
-
-    if type(ports) is not LocalStandardLifecyclePorts:
-        raise TypeError("provider inspection requires original local ports")
-    ports._require_full_command_scope()
-    description = ports.library_provider_verifier_description(
-        scope, revision=revision, oracle=oracle, compiler=compiler
-    )
+    description = owner.description
     description_values = (
         description.inputs_content,
         description.request_content,
         description.owner_revision_uri,
     )
-    original_entry = ports._require_library_provider_membership(scope)
     original_sdk, original_node = compiler.sdk, compiler.node
     if (
         type(original_sdk) is not TypeScriptSDK
@@ -319,12 +375,11 @@ def _capture_node_provider_verifier_inspection(
                 or compiler.sdk is not original_sdk
                 or compiler.node is not original_node
                 or _compiler_values(compiler) != compiler_values
-                or ports._require_library_provider_membership(scope)
-                is not original_entry
                 or tuple((f.path, f.content, f.mode) for f in scope.files)
                 != tuple((f.path, f.content, f.mode) for f in files)
             ):
                 raise ValueError("Node verifier inspection owner ended or changed")
+            owner.require_finite()
             finite_files()
             finite_tools()
             finite_oracle()
@@ -341,13 +396,11 @@ def _capture_node_provider_verifier_inspection(
                     )
                 finite()
                 ports._require_full_command_scope()
-                ports.require_library_provider_custody(scope)
+                owner.require_current()
                 oracle_scope()
                 tools.require_unchanged()
                 description.require_matches(
-                    ports.library_provider_verifier_request(
-                        scope, revision=revision, oracle=oracle, compiler=compiler
-                    ),
+                    owner.request(),
                     owner_revision=revision.identity,
                 )
                 finite()
@@ -369,11 +422,36 @@ def _capture_node_provider_verifier_inspection(
     finally:
         closing_failure = primary
         try:
-            closers = (
-                (handle.require_current, stack.close, finite)
-                if registered
-                else (stack.close,)
-            )
+            if registered:
+                with _LOCK:
+                    closing_entry = _LIVE.get(handle)
+                    if closing_entry is not None:
+                        if closing_entry[2]:
+                            closing_entry[3] = True
+                        closing_entry[2] = True
+
+                def closing_membership():
+                    with _LOCK:
+                        if (
+                            _LIVE.get(handle) is not closing_entry
+                            or closing_entry is None
+                            or closing_entry[3]
+                        ):
+                            raise ValueError(
+                                "Node verifier inspection retired during close"
+                            )
+
+                # Keep reentry reserved across oracle exit and the final clock,
+                # not just each individual live validation callback.
+                closers = (
+                    lambda: validate(handle),
+                    stack.close,
+                    owner.final_clock,
+                    finite,
+                    closing_membership,
+                )
+            else:
+                closers = (stack.close,)
             for closer in closers:
                 try:
                     _close_preserving_primary_failure(closer, closing_failure)
@@ -391,19 +469,8 @@ def _capture_node_provider_verifier_inspection(
 
 
 @contextmanager
-def capture_node_provider_verifier_inspection(
-    ports, scope, *, revision, oracle, compiler
-):
-    """Reserve one original provider capture, refusing recursive replacement."""
-    from literate_ai.adapters.lifecycle.standard_local import (
-        LocalStandardLifecyclePorts,
-    )
-
-    if type(ports) is not LocalStandardLifecyclePorts:
-        raise TypeError("provider inspection requires original local ports")
-    ports._require_library_provider_membership(scope)
-    key = (id(ports), id(scope))
-    original = [ports, scope, _MAX_BYTES]
+def _reserve_inspection(key, ports, subject):
+    original = [ports, subject, _MAX_BYTES]
     with _LOCK:
         if (
             key in _RESERVED
@@ -414,19 +481,101 @@ def capture_node_provider_verifier_inspection(
             raise ValueError("provider inspection already active or capacity exhausted")
         _RESERVED[key] = original
     try:
-        with _capture_node_provider_verifier_inspection(
-            ports,
-            scope,
-            revision=revision,
-            oracle=oracle,
-            compiler=compiler,
-            reservation=original,
-        ) as handle:
-            yield handle
+        yield original
     finally:
         with _LOCK:
             if _RESERVED.get(key) is original:
                 _RESERVED.pop(key)
 
 
-__all__ = ("NodeLibraryVerifierInspection", "capture_node_provider_verifier_inspection")
+@contextmanager
+def capture_node_provider_verifier_inspection(
+    ports, scope, *, revision, oracle, compiler
+):
+    """Reserve before capturing one original provider's bounded inputs."""
+    from literate_ai.adapters.lifecycle.standard_local import (
+        LocalStandardLifecyclePorts,
+    )
+
+    if type(ports) is not LocalStandardLifecyclePorts:
+        raise TypeError("provider inspection requires original local ports")
+    ports._require_library_provider_membership(scope)
+    with _reserve_inspection(
+        ("provider", id(ports), id(scope)), ports, scope
+    ) as reservation:
+        ports._require_full_command_scope()
+        description = ports.library_provider_verifier_description(
+            scope, revision=revision, oracle=oracle, compiler=compiler
+        )
+        owner = _ProviderInspectionOwner(
+            ports,
+            scope,
+            revision,
+            oracle,
+            compiler,
+            description,
+            ports._require_library_provider_membership(scope),
+        )
+        with _capture_verifier_inspection(owner, reservation) as handle:
+            yield handle
+
+
+@contextmanager
+def capture_node_sdk_project_verifier_inspection(
+    policy,
+    ports,
+    component_lock,
+    execution_plan,
+    project_build_plan,
+    package_plan,
+    package_result,
+    root_test,
+    packaged_execution,
+):
+    """Capture actual original root inputs, without invoking its authorizer."""
+    from literate_ai.adapters.node_sdk_project_acceptance import (
+        LocalNodeSDKProjectAcceptance,
+    )
+
+    if type(policy) is not LocalNodeSDKProjectAcceptance or ports is not policy.ports:
+        raise TypeError(
+            "root inspection requires its original acceptance policy and ports"
+        )
+    with _reserve_inspection(
+        ("root", id(policy), id(package_result)), ports, package_result
+    ) as reservation:
+        prepared = LocalNodeSDKProjectAcceptance._prepare_verifier(
+            policy,
+            ports,
+            component_lock,
+            execution_plan,
+            project_build_plan,
+            package_plan,
+            package_result,
+            root_test,
+            packaged_execution,
+        )
+        prepared.require_host_current()
+        prepared.require_package_current()
+        stamps = policy._authority_inputs.capture_current_stamps()
+        owner = _RootInspectionOwner(
+            prepared,
+            stamps,
+            ports,
+            prepared.subject,
+            policy.revision,
+            policy.oracle,
+            policy.target.typescript.compiler,
+            prepared.description,
+            ports.clock(),
+        )
+        owner.require_finite()
+        with _capture_verifier_inspection(owner, reservation) as handle:
+            yield handle
+
+
+__all__ = (
+    "NodeLibraryVerifierInspection",
+    "capture_node_provider_verifier_inspection",
+    "capture_node_sdk_project_verifier_inspection",
+)
