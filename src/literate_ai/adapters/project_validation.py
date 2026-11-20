@@ -742,6 +742,142 @@ def _doc_identity_advisories(project) -> list[dict[str, str]]:
     return advisories
 
 
+def _project_and_layout(selected: Path):
+    try:
+        project = discover_project(selected)
+    except ProjectError as exc:
+        _error(exc, "project.invalid", "project discovery failed")
+    if project is None:
+        raise ProjectValidationError(
+            "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
+        )
+    try:
+        layout = validate_project_structure(project)
+    except ProjectError as exc:
+        _error(exc, "project.invalid", "project structure is invalid")
+    return project, layout
+
+
+def _read_project_authority_file_inputs(project, *, require_authority_review):
+    """Compute local normative inventory without index/provider execution.
+
+    This preserves the original authority-file reads and review semantics. It
+    deliberately does not qualify installed monorepo retained receipts or the
+    configured source-index provider's current execution/liveness status.
+    """
+    try:
+        assert_project_mcp_hygiene(
+            mcp_roots=project.roots("mcp"),
+            skill_roots=project.roots("skill"),
+        )
+    except ProjectMcpError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    try:
+        parent_selection, repository_lineage = FilesystemRepositoryLineageStore(
+            project.root
+        ).load()
+    except RepositoryLineageStoreError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    documentation = _documentation_catalog(project)
+    onboarding = _agent_skill(project, documentation)
+    skills = _skill_catalog(project)
+    inverse_skills = _inverse_skill_catalog(project)
+    workflows = _catalog_file_identities(project, "workflow")
+    routing = _catalog_file_identities(project, "routing")
+    try:
+        flavors = load_flavor_catalog(project.roots("flavor"))
+    except Exception as exc:
+        _error(exc, "generate.invalid_flavor", "Flavor catalog is invalid")
+    components: list[dict[str, object]] = []
+    admitted_cache: dict[str, frozenset[Path]] = {}
+    from literate_ai.adapters.component_lock_planning import (
+        ComponentLockPlanningError,
+        component_catalog_manifest_paths,
+    )
+
+    try:
+        manifests = component_catalog_manifest_paths(
+            project.roots("component"),
+            boundary=project.root,
+            scale_limits=project.definition.scale_limits,
+            manifest_names=("component.md", "component.json"),
+        )
+    except ComponentLockPlanningError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    authored_directories: set[Path] = set()
+    for manifest in manifests:
+        if manifest.name == "component.md":
+            if manifest.is_symlink() or not manifest.is_file():
+                raise ProjectValidationError(
+                    "project.component_invalid",
+                    "Component authoring documents must be regular files",
+                )
+            authored_directories.add(manifest.parent)
+            components.append(
+                _validate_component_authoring(
+                    manifest, project, admitted_cache=admitted_cache
+                )
+            )
+    for manifest in manifests:
+        if manifest.name == "component.json":
+            if manifest.parent in authored_directories:
+                continue
+            from literate_ai.compatibility.component_authoring import (
+                legacy_component_migration_message,
+            )
+
+            raise ProjectValidationError(
+                "project.component_migration_required",
+                legacy_component_migration_message(),
+            )
+    try:
+        authority_graph = project_authority_graph(project.root)
+    except AuthorityGraphError as exc:
+        raise ProjectValidationError(exc.code, exc.message) from exc
+    authority_review = _authority_review(
+        project=project,
+        repository_lineage=repository_lineage.identity,
+        onboarding=onboarding,
+        documentation=documentation,
+        components=components,
+        flavors=flavors,
+        skills=skills,
+        inverse_skills=inverse_skills,
+        workflows=workflows,
+        routing=routing,
+        required=require_authority_review,
+    )
+    return (
+        parent_selection,
+        repository_lineage,
+        documentation,
+        onboarding,
+        skills,
+        inverse_skills,
+        workflows,
+        routing,
+        flavors,
+        components,
+        authority_graph,
+        authority_review,
+    )
+
+
+def _project_authority_files_identity(selected: Path) -> ContentIdentity:
+    """Recompute file authority for comparison with an original reviewed revision.
+
+    This private value computation is not full project validation or permission.
+    A completion owner must retain the full normal validation first, separately
+    preserve original installed-monorepo and persisted-lock observations, and
+    finally check its original source/config/package/retirement observations.
+    No baseline is renewed here; callers must compare to their original revision.
+    """
+    project, _layout = _project_and_layout(selected)
+    return _read_project_authority_file_inputs(project, require_authority_review=True)[
+        -1
+    ].authority_identity
+
+
 class FilesystemProjectValidationAdapter:
     """Validate one project using only declared, content-pinned filesystem inputs."""
 
@@ -757,18 +893,7 @@ class FilesystemProjectValidationAdapter:
         ),
         require_monorepo_current: bool = True,
     ) -> dict[str, Any]:
-        try:
-            project = discover_project(selected)
-        except ProjectError as exc:
-            _error(exc, "project.invalid", "project discovery failed")
-        if project is None:
-            raise ProjectValidationError(
-                "project.not_found", f"no {PROJECT_FILENAME} found from {selected}"
-            )
-        try:
-            layout = validate_project_structure(project)
-        except ProjectError as exc:
-            _error(exc, "project.invalid", "project structure is invalid")
+        project, layout = _project_and_layout(selected)
         monorepo_components: dict[str, object] | None = None
         monorepo_installation = (
             project.framework_root
@@ -791,87 +916,21 @@ class FilesystemProjectValidationAdapter:
                     "state": "stale",
                     "error": {"code": exc.code, "message": exc.message},
                 }
-        try:
-            assert_project_mcp_hygiene(
-                mcp_roots=project.roots("mcp"),
-                skill_roots=project.roots("skill"),
-            )
-        except ProjectMcpError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        try:
-            parent_selection, repository_lineage = FilesystemRepositoryLineageStore(
-                project.root
-            ).load()
-        except RepositoryLineageStoreError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        documentation = _documentation_catalog(project)
-        onboarding = _agent_skill(project, documentation)
-        skills = _skill_catalog(project)
-        inverse_skills = _inverse_skill_catalog(project)
-        workflows = _catalog_file_identities(project, "workflow")
-        routing = _catalog_file_identities(project, "routing")
-        try:
-            flavors = load_flavor_catalog(project.roots("flavor"))
-        except Exception as exc:
-            _error(exc, "generate.invalid_flavor", "Flavor catalog is invalid")
-        components: list[dict[str, object]] = []
-        admitted_cache: dict[str, frozenset[Path]] = {}
-        from literate_ai.adapters.component_lock_planning import (
-            ComponentLockPlanningError,
-            component_catalog_manifest_paths,
-        )
-
-        try:
-            manifests = component_catalog_manifest_paths(
-                project.roots("component"),
-                boundary=project.root,
-                scale_limits=project.definition.scale_limits,
-                manifest_names=("component.md", "component.json"),
-            )
-        except ComponentLockPlanningError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        authored_directories: set[Path] = set()
-        for manifest in manifests:
-            if manifest.name == "component.md":
-                if manifest.is_symlink() or not manifest.is_file():
-                    raise ProjectValidationError(
-                        "project.component_invalid",
-                        "Component authoring documents must be regular files",
-                    )
-                authored_directories.add(manifest.parent)
-                components.append(
-                    _validate_component_authoring(
-                        manifest, project, admitted_cache=admitted_cache
-                    )
-                )
-        for manifest in manifests:
-            if manifest.name == "component.json":
-                if manifest.parent in authored_directories:
-                    continue
-                from literate_ai.compatibility.component_authoring import (
-                    legacy_component_migration_message,
-                )
-
-                raise ProjectValidationError(
-                    "project.component_migration_required",
-                    legacy_component_migration_message(),
-                )
-        try:
-            authority_graph = project_authority_graph(project.root)
-        except AuthorityGraphError as exc:
-            raise ProjectValidationError(exc.code, exc.message) from exc
-        authority_review = _authority_review(
-            project=project,
-            repository_lineage=repository_lineage.identity,
-            onboarding=onboarding,
-            documentation=documentation,
-            components=components,
-            flavors=flavors,
-            skills=skills,
-            inverse_skills=inverse_skills,
-            workflows=workflows,
-            routing=routing,
-            required=require_authority_review,
+        (
+            parent_selection,
+            repository_lineage,
+            documentation,
+            onboarding,
+            skills,
+            inverse_skills,
+            workflows,
+            routing,
+            flavors,
+            components,
+            authority_graph,
+            authority_review,
+        ) = _read_project_authority_file_inputs(
+            project, require_authority_review=require_authority_review
         )
         project_revision_identity = authority_review.authority_identity
         policy = project.definition.source_intelligence
