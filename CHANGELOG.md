@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Detect restored writes in Windows retained Cargo input censuses using bound
+  native handle change times, including changes after the closing census.
+
 - Capture retained Cargo test runtime directories from reported artifacts across
   Cargo's shared and per-unit output layouts, retaining output custody limits.
 - Use separate short temporary roots for Windows CI shards and receiver checks

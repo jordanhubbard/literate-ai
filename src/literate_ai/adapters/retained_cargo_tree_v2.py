@@ -6,6 +6,7 @@ right to exclude a path, execute inputs, materialize packages or admit a receipt
 
 from __future__ import annotations
 
+import ctypes
 import os
 import stat
 import unicodedata
@@ -13,11 +14,14 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from literate_ai._cache_lock import _windows_identity_matches
+from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
 from literate_ai.adapters.retained_project_inputs import (
     _directory_access,
     _inventory,
     _link_bytes,
     _root,
+    _same_open_file,
     _stamp,
     _stream,
 )
@@ -30,6 +34,71 @@ from literate_ai.contracts.native_sdk_trees import (
 )
 from literate_ai.contracts.paths import canonical_relative_posix_paths
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
+
+
+class _WindowsFileBasicInfo(ctypes.Structure):
+    _fields_ = [
+        ("CreationTime", ctypes.c_int64),
+        ("LastAccessTime", ctypes.c_int64),
+        ("LastWriteTime", ctypes.c_int64),
+        ("ChangeTime", ctypes.c_int64),
+        ("FileAttributes", ctypes.c_uint32),
+    ]
+
+
+def _windows_change_time(descriptor, *, kernel32=None, get_osfhandle=None):
+    if kernel32 is None:
+        kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    if get_osfhandle is None:
+        import msvcrt
+
+        get_osfhandle = msvcrt.get_osfhandle
+    query = kernel32.GetFileInformationByHandleEx
+    query.argtypes = (ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_uint32)
+    query.restype = ctypes.c_int
+    info = _WindowsFileBasicInfo()
+    if not query(get_osfhandle(descriptor), 0, ctypes.byref(info), ctypes.sizeof(info)):
+        error = ctypes.get_last_error() if hasattr(ctypes, "get_last_error") else 0
+        raise ValueError(f"retained.cargo.v2-input-change-time-unavailable:{error}")
+    if info.FileAttributes & (0x400 | 0x10) or info.ChangeTime <= 0:
+        raise ValueError("retained.cargo.v2-input-change-time-unsafe")
+    return info.ChangeTime
+
+
+def _windows_file_change_witness(path, before):
+    if stat_is_link_or_reparse(before) or not stat.S_ISREG(before.st_mode):
+        raise ValueError("retained.cargo.v2-input-change-time-unsafe")
+    require_safe_directory(path.parent)
+    flags = os.O_RDONLY
+    for name in ("O_BINARY", "O_CLOEXEC", "O_NOFOLLOW", "O_NONBLOCK"):
+        flags |= getattr(os, name, 0)
+    descriptor = os.open(path, flags)
+    try:
+        opened = os.fstat(descriptor)
+        if (
+            not stat.S_ISREG(opened.st_mode)
+            or not _same_open_file(before, opened)
+            or not _windows_identity_matches(path, descriptor)
+            or _stamp(path.lstat()) != _stamp(before)
+        ):
+            raise ValueError("retained.cargo.v2-input-change-time-binding-changed")
+        change_time = _windows_change_time(descriptor)
+        if (
+            _stamp(os.fstat(descriptor)) != _stamp(opened)
+            or _windows_change_time(descriptor) != change_time
+            or _stamp(path.lstat()) != _stamp(before)
+        ):
+            raise ValueError("retained.cargo.v2-input-change-time-binding-changed")
+    finally:
+        os.close(descriptor)
+    require_safe_directory(path.parent)
+    return change_time
+
+
+def _file_change_witness(path, before):
+    if os.name != "nt":
+        return None
+    return _windows_file_change_witness(path, before)
 
 
 def _node(value):
@@ -178,6 +247,7 @@ def capture_retained_cargo_tree_v2(
             included = 0
             metadata_bytes = 16 * 1024 * 1024 + root_bytes
             charged_links = {}
+            change_times = {}
 
             def observe(name, node):
                 nonlocal included, metadata_bytes
@@ -198,6 +268,10 @@ def capture_retained_cargo_tree_v2(
                     reserve_metadata(metadata_bytes)
                     if stat.S_ISLNK(node.st_mode):
                         charged_links[name] = _node(node)
+                    elif stat.S_ISREG(node.st_mode):
+                        change_time = _file_change_witness(root / name, node)
+                        if change_time is not None:
+                            change_times[name] = change_time
                     if initial_nodes is not None:
                         initial_nodes[name] = node
 
@@ -210,11 +284,13 @@ def capture_retained_cargo_tree_v2(
                 observe=observe,
                 excluded_roots=excluded,
             )
-            return (*observed, charged_links)
+            return (*observed, charged_links, tuple(sorted(change_times.items())))
 
         root_node = _node(root.lstat())
         before = {}
-        names, directories, charged_links = inventory(initial_nodes=before)
+        names, directories, charged_links, change_times = inventory(
+            initial_nodes=before
+        )
         # These are the same no-follow observations that admitted each initial
         # census entry. Keep them across streaming rather than replacing them
         # with a redundant later pass that could hide an intervening write.
@@ -290,12 +366,17 @@ def capture_retained_cargo_tree_v2(
                 raise ValueError("retained.cargo.v2-input-size-changed")
             files.append((name, BlobRef(digest, size), bool(mode & 0o111)))
         if (
-            inventory() != (names, directories, charged_links)
+            inventory() != (names, directories, charged_links, change_times)
             or _node(root.lstat()) != root_node
         ):
             raise ValueError("retained.cargo.v2-input-membership-changed")
         physical = tuple((name, _node(before[name])) for name in sorted(before))
         if any(_node(metadata(name)) != node for name, node in physical):
+            raise ValueError("retained.cargo.v2-input-physical-custody-changed")
+        if any(
+            _file_change_witness(root / name, metadata(name)) != expected
+            for name, expected in change_times
+        ):
             raise ValueError("retained.cargo.v2-input-physical-custody-changed")
         return RetainedCargoInputTreeV2(
             root,
@@ -305,5 +386,5 @@ def capture_retained_cargo_tree_v2(
             tuple(files),
             tuple(sorted(aliases, key=lambda x: x.path)),
             maximum_metadata_bytes,
-            (root_node, physical),
+            (root_node, physical, change_times),
         )

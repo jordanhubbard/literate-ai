@@ -21659,6 +21659,20 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Windows retained-input change time (in progress):** The native write/restore
+  census case passes modified bytes through an unchanged final payload because
+  Windows path `ctime` records creation time. Capture the native handle change
+  time for regular input files in each opening/closing census and the final
+  physical check. Bind each handle to the no-follow path, preserve every existing
+  stream/topology/budget check, and refuse unavailable or redirected metadata.
+  Require restored-write regressions after both censuses, native API refusal
+  controls and actual Windows confirmation; do not skip or weaken the original
+  native requirement. The deterministic restored-write regression fails the old
+  source. Fourteen currentness/native-interface controls, twelve lexical controls
+  and four retained-input controls pass locally, with one explicit platform skip.
+  The native API is emulated in local interface controls; actual Windows execution
+  remains required before claiming native qualification.
+
 - **Windows CI fixture path budget (in progress):** The actual native Cargo
   linker reports LNK1104 for a 261-character output path under pytest's default
   user-cache temporary root. Give each Windows shard a short explicit pytest
