@@ -22,5 +22,5 @@ elseif(UNIX)
         BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "$ORIGIN")
 endif()
 configure_file(python/vendor_math/__init__.py
-    "${CMAKE_BINARY_DIR}/sdk/python/vendor_math/__init__.py" COPYONLY)
-configure_file(LICENSE "${CMAKE_BINARY_DIR}/sdk/LICENSE" COPYONLY)
+    "${CMAKE_BINARY_DIR}/sdk/python/vendor_math/__init__.py" COPYONLY NO_SOURCE_PERMISSIONS)
+configure_file(LICENSE "${CMAKE_BINARY_DIR}/sdk/LICENSE" COPYONLY NO_SOURCE_PERMISSIONS)

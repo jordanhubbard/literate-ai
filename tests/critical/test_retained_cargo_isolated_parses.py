@@ -1,7 +1,9 @@
 """Real authority reads reuse parsing, never a guard or ended owner."""
 
+import json
 import os
 import shutil
+import time
 import unittest
 from contextlib import ExitStack, nullcontext
 from pathlib import Path
@@ -9,7 +11,9 @@ from unittest.mock import patch
 
 from literate_ai import projects
 from literate_ai.adapters import component_lock_planning as planning
+from literate_ai.adapters import legacy_generation_catalog as flavor_catalog
 from literate_ai.adapters import locked_generation_authority as catalogs
+from literate_ai.adapters import project_validation
 from literate_ai.adapters import retained_cargo_execution_inputs_v2 as execution_inputs
 from literate_ai.adapters.component_lock_application import (
     ProjectComponentLockSetError,
@@ -216,6 +220,7 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
                 for name in (
                     "read_only_project_configuration_parses",
                     "read_only_component_catalog_observations",
+                    "read_only_flavor_graph_observations",
                 ):
                     stack.enter_context(
                         patch.object(execution_inputs, name, return_value=nullcontext())
@@ -239,6 +244,192 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
             except (ValueError, RuntimeError) as observed:
                 error = observed
             return value, error, events, parser.call_count
+
+    def observe_flavors(self, *, reuse):
+        validations = []
+        validate = project_validation.FilesystemProjectValidationAdapter.validate
+
+        def checked(adapter, *args, **kwargs):
+            validations.append(True)
+            return validate(adapter, *args, **kwargs)
+
+        reads = self.provider_reads
+        started = time.monotonic()
+        with ExitStack() as stack:
+            if not reuse:
+                stack.enter_context(
+                    patch.object(
+                        execution_inputs,
+                        "read_only_flavor_graph_observations",
+                        return_value=nullcontext(),
+                        create=True,
+                    )
+                )
+            stack.enter_context(
+                patch.object(
+                    project_validation.FilesystemProjectValidationAdapter,
+                    "validate",
+                    checked,
+                )
+            )
+            parser = stack.enter_context(
+                patch.object(
+                    flavor_catalog,
+                    "_load_legacy_flavor_entries",
+                    wraps=flavor_catalog._load_legacy_flavor_entries,
+                )
+            )
+            capture = stack.enter_context(
+                patch.object(
+                    flavor_catalog.LegacyFlavorGraphObservation,
+                    "capture",
+                    wraps=flavor_catalog.LegacyFlavorGraphObservation.capture,
+                )
+            )
+            value, error, fences, _ = self.observe(reuse=True)
+            return {
+                "value": value,
+                "error": error,
+                "fences": fences,
+                "parses": parser.call_count,
+                "captures": capture.call_count,
+                "validations": len(validations),
+                "provider_reads": self.provider_reads - reads,
+                "seconds": time.monotonic() - started,
+            }
+
+    def test_actual_flavor_guard_reuses_parsing_and_independent_calls_recapture(self):
+        baseline = self.observe_flavors(reuse=False)
+        candidate = self.observe_flavors(reuse=True)
+        for field in ("value", "error", "fences", "validations", "provider_reads"):
+            self.assertEqual(candidate[field], baseline[field], field)
+        self.assertIsNone(candidate["error"])
+        self.assertEqual(
+            len([row for row in candidate["fences"] if row[0] == "enter"]), 16
+        )
+        self.assertGreater(candidate["validations"], 0)
+        self.assertLess(candidate["parses"], baseline["parses"])
+        self.assertEqual(candidate["captures"], 1)
+        self.assertEqual(baseline["captures"], 0)
+        again = self.observe_flavors(reuse=True)
+        for field in (
+            "value",
+            "error",
+            "fences",
+            "parses",
+            "captures",
+            "validations",
+            "provider_reads",
+        ):
+            self.assertEqual(again[field], candidate[field], field)
+        self.assertIsNone(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+        print(
+            "actual retained input guard comparison "
+            + json.dumps(
+                {
+                    "scope": "real guarded source inputs, not native admission timing",
+                    "baseline": {
+                        k: baseline[k]
+                        for k in (
+                            "parses",
+                            "captures",
+                            "validations",
+                            "provider_reads",
+                            "seconds",
+                        )
+                    },
+                    "candidate": {
+                        k: candidate[k]
+                        for k in (
+                            "parses",
+                            "captures",
+                            "validations",
+                            "provider_reads",
+                            "seconds",
+                        )
+                    },
+                }
+            )
+        )
+
+    def after_last_materialization(self, mutate):
+        owner = type(self.inputs.materialized)
+        original = owner.require_unchanged
+        calls = []
+
+        def checked(materialized):
+            result = original(materialized)
+            if materialized is self.inputs.materialized:
+                calls.append(True)
+                if len(calls) == 2:
+                    mutate()
+            return result
+
+        with patch.object(owner, "require_unchanged", checked):
+            with self.assertRaises(
+                (ValueError, RuntimeError, flavor_catalog.CliFailure)
+            ):
+                self.inputs.current_identity(environment=self.environment)
+        self.assertEqual(len(calls), 2)
+        self.assertIsNone(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
+
+    def test_final_flavor_byte_drift_with_restored_mtime_cannot_escape_return(self):
+        path = next(iter(self.fixture.context.bindings[0][1]._flavors)).path
+        original = path.read_bytes()
+        metadata = path.stat()
+        baseline = self.inputs.current_identity(environment=self.environment)
+
+        def mutate():
+            path.write_bytes(bytes([original[0] ^ 1]) + original[1:])
+            os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+        try:
+            self.after_last_materialization(mutate)
+        finally:
+            path.write_bytes(original)
+        self.assertEqual(
+            self.inputs.current_identity(environment=self.environment), baseline
+        )
+
+    def test_final_flavor_membership_and_nearer_project_changes_refuse(self):
+        path = next(iter(self.fixture.context.bindings[0][1]._flavors)).path
+        alternate = path.with_name(
+            "flavor.json" if path.name == "flavor.md" else "flavor.md"
+        )
+        nearer = path.parent / "literate.project.json"
+        for added in (alternate, nearer):
+            with self.subTest(path=added.name):
+                self.assertFalse(added.exists())
+                try:
+                    self.after_last_materialization(
+                        lambda added=added: added.write_bytes(b"{}\n")
+                    )
+                finally:
+                    added.unlink(missing_ok=True)
+                self.inputs.current_identity(environment=self.environment)
+
+    def test_actual_guard_flavor_scope_is_independent_and_restored_on_failure(self):
+        with flavor_catalog.read_only_flavor_graph_observations():
+            ambient = flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+            self.inputs.current_identity(environment=self.environment)
+            self.assertIs(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get(), ambient)
+            self.assertEqual(ambient, {})
+            error = RuntimeError("owned source callback failure")
+
+            def fail(_ordinal):
+                raise error
+
+            self.on_provider_read = fail
+            try:
+                with self.assertRaises(RuntimeError) as observed:
+                    self.inputs.current_identity(environment=self.environment)
+                self.assertIs(observed.exception, error)
+            finally:
+                self.on_provider_read = None
+            self.assertIs(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get(), ambient)
+            self.assertEqual(ambient, {})
+        self.inputs.current_identity(environment=self.environment)
+        self.assertIsNone(flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get())
 
     def test_identity_keeps_sixteen_explicit_fences_and_parse_isolation(self):
         before = _frames()
@@ -275,6 +466,13 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
                 if entry.path.suffix == ".md" and entry.path.name != "component.md"
             )
         )
+        flavor_labels = {
+            paths[1]: "flavor:flavor://literate-ai/build-make:manifest",
+            paths[2]: (
+                "flavor:flavor://legacy-adoption/build-legacy-shim:"
+                "authoring-input:0:specification-to-source-skill"
+            ),
+        }
         for path in paths:
             self.assertFalse(path.is_relative_to(context.workspace))
             original = path.read_bytes()
@@ -301,7 +499,29 @@ class RetainedCargoIsolatedObservationTests(unittest.TestCase):
                     finally:
                         path.write_bytes(original)
                     self.assertEqual(_frames(), (None, None))
-            self.assertEqual(results[0], results[1])
+                    self.assertIsNone(
+                        flavor_catalog._READ_ONLY_FLAVOR_OBSERVATIONS.get()
+                    )
+            if path in flavor_labels:
+                # The Flavor pins its manifest and authoring skill. Both detect
+                # drift before documentation review, at the same second fence.
+                self.assertIs(results[0][0], ProjectValidationError)
+                self.assertEqual(
+                    results[0][1], "project.documentation_authority_review_stale"
+                )
+                self.assertIs(results[1][0], projects.PinnedInputClosureError)
+                self.assertEqual(results[1][1], "inputs.closure_changed")
+                self.assertEqual(
+                    results[1][2],
+                    "generation authority changed during the operation: "
+                    + flavor_labels[path],
+                )
+                self.assertEqual(results[0][3], results[1][3])
+                self.assertEqual(
+                    results[1][3], [("enter", 1), ("exit", 1), ("enter", 2)]
+                )
+            else:
+                self.assertEqual(results[0], results[1])
 
     def test_callback_failures_restore_nested_ambient_frames(self):
         with (

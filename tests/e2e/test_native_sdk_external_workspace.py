@@ -2,6 +2,7 @@
 
 import copy
 import dataclasses
+import json
 import os
 import pickle
 import shutil
@@ -10,6 +11,7 @@ import subprocess
 import sys
 import unittest
 from contextlib import ExitStack
+from itertools import islice
 from unittest import mock
 
 from literate_ai.adapters.builders._process import run_bounded_process
@@ -22,6 +24,7 @@ from literate_ai.adapters.native_sdk_tree_custody import (
 )
 from literate_ai.adapters.native_sdk_workspace import native_sdk_build_workspace
 from literate_ai.contracts import SourceIntelligenceMode
+from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.native_sdk_tree_products import NativeSdkTreeBuildLayout
 from literate_ai.contracts.repositories import RepositoryBuildCommand
@@ -220,7 +223,7 @@ class NativeSdkExternalWorkspaceTests(unittest.TestCase):
                 sdk_root="sdk",
             )
             self.assertEqual(
-                expanded, (str(source / "input"), str(workspace.root / "sdk"))
+                expanded, (str(source) + "/input", str(workspace.root / "sdk"))
             )
 
     def test_ended_scope_refuses_an_existing_grant_before_execution(self):
@@ -269,7 +272,84 @@ class NativeSdkExternalWorkspaceTests(unittest.TestCase):
             with native_sdk_build_workspace(f.root) as workspace:
                 f.builder = self.builder(workspace)
                 products.append(f.builder.product(f.verify()))
-        self.assertEqual(products[0].snapshot.identity, products[1].snapshot.identity)
+        diagnostic = None
+        if products[0].snapshot.identity != products[1].snapshot.identity:
+            snapshots = [p.snapshot.to_dict() for p in products]
+            files = [
+                {entry.path: entry for entry in p.snapshot.files} for p in products
+            ]
+            differences = []
+            for path in sorted(files[0].keys() | files[1].keys()):
+                entries = [tree.get(path) for tree in files]
+                if entries[0] == entries[1]:
+                    continue
+                row = {
+                    "path": path,
+                    "entries": [e.to_dict() if e else None for e in entries],
+                }
+                if all(
+                    e is not None and e.blob.size <= 2 * 1024 * 1024 for e in entries
+                ):
+                    contents = [f.store.get_bytes(e.blob) for e in entries]
+                    row["first_byte_differences"] = list(
+                        islice(
+                            (
+                                offset
+                                for offset, pair in enumerate(
+                                    zip(*contents, strict=False)
+                                )
+                                if pair[0] != pair[1]
+                            ),
+                            16,
+                        )
+                    )
+                    timestamps = []
+                    for content in contents:
+                        timestamp = None
+                        if content[:2] == b"MZ" and len(content) >= 64:
+                            offset = int.from_bytes(content[60:64], "little")
+                            if (
+                                offset <= len(content) - 24
+                                and content[offset : offset + 4] == b"PE\0\0"
+                            ):
+                                timestamp = int.from_bytes(
+                                    content[offset + 8 : offset + 12], "little"
+                                )
+                        timestamps.append(timestamp)
+                    row["pe_coff_timestamps"] = timestamps
+                differences.append(row)
+                if len(differences) == 32:
+                    break
+            commands = []
+            for product in products:
+                result = f.store.get_manifest(product.result_blob)
+                commands.append(
+                    [
+                        {
+                            "argv": command["argv"],
+                            "stdout": f.store.get_bytes(
+                                BlobRef.from_dict(command["stdout"])
+                            )[:4096].decode("utf-8", errors="replace"),
+                            "stderr": f.store.get_bytes(
+                                BlobRef.from_dict(command["stderr"])
+                            )[:4096].decode("utf-8", errors="replace"),
+                        }
+                        for command in result["commands"][:2]
+                    ]
+                )
+            diagnostic = json.dumps(
+                {
+                    "metadata": [
+                        {k: v for k, v in s.items() if k != "files"} for s in snapshots
+                    ],
+                    "file_differences": differences,
+                    "commands": commands,
+                },
+                sort_keys=True,
+            )
+        self.assertEqual(
+            products[0].snapshot.identity, products[1].snapshot.identity, diagnostic
+        )
         self.assertNotEqual(
             products[0].result_blob.identity, products[1].result_blob.identity
         )
@@ -448,18 +528,35 @@ class NativeSdkExternalWorkspaceTests(unittest.TestCase):
     def test_substituted_output_root_is_retained_and_stops_next_command(self):
         f = self.fixture
         saved = None
-        with self.assertRaisesRegex(
-            (ValueError, ExceptionGroup), "reservation|workspace"
-        ):
+        refusal = (
+            self.assertRaises(PermissionError)
+            if os.name == "nt"
+            else self.assertRaisesRegex(
+                (ValueError, ExceptionGroup), "reservation|workspace"
+            )
+        )
+        with refusal as observed:
             with native_sdk_build_workspace(f.root) as workspace:
                 f.builder = self.builder(workspace)
                 f.plan = self.external_plan()
                 saved = workspace.root.with_name("saved-output")
+                node = workspace.root.stat()
+                marker = (workspace.root / "owner.lock").read_bytes()
 
                 def substitute(*args, **kwargs):
                     result = run_bounded_process(*args, **kwargs)
                     self.assertEqual(result.returncode, 0, result.stderr)
-                    workspace.root.rename(saved)
+                    try:
+                        workspace.root.rename(saved)
+                    except PermissionError as error:
+                        self.assertEqual(os.name, "nt")
+                        self.assertEqual(error.winerror, 5)
+                        workspace.require_unchanged()
+                        self.assertEqual(
+                            (workspace.root / "owner.lock").read_bytes(), marker
+                        )
+                        self.assertFalse(saved.exists())
+                        raise
                     workspace.root.mkdir()
                     (workspace.root / "foreign").write_text("preserve")
                     return result
@@ -472,5 +569,32 @@ class NativeSdkExternalWorkspaceTests(unittest.TestCase):
                         f.verify()
                     finally:
                         self.assertEqual(run.call_count, 1)
-        self.assertEqual((workspace.root / "foreign").read_text(), "preserve")
-        self.assertTrue((saved / "_build").is_dir())
+        if os.name == "nt":
+            self.assertEqual(observed.exception.winerror, 5)
+            self.assertTrue(os.path.samestat(node, workspace.root.stat()))
+            self.assertTrue((workspace.root / "_build").is_dir())
+            self.assertFalse((workspace.root / "foreign").exists())
+            self.assertFalse(saved.exists())
+            self.assertFalse((workspace.root / "owner.lock").exists())
+        else:
+            self.assertEqual((workspace.root / "foreign").read_text(), "preserve")
+            self.assertTrue((saved / "_build").is_dir())
+
+    @unittest.skipUnless(os.name == "nt", "Windows descriptor sharing contract")
+    def test_windows_live_lease_blocks_rename_until_scope_retires(self):
+        with native_sdk_build_workspace(self.fixture.root) as workspace:
+            root = workspace.root
+            saved = root.with_name("retired-output")
+            node = root.stat()
+            marker = (root / "owner.lock").read_bytes()
+            with self.assertRaises(PermissionError) as refusal:
+                root.rename(saved)
+            self.assertEqual(refusal.exception.winerror, 5)
+            self.assertFalse(saved.exists())
+            self.assertTrue(os.path.samestat(node, root.stat()))
+            self.assertEqual((root / "owner.lock").read_bytes(), marker)
+            workspace.require_unchanged()
+        self.assertFalse((root / "owner.lock").exists())
+        root.rename(saved)
+        self.assertTrue(os.path.samestat(node, saved.stat()))
+        self.assertFalse(root.exists())

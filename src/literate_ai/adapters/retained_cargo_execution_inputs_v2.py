@@ -6,6 +6,9 @@ from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from literate_ai.adapters.legacy_generation_catalog import (
+    read_only_flavor_graph_observations,
+)
 from literate_ai.adapters.locked_generation_authority import (
     read_only_component_catalog_observations,
 )
@@ -48,6 +51,7 @@ class RetainedCargoExecutionInputsV2:
         with (
             read_only_project_configuration_parses(isolated=True),
             read_only_component_catalog_observations(isolated=True),
+            read_only_flavor_graph_observations(),
         ):
             self.materialized.require_unchanged()
             self.scope.require_unchanged(environment=environment)
