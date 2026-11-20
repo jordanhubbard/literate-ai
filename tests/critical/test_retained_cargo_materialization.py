@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.adapters import retained_cargo_materialization as materialization
+from literate_ai.adapters import retained_cargo_scratch_core as scratch_core
 from literate_ai.adapters import retained_cargo_scratch_v2 as scratch_owner
 from literate_ai.adapters.qualification_archive import encode_qualification_archive
 from literate_ai.adapters.repository_orchestration import OrchestrationInventoryError
@@ -191,7 +192,7 @@ class RetainedCargoScratchCustodyTests(unittest.TestCase):
             member.unlink()
             foreign.rmdir()
 
-            publish = scratch_owner.publish_directory_between_owned_parents_exclusive
+            publish = scratch_core.publish_directory_between_owned_parents_exclusive
 
             def replace_after_publication(stage, destination, **kwargs):
                 publish(stage, destination, **kwargs)
@@ -200,7 +201,7 @@ class RetainedCargoScratchCustodyTests(unittest.TestCase):
                 (destination / "foreign.rs").write_bytes(b"concurrent replacement")
 
             with patch.object(
-                scratch_owner,
+                scratch_core,
                 "publish_directory_between_owned_parents_exclusive",
                 side_effect=replace_after_publication,
             ):
