@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Retain bounded test-owned Windows job and process-identity observations for
+  native timeout cleanup failures without changing termination behavior.
+
 - Prevent background Git maintenance from racing copies of disposable native
   repository fixtures while preserving user and project Git configuration.
 

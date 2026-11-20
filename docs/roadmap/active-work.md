@@ -21659,6 +21659,29 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Windows owned-job lifetime observations (in progress):** Current review CI
+  also fails the descendant-timeout conformance fixture's directory cleanup
+  after its expected timeout (986 passes, 202 skips, one failure in shard one).
+  Preserve every timeout, cleanup and exit assertion. Observe only the exact
+  test-owned jobs at assignment, termination and close, with fixed event/member
+  caps and zero-time process waits. Recheck captured PID/creation identities on
+  failure without retaining process handles across the original lifetime boundary.
+  Job accounting is diagnostic: positive active counts can include references
+  to terminated processes, and root exit does not prove descendant retirement.
+  Do not introduce a cleanup retry, sleep, global process scan or production
+  teardown change without causal evidence. Extend the existing early probe with
+  the unchanged descendant-timeout control; full shards remain mandatory.
+  All 66 local cases pass without skips: 21 observation-interface/lifetime,
+  fourteen gate-isolation, three complete self-hosting conformance and 28 CI-policy
+  controls. The native interfaces are emulated locally; actual Windows snapshots
+  and their causal interpretation remain required. Job hooks are restored before
+  the failure-boundary identity recheck and the separate file-user diagnostic.
+  Every temporary process handle closes within its observation; weak job keys
+  retain no additional job objects. Sampling is capped and cannot prove complete
+  retirement when a member, query, event or identity is unavailable. Observation
+  can perturb timing: a later passing instrumented case alone does not establish
+  the cleanup cause or qualify an unobserved production teardown path.
+
 - **Native fixture Git maintenance race (in progress):** Current review CI
   `44676240540`, macOS Python 3.11 shard two, fails while copying the shared
   native repository seed because `.git/objects/maintenance.lock` disappears.
@@ -21691,9 +21714,9 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   remain required.
   Final local controls pass all 63 cases: ten diagnostic-interface/lifetime,
   fourteen gate-isolation, eleven native-CI and twenty-eight workflow-policy
-  cases. The Windows API is emulated locally; native file-user observations
-  remain pending. An earlier native-CI setup attempt failed before deletion
-  because a loose object was missing. Preserve that unexplained failure and
+  cases. The Windows API is emulated locally; subsequent native file-user
+  observations are recorded below. An earlier native-CI setup attempt failed
+  before deletion because a loose object was missing. Preserve that unexplained failure and
   report bounded storage-layout hints on recurrence; later passes do not establish
   its cause. The complete `f125a8981` matrix also retains an Ubuntu Python 3.14
   receiving-admission deadline failure. Inspect its phase observations before
@@ -21713,6 +21736,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   146 skips and the same two cleanup failures. Failure-only native observations
   find no reported users of the surviving logs; the directory-only holder remains
   unknown. Neither result establishes a locking cause or cleanup qualification.
+
+- **Current Windows object-fixture confirmation (scoped):** At exact
+  `cf3faf39c3e511891ecc5b2a7a4f1c504bf83345`, shard two completes with 937 passes,
+  238 skips and no failures. Its retained JUnit record confirms the actual
+  missing-promised-object case passes without a skip, error or failure. JUnit's
+  aggregate includes subtest records and has different counts. This confirms the
+  copied-object mode repair on native Windows; it does not qualify the separate
+  failed cleanup shards or the receiver step skipped after shard-three failure.
 
 - **Exact-head package checkpoint (scoped):** Clean native macOS revision
   `f125a89819406c88899229a663e7e9a381e700f1` passes offline installed E2E,

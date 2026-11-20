@@ -13,7 +13,7 @@ import os
 import stat
 import sys
 import tempfile
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from pathlib import Path
 
 _MAX_FILES = 4
@@ -221,10 +221,33 @@ def add_cleanup_observation(error, root, names, processes):
 @contextmanager
 def observed_temporary_directory(processes, names):
     temporary = tempfile.TemporaryDirectory()
+    collector = nullcontext(None)
     try:
-        with temporary as directory:
-            yield directory
+        from tests.support.windows_job_observation import observe_owned_jobs
+
+        collector = observe_owned_jobs()
+    except Exception:
+        pass
+    jobs = None
+    try:
+        with collector as jobs:
+            with temporary as directory:
+                yield directory
     except OSError as error:
+        # Hooks are removed before observing the original cleanup boundary or
+        # launching the separate Restart Manager diagnostic child.
+        if jobs is not None:
+            try:
+                error.add_note(
+                    "Windows owned jobs: "
+                    + json.dumps(
+                        jobs.failure_report(), sort_keys=True, separators=(",", ":")
+                    )
+                )
+            except Exception as diagnostic_error:
+                error.add_note(
+                    "Windows owned jobs unavailable: " + type(diagnostic_error).__name__
+                )
         try:
             add_cleanup_observation(error, Path(temporary.name), names, processes)
         except Exception as diagnostic_error:
