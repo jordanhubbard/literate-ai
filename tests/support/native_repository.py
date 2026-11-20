@@ -11,11 +11,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
+# Native seeds are copied after Git returns; detached maintenance must not
+# mutate their object directories while another test copies the fixture.
+_GIT_FOREGROUND = ("-c", "maintenance.auto=false", "-c", "gc.auto=0")
+
 
 def git_at(root, *args, content=None):
     try:
         return subprocess.run(
-            ["git", "-C", str(root), *args],
+            ["git", *_GIT_FOREGROUND, "-C", str(root), *args],
             input=content,
             capture_output=True,
             check=True,
@@ -24,6 +28,12 @@ def git_at(root, *args, content=None):
     except subprocess.CalledProcessError as error:
         error.add_note(error.stderr.decode("utf-8", errors="replace"))
         raise
+
+
+def _disable_fixture_maintenance(root):
+    # Product code also invokes Git directly against these disposable fixtures.
+    git_at(root, "config", "--local", "maintenance.auto", "false")
+    git_at(root, "config", "--local", "gc.auto", "0")
 
 
 def commit_independent_repository(root, *, locked_files=None):
@@ -37,6 +47,7 @@ def commit_independent_repository(root, *, locked_files=None):
     if locked and (root / ".git").exists():
         raise ValueError("locked fixture requires a new independent repository")
     git_at(root, "init", "-q")
+    _disable_fixture_maintenance(root)
     if locked:
         candidates = git_at(
             root, "ls-files", "--others", "--exclude-standard", "-z"
@@ -102,6 +113,7 @@ class NativeRepositoryFixture(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(content)
         self.git("init", "-q")
+        _disable_fixture_maintenance(self.root)
         self.git("add", ".")
         self.git(
             "-c",
@@ -122,7 +134,7 @@ class NativeRepositoryFixture(unittest.TestCase):
 
     def git(self, *args):
         return subprocess.run(
-            ["git", "-C", str(self.root), *args],
+            ["git", *_GIT_FOREGROUND, "-C", str(self.root), *args],
             check=True,
             capture_output=True,
             text=True,

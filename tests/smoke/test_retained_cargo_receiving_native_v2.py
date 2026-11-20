@@ -132,7 +132,12 @@ class RetainedCargoNativeReceivingV2Tests(unittest.TestCase):
 
     def test_real_patch_workspace_gates_protocols_and_retired_admission(self):
         case_start = time.monotonic()
-        measured = {"full_input_checks": 0, "commands": []}
+        measured = {
+            "full_input_checks": 0,
+            "input_check_seconds": 0.0,
+            "maximum_input_check_seconds": 0.0,
+            "commands": [],
+        }
         telemetry_rows = 0
 
         def emit(event, **values):
@@ -185,11 +190,17 @@ class RetainedCargoNativeReceivingV2Tests(unittest.TestCase):
                 passed = True
                 return result
             finally:
+                check_seconds = time.monotonic() - check_start
+                # Input guards can overlap subprocess spans; do not add them.
+                measured["input_check_seconds"] += check_seconds
+                measured["maximum_input_check_seconds"] = max(
+                    measured["maximum_input_check_seconds"], check_seconds
+                )
                 emit(
                     "input-check-complete",
                     check=index,
                     passed=passed,
-                    check_seconds=time.monotonic() - check_start,
+                    check_seconds=check_seconds,
                 )
 
         def native_process(argv, **kwargs):
@@ -243,8 +254,12 @@ class RetainedCargoNativeReceivingV2Tests(unittest.TestCase):
                 )
         finally:
             measured["admission_wall_seconds"] = time.monotonic() - start
+            timing = "native receiving timing " + json.dumps(measured)
+            pending_error = sys.exception()
+            if pending_error is not None:
+                pending_error.add_note(timing)
             print(
-                "native receiving timing " + json.dumps(measured),
+                timing,
                 file=sys.stderr,
                 flush=True,
             )

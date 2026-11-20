@@ -21659,6 +21659,22 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Native fixture Git maintenance race (in progress):** Current review CI
+  `44676240540`, macOS Python 3.11 shard two, fails while copying the shared
+  native repository seed because `.git/objects/maintenance.lock` disappears.
+  Disable automatic maintenance and GC on owned fixture Git commands and bind
+  the same repository-local policy immediately after initialization, before
+  commits or raw product Git calls. Preserve global/project Git configuration
+  outside these disposable fixtures, complete copy checks and all native oracles.
+  Require effective-policy controls against contrary external configuration and
+  fresh native CI confirmation. This evidence does not establish the cause of
+  the earlier missing-loose-object failure.
+  Both real-Git effective-policy controls pass, including unchanged external
+  configuration and copied-repository integrity. The complete removal module
+  passes all 24 cases and native-CI module passes all eleven cases, with no skips
+  or failures. Driver/runner, schema, formatting and lint checks pass. These are
+  local scoped controls; fresh native platform CI remains required.
+
 - **Current Windows CI repair (in progress):** At `f125a89819406c88899229a663e7e9a381e700f1`,
   shard two reports 933 passes, 239 skips and four subtest errors at deliberate
   deletion of private Git objects. Make those copied objects owner-writable for
@@ -21682,6 +21698,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   its cause. The complete `f125a8981` matrix also retains an Ubuntu Python 3.14
   receiving-admission deadline failure. Inspect its phase observations before
   changing behavior; keep the existing 900-second allowance and all guards.
+  Its uploaded evidence lacks the existing worker-stderr timing lines. Attach
+  those bounded measurements to the original exception so parallel case reporting
+  retains them. Add aggregate and maximum input-check wall time with fixed-size
+  counters; input guards can overlap subprocess spans, so these timings are not
+  additive. Preserve every admission, timeout and expected-outcome assertion.
+  The command rows describe completed calls only. The local native telemetry
+  attempt fails in the first case's prerequisite `cargo --version` probe before
+  reaching this instrumentation: zero passes and one failure of eight selected.
+  It provides no runtime validation of the telemetry change; preserve its original
+  ten-second deadline and the controller-overload evidence.
+  At `cf3faf39c`, the expanded Windows serial probe passes 39 cases and 23 subtests,
+  with two platform skips. The full parallel shard still reports 825 passes,
+  146 skips and the same two cleanup failures. Failure-only native observations
+  find no reported users of the surviving logs; the directory-only holder remains
+  unknown. Neither result establishes a locking cause or cleanup qualification.
 
 - **Exact-head package checkpoint (scoped):** Clean native macOS revision
   `f125a89819406c88899229a663e7e9a381e700f1` passes offline installed E2E,

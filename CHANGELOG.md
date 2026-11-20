@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Prevent background Git maintenance from racing copies of disposable native
+  repository fixtures while preserving user and project Git configuration.
+
+- Retain bounded Cargo receiving measurements on original failures under parallel
+  case reporting, including input-check cost and the unchanged admission deadline.
+
 - Preserve private Git-object fixture modes across deliberate missing-object
   checks and retain bounded Windows cleanup observations with original failures.
 
