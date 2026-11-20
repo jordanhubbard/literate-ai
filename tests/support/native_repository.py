@@ -13,28 +13,66 @@ from pathlib import Path
 
 
 def git_at(root, *args, content=None):
-    return subprocess.run(
-        ["git", "-C", str(root), *args],
-        input=content,
-        capture_output=True,
-        check=True,
-        timeout=20,
-    ).stdout
+    try:
+        return subprocess.run(
+            ["git", "-C", str(root), *args],
+            input=content,
+            capture_output=True,
+            check=True,
+            timeout=20,
+        ).stdout
+    except subprocess.CalledProcessError as error:
+        error.add_note(error.stderr.decode("utf-8", errors="replace"))
+        raise
 
 
-def commit_independent_repository(root):
+def commit_independent_repository(root, *, locked_files=None):
+    # Windows byte-range locks prohibit Git from reading the active lock byte.
+    # Stage only explicitly supplied fixture bytes without reading those paths;
+    # callers still compare the released files with the resulting commit.
+    locked = {
+        path.relative_to(root).as_posix(): content
+        for path, content in (locked_files or {}).items()
+    }
+    if locked and (root / ".git").exists():
+        raise ValueError("locked fixture requires a new independent repository")
     git_at(root, "init", "-q")
-    git_at(root, "add", ".")
-    git_at(
-        root,
+    if locked:
+        candidates = git_at(
+            root, "ls-files", "--others", "--exclude-standard", "-z"
+        ).split(b"\0")
+        paths = [
+            os.fsdecode(path)
+            for path in candidates
+            if path and os.fsdecode(path) not in locked
+        ]
+        if paths:
+            git_at(root, "--literal-pathspecs", "add", "--", *paths)
+    else:
+        git_at(root, "add", ".")
+    for relative, content in locked.items():
+        blob = (
+            git_at(
+                root, "hash-object", "-w", "--no-filters", "--stdin", content=content
+            )
+            .decode("ascii")
+            .strip()
+        )
+        git_at(root, "update-index", "--add", "--cacheinfo", "100644", blob, relative)
+    identity = (
         "-c",
         "user.name=Fixture",
         "-c",
         "user.email=fixture@example.test",
-        "commit",
-        "-qm",
-        "independent native checkout",
     )
+    message = "independent native checkout"
+    if locked:
+        # Porcelain commit refreshes the index and can reread locked paths.
+        tree = git_at(root, "write-tree").decode("ascii").strip()
+        commit = git_at(root, *identity, "commit-tree", tree, "-m", message)
+        git_at(root, "update-ref", "HEAD", commit.decode("ascii").strip(), "")
+    else:
+        git_at(root, *identity, "commit", "-qm", message)
 
 
 class NativeRepositoryFixture(unittest.TestCase):

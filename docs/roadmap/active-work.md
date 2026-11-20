@@ -21659,6 +21659,23 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Native boundary fixture controls (in progress):** The early Windows probe at
+  `b43f89fe60590e42a1e12b2b685c919507311373` reports 26 passes, two failures and
+  two platform skips, plus 13 passing subtests. Actual restored-write currentness
+  and all gate teardown controls pass serially; this does not establish parallel
+  shard qualification. The two late Git-boundary fixtures still fail around held
+  lock files. Stage their explicitly known placeholder bytes through Git's index
+  and create a fresh root commit through object plumbing without refreshing the
+  index or reading a Windows-locked byte. Require the released files to equal the
+  committed bytes, retaining owner diagnostics, clean Git state and rollback.
+  Separately, Ubuntu Python 3.14 times out in the no-waitid signal fixture. Its
+  child now establishes an unblocked default SIGINT disposition before readiness,
+  and the test asserts the real group signal call. Parent reaping guards remain;
+  the original CI cause is unproven. Final local update and removal modules pass
+  all 33 cases; serial and parallel process modules each pass nine cases with
+  four native platform skips. These changes require fresh native confirmation
+  and do not qualify a release.
+
 - **Cargo reuse fixture layout (in progress):** Native Windows reached the reuse
   regression but could not find its library in the obsolete `debug/deps` path.
   The same failure reproduces locally with installed Cargo 1.100 nightly. Find

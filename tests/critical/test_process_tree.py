@@ -630,11 +630,18 @@ def _without_waitid():
 class PosixProcessRelayWithoutWaitidTests(unittest.TestCase):
     def test_live_child_receives_interrupt_without_waitid(self) -> None:
         ownership = _processes.create_process_tree_ownership()
+        # This fixture requires signal termination even when its launcher
+        # ignored or blocked SIGINT; establish that state before announcing ready.
         with subprocess.Popen(
             [
                 sys.executable,
                 "-c",
-                "import time; print('ready', flush=True); time.sleep(20)",
+                "import signal, time\n"
+                "signal.signal(signal.SIGINT, signal.SIG_DFL)\n"
+                "if hasattr(signal, 'pthread_sigmask'):\n"
+                " signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})\n"
+                "print('ready', flush=True)\n"
+                "time.sleep(20)\n",
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
@@ -642,10 +649,14 @@ class PosixProcessRelayWithoutWaitidTests(unittest.TestCase):
         ) as process:
             try:
                 self.assertEqual(process.stdout.readline(), b"ready\n")
-                with _without_waitid():
+                with (
+                    _without_waitid(),
+                    mock.patch.object(os, "killpg", wraps=os.killpg) as relay,
+                ):
                     _process_interrupt.relay_process_interrupt(
                         process, ownership=ownership, readers=[], grace_seconds=0.01
                     )
+                    relay.assert_called_once_with(process.pid, signal.SIGINT)
                 self.assertEqual(process.wait(timeout=5), -signal.SIGINT)
             finally:
                 if process.poll() is None:

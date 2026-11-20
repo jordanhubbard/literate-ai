@@ -285,8 +285,11 @@ class NativeProjectRemovalTests(unittest.TestCase):
     def _late_git_boundary(self, child):
         from literate_ai.adapters import native_project_removal as removal
         from literate_ai.cli.dispatch import main
+        from literate_ai.projects import ProjectConfigurationStore
 
         plan = self.plan()
+        lock = ProjectConfigurationStore.lock_path(self.root)
+        locked_files = {lock: b"\0"} if lock.is_relative_to(child) else {}
         index = self.git("ls-files", "--stage")
         original = removal._git
         injected = False
@@ -295,7 +298,7 @@ class NativeProjectRemovalTests(unittest.TestCase):
             nonlocal injected
             result = original(root, *args, **kwargs)
             if args[0] == "diff" and not injected:
-                commit_independent_repository(child)
+                commit_independent_repository(child, locked_files=locked_files)
                 injected = True
             return result
 
@@ -325,6 +328,12 @@ class NativeProjectRemovalTests(unittest.TestCase):
             response["error"]["code"], "native_removal.nested_git_boundary"
         )
         self.assertEqual(self.git("ls-files", "--stage"), index)
+        for path, content in locked_files.items():
+            self.assertEqual(path.read_bytes(), content)
+            self.assertEqual(
+                path.read_bytes(),
+                git_at(child, "show", "HEAD:" + path.relative_to(child).as_posix()),
+            )
         self.assertEqual(git_at(child, "status", "--porcelain"), b"")
         for path in plan["selected"]:
             self.assertTrue((self.root / path).is_file(), path)

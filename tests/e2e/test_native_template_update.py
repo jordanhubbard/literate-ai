@@ -198,7 +198,7 @@ class NativeTemplateUpdateTests(unittest.TestCase):
             nonlocal committed
             advance(bases, scope, path, content)
             if path == relative and committed is None:
-                commit_independent_repository(child)
+                commit_independent_repository(child, locked_files={lifecycle: b"\0"})
                 committed = git_at(
                     child, "show", "HEAD:" + owner.relative_to(child).as_posix()
                 )
@@ -208,6 +208,11 @@ class NativeTemplateUpdateTests(unittest.TestCase):
         self.assertEqual(error["code"], "project.native_update_nested_git")
         self.assertIsNotNone(committed)
         self.assertEqual(owner.read_bytes(), committed)
+        self.assertEqual(lifecycle.read_bytes(), b"\0")
+        self.assertEqual(
+            lifecycle.read_bytes(),
+            git_at(child, "show", "HEAD:" + lifecycle.relative_to(child).as_posix()),
+        )
         self.assertEqual(git_at(child, "status", "--porcelain"), b"")
         self.assertEqual(target.read_bytes(), before)
         self.assertEqual(checkpoint.read_bytes(), original)

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserve late Git-boundary fixture commits while Windows lock bytes remain
+  locked, and give the POSIX interrupt fixture an explicit signal disposition.
+
 - Keep the Cargo reuse regression independent of Cargo's private dependency
   directory layout while requiring one exact fixture library and unchanged reuse.
 
