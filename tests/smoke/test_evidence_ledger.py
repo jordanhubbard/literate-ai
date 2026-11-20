@@ -97,9 +97,16 @@ class EvidenceLedgerTests(unittest.TestCase):
     def test_interrupt_cleanup_for_nested_release_steps(self) -> None:
         repository = Path(__file__).resolve().parents[2]
         step = shlex.join((sys.executable, str(repository / "scripts/litai_step.py")))
-        for use_bounded_owner in (False, True):
+        for use_bounded_owner, without_waitid in (
+            (False, False),
+            (True, False),
+            (False, True),
+            (True, True),
+        ):
             with (
-                self.subTest(use_bounded_owner=use_bounded_owner),
+                self.subTest(
+                    use_bounded_owner=use_bounded_owner, without_waitid=without_waitid
+                ),
                 tempfile.TemporaryDirectory() as directory,
             ):
                 root = Path(directory).resolve()
@@ -148,6 +155,16 @@ class EvidenceLedgerTests(unittest.TestCase):
                         encoding="utf-8",
                     )
                     command = [sys.executable, "-P", str(supervisor), *command]
+                if without_waitid:
+                    launcher = root / "without_waitid.py"
+                    launcher.write_text(
+                        "import os, runpy, sys\n"
+                        "if hasattr(os, 'waitid'): del os.waitid\n"
+                        "script = sys.argv.pop(1)\n"
+                        "runpy.run_path(script, run_name='__main__')\n",
+                        encoding="utf-8",
+                    )
+                    command = [sys.executable, "-P", str(launcher), *command[2:]]
                 # This is an independent fixture Makefile. Parent command-line
                 # overrides would redirect its evidence out of the fixture root.
                 environment = {

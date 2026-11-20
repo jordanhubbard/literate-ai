@@ -206,6 +206,24 @@ class NativeCIJourneyTests(unittest.TestCase):
         self.assertEqual(status == 0, expected == "verified", value)
         return value
 
+    def test_clean_crlf_policy_preserves_observation_and_dirty_refusal(self):
+        self.git("config", "core.autocrlf", "true")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        self.git("add", "litai/literate.project.json")
+        self.assertEqual(self.git("status", "--porcelain"), "")
+        self.observe("verified")
+        self.assertEqual(manifest.read_bytes(), content.replace(b"\n", b"\r\n"))
+
+        # Even if Git hides a local edit, the committed-policy guard must refuse it.
+        self.git("update-index", "--assume-unchanged", "litai/literate.project.json")
+        changed = json.loads(content)
+        changed["repository_policy"]["native_ci"]["required_jobs"] = ["Native Linux"]
+        manifest.write_bytes((json.dumps(changed, indent=2) + "\n").encode())
+        self.assertEqual(self.git("status", "--porcelain"), "")
+        self.observe("project.native_ci.dirty")
+
     def test_governed_pr_failure_retry_and_missing_job_preserve_native_tree(self):
         before = self.git("ls-files", "--stage")
         files = {

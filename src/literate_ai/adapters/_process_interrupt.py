@@ -26,7 +26,6 @@ def _interrupt_owned_group(process: subprocess.Popen) -> bool:
     if (
         sys.implementation.name != "cpython"
         or type(process) is not subprocess.Popen
-        or not hasattr(os, "waitid")
         or signal.getsignal(signal.SIGCHLD) != signal.SIG_DFL
     ):
         return False
@@ -36,9 +35,19 @@ def _interrupt_owned_group(process: subprocess.Popen) -> bool:
     try:
         if process.returncode is not None or os.getpgid(process.pid) != process.pid:
             return False
-        # Confirm this is still our waitable child without reaping it. A valid
-        # exited child remains reserved until our waiter can acquire the lock.
-        os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        if hasattr(os, "waitid"):
+            # An exited child stays reserved until our waiter acquires the lock.
+            os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOHANG | os.WNOWAIT)
+        else:
+            # Older macOS Python has no waitid. A zero result confirms our child
+            # is alive; the lock prevents any Popen waiter from reaping it before
+            # delivery. If it has exited, retain its status and send no signal.
+            pid, status = os.waitpid(process.pid, os.WNOHANG)
+            if pid == process.pid:
+                process._handle_exitstatus(status)
+                return False
+            if pid != 0:
+                return False
         os.killpg(process.pid, signal.SIGINT)
         return True
     except (AttributeError, OSError, ValueError, KeyboardInterrupt):

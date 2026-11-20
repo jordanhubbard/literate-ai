@@ -21659,6 +21659,26 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **macOS nested interruption (in progress):** Python 3.11 on macOS has no
+  `os.waitid`, so cooperative interruption refuses before notifying nested
+  owners. Use a nonblocking `waitpid` fallback under the existing CPython
+  child-reaping lock; retain an already-exited child's status without signaling
+  its process group. Require live-child, exited-child and lock-custody controls
+  plus the unchanged nested evidence/owned-leaf teardown acceptance. Nine local
+  process controls pass with four platform skips; five ledger controls pass,
+  including direct and bounded nested cancellation with `waitid` removed from
+  the controlling process. Actual hosted macOS Python 3.11 confirmation remains
+  required.
+
+- **Native CI policy line endings (in progress):** Seven Windows journeys refuse
+  a clean committed policy before observing provider jobs. Reproduce Git's
+  automatic LF/CRLF checkout conversion with a real repository, compare policy
+  bytes with only CRLF normalized, and retain refusal of substantive uncommitted
+  changes plus exact closing-snapshot drift checks. Require focused positive and
+  negative controls and actual Windows confirmation before claiming qualification.
+  The real-Git regression reproduces the original refusal; the corrected cohort
+  passes all 11 local controls. Native Windows confirmation remains required.
+
 - **Windows repository backing metadata (in progress):** Native onboarding and
   cached-parent reads reject private Git objects because Windows directory-entry
   stat hints report a zero link count. Obtain complete no-follow file metadata

@@ -611,6 +611,73 @@ raise SystemExit(17)
                 process.wait(timeout=5)
 
 
+@contextmanager
+def _without_waitid():
+    original = getattr(os, "waitid", None)
+    if original is not None:
+        del os.waitid
+    try:
+        yield
+    finally:
+        if original is not None:
+            os.waitid = original
+
+
+@unittest.skipUnless(
+    os.name == "posix" and sys.implementation.name == "cpython",
+    "requires CPython POSIX child lifetime custody",
+)
+class PosixProcessRelayWithoutWaitidTests(unittest.TestCase):
+    def test_live_child_receives_interrupt_without_waitid(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        with subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import time; print('ready', flush=True); time.sleep(20)",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            **ownership.popen_options,
+        ) as process:
+            try:
+                self.assertEqual(process.stdout.readline(), b"ready\n")
+                with _without_waitid():
+                    _process_interrupt.relay_process_interrupt(
+                        process, ownership=ownership, readers=[], grace_seconds=0.01
+                    )
+                self.assertEqual(process.wait(timeout=5), -signal.SIGINT)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait(timeout=5)
+
+    def test_exited_child_is_reaped_without_signaling_its_group(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        waitpid = os.waitpid
+        with subprocess.Popen(
+            [sys.executable, "-c", "raise SystemExit(7)"],
+            **ownership.popen_options,
+        ) as process:
+
+            def observe_exited_child(pid, options):
+                self.assertTrue(process._waitpid_lock.locked())
+                self.assertEqual((pid, options), (process.pid, os.WNOHANG))
+                return waitpid(pid, 0)
+
+            with (
+                _without_waitid(),
+                mock.patch.object(os, "waitpid", side_effect=observe_exited_child),
+                mock.patch.object(os, "killpg") as relay,
+            ):
+                _process_interrupt.relay_process_interrupt(
+                    process, ownership=ownership, readers=[], grace_seconds=0.01
+                )
+                relay.assert_not_called()
+                self.assertEqual(process.returncode, 7)
+            self.assertEqual(process.wait(timeout=3), 7)
+
+
 class _Process:
     pid = 1729
 

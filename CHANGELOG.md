@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Observe a clean native CI policy across Git's LF/CRLF checkout conversion while
+  retaining refusal of uncommitted policy changes.
+- Relay nested process interruption on macOS Python versions without `waitid`,
+  retaining child lifetime custody and already-exited statuses.
+
 - Preserve a native Windows release gate's exit status after closing its managed
   checkout reservation.
 - Use complete no-follow metadata for repository object link counts while

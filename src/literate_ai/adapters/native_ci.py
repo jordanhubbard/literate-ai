@@ -282,7 +282,12 @@ def _verify_project_ci(
         raise NativeCIError(
             "dirty", "Commit or resolve local changes before CI verification"
         )
-    if _git(root, deadline, "show", f"{head}:{manifest}") != snapshot.content:
+    # Git's text checkout can use CRLF while the committed blob uses LF.
+    # Keep this byte comparison stricter than a parsed-policy comparison.
+    committed_policy = _git(root, deadline, "show", f"{head}:{manifest}")
+    if committed_policy.replace(b"\r\n", b"\n") != snapshot.content.replace(
+        b"\r\n", b"\n"
+    ):
         raise NativeCIError(
             "dirty", "The local contained policy differs from the committed source"
         )
