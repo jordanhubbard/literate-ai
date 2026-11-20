@@ -138,6 +138,18 @@ litai learn
 litai design refine
 litai design explain
 litai design accept
+litai shadow plan
+litai shadow create
+litai shadow status
+litai shadow sync plan
+litai shadow sync apply
+litai shadow pr-plan
+litai shadow pr-capture
+litai shadow pr-status
+litai shadow pr-operations
+litai shadow pr-source-plan
+litai shadow pr-source-stage
+litai shadow pr-source-status
 
 # Operator
 litai config paths
@@ -233,6 +245,39 @@ migrated before releasing. The policy declares every mirrored version field and
 separates read-only planning, local
 preparation, exact gate evidence, and explicitly authorized publication. See
 [Project release protocol](../architecture/project-releases.md).
+
+## Shadow repository custody
+
+`shadow` tracks selected upstream refs and PR source in a separate Git repository.
+Its current custody and planning results remain unqualified. Mapped execution,
+repair/export workflows and upstream-outcome acceptance remain in progress.
+Read-only inspection may contact GitHub to observe refs or PR metadata; local
+custody changes require a current plan identity and `--acknowledge`.
+
+Choose an upstream repository and a new shadow directory outside it. Review the
+plan, then copy its exact `plan_identity` into the creation command. Replace
+`UPSTREAM`, `SHADOW` and `PLAN_ID` below with those paths and the returned identity;
+keep the branch-selection arguments identical between planning and creation.
+
+```sh
+litai --json shadow plan --upstream UPSTREAM --shadow SHADOW --branch main
+litai shadow create --upstream UPSTREAM --shadow SHADOW --branch main --expect-plan PLAN_ID --acknowledge
+litai shadow status --shadow SHADOW
+```
+
+Use `litai --json shadow sync plan --shadow SHADOW` to review upstream advances or
+explicit branch additions, then
+`litai shadow sync apply --shadow SHADOW --expect-plan PLAN_ID --acknowledge` with
+the same selection arguments. `--resume` continues a matching pending sync. Complete publication
+steps retain their old metadata and index for recovery; partial preparations or
+records require inspection. Foreign files, staged changes, redirected Git write
+parents and shared mutable metadata refuse without automatic deletion.
+
+PR commands plan, capture and verify selected source and operation inputs. Source
+staging materializes bounded raw Git bytes. Repository content filters and
+fsmonitor helpers remain disabled during custody. Network inspection uses the
+operator's authentication policy and the validated forge identity. Run
+`litai help shadow COMMAND` for each command's required identities and flags.
 
 ## Containment planning
 

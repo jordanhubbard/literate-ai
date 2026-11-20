@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add unqualified shadow repositories for tracked upstream refs and staged PR
+  source through explicit plans and acknowledged custody operations. Preserve raw
+  bytes and interrupted sync state; mapped execution and outcome acceptance
+  remain in progress.
+
 - Exercise worker probe timeout and UTC observation freshness as independent
   refusal conditions while retaining the real bounded probe controls.
 

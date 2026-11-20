@@ -24232,6 +24232,32 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SHADOW-001 — Continuously qualify upstream branches through a separate shadow repository
 
+- **Current composition (in progress):** Recover PR #322 at
+  `712b99fdf1227e9ed071543896aca947d0670713` onto delivery base
+  `8fb9b192ee6a7626608e2be5d771fb0be7d3ae32`, preserving the reviewed Windows
+  kernel-wait repair, bootstrap identity and failure diagnostics. Shadow custody
+  and planning remain explicitly unqualified; the parent goal stays open.
+  Source repairs bind bounded no-follow metadata and bundle reads, isolate
+  network inspection in a neutral bare repository, and bind PR API inspection
+  to the validated forge host. Actual Git controls expose upstream-local SSH
+  execution, clean-filter execution, ignored staged gitlinks and redirected ref
+  writes. Creation and status use raw blobs and exact mode/stage/path/object
+  inventories; configured content filters and fsmonitor helpers remain disabled.
+  Sync materializes raw objects with retained no-replace payload/index moves,
+  an OS reservation for framework resumptions and Git's native index reservation
+  for ordinary writers. Controls inject failure after completed publication
+  moves and exit a separate process after index retention, then resume from
+  disk. Foreign payloads, metadata aliases, hardlinks and index changes refuse
+  without deletion; uncertain preparations and partial records require inspection.
+  Full no-follow metadata supplies Windows link counts and retains shared-file
+  refusal. External manifest parent aliases
+  are canonicalized while leaf links refuse, and malformed later journal events
+  return structured custody errors.
+  Require the exact composed-source review and supported authority renewal before
+  source pins. Existing historical CI and local controls do not qualify this
+  composition; fresh platform/installed/forge evidence and the mapped execution,
+  repair/export and upstream-outcome criteria below remain unchecked.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#311](https://github.com/jordanhubbard/literate-ai/issues/311)
