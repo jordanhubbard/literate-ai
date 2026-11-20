@@ -13,7 +13,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from literate_ai._filesystem import require_safe_directory
-from literate_ai.adapters.directory_artifacts import read_directory_export
 from literate_ai.adapters.exclusive_directory import (
     directory_node,
     publish_directory_exclusive,
@@ -23,6 +22,9 @@ from literate_ai.adapters.retained_cargo_files_v2 import RetainedCargoFileSnapsh
 from literate_ai.adapters.retained_cargo_import_v2 import (
     RetainedCargoCurrentInputsV2,
     verify_retained_cargo_archive_v2,
+)
+from literate_ai.adapters.retained_cargo_package_values import (
+    _read_consumer_package_values,
 )
 from literate_ai.adapters.retained_cargo_scratch_v2 import RetainedCargoScratchScopeV2
 from literate_ai.adapters.retained_package_tree import (
@@ -145,30 +147,16 @@ def materialize_retained_cargo_archive_v2(
         raise ValueError("retained.materialize.v2-plan-changed")
     baseline = observed[-1]
     root = files.reviewed.project.root
-    parents = {
-        scratch.context.workspace / declaration.path
-        for declaration in plan.scratch_roots
-        if declaration.kind == "member-packages"
-    }
-    destinations = dict(files.reviewed.binding.common.destinations)
-    blobs = dict(capture.blobs)
-    packages = []
-    remaining_bytes, remaining_entries = max_package_bytes, max_records
-    for manifest in files.reviewed.binding.common.exports.graph.manifests:
-        for export in manifest.exports:
-            destination = root / destinations[export.identity]
-            if destination.parent not in parents:
-                raise ValueError("retained.materialize.v2-owned-parent-required")
-            content = read_directory_export(
-                blobs[export.blob],
-                export.blob,
-                max_bytes=remaining_bytes,
-                max_entries=remaining_entries,
-            )
-            remaining_bytes -= sum(len(item.content) for item in content)
-            remaining_entries -= len(content)
-            packages.append((destination, content))
-    packages.sort(key=lambda item: str(item[0]))
+    packages = _read_consumer_package_values(
+        root,
+        scratch.context.workspace,
+        plan.scratch_roots,
+        files.reviewed.binding.common.exports,
+        files.reviewed.binding.common.destinations,
+        capture.blobs,
+        max_package_bytes=max_package_bytes,
+        max_records=max_records,
+    )
     staged, published = [], []
 
     def guard():

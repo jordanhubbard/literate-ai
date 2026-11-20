@@ -300,10 +300,10 @@ class WorkerLeaseTests(unittest.TestCase):
     def test_terminal_provider_release_waits_for_active_health_inspection(self):
         from literate_ai.cli.execution_workers import dispatch_with_worker_health_poll
 
-        inspecting, completed, finish = Event(), Event(), Event()
+        inspecting, dispatched, completed, finish = (Event() for _ in range(4))
 
         def application():
-            if not inspecting.wait(5):
+            if not inspecting.wait(remaining()):
                 raise AssertionError("health inspection did not start")
 
         dispatch = self.dispatch_fixture(
@@ -311,18 +311,25 @@ class WorkerLeaseTests(unittest.TestCase):
         )
         selected = SimpleNamespace(worker=read_registry(self.catalog).workers[0])
 
+        # Startup, child-process custody publication and thread scheduling share
+        # the actual terminal operation budget. A separate five-second race on a
+        # loaded Windows runner does not measure release/inspection ordering.
+        def remaining():
+            return max(0.0, self.terminal_release.deadline_monotonic - time.monotonic())
+
+        def dispatch_and_signal():
+            result = dispatch()
+            dispatched.set()
+            return result
+
         def inspect(*_args, **_kwargs):
             inspecting.set()
-            until = time.monotonic() + 5
-            while time.monotonic() < until:
-                if self.record().get("dispatch", {}).get("state") == "complete":
-                    break
-                time.sleep(0.01)
-            else:
-                raise AssertionError("dispatch did not save completion")
+            if not dispatched.wait(remaining()):
+                raise AssertionError("dispatch did not finish within terminal budget")
+            self.assertEqual(self.record()["dispatch"]["state"], "complete")
             self.assertFalse((self.root / "released").exists())
             completed.set()
-            if not finish.wait(5):
+            if not finish.wait(remaining()):
                 raise AssertionError("health inspection was not released")
             self.assertFalse((self.root / "released").exists())
             return {"fixture": "inspection finished"}
@@ -334,7 +341,7 @@ class WorkerLeaseTests(unittest.TestCase):
                 ),
                 selected,
                 self.dispatch_request.identity,
-                dispatch,
+                dispatch_and_signal,
                 admission=inspect,
                 deadline_monotonic=self.terminal_release.deadline_monotonic,
             )
@@ -345,12 +352,17 @@ class WorkerLeaseTests(unittest.TestCase):
             with ThreadPoolExecutor(max_workers=1) as pool:
                 running = pool.submit(run_and_release)
                 try:
-                    self.assertTrue(completed.wait(5))
+                    if not completed.wait(remaining()):
+                        if running.done():
+                            running.result()
+                        self.fail(
+                            "health inspection did not observe completed dispatch"
+                        )
                     self.assertFalse(running.done())
                     self.assertFalse((self.root / "released").exists())
                 finally:
                     finish.set()
-                result, polls = running.result(timeout=10)
+                result, polls = running.result(timeout=remaining())
         self.assertEqual(result.exit_status, 0)
         self.assertEqual(len(polls), 1)
         self.assertEqual(self.record()["status"], "released")
