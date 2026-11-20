@@ -283,7 +283,19 @@
     "literate-ai/worker-telemetry-observation@1",
     "literate-ai/worker-telemetry-response@1",
     "literate-ai/authenticated-worker-telemetry-request@1",
-    "literate-ai/authenticated-worker-telemetry-response@1"
+    "literate-ai/authenticated-worker-telemetry-response@1",
+    "urn:literate-ai:schema:v2:qualification-origin",
+    "urn:literate-ai:schema:v2:authored-qualification-origin",
+    "urn:literate-ai:schema:v2:source-derived-qualification-origin",
+    "urn:literate-ai:schema:v2:authored-qualification-profile",
+    "urn:literate-ai:schema:v2:authored-qualification-oracle-selection",
+    "urn:literate-ai:schema:v2:authored-graph-independent-acceptance",
+    "urn:literate-ai:schema:v2:authored-node-independent-acceptance",
+    "urn:literate-ai:schema:v2:authored-qualification-lifecycle-request",
+    "urn:literate-ai:schema:v2:authored-qualification-plan",
+    "urn:literate-ai:schema:v2:authored-qualification-project-review",
+    "urn:literate-ai:schema:v2:authored-qualification-comparison",
+    "literate-ai/authored-retained-cargo-binding@1"
   ],
   "read_paths": [
     {

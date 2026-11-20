@@ -24767,11 +24767,35 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Authored qualification composition (in progress):** Compose PR #401's
+  origin-specific authority, reviewed profile/oracle, public plan/apply,
+  Standard execution, closed products and replay with PR #440's original-owner
+  retirement and recoverable publication. Actual regressions reproduced the
+  contained-manifest and default temporary-directory alias defects. The repaired
+  authority module passes ten cases. Retirement and publication pass 26 controls
+  on APFS and 26 on HFS+, including original-descriptor deletion observation
+  where directory link counts cannot prove retirement. These controls use the
+  documented execution/admission fixtures; they do not claim genuine model
+  generation or installed/native qualification. Ordinary authored retained
+  Cargo receiving, importer trust and consumer admission still require source
+  implementation. Keep the complete genuine diamond and release evidence open.
+
+- **Native Cargo dependency composition (in progress):** Compose PR #347's full
+  provider graph, immutable byte projection, current export binder and lock/SBOM
+  join as a prerequisite to the accepted genuine authored diamond. See the
+  [native Cargo provider contract](native-cargo-provider-projection.md). A real
+  provider-free leaf reproduced acceptance of generator-supplied framework
+  projection records; reserve that namespace before cache reuse and native
+  execution, refuse impossible empty projection records, and retain genuine
+  nested reprojection. Contributor qualification remains bound to its named
+  source; current source/installed/native, complete authored all-node runs,
+  closed replay and retained consumer admission remain required.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#393](https://github.com/jordanhubbard/literate-ai/issues/393)
 
 - **Accepted design:** [ADR 0072](../decisions/0072-authored-native-graph-qualification.md) defines public authored admission, truthful versioned origin, unchanged oracle custody, complete regeneration and closed retained consumption. The directing user explicitly accepted ADR 0072 on 2026-11-10; implementation and qualification remain open.
-- **Next action:** Implement the origin-specific authored authority owner and versioned qualification contracts, then compose the public plan/apply route with the shared Standard runner and retained receiving validation. Preserve the source-derived front door and coordinate provider/inventory contributions without duplicating them.
+- **Next action:** Finish exact joined-source and compatibility verification of the authored plan/apply stack, implement ordinary authored retained receiving and importer admission, then qualify complete genuine all-node regeneration, closed replay and real consumption. Preserve the source-derived front door and coordinate provider/inventory contributions without duplicating them.
 - **Priority:** P1 (blocking 1.4.0 release goal)
 - **Owner:** Framework authored authority and qualification admission; PROJECT Goals 1, 2, 4 and 6
 - **Direction:** Include issue #393 in 1.4.0: provide a supported public qualification route for genuinely authored native dependency graphs.

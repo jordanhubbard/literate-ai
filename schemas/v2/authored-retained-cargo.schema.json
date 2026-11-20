@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:literate-ai:schema:v2:authored-retained-cargo",
+  "$ref": "urn:literate-ai:schema:v2:authored-retained-cargo#/$defs/binding",
+  "$defs": {
+    "binding": {
+      "$id": "literate-ai/authored-retained-cargo-binding@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "importer_project_id",
+        "evidence_store_id",
+        "provider_reference",
+        "selected_run_identity",
+        "exports",
+        "workspace_plan",
+        "gate_policy",
+        "test_inventory",
+        "destinations"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/authored-retained-cargo-binding@1"
+        },
+        "importer_project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+        },
+        "evidence_store_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"
+        },
+        "provider_reference": {
+          "$ref": "urn:literate-ai:schema:v2:authored-qualification-reference"
+        },
+        "selected_run_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "exports": {
+          "$ref": "urn:literate-ai:schema:v2:retained-library-contracts#/$defs/export_set"
+        },
+        "workspace_plan": {
+          "$ref": "urn:literate-ai:schema:v2:authored-retained-cargo#/$defs/reviewed_json"
+        },
+        "gate_policy": {
+          "$ref": "urn:literate-ai:schema:v2:authored-retained-cargo#/$defs/reviewed_json"
+        },
+        "test_inventory": {
+          "$ref": "urn:literate-ai:schema:v2:authored-retained-cargo#/$defs/reviewed_json"
+        },
+        "destinations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["export_identity", "path"],
+            "properties": {
+              "export_identity": {
+                "$ref": "urn:literate-ai:schema:v1:content-identity"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            }
+          }
+        }
+      }
+    },
+    "reviewed_json": {
+      "allOf": [
+        {"$ref": "urn:literate-ai:schema:v1:blob-ref"},
+        {
+          "type": "object",
+          "properties": {
+            "media_type": {"const": "application/json"},
+            "size": {"minimum": 1, "maximum": 268435456}
+          }
+        }
+      ]
+    }
+  }
+}

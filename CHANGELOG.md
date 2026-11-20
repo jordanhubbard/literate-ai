@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+- Add authored-native qualification planning, acknowledged Standard execution,
+  independent-oracle custody, versioned origin evidence, closed capture/replay
+  and recoverable reference publication. Preserve contained project manifest
+  owners and require original-descriptor deletion evidence for macOS retirement.
+  Ordinary authored retained receiving and genuine installed/native acceptance
+  remain required.
+
+- Project admitted Rust Component provider graphs into disposable Cargo builds,
+  preserving one shared provider, original manifests, exact exports and managed
+  lock/SBOM evidence. Refuse generator-authored projection provenance even on
+  provider-free leaves; complete authored and retained-consumer qualification
+  remains required.
+
 - Compose explicit closed POSIX source-link custody through SDK locking, scanning,
   quarantine and build checks; bound input read requests under existing quotas.
   Add canonical and packaged FreeBSD ARM64 host-install plans and live external
