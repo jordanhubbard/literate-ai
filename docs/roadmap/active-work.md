@@ -21659,6 +21659,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Observation-note compatibility repair (in progress):** The early native
+  Windows probe at `04eb81ee6` passes 50 cases with two skips and 27 passing
+  subtests, but its existing diagnostic-failure control rejects the new first
+  exception note. Preserve the original cleanup note ordering: capture the job
+  snapshot before the file-user diagnostic, then append the job note after the
+  original file-user note or its diagnostic failure. Exercise the enabled job
+  collector on portable hosts so the existing original-error and first-note
+  assertions cover this branch without requiring Windows. Native teardown
+  behavior, deadlines and all original assertions remain unchanged.
+  The enabled portable control reproduces the same first-note failure before
+  repair. After repair all 21 observation controls pass without skips, including
+  original exception identity, first-note compatibility and sampling order.
+  Driver/runner, schema, formatting and lint checks pass. Native confirmation
+  of this compatibility repair and the underlying cleanup diagnosis remain open.
+
 - **Windows owned-job lifetime observations (in progress):** Current review CI
   also fails the descendant-timeout conformance fixture's directory cleanup
   after its expected timeout (986 passes, 202 skips, one failure in shard one).

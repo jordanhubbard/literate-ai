@@ -6,6 +6,7 @@ import ctypes
 import json
 import tempfile
 import unittest
+from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
@@ -143,14 +144,28 @@ class WindowsLockObservationTests(unittest.TestCase):
         temporary.name = str(self.root)
         temporary.__enter__.return_value = str(self.root)
         temporary.__exit__.side_effect = original
+        order = []
+        jobs = mock.Mock()
+        jobs.failure_report.side_effect = lambda: (
+            order.append("jobs") or {"state": "observed"}
+        )
+
+        def files(*args):
+            order.append("files")
+            raise ImportError("fixture diagnostic unavailable")
+
         with (
+            mock.patch(
+                "tests.support.windows_job_observation.observe_owned_jobs",
+                return_value=nullcontext(jobs),
+            ),
             mock.patch.object(
                 observation.tempfile, "TemporaryDirectory", return_value=temporary
             ),
             mock.patch.object(
                 observation,
                 "add_cleanup_observation",
-                side_effect=ImportError("fixture diagnostic unavailable"),
+                side_effect=files,
             ),
             self.assertRaises(PermissionError) as raised,
         ):
@@ -158,6 +173,8 @@ class WindowsLockObservationTests(unittest.TestCase):
                 pass
         self.assertIs(raised.exception, original)
         self.assertIn("ImportError", original.__notes__[0])
+        self.assertEqual(order, ["jobs", "files"])
+        self.assertIn("Windows owned jobs:", original.__notes__[1])
 
     def test_helper_is_owned_bounded_and_observation_does_not_expose_environment(self):
         error = PermissionError(32, "fixture sharing violation")

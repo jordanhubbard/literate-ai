@@ -236,16 +236,14 @@ def observed_temporary_directory(processes, names):
     except OSError as error:
         # Hooks are removed before observing the original cleanup boundary or
         # launching the separate Restart Manager diagnostic child.
+        job_note = None
         if jobs is not None:
             try:
-                error.add_note(
-                    "Windows owned jobs: "
-                    + json.dumps(
-                        jobs.failure_report(), sort_keys=True, separators=(",", ":")
-                    )
+                job_note = "Windows owned jobs: " + json.dumps(
+                    jobs.failure_report(), sort_keys=True, separators=(",", ":")
                 )
             except Exception as diagnostic_error:
-                error.add_note(
+                job_note = (
                     "Windows owned jobs unavailable: " + type(diagnostic_error).__name__
                 )
         try:
@@ -255,6 +253,10 @@ def observed_temporary_directory(processes, names):
                 "Windows fixture diagnostic unavailable: "
                 + type(diagnostic_error).__name__
             )
+        # Preserve the original file-diagnostic note prefix while retaining the
+        # earlier identity snapshot. The slower helper cannot delay that sample.
+        if job_note is not None:
+            error.add_note(job_note)
         raise
 
 

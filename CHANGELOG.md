@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserve original Windows cleanup diagnostic note order while sampling owned
+  job identities before the separate file-user diagnostic.
+
 - Retain bounded test-owned Windows job and process-identity observations for
   native timeout cleanup failures without changing termination behavior.
 
