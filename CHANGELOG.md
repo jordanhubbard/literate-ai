@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add reviewed native-child addition/revision plans and acknowledged recoverable
+  registry/evidence publication, preserving current qualification readers and
+  migration identity. The transaction never performs missing qualification or
+  grants consumer acceptance; installed/native release qualification is pending.
+
 - Add unqualified shadow repositories for tracked upstream refs and staged PR
   source through explicit plans and acknowledged custody operations. Preserve raw
   bytes and interrupted sync state; mapped execution and outcome acceptance

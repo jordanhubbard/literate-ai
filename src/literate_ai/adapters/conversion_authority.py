@@ -93,10 +93,26 @@ def require_native_project_path(project: LoadedProject, path: Path) -> None:
         ) from exc
 
 
+def _require_no_child_publication(root: Path) -> None:
+    from literate_ai.adapters.native_child_publication import (
+        NativeChildPublicationError,
+        require_no_native_child_publication,
+    )
+
+    try:
+        require_no_native_child_publication(root)
+    except (NativeChildPublicationError, OSError, ValueError) as exc:
+        raise ConversionAuthorityError(
+            "conversion_authority.native_publication_pending",
+            "native child metadata is in transition or its recovery state is unsafe",
+        ) from exc
+
+
 def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
     """Return exact registered source-free child projects for an adopted root."""
 
-    registry = project.root / NATIVE_PROJECTS_FILE
+    _require_no_child_publication(project.root)
+    registry = project.context.framework_path(NATIVE_PROJECTS_FILE)
     require_native_project_path(project, registry)
     if not registry.exists():
         return ()
@@ -136,7 +152,12 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
                 relative_path is None
                 or relative != relative_path.as_posix()
                 or "\\" in relative
-                or relative_path.parent != PurePosixPath(".literate/native-projects")
+                or relative_path.parent
+                != PurePosixPath(
+                    project.context.framework_path(".literate/native-projects")
+                    .relative_to(project.root)
+                    .as_posix()
+                )
                 or relative_path.name in {"", ".", ".."}
                 or relative in seen_paths
             ):
@@ -181,7 +202,8 @@ def _native_project_roots(project: LoadedProject) -> tuple[Path, ...]:
 def register_native_project(project: LoadedProject, child_root: Path) -> None:
     """Atomically register one exact promoted child with an adopted project."""
 
-    registry = project.root / NATIVE_PROJECTS_FILE
+    _require_no_child_publication(project.root)
+    registry = project.context.framework_path(NATIVE_PROJECTS_FILE)
     require_native_project_path(project, registry)
     try:
         with exclusive_cache_lock(registry.with_suffix(".lock")):
@@ -195,9 +217,11 @@ def register_native_project(project: LoadedProject, child_root: Path) -> None:
 
 def _register_native_project(project: LoadedProject, child_root: Path) -> None:
     require_native_project_path(project, child_root)
-    require_native_project_path(project, project.root / NATIVE_PROJECTS_FILE)
+    require_native_project_path(
+        project, project.context.framework_path(NATIVE_PROJECTS_FILE)
+    )
     resolved = child_root.resolve(strict=True)
-    expected_parent = project.root / ".literate" / "native-projects"
+    expected_parent = project.context.framework_path(".literate/native-projects")
     if expected_parent.is_symlink() or resolved.parent != expected_parent.resolve(
         strict=True
     ):
@@ -215,7 +239,8 @@ def _register_native_project(project: LoadedProject, child_root: Path) -> None:
         "project_id": child.definition.project_id,
         "project_definition_identity": canonical_identity(definition_value).uri,
     }
-    registry = project.root / NATIVE_PROJECTS_FILE
+    _require_no_child_publication(project.root)
+    registry = project.context.framework_path(NATIVE_PROJECTS_FILE)
     current_entries: list[dict[str, str]] = []
     if registry.exists():
         _native_project_roots(project)
@@ -274,6 +299,7 @@ class FilesystemConversionAuthorityStore:
         self.lock_path = context.framework_path(_CONVERSION_AUTHORITY_LOCK)
 
     def load_optional(self) -> ConversionAuthorityState | None:
+        _require_no_child_publication(self.root)
         if not self.path.exists() and not self.path.is_symlink():
             return None
         return self._read()
@@ -320,6 +346,7 @@ class FilesystemConversionAuthorityStore:
         return state
 
     def _read(self) -> ConversionAuthorityState:
+        _require_no_child_publication(self.root)
         descriptor: int | None = None
         try:
             descriptor = os.open(

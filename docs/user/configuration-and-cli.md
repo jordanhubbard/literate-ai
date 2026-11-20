@@ -112,6 +112,11 @@ litai project convert-stage advance
 litai project source-intelligence sync
 litai project source-intelligence check
 litai project identity migrate
+litai project native-child plan-add
+litai project native-child plan-revise
+litai project native-child apply
+litai project native-child status
+litai project native-child recover
 litai project layout plan
 litai project layout apply
 litai project layout recover
@@ -638,6 +643,11 @@ root-integration acceptance still remain.
 | `project validate [PATH]` | Non-mutating validation of the discovered project, catalogs, pins, skills, and generation inputs. |
 | `project tracker inspect [PATH]` | Read Git remotes and name `gh` or `glab` plus issue/review/CI/land argv. Unknown hosts skip tracker work fail closed. |
 | `project lifecycle rebind-standard [PLAN] [--project PATH] [--registered-parent PATH] [--output FILE] [--apply --authorize-rebind]` | Plan an exact installed-wheel Standard first binding or update without mutation, or compare-and-swap an explicitly reviewed plan while preserving project-owned receipt authority and coordinating a registered parent. |
+| `project native-child plan-add CHILD --selection FILE [--project PATH] [--output FILE]` | Inspect existing parent qualification and complete current child evidence, then plan an addition without building or registering the candidate. A saved plan must be outside the bound trees. |
+| `project native-child plan-revise ACTIVE_CHILD CHILD --selection FILE [--project PATH] [--output FILE]` | Plan switching active membership to a distinct qualified physical revision with the same logical Component identity and changed specification. Preserve the original child tree. |
+| `project native-child apply PLAN --acknowledge PLAN_IDENTITY [--project PATH]` | Reopen the complete reviewed inputs and publish the registry and qualified conversion membership together. Missing or stale acknowledgement refuses. Policies requiring further execution refuse publication; no build, test receipt or consumer acceptance is manufactured. |
+| `project native-child status [PUBLICATION] [--plan-identity PLAN_IDENTITY] [--attempt HANDLE] [--project PATH]` | Inspect a retained operation and its current metadata without mutation. Discovery is bounded and requires unambiguous owned records. |
+| `project native-child recover PUBLICATION --acknowledge PLAN_IDENTITY --action finish\|rollback [--attempt HANDLE] [--project PATH]` | Resume an owned metadata transaction under fresh parent and child checks, or restore the original files. Foreign or mixed state remains unavailable to canonical readers until recovery succeeds. |
 | `project layout plan [--project PATH] [--migration] [--place-forward-skills \| --place-imported-catalogs] [--place-release-policy] [--rewrite-reference PATH]` | Inventory legacy and contained project placement. Use `--migration` in a retained legacy Git project to inspect the supported manifest and producer-record moves, held paths, and unresolved references. Review each proposed reference edit by repository-relative Markdown path. |
 | `project layout apply --project PATH --plan-identity SHA256 --acknowledge [--place-forward-skills \| --place-imported-catalogs] [--place-release-policy] [--rewrite-reference PATH]` | Apply the exact reviewed migration plan. Repeat the same reference approvals. The operation retains rollback data in the project's Git administration directory. |
 | `project layout recover --project APPLICATION_ROOT --plan-identity SHA256 --acknowledge` | Roll back a placement using exact original bytes, modes, and file identities. Recovery requires the application Git root and refuses changed or foreign files. |

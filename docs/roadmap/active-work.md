@@ -24216,6 +24216,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] QUALIFIED-CHILD-ADD-001 — Add a qualified native child to a qualified retained parent atomically
 
+- **Current composition (in progress):** Recover PR #359 at
+  `9732a114a48d19aa279654f414d278784b7e72b5` onto current delivery source. Preserve
+  shadow routes, native process/bootstrap identity, qualified-parent readers and
+  migrated project placement. Before source-pin renewal, repair the independent
+  findings: Windows path/descriptor timestamp compatibility, exact acknowledgement
+  at mutating public APIs, retained migration identity and context-owned metadata,
+  component and publication locations. Require stale-input/interruption controls,
+  exact composed-source review and fresh installed/native qualification. Historical
+  PR evidence does not qualify this join or close either accepted child goal.
+
 - **Priority:** P1
 - **Release target:** 1.4.0
 - **GitHub issue:** [#315](https://github.com/jordanhubbard/literate-ai/issues/315)
