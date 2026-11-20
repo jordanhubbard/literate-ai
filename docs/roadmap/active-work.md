@@ -21659,6 +21659,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Catalog provenance timestamp custody (in progress):** CPython 3.12 Windows
+  returns creation time from path `lstat` but change time from descriptor
+  `fstat`. Comparing those timestamps directly rejects unchanged contained
+  provenance. Compare creation time across path/descriptor observations while
+  retaining complete before/after path and descriptor stamps, bounded reads,
+  regular-file identity and redirection refusal. Require a differing-time
+  regression, in-read mutation/refusal controls and actual Windows confirmation.
+  All 22 local catalog controls pass, including the reproduced timestamp
+  difference, changed-descriptor refusal and a real other-file descriptor
+  refusal. Actual native Windows confirmation remains pending.
+
 - **macOS nested interruption (in progress):** Python 3.11 on macOS has no
   `os.waitid`, so cooperative interruption refuses before notifying nested
   owners. Use a nonblocking `waitpid` fallback under the existing CPython

@@ -8,16 +8,19 @@ import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path, PureWindowsPath
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from literate_ai.adapters.catalog_import import (
     CatalogImportError,
     _catalog_item_files,
     _open_source,
+    _provenance_bytes,
     catalog_copy,
 )
 from literate_ai.cli import main
 from literate_ai.contracts.catalog_imports import CatalogImportsFile, TransitiveAncestor
+from literate_ai.projects import ProjectConfigurationStore
 
 
 def make_project(directory: Path, project_id: str, *, with_origin: bool = True) -> Path:
@@ -118,6 +121,95 @@ class ContainedCatalogProvenanceTests(unittest.TestCase):
         selected = framework / ".literate"
         (self.source / ".literate").rename(selected)
         return selected
+
+    def test_descriptor_change_time_can_differ_from_path_creation_time(self):
+        selected = self._place() / "initialization-origin.json"
+        snapshot = ProjectConfigurationStore.discover(self.source)
+        original = os.fstat
+
+        def descriptor_metadata(descriptor):
+            node = original(descriptor)
+            return SimpleNamespace(
+                **{
+                    field: getattr(node, field)
+                    for field in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                    )
+                },
+                st_ctime_ns=node.st_ctime_ns + 1_000_000_000,
+                st_birthtime_ns=getattr(node, "st_birthtime_ns", node.st_ctime_ns),
+            )
+
+        expected = selected.read_bytes()
+        with patch(
+            "literate_ai.adapters.catalog_import.os.fstat",
+            side_effect=descriptor_metadata,
+        ):
+            self.assertEqual(
+                _provenance_bytes(snapshot, ".literate/initialization-origin.json"),
+                expected,
+            )
+
+    def test_opened_other_file_identity_refuses(self):
+        selected = self._place() / "initialization-origin.json"
+        other = selected.with_name("other.json")
+        other.write_bytes(selected.read_bytes())
+        snapshot = ProjectConfigurationStore.discover(self.source)
+        original = os.open
+
+        def redirected_open(path, flags, *args, **kwargs):
+            return original(
+                other if Path(path) == selected else path, flags, *args, **kwargs
+            )
+
+        with (
+            patch(
+                "literate_ai.adapters.catalog_import.os.open",
+                side_effect=redirected_open,
+            ),
+            self.assertRaises(CatalogImportError) as raised,
+        ):
+            _provenance_bytes(snapshot, ".literate/initialization-origin.json")
+        self.assertEqual(raised.exception.code, "catalog.provenance_invalid")
+
+    def test_descriptor_change_during_read_refuses_even_with_stable_path(self):
+        self._place()
+        snapshot = ProjectConfigurationStore.discover(self.source)
+        original = os.fstat
+        reads = 0
+
+        def changed_descriptor(descriptor):
+            nonlocal reads
+            reads += 1
+            node = original(descriptor)
+            return SimpleNamespace(
+                **{
+                    field: getattr(node, field)
+                    for field in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                    )
+                },
+                st_ctime_ns=node.st_ctime_ns + (reads - 1) * 1_000_000_000,
+                st_birthtime_ns=getattr(node, "st_birthtime_ns", node.st_ctime_ns),
+            )
+
+        with (
+            patch(
+                "literate_ai.adapters.catalog_import.os.fstat",
+                side_effect=changed_descriptor,
+            ),
+            self.assertRaises(CatalogImportError) as raised,
+        ):
+            _provenance_bytes(snapshot, ".literate/initialization-origin.json")
+        self.assertEqual(raised.exception.code, "catalog.provenance_invalid")
 
     def test_graph_and_copy_preserve_the_legacy_ancestry(self) -> None:
         status, legacy = self._cli("catalog", "graph", "--project", str(self.source))

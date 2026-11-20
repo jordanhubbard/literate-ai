@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Read unchanged contained catalog provenance across Windows path/descriptor
+  timestamp differences, with checks for descriptor changes during the read.
+
 - Observe a clean native CI policy across Git's LF/CRLF checkout conversion while
   retaining refusal of uncommitted policy changes.
 - Relay nested process interruption on macOS Python versions without `waitid`,

@@ -384,14 +384,18 @@ def _read_source_project(source_root: Path) -> ProjectConfigurationSnapshot:
         ) from exc
 
 
-def _file_stamp(metadata: os.stat_result) -> tuple[int, ...]:
+def _file_stamp(
+    metadata: os.stat_result, *, creation_time: bool = False
+) -> tuple[int, ...]:
     return (
         metadata.st_dev,
         metadata.st_ino,
         metadata.st_mode,
         metadata.st_size,
         metadata.st_mtime_ns,
-        metadata.st_ctime_ns,
+        getattr(metadata, "st_birthtime_ns", metadata.st_ctime_ns)
+        if creation_time
+        else metadata.st_ctime_ns,
     )
 
 
@@ -422,9 +426,17 @@ def _provenance_bytes(
         flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_CLOEXEC", 0)
         flags |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
         with os.fdopen(os.open(selected, flags), "rb") as stream:
-            if _file_stamp(os.fstat(stream.fileno())) != _file_stamp(before):
+            opened = os.fstat(stream.fileno())
+            # Windows Python 3.12 exposes change time through fstat but creation
+            # time through lstat. Compare like timestamps across those APIs;
+            # keep each API's complete stamp for its own before/after check.
+            if _file_stamp(opened, creation_time=True) != _file_stamp(
+                before, creation_time=True
+            ):
                 raise ValueError("catalog metadata changed before reading")
             content = stream.read(_MAX_PROVENANCE_BYTES + 1)
+            if _file_stamp(os.fstat(stream.fileno())) != _file_stamp(opened):
+                raise ValueError("catalog metadata changed during reading")
         require_safe_directory(selected.parent)
         if len(content) != before.st_size or _file_stamp(
             selected.lstat()
