@@ -295,7 +295,8 @@
     "urn:literate-ai:schema:v2:authored-qualification-plan",
     "urn:literate-ai:schema:v2:authored-qualification-project-review",
     "urn:literate-ai:schema:v2:authored-qualification-comparison",
-    "literate-ai/authored-retained-cargo-binding@1"
+    "literate-ai/authored-retained-cargo-binding@1",
+    "literate-ai/authored-retained-cargo-admission-receipt@1"
   ],
   "read_paths": [
     {
