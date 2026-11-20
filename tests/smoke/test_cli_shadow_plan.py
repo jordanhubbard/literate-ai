@@ -268,7 +268,7 @@ class ShadowPlanCliTests(unittest.TestCase):
                 self.assertEqual(shadow_module._directory_bytes(root), 5)
 
     def setUp(self) -> None:
-        temporary = tempfile.TemporaryDirectory()
+        temporary = tempfile.TemporaryDirectory(prefix="shadow test ")
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name).resolve()
         self.upstream = self.root / "upstream"
@@ -299,11 +299,13 @@ class ShadowPlanCliTests(unittest.TestCase):
     def remote_configuration(self, remote):
         # Real Git speaks its normal SSH protocol to this local, test-owned
         # upload-pack service. No socket, live forge or file-transport rewrite.
+        # subprocess quotes argv for CreateProcess; Windows execv joins it raw,
+        # breaking the usual Program Files Git executable path.
         script = self.root / "trusted-ssh.py"
         script.write_text(
-            "import os,sys\n"
+            "import subprocess,sys\n"
             "assert sys.argv[-1] == \"git-upload-pack 'owner/example.git'\"\n"
-            "os.execv(sys.argv[1], [sys.argv[1], 'upload-pack', sys.argv[2]])\n",
+            "sys.exit(subprocess.call([sys.argv[1], 'upload-pack', sys.argv[2]]))\n",
             encoding="utf-8",
         )
         git = shutil.which("git")
@@ -416,9 +418,9 @@ class ShadowPlanCliTests(unittest.TestCase):
         marker = self.root / "untrusted-executed"
         script = self.root / "untrusted-ssh.py"
         script.write_text(
-            "import os,sys\nfrom pathlib import Path\n"
+            "import subprocess,sys\nfrom pathlib import Path\n"
             f"Path({str(marker)!r}).write_text('executed')\n"
-            "os.execv(sys.argv[1], [sys.argv[1], 'upload-pack', sys.argv[2]])\n",
+            "sys.exit(subprocess.call([sys.argv[1], 'upload-pack', sys.argv[2]]))\n",
             encoding="utf-8",
         )
         command = shlex.join(
