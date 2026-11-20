@@ -21659,6 +21659,17 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Early native Windows boundary evidence (in progress):** Run the existing
+  currentness, gate-teardown and late Git-boundary controls serially before the
+  third full Windows shard. Preserve pytest isolation, original test bodies and
+  assertions, use a separate short temporary base and retain the probe's reports.
+  The complete shard and separate receiver remain required after the probe;
+  these early controls supply focused native evidence rather than replacement
+  qualification. Diagnose process-observer retention and held-lock Git reads from
+  those actual outcomes before changing production teardown behavior.
+  The final workflow passes 28 local CI-policy controls; native probe and full
+  qualification outcomes remain pending.
+
 - **Windows retained-input change time (in progress):** The native write/restore
   census case passes modified bytes through an unchanged final payload because
   Windows path `ctime` records creation time. Capture the native handle change

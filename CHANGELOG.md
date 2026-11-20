@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Report Windows boundary-control failures before the complete source shard,
+  retaining separate probe evidence and the full qualification requirements.
+
 - Detect restored writes in Windows retained Cargo input censuses using bound
   native handle change times, including changes after the closing census.
 

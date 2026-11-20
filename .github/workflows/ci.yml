@@ -729,6 +729,12 @@ jobs:
           if ($missing.Count -gt 0) {
             throw "Required Windows tools are unavailable on PATH: $($missing -join ', ')"
           }
+      - name: Verify native Windows boundary controls before the full shard
+        if: matrix.task == 'windows-tests' && matrix.group == 3
+        shell: pwsh
+        run: |
+          $boundaryTemporary = Join-Path $env:RUNNER_TEMP "b${{ matrix.group }}"
+          python scripts/profile_pytest.py logs/profile-${{ matrix.group }}-boundary.ndjson logs/profile-report-${{ matrix.group }}-boundary.json -- -q -rA -o addopts='' --randomly-seed=12345 --basetemp="$boundaryTemporary" --junitxml=logs/test-results-${{ matrix.group }}-boundary.xml tests/critical/test_windows_gate_isolation.py tests/smoke/test_retained_cargo_tree_currentness.py tests/e2e/test_native_template_update.py::NativeTemplateUpdateTests::test_late_lifecycle_boundary_keeps_child_owner_diagnostic tests/e2e/test_native_project_removal.py::NativeProjectRemovalTests::test_profile_git_boundary_added_during_patch_keeps_manifest_lock
       - name: Run this shard's tests
         if: matrix.task == 'windows-tests'
         shell: pwsh
@@ -752,8 +758,11 @@ jobs:
             logs/profile-report-${{ matrix.group }}.json
             logs/profile-${{ matrix.group }}-receiver.ndjson
             logs/profile-report-${{ matrix.group }}-receiver.json
+            logs/profile-${{ matrix.group }}-boundary.ndjson
+            logs/profile-report-${{ matrix.group }}-boundary.json
             logs/test-results-${{ matrix.group }}.xml
             logs/test-results-${{ matrix.group }}-receiver.xml
+            logs/test-results-${{ matrix.group }}-boundary.xml
           if-no-files-found: warn
 
       # cpp-native
