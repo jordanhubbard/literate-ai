@@ -21,7 +21,7 @@ from contextlib import suppress
 from pathlib import Path
 
 _OUTPUT_LIMIT = 1024 * 1024
-_OWNER_DIGEST = "8ace16f54395ad571ed8f67ede55ecd5f7c32f341bfe9f93525d2541b7e7fb60"
+_OWNER_DIGEST = "1accf0a06ddfd86fce7c7ad0b616624c99435e0a9471841176958919c6b5d7ad"
 
 
 def _process_owner():

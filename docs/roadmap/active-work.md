@@ -21659,6 +21659,44 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Probe timeout versus UTC freshness control (in progress):** Native Windows
+  shard one correctly reports a timed-out storage probe but completes two UTC
+  milliseconds before its separate observation expiry. The live test incorrectly
+  requires monotonic probe timeout to imply UTC expiry. Preserve the real stalled
+  subprocess, prompt return, timed-out status, observation round trip and
+  fail-closed capacity decision. Use the existing test clock seam to exercise a
+  fresh timed-out observation explicitly and then its exact UTC expiry; verify
+  both timed-out and stale refusal reasons plus the exact TTL binding. Change
+  neither production timestamps nor deadline, expiry or admission policy.
+  A deterministic 1098/1100 UTC counterexample reproduces the invalid assertion
+  while the actual subprocess still times out. All three complete storage E2E
+  controls pass after verifying fresh timed-out and exact-expiry stale refusal.
+  The UTC seam is test data, not a measured explanation for the native clock delta.
+
+- **Windows redundant-termination race (in progress):** Exact `22b0cec23` native
+  job observations capture root PID 6584 with the same creation identity still
+  nonsignaled at cleanup, despite Python's cached exit code being one. The job
+  termination succeeds, then the shared helper nevertheless falls through to
+  another root kill. CPython 3.12's already-terminating permission-error path can
+  cache an exit code without waiting; its later wait then skips the kernel wait.
+  Return after confirmed job termination so the existing bounded caller wait can
+  observe actual root completion. Retain all missing/failed/pending-job fallbacks,
+  unchanged deadlines and descendant controls. First reproduce the cached-exit
+  mismatch in a deterministic model of the documented CPython path; verify both
+  runtime and bootstrap helpers, synchronize their bytes and loader digest, then
+  require independent exact-source review and native unobserved-root confirmation.
+  This root race does not establish complete descendant retirement or explain
+  every earlier cleanup failure.
+  The model reproduces the cached-exit/kernel-signal mismatch before repair.
+  After repair 95 scoped cases pass with eight explicit platform skips: 42 Windows
+  observation/gate/model/fallback cases (four native Windows skips), thirteen
+  bootstrap cases, nine process cases (four native FreeBSD skips), three storage
+  E2E cases and 28 CI-policy cases. Runtime/bootstrap helper bytes are identical
+  and the loader digest matches. Schema, formatting and lint checks pass. Source
+  review and supported authority renewal precede publication of this increment;
+  current-head native confirmation remains required, including an independent
+  uninstrumented root-handle signal check and unchanged descendant controls.
+
 - **Observation-note compatibility repair (in progress):** The early native
   Windows probe at `04eb81ee6` passes 50 cases with two skips and 27 passing
   subtests, but its existing diagnostic-failure control rejects the new first

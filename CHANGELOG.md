@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Exercise worker probe timeout and UTC observation freshness as independent
+  refusal conditions while retaining the real bounded probe controls.
+
+- Avoid a redundant Windows root kill after confirmed job termination so the
+  caller waits for kernel completion instead of trusting a premature exit cache.
+
 - Preserve original Windows cleanup diagnostic note order while sampling owned
   job identities before the separate file-user diagnostic.
 

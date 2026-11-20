@@ -331,7 +331,12 @@ def terminate_process_tree(
         return
     if selected_platform == "nt":
         terminated = ownership is not None and ownership.terminate()
-        executable = None if terminated else windows_taskkill_executable(environment)
+        if terminated:
+            # The job request already covers this root. A redundant Popen.kill
+            # can cache an exit code before the Windows process object signals,
+            # causing the caller's subsequent bounded wait to skip its kernel wait.
+            return
+        executable = windows_taskkill_executable(environment)
         if executable is not None:
             try:
                 terminator = subprocess.Popen(
