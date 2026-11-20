@@ -218,6 +218,29 @@ def _prepare_retained_native_tests(
     runtime_roots = []
     known_packages = {package["id"] for package in metadata["packages"]}
     for record in records:
+        if record.get("reason") == "compiler-artifact":
+            filenames = record.get("filenames")
+            if (
+                record.get("package_id") not in known_packages
+                or not isinstance(filenames, list)
+                or not filenames
+            ):
+                raise ValueError("retained.runtime.artifact-invalid")
+            # Cargo reports both the legacy shared deps directory and 1.100's
+            # per-unit outputs here. Bind actual reported loader directories;
+            # never infer a compiler-private layout or admit external outputs.
+            for raw in filenames:
+                if not isinstance(raw, str) or not raw or "\x00" in raw:
+                    raise ValueError("retained.runtime.artifact-path-invalid")
+                path = Path(raw)
+                if (
+                    not path.is_absolute()
+                    or ".." in path.parts
+                    or not path.parent.is_relative_to(fresh)
+                ):
+                    raise ValueError("retained.runtime.artifact-path-invalid")
+                runtime_roots.append(path.parent)
+            continue
         if record.get("reason") != "build-script-executed":
             continue
         if record.get("package_id") not in known_packages or not isinstance(
@@ -240,8 +263,8 @@ def _prepare_retained_native_tests(
                 raise ValueError("retained.runtime.search-path-invalid")
             if path.is_relative_to(fresh):
                 runtime_roots.append(path)
-    runtime_base = fresh / target / "debug"
-    runtime_roots.extend((runtime_base / "deps", runtime_base, Path(lines[0])))
+    runtime_roots.append(Path(lines[0]))
+    runtime_roots = tuple(dict.fromkeys(runtime_roots))
     runtime = capture_retained_cargo_runtime_files(
         runtime_roots,
         file_alias_roots=(Path(lines[0]),),

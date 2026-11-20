@@ -21659,6 +21659,32 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Windows CI fixture path budget (in progress):** The actual native Cargo
+  linker reports LNK1104 for a 261-character output path under pytest's default
+  user-cache temporary root. Give each Windows shard a short explicit pytest
+  base under the runner-provisioned temporary directory, and give the separate
+  receiver control a different base so it cannot remove earlier evidence. Keep
+  all native compilation, isolation, test selection and deadlines intact; require
+  workflow-policy checks and actual Windows compilation confirmation. All 28 local
+  CI workflow/profile controls pass; actual native Windows confirmation remains
+  pending.
+
+- **Cargo 1.100 runtime output custody (in progress):** Actual Ubuntu 3.14 CI and
+  Windows native test execution refuse the obsolete `debug/deps` search path.
+  The installed Cargo 1.100 nightly reproduces this locally; the new layout puts
+  artifacts in per-unit output directories. Derive loader roots from the checked
+  compiler-artifact filenames and build-script reports within the owned fresh
+  output, retain compiler-runtime capture, budgets and full closing custody, and
+  refuse reported paths outside that output. Require actual old/new-layout native
+  tests plus the receiving and mutation/refusal controls before qualification.
+  Three native execution controls pass on each installed Cargo 1.95 and 1.100
+  nightly toolchain, including the reported external-artifact refusal. A broader
+  nightly receiving attempt refuses an actual fixture toolchain-environment
+  mismatch before runtime; preserve that refusal and the stable toolchain parser.
+  All eight complete receiving controls pass on installed stable Cargo 1.95,
+  including explicit output custody, native binary mutation and final admission.
+  Stable Cargo 1.100 receiving confirmation remains required from fresh hosted CI.
+
 - **Native removal checkout conversion (in progress):** Hosted Windows linked
   worktrees refuse unchanged owned files as customized content. Reproduce a
   fresh Git CRLF checkout, preserve the exact raw working-state binding and

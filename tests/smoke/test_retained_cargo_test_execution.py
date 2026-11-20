@@ -207,7 +207,9 @@ class RetainedCargoNativeTestExecutionTests(unittest.TestCase):
             )
             self.calls.append((command, result))
             if after_process:
-                after_process(command, result)
+                replacement = after_process(command, result)
+                if replacement is not None:
+                    result = replacement
             extra_guard()
             if result.returncode:
                 raise ValueError("native fixture process failed")
@@ -222,6 +224,31 @@ class RetainedCargoNativeTestExecutionTests(unittest.TestCase):
             environment=self.environment,
             run=run,
         )
+
+    def test_compiler_artifact_outside_owned_output_stops_before_execution(self):
+        def outside_artifact(command, result):
+            if command.step_id != "retained-test-compile":
+                return None
+            records = [json.loads(line) for line in result.stdout.splitlines()]
+            for record in records:
+                if (
+                    record.get("reason") == "compiler-artifact"
+                    and not record["profile"]["test"]
+                ):
+                    record["filenames"] = [str(self.root / "src/lib.rs")]
+                    break
+            else:
+                self.fail("native compilation did not report a dependency artifact")
+            return replace(
+                result,
+                stdout=("\n".join(json.dumps(row) for row in records) + "\n").encode(),
+            )
+
+        with self.assertRaisesRegex(
+            ValueError, "retained.runtime.artifact-path-invalid"
+        ):
+            self.run_observation(after_process=outside_artifact)
+        self.assertEqual(len(self.calls), 2)
 
     def test_changed_binary_after_discovery_stops_before_execution(self):
         def mutate(command, result):

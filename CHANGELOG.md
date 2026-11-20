@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Capture retained Cargo test runtime directories from reported artifacts across
+  Cargo's shared and per-unit output layouts, retaining output custody limits.
+- Use separate short temporary roots for Windows CI shards and receiver checks
+  so nested native compiler outputs stay within the host path budget.
+
 - Remove unchanged owned native-profile files after Git LF/CRLF checkout
   conversion, preserving exact working-state checks and refusing content filters.
 
