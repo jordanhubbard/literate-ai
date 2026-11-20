@@ -22,7 +22,9 @@ from pathlib import Path
 from literate_ai._cache_lock import exclusive_cache_lock
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
+    is_stat_identity_value,
     require_safe_directory,
+    stat_identity_value,
     stat_is_link_or_reparse,
 )
 from literate_ai.adapters.exclusive_directory import _native_rename
@@ -69,11 +71,11 @@ def _digest(content: bytes) -> str:
     return "sha256:" + hashlib.sha256(content).hexdigest()
 
 
-def _key(node: os.stat_result) -> list[int]:
+def _key(node: os.stat_result) -> list[int | str]:
     # Rename legitimately advances ctime; retain inode, bytes, mode, mtime and owner.
     return [
-        node.st_dev,
-        node.st_ino,
+        stat_identity_value(node.st_dev),
+        stat_identity_value(node.st_ino),
         node.st_mode,
         node.st_nlink,
         node.st_size,
@@ -83,7 +85,16 @@ def _key(node: os.stat_result) -> list[int]:
     ]
 
 
-def _directory(path: Path, *, allow_missing: bool = False) -> list[int]:
+def _node_shape(value: object, count: int) -> bool:
+    return (
+        isinstance(value, list)
+        and len(value) == count
+        and all(is_stat_identity_value(item) for item in value[:2])
+        and all(type(item) is int for item in value[2:])
+    )
+
+
+def _directory(path: Path, *, allow_missing: bool = False) -> list[int | str]:
     try:
         require_safe_directory(path, allow_missing=allow_missing)
     except UnsafeFilesystemPathError as exc:
@@ -91,12 +102,16 @@ def _directory(path: Path, *, allow_missing: bool = False) -> list[int]:
     node = path.lstat()
     if not stat.S_ISDIR(node.st_mode) or stat_is_link_or_reparse(node):
         _refuse("unsafe_directory")
-    return [node.st_dev, node.st_ino, node.st_mode]
+    return [
+        stat_identity_value(node.st_dev),
+        stat_identity_value(node.st_ino),
+        node.st_mode,
+    ]
 
 
 def _read(
     path: Path, limit: int = _MAXIMUM_BYTES, *, links: int = 1
-) -> tuple[bytes, list[int]]:
+) -> tuple[bytes, list[int | str]]:
     _directory(path.parent)
     named = path.lstat()
     if (
@@ -165,7 +180,7 @@ def _sync(path: Path) -> None:
         os.close(fd)
 
 
-def _write_new(path: Path, content: bytes, mode: int = 0o600) -> list[int]:
+def _write_new(path: Path, content: bytes, mode: int = 0o600) -> list[int | str]:
     fd = os.open(
         path,
         os.O_WRONLY
@@ -192,7 +207,7 @@ def _write_new(path: Path, content: bytes, mode: int = 0o600) -> list[int]:
     return _read(path, max(_MAXIMUM_BYTES, len(content)))[1]
 
 
-def _json(path: Path, *, links: int = 1) -> tuple[dict, bytes, list[int]]:
+def _json(path: Path, *, links: int = 1) -> tuple[dict, bytes, list[int | str]]:
     content, node = _read(path, _MAXIMUM_RECORD_BYTES, links=links)
 
     def unique(pairs):
@@ -304,6 +319,8 @@ def _observe(
         }
         or intent["schema"] != _SCHEMA
         or canonical_identity(intent).uri != active["intent_identity"]
+        or not _node_shape(intent["root_node"], 3)
+        or not _node_shape(intent["metadata_node"], 3)
         or intent["root_node"] != root_node
         or intent["metadata_node"] != metadata_node
         or not isinstance(intent["targets"], list)
@@ -312,9 +329,7 @@ def _observe(
         _refuse("record_invalid")
     activation_node = intent["activation_node"]
     if (
-        not isinstance(activation_node, list)
-        or len(activation_node) != 5
-        or any(type(n) is not int for n in activation_node)
+        not _node_shape(activation_node, 5)
         or activation_node != [*active_node[:3], *active_node[6:]]
         or _read(attempt / "activation.json", _MAXIMUM_RECORD_BYTES, links=links)
         != (active_bytes, active_node)
@@ -324,9 +339,7 @@ def _observe(
     if plan is not None and (
         not isinstance(plan, dict)
         or set(plan) != {"node", "identity"}
-        or not isinstance(plan["node"], list)
-        or len(plan["node"]) != 8
-        or any(type(n) is not int for n in plan["node"])
+        or not _node_shape(plan["node"], 8)
         or plan["node"][3] != 1
         or not 0 < plan["node"][4] <= _MAXIMUM_PLAN_BYTES
     ):
@@ -343,9 +356,7 @@ def _observe(
             if (
                 not isinstance(record, dict)
                 or set(record) != {"node", "identity"}
-                or not isinstance(record["node"], list)
-                or len(record["node"]) != 8
-                or any(type(n) is not int for n in record["node"])
+                or not _node_shape(record["node"], 8)
                 or record["node"][0] != metadata_node[0]
                 or record["node"][3] != 1
                 or not 0 <= record["node"][4] <= _MAXIMUM_BYTES
@@ -387,10 +398,7 @@ def _observe(
     if (
         not isinstance(intent["terminals"], dict)
         or set(intent["terminals"]) != {"committed.json", "rolled-back.json"}
-        or any(
-            not isinstance(v, list) or len(v) != 6 or any(type(n) is not int for n in v)
-            for v in intent["terminals"].values()
-        )
+        or any(not _node_shape(v, 6) for v in intent["terminals"].values())
     ):
         _refuse("record_invalid")
 
@@ -595,7 +603,11 @@ def _move_exclusive(
                     fd = os.open(part, flags, dir_fd=fd)
                     stack.callback(os.close, fd)
                 node = os.fstat(fd)
-                if [node.st_dev, node.st_ino, node.st_mode] != expected_parent:
+                if [
+                    stat_identity_value(node.st_dev),
+                    stat_identity_value(node.st_ino),
+                    node.st_mode,
+                ] != expected_parent:
                     _refuse("changed")
                 return fd
 

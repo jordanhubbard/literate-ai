@@ -40,6 +40,26 @@ class UnsafeFilesystemPathError(RuntimeError):
     """A directory path would traverse a link, reparse point, or non-directory."""
 
 
+def stat_identity_value(value: int) -> int | str:
+    """Keep legacy signed64 IDs; encode wider native IDs without losing bits."""
+    if type(value) is not int or not -(1 << 127) <= value < (1 << 128):
+        raise ValueError("filesystem identity is outside supported native width")
+    return value if -(1 << 63) <= value < (1 << 63) else str(value)
+
+
+def is_stat_identity_value(value: object) -> bool:
+    """Accept exactly one canonical representation for each native ID."""
+    if type(value) is int:
+        return -(1 << 63) <= value < (1 << 63)
+    if type(value) is not str or not 1 <= len(value) <= 40:
+        return False
+    try:
+        number = int(value)
+        return stat_identity_value(number) == value
+    except ValueError:
+        return False
+
+
 def stat_is_link_or_reparse(metadata: os.stat_result) -> bool:
     """Return whether lstat metadata names a symlink or Windows reparse point."""
 
@@ -204,4 +224,6 @@ __all__ = [
     "path_is_link_or_reparse",
     "require_safe_directory",
     "stat_is_link_or_reparse",
+    "stat_identity_value",
+    "is_stat_identity_value",
 ]

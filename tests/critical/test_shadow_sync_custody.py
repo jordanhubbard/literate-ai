@@ -9,7 +9,6 @@ import shutil
 import sys
 import tempfile
 import unittest
-from contextlib import contextmanager
 from io import StringIO
 from pathlib import Path
 from unittest.mock import patch
@@ -179,6 +178,9 @@ class ShadowSyncCustodyTests(unittest.TestCase):
             def __getattr__(self, name):
                 return getattr(self.actual, name)
 
+            def __fspath__(self):
+                return os.fspath(self.actual)
+
             def stat(self, *, follow_symlinks=True):
                 return StatHint(self.actual.stat(follow_symlinks=follow_symlinks))
 
@@ -187,15 +189,36 @@ class ShadowSyncCustodyTests(unittest.TestCase):
             self.assertEqual(EntryHint(entry).stat(follow_symlinks=False).st_nlink, 0)
         self.assertEqual(os.stat(leaf, follow_symlinks=False).st_nlink, 1)
 
-        @contextmanager
-        def hinted_scandir(path="."):
-            with actual_scandir(path) as entries:
-                selected = not isinstance(path, int) and Path(
+        class HintedScandir:
+            def __init__(self, path="."):
+                self.entries = actual_scandir(path)
+                self.selected = not isinstance(path, int) and Path(
                     os.fsdecode(path)
                 ).is_relative_to(objects)
-                yield (EntryHint(entry) for entry in entries) if selected else entries
 
-        with patch("literate_ai.cli.shadow.os.scandir", side_effect=hinted_scandir):
+            def __iter__(self):
+                return self
+
+            def __next__(self):
+                entry = next(self.entries)
+                return EntryHint(entry) if self.selected else entry
+
+            def __enter__(self):
+                self.entries.__enter__()
+                return self
+
+            def __exit__(self, *args):
+                return self.entries.__exit__(*args)
+
+            def close(self):
+                self.entries.close()
+
+        with patch("literate_ai.cli.shadow.os.scandir", side_effect=HintedScandir):
+            iterator = os.scandir(self.root)
+            with iterator:
+                self.assertIs(iter(iterator), iterator)
+                list(iterator)
+            iterator.close()
             status, state = self.invoke("status", "--shadow", str(self.shadow))
             self.assertEqual(status, 0, state)
             identity = self.plan_sync()

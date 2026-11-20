@@ -9,7 +9,11 @@ import unicodedata
 from dataclasses import asdict, dataclass
 from pathlib import Path, PurePosixPath
 
-from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
+from literate_ai._filesystem import (
+    require_safe_directory,
+    stat_identity_value,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.retained_native_file_custody import native_file_digest
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_path
@@ -26,10 +30,10 @@ def refuse(code: str, message: str) -> None:
     raise QualifiedNativeChildError(code, message)
 
 
-def physical_node(node: os.stat_result) -> tuple[int, ...]:
+def physical_node(node: os.stat_result) -> tuple[int | str, ...]:
     return (
-        node.st_dev,
-        node.st_ino,
+        stat_identity_value(node.st_dev),
+        stat_identity_value(node.st_ino),
         node.st_mode,
         node.st_nlink,
         node.st_size,
@@ -40,10 +44,14 @@ def physical_node(node: os.stat_result) -> tuple[int, ...]:
     )
 
 
-def directory_node(path: Path) -> tuple[int, int, int]:
+def directory_node(path: Path) -> tuple[int | str, int | str, int]:
     require_safe_directory(path)
     node = path.lstat()
-    return node.st_dev, node.st_ino, node.st_mode
+    return (
+        stat_identity_value(node.st_dev),
+        stat_identity_value(node.st_ino),
+        node.st_mode,
+    )
 
 
 def portable_key(value: str) -> str:

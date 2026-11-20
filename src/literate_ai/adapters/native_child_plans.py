@@ -170,7 +170,7 @@ def _parent_wrapper(project: LoadedProject):
     return snapshot, catalog
 
 
-def _metadata(path: Path) -> tuple[bytes, tuple[int, ...]]:
+def _metadata(path: Path) -> tuple[bytes, tuple[int | str, ...]]:
     before = path.lstat()
     if not stat.S_ISREG(before.st_mode) or before.st_nlink != 1:
         refuse(
@@ -338,7 +338,7 @@ class CurrentParent:
     state_bytes: bytes
     receipt_path: Path
     receipt_bytes: bytes
-    receipt_node: tuple[int, ...]
+    receipt_node: tuple[int | str, ...]
     composition_supported: bool
 
     def require_source_unchanged(self) -> None:
