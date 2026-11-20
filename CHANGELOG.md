@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Remove unchanged owned native-profile files after Git LF/CRLF checkout
+  conversion, preserving exact working-state checks and refusing content filters.
+
 - Read unchanged contained catalog provenance across Windows path/descriptor
   timestamp differences, with checks for descriptor changes during the read.
 

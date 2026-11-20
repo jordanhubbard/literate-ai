@@ -149,11 +149,115 @@ class NativeProjectRemovalTests(unittest.TestCase):
                 marker.unlink()
 
     def test_outer_linked_worktree_and_unrelated_nested_checkout_are_preserved(self):
+        self._outer_linked_worktree_removal()
+
+    def test_crlf_linked_worktree_preserves_native_checkout_and_nested_child(self):
+        self.git("config", "core.autocrlf", "true")
+        self._outer_linked_worktree_removal()
+
+    def test_crlf_attribute_race_cannot_launch_a_content_filter(self):
+        from literate_ai.adapters import native_project_removal as removal
+
+        self.git("config", "core.autocrlf", "true")
+        self.git("config", "filter.removal-fixture.clean", "echo ran >filter-ran")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        original = removal._git
+        injected = False
+
+        def change_attributes(root, *args, **kwargs):
+            nonlocal injected
+            result = original(root, *args, **kwargs)
+            if (
+                args[0] == "check-attr"
+                and kwargs.get("content") == b"litai/literate.project.json\0"
+                and not injected
+            ):
+                (self.root / ".gitattributes").write_bytes(
+                    b"litai/literate.project.json filter=removal-fixture\n"
+                )
+                injected = True
+            return result
+
+        with (
+            patch.object(removal, "_git", side_effect=change_attributes),
+            self.assertRaises(removal.NativeProjectRemovalError) as raised,
+        ):
+            removal.plan_native_project_removal(self.root)
+        self.assertTrue(injected)
+        self.assertFalse((self.root / "filter-ran").exists())
+        self.assertEqual(raised.exception.code, "native_removal.transform_unsupported")
+
+    def test_explicit_text_attributes_admit_exact_crlf_checkout_bytes(self):
+        self.git("config", "core.autocrlf", "false")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        for attribute in (b"text", b"text=auto", b"eol=lf", b"eol=crlf"):
+            with self.subTest(attribute=attribute):
+                (self.root / ".gitattributes").write_bytes(
+                    b"litai/literate.project.json " + attribute + b"\n"
+                )
+                plan = self.plan()
+                self.assertIn("litai/literate.project.json", plan["selected"])
+                self.assertEqual(manifest.read_bytes(), content.replace(b"\n", b"\r\n"))
+
+    def test_raw_newline_change_after_plan_refuses_even_when_git_normalizes_it(self):
+        self.git("config", "core.autocrlf", "true")
+        plan = self.plan()
+        index = self.git("ls-files", "--stage")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        # Always change the raw bytes, including on an initial Windows checkout.
+        replacement = (
+            content
+            if b"\r\n" in manifest.read_bytes()
+            else content.replace(b"\n", b"\r\n")
+        )
+        manifest.write_bytes(replacement)
+        refused = self.apply(plan, success=False)
+        self.assertEqual(refused["error"]["code"], "native_removal.plan_changed")
+        self.assertEqual(manifest.read_bytes(), replacement)
+        self.assertEqual(self.git("ls-files", "--stage"), index)
+
+    def test_crlf_edit_to_unconverted_metadata_is_preserved(self):
+        self.git("config", "core.autocrlf", "true")
+        (self.root / ".gitattributes").write_bytes(
+            b"litai/literate.project.json -text\n"
+        )
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        before = manifest.read_bytes()
+        refused = self.cli("onboard", "remove", self.root, success=False)
+        self.assertEqual(refused["error"]["code"], "native_removal.worktree_changed")
+        self.assertEqual(manifest.read_bytes(), before)
+
+    def test_crlf_conversion_never_invokes_configured_content_filter(self):
+        self.git("config", "core.autocrlf", "true")
+        self.git("config", "filter.removal-fixture.clean", "echo ran >filter-ran")
+        (self.root / ".gitattributes").write_bytes(
+            b"litai/literate.project.json filter=removal-fixture\n"
+        )
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        before = manifest.read_bytes()
+        refused = self.cli("onboard", "remove", self.root, success=False)
+        self.assertEqual(
+            refused["error"]["code"], "native_removal.transform_unsupported"
+        )
+        self.assertFalse((self.root / "filter-ran").exists())
+        self.assertEqual(manifest.read_bytes(), before)
+
+    def _outer_linked_worktree_removal(self):
         outer = self.root
         linked = outer.parent / "linked"
         self.git("worktree", "add", "--detach", str(linked), "HEAD")
         self.root = self.fixture.root = linked
         self.assertTrue((linked / ".git").is_file())
+        self.assertEqual(self.git("status", "--porcelain"), "")
         child = linked / "litai/unrelated"
         child.mkdir()
         notes = child / "notes.txt"

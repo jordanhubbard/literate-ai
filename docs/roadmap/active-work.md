@@ -21659,6 +21659,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Native removal checkout conversion (in progress):** Hosted Windows linked
+  worktrees refuse unchanged owned files as customized content. Reproduce a
+  fresh Git CRLF checkout, preserve the exact raw working-state binding and
+  actual custom metadata/content, and admit only the committed representation
+  under a finite Git text/EOL policy. Keep transform, index, nested-repository and
+  recovery checks intact; require focused real-Git controls and native Windows
+  confirmation. Independent review caught a filter-execution race in a proposed
+  Git conversion command; the fixture reproduced it. Remove that command and
+  compare only exact normalized LF bytes under recognized text attributes or
+  automatic conversion settings. A configured or raced content filter must
+  never run during planning; raw newline drift after review must still refuse.
+  All 24 local removal controls pass, including fresh CRLF linked checkouts,
+  explicit text/EOL policy, binary-file refusal, static/raced filter non-execution
+  and exact raw-plan drift. Native Windows confirmation remains pending.
+
 - **Catalog provenance timestamp custody (in progress):** CPython 3.12 Windows
   returns creation time from path `lstat` but change time from descriptor
   `fstat`. Comparing those timestamps directly rejects unchanged contained
