@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Keep the Cargo reuse regression independent of Cargo's private dependency
+  directory layout while requiring one exact fixture library and unchanged reuse.
+
 - Report Windows boundary-control failures before the complete source shard,
   retaining separate probe evidence and the full qualification requirements.
 

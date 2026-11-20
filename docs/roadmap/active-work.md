@@ -21659,6 +21659,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Cargo reuse fixture layout (in progress):** Native Windows reached the reuse
+  regression but could not find its library in the obsolete `debug/deps` path.
+  The same failure reproduces locally with installed Cargo 1.100 nightly. Find
+  exactly one fixture library beneath the owned fresh target instead; retain the
+  executable reuse, edited-source rebuild and unchanged-library timestamp checks.
+  All 10 module cases pass on both installed Cargo 1.95 and 1.100 nightly. This is
+  fixture evidence; current-head native and release qualification remain pending.
+
 - **Early native Windows boundary evidence (in progress):** Run the existing
   currentness, gate-teardown and late Git-boundary controls serially before the
   third full Windows shard. Preserve pytest isolation, original test bodies and
