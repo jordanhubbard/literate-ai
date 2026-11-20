@@ -45,15 +45,17 @@ class WindowsRetirementControlFlowTests(unittest.TestCase):
                 leaf.chmod(0o400)
             before_mode = stat.S_IMODE(external.stat().st_mode)
             real_unlink, denied, closed, dispositions = os.unlink, False, [], []
+            replacement_mode = None
 
             def refuse_readonly_once(path, *args, **kwargs):
-                nonlocal denied
+                nonlocal denied, replacement_mode
                 if Path(path).name == "readonly" and not denied:
                     denied = True
                     if replace:
                         Path(path).rename(root / "original")
                         Path(path).write_text("foreign bytes")
                         Path(path).chmod(0o400)
+                        replacement_mode = stat.S_IMODE(Path(path).stat().st_mode)
                     raise PermissionError("injected readonly-file refusal")
                 return real_unlink(path, *args, **kwargs)
 
@@ -113,7 +115,11 @@ class WindowsRetirementControlFlowTests(unittest.TestCase):
             elif replace:
                 self.assertIsInstance(error, PermissionError)
                 self.assertEqual(leaf.read_text(), "foreign bytes")
-                self.assertEqual(stat.S_IMODE(leaf.stat().st_mode), 0o400)
+                # Windows maps chmod(0400) to its readonly attribute and reports
+                # 0444. Preserve the actual foreign node's sampled mode exactly.
+                self.assertIsNotNone(replacement_mode)
+                self.assertFalse(replacement_mode & 0o222)
+                self.assertEqual(stat.S_IMODE(leaf.stat().st_mode), replacement_mode)
                 self.assertEqual((root / "original").read_text(), "owned bytes")
                 self.assertFalse(dispositions)
             else:

@@ -75,7 +75,11 @@ class ParallelUnittestTests(unittest.TestCase):
                 + (
                     "        raise OSError('controlled scratch cleanup failure')\n"
                     if scratch_cleanup == "failure"
-                    else "        time.sleep(.3)\n"
+                    else (
+                        "        until = time.monotonic_ns() + 300_000_000\n"
+                        "        while (left := until - time.monotonic_ns()) > 0:\n"
+                        "            time.sleep(left / 1e9)\n"
+                    )
                 )
                 + "    return original(path, *args, **kwargs)\n"
                 "runner.shutil.rmtree = cleanup\n"
@@ -306,8 +310,19 @@ class ParallelUnittestTests(unittest.TestCase):
                 if mode == "delay":
                     self.assertEqual(completed.returncode, 0, completed.stderr)
                     self.assertEqual(result["coverage"], "complete")
-                    self.assertGreaterEqual(row["scratch_cleanup_seconds"], 0.3)
-                    self.assertGreaterEqual(row["cleanup_seconds"], 0.3)
+                    # Require the full injected interval in the same clock's
+                    # integer observations; Windows tick quantization and float
+                    # subtraction cannot shorten the fixture's promised span.
+                    offsets = {
+                        record["kind"]: record["offset_ns"] for record in records
+                    }
+                    for field, begin in (
+                        ("scratch_cleanup_seconds", "scratch_removal_begin"),
+                        ("cleanup_seconds", "cleanup_begin"),
+                    ):
+                        elapsed_ns = offsets["scratch_removed"] - offsets[begin]
+                        self.assertGreaterEqual(elapsed_ns, 300_000_000)
+                        self.assertAlmostEqual(row[field], elapsed_ns / 1e9, places=9)
                     self.assertEqual(row["scratch_disposition"], "removed")
                     self.assertEqual(
                         row["elapsed_seconds"],
