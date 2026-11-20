@@ -7,6 +7,7 @@ import io
 import json
 import os
 import shutil
+import stat
 import tempfile
 import unittest
 from pathlib import Path
@@ -520,10 +521,35 @@ class NativeCIJourneyTests(unittest.TestCase):
             self.git("rev-parse", self.base_revision + ":litai/literate.project.json"),
             workflow_blob,
         ]
-        for identity in identities:
-            with self.subTest(object=identity):
+        for kind, identity in zip(
+            ("commit", "tree", "policy", "workflow"), identities, strict=True
+        ):
+            with self.subTest(object=identity, kind=kind):
                 loose = objects / identity[:2] / identity[2:]
-                original = loose.read_bytes()
+                try:
+                    original = loose.read_bytes()
+                except FileNotFoundError as error:
+                    try:
+                        seed_objects = self.seed.root / ".git/objects"
+                        seed_loose = seed_objects / identity[:2] / identity[2:]
+                        storage = {
+                            "kind": kind,
+                            "seed_loose": seed_loose.is_file(),
+                            "copy_packed": any((objects / "pack").glob("*.pack")),
+                            "seed_packed": any((seed_objects / "pack").glob("*.pack")),
+                        }
+                    except OSError as diagnostic_error:
+                        storage = {
+                            "kind": kind,
+                            "metadata_error": type(diagnostic_error).__name__,
+                        }
+                    error.add_note(
+                        "Native CI fixture object before deletion: "
+                        + json.dumps(storage, sort_keys=True)
+                    )
+                    raise
+                original_mode = loose.stat().st_mode
+                loose.chmod(original_mode | stat.S_IWUSR)
                 loose.unlink()
                 before = {
                     p.relative_to(objects): p.read_bytes()
@@ -549,6 +575,7 @@ class NativeCIJourneyTests(unittest.TestCase):
                 finally:
                     loose.parent.mkdir(exist_ok=True)
                     loose.write_bytes(original)
+                    loose.chmod(original_mode)
 
     def test_case_only_remote_spelling_preserves_immutable_repository_binding(self):
         self.git(

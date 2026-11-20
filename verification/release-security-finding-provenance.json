@@ -89,6 +89,7 @@
     "decision": "verified_false_positives_are_non_blocking",
     "authorization": "Do not make git guardian's false positives release blockers",
     "verified_non_blocking_incidents": [
+      "39939690",
       "40026323",
       "40026324",
       "40026325"

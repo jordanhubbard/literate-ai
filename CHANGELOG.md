@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Preserve private Git-object fixture modes across deliberate missing-object
+  checks and retain bounded Windows cleanup observations with original failures.
+
+- Apply the release owner's verified false-positive disposition to the historical
+  PyYAML source digest finding as well as the framework source digest findings.
+
 - Preserve late Git-boundary fixture commits while Windows lock bytes remain
   locked, and give the POSIX interrupt fixture an explicit signal disposition.
 

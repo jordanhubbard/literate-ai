@@ -21659,6 +21659,38 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Current Windows CI repair (in progress):** At `f125a89819406c88899229a663e7e9a381e700f1`,
+  shard two reports 933 passes, 239 skips and four subtest errors at deliberate
+  deletion of private Git objects. Make those copied objects owner-writable for
+  the fixture's deletion, then restore original bytes and mode; preserve every
+  missing-object and no-fetch assertion. Shard three reports 819 passes, 145
+  skips and two gate-fixture cleanup errors after child-exit assertions pass.
+  Their serial probe passes. Retain bounded failure-only observations of users
+  of the exact remaining regular log files, preserving the original error and
+  every teardown assertion. Directory-only and unreported holders remain unknown;
+  observer-list retention has not established the locking cause. Run portable
+  interface/lifetime controls and the complete affected modules before review
+  and integration. Include the actual missing-object control in the existing
+  early native probe as well. The original full shards and separate receiver
+  remain required.
+  Final local controls pass all 63 cases: ten diagnostic-interface/lifetime,
+  fourteen gate-isolation, eleven native-CI and twenty-eight workflow-policy
+  cases. The Windows API is emulated locally; native file-user observations
+  remain pending. An earlier native-CI setup attempt failed before deletion
+  because a loose object was missing. Preserve that unexplained failure and
+  report bounded storage-layout hints on recurrence; later passes do not establish
+  its cause. The complete `f125a8981` matrix also retains an Ubuntu Python 3.14
+  receiving-admission deadline failure. Inspect its phase observations before
+  changing behavior; keep the existing 900-second allowance and all guards.
+
+- **Exact-head package checkpoint (scoped):** Clean native macOS revision
+  `f125a89819406c88899229a663e7e9a381e700f1` passes offline installed E2E,
+  whole-wheel and install checks. The last two consume the same qualified wheel,
+  SHA-256 `a2462c2716da7003dd604108ed4850c8677e84ec16fcc17dced3e8e3e1a4a4d4`.
+  Actual installed identity migration and optional-parser import controls pass.
+  Closing source revision, tree and clean status match. Live generation and full
+  release qualification remain pending; later changes retain separate bindings.
+
 - **Native boundary fixture controls (in progress):** The early Windows probe at
   `b43f89fe60590e42a1e12b2b685c919507311373` reports 26 passes, two failures and
   two platform skips, plus 13 passing subtests. Actual restored-write currentness
@@ -24315,10 +24347,11 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Add a typed read-only rename plan and acknowledged compare-and-swap apply with durable rename lineage.
   - [x] Expose the operation through the project CLI and document retained-source renewal and interruption behavior.
 - **Evidence:**
-  - [ ] Obtain accepted security disposition for the original PR 421 check on two occurrences of incident 39939690. Both flagged values reproduce as the SHA-256 of PyYAML 6.0.3’s published `yaml/tokens.py`. The check remains failed on head `de035d6ead11`. [Exact public-source comparisons](../../verification/release-security-finding-provenance.json).
+  - [x] Apply the release owner's non-blocking disposition to the original PR 421 check on two occurrences of incident 39939690. Both flagged values reproduce as the SHA-256 of PyYAML 6.0.3's published `yaml/tokens.py`; a fresh comparison verifies the published archive digest and both original fields. Provider dismissal is not required. [Exact public-source comparisons and owner disposition](../../verification/release-security-finding-provenance.json).
   - [x] Exercise normal migration, stale plan, changed conversion/source, metadata path and concurrent change refusals.
   - [x] Verify historical bytes remain unchanged, old receipts refuse, and fresh renamed retained qualification succeeds.
   - [x] Run current framework Python, formatting, lint and required review gates.
+  - [ ] Verify the current integrated contained-layout migration through the maintained installed native journeys and exact-head gates; the earlier source/artifact audit below does not qualify later changes to migration, project-context and wheel-gate owners.
 
 - **Local qualification:** The complete current framework gate selects 2,773 tests: 2,685 pass and 88 retain their declared skips (four-worker run, 1,883.191 seconds). All 15 focused identity-migration E2E controls pass, as do the 603-test smoke gate (600 pass, three skips), lint/format and repository/documentation/driver/runner/skill checks. Earlier documentation-inventory refusals and an eight-worker ancestor-device identity refusal remain retained; the unchanged 24-case retained-runtime module and the complete fresh four-worker gate both pass afterward. No admission guard was relaxed. Installed-wheel/exported-HEAD proof, protected exact-head CI and main landing remain pending.
 
@@ -24329,7 +24362,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Installed migration qualification in progress:** A separate noneditable wheel journey now authors a real five-file Python application with two unit tests and actual Make build/package artifacts. Through the public installed console and genuine Standard binding, the first native Linux alpha→beta→gamma run preserves all three adoption records, both rename records and source bytes, refuses missing acknowledgement and old receipts, and publishes fresh retained-parity receipts after each rename. The new maintained `tests/support/installed_identity_migration_journey.py` is wired into the complete wheel gate, including native Windows/macOS cells. Exact software `ebd97fc2f` now passes the complete native Linux ARM64/Python 3.12 source suite (2,783 selected, 2,683 passed, 100 declared skips; all 599 raw worker groups reconciled) and whole noneditable wheel gate. The maintained journey verifies unchanged authority on read-only planning, missing acknowledgement and changed-source refusal, then refuses the old receipt after scope renewal and earns two-test fresh receipts under both renamed subjects. Wheel `sha256:2ef9e48c887ae184d4f3090c33437efcd0bdb1791b64cd58295a4e6fa196f79c` and installed distribution `sha256:2107ccb4a42a34cf14343538981bcdc9255197194c5f045392e8cf607afda231` bind this result in `verification/project-identity-installed-linux.json`. Native cross-platform execution, independent evidence review and exact review/resulting-main verification remain pending. No regenerated Component acceptance or completed parent goal is claimed.
 
 
-- **Independent integration audit (2026-11-12):** [Retained audit](../../verification/project-identity-integration-audit.json) confirms all 27 jobs in exact resulting-main run `43038760305` succeeded at `638845ec00272776ae4644944d6e1dec4b1c4ff6`; `src/`, `scripts/`, `tests/` and `schemas/` are byte-identical to qualified candidate `ebd97fc2f`. Actual macOS wheel output qualifies both public renames with immutable history, preserved source and fresh two-test retained receipts. The native Windows wheel step succeeded and its retained artifact rehashes to `2fdf66422c7cc68f98fc60bf715c5f96c3b95d5b12c7473541726c7905d20556`; its migration module matches main, and the exact mandatory gate rejects absent or synthetic rename results. Windows terminal journey JSON is absent from the fetched log, so this is recorded as gate/artifact evidence, not an invented transcript. Independent source review found no blocker in the migration owner and installed journey. The original PR421 review head `de035d6ea` has a failed GitGuardian check titled `2 secrets uncovered!`, with no annotations exposed by the API. Its findings remain unresolved and this parent stays open. No consuming release acceptance is claimed.
+- **Independent integration audit (2026-11-12):** [Retained audit](../../verification/project-identity-integration-audit.json) confirms all 27 jobs in exact resulting-main run `43038760305` succeeded at `638845ec00272776ae4644944d6e1dec4b1c4ff6`; `src/`, `scripts/`, `tests/` and `schemas/` are byte-identical to qualified candidate `ebd97fc2f`. Actual macOS wheel output qualifies both public renames with immutable history, preserved source and fresh two-test retained receipts. The native Windows wheel step succeeded and its retained artifact rehashes to `2fdf66422c7cc68f98fc60bf715c5f96c3b95d5b12c7473541726c7905d20556`; its migration module matches main, and the exact mandatory gate rejects absent or synthetic rename results. Windows terminal journey JSON is absent from the fetched log, so this is recorded as gate/artifact evidence, not an invented transcript. Independent source review found no blocker in the migration owner and installed journey. The original PR421 review head `de035d6ea` has a failed GitGuardian check titled `2 secrets uncovered!`, with no annotations exposed by the API. That historical provider failure remains unchanged. The release owner's later instruction makes the verified public-source digest false positives non-blocking; no provider dismissal is required. This parent remains open for current integrated native qualification. The verified false positives are non-blocking. No consuming release acceptance is claimed.
 
 ### [ ] CODEX-STATE-001 — Own per-invocation Codex SQLite and log state under finite limits
 
