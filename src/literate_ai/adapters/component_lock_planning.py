@@ -1620,6 +1620,7 @@ def _resolved_node(
             else _selector_reference(
                 root, item.integration_contract, boundary=boundary
             ),
+            allow_internal_symlinks=item.allow_internal_symlinks,
         )
         try:
             if dependency.identity not in source_locks:

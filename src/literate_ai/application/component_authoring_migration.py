@@ -193,6 +193,7 @@ def _repository_dependency(
         revision_selector=dependency.revision_selector,
         dependency_kind=dependency.dependency_kind,
         optional=dependency.optional,
+        allow_internal_symlinks=dependency.allow_internal_symlinks,
         integration_contract=(
             None
             if dependency.integration_contract is None

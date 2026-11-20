@@ -4,13 +4,21 @@ import platform
 import shutil
 import sys
 from collections.abc import Callable, Mapping
+from contextlib import ExitStack
 from datetime import datetime
 from pathlib import Path
 
 from literate_ai.adapters.lifecycle import LocalComponentToolBinding
 from literate_ai.adapters.native_sdk_consumer import NativeSdkConsumerInputs
-from literate_ai.adapters.native_sdk_recipes import select_native_sdk_recipes
+from literate_ai.adapters.native_sdk_recipes import (
+    NativeSdkRecipeSelection,
+    select_native_sdk_recipes,
+)
 from literate_ai.adapters.native_sdk_source_build import NativeSdkSourceBuildService
+from literate_ai.adapters.native_sdk_workspace import (
+    NativeSdkBuildWorkspace,
+    native_sdk_build_workspace,
+)
 from literate_ai.adapters.source.repository_cache import (
     RepositorySourceCachePolicyError,
 )
@@ -41,9 +49,13 @@ class NativeSdkProjectAcquisition:
         host_build_acknowledged: bool = False,
         store: FileSystemCAS | None = None,
         authorization_deadline: datetime | None = None,
+        workspace_factory: Callable[[NativeSdkRecipeSelection], NativeSdkBuildWorkspace]
+        | None = None,
     ):
         if store is not None and not isinstance(store, FileSystemCAS):
             raise TypeError("SDK acquisition requires a live filesystem CAS")
+        if workspace_factory is not None and not callable(workspace_factory):
+            raise TypeError("SDK acquisition requires a live workspace factory")
         self.cache_root = cache_root
         self.source_intelligence_policy = source_intelligence_policy
         self.security_policy = security_policy
@@ -54,6 +66,7 @@ class NativeSdkProjectAcquisition:
         self.host_build_acknowledged = host_build_acknowledged
         self.store = store
         self.authorization_deadline = authorization_deadline
+        self.workspace_factory = workspace_factory
         self._started = False
 
     def __call__(self, snapshot) -> NativeSdkConsumerInputs | None:
@@ -131,27 +144,47 @@ class NativeSdkProjectAcquisition:
         )
         quarantine = QuarantineStore(self.cache_root / "quarantine", store)
         references = ReferenceIndex(self.cache_root / "references", store)
-        services = tuple(
-            NativeSdkSourceBuildService(
-                snapshot=snapshot,
-                selection=selection,
-                tools={name: tools[name] for name in selection.recipe.tools},
-                store=store,
-                quarantine=quarantine,
-                references=references,
-                source_intelligence_policy=self.source_intelligence_policy,
-                security_policy=self.security_policy,
-                revocations=self.revocations,
-                actor=self.actor,
-                reason=self.reason,
-                environment=self.environment,
-                host_build_acknowledged=True,
-                authorization_deadline=self.authorization_deadline,
+        with ExitStack() as workspaces:
+            services = tuple(
+                NativeSdkSourceBuildService(
+                    snapshot=snapshot,
+                    selection=selection,
+                    tools={name: tools[name] for name in selection.recipe.tools},
+                    store=store,
+                    quarantine=quarantine,
+                    references=references,
+                    source_intelligence_policy=self.source_intelligence_policy,
+                    security_policy=self.security_policy,
+                    revocations=self.revocations,
+                    actor=self.actor,
+                    reason=self.reason,
+                    environment=self.environment,
+                    host_build_acknowledged=True,
+                    authorization_deadline=self.authorization_deadline,
+                    workspace=self._workspace(selection, workspaces),
+                )
+                for selection in selections
             )
-            for selection in selections
-        )
-        for service in services:
-            service.build()
-        inputs = NativeSdkConsumerInputs(snapshot=snapshot, services=services)
-        inputs.require_unchanged()
-        return inputs
+            for service in services:
+                service.build()
+            inputs = NativeSdkConsumerInputs(snapshot=snapshot, services=services)
+            inputs.require_unchanged()
+            return inputs
+
+    def _workspace(self, selection, owners):
+        if self.workspace_factory is not None:
+            workspace = self.workspace_factory(selection)
+            if type(workspace) is not NativeSdkBuildWorkspace:
+                raise TypeError("SDK workspace factory must return a live output owner")
+            workspace.require_unchanged()
+            return workspace
+        if any(
+            "@SDK_" in argument
+            for command in selection.recipe.commands
+            for argument in command.argv[1:]
+        ):
+            # Authored path slots explicitly select external placement. Keep
+            # that owner through capture; later consumers use protected CAS
+            # products and require their own execution authorization.
+            return owners.enter_context(native_sdk_build_workspace(self.cache_root))
+        return None

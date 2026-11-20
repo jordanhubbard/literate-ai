@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from literate_ai.contracts.identity import ContentIdentity, canonical_identity
+from literate_ai.contracts.internal_links import validate_internal_symlink_closure
 from literate_ai.contracts.paths import (
     canonical_relative_posix_path,
     canonical_relative_posix_paths,
@@ -275,45 +276,15 @@ class RetainedProjectManifest:
             raise TypeError("Typed retained Component ownership tuple required")
         if self.component_ownership:
             validate_retained_ownership(self.component_ownership, nodes)
-        links = {
-            member.path: member.symlink_destination
-            for member in self.members
-            if member.symlink_target is not None
-        }
-        if any(target not in nodes for target in links.values()):
-            raise ValueError(
-                "Retained symlink target is outside the declared input closure"
-            )
-        for member in self.members:
-            if member.symlink_target is None:
-                continue
-            cursor = member.path.split("/")[:-1]
-            parts = member.symlink_target.split("/")
-            for index, part in enumerate(parts):
-                if part in ("", "."):
-                    continue
-                if part == "..":
-                    if not cursor:
-                        raise ValueError(
-                            "Retained symlink traverses outside the input tree"
-                        )
-                    cursor.pop()
-                else:
-                    cursor.append(part)
-                    if index < len(parts) - 1 and "/".join(cursor) not in directories:
-                        raise ValueError(
-                            "Retained symlink traverses a link or non-directory"
-                        )
-        resolved: set[str] = set()
-        for start in links:
-            current = start
-            chain: set[str] = set()
-            while current in links and current not in resolved:
-                if current in chain:
-                    raise ValueError("Retained symlink target cycle")
-                chain.add(current)
-                current = links[current]
-            resolved.update(chain)
+        validate_internal_symlink_closure(
+            {
+                member.path: member.symlink_target
+                for member in self.members
+                if member.symlink_target is not None
+            },
+            nodes,
+            directories,
+        )
 
     def to_dict(self) -> dict[str, object]:
         value = {

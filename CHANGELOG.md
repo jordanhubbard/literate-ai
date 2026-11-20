@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Compose explicit closed POSIX source-link custody through SDK locking, scanning,
+  quarantine and build checks; bound input read requests under existing quotas.
+  Add canonical and packaged FreeBSD ARM64 host-install plans and live external
+  SDK output workspaces with exact recipe/grant custody. Native OS-SDK and final
+  installed/platform qualification remain required.
+
 - Add reviewed native-child addition/revision plans and acknowledged recoverable
   registry/evidence publication, preserving current qualification readers and
   migration identity. The transaction never performs missing qualification or

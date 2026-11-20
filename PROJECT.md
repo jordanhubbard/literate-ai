@@ -364,8 +364,13 @@ real authored catalog, preserve target-specific lock and source authority
 boundaries, and scale to complete native trees. Explicit POSIX symlink custody
 must retain bounded relative target text, complete internal target coverage and
 immutable snapshots; it must not dereference source links or weaken default
-refusal and legacy identities. Native action, package and
-independent acceptance qualification remain required beyond ownership planning.
+refusal and legacy identities. Explicit link policy must remain bound through
+source snapshots, quarantine, authored SDK source locks, scoped inspection and
+per-command build checks. Scan file aliases under their observable names and
+retain complete target and payload custody. Required source intelligence must
+refuse unsupported link inputs. Complete original-source corpus, installed SDK,
+native catalog/action/package and independent consumer acceptance remain required
+beyond ownership planning.
 
 RETAINED-FS-001 extends Goals 1 and 4 with independent observation of retained
 products' filesystem effects. Development cases bind private fixtures, exact
@@ -388,6 +393,9 @@ execution and current artifact/acceptance evidence. It is open; registering a
 POSIX endpoint or passing mocked dispatch tests alone does not establish support.
 See framework issue #67 and the active queue. Existing three-platform behavior
 and retained-source authority must remain intact.
+The native host-install catalog now declares AMD64 and ARM64 pkg plans. ARM64
+bootstrap and package/probe qualification remain open; a declared plan alone does
+not establish native SDK, model or release acceptance.
 A native pkg provider is being implemented under the same issue, with explicit
 ABI/dependency/payload projection, bound static pkg tooling and independent
 manifest/file/checksum inspection. Portable format checks do not establish native

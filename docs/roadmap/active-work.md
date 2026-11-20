@@ -20294,6 +20294,17 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
+- **Current SDK composition (in progress):** Compose the complete PR #444 / #445 /
+  #467 / #489 dependency closure onto `cd9934394`, preserving the newer shared
+  owners. This includes closed POSIX snapshot/quarantine custody, authored link
+  selection through SDK locks and inspection, bounded pinned-input reads, both
+  FreeBSD ARM64 host-install catalogs and live external output workspaces. Keep
+  default identities, source/tool/grant checks, foreign-state refusal and the
+  original complete source corpus. Contributor tests retain their original
+  revisions; this join still requires independent exact-source review and fresh
+  source, installed, native FreeBSD/UFS and original OS-SDK/consumer acceptance.
+  The existing fleet inspection/alignment and publication holds remain in force.
+
 - **GitHub issue:** [#22](https://github.com/jordanhubbard/literate-ai/issues/22)
 
 - **Release target:** 1.4.0
