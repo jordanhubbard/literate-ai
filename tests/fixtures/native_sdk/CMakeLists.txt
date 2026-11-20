@@ -14,6 +14,12 @@ foreach(configuration DEBUG RELEASE RELWITHDEBINFO MINSIZEREL)
         LIBRARY_OUTPUT_DIRECTORY_${configuration} "${CMAKE_BINARY_DIR}/sdk/python/vendor_math/lib"
         RUNTIME_OUTPUT_DIRECTORY_${configuration} "${CMAKE_BINARY_DIR}/sdk/python/vendor_math/lib")
 endforeach()
+if(MSVC)
+    # Fresh-workspace SDK byte identity requires reproducible DLL timestamps.
+    # Incremental linking must stay disabled for this fixture's deterministic link.
+    target_link_options(vendor_math PRIVATE /Brepro /INCREMENTAL:NO)
+    target_link_options(vendor_factor PRIVATE /Brepro /INCREMENTAL:NO)
+endif()
 if(APPLE)
     set_target_properties(vendor_math vendor_factor PROPERTIES
         BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH "@loader_path")
