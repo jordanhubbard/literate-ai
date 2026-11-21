@@ -25,6 +25,7 @@ from literate_ai.adapters.native_sdk_runtime import (
 from literate_ai.adapters.native_sdk_tree_custody import (
     capture_native_sdk_tree_snapshot,
 )
+from literate_ai.adapters.native_sdk_workspace import NativeSdkBuildWorkspace
 from literate_ai.adapters.source.git import GitSourceAdapter
 from literate_ai.application.repository_sources import (
     RepositoryBuildApproval,
@@ -50,7 +51,11 @@ from literate_ai.security import (
     BuildRequest,
     FailClosedBuildAuthorizationVerifier,
 )
-from literate_ai.sources import SourceCapture
+from literate_ai.sources import (
+    InternalSymlinkSnapshotPolicy,
+    SourceCapture,
+    SourceSnapshotter,
+)
 from literate_ai.storage.cas import FileSystemCAS
 
 
@@ -78,6 +83,7 @@ class NativeSdkRepositoryBuilder:
         environment: Mapping[str, str],
         authorization_verifier: BuildAuthorizationVerifier | None = None,
         timeout_seconds: float = 300,
+        workspace: NativeSdkBuildWorkspace | None = None,
     ) -> None:
         if not isinstance(layout, (NativeSdkBuildLayout, NativeSdkTreeBuildLayout)):
             raise TypeError("SDK repository builder requires a supported SDK layout")
@@ -90,6 +96,8 @@ class NativeSdkRepositoryBuilder:
             raise ValueError("SDK builds require exact named tool bindings")
         if not 0 < timeout_seconds <= 3600:
             raise ValueError("SDK command timeout must be between zero and one hour")
+        if workspace is not None and type(workspace) is not NativeSdkBuildWorkspace:
+            raise TypeError("SDK output placement requires a live workspace owner")
         self.layout = layout
         self.tools = dict(sorted(tools.items()))
         self.store = store
@@ -99,6 +107,7 @@ class NativeSdkRepositoryBuilder:
             authorization_verifier or FailClosedBuildAuthorizationVerifier()
         )
         self.timeout_seconds = timeout_seconds
+        self.workspace = workspace
         self._products: dict[ContentIdentity, NativeSdkBuiltProduct] = {}
 
     def product(
@@ -125,18 +134,22 @@ class NativeSdkRepositoryBuilder:
             raise ValueError("SDK plan toolchains differ from its exact tool bindings")
         if any(command.argv[0] not in self.tools for command in plan.commands):
             raise ValueError("SDK command requires an explicitly bound tool")
-        execution = canonical_identity(
-            {
-                "plan": plan.identity.to_dict(),
-                "layout": self.layout.identity.to_dict(),
-                "tools": {
-                    name: tool.toolchain_identity.to_dict()
-                    for name, tool in self.tools.items()
-                },
-                "environment": self.environment,
-                "timeout_seconds": str(self.timeout_seconds),
-            }
-        )
+        execution_inputs = {
+            "plan": plan.identity.to_dict(),
+            "layout": self.layout.identity.to_dict(),
+            "tools": {
+                name: tool.toolchain_identity.to_dict()
+                for name, tool in self.tools.items()
+            },
+            "environment": self.environment,
+            "timeout_seconds": str(self.timeout_seconds),
+        }
+        if self.workspace is not None:
+            self.workspace.require_command_inputs(
+                plan.commands, self.tools, self.environment
+            )
+            execution_inputs["workspace"] = self.workspace.identity.to_dict()
+        execution = canonical_identity(execution_inputs)
         return BuildRequest(
             effective_revision_digest=plan.effective_revision.uri,
             source_bundle_digest=lock.source_snapshot.uri,
@@ -157,6 +170,7 @@ class NativeSdkRepositoryBuilder:
         plan: RepositoryBuildPlan,
         approval: RepositoryBuildApproval,
     ) -> RepositoryBuildVerification:
+        workspace = self.workspace
         request = self.request(lock, plan)
         grant = self.grant_lookup(approval.authorization)
         if (
@@ -177,8 +191,26 @@ class NativeSdkRepositoryBuilder:
         root = checkout.source_root.absolute()
         require_safe_directory(root)
 
+        def require_workspace() -> None:
+            if workspace is not None:
+                workspace.require_for_source(root)
+
+        require_workspace()
+
         def require_source() -> None:
-            actual = GitSourceAdapter().capture(root)
+            if (
+                checkout.allow_internal_symlinks
+                != lock.dependency.allow_internal_symlinks
+            ):
+                raise ValueError("SDK checkout differs from authored link policy")
+            adapter = GitSourceAdapter(
+                snapshotter=(
+                    SourceSnapshotter(InternalSymlinkSnapshotPolicy())
+                    if lock.dependency.allow_internal_symlinks
+                    else None
+                )
+            )
+            actual = adapter.capture(root)
             if (
                 actual.git is None
                 or actual.git.dirty
@@ -212,18 +244,20 @@ class NativeSdkRepositoryBuilder:
         license_blob = self.store.put_file(source_license)
         if license_blob.identity != self.layout.license_identity.uri:
             raise ValueError("SDK source license differs from the selected license")
-        sdk = root / self.layout.sdk_root
+        output_root = workspace.root if workspace is not None else root
+        sdk = output_root / self.layout.sdk_root
         if sdk.exists() or sdk.is_symlink():
             raise ValueError("SDK output root must be absent before building")
         for parent in sdk.parents:
             if parent.exists() or parent.is_symlink():
                 require_safe_directory(parent)
-            if parent == root:
+            if parent == output_root:
                 break
         diagnostics = []
         for command in plan.commands:
             require_authorized()
             require_source()
+            require_workspace()
             for tool in self.tools.values():
                 tool.require_unchanged()
             tool = self.tools[command.argv[0]]
@@ -232,8 +266,13 @@ class NativeSdkRepositoryBuilder:
             environment = dict(self.environment)
             environment.update(tool.environment)
             environment.update((item.name, item.value) for item in command.environment)
+            arguments = command.argv[1:]
+            if workspace is not None:
+                arguments = workspace.expand_arguments(
+                    arguments, source=root, sdk_root=self.layout.sdk_root
+                )
             result = run_bounded_process(
-                (*tool.command, *command.argv[1:]),
+                (*tool.command, *arguments),
                 cwd=cwd,
                 environment=environment,
                 timeout_seconds=self.timeout_seconds,
@@ -241,18 +280,28 @@ class NativeSdkRepositoryBuilder:
                 stderr_limit_bytes=1024 * 1024,
                 error_prefix="builder.native_sdk",
             )
+            require_workspace()
             diagnostics.append(
                 {
                     "step_id": command.step_id,
                     "returncode": result.returncode,
                     "stdout": self.store.put_bytes(result.stdout).to_dict(),
                     "stderr": self.store.put_bytes(result.stderr).to_dict(),
+                    **(
+                        {
+                            "argv": [*tool.command, *arguments],
+                            "working_directory": str(cwd),
+                        }
+                        if workspace is not None
+                        else {}
+                    ),
                 }
             )
             if result.returncode != 0:
                 raise ValueError(f"SDK build step failed: {command.step_id}")
         require_authorized()
         require_source()
+        require_workspace()
         for tool in self.tools.values():
             tool.require_unchanged()
         if isinstance(self.layout, NativeSdkTreeBuildLayout):
@@ -295,6 +344,7 @@ class NativeSdkRepositoryBuilder:
         )
         require_source()
         require_authorized()
+        require_workspace()
         snapshot_blob = self.store.put_manifest(snapshot.to_dict())
         result_blob = self.store.put_manifest(
             {
@@ -304,6 +354,11 @@ class NativeSdkRepositoryBuilder:
                 "snapshot": snapshot_blob.to_dict(),
                 "runtime_observation": runtime_observation.to_dict(),
                 "commands": diagnostics,
+                **(
+                    {"workspace": workspace.identity.to_dict()}
+                    if workspace is not None
+                    else {}
+                ),
             }
         )
         verification = RepositoryBuildVerification(

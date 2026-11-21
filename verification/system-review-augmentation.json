@@ -1,0 +1,751 @@
+{
+  "b_ci": {
+    "conclusion": "success",
+    "createdAt": "2026-11-18T19:29:49Z",
+    "databaseId": 44381132281,
+    "headSha": "96c404e18c0235fb4903587f45b6324e01b6715a",
+    "status": "completed",
+    "updatedAt": "2026-11-18T20:55:58Z"
+  },
+  "baseline_delta_paths_including_working_changes": 417,
+  "baseline_revision": "f34debb73b62f9fff59a138f86b3640d7be65183",
+  "changed_action_selector_review": {
+    "controls": "26 independent local tests; replayed four PR/push cases for #473 and #474. Shared permissions and ambiguous caller fallback include SDK.",
+    "patch_sha256": "6d12f7f42a2aa3963960a9438948ab958d1a9bc7393a4a850eed6d6f0f19ebe1",
+    "qualified_hosted_step_execution": false,
+    "review_sha256": "f5f55311d108b09721c9673586ef585c2143a41d9dc30c408bb0d524e1f9cfe0",
+    "work_package": "C"
+  },
+  "contributor_case_inventory_reconciliation": {
+    "candidate_patch_sha256": "5e9442cee3e87dbe89198c225a408571e1c75f3770d9d177badeace2d4b0f1a8",
+    "contributor": "Shawn Edwards",
+    "four_reviewed_subjects": {
+      "src/literate_ai/adapters/qualification_capture.py": "942c6e1bfc1ada1f2fe9af8b705a71d6d4e19aa916947040f3dfb779d46cc091",
+      "src/literate_ai/source_to_specification/qualification_lifecycle.py": "a8dbd9f5e1c533c4a3f520131d179be69889eaddc0042c56985d54b7aa3d2200",
+      "tests/critical/test_qualification_capture.py": "ceb86fab1b351010add17089f2b6d56de2e10a22d8462e4ecbd6c0dfb233254f",
+      "tests/critical/test_qualification_case_inventory.py": "fc046baf2b7096a6994827a10ee9d9a0ea6d258c03e34bfde8b5a5ed4ba01491"
+    },
+    "independent_cases": 11,
+    "integrated_release_qualification": "pending",
+    "issue": 392,
+    "original_commit": "7fab630a760c8ecd7175b5f856603bd209d7ae9e",
+    "review_sha256": "9af43351d1df3360be0329bd895c16e8e53e7f19fd285a1cd1d13e0936290862"
+  },
+  "controlled_governance_value": {
+    "artifact_substitution_refusal_seconds": 1.754,
+    "control_sha256": "0528b6d849ac6dca28f3af72461ac93a5512d6b6f36cdf3cc6560062a74a8c85",
+    "distinct_pr_control_jobs": 4,
+    "git_and_host_execution_real": true,
+    "observer_added_jobs": 0,
+    "provider_simulated": true,
+    "public_tag_repair_review_sha256": "33f5f2674b88a5a36e965402fb07ba3a151fbe60023ab67f9c5ba4c1f6000264",
+    "stale_artifact_size_refusal_seconds": 1.731,
+    "superseded_attempt_refusal_seconds": 1.522
+  },
+  "cp4": {
+    "combined_gate": "Interrupted; no final candidate qualification",
+    "control_review_sha256": "78c353756c508831be4b3c3507533fc3bb06ac124eb49e58605cf36a0df2e8e3",
+    "focused_report_sha256": "ef3b6c27f6b0ac579a28271d42ece85c10bd375e99299afb8a47a2a9904bd9ad",
+    "focused_summary": {
+      "executed": 14,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 14,
+      "selected": 14,
+      "skipped": 0
+    },
+    "observation": "Actual child Git staged-only drift preserved parent state and produced unchanged pre-fix layout identity"
+  },
+  "cuda_source_criterion": {
+    "composed_test_log_sha256": "aa8e1215a80d9937634997e97fd108917c875b8cbd71e06181a8702a29bf3dc8",
+    "maintained_tests_passed": 7,
+    "qualified_release": false,
+    "source_implementation_complete": true,
+    "source_review_sha256": "200d344989adc926262001f0e710e59772745023e76a576ef62613b4146b3527"
+  },
+  "current_observed_worker_surfaces": {
+    "classifier_controls": [
+      "Two idle GPU samples with unavailable progress labeled gpu-busy-progressing",
+      "GPU disappears from last sample, classifier raises ValueError from min()"
+    ],
+    "live": "Aligned Linux worker, read-only public health over existing SSH route; 3 samples at 250 ms; no allocation or job dispatched.",
+    "open": "Remote action admission, progress, authenticated polling and attributed network/disk totals.",
+    "process_io": "Single-process Linux observations verified separately by 11 installed controls at 7078bc96bb4fcce57f2b955b4465a85fb826951f.",
+    "record_sha256": "99af9464bb3b003f757a0dc66d3c05193849ae0e9a889e27e6189909dfc563a4",
+    "worker_action_progress": "Unavailable through this health surface"
+  },
+  "curriculum_replay": {
+    "candidate": "ff5cacefea41c2f8bfd6037fc029cc7efcda04d6",
+    "disposable_renewal": "Grumpy audit catalog identity renewed; unchanged component lock remained current after relocation",
+    "false_claim": "Changed selected skill passed rebuilt preview verification while the graph displayed its original pinned content hash. Published 1.3.1 lock resolution refused the changed input.",
+    "genuine_nonempty_edge_review_sha256": "75daa3e79a4eb0c69180d0e762fc9e9741cdf7cc052197c9c2839efa9ee6ea6f",
+    "independent_source_review_sha256": "6f746967a3e6e9757e4c2873a1c854d65826092c2f6888a3b40b16f688f9704a",
+    "network_requests": 0,
+    "offline_pages_rebuilt_identically": 6,
+    "owner": "LAB-AUTHORITY-001",
+    "raw_sha256": {
+      "catalog-audit-comparison.json": "c86a408409b44621aa904ae499cd3acecbdc6114aee7645f0331ce8ad2eb33cf",
+      "chromium/results.json": "9fd06bf4a3a9b684800b4bd562372b87090bd9bfcea79cfb6c9ad0d717d7f7da",
+      "full-framework-checkout-grumpy.out": "55d33f6c93ae34477c4eb0423d9f28a33bbbd1a3049327fa89b4c5c0fcbff459",
+      "lock-drift.json": "b38bec063ec9930b3f73bf693b5750491445990fca62f0f722a9d3e82fef8494",
+      "results.json": "92e811b14f3a64b11c53299d85dc065fabcb5114b02f36414b792d8e69f5d73a"
+    },
+    "relocated_public_lock_checks_passed": 6,
+    "remaining": "Progressively richer canonical lesson graphs and public application build/run acceptance on the required published framework.",
+    "renewed_resolution_audits": 6,
+    "repaired_source_subjects": 15,
+    "retained_original_locks": 6,
+    "reviewed_patch_sha256": "d75913f4487771fd635b299d35f3f641b80c7693cd0e24f50857f8c44ed71946",
+    "scope": "Desktop browser at two viewport sizes; richer canonical curriculum and release qualification remain open.",
+    "six_original_lock_states": "Component locks current; resolution audits stale",
+    "source_records_per_grumpy_page": 15,
+    "viewports_css_px": [
+      1440,
+      390
+    ]
+  },
+  "delta_python_files_structurally_parsed": 249,
+  "delta_python_parse_errors": 0,
+  "existing_consumer_native_pilot": {
+    "explicit_conversion": {
+      "byte_identical": 85,
+      "candidate_tree": "c548bc60865bf754acafe5b9d45de355c82e2bb4",
+      "discrepancies": [],
+      "evidence_sha256": "fde4e8eced10536bf6bff2f54651913f8787d7c52ad00df07056da4f38461950",
+      "member_total": 85,
+      "mode_matches": 85,
+      "seconds": 154.184
+    },
+    "external_filesystem_entries": 98,
+    "external_identity_before_and_after": "09d82917eb79a839dba171c3fbf7e5a52b30b14514c9f604b83004864be650fe",
+    "framework_files_added": 15,
+    "framework_source": "96c404e18c0235fb4903587f45b6324e01b6715a",
+    "historical_native_run_ids": [
+      35908701993,
+      35908702822
+    ],
+    "host": "ToolScheme",
+    "host_files": 85,
+    "host_source": "b0a4d06db331a072681990cdb6773db0c0eaf551",
+    "local_scope": "real macOS ARM64 host C++ test, contained install, same-version update, removal; one internal lifecycle lock retained",
+    "native_checks": 1683,
+    "native_only_defect_comparison": {
+      "adopted_seconds": 29.162,
+      "assertions": 1683,
+      "failed_checks_both": 8,
+      "host": "local macOS ARM64",
+      "incremental_application_defects_caught": 0,
+      "mutated_source_sha256": "ce0c51be95cfa198d71a191dde35010ec0794f1169e98ce78daa93b09a76389a",
+      "native_only_exit": 2,
+      "raw_sha256": "2770ed45c3566307c9425c142881d3b86f12e2390b85cc011f7e7bb8673e9930",
+      "revision": "b0a4d06db331a072681990cdb6773db0c0eaf551",
+      "same_stderr": true,
+      "seconds": 29.293,
+      "stderr_sha256": "7d3f6fe3a57d2143eda56fa8cf65bca6ed890ac44f240e4952e6cdfee2f2ded5"
+    },
+    "raw_digests": {
+      "filesystem-containment.json": "14a71d03cef35a1fe74810f3a3258f4dd274902a3fad7517ef158dd9ff5946c5",
+      "hosted-before-adoption.json": "d676b8e58e10f9a0222b078ebc144e8bf069e1a496cea4d5c23e1b2eeba4e706",
+      "repaired-native.out": "ad4e38bef68f911e4124cc2c0f65dc4af1df71c33102cb0cac57a51a0f1ef9c9",
+      "result.json": "a648f95b88d8789558b5530ba8a48fb6fe4d56a93354d8214f2f69407ace7579",
+      "seeded-native.err": "7d3f6fe3a57d2143eda56fa8cf65bca6ed890ac44f240e4952e6cdfee2f2ded5"
+    },
+    "seeded_failed_checks": 8,
+    "wheel_sha256": "1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2"
+  },
+  "followup_experiments": {
+    "local_evidence_sha256": {
+      "astra-review-20261118/cancel-nested-step.json": "b9e4ab7b9b7449ea91f7c2895e736ef8c4e853ab493d736ca9a0355a8714095c",
+      "astra-review-20261118/native-work-two-queues.json": "e22f6f30801d51cae94af7595f3fee0c810ef21c50b5e16abf46198877045b47",
+      "astra-review-20261118/release-goal-shadow.json": "61837a17906f303dd6e9eb7c861e4de7b5237f91a9779454b291aa8a9a5d126b",
+      "astra-review-20261118/schema-source-only-sdcp1.json": "f81f614df0c6c280d2afa22340f15667ac8dd2d093deb3adda2dc50e9b04ce07",
+      "astra-review-20261118/schema-source-only-sdlcn2.json": "bd09cdad421c30fe0625fca06114c9ed6479ae78b3f012e73e2a9386611321a6",
+      "astra-review-20261118/schema-source-timed-repeat.json": "06e1545f068ad4b99d06466bee62a90a6b1ba629bee13fc0028eba8c3e61902c",
+      "astra-review-20261118/work-close-subject.json": "be48c486bab170d351301f3016a4071d4196fe308b2e07021fb6fb522c3a583e",
+      "pilots/schema-preflight-v1/indexed-release.events.txt": "8a46398d1fbfea37f619cc77102e18dc73b36c2b54348b87844d04ff973aa452",
+      "pilots/schema-preflight-v1/indexed-release.log": "f5d9b0b45371a95b4cd6402722c550959d3919ea18825ebf55716e571881eaa8",
+      "pilots/schema-preflight-v1/indexed-release.status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "pilots/schema-preflight-v1/indexed-validate.events.txt": "20350947bdaf74aaa0640f8d62fde44fe75f4fc2139d1c25e629fdd640b62bca",
+      "pilots/schema-preflight-v1/indexed-validate.log": "d646a83a7f72a3428423e9a9dfc466c7236e2a157ece41554b32a7c81c9ed11e",
+      "pilots/schema-preflight-v1/indexed-validate.status": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "pilots/schema-preflight-v1/stale-release.events.txt": "f3cbdf823d2fd2d08b01502c9c42aa1bfdf87062b96a0f3e2dcc3dccc860ee96",
+      "pilots/schema-preflight-v1/stale-release.log": "5b551ee0b831abb5dda3ec32a117c7da9938062958bf0d23e3ad83690d32d529",
+      "pilots/schema-preflight-v1/stale-release.status": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+      "pilots/schema-preflight-v1/stale-validate.events.txt": "d82fe9e70ba52127eef0c264d71a0b821d54944791ddd8b1e97e10892158efde",
+      "pilots/schema-preflight-v1/stale-validate.log": "c5eea0857c06f228b12674db57fa451e4e02543cb957e1a2dbc9f122fd805b3b",
+      "pilots/schema-preflight-v1/stale-validate.status": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+      "reviewer/visible-goal-custody-source-review.json": "e7ab41311cc9d7c7c7360f9e67614f1c0d4c0e4d1ea8240b3ce96a30eab8edb7",
+      "reviewer/work-queue-scope-source-review.json": "8e42a529b18191a2c70fae713ca58d851fe20721a8b6547cd42308ea789004b1",
+      "runs/cgproj1-paired-native/equal-input/summary.json": "6e8471a3b8ba7042b785936f49bb38ff279f76be0dfe772d0cf807e2edfd69bc",
+      "runs/source-composed-cc5f8f30a4a6/closing-audit.json": "d10158f9252e249877c00531f4267b35ad70bd696572b3a93cf8303ac4056d3c"
+    },
+    "roadmap_owners": [
+      "RELEASE-CLOSURE-001",
+      "PROJECT-LAYOUT-001",
+      "RELEASE-CANCEL-001",
+      "TEST-CACHE-001",
+      "CARGO-CUSTODY-PERF-001"
+    ],
+    "source_base": "8ba81d598051d67db1f1997dd25639000907df40",
+    "source_gate_interrupted_tree": "cc5f8f30a4a6062a9d1a0a1c3872485019ef230c"
+  },
+  "google_delta": {
+    "commits": 33,
+    "files": 178,
+    "finder_changed": false,
+    "scope": "GitHub compare paths and current finder inspected; other changed domain skills inventory only"
+  },
+  "handoff": "Smaller-model implementation as requested; preserve pending CP-4 fix and qualify final composed candidate",
+  "head_groups": {
+    "(root)": {
+      "bytes": 1257540,
+      "files": 22
+    },
+    ".claude": {
+      "bytes": 893,
+      "files": 2
+    },
+    ".claude-plugin": {
+      "bytes": 183,
+      "files": 1
+    },
+    ".codegraph": {
+      "bytes": 229,
+      "files": 1
+    },
+    ".cursor": {
+      "bytes": 175,
+      "files": 1
+    },
+    ".github": {
+      "bytes": 134672,
+      "files": 13
+    },
+    ".literate": {
+      "bytes": 342,
+      "files": 2
+    },
+    ".mac": {
+      "bytes": 1611,
+      "files": 1
+    },
+    "agents": {
+      "bytes": 367,
+      "files": 1
+    },
+    "components": {
+      "bytes": 38794,
+      "files": 12
+    },
+    "docs": {
+      "bytes": 65291047,
+      "files": 348
+    },
+    "flavors": {
+      "bytes": 310885,
+      "files": 139
+    },
+    "labs": {
+      "bytes": 15318941,
+      "files": 1882
+    },
+    "media": {
+      "bytes": 173395525,
+      "files": 163
+    },
+    "model-selections": {
+      "bytes": 291,
+      "files": 3
+    },
+    "openspec": {
+      "bytes": 195386,
+      "files": 36
+    },
+    "packaging": {
+      "bytes": 706,
+      "files": 1
+    },
+    "routing": {
+      "bytes": 930,
+      "files": 4
+    },
+    "samples": {
+      "bytes": 300497,
+      "files": 140
+    },
+    "schemas": {
+      "bytes": 1218522,
+      "files": 140
+    },
+    "scripts": {
+      "bytes": 599472,
+      "files": 59
+    },
+    "skills": {
+      "bytes": 399006,
+      "files": 101
+    },
+    "src": {
+      "bytes": 16848121,
+      "files": 1265
+    },
+    "tests": {
+      "bytes": 9225375,
+      "files": 945
+    },
+    "tools": {
+      "bytes": 160692,
+      "files": 22
+    },
+    "verification": {
+      "bytes": 1288116,
+      "files": 214
+    },
+    "workflows": {
+      "bytes": 8147,
+      "files": 4
+    }
+  },
+  "head_tracked_files": 5522,
+  "implementation_owner": "SDLC-001 and existing 1.4 owners; packages A-H in docs/roadmap/existing-repository-delivery.md",
+  "installed_native_value_pilot": {
+    "accepted_base_commit": "3a18091ea8a2714e84e89aabbd4004ece61bb800",
+    "ci_mutations": 0,
+    "defect_commit": "26d1e3511275303ba7df226a31fa9cd348767401",
+    "elapsed_seconds": 22.673,
+    "external_allowlist": [],
+    "fixed_commit": "000ad798a1b38d3fde20ba88a5b14ba8ebe81524",
+    "framework_files_added": 15,
+    "framework_files_removed": 15,
+    "provider_observations": [
+      {
+        "attempt": 1,
+        "base": "3a18091ea8a2714e84e89aabbd4004ece61bb800",
+        "head": "26d1e3511275303ba7df226a31fa9cd348767401",
+        "label": "verify-defect",
+        "native_exit": 2,
+        "provider_simulated": true,
+        "read_only": true,
+        "verdict": "failed"
+      },
+      {
+        "attempt": 1,
+        "base": "3a18091ea8a2714e84e89aabbd4004ece61bb800",
+        "head": "000ad798a1b38d3fde20ba88a5b14ba8ebe81524",
+        "label": "verify-repair",
+        "native_exit": 0,
+        "provider_simulated": true,
+        "read_only": true,
+        "verdict": "verified"
+      },
+      {
+        "attempt": 1,
+        "base": "3a18091ea8a2714e84e89aabbd4004ece61bb800",
+        "head": "000ad798a1b38d3fde20ba88a5b14ba8ebe81524",
+        "label": "verify-transient",
+        "native_exit": 2,
+        "provider_simulated": true,
+        "read_only": true,
+        "verdict": "failed"
+      },
+      {
+        "attempt": 2,
+        "base": "3a18091ea8a2714e84e89aabbd4004ece61bb800",
+        "head": "000ad798a1b38d3fde20ba88a5b14ba8ebe81524",
+        "label": "verify-retry",
+        "native_exit": 0,
+        "provider_simulated": true,
+        "read_only": true,
+        "verdict": "verified"
+      }
+    ],
+    "release_refusal": {
+      "code": "release.native_profile_unsupported",
+      "message": "The contained native profile keeps release execution with native tooling"
+    },
+    "result_sha256": "b8d77fb9fa7560a910476d0d84dafa2b0a4111e917e08dc7d52073adaf8d1b8e",
+    "retained_custom_note": "litai/operator-note.md",
+    "scope": {
+      "actual": [
+        "real Mac native commands and exit codes",
+        "Git commits and index",
+        "exact installed wheel origins",
+        "public onboarding/CI/update/removal"
+      ],
+      "open": [
+        "actual forge-required merge enforcement",
+        "hosted native failed-job retry",
+        "automatic agent activation",
+        "changed-version contained adoption upgrade"
+      ],
+      "simulated": [
+        "GitHub API and job/run identities",
+        "Linux/Windows job labels",
+        "Windows job outcomes",
+        "transient CSV import outage control"
+      ]
+    },
+    "update_added_files": [
+      "litai/.litai-locks/74648660454956baca14f0ea010a6303a60ede940c53fcfe8464de3a3f40fe9e/lifecycle.lock"
+    ],
+    "wheel_sha256": [
+      "55fb5b9e916fb24fe8f5c54fa3f80d27b0da4e113483edf878f3b4b6d1b92b47",
+      "1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2"
+    ]
+  },
+  "intermediate_wheel_criteria": {
+    "limit": "intermediate wheel and exact unchanged runtime owners; new exact final wheel, generated graph and foreign platform acceptance remain open",
+    "matched_runtime_owners_and_test_files": {
+      "src/literate_ai/adapters/lifecycle/standard_bazel.py": "97da31699d4818c47df47882f13cfb13f13513c2cba64278edbf874b87de619a",
+      "src/literate_ai/adapters/lifecycle/standard_cargo.py": "d46998af694d08470b2278f7bb8ce105d603014270a203bce1dedede1ea38a78",
+      "src/literate_ai/adapters/lifecycle/standard_local.py": "e5aebd811a07f61af9c23a566d5cd4d068c27ebd214f1570254994693cfe946d",
+      "src/literate_ai/adapters/standard_project.py": "73abd209b9ddeb8bec82999f3c52fead988ff79068ace341a72a82cb48e0468a",
+      "tests/critical/test_runtime_capability_environment.py": "359a364dfd6a1a09ff338b151bfe251d480736c4f96178f11ca346358016ff45"
+    },
+    "next_source_controls_sha256": "19a116926128f828c3675ce3dd82e09855acfcf90150e56c0c81e2a107275eff",
+    "revision": "96c404e18c0235fb4903587f45b6324e01b6715a",
+    "subsets": {
+      "qualification_diagnostics": {
+        "installed_module_origins_verified": true,
+        "passed": 31,
+        "selected": 31,
+        "skipped": 0
+      },
+      "runtime_capabilities": {
+        "installed_module_origins_verified": true,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "startup_mac": {
+        "installed_module_origins_verified": true,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      }
+    },
+    "wheel_sha256": "1082a4b24a116eeb01d6cd5f301595f951957671bcf3051abb3e33c50a62fbd2",
+    "wheel_status_sha256": "7c1b207c596e344601ac57af9c24f9a631a77615a6d4d192b8000bc5d28b9c09",
+    "wheel_transcript_sha256": "c8859faa9a763b3250ba2da332cf332f085f2c822b1acf61316c43b6fe77401b"
+  },
+  "legacy_migration_composition": {
+    "byte_identical_on_join": 19,
+    "incoming_subjects": 22,
+    "independent_git_boundary_repair_review": "cb4a3430df710d004b38b7d70315c5e35e85328bd56828568dbd78109f72425f",
+    "join_review_required": [
+      "docs/user/configuration-and-cli.md",
+      "src/literate_ai/adapters/project_update_apply.py",
+      "src/literate_ai/cli/project.py"
+    ],
+    "moved_files": 13,
+    "original_application_files_preserved": 7,
+    "partial_public_migration": true,
+    "remaining_reference_transitions": 147,
+    "remaining_unclassified": 145
+  },
+  "native_writer_counterexamples": {
+    "disposition": "Work package A, PROJECT-LAYOUT-001 and SDLC-001. Require scoped writer and recovery controls before acceptance.",
+    "experiments": {
+      "removal-nested-scope": {
+        "after_child_stage_only": "sha256:c94931f2a7999347e91afc9c5978a47277562b62e8f4066ec68a501622a2a5b3",
+        "after_nested_commit": "sha256:c94931f2a7999347e91afc9c5978a47277562b62e8f4066ec68a501622a2a5b3",
+        "applied": "removed",
+        "before_nested_index": "sha256:c94931f2a7999347e91afc9c5978a47277562b62e8f4066ec68a501622a2a5b3",
+        "child_index_preserved": true,
+        "child_manifest_survives": false,
+        "child_status_after": [
+          " D .gitignore",
+          " D .literate/bootstrap.json",
+          " D .literate/conversion-authority.json",
+          " D .literate/conversion-authority.lock",
+          " D .literate/initialization-baseline.json",
+          " D .literate/initialization-origin.json",
+          " D .literate/original-adoption.json",
+          " D .literate/repository-lineage.json",
+          " D .literate/repository-lineage.lock",
+          " D .literate/repository-parent.json",
+          " D .literate/update-bases.json",
+          " D SKILL.md",
+          " D docs/adoption.md",
+          " D docs/authority.md",
+          "MD literate.project.json",
+          "?? .litai-locks/"
+        ],
+        "child_status_before": "",
+        "setup": "actual ephemeral adopted repository and independent nested Git commit/index; public plan before child initialization; apply attempted only if still identical after stage-only edit"
+      },
+      "update-nested-root-scope": {
+        "application": [
+          "litai/docs/adoption.md"
+        ],
+        "child_git_status": [
+          " M .literate/update-bases.json",
+          "MM docs/adoption.md"
+        ],
+        "child_index_unchanged": true,
+        "child_working_content_changed": true,
+        "child_working_equals_template": true,
+        "mode": "controlled installed-template change; public CLI; real adoption, child Git and worktree, using maintained fixture template provider",
+        "plan_mode": "read-only-plan"
+      }
+    },
+    "issue": 484,
+    "scope": "Public CLI, disposable real Git repositories on macOS; next update template revision supplied by maintained fixture.",
+    "source_revision": "8ba81d598051d67db1f1997dd25639000907df40",
+    "source_subjects": {
+      "src/literate_ai/adapters/native_project_removal.py": "5779fa356e2b066aa81d9857217e58a8f695933aeffde05954566b5caf22d6d7",
+      "src/literate_ai/adapters/project_update_apply.py": "e1061490f21e8e83272e5ce4eb50eeb58c80e5c3ead2b69e3ead139fa7831f38"
+    }
+  },
+  "new_cli_import_observation": {
+    "framework_modules": 370,
+    "inverse_modules": 27,
+    "limitations": [
+      "Not minimal-dependency installation support",
+      "Not attributable release delay",
+      "Warm filesystem, current native host, no alternate package layout control"
+    ],
+    "mode": "Three actual fresh managed source-interpreter imports; no CLI operation or model run",
+    "model_modules": 11,
+    "seconds": [
+      0.4739538748981431,
+      0.39099533401895314,
+      0.42682062496896833
+    ]
+  },
+  "not_exercised_in_this_pass": [
+    "New full source or wheel qualification",
+    "Automatic host skill activation",
+    "New held-model behavioral trial",
+    "Live provider allocation or physical expiry",
+    "Production deployment/publication/rollback",
+    "Exhaustive semantic audit of all files/platforms"
+  ],
+  "observed_cargo_admission": {
+    "aggregate_sha256": "d2c75cb92933447c0f6c3843f2024ae998224ddf9747db206cb482c09ca7df81",
+    "input_check_count": 59,
+    "input_check_interval_union_seconds": 223.60441225301474,
+    "input_check_share_of_measured_admission": 0.7074302487714036,
+    "kind": "observed retained complete local gate; maintained actual native receiving positive case instrumentation",
+    "limits": [
+      "instrumented native fixture, not an uninstrumented control or release critical-path attribution",
+      "input and process spans may nest; do not add their sums without interval union",
+      "no guard removal or performance improvement claimed"
+    ],
+    "measured_admission_wall_seconds": 316.0798009999562,
+    "process_count": 16,
+    "process_wrapper_interval_union_seconds": 1.7152644600719213,
+    "raw_log_sha256": "4d88e4c8583957ce46f4301bad331e9542d138cdacdca2d1c3bfae22f7fa4df2",
+    "source_revision": "18d98aab3588b3112323ead2fdd959fd785803f4"
+  },
+  "raw_artifacts": {
+    "cli-import-observations.json": "f3ff51458a3523f06865ae53093693dc951880aa670546fbdd3c4d10bbf6abe3",
+    "current-tree-inventory.json": "8608d06e4e60cd75fc0f858bcfc9f18cf43145da84da7f1c7bd8d5e2731af5f0",
+    "current-tree-ledger.json": "8bd449ca6af0ff08ee73a6dd4afd4fc7ceb968121b99ca60725f976edf0a1b4a",
+    "google-skills-upstream-delta.json": "4e05aac3c74a1c179a63a13ee312057bff6e1957c7fa0accb769b821c54aa959",
+    "pr-local-ancestry.json": "e301e3e0a022010d8fec8d8eb233f5fc4e8d7d2a25dbe96779b4e73cb752c3e7"
+  },
+  "release_scope": {
+    "complete": 35,
+    "goals_removed": 0,
+    "in_progress": 2,
+    "incomplete": 44,
+    "manifest_goals": 81,
+    "version": "1.4.0"
+  },
+  "release_window_hosted_measurement": {
+    "limits": "Union identifies when some selected runner or local release process was active. The critical dependency path, author activity and runner CPU use are not inferred. Nonancestor counts require an explicit release-associated branch and are kept separate. Workflow start delay includes scheduling and startup. Postpublication CI excluded.",
+    "ordinary_cut": {
+      "attempt": 1,
+      "head": "43d7ab2b8a8e7d9982a9ac239ba13aab8decaab1",
+      "hosted_job_seconds_outside_native_gate": 1170.0429999828339,
+      "hosted_job_window_union_seconds": 2976.6029999256134,
+      "hosted_run": 40205164224,
+      "native_gate_seconds": 1806.5599999427795,
+      "qualification": "same revision / same cut. Hosted job overlap cannot prove that the release waited for CI. Previous 27m55s remains uninstrumented at the parent-child boundary.",
+      "release_check": "20261025T150404Z-1c3082",
+      "runner_jobs_with_positive_overlap": 26,
+      "runner_seconds_within_release_check": 32472.61799955368,
+      "time_without_either_observed_native_child_or_hosted_job_seconds": 504.9869999885559,
+      "wall_seconds": 3481.5899999141693
+    },
+    "post_publication_windows_failure": {
+      "commit": "04d033b9ba0379bb70f0de54bcbc6d7f244d3831",
+      "failed_test": "ProjectReleaseTests.test_worker_release_checkout_syncs_exact_revisions_incrementally",
+      "job": 114763068950,
+      "job_finished": "2026-10-12T10:30:46Z",
+      "policy_ci_mandatory": false,
+      "published": "2026-10-12T10:12:44Z",
+      "run": 38234884516,
+      "scope_correction": "6eef6f751"
+    },
+    "slow_attempts_all_on_tag_ancestry": [
+      38234882192,
+      38212825386,
+      38207379921,
+      38203402458,
+      38189570098,
+      38151109410,
+      38147897947,
+      38145531743,
+      38128720616
+    ],
+    "slow_clipped_job_totals": {
+      "active_jobs": 148,
+      "first_start_delay_per_run_seconds": {
+        "38128720616": 2.0,
+        "38145531743": 2.0,
+        "38147897947": 21.0,
+        "38151109410": 4.0,
+        "38189570098": 2.0,
+        "38203402458": 3.0,
+        "38207379921": 3.0,
+        "38212825386": 3.0,
+        "38234882192": 3.0
+      },
+      "hosted_job_interval_union": 31186.0,
+      "hosted_job_seconds_outside_local": 18159.555999994278,
+      "hosted_workflow_envelope_union": 32773.0,
+      "local_plus_hosted_job_seconds": 140622.28500032425,
+      "local_terminal_interval_union": 122462.72900032997,
+      "overlap_seconds": 13026.444000005722,
+      "runner_seconds_summed": 159946.0,
+      "runs": 9,
+      "still_unattributed_seconds": 218541.36599969864
+    },
+    "slow_window_seconds": 359163.6510000229,
+    "source_evidence_sha256": {
+      "ordinary-hosted-jobs.json": "a529a4d80c3bef6e5e8d4778b4d3a2bdfbe61361cf65bdbd91f97172f22df599",
+      "ordinary-hosted-run-inventory.json": "8b63ea1f70961631789ed0181699af0bbe43839995560e98bf1944e056c995d4",
+      "slow-hosted-job-spans.json": "1fdc8153ddd702f6543cf79df7372bbc0a880c3167127f5bc7ab29d97b71f9a4",
+      "slow-hosted-run-inventory.json": "70f7907cf028322fc7c28e2f21a5f2b7d743bad25b4fd1378787c9b66e543422",
+      "v1.2.0-tag-windows-job.log": "af9ef01d0914a169b071ba3e02a6d49940db221406ea7b9ac3f27754a0c2f660"
+    }
+  },
+  "retained_scale_evidence_reconciliation": {
+    "local_tests_passed": 21,
+    "owner": "RETAINED-SCALE-LIMITS-001",
+    "ports_peak_rss_kib": 948920,
+    "ports_result": "https://github.com/jordanhubbard/literate-ai/issues/234#issuecomment-6606638264",
+    "ports_result_record_sha256": "d2129127612097e5a51ed216ccd9784a5000c18c382bfee9011a0b082fdd82e0",
+    "ports_verify_exit_finding": "project.test_receipt_missing",
+    "ports_verify_seconds": 1727.836,
+    "remaining": "Full source Component catalog and integrated release candidate qualification.",
+    "source_tests": {
+      "scale-policy-regressions.log": "d5aa9e5defae1d9276f1080afb9111af6fe37fb3414da33e6cf290b067fbf154",
+      "scale-project-verifier-and-schema.log": "ad4cec98e01b4d89bb1f261c533407299ce0b428ebf8528cbca96546effa2df0"
+    },
+    "source_tree_probe": {
+      "complete_component_catalog": false,
+      "downstream_commit": "ecf6e7b0ae9d6561cdc90d8ccb2bd35e16ca4ebe",
+      "path": "verification/framework-v2-scale-20261111.json",
+      "pinned_regular_files": 115250,
+      "sha256": "084b7a110fb4d543bea4755455d7101cd4e12cfbf7fb6e2c588ae2ce3bced7bf"
+    }
+  },
+  "review_base_revision": "8ba81d598051d67db1f1997dd25639000907df40",
+  "review_date": "2026-11-18",
+  "roadmap_observation": {
+    "bytes_before_augmentation": 2151120,
+    "historical_completion_stubs": 356,
+    "lines_before_augmentation": 24797,
+    "open_issues": 87,
+    "open_pr_heads_ancestor_of_review_base": [
+      475,
+      471,
+      470,
+      465,
+      464,
+      463,
+      457,
+      437,
+      435,
+      434,
+      431,
+      428,
+      425,
+      423,
+      416,
+      414,
+      413,
+      398,
+      391,
+      349,
+      333
+    ],
+    "open_prs": 48
+  },
+  "schema": "literate-ai/system-review-augmentation@1",
+  "scope": "Stronger-model system assessment; not release qualification or a new model-comparison experiment",
+  "sdlc_criteria_reconciliation": {
+    "independent_count_sha256": "163015847b5466321e8d22e7ebcf096979b26a9a8a761d79554632486a3f2f74",
+    "lease_test_log_sha256": "314b1edc85ecaf6b091573467498b46c292a505cb63c685cfe21ca986e915cf1",
+    "manifest": "84d1508fd99be956e4eb1c7f2587c6baf99122e1be809494298248e07fec36c4",
+    "manifest_count": 81,
+    "outstanding_acceptances_before_three_scoped_closures": 184,
+    "skill_comparison": {
+      "aborted_attempts": 1,
+      "adjudicated_attempts": 45,
+      "raw_summary_sha256": "3554bc8a0d51fc13ec1e7160b66996a65385a301ef812e35a646ca130d6ee394",
+      "reported_normal_completions": 44
+    },
+    "source_lease_tests_passed": 36
+  },
+  "semantic_coverage": "Targeted authority, release, custody, adoption, worker and skill paths plus retained whole-system baseline; syntax/inventory does not establish semantic review of every member",
+  "source_subjects": {
+    "src/literate_ai/adapters/native_project_bootstrap.py": "aecc8053f41efa8366c27485e0ab200e2aef0fee2e0efc5ba3c9e2ee8cc55175",
+    "src/literate_ai/adapters/project_layout_planning.py": "2b4bf19fa08a52ab1ec6ec3c53a418c2c6f68f3dd312e32a2e71f8c89a5048c3",
+    "src/literate_ai/adapters/retained_cargo_execution_inputs_v2.py": "6041ff61c3825055c62ddcb2cafc57bdc67c38cc1534bf8393f0998c4439b5a4",
+    "src/literate_ai/adapters/retained_cargo_input_scope_v2.py": "a6579baf00fc9b3747bcd35fa037d6be6cb0e591460e3097c521d088b64db5cc",
+    "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": "58df1d6704c473ccf5821ac4976ef2cc6862efb927fa6c9d4616d2e01d5992b7",
+    "src/literate_ai/adapters/standard_lifecycle_binding.py": "c44f8cf48a154f1f7de9044ccae0cbce7ec30b7af3dbb02023b0cde87d449b7a",
+    "src/literate_ai/adapters/worker_lease_dispatch.py": "8f249f42559b85745eee3e922ff17b87899af8f4141979edc768c64e30d9cda7",
+    "src/literate_ai/adapters/worker_lease_management.py": "bd0d3495a6b299a8f5749f4e0e8daad1c77d982cbd686240c6705b2487c46938",
+    "src/literate_ai/cli/dispatch.py": "203deec5b656a1bdbfd1ad49942e75e5012d6a47da5d090481a740c9884e0edd",
+    "src/literate_ai/project_releases.py": "2bd5c3a7911ce31631007eadec42fdba858258c95488062696df0ec919180222",
+    "src/literate_ai/release_qualification.py": "debd334ee9bf73eb217842b2d2b2116c8715bd729a2dea25154dfc486f7b2851",
+    "tests/e2e/test_project_layout_planning.py": "617b423d37536116488526228d1659384b37dbbaf37529473c7bbc01f4e7950d"
+  },
+  "source_test_child_origin": {
+    "both_parent_origins_match": true,
+    "child_interpreter": "sys.executable from each actual parent; child working directory is the same temporary consumer in both arms",
+    "interpretation": "A test expecting public refusal would pass only with the foreign editable interpreter. Only read-only removal planning was executed.",
+    "issue": 485,
+    "limit": "Experiment uses an explicit cross-worktree interpreter. Default matched managed environment was healthy. Historical green CI impact unknown.",
+    "observations": [
+      {
+        "child_sha256": "5779fa356e2b066aa81d9857217e58a8f695933aeffde05954566b5caf22d6d7",
+        "error": null,
+        "exit": 0,
+        "plan_identity": "sha256:c9b879601166e0da168c0ac705a9c5d83904e58796d8d529fa12a304e7ab99dc"
+      },
+      {
+        "child_sha256": "a05aa85ee40c22d67796d0275ba7b653634657046dde75966aae714f1c1f3e9a",
+        "error": {
+          "code": "native_removal.nested_git_boundary",
+          "message": "Native profile paths cross a nested Git boundary at litai"
+        },
+        "exit": 2,
+        "plan_identity": null
+      }
+    ],
+    "parent_sha256": "5779fa356e2b066aa81d9857217e58a8f695933aeffde05954566b5caf22d6d7",
+    "scope": "same candidate and disposable fixture, explicit cross-worktree editable interpreter override",
+    "work_package": "C"
+  },
+  "strict_tag_object_control": {
+    "control": "Real local Git receiver changed annotated tag object while preserving its target commit. Provider double read that resulting remote. Candidate accepted.",
+    "handoff": "Require intended object on initial push, provider readback, every provider write and retry.",
+    "observations_sha256": "e3fe10a3b5438e6a2044b1f6f66acc342c7b95b3a4da78d48940d703c38cafe4",
+    "owner": "RELEASE-CLOSURE-001",
+    "priority": "high for enabling strict promotion",
+    "scope": "Controlled promotion boundary with inert upstream revalidation. No live GitHub publication.",
+    "source_review_sha256": "7dd4a7c4e84daf2af5e2bb5109fe8e59e1c70b7a2307acdf38d2e2bf03de39c8"
+  },
+  "upstream_revisions": {
+    "agentskills/agentskills": "83021e2be457a9b6679148719c1f6074f0ad975e",
+    "google/skills": "fadea1663467e2636166e5cd26b071d7aff80f64",
+    "obra/superpowers": "22f0b463e7a5e579904dd6211a520321035526f7"
+  },
+  "workspace": "13 pre-existing staged files, three pre-existing unstaged CP-4 files; review and roadmap additions remain uncommitted"
+}

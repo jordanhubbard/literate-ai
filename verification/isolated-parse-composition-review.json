@@ -1,0 +1,83 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-approved-qualification-pending",
+  "reviewer": "sdlc_review",
+  "base_revision": "8839ffc915604e72f13cfc19e8639807ffbb8059",
+  "upstream_source_commit": "7ef2ad0b5ee71bf5cf02d86821dadd561e091d36",
+  "review_identity": "sha256:38f4c075a787819959b7d9dfa7448eefb1e0c181a08fc9b2d8358a8d8474d544",
+  "subjects": [
+    {
+      "path": "src/literate_ai/projects.py",
+      "sha256": "1c54d4add66903e4ad6feb3825168ddeb8d41a6ad5702a58a8b54bee50fe27d2",
+      "bytes": 70188
+    },
+    {
+      "path": "src/literate_ai/adapters/locked_generation_authority.py",
+      "sha256": "49d6f3dff00fc61b781a2c59b1df7f5d659c82797b7f508f71e12c41e69e2cad",
+      "bytes": 13036
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_execution_inputs_v2.py",
+      "sha256": "6041ff61c3825055c62ddcb2cafc57bdc67c38cc1534bf8393f0998c4439b5a4",
+      "bytes": 7080
+    },
+    {
+      "path": "tests/critical/test_retained_cargo_isolated_parses.py",
+      "sha256": "cca327a3ded9a079aa5c9f6ce6a8713d0910c70c831db78572ccf1efbbfba767",
+      "bytes": 13895
+    },
+    {
+      "path": "docs/roadmap/active-work.md",
+      "sha256": "6128b430871bbf82b0fd6a4d6216559083df3959c0738605f07787199e3862e5",
+      "bytes": 2138171
+    },
+    {
+      "path": "verification/isolated-parse-composition-measurement.json",
+      "sha256": "86b8d514c45cb4f27c846a1196ce72feb581e637c6d87076c7b786bd2fff12b5",
+      "bytes": 3063
+    },
+    {
+      "path": "tests/critical/test_retained_cargo_receiving_v2.py",
+      "sha256": "d4c6e7448197c2a23a92bd68f89193906256b3440b15ee7360169510970aa06d",
+      "bytes": 5033
+    },
+    {
+      "path": "tests/support/fixtures_retained_cargo_receiving_v2.py",
+      "sha256": "494ff35ce40d86dc0295b5c52b9a84a441957893d06d4e01f9a0bbad6bd83987",
+      "bytes": 2249
+    }
+  ],
+  "resolved_findings": [
+    "IP-1: shared receiving setup and receive helpers now live under tests/support; no cross-test-module import."
+  ],
+  "controls": {
+    "fresh_affected_modules": {
+      "selected": 11,
+      "passed": 11,
+      "failed": 0,
+      "seconds": 143.219
+    },
+    "independent_first_review_new_controls": {
+      "selected": 4,
+      "passed": 4,
+      "seconds": 36.549
+    },
+    "independent_compatibility_controls": {
+      "selected": 3,
+      "passed": 3,
+      "seconds": 0.441
+    },
+    "independent_final_review": "AST-preserved fixture operations and test assertions, actual discovery4+7, source hashes unchanged; no heavy rerun"
+  },
+  "measurement": "verification/isolated-parse-composition-measurement.json",
+  "limits": [
+    "Fresh complete candidate and installed/native platform qualification remain pending.",
+    "Paired timing remains bound to its original pre-extraction fixture hashes; measured production files are unchanged.",
+    "No full admission or release wall-time speedup is claimed.",
+    "PR438 lexical optimization is not applied.",
+    "Main CI failures and unresolved security incidents are not waived.",
+    "No release, Pages publication or live worker allocation authorized."
+  ],
+  "superseded_by": "verification/lexical-composition-review.json",
+  "historical_scope": "This retains the earlier isolated-only review subject and its then-current limitations; see the later composition record for current lexical/full-gate state."
+}

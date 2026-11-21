@@ -1,0 +1,207 @@
+{
+  "baseline": "43de0e963",
+  "bounded_custody_controls": {
+    "exit_code": 0,
+    "largest_fixture_bytes": 68157440,
+    "native_build_dispatched": false,
+    "release_evidence": false,
+    "report_sha256": "a1572772062b8cff566250ab28e799ca88b6fc2bc0bebca6b8b123bcd7eb5d7e",
+    "summary": {
+      "executed": 12,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 12,
+      "selected": 12,
+      "skipped": 0
+    }
+  },
+  "cargo_critical": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "f61f5f37af2c340f01013e8bc09ce798578858363f8113df69f46095d7992124",
+    "summary": {
+      "executed": 43,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 43,
+      "selected": 43,
+      "skipped": 0
+    }
+  },
+  "contributor_heads": {
+    "pr425": "123e50c4c69d056ed30012aaeb5c568cccfcb8ee",
+    "pr431": "9c3ebb122c0be7f6d5f31437c869df2615b85260",
+    "pr434": "ddbda1a35e1bcea95bdba428dfebbe931d5bb583"
+  },
+  "driver_pin_log_sha256": "bb21c4573912492706b804ebe26baee24592e1198d6d5b4b1d43a9dfd0ca7e14",
+  "driver_pin_renewed": true,
+  "goal": "CARGO-COMPAT-001",
+  "goal_complete": false,
+  "independent_source_review": {
+    "blocking_findings": [],
+    "production_conflict": "Combine PR431 observation parameters with independently reviewed PR435 per-call read-only parse scopes and unchanged closing guards; no contributed production body is dropped.",
+    "scope": [
+      "live-only reviewed v2 current-input/materialization/retirement owners",
+      "exclusive package publication and custody-bound rollback",
+      "complete patch-aware metadata and declared test-target coverage",
+      "finite subprocess/output bounds and current permission/tool/input checks",
+      "provider observations remain distinct from measured consumer tools",
+      "explicit build-output role retains absent/ignored/exclusive ownership and protected inputs",
+      "optional native output budgets retain legacy wire and default identities",
+      "fresh streamed digest/physical/ancestor/file-membership and alias checks",
+      "shared v1 native preparation keeps version-specific graph/protocol validation"
+    ]
+  },
+  "inherited_custody_optimizations_preserved": true,
+  "integration": "07ce6cabe6e9d3a07b6d6770b3870c2a5f627984",
+  "native_macos_receiving": {
+    "candidate": "94036ab84e8906fea67acacf7d1dcc4aa86ee9b0",
+    "consumer_scope": "real POSIX Cargo/Rust processes, reviewed patch workspace, original-source retirement/refusal, libtest/custom/excluded targets and runtime/input/permission/binary currentness",
+    "exit_code": 0,
+    "native_positive_observations": [
+      {
+        "admission_wall_seconds": 324.30537537497,
+        "command_count": 16,
+        "full_input_checks": 59
+      }
+    ],
+    "producer_scope": "explicit synthetic existing producer contract fixture",
+    "raw_log_sha256": "6dd6720bdafd8b5417c1e06ed6616bf8fc5086d2c52755d76ff5c047d52e64d5",
+    "release_evidence": false,
+    "reopened_receipts": [
+      {
+        "command_count": 16,
+        "identity": "sha256:e6eec37c3b78cae36e2f6fde5419e52c7892e0b709f318b547550b3484928a40",
+        "targets": {
+          "custom-harness": 1,
+          "excluded": 1,
+          "libtest": 5
+        }
+      }
+    ],
+    "report_sha256": "ea11ae1b52e8072add53b4b785f95b36e9e960b0e7fd371ba25e525c8da3dfa7",
+    "summary": {
+      "executed": 8,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 8,
+      "selected": 8,
+      "skipped": 0
+    }
+  },
+  "pending": [
+    "complete final combined source and installed qualification",
+    "exact-head CI and resulting-main gates",
+    "genuine provider and complete application receiving remain separate"
+  ],
+  "producer_evidence": "synthetic contract fixture; genuine producer qualification and cross-host application admission not claimed",
+  "provider_critical": {
+    "exit_code": 0,
+    "release_evidence": false,
+    "report_sha256": "b8de52efaa6d657ce01a45f58fb59ccae498cc360f4284e55f792c49887daed4",
+    "summary": {
+      "executed": 3,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 3,
+      "selected": 3,
+      "skipped": 0
+    }
+  },
+  "release_attestation": false,
+  "schema": "literate-ai/verification-record@1",
+  "source_comparisons": [
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_admission_v2.py",
+      "sha256": "a50a4630c045d3d95ab70cca26ea4b8d6990aedbd6c3fc0cccf0f2e21ba2c50b"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_build_outputs.py",
+      "sha256": "985210b5f2dad0017604369a195751434c4407e2bf39e6ff669fde31b95fd61d"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_current_v2.py",
+      "sha256": "6f4847254f36b87ab0a9af0e805f6119810887ac0e95fb987d9e52b8901645ed"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_execution_inputs_v2.py",
+      "sha256": "271390f62bf34e7c1abab571fd67f899b677eaf0d0b6f2cced015d3f80c1dec8"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_execution_v2.py",
+      "sha256": "56b86e1063cce4f9352c43067662f9c649f2833ac963c26c5d1087dd6535d769"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_materialization_v2.py",
+      "sha256": "916eccbf62c9129846ab47d65d62a8af297fb674cc9e11b423231c2f7b84a0d9"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_runtime_files.py",
+      "sha256": "c98d7525f3dab99aa7c45186ec1a4701b4f817eef59e0e47e7320bb648f71470"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_test_execution.py",
+      "sha256": "eaa5e3fc19adebef705b90a39ca53ca0cacdcc27775d19c161332169bf106047"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_test_execution_v2.py",
+      "sha256": "78ef5a0937b893ee96bce4a3adad46244de3dc3090634adf7e30c5fb34a52797"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_test_observation.py",
+      "sha256": "c78b380a57bf892637287ee1942bfaaeb5cd8af4bb1828eefc378c603f4a7c51"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/retained_cargo_test_selection_v2.py",
+      "sha256": "fc14a272b079f2e546013076dc6760053da80072e85c41b3a62bbfe2cca4ec71"
+    },
+    {
+      "matches_contributor": false,
+      "path": "src/literate_ai/adapters/retained_provider_native.py",
+      "sha256": "a377835b6f0b01670f65e721c86830dadd503b0d13a7f4012249b26c3f6c3d91"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/adapters/streamed_file_custody.py",
+      "sha256": "309002bb4f934a7babe8fa813d4a4eed180f45775263a8a5ffc5ff422b86a2cb"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/contracts/retained_cargo_native_custody.py",
+      "sha256": "ba110bb8fa8a66f40e65f243d8fbcb0e8143dc04e3bd0d225a94287c135b66e1"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/contracts/retained_cargo_policy.py",
+      "sha256": "f2087188fb4d5ae932b39de3cd60bf98fea7b148e83ffe5bc34fdab085631d31"
+    },
+    {
+      "matches_contributor": true,
+      "path": "src/literate_ai/contracts/retained_cargo_workspace_v2.py",
+      "sha256": "3a0981928d39b231f1e85bede0908635a1db8cbde226a9c228f1e5ae2bb88fcc"
+    }
+  ],
+  "static": {
+    "checks": [
+      "lint",
+      "format",
+      "repository layout",
+      "public export",
+      "driver review",
+      "runner review",
+      "documentation authority"
+    ],
+    "exit_code": 0
+  }
+}

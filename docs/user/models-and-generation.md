@@ -399,6 +399,16 @@ also terminal.
 The next request receives no prior tree, expectation, diagnostic, or verifier-only fact.
 This is repeated clean generation, not incremental repair or acceptance feedback.
 
+The Standard project lifecycle separately allows exact native public-result
+rejection to use its existing three-total-candidate repair budget for a fresh,
+single-node Rust library with a version-2 native oracle and genuine prepared
+authority. The replacement receives a fixed rejection category and identities,
+without held-out oracle content or raw command output. Failed candidates remain
+retained and cannot enter the source cache. Changed export, verifier, tool or
+authority custody, native command errors and invalid output stop the run.
+This does not expand the sample driver's policy or apply to cached/retained source.
+Independent acceptance of the final package and clean qualification still run.
+
 Clean materialization and cache policy are distinct. An accepted source-derivation
 record can materialize an exact previously verified tree into a new output, but it never
 becomes generation authority or input to a different recipe. It remains
@@ -603,10 +613,22 @@ Before an OpenCode prompt can leave the workspace, the adapter runs a separate b
 `--pure run --dir WORKSPACE`; v2 uses `run --standalone` with the subprocess cwd,
 native ordered permissions, and a second `debug config --standalone` probe that
 rejects extra configuration sources or a changed permission policy.
-V2 uses private data/state/cache/config roots and a fresh database before any
-server starts; provider credentials must come from the process environment.
+Both versions use private data/state/cache/config roots, a fresh database and
+private temporary state before the first help child. V1 confirms its private
+controls using `--pure debug config`, then stages only the selected provider's
+API configuration and selected model. It supports documented process API keys,
+saved API logins and quoted env/file references in bounded local JSON/JSONC.
+An explicit `provider/model` or local configured model is required. V1 refuses
+selected OAuth/refresh or well-known logins, cloud SDK integrations and supplied dynamic
+SDK packages before prompting, without changing the original login or switching
+to API billing. Custom providers explicitly select an admitted bundled API SDK,
+including `@ai-sdk/openai-compatible`; native defaults remain owned by the selected
+executable's catalog, with fetching disabled. See
+[the security boundary](security.md) for the supported projection and limits.
+V2 provider credentials must come from the process environment.
 Saved OpenCode logins and integration state are not imported for v2.
-The probe has no prompt or model selector. A failed probe or missing option is
+Help has no prompt or model selector; configuration inspection is credential-free
+and can include the selected model name. A failed probe or missing option is
 `coding_cli.incompatible` with upgrade guidance; it is distinct from authentication,
 provider execution, and generated-tree admission failures, and an explicit OpenCode
 selection never falls through to another provider.
@@ -614,15 +636,16 @@ selection never falls through to another provider.
 Finding an executable does not imply that it is authenticated. A persisted interactive
 login belongs to one machine and user profile and is normally needed once, then again
 when it expires or is revoked. Log in with `codex login`, `claude auth login`,
-`cursor-agent login`, or `opencode auth login` for OpenCode v1, or provide a credential supported by the selected provider in the
+`cursor-agent login`, or `opencode auth login` with an API-key login for OpenCode
+v1, or provide a credential supported by the selected provider in the
 invoking environment: Codex accepts `OPENAI_API_KEY` through
 `codex login --with-api-key` or `CODEX_ACCESS_TOKEN` through
 `codex login --with-access-token`; Claude accepts
 `CLAUDE_CODE_OAUTH_TOKEN`, `ANTHROPIC_API_KEY`, or `ANTHROPIC_AUTH_TOKEN`; Cursor accepts
-`CURSOR_API_KEY`. OpenCode accepts its provider-specific stored login or the documented
-environment key for that model provider; the bounded allowlist includes common
-OpenCode, OpenAI, Anthropic, Google, OpenRouter, Bedrock, Azure, and other documented
-provider inputs. Literate AI recognizes provider authentication diagnostics, including
+`CURSOR_API_KEY`. OpenCode V1 accepts a supported stored API login or the documented
+API environment key for the selected model provider; V2 uses process environment
+credentials. Forwarding an environment variable does not qualify a cloud SDK or
+refreshing login for the isolated V1 profile. Literate AI recognizes provider authentication diagnostics, including
 the unusual case where a CLI prints one but exits zero without generating the required
 tree, and reports `coding_cli.authentication_required` with provider-specific recovery
 instead of a generic generation failure. It never falls through to another provider.
@@ -691,12 +714,12 @@ is explicitly a deferred limitation. OpenCode uses a detached temporary workspac
 with project/Claude discovery disabled and an owned configuration directory. V1
 uses `--pure run` and legacy permissions; v2 uses `run --standalone`, native
 ordered permissions, and deny policies for external plugins, skills, and MCP.
-V2 refuses system/MDM or ambient integration configuration that prevents the
+Both versions refuse system/MDM configuration; V2 also refuses ambient integration configuration that prevents the
 owned configuration from being confirmed. Both profiles enable only
 read/edit/list/glob/grep, but OpenCode does not claim that policy as an OS sandbox; LitAI therefore materializes only the validated file map into the real
-candidate root. V1 session and authentication state remain provider-managed
-outside that workspace. V2 gets private XDG roots, a fresh database, and private
-temporary state before its first server starts; it uses process environment
+candidate root. Both versions get private XDG roots, a fresh database, and private
+temporary state before their first help child. V1 imports only the selected API
+profile described above; V2 uses process environment
 credentials without importing saved OpenCode logins or integration/plugin state. Network egress, provider internals, authentication
 state, and immutable model weights are not attested for any of these opaque CLIs. Their
 locality therefore remains `unknown`, and a no-egress routing policy cannot select one.

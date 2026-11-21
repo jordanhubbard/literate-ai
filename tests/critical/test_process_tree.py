@@ -9,15 +9,17 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from importlib.resources import files
+from itertools import product
 from pathlib import Path
 from unittest import mock
 
-from literate_ai.adapters import _processes
+from literate_ai.adapters import _process_interrupt, _processes
 from literate_ai.adapters.action_dispatch_wire import (
     ActionDispatchDeadline,
     encode_action_request,
@@ -36,6 +38,7 @@ from literate_ai.application.action_dag_scheduler import (
     LifecycleActionWorker,
 )
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
+from literate_ai.project_template.scripts import _bootstrap_processes
 from literate_ai.retained_package_receiver import CONFIG_SCHEMA, _Registration
 
 
@@ -608,6 +611,84 @@ raise SystemExit(17)
                 process.wait(timeout=5)
 
 
+@contextmanager
+def _without_waitid():
+    original = getattr(os, "waitid", None)
+    if original is not None:
+        del os.waitid
+    try:
+        yield
+    finally:
+        if original is not None:
+            os.waitid = original
+
+
+@unittest.skipUnless(
+    os.name == "posix" and sys.implementation.name == "cpython",
+    "requires CPython POSIX child lifetime custody",
+)
+class PosixProcessRelayWithoutWaitidTests(unittest.TestCase):
+    def test_live_child_receives_interrupt_without_waitid(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        # This fixture requires signal termination even when its launcher
+        # ignored or blocked SIGINT; establish that state before announcing ready.
+        with subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                "import signal, time\n"
+                "signal.signal(signal.SIGINT, signal.SIG_DFL)\n"
+                "if hasattr(signal, 'pthread_sigmask'):\n"
+                " signal.pthread_sigmask(signal.SIG_UNBLOCK, {signal.SIGINT})\n"
+                "print('ready', flush=True)\n"
+                "time.sleep(20)\n",
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            **ownership.popen_options,
+        ) as process:
+            try:
+                self.assertEqual(process.stdout.readline(), b"ready\n")
+                with (
+                    _without_waitid(),
+                    mock.patch.object(os, "killpg", wraps=os.killpg) as relay,
+                ):
+                    _process_interrupt.relay_process_interrupt(
+                        process, ownership=ownership, readers=[], grace_seconds=0.01
+                    )
+                    relay.assert_called_once_with(process.pid, signal.SIGINT)
+                self.assertEqual(process.wait(timeout=5), -signal.SIGINT)
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait(timeout=5)
+
+    def test_exited_child_is_reaped_without_signaling_its_group(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        waitpid = os.waitpid
+        with subprocess.Popen(
+            [sys.executable, "-c", "raise SystemExit(7)"],
+            **ownership.popen_options,
+        ) as process:
+
+            def observe_exited_child(pid, options):
+                self.assertTrue(process._waitpid_lock.locked())
+                self.assertEqual((pid, options), (process.pid, os.WNOHANG))
+                return waitpid(pid, 0)
+
+            with (
+                _without_waitid(),
+                mock.patch.object(os, "waitpid", side_effect=observe_exited_child),
+                mock.patch.object(os, "killpg") as relay,
+            ):
+                _process_interrupt.relay_process_interrupt(
+                    process, ownership=ownership, readers=[], grace_seconds=0.01
+                )
+                relay.assert_not_called()
+                self.assertEqual(process.returncode, 7)
+            self.assertEqual(process.wait(timeout=3), 7)
+
+
 class _Process:
     pid = 1729
 
@@ -619,6 +700,105 @@ class _Process:
 
     def kill(self) -> None:
         self.killed = True
+
+
+@unittest.skipUnless(
+    os.name == "posix"
+    and sys.implementation.name == "cpython"
+    and hasattr(os, "waitid"),
+    "requires CPython POSIX child lifetime observation",
+)
+class PosixProcessRelayTests(unittest.TestCase):
+    def test_reaping_and_signal_delivery_share_child_lifetime_custody(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        with subprocess.Popen(
+            [sys.executable, "-c", "import sys; sys.stdin.read()"],
+            stdin=subprocess.PIPE,
+            **ownership.popen_options,
+        ) as process:
+            waitid = os.waitid
+            checked = threading.Event()
+            waiting = threading.Event()
+            reaped = threading.Event()
+
+            def waiter() -> None:
+                if checked.wait(3):
+                    waiting.set()
+                    process.wait(timeout=3)
+                    reaped.set()
+
+            def observe_child(*args):
+                observation = waitid(*args)
+                process.stdin.close()
+                # The child exits between custody checking and attempted delivery.
+                # The real concurrent Popen waiter may reap only after delivery.
+                result = waitid(os.P_PID, process.pid, os.WEXITED | os.WNOWAIT)
+                self.assertEqual(result.si_pid, process.pid)
+                checked.set()
+                self.assertTrue(waiting.wait(3))
+                return observation
+
+            def observe_signal(pid, signum):
+                self.assertEqual((pid, signum), (process.pid, signal.SIGINT))
+                self.assertTrue(process._waitpid_lock.locked())
+                self.assertFalse(reaped.is_set())
+                self.assertIsNone(process.returncode)
+
+            thread = threading.Thread(target=waiter)
+            thread.start()
+            try:
+                with (
+                    mock.patch.object(os, "waitid", side_effect=observe_child),
+                    mock.patch.object(
+                        os, "killpg", side_effect=observe_signal
+                    ) as relay,
+                ):
+                    _process_interrupt.relay_process_interrupt(
+                        process, ownership=ownership, readers=[], grace_seconds=0.01
+                    )
+                    relay.assert_called_once_with(process.pid, signal.SIGINT)
+                    self.assertTrue(reaped.wait(3))
+                    _process_interrupt.relay_process_interrupt(
+                        process, ownership=ownership, readers=[], grace_seconds=0.01
+                    )
+                    relay.assert_called_once()
+            finally:
+                process.stdin.close()
+                checked.set()
+                thread.join(timeout=4)
+            self.assertEqual(process.returncode, 0)
+
+    def test_busy_waiter_refuses_relay_without_waiting_for_the_lock(self) -> None:
+        ownership = _processes.create_process_tree_ownership()
+        with subprocess.Popen(
+            [sys.executable, "-c", "import sys; sys.stdin.read()"],
+            stdin=subprocess.PIPE,
+            **ownership.popen_options,
+        ) as process:
+            parked = threading.Event()
+            real_wait = process._try_wait
+
+            def wait_until_child_exits(flags):
+                parked.set()
+                return real_wait(flags)
+
+            with mock.patch.object(
+                process, "_try_wait", side_effect=wait_until_child_exits
+            ):
+                waiter = threading.Thread(target=process.wait)
+                waiter.start()
+                try:
+                    self.assertTrue(parked.wait(3))
+                    with mock.patch.object(os, "killpg") as relay:
+                        _process_interrupt.relay_process_interrupt(
+                            process, ownership=ownership, readers=[], grace_seconds=0.01
+                        )
+                        relay.assert_not_called()
+                finally:
+                    process.stdin.close()
+                    waiter.join(timeout=3)
+                self.assertFalse(waiter.is_alive())
+                self.assertEqual(process.returncode, 0)
 
 
 class ProcessTreeTerminationTests(unittest.TestCase):
@@ -670,6 +850,104 @@ class RunWithTreeKillTests(unittest.TestCase):
     only killed the direct child, leaving helper trees (git/pip/conan/worker
     bootstrap descendants) alive. `run_with_tree_kill` is the drop-in
     replacement every affected call site now routes through."""
+
+    def test_timeout_retains_streams_drained_after_tree_cleanup(self):
+        for helper, text, retry_kill in product(
+            (_processes, _bootstrap_processes), (False, True), (False, True)
+        ):
+            with self.subTest(helper=helper.__name__, text=text, retry_kill=retry_kill):
+                original = subprocess.TimeoutExpired(["owned-tool"], 1)
+                output = ("partial stdout", "partial stderr")
+                if not text:
+                    output = tuple(value.encode() for value in output)
+                process = mock.Mock(pid=1234)
+                calls = [original]
+                if retry_kill:
+                    calls.append(subprocess.TimeoutExpired(["owned-tool"], 5))
+                process.communicate.side_effect = [*calls, output]
+                ownership = mock.Mock(popen_options={})
+                with (
+                    mock.patch.object(helper.os, "name", "nt"),
+                    mock.patch.object(
+                        helper, "create_process_tree_ownership", return_value=ownership
+                    ),
+                    mock.patch.object(helper.subprocess, "Popen", return_value=process),
+                    mock.patch.object(helper, "terminate_process_tree") as terminate,
+                    self.assertRaises(subprocess.TimeoutExpired) as failure,
+                ):
+                    helper.run_with_tree_kill(["owned-tool"], timeout=1, text=text)
+                self.assertIs(failure.exception, original)
+                self.assertEqual(failure.exception.timeout, 1)
+                self.assertEqual(
+                    (failure.exception.stdout, failure.exception.stderr), output
+                )
+                self.assertEqual(
+                    process.communicate.call_args_list,
+                    [mock.call(timeout=1), mock.call(timeout=5)]
+                    + ([mock.call(timeout=5)] if retry_kill else []),
+                )
+                terminate.assert_called_once_with(
+                    process, environment=None, ownership=ownership
+                )
+                self.assertEqual(process.kill.call_count, int(retry_kill))
+                ownership.bind.assert_called_once_with(1234)
+                ownership.release.assert_called_once_with()
+
+    def test_posix_text_timeout_preserves_original_raw_partial_bytes(self):
+        for helper in (_processes, _bootstrap_processes):
+            with self.subTest(helper=helper.__name__):
+                original = subprocess.TimeoutExpired(
+                    ["owned-tool"], 1, output=b"stdout prefix", stderr=b"stderr prefix"
+                )
+                process = mock.Mock(pid=1234)
+                process.communicate.side_effect = [
+                    original,
+                    ("later stdout", "later stderr"),
+                ]
+                ownership = mock.Mock(popen_options={})
+                with (
+                    mock.patch.object(helper.os, "name", "posix"),
+                    mock.patch.object(
+                        helper, "create_process_tree_ownership", return_value=ownership
+                    ),
+                    mock.patch.object(helper.subprocess, "Popen", return_value=process),
+                    mock.patch.object(helper, "terminate_process_tree"),
+                    self.assertRaises(subprocess.TimeoutExpired) as failure,
+                ):
+                    helper.run_with_tree_kill(["owned-tool"], timeout=1, text=True)
+                self.assertIs(failure.exception, original)
+                self.assertEqual(failure.exception.stdout, b"stdout prefix")
+                self.assertEqual(failure.exception.stderr, b"stderr prefix")
+                ownership.release.assert_called_once_with()
+
+    def test_exhausted_cleanup_preserves_original_partial_streams(self):
+        for helper in (_processes, _bootstrap_processes):
+            with self.subTest(helper=helper.__name__):
+                original = subprocess.TimeoutExpired(
+                    ["owned-tool"], 1, output=b"stdout prefix", stderr=b"stderr prefix"
+                )
+                process = mock.Mock(pid=1234)
+                process.communicate.side_effect = [
+                    original,
+                    subprocess.TimeoutExpired(["owned-tool"], 5),
+                    subprocess.TimeoutExpired(["owned-tool"], 5),
+                ]
+                ownership = mock.Mock(popen_options={})
+                with (
+                    mock.patch.object(
+                        helper, "create_process_tree_ownership", return_value=ownership
+                    ),
+                    mock.patch.object(helper.subprocess, "Popen", return_value=process),
+                    mock.patch.object(helper, "terminate_process_tree"),
+                    self.assertRaises(subprocess.TimeoutExpired) as failure,
+                ):
+                    helper.run_with_tree_kill(["owned-tool"], timeout=1)
+                self.assertIs(failure.exception, original)
+                self.assertEqual(failure.exception.stdout, b"stdout prefix")
+                self.assertEqual(failure.exception.stderr, b"stderr prefix")
+                self.assertEqual(process.communicate.call_count, 3)
+                process.kill.assert_called_once_with()
+                ownership.release.assert_called_once_with()
 
     @unittest.skipUnless(os.name == "posix", "requires POSIX process groups")
     def test_timeout_kills_the_whole_process_tree_not_just_the_direct_child(

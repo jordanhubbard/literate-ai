@@ -139,19 +139,20 @@ def repository_dependency_identity(
 
     if not isinstance(dependency, RepositorySourceDependency):
         raise TypeError("repository node identity requires a repository dependency")
-    return canonical_identity(
-        {
-            "schema": f"{SCHEMA_PREFIX}repository-source-inventory-node",
-            "dependency_id": dependency.dependency_id,
-            "repository_url": dependency.repository_url,
-            "revision_selector": dependency.revision_selector.to_dict(),
-            "integration_contract": (
-                None
-                if dependency.integration_contract is None
-                else dependency.integration_contract.to_dict()
-            ),
-        }
-    )
+    value = {
+        "schema": f"{SCHEMA_PREFIX}repository-source-inventory-node",
+        "dependency_id": dependency.dependency_id,
+        "repository_url": dependency.repository_url,
+        "revision_selector": dependency.revision_selector.to_dict(),
+        "integration_contract": (
+            None
+            if dependency.integration_contract is None
+            else dependency.integration_contract.to_dict()
+        ),
+    }
+    if dependency.allow_internal_symlinks:
+        value["allow_internal_symlinks"] = True
+    return canonical_identity(value)
 
 
 def repository_selector_version_range(

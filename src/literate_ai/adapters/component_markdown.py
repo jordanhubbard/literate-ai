@@ -511,6 +511,8 @@ def _render_source_dependency(item: AuthoredRepositorySourceDependency) -> list[
             f"optional: {'true' if item.optional else 'false'}",
         )
     )
+    if item.allow_internal_symlinks:
+        lines.append("allow_internal_symlinks: true")
     if item.integration_contract is None:
         lines.append("integration_contract: null")
     else:
@@ -886,7 +888,7 @@ def _source_dependency(value: Any, index: int) -> AuthoredRepositorySourceDepend
             "revision_selector",
             "dependency_kind",
         },
-        optional={"optional", "integration_contract"},
+        optional={"optional", "integration_contract", "allow_internal_symlinks"},
     )
     selector_data = _record(
         data["revision_selector"],
@@ -924,6 +926,10 @@ def _source_dependency(value: Any, index: int) -> AuthoredRepositorySourceDepend
                 f"{path}.integration_contract",
                 fixed_kind="integration-contract",
             )
+        ),
+        allow_internal_symlinks=_boolean(
+            data.get("allow_internal_symlinks", False),
+            f"{path}.allow_internal_symlinks",
         ),
     )
 

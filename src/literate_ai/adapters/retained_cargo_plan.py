@@ -170,9 +170,14 @@ def bound_cargo_packages(
     Cargo package names and Rust import names are distinct. The actual package
     name/version and manifest bytes are checked after immutable package reopening.
     """
-    destinations = dict(binding.destinations)
+    return _bound_cargo_package_exports(plan, binding.exports, binding.destinations)
+
+
+def _bound_cargo_package_exports(plan, exports, destinations):
+    """Pure package attribution; callers separately establish origin and trust."""
+    destinations = dict(destinations)
     result = {}
-    for product in binding.exports.libraries:
+    for product in exports.libraries:
         artifact = product.artifact_export.identity
         destination = PurePosixPath(destinations[artifact])
         candidates = [
@@ -236,8 +241,36 @@ def _verify_retained_cargo_package_values(
     destinations = dict(binding.destinations)
     manifests = {item.path: item for item in plan.manifests}
     blobs = dict(capture.blobs)
+    _verify_bound_cargo_package_exports(
+        plan,
+        binding.exports,
+        packages,
+        destinations,
+        manifests,
+        blobs,
+        max_package_bytes=max_package_bytes,
+        max_entries=max_entries,
+    )
+
+
+def _verify_bound_cargo_package_exports(
+    plan,
+    exports,
+    packages,
+    destinations,
+    manifests,
+    blobs,
+    *,
+    max_package_bytes,
+    max_entries,
+):
+    """Check exact exported package bytes without granting receiving authority.
+
+    Both origin-specific readers must finish their own current-authority and
+    archive semantic checks before using this mechanical manifest validation.
+    """
     remaining_bytes, remaining_entries = max_package_bytes, max_entries
-    for product in binding.exports.libraries:
+    for product in exports.libraries:
         artifact = product.artifact_export.identity
         package = packages[artifact]
         destination = PurePosixPath(destinations[artifact])

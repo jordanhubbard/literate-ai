@@ -17,6 +17,14 @@ from pathlib import Path
 from literate_ai._filesystem import path_is_link_or_reparse, require_safe_directory
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.builders.python import BuildError
+from literate_ai.adapters.lifecycle_lock import (
+    project_lifecycle_lock,
+    project_lifecycle_lock_path,
+)
+from literate_ai.adapters.native_profile_git import (
+    NativeProfileGitBoundaryError,
+    require_native_profile_git_boundary,
+)
 from literate_ai.adapters.native_project_bootstrap import PROFILE, native_template_files
 from literate_ai.contracts import (
     ContentIdentity,
@@ -190,7 +198,19 @@ def _directories(root, selected, git_directory):
     return {str(path): _directory_node(path) for path in sorted(directories)}
 
 
+def _require_git_boundary(root, paths):
+    try:
+        require_native_profile_git_boundary(root, paths)
+    except NativeProfileGitBoundaryError as exc:
+        raise NativeProjectRemovalError("nested_git_boundary", str(exc)) from exc
+
+
 def _worktree(root, relative):
+    observed = _worktree_content(root, relative)
+    return None if observed is None else observed[0]
+
+
+def _worktree_content(root, relative):
     path = root / relative
     require_safe_directory(path.parent, allow_missing=True)
     if not path.exists() and not path.is_symlink():
@@ -209,7 +229,73 @@ def _worktree(root, relative):
     )
     if _node(path) != before:
         _fail("path_changed", "A selected native-profile file changed while read")
-    return {"identity": _digest(content), "node": before}
+    return {"identity": _digest(content), "node": before}, content
+
+
+def _require_supported_content_transforms(root, paths):
+    paths = tuple(paths)
+    names = (b"filter", b"working-tree-encoding", b"text", b"eol")
+    raw = _git(
+        root,
+        "check-attr",
+        "-z",
+        "--stdin",
+        *(name.decode("ascii") for name in names),
+        content=b"\0".join(path.encode() for path in paths) + b"\0",
+    ).stdout
+    rows = raw.split(b"\0")
+    if rows.pop() != b"" or len(rows) != len(paths) * len(names) * 3:
+        _fail("git_failed", "Git returned malformed content attributes")
+    attributes = {}
+    offset = 0
+    for path in paths:
+        values = {}
+        for name in names:
+            actual_path, actual_name, value = rows[offset : offset + 3]
+            offset += 3
+            if (actual_path, actual_name) != (path.encode(), name):
+                _fail("git_failed", "Git returned ambiguous content attributes")
+            values[name] = value
+        if (
+            any(values[name] not in {b"unspecified", b"unset"} for name in names[:2])
+            or values[b"text"] not in {b"unspecified", b"unset", b"set", b"auto"}
+            or values[b"eol"] not in {b"unspecified", b"unset", b"lf", b"crlf"}
+        ):
+            _fail(
+                "transform_unsupported",
+                "Selected Git content transforms are not qualified for removal",
+            )
+        attributes[path] = values
+    return attributes
+
+
+def _matches_committed_content(root, relative, content, committed):
+    if content == committed:
+        return True
+    normalized = content.replace(b"\r\n", b"\n")
+    if b"\0" in content or b"\r" in normalized or normalized != committed:
+        return False
+    # Admit only the finite text/EOL policy for exact committed LF bytes. Avoid
+    # Git conversion commands: changed attributes could otherwise launch a
+    # configured filter between a precheck and conversion during read-only work.
+    values = _require_supported_content_transforms(root, (relative,))[relative]
+    if values[b"text"] == b"unset":
+        return False
+    if values[b"text"] in {b"set", b"auto"} or values[b"eol"] in {b"lf", b"crlf"}:
+        return True
+    setting = _git(
+        root,
+        "config",
+        "--type=bool-or-str",
+        "--get",
+        "core.autocrlf",
+        allow_failure=True,
+    )
+    if setting.returncode == 1 and not setting.stdout:
+        return False
+    if setting.returncode or setting.stdout not in {b"true\n", b"false\n", b"input\n"}:
+        _fail("transform_unsupported", "Git text conversion policy is unsupported")
+    return setting.stdout in {b"true\n", b"input\n"}
 
 
 def _owned(root, tree, cache):
@@ -330,6 +416,7 @@ class PreparedNativeRemoval:
     document: dict
     entries: dict
     index: dict
+    write_paths: tuple[str | Path, ...]
 
 
 def prepare_native_project_removal(
@@ -418,10 +505,13 @@ def prepare_native_project_removal(
             _fail(
                 "index_changed", "A selected index entry has different content or mode"
             )
-        state = _worktree(root, relative)
+        observed = _worktree_content(root, relative)
+        state = None if observed is None else observed[0]
         if state is not None:
             if (
-                state["identity"] != _digest(_blob(root, entry, cache=cache))
+                not _matches_committed_content(
+                    root, relative, observed[1], _blob(root, entry, cache=cache)
+                )
                 or state["node"]["mode"] & 0o111
             ):
                 if source is not None or relative in _AUTHORITY_METADATA:
@@ -446,27 +536,19 @@ def prepare_native_project_removal(
             "index_flags_unsupported",
             "Selected index flags need native Git disposition",
         )
-    attributes = _git(
-        root,
-        "check-attr",
-        "-z",
-        "--stdin",
-        "filter",
-        "working-tree-encoding",
-        content=b"\0".join(path.encode() for path in selected) + b"\0",
-    ).stdout.split(b"\0")
-    if any(value not in {b"unspecified", b"unset"} for value in attributes[2::3]):
-        _fail(
-            "transform_unsupported",
-            "Selected Git content transforms are not qualified for removal",
-        )
+    _require_supported_content_transforms(root, selected)
+    directories = _directories(root, selected, git_directory)
+    write_paths: tuple[str | Path, ...] = tuple(selected)
+    if states[MANIFEST]["worktree"] is not None:
+        write_paths += (project_lifecycle_lock_path(root),)
+    _require_git_boundary(root, write_paths)
     value = {
         "schema": SCHEMA,
         "root": str(root),
         "source_commit": revision,
         "current_head": head,
         "index_identity": canonical_identity(index).uri,
-        "directory_bindings": _directories(root, selected, git_directory),
+        "directory_bindings": directories,
         "git_directory": str(git_directory),
         "root_node": {
             key: value
@@ -491,7 +573,7 @@ def prepare_native_project_removal(
         "writes": False,
     }
     value["plan_identity"] = canonical_identity(value).uri
-    return PreparedNativeRemoval(value, selected, index)
+    return PreparedNativeRemoval(value, selected, index, write_paths)
 
 
 def plan_native_project_removal(
@@ -550,6 +632,7 @@ def _require_remaining(root, prepared, remaining):
                 "cleanup_pending",
                 "Git removal is incomplete; use the recorded recovery source and paths",
             )
+    _require_git_boundary(root, prepared.write_paths)
 
 
 def _remove_group(root, prepared, paths):
@@ -567,6 +650,7 @@ def _remove_group(root, prepared, paths):
         if mode == "--index":
             # Refresh copied/touched files' stat cache without staging bytes.
             before_refresh = _index(root)
+            _require_git_boundary(root, prepared.write_paths)
             _git(root, "add", "--refresh", "--", *selected)
             if _index(root) != before_refresh:
                 _fail("concurrent_index", "Index content changed during stat refresh")
@@ -597,6 +681,7 @@ def _remove_group(root, prepared, paths):
             _fail("patch_unavailable", "Exact native deletion patch is unavailable")
         # Both modes verify the exact indexed before-image under Git's lock.
         # Never restore an index entry or follow a newer HEAD with git rm.
+        _require_git_boundary(root, prepared.write_paths)
         _git(
             root,
             "apply",
@@ -629,9 +714,10 @@ def apply_native_project_removal(
     prepared = prepare_native_project_removal(root, source=source, only=only)
     if prepared.document["plan_identity"] != expected:
         _fail("plan_changed", "Native removal plan changed after review")
-    from contextlib import nullcontext
+    from contextlib import ExitStack
 
-    from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+    def require_lock_path(path):
+        _require_git_boundary(root, (path,))
 
     with ProjectConfigurationStore.layout_lock(root):
         current = prepare_native_project_removal(root, source=source, only=only)
@@ -640,15 +726,18 @@ def apply_native_project_removal(
         # Missing-manifest recovery cannot rediscover an ancestor project or
         # create root lifecycle files. Its Git layout lock still owns publication.
         live = prepared.document["selected"][MANIFEST]["worktree"] is not None
-        lifecycle = (
-            project_lifecycle_lock(root, operation="native-remove")
-            if live
-            else nullcontext()
-        )
-        manifest_lock = (
-            ProjectConfigurationStore(root)._lock(root) if live else nullcontext()
-        )
-        with lifecycle, manifest_lock:
+        with ExitStack() as locks:
+            if live:
+                locks.enter_context(
+                    project_lifecycle_lock(
+                        root, operation="native-remove", require_path=require_lock_path
+                    )
+                )
+                locks.enter_context(
+                    ProjectConfigurationStore(root)._lock(
+                        root, require_path=require_lock_path
+                    )
+                )
             supporting = sorted(set(prepared.entries) - {MANIFEST})
             _require_remaining(root, prepared, set(prepared.entries))
             phase = "supporting-files"

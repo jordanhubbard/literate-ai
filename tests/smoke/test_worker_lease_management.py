@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -20,6 +21,7 @@ from unittest.mock import patch
 from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 
+from literate_ai._cache_lock import exclusive_cache_lock
 from literate_ai.adapters import worker_lease_dispatch as lease_dispatch
 from literate_ai.adapters import worker_lease_management as leases
 from literate_ai.adapters import worker_provisioning as provisioner
@@ -31,6 +33,7 @@ from literate_ai.adapters.worker_registry import change_registry, read_registry
 from literate_ai.cli.dispatch import main
 from literate_ai.contracts import (
     ContentIdentity,
+    ContentReference,
     DispatchResultStatus,
     ExecutionDispatchRequest,
     ExecutionDispatchResult,
@@ -111,7 +114,9 @@ class WorkerLeaseTests(unittest.TestCase):
             provisioner.operation_path(self.state, "lease-worker")
         )
 
-    def dispatch_fixture(self, execute, *, timeout_seconds=30):
+    def dispatch_fixture(
+        self, execute, *, timeout_seconds=30, terminal=False, exit_status=0, damage=None
+    ):
         self.config = self.root / "config/worker-provisioner.json"
         self.state = self.root / "state/worker-provisioning"
         provisioner.configure(self.config, self.settings)
@@ -119,7 +124,7 @@ class WorkerLeaseTests(unittest.TestCase):
         worker = read_registry(self.catalog).workers[0]
         identity = ContentIdentity.parse_uri("sha256:" + "1" * 64)
         request = ExecutionDispatchRequest(
-            LifecycleDispatchAction.BUILD,
+            LifecycleDispatchAction.RUN if terminal else LifecycleDispatchAction.BUILD,
             "component://fixture/app",
             "components/app",
             worker.target_profile,
@@ -135,7 +140,11 @@ class WorkerLeaseTests(unittest.TestCase):
             identity,
             identity,
             identity,
-            None,
+            ContentReference(
+                "artifact-export", "litai-worker-cas:" + identity.uri, identity
+            )
+            if terminal
+            else None,
             timeout_seconds,
         )
         self.dispatch_request = request
@@ -150,10 +159,30 @@ class WorkerLeaseTests(unittest.TestCase):
             identity,
         )
 
+        self.dispatch_result = result
+
         def handler(*_args, **_kwargs):
             execute()
+            if terminal:
+                from tests.support.fixtures_terminal_managed_run import (
+                    imported_run_result,
+                )
+
+                imported = imported_run_result(
+                    self.root, worker, request, result, exit_status=exit_status
+                )
+                return (
+                    replace(imported, custody_receipt=None)
+                    if damage == "receipt"
+                    else imported
+                )
             return result
 
+        self.terminal_release = (
+            lease_dispatch.TerminalManagedRunRelease(timeout_seconds)
+            if terminal
+            else None
+        )
         dispatcher = SshExecutionDispatcher(
             SimpleNamespace(execute=handler),
             environment={
@@ -161,8 +190,362 @@ class WorkerLeaseTests(unittest.TestCase):
                 "LITAI_CONFIG_DIR": str(self.root / "config"),
                 "LITAI_STATE_DIR": str(self.root / "state"),
             },
+            **({} if not terminal else {"terminal_release": self.terminal_release}),
         )
         return lambda: dispatcher.dispatch(worker, request, cwd=self.root)
+
+    def test_terminal_admission_lock_deadline_refuses_before_worker_or_provider(self):
+        dispatch = self.dispatch_fixture(
+            lambda: self.fail("worker must not run"), timeout_seconds=120, terminal=True
+        )
+        lock = provisioner.operation_path(self.state, "lease-worker").with_suffix(
+            ".lock"
+        )
+        locked, finish = Event(), Event()
+
+        def hold_lock():
+            with exclusive_cache_lock(lock):
+                locked.set()
+                if not finish.wait(5):
+                    raise AssertionError("test lock was not released")
+
+        original_calls = (self.root / "calls").read_bytes()
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            holder = pool.submit(hold_lock)
+            try:
+                self.assertTrue(locked.wait(5))
+                self.terminal_release.deadline_monotonic = time.monotonic() + 0.05
+                with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+                    dispatch()
+                self.assertEqual(
+                    raised.exception.code, "worker.provisioner_lock_unavailable"
+                )
+                self.assertEqual((self.root / "calls").read_bytes(), original_calls)
+                self.assertFalse((self.root / "released").exists())
+                self.assertFalse((self.root / "application-runs").exists())
+            finally:
+                finish.set()
+            holder.result(timeout=5)
+        self.assertIsNone(self.record().get("dispatch"))
+
+    def test_terminal_budget_reserves_provider_timeout_before_application_launch(self):
+        dispatch = self.dispatch_fixture(
+            lambda: self.fail("application must not run"),
+            timeout_seconds=5,
+            terminal=True,
+        )
+        calls = (self.root / "calls").read_bytes()
+        with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+            dispatch()
+        self.assertEqual(raised.exception.code, "worker.provisioner_deadline_exceeded")
+        self.assertIsNone(self.record().get("dispatch"))
+        self.assertIsNone(self.record()["management"]["release_request"])
+        self.assertEqual((self.root / "calls").read_bytes(), calls)
+        self.assertFalse((self.root / "application-runs").exists())
+        self.assertFalse((self.root / "released").exists())
+
+    def test_terminal_run_saves_custody_and_release_intent_before_provider_stop(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True
+        )
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            result = dispatch()
+        record = self.record()
+        self.assertEqual(record["status"], "releasing")
+        self.assertEqual(record["dispatch"]["state"], "complete")
+        self.assertEqual(
+            record["dispatch"]["completion"]["custody_receipt_identity"],
+            result.custody_receipt.identity.uri,
+        )
+        self.assertTrue(read_registry(self.catalog).workers)
+        self.assertFalse((self.root / "released").exists())
+        with self.assertRaises(ExecutionDispatchAdapterError):
+            dispatch()
+        self.terminal_release.release()
+        self.assertEqual(self.record()["status"], "released")
+        self.assertFalse(read_registry(self.catalog).workers)
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+
+    def test_terminal_failed_application_survives_release(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True, exit_status=7
+        )
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            result = dispatch()
+        completion = self.record()["dispatch"]["completion"]
+        request = self.record()["management"]["release_request"]
+        write = leases.write_private
+
+        def fail_final_write(path, record, **kwargs):
+            if record["status"] == "released":
+                raise OSError("controlled terminal publication failure")
+            return write(path, record, **kwargs)
+
+        with patch.object(leases, "write_private", side_effect=fail_final_write):
+            with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+                self.terminal_release.release()
+        self.assertEqual(raised.exception.code, "worker.provisioner_cleanup_pending")
+        self.assertEqual(self.record()["dispatch"]["completion"], completion)
+        self.assertEqual(self.record()["management"]["release_request"], request)
+        self.assertEqual(self.record()["status"], "releasing")
+        self.terminal_release.release()
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+        self.assertEqual(result.status, DispatchResultStatus.FAILED)
+        self.assertEqual(result.exit_status, 7)
+        self.assertEqual(self.record()["dispatch"]["completion"]["exit_status"], 7)
+        self.assertEqual(self.record()["status"], "released")
+
+    def test_terminal_provider_release_waits_for_active_health_inspection(self):
+        from literate_ai.cli.execution_workers import dispatch_with_worker_health_poll
+
+        inspecting, dispatched, completed, finish = (Event() for _ in range(4))
+
+        def application():
+            if not inspecting.wait(remaining()):
+                raise AssertionError("health inspection did not start")
+
+        dispatch = self.dispatch_fixture(
+            application, timeout_seconds=120, terminal=True
+        )
+        selected = SimpleNamespace(worker=read_registry(self.catalog).workers[0])
+
+        # Startup, child-process custody publication and thread scheduling share
+        # the actual terminal operation budget. A separate five-second race on a
+        # loaded Windows runner does not measure release/inspection ordering.
+        def remaining():
+            return max(0.0, self.terminal_release.deadline_monotonic - time.monotonic())
+
+        def dispatch_and_signal():
+            result = dispatch()
+            dispatched.set()
+            return result
+
+        def inspect(*_args, **_kwargs):
+            inspecting.set()
+            if not dispatched.wait(remaining()):
+                raise AssertionError("dispatch did not finish within terminal budget")
+            self.assertEqual(self.record()["dispatch"]["state"], "complete")
+            self.assertFalse((self.root / "released").exists())
+            completed.set()
+            if not finish.wait(remaining()):
+                raise AssertionError("health inspection was not released")
+            self.assertFalse((self.root / "released").exists())
+            return {"fixture": "inspection finished"}
+
+        def run_and_release():
+            result, polls = dispatch_with_worker_health_poll(
+                SimpleNamespace(
+                    worker_health_config="fixture", worker_health_poll_seconds=0.01
+                ),
+                selected,
+                self.dispatch_request.identity,
+                dispatch_and_signal,
+                admission=inspect,
+                deadline_monotonic=self.terminal_release.deadline_monotonic,
+            )
+            self.terminal_release.release()
+            return result, polls
+
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                running = pool.submit(run_and_release)
+                try:
+                    if not completed.wait(remaining()):
+                        if running.done():
+                            running.result()
+                        self.fail(
+                            "health inspection did not observe completed dispatch"
+                        )
+                    self.assertFalse(running.done())
+                    self.assertFalse((self.root / "released").exists())
+                finally:
+                    finish.set()
+                result, polls = running.result(timeout=remaining())
+        self.assertEqual(result.exit_status, 0)
+        self.assertEqual(len(polls), 1)
+        self.assertEqual(self.record()["status"], "released")
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+
+    def test_terminal_controller_exit_recovers_saved_completion_without_rerun(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True
+        )
+        payload = self.root / "controller.json"
+        payload.write_text(
+            json.dumps(
+                {
+                    "root": str(self.root),
+                    "worker": read_registry(self.catalog).workers[0].to_dict(),
+                    "request": self.dispatch_request.to_dict(),
+                    "result": self.dispatch_result.to_dict(),
+                }
+            )
+        )
+        environment = {
+            **os.environ,
+            "LITAI_CONFIG_DIR": str(self.root / "config"),
+            "LITAI_STATE_DIR": str(self.root / "state"),
+            "OBJ_DIR": str(self.root / "objects"),
+        }
+        child = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "tests.support.fixtures_terminal_managed_run",
+                str(payload),
+            ],
+            env=environment,
+            capture_output=True,
+            timeout=20,
+        )
+        self.assertEqual(child.returncode, 23, child.stderr.decode())
+        saved = self.record()
+        self.assertEqual(saved["dispatch"]["state"], "complete")
+        self.assertEqual(saved["status"], "releasing")
+        self.assertFalse((self.root / "released").exists())
+        with self.assertRaises(ExecutionDispatchAdapterError):
+            dispatch()
+        output = io.StringIO()
+        with patch.dict(os.environ, environment):
+            status = main(
+                [
+                    "worker",
+                    "provisioner",
+                    "release",
+                    "lease-worker",
+                    "--acknowledge",
+                    "--json",
+                ],
+                stdout=output,
+                stderr=output,
+            )
+        self.assertEqual(status, 0, output.getvalue())
+        recovered = self.record()
+        self.assertEqual(recovered["status"], "released")
+        self.assertEqual(
+            recovered["dispatch"]["completion"], saved["dispatch"]["completion"]
+        )
+        self.assertEqual(
+            recovered["management"]["release_request"],
+            saved["management"]["release_request"],
+        )
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+
+    def test_terminal_initial_completion_write_failure_keeps_active_fence(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True
+        )
+        write = lease_dispatch.write_private
+
+        def fail_completion_write(path, record, **kwargs):
+            if record.get("dispatch", {}).get("completion") is not None:
+                raise OSError("controlled initial completion publication failure")
+            return write(path, record, **kwargs)
+
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            with patch.object(
+                lease_dispatch, "write_private", side_effect=fail_completion_write
+            ):
+                with self.assertRaisesRegex(OSError, "initial completion publication"):
+                    dispatch()
+        record = self.record()
+        self.assertEqual(record["dispatch"]["state"], "active")
+        self.assertNotIn("completion", record["dispatch"])
+        self.assertIsNone(record["management"]["release_request"])
+        self.assertFalse(self.terminal_release.saved)
+        self.assertFalse((self.root / "released").exists())
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+        with self.assertRaises(ExecutionDispatchAdapterError):
+            dispatch()
+        with self.assertRaises(ExecutionDispatchAdapterError):
+            self.terminal_release.release()
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+        self.assertFalse((self.root / "released").exists())
+        self.manage("release", cancel_attempt=record["dispatch"]["attempt"])
+        self.assertEqual(self.record()["status"], "released")
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+
+    def test_terminal_missing_custody_never_releases(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True, damage="receipt"
+        )
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+                dispatch()
+        self.assertEqual(
+            raised.exception.code, "worker.provisioner_completion_custody_missing"
+        )
+        self.assertEqual(self.record()["dispatch"]["state"], "uncertain")
+        self.assertFalse((self.root / "released").exists())
+        self.assertIsNone(self.record()["management"]["release_request"])
+
+    def test_terminal_release_rechecks_current_evidence_before_provider_stop(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True
+        )
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            dispatch()
+        completion = self.record()["dispatch"]["completion"]
+        request = self.record()["management"]["release_request"]
+        store = Path(completion["store_path"])
+        blobs = list((store / "blobs" / "sha256").glob("*/*"))
+        self.assertEqual(len(blobs), 1)
+        blob = blobs[0]
+        original = blob.read_bytes()
+        for damaged in (None, bytes([original[0] ^ 1]) + original[1:]):
+            with self.subTest(damage="missing" if damaged is None else "corrupt"):
+                if damaged is None:
+                    blob.unlink()
+                else:
+                    blob.write_bytes(damaged)
+                with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+                    self.terminal_release.release()
+                self.assertEqual(
+                    raised.exception.code,
+                    "worker.provisioner_completion_custody_unavailable",
+                )
+                # The public recovery owner must preserve the custody gate too.
+                with self.assertRaises(ExecutionDispatchAdapterError) as recovery:
+                    self.manage("release")
+                self.assertEqual(
+                    recovery.exception.code,
+                    "worker.provisioner_completion_custody_unavailable",
+                )
+                self.assertFalse((self.root / "released").exists())
+                self.assertEqual(self.record()["dispatch"]["completion"], completion)
+                self.assertEqual(
+                    self.record()["management"]["release_request"], request
+                )
+                self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+                blob.write_bytes(original)
+        # Restoring current evidence permits the same pending release; no rebuild
+        # or previous TEST artifact is present in this fresh coordinator store.
+        self.terminal_release.release()
+        self.assertEqual(self.record()["status"], "released")
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+
+    def test_terminal_lost_release_reply_recovers_without_running_again(self):
+        dispatch = self.dispatch_fixture(
+            lambda: None, timeout_seconds=120, terminal=True
+        )
+        with patch.dict(os.environ, {"OBJ_DIR": str(self.root / "objects")}):
+            dispatch()
+        completion = self.record()["dispatch"]["completion"]
+        request = self.record()["management"]["release_request"]
+        self.mode.write_text("lost-release")
+        with self.assertRaises(ExecutionDispatchAdapterError):
+            self.terminal_release.release()
+        self.assertEqual(self.record()["dispatch"]["completion"], completion)
+        self.assertEqual(self.record()["management"]["release_request"], request)
+        provisioner.configure(self.config, replace(self.settings, enabled=False))
+        self.mode.write_text("ok")
+        self.assertEqual(self.manage("release")["status"], "released")
+        self.assertEqual(self.record()["management"]["release_request"], request)
+        self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
 
     def test_dispatch_requires_fresh_lease_covering_the_job_deadline(self):
         calls = []
@@ -401,6 +784,144 @@ with admitted_lease_dispatch(
         )
         self.assertEqual(self.launch()["status"], "registered")
         self.assertEqual([kind for kind, _ in self.calls()], ["allocate", "manage"])
+
+    def lost_allocation_controller(self):
+        self.config = self.root / "config/worker-provisioner.json"
+        self.state = self.root / "state/worker-provisioning"
+        provisioner.configure(self.config, self.settings)
+        environment = {
+            **os.environ,
+            "LITAI_CONFIG_DIR": str(self.root / "config"),
+            "LITAI_STATE_DIR": str(self.root / "state"),
+            "LITAI_NO_SELF_UPDATE": "1",
+            "PYTHONPATH": str(Path(__file__).resolve().parents[2] / "src"),
+        }
+        program = """
+import os, sys
+from literate_ai.adapters import worker_provisioning as provider
+from literate_ai.cli.dispatch import main
+invoke = provider.invoke
+
+def lose_reply(*args, **kwargs):
+    reply = invoke(*args, **kwargs)
+    if kwargs.get("request") is not None:
+        os._exit(23)
+    return reply
+
+provider.invoke = lose_reply
+raise SystemExit(main(sys.argv[1:]))
+"""
+        arguments = (
+            "worker",
+            "provision",
+            "lease-worker",
+            "--request-id",
+            "allocation-one",
+            "--worker-config",
+            str(self.catalog),
+            "--json",
+        )
+        child = subprocess.run(
+            [sys.executable, "-P", "-c", program, *arguments],
+            cwd=self.root,
+            env=environment,
+            capture_output=True,
+            timeout=15,
+        )
+        self.assertEqual(child.returncode, 23, child.stderr.decode())
+        self.assertTrue((self.root / "allocation").is_file())
+        self.assertEqual(self.record()["status"], "uncertain")
+        self.assertIsNone(self.record()["response"])
+        static = replace(self.worker, worker_id="static-worker")
+        change_registry(self.catalog, lambda _: ExecutionWorkerCatalog((static,)))
+
+        def public(*arguments):
+            output = io.StringIO()
+            with patch.dict(os.environ, environment):
+                status = main(
+                    ["worker", "provisioner", *arguments, "--json"],
+                    stdout=output,
+                    stderr=output,
+                )
+            value = json.loads(output.getvalue())
+            return status, value.get("result", value)
+
+        self.assertEqual(public("disable")[0], 0)
+        return public, static
+
+    def test_public_disable_and_absence_require_exact_terminal_acknowledgement(self):
+        public, static = self.lost_allocation_controller()
+        self.mode.write_text("absent")
+        status, result = public("observe", "lease-worker")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(result["request"]["status"], "uncertain")
+        self.assertEqual(
+            result["request"]["management"]["response"]["status"], "absent"
+        )
+        self.assertNotEqual(public("recover", "lease-worker")[0], 0)
+        status, failure = public(
+            "release", "lease-worker", "--expired-only", "--acknowledge"
+        )
+        self.assertNotEqual(status, 0)
+        self.assertEqual(
+            failure["error"]["code"], "worker.provisioner_lease_not_expired"
+        )
+        self.mode.write_text("ok")
+        status, result = public("release", "lease-worker", "--acknowledge")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(result["request"]["status"], "released")
+        self.assertIsNone(result["request"]["management"]["request"]["lease_id"])
+        self.assertNotIn("dispatch", result["request"])
+        self.assertEqual(public("release", "lease-worker", "--acknowledge")[0], 0)
+        self.assertEqual(
+            [kind for kind, _ in self.calls()], ["allocate", "manage", "manage"]
+        )
+        self.assertEqual(read_registry(self.catalog).workers, (static,))
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
+
+    def test_public_expired_generation_survives_rollback_and_absent_lookup(self):
+        public, static = self.lost_allocation_controller()
+        self.mode.write_text("expired")
+        status, result = public("observe", "lease-worker")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(read_registry(self.catalog).workers, (static,))
+        rolled_back = datetime.now(UTC) - timedelta(hours=2)
+        with patch.object(
+            leases,
+            "datetime",
+            SimpleNamespace(
+                now=lambda _zone: rolled_back, fromisoformat=datetime.fromisoformat
+            ),
+        ):
+            status, recovery = public("recover", "lease-worker")
+            self.assertNotEqual(status, 0, recovery)
+            self.mode.write_text("ok")
+            status, result = public("observe", "lease-worker")
+            self.assertEqual(status, 0, result)
+            self.assertEqual(result["request"]["status"], "expired")
+            self.assertNotEqual(public("recover", "lease-worker")[0], 0)
+        self.mode.write_text("wrong-lease")
+        self.assertNotEqual(public("observe", "lease-worker")[0], 0)
+        self.assertEqual(self.record()["status"], "expired")
+        self.mode.write_text("absent")
+        status, result = public("observe", "lease-worker")
+        self.assertEqual(status, 0, result)
+        self.assertEqual(result["request"]["status"], "expired")
+        self.mode.write_text("ok")
+        status, result = public(
+            "release", "lease-worker", "--expired-only", "--acknowledge"
+        )
+        self.assertEqual(status, 0, result)
+        record = result["request"]
+        self.assertEqual(record["status"], "released")
+        self.assertEqual(record["management"]["request"]["lease_id"], "lease-one")
+        self.assertNotIn("dispatch", record)
+        self.assertEqual(
+            public("release", "lease-worker", "--expired-only", "--acknowledge")[0], 0
+        )
+        self.assertEqual([kind for kind, _ in self.calls()].count("allocate"), 1)
+        self.assertEqual(read_registry(self.catalog).workers, (static,))
+        self.assertEqual(len(json.loads((self.root / "released").read_text())), 1)
 
     def test_release_survives_lost_reply_and_uses_one_idempotency_key(self):
         self.launch()

@@ -16,6 +16,7 @@ from literate_ai.contracts import (
     RepositorySourceAdmission,
     RepositorySourceDependency,
     RepositorySourceLock,
+    SourceEntryType,
     canonical_identity,
 )
 from literate_ai.sources import SourceCapture
@@ -34,8 +35,11 @@ class RepositoryCheckout:
     source_root: Path
     resolved_commit: str
     resolver_identity: ContentIdentity
+    allow_internal_symlinks: bool = False
 
     def __post_init__(self) -> None:
+        if type(self.allow_internal_symlinks) is not bool:
+            raise TypeError("repository checkout link selection must be a boolean")
         if not isinstance(self.source_root, Path):
             raise TypeError("repository checkout source_root must be a Path")
         if not self.resolved_commit:
@@ -278,6 +282,19 @@ class RepositorySourceLockResolver:
             raise RepositorySourceResolutionError(
                 "repository-source.selector-mismatch",
                 "captured commit differs from the authored exact selector",
+            )
+        if checkout.allow_internal_symlinks != dependency.allow_internal_symlinks:
+            raise RepositorySourceResolutionError(
+                "repository-source.capture-policy-mismatch",
+                "acquired checkout differs from the authored link selection",
+            )
+        if not dependency.allow_internal_symlinks and any(
+            entry.entry_type is SourceEntryType.SYMLINK
+            for entry in capture.snapshot.entries
+        ):
+            raise RepositorySourceResolutionError(
+                "repository-source.links-not-selected",
+                "repository links require explicit authored selection",
             )
         return RepositorySourceLock(
             dependency=dependency,

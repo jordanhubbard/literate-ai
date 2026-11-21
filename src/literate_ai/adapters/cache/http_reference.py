@@ -239,6 +239,38 @@ class _Handler(BaseHTTPRequestHandler):
         if content:
             self.wfile.write(content)
 
+    def _reject(self, status: int):
+        """Finish a pre-body refusal without resetting a small framed upload.
+
+        The original connection timer also bounds this cleanup. Invalid framing,
+        Expect clients and large bodies get no drain; discarded bytes never enter
+        publication. Call only before any request-body read has started.
+        """
+        self._reply(status)
+        lengths = self.headers.get_all("Content-Length", [])
+        if (
+            self.command != "PUT"
+            or self.headers.get_all("Transfer-Encoding", [])
+            or self.headers.get_all("Expect", [])
+            or len(lengths) != 1
+            or re.fullmatch(r"[0-9]{1,12}", lengths[0]) is None
+        ):
+            return
+        remaining = int(lengths[0])
+        if not 0 < remaining <= min(self.server.object_limit, _MANIFEST_BYTES):
+            return
+        try:
+            self.wfile.flush()
+            self.connection.shutdown(socket.SHUT_WR)
+            while remaining:
+                content = self.rfile.read(min(remaining, 65536))
+                if not content:
+                    break
+                remaining -= len(content)
+        except OSError:
+            # EOF, timeout or disconnection ends cleanup, never grants a write.
+            pass
+
     def _dispatch(self, writing: bool):
         server = self.server
         supplied = self.headers.get_all("Authorization", [])
@@ -251,31 +283,35 @@ class _Handler(BaseHTTPRequestHandler):
             supplied[0].encode(), server.reader.encode()
         )
         if not authorized_writer and not authorized_reader:
-            self._reply(401)
+            self._reject(401)
             return
         if writing and not authorized_writer:
-            self._reply(403)
+            self._reject(403)
             return
         match = server.route.fullmatch(self.path)
         if match is None:
-            self._reply(404)
+            self._reject(404)
             return
         try:
             namespace = SharedCacheNamespace(match[1])
             policy = server.configuration.policy(namespace)
+        except (ValueError, TypeError):
+            self._reject(422)
+            return
+        try:
             kind, digest = (match[2], match[3]) if match[2] else (match[4], match[5])
             if writing:
                 if not policy.mode.can_write:
-                    self._reply(403)
+                    self._reject(403)
                     return
                 if self.headers.get_all("If-None-Match", []) != ["*"]:
-                    self._reply(428)
+                    self._reject(428)
                     return
                 if self.headers.get("Expect") is not None:
-                    self._reply(417)
+                    self._reject(417)
                     return
                 if self.headers.get("Content-Encoding", "identity") != "identity":
-                    self._reply(415)
+                    self._reject(415)
                     return
                 lengths = self.headers.get_all("Content-Length", [])
                 if (

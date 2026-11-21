@@ -45,14 +45,17 @@ _catalog_observations: ContextVar[
 
 
 @contextmanager
-def read_only_component_catalog_observations() -> Iterator[None]:
+def read_only_component_catalog_observations(
+    *, isolated: bool = False
+) -> Iterator[None]:
     """Share parsing within one request; every load still fully revalidates.
 
     These are parsed observations, not cached currentness decisions or grants.
     Owning execution boundaries retain their existing final authority checks.
+    An isolated frame restores its ambient frame without adding observations to it.
     """
 
-    if _catalog_observations.get() is not None:
+    if not isolated and _catalog_observations.get() is not None:
         yield
         return
     token = _catalog_observations.set({})
@@ -111,6 +114,18 @@ class LockedGenerationAuthoritySnapshot:
 
     def component_authoring_content(self, authoring_identity: ContentIdentity) -> bytes:
         return self._read(self._catalog.component_authoring_content, authoring_identity)
+
+    def component_root(self, authoring_identity: ContentIdentity) -> Path:
+        """Resolve a selected Component location without trusting caller paths."""
+
+        if authoring_identity not in {
+            node.revision.authoring_identity for node in self.authority.lock.nodes
+        }:
+            raise LockedGenerationAuthorityReaderError(
+                "component_lock.component_unselected",
+                "Component location requires membership in the current lock",
+            )
+        return self._read(self._catalog.component_root, authoring_identity)
 
     def component_content(
         self, authoring_identity: ContentIdentity, reference: ContentReference

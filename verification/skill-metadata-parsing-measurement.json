@@ -1,0 +1,94 @@
+{
+  "kind": "two ABBA blocks on one actual native receiving fixture; only metadata syntax reuse disabled in control",
+  "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+  "rows": [
+    {
+      "enabled": false,
+      "seconds": 3.8778648750158027,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 4352,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": true,
+      "seconds": 3.601959541090764,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 667,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": true,
+      "seconds": 3.4952627919847146,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 667,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": false,
+      "seconds": 3.7483241670997813,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 4352,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": false,
+      "seconds": 3.702109165955335,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 4352,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": true,
+      "seconds": 3.448225917061791,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 667,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": true,
+      "seconds": 3.423159542027861,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 667,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    },
+    {
+      "enabled": false,
+      "seconds": 3.842189499991946,
+      "identity": "sha256:aae9de7a1cb7a2f7e4ee0d110e9d27acb392b6569539723cf163cd896596fa13",
+      "metadata_parses": 4352,
+      "document_reads": 6630,
+      "manifest_hashes": 4352,
+      "wrapper_guards": 17
+    }
+  ],
+  "median_seconds": {
+    "False": 3.7952568335458636,
+    "True": 3.4717443545232527
+  },
+  "subjects": {
+    "src/literate_ai/application/agent_skill_catalog.py": "543ab598ab6f4e106598d88548707fd648ca9704f72879201631818d4098dea9",
+    "src/literate_ai/projects.py": "61ede3bb3c3aab8ceb054e51fdaac1b22bd37226242b05c7864b1641fc5dea83",
+    "tests/smoke/test_agent_skill_catalog.py": "7944f1605f3404593b27fbf6a3c310e63945237e8cfaa14ebc6b5e18335be513"
+  },
+  "limits": [
+    "four samples per arm on shared host, no whole admission/release speedup",
+    "counters retain full wrapper currentness, document reads and manifest hashes",
+    "not two released distributions; baseline disables only new syntax cache"
+  ],
+  "observed_median_reduction_percent": 8.524126118768017,
+  "measurement_helper_sha256": "4c639d0802a084a655b12e89cb838ed7da8db26b9cb1ac5114e7d0992dcac989"
+}

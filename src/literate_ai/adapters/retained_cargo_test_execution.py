@@ -8,8 +8,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import sys
 import tempfile
+import time
+from collections.abc import Callable
+from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from literate_ai._filesystem import ensure_safe_directory, require_safe_directory
@@ -32,6 +36,7 @@ from literate_ai.adapters.retained_native_dependencies import (
     observe_retained_native_dependencies,
 )
 from literate_ai.adapters.retained_package_tree import _signature
+from literate_ai.adapters.streamed_file_custody import StreamedFileCustody
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.repositories import RepositoryBuildCommand
 from literate_ai.projects import PinnedInputClosure
@@ -49,8 +54,263 @@ def observe_retained_cargo_tests(
     """
     authority.require_unchanged()
     plan = authority.materialized.plan
-    workspace = authority.importer.project.root / plan.workspace_root
-    output = workspace / plan.graph.output_directory
+    project_root = authority.importer.project.root
+    workspace = project_root / plan.workspace_root
+
+    def compile_command(fresh):
+        argv = [
+            "cargo",
+            "test",
+            "--workspace",
+            "--all-targets",
+            "--no-run",
+            "--locked",
+            "--message-format=json",
+            "--target",
+            plan.target,
+            "--target-dir",
+            str(fresh),
+        ]
+        if offline:
+            argv.append("--offline")
+        if plan.features:
+            argv.append("--features=" + ",".join(plan.features))
+        if plan.all_features:
+            argv.append("--all-features")
+        if plan.no_default_features:
+            argv.append("--no-default-features")
+        return RepositoryBuildCommand(
+            "retained-test-compile",
+            tuple(argv),
+            plan.workspace_root,
+            (),
+            network=not offline,
+        )
+
+    def select(compiled, fresh):
+        return select_cargo_test_executables(
+            compiled,
+            metadata,
+            workspace_root=workspace,
+            output_root=fresh,
+            expected=plan.graph,
+        )
+
+    sessions, binary_guard = _prepare_retained_native_tests(
+        project_root=project_root,
+        workspace=workspace,
+        output=workspace / plan.graph.output_directory,
+        target=plan.target,
+        source_guard=authority.require_unchanged,
+        inventory_identity=authority.inventory.identity,
+        compile_command=compile_command,
+        select=select,
+        metadata=metadata,
+        cargo=cargo,
+        rustc=rustc,
+        environment=environment,
+        run=run,
+    )
+    expected = {target.key: target.cases for target in authority.inventory.targets}
+    for index, (binary, tool, target_guard, _) in enumerate(sessions):
+        results = []
+        for phase, arguments in (
+            ("list", ("--list", "--format=terse")),
+            ("run", ("--format=pretty", "--color=never")),
+        ):
+            results.append(
+                run(
+                    RepositoryBuildCommand(
+                        f"retained-test-{index}-{phase}",
+                        (str(binary.executable), *arguments),
+                        (workspace / binary.package_root)
+                        .relative_to(project_root)
+                        .as_posix(),
+                        (),
+                        network=False,
+                    ),
+                    tool,
+                    extra_guard=target_guard,
+                )
+            )
+        key = (
+            binary.package_root,
+            binary.target_name,
+            tuple(sorted(binary.target_kinds)),
+        )
+        verify_libtest_observation(*results, expected[key])
+    binary_guard()
+
+
+_NATIVE_PREPARATION_KEY = object()
+
+
+def _require_native_completion_deadline(deadline):
+    if (
+        type(deadline) not in (int, float)
+        or not math.isfinite(deadline)
+        or deadline <= 0
+    ):
+        raise ValueError("retained.tests.native-completion-deadline-invalid")
+    if time.monotonic() >= deadline:
+        raise ValueError("retained.tests.native-completion-deadline")
+
+
+class _UnsavableNativePreparation:
+    def __copy__(self):
+        raise TypeError("retained.tests.native-preparation-not-copyable")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("retained.tests.native-preparation-not-copyable")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("retained.tests.native-preparation-not-serializable")
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _NativeTestFiles(_UnsavableNativePreparation):
+    output: Path = field(repr=False)
+    fresh: Path = field(repr=False)
+    output_node: object = field(repr=False)
+    fresh_node: object = field(repr=False)
+    build_outputs: object = field(repr=False)
+    runtime: object = field(repr=False)
+    executables: object = field(repr=False)
+    nodes: tuple = field(repr=False)
+    parents: tuple = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _NATIVE_PREPARATION_KEY:
+            raise TypeError("retained.tests.original-native-files-required")
+
+    def require_output_unchanged(self):
+        require_safe_directory(self.output)
+        require_safe_directory(self.fresh)
+        if (
+            directory_node(self.output) != self.output_node
+            or directory_node(self.fresh) != self.fresh_node
+        ):
+            raise ValueError("retained.tests.output-replaced")
+
+    def require_payload_unchanged(self):
+        self.build_outputs.require_unchanged()
+        self.runtime.require_unchanged()
+        self.executables.require_unchanged()
+        if any(_signature(p.lstat()) != node for p, node in self.nodes) or any(
+            directory_node(p) != node for p, node in self.parents
+        ):
+            raise ValueError("retained.tests.binary-changed")
+        self.executables.require_unchanged()
+
+    def require_unchanged(self):
+        self.require_output_unchanged()
+        self.require_payload_unchanged()
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _PreparedRetainedNativeTests(_UnsavableNativePreparation):
+    sessions: tuple = field(repr=False)
+    binary_guard: Callable[[], None] = field(repr=False)
+    files: _NativeTestFiles = field(repr=False)
+    native_dependencies: tuple = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _NATIVE_PREPARATION_KEY:
+            raise TypeError("retained.tests.original-native-preparation-required")
+
+    def require_original_files(self):
+        """Original local facts only; never invoke an expired source callback."""
+        self.files.require_unchanged()
+        for native in self.native_dependencies:
+            native.files.require_unchanged()
+        self.files.require_unchanged()
+
+    def refresh_native_dependencies(self, *, deadline):
+        """Recompute original graphs, then close with original local facts.
+
+        Inspection can invoke host tools. The owning execution/completion must
+        pass the ORIGINAL absolute deadline and perform its remaining
+        source/config/package/retirement fences after every inspection callback.
+        This preparation is not a completed execution or admission capability.
+        """
+        _require_native_completion_deadline(deadline)
+        self.require_original_files()
+        for native in self.native_dependencies:
+            _require_native_completion_deadline(deadline)
+            native.require_unchanged()
+            _require_native_completion_deadline(deadline)
+        self.require_original_files()
+        _require_native_completion_deadline(deadline)
+
+
+def _prepare_retained_native_tests(
+    *,
+    project_root,
+    workspace,
+    output,
+    target,
+    source_guard,
+    inventory_identity,
+    compile_command,
+    select,
+    metadata,
+    cargo,
+    rustc,
+    environment,
+    run,
+    native_custody=None,
+):
+    """Shared measured-binary/runtime ownership, not an importer or graph decoder.
+
+    Version-specific callers own independent plan/source authority, native graph
+    selection, exact commands and test protocols. This helper shares only the
+    existing bounded compiler/output/native-loader capture implementation.
+    """
+    prepared = _prepare_retained_native_session(
+        project_root=project_root,
+        workspace=workspace,
+        output=output,
+        target=target,
+        source_guard=source_guard,
+        inventory_identity=inventory_identity,
+        compile_command=compile_command,
+        select=select,
+        metadata=metadata,
+        cargo=cargo,
+        rustc=rustc,
+        environment=environment,
+        run=run,
+        native_custody=native_custody,
+    )
+    return prepared.sessions, prepared.binary_guard
+
+
+def _prepare_retained_native_session(
+    *,
+    project_root,
+    workspace,
+    output,
+    target,
+    source_guard,
+    inventory_identity,
+    compile_command,
+    select,
+    metadata,
+    cargo,
+    rustc,
+    environment,
+    run,
+    native_custody=None,
+):
+    """Shared measured-binary/runtime ownership, not an importer or graph decoder.
+
+    Version-specific callers own independent plan/source authority, native graph
+    selection, exact commands and test protocols. This helper shares only the
+    existing bounded compiler/output/native-loader capture implementation.
+    """
+    source_guard()
     ensure_safe_directory(output)
     parent_node = directory_node(output)
     fresh = Path(tempfile.mkdtemp(prefix="tests-", dir=output))
@@ -58,7 +318,7 @@ def observe_retained_cargo_tests(
     compiler_runtime = None
 
     def output_guard():
-        authority.require_unchanged()
+        source_guard()
         if compiler_runtime is not None:
             compiler_runtime.require_unchanged()
         require_safe_directory(output)
@@ -66,32 +326,11 @@ def observe_retained_cargo_tests(
         if directory_node(output) != parent_node or directory_node(fresh) != fresh_node:
             raise ValueError("retained.tests.output-replaced")
 
-    argv = [
-        "cargo",
-        "test",
-        "--workspace",
-        "--all-targets",
-        "--no-run",
-        "--locked",
-        "--message-format=json",
-        "--target",
-        plan.target,
-        "--target-dir",
-        str(fresh),
-    ]
-    if offline:
-        argv.append("--offline")
-    if plan.features:
-        argv.append("--features=" + ",".join(plan.features))
-    if plan.all_features:
-        argv.append("--all-features")
-    if plan.no_default_features:
-        argv.append("--no-default-features")
     libdir_result = run(
         RepositoryBuildCommand(
             "retained-test-runtime",
-            ("rustc", "--print", "target-libdir", "--target", plan.target),
-            plan.workspace_root,
+            ("rustc", "--print", "target-libdir", "--target", target),
+            workspace.relative_to(project_root).as_posix(),
             (),
             network=False,
         ),
@@ -102,36 +341,55 @@ def observe_retained_cargo_tests(
     if len(lines) != 1 or not lines[0] or libdir_result.stderr:
         raise ValueError("retained.runtime.compiler-path-invalid")
     compiler_runtime = capture_retained_cargo_runtime_files(
-        (Path(lines[0]),), file_alias_roots=(Path(lines[0]),)
+        (Path(lines[0]),),
+        file_alias_roots=(Path(lines[0]),),
+        # Measured Rust SDKs can include a >128 MiB LLVM member. Preserve the
+        # 512 MiB aggregate boundary while explicitly admitting at most 256 MiB.
+        maximum_file_bytes=256 * 1024 * 1024,
+        custody=None if native_custody is None else native_custody.runtime,
     )
     compiled = run(
-        RepositoryBuildCommand(
-            "retained-test-compile",
-            tuple(argv),
-            plan.workspace_root,
-            (),
-            network=not offline,
-        ),
+        compile_command(fresh),
         cargo,
         extra_guard=output_guard,
     )
-    binaries = select_cargo_test_executables(
-        compiled,
-        metadata,
-        workspace_root=workspace,
-        output_root=fresh,
-        expected=plan.graph,
-    )
+    binaries = select(compiled, fresh)
     records = tuple(json.loads(line) for line in compiled.stdout.splitlines())
     build_environments = cargo_build_environments(
         records, metadata, workspace=workspace
     )
     build_outputs = capture_retained_cargo_build_outputs(
-        records, metadata, output_root=fresh
+        records,
+        metadata,
+        output_root=fresh,
+        custody=None if native_custody is None else native_custody.build_outputs,
     )
     runtime_roots = []
     known_packages = {package["id"] for package in metadata["packages"]}
     for record in records:
+        if record.get("reason") == "compiler-artifact":
+            filenames = record.get("filenames")
+            if (
+                record.get("package_id") not in known_packages
+                or not isinstance(filenames, list)
+                or not filenames
+            ):
+                raise ValueError("retained.runtime.artifact-invalid")
+            # Cargo reports both the legacy shared deps directory and 1.100's
+            # per-unit outputs here. Bind actual reported loader directories;
+            # never infer a compiler-private layout or admit external outputs.
+            for raw in filenames:
+                if not isinstance(raw, str) or not raw or "\x00" in raw:
+                    raise ValueError("retained.runtime.artifact-path-invalid")
+                path = Path(raw)
+                if (
+                    not path.is_absolute()
+                    or ".." in path.parts
+                    or not path.parent.is_relative_to(fresh)
+                ):
+                    raise ValueError("retained.runtime.artifact-path-invalid")
+                runtime_roots.append(path.parent)
+            continue
         if record.get("reason") != "build-script-executed":
             continue
         if record.get("package_id") not in known_packages or not isinstance(
@@ -154,29 +412,42 @@ def observe_retained_cargo_tests(
                 raise ValueError("retained.runtime.search-path-invalid")
             if path.is_relative_to(fresh):
                 runtime_roots.append(path)
-    runtime_base = fresh / plan.target / "debug"
-    runtime_roots.extend((runtime_base / "deps", runtime_base, Path(lines[0])))
+    runtime_roots.append(Path(lines[0]))
+    runtime_roots = tuple(dict.fromkeys(runtime_roots))
     runtime = capture_retained_cargo_runtime_files(
-        runtime_roots, file_alias_roots=(Path(lines[0]),)
+        runtime_roots,
+        file_alias_roots=(Path(lines[0]),),
+        maximum_file_bytes=256 * 1024 * 1024,
+        custody=None if native_custody is None else native_custody.runtime,
     )
     compiler_runtime.require_unchanged()
     compiler_runtime = None
-    expected = {target.key: target.cases for target in authority.inventory.targets}
-    closure = PinnedInputClosure(
-        maximum_files=4096,
-        maximum_file_bytes=64 * 1024 * 1024,
-        maximum_total_bytes=256 * 1024 * 1024,
+    closure = (
+        PinnedInputClosure(
+            maximum_files=4096,
+            maximum_file_bytes=64 * 1024 * 1024,
+            maximum_total_bytes=256 * 1024 * 1024,
+        )
+        if native_custody is None
+        else StreamedFileCustody(maximum_files=4096, budget=native_custody.executables)
     )
-    nodes, parents, identities = {}, {}, {}
+    nodes, parents, identities, hashes = {}, {}, {}, {}
     for binary in binaries:
         path = binary.executable
         node = _signature(path.lstat())
         content = closure.pin(
             path, boundary=fresh, label=path.relative_to(fresh).as_posix()
         )
+        digest = (
+            hashlib.sha256(content).hexdigest()
+            if native_custody is None
+            else content.digest
+        )
+        size = len(content) if native_custody is None else content.size
         if _signature(path.lstat()) != node:
             raise ValueError("retained.tests.binary-changed")
         nodes[path] = node
+        hashes[path] = digest
         parent = path.parent
         while parent != fresh:
             require_safe_directory(parent)
@@ -185,36 +456,39 @@ def observe_retained_cargo_tests(
         identities[path] = canonical_identity(
             {
                 "schema": "literate-ai/retained-cargo-test-executable-observation@1",
-                "inventory": authority.inventory.identity.uri,
+                "inventory": inventory_identity.uri,
                 "runtime": runtime.identity.uri,
                 "build_outputs": build_outputs.identity.uri,
                 "build_environment": list(
                     build_environments.get(binary.package_root, ())
                 ),
                 "path": path.relative_to(fresh).as_posix(),
-                "sha256": hashlib.sha256(content).hexdigest(),
-                "bytes": len(content),
+                "sha256": digest,
+                "bytes": size,
             }
         )
 
+    files = _NativeTestFiles(
+        output,
+        fresh,
+        parent_node,
+        fresh_node,
+        build_outputs,
+        runtime,
+        closure,
+        tuple(nodes.items()),
+        tuple(parents.items()),
+        _key=_NATIVE_PREPARATION_KEY,
+    )
+
     def binary_guard():
         output_guard()
-        build_outputs.require_unchanged()
-        runtime.require_unchanged()
-        closure.require_unchanged()
-        if any(_signature(p.lstat()) != node for p, node in nodes.items()) or any(
-            directory_node(p) != node for p, node in parents.items()
-        ):
-            raise ValueError("retained.tests.binary-changed")
-        closure.require_unchanged()
+        files.require_payload_unchanged()
 
     binary_guard()
-    for index, binary in enumerate(binaries):
-        key = (
-            binary.package_root,
-            binary.target_name,
-            tuple(sorted(binary.target_kinds)),
-        )
+    sessions = []
+    native_dependencies = []
+    for binary in binaries:
         package = workspace / binary.package_root
         build_environment = build_environments.get(binary.package_root, ())
         tool_environment = {
@@ -249,6 +523,8 @@ def observe_retained_cargo_tests(
             ),
         )
 
+        native_dependencies.append(native)
+
         def target_guard(native=native):
             binary_guard()
             native.require_unchanged()
@@ -267,23 +543,12 @@ def observe_retained_cargo_tests(
             tuple(sorted(tool_environment.items())),
             target_guard,
         )
-        results = []
-        for phase, arguments in (
-            ("list", ("--list", "--format=terse")),
-            ("run", ("--format=pretty", "--color=never")),
-        ):
-            results.append(
-                run(
-                    RepositoryBuildCommand(
-                        f"retained-test-{index}-{phase}",
-                        (str(binary.executable), *arguments),
-                        package.relative_to(authority.importer.project.root).as_posix(),
-                        (),
-                        network=False,
-                    ),
-                    tool,
-                    extra_guard=target_guard,
-                )
-            )
-        verify_libtest_observation(*results, expected[key])
+        sessions.append((binary, tool, target_guard, hashes[binary.executable]))
     binary_guard()
+    return _PreparedRetainedNativeTests(
+        tuple(sessions),
+        binary_guard,
+        files,
+        tuple(native_dependencies),
+        _key=_NATIVE_PREPARATION_KEY,
+    )

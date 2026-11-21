@@ -13,7 +13,11 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from tests.support.native_repository import NativeRepositoryFixture
+from tests.support.native_repository import (
+    NativeRepositoryFixture,
+    commit_independent_repository,
+    git_at,
+)
 
 
 class NativeProjectRemovalTests(unittest.TestCase):
@@ -72,6 +76,267 @@ class NativeProjectRemovalTests(unittest.TestCase):
 
     def recovery(self, plan):
         return tuple(plan["recovery_argv"][4:])
+
+    def test_nested_git_repository_blocks_existing_plan_and_recovery(self):
+        plan = self.plan()
+        child = self.root / "litai"
+        commit_independent_repository(child)
+        manifest = child / "literate.project.json"
+        original = manifest.read_bytes()
+        oid = git_at(child, "hash-object", "-w", "--stdin", content=original + b"\n")
+        git_at(
+            child,
+            "update-index",
+            "--cacheinfo",
+            "100644",
+            oid.decode().strip(),
+            manifest.name,
+        )
+        indexed = git_at(child, "ls-files", "--stage")
+        status = git_at(child, "status", "--porcelain")
+        parent_index = self.git("ls-files", "--stage")
+        self.assertIn(b"MM ", status)
+        for response in (
+            self.apply(plan, success=False),
+            self.cli("onboard", "remove", self.root, success=False),
+            self.cli(
+                "onboard", "remove", self.root, *self.recovery(plan), success=False
+            ),
+        ):
+            self.assertEqual(
+                response["error"]["code"], "native_removal.nested_git_boundary"
+            )
+        self.assertEqual(self.git("ls-files", "--stage"), parent_index)
+        self.assertEqual(git_at(child, "ls-files", "--stage"), indexed)
+        self.assertEqual(git_at(child, "status", "--porcelain"), status)
+        self.assertEqual(manifest.read_bytes(), original)
+
+    def test_nested_linked_worktree_blocks_missing_manifest_recovery(self):
+        plan = self.plan()
+        docs = self.root / "litai/docs"
+        external = self.root.parent / "external"
+        docs.rename(external)
+        commit_independent_repository(external)
+        git_at(external, "worktree", "add", "--detach", str(docs), "HEAD")
+        self.assertTrue((docs / ".git").is_file())
+        self.git("rm", "--", "litai/literate.project.json")
+        linked = git_at(external, "worktree", "list", "--porcelain")
+        index = self.git("ls-files", "--stage")
+        response = self.cli(
+            "onboard", "remove", self.root, *self.recovery(plan), success=False
+        )
+        self.assertEqual(
+            response["error"]["code"], "native_removal.nested_git_boundary"
+        )
+        self.assertEqual(self.git("ls-files", "--stage"), index)
+        self.assertEqual(git_at(external, "worktree", "list", "--porcelain"), linked)
+        self.assertEqual(git_at(docs, "status", "--porcelain"), b"")
+        self.assertTrue((docs / "adoption.md").is_file())
+        self.assertTrue((self.root / "litai/SKILL.md").is_file())
+
+    @unittest.skipUnless(os.name == "posix", "requires POSIX symlinks and FIFOs")
+    def test_unsafe_nested_git_markers_are_refused_without_following(self):
+        marker = self.root / "litai/docs/.git"
+        for create in (lambda: marker.symlink_to("missing"), lambda: os.mkfifo(marker)):
+            create()
+            try:
+                response = self.cli("onboard", "remove", self.root, success=False)
+                self.assertEqual(
+                    response["error"]["code"], "native_removal.nested_git_boundary"
+                )
+                self.assertTrue(os.path.lexists(marker))
+            finally:
+                marker.unlink()
+
+    def test_outer_linked_worktree_and_unrelated_nested_checkout_are_preserved(self):
+        self._outer_linked_worktree_removal()
+
+    def test_crlf_linked_worktree_preserves_native_checkout_and_nested_child(self):
+        self.git("config", "core.autocrlf", "true")
+        self._outer_linked_worktree_removal()
+
+    def test_crlf_attribute_race_cannot_launch_a_content_filter(self):
+        from literate_ai.adapters import native_project_removal as removal
+
+        self.git("config", "core.autocrlf", "true")
+        self.git("config", "filter.removal-fixture.clean", "echo ran >filter-ran")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        original = removal._git
+        injected = False
+
+        def change_attributes(root, *args, **kwargs):
+            nonlocal injected
+            result = original(root, *args, **kwargs)
+            if (
+                args[0] == "check-attr"
+                and kwargs.get("content") == b"litai/literate.project.json\0"
+                and not injected
+            ):
+                (self.root / ".gitattributes").write_bytes(
+                    b"litai/literate.project.json filter=removal-fixture\n"
+                )
+                injected = True
+            return result
+
+        with (
+            patch.object(removal, "_git", side_effect=change_attributes),
+            self.assertRaises(removal.NativeProjectRemovalError) as raised,
+        ):
+            removal.plan_native_project_removal(self.root)
+        self.assertTrue(injected)
+        self.assertFalse((self.root / "filter-ran").exists())
+        self.assertEqual(raised.exception.code, "native_removal.transform_unsupported")
+
+    def test_explicit_text_attributes_admit_exact_crlf_checkout_bytes(self):
+        self.git("config", "core.autocrlf", "false")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        for attribute in (b"text", b"text=auto", b"eol=lf", b"eol=crlf"):
+            with self.subTest(attribute=attribute):
+                (self.root / ".gitattributes").write_bytes(
+                    b"litai/literate.project.json " + attribute + b"\n"
+                )
+                plan = self.plan()
+                self.assertIn("litai/literate.project.json", plan["selected"])
+                self.assertEqual(manifest.read_bytes(), content.replace(b"\n", b"\r\n"))
+
+    def test_raw_newline_change_after_plan_refuses_even_when_git_normalizes_it(self):
+        self.git("config", "core.autocrlf", "true")
+        plan = self.plan()
+        index = self.git("ls-files", "--stage")
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        # Always change the raw bytes, including on an initial Windows checkout.
+        replacement = (
+            content
+            if b"\r\n" in manifest.read_bytes()
+            else content.replace(b"\n", b"\r\n")
+        )
+        manifest.write_bytes(replacement)
+        refused = self.apply(plan, success=False)
+        self.assertEqual(refused["error"]["code"], "native_removal.plan_changed")
+        self.assertEqual(manifest.read_bytes(), replacement)
+        self.assertEqual(self.git("ls-files", "--stage"), index)
+
+    def test_crlf_edit_to_unconverted_metadata_is_preserved(self):
+        self.git("config", "core.autocrlf", "true")
+        (self.root / ".gitattributes").write_bytes(
+            b"litai/literate.project.json -text\n"
+        )
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        before = manifest.read_bytes()
+        refused = self.cli("onboard", "remove", self.root, success=False)
+        self.assertEqual(refused["error"]["code"], "native_removal.worktree_changed")
+        self.assertEqual(manifest.read_bytes(), before)
+
+    def test_crlf_conversion_never_invokes_configured_content_filter(self):
+        self.git("config", "core.autocrlf", "true")
+        self.git("config", "filter.removal-fixture.clean", "echo ran >filter-ran")
+        (self.root / ".gitattributes").write_bytes(
+            b"litai/literate.project.json filter=removal-fixture\n"
+        )
+        manifest = self.root / "litai/literate.project.json"
+        content = manifest.read_bytes().replace(b"\r\n", b"\n")
+        manifest.write_bytes(content.replace(b"\n", b"\r\n"))
+        before = manifest.read_bytes()
+        refused = self.cli("onboard", "remove", self.root, success=False)
+        self.assertEqual(
+            refused["error"]["code"], "native_removal.transform_unsupported"
+        )
+        self.assertFalse((self.root / "filter-ran").exists())
+        self.assertEqual(manifest.read_bytes(), before)
+
+    def _outer_linked_worktree_removal(self):
+        outer = self.root
+        linked = outer.parent / "linked"
+        self.git("worktree", "add", "--detach", str(linked), "HEAD")
+        self.root = self.fixture.root = linked
+        self.assertTrue((linked / ".git").is_file())
+        self.assertEqual(self.git("status", "--porcelain"), "")
+        child = linked / "litai/unrelated"
+        child.mkdir()
+        notes = child / "notes.txt"
+        notes.write_bytes(b"Independent repository notes.\n")
+        commit_independent_repository(child)
+        head = git_at(child, "rev-parse", "HEAD")
+        plan = self.plan()
+        self.assertEqual(self.apply(plan)["result"]["state"], "removed")
+        self.assertEqual(git_at(child, "rev-parse", "HEAD"), head)
+        self.assertEqual(git_at(child, "status", "--porcelain"), b"")
+        self.assertEqual(notes.read_bytes(), b"Independent repository notes.\n")
+        self.assertTrue((linked / ".git").is_file())
+
+    def test_git_boundary_added_while_constructing_patch_refuses_publication(self):
+        self._late_git_boundary(self.root / "litai/docs")
+
+    def test_profile_git_boundary_added_during_patch_keeps_manifest_lock(self):
+        from literate_ai.projects import ProjectConfigurationStore
+
+        child = self.root / "litai"
+        lock = ProjectConfigurationStore.lock_path(self.root)
+        self._late_git_boundary(child)
+        self.assertEqual(lock.read_bytes(), git_at(child, "show", "HEAD:" + lock.name))
+
+    def _late_git_boundary(self, child):
+        from literate_ai.adapters import native_project_removal as removal
+        from literate_ai.cli.dispatch import main
+        from literate_ai.projects import ProjectConfigurationStore
+
+        plan = self.plan()
+        lock = ProjectConfigurationStore.lock_path(self.root)
+        locked_files = {lock: b"\0"} if lock.is_relative_to(child) else {}
+        index = self.git("ls-files", "--stage")
+        original = removal._git
+        injected = False
+
+        def git(root, *args, **kwargs):
+            nonlocal injected
+            result = original(root, *args, **kwargs)
+            if args[0] == "diff" and not injected:
+                commit_independent_repository(child, locked_files=locked_files)
+                injected = True
+            return result
+
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with (
+            patch.object(removal, "_git", side_effect=git),
+            patch.dict(os.environ, {"LITAI_NO_SELF_UPDATE": "1"}),
+        ):
+            status = main(
+                [
+                    "--json",
+                    "onboard",
+                    "remove",
+                    str(self.root),
+                    "--apply",
+                    "--acknowledge",
+                    "--expect-plan",
+                    plan["plan_identity"],
+                ],
+                stdout=stdout,
+                stderr=stderr,
+            )
+        self.assertTrue(injected)
+        self.assertEqual(status, 2)
+        response = json.loads(stderr.getvalue())
+        self.assertEqual(
+            response["error"]["code"], "native_removal.nested_git_boundary"
+        )
+        self.assertEqual(self.git("ls-files", "--stage"), index)
+        for path, content in locked_files.items():
+            self.assertEqual(path.read_bytes(), content)
+            self.assertEqual(
+                path.read_bytes(),
+                git_at(child, "show", "HEAD:" + path.relative_to(child).as_posix()),
+            )
+        self.assertEqual(git_at(child, "status", "--porcelain"), b"")
+        for path in plan["selected"]:
+            self.assertTrue((self.root / path).is_file(), path)
 
     def test_removal_preserves_custom_content_and_unrelated_staging(self):
         custom = self.root / "litai/docs/adoption.md"

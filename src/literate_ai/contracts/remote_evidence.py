@@ -52,6 +52,44 @@ def _identity(value: Any, path: str) -> ContentIdentity:
         fail(path, str(exc))
 
 
+def remote_cleanup_acknowledgement_identity(
+    *,
+    request_identity: ContentIdentity,
+    manifest_identity: ContentIdentity,
+    bundle_identity: ContentIdentity,
+    cleanup_token: str,
+) -> ContentIdentity:
+    """Bind cleanup acknowledgement to one exact imported evidence attempt."""
+
+    return canonical_identity(
+        {
+            "schema": "literate-ai/remote-evidence-cleanup-acknowledgement@1",
+            "request_identity": request_identity.uri,
+            "manifest_identity": manifest_identity.uri,
+            "bundle_identity": bundle_identity.uri,
+            "cleanup_token": cleanup_token,
+            "status": "cleaned",
+        }
+    )
+
+
+def coordinator_evidence_import_identity(
+    *,
+    manifest_identity: ContentIdentity,
+    bundle_identity: ContentIdentity,
+    file_identities: tuple[ContentIdentity, ...],
+) -> ContentIdentity:
+    """Identify the existing import owner's canonical, verified file set."""
+    return canonical_identity(
+        {
+            "schema": "literate-ai/coordinator-evidence-import@1",
+            "manifest_identity": manifest_identity.uri,
+            "bundle_identity": bundle_identity.uri,
+            "file_identities": [item.uri for item in file_identities],
+        }
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class RemoteEvidenceFile:
     path: str
@@ -602,4 +640,6 @@ __all__ = [
     "RemoteEvidenceFile",
     "RemoteFailureDiagnostic",
     "RemoteLifecycleEvidenceManifest",
+    "remote_cleanup_acknowledgement_identity",
+    "coordinator_evidence_import_identity",
 ]

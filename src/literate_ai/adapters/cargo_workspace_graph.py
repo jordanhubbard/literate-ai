@@ -112,7 +112,12 @@ def verify_cargo_workspace_graph(
 
 
 def _verify_cargo_workspace_graph(
-    metadata, *, workspace_root, expected, reviewed_patch_edges=frozenset()
+    metadata,
+    *,
+    workspace_root,
+    expected,
+    reviewed_patch_edges=frozenset(),
+    _realized_output=None,
 ):
     """Shared graph checks; only the explicit v2 owner supplies exact patch edges."""
     _require(isinstance(expected, CargoWorkspaceExpectation), "invalid_expectation")
@@ -129,7 +134,11 @@ def _verify_cargo_workspace_graph(
     _require(data.get("workspace_root") == str(workspace_root), "workspace_root_drift")
     _require(
         data.get("target_directory")
-        == _path(workspace_root, expected.output_directory),
+        == (
+            _path(workspace_root, expected.output_directory)
+            if _realized_output is None
+            else str(_realized_output)
+        ),
         "output_directory_drift",
     )
     _require(

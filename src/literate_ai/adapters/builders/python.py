@@ -240,6 +240,31 @@ class PythonToolchain:
                 "Python launcher bytes changed after toolchain selection",
             )
 
+    def _require_files_unchanged(self) -> None:
+        """Compare original launcher/runtime files without invoking Python.
+
+        Full runtime selection and version probes still belong to require_unchanged
+        before final local comparisons. This is temporal file continuity only.
+        """
+        self._require_launcher_unchanged()
+        try:
+            runtime = Path(self.runtime_executable).resolve(strict=True)
+        except OSError as exc:
+            raise BuildError(
+                "builder.python_toolchain_changed",
+                "Python runtime became unavailable after toolchain selection",
+            ) from exc
+        if str(runtime) != self.runtime_executable or not runtime.is_file():
+            raise BuildError(
+                "builder.python_toolchain_changed",
+                "Python runtime path changed after toolchain selection",
+            )
+        if executable_file_digest(runtime) != self.runtime_digest:
+            raise BuildError(
+                "builder.python_toolchain_changed",
+                "Python runtime bytes changed after toolchain selection",
+            )
+
     def require_unchanged(
         self,
         environment: Mapping[str, str] | None = None,

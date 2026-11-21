@@ -7,6 +7,7 @@ import os
 import tempfile
 import threading
 import unittest
+from contextlib import nullcontext
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest import mock
@@ -120,6 +121,11 @@ class OpenCodeNativeTests(unittest.TestCase):
                             "models": {"test-model": {**model, "tool_call": True}},
                         }
                     }
+                    operator_config = root / ".config/opencode"
+                    operator_config.mkdir(parents=True)
+                    (operator_config / "opencode.json").write_text(
+                        json.dumps({"provider": config["provider"]})
+                    )
                 else:
                     constant = "_OPENCODE_V2_CONFIG_CONTENT"
                     config = json.loads(cli._OPENCODE_V2_CONFIG_CONTENT)
@@ -180,7 +186,9 @@ class OpenCodeNativeTests(unittest.TestCase):
                         config["mcp"] = {"servers": {}}
                 with (
                     mock.patch.object(cli.shutil, "which", return_value=executable),
-                    mock.patch.object(cli, constant, json.dumps(config)),
+                    mock.patch.object(cli, constant, json.dumps(config))
+                    if interface == "v2"
+                    else nullcontext(),
                 ):
                     actual = cli.CodingCliTaskRunner(
                         environment=environment, timeout_seconds=60
@@ -197,7 +205,9 @@ class OpenCodeNativeTests(unittest.TestCase):
                 server.tool_results.clear()
                 with (
                     mock.patch.object(cli.shutil, "which", return_value=executable),
-                    mock.patch.object(cli, constant, json.dumps(config)),
+                    mock.patch.object(cli, constant, json.dumps(config))
+                    if interface == "v2"
+                    else nullcontext(),
                 ):
                     with self.assertRaises(cli.CodingCliError) as refused:
                         cli.CodingCliTaskRunner(

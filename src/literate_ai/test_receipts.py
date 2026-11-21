@@ -373,6 +373,19 @@ def inspect_project_test_receipt(
 ) -> dict[str, object]:
     """Describe the configured receipt without requiring one for new projects."""
 
+    from literate_ai.adapters.native_child_publication import (
+        NativeChildPublicationError,
+        require_no_native_child_publication,
+    )
+
+    try:
+        require_no_native_child_publication(project.root)
+    except (NativeChildPublicationError, OSError, ValueError) as exc:
+        raise ProjectError(
+            "project.native_publication_pending",
+            "native child metadata is in transition or its recovery state is unsafe",
+        ) from exc
+
     target = _target(project, create_parent=False)
     if target is None:
         return {"configured": False, "state": "unconfigured"}

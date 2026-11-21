@@ -7,6 +7,7 @@ import json
 import re
 import unittest
 import xml.etree.ElementTree as ET
+from fnmatch import fnmatchcase
 from pathlib import Path
 from unittest import mock
 
@@ -26,6 +27,38 @@ class CiActionPinTests(unittest.TestCase):
         selector = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(selector)
         return selector
+
+    def test_schema_check_precedes_fanout_on_relevant_paths_and_full_profiles(
+        self,
+    ) -> None:
+        selector = self.selector()
+        for path in (
+            "schemas/v2/index.json",
+            "schemas/v2/project-release.schema.json",
+            "src/literate_ai/schema_catalog.py",
+            "tools/build_backend/literate_ai_build_backend.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(
+                    selector.select_schema_preflight(
+                        "pull_request", "main", ("README.md", path)
+                    )
+                )
+        self.assertFalse(
+            selector.select_schema_preflight("pull_request", "main", ("README.md",))
+        )
+        self.assertFalse(
+            selector.select_schema_preflight("push", "refs/heads/main", ("README.md",))
+        )
+        self.assertTrue(selector.select_schema_preflight("pull_request", "main", None))
+        self.assertTrue(
+            selector.select_schema_preflight("workflow_dispatch", "main", ())
+        )
+        self.assertTrue(
+            selector.select_schema_preflight(
+                "pull_request", "release/1.4", ("README.md",)
+            )
+        )
 
     def test_change_scoped_profiles_are_narrow_and_fail_closed(self) -> None:
         selector = self.selector()
@@ -48,7 +81,6 @@ class CiActionPinTests(unittest.TestCase):
             "main",
             (
                 "README.md",
-                ".github/workflows/ci.yml",
                 "scripts/select_ci_profile.py",
                 "tests/critical/test_ci_action_pins.py",
             ),
@@ -414,28 +446,383 @@ class CiActionPinTests(unittest.TestCase):
         selector = self.selector()
         with mock.patch.object(selector.subprocess, "run") as run:
             run.return_value = mock.Mock(returncode=0, stdout=b"README.md\0")
-            self.assertEqual(
-                selector._changed_paths("before", "after", push=True), ("README.md",)
-            )
+            self.assertEqual(selector._changed_paths("before", "after"), ("README.md",))
             self.assertEqual(run.call_args.args[0][-2:], ("before", "after"))
-            selector._changed_paths("before", "after")
-            self.assertEqual(run.call_args.args[0][-1], "before...after")
+            # Retain the old path when a schema is moved out of its catalog.
+            self.assertIn("--no-renames", run.call_args.args[0])
             run.return_value = mock.Mock(returncode=128, stdout=b"")
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.side_effect = selector.subprocess.TimeoutExpired("git", 30)
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.side_effect = OSError("git unavailable")
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.side_effect = None
             run.return_value = mock.Mock(returncode=0, stdout=b"\xff\0")
-            self.assertIsNone(selector._changed_paths("before", "after", push=True))
+            self.assertIsNone(selector._changed_paths("before", "after"))
             run.reset_mock()
-            self.assertIsNone(selector._changed_paths("", "after", push=True))
+            self.assertIsNone(selector._changed_paths("", "after"))
             run.assert_not_called()
+
+    def test_pr_comparison_uses_one_merge_base(self):
+        selector = self.selector()
+        base = b"a" * 40
+        head = "b" * 40
+        with mock.patch.object(selector.subprocess, "run") as run:
+            run.return_value = mock.Mock(returncode=0, stdout=base + b"\n")
+            self.assertEqual(selector._merge_base("main", head), base.decode())
+            self.assertEqual(
+                run.call_args.args[0], ("git", "merge-base", "--all", "main", head)
+            )
+            run.return_value.stdout += b"c" * 40 + b"\n"
+            self.assertEqual(selector._merge_base("main", head), "")
+
+    def test_changed_action_pins_select_their_actual_runtime_cells(self):
+        selector = self.selector()
+        ci_path = ".github/workflows/ci.yml"
+        sdk_path = ".github/workflows/native-sdk-qualification.yml"
+        ci_before = (ROOT / ci_path).read_text()
+        sdk_before = (ROOT / sdk_path).read_text()
+
+        def update_pin(text, action, old_sha, new_sha):
+            pattern = re.escape(action) + "@[0-9a-f]{40}"
+            before, old_count = re.subn(pattern, action + "@" + old_sha, text)
+            after, new_count = re.subn(pattern, action + "@" + new_sha, text)
+            self.assertEqual((old_count, new_count), (1, 1))
+            return before, after
+
+        bazel = update_pin(
+            ci_before,
+            "bazel-contrib/setup-bazel",
+            "104e3eea9447cdaa4b00d0fb46191a3985d26ab3",
+            "f34d6a05eae3c24acab7fa54587492daeaeffdab",
+        )
+        old_sha = "c46abacb49f09938ca4e1702d15d836285d694cc"
+        new_sha = "811efaaac0668df8bfb8308c3ec997b5ab50037b"
+        freebsd = update_pin(ci_before, "vmactions/freebsd-vm", old_sha, new_sha)
+        sdk = update_pin(sdk_before, "vmactions/freebsd-vm", old_sha, new_sha)
+        for revisions, native_rows, expected_freebsd in (
+            ({ci_path: bazel}, ["ubuntu-latest", "windows-latest"], False),
+            ({ci_path: freebsd, sdk_path: sdk}, [], True),
+        ):
+            paths = tuple(revisions)
+            with mock.patch.object(
+                selector, "_workflow_versions", side_effect=revisions.__getitem__
+            ):
+                delta = selector._workflow_delta(paths)
+            for event, ref in (("pull_request", "main"), ("push", "refs/heads/main")):
+                with self.subTest(paths=paths, event=event):
+                    matrix = selector.select_matrix(event, ref, paths, delta=delta)
+                    self.assertEqual(
+                        [row["task"] for row in matrix["include"]],
+                        ["ci-policy"] + ["cpp-native"] * len(native_rows),
+                    )
+                    self.assertEqual(
+                        [
+                            row["os"]
+                            for row in matrix["include"]
+                            if row["task"] == "cpp-native"
+                        ],
+                        native_rows,
+                    )
+                    self.assertIs(
+                        selector.select_freebsd_acl(event, ref, paths, delta=delta),
+                        expected_freebsd,
+                    )
+                    self.assertIs(delta.freebsd_sdk, expected_freebsd)
+                    self.assertFalse(
+                        selector.select_full_qualification(
+                            event, ref, paths, delta=delta
+                        )
+                    )
+
+    def test_shared_or_unresolved_workflow_changes_use_full_coverage(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        changes = (
+            None,
+            (baseline, baseline.replace("contents: read", "contents: write", 1)),
+            (
+                baseline,
+                baseline.replace("  checks:\n", "  checks:\n    env: {SHARED: true}\n"),
+            ),
+            (
+                baseline,
+                baseline.replace(
+                    "if: matrix.task == 'cpp-native'", "if: matrix.task == 'unknown'", 1
+                ),
+            ),
+            (
+                baseline,
+                baseline.replace(
+                    "if: matrix.task == 'cpp-native'",
+                    "if: matrix.task == 'cpp-native' || success()",
+                    1,
+                ),
+            ),
+        )
+        for change in changes:
+            with (
+                self.subTest(change=changes.index(change)),
+                mock.patch.object(selector, "_workflow_versions", return_value=change),
+            ):
+                delta = selector._workflow_delta((path,))
+                for event, ref in (
+                    ("pull_request", "main"),
+                    ("push", "refs/heads/main"),
+                ):
+                    self.assertTrue(
+                        selector.select_full_qualification(
+                            event, ref, (path,), delta=delta
+                        )
+                    )
+                    self.assertTrue(
+                        selector.select_freebsd_acl(event, ref, (path,), delta=delta)
+                    )
+                    rows = selector.select_matrix(event, ref, (path,), delta=delta)[
+                        "include"
+                    ]
+                    self.assertTrue(
+                        all(
+                            row in rows
+                            for row in selector._matrix_rows()
+                            if "scoped" not in row
+                        )
+                    )
+
+    def test_scoped_workflow_edit_keeps_its_cell_in_a_mixed_main_push(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        changed = baseline.replace(
+            "name: Validate framework documentation ownership",
+            "name: Validate source documentation ownership",
+        )
+        paths = (path, "src/literate_ai/cli/render.py")
+        with mock.patch.object(
+            selector, "_workflow_versions", return_value=(baseline, changed)
+        ):
+            delta = selector._workflow_delta(paths)
+        self.assertEqual(delta.tasks, {"documentation"})
+        rows = selector.select_matrix("push", "refs/heads/main", paths, delta=delta)[
+            "include"
+        ]
+        self.assertIn("documentation", {row["task"] for row in rows})
+        self.assertTrue(
+            selector.select_full_qualification(
+                "push", "refs/heads/main", paths, delta=delta
+            )
+        )
+        release = selector.select_matrix(
+            "push", "refs/heads/release/1.4.x", paths, delta=delta
+        )["include"]
+        self.assertTrue(all("scoped" not in row for row in release))
+
+    def test_broad_fallback_preserves_a_detected_documentation_action(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        edited = baseline.replace(
+            "name: Validate framework documentation ownership",
+            "name: Validate source documentation ownership",
+        )
+        shared_workflow_edit = edited.replace("contents: read", "contents: write", 1)
+        mixed_step = edited.replace(
+            "if: matrix.task == 'cpp-native'",
+            "if: matrix.task == 'cpp-native' || success()",
+            1,
+        )
+        for after, extra in (
+            (edited, (".github/ci-matrix.json",)),
+            (edited, (".github/workflows/unknown-review.yml",)),
+            (shared_workflow_edit, ()),
+            (mixed_step, ()),
+        ):
+            paths = (path, *extra)
+            with mock.patch.object(
+                selector, "_workflow_versions", return_value=(baseline, after)
+            ):
+                delta = selector._workflow_delta(paths)
+            self.assertTrue(delta.broad)
+            self.assertIn("documentation", delta.tasks)
+            for event, ref in (("pull_request", "main"), ("push", "refs/heads/main")):
+                with self.subTest(paths=paths, event=event):
+                    rows = selector.select_matrix(event, ref, paths, delta=delta)[
+                        "include"
+                    ]
+                    self.assertIn("documentation", {row["task"] for row in rows})
+                    self.assertTrue(
+                        all(
+                            row in rows
+                            for row in selector._matrix_rows()
+                            if "scoped" not in row
+                        )
+                    )
+
+    def test_sdk_caller_runtime_edits_select_separate_guest_but_metadata_does_not(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        sdk_path = ".github/workflows/native-sdk-qualification.yml"
+        baseline = (ROOT / path).read_text()
+        scoped = baseline.replace(
+            "    uses: ./.github/workflows/native-sdk-qualification.yml",
+            "    name: Native SDK control\n"
+            "    uses: ./.github/workflows/native-sdk-qualification.yml",
+        )
+        changed = baseline.replace(
+            "candidate_revision: ${{ github.sha }}",
+            "candidate_revision: ${{ github.event.pull_request.head.sha }}",
+        )
+        for candidate, expected in ((scoped, False), (changed, True)):
+            with (
+                self.subTest(expected=expected),
+                mock.patch.object(
+                    selector, "_workflow_versions", return_value=(baseline, candidate)
+                ),
+            ):
+                delta = selector._workflow_delta((path,))
+                self.assertIs(delta.freebsd_sdk, expected)
+                self.assertFalse(delta.freebsd_acl)
+                self.assertFalse(delta.broad)
+        unchanged_sdk = (ROOT / sdk_path).read_text()
+        with mock.patch.object(
+            selector,
+            "_workflow_versions",
+            side_effect=((baseline, changed), (unchanged_sdk, unchanged_sdk)),
+        ):
+            self.assertTrue(selector._workflow_delta((path, sdk_path)).freebsd_sdk)
+
+    def test_unproved_workflow_routing_runs_every_matrix_row(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        added_condition = baseline.replace(
+            "      # sample-composition",
+            "      - name: Additional documentation check\n"
+            "        if: ${{ matrix.task == 'documentation' }}\n"
+            "        run: make documentation-check\n"
+            "      # sample-composition",
+        )
+        anchored_caller = baseline.replace(
+            "env:\n  PYTHONUNBUFFERED", "env: &review_env\n  PYTHONUNBUFFERED", 1
+        ).replace(
+            "candidate_revision: ${{ github.sha }}",
+            "candidate_revision: ${{ github.event.pull_request.head.sha }}",
+        )
+        for edited, other_path, sdk in (
+            (added_condition, (), False),
+            (anchored_caller, (), True),
+            (added_condition, (".github/workflows/unknown-review.yml",), True),
+        ):
+            paths = (path, *other_path)
+            with mock.patch.object(
+                selector, "_workflow_versions", return_value=(baseline, edited)
+            ):
+                delta = selector._workflow_delta(paths)
+            self.assertTrue(delta.broad)
+            self.assertIs(delta.freebsd_sdk, sdk)
+            for event, ref in (("pull_request", "main"), ("push", "refs/heads/main")):
+                with self.subTest(event=event, sdk=sdk, paths=paths):
+                    self.assertEqual(
+                        selector.select_matrix(event, ref, paths, delta=delta)[
+                            "include"
+                        ],
+                        selector._matrix_rows(),
+                    )
+                    self.assertTrue(
+                        selector.select_full_qualification(
+                            event, ref, paths, delta=delta
+                        )
+                    )
+            release_rows = selector.select_matrix(
+                "pull_request", "release/1.4.x", paths, delta=delta
+            )["include"]
+            self.assertEqual(
+                release_rows,
+                [row for row in selector._matrix_rows() if "scoped" not in row],
+            )
+
+    def test_sdk_qualification_remains_selected_after_shared_caller_changes(self):
+        selector = self.selector()
+        path = ".github/workflows/ci.yml"
+        baseline = (ROOT / path).read_text()
+        for after in (
+            baseline.replace("  contents: read", "  contents: none", 1),
+            baseline.replace(
+                "  profile:\n    runs-on: ubuntu-latest",
+                "  profile:\n    runs-on: ubuntu-24.04",
+            ),
+        ):
+            self.assertNotEqual(after, baseline)
+            with mock.patch.object(
+                selector, "_workflow_versions", return_value=(baseline, after)
+            ):
+                delta = selector._workflow_delta((path,))
+            self.assertTrue(delta.broad)
+            self.assertTrue(delta.freebsd_sdk)
+            self.assertTrue(delta.freebsd_acl)
+
+    def test_sdk_policy_metadata_does_not_run_native_guest(self):
+        selector = self.selector()
+        path = ".github/workflows/native-sdk-qualification.yml"
+        baseline = (ROOT / path).read_text()
+        with mock.patch.object(
+            selector,
+            "_workflow_versions",
+            return_value=(
+                baseline,
+                "# Scope note\n"
+                + baseline.replace(
+                    "name: Native FreeBSD SDK qualification", "name: Native SDK"
+                ),
+            ),
+        ):
+            self.assertFalse(selector._workflow_delta((path,)).freebsd_sdk)
+
+    def test_sdk_caller_binds_read_only_integration_checkout(self):
+        ci = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        caller = ci["jobs"]["freebsd-native-sdk"]
+        self.assertEqual(caller["if"], "needs.profile.outputs.freebsd_sdk == 'true'")
+        self.assertEqual(
+            caller["uses"], "./.github/workflows/native-sdk-qualification.yml"
+        )
+        self.assertEqual(caller["permissions"], {"contents": "read"})
+        self.assertNotIn("secrets", caller)
+        self.assertEqual(caller["with"]["candidate_revision"], "${{ github.sha }}")
+        sdk = load_yaml_subset((ROOT / caller["uses"]).read_text())
+        self.assertIn("workflow_dispatch", sdk["on"])
+        self.assertTrue(
+            sdk["on"]["workflow_call"]["inputs"]["candidate_revision"]["required"]
+        )
+        self.assertEqual(sdk["permissions"], {"contents": "read"})
+        steps = sdk["jobs"]["public-sdk"]["steps"]
+        self.assertFalse(steps[0]["with"]["persist-credentials"])
+        archive = next(
+            step["run"]
+            for step in steps
+            if step.get("name", "").startswith("Build the exact")
+        )
+        self.assertIn('test "$(git rev-parse HEAD)" = "$GITHUB_SHA"', archive)
+        self.assertIn('test "$(git rev-parse HEAD^2)" = "$PULL_REQUEST_HEAD"', archive)
+        self.assertIn(
+            '"qualification_harness_revision": os.environ["GITHUB_SHA"]', archive
+        )
+        self.assertIn(
+            '"pull_request_head": os.environ.get("PULL_REQUEST_HEAD")', archive
+        )
 
     def test_workflow_runs_only_the_checks_owned_by_each_scoped_profile(self) -> None:
         workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
-        profile = workflow["jobs"]["profile"]["steps"][-1]
+        profile_steps = workflow["jobs"]["profile"]["steps"]
+        profile = next(step for step in profile_steps if step.get("id") == "select")
+        self.assertEqual(workflow["jobs"]["checks"]["needs"], "profile")
+        [schema_check] = [
+            step for step in profile_steps if "make schema-check" in step.get("run", "")
+        ]
+        self.assertEqual(
+            schema_check["if"], "steps.select.outputs.schema_preflight == 'true'"
+        )
+        self.assertLess(profile_steps.index(profile), profile_steps.index(schema_check))
         self.assertEqual(
             profile["env"]["CI_BASE_REF"], "${{ github.base_ref || github.ref }}"
         )
@@ -628,3 +1015,296 @@ class CiActionPinTests(unittest.TestCase):
                 else:
                     with self.assertRaises(SystemExit):
                         exec(probe, {})
+
+    def test_macos_partitions_preserve_exact_original_module_coverage(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        cells = workflow["jobs"]["macos-qualification"]["strategy"]["matrix"]["include"]
+        original = {
+            "3.11": (
+                "test_[!nr]*.py",
+                "test_r[!e]*.py",
+                "test_n*.py",
+                "test_re[!p]*.py",
+                "test_repository_[!r]*.py",
+                "test_repository_r*.py",
+            ),
+            "3.14": ("test_[!nr]*.py",),
+        }
+        modules = []
+        for path in (ROOT / "tests").rglob("test*.py"):
+            directory = path.parent
+            while directory != ROOT / "tests":
+                if not (directory / "__init__.py").is_file():
+                    break
+                directory = directory.parent
+            else:
+                modules.append(path)
+        self.assertTrue(modules)
+        for version, prior_patterns in original.items():
+            patterns = [
+                pattern
+                for cell in cells
+                if cell["python"] == version
+                for pattern in cell["test_patterns"].split()
+            ]
+            for pattern in patterns:
+                self.assertTrue(
+                    any(fnmatchcase(path.name, pattern) for path in modules),
+                    f"empty {version} partition pattern: {pattern}",
+                )
+            for path in modules:
+                expected = int(any(fnmatchcase(path.name, p) for p in prior_patterns))
+                selected = sum(fnmatchcase(path.name, p) for p in patterns)
+                with self.subTest(version=version, module=path.relative_to(ROOT)):
+                    self.assertEqual(selected, expected)
+
+    def test_macos_authored_native_families_have_separate_whole_module_owners(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        cells = workflow["jobs"]["macos-qualification"]["strategy"]["matrix"]["include"]
+        representatives = (
+            "test_authored_qualification_planning.py",
+            "test_authored_reopened_native_execution.py",
+            "test_authored_retained_cargo_completion_files.py",
+            "test_authored_retained_cargo_native_completion.py",
+        )
+        for version in ("3.11", "3.14"):
+            owners = []
+            for module in representatives:
+                matches = [
+                    cell
+                    for cell in cells
+                    if cell["python"] == version
+                    and any(
+                        fnmatchcase(module, p) for p in cell["test_patterns"].split()
+                    )
+                ]
+                self.assertEqual(len(matches), 1, (version, module))
+                self.assertEqual(matches[0].get("gates"), "tests")
+                owners.append(matches[0]["name"])
+            self.assertEqual(len(set(owners)), len(representatives))
+
+    def test_macos_base_check_names_and_finite_failure_boundaries_remain(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        job = workflow["jobs"]["macos-qualification"]
+        cells = job["strategy"]["matrix"]["include"]
+        names = [cell["name"] for cell in cells]
+        self.assertEqual(len(names), len(set(names)))
+        for group in range(1, 5):
+            self.assertIn(f"macos-latest / Python 3.11 ({group} of 4)", names)
+        self.assertIn("macos-latest / Python 3.14 (smoke)", names)
+        self.assertIs(job["continue-on-error"], False)
+        self.assertEqual(job["timeout-minutes"], 240)
+        run = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Run full macOS conformance partition"
+        )
+        self.assertEqual(run["timeout-minutes"], 120)
+        self.assertEqual(
+            run["env"]["PYTHON_TEST_WORKER_TIMEOUT"],
+            "${{ matrix.worker_timeout || 3600 }}",
+        )
+        for cell in cells:
+            owns_native_execution = any(
+                fnmatchcase("test_authored_reopened_native_execution.py", pattern)
+                for pattern in cell["test_patterns"].split()
+            )
+            expected_timeout = 6600 if owns_native_execution else 3600
+            self.assertEqual(cell.get("worker_timeout", 3600), expected_timeout)
+        self.assertIn("make validate", run["run"])
+        self.assertIn("make python-check", run["run"])
+        self.assertEqual(
+            {
+                (cell["python"], cell["group"])
+                for cell in cells
+                if cell.get("gates") != "tests"
+            },
+            {("3.11", 1), ("3.14", 0)},
+        )
+
+    def test_macos_diagnostics_retain_every_pattern_checkpoint_and_report(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        steps = workflow["jobs"]["macos-qualification"]["steps"]
+        run = next(
+            step
+            for step in steps
+            if step.get("name") == "Run full macOS conformance partition"
+        )
+        upload = next(
+            step
+            for step in steps
+            if step.get("name") == "Upload full qualification diagnostics"
+        )
+        self.assertIn(
+            'PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json"',
+            run["run"],
+        )
+        self.assertIn(
+            'PYTHON_TEST_REPORT="$PWD/_build/python-test-report-$index.json"',
+            run["run"],
+        )
+        self.assertIn("_build/python-test-checkpoint*.json", upload["with"]["path"])
+        self.assertIn("_build/python-test-report*.json", upload["with"]["path"])
+        self.assertEqual(upload["if"], "always()")
+
+    def test_linux314_partitions_cover_every_whole_module_exactly_once(self):
+        rows = json.loads((ROOT / ".github/ci-matrix.json").read_text())
+        cells = [row for row in rows if row["task"] == "conformance"]
+        baseline = [row for row in cells if row["python"] == "3.11"]
+        self.assertEqual(
+            baseline,
+            [
+                {
+                    "task": "conformance",
+                    "name": "ubuntu-latest / Python 3.11",
+                    "os": "ubuntu-latest",
+                    "python": "3.11",
+                    "group": 0,
+                    "pr": True,
+                }
+            ],
+        )
+        selected = [row for row in cells if row["python"] == "3.14"]
+        self.assertEqual(len(selected), 8)
+        self.assertEqual({row["group"] for row in selected}, set(range(8)))
+        self.assertEqual(len({row["name"] for row in selected}), 8)
+        self.assertTrue(all(row["pr"] is False for row in selected))
+        self.assertTrue(all(row["os"] == "ubuntu-latest" for row in selected))
+        base = next(row for row in selected if row["group"] == 0)
+        self.assertEqual(base["name"], "ubuntu-latest / Python 3.14")
+        self.assertNotIn("gates", base)
+        self.assertTrue(
+            all(row.get("gates") == "tests" for row in selected if row["group"] != 0)
+        )
+        modules = []
+        for path in (ROOT / "tests").rglob("test*.py"):
+            directory = path.parent
+            while directory != ROOT / "tests":
+                if not (directory / "__init__.py").is_file():
+                    break
+                directory = directory.parent
+            else:
+                modules.append(path)
+        patterns = [
+            pattern for cell in selected for pattern in cell["test_patterns"].split()
+        ]
+        for pattern in patterns:
+            self.assertTrue(
+                any(fnmatchcase(path.name, pattern) for path in modules), pattern
+            )
+        for path in modules:
+            with self.subTest(module=path.relative_to(ROOT)):
+                self.assertEqual(
+                    sum(fnmatchcase(path.name, pattern) for pattern in patterns), 1
+                )
+
+    def test_linux_partition_gates_and_raw_evidence_remain_complete_and_bounded(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        job = workflow["jobs"]["checks"]
+        self.assertEqual(job["timeout-minutes"], 240)
+        run = next(
+            step for step in job["steps"] if step.get("name") == "Run conformance gates"
+        )
+        self.assertEqual(run["timeout-minutes"], 180)
+        self.assertEqual(run["if"], "matrix.task == 'conformance'")
+        self.assertEqual(
+            run["env"]["TEST_PATTERNS"], "${{ matrix.test_patterns || 'test*.py' }}"
+        )
+        self.assertEqual(run["env"]["GATES"], "${{ matrix.gates || 'validate' }}")
+        self.assertIn("make validate PYTHON=python RUFF=ruff", run["run"])
+        self.assertIn("make python-check", run["run"])
+        makefile = (ROOT / "Makefile").read_text()
+        self.assertIn("validate: validate-preflight", makefile)
+        self.assertIn("$(MAKE) python-check skills-check installed-e2e", makefile)
+        for name in (
+            "Verify the installed wheel outside the checkout",
+            "Upload the smoke-tested wheel and exact manifest",
+        ):
+            step = next(step for step in job["steps"] if step.get("name") == name)
+            self.assertEqual(
+                step["if"], "matrix.task == 'conformance' && matrix.gates != 'tests'"
+            )
+        wheel = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Upload the smoke-tested wheel and exact manifest"
+        )
+        self.assertEqual(
+            wheel["with"]["name"],
+            "qualified-wheel-${{ matrix.os }}-${{ matrix.python }}",
+        )
+        upload = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Upload release evidence"
+        )
+        self.assertEqual(upload["if"], "matrix.task == 'conformance' && (always())")
+        self.assertIn("matrix.gates == 'tests'", upload["with"]["name"])
+        self.assertIn("format('-partition-{0}', matrix.group)", upload["with"]["name"])
+        for path in (
+            "_build/evidence",
+            "_build/python-test-checkpoint*.json",
+            "_build/python-test-report*.json",
+        ):
+            self.assertIn(path, upload["with"]["path"])
+        for value in (
+            'PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json"',
+            'PYTHON_TEST_REPORT="$PWD/_build/python-test-report-$index.json"',
+        ):
+            self.assertIn(value, run["run"])
+
+    def test_ci_profiles_keep_all_required_linux314_partitions_together(self):
+        selector = self.selector()
+        all_rows = json.loads((ROOT / ".github/ci-matrix.json").read_text())
+        expected = {
+            row["name"]
+            for row in all_rows
+            if row["task"] == "conformance" and row["python"] == "3.14"
+        }
+        self.assertEqual(len(expected), 8)
+        full = (
+            ("workflow_dispatch", "main", (), selector.WorkflowDelta()),
+            ("pull_request", "release/1.4", (), selector.WorkflowDelta()),
+            ("push", "refs/tags/v1.4.0", (), selector.WorkflowDelta()),
+            (
+                "push",
+                "refs/heads/main",
+                ("src/literate_ai/cli.py",),
+                selector.WorkflowDelta(),
+            ),
+            ("pull_request", "main", None, selector.WorkflowDelta(broad=True)),
+            (
+                "pull_request",
+                "main",
+                (".github/workflows/ci.yml",),
+                selector.WorkflowDelta(tasks=frozenset({"conformance"})),
+            ),
+        )
+        for event, ref, paths, delta in full:
+            rows = selector.select_matrix(event, ref, paths, delta=delta)["include"]
+            with self.subTest(event=event, ref=ref, paths=paths, delta=delta):
+                self.assertEqual(
+                    {
+                        row["name"]
+                        for row in rows
+                        if row["task"] == "conformance" and row["python"] == "3.14"
+                    },
+                    expected,
+                )
+        delta = selector._workflow_delta((".github/ci-matrix.json",))
+        self.assertTrue(delta.broad)
+        rows = selector.select_matrix(
+            "pull_request", "main", (".github/ci-matrix.json",), delta=delta
+        )["include"]
+        self.assertTrue(expected <= {row["name"] for row in rows})
+        for paths in (
+            ("README.md",),
+            ("tests/critical/test_retained_posix_acl.py",),
+            ("tests/critical/test_ci_action_pins.py",),
+            ("src/literate_ai/cli.py",),
+        ):
+            rows = selector.select_matrix(
+                "pull_request", "main", paths, delta=selector.WorkflowDelta()
+            )["include"]
+            with self.subTest(paths=paths):
+                self.assertFalse(expected & {row["name"] for row in rows})

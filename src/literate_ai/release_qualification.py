@@ -20,6 +20,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 from literate_ai.contracts import canonical_identity
+from literate_ai.release_files import release_file_parts
 
 QUALIFICATION_RECORD_SCHEMA = "literate-ai/release-qualification@1"
 TIERS = ("local", "worker", "ci")
@@ -88,6 +89,116 @@ class QualificationAction:
 
 
 @dataclass(frozen=True, slots=True)
+class CITestedFile:
+    """Select an exact staged release file and the CI action that tested it."""
+
+    role: str
+    path: str
+    platform: str
+    action: str
+
+    @classmethod
+    def from_dict(cls, value: object) -> CITestedFile:
+        path = "qualification.ci.coverage.tested_file"
+        if (
+            not isinstance(value, dict)
+            or set(value) != {"role", "path", "platform", "action"}
+            or any(not isinstance(item, str) for item in value.values())
+            or not _ACTION.fullmatch(value["role"])
+            or not _PLATFORM.fullmatch(value["platform"])
+            or not _ACTION.fullmatch(value["action"])
+            or len(value["path"]) > 240
+        ):
+            _fail(path, "requires a role, staged path, platform, and test action")
+        try:
+            parts = release_file_parts(value["path"])
+        except ValueError as exc:
+            _fail(path, str(exc))
+        if len(parts) < 2 or parts[0] != "_build":
+            _fail(path, "staged file must be beneath _build")
+        return cls(value["role"], value["path"], value["platform"], value["action"])
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "role": self.role,
+            "path": self.path,
+            "platform": self.platform,
+            "action": self.action,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class CICoverageBinding:
+    """Opt into the fixed coverage.json contract of one native CI producer.
+
+    The existing repository policy selects the workflow. This binding introduces
+    neither another platform matrix nor commands for the consumer to execute.
+    """
+
+    artifact_name: str
+    producer_job: str
+    tested_file: CITestedFile | None = None
+
+    @classmethod
+    def from_dict(cls, value: object) -> CICoverageBinding:
+        path = "qualification.ci.coverage"
+        if not isinstance(value, dict):
+            _fail(path, "requires the versioned artifact_name and producer_job binding")
+        fields = {"schema", "artifact_name", "producer_job"}
+        schema = value.get("schema")
+        if schema == "literate-ai/github-ci-coverage-binding@2":
+            fields.add("tested_file")
+        elif schema != "literate-ai/github-ci-coverage-binding@1":
+            _fail(path, "unsupported coverage binding")
+        if set(value) != fields:
+            _fail(path, "coverage binding has missing or unknown fields")
+        tested_file = (
+            CITestedFile.from_dict(value["tested_file"])
+            if "tested_file" in fields
+            else None
+        )
+        artifact = value["artifact_name"]
+        if (
+            not isinstance(artifact, str)
+            or not 1 <= len(artifact) <= 128
+            or artifact.count("{attempt}") != 1
+            or not re.fullmatch(
+                r"[A-Za-z0-9][A-Za-z0-9._-]*", artifact.replace("{attempt}", "1")
+            )
+        ):
+            _fail(
+                f"{path}.artifact_name",
+                "requires one literal {attempt} in a portable name",
+            )
+        job = value["producer_job"]
+        if (
+            not isinstance(job, str)
+            or not 1 <= len(job) <= 256
+            or job != job.strip()
+            or any(not character.isprintable() for character in job)
+        ):
+            _fail(f"{path}.producer_job", "requires one exact printable job name")
+        return cls(artifact, job, tested_file)
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "schema": (
+                "literate-ai/github-ci-coverage-binding@2"
+                if self.tested_file is not None
+                else "literate-ai/github-ci-coverage-binding@1"
+            ),
+            "artifact_name": self.artifact_name,
+            "producer_job": self.producer_job,
+            **({"tested_file": self.tested_file.to_dict()} if self.tested_file else {}),
+        }
+
+    def artifact_for(self, attempt: int) -> str:
+        if type(attempt) is not int or not 0 < attempt < 2**63:
+            _fail("qualification.ci.coverage.attempt", "requires a positive attempt")
+        return self.artifact_name.replace("{attempt}", str(attempt))
+
+
+@dataclass(frozen=True, slots=True)
 class ReleaseQualificationPolicy:
     """The release's required platforms (N) and actions (M), and its CI rule."""
 
@@ -95,6 +206,7 @@ class ReleaseQualificationPolicy:
     actions: tuple[QualificationAction, ...]
     ci_mandatory: bool
     ci_platforms: tuple[str, ...]
+    ci_coverage: CICoverageBinding | None = None
 
     @classmethod
     def from_dict(
@@ -148,8 +260,12 @@ class ReleaseQualificationPolicy:
                 _fail("qualification.actions", "action names must be unique")
             actions = tuple(parsed)
         ci = value.get("ci", {})
-        if not isinstance(ci, dict) or not set(ci) <= {"mandatory", "platforms"}:
-            _fail("qualification.ci", "allows only mandatory and platforms")
+        if not isinstance(ci, dict) or not set(ci) <= {
+            "mandatory",
+            "platforms",
+            "coverage",
+        }:
+            _fail("qualification.ci", "allows only mandatory, platforms and coverage")
         mandatory = ci.get("mandatory", False)
         if type(mandatory) is not bool:
             _fail("qualification.ci.mandatory", "must be a boolean")
@@ -158,7 +274,25 @@ class ReleaseQualificationPolicy:
         )
         if mandatory and not ci_platforms:
             _fail("qualification.ci.platforms", "mandatory CI must cover a platform")
-        return cls(platforms, actions, mandatory, ci_platforms)
+        coverage = (
+            CICoverageBinding.from_dict(ci["coverage"]) if "coverage" in ci else None
+        )
+        if coverage is not None and not ci_platforms:
+            _fail(
+                "qualification.ci.platforms", "coverage requires declared CI platforms"
+            )
+        tested_file = coverage.tested_file if coverage else None
+        if tested_file is not None and (
+            not mandatory
+            or tested_file.platform not in ci_platforms
+            or tested_file.platform not in platforms
+            or tested_file.action not in {action.name for action in actions}
+        ):
+            _fail(
+                "qualification.ci.coverage.tested_file",
+                "requires a mandatory CI platform and a configured test action",
+            )
+        return cls(platforms, actions, mandatory, ci_platforms, coverage)
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -167,6 +301,9 @@ class ReleaseQualificationPolicy:
             "ci": {
                 "mandatory": self.ci_mandatory,
                 "platforms": list(self.ci_platforms),
+                **(
+                    {"coverage": self.ci_coverage.to_dict()} if self.ci_coverage else {}
+                ),
             },
         }
 
@@ -303,6 +440,7 @@ def require_qualification_record(
     policy: ReleaseQualificationPolicy,
     *,
     revision: str,
+    release_policy_identity: str | None = None,
 ) -> dict[str, object]:
     """Accept a recorded qualification only for this policy and exact revision."""
 
@@ -347,4 +485,50 @@ def require_qualification_record(
             "release.qualification_incomplete",
             "the release policy makes CI mandatory",
         )
+    if policy.ci_coverage is not None:
+        required = {
+            (cell["platform"], cell["action"]) for cell in cells if cell["tier"] == "ci"
+        }
+        if policy.ci_mandatory:
+            required.update(
+                (platform, action.name)
+                for platform in policy.ci_platforms
+                for action in policy.actions
+            )
+        ci = record.get("ci")
+        if required or ci is not None:
+            if not isinstance(ci, dict) or release_policy_identity is None:
+                raise ReleaseQualificationError(
+                    "release.qualification_incomplete",
+                    "strict CI proof and release policy identity are required",
+                )
+            from literate_ai.release_ci_coverage import (
+                CICoverageError,
+                validate_retained_ci_coverage,
+            )
+
+            try:
+                proof = validate_retained_ci_coverage(
+                    ci.get("coverage"),
+                    policy=policy,
+                    revision=revision,
+                    release_policy_identity=release_policy_identity,
+                    required_cells=required,
+                )
+            except CICoverageError as exc:
+                raise ReleaseQualificationError(
+                    "release.qualification_invalid", str(exc)
+                ) from exc
+            if any(
+                cell["tier"] == "ci"
+                and (
+                    type(cell.get("run_id")) is not int
+                    or cell["run_id"] != proof["run_id"]
+                )
+                for cell in cells
+            ):
+                raise ReleaseQualificationError(
+                    "release.qualification_invalid",
+                    "CI cells do not bind the retained run",
+                )
     return record

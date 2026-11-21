@@ -192,6 +192,7 @@ class RetainedHarnessReadmissionTests(unittest.TestCase):
         plan = result["result"]
         self.assertTrue(plan["changes_required"])
         self.assertTrue(plan["commands_changed"])
+        self.assertEqual(plan["wrapper_component"], "components/legacy-project-wrapper")
         self.assertNotIn(
             "build-system.bazel",
             {item["detector_id"] for item in plan["new_inventory"]["findings"]},

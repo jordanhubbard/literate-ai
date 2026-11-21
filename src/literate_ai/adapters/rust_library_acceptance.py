@@ -21,6 +21,7 @@ from literate_ai.adapters.component_acceptance import (
     load_library_acceptance,
 )
 from literate_ai.adapters.rust_library_harness_inputs import (
+    _capture_rust_harness_verifier_session,
     capture_rust_harness_verifier_inputs,
 )
 from literate_ai.contracts.product_json import product_json_bytes
@@ -204,13 +205,33 @@ def capture_loaded_rust_library_verifier_inputs(oracle):
     assertion appears in the private original-instance registry. This context
     still grants no command execution, artifact admission, or SDK authority.
     """
+    with _capture_loaded_rust_library_verifier_session(
+        oracle, _retain_files=False
+    ) as scope:
+        yield scope
+
+
+@contextmanager
+def _capture_loaded_rust_library_verifier_session(oracle, *, _retain_files=True):
+    """Reopen original current files and complete provisioned roots before use.
+
+    Neither dataclass replacement, an archive decoder nor a candidate-constructed
+    assertion appears in the private original-instance registry. This context
+    still grants no command execution, artifact admission, or SDK authority.
+    """
+    if type(_retain_files) is not bool:
+        raise TypeError("rust.harness.verifier-retention-mode-invalid")
     if type(oracle) is not RustLibraryAcceptance:
         _refuse()
     witness = _LOADED.get(id(oracle))
     if witness is None:
         _refuse()
     witness.require_original(oracle)
-    with capture_rust_harness_verifier_inputs(
+    with (
+        _capture_rust_harness_verifier_session
+        if _retain_files
+        else capture_rust_harness_verifier_inputs
+    )(
         witness.path,
         oracle_content=witness.raw,
         harness_name=witness.harness_name,

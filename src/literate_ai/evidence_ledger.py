@@ -33,6 +33,11 @@ from pathlib import Path
 from typing import Any
 
 from ._cache_lock import cache_lock_path, exclusive_cache_lock
+from .adapters._process_interrupt import (
+    GATE_INTERRUPT_GRACE_SECONDS,
+    STEP_INTERRUPT_GRACE_SECONDS,
+    relay_process_interrupt,
+)
 from .adapters._processes import (
     create_process_tree_ownership,
     terminate_process_tree,
@@ -961,6 +966,7 @@ def _run_streaming(
     stderr_file: Path | None,
     pointer_stats: dict[str, tuple[Any, int]] | None = None,
     tee: bool = True,
+    interrupt_grace_seconds: float = 0,
 ) -> subprocess.CompletedProcess[str]:
     ownership = create_process_tree_ownership()
     deadline = None if timeout is None else time.monotonic() + timeout
@@ -1055,8 +1061,15 @@ def _run_streaming(
             thread.join(timeout=remaining_timeout())
             if thread.is_alive():
                 raise subprocess.TimeoutExpired(list(argv), timeout)
-    except BaseException:
+    except BaseException as exc:
         if process is not None:
+            if isinstance(exc, KeyboardInterrupt) and interrupt_grace_seconds:
+                relay_process_interrupt(
+                    process,
+                    ownership=ownership,
+                    readers=threads,
+                    grace_seconds=interrupt_grace_seconds,
+                )
             try:
                 terminate_process_tree(process, ownership=ownership)
             except Exception:
@@ -1185,6 +1198,10 @@ def record_subprocess(
             stderr_file=stderr_file,
             pointer_stats=pointer_stats,
             tee=tee,
+            interrupt_grace_seconds={
+                "release.gate": GATE_INTERRUPT_GRACE_SECONDS,
+                "release.step": STEP_INTERRUPT_GRACE_SECONDS,
+            }.get(operation, 0),
         )
         if isinstance(active_node, EvidenceNode):
             _add_transcript_outputs(

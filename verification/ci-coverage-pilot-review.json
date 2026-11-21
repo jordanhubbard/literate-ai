@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-approved-hosted-and-full-qualification-pending",
+  "reviewer": "sdlc_review",
+  "base_revision": "0686ca7ed5adb1392571c9666fb06fba0c8a2cf2",
+  "review_identity": "sha256:039a58fe38e0a39792319f3195c6c5ec4edcaa6c9d93260ec47d7bb29ff1d361",
+  "subjects": [
+    {
+      "path": ".github/workflows/ci-coverage-pilot.yml",
+      "sha256": "97ae4e57911c8c4ee660e24a53a3a7fe77a97d8b76267ade98b8534c6c035240"
+    },
+    {
+      "path": ".github/qualifications/coverage_pilot/native.py",
+      "sha256": "db7e758c5418597b98c131a88aacfbb6b21536a0978cc283cae8eaeacb645771"
+    },
+    {
+      "path": ".github/qualifications/coverage_pilot/policy.json",
+      "sha256": "221cfe73c641700cb1b9b4cff351dcaa92a3e817e311d05d6ebf4f4d6b11e174"
+    },
+    {
+      "path": ".github/qualifications/coverage_pilot/export.py",
+      "sha256": "8a3452f7ea8bbfae3694a228d58419b6ae42e68bff52348ebe5011642d244517"
+    },
+    {
+      "path": "tests/support/coverage_pilot_fixture.py",
+      "sha256": "c577e2bb0d0f77b291d0c4994699c2fd8f1e44c37f158dde90abcbed9143f2af"
+    },
+    {
+      "path": "tests/e2e/test_release_ci_selection.py",
+      "sha256": "0d5536886178fed98570b5b826ee72ceb3b8462f77a0707e14714b9db71d84ad"
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "e21603f1ad72a5195c969f780bcd16a3cf22e90a11c0763e290b8697ddd315cb"
+    }
+  ],
+  "scope": "Private native coverage fixture/workflow, retained job outputs, exporter and public adapter transport controls. No new public product command or framework root release-policy opt-in.",
+  "closed_findings": [
+    "Fixture policy declares version_mirrors and parses through actual ReleasePolicy",
+    "Linux exporter uses Windows path semantics for Windows executable facts",
+    "Recovery reruns actual native build/test/receipt and consumes its new report"
+  ],
+  "controls": {
+    "methods": 16,
+    "passed": 16,
+    "skipped": 0,
+    "seconds": 37.856,
+    "real": [
+      "temporary Git and committed fixture policy",
+      "local native build and bytecode execution",
+      "exporter process",
+      "bounded ZIP bytes",
+      "existing coverage adapter"
+    ],
+    "simulated": [
+      "GitHub transport",
+      "foreign worker OS/CPU and provider execution facts"
+    ]
+  },
+  "qualification": {
+    "full_source": "pending",
+    "installed_and_native": "pending",
+    "hosted_linux_windows": "pending",
+    "hosted_partial_retry": "pending",
+    "actual_upload_artifact_transfer": "pending",
+    "consuming_repository_public_release_cli": "pending"
+  },
+  "limits": [
+    "The workflow must complete before an operator harness can consume it.",
+    "Associated head equals explicit tested head for this fixture; no merge-tree proof.",
+    "Fixture report integrity does not qualify delivered binary artifacts.",
+    "All framework release requirements and unresolved GitGuardian classification remain in force."
+  ],
+  "release_qualification": false
+}

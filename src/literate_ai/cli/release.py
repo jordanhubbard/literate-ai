@@ -160,6 +160,7 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
                 target=args.target,
                 actor=args.actor,
                 break_glass_reason=args.break_glass_reason,
+                tee_controller_gate=not args.json,
             )
             evidence = result.get("evidence")
             if isinstance(evidence, dict) and isinstance(evidence.get("root"), str):
@@ -178,7 +179,11 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             )
         if args.release_command == "verify-published":
             return (
-                verify_published_release(Path(args.project), Path(args.prepared)),
+                verify_published_release(
+                    Path(args.project),
+                    Path(args.prepared),
+                    expected_tag_object=getattr(args, "expected_tag_object", None),
+                ),
                 0,
             )
         if args.release_command == "advance-default-branch":
@@ -266,8 +271,14 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             run = _evidence_run(args)
             if args.evidence_command == "timing":
                 from literate_ai.evidence_timing import summarize_timing
+                from literate_ai.parallel_unittest_timing import (
+                    registered_module_timings,
+                )
 
-                return summarize_timing(run.reduced()), 0
+                index = run.reduced()
+                summary = summarize_timing(index)
+                summary["module_timing"] = registered_module_timings(index, run.root)
+                return summary, 0
             if args.evidence_command == "index":
                 path = run.write_index()
                 return {
@@ -418,11 +429,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
         choices=sorted(RELEASE_TARGETS),
         default=None,
         help=(
-            "explicit release-gate execution target; overrides the default, "
-            "which is tiered when the release policy declares qualification "
-            "(this host, then workers, then CI), else the project's declared "
-            "ci_targets preference, else the invoking machine "
-            "(gitlab is recognized but not yet supported)"
+            "explicit release-gate execution target. The local target uses the "
+            "configured private SSH fleet. The default is tiered when the release "
+            "policy declares qualification (this host, then workers, then CI), "
+            "then the project's ci_targets preference if configured, and otherwise "
+            "the invoking machine. GitLab support is pending."
         ),
     )
 
@@ -455,6 +466,10 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     )
     verify_published.add_argument("prepared", help="prepared-release JSON")
     verify_published.add_argument("--project", default=".")
+    verify_published.add_argument(
+        "--expected-tag-object",
+        help="trusted tag_object_id from a strict tested-file publication receipt",
+    )
 
     advance = release_commands.add_parser(
         "advance-default-branch",
