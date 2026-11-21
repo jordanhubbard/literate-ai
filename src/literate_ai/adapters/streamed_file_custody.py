@@ -15,6 +15,7 @@ from literate_ai.adapters.retained_native_file_custody import native_file_digest
 from literate_ai.adapters.retained_project_inputs import _root
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.identity import canonical_identity
+from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
 from literate_ai.contracts.retained_cargo_native_custody import (
     RetainedCargoOutputBudget,
 )
@@ -58,6 +59,26 @@ class StreamedFileCustody:
         self._entries = {}
         self._labels = {}
         self._total_bytes = 0
+
+    @classmethod
+    def _from_source_budget(cls, budget: RetainedCargoInputBudget):
+        """Selected original files under an explicit source allowance.
+
+        This primitive enforces file and byte allowances only. Its owning
+        source operation must also enforce residual aggregate/entry/metadata
+        budgets, complete scope selection and closed topology. It grants no
+        traversal, scratch, execution or source-admission permission.
+        """
+        if type(budget) is not RetainedCargoInputBudget:
+            raise TypeError("retained.source-custody.explicit-input-budget-required")
+        value = cls.__new__(cls)
+        value.maximum_files = budget.maximum_files
+        value.maximum_file_bytes = budget.maximum_file_bytes
+        value.maximum_total_bytes = budget.maximum_total_bytes
+        value._entries = {}
+        value._labels = {}
+        value._total_bytes = 0
+        return value
 
     def _observe(self, path, boundary, *, maximum_bytes):
         path = Path(os.path.abspath(path))

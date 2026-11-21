@@ -97,15 +97,12 @@ class CargoToolchain:
             ),
         )
 
-    def require_unchanged(
-        self,
-        environment: Mapping[str, str] | None = None,
-        *,
-        timeout_seconds: float = DEFAULT_CARGO_VERSION_TIMEOUT_SECONDS,
-        stdout_limit_bytes: int = DEFAULT_CARGO_STDOUT_LIMIT_BYTES,
-        stderr_limit_bytes: int = DEFAULT_CARGO_STDERR_LIMIT_BYTES,
-    ) -> None:
-        configured = dict(os.environ if environment is None else environment)
+    def _require_files_unchanged(self) -> Path:
+        """Compare original launcher selection/bytes without executing a probe.
+
+        This is only local tool evidence, never current version/runtime/SDK or
+        execution authority. Full public validation still performs its probe.
+        """
         try:
             launcher = Path(self.command[0]).resolve(strict=True)
         except OSError as exc:
@@ -123,6 +120,18 @@ class CargoToolchain:
                 "builder.cargo_toolchain_changed",
                 "Cargo launcher bytes changed after selection",
             )
+        return launcher
+
+    def require_unchanged(
+        self,
+        environment: Mapping[str, str] | None = None,
+        *,
+        timeout_seconds: float = DEFAULT_CARGO_VERSION_TIMEOUT_SECONDS,
+        stdout_limit_bytes: int = DEFAULT_CARGO_STDOUT_LIMIT_BYTES,
+        stderr_limit_bytes: int = DEFAULT_CARGO_STDERR_LIMIT_BYTES,
+    ) -> None:
+        configured = dict(os.environ if environment is None else environment)
+        launcher = self._require_files_unchanged()
         version, version_info = _probe_cargo(
             self.command,
             configured,

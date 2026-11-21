@@ -26,6 +26,7 @@ from literate_ai.adapters.authored_qualification_publication import (
     METADATA_BYTES,
     _read_published_authored_metadata,
 )
+from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.qualification_archive import reopen_qualification_archive
 from literate_ai.contracts.authored_qualification_reference import (
     AuthoredQualificationReference,
@@ -34,6 +35,7 @@ from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.identity import ContentIdentity
 from literate_ai.contracts.retained_cargo_authored import AuthoredRetainedCargoBinding
 from literate_ai.contracts.retained_libraries import RetainedLibraryExportSet
+from literate_ai.projects import PinnedInputClosure
 
 
 class _PinnedPublicationMetadata:
@@ -104,6 +106,101 @@ class CurrentAuthoredRetainedCargoProducts:
         self._check(self)
 
 
+_PUBLICATION_COMPLETION_KEY = object()
+
+
+class _UnsavableAuthoredPublication:
+    __slots__ = ()
+
+    def __copy__(self):
+        raise TypeError("retained.cargo.authored-publication-not-copyable")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("retained.cargo.authored-publication-not-copyable")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("retained.cargo.authored-publication-not-serializable")
+
+
+@dataclass(init=False, frozen=True, slots=True, eq=False)
+class _OriginalAuthoredPublicationFiles(_UnsavableAuthoredPublication):
+    _metadata: object = field(repr=False)
+    _nodes: tuple = field(repr=False)
+    _retired_paths: tuple = field(repr=False)
+
+    def __init__(self, metadata, nodes, retired_paths, key):
+        if key is not _PUBLICATION_COMPLETION_KEY:
+            raise TypeError("retained.cargo.authored-original-publication-required")
+        for name, value in (
+            ("_metadata", metadata),
+            ("_nodes", nodes),
+            ("_retired_paths", retired_paths),
+        ):
+            object.__setattr__(self, name, value)
+
+    def _require_nodes(self):
+        if any(directory_node(path) != before for path, before in self._nodes):
+            raise ValueError("retained.cargo.authored-publication-directory-changed")
+
+    def require_original_files(self):
+        """Pure publication facts only; no provider/projection refresh or grant.
+
+        The owning operation must finish all other callbacks first, then compare
+        its original consumer/native/tool/oracle facts and retirement fences.
+        No expired publication descriptor, metadata reader or product callback
+        is called here. This observation does not cover all provider authority.
+        """
+        self._require_nodes()
+        self._metadata.require_unchanged()
+        self._require_nodes()
+        _require_retired_paths_absent(self._retired_paths)
+
+
+@dataclass(init=False, frozen=True, slots=True, eq=False)
+class _AuthoredRetainedCargoProductsSession(_UnsavableAuthoredPublication):
+    products: CurrentAuthoredRetainedCargoProducts = field(repr=False)
+    publication: _OriginalAuthoredPublicationFiles = field(repr=False)
+
+    def __init__(self, products, publication, key):
+        if key is not _PUBLICATION_COMPLETION_KEY:
+            raise TypeError(
+                "retained.cargo.authored-original-products-session-required"
+            )
+        object.__setattr__(self, "products", products)
+        object.__setattr__(self, "publication", publication)
+
+
+def _capture_original_authored_publication(metadata, retired_paths):
+    # Called by the actual successful all-run products scope before execution.
+    # Each expected payload comes from its original bounded metadata reader.
+    if type(metadata) is not _PinnedPublicationMetadata:
+        raise TypeError("retained.cargo.authored-original-metadata-required")
+    metadata.require_unchanged()
+    root = metadata.files.root
+    pins = PinnedInputClosure(
+        maximum_files=34,
+        maximum_file_bytes=METADATA_BYTES,
+        maximum_total_bytes=34 * METADATA_BYTES,
+    )
+    directories = {root}
+    for relative, original in tuple(metadata.records.items()):
+        path = root / relative
+        pins.pin(path, boundary=root, label=relative, expected_content=original)
+        parent = path.parent
+        while parent.is_relative_to(root):
+            directories.add(parent)
+            if parent == root:
+                break
+            parent = parent.parent
+    nodes = tuple((path, directory_node(path)) for path in sorted(directories))
+    metadata.require_unchanged()
+    result = _OriginalAuthoredPublicationFiles(
+        pins, nodes, retired_paths, _PUBLICATION_COMPLETION_KEY
+    )
+    result.require_original_files()
+    return result
+
+
 @contextmanager
 def open_authored_retained_cargo_products(
     current,
@@ -121,6 +218,38 @@ def open_authored_retained_cargo_products(
     Local publication metadata is a required current trust root, including all
     recovery/retirement records; an archive alone never substitutes for it.
     """
+    with _open_authored_retained_cargo_products_session(
+        current,
+        binding,
+        configured_store_id=configured_store_id,
+        archive_payload=archive_payload,
+        native_sdk_inputs=native_sdk_inputs,
+        max_bytes=max_bytes,
+        _retain_publication=False,
+    ) as owner:
+        yield owner
+
+
+@contextmanager
+def _open_authored_retained_cargo_products_session(
+    current,
+    binding,
+    *,
+    configured_store_id,
+    archive_payload,
+    native_sdk_inputs=None,
+    max_bytes=DEFAULT_BYTES,
+    _retain_publication=True,
+):
+    """Validate the actual full result before choosing one explicit clean run.
+
+    The store name must come from independent operator configuration. Consumer
+    file review and every native receiving gate remain separate requirements.
+    Local publication metadata is a required current trust root, including all
+    recovery/retirement records; an archive alone never substitutes for it.
+    """
+    if type(_retain_publication) is not bool:
+        raise TypeError("retained.cargo.authored-publication-retention-mode")
     if (
         type(current) is not CurrentAuthoredQualificationPlan
         or type(binding) is not AuthoredRetainedCargoBinding
@@ -225,7 +354,15 @@ def open_authored_retained_cargo_products(
                     check,
                 )
                 owner.require_unchanged()
-                yield owner
+                if _retain_publication:
+                    publication = _capture_original_authored_publication(
+                        metadata, retired_paths
+                    )
+                    yield _AuthoredRetainedCargoProductsSession(
+                        owner, publication, _PUBLICATION_COMPLETION_KEY
+                    )
+                else:
+                    yield owner
                 owner.require_unchanged()
             # The projection's own closer can run additional dependency guards.
             metadata.require_unchanged()
