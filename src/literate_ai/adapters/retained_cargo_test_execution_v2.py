@@ -3,6 +3,10 @@
 import tomllib
 from dataclasses import InitVar, dataclass, field, replace
 
+from literate_ai.adapters.authored_retained_cargo_reopened_output import (
+    _reopened_cargo_output,
+    _select_reopened_test_executables,
+)
 from literate_ai.adapters.retained_cargo_test_execution import (
     _prepare_retained_native_session,
     _prepare_retained_native_tests,
@@ -201,8 +205,20 @@ def _observe_retained_cargo_test_session_v2(
             network=not offline,
         )
 
+    reopened_output = _reopened_cargo_output(materialized)
+
     def select(result, fresh):
         source_guard()
+        if reopened_output is not None:
+            value = _select_reopened_test_executables(
+                result,
+                metadata,
+                materialized=materialized,
+                output_root=fresh,
+                registry_sources=registry_sources,
+            )
+            source_guard()
+            return value
         value = select_cargo_test_executables_v2(
             result,
             metadata,
@@ -220,7 +236,11 @@ def _observe_retained_cargo_test_session_v2(
         preparation = _prepare_retained_native_session(
             project_root=root,
             workspace=workspace,
-            output=workspace / plan.graph.common.output_directory,
+            output=(
+                workspace / plan.graph.common.output_directory
+                if reopened_output is None
+                else reopened_output
+            ),
             target=common.target,
             # run() owns complete consumer-root/tool/permission checks around every
             # subprocess. Nested binary/runtime checks still require the live
@@ -243,7 +263,11 @@ def _observe_retained_cargo_test_session_v2(
         sessions, binaries_guard = _prepare_retained_native_tests(
             project_root=root,
             workspace=workspace,
-            output=workspace / plan.graph.common.output_directory,
+            output=(
+                workspace / plan.graph.common.output_directory
+                if reopened_output is None
+                else reopened_output
+            ),
             target=common.target,
             # run() owns complete consumer-root/tool/permission checks around every
             # subprocess. Nested binary/runtime checks still require the live

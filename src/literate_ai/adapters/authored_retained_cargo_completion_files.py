@@ -116,6 +116,12 @@ class _OriginalAuthoredConsumerFiles:
                 raise ValueError("retained.admission.consumer-configuration-changed")
         inputs._configuration.require_unchanged()
         materialized.scratch.source.require_unchanged()
+        from literate_ai.adapters.authored_retained_cargo_reopen_owner import (
+            _CurrentAuthoredReopenedNamespace,
+        )
+
+        if type(materialized.scratch._core) is _CurrentAuthoredReopenedNamespace:
+            materialized.scratch._core.require_original_files()
         for package in materialized.packages:
             package.require_unchanged()
         reviewed.require_unchanged()

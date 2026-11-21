@@ -87,6 +87,20 @@ class _CurrentAuthoredReopenedNamespace:
         self.require_original_files()
 
     @property
+    def context(self):
+        return self.before.wrapper
+
+    @property
+    def source(self):
+        return self.before.source
+
+    @property
+    def _nodes(self):
+        return self._anchors + tuple(
+            (child, node) for _kind, _parent, child, node in self._children
+        )
+
+    @property
     def workspace_exclusions(self):
         self.require_unchanged()
         return tuple(

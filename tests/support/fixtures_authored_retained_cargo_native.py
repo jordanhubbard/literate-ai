@@ -133,19 +133,21 @@ def authored_native_receiving_fixture(
                     inputs, "open_authored_retained_cargo_products", products
                 ):
                     with ExitStack() as receiving:
+                        arguments = dict(
+                            binding_path="review/binding.json",
+                            reviewed_binding=reviewed_binding,
+                            plan_path="review/plan.json",
+                            gate_policy_path="review/policy.json",
+                            test_inventory_path="review/tests.json",
+                            provider_current=provider_current,
+                            configured_store_id=binding.evidence_store_id,
+                            consumer_cargo=cargo,
+                            consumer_rustc=rustc,
+                            archive_payload=payload,
+                        )
                         current = receiving.enter_context(
                             inputs.open_authored_retained_cargo_inputs(
-                                root,
-                                binding_path="review/binding.json",
-                                reviewed_binding=reviewed_binding,
-                                plan_path="review/plan.json",
-                                gate_policy_path="review/policy.json",
-                                test_inventory_path="review/tests.json",
-                                provider_current=provider_current,
-                                configured_store_id=binding.evidence_store_id,
-                                consumer_cargo=cargo,
-                                consumer_rustc=rustc,
-                                archive_payload=payload,
+                                root, **arguments
                             )
                         )
                         context = receiving.enter_context(
@@ -168,6 +170,18 @@ def authored_native_receiving_fixture(
                         # Tests may close ONLY the receiving scopes while retaining
                         # their outer temporary files for original-fact checks.
                         state["close_receiving"] = receiving.close
+
+                        @contextmanager
+                        def reopen_receiving():
+                            with inputs.open_authored_retained_cargo_inputs(
+                                root, **arguments
+                            ) as reopened:
+                                with authored_retained_cargo_wrapper_context(
+                                    reopened.reviewed
+                                ) as wrapper:
+                                    yield reopened, wrapper
+
+                        state["reopen_receiving"] = reopen_receiving
                         yield materialized, observed, native, state
                 case.assertTrue(state["closed"])
     finally:

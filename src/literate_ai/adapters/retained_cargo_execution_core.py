@@ -21,6 +21,14 @@ from literate_ai.adapters.authored_retained_cargo_execution_inputs import (
 from literate_ai.adapters.authored_retained_cargo_materialization import (
     AuthoredRetainedCargoMaterialization,
 )
+from literate_ai.adapters.authored_retained_cargo_reopened_output import (
+    _capture_reopened_output_completion,
+    _reopened_cargo_output,
+    _reopened_metadata_command,
+    _require_reopened_command_pins,
+    _require_reopened_configuration,
+    _verify_reopened_workspace,
+)
 from literate_ai.adapters.authored_retained_cargo_tool_completion import (
     _capture_authored_consumer_tools,
 )
@@ -99,6 +107,7 @@ class _RetainedCargoExecutedSession(_UnsavableNativePreparation):
     consumer_inputs_identity: object = field(repr=False)
     native_completion: object = field(repr=False)
     tool_completion: object = field(repr=False)
+    output_completion: object = field(repr=False)
     _key: InitVar[object]
 
     def __post_init__(self, _key):
@@ -282,6 +291,37 @@ def _execute_cargo_consumer_session(
             raise ValueError("retained.execution.v2-compiler-override")
 
     reserved(base_environment, workspace)
+    reopened_output = _reopened_cargo_output(materialized)
+    process_environment = base_environment
+    if reopened_output is not None:
+        output = reopened_output
+        process_environment = {**base_environment, "CARGO_TARGET_DIR": str(output)}
+        # Base parent means the reviewed logical output container. Reviewed
+        # gate/tool/config pins are concrete and never silently redirected.
+        for name in ("CARGO_BUILD_TARGET_DIR", "CARGO_BUILD_BUILD_DIR"):
+            if name in base_environment and Path(base_environment[name]) != output:
+                raise ValueError("retained.reopen.base-output-pin-refused")
+        for command in plan.common.gates:
+            _require_reopened_command_pins(
+                command, tools[command.argv[0]], output=output, project_root=root
+            )
+        for target in reviewed.inventory.targets:
+            if isinstance(target.protocol, RetainedCargoCustomProtocol):
+                command = target.protocol.command
+                _require_reopened_command_pins(
+                    command,
+                    tools.get(command.argv[0], cargo),
+                    output=output,
+                    project_root=root,
+                )
+        for tool in (cargo, rustc):
+            _require_reopened_command_pins(
+                _reopened_metadata_command(materialized, offline=offline),
+                tool,
+                output=output,
+                project_root=root,
+            )
+        _require_reopened_configuration(consumer_inputs, output=output)
     deadline = time.monotonic() + timeout_seconds
     tool_completion = None
     if _retain_native and type(materialized) is AuthoredRetainedCargoMaterialization:
@@ -341,7 +381,7 @@ def _execute_cargo_consumer_session(
         cwd = root / command.working_directory
         require_safe_directory(cwd)
         values = {
-            **base_environment,
+            **process_environment,
             **dict(tool.environment),
             **{entry.name: entry.value for entry in command.environment},
         }
@@ -394,16 +434,26 @@ def _execute_cargo_consumer_session(
     output_limit = max_output_bytes
 
     def metadata():
-        result = run(plan.metadata_command(offline=offline), cargo)
-        document = json.loads(result.stdout, object_pairs_hook=_unique_object)
-        verify_cargo_workspace_patches_v2(
-            document,
-            workspace_root=workspace,
-            plan=plan,
-            workspace_manifest=(workspace / "Cargo.toml").read_bytes(),
-            lockfile=(workspace / "Cargo.lock").read_bytes(),
-            registry_sources=registry,
+        command = (
+            plan.metadata_command(offline=offline)
+            if reopened_output is None
+            else _reopened_metadata_command(materialized, offline=offline)
         )
+        result = run(command, cargo)
+        document = json.loads(result.stdout, object_pairs_hook=_unique_object)
+        if reopened_output is None:
+            verify_cargo_workspace_patches_v2(
+                document,
+                workspace_root=workspace,
+                plan=plan,
+                workspace_manifest=(workspace / "Cargo.toml").read_bytes(),
+                lockfile=(workspace / "Cargo.lock").read_bytes(),
+                registry_sources=registry,
+            )
+        else:
+            _verify_reopened_workspace(
+                document, materialized=materialized, registry_sources=registry
+            )
         consumer_inputs.require_metadata_paths(document, environment=base_environment)
         guard()
         return document
@@ -449,6 +499,25 @@ def _execute_cargo_consumer_session(
         guard()
         if tool_completion is not None:
             tool_completion.require_original_files()
+        output_completion = None
+        if reopened_output is not None:
+            output_completion = _capture_reopened_output_completion(
+                materialized,
+                environment=environment,
+                environment_identity=canonical_identity(base_environment),
+                registry_sources=registry_sources,
+                registry_identity=registry_identity,
+                exclusion_permissions=exclusion_permissions,
+                read_exclusion_permission=read_exclusion_permission,
+                deadline=deadline,
+            )
+            # All callbacks precede rechecks of the SAME complete output capture.
+            guard()
+            if native_tests is not None:
+                native_tests.require_original_files()
+            if tool_completion is not None:
+                tool_completion.require_original_files()
+            output_completion.require_original_files()
     except Exception as error:
         raise RetainedCargoExecutionError(
             "retained.execution.v2-failed", observations
@@ -464,5 +533,6 @@ def _execute_cargo_consumer_session(
         baseline,
         completion,
         tool_completion,
+        output_completion,
         _NATIVE_EXECUTION_KEY,
     )
