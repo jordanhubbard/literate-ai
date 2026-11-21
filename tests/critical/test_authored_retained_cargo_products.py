@@ -15,6 +15,7 @@ from dataclasses import replace
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from literate_ai.adapters import authored_qualification_projection as projection_scope
 from literate_ai.adapters.authored_publication_files import AuthoredPublicationFiles
 from literate_ai.adapters.authored_qualification_capture import (
     reopen_authored_product_membership,
@@ -98,6 +99,17 @@ class AuthoredRetainedCargoProductsTests(unittest.TestCase):
                         hook()
                     guard()
 
+                @contextmanager
+                def private_project(current, *, native_sdk_inputs):
+                    # Explicit provider/projection admission fixture only. None
+                    # is not a completion witness for the owning admission API.
+                    with projected(
+                        current, native_sdk_inputs=native_sdk_inputs
+                    ) as owner:
+                        yield projection_scope._AuthoredQualificationProjectionSession(
+                            owner, None, projection_scope._PROJECTION_SESSION_KEY
+                        )
+
                 def replay(_projection, actual_reader, products_identity, **_kwargs):
                     return SimpleNamespace(
                         membership=reopen_authored_product_membership(
@@ -110,6 +122,11 @@ class AuthoredRetainedCargoProductsTests(unittest.TestCase):
                         MODULE + "open_current_authored_qualification_projection",
                         side_effect=project,
                     ) as projected,
+                    patch(
+                        MODULE
+                        + "_open_current_authored_qualification_projection_session",
+                        side_effect=private_project,
+                    ),
                     patch(
                         MODULE + "reopen_projected_authored_qualification",
                         side_effect=replay,

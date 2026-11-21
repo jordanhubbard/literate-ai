@@ -16,6 +16,8 @@ from literate_ai.adapters.authored_qualification_planning import (
     CurrentAuthoredQualificationPlan,
 )
 from literate_ai.adapters.authored_qualification_projection import (
+    _AuthoredQualificationProjectionSession,
+    _open_current_authored_qualification_projection_session,
     open_current_authored_qualification_projection,
     reopen_projected_authored_qualification,
 )
@@ -160,14 +162,16 @@ class _OriginalAuthoredPublicationFiles(_UnsavableAuthoredPublication):
 class _AuthoredRetainedCargoProductsSession(_UnsavableAuthoredPublication):
     products: CurrentAuthoredRetainedCargoProducts = field(repr=False)
     publication: _OriginalAuthoredPublicationFiles = field(repr=False)
+    projection_completion: object = field(repr=False)
 
-    def __init__(self, products, publication, key):
+    def __init__(self, products, publication, key, *, projection_completion=None):
         if key is not _PUBLICATION_COMPLETION_KEY:
             raise TypeError(
                 "retained.cargo.authored-original-products-session-required"
             )
         object.__setattr__(self, "products", products)
         object.__setattr__(self, "publication", publication)
+        object.__setattr__(self, "projection_completion", projection_completion)
 
 
 def _capture_original_authored_publication(metadata, retired_paths):
@@ -281,9 +285,18 @@ def _open_authored_retained_cargo_products_session(
             reader = reopen_qualification_archive(
                 archive_payload, archive, max_bytes=max_bytes, max_records=MAX_RECORDS
             )
-            with open_current_authored_qualification_projection(
-                current, native_sdk_inputs=native_sdk_inputs
-            ) as projection:
+            with (
+                _open_current_authored_qualification_projection_session
+                if _retain_publication
+                else open_current_authored_qualification_projection
+            )(current, native_sdk_inputs=native_sdk_inputs) as projection:
+                if _retain_publication:
+                    if type(projection) is not _AuthoredQualificationProjectionSession:
+                        raise TypeError(
+                            "retained.cargo.authored-original-projection-session-required"
+                        )
+                    projection_completion = projection.completion
+                    projection = projection.projection
                 reopened = reopen_projected_authored_qualification(
                     projection,
                     reader,
@@ -359,7 +372,10 @@ def _open_authored_retained_cargo_products_session(
                         metadata, retired_paths
                     )
                     yield _AuthoredRetainedCargoProductsSession(
-                        owner, publication, _PUBLICATION_COMPLETION_KEY
+                        owner,
+                        publication,
+                        _PUBLICATION_COMPLETION_KEY,
+                        projection_completion=projection_completion,
                     )
                 else:
                     yield owner
