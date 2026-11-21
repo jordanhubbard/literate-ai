@@ -13,6 +13,10 @@ from literate_ai.adapters.authored_qualification_oracles import (
     CurrentAuthoredQualificationOracles,
     read_current_authored_qualification_oracles,
 )
+from literate_ai.adapters.authored_sdk_product_completion import (
+    _capture_authored_sdk_products,
+    _OriginalAuthoredSdkProducts,
+)
 from literate_ai.adapters.generation_preparation import (
     LockedComponentModelSelectionAdapter,
 )
@@ -107,9 +111,18 @@ class CurrentAuthoredQualificationPlan:
     _pipeline_model: str | None = field(default=None, repr=False, compare=False)
     _native_sdk_inputs: object = field(default=None, repr=False, compare=False)
     _planned_sdk_inputs: object = field(init=False, repr=False, compare=False)
+    _original_sdk_products: _OriginalAuthoredSdkProducts | None = field(
+        init=False, repr=False, compare=False
+    )
 
     def __post_init__(self):
         object.__setattr__(self, "_planned_sdk_inputs", self._native_sdk_inputs)
+        products = (
+            _capture_authored_sdk_products(self._native_sdk_inputs)
+            if self._native_sdk_inputs is not None
+            else None
+        )
+        object.__setattr__(self, "_original_sdk_products", products)
 
     def require_unchanged(self):
         if self._native_sdk_inputs is not self._planned_sdk_inputs:
@@ -155,6 +168,8 @@ class CurrentAuthoredQualificationPlan:
             raise ValueError(
                 "qualification.authored.original-planned-sdk-owner-changed"
             )
+        if self._original_sdk_products is not None:
+            self._original_sdk_products.require_original_files()
 
 
 class FilesystemAuthoredQualificationPlanner:

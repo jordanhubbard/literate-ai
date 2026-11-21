@@ -133,6 +133,9 @@ def open_authored_qualification_execution(
             from literate_ai.adapters.generation_preparation import (
                 FilesystemLockedGenerationPreparationAdapter,
             )
+            from literate_ai.adapters.locked_generation_authority import (
+                FilesystemLockedGenerationAuthorityReader,
+            )
             from literate_ai.adapters.native_sdk_generation import (
                 native_sdk_generation_identities,
             )
@@ -149,7 +152,10 @@ def open_authored_qualification_execution(
 
             preparation = FilesystemLockedGenerationApplicationAdapter(
                 FilesystemLockedGenerationPreparationAdapter(
-                    native_sdk_builder=original_sdk_inputs
+                    reader=FilesystemLockedGenerationAuthorityReader(
+                        replay_repository_sources=True
+                    ),
+                    native_sdk_builder=original_sdk_inputs,
                 )
             )
         prepared = preparation.prepare(selection)

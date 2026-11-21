@@ -8,6 +8,11 @@ import unittest
 from contextlib import ExitStack
 from unittest.mock import patch
 
+from literate_ai.adapters import authored_qualification_execution
+from literate_ai.adapters.authored_qualification_planning import (
+    FilesystemAuthoredQualificationPlanner,
+)
+from literate_ai.adapters.models import InheritedSessionSelection
 from literate_ai.adapters.repository_lineage import FilesystemRepositoryLineageStore
 from literate_ai.application.generation_preparation import GenerationPreparationRequest
 from literate_ai.cli import authored_qualification, authored_sdk
@@ -216,17 +221,57 @@ class AuthoredSdkPrepareCommandTests(unittest.TestCase):
             from literate_ai.projects import PinnedInputClosureError
 
             originals = _capture_authored_sdk_products(owner)
-            state.write_text(
-                json.dumps(
-                    AuthorizationRevocationSet()
-                    .revoke(
-                        grant.authorization_id,
-                        actor="operator",
-                        reason="withdraw source grant",
-                    )
-                    .to_dict()
-                )
+            revoked = AuthorizationRevocationSet().revoke(
+                grant.authorization_id, actor="operator", reason="withdraw source grant"
             )
+            revoke_during_review = False
+
+            def review(_root, *, synchronize_source_intelligence):
+                self.assertFalse(synchronize_source_intelligence)
+                if revoke_during_review:
+                    state.write_text(json.dumps(revoked.to_dict()))
+                return binding.driver.identity
+
+            planner = FilesystemAuthoredQualificationPlanner(
+                reviewer=review,
+                binding_resolver=lambda _driver: binding,
+                coding_selector=lambda: InheritedSessionSelection(
+                    binding.driver.identity
+                ),
+            )
+            current = planner.plan(root, selection, native_sdk_inputs=owner)
+
+            # Exercise the real apply preparation after origin removal. Stop at
+            # evidence recording, after the prepared execution plan was verified.
+            class PreparedPlanVerified(Exception):
+                pass
+
+            with (
+                patch(
+                    "literate_ai.adapters.source.repository_git.run_bounded_process",
+                    side_effect=AssertionError(
+                        "apply preparation performed source Git"
+                    ),
+                ),
+                patch.object(
+                    authored_qualification_execution,
+                    "QualificationEvidenceRecorder",
+                    side_effect=PreparedPlanVerified,
+                ),
+                self.assertRaises(PreparedPlanVerified),
+                authored_qualification_execution.open_authored_qualification_execution(
+                    current,
+                    selection,
+                    acknowledged_plan=current.plan.identity,
+                    allow_host_execution=True,
+                    scratch_root=fixture.fixture.root,
+                ),
+            ):
+                self.fail("apply continued past the preparation boundary")
+
+            revoke_during_review = True
+            with self.assertRaisesRegex(PinnedInputClosureError, "SDK revocations"):
+                current.require_unchanged()
             with self.assertRaisesRegex(PinnedInputClosureError, "SDK revocations"):
                 originals.require_original_files()
             with self.assertRaisesRegex(
