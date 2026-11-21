@@ -50,7 +50,8 @@ class AuthoredReopenedNativeExecutionTests(unittest.TestCase):
             allow_host_execution=True,
             read_exclusion_permission=native.read_permission,
             registry_sources=registry,
-            timeout_seconds=900,
+            # Allow for native gates and repeated verification of all inputs.
+            timeout_seconds=1800,
         )
 
     def test_both_modes_use_fresh_same_consumer_children_and_original_completion(

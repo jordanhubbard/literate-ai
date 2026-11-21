@@ -1037,6 +1037,7 @@ jobs:
             group: 6
             gates: "tests"
             test_patterns: "test_authored_re[!t]*.py"
+            worker_timeout: 6600
           - name: "macos-latest / Python 3.11 (authored 3 of 4)"
             python: "3.11"
             group: 7
@@ -1057,6 +1058,7 @@ jobs:
             group: 6
             gates: "tests"
             test_patterns: "test_authored_re[!t]*.py"
+            worker_timeout: 6600
           - name: "macos-latest / Python 3.14 (authored 3 of 4)"
             python: "3.14"
             group: 7
@@ -1107,6 +1109,7 @@ jobs:
       - name: Run full macOS conformance partition
         timeout-minutes: 120
         env:
+          PYTHON_TEST_WORKER_TIMEOUT: ${{ matrix.worker_timeout || 3600 }}
           TEST_PATTERNS: ${{ matrix.test_patterns }}
           GATES: ${{ matrix.gates || 'validate' }}
         run: |

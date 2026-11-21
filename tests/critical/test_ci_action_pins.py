@@ -1100,6 +1100,17 @@ class CiActionPinTests(unittest.TestCase):
             if step.get("name") == "Run full macOS conformance partition"
         )
         self.assertEqual(run["timeout-minutes"], 120)
+        self.assertEqual(
+            run["env"]["PYTHON_TEST_WORKER_TIMEOUT"],
+            "${{ matrix.worker_timeout || 3600 }}",
+        )
+        for cell in cells:
+            owns_native_execution = any(
+                fnmatchcase("test_authored_reopened_native_execution.py", pattern)
+                for pattern in cell["test_patterns"].split()
+            )
+            expected_timeout = 6600 if owns_native_execution else 3600
+            self.assertEqual(cell.get("worker_timeout", 3600), expected_timeout)
         self.assertIn("make validate", run["run"])
         self.assertIn("make python-check", run["run"])
         self.assertEqual(
