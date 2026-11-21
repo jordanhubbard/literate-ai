@@ -41,6 +41,7 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
     {
         "literate-ai/authored-retained-cargo-binding@1",
         "literate-ai/authored-retained-cargo-admission-receipt@1",
+        "literate-ai/authored-retained-cargo-provisioning@1",
         "urn:literate-ai:schema:v2:authored-qualification-comparison",
         "urn:literate-ai:schema:v2:authored-qualification-plan",
         "urn:literate-ai:schema:v2:authored-qualification-project-review",

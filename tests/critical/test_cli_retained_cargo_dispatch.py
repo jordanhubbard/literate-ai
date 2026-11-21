@@ -5,6 +5,7 @@ CLI modules separately execute their original real archive/file composition.
 """
 
 import hashlib
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -248,6 +249,21 @@ class AuthoredExclusionAuthorityTests(unittest.TestCase):
         self.authority = AuthoredRetainedCargoExclusionAuthority(
             self.binding.importer_project_id, self.binding.identity, (self.permission,)
         )
+
+    def test_catalog_distinguishes_provisioning_output_from_exclusion_input(self):
+        catalog = Path(__file__).resolve().parents[2] / "schemas" / "v2"
+        index = json.loads((catalog / "index.json").read_bytes())
+        matrix = json.loads((catalog / "compatibility.json").read_bytes())
+        ids = next(
+            row["public_ids"]
+            for row in index["schemas"]
+            if row["file"] == "authored-retained-cargo.schema.json"
+        )
+        provisioning = "literate-ai/authored-retained-cargo-provisioning@1"
+        self.assertIn(provisioning, ids)
+        self.assertIn(self.authority.SCHEMA, ids)
+        self.assertIn(provisioning, matrix["write_contracts"])
+        self.assertNotIn(self.authority.SCHEMA, matrix["write_contracts"])
 
     def test_closed_codec_schema_and_exact_binding_join(self):
         wire = self.authority.to_dict()
