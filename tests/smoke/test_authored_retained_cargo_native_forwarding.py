@@ -79,6 +79,8 @@ class AuthoredNativeForwardingTests(unittest.TestCase):
             self.assertIs(type(executed), core._RetainedCargoExecutedSession)
             completion = executed.native_completion
             self.assertIs(type(completion), core._RetainedCargoNativeCompletion)
+            self.assertIsNotNone(executed.tool_completion)
+            self.assertEqual(executed.tool_completion._deadline, completion.deadline)
             self.assertLessEqual(started + 900, completion.deadline)
             self.assertLessEqual(completion.deadline, ended + 900)
             self.assertTrue(executed.observations)
@@ -97,16 +99,26 @@ class AuthoredNativeForwardingTests(unittest.TestCase):
             self.assertTrue(state["closed"])
             with self.assertRaisesRegex(ValueError, "scratch-operation-ended"):
                 inputs.current_identity(environment=native.environment)
-            for owner in (executed, completion, completion.tests):
+            for owner in (
+                executed,
+                completion,
+                completion.tests,
+                executed.tool_completion,
+            ):
                 for operation in (copy.copy, copy.deepcopy, pickle.dumps):
                     with self.assertRaises(TypeError):
                         operation(owner)
             completion.refresh_native_dependencies()
+            executed.tool_completion.refresh_current()
+            with patch("subprocess.run", side_effect=AssertionError("raw tool probe")):
+                executed.tool_completion.require_original_files()
             with patch.object(
                 preparation.time, "monotonic", return_value=completion.deadline + 1
             ):
                 with self.assertRaisesRegex(ValueError, "completion-deadline"):
                     completion.refresh_native_dependencies()
+                with self.assertRaisesRegex(ValueError, "completion-deadline"):
+                    executed.tool_completion.refresh_current()
             path.write_bytes(before + b"\n// preserve late custom input\n")
             # Native bytes remain current. This refusal needs the original
             # custom protocol input closure rather than a renewed baseline.

@@ -22,8 +22,12 @@ from tests.support.fixtures_test_retained_cargo_import import blob
 
 
 @contextmanager
-def authored_retirement_fixture(case, *, retire=True, roots=None, receiving_state=None):
+def authored_retirement_fixture(
+    case, *, retire=True, roots=None, receiving_state=None, consumer_cargo=None
+):
     helper = joins.AuthoredRetainedCargoInputsTests("runTest")
+    if consumer_cargo is not None:
+        helper.cargo = consumer_cargo
     with helper.fixture() as (root, _binding, args, _state, _provider):
         with ExitStack() as receiving:
             current = receiving.enter_context(

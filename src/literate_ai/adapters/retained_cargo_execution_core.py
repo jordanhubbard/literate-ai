@@ -21,6 +21,9 @@ from literate_ai.adapters.authored_retained_cargo_execution_inputs import (
 from literate_ai.adapters.authored_retained_cargo_materialization import (
     AuthoredRetainedCargoMaterialization,
 )
+from literate_ai.adapters.authored_retained_cargo_tool_completion import (
+    _capture_authored_consumer_tools,
+)
 from literate_ai.adapters.cargo_workspace_patches_v2 import (
     verify_cargo_workspace_patches_v2,
 )
@@ -95,6 +98,7 @@ class _RetainedCargoExecutedSession(_UnsavableNativePreparation):
     target_outcomes: tuple = field(repr=False)
     consumer_inputs_identity: object = field(repr=False)
     native_completion: object = field(repr=False)
+    tool_completion: object = field(repr=False)
     _key: InitVar[object]
 
     def __post_init__(self, _key):
@@ -279,6 +283,16 @@ def _execute_cargo_consumer_session(
 
     reserved(base_environment, workspace)
     deadline = time.monotonic() + timeout_seconds
+    tool_completion = None
+    if _retain_native and type(materialized) is AuthoredRetainedCargoMaterialization:
+        tool_completion = _capture_authored_consumer_tools(
+            consumer_inputs,
+            cargo=cargo,
+            rustc=rustc,
+            gate_tools=tools,
+            environment=base_environment,
+            deadline=deadline,
+        )
     observations, remaining = [], max_total_output_bytes
     exclusion_permissions = tuple(
         target.protocol.permission_identity
@@ -433,6 +447,8 @@ def _execute_cargo_consumer_session(
             )
         metadata()
         guard()
+        if tool_completion is not None:
+            tool_completion.require_original_files()
     except Exception as error:
         raise RetainedCargoExecutionError(
             "retained.execution.v2-failed", observations
@@ -443,5 +459,10 @@ def _execute_cargo_consumer_session(
         else None
     )
     return _RetainedCargoExecutedSession(
-        tuple(observations), outcomes, baseline, completion, _NATIVE_EXECUTION_KEY
+        tuple(observations),
+        outcomes,
+        baseline,
+        completion,
+        tool_completion,
+        _NATIVE_EXECUTION_KEY,
     )

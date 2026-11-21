@@ -16,6 +16,7 @@ from literate_ai.adapters.component_acceptance import (
 )
 from literate_ai.adapters.rust_library_acceptance import (
     RustLibraryAcceptance,
+    _capture_loaded_rust_library_verifier_session,
     capture_loaded_rust_library_verifier_inputs,
 )
 from literate_ai.application.library_artifacts import project_library_import_surface
@@ -48,6 +49,66 @@ class AuthoredQualificationOracleBinding:
     rust_verifier_inputs_identity: ContentIdentity | None
 
 
+_ORACLE_COMPLETION_KEY = object()
+
+
+@dataclass(init=False, frozen=True, slots=True, eq=False)
+class _OriginalAuthoredOracleFiles:
+    _owner: object = field(repr=False)
+    _authority: object = field(repr=False)
+    _inputs: object = field(repr=False)
+    _bindings: tuple = field(repr=False)
+    _profile_identity: object = field(repr=False)
+    _rust_files: tuple = field(repr=False)
+
+    def __init__(self, owner, rust_files, key):
+        if key is not _ORACLE_COMPLETION_KEY:
+            raise TypeError("qualification.authored.original-oracle-files-required")
+        for name, value in (
+            ("_owner", owner),
+            ("_authority", owner.authority),
+            ("_inputs", owner._inputs),
+            ("_bindings", owner.bindings),
+            ("_profile_identity", owner.profile.identity),
+            ("_rust_files", rust_files),
+        ):
+            object.__setattr__(self, name, value)
+
+    def __copy__(self):
+        raise TypeError("qualification.authored.oracle-files-not-copyable")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("qualification.authored.oracle-files-not-copyable")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("qualification.authored.oracle-files-not-serializable")
+
+    def require_original_files(self):
+        """Original oracle/profile and actual Rust input files only.
+
+        No authority, registry, tool, SDK or process callback runs here. Owning
+        completion must finish full provider refresh and its other original raw
+        facts separately; this comparison grants no execution or admission.
+        """
+        if (
+            self._owner.authority is not self._authority
+            or self._owner._inputs is not self._inputs
+            or self._owner.bindings is not self._bindings
+            or self._owner.profile.identity != self._profile_identity
+        ):
+            raise ValueError("qualification.authored.original-oracle-owner-changed")
+        self._inputs.require_unchanged()
+        for binding in self._bindings:
+            if binding.oracle.identity != binding.oracle_identity:
+                raise AuthoredQualificationOracleError(
+                    "qualification.authored.oracle_changed",
+                    "a verifier-owned oracle changed after selection",
+                )
+        for _binding, files in self._rust_files:
+            files.require_original_files()
+        self._inputs.require_unchanged()
+
+
 @dataclass(frozen=True, slots=True)
 class CurrentAuthoredQualificationOracles:
     """Current verifier inputs, never a decoded grant or generated acceptance.
@@ -64,9 +125,18 @@ class CurrentAuthoredQualificationOracles:
 
     @contextmanager
     def capture_current(self):
+        with self._capture_current_session(_retain_files=False) as owner:
+            yield owner
+
+    @contextmanager
+    def _capture_current_session(self, *, _retain_files=True):
+        if type(_retain_files) is not bool:
+            raise TypeError("qualification.authored.oracle-retention-mode-invalid")
         self.authority.require_unchanged()
         self._inputs.require_unchanged()
         with ExitStack() as stack:
+            if _retain_files:
+                rust_files = []
             for binding in self.bindings:
                 if binding.oracle.identity != binding.oracle_identity:
                     raise AuthoredQualificationOracleError(
@@ -75,14 +145,28 @@ class CurrentAuthoredQualificationOracles:
                     )
                 if type(binding.oracle) is RustLibraryAcceptance:
                     scope = stack.enter_context(
-                        capture_loaded_rust_library_verifier_inputs(binding.oracle)
+                        (
+                            _capture_loaded_rust_library_verifier_session
+                            if _retain_files
+                            else capture_loaded_rust_library_verifier_inputs
+                        )(binding.oracle)
                     )
+                    if _retain_files:
+                        rust_files.append((binding, scope.files))
+                        scope = scope.scope
                     if scope.identity != binding.rust_verifier_inputs_identity:
                         raise AuthoredQualificationOracleError(
                             "qualification.authored.verifier_inputs_changed",
                             "original Rust verifier input custody changed",
                         )
-            yield self
+            if _retain_files:
+                files = _OriginalAuthoredOracleFiles(
+                    self, tuple(rust_files), _ORACLE_COMPLETION_KEY
+                )
+                files.require_original_files()
+                yield files
+            else:
+                yield self
             self._inputs.require_unchanged()
             self.authority.require_unchanged()
             for binding in self.bindings:

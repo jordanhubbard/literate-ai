@@ -15,6 +15,8 @@ from literate_ai.adapters.authored_qualification_planning import (
 )
 from literate_ai.adapters.authored_retained_cargo_products import (
     CurrentAuthoredRetainedCargoProducts,
+    _AuthoredRetainedCargoProductsSession,
+    _open_authored_retained_cargo_products_session,
     open_authored_retained_cargo_products,
 )
 from literate_ai.adapters.authored_retained_cargo_review import (
@@ -60,6 +62,30 @@ class CurrentAuthoredRetainedCargoInputs:
         )
 
 
+_INPUT_SESSION_KEY = object()
+
+
+@dataclass(init=False, frozen=True, slots=True, eq=False)
+class _AuthoredRetainedCargoInputsSession:
+    inputs: CurrentAuthoredRetainedCargoInputs = field(repr=False)
+    products_session: _AuthoredRetainedCargoProductsSession = field(repr=False)
+
+    def __init__(self, inputs, products_session, key):
+        if key is not _INPUT_SESSION_KEY:
+            raise TypeError("retained.cargo.authored-original-input-session-required")
+        object.__setattr__(self, "inputs", inputs)
+        object.__setattr__(self, "products_session", products_session)
+
+    def __copy__(self):
+        raise TypeError("retained.cargo.authored-input-session-not-copyable")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("retained.cargo.authored-input-session-not-copyable")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("retained.cargo.authored-input-session-not-serializable")
+
+
 @contextmanager
 def open_authored_retained_cargo_inputs(
     project_root: Path,
@@ -90,6 +116,62 @@ def open_authored_retained_cargo_inputs(
     Review limits bound all five files and their aggregate before pin/decode,
     including the selected plan and the current project manifest.
     """
+    with _open_authored_retained_cargo_inputs_session(
+        project_root,
+        binding_path=binding_path,
+        reviewed_binding=reviewed_binding,
+        plan_path=plan_path,
+        gate_policy_path=gate_policy_path,
+        test_inventory_path=test_inventory_path,
+        provider_current=provider_current,
+        configured_store_id=configured_store_id,
+        consumer_cargo=consumer_cargo,
+        consumer_rustc=consumer_rustc,
+        archive_payload=archive_payload,
+        native_sdk_inputs=native_sdk_inputs,
+        max_review_file_bytes=max_review_file_bytes,
+        max_review_total_bytes=max_review_total_bytes,
+        max_archive_bytes=max_archive_bytes,
+        max_package_bytes=max_package_bytes,
+        max_entries=max_entries,
+        _retain_products=False,
+    ) as owner:
+        yield owner
+
+
+@contextmanager
+def _open_authored_retained_cargo_inputs_session(
+    project_root: Path,
+    *,
+    binding_path: str,
+    reviewed_binding: BlobRef,
+    plan_path: str,
+    gate_policy_path: str,
+    test_inventory_path: str,
+    provider_current: CurrentAuthoredQualificationPlan,
+    configured_store_id: str,
+    consumer_cargo: CargoToolchain,
+    consumer_rustc: RustToolchain,
+    archive_payload: bytes,
+    native_sdk_inputs=None,
+    max_review_file_bytes: int = 256 * 1024**2,
+    max_review_total_bytes: int = 1024**3,
+    max_archive_bytes: int = 256 * 1024**2,
+    max_package_bytes: int = 256 * 1024**2,
+    max_entries: int = 100_000,
+    _retain_products=True,
+):
+    """Reopen operator-reviewed bytes before joining actual current provider data.
+
+    Root, reviewed binding reference, paths, provider plan, logical store and
+    native tool pair are independent operator inputs. The transport must bound
+    allocation before supplying archive_payload. No candidate file selects its
+    own review identity, trust root, endpoint, tools or execution permission.
+    Review limits bound all five files and their aggregate before pin/decode,
+    including the selected plan and the current project manifest.
+    """
+    if type(_retain_products) is not bool:
+        raise TypeError("retained.cargo.authored-product-retention-mode-invalid")
     if (
         type(provider_current) is not CurrentAuthoredQualificationPlan
         or type(consumer_cargo) is not CargoToolchain
@@ -145,7 +227,11 @@ def open_authored_retained_cargo_inputs(
 
     consumer_current()
     try:
-        with open_authored_retained_cargo_products(
+        with (
+            _open_authored_retained_cargo_products_session
+            if _retain_products
+            else open_authored_retained_cargo_products
+        )(
             provider_current,
             binding,
             configured_store_id=configured_store_id,
@@ -153,6 +239,13 @@ def open_authored_retained_cargo_inputs(
             native_sdk_inputs=native_sdk_inputs,
             max_bytes=max_archive_bytes,
         ) as products:
+            if _retain_products:
+                if type(products) is not _AuthoredRetainedCargoProductsSession:
+                    raise TypeError(
+                        "retained.cargo.authored-original-product-session-required"
+                    )
+                products_session = products
+                products = products_session.products
             if type(products) is not CurrentAuthoredRetainedCargoProducts:
                 raise TypeError("retained.cargo.authored-original-products-required")
             consumer_current()
@@ -189,7 +282,13 @@ def open_authored_retained_cargo_inputs(
                 reviewed, products, consumer_cargo, consumer_rustc, check
             )
             owner.require_unchanged()
-            yield owner
+            if _retain_products:
+                products_session.publication.require_original_files()
+                yield _AuthoredRetainedCargoInputsSession(
+                    owner, products_session, _INPUT_SESSION_KEY
+                )
+            else:
+                yield owner
             owner.require_unchanged()
         # Provider scope closes last: its pinned retirement namespace fence must
         # succeed before this operation can return a usable completion outcome.
