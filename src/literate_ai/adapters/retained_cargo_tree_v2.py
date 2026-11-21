@@ -182,8 +182,42 @@ def capture_retained_cargo_tree_v2(
     The surrounding owner must bind this tree to its exact reviewed input scope
     and charge per-owner plus aggregate policy limits before executing anything.
     """
-    if type(budget) is not RetainedCargoInputBudget:
-        raise ValueError("retained.cargo.v2-input-budget-required")
+    return _capture_retained_cargo_tree(
+        root,
+        budget=budget,
+        exclusions=exclusions,
+        maximum_metadata_bytes=maximum_metadata_bytes,
+        _native_output=False,
+    )
+
+
+def _capture_retained_cargo_tree(
+    root: Path,
+    *,
+    budget: RetainedCargoInputBudget,
+    exclusions: tuple[str, ...] = (),
+    maximum_metadata_bytes: int = 1024 * 1024 * 1024,
+    _native_output: bool = False,
+) -> RetainedCargoInputTreeV2:
+    """Hash physical regular payloads once, with bounded no-follow buffers.
+
+    Internal links reuse canonical SDK topology rules. Complete hard-link groups
+    are required; their payload is charged once and other names remain aliases.
+    Only metadata, digests and link text are retained. No cache is copied or filled.
+    The surrounding owner must bind this tree to its exact reviewed input scope
+    and charge per-owner plus aggregate policy limits before executing anything.
+    """
+    if _native_output:
+        from literate_ai.adapters.retained_cargo_native_output_tree import (
+            _NativeOutputTreeBudget,
+            _OriginalNativeOutputTree,
+        )
+
+        if type(budget) is not _NativeOutputTreeBudget:
+            raise ValueError("retained.output-census.native-budget-required")
+    else:
+        if type(budget) is not RetainedCargoInputBudget:
+            raise ValueError("retained.cargo.v2-input-budget-required")
     if (
         type(maximum_metadata_bytes) is not int
         or not 16 * 1024 * 1024 <= maximum_metadata_bytes <= 16 * 1024**3
@@ -378,6 +412,17 @@ def capture_retained_cargo_tree_v2(
             for name, expected in change_times
         ):
             raise ValueError("retained.cargo.v2-input-physical-custody-changed")
+        if _native_output:
+            return _OriginalNativeOutputTree(
+                root,
+                budget,
+                exclusions,
+                directories,
+                tuple(files),
+                tuple(sorted(aliases, key=lambda x: x.path)),
+                maximum_metadata_bytes,
+                (root_node, physical, change_times),
+            )
         return RetainedCargoInputTreeV2(
             root,
             budget,
