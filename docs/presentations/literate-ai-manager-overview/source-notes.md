@@ -1,5 +1,17 @@
 # Factual claim ledger
 
+## 1.4.0 candidate edition
+
+The reference revision for this draft is `9e4299d9457ce636b407946a26667b7effb58d17`.
+The installed CLI exposes SDK preparation and three operations for a retained Cargo
+library. The importing team can inspect the reviewed archive before writing packages,
+then provision packages before running admission. Admission requires the ordered
+consumer gates and the independently reviewed per-target tests. See
+[the operator procedure](../../user/retained-cargo.md) and
+[ADR 0040](../../decisions/0040-retained-cargo-library-bridge.md).
+The independent provider archive and matching consumer run are outstanding.
+
+
 ## 1.3.0 edition publication (2026-10-24)
 
 The stable Google Workspace pair was updated in place from exact source revision

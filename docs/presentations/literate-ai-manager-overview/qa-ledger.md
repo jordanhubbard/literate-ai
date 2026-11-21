@@ -1,5 +1,14 @@
 # QA ledger
 
+## 1.4.0 candidate source update
+
+Slide 23 and the corresponding narrative section follow the retained Cargo operator
+procedure. Local previews passed all 11 structural checks. The slide contact sheet
+and full-size slides 23 and 25 were inspected. Slide 25 was regenerated after
+removing a stale reference to the 1.2 adopter. The narrative passed the Google
+Docs title-border check. Final candidate review and publication read-back are pending.
+
+
 ## 2026-10-24 1.3.0 retained-source and native-custody edition published
 
 - Regenerated both required members after the 1.3 contribution sweep reached a
