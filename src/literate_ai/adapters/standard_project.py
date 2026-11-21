@@ -2307,6 +2307,83 @@ def project_locked_standard_toolchain_closure(
     dependency_guard: Callable[[], None] | None = None,
 ) -> ProjectedStandardToolchainClosure:
     """Derive all Standard command authority from one exact lock and its Flavors."""
+    return _project_locked_standard_toolchain_closure(
+        snapshot=snapshot,
+        execution_plan=execution_plan,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        npm_toolchain_discoverer=npm_toolchain_discoverer,
+        dependency_observer=dependency_observer,
+        native_sdk_inputs=native_sdk_inputs,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
+        _retain_completion=False,
+    )
+
+
+def _project_locked_standard_toolchain_closure_session(
+    snapshot: LockedGenerationAuthoritySnapshot,
+    execution_plan: ComponentExecutionPlan,
+    *,
+    environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
+    | None = None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    native_sdk_inputs=None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
+) -> object:
+    """Private actual original closure and concrete discovery observations."""
+    return _project_locked_standard_toolchain_closure(
+        snapshot=snapshot,
+        execution_plan=execution_plan,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        npm_toolchain_discoverer=npm_toolchain_discoverer,
+        dependency_observer=dependency_observer,
+        native_sdk_inputs=native_sdk_inputs,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
+        _retain_completion=True,
+    )
+
+
+def _project_locked_standard_toolchain_closure(
+    snapshot: LockedGenerationAuthoritySnapshot,
+    execution_plan: ComponentExecutionPlan,
+    *,
+    environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
+    | None = None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    native_sdk_inputs=None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
+    _retain_completion: bool = False,
+) -> ProjectedStandardToolchainClosure:
+    """Derive all Standard command authority from one exact lock and its Flavors."""
 
     if not isinstance(snapshot, LockedGenerationAuthoritySnapshot) and not (
         hasattr(snapshot, "authority")
@@ -2868,6 +2945,22 @@ def project_locked_standard_toolchain_closure(
         for tool in tools.values()
         if type(tool) is RustToolchain and tool.identity in compiler_identities
     }
+    if _retain_completion:
+        from literate_ai.adapters.authored_provider_tool_completion import (
+            _retain_original_provider_tools,
+        )
+
+        original_closure = replace(
+            closure,
+            rust_harness_compilers=_retain_rust_harness_compilers(
+                tuple(original_compilers[key] for key in sorted(original_compilers))
+            )
+            if original_compilers and set(original_compilers) == compiler_identities
+            else None,
+        )
+        return _retain_original_provider_tools(
+            original_closure, tools, native_sdk_inputs=native_sdk_inputs
+        )
     return replace(
         closure,
         rust_harness_compilers=(

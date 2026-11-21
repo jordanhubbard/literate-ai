@@ -33,6 +33,7 @@ from literate_ai.adapters.models.coding_cli import GenerationRecipe
 from literate_ai.adapters.standard_project import (
     ProjectedStandardToolchainClosure,
     _dependency_observation_identity,
+    _project_locked_standard_toolchain_closure_session,
     _provider_bindings,
     project_locked_standard_toolchain_closure,
 )
@@ -137,6 +138,7 @@ class _OriginalAuthoredProjection(_UnsavableProjectionObservation):
     _lock_identity: object = field(repr=False)
     _authority_files: object = field(repr=False)
     _oracle_files: object = field(repr=False)
+    _tool_completion: object = field(repr=False)
     _key: InitVar[object]
 
     def __post_init__(self, _key):
@@ -197,15 +199,16 @@ class _OriginalAuthoredProjection(_UnsavableProjectionObservation):
             )
 
     def require_original_files(self):
-        """Original authority/oracle files and sealed projection records only.
+        """Original authority/oracle/tool/SDK files and sealed projection records.
 
-        Full tool/SDK/native authority and their original byte facts are separate
-        completion obligations. No expired public projection, fresh projection,
-        replacement expectation, planner or tool callback is used here.
+        Full refresh belongs before these local facts. No expired public owner,
+        fresh projection, replacement baseline, planner or tool callback is used.
+        Consumer-native observations still belong to their actual execution owner.
         """
         self._require_records()
         self._authority_files.require_original_files()
         self._oracle_files.require_original_files()
+        self._tool_completion.require_original_files()
         self._require_records()
 
     def refresh_current(self, *, deadline):
@@ -221,7 +224,7 @@ class _OriginalAuthoredProjection(_UnsavableProjectionObservation):
             self._current.require_unchanged,
             self._snapshot.require_unchanged,
             lambda: self._projector.guard(self._snapshot),
-            self._closure.require_unchanged,
+            lambda: self._tool_completion.refresh_current(deadline=deadline),
             self._current.require_unchanged,
         ):
             _require_projection_completion_deadline(deadline)
@@ -287,9 +290,15 @@ def _open_projection(
             native_sdk_inputs=native_sdk_inputs,
         )
         projector.guard(snapshot)
-        closure = project_locked_standard_toolchain_closure(
-            snapshot, plan, native_sdk_inputs=native_sdk_inputs
-        )
+        if _retain_completion:
+            original_standard = _project_locked_standard_toolchain_closure_session(
+                snapshot, plan, native_sdk_inputs=native_sdk_inputs
+            )
+            closure = original_standard.closure
+        else:
+            closure = project_locked_standard_toolchain_closure(
+                snapshot, plan, native_sdk_inputs=native_sdk_inputs
+            )
         if not isinstance(closure, ProjectedStandardToolchainClosure):
             raise TypeError("original Standard toolchain projection required")
         recipes = {
@@ -433,6 +442,7 @@ def _open_projection(
                     current.plan.origin.component_lock_identity,
                     authority_files,
                     original_oracles,
+                    original_standard.completion,
                     _PROJECTION_SESSION_KEY,
                 )
                 owner.require_unchanged()
