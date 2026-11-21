@@ -2105,6 +2105,7 @@ def _parser() -> JsonArgumentParser:
         dest="project_qualify_command", required=True, parser_class=JsonArgumentParser
     )
     for name, description in (
+        ("prepare-sdk", "build locked SDKs and return their completion identity"),
         ("plan", "inspect the current authored graph without writing or executing"),
         ("apply", "execute an acknowledged authored plan and publish closed evidence"),
     ):
@@ -2118,6 +2119,23 @@ def _parser() -> JsonArgumentParser:
         qualify.add_argument("--profile", default="litai/qualification.json")
         qualify.add_argument("--output-root", default="litai/qualification")
         qualify.add_argument("--model")
+        qualify.add_argument(
+            "--sdk-cache",
+            help="explicit SDK cache path",
+            required=name == "prepare-sdk",
+        )
+        qualify.add_argument(
+            "--sdk-revocations", help="absolute path to current operator revocations"
+        )
+        if name == "prepare-sdk":
+            qualify.add_argument(
+                "--allow-sdk-builds", action="store_true", required=True
+            )
+        else:
+            qualify.add_argument(
+                "--sdk-completion", help="reviewed SDK completion identity"
+            )
+            qualify.add_argument("--sdk-completion-size", type=int)
         if name == "apply":
             qualify.add_argument("--acknowledge-plan", required=True)
             qualify.add_argument("--allow-host-execution", action="store_true")
@@ -2488,7 +2506,8 @@ def _parser() -> JsonArgumentParser:
         ),
     )
     retained_cargo = project_commands.add_parser(
-        "retained-cargo", help="check or provision a reviewed retained Cargo package"
+        "retained-cargo",
+        help="check, materialize or admit a reviewed retained Cargo binding",
     )
     retained_cargo_commands = retained_cargo.add_subparsers(
         dest="retained_cargo_command", required=True, parser_class=JsonArgumentParser
@@ -2499,18 +2518,44 @@ def _parser() -> JsonArgumentParser:
         for option in (
             "binding",
             "plan",
-            "gates",
             "reviewed-binding",
-            "reviewed-gates",
             "provider-project",
             "provider-component",
             "provider-profile",
-            "provider-id",
             "store-id",
         ):
             retained.add_argument("--" + option, required=True)
-        for option in ("binding-size", "gate-size"):
-            retained.add_argument("--" + option, type=int, required=True)
+        retained.add_argument("--binding-size", type=int, required=True)
+        for option in ("gates", "reviewed-gates", "provider-id"):
+            retained.add_argument("--" + option, help="source-v1 binding only")
+        retained.add_argument("--gate-size", type=int, help="source-v1 binding only")
+        retained.add_argument("--gate-policy", help="authored binding policy path")
+        retained.add_argument(
+            "--tests", help="current binding-specific test inventory path"
+        )
+        retained.add_argument(
+            "--provider-output-root", help="authored provider output root"
+        )
+        retained.add_argument("--provider-flavor", action="append", default=[])
+        for option in ("old-output-file-bytes", "old-output-total-bytes"):
+            retained.add_argument(
+                "--" + option, type=int, help="required authored old-output byte budget"
+            )
+        for option in ("output-files", "output-entries", "output-metadata-bytes"):
+            retained.add_argument(
+                "--" + option,
+                type=int,
+                help="authored limit for each old or fresh output forest",
+            )
+        retained.add_argument("--timeout-seconds", type=int)
+        retained.add_argument(
+            "--sdk-completion", help="reviewed SDK completion identity"
+        )
+        retained.add_argument("--sdk-completion-size", type=int)
+        retained.add_argument(
+            "--sdk-revocations", help="absolute path to current operator revocations"
+        )
+        retained.add_argument("--sdk-cache", help="explicit provider SDK cache path")
         retained.add_argument("--target", default="host")
         retained.add_argument("--model")
         archive_source = retained.add_mutually_exclusive_group(required=True)
@@ -2524,20 +2569,29 @@ def _parser() -> JsonArgumentParser:
         )
         retained.add_argument("--offline", action="store_true")
         if operation == "admit":
-            for option in (
-                "tests",
-                "reviewed-tests",
-                "retirement",
-                "reviewed-retirement",
-            ):
+            retained.add_argument("--reviewed-tests", help="source-v1 binding only")
+            retained.add_argument(
+                "--tests-size", type=int, help="source-v1 binding only"
+            )
+            for option in ("retirement", "reviewed-retirement"):
                 retained.add_argument("--" + option, required=True)
-            for option in ("tests-size", "retirement-size"):
-                retained.add_argument("--" + option, type=int, required=True)
+            retained.add_argument("--retirement-size", type=int, required=True)
+            for option in ("new-output-file-bytes", "new-output-total-bytes"):
+                retained.add_argument(
+                    "--" + option,
+                    type=int,
+                    help="required authored fresh-output byte budget",
+                )
+            for option in ("exclusion-authority", "reviewed-exclusion-authority"):
+                retained.add_argument(
+                    "--" + option,
+                    help="independently reviewed authored exclusion permission set",
+                )
+            retained.add_argument("--exclusion-authority-size", type=int)
             retained.add_argument("--allow-host-execution", action="store_true")
             retained.add_argument(
                 "--acknowledge-source-retirement", action="store_true"
             )
-            retained.add_argument("--timeout-seconds", type=int, default=900)
     project_receipt = project_commands.add_parser("test-receipt")
     project_receipt_commands = project_receipt.add_subparsers(
         dest="test_receipt_command",

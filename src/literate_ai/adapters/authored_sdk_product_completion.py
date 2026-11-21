@@ -10,7 +10,10 @@ import time
 from dataclasses import asdict, dataclass, field
 
 from literate_ai.adapters.exclusive_directory import directory_node
-from literate_ai.adapters.native_sdk_consumer import NativeSdkConsumerInputs
+from literate_ai.adapters.native_sdk_consumer import (
+    NativeSdkConsumerInputs,
+    _ReopenedSdkSource,
+)
 from literate_ai.adapters.native_sdk_source_build import NativeSdkSourceBuildService
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.storage.cas import FileSystemCAS
@@ -38,7 +41,11 @@ class _OriginalAuthoredSdkProducts:
     _nodes: tuple = field(repr=False)
     _sources: tuple = field(repr=False)
 
-    def __init__(self, owner, refs, values, stores, nodes, sources, key):
+    _revocation_pins: object = field(repr=False)
+
+    def __init__(
+        self, owner, refs, values, stores, nodes, sources, revocation_pins, key
+    ):
         if key is not _KEY:
             raise TypeError("qualification.authored.original-sdk-products-required")
         for name, value in (
@@ -48,6 +55,7 @@ class _OriginalAuthoredSdkProducts:
             ("_stores", stores),
             ("_nodes", nodes),
             ("_sources", sources),
+            ("_revocation_pins", revocation_pins),
         ):
             object.__setattr__(self, name, value)
 
@@ -87,6 +95,8 @@ class _OriginalAuthoredSdkProducts:
                 # reacquire source, inspect native images or run a producer.
                 FileSystemCAS.verify(store, reference)
         self._require_fields()
+        if self._revocation_pins is not None:
+            self._revocation_pins.require_unchanged()
 
     def refresh_current(self, *, deadline):
         if (
@@ -114,21 +124,38 @@ def _capture_authored_sdk_products(owner):
     owner.require_unchanged()
     refs = [
         (owner, name, getattr(owner, name))
-        for name in ("snapshot", "_services", "_inputs", "_blob_sources")
+        for name in (
+            "snapshot",
+            "_services",
+            "_inputs",
+            "_blob_sources",
+            "_refresh_completion",
+        )
     ]
     values, stores, nodes = [], [], {}
+    revocation_file = None
     for service, binding in owner._inputs:
-        if type(service) is not NativeSdkSourceBuildService:
-            raise TypeError("qualification.authored.original-sdk-service-required")
         build = binding.build
         product = build.product
         store = service.store
-        if type(store) is not FileSystemCAS or service._result is not build:
+        if type(store) is not FileSystemCAS:
             raise TypeError("qualification.authored.original-sdk-product-required")
+        if type(service) is NativeSdkSourceBuildService:
+            if service._result is not build or owner._refresh_completion is not None:
+                raise TypeError("qualification.authored.original-sdk-product-required")
+            service_fields = ("snapshot", "selection", "store", "builder", "_result")
+        elif (
+            type(service) is _ReopenedSdkSource
+            and owner._refresh_completion is not None
+        ):
+            service_fields = ("store", "revocations", "references", "revocation_file")
+            revocation_file = service.revocation_file
+        else:
+            raise TypeError("qualification.authored.original-sdk-service-required")
         refs.extend(
             (value, name, getattr(value, name))
             for value, names in (
-                (service, ("snapshot", "selection", "store", "builder", "_result")),
+                (service, service_fields),
                 (binding, ("build",)),
                 (build, ("selection", "resolution", "product")),
                 (
@@ -152,9 +179,15 @@ def _capture_authored_sdk_products(owner):
             product.result_blob,
             *(item.blob for item in product.snapshot.files),
         )
-        stores.append((store, store.root, store.blob_root, references))
+        if type(service) is _ReopenedSdkSource:
+            # Each verified packet covers every selected dependency in this store.
+            if not stores:
+                stores.append((store, store.root, store.blob_root, service.references))
+        else:
+            stores.append((store, store.root, store.blob_root, references))
         for path in (store.root, store.blob_root.parent, store.blob_root):
             nodes[path] = directory_node(path)
+    owner.require_unchanged()
     result = _OriginalAuthoredSdkProducts(
         owner,
         tuple(refs),
@@ -162,8 +195,8 @@ def _capture_authored_sdk_products(owner):
         tuple(stores),
         tuple(nodes.items()),
         tuple(owner._blob_sources.items()),
+        revocation_file.original_observation() if revocation_file is not None else None,
         _KEY,
     )
-    owner.require_unchanged()
     result.require_original_files()
     return result

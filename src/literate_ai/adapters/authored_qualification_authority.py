@@ -119,7 +119,9 @@ def read_current_authored_qualification_authority(
             "qualification.authored.project_mismatch",
             "selected root Component belongs to a different project",
         )
-    locked = FilesystemLockedGenerationAuthorityReader().read(
+    locked = FilesystemLockedGenerationAuthorityReader(
+        replay_repository_sources=True
+    ).read(
         component,
         target_name=request.target_name,
         flavor_selectors=request.flavor_selectors,

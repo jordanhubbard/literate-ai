@@ -50,7 +50,7 @@ from tests.support.fixtures_test_retained_cargo_import import blob
 
 @contextmanager
 def authored_native_receiving_fixture(
-    case, *, with_build_output=False, with_custom_input=False
+    case, *, with_build_output=False, with_custom_input=False, setup_only=False
 ):
     provider = planning.AuthoredQualificationPlanningTests("runTest")
     provider.setUp()
@@ -132,19 +132,25 @@ def authored_native_receiving_fixture(
                 with patch.object(
                     inputs, "open_authored_retained_cargo_products", products
                 ):
+                    arguments = dict(
+                        binding_path="review/binding.json",
+                        reviewed_binding=reviewed_binding,
+                        plan_path="review/plan.json",
+                        gate_policy_path="review/policy.json",
+                        test_inventory_path="review/tests.json",
+                        provider_current=provider_current,
+                        configured_store_id=binding.evidence_store_id,
+                        consumer_cargo=cargo,
+                        consumer_rustc=rustc,
+                        archive_payload=payload,
+                    )
+                    if setup_only:
+                        # Fresh canonical consumer declarations, provider fixture
+                        # and independent operator arguments; no receiver entered
+                        # and no scratch/package/output namespace yet exists.
+                        yield root, arguments, native, state
+                        return
                     with ExitStack() as receiving:
-                        arguments = dict(
-                            binding_path="review/binding.json",
-                            reviewed_binding=reviewed_binding,
-                            plan_path="review/plan.json",
-                            gate_policy_path="review/policy.json",
-                            test_inventory_path="review/tests.json",
-                            provider_current=provider_current,
-                            configured_store_id=binding.evidence_store_id,
-                            consumer_cargo=cargo,
-                            consumer_rustc=rustc,
-                            archive_payload=payload,
-                        )
                         current = receiving.enter_context(
                             inputs.open_authored_retained_cargo_inputs(
                                 root, **arguments

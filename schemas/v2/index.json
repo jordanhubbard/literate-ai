@@ -1234,7 +1234,9 @@
       "root_id": "urn:literate-ai:schema:v2:authored-retained-cargo",
       "public_ids": [
         "literate-ai/authored-retained-cargo-binding@1",
-        "literate-ai/authored-retained-cargo-admission-receipt@1"
+        "literate-ai/authored-retained-cargo-admission-receipt@1",
+        "literate-ai/authored-retained-cargo-provisioning@1",
+        "literate-ai/authored-retained-cargo-exclusion-authority@1"
       ]
     }
   ]

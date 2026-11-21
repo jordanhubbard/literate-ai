@@ -9,11 +9,12 @@ from literate_ai.application.generation_preparation import GenerationPreparation
 from literate_ai.contracts.identity import ContentIdentity
 from literate_ai.projects import discover_project
 
+from .authored_sdk import prepare_authored_sdk, reopen_authored_sdk_inputs
 from .errors import CliFailure
 
 
 def authored_qualification_from_args(args):
-    if args.project_qualify_command not in {"plan", "apply"}:
+    if args.project_qualify_command not in {"plan", "apply", "prepare-sdk"}:
         raise CliFailure("cli.usage", "an authored qualification command is required")
     try:
         project = discover_project(Path(args.project))
@@ -28,12 +29,16 @@ def authored_qualification_from_args(args):
             flavor_selectors=tuple(args.flavor),
             flavor_roots=project.roots("flavor"),
         )
+        if args.project_qualify_command == "prepare-sdk":
+            return prepare_authored_sdk(project, selection, args)
+        sdk_inputs = reopen_authored_sdk_inputs(project, selection, args)
         current = FilesystemAuthoredQualificationPlanner().plan(
             project.root,
             selection,
             profile_path=args.profile,
             output_root=args.output_root,
             pipeline_model=args.model,
+            native_sdk_inputs=sdk_inputs,
         )
         current.require_unchanged()
         plan = current.plan

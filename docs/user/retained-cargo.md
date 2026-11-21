@@ -128,7 +128,7 @@ retirement declaration requires a new receipt.
 
 ## Public Python v2 receiving transaction
 
-The CLI commands above retain their v1 wire contracts. Versioned workspace
+The source-derived CLI commands above retain their v1 wire contracts. Versioned workspace
 patches, internal scratch ownership, complete input custody and typed test
 protocols use the public Python adapters below. A v2 document must never be cast
 to a v1 importer or passed through the v1 CLI to discard those declarations.
@@ -212,3 +212,95 @@ of that reader. An excluded target records no executed command or passing case.
 
 Publication and execution alone do not admit a consumer, retire source, prove an
 entire application migrated, or authorize reuse of stale provider authority.
+
+
+## Authored qualification bindings
+
+The same public commands accept the independently reviewed
+`literate-ai/authored-retained-cargo-binding@1` format from
+[ADR 0072](../decisions/0072-authored-native-graph-qualification.md). The binding
+selects its origin; there is no origin override. Unknown formats, mixed fields
+and source-derived v2 CLI bindings refuse. Source-derived v2 continues through
+its Python receiving transaction above.
+
+An authored binding pins its provider reference, selected run, every export,
+workspace plan, gate policy and typed test inventory. Supply the actual authored
+policy with `--gate-policy` and the inventory with `--tests` for all three
+operations. The source-v1 `--gates`, `--reviewed-gates`, `--gate-size`,
+`--provider-id`, `--reviewed-tests` and `--tests-size` options do not apply.
+The independently supplied binding digest and size remain required; a file's own
+identity fields cannot approve its contents.
+
+For example, after independently reviewing the real qualification and consumer
+files, select the current provider and bounded old output observation:
+
+```sh
+litai project retained-cargo check \
+  --project ./consumer \
+  --binding authored-binding.json --plan authored-plan.json \
+  --gate-policy authored-policy.json --tests authored-tests.json \
+  --reviewed-binding "$REVIEWED_BINDING_ID" --binding-size "$BINDING_BYTES" \
+  --provider-project ./provider --provider-component components/library \
+  --provider-profile litai/qualification.json --target host \
+  --archive ./authored-qualified.zip --store-id reviewed-store \
+  --old-output-file-bytes 536870912 --old-output-total-bytes 4294967296
+```
+
+Use independently chosen finite limits appropriate to the reviewed consumer.
+`--output-files`, `--output-entries` and `--output-metadata-bytes` bound each
+complete old or fresh output forest. Source and exact package custody retain their
+own policy limits. Old outputs are observed as read-only data and are never
+accepted as current execution evidence.
+
+Run `materialize` before `admit`. Initial materialization exclusively publishes
+complete packages into absent declared roots; partial or foreign roots refuse.
+A subsequent materialization verifies the existing packages and returns a no-op
+report. It allocates no execution child and runs no consumer gate. Checks and
+materialization return the inert
+`literate-ai/authored-retained-cargo-provisioning@1` report.
+
+For admission, keep the same reviewed arguments and add the actual reviewed
+retirement file, its independent digest and size, both execution/retirement
+acknowledgements shown above, and `--new-output-file-bytes` plus
+`--new-output-total-bytes`. The retired source roots must already be absent.
+Every admission reserves a fresh exclusive child within each declared output
+parent and executes the complete consumer gates and typed targets there. Prior
+outputs are preserved. Commands or Cargo configuration that require incompatible
+fixed output paths refuse. A successful
+`literate-ai/authored-retained-cargo-admission-receipt@1` is created only after
+all owned scopes close and original provider, tools, package, complete output,
+consumer and retirement facts pass their final checks. The command does not
+delete original source.
+
+An excluded target additionally requires an independent operator-reviewed
+`literate-ai/authored-retained-cargo-exclusion-authority@1` file, supplied using
+`--exclusion-authority`, `--reviewed-exclusion-authority` and
+`--exclusion-authority-size`. Its exact importer and binding must match, and its
+sorted distinct `permissions` must cover every reviewed excluded target. The
+command retains that original authority through the final permission refresh.
+An excluded target contributes no executed command or passing case. Decoding a
+candidate's inventory or permission document grants nothing by itself.
+
+For a project with locked native SDK dependencies, first prepare the selected
+Component and target on the provider host. For example:
+
+```sh
+litai project qualify prepare-sdk COMPONENT --project PROVIDER --target TARGET \
+  --sdk-cache CACHE --sdk-revocations /absolute/path/to/revocations.json --allow-sdk-builds
+```
+
+This command fetches and builds the locked SDKs. Save the returned
+`sdk_completion` and `sdk_completion_size` from that trusted preparation.
+For `project qualify plan`, `project qualify apply`, and authored retained Cargo
+operations, pass `--sdk-cache CACHE --sdk-completion SHA256_URI
+--sdk-completion-size BYTES` with the same Component and target selection.
+Pass the current operator-managed authorization revocation file with
+`--sdk-revocations` on each operation. The reader checks it again at authorization.
+Relative cache paths resolve under the provider project. Planning and checking
+read the selected SDK from that cache. When project inputs or SDK tools change,
+prepare the current selection again and review the new completion.
+
+Authored retained operations reject `--offline` before provider discovery because
+current project authority can resolve remote assets. Source-v1 offline receiving remains available. No-SDK qualification
+remains available without SDK flags. These operations do not requalify a stale provider
+or replace the required genuine generated runs and independent acceptance.

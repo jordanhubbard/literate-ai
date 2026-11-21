@@ -265,12 +265,24 @@ def _open_projection(
         or execution.result.plan != current.plan
     ):
         raise TypeError("projection requires the original authored execution owner")
+    retained_sdk_inputs = current._planned_sdk_inputs
+    if native_sdk_inputs is not None and native_sdk_inputs is not retained_sdk_inputs:
+        raise TypeError("qualification.authored.original-planned-sdk-owner-required")
+    native_sdk_inputs = retained_sdk_inputs
     active = True
 
     def authority():
         if not active:
             raise ValueError("qualification.authored.projection_owner_expired")
+        if current._native_sdk_inputs is not retained_sdk_inputs:
+            raise ValueError(
+                "qualification.authored.original-planned-sdk-owner-changed"
+            )
         current.require_unchanged()
+        if current._native_sdk_inputs is not retained_sdk_inputs:
+            raise ValueError(
+                "qualification.authored.original-planned-sdk-owner-changed"
+            )
         if execution is not None:
             execution.require_unchanged()
 
@@ -393,6 +405,8 @@ def _open_projection(
                                     "_reviewer",
                                     "_coding_selector",
                                     "_pipeline_model",
+                                    "_native_sdk_inputs",
+                                    "_planned_sdk_inputs",
                                 ),
                             ),
                             (

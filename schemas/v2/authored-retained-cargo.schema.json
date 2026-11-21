@@ -416,6 +416,155 @@
           }
         }
       ]
+    },
+    "provisioning": {
+      "$id": "literate-ai/authored-retained-cargo-provisioning@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "operation",
+        "origin",
+        "binding_identity",
+        "plan_identity",
+        "provider_reference_identity",
+        "verified_present_packages",
+        "missing_packages",
+        "published_packages",
+        "consumer_gates_executed",
+        "importer_admission",
+        "source_retirement"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/authored-retained-cargo-provisioning@1"
+        },
+        "operation": {
+          "enum": [
+            "check",
+            "materialize"
+          ]
+        },
+        "origin": {
+          "const": "authored"
+        },
+        "binding_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "plan_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "provider_reference_identity": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "verified_present_packages": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "missing_packages": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "published_packages": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        },
+        "consumer_gates_executed": {
+          "const": false
+        },
+        "importer_admission": {
+          "const": false
+        },
+        "source_retirement": {
+          "const": false
+        }
+      },
+      "anyOf": [
+        {
+          "properties": {
+            "operation": {
+              "const": "check"
+            },
+            "verified_present_packages": {
+              "const": 0
+            },
+            "missing_packages": {
+              "minimum": 1
+            },
+            "published_packages": {
+              "const": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "verified_present_packages": {
+              "minimum": 1
+            },
+            "missing_packages": {
+              "const": 0
+            },
+            "published_packages": {
+              "const": 0
+            }
+          }
+        },
+        {
+          "properties": {
+            "operation": {
+              "const": "materialize"
+            },
+            "verified_present_packages": {
+              "minimum": 1
+            },
+            "missing_packages": {
+              "const": 0
+            },
+            "published_packages": {
+              "minimum": 1
+            }
+          }
+        }
+      ]
+    },
+    "exclusion_authority": {
+      "$id": "literate-ai/authored-retained-cargo-exclusion-authority@1",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema",
+        "importer_project_id",
+        "binding_identity",
+        "permissions"
+      ],
+      "properties": {
+        "schema": {
+          "const": "literate-ai/authored-retained-cargo-exclusion-authority@1"
+        },
+        "importer_project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+        },
+        "binding_identity": {
+          "$ref": "urn:literate-ai:schema:v1:content-identity"
+        },
+        "permissions": {
+          "type": "array",
+          "maxItems": 4096,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "urn:literate-ai:schema:v1:content-identity"
+          }
+        }
+      }
     }
   }
 }

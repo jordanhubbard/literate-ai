@@ -127,7 +127,31 @@ def open_authored_qualification_execution(
         )
 
     with current.oracles.capture_current():
-        preparation = FilesystemLockedGenerationApplicationAdapter()
+        if current._native_sdk_inputs is None:
+            preparation = FilesystemLockedGenerationApplicationAdapter()
+        else:
+            from literate_ai.adapters.generation_preparation import (
+                FilesystemLockedGenerationPreparationAdapter,
+            )
+            from literate_ai.adapters.native_sdk_generation import (
+                native_sdk_generation_identities,
+            )
+
+            retained_sdk_inputs = current._native_sdk_inputs
+
+            def original_sdk_inputs(snapshot):
+                if current._native_sdk_inputs is not retained_sdk_inputs:
+                    raise ValueError(
+                        "qualification.authored.original-planned-sdk-owner-changed"
+                    )
+                native_sdk_generation_identities(retained_sdk_inputs, snapshot)
+                return retained_sdk_inputs
+
+            preparation = FilesystemLockedGenerationApplicationAdapter(
+                FilesystemLockedGenerationPreparationAdapter(
+                    native_sdk_builder=original_sdk_inputs
+                )
+            )
         prepared = preparation.prepare(selection)
         authority = current.oracles.authority
         lock = authority.locked.authority.lock

@@ -105,8 +105,17 @@ class CurrentAuthoredQualificationPlan:
     _reviewer: object = field(repr=False, compare=False)
     _coding_selector: object = field(repr=False, compare=False)
     _pipeline_model: str | None = field(default=None, repr=False, compare=False)
+    _native_sdk_inputs: object = field(default=None, repr=False, compare=False)
+    _planned_sdk_inputs: object = field(init=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        object.__setattr__(self, "_planned_sdk_inputs", self._native_sdk_inputs)
 
     def require_unchanged(self):
+        if self._native_sdk_inputs is not self._planned_sdk_inputs:
+            raise ValueError(
+                "qualification.authored.original-planned-sdk-owner-changed"
+            )
         self.oracles.require_unchanged()
         self.binding.require_unchanged()
         self.standard.coding_cli.require_unchanged()
@@ -114,6 +123,7 @@ class CurrentAuthoredQualificationPlan:
         current_selection.require_unchanged()
         current_standard = FilesystemStandardProjectPlanningAdapter(
             coding_cli_selector=lambda: current_selection,
+            native_sdk_inputs=self._native_sdk_inputs,
             model_selector=LockedComponentModelSelectionAdapter(
                 pipeline_model=self._pipeline_model
             ),
@@ -141,6 +151,10 @@ class CurrentAuthoredQualificationPlan:
             self.oracles.authority.project.root, self.plan.output_root
         )
         self.oracles.require_unchanged()
+        if self._native_sdk_inputs is not self._planned_sdk_inputs:
+            raise ValueError(
+                "qualification.authored.original-planned-sdk-owner-changed"
+            )
 
 
 class FilesystemAuthoredQualificationPlanner:
@@ -163,6 +177,7 @@ class FilesystemAuthoredQualificationPlanner:
         profile_path="litai/qualification.json",
         output_root="litai/qualification",
         pipeline_model=None,
+        native_sdk_inputs=None,
     ) -> CurrentAuthoredQualificationPlan:
         authority = read_current_authored_qualification_authority(
             project_root, selection
@@ -181,6 +196,7 @@ class FilesystemAuthoredQualificationPlanner:
                 raise TypeError("original resolved Standard binding required")
             standard = FilesystemStandardProjectPlanningAdapter(
                 coding_cli_selector=self.coding_selector,
+                native_sdk_inputs=native_sdk_inputs,
                 model_selector=LockedComponentModelSelectionAdapter(
                     pipeline_model=pipeline_model
                 ),
@@ -206,6 +222,7 @@ class FilesystemAuthoredQualificationPlanner:
                 self.reviewer,
                 self.coding_selector,
                 pipeline_model,
+                native_sdk_inputs,
             )
             current.require_unchanged()
         current.require_unchanged()

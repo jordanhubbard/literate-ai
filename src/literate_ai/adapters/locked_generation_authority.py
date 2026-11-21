@@ -96,6 +96,8 @@ class LockedGenerationAuthoritySnapshot:
         default=None, repr=False, compare=False
     )
 
+    _replay_repository_sources: bool = field(default=False, repr=False, compare=False)
+
     def __post_init__(self) -> None:
         if (self._lock_store is None) != (self._component_lock is None):
             raise TypeError("lock store and Component lock must be supplied together")
@@ -172,7 +174,11 @@ class LockedGenerationAuthoritySnapshot:
                 self._catalog,
                 target_name=self._target_name,
                 flavor_selectors=self._flavor_selectors,
-                **({"locked_repository_sources": sources} if sources else {}),
+                **(
+                    {"locked_repository_sources": sources}
+                    if sources or self._replay_repository_sources
+                    else {}
+                ),
             )
             if current.identity != self._resolution_plan_identity:
                 raise LockedGenerationAuthorityReaderError(
@@ -200,8 +206,14 @@ class LockedGenerationAuthoritySnapshot:
 class FilesystemLockedGenerationAuthorityReader:
     """Read one canonical lock against a safely snapshotted current catalog."""
 
-    def __init__(self, planner: FilesystemComponentLockPlanner | None = None) -> None:
+    def __init__(
+        self,
+        planner: FilesystemComponentLockPlanner | None = None,
+        *,
+        replay_repository_sources: bool = False,
+    ) -> None:
         self._planner = planner or FilesystemComponentLockPlanner()
+        self._replay_repository_sources = replay_repository_sources
 
     def read(
         self,
@@ -277,10 +289,20 @@ class FilesystemLockedGenerationAuthorityReader:
                 target_name=target_name,
                 flavor_selectors=flavor_selectors,
             )
+            source_options = {}
+            if self._replay_repository_sources:
+                # Read-only authored operations reconstruct the resolution plan
+                # from the accepted lock. A missing dependency must fail closed.
+                source_options["locked_repository_sources"] = tuple(
+                    source
+                    for node in lock.nodes
+                    for source in node.revision.repository_sources
+                )
             plan = self._planner.plan_snapshot(
                 catalog,
                 target_name=target_name,
                 flavor_selectors=flavor_selectors,
+                **source_options,
             )
             expected = ComponentLockResolver().resolve(
                 plan, expected_input_evidence_identity=plan.identity
@@ -313,7 +335,11 @@ class FilesystemLockedGenerationAuthorityReader:
                 catalog,
                 target_name=target_name,
                 flavor_selectors=flavor_selectors,
-                **({"locked_repository_sources": sources} if sources else {}),
+                **(
+                    {"locked_repository_sources": sources}
+                    if sources or self._replay_repository_sources
+                    else {}
+                ),
             )
             if current_plan.identity != plan.identity:
                 raise LockedGenerationAuthorityReaderError(
@@ -343,6 +369,7 @@ class FilesystemLockedGenerationAuthorityReader:
             flavor_selectors,
             lock_store,
             lock,
+            self._replay_repository_sources,
         )
 
 
