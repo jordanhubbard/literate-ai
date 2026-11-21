@@ -14,11 +14,63 @@ from literate_ai.contracts.retained_cargo_native_custody import (
 )
 
 
+class _NativeOutputCensusLedger:
+    """One readonly pass's aggregate accounting; grants no filesystem rights."""
+
+    def __init__(
+        self,
+        budget,
+        *,
+        maximum_files=10000,
+        maximum_entries=10000,
+        maximum_metadata_bytes=1024**3,
+    ):
+        if (
+            type(maximum_metadata_bytes) is not int
+            or not 16 * 1024**2 <= maximum_metadata_bytes <= 16 * 1024**3
+        ):
+            raise ValueError("retained.output-census.aggregate-metadata-limit-invalid")
+        self._budget = _NativeOutputTreeBudget(budget, maximum_files, maximum_entries)
+        self._limits = (*self._budget._limits[:4], maximum_metadata_bytes)
+        self._used = (0, 0, 0, 0)
+
+    def require_budget(self, budget):
+        self._budget._require_current()
+        if budget._limits[:4] != self._limits[:4]:
+            raise ValueError("retained.output-census.aggregate-budget-changed")
+
+    @property
+    def remaining_metadata(self):
+        self._budget._require_current()
+        return self._limits[4] - self._used[3]
+
+    @property
+    def usage(self):
+        return self._used
+
+    def charge(self, *, files, entries, payload_bytes, metadata_bytes):
+        self._budget._require_current()
+        values = (files, entries, payload_bytes, metadata_bytes)
+        if any(type(value) is not int or value < 0 for value in values):
+            raise ValueError("retained.output-census.aggregate-charge-invalid")
+        totals = tuple(a + b for a, b in zip(self._used, values, strict=True))
+        limits = (self._limits[0], self._limits[1], self._limits[3], self._limits[4])
+        for name, total, limit in zip(
+            ("files", "entries", "bytes", "metadata"), totals, limits, strict=True
+        ):
+            if total > limit:
+                raise ValueError("retained.output-census.aggregate-" + name + "-limit")
+        self._used = totals
+
+
 @dataclass(frozen=True, slots=True)
 class _NativeOutputTreeBudget:
     native: RetainedCargoOutputBudget
     maximum_files: int
     maximum_entries: int
+    _ledger: object = field(default=None, repr=False, compare=False)
+    _metadata_limit: int = field(default=1024**3, repr=False, compare=False)
+    _original_ledger: object = field(init=False, repr=False, compare=False)
     _limits: tuple = field(init=False, repr=False)
 
     def __post_init__(self):
@@ -31,6 +83,11 @@ class _NativeOutputTreeBudget:
             or not self.maximum_files <= self.maximum_entries <= 400000
         ):
             raise ValueError("retained.output-census.namespace-limits-invalid")
+        if (
+            type(self._metadata_limit) is not int
+            or not 16 * 1024**2 <= self._metadata_limit <= 16 * 1024**3
+        ):
+            raise ValueError("retained.output-census.metadata-limit-invalid")
         # Revalidate exact typed declarations, then retain their original values.
         # This creates only a resource value, never a new source/output owner.
         RetainedCargoOutputBudget(
@@ -44,8 +101,14 @@ class _NativeOutputTreeBudget:
                 self.maximum_entries,
                 self.native.maximum_file_bytes,
                 self.native.maximum_total_bytes,
+                self._metadata_limit,
             ),
         )
+        object.__setattr__(self, "_original_ledger", self._ledger)
+        if self._ledger is not None:
+            if type(self._ledger) is not _NativeOutputCensusLedger:
+                raise TypeError("retained.output-census.aggregate-ledger-required")
+            self._ledger.require_budget(self)
 
     def _require_current(self):
         current = (
@@ -53,9 +116,14 @@ class _NativeOutputTreeBudget:
             self.maximum_entries,
             self.native.maximum_file_bytes,
             self.native.maximum_total_bytes,
+            self._metadata_limit,
         )
         if any(type(value) is not int for value in current) or current != self._limits:
             raise ValueError("retained.output-census.original-budget-changed")
+        if self._ledger is not self._original_ledger:
+            raise ValueError("retained.output-census.original-ledger-changed")
+        if self._ledger is not None:
+            self._ledger.require_budget(self)
 
     @property
     def maximum_file_bytes(self):
@@ -78,6 +146,8 @@ class _NativeOutputTreeBudget:
 
 @dataclass(frozen=True, slots=True, eq=False)
 class _OriginalNativeOutputTree(RetainedCargoInputTreeV2):
+    _metadata_charge: int = field(default=0, repr=False, compare=False)
+
     @property
     def identity(self):
         return canonical_identity(
@@ -95,7 +165,7 @@ class _OriginalNativeOutputTree(RetainedCargoInputTreeV2):
             }
         )
 
-    def require_unchanged(self):
+    def require_unchanged(self, *, _ledger=None):
         self.budget._require_current()
         current = _capture_original_native_output_tree(
             self.root,
@@ -104,6 +174,7 @@ class _OriginalNativeOutputTree(RetainedCargoInputTreeV2):
             maximum_entries=self.budget.maximum_entries,
             exclusions=self.exclusions,
             maximum_metadata_bytes=self.maximum_metadata_bytes,
+            _ledger=_ledger,
         )
         self.budget._require_current()
         if self._physical != current._physical or self != current:
@@ -127,6 +198,7 @@ def _capture_original_native_output_tree(
     maximum_entries=10000,
     exclusions=(),
     maximum_metadata_bytes=1024**3,
+    _ledger=None,
 ):
     """Read only, no CAS copy, source quota transfer or exclusion permission.
 
@@ -139,7 +211,16 @@ def _capture_original_native_output_tree(
         _capture_retained_cargo_tree,
     )
 
-    native = _NativeOutputTreeBudget(budget, maximum_files, maximum_entries)
+    if (
+        type(maximum_metadata_bytes) is not int
+        or not 16 * 1024**2 <= maximum_metadata_bytes <= 16 * 1024**3
+    ):
+        raise ValueError("retained.output-census.metadata-limit-invalid")
+    native = _NativeOutputTreeBudget(
+        budget, maximum_files, maximum_entries, _ledger, maximum_metadata_bytes
+    )
+    if _ledger is not None:
+        maximum_metadata_bytes = min(maximum_metadata_bytes, _ledger.remaining_metadata)
     return _capture_retained_cargo_tree(
         root,
         budget=native,

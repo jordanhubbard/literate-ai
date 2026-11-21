@@ -391,6 +391,15 @@ def _capture_retained_cargo_tree(
             NativeSdkTree._resolve(
                 alias.path, directory_set, file_set, alias_map, resolution
             )
+        if _native_output:
+            if budget._ledger is not None:
+                # Charge the complete original census BEFORE reading payload.
+                budget._ledger.charge(
+                    files=len(owners),
+                    entries=len(directories) + len(names),
+                    payload_bytes=total,
+                    metadata_bytes=peak_metadata_bytes,
+                )
         files = []
         for name in sorted(owners):
             size, mode, digest = _stream(
@@ -420,8 +429,9 @@ def _capture_retained_cargo_tree(
                 directories,
                 tuple(files),
                 tuple(sorted(aliases, key=lambda x: x.path)),
-                maximum_metadata_bytes,
+                budget._metadata_limit,
                 (root_node, physical, change_times),
+                peak_metadata_bytes,
             )
         return RetainedCargoInputTreeV2(
             root,
