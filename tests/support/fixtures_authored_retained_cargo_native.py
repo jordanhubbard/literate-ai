@@ -49,14 +49,20 @@ from tests.support.fixtures_test_retained_cargo_import import blob
 
 
 @contextmanager
-def authored_native_receiving_fixture(case, *, with_build_output=False):
+def authored_native_receiving_fixture(
+    case, *, with_build_output=False, with_custom_input=False
+):
     provider = planning.AuthoredQualificationPlanningTests("runTest")
     provider.setUp()
     try:
         provider_current = provider.plan()
         with tempfile.TemporaryDirectory(prefix="anrv-") as directory:
             base = Path(directory).resolve(strict=True)
-            native = NativeReceivingFixture(base, with_build_output=with_build_output)
+            native = NativeReceivingFixture(
+                base,
+                with_build_output=with_build_output,
+                with_custom_input=with_custom_input,
+            )
             custody = RetainedCargoNativeCustodyPolicy(
                 executables=RetainedCargoOutputBudget(512 * 1024**2, 1024**3),
                 runtime=RetainedCargoOutputBudget(512 * 1024**2, 4 * 1024**3),

@@ -23,7 +23,10 @@ from literate_ai.contracts.cargo_workspace import (
     CargoWorkspaceExpectation,
 )
 from literate_ai.contracts.identity import ContentIdentity, canonical_identity
-from literate_ai.contracts.repositories import RepositoryBuildCommand
+from literate_ai.contracts.repositories import (
+    RepositoryBuildCommand,
+    RepositoryBuildOutput,
+)
 from literate_ai.contracts.retained_cargo import CargoManifestChange
 from literate_ai.contracts.retained_cargo_patches import (
     CargoPatchedDependencyExpectation,
@@ -51,10 +54,11 @@ def _rustup_home_before_isolation():
 class NativeReceivingFixture(RetainedCargoImportTests):
     """All declarations are built before the real reviewed/live receiver opens."""
 
-    def __init__(self, base, *, with_build_output=False):
+    def __init__(self, base, *, with_build_output=False, with_custom_input=False):
         super().__init__()
         self.base = base
         self.with_build_output = with_build_output
+        self.with_custom_input = with_custom_input
 
     def setUp(self):
         def package_files(name, manifest):
@@ -361,7 +365,21 @@ class NativeReceivingFixture(RetainedCargoImportTests):
                         implementation + "/app",
                     ),
                     custom_identity,
-                    (),
+                    (
+                        (
+                            RepositoryBuildOutput(
+                                implementation + "/app/custom.rs",
+                                ContentIdentity.parse_uri(
+                                    "sha256:"
+                                    + hashlib.sha256(
+                                        (workspace / "app/custom.rs").read_bytes()
+                                    ).hexdigest()
+                                ),
+                            ),
+                        )
+                        if self.with_custom_input
+                        else ()
+                    ),
                     15,
                     4096,
                 ),

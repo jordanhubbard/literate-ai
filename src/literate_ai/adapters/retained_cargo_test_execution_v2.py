@@ -1,10 +1,13 @@
 """Execute reviewed v2 target protocols under the existing native binary owner."""
 
 import tomllib
-from dataclasses import replace
+from dataclasses import InitVar, dataclass, field, replace
 
 from literate_ai.adapters.retained_cargo_test_execution import (
+    _prepare_retained_native_session,
     _prepare_retained_native_tests,
+    _PreparedRetainedNativeTests,
+    _UnsavableNativePreparation,
 )
 from literate_ai.adapters.retained_cargo_test_observation_v2 import (
     verify_libtest_observation_v2,
@@ -59,6 +62,29 @@ def _require_harnesses(materialized):
     materialized.require_unchanged()
 
 
+_OBSERVED_NATIVE_TESTS_KEY = object()
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _ObservedRetainedCargoTests(_UnsavableNativePreparation):
+    outcomes: tuple = field(repr=False)
+    preparation: object = field(repr=False)
+    custom_inputs: tuple = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _OBSERVED_NATIVE_TESTS_KEY:
+            raise TypeError("retained.tests.original-native-observation-required")
+
+    def require_original_files(self):
+        if type(self.preparation) is not _PreparedRetainedNativeTests:
+            raise TypeError("retained.tests.original-native-preparation-required")
+        self.preparation.require_original_files()
+        for inputs in self.custom_inputs:
+            inputs.require_unchanged()
+        self.preparation.require_original_files()
+
+
 def observe_retained_cargo_tests_v2(
     materialized,
     metadata,
@@ -81,6 +107,48 @@ def observe_retained_cargo_tests_v2(
     cannot grant permission. Custom inputs/executable bytes are exact reviewed
     identities, and every command still uses the session's bounded guarded owner.
     """
+    return _observe_retained_cargo_test_session_v2(
+        materialized,
+        metadata,
+        cargo,
+        rustc=rustc,
+        environment=environment,
+        offline=offline,
+        run=run,
+        observation_identity=observation_identity,
+        source_guard=source_guard,
+        gate_tools=gate_tools,
+        read_exclusion_permission=read_exclusion_permission,
+        registry_sources=registry_sources,
+        _retain_native=False,
+    ).outcomes
+
+
+def _observe_retained_cargo_test_session_v2(
+    materialized,
+    metadata,
+    cargo,
+    *,
+    rustc,
+    environment,
+    offline,
+    run,
+    observation_identity,
+    source_guard,
+    gate_tools,
+    read_exclusion_permission,
+    registry_sources=None,
+    _retain_native=True,
+):
+    """Attribute every target; exclusions never become successful test cases.
+
+    read_exclusion_permission independently reopens retained gate authority and
+    returns its exact current permission identity. Candidate inventory alone
+    cannot grant permission. Custom inputs/executable bytes are exact reviewed
+    identities, and every command still uses the session's bounded guarded owner.
+    """
+    if type(_retain_native) is not bool:
+        raise TypeError("retained.tests.native-retention-mode-invalid")
     source_guard()
     reviewed = materialized.files.reviewed
     plan, inventory = reviewed.plan, reviewed.inventory
@@ -148,26 +216,50 @@ def observe_retained_cargo_tests_v2(
         source_guard()
         return value
 
-    sessions, binaries_guard = _prepare_retained_native_tests(
-        project_root=root,
-        workspace=workspace,
-        output=workspace / plan.graph.common.output_directory,
-        target=common.target,
-        # run() owns complete consumer-root/tool/permission checks around every
-        # subprocess. Nested binary/runtime checks still require the live
-        # original source, package and scratch owner, without recursively
-        # rescanning all external consumer roots at that same boundary.
-        source_guard=materialized.require_unchanged,
-        inventory_identity=inventory.identity,
-        compile_command=compile_command,
-        select=select,
-        metadata=metadata,
-        cargo=cargo,
-        rustc=rustc,
-        environment=environment,
-        run=run,
-        native_custody=reviewed.policy.native_custody,
-    )
+    if _retain_native:
+        preparation = _prepare_retained_native_session(
+            project_root=root,
+            workspace=workspace,
+            output=workspace / plan.graph.common.output_directory,
+            target=common.target,
+            # run() owns complete consumer-root/tool/permission checks around every
+            # subprocess. Nested binary/runtime checks still require the live
+            # original source, package and scratch owner, without recursively
+            # rescanning all external consumer roots at that same boundary.
+            source_guard=materialized.require_unchanged,
+            inventory_identity=inventory.identity,
+            compile_command=compile_command,
+            select=select,
+            metadata=metadata,
+            cargo=cargo,
+            rustc=rustc,
+            environment=environment,
+            run=run,
+            native_custody=reviewed.policy.native_custody,
+        )
+        sessions, binaries_guard = preparation.sessions, preparation.binary_guard
+    else:
+        preparation = None
+        sessions, binaries_guard = _prepare_retained_native_tests(
+            project_root=root,
+            workspace=workspace,
+            output=workspace / plan.graph.common.output_directory,
+            target=common.target,
+            # run() owns complete consumer-root/tool/permission checks around every
+            # subprocess. Nested binary/runtime checks still require the live
+            # original source, package and scratch owner, without recursively
+            # rescanning all external consumer roots at that same boundary.
+            source_guard=materialized.require_unchanged,
+            inventory_identity=inventory.identity,
+            compile_command=compile_command,
+            select=select,
+            metadata=metadata,
+            cargo=cargo,
+            rustc=rustc,
+            environment=environment,
+            run=run,
+            native_custody=reviewed.policy.native_custody,
+        )
     selected = {
         (b.package_root, b.target_name, tuple(sorted(b.target_kinds))): (b, t, g, h)
         for b, t, g, h in sessions
@@ -175,6 +267,7 @@ def observe_retained_cargo_tests_v2(
     if set(selected) != {target.key for target in inventory.targets}:
         raise ValueError("retained.tests.v2-target-set-drift")
     outcomes = []
+    custom_inputs = []
     for index, target in enumerate(inventory.targets):
         source_guard()
         permissions()
@@ -240,6 +333,8 @@ def observe_retained_cargo_tests_v2(
                     expected_identity=item.identity,
                 )
 
+            custom_inputs.append(inputs)
+
             def custom_guard(target_guard=target_guard, inputs=inputs):
                 target_guard()
                 inputs.require_unchanged()
@@ -282,4 +377,6 @@ def observe_retained_cargo_tests_v2(
     permissions()
     outcomes = tuple(outcomes)
     require_retained_cargo_coverage(outcomes, inventory)
-    return outcomes
+    return _ObservedRetainedCargoTests(
+        outcomes, preparation, tuple(custom_inputs), _OBSERVED_NATIVE_TESTS_KEY
+    )

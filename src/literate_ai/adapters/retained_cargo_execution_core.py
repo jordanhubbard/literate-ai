@@ -11,6 +11,7 @@ import json
 import math
 import time
 from collections.abc import Mapping
+from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from literate_ai._filesystem import require_safe_directory
@@ -35,7 +36,13 @@ from literate_ai.adapters.retained_cargo_execution_inputs_v2 import (
 from literate_ai.adapters.retained_cargo_materialization_v2 import (
     RetainedCargoMaterializationV2,
 )
+from literate_ai.adapters.retained_cargo_test_execution import (
+    _require_native_completion_deadline,
+    _UnsavableNativePreparation,
+)
 from literate_ai.adapters.retained_cargo_test_execution_v2 import (
+    _observe_retained_cargo_test_session_v2,
+    _ObservedRetainedCargoTests,
     observe_retained_cargo_tests_v2,
 )
 from literate_ai.contracts.identity import canonical_identity
@@ -51,6 +58,48 @@ def _require_distinct_extra_guard(tool, extra_guard):
         type(tool) is LocalComponentToolBinding and extra_guard is tool._authority_guard
     ):
         extra_guard()
+
+
+_NATIVE_EXECUTION_KEY = object()
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _RetainedCargoNativeCompletion(_UnsavableNativePreparation):
+    tests: _ObservedRetainedCargoTests = field(repr=False)
+    deadline: float = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _NATIVE_EXECUTION_KEY:
+            raise TypeError("retained.execution.original-native-completion-required")
+
+    def require_original_files(self):
+        self.tests.require_original_files()
+
+    def refresh_native_dependencies(self):
+        """Original execution deadline only; no new execution or admission grant.
+
+        Owning admission must complete all current/provider closers and run its
+        remaining original consumer facts after these inspector callbacks.
+        """
+        _require_native_completion_deadline(self.deadline)
+        self.tests.require_original_files()
+        self.tests.preparation.refresh_native_dependencies(deadline=self.deadline)
+        self.tests.require_original_files()
+        _require_native_completion_deadline(self.deadline)
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _RetainedCargoExecutedSession(_UnsavableNativePreparation):
+    observations: tuple = field(repr=False)
+    target_outcomes: tuple = field(repr=False)
+    consumer_inputs_identity: object = field(repr=False)
+    native_completion: object = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _NATIVE_EXECUTION_KEY:
+            raise TypeError("retained.execution.original-native-session-required")
 
 
 def _execute_cargo_consumer(
@@ -79,6 +128,59 @@ def _execute_cargo_consumer(
     current registry-source/permission authority; candidate documents cannot
     supply those permissions. This is same-user execution, not OS containment.
     """
+    executed = _execute_cargo_consumer_session(
+        materialized,
+        cargo=cargo,
+        rustc=rustc,
+        gate_tools=gate_tools,
+        environment=environment,
+        consumer_inputs=consumer_inputs,
+        allow_host_execution=allow_host_execution,
+        read_exclusion_permission=read_exclusion_permission,
+        registry_sources=registry_sources,
+        offline=offline,
+        timeout_seconds=timeout_seconds,
+        max_output_bytes=max_output_bytes,
+        max_total_output_bytes=max_total_output_bytes,
+        _process=_process,
+        _retain_native=False,
+    )
+    return (
+        executed.observations,
+        executed.target_outcomes,
+        executed.consumer_inputs_identity,
+    )
+
+
+def _execute_cargo_consumer_session(
+    materialized: RetainedCargoMaterializationV2 | AuthoredRetainedCargoMaterialization,
+    *,
+    cargo: LocalComponentToolBinding,
+    rustc: LocalComponentToolBinding,
+    gate_tools: Mapping[str, LocalComponentToolBinding],
+    environment: Mapping[str, str],
+    consumer_inputs: RetainedCargoExecutionInputsV2
+    | AuthoredRetainedCargoExecutionInputs,
+    allow_host_execution: bool,
+    read_exclusion_permission=None,
+    registry_sources: Mapping[str, str] | None = None,
+    offline: bool = True,
+    timeout_seconds: float = 900,
+    max_output_bytes: int = 4 * 1024 * 1024,
+    max_total_output_bytes: int = 64 * 1024 * 1024,
+    _process,
+    _retain_native=True,
+):
+    """Bracket complete reviewed gates and typed target coverage with real metadata.
+
+    No retirement or source mutation occurs here. Authorization is explicit, all
+    commands share one finite deadline/output budget, and a successful process is
+    not a durable admission. The caller owns independently measured tools and
+    current registry-source/permission authority; candidate documents cannot
+    supply those permissions. This is same-user execution, not OS containment.
+    """
+    if type(_retain_native) is not bool:
+        raise TypeError("retained.execution.native-retention-mode-invalid")
     if allow_host_execution is not True:
         raise ValueError("retained.execution.v2-authorization-required")
     if (
@@ -297,24 +399,49 @@ def _execute_cargo_consumer(
         before = metadata()
         for command in plan.common.gates:
             run(command, tools[command.argv[0]])
-        outcomes = observe_retained_cargo_tests_v2(
-            materialized,
-            before,
-            cargo,
-            rustc=rustc,
-            environment=base_environment,
-            offline=offline,
-            run=run,
-            observation_identity=lambda: observations[-1].identity,
-            source_guard=guard,
-            gate_tools=tools,
-            read_exclusion_permission=read_exclusion_permission,
-            registry_sources=registry,
-        )
+        if _retain_native:
+            native_tests = _observe_retained_cargo_test_session_v2(
+                materialized,
+                before,
+                cargo,
+                rustc=rustc,
+                environment=base_environment,
+                offline=offline,
+                run=run,
+                observation_identity=lambda: observations[-1].identity,
+                source_guard=guard,
+                gate_tools=tools,
+                read_exclusion_permission=read_exclusion_permission,
+                registry_sources=registry,
+            )
+            outcomes = native_tests.outcomes
+        else:
+            native_tests = None
+            outcomes = observe_retained_cargo_tests_v2(
+                materialized,
+                before,
+                cargo,
+                rustc=rustc,
+                environment=base_environment,
+                offline=offline,
+                run=run,
+                observation_identity=lambda: observations[-1].identity,
+                source_guard=guard,
+                gate_tools=tools,
+                read_exclusion_permission=read_exclusion_permission,
+                registry_sources=registry,
+            )
         metadata()
         guard()
     except Exception as error:
         raise RetainedCargoExecutionError(
             "retained.execution.v2-failed", observations
         ) from error
-    return tuple(observations), outcomes, baseline
+    completion = (
+        _RetainedCargoNativeCompletion(native_tests, deadline, _NATIVE_EXECUTION_KEY)
+        if _retain_native
+        else None
+    )
+    return _RetainedCargoExecutedSession(
+        tuple(observations), outcomes, baseline, completion, _NATIVE_EXECUTION_KEY
+    )
