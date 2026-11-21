@@ -427,6 +427,10 @@ class AuthoredQualificationPublicationTests(unittest.TestCase):
         from literate_ai.cli import authored_qualification, dispatch
 
         out, err = io.StringIO(), io.StringIO()
+        selection = self.planning.request
+        flavor_args = []
+        for selector in selection.flavor_selectors:
+            flavor_args.extend(["--flavor", selector])
         with (
             patch.object(
                 authored_qualification,
@@ -458,6 +462,9 @@ class AuthoredQualificationPublicationTests(unittest.TestCase):
                     "components/greeting",
                     "--project",
                     str(self.root),
+                    "--target",
+                    selection.target_name,
+                    *flavor_args,
                     *extra,
                 ],
                 stdout=out,
