@@ -8,8 +8,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import sys
 import tempfile
+import time
+from collections.abc import Callable
+from dataclasses import InitVar, dataclass, field
 from pathlib import Path
 
 from literate_ai._filesystem import ensure_safe_directory, require_safe_directory
@@ -138,7 +142,152 @@ def observe_retained_cargo_tests(
     binary_guard()
 
 
+_NATIVE_PREPARATION_KEY = object()
+
+
+def _require_native_completion_deadline(deadline):
+    if (
+        type(deadline) not in (int, float)
+        or not math.isfinite(deadline)
+        or deadline <= 0
+    ):
+        raise ValueError("retained.tests.native-completion-deadline-invalid")
+    if time.monotonic() >= deadline:
+        raise ValueError("retained.tests.native-completion-deadline")
+
+
+class _UnsavableNativePreparation:
+    def __copy__(self):
+        raise TypeError("retained.tests.native-preparation-not-copyable")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("retained.tests.native-preparation-not-copyable")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("retained.tests.native-preparation-not-serializable")
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _NativeTestFiles(_UnsavableNativePreparation):
+    output: Path = field(repr=False)
+    fresh: Path = field(repr=False)
+    output_node: object = field(repr=False)
+    fresh_node: object = field(repr=False)
+    build_outputs: object = field(repr=False)
+    runtime: object = field(repr=False)
+    executables: object = field(repr=False)
+    nodes: tuple = field(repr=False)
+    parents: tuple = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _NATIVE_PREPARATION_KEY:
+            raise TypeError("retained.tests.original-native-files-required")
+
+    def require_output_unchanged(self):
+        require_safe_directory(self.output)
+        require_safe_directory(self.fresh)
+        if (
+            directory_node(self.output) != self.output_node
+            or directory_node(self.fresh) != self.fresh_node
+        ):
+            raise ValueError("retained.tests.output-replaced")
+
+    def require_payload_unchanged(self):
+        self.build_outputs.require_unchanged()
+        self.runtime.require_unchanged()
+        self.executables.require_unchanged()
+        if any(_signature(p.lstat()) != node for p, node in self.nodes) or any(
+            directory_node(p) != node for p, node in self.parents
+        ):
+            raise ValueError("retained.tests.binary-changed")
+        self.executables.require_unchanged()
+
+    def require_unchanged(self):
+        self.require_output_unchanged()
+        self.require_payload_unchanged()
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class _PreparedRetainedNativeTests(_UnsavableNativePreparation):
+    sessions: tuple = field(repr=False)
+    binary_guard: Callable[[], None] = field(repr=False)
+    files: _NativeTestFiles = field(repr=False)
+    native_dependencies: tuple = field(repr=False)
+    _key: InitVar[object]
+
+    def __post_init__(self, _key):
+        if _key is not _NATIVE_PREPARATION_KEY:
+            raise TypeError("retained.tests.original-native-preparation-required")
+
+    def require_original_files(self):
+        """Original local facts only; never invoke an expired source callback."""
+        self.files.require_unchanged()
+        for native in self.native_dependencies:
+            native.files.require_unchanged()
+        self.files.require_unchanged()
+
+    def refresh_native_dependencies(self, *, deadline):
+        """Recompute original graphs, then close with original local facts.
+
+        Inspection can invoke host tools. The owning execution/completion must
+        pass the ORIGINAL absolute deadline and perform its remaining
+        source/config/package/retirement fences after every inspection callback.
+        This preparation is not a completed execution or admission capability.
+        """
+        _require_native_completion_deadline(deadline)
+        self.require_original_files()
+        for native in self.native_dependencies:
+            _require_native_completion_deadline(deadline)
+            native.require_unchanged()
+            _require_native_completion_deadline(deadline)
+        self.require_original_files()
+        _require_native_completion_deadline(deadline)
+
+
 def _prepare_retained_native_tests(
+    *,
+    project_root,
+    workspace,
+    output,
+    target,
+    source_guard,
+    inventory_identity,
+    compile_command,
+    select,
+    metadata,
+    cargo,
+    rustc,
+    environment,
+    run,
+    native_custody=None,
+):
+    """Shared measured-binary/runtime ownership, not an importer or graph decoder.
+
+    Version-specific callers own independent plan/source authority, native graph
+    selection, exact commands and test protocols. This helper shares only the
+    existing bounded compiler/output/native-loader capture implementation.
+    """
+    prepared = _prepare_retained_native_session(
+        project_root=project_root,
+        workspace=workspace,
+        output=output,
+        target=target,
+        source_guard=source_guard,
+        inventory_identity=inventory_identity,
+        compile_command=compile_command,
+        select=select,
+        metadata=metadata,
+        cargo=cargo,
+        rustc=rustc,
+        environment=environment,
+        run=run,
+        native_custody=native_custody,
+    )
+    return prepared.sessions, prepared.binary_guard
+
+
+def _prepare_retained_native_session(
     *,
     project_root,
     workspace,
@@ -319,19 +468,26 @@ def _prepare_retained_native_tests(
             }
         )
 
+    files = _NativeTestFiles(
+        output,
+        fresh,
+        parent_node,
+        fresh_node,
+        build_outputs,
+        runtime,
+        closure,
+        tuple(nodes.items()),
+        tuple(parents.items()),
+        _key=_NATIVE_PREPARATION_KEY,
+    )
+
     def binary_guard():
         output_guard()
-        build_outputs.require_unchanged()
-        runtime.require_unchanged()
-        closure.require_unchanged()
-        if any(_signature(p.lstat()) != node for p, node in nodes.items()) or any(
-            directory_node(p) != node for p, node in parents.items()
-        ):
-            raise ValueError("retained.tests.binary-changed")
-        closure.require_unchanged()
+        files.require_payload_unchanged()
 
     binary_guard()
     sessions = []
+    native_dependencies = []
     for binary in binaries:
         package = workspace / binary.package_root
         build_environment = build_environments.get(binary.package_root, ())
@@ -367,6 +523,8 @@ def _prepare_retained_native_tests(
             ),
         )
 
+        native_dependencies.append(native)
+
         def target_guard(native=native):
             binary_guard()
             native.require_unchanged()
@@ -387,4 +545,10 @@ def _prepare_retained_native_tests(
         )
         sessions.append((binary, tool, target_guard, hashes[binary.executable]))
     binary_guard()
-    return tuple(sessions), binary_guard
+    return _PreparedRetainedNativeTests(
+        tuple(sessions),
+        binary_guard,
+        files,
+        tuple(native_dependencies),
+        _key=_NATIVE_PREPARATION_KEY,
+    )

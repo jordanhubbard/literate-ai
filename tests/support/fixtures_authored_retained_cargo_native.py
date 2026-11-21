@@ -6,7 +6,7 @@ fixture; no source-promotion/capture DTO enters the authored receiving API.
 """
 
 import tempfile
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
@@ -49,14 +49,14 @@ from tests.support.fixtures_test_retained_cargo_import import blob
 
 
 @contextmanager
-def authored_native_receiving_fixture(case):
+def authored_native_receiving_fixture(case, *, with_build_output=False):
     provider = planning.AuthoredQualificationPlanningTests("runTest")
     provider.setUp()
     try:
         provider_current = provider.plan()
         with tempfile.TemporaryDirectory(prefix="anrv-") as directory:
             base = Path(directory).resolve(strict=True)
-            native = NativeReceivingFixture(base)
+            native = NativeReceivingFixture(base, with_build_output=with_build_output)
             custody = RetainedCargoNativeCustodyPolicy(
                 executables=RetainedCargoOutputBudget(512 * 1024**2, 1024**3),
                 runtime=RetainedCargoOutputBudget(512 * 1024**2, 4 * 1024**3),
@@ -126,41 +126,43 @@ def authored_native_receiving_fixture(case):
                 with patch.object(
                     inputs, "open_authored_retained_cargo_products", products
                 ):
-                    with inputs.open_authored_retained_cargo_inputs(
-                        root,
-                        binding_path="review/binding.json",
-                        reviewed_binding=reviewed_binding,
-                        plan_path="review/plan.json",
-                        gate_policy_path="review/policy.json",
-                        test_inventory_path="review/tests.json",
-                        provider_current=provider_current,
-                        configured_store_id=binding.evidence_store_id,
-                        consumer_cargo=cargo,
-                        consumer_rustc=rustc,
-                        archive_payload=payload,
-                    ) as current:
-                        with authored_retained_cargo_wrapper_context(
-                            current.reviewed
-                        ) as context:
-                            with reserve_authored_retained_cargo_scratch(
-                                context
-                            ) as scratch:
-                                files = read_authored_retained_cargo_files(
-                                    current.reviewed,
-                                    manifest_state="after",
-                                    package_state="absent",
-                                )
-                                materialized = (
-                                    materialize_authored_retained_cargo_packages(
-                                        files, scratch=scratch, current=current
-                                    )
-                                )
-                                observed = (
-                                    read_authored_retained_cargo_execution_inputs(
-                                        materialized, environment=native.environment
-                                    )
-                                )
-                                yield materialized, observed, native, state
+                    with ExitStack() as receiving:
+                        current = receiving.enter_context(
+                            inputs.open_authored_retained_cargo_inputs(
+                                root,
+                                binding_path="review/binding.json",
+                                reviewed_binding=reviewed_binding,
+                                plan_path="review/plan.json",
+                                gate_policy_path="review/policy.json",
+                                test_inventory_path="review/tests.json",
+                                provider_current=provider_current,
+                                configured_store_id=binding.evidence_store_id,
+                                consumer_cargo=cargo,
+                                consumer_rustc=rustc,
+                                archive_payload=payload,
+                            )
+                        )
+                        context = receiving.enter_context(
+                            authored_retained_cargo_wrapper_context(current.reviewed)
+                        )
+                        scratch = receiving.enter_context(
+                            reserve_authored_retained_cargo_scratch(context)
+                        )
+                        files = read_authored_retained_cargo_files(
+                            current.reviewed,
+                            manifest_state="after",
+                            package_state="absent",
+                        )
+                        materialized = materialize_authored_retained_cargo_packages(
+                            files, scratch=scratch, current=current
+                        )
+                        observed = read_authored_retained_cargo_execution_inputs(
+                            materialized, environment=native.environment
+                        )
+                        # Tests may close ONLY the receiving scopes while retaining
+                        # their outer temporary files for original-fact checks.
+                        state["close_receiving"] = receiving.close
+                        yield materialized, observed, native, state
                 case.assertTrue(state["closed"])
     finally:
         provider.doCleanups()

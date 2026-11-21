@@ -51,9 +51,10 @@ def _rustup_home_before_isolation():
 class NativeReceivingFixture(RetainedCargoImportTests):
     """All declarations are built before the real reviewed/live receiver opens."""
 
-    def __init__(self, base):
+    def __init__(self, base, *, with_build_output=False):
         super().__init__()
         self.base = base
+        self.with_build_output = with_build_output
 
     def setUp(self):
         def package_files(name, manifest):
@@ -135,6 +136,15 @@ class NativeReceivingFixture(RetainedCargoImportTests):
                 b'fn main() { panic!("excluded fixture must not run"); }\n'
             ),
         }
+        if self.with_build_output:
+            authored["app/build.rs"] = (
+                b"fn main() {\n"
+                b"let root = std::path::PathBuf::from(\n"
+                b'std::env::var_os("OUT_DIR").unwrap());\n'
+                b'std::fs::write(root.join("completion.txt"),\n'
+                b'b"owned build output").unwrap();\n'
+                b'println!("cargo:rerun-if-changed=build.rs");\n}\n'
+            )
         for path, content in authored.items():
             file = workspace / path
             file.parent.mkdir(parents=True, exist_ok=True)
@@ -229,6 +239,21 @@ class NativeReceivingFixture(RetainedCargoImportTests):
                     "2021",
                     True,
                     False,
+                ),
+                *(
+                    (
+                        CargoTargetExpectation(
+                            "build-script-build",
+                            ("custom-build",),
+                            ("bin",),
+                            "app/build.rs",
+                            "2021",
+                            False,
+                            False,
+                        ),
+                    )
+                    if self.with_build_output
+                    else ()
                 ),
             ),
         )
