@@ -92,6 +92,7 @@ litai render html
 litai render dashboard
 litai render tree
 litai project validate
+litai project qualify prepare-sdk
 litai project qualify plan
 litai project qualify apply
 litai project lifecycle rebind-standard
@@ -643,6 +644,7 @@ root-integration acceptance still remain.
 | `lock [COMPONENT\|PROJECT] --target NAME [--flavor=+NAME ...] [--check\|--diff]` | Resolve or verify Component locks and catalog audits; an explicitly bound orchestration root also checks its repository lock, without invoking a model. |
 | `lock COMPONENT --large-review start\|status\|acknowledge\|apply\|cleanup [--transaction-id ID] [--page-identity ID]` | Review a genuine lock transition larger than 512 semantic differences in bounded identity-chained pages, then perform one final revalidated atomic replacement. |
 | `project validate [PATH]` | Non-mutating validation of the discovered project, catalogs, pins, skills, and generation inputs. |
+| `project qualify prepare-sdk COMPONENT --sdk-cache CACHE --sdk-revocations FILE --allow-sdk-builds [--project PATH] [--target NAME] [--flavor SELECTOR]` | Build the selected locked native SDKs on the provider host. Review the returned `sdk_completion` digest and `sdk_completion_size` before using the cached SDKs for qualification or retained Cargo operations. |
 | `project qualify plan COMPONENT [--project PATH] [--target NAME] [--flavor SELECTOR] [--profile FILE] [--output-root PATH] [--model MODEL]` | Plan qualification of a genuinely authored root and its complete locked graph. Bind current project reviews, model selection, Standard framework policy and sealed independent oracles without allocating output, generating source or publishing qualification (ADR 0072). |
 | `project qualify apply COMPONENT --acknowledge-plan sha256:… --allow-host-execution [planning options] [--scratch-parent PATH] [--max-parallelism N] [--max-bytes N] [--recover-attempt KEY]` | Reopen and acknowledge the exact current authored plan before executing two or more clean all-node runs. Capture and replay bounded evidence, retire transaction-owned temporary runs, and atomically publish an authored reference. Private attempts and archives remain below the planned output root and are ignored by Git. Recovery verifies staged bytes under fresh current authority; it never deletes a directory from a saved path and refuses until earlier run resources are retired. A committed provider reference grants no importer permission. Genuine native/installed/receiving qualification remains in progress under #393. |
 | `project tracker inspect [PATH]` | Read Git remotes and name `gh` or `glab` plus issue/review/CI/land argv. Unknown hosts skip tracker work fail closed. |
