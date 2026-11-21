@@ -7,6 +7,7 @@ import json
 import re
 import unittest
 import xml.etree.ElementTree as ET
+from fnmatch import fnmatchcase
 from pathlib import Path
 from unittest import mock
 
@@ -1014,3 +1015,285 @@ class CiActionPinTests(unittest.TestCase):
                 else:
                     with self.assertRaises(SystemExit):
                         exec(probe, {})
+
+    def test_macos_partitions_preserve_exact_original_module_coverage(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        cells = workflow["jobs"]["macos-qualification"]["strategy"]["matrix"]["include"]
+        original = {
+            "3.11": (
+                "test_[!nr]*.py",
+                "test_r[!e]*.py",
+                "test_n*.py",
+                "test_re[!p]*.py",
+                "test_repository_[!r]*.py",
+                "test_repository_r*.py",
+            ),
+            "3.14": ("test_[!nr]*.py",),
+        }
+        modules = []
+        for path in (ROOT / "tests").rglob("test*.py"):
+            directory = path.parent
+            while directory != ROOT / "tests":
+                if not (directory / "__init__.py").is_file():
+                    break
+                directory = directory.parent
+            else:
+                modules.append(path)
+        self.assertTrue(modules)
+        for version, prior_patterns in original.items():
+            patterns = [
+                pattern
+                for cell in cells
+                if cell["python"] == version
+                for pattern in cell["test_patterns"].split()
+            ]
+            for pattern in patterns:
+                self.assertTrue(
+                    any(fnmatchcase(path.name, pattern) for path in modules),
+                    f"empty {version} partition pattern: {pattern}",
+                )
+            for path in modules:
+                expected = int(any(fnmatchcase(path.name, p) for p in prior_patterns))
+                selected = sum(fnmatchcase(path.name, p) for p in patterns)
+                with self.subTest(version=version, module=path.relative_to(ROOT)):
+                    self.assertEqual(selected, expected)
+
+    def test_macos_authored_native_families_have_separate_whole_module_owners(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        cells = workflow["jobs"]["macos-qualification"]["strategy"]["matrix"]["include"]
+        representatives = (
+            "test_authored_qualification_planning.py",
+            "test_authored_reopened_native_execution.py",
+            "test_authored_retained_cargo_completion_files.py",
+            "test_authored_retained_cargo_native_completion.py",
+        )
+        for version in ("3.11", "3.14"):
+            owners = []
+            for module in representatives:
+                matches = [
+                    cell
+                    for cell in cells
+                    if cell["python"] == version
+                    and any(
+                        fnmatchcase(module, p) for p in cell["test_patterns"].split()
+                    )
+                ]
+                self.assertEqual(len(matches), 1, (version, module))
+                self.assertEqual(matches[0].get("gates"), "tests")
+                owners.append(matches[0]["name"])
+            self.assertEqual(len(set(owners)), len(representatives))
+
+    def test_macos_base_check_names_and_finite_failure_boundaries_remain(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        job = workflow["jobs"]["macos-qualification"]
+        cells = job["strategy"]["matrix"]["include"]
+        names = [cell["name"] for cell in cells]
+        self.assertEqual(len(names), len(set(names)))
+        for group in range(1, 5):
+            self.assertIn(f"macos-latest / Python 3.11 ({group} of 4)", names)
+        self.assertIn("macos-latest / Python 3.14 (smoke)", names)
+        self.assertIs(job["continue-on-error"], False)
+        self.assertEqual(job["timeout-minutes"], 240)
+        run = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Run full macOS conformance partition"
+        )
+        self.assertEqual(run["timeout-minutes"], 120)
+        self.assertIn("make validate", run["run"])
+        self.assertIn("make python-check", run["run"])
+        self.assertEqual(
+            {
+                (cell["python"], cell["group"])
+                for cell in cells
+                if cell.get("gates") != "tests"
+            },
+            {("3.11", 1), ("3.14", 0)},
+        )
+
+    def test_macos_diagnostics_retain_every_pattern_checkpoint_and_report(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        steps = workflow["jobs"]["macos-qualification"]["steps"]
+        run = next(
+            step
+            for step in steps
+            if step.get("name") == "Run full macOS conformance partition"
+        )
+        upload = next(
+            step
+            for step in steps
+            if step.get("name") == "Upload full qualification diagnostics"
+        )
+        self.assertIn(
+            'PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json"',
+            run["run"],
+        )
+        self.assertIn(
+            'PYTHON_TEST_REPORT="$PWD/_build/python-test-report-$index.json"',
+            run["run"],
+        )
+        self.assertIn("_build/python-test-checkpoint*.json", upload["with"]["path"])
+        self.assertIn("_build/python-test-report*.json", upload["with"]["path"])
+        self.assertEqual(upload["if"], "always()")
+
+    def test_linux314_partitions_cover_every_whole_module_exactly_once(self):
+        rows = json.loads((ROOT / ".github/ci-matrix.json").read_text())
+        cells = [row for row in rows if row["task"] == "conformance"]
+        baseline = [row for row in cells if row["python"] == "3.11"]
+        self.assertEqual(
+            baseline,
+            [
+                {
+                    "task": "conformance",
+                    "name": "ubuntu-latest / Python 3.11",
+                    "os": "ubuntu-latest",
+                    "python": "3.11",
+                    "group": 0,
+                    "pr": True,
+                }
+            ],
+        )
+        selected = [row for row in cells if row["python"] == "3.14"]
+        self.assertEqual(len(selected), 8)
+        self.assertEqual({row["group"] for row in selected}, set(range(8)))
+        self.assertEqual(len({row["name"] for row in selected}), 8)
+        self.assertTrue(all(row["pr"] is False for row in selected))
+        self.assertTrue(all(row["os"] == "ubuntu-latest" for row in selected))
+        base = next(row for row in selected if row["group"] == 0)
+        self.assertEqual(base["name"], "ubuntu-latest / Python 3.14")
+        self.assertNotIn("gates", base)
+        self.assertTrue(
+            all(row.get("gates") == "tests" for row in selected if row["group"] != 0)
+        )
+        modules = []
+        for path in (ROOT / "tests").rglob("test*.py"):
+            directory = path.parent
+            while directory != ROOT / "tests":
+                if not (directory / "__init__.py").is_file():
+                    break
+                directory = directory.parent
+            else:
+                modules.append(path)
+        patterns = [
+            pattern for cell in selected for pattern in cell["test_patterns"].split()
+        ]
+        for pattern in patterns:
+            self.assertTrue(
+                any(fnmatchcase(path.name, pattern) for path in modules), pattern
+            )
+        for path in modules:
+            with self.subTest(module=path.relative_to(ROOT)):
+                self.assertEqual(
+                    sum(fnmatchcase(path.name, pattern) for pattern in patterns), 1
+                )
+
+    def test_linux_partition_gates_and_raw_evidence_remain_complete_and_bounded(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        job = workflow["jobs"]["checks"]
+        self.assertEqual(job["timeout-minutes"], 240)
+        run = next(
+            step for step in job["steps"] if step.get("name") == "Run conformance gates"
+        )
+        self.assertEqual(run["timeout-minutes"], 180)
+        self.assertEqual(run["if"], "matrix.task == 'conformance'")
+        self.assertEqual(
+            run["env"]["TEST_PATTERNS"], "${{ matrix.test_patterns || 'test*.py' }}"
+        )
+        self.assertEqual(run["env"]["GATES"], "${{ matrix.gates || 'validate' }}")
+        self.assertIn("make validate PYTHON=python RUFF=ruff", run["run"])
+        self.assertIn("make python-check", run["run"])
+        makefile = (ROOT / "Makefile").read_text()
+        self.assertIn("validate: validate-preflight", makefile)
+        self.assertIn("$(MAKE) python-check skills-check installed-e2e", makefile)
+        for name in (
+            "Verify the installed wheel outside the checkout",
+            "Upload the smoke-tested wheel and exact manifest",
+        ):
+            step = next(step for step in job["steps"] if step.get("name") == name)
+            self.assertEqual(
+                step["if"], "matrix.task == 'conformance' && matrix.gates != 'tests'"
+            )
+        wheel = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Upload the smoke-tested wheel and exact manifest"
+        )
+        self.assertEqual(
+            wheel["with"]["name"],
+            "qualified-wheel-${{ matrix.os }}-${{ matrix.python }}",
+        )
+        upload = next(
+            step
+            for step in job["steps"]
+            if step.get("name") == "Upload release evidence"
+        )
+        self.assertEqual(upload["if"], "matrix.task == 'conformance' && (always())")
+        self.assertIn("matrix.gates == 'tests'", upload["with"]["name"])
+        self.assertIn("format('-partition-{0}', matrix.group)", upload["with"]["name"])
+        for path in (
+            "_build/evidence",
+            "_build/python-test-checkpoint*.json",
+            "_build/python-test-report*.json",
+        ):
+            self.assertIn(path, upload["with"]["path"])
+        for value in (
+            'PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json"',
+            'PYTHON_TEST_REPORT="$PWD/_build/python-test-report-$index.json"',
+        ):
+            self.assertIn(value, run["run"])
+
+    def test_ci_profiles_keep_all_required_linux314_partitions_together(self):
+        selector = self.selector()
+        all_rows = json.loads((ROOT / ".github/ci-matrix.json").read_text())
+        expected = {
+            row["name"]
+            for row in all_rows
+            if row["task"] == "conformance" and row["python"] == "3.14"
+        }
+        self.assertEqual(len(expected), 8)
+        full = (
+            ("workflow_dispatch", "main", (), selector.WorkflowDelta()),
+            ("pull_request", "release/1.4", (), selector.WorkflowDelta()),
+            ("push", "refs/tags/v1.4.0", (), selector.WorkflowDelta()),
+            (
+                "push",
+                "refs/heads/main",
+                ("src/literate_ai/cli.py",),
+                selector.WorkflowDelta(),
+            ),
+            ("pull_request", "main", None, selector.WorkflowDelta(broad=True)),
+            (
+                "pull_request",
+                "main",
+                (".github/workflows/ci.yml",),
+                selector.WorkflowDelta(tasks=frozenset({"conformance"})),
+            ),
+        )
+        for event, ref, paths, delta in full:
+            rows = selector.select_matrix(event, ref, paths, delta=delta)["include"]
+            with self.subTest(event=event, ref=ref, paths=paths, delta=delta):
+                self.assertEqual(
+                    {
+                        row["name"]
+                        for row in rows
+                        if row["task"] == "conformance" and row["python"] == "3.14"
+                    },
+                    expected,
+                )
+        delta = selector._workflow_delta((".github/ci-matrix.json",))
+        self.assertTrue(delta.broad)
+        rows = selector.select_matrix(
+            "pull_request", "main", (".github/ci-matrix.json",), delta=delta
+        )["include"]
+        self.assertTrue(expected <= {row["name"] for row in rows})
+        for paths in (
+            ("README.md",),
+            ("tests/critical/test_retained_posix_acl.py",),
+            ("tests/critical/test_ci_action_pins.py",),
+            ("src/literate_ai/cli.py",),
+        ):
+            rows = selector.select_matrix(
+                "pull_request", "main", paths, delta=selector.WorkflowDelta()
+            )["include"]
+            with self.subTest(paths=paths):
+                self.assertFalse(expected & {row["name"] for row in rows})

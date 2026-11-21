@@ -368,17 +368,33 @@ jobs:
         run: make tools-install
       - name: Run conformance gates
         if: matrix.task == 'conformance'
-        # Full single-job Linux suites plus every gate; Python 3.14 runs slowest.
+        # Python 3.11 retains the full single-job source gate. Python 3.14
+        # preserves all modules across whole-module partitions; its base keeps
+        # validate-preflight, skills-check and installed-e2e through validate.
         timeout-minutes: 180
-        run: >-
-          make validate PYTHON=python RUFF=ruff
-          PYTHON_TEST_PATTERN="test*.py"
+        env:
+          TEST_PATTERNS: ${{ matrix.test_patterns || 'test*.py' }}
+          GATES: ${{ matrix.gates || 'validate' }}
+        run: |
+          set -euo pipefail
+          read -r -a patterns <<< "$TEST_PATTERNS"
+          if [ "$GATES" = tests ]; then
+            make python-check PYTHON=python PYTHON_TEST_PATTERN="${patterns[0]}"
+          else
+            make validate PYTHON=python RUFF=ruff PYTHON_TEST_PATTERN="${patterns[0]}"
+          fi
+          for index in "${!patterns[@]}"; do
+            [ "$index" -eq 0 ] && continue
+            make python-check PYTHON=python PYTHON_TEST_PATTERN="${patterns[$index]}" \
+              PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json" \
+              PYTHON_TEST_REPORT="$PWD/_build/python-test-report-$index.json"
+          done
       - name: Verify the installed wheel outside the checkout
-        if: matrix.task == 'conformance'
+        if: matrix.task == 'conformance' && matrix.gates != 'tests'
         timeout-minutes: 90
         run: make wheel-check PYTHON=python
       - name: Upload the smoke-tested wheel and exact manifest
-        if: matrix.task == 'conformance'
+        if: matrix.task == 'conformance' && matrix.gates != 'tests'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: qualified-wheel-${{ matrix.os }}-${{ matrix.python }}
@@ -388,8 +404,11 @@ jobs:
         if: matrix.task == 'conformance' && (always())
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
-          name: release-evidence-${{ matrix.os }}-${{ matrix.python }}
-          path: _build/evidence
+          name: release-evidence-${{ matrix.os }}-${{ matrix.python }}${{ matrix.gates == 'tests' && format('-partition-{0}', matrix.group) || '' }}
+          path: |
+            _build/evidence
+            _build/python-test-checkpoint*.json
+            _build/python-test-report*.json
           if-no-files-found: warn
       - name: Explain release evidence
         if: matrix.task == 'conformance' && (failure())
@@ -979,14 +998,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 3.11 runs the full suite in shards balanced by measured macOS module time
-        # (#13); only shard 1 runs every repository gate and the wheel check. 3.14
-        # runs a smoke subset; Ubuntu qualifies all of 3.14.
+        # Preserve the four 3.11 base partitions and the 3.14 base smoke set.
+        # Authored serial native families have dedicated whole-module partitions
+        # on both versions: their aggregate no longer fits the base 120m step.
+        # Only each version's base shard runs repository gates and the wheel.
+        # The policy test proves exact previous per-version module coverage.
         include:
           - name: "macos-latest / Python 3.11 (1 of 4)"
             python: "3.11"
             group: 1
-            test_patterns: "test_[!nr]*.py test_r[!e]*.py"
+            test_patterns: "test_[!anr]*.py test_a[!u]*.py test_authorized_*.py test_r[!e]*.py"
           - name: "macos-latest / Python 3.11 (2 of 4)"
             python: "3.11"
             group: 2
@@ -1005,7 +1026,47 @@ jobs:
           - name: "macos-latest / Python 3.14 (smoke)"
             python: "3.14"
             group: 0
-            test_patterns: "test_[!nr]*.py"
+            test_patterns: "test_[!anr]*.py test_a[!u]*.py test_authorized_*.py"
+          - name: "macos-latest / Python 3.11 (authored 1 of 4)"
+            python: "3.11"
+            group: 5
+            gates: "tests"
+            test_patterns: "test_authored_[!r]*.py"
+          - name: "macos-latest / Python 3.11 (authored 2 of 4)"
+            python: "3.11"
+            group: 6
+            gates: "tests"
+            test_patterns: "test_authored_re[!t]*.py"
+          - name: "macos-latest / Python 3.11 (authored 3 of 4)"
+            python: "3.11"
+            group: 7
+            gates: "tests"
+            test_patterns: "test_authored_retained_cargo_[!n]*.py"
+          - name: "macos-latest / Python 3.11 (authored 4 of 4)"
+            python: "3.11"
+            group: 8
+            gates: "tests"
+            test_patterns: "test_authored_retained_cargo_n*.py"
+          - name: "macos-latest / Python 3.14 (authored 1 of 4)"
+            python: "3.14"
+            group: 5
+            gates: "tests"
+            test_patterns: "test_authored_[!r]*.py"
+          - name: "macos-latest / Python 3.14 (authored 2 of 4)"
+            python: "3.14"
+            group: 6
+            gates: "tests"
+            test_patterns: "test_authored_re[!t]*.py"
+          - name: "macos-latest / Python 3.14 (authored 3 of 4)"
+            python: "3.14"
+            group: 7
+            gates: "tests"
+            test_patterns: "test_authored_retained_cargo_[!n]*.py"
+          - name: "macos-latest / Python 3.14 (authored 4 of 4)"
+            python: "3.14"
+            group: 8
+            gates: "tests"
+            test_patterns: "test_authored_retained_cargo_n*.py"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -1059,7 +1120,8 @@ jobs:
           for index in "${!patterns[@]}"; do
             [ "$index" -eq 0 ] && continue
             make python-check PYTHON=python PYTHON_TEST_PATTERN="${patterns[$index]}" \
-              PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json"
+              PYTHON_TEST_CHECKPOINT="$PWD/_build/python-test-checkpoint-$index.json" \
+              PYTHON_TEST_REPORT="$PWD/_build/python-test-report-$index.json"
           done
       - name: Verify the installed wheel outside the checkout
         if: matrix.gates != 'tests'
@@ -1079,5 +1141,6 @@ jobs:
           name: macos-qualification-${{ matrix.python }}-${{ matrix.group }}
           path: |
             _build/evidence
-            _build/python-test-checkpoint.json
+            _build/python-test-checkpoint*.json
+            _build/python-test-report*.json
           if-no-files-found: warn
