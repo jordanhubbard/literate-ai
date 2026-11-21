@@ -132,7 +132,8 @@ collection with worktree and pull-request inspection. Keep 26 slides by revising
 
 23. Show how an importing team evaluates a retained Cargo library in the 1.4
     candidate. Preparing a locked SDK supplies an input for provider qualification.
-    Checking the provider archive identifies missing packages. Materializing supplies
+    The provider applies its acknowledged qualification plan and supplies the resulting
+    reference and archive to the importer. Checking the archive identifies missing packages. Materializing supplies
     those packages. Admission requires the consumer's ordered gates and reviewed
     per-target tests. Identify the independent provider and consumer run as pending.
 24. The end state is a living portfolio of intent.

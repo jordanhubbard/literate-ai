@@ -736,7 +736,9 @@ def build() -> Path:
         "When a provider depends on a locked native SDK, its maintainer runs litai project "
         "qualify prepare-sdk for the selected component and target. The command fetches and "
         "builds the locked inputs. The maintainer records the completion digest and size "
-        "and supplies them with the cache and current revocation file during qualification.",
+        "and supplies them with the cache and current revocation file when planning qualification. "
+        "The provider applies the acknowledged plan and supplies the resulting qualification "
+        "reference and archive to the importer.",
     )
     body(
         doc,

@@ -892,7 +892,7 @@ def build() -> Path:
     wash(s, 700, 0, W - 700, 252, 0.62)
     title(s, "How a team admits a retained Cargo library", "The 1.4 candidate gives importers four steps from a locked SDK to a tested consumer.", True, 23)
     work = [
-        ("PREPARE", "Build the locked SDK for the provider target"),
+        ("PREPARE", "Prepare the SDK and qualify the provider"),
         ("CHECK", "Verify the archive and identify missing packages"),
         ("MATERIALIZE", "Provision the reviewed packages"),
         ("ADMIT", "Run consumer gates and per-target tests"),
@@ -906,7 +906,7 @@ def build() -> Path:
     footer(s, 23, True)
     notes(s, [
         "The operator procedure in docs/user/retained-cargo.md describes the provider and importer responsibilities under ADR 0040.",
-        "For a locked native SDK, the provider prepares the selected component and target. The completion digest and size identify the prepared input for later commands.",
+        "For a locked native SDK, the provider prepares the selected component and target. The provider uses the SDK completion digest and size to plan qualification. Applying the acknowledged plan publishes the qualification reference and archive for the importer.",
         "Check verifies the provider qualification, reviewed importer files, archive, and any installed packages. Materialize provisions missing packages under the declared disposable roots.",
         "Admission requires the reviewed source roots to be absent and runs the ordered consumer gates and independently reviewed per-target tests. The release still needs a genuine independent provider archive and matching consumer run.",
     ])
