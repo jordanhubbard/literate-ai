@@ -24793,6 +24793,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Recovery qualification in progress:** [Retained attempt record](../../verification/release-recovery-aa191c4f-observation.json)
+  binds exact candidate `aa191c4f9` to an actual noneditable installation, genuine
+  model generation and public authored plan/apply. The first apply fails in Cargo:
+  the operator authored generation interface edges but omitted the corresponding
+  build artifact edges. Preserve that failure and all seven unchanged original
+  oracle/profile inputs. A separately initialized corrected attempt keeps the
+  same mathematical contracts and expected answers, adds build edges and passes
+  public validation and planning before generation. Its two-clean-run apply is
+  live; complete all-node qualification, shared-provider custody, closed replay
+  and actual retained Cargo consumption remain unproven. No fixture result or
+  failed attempt closes this goal.
+
+- **Full-source gate remains open:** The same candidate's complete source run
+  stops with 2,058 passes, one receiver-composition deadline failure and 80 skips
+  out of 4,065 selected cases. The unchanged 24-method receiver module then passes
+  at its original deadlines with reduced contention. A fresh complete run uses
+  four workers; neither that diagnostic pass nor the successful FreeBSD SDK slice
+  replaces the required complete source, installed, platform and release gates.
+
 - **Authored qualification composition (in progress):** Compose PR #401's
   origin-specific authority, reviewed profile/oracle, public plan/apply,
   Standard execution, closed products and replay with PR #440's original-owner

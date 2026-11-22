@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/release-recovery-observation@1",
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "source_gate": {
+    "exit_code": 2,
+    "summary": {
+      "executed": 2059,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 2058,
+      "selected": 4065,
+      "skipped": 80
+    },
+    "release_evidence": false,
+    "report": {
+      "sha256": "d6ce744c6945ba1adaa9c719976a21a8a46e3eee872389296cceb6a2e1eac046",
+      "bytes": 598297
+    },
+    "failure": "test_retained_project_runtime receiver-composition positive subcase: action_wire.expired at the original 120-second fixture deadline"
+  },
+  "diagnostic": {
+    "unmodified_module": true,
+    "summary": {
+      "executed": 24,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 24,
+      "selected": 24,
+      "skipped": 0
+    },
+    "module_duration_seconds": 252.18,
+    "report": {
+      "sha256": "8998ce44e32e57e37661fcfdc943519f41a4a32d83d8dd88840b8599fb04cbc8",
+      "bytes": 7193
+    },
+    "single_receiver_code_observation_seconds": 0.133,
+    "conclusion": "Unchanged module passes with reduced contention; no deadline, production source or assertion relaxed. A fresh full suite uses four workers and is not yet terminal."
+  },
+  "genuine_authored_attempt": {
+    "installed_noneditable_framework": true,
+    "model_generation_real": true,
+    "fixture_provider_review_binding_ports": false,
+    "public_plan_identity": "sha256:e252ab00ecfae09dfd657e07debb04af25f47dc49113d23973b0dc4c1f58c804",
+    "terminal": {
+      "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+      "plan_identity": "sha256:e252ab00ecfae09dfd657e07debb04af25f47dc49113d23973b0dc4c1f58c804",
+      "minimum_clean_runs": 2,
+      "libraries": 3,
+      "fixture_ports_used": false,
+      "qualified": false,
+      "exit_code": 2,
+      "duration_seconds": 468.659,
+      "original_oracles_unchanged": true
+    },
+    "terminal_subject": {
+      "sha256": "21153b5954a1b8249cf651a84ae646fe5e3e179f85404bf608910f24a8bb4d52",
+      "bytes": 340
+    },
+    "error_subject": {
+      "sha256": "11407e41ce8d96c0b6480716b218d95619f5a1242bffa71b852470d9e6801572",
+      "bytes": 659
+    },
+    "cause": "Operator setup declared only generation public-interface edges, omitting required build artifact-export edges; Cargo E0433 gamma cannot resolve alpha. This is not a demonstrated framework defect.",
+    "successor": "Separate genuinely initialized project retains identical function contracts, mathematical cases and expected answers, adding explicit build edges alongside generation edges. Fresh original authority-bound oracles are frozen before that attempt. Public validation and plan pass; apply is live, not qualified."
+  },
+  "not_claimed": [
+    "whole-source pass",
+    "completed authored graph qualification",
+    "closed retained replay",
+    "real retained Cargo consumer admission",
+    "whole release readiness"
+  ],
+  "goals_total": 81,
+  "goals_unfinished": 46
+}
