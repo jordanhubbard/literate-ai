@@ -23,7 +23,8 @@
     "make lint",
     "make format-check",
     "roadmap completion dependency validator",
-    "git diff --check"
+    "git diff --check",
+    "documentation renderer: 181 diagrams and 23 maintained controls"
   ],
   "operator_source_probe": {
     "scope": "actual configured local files; no values or digests retained",

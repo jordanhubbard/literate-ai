@@ -6241,7 +6241,8 @@ the reported failure.
   regular, missing, non-regular and oversized files plus a stalled reader and
   owned cleanup, then rerun existing inspection/apply and platform controls.
   [Source development evidence](../../verification/worker-alignment-source-observation.json)
-  records 15 passing maintained alignment controls, lint and formatting. The real
+  records 15 passing maintained alignment controls, lint, formatting and complete
+  documentation rendering (181 diagrams and 23 renderer controls). The real
   configured local sources now capture without exposing payloads; native Windows,
   independent review, supported pin renewal and complete acceptance remain open.
   Keep all worker, source-pin, native and release acceptance obligations open.
