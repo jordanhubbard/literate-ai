@@ -8662,6 +8662,8 @@ slice here before implementation so this file always names the resumable frontie
 
 ### [~] RELEASE-CLOSURE-001 — Make release closure executable and continuous
 
+- **Optional-policy PR history reconciliation:** PR [#442](https://github.com/jordanhubbard/literate-ai/pull/442) has the same optional contribution-manifest parser syntax tree and byte-identical regression module as this candidate. Its [original branch evidence](../history/roadmap/pr-442-optional-policy.md) is retained. This merge changes no production/test source, lifecycle pin or current release goal; full combined qualification remains required.
+
 - **Visible goal custody (in progress):** [Issue 486](https://github.com/jordanhubbard/literate-ai/issues/486)
   binds release readiness and `work close` to the existing visible typed queue
   headings. Fenced examples, HTML comments, prefix-sharing IDs and prose
