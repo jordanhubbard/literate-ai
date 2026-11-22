@@ -183,10 +183,20 @@ class CurrentAuthoredQualificationOracles:
     @property
     def identity(self) -> ContentIdentity:
         self.require_unchanged()
+        return self._captured_identity(self.authority.origin)
+
+    def _captured_identity(self, origin=None) -> ContentIdentity:
+        """Project captured facts only; the caller owns full live guards/closure.
+
+        This private value carries no currentness or execution permission. Public
+        identity retains its original oracle and authority validation sequence.
+        """
+        if origin is None:
+            origin = self.authority._origin
         return canonical_identity(
             {
                 "schema": "literate-ai/current-authored-qualification-oracles@1",
-                "origin_identity": self.authority.origin.identity.uri,
+                "origin_identity": origin.identity.uri,
                 "profile_identity": self.profile.identity.uri,
                 "input_closure_identity": self._inputs.identity,
                 "bindings": [
