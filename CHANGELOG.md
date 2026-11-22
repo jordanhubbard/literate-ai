@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a private bounded observation of an independently pinned running Python
+  interpreter without starting a tool. It retains no execution or provider grant;
+  full Python bridge joining, workspace execution and qualification remain pending.
+
 - Define an explicit versioned retained Python workspace plan, with complete export
   destinations, source/wheel mounts, original inventories, interpreter and target,
   reviewed gates, prospective source removal and finite bounds. Strict codecs and

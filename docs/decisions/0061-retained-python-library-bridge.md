@@ -213,6 +213,18 @@ authored origin and authenticate its original evidence independently. Structural
 codecs and schema registration grant no current provider trust, import permission,
 owned materialization, backend execution, source retirement or receipt admission.
 
+The internal interpreter observation now compares an independently pinned running
+Python with bounded original executable bytes, process metadata and freshly
+resolved command names. It uses the existing pinned-input reader, starts no tool,
+and closes original ownership and input fields after native callbacks. Other
+interpreters and command flags refuse explicitly. Eight native controls compare
+against an independently executed interpreter probe and exercise substitution,
+limits, actual alias replacement, expiry, non-copyability, reentry and late owner
+or input replacement. This observation grants no native version-probe authority,
+execution, provider qualification or consumer admission. The complete bridge must
+independently select its expected interpreter pin and current provider/consumer
+authority; it must not accept those expectations from an archive or decoded DTO.
+
 The complete bridge implementation remains outstanding. The validation list below, including
 both real packaging profiles, fresh offline repeat, foreign-origin failures,
 unchanged Cargo/no-bridge behavior, independent source review and installed plus

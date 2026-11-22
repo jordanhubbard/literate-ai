@@ -24055,6 +24055,19 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Read-only interpreter development:** A private live observation compares a
+  separately pinned running interpreter against bounded original executable
+  bytes, current process metadata and freshly resolved command names, without
+  starting a tool. Eight native controls pass in 0.414 seconds, including an
+  independently executed baseline probe, real same-byte alias replacement,
+  finite limits, substitution, expiry, non-copyability, reentry and late registry
+  or input replacement. This is file continuity under a separate expected pin,
+  not a native version-probe or execution grant. Foreign runtimes and command
+  flags refuse. The current provider/consumer join must independently supply
+  that pin; no public bridge, provider, workspace or receipt acceptance is claimed.
+  [Interpreter development record](../../verification/python-interpreter-observation-development.json)
+  retains the exact scope. Every bridge acceptance requirement remains open.
+
 - **Inert workspace-plan development:** Add an explicit Python versioned codec
   for the exact wrapper/harness/source/test inventories, interpreter/target and
   environment projection, unchanged full gate policy, complete typed export graph
