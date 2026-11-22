@@ -71,5 +71,15 @@
     "whole release readiness"
   ],
   "goals_total": 81,
-  "goals_unfinished": 46
+  "goals_unfinished": 46,
+  "observation_documentation_validation": {
+    "branch_revision": "939fef5c61ab5653de682c05d6da579ffdae2f8f",
+    "exit_code": 0,
+    "mermaid_diagrams": 181,
+    "markdown_files": 1967,
+    "renderer_controls": 23,
+    "roadmap_dependencies": "acyclic",
+    "log_sha256": "bd728a9756b9b1cdd07c6afe7675595a05c62115d41612416183e3962a963cef",
+    "scope": "Actual documentation tooling validation of current recovery observations; source driver pin remains stale pending independent review."
+  }
 }
