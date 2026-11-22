@@ -33,7 +33,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, replace
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from typing import Any
 
 from literate_ai.contracts import canonical_json_bytes
@@ -41,6 +41,7 @@ from literate_ai.projects import ProjectConfigurationStore, ProjectError
 
 from .harness_inventory import HARNESS_PARITY_SCHEMA
 from .harness_tree import SOURCE_SCOPE_SCHEMA, capture_retained_source_scope
+from .retained_layout import RetainedLayoutError, resolve_legacy_implementation
 
 LEGACY_WRAPPER_PARITY_SCHEMA_V1 = "literate-ai/legacy-wrapper-parity@1"
 
@@ -104,24 +105,9 @@ def _resolve_implementation_root(
     project_root: Path, lift_shift_document: dict[str, Any]
 ) -> Path | None:
     """Resolve lift-shift's recorded implementation directory, fail closed."""
-
-    raw = lift_shift_document.get("implementation_directory")
-    if not isinstance(raw, str):
-        return None
-    relative = PurePosixPath(raw)
-    if (
-        relative.is_absolute()
-        or relative.as_posix() != raw
-        or any(part in {"", ".", ".."} for part in relative.parts)
-    ):
-        return None
-    candidate = project_root.joinpath(*relative.parts)
     try:
-        resolved = candidate.resolve(strict=True)
-        resolved.relative_to(project_root.resolve())
-    except (OSError, ValueError):
-        return None
-    if candidate.is_symlink() or not resolved.is_dir():
+        _, resolved = resolve_legacy_implementation(project_root, lift_shift_document)
+    except RetainedLayoutError:
         return None
     return resolved
 
@@ -193,17 +179,19 @@ def migrate_retained_evidence(project_root: Path) -> AppliedRetainedEvidenceMigr
 
     migrated: list[str] = []
 
-    parity_path = project_root / _PARITY_PATH
+    context = ProjectConfigurationStore.context(project_root)
+    project_root = context.root
+    parity_path = context.framework_path(_PARITY_PATH)
     if parity_path.is_file():
         document = _read_json_document(parity_path)
         if document is not None:
             updated, changed = migrate_legacy_wrapper_parity_document(document)
             if changed:
                 parity_path.write_bytes(canonical_json_bytes(updated) + b"\n")
-                migrated.append(_PARITY_PATH)
+                migrated.append(parity_path.relative_to(project_root).as_posix())
 
-    inventory_path = project_root / _INVENTORY_PATH
-    lift_shift_path = project_root / _LIFT_SHIFT_PATH
+    inventory_path = context.framework_path(_INVENTORY_PATH)
+    lift_shift_path = context.framework_path(_LIFT_SHIFT_PATH)
     if inventory_path.is_file() and lift_shift_path.is_file():
         inventory_document = _read_json_document(inventory_path)
         lift_shift_document = _read_json_document(lift_shift_path)
@@ -217,7 +205,7 @@ def migrate_retained_evidence(project_root: Path) -> AppliedRetainedEvidenceMigr
                 )
                 if changed:
                     inventory_path.write_bytes(canonical_json_bytes(updated) + b"\n")
-                    migrated.append(_INVENTORY_PATH)
+                    migrated.append(inventory_path.relative_to(project_root).as_posix())
                     _rebind_receipt_policy_and_review(project_root, updated)
 
     return AppliedRetainedEvidenceMigration(migrated=tuple(migrated))

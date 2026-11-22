@@ -1,17 +1,26 @@
 """Tests for litai catalog copy DAG-safe composition."""
 
+import io
 import json
 import os
 import subprocess
 import tempfile
 import unittest
-from pathlib import Path
+from dataclasses import replace
+from pathlib import Path, PureWindowsPath
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from literate_ai.adapters.catalog_import import (
     CatalogImportError,
+    _catalog_item_files,
     _open_source,
+    _provenance_bytes,
     catalog_copy,
 )
+from literate_ai.cli import main
+from literate_ai.contracts.catalog_imports import CatalogImportsFile, TransitiveAncestor
+from literate_ai.projects import ProjectConfigurationStore
 
 
 def make_project(directory: Path, project_id: str, *, with_origin: bool = True) -> Path:
@@ -81,6 +90,415 @@ def _git(root: Path, *arguments: str) -> str:
         env=environment,
     )
     return completed.stdout.strip()
+
+
+class ContainedCatalogProvenanceTests(unittest.TestCase):
+    def setUp(self) -> None:
+        directory = tempfile.TemporaryDirectory()
+        self.addCleanup(directory.cleanup)
+        self.root = Path(directory.name).resolve()
+        self.source = make_project(self.root / "source", "proj-src")
+        self.parent = make_project(self.root / "parent", "proj-parent")
+        add_flavor(self.parent, "inherited")
+        catalog_copy(self.source, str(self.parent), ["flavor:inherited"])
+        self.added = add_flavor(self.source, "app-relative")
+        self.destination = make_project(self.root / "destination", "proj-dst")
+
+    def _cli(self, *args: str) -> tuple[int, dict]:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        status = main(["--json", *args], stdout=stdout, stderr=stderr)
+        return status, json.loads(stdout.getvalue() or stderr.getvalue())
+
+    def _place(self) -> Path:
+        manifest = self.source / "literate.project.json"
+        definition = json.loads(manifest.read_bytes())
+        definition["framework_directory"] = "litai"
+        framework = self.source / "litai"
+        framework.mkdir()
+        (framework / manifest.name).write_text(json.dumps(definition), encoding="utf-8")
+        manifest.unlink()
+        selected = framework / ".literate"
+        (self.source / ".literate").rename(selected)
+        return selected
+
+    def test_descriptor_change_time_can_differ_from_path_creation_time(self):
+        selected = self._place() / "initialization-origin.json"
+        snapshot = ProjectConfigurationStore.discover(self.source)
+        original = os.fstat
+
+        def descriptor_metadata(descriptor):
+            node = original(descriptor)
+            return SimpleNamespace(
+                **{
+                    field: getattr(node, field)
+                    for field in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                    )
+                },
+                st_ctime_ns=node.st_ctime_ns + 1_000_000_000,
+                st_birthtime_ns=getattr(node, "st_birthtime_ns", node.st_ctime_ns),
+            )
+
+        expected = selected.read_bytes()
+        with patch(
+            "literate_ai.adapters.catalog_import.os.fstat",
+            side_effect=descriptor_metadata,
+        ):
+            self.assertEqual(
+                _provenance_bytes(snapshot, ".literate/initialization-origin.json"),
+                expected,
+            )
+
+    def test_opened_other_file_identity_refuses(self):
+        selected = self._place() / "initialization-origin.json"
+        other = selected.with_name("other.json")
+        other.write_bytes(selected.read_bytes())
+        snapshot = ProjectConfigurationStore.discover(self.source)
+        original = os.open
+
+        def redirected_open(path, flags, *args, **kwargs):
+            return original(
+                other if Path(path) == selected else path, flags, *args, **kwargs
+            )
+
+        with (
+            patch(
+                "literate_ai.adapters.catalog_import.os.open",
+                side_effect=redirected_open,
+            ),
+            self.assertRaises(CatalogImportError) as raised,
+        ):
+            _provenance_bytes(snapshot, ".literate/initialization-origin.json")
+        self.assertEqual(raised.exception.code, "catalog.provenance_invalid")
+
+    def test_descriptor_change_during_read_refuses_even_with_stable_path(self):
+        self._place()
+        snapshot = ProjectConfigurationStore.discover(self.source)
+        original = os.fstat
+        reads = 0
+
+        def changed_descriptor(descriptor):
+            nonlocal reads
+            reads += 1
+            node = original(descriptor)
+            return SimpleNamespace(
+                **{
+                    field: getattr(node, field)
+                    for field in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                    )
+                },
+                st_ctime_ns=node.st_ctime_ns + (reads - 1) * 1_000_000_000,
+                st_birthtime_ns=getattr(node, "st_birthtime_ns", node.st_ctime_ns),
+            )
+
+        with (
+            patch(
+                "literate_ai.adapters.catalog_import.os.fstat",
+                side_effect=changed_descriptor,
+            ),
+            self.assertRaises(CatalogImportError) as raised,
+        ):
+            _provenance_bytes(snapshot, ".literate/initialization-origin.json")
+        self.assertEqual(raised.exception.code, "catalog.provenance_invalid")
+
+    def test_graph_and_copy_preserve_the_legacy_ancestry(self) -> None:
+        status, legacy = self._cli("catalog", "graph", "--project", str(self.source))
+        self.assertEqual(status, 0, legacy)
+        self.assertTrue(legacy["result"]["edges"])
+        catalog_copy(self.destination, str(self.source), ["flavor:app-relative"])
+        original = CatalogImportsFile.load(self.destination).imports[0]
+
+        self._place()
+        shadow = self.source / ".literate"
+        shadow.mkdir()
+        for path in ("initialization-origin.json", "imports.json"):
+            (shadow / path).write_text("untrusted old copy", encoding="utf-8")
+        status, contained = self._cli(
+            "catalog", "graph", "--project", str(self.added / "openspec")
+        )
+        self.assertEqual(status, 0, contained)
+        self.assertEqual(contained["result"], legacy["result"])
+        destination = make_project(self.root / "second", "proj-second")
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:app-relative",
+            "--project",
+            str(destination),
+        )
+        self.assertEqual(status, 0, result)
+        placed = CatalogImportsFile.load(destination).imports[0]
+        self.assertEqual(
+            [(item.path, item.identity) for item in placed.files],
+            [(Path(item.path).as_posix(), item.identity) for item in original.files],
+        )
+        self.assertEqual(
+            placed.source.transitive_ancestors, original.source.transitive_ancestors
+        )
+        self.assertFalse((self.source / "litai/flavors").exists())
+
+    def test_contained_forward_skill_reexport_keeps_owned_contents(self) -> None:
+        name = "specification-to-source/service"
+        selector = f"skill:{name}"
+        relative = Path("skills") / name
+        manifest = relative / "SKILL.md"
+        source = self.parent / manifest
+        source.parent.mkdir(parents=True)
+        source.write_bytes(b"exact imported authority\n")
+        catalog_copy(self.source, str(self.parent), [selector])
+        records = CatalogImportsFile.load(self.source)
+        selected = self._place()
+        project_manifest = selected.parent / "literate.project.json"
+        definition = json.loads(project_manifest.read_bytes())
+        definition["skill_roots"].append("litai/skills")
+        project_manifest.write_text(json.dumps(definition), encoding="utf-8")
+        target = self.source / "litai" / relative
+        target.parent.mkdir(parents=True)
+        (self.source / relative).rename(target)
+        records = replace(
+            records,
+            imports=tuple(
+                replace(
+                    item,
+                    files=tuple(
+                        replace(row, path=f"litai/{row.path}") for row in item.files
+                    ),
+                )
+                if item.kind == "skill" and item.name == name
+                else item
+                for item in records.imports
+            ),
+        )
+        records.save(selected.parent)
+        arguments = (
+            "catalog",
+            "copy",
+            str(self.source),
+            selector,
+            "--project",
+            str(self.destination),
+        )
+        status, result = self._cli(*arguments)
+        self.assertEqual(status, 0, result)
+        output = self.destination / manifest
+        before = output.read_bytes()
+        self.assertEqual(source.read_bytes(), before)
+        old = self.source / manifest
+        old.parent.mkdir(parents=True)
+        old.write_bytes(before)
+        status, result = self._cli(*arguments, "--overwrite")
+        self.assertEqual(status, 2, result)
+        self.assertEqual(result["error"]["code"], "catalog.import_source_invalid")
+        self.assertEqual(output.read_bytes(), before)
+        old.unlink()
+        (target / "SKILL.md").write_bytes(b"foreign contents\n")
+        status, result = self._cli(*arguments, "--overwrite")
+        self.assertEqual(status, 2, result)
+        self.assertEqual(result["error"]["code"], "catalog.import_source_drift")
+        self.assertEqual(output.read_bytes(), before)
+
+    def test_old_root_cannot_supply_missing_contained_provenance(self) -> None:
+        selected = self._place()
+        shadow = self.source / ".literate"
+        shadow.mkdir()
+        (selected / "imports.json").rename(shadow / "imports.json")
+        for args in (
+            ("graph", "--project", str(self.source)),
+            (
+                "copy",
+                str(self.source),
+                "flavor:app-relative",
+                "--project",
+                str(self.destination),
+            ),
+        ):
+            with self.subTest(args=args):
+                status, result = self._cli("catalog", *args)
+                self.assertNotEqual(status, 0, result)
+                self.assertIn("catalog.provenance_missing", json.dumps(result))
+        self.assertFalse((self.destination / "flavors/app-relative").exists())
+        self.assertFalse((self.destination / CatalogImportsFile.PATH).exists())
+
+    def test_source_provenance_drift_during_staging_leaves_destination_intact(
+        self,
+    ) -> None:
+        selected = self._place() / "imports.json"
+        destination = add_flavor(self.destination, "app-relative") / "flavor.md"
+        destination.write_text("must survive", encoding="utf-8")
+        from shutil import copytree
+
+        def drift(*args, **kwargs):
+            result = copytree(*args, **kwargs)
+            if args[0] == self.added:
+                selected.write_bytes(selected.read_bytes() + b" ")
+            return result
+
+        with patch(
+            "literate_ai.adapters.catalog_import.shutil.copytree", side_effect=drift
+        ):
+            with self.assertRaises(CatalogImportError) as raised:
+                catalog_copy(
+                    self.destination,
+                    str(self.source),
+                    ["flavor:app-relative"],
+                    overwrite=True,
+                )
+        self.assertEqual(raised.exception.code, "catalog.provenance_changed")
+        self.assertEqual(destination.read_text(), "must survive")
+        self.assertFalse((self.destination / CatalogImportsFile.PATH).exists())
+
+    def test_imported_item_copy_refuses_drift_before_any_destination_write(
+        self,
+    ) -> None:
+        self._place()
+        inherited = self.source / "flavors" / "inherited" / "flavor.md"
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:inherited",
+            "--project",
+            str(self.destination),
+        )
+        self.assertEqual(status, 0, result)
+        retained = self.destination / inherited.relative_to(self.source)
+        original_file = retained.read_bytes()
+        recorded = self.destination / CatalogImportsFile.PATH
+        original_provenance = recorded.read_bytes()
+
+        inherited.write_bytes(b"changed inherited payload")
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:app-relative",
+            "flavor:inherited",
+            "--overwrite",
+            "--project",
+            str(self.destination),
+        )
+        self.assertNotEqual(status, 0, result)
+        self.assertIn("catalog.import_source_drift", json.dumps(result))
+        self.assertFalse((self.destination / "flavors/app-relative").exists())
+        self.assertEqual(retained.read_bytes(), original_file)
+        self.assertEqual(recorded.read_bytes(), original_provenance)
+
+    def test_contained_file_identities_survive_windows_path_transfer(self) -> None:
+        selected = self._place() / "imports.json"
+        original = json.loads(selected.read_bytes())
+        paths = []
+        for record in original["imports"]:
+            for file in record["files"]:
+                portable = Path(file["path"]).as_posix()
+                paths.append(portable)
+                file["path"] = str(PureWindowsPath(portable))
+        selected.write_text(json.dumps(original), encoding="utf-8")
+
+        status, result = self._cli(
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:inherited",
+            "--project",
+            str(self.destination),
+        )
+        self.assertEqual(status, 0, result)
+        retained = CatalogImportsFile.load(self.destination).imports[0]
+        self.assertEqual(sorted(item.path for item in retained.files), sorted(paths))
+
+        # The production file observer sees a native Windows relative coordinate.
+        path = self.source / paths[0]
+        windows_file = Mock()
+        windows_file.is_file.return_value = True
+        windows_file.read_bytes.side_effect = path.read_bytes
+        windows_file.relative_to.return_value = PureWindowsPath(paths[0])
+        item = Mock()
+        item.rglob.return_value = [windows_file]
+        [portable] = _catalog_item_files(self.source, item, portable=True)
+        [legacy] = _catalog_item_files(self.source, item, portable=False)
+        self.assertEqual(portable.path, paths[0])
+        self.assertEqual(legacy.path, str(PureWindowsPath(paths[0])))
+        self.assertEqual(portable.identity, legacy.identity)
+
+    def test_contained_ancestry_cannot_hide_a_cycle_in_malformed_nested_fields(
+        self,
+    ) -> None:
+        legacy = self.source / CatalogImportsFile.PATH
+        provenance = json.loads(legacy.read_bytes())
+        source = provenance["imports"][0]["source"]
+        ancestor = TransitiveAncestor(
+            project_id="proj-dst",
+            project_identity="sha256:" + "a" * 64,
+            ref="local:previous-destination",
+        ).to_dict()
+        source["transitive_ancestors"] = ancestor
+        legacy.write_text(json.dumps(provenance), encoding="utf-8")
+        status, result = self._cli("catalog", "graph", "--project", str(self.source))
+        self.assertEqual(status, 0, result)
+        selected = self._place() / "imports.json"
+
+        args = (
+            "catalog",
+            "copy",
+            str(self.source),
+            "flavor:app-relative",
+            "--project",
+            str(self.destination),
+        )
+
+        source["transitive_ancestors"] = [ancestor]
+        selected.write_text(json.dumps(provenance), encoding="utf-8")
+        status, result = self._cli(*args)
+        self.assertNotEqual(status, 0, result)
+        self.assertEqual(result["error"]["code"], "catalog.import_cycle")
+
+        for malformed in (ancestor, None, [None]):
+            with self.subTest(malformed=malformed):
+                source["transitive_ancestors"] = malformed
+                selected.write_text(json.dumps(provenance), encoding="utf-8")
+                for command in (
+                    args,
+                    ("catalog", "graph", "--project", str(self.source)),
+                ):
+                    status, result = self._cli(*command)
+                    self.assertNotEqual(status, 0, result)
+                    self.assertEqual(
+                        result["error"]["code"], "catalog.provenance_invalid"
+                    )
+                self.assertFalse((self.destination / "flavors/app-relative").exists())
+                self.assertFalse((self.destination / CatalogImportsFile.PATH).exists())
+
+    def test_local_git_pin_copies_the_contained_provenance(self) -> None:
+        original = CatalogImportsFile.load(self.source).imports[0]
+        self._place()
+        _git(self.source, "init", "--quiet", "-b", "main")
+        _git(self.source, "config", "uploadpack.allowFilter", "true")
+        _git(self.source, "add", ".")
+        _git(self.source, "commit", "--quiet", "-m", "contained source")
+        commit = _git(self.source, "rev-parse", "HEAD")
+        result = catalog_copy(
+            self.destination,
+            f"git:{self.source.as_uri()}#{commit}",
+            ["flavor:app-relative"],
+        )
+        placed = CatalogImportsFile.load(self.destination).imports[0]
+        self.assertIn(
+            original.source.project_id,
+            [a.project_id for a in placed.source.transitive_ancestors],
+        )
+        self.assertTrue(placed.source.ref.endswith("@" + commit))
+        self.assertEqual(result["copied"][0]["name"], "app-relative")
 
 
 class GitCatalogSourceTests(unittest.TestCase):

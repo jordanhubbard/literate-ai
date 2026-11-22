@@ -52,7 +52,7 @@ def _invoke(*arguments: str) -> tuple[int, dict[str, object]]:
 
 def _legacy_project(target: Path, test_summary: str = "Ran 2 tests") -> None:
     target.mkdir()
-    (target / "app.py").write_text("print('retained')\n", encoding="utf-8")
+    (target / "app.py").write_bytes(b"print('retained')\n")
     (target / "Makefile").write_text(
         "build:\n"
         "\tmkdir -p build\n"

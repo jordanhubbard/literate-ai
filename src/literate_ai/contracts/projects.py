@@ -173,6 +173,56 @@ class RepositoryPatchAuthority(StrEnum):
 
 
 @dataclass(frozen=True, slots=True)
+class NativeCIPolicy:
+    """An explicit native workflow contract, independent of release authority."""
+
+    workflow: str
+    required_jobs: tuple[str, ...]
+
+    def __post_init__(self) -> None:
+        workflow = canonical_relative_posix_path(
+            self.workflow, label="NativeCIPolicy.workflow"
+        )
+        if (
+            workflow.parts[:2] != (".github", "workflows")
+            or len(workflow.parts) != 3
+            or workflow.suffix not in {".yml", ".yaml"}
+        ):
+            fail("NativeCIPolicy.workflow", "must name one GitHub workflow file")
+        if (
+            not isinstance(self.required_jobs, tuple)
+            or not 1 <= len(self.required_jobs) <= 64
+        ):
+            fail("NativeCIPolicy.required_jobs", "must contain between one and 64 jobs")
+        unique(self.required_jobs, "NativeCIPolicy.required_jobs")
+        for name in self.required_jobs:
+            if (
+                not isinstance(name, str)
+                or not 1 <= len(name) <= 256
+                or name.strip() != name
+                or any(
+                    ord(character) < 32 or ord(character) == 127 for character in name
+                )
+            ):
+                fail(
+                    "NativeCIPolicy.required_jobs",
+                    "must contain exact printable job names",
+                )
+
+    def to_dict(self) -> dict[str, object]:
+        return {"workflow": self.workflow, "required_jobs": list(self.required_jobs)}
+
+    @classmethod
+    def from_dict(cls, value: Any, *, path: str = "NativeCIPolicy") -> NativeCIPolicy:
+        data = mapping_value(value, path)
+        fields(data, required={"workflow", "required_jobs"}, optional=set(), path=path)
+        return cls(
+            workflow=string_value(data["workflow"], path),
+            required_jobs=string_tuple(data["required_jobs"], path),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class RepositoryPolicy:
     default_branch: str = "main"
     main_state: RepositoryMainState = RepositoryMainState.FREE
@@ -188,6 +238,7 @@ class RepositoryPolicy:
     patch_authority: RepositoryPatchAuthority = RepositoryPatchAuthority.STRICT
     writers: tuple[str, ...] = ()
     branch_gc_minimum_age_days: int = 7
+    native_ci: NativeCIPolicy | None = None
 
     SCHEMA: ClassVar[str] = REPOSITORY_POLICY_SCHEMA
 
@@ -255,6 +306,10 @@ class RepositoryPolicy:
             "RepositoryPolicy.branch_gc_minimum_age_days",
             minimum=1,
         )
+        if self.native_ci is not None and not isinstance(
+            self.native_ci, NativeCIPolicy
+        ):
+            fail("RepositoryPolicy.native_ci", "must be a typed native CI policy")
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -273,6 +328,11 @@ class RepositoryPolicy:
             "patch_authority": self.patch_authority.value,
             "writers": list(self.writers),
             "branch_gc_minimum_age_days": self.branch_gc_minimum_age_days,
+            **(
+                {"native_ci": self.native_ci.to_dict()}
+                if self.native_ci is not None
+                else {}
+            ),
         }
 
     @classmethod
@@ -294,6 +354,7 @@ class RepositoryPolicy:
             "patch_authority",
             "writers",
             "branch_gc_minimum_age_days",
+            "native_ci",
         }
         data = contract_fields(
             value,
@@ -338,6 +399,11 @@ class RepositoryPolicy:
             writers=(string_tuple(data["writers"], path) if "writers" in data else ()),
             branch_gc_minimum_age_days=int_value(
                 data.get("branch_gc_minimum_age_days", 7), path, minimum=1
+            ),
+            native_ci=(
+                NativeCIPolicy.from_dict(data["native_ci"], path=f"{path}.native_ci")
+                if "native_ci" in data
+                else None
             ),
         )
 

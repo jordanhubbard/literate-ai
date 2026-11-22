@@ -17,6 +17,7 @@ from literate_ai.self_hosting import (
     run_snapshot_replication,
 )
 from tests.conformance.support.self_hosting_proof import platform_flavor as host_flavor
+from tests.support.windows_lock_observation import observed_temporary_directory
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PACKAGE_ROOT = REPO_ROOT / "src" / "literate_ai"
@@ -67,7 +68,7 @@ class SnapshotReplicationConformanceTests(unittest.TestCase):
             "time.sleep(60)"
         )
         started = time.monotonic()
-        with tempfile.TemporaryDirectory() as temporary:
+        with observed_temporary_directory([], ()) as temporary:
             with mock.patch.dict(globals_, {"_CANDIDATE_PROCESS_TIMEOUT_SECONDS": 0.2}):
                 with self.assertRaisesRegex(
                     harness["SelfHostSampleError"], "could not complete"

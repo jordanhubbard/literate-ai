@@ -1,0 +1,520 @@
+{
+  "schema": "literate-ai/ci-wheel-readback@1",
+  "scope": "Three completed exact-candidate native wheel jobs while whole matrix remains unfinished",
+  "wheels": [
+    {
+      "platform": "windows312",
+      "run": 44968003486,
+      "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+      "job": 137041432938,
+      "artifact": 14734170440,
+      "artifact_name": "qualified-wheel-windows-3.12",
+      "artifact_sha256": "ee46902bc9d7352c41a5ca7468f299af146c42a2fb8e866341d02836900b185c",
+      "artifact_size": 4544478,
+      "manifest_identity": "sha256:c33524039f7f5767695e468acff5bc5791df9a88b6d4feb5ad87d242c42bc405",
+      "wheel_sha256": "904f23fd4623d30c028af3d1d1317c56bf2c020cfdd8ad698ac47735e6a1a292",
+      "wheel_size": 4731326,
+      "wheel_record_entries_rehashed": 1519,
+      "framework_members_compared_to_native_mac_wheel": 1362,
+      "framework_payload_matches_native_mac_wheel": true,
+      "whole_ci_success_claimed": false,
+      "terminal_report_matches_wheel": true,
+      "terminal_log_sha256": "f1f121b2c51482e23333c465336a1bb45dd5daa46bc93b298b752f9309cd73b6",
+      "standard_binding": {
+        "distribution": "sha256:8cf0704409a73d145f236aa1542c75cb0034895e1c042e51934b6c53d89ba617",
+        "members": 1519,
+        "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+      },
+      "worker_cpu": {
+        "case": "test_native_windows_local_and_receiver_cpu_satisfy_required_policy",
+        "installed_module_origins_verified": true,
+        "platform": "win32",
+        "receiver_transport": "local-child",
+        "skip_reasons": [],
+        "status": "passed"
+      },
+      "windows_retained_context": {
+        "results": [
+          {
+            "case_timeout_seconds": 300,
+            "cases": [
+              {
+                "elapsed_seconds": 76.0,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_actual_windows_command_and_late_source_or_context_drift",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 1.532000000000039,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_existing_file_and_redirected_directory_refuse",
+                "reason": "requires POSIX directory symlink",
+                "status": "skipped"
+              },
+              {
+                "elapsed_seconds": 23.077999999999975,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_missing_captured_python_dll_refuses_fresh_native_workspace",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 22.375,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_missing_future_directory_and_captured_tools_have_fixed_order",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 1.8430000000000746,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_opt_in_round_trip_preserves_default_wire",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 1.5939999999999372,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_original_style_lookup_executes_new_export_and_refuses_without_selection",
+                "reason": "requires native POSIX fixture",
+                "status": "skipped"
+              }
+            ],
+            "fixture_sha256": "23bd591a3022d8aabc81247c438b7875a27c8eb483ba454d6c49dfd5b24e3a43",
+            "installed_module_origins_verified": true,
+            "mode": "base",
+            "platform": "win32",
+            "status": "passed",
+            "summary": {
+              "failed": 0,
+              "passed": 4,
+              "selected": 6,
+              "skipped": 2
+            },
+            "framework_module_count": 383
+          },
+          {
+            "case_timeout_seconds": 300,
+            "cases": [
+              {
+                "elapsed_seconds": 78.5,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_actual_windows_command_and_late_source_or_context_drift",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 1.5310000000000628,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_existing_file_and_redirected_directory_refuse",
+                "reason": "requires POSIX directory symlink",
+                "status": "skipped"
+              },
+              {
+                "elapsed_seconds": 21.859000000000037,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_missing_captured_python_dll_refuses_fresh_native_workspace",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 21.187999999999988,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_missing_future_directory_and_captured_tools_have_fixed_order",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 1.5939999999999372,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_opt_in_round_trip_preserves_default_wire",
+                "reason": null,
+                "status": "passed"
+              },
+              {
+                "elapsed_seconds": 1.5,
+                "id": "tests.critical.test_retained_project_environment.RetainedOutputCommandPathTests.test_original_style_lookup_executes_new_export_and_refuses_without_selection",
+                "reason": "requires native POSIX fixture",
+                "status": "skipped"
+              }
+            ],
+            "fixture_sha256": "23bd591a3022d8aabc81247c438b7875a27c8eb483ba454d6c49dfd5b24e3a43",
+            "installed_module_origins_verified": true,
+            "mode": "installed",
+            "platform": "win32",
+            "status": "passed",
+            "summary": {
+              "failed": 0,
+              "passed": 4,
+              "selected": 6,
+              "skipped": 2
+            },
+            "framework_module_count": 383
+          }
+        ],
+        "status": "passed"
+      },
+      "maintained_controls": {
+        "bootstrap": {
+          "fixtures": {
+            "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "bootstrap-posix": {
+          "status": "skipped"
+        },
+        "coding-cli-posix": {
+          "status": "skipped"
+        },
+        "cuda-inventory": {
+          "fixtures": {
+            "tests/critical/test_source_inventory_credentials.py": "4e3b80c7899ae728c0779735e8a780a06dc416f97ad8d08dcd3f6803faaa6685",
+            "tests/critical/test_source_inventory_modules.py": "e60045eaf25e23a24b835c87191a945e7044578aa7061caaad525407c8e5f446",
+            "tests/critical/test_source_inventory_targets.py": "b07e948f9b8530e2d7c276756a8b9f163ffc505a4c424d5e811bff0e1e0eecf2"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 16,
+          "selected": 16,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "diagnostics": {
+          "fixtures": {
+            "tests/critical/test_qualification_capture.py": "ceb86fab1b351010add17089f2b6d56de2e10a22d8462e4ecbd6c0dfb233254f",
+            "tests/critical/test_qualification_diagnostics.py": "03439b21871d9d3190163f7561f6b791660bd5bf10e8cc85a875ab471d6ea81b",
+            "tests/smoke/test_cli_library_qualification.py": "091bc47bf7d2a8ac6b4c68a4c97c2c919cb2907b6e0eeef0c5824caef3af4308"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 32,
+          "selected": 32,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "retained-layout": {
+          "fixtures": {
+            "tests/critical/test_retained_layout.py": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+            "tests/critical/test_retained_update_layout.py": "25f8ca1b59ee475a16364ea24a5b97f4f201eff26106f566acbb7a551c286e6f"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "runtime-capabilities": {
+          "fixtures": {
+            "tests/critical/test_runtime_capability_environment.py": "359a364dfd6a1a09ff338b151bfe251d480736c4f96178f11ca346358016ff45"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "telemetry-controller": {
+          "fixtures": {
+            "tests/critical/test_worker_telemetry_authentication.py": "50a3af309b94e37d5a741572806321d3c6797ff12222fb148b757e73c28f0637",
+            "tests/critical/test_worker_telemetry_authorization.py": "3552450fdc341f405b62dc3ae22c750fbe15ac63b6f94882efc79b2257cdaa2b",
+            "tests/critical/test_worker_telemetry_contracts.py": "2f6d145a62c67b2ca954d3152935896ca61899d59599fd2ad2c114bc17d48b29",
+            "tests/critical/test_worker_telemetry_polling.py": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669",
+            "tests/critical/test_worker_telemetry_reservations.py": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+            "tests/critical/test_worker_telemetry_schemas.py": "b03d4041e5877ccec7b8303d2b795ef5059756bb1e2d98cbba17579b12977a6d",
+            "tests/critical/test_worker_telemetry_wire.py": "75ae5c83186bc3117a8389684317d549611f54cf35eec9d00ddb328712d4404e"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 89,
+          "selected": 89,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "telemetry-linux-processes": {
+          "status": "skipped"
+        }
+      }
+    },
+    {
+      "platform": "linux311",
+      "run": 44968003486,
+      "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+      "job": 137041432866,
+      "artifact": 14734056385,
+      "artifact_name": "qualified-wheel-ubuntu-latest-3.11",
+      "artifact_sha256": "ed7577326f38d38fc2da9647afb94db067afa6a83a6e48688a8fd7cdbb98282d",
+      "artifact_size": 4544374,
+      "manifest_identity": "sha256:0c5a2cd2e96e22b57ea0f5dd2892700435e04dd2a1414104a44e7bc6a54910aa",
+      "wheel_sha256": "ed82893feb88b79cca3714664177daeecd047a696fde1480084b1e5292cfcd0a",
+      "wheel_size": 4731207,
+      "wheel_record_entries_rehashed": 1519,
+      "framework_members_compared_to_native_mac_wheel": 1362,
+      "framework_payload_matches_native_mac_wheel": true,
+      "whole_ci_success_claimed": false,
+      "terminal_report_matches_wheel": true,
+      "terminal_log_sha256": "2e03a7d20e0b55d406e80e846859af848a0507f0fba8531c8c39fb4fbfcb6669",
+      "standard_binding": {
+        "distribution": "sha256:9936bfacb160f660f60b99b2d504270bb5a986ebe2fa2cc4af32170a697cd855",
+        "members": 1519,
+        "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+      },
+      "worker_cpu": {
+        "case": "test_native_windows_local_and_receiver_cpu_satisfy_required_policy",
+        "installed_module_origins_verified": true,
+        "platform": "linux",
+        "receiver_transport": "local-child",
+        "skip_reasons": [
+          "requires the actual Windows API"
+        ],
+        "status": "skipped"
+      },
+      "windows_retained_context": {
+        "reason": "requires actual Windows PE commands and system context",
+        "results": [],
+        "status": "skipped"
+      },
+      "maintained_controls": {
+        "bootstrap": {
+          "fixtures": {
+            "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "bootstrap-posix": {
+          "fixtures": {
+            "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "coding-cli-posix": {
+          "fixtures": {
+            "tests/critical/test_codex_runtime_state.py": "f2fa4e1a59c87ba97177b6cc9adf9f836d3e3d9a87becb9dc2f504e2fd707608",
+            "tests/critical/test_coding_cli_generation.py": "90d3f8c8aa0cf9fc0b7b2d3e7ce9a2476b5f82f06c31131140e95b13dff4a96e",
+            "tests/critical/test_coding_cli_success_cleanup.py": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 27,
+          "selected": 27,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "cuda-inventory": {
+          "fixtures": {
+            "tests/critical/test_source_inventory_credentials.py": "4e3b80c7899ae728c0779735e8a780a06dc416f97ad8d08dcd3f6803faaa6685",
+            "tests/critical/test_source_inventory_modules.py": "e60045eaf25e23a24b835c87191a945e7044578aa7061caaad525407c8e5f446",
+            "tests/critical/test_source_inventory_targets.py": "b07e948f9b8530e2d7c276756a8b9f163ffc505a4c424d5e811bff0e1e0eecf2"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 16,
+          "selected": 16,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "diagnostics": {
+          "fixtures": {
+            "tests/critical/test_qualification_capture.py": "ceb86fab1b351010add17089f2b6d56de2e10a22d8462e4ecbd6c0dfb233254f",
+            "tests/critical/test_qualification_diagnostics.py": "03439b21871d9d3190163f7561f6b791660bd5bf10e8cc85a875ab471d6ea81b",
+            "tests/smoke/test_cli_library_qualification.py": "091bc47bf7d2a8ac6b4c68a4c97c2c919cb2907b6e0eeef0c5824caef3af4308"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 32,
+          "selected": 32,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "retained-layout": {
+          "fixtures": {
+            "tests/critical/test_retained_layout.py": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+            "tests/critical/test_retained_update_layout.py": "25f8ca1b59ee475a16364ea24a5b97f4f201eff26106f566acbb7a551c286e6f"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "runtime-capabilities": {
+          "fixtures": {
+            "tests/critical/test_runtime_capability_environment.py": "359a364dfd6a1a09ff338b151bfe251d480736c4f96178f11ca346358016ff45"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "telemetry-controller": {
+          "fixtures": {
+            "tests/critical/test_worker_telemetry_authentication.py": "50a3af309b94e37d5a741572806321d3c6797ff12222fb148b757e73c28f0637",
+            "tests/critical/test_worker_telemetry_authorization.py": "3552450fdc341f405b62dc3ae22c750fbe15ac63b6f94882efc79b2257cdaa2b",
+            "tests/critical/test_worker_telemetry_contracts.py": "2f6d145a62c67b2ca954d3152935896ca61899d59599fd2ad2c114bc17d48b29",
+            "tests/critical/test_worker_telemetry_polling.py": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669",
+            "tests/critical/test_worker_telemetry_reservations.py": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+            "tests/critical/test_worker_telemetry_schemas.py": "b03d4041e5877ccec7b8303d2b795ef5059756bb1e2d98cbba17579b12977a6d",
+            "tests/critical/test_worker_telemetry_wire.py": "75ae5c83186bc3117a8389684317d549611f54cf35eec9d00ddb328712d4404e"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 89,
+          "selected": 89,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "telemetry-linux-processes": {
+          "fixtures": {
+            "tests/critical/test_worker_telemetry_processes.py": "5b148dfccaeb0a533c9b4b8886ac4fb525b4e94cd2dc4c37cd057896abbd0869"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0,
+          "status": "passed"
+        }
+      }
+    },
+    {
+      "platform": "linux314",
+      "run": 44968003486,
+      "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+      "job": 137041432868,
+      "artifact": 14733584366,
+      "artifact_name": "qualified-wheel-ubuntu-latest-3.14",
+      "artifact_sha256": "3e5a49d6bed80b138fc475306ef4d1258101558b37a8058e1b8d70719e3370f8",
+      "artifact_size": 4544385,
+      "manifest_identity": "sha256:60b0dc68ae810be441f795cd3a2776617637253b4337bf4298d2ddcfc1a4045c",
+      "wheel_sha256": "c0f3bc006f6609c3527ab9da5ed25b74297b066cd30e92763516716b925db3bd",
+      "wheel_size": 4731207,
+      "wheel_record_entries_rehashed": 1519,
+      "framework_members_compared_to_native_mac_wheel": 1362,
+      "framework_payload_matches_native_mac_wheel": true,
+      "whole_ci_success_claimed": false,
+      "terminal_report_matches_wheel": true,
+      "terminal_log_sha256": "dd09cbd0b04b0f66e8c3f409294d94c3dfb0eb78c5725c3373e4cdbcefd8ebf1",
+      "standard_binding": {
+        "distribution": "sha256:9936bfacb160f660f60b99b2d504270bb5a986ebe2fa2cc4af32170a697cd855",
+        "members": 1519,
+        "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+      },
+      "worker_cpu": {
+        "case": "test_native_windows_local_and_receiver_cpu_satisfy_required_policy",
+        "installed_module_origins_verified": true,
+        "platform": "linux",
+        "receiver_transport": "local-child",
+        "skip_reasons": [
+          "requires the actual Windows API"
+        ],
+        "status": "skipped"
+      },
+      "windows_retained_context": {
+        "reason": "requires actual Windows PE commands and system context",
+        "results": [],
+        "status": "skipped"
+      },
+      "maintained_controls": {
+        "bootstrap": {
+          "fixtures": {
+            "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 10,
+          "selected": 10,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "bootstrap-posix": {
+          "fixtures": {
+            "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 3,
+          "selected": 3,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "coding-cli-posix": {
+          "fixtures": {
+            "tests/critical/test_codex_runtime_state.py": "f2fa4e1a59c87ba97177b6cc9adf9f836d3e3d9a87becb9dc2f504e2fd707608",
+            "tests/critical/test_coding_cli_generation.py": "90d3f8c8aa0cf9fc0b7b2d3e7ce9a2476b5f82f06c31131140e95b13dff4a96e",
+            "tests/critical/test_coding_cli_success_cleanup.py": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 27,
+          "selected": 27,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "cuda-inventory": {
+          "fixtures": {
+            "tests/critical/test_source_inventory_credentials.py": "4e3b80c7899ae728c0779735e8a780a06dc416f97ad8d08dcd3f6803faaa6685",
+            "tests/critical/test_source_inventory_modules.py": "e60045eaf25e23a24b835c87191a945e7044578aa7061caaad525407c8e5f446",
+            "tests/critical/test_source_inventory_targets.py": "b07e948f9b8530e2d7c276756a8b9f163ffc505a4c424d5e811bff0e1e0eecf2"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 16,
+          "selected": 16,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "diagnostics": {
+          "fixtures": {
+            "tests/critical/test_qualification_capture.py": "ceb86fab1b351010add17089f2b6d56de2e10a22d8462e4ecbd6c0dfb233254f",
+            "tests/critical/test_qualification_diagnostics.py": "03439b21871d9d3190163f7561f6b791660bd5bf10e8cc85a875ab471d6ea81b",
+            "tests/smoke/test_cli_library_qualification.py": "091bc47bf7d2a8ac6b4c68a4c97c2c919cb2907b6e0eeef0c5824caef3af4308"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 32,
+          "selected": 32,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "retained-layout": {
+          "fixtures": {
+            "tests/critical/test_retained_layout.py": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+            "tests/critical/test_retained_update_layout.py": "25f8ca1b59ee475a16364ea24a5b97f4f201eff26106f566acbb7a551c286e6f"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 18,
+          "selected": 18,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "runtime-capabilities": {
+          "fixtures": {
+            "tests/critical/test_runtime_capability_environment.py": "359a364dfd6a1a09ff338b151bfe251d480736c4f96178f11ca346358016ff45"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "telemetry-controller": {
+          "fixtures": {
+            "tests/critical/test_worker_telemetry_authentication.py": "50a3af309b94e37d5a741572806321d3c6797ff12222fb148b757e73c28f0637",
+            "tests/critical/test_worker_telemetry_authorization.py": "3552450fdc341f405b62dc3ae22c750fbe15ac63b6f94882efc79b2257cdaa2b",
+            "tests/critical/test_worker_telemetry_contracts.py": "2f6d145a62c67b2ca954d3152935896ca61899d59599fd2ad2c114bc17d48b29",
+            "tests/critical/test_worker_telemetry_polling.py": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669",
+            "tests/critical/test_worker_telemetry_reservations.py": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+            "tests/critical/test_worker_telemetry_schemas.py": "b03d4041e5877ccec7b8303d2b795ef5059756bb1e2d98cbba17579b12977a6d",
+            "tests/critical/test_worker_telemetry_wire.py": "75ae5c83186bc3117a8389684317d549611f54cf35eec9d00ddb328712d4404e"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 89,
+          "selected": 89,
+          "skipped": 0,
+          "status": "passed"
+        },
+        "telemetry-linux-processes": {
+          "fixtures": {
+            "tests/critical/test_worker_telemetry_processes.py": "5b148dfccaeb0a533c9b4b8886ac4fb525b4e94cd2dc4c37cd057896abbd0869"
+          },
+          "installed_module_origins_verified": true,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0,
+          "status": "passed"
+        }
+      }
+    }
+  ],
+  "whole_release_acceptance": false
+}

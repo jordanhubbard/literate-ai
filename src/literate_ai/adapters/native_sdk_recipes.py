@@ -198,29 +198,40 @@ class NativeSdkRecipePlanner:
             tool.require_unchanged()
         if toolchains != tuple(tool.toolchain_identity for tool in self.tools.values()):
             raise ValueError("SDK recipe toolchain identities changed")
-        decision = self.store.put_manifest(
-            {
-                "schema": "literate-ai/authored-native-sdk-build-decision@1",
-                "selection": selected.identity.to_dict(),
-                "recipe": selected.recipe.identity.to_dict(),
-                "coding_provider_invoked": False,
-            }
-        )
+        decision = _sdk_build_decision(selected)
+        recorded = self.store.put_manifest(decision)
         self.store.put_manifest(selected.to_dict())
         self.store.put_manifest(selected.recipe.to_dict())
         self.store.put_manifest(selected.recipe.layout.to_dict())
-        return RepositoryBuildPlan(
-            source_lock=lock.identity,
-            effective_revision=effective_revision,
-            flavor_set=flavor_set,
-            evidence=(
-                selected.identity,
-                selected.recipe.identity,
-                selected.recipe.layout.identity,
-                index_binding,
-            ),
-            model_decision=ContentIdentity.parse_uri(decision.identity),
-            toolchains=toolchains,
-            commands=selected.recipe.commands,
-            expected_outputs=(selected.recipe.layout.sdk_root,),
-        )
+        plan = _selected_sdk_build_plan(selected, index_binding, toolchains)
+        if recorded.identity != plan.model_decision.uri:
+            raise ValueError("SDK build decision differs from its stored manifest")
+        return plan
+
+
+def _sdk_build_decision(selected):
+    return {
+        "schema": "literate-ai/authored-native-sdk-build-decision@1",
+        "selection": selected.identity.to_dict(),
+        "recipe": selected.recipe.identity.to_dict(),
+        "coding_provider_invoked": False,
+    }
+
+
+def _selected_sdk_build_plan(selected, index_binding, toolchains):
+    """Derive the plan for a checked recipe without touching its content store."""
+    return RepositoryBuildPlan(
+        source_lock=selected.source_lock.identity,
+        effective_revision=selected.component_revision,
+        flavor_set=selected.target_identity,
+        evidence=(
+            selected.identity,
+            selected.recipe.identity,
+            selected.recipe.layout.identity,
+            index_binding,
+        ),
+        model_decision=canonical_identity(_sdk_build_decision(selected)),
+        toolchains=toolchains,
+        commands=selected.recipe.commands,
+        expected_outputs=(selected.recipe.layout.sdk_root,),
+    )

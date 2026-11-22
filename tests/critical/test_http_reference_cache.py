@@ -12,11 +12,15 @@ import unittest
 from dataclasses import replace
 from http.client import HTTPConnection
 from pathlib import Path
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from literate_ai.adapters.cache.http_artifacts import HttpSharedArtifactCache
-from literate_ai.adapters.cache.http_reference import ReferenceSharedCacheServer
+from literate_ai.adapters.cache.http_reference import (
+    ReferenceSharedCacheServer,
+    _Handler,
+)
 from literate_ai.adapters.cache.shared_artifacts import SharedArtifactCacheError
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.shared_cache import SharedCacheAccessMode
@@ -276,6 +280,100 @@ class ReferenceHttpCacheTests(unittest.TestCase):
             409,
         )
         self.assertFalse((self.server.cache.root / "package" / "manifests").exists())
+
+    def test_early_put_rejection_preserves_response_with_delayed_body(self):
+        # Hold the body until the server has selected its header-level refusal.
+        # An immediate close leaves unread bytes and can reset the response.
+        for token, status, namespace, readonly in (
+            (_READER, 403, "package", False),
+            ("invalid-fixture-token", 401, "package", False),
+            (_WRITER, 403, "package", True),
+            (_WRITER, 422, "unknown", False),
+            (_WRITER, 422, "compiler", False),
+        ):
+            with self.subTest(status=status, namespace=namespace, readonly=readonly):
+                self.server.configuration = replace(
+                    self.configuration,
+                    policies=tuple(
+                        replace(
+                            policy,
+                            mode=(
+                                SharedCacheAccessMode.READ_ONLY
+                                if readonly
+                                else SharedCacheAccessMode.READ_WRITE
+                            ),
+                        )
+                        for policy in self.configuration.policies
+                    ),
+                )
+                decided, supplied = threading.Event(), threading.Event()
+                original = _Handler._reply
+
+                def reply(
+                    handler,
+                    selected,
+                    content=b"",
+                    *,
+                    decided=decided,
+                    supplied=supplied,
+                    original=original,
+                ):
+                    decided.set()
+                    if not supplied.wait(4):
+                        raise AssertionError("fixture body was not supplied")
+                    return original(handler, selected, content)
+
+                with patch.object(_Handler, "_reply", reply):
+                    with socket.create_connection(
+                        ("127.0.0.1", self.server.server_port), timeout=4
+                    ) as sock:
+                        sock.sendall(
+                            (
+                                f"PUT /release/{namespace}/objects/"
+                                f"{self.manifest.payload_identity.digest} HTTP/1.1\r\n"
+                                "Host: 127.0.0.1\r\n"
+                                f"Authorization: Bearer {token}\r\n"
+                                "If-None-Match: *\r\n"
+                                f"Content-Length: {len(self.payload)}\r\n\r\n"
+                            ).encode()
+                        )
+                        try:
+                            self.assertTrue(decided.wait(4))
+                            sock.sendall(self.payload)
+                        finally:
+                            supplied.set()
+                        response = b""
+                        while part := sock.recv(4096):
+                            response += part
+                self.assertTrue(response.startswith(f"HTTP/1.0 {status} ".encode()))
+                self.assertFalse(self.server.pending)
+                self.assertFalse((self.server.cache.root / "package").exists())
+
+    def test_rejected_body_cleanup_keeps_connection_deadline(self):
+        with socket.create_connection(
+            ("127.0.0.1", self.server.server_port), timeout=4
+        ) as sock:
+            sock.sendall(
+                (
+                    f"PUT {self.path(object=True)} HTTP/1.1\r\n"
+                    "Host: 127.0.0.1\r\n"
+                    f"Authorization: Bearer {_READER}\r\n"
+                    "Content-Length: 25\r\n\r\n"
+                ).encode()
+            )
+            self.assertIn(b" 403 ", sock.recv(4096))
+            # Three permits are unused; the fourth is released only when this
+            # connection retires. Never extend the server's two-second timer.
+            acquired = 0
+            try:
+                for _ in range(4):
+                    self.assertTrue(self.server.connections.acquire(timeout=4))
+                    acquired += 1
+            finally:
+                for _ in range(acquired):
+                    self.server.connections.release()
+        self.assertFalse(self.server.pending)
+        self.assertFalse((self.server.cache.root / "package").exists())
 
 
 if __name__ == "__main__":

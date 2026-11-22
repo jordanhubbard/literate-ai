@@ -11,6 +11,7 @@ import json
 import os
 import weakref
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
 from literate_ai.adapters.retained_cargo_input_owners_v2 import (
@@ -98,6 +99,77 @@ class RustHarnessVerifierInputs:
         return _current_issuance(self)[2]
 
 
+_VERIFIER_COMPLETION_KEY = object()
+
+
+class _UnsavableVerifierObservation:
+    __slots__ = ()
+
+    def __copy__(self):
+        raise TypeError("rust.harness.verifier-observation-not-copyable")
+
+    def __deepcopy__(self, memo):
+        raise TypeError("rust.harness.verifier-observation-not-copyable")
+
+    def __reduce_ex__(self, protocol):
+        raise TypeError("rust.harness.verifier-observation-not-serializable")
+
+
+@dataclass(init=False, frozen=True, slots=True, eq=False)
+class _OriginalRustHarnessVerifierFiles(_UnsavableVerifierObservation):
+    _authority: object = field(repr=False)
+    _lock: object = field(repr=False)
+    _owners: object = field(repr=False)
+    _declaration: object = field(repr=False)
+    _declaration_identity: object = field(repr=False)
+    _pid: int = field(repr=False)
+
+    def __init__(self, authority, lock, owners, declaration, identity, pid, key):
+        if key is not _VERIFIER_COMPLETION_KEY:
+            raise TypeError("rust.harness.original-verifier-files-required")
+        for name, value in (
+            ("_authority", authority),
+            ("_lock", lock),
+            ("_owners", owners),
+            ("_declaration", declaration),
+            ("_declaration_identity", identity),
+            ("_pid", pid),
+        ):
+            object.__setattr__(self, name, value)
+
+    def _require_origin(self):
+        if os.getpid() != self._pid or (
+            canonical_identity(self._declaration.to_dict())
+            != self._declaration_identity
+        ):
+            raise ValueError("rust.harness.original-verifier-observation-changed")
+
+    def require_original_files(self):
+        """Pure original bounded files, including complete provisioned roots.
+
+        This does not reopen the live verifier registry, grant execution or
+        revalidate tool/SDK/native authority. Owning completion performs all
+        callbacks first, then its original raw file comparisons and retirement.
+        """
+        self._require_origin()
+        self._authority.require_unchanged()
+        self._lock.require_unchanged()
+        self._owners.require_unchanged()
+        self._require_origin()
+
+
+@dataclass(init=False, frozen=True, slots=True, eq=False)
+class _RustHarnessVerifierSession(_UnsavableVerifierObservation):
+    scope: RustHarnessVerifierInputs = field(repr=False)
+    files: _OriginalRustHarnessVerifierFiles = field(repr=False)
+
+    def __init__(self, scope, files, key):
+        if key is not _VERIFIER_COMPLETION_KEY:
+            raise TypeError("rust.harness.original-verifier-session-required")
+        object.__setattr__(self, "scope", scope)
+        object.__setattr__(self, "files", files)
+
+
 @contextmanager
 def capture_rust_harness_verifier_inputs(
     oracle_path: Path,
@@ -115,6 +187,38 @@ def capture_rust_harness_verifier_inputs(
     exclusions are accepted. In particular CARGO_HOME is captured completely;
     bookkeeping drift refuses instead of silently omitting cache metadata.
     """
+    with _capture_rust_harness_verifier_session(
+        oracle_path,
+        oracle_content=oracle_content,
+        harness_name=harness_name,
+        harness_content=harness_content,
+        harness_identity=harness_identity,
+        declaration=declaration,
+        _retain_files=False,
+    ) as scope:
+        yield scope
+
+
+@contextmanager
+def _capture_rust_harness_verifier_session(
+    oracle_path: Path,
+    *,
+    oracle_content: bytes,
+    harness_name: str,
+    harness_content: bytes,
+    harness_identity: ContentIdentity,
+    declaration: RustLibraryHarnessDependencies,
+    _retain_files=True,
+):
+    """Reopen current authority and every declared source/configuration byte.
+
+    The existing oracle loader supplies the exact bytes it consumed, never a path
+    from a candidate manifest. Roots are verifier-relative and no output/scratch
+    exclusions are accepted. In particular CARGO_HOME is captured completely;
+    bookkeeping drift refuses instead of silently omitting cache metadata.
+    """
+    if type(_retain_files) is not bool:
+        raise TypeError("rust.harness.verifier-retention-mode-invalid")
     if (
         type(declaration) is not RustLibraryHarnessDependencies
         or type(harness_identity) is not ContentIdentity
@@ -227,7 +331,20 @@ def capture_rust_harness_verifier_inputs(
     _ISSUED[key] = issuance
     try:
         scope.require_current()
-        yield scope
+        if _retain_files:
+            files = _OriginalRustHarnessVerifierFiles(
+                authority,
+                lock,
+                owners,
+                declaration,
+                plan_identity,
+                pid,
+                _VERIFIER_COMPLETION_KEY,
+            )
+            files.require_original_files()
+            yield _RustHarnessVerifierSession(scope, files, _VERIFIER_COMPLETION_KEY)
+        else:
+            yield scope
         scope.require_current()
     finally:
         active = False

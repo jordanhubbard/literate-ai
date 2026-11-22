@@ -1,0 +1,111 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "reviewed-local-qualified",
+  "reviewer": "sdlc_review",
+  "base_revision": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+  "review_identity": "sha256:4fcddc2bdaef74b9cfa61f511ddbdb466110d114fa12ed7db79bc53b964c4e1c",
+  "editorial_addendum_identity": "sha256:eee61d30976772e615f398023222f9c255d75f5ed88122bcb740c839f0b177cf",
+  "subjects": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "bytes": 46152,
+      "sha256": "6c9f12b444cb257d395dc63bdc5f8a370ea6e967f3ce9eb87c41ddbed655084e"
+    },
+    {
+      "path": ".github/workflows/conference-pages.yml",
+      "bytes": 2858,
+      "sha256": "50a9661e6652fc87e0eefb5f45adfef4f51f2c0ef227feeedaf1d11458756c6c"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "bytes": 14361,
+      "sha256": "4902b2c525f0ca5e5a1189ef1bd448400c47539f64c6130c98786b94831218c9"
+    },
+    {
+      "path": "docs/architecture/existing-repository-review.html",
+      "bytes": 59392,
+      "sha256": "f5143ed3016b58457b26db1638458ef67fb9ab06940784c8f6dd4e99bb72754f"
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "bytes": 44699,
+      "sha256": "603bbd1e2e9a49b87a9744b5266c08b4018130447ee998d054e10143b4a2e11a"
+    },
+    {
+      "path": "tests/e2e/test_native_project_bootstrap.py",
+      "bytes": 9778,
+      "sha256": "a3210e719b1c7a02e845b8ec5fd51a76667993d639d4ebb106bb909b50c97d1c"
+    }
+  ],
+  "resolved_findings": [
+    "DG-1: local narrative shortcut excludes release-goal status, disposition, target, dependency and acceptance changes.",
+    "DG-2: PR and main site triggers include all published root inputs, including SKILL.md and LICENSE."
+  ],
+  "current_platform_defect": {
+    "run_id": 43990299543,
+    "job_id": 133728953509,
+    "result": "707passed/113skipped/1failed",
+    "cause": "fixture repaired LF bytes with Windows text-mode CRLF translation",
+    "repair": "restore captured original bytes without relaxing digest, mode or Git assertions"
+  },
+  "independent_public_control": {
+    "selected": 1,
+    "passed": 1,
+    "seconds": 9.385,
+    "platform": "local macOS; not native Windows"
+  },
+  "author_controls": {
+    "ci_roadmap_tests": 35,
+    "ci_roadmap_seconds": 0.872,
+    "ci_roadmap_failed": 0,
+    "newline_simulation_before": "one expected failure",
+    "newline_simulation_after": {
+      "kind": "local Windows text-newline simulation through maintained public adoption control; not native Windows qualification",
+      "base_revision": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+      "selected": 1,
+      "failures": 0,
+      "errors": 0,
+      "seconds": 10.048176374984905,
+      "translated_writes": 1,
+      "successful": true
+    },
+    "site": {
+      "html_pages": 1741,
+      "local_links_checked": 14106,
+      "findings": []
+    },
+    "site_node_version": "26.8.1",
+    "ci_node_version": "24",
+    "fresh_complete_source": {
+      "selected": 2887,
+      "passed": 2795,
+      "skipped": 92,
+      "failed": 0,
+      "elapsed_seconds": 2007.212,
+      "workers": 3,
+      "run": "documentation-gates-final",
+      "report_sha256": "48ffa196ce331cc2ced330ba10dc0d319338813135fef5711dfcccbe6970204f",
+      "gates": [
+        "python-check",
+        "driver-review",
+        "runner-review",
+        "documentation-review",
+        "lint",
+        "format-check",
+        "documentation-check"
+      ]
+    }
+  },
+  "scope": [
+    "PR site build/link validation has read-only repository permissions, no Pages upload or publication.",
+    "Main deployment depends on validation and its same-run artifact; publishing retains its own permissions/environment.",
+    "Both platform smoke cells add native adoption/publication modules; full qualification cells remain.",
+    "This policy/CI/test change itself requires the full local gate."
+  ],
+  "remaining": [
+    "exact-head CI including actual Windows adoption tests",
+    "separate authorization before any merge triggers website publication"
+  ],
+  "release_qualification": false,
+  "publication_performed": false
+}

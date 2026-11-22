@@ -1,0 +1,32 @@
+{
+  "schema": "literate-ai/real-consumer-baseline-observation@1",
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "scope": "Actual original native Cargo application before any provider-package binding or source retirement",
+  "native_tests": 3,
+  "baseline_build_test_package_passed": true,
+  "conversion_baseline_phases": 3,
+  "conversion_parity_phases": 3,
+  "bootstrap_ready": true,
+  "agent_entrypoints_passed": true,
+  "parent_readme_passed": true,
+  "retained_receipt": {
+    "candidate_identity": "sha256:6507d4c03d2d249cac04b19f7c604e3d086ae0494c1523dc9f6d288dc5037323",
+    "classification": "retained-legacy-parity",
+    "evidence_identity": "sha256:c59685d77ce093c3a73edb9965eed4d6d62c11f07b2c9f40bde4fe30ae849d3c",
+    "native_component_acceptance": false,
+    "native_component_generation": false,
+    "project_revision_identity": "sha256:c31723b5a54230c375cf362daf06b1fcd64be6fc77f1e27b2407af46de98b4f5",
+    "runner_identity": "sha256:d2c51ab3751a61d586b66d39715e2d5d05962b7e6bd8b8269818940f780f961a",
+    "suite_identity": "sha256:0e3bf254213c77920b5648a8fb9af0e38cab699c9b221c0a1d2a69fd2c79a311",
+    "tests": 3,
+    "worker_identity": "sha256:dab87da892f2c65545bcfba5c73a70367026f344b4478d0ff60bceae3038ac8e",
+    "workspace_runtime_identity": "sha256:9db834c68b60df6601951039b8efd72dd9751c866f60c69ab52de46f12868288"
+  },
+  "conversion_stage": "retained",
+  "release_authority": "original-source",
+  "receipt_state": "current",
+  "source_retired": false,
+  "authored_provider_admitted": false,
+  "genuine_authored_goal_complete": false,
+  "release_acceptance": false
+}

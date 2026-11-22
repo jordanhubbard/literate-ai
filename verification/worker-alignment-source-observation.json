@@ -1,0 +1,50 @@
+{
+  "schema": "literate-ai/worker-alignment-source-observation@1",
+  "issue": 490,
+  "candidate_base": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "subjects": {
+    "src/literate_ai/adapters/alignment_file_source.py": "ebdc11e46baced140e9ed60209e55af287b01a561f0b637b6c8774ec3e33bdc0",
+    "src/literate_ai/adapters/worker_alignment.py": "bae3eee9f4f7b7cf717e2f76a2b9153a56bf4472b704d2b9f44d515be359fc78",
+    "tests/critical/test_worker_alignment_sources.py": "54f6de9ffee793e722647cc4d5783755f31c1c2953ead3d9d026b052caaa75ad"
+  },
+  "controls": {
+    "target": "make python-check PYTHON_TEST_PATTERN=test_worker_alignment*.py",
+    "summary": {
+      "executed": 15,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 15,
+      "selected": 15,
+      "skipped": 0
+    },
+    "scope": "native macOS source tests; configured remote boundaries use explicit fixtures; no native Windows or release qualification claimed"
+  },
+  "passed_static_gates": [
+    "make lint",
+    "make format-check",
+    "roadmap completion dependency validator",
+    "git diff --check",
+    "documentation renderer: 181 diagrams and 23 maintained controls"
+  ],
+  "operator_source_probe": {
+    "scope": "actual configured local files; no values or digests retained",
+    "observations": [
+      {
+        "source_index": 0,
+        "state": "captured",
+        "duration_seconds": 0.129
+      },
+      {
+        "source_index": 1,
+        "state": "captured",
+        "duration_seconds": 0.056
+      }
+    ]
+  },
+  "pending": [
+    "independent source review and supported lifecycle/documentation pin recording",
+    "exact reviewed-source installed and platform qualification",
+    "full WORKER-001 and release acceptance"
+  ],
+  "release_goal_complete": false
+}

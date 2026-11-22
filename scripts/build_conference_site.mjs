@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const require = createRequire(path.join(root, 'tools/openspec/package.json'));
+const require = createRequire(path.join(root, 'tools/documentation/package.json'));
 const {marked} = require('marked');
 const output = path.join(root, '_build/conference-site/literate-ai');
 const base = '/literate-ai/';

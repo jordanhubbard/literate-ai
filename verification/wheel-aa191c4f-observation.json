@@ -1,0 +1,252 @@
+{
+  "schema": "literate-ai/native-wheel-readback@1",
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "platform": "native macOS arm64 / Python 3.14",
+  "gate": "make wheel-check",
+  "exit_code": 0,
+  "ok": true,
+  "manifest_identity": "sha256:a4bada009ee56e2d5ec963333205f70f593c924554e341749575f94df24c2f32",
+  "wheel_sha256": "49707dd0a22fd9fc98837f3ef9f48f954ef9caa159f1078e2ff1e0e0df5ad593",
+  "wheel_size": 4731207,
+  "wheel_record_entries_rehashed": 1519,
+  "prefix_framework_members_compared": 1362,
+  "separate_prefix_framework_payload_matches": true,
+  "separate_prefix_same_wheel_archive_claimed": false,
+  "standard_binding": {
+    "distribution": "sha256:9936bfacb160f660f60b99b2d504270bb5a986ebe2fa2cc4af32170a697cd855",
+    "members": 1519,
+    "policy": "sha256:a5ca0d6d13daff0199f218c5e4af723a2cec87b927e75dd3a731c511b5d85ac7"
+  },
+  "parallel_checkpoint": {
+    "executed": 2,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2,
+    "selected": 4,
+    "skipped": 2
+  },
+  "maintained_controls": {
+    "bootstrap": {
+      "fixtures": {
+        "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 10,
+      "scope": "bootstrap",
+      "selected": 10,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "bootstrap-posix": {
+      "fixtures": {
+        "tests/smoke/test_bootstrap_litai.py": "632594a65a0258d5475e4011455f5a2445584a81d87886fc07ef26eaf5003179"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 3,
+      "scope": "bootstrap-posix",
+      "selected": 3,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "coding-cli-posix": {
+      "fixtures": {
+        "tests/critical/test_codex_runtime_state.py": "f2fa4e1a59c87ba97177b6cc9adf9f836d3e3d9a87becb9dc2f504e2fd707608",
+        "tests/critical/test_coding_cli_generation.py": "90d3f8c8aa0cf9fc0b7b2d3e7ce9a2476b5f82f06c31131140e95b13dff4a96e",
+        "tests/critical/test_coding_cli_success_cleanup.py": "45e17b531919a7821660ad7fc21daa02ce06e1095faee24831aab1899a6e52c4"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 27,
+      "scope": "coding-cli-posix",
+      "selected": 27,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "cuda-inventory": {
+      "fixtures": {
+        "tests/critical/test_source_inventory_credentials.py": "4e3b80c7899ae728c0779735e8a780a06dc416f97ad8d08dcd3f6803faaa6685",
+        "tests/critical/test_source_inventory_modules.py": "e60045eaf25e23a24b835c87191a945e7044578aa7061caaad525407c8e5f446",
+        "tests/critical/test_source_inventory_targets.py": "b07e948f9b8530e2d7c276756a8b9f163ffc505a4c424d5e811bff0e1e0eecf2"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 16,
+      "scope": "cuda-inventory",
+      "selected": 16,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "diagnostics": {
+      "fixtures": {
+        "tests/critical/test_qualification_capture.py": "ceb86fab1b351010add17089f2b6d56de2e10a22d8462e4ecbd6c0dfb233254f",
+        "tests/critical/test_qualification_diagnostics.py": "03439b21871d9d3190163f7561f6b791660bd5bf10e8cc85a875ab471d6ea81b",
+        "tests/smoke/test_cli_library_qualification.py": "091bc47bf7d2a8ac6b4c68a4c97c2c919cb2907b6e0eeef0c5824caef3af4308"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 32,
+      "scope": "diagnostics",
+      "selected": 32,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "retained-layout": {
+      "fixtures": {
+        "tests/critical/test_retained_layout.py": "2ef7c27ba3c26d46178ab9c45ec77b1cebbfc441e7ac539c0f8eeae54b447890",
+        "tests/critical/test_retained_update_layout.py": "25f8ca1b59ee475a16364ea24a5b97f4f201eff26106f566acbb7a551c286e6f"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 18,
+      "scope": "retained-layout",
+      "selected": 18,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "runtime-capabilities": {
+      "fixtures": {
+        "tests/critical/test_runtime_capability_environment.py": "359a364dfd6a1a09ff338b151bfe251d480736c4f96178f11ca346358016ff45"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 9,
+      "scope": "runtime-capabilities",
+      "selected": 9,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "telemetry-controller": {
+      "fixtures": {
+        "tests/critical/test_worker_telemetry_authentication.py": "50a3af309b94e37d5a741572806321d3c6797ff12222fb148b757e73c28f0637",
+        "tests/critical/test_worker_telemetry_authorization.py": "3552450fdc341f405b62dc3ae22c750fbe15ac63b6f94882efc79b2257cdaa2b",
+        "tests/critical/test_worker_telemetry_contracts.py": "2f6d145a62c67b2ca954d3152935896ca61899d59599fd2ad2c114bc17d48b29",
+        "tests/critical/test_worker_telemetry_polling.py": "6486c8da8fc4dade5a1b64abf5e736072ae18b2317e7e348d16834feb8811669",
+        "tests/critical/test_worker_telemetry_reservations.py": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1",
+        "tests/critical/test_worker_telemetry_schemas.py": "b03d4041e5877ccec7b8303d2b795ef5059756bb1e2d98cbba17579b12977a6d",
+        "tests/critical/test_worker_telemetry_wire.py": "75ae5c83186bc3117a8389684317d549611f54cf35eec9d00ddb328712d4404e"
+      },
+      "installed_module_origins_verified": true,
+      "passed": 89,
+      "scope": "telemetry-controller",
+      "selected": 89,
+      "skipped": 0,
+      "status": "passed",
+      "test_python_input_identity": "sha256:e365eb0d31d98206565f7f3510ee7239df4576d3528ca067c16affbd2b78b2ef",
+      "test_python_members": 1007
+    },
+    "telemetry-linux-processes": {
+      "scope": "telemetry-linux-processes",
+      "status": "skipped"
+    }
+  },
+  "rust_library_harness": {
+    "framework_distribution": "sha256:9936bfacb160f660f60b99b2d504270bb5a986ebe2fa2cc4af32170a697cd855",
+    "native_cargo_identity": "sha256:285a7b2bd6c4fb593a14a74ab8c8723b9b49de0df2b10dabb772a1e72fa2356b",
+    "native_rust_identity": "sha256:e844de0bd699ed672b8770139a0f3e81ea3ae68990e9cf6b865b58d9a2868e6c",
+    "oracle_identity": "sha256:c29b4e10c832a682f37e7b8db211147db8ad32bec919f4952726f08ec4d0b5bb",
+    "ordinary_rustup_isolated_home": "not-qualified",
+    "public_cli_calls": 3,
+    "qualified": true,
+    "receipt_committed": true,
+    "receipt_sha256": "b7d45761b66f3d4b2459752cf27e8d2a27fd72206b5c5a09a2f20d16fb3536b7",
+    "scope": "installed-public-library-offline-serde-json",
+    "synthetic_framework_observers": false,
+    "whole_ADR0056": "not-qualified"
+  },
+  "project_identity_migration": {
+    "fixture_source_sha256": {
+      ".gitignore": "6d8daa439263c4a75977bd7d09b855453dc49d8465894a2b9a435ac92e4e0af7",
+      "Makefile": "d0afd3b5579cb770d2a077b1931746442667e80663f8cfb3822651dc44e4a3d0",
+      "app.py": "ba1a531f581d2e6094e978ed6f7aca7a8d92eeb62c6e7ad73ee692f7f18bc772",
+      "build.py": "4bd56a377e4690a2fe130b9972a429da440fc2114858580b1db0836029caffde",
+      "test_app.py": "56b4a6feb9a025ca25eda7a6adb4d0dc654ff7f35e125dcb5a834be4531f464b"
+    },
+    "framework_distribution": "sha256:9936bfacb160f660f60b99b2d504270bb5a986ebe2fa2cc4af32170a697cd855",
+    "immutable_adoption_records": 3,
+    "immutable_rename_records": 2,
+    "native_retained_runs": [
+      {
+        "candidate_identity": "sha256:2dd1bd87f0196d8950607a29012d0bfd1f42289a9dfdd4703415aed19606068c",
+        "classification": "retained-legacy-parity",
+        "evidence_identity": "sha256:6c0ab626929e76c6edfb957555a1fdb4e8faedde7fbce2b2f5a3db3f37780555",
+        "tests": 2
+      },
+      {
+        "candidate_identity": "sha256:9e9c4bf9ace807430b95f7f9115cfe3cb068b6dcf18817d26cbee00da6370e25",
+        "classification": "retained-legacy-parity",
+        "evidence_identity": "sha256:828e18457abae32d437aa508eea16fc866723dcc0fbd00c63b2a08dd511ad2bf",
+        "tests": 2
+      },
+      {
+        "candidate_identity": "sha256:440b10895be7e8708d0ba0f0692e9a28d87b9f3a65373533e2893ada5f596264",
+        "classification": "retained-legacy-parity",
+        "evidence_identity": "sha256:d0b842dd2affa4608f9eba85f72decf0c71ee3268c698a5b4b81155dfc09c994",
+        "tests": 2
+      }
+    ],
+    "qualified": true,
+    "refusals": [
+      "project_identity.acknowledgement_required",
+      "project_identity.plan_stale",
+      "project.documentation_authority_review_stale",
+      "project.test_receipt_stale",
+      "project_identity.acknowledgement_required",
+      "project_identity.plan_stale",
+      "project.documentation_authority_review_stale",
+      "project.test_receipt_stale"
+    ],
+    "renames": 2,
+    "scope": "Installed public CLI and real retained parity; no regenerated Component acceptance",
+    "source_files_preserved": 5,
+    "synthetic_framework_observers": false
+  },
+  "cache_continuation": {
+    "distribution": "sha256:9936bfacb160f660f60b99b2d504270bb5a986ebe2fa2cc4af32170a697cd855",
+    "platform": "darwin",
+    "qualified": true,
+    "scenarios": {
+      "default": {
+        "admissions": 2,
+        "exact_builds": 2,
+        "history_unchanged": true,
+        "runs": 2
+      },
+      "project-relative": {
+        "admissions": 2,
+        "exact_builds": 2,
+        "history_unchanged": true,
+        "runs": 2
+      }
+    }
+  },
+  "worker_cpu": {
+    "case": "test_native_windows_local_and_receiver_cpu_satisfy_required_policy",
+    "installed_module_origins_verified": true,
+    "platform": "darwin",
+    "receiver_transport": "local-child",
+    "skip_reasons": [
+      "requires the actual Windows API"
+    ],
+    "status": "skipped"
+  },
+  "windows_retained_context": {
+    "reason": "requires actual Windows PE commands and system context",
+    "results": [],
+    "status": "skipped"
+  },
+  "not_claimed": [
+    "native Windows acceptance from macOS skips",
+    "genuine authored three-library qualification",
+    "whole-source pass",
+    "final release qualification"
+  ]
+}

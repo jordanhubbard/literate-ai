@@ -1,0 +1,139 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "goal": "WORKER-TELEMETRY-001",
+  "reviewer_role": "separate explicitly authorized non-author reviewer",
+  "decision": "approved",
+  "classification": "Approval of explicitly partial telemetry primitive source implementation; no full-feature, installed/native or release attestation",
+  "reviewed_base": "0a8f7a885221811e042788a5a7fbb9413bc23203",
+  "source_schema_manifest": [
+    {
+      "path": "schemas/v2/compatibility.json",
+      "sha256": "a42a9e5579fd4ba0f89439534440518980abbc249be8f9eaa1bdc1d115a4fa6e",
+      "git_blob": "00aaec689ea805f74c8c2b867c9d6a2c462765ac",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "schemas/v2/index.json",
+      "sha256": "d9dcefabfad9fec7388a98b28874696a1a09167bad13e62c13a2e032c7d2e649",
+      "git_blob": "0df1ba7b350fe26abf615120f832858207e5d094",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "schemas/v2/worker-telemetry.schema.json",
+      "sha256": "cc680fc6728c2d856dc540023e9eb7b8687c652436c3c486a66c8f7449541a37",
+      "git_blob": "1c84c727dcdc215b6f3dc19a5509c732b393c6a1",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/action_command_dispatch.py",
+      "sha256": "2bf1cd689ba24942c0583aa71c78000d8cf50ab540356dd25d0273b198b539ff",
+      "git_blob": "2d34a761e70c623648d762b5515dfe2c662c7399",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/action_slots.py",
+      "sha256": "fd1010f4cec59111a5af94abc79abc1e0007eab468cf803dba66c5418c8e1b87",
+      "git_blob": "c3c793c497338f0e7bfd493178e0a0a8b01126bf",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/builders/_process.py",
+      "sha256": "c82242a64abfbc5d6c29fead8dc26cfef0164051abdf62b951c596de01555a29",
+      "git_blob": "2fc18d4bb3efd50bd57ebd7a84799aa0468d05a5",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_telemetry_authentication.py",
+      "sha256": "923864d0f50c71ffdac4c6349756f587d0bb7b7c9e1bba9fb10e1065765571b4",
+      "git_blob": "15c85341751282807b15505a49ef7fe80e8e9754",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_telemetry_processes.py",
+      "sha256": "faf6f05e090ef0551ea7559985f5f0c0df299f7a345a6b2509c06157822c8c90",
+      "git_blob": "e5117f1a864e8e5d20bda0c11cf4b6d74015bf45",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/worker_telemetry_wire.py",
+      "sha256": "11d2d8fb0f5874bf8f9c110bdbed794d157a084b33660a3d4702b302990cc518",
+      "git_blob": "e58c9bac6f4aa2fd497f8ef34bc853defe9795a4",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_authentication.py",
+      "sha256": "e01f6c7b404a8cf1f46f41ceeec018a969de3818d9bf68aa09960bf65198e3ee",
+      "git_blob": "c26c6b3912db28385be610fe7e311be13b2f9095",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_authorization.py",
+      "sha256": "5271ff60157b1ee63dc34ccb914e79fbee3f4570ce0cbcb85426a31f24a540fe",
+      "git_blob": "c0eaffa217d09f39aed7197ac0e4ec8e336336d3",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_polling.py",
+      "sha256": "525fd86890ba4342bf7ab17a5ef187bce1380e0d37354cb3f080a676c459089d",
+      "git_blob": "2d7916237c50df4f5cff7222457aa74d53811b8c",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/application/worker_telemetry_reservations.py",
+      "sha256": "7a67f5e331691c4a19889b4788e946ad79f6ca00bb426cad7b57cb6a5d45db3c",
+      "git_blob": "83ac846639a6f2a7635d188586482661a00bbff1",
+      "unchanged_from_previous_independent_review": false
+    },
+    {
+      "path": "src/literate_ai/contracts/worker_telemetry.py",
+      "sha256": "c816d4620371d8ef05c6e46966ba99694866000e050fbb40adcca5d470f100c8",
+      "git_blob": "2452cefb2721d90b2299a7661a55cc69c274420f",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/contracts/worker_telemetry_observations.py",
+      "sha256": "65e5ffd5f483f78ccb32cfeecf278efe318afae734bf8ca4b2173bcef8de0bed",
+      "git_blob": "3ddf9962c239ccb6f8f67dbe0b63b24e58791501",
+      "unchanged_from_previous_independent_review": true
+    },
+    {
+      "path": "src/literate_ai/schema_catalog.py",
+      "sha256": "39779fcbebb9eff5929d8f67649ccd88663dedc3a62d14e5fd019fb1c07f34c9",
+      "git_blob": "37223817d94417bc576e6664955a6c5f9f9a3aee",
+      "unchanged_from_previous_independent_review": true
+    }
+  ],
+  "test_sha256": {
+    "tests/critical/test_worker_telemetry_reservations.py": "ab1437a2568da6af5c7aaf52464e6a18f9c458061f78ea055ebd41828d810df1"
+  },
+  "findings": [],
+  "resolved_finding": "TELEMETRY-RESERVATION-RACE-001",
+  "basis": [
+    {
+      "id": "TELEMETRY-RESERVATION-RACE-001",
+      "status": "resolved for exact reviewed working-tree bytes",
+      "reason": "_publication_lock now governs enter, leave, retire, quarantine, bind and finish_binding. Candidate identities are prepared outside the lock. bind then rereads the actual current snapshot, checks active/unknown/retired under the lock, preserves sticky flags and captures the selected binding in its returned view. All replacements take current state under the same publication lock; an old finish_binding cannot clear a successor.",
+      "nonblocking_scope": "require_current/view do not acquire publication ownership or the capacity Condition. Clock checks use separate nonblocking _clock_lock. Publication critical sections contain only fixed local checks and frozen dataclass replacement, with no identity construction, clock policy ports, sample reads or external calls. Job completion does not wait for a pending sample."
+    }
+  ],
+  "independent_reservation_rerun": {
+    "passed": 16,
+    "failed": 0,
+    "skipped": 0
+  },
+  "retained_telemetry_selection": {
+    "passed": 89,
+    "failed": 0,
+    "skipped": 11,
+    "selected": 100,
+    "skip_scope": "Linux-only process controls on macOS"
+  },
+  "release_attestation": false,
+  "remaining": [
+    "Native Linux process tests not rerun on this macOS host; retained Linux/installed records are scope-limited historical evidence.",
+    "No genuine configured private-policy custody/negotiated observation session, installed live-action transport or downstream consumer journey accepted.",
+    "Response replay/epoch/sequence receiver acceptance, subtree/action/reservation/native counter joins, Windows/macOS metrics, production polling/collector transport integration remain incomplete.",
+    "Full feature, exact combined source/installed/native/resulting-main and release acceptance remain open.",
+    "Exact committed/integrated source identities must match this manifest; source review does not substitute for complete combined source/installed/native/resulting-main qualification."
+  ]
+}

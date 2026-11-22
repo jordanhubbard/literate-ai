@@ -2,6 +2,214 @@
 
 ## Unreleased
 
+- Cargo receiving: keep authored `check` under a nominal read-only wrapper so it
+  can observe a consumer while another operation holds the lifecycle lock,
+  without writing lock ownership metadata or obtaining scratch/execution rights.
+  Full installed receiving and timeout qualification remain pending.
+
+- Authored qualification: reuse bounded syntax observations inside each current
+  plan guard, preserving every native authority, selector and review check and
+  starting each independent guard with fresh parse state. Receiving timeout and
+  installed qualification remain open.
+
+- Cargo controls: stage changed bytes and replace the disposable launcher after
+  its real version probe in original-file and completion controls, preserving the
+  late byte-change refusal on Linux systems that retain executable image
+  references after process exit.
+
+- Native FreeBSD qualification: add an explicit complete source-suite mode with
+  an exact Git checkout, finite process ownership and a separate source verdict.
+  A requested full suite requires its complete matching report in copied results.
+  Native execution and release qualification of this mode remain pending.
+
+- Packaging: keep declared provider bindings attached to their exact export when
+  an explicit package layout renames its directory. Preserve legacy paths and
+  refuse missing files, links and paths outside package custody.
+
+- Native Cargo: add an explicit shared sibling package layout so independently
+  exported libraries can share nominal Rust types without duplicate path packages.
+  Preserve legacy profile and target formats; require fresh qualification for the
+  new selection.
+
+- Qualification development: complete two genuine nominal Rust graph runs through
+  an installed public provider, preserving all original acceptance inputs. Retained
+  consumer admission remains unfinished. A fresh shared-layout provider and
+  transported replay now pass, and a disposable consumer passes its original
+  commands with unchanged qualified packages; public admission remains pending.
+
+- Native library artifacts: record provider bindings from the exact current build
+  intent, preventing prior generated-source attempts from duplicating later
+  dependency evidence and blocking qualification replay. Strict archive duplicate
+  and current-interface checks remain in place; genuine acceptance is pending.
+
+- Cargo qualification replay validates native provider graphs against current export/contract bindings, original source, metadata and locked dependency closure, preserving provider-free records and read-only archive handling.
+
+- CI: budget the complete four-case serial authored owning-admission module with a finite 6,600-second worker limit in its Linux/macOS cells, retaining production deadlines, test coverage and overall job limits. Native successor qualification remains pending.
+
+- Standard Python artifacts: share bounded dependency-record validation between
+  sealed payload checks and read-only replay, retaining current build, source,
+  interpreter and target bindings plus final filesystem checks. Retained Python
+  bridge integration and public qualification remain pending.
+
+- Worker alignment: bound local configuration and credential-file capture before
+  comparison or synchronization; report stalled, unsafe or oversized inputs without
+  disclosing contents or preparing a destination from an unreadable source.
+
+- CI: partition the complete Ubuntu Python 3.11 source suite so late native Cargo
+  tests have their own runtime budget; preserve every module and PR gate alongside
+  the existing validation, installation and wheel checks.
+
+- Add authored-native qualification planning, acknowledged Standard execution,
+  independent-oracle custody, versioned origin evidence, closed capture/replay
+  and recoverable reference publication. Preserve contained project manifest
+  owners and require original-descriptor deletion evidence for macOS retirement.
+  Ordinary authored retained receiving and genuine installed/native acceptance
+  remain required.
+
+- Project admitted Rust Component provider graphs into disposable Cargo builds,
+  preserving one shared provider, original manifests, exact exports and managed
+  lock/SBOM evidence. Refuse generator-authored projection provenance even on
+  provider-free leaves; complete authored and retained-consumer qualification
+  remains required.
+
+- Compose explicit closed POSIX source-link custody through SDK locking, scanning,
+  quarantine and build checks; bound input read requests under existing quotas.
+  Add canonical and packaged FreeBSD ARM64 host-install plans and live external
+  SDK output workspaces with exact recipe/grant custody. Native OS-SDK and final
+  installed/platform qualification remain required.
+
+- Add reviewed native-child addition/revision plans and acknowledged recoverable
+  registry/evidence publication, preserving current qualification readers and
+  migration identity. The transaction never performs missing qualification or
+  grants consumer acceptance; installed/native release qualification is pending.
+
+- Add unqualified shadow repositories for tracked upstream refs and staged PR
+  source through explicit plans and acknowledged custody operations. Preserve raw
+  bytes and interrupted sync state; mapped execution and outcome acceptance
+  remain in progress.
+
+- Exercise worker probe timeout and UTC observation freshness as independent
+  refusal conditions while retaining the real bounded probe controls.
+
+- Avoid a redundant Windows root kill after confirmed job termination so the
+  caller waits for kernel completion instead of trusting a premature exit cache.
+
+- Preserve original Windows cleanup diagnostic note order while sampling owned
+  job identities before the separate file-user diagnostic.
+
+- Retain bounded test-owned Windows job and process-identity observations for
+  native timeout cleanup failures without changing termination behavior.
+
+- Prevent background Git maintenance from racing copies of disposable native
+  repository fixtures while preserving user and project Git configuration.
+
+- Retain bounded Cargo receiving measurements on original failures under parallel
+  case reporting, including input-check cost and the unchanged admission deadline.
+
+- Preserve private Git-object fixture modes across deliberate missing-object
+  checks and retain bounded Windows cleanup observations with original failures.
+
+- Apply the release owner's verified false-positive disposition to the historical
+  PyYAML source digest finding as well as the framework source digest findings.
+
+- Preserve late Git-boundary fixture commits while Windows lock bytes remain
+  locked, and give the POSIX interrupt fixture an explicit signal disposition.
+
+- Keep the Cargo reuse regression independent of Cargo's private dependency
+  directory layout while requiring one exact fixture library and unchanged reuse.
+
+- Report Windows boundary-control failures before the complete source shard,
+  retaining separate probe evidence and the full qualification requirements.
+
+- Detect restored writes in Windows retained Cargo input censuses using bound
+  native handle change times, including changes after the closing census.
+
+- Capture retained Cargo test runtime directories from reported artifacts across
+  Cargo's shared and per-unit output layouts, retaining output custody limits.
+- Use separate short temporary roots for Windows CI shards and receiver checks
+  so nested native compiler outputs stay within the host path budget.
+
+- Remove unchanged owned native-profile files after Git LF/CRLF checkout
+  conversion, preserving exact working-state checks and refusing content filters.
+
+- Read unchanged contained catalog provenance across Windows path/descriptor
+  timestamp differences, with checks for descriptor changes during the read.
+
+- Observe a clean native CI policy across Git's LF/CRLF checkout conversion while
+  retaining refusal of uncommitted policy changes.
+- Relay nested process interruption on macOS Python versions without `waitid`,
+  retaining child lifetime custody and already-exited statuses.
+
+- Preserve a native Windows release gate's exit status after closing its managed
+  checkout reservation.
+- Use complete no-follow metadata for repository object link counts while
+  retaining private backing-file checks on Windows.
+
+- Preserve captured stdout and stderr on Windows timeout errors after owned
+  process-tree cleanup, including project bootstrap helpers.
+
+- Admit static release checkouts by complete repository identity and verified
+  ownership before synchronization. Hold one exact reservation through transfer
+  and the native gate. Preserve foreign work, older basename checkouts and ignored
+  cache collisions; distinguish repositories addressed through different SSH
+  accounts (#488).
+
+- Add a read-only project containment plan that keeps retained application paths,
+  separates producer provenance and shared root integrations, and reports the
+  unresolved references and recovery dependencies before migration. Contained
+  native profiles can report that no legacy relocation is proposed. Planning
+  grants no apply or lifecycle qualification authority.
+
+- Reuse locally available exact parent commits during lineage and catalog reads.
+  Keep mutable-reference refresh, bounded missing-commit fetches and current
+  project/catalog checks. Refuse redirected or partial parent caches before
+  reusing their object storage.
+
+- Add explicit terminal RUN release for a selected managed remote worker. Collect
+  this RUN's evidence, save its outcome and release intent, then stop health
+  polling before provider release. Keep defaults reusable. The opt-in permits
+  discarding the executable and prior worker cache; uncertain cleanup retains
+  the original outcome and the same release request for explicit recovery.
+
+- Verify SSH cleanup acknowledgement identities against the exact imported
+  request, manifest, bundle and cleanup token before accepting custody. Preserve
+  the worker's existing identity format and bounded acknowledgement retries.
+
+- Align this development line's executable pre-release target with 1.4 through
+  the existing authenticated state owner. Retain the other release gates.
+
+- Canonicalize the installed-wheel harness’s own temporary workspace so reviewed
+  local dependency wheels work with macOS temporary-path aliases. Keep redirected
+  user-input directories refused.
+
+- Recognize in-progress roadmap goals during release contribution sweeps. Keep
+  them incomplete and keep their release targets within their own sections.
+
+- Isolate OpenCode state before its first child, including V1. Project only the
+  selected provider/model API configuration and credentials; exclude ambient
+  instructions, MCP, plugins and unrelated models. Refuse unsupported refreshing
+  logins and SDKs before prompting while preserving original user state. Set a
+  fixed V1 session title to avoid a separate title-generation model request.
+
+- Run framework validation preflight before its long Python, skill and installed
+  checks, including with parallel Make. Check cheap release gates before Python
+  while retaining the later driver recheck and every existing release gate.
+
+- Reuse immutable skill metadata for identical bytes within an existing project
+  parse scope. Bound retained syntax data and restore isolated frames; catalog
+  discovery, content hashing, dependency/reference checks and native custody
+  guards remain fresh.
+
+- Start the measured long native-Cargo test module earlier using an opt-in
+  bounded module priority. Default discovery order, intact case groups and serial
+  barriers remain. Failure can change which peers had started, while existing
+  fail-fast, source binding, cancellation and outcome checks remain authoritative.
+
+- Separate documentation-rendering dependencies from the OpenSpec CLI, so a
+  documentation-only check installs only its own tools. Audit both locked graphs
+  before their respective checks; full CI, Windows and release qualification keep
+  both. This separation does not waive or remediate an OpenSpec advisory.
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way
@@ -52,6 +260,64 @@
   Expected directory keys remain portable on Windows while retaining exact
   namespace, mode, byte and link/reparse verification.
 
+- Generated bootstrap checks cap stdout and stderr while reading and retire
+  owned helpers on completion, timeout or overflow, preserving runtime pins (#332).
+
+- Retained-layout declaration reads refuse incomplete bytes and changed directory
+  ancestry through parsing, preserving file custody and canonical encoding (#265).
+
+- Worker reservation observations preserve concurrent quarantine and retirement,
+  while slow observation reads leave original job completion independent (#280).
+
+- Worker telemetry polling rechecks its monotonic deadline after current-policy
+  validation and refuses clock regression while retaining live collector slots (#280).
+
+- Bounded coding CLI invocations retire descendant helpers before removing private
+  state, retaining the launcher exit code and captured streams (#365).
+
+- Source inventory excludes recognized SPDX and copyright attribution from CUDA
+  evidence without changing input bytes; explicit CUDA source, compiler, headers
+  and runtime/driver API signals remain detectable (#396).
+- Generated project agent instructions lead to a standard-library bootstrap check
+  before requiring LitAI, preserving the pinned runtime and custom instructions (#332).
+- Add optional guidance for suitable A2A peers already connected through the agent
+  host, preserving delegation limits, tracker ownership and independent acceptance.
+
+- Avoid redundant initial Cargo census metadata and semantic JSON work during
+  fresh input-currentness checks, retaining every payload hash and closing
+  namespace, physical-node and lineage check (#432).
+- Reuse bounded project/Flavor parsing within one native currentness check while
+  retaining every member guard, fresh graph and byte check, and closing Flavor
+  membership validation; each independent call gets a fresh observation (#432).
+
+- Retained Cargo v2 can explicitly review finite native executable, runtime and
+  build-output byte budgets with fresh streaming custody instead of retaining
+  multi-GiB payload copies; defaults and complete membership checks remain (#433).
+
+- Retained Cargo v2 composition keeps independently measured consumer Cargo/Rust
+  tools separate from the provider's guarded native observations (#430).
+
+- Retained Cargo v2 can explicitly reserve secondary build outputs under the same
+  live ownership and source-input fences, preserving unchanged full gates (#429).
+
+- Native retained-Cargo integration tests use the existing finite API deadline
+  default on slower workers while preserving production bounds and input checks.
+
+- Native retained-Cargo fixtures preserve the caller's implicit Rustup toolchain root
+  before isolating HOME, while retaining explicit values and discovery refusals.
+
+- Add a public Python v2 retained-Cargo receiving transaction with live scratch
+  publication, patch-aware consumer gates, honest typed test outcomes and strict
+  already-retired source admission; preserve v1 contracts (#222–#226).
+
+- Bind declared runtime capability variables to the consumer's locked provider
+  artifacts during node and packaged execution, refusing missing or ambiguous
+  providers, escaped package paths and ambient capability overrides (#422).
+
+- Identify the published 1.3.1 lab curriculum as historical at its front door and
+  route current readers to current setup guidance while retaining the open 1.4
+  multi-Component curriculum requirements.
+
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test
   and package phases with preserved historical evidence.
@@ -62,6 +328,16 @@
 
 - Capability deadline qualification observes actual original child cleanup, including
   expiry before a receiver writes its PID file, without extending caller budgets (#420).
+
+- Fresh single-node Rust libraries can replace a candidate after an exact native
+  public-result rejection within the existing three-candidate budget. Private
+  oracle content stays out of feedback, custody drift remains terminal, and final
+  packaged acceptance still runs (#405).
+
+- Automated Codex invocations avoid optional remote catalog downloads that can
+  exceed a caller's finite file-size limit (#412).
+
+- Coding CLI tasks and source generation keep Codex SQLite and diagnostic logs in private invocation state, preserving authentication, selected models and finite file limits (#365).
 
 - Standalone source promotion can explicitly select root repository lineage with
   `spec accept --project-target ... --root-project`; default inheritance and
@@ -78,6 +354,10 @@
 
 - Installed-wheel qualification exercises lazy project startup and strict MAC BOM
   rejection, verifying installed module origins and exact candidate bytes (#121).
+
+- Retain bounded original qualification-failure observations in a separate
+  diagnostic archive/store, preserving the failing CLI result and keeping failed
+  product captures empty (#389).
 
 - Complete current-main native qualification of retained Windows system context,
   base/private interpreter DLL capture, and the five-minute C++ discovery bound;

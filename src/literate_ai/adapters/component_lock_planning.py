@@ -87,6 +87,7 @@ from literate_ai.projects import (
     PinnedInputClosureError,
     ProjectConfigurationStore,
     ProjectError,
+    configured_catalog_path,
     discover_project,
     project_boundary,
 )
@@ -223,6 +224,11 @@ class ComponentCatalogSnapshot:
             )
         return content
 
+    def component_root(self, authoring_identity: ContentIdentity) -> Path:
+        """Locate an admitted authoring through its canonical catalog owner."""
+
+        return self._component_entry(authoring_identity).root
+
     def retained_memory_estimate(self) -> int:
         """Conservatively account for retaining this parsed catalog graph.
 
@@ -290,7 +296,9 @@ class ComponentCatalogSnapshot:
                 "selected Flavor revision is absent from the current catalog",
             )
         content = _bounded_bytes(
-            _resolve_path(entry.path.parent, reference.uri, boundary=self.boundary),
+            _resolve_reference_path(
+                entry.path.parent, reference.kind, reference.uri, boundary=self.boundary
+            ),
             code="component_lock.stale",
         )
         if _bytes_identity(content) != reference.identity:
@@ -452,8 +460,9 @@ class ComponentCatalogSnapshot:
                 )
                 for reference_index, reference in enumerate(references):
                     closure.pin(
-                        _resolve_path(
+                        _resolve_reference_path(
                             entry.path.parent,
+                            reference.kind,
                             reference.uri,
                             boundary=self.boundary,
                         ),
@@ -1164,9 +1173,11 @@ def _load_flavors(
         try:
             if path.name == "flavor.md":
                 authoring = parse_flavor_markdown(content, source=path.as_posix())
-                definition = authoring.resolve(
-                    lambda uri, flavor_root=path.parent: _bounded_bytes(
-                        _resolve_path(flavor_root, uri, boundary=boundary),
+                definition = authoring.resolve_typed(
+                    lambda kind, uri, flavor_root=path.parent: _bounded_bytes(
+                        _resolve_reference_path(
+                            flavor_root, kind, uri, boundary=boundary
+                        ),
                         code="component_lock.flavor_authority_unavailable",
                     )
                 )
@@ -1240,7 +1251,9 @@ def _load_flavors(
             ),
         ):
             referenced = _bounded_bytes(
-                _resolve_path(path.parent, reference.uri, boundary=boundary),
+                _resolve_reference_path(
+                    path.parent, reference.kind, reference.uri, boundary=boundary
+                ),
                 code="component_lock.flavor_authority_unavailable",
             )
             if _bytes_identity(referenced) != reference.identity:
@@ -1612,6 +1625,7 @@ def _resolved_node(
             else _selector_reference(
                 root, item.integration_contract, boundary=boundary
             ),
+            allow_internal_symlinks=item.allow_internal_symlinks,
         )
         try:
             if dependency.identity not in source_locks:
@@ -1854,15 +1868,16 @@ def _selector_base(root: Path, kind: str, *, boundary: Path) -> Path:
 def _component_reference_path(
     root: Path, reference: ContentReference, *, boundary: Path
 ) -> Path:
-    return _resolve_path(
+    return _resolve_reference_path(
         _selector_base(root, reference.kind, boundary=boundary),
+        reference.kind,
         reference.uri,
         boundary=boundary,
     )
 
 
 def _reference(root: Path, kind: str, uri: str, *, boundary: Path) -> ContentReference:
-    path = _resolve_path(root, uri, boundary=boundary)
+    path = _resolve_reference_path(root, kind, uri, boundary=boundary)
     return ContentReference(
         kind,
         uri,
@@ -1870,6 +1885,13 @@ def _reference(root: Path, kind: str, uri: str, *, boundary: Path) -> ContentRef
             _bounded_bytes(path, code="component_lock.content_unavailable")
         ),
     )
+
+
+def _resolve_reference_path(root: Path, kind: str, uri: str, *, boundary: Path) -> Path:
+    configured = configured_catalog_path(boundary, root, uri, kind=kind)
+    if configured != root / uri:
+        root, uri = boundary, configured.relative_to(boundary).as_posix()
+    return _resolve_path(root, uri, boundary=boundary)
 
 
 def _resolve_path(root: Path, uri: str, *, boundary: Path) -> Path:
@@ -2145,7 +2167,12 @@ def _require_inputs_unchanged(
             )
             for reference_index, reference in enumerate(references):
                 closure.pin(
-                    _resolve_path(flavor.path.parent, reference.uri, boundary=boundary),
+                    _resolve_reference_path(
+                        flavor.path.parent,
+                        reference.kind,
+                        reference.uri,
+                        boundary=boundary,
+                    ),
                     boundary=boundary,
                     label=f"flavor-content:{flavor_index}:{reference_index}",
                     expected_identity=reference.identity,

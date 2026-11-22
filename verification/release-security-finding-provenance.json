@@ -1,0 +1,101 @@
+{
+  "method": "Parsed exact R-line anchor and checked path digest. Compared field value with SHA-256 of unmodified referenced source bytes. PyPI sdist matched registry and retained archive digests. No token or credential replay.",
+  "occurrences": [
+    {
+      "incident": "39939690",
+      "json_key": "yaml.tokens",
+      "matched_public_source_sha256": true,
+      "member": "pyyaml-6.0.3/lib/yaml/tokens.py",
+      "pr": 421,
+      "provider_check": 130528719965,
+      "provider_conclusion": "failure",
+      "reported_commit": "c733d96f80cd80b802e7aa4387cab2d7740e219a",
+      "reported_file": "verification/python315-worker-dependency-development.json",
+      "reported_line": 60,
+      "review_head": "de035d6ead11e7927be3a507e8163c2f19773ad8",
+      "source_bytes": 2573,
+      "source_subject": "https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz"
+    },
+    {
+      "incident": "39939690",
+      "json_key": "yaml.tokens",
+      "matched_public_source_sha256": true,
+      "member": "pyyaml-6.0.3/lib/yaml/tokens.py",
+      "pr": 421,
+      "provider_check": 130528719965,
+      "provider_conclusion": "failure",
+      "reported_commit": "d840a78dedd8767254721e92bed4b0776356d5d8",
+      "reported_file": "verification/python315-worker-dependency-development.json",
+      "reported_line": 60,
+      "review_head": "de035d6ead11e7927be3a507e8163c2f19773ad8",
+      "source_bytes": 2573,
+      "source_subject": "https://files.pythonhosted.org/packages/05/8e/961c0007c59b8dd7729d542c61a4d537767a59645b82a0b521206e1e25c2/pyyaml-6.0.3.tar.gz"
+    },
+    {
+      "incident": "40026323",
+      "json_key": "literate_ai.adapters.worker_telemetry_authentication",
+      "matched_public_source_sha256": true,
+      "member": "src/literate_ai/adapters/worker_telemetry_authentication.py",
+      "pr": 475,
+      "provider_check": 135073370832,
+      "provider_conclusion": "failure",
+      "reported_commit": "6f807b2a025a4d3d128667946180723d64bd9112",
+      "reported_file": "verification/reviewed-guard-installed-linux.json",
+      "reported_line": 37,
+      "review_head": "96c404e18c0235fb4903587f45b6324e01b6715a",
+      "source_bytes": 9242,
+      "source_subject": "d2dfad2203f3537921cd5391b959e9f598aa6150"
+    },
+    {
+      "incident": "40026325",
+      "json_key": "literate_ai.application.worker_telemetry_authorization",
+      "matched_public_source_sha256": true,
+      "member": "src/literate_ai/application/worker_telemetry_authorization.py",
+      "pr": 475,
+      "provider_check": 135073370832,
+      "provider_conclusion": "failure",
+      "reported_commit": "6f807b2a025a4d3d128667946180723d64bd9112",
+      "reported_file": "verification/reviewed-guard-whole-wheel-macos.json",
+      "reported_line": 30,
+      "review_head": "96c404e18c0235fb4903587f45b6324e01b6715a",
+      "source_bytes": 10136,
+      "source_subject": "d2dfad2203f3537921cd5391b959e9f598aa6150"
+    },
+    {
+      "incident": "40026324",
+      "json_key": "literate_ai.application.worker_telemetry_authentication",
+      "matched_public_source_sha256": true,
+      "member": "src/literate_ai/application/worker_telemetry_authentication.py",
+      "pr": 475,
+      "provider_check": 135073370832,
+      "provider_conclusion": "failure",
+      "reported_commit": "37991bbf6f3ace535657a92646dedce7752af718",
+      "reported_file": "verification/reviewed-guard-installed-linux.json",
+      "reported_line": 40,
+      "review_head": "96c404e18c0235fb4903587f45b6324e01b6715a",
+      "source_bytes": 1887,
+      "source_subject": "d2dfad2203f3537921cd5391b959e9f598aa6150"
+    }
+  ],
+  "provider": "GitGuardian",
+  "provider_disposition": "Unchanged: classified locally, historical checks still report failure. No provider mutations.",
+  "pypi_archive_sha256": "d76623373421df22fb4cf8817020cbb7ef15c725b9d5e45f17e189bfc384190f",
+  "recipe": "git show <reported_commit>:<reported_file> identifies the value at the reported line. For framework modules, hash git show <source_subject>:<member> without transforming bytes. For PyYAML, verify the registry sdist digest before hashing its lib/yaml/tokens.py member.",
+  "review_scope": "PR 421 and intermediate PR 475 heads only. Compare each field to the SHA-256 of the named public source bytes. Each original provider check still reports failure.",
+  "schema": "literate-ai/release-security-provenance@1",
+  "unique_incidents": 4,
+  "release_owner_disposition": {
+    "release": "1.4.0",
+    "decision": "verified_false_positives_are_non_blocking",
+    "authorization": "Do not make git guardian's false positives release blockers",
+    "verified_non_blocking_incidents": [
+      "39939690",
+      "40026323",
+      "40026324",
+      "40026325"
+    ],
+    "basis": "Each reported field exactly reproduces the SHA-256 of its referenced public source-module bytes.",
+    "provider_dismissal_required_for_release": false,
+    "other_security_and_functional_gates": "unchanged"
+  }
+}

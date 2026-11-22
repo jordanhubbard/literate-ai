@@ -150,6 +150,50 @@ parent changes and framework release execution currently refuse this minimal
 profile. Continue using native build, CI and release tooling; contained execution
 and migration remain separate roadmap work.
 
+For an existing GitHub Actions workflow, an optional native CI contract can live
+inside `repository_policy` in `litai/literate.project.json`:
+
+```json
+{
+  "native_ci": {
+    "workflow": ".github/workflows/native.yml",
+    "required_jobs": ["Native Linux", "Native Windows"]
+  }
+}
+```
+
+Use the exact names of the host's required jobs, or an existing native aggregate
+that enforces its own matrix. Review and merge this policy through the host's
+normal process, then inspect a later PR with
+`litai project ci verify path/to/existing --pr 123`. The PR base's policy remains
+effective if the PR proposes fewer requirements. Initial policy introduction is
+unconfigured until accepted; an empty required-check view is never success.
+
+The command reads current GitHub metadata and starts no job. A zero exit status
+means the required named jobs passed for the observed PR, run and attempt. Missing,
+skipped, failed and ambiguous required jobs do not pass. It supports open PRs in
+the same github.com repository and requires Git 2.45+ with the base policy objects
+present locally. These reads disable replacement objects and lazy fetching; a
+missing base policy object requires explicit native Git recovery.
+
+The `literate-ai/native-ci-observation@1` result adds the optional
+`workflow_definition` field. Older reporters omit it. Current reporters return
+null until the base has an accepted policy. Otherwise it reports the
+base policy's workflow path, its base and head Git blob IDs when available,
+and `changed`, `unchanged` or `unavailable`. Send a changed or unavailable
+definition to the host's workflow owner for review when
+`native_review_required` is true. Required job outcomes, observation status
+and exit codes keep their existing meanings. The comparison covers one file.
+Review called workflows, actions, scripts and job checkouts separately.
+
+Retries may include provider-confirmed successful job rows for the current attempt
+whose execution occurred earlier. Required jobs available only in an older attempt,
+or without current-attempt confirmation, remain incomplete.
+This does not establish all forge rules, merge readiness, a tested checkout tree,
+platform coverage or release qualification. Native CI still owns execution and
+reruns; the forge still owns merging. Upgrade preserves custom policy; removal
+requires explicit disposition of customized authority metadata.
+
 After committing the native profile, inspect removal through the same front door:
 
 ```console

@@ -11,6 +11,80 @@ import tempfile
 import unittest
 from pathlib import Path
 
+# Native seeds are copied after Git returns; detached maintenance must not
+# mutate their object directories while another test copies the fixture.
+_GIT_FOREGROUND = ("-c", "maintenance.auto=false", "-c", "gc.auto=0")
+
+
+def git_at(root, *args, content=None):
+    try:
+        return subprocess.run(
+            ["git", *_GIT_FOREGROUND, "-C", str(root), *args],
+            input=content,
+            capture_output=True,
+            check=True,
+            timeout=20,
+        ).stdout
+    except subprocess.CalledProcessError as error:
+        error.add_note(error.stderr.decode("utf-8", errors="replace"))
+        raise
+
+
+def _disable_fixture_maintenance(root):
+    # Product code also invokes Git directly against these disposable fixtures.
+    git_at(root, "config", "--local", "maintenance.auto", "false")
+    git_at(root, "config", "--local", "gc.auto", "0")
+
+
+def commit_independent_repository(root, *, locked_files=None):
+    # Windows byte-range locks prohibit Git from reading the active lock byte.
+    # Stage only explicitly supplied fixture bytes without reading those paths;
+    # callers still compare the released files with the resulting commit.
+    locked = {
+        path.relative_to(root).as_posix(): content
+        for path, content in (locked_files or {}).items()
+    }
+    if locked and (root / ".git").exists():
+        raise ValueError("locked fixture requires a new independent repository")
+    git_at(root, "init", "-q")
+    _disable_fixture_maintenance(root)
+    if locked:
+        candidates = git_at(
+            root, "ls-files", "--others", "--exclude-standard", "-z"
+        ).split(b"\0")
+        paths = [
+            os.fsdecode(path)
+            for path in candidates
+            if path and os.fsdecode(path) not in locked
+        ]
+        if paths:
+            git_at(root, "--literal-pathspecs", "add", "--", *paths)
+    else:
+        git_at(root, "add", ".")
+    for relative, content in locked.items():
+        blob = (
+            git_at(
+                root, "hash-object", "-w", "--no-filters", "--stdin", content=content
+            )
+            .decode("ascii")
+            .strip()
+        )
+        git_at(root, "update-index", "--add", "--cacheinfo", "100644", blob, relative)
+    identity = (
+        "-c",
+        "user.name=Fixture",
+        "-c",
+        "user.email=fixture@example.test",
+    )
+    message = "independent native checkout"
+    if locked:
+        # Porcelain commit refreshes the index and can reread locked paths.
+        tree = git_at(root, "write-tree").decode("ascii").strip()
+        commit = git_at(root, *identity, "commit-tree", tree, "-m", message)
+        git_at(root, "update-ref", "HEAD", commit.decode("ascii").strip(), "")
+    else:
+        git_at(root, *identity, "commit", "-qm", message)
+
 
 class NativeRepositoryFixture(unittest.TestCase):
     def setUp(self):
@@ -39,6 +113,7 @@ class NativeRepositoryFixture(unittest.TestCase):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(content)
         self.git("init", "-q")
+        _disable_fixture_maintenance(self.root)
         self.git("add", ".")
         self.git(
             "-c",
@@ -59,7 +134,7 @@ class NativeRepositoryFixture(unittest.TestCase):
 
     def git(self, *args):
         return subprocess.run(
-            ["git", "-C", str(self.root), *args],
+            ["git", *_GIT_FOREGROUND, "-C", str(self.root), *args],
             check=True,
             capture_output=True,
             text=True,
@@ -67,9 +142,14 @@ class NativeRepositoryFixture(unittest.TestCase):
         ).stdout.strip()
 
     def cli(self, *args, success=True):
-        environment = {**os.environ, "LITAI_NO_SELF_UPDATE": "1"}
+        source = Path(__file__).resolve().parents[2] / "src"
+        environment = {
+            **os.environ,
+            "LITAI_NO_SELF_UPDATE": "1",
+            "PYTHONPATH": str(source),
+        }
         result = subprocess.run(
-            [sys.executable, "-m", "literate_ai.cli", "--json", *map(str, args)],
+            [sys.executable, "-P", "-m", "literate_ai.cli", "--json", *map(str, args)],
             cwd=self.root,
             env=environment,
             capture_output=True,

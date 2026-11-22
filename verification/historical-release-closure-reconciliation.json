@@ -1,0 +1,44 @@
+{
+  "schema": "literate-ai/historical-reconciliation@1",
+  "state": "obsolete-execution-retired-current-assurance-open",
+  "reviewer": "sdlc_review",
+  "review_identity": "sha256:ac1702022f675917ed85741398f9b54a9d4f2d0ca58053882beca01979da0998",
+  "original_recovery_revision": "b0888f7f51d031c2f0a1660cc484f3ff861f3329",
+  "identity_boundary": "Current v0.10.0/v0.10.1 tags are imported historical markers, not original source revisions.",
+  "recovered_changes": [
+    {
+      "original": "ce88a6d8",
+      "release_line": "ecb2fc6f1",
+      "post_files_equal": "39 of 40; CHANGELOG release context and one blank line differ"
+    },
+    {
+      "original": "2f4a34a1",
+      "release_line": "abedc80af",
+      "post_files_equal": "stable patch identity equal"
+    },
+    {
+      "original": "4b739a92",
+      "release_line": "cf9d4bab2",
+      "post_files_equal": "5 of 6; CHANGELOG release context differs"
+    }
+  ],
+  "portable_fixture_commit": "728a45f131abcf0ec828a99728838643c77e69c2",
+  "historical_ci_records": [
+    {
+      "repository": "NVIDIA-dev/literate-ai",
+      "run": 33983417499
+    },
+    {
+      "repository": "NVIDIA-dev/literate-ai",
+      "run": 34004424520
+    }
+  ],
+  "ci_evidence_mode": "Archived repository records cite complete 15-job matrices; this reconciliation did not refresh live forge records.",
+  "document_evidence": {
+    "earlier_publication_record": "cf012db5e0cbfe0a1a170843c93c34e67835188c",
+    "earlier_artifacts": "Recorded hashes match original 03d3257e artifacts.",
+    "later_operator_adoption_pair": "Different artifacts at ce88a6d8/b0888f7f; retained QA ledger still says publication pending. Do not claim later publication."
+  },
+  "disposition": "Retire obsolete historical 0.10 execution; preserve unknown historical publication proof. Retain existing owner and explicitly include current assurance in 1.4.0.",
+  "current_release_qualification": false
+}

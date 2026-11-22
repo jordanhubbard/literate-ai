@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
-
-def _bootstrap() -> None:
-    root = Path(__file__).resolve().parents[1]
-    sys.path.insert(0, str(root / "src"))
-
-
-_bootstrap()
+REPOSITORY = Path(__file__).resolve().parents[1]
+SOURCE = REPOSITORY / "src"
+sys.path.insert(0, str(SOURCE))
 
 from literate_ai.application.pinned_test_dispatch import (  # noqa: E402
     PinDispatchService,
@@ -25,6 +22,8 @@ __all__ = ["PinDispatchService", "run_suite"]
 
 
 def main() -> int:
+    # Source tests often launch Python from a separate consumer checkout.
+    os.environ["PYTHONPATH"] = os.pathsep.join((str(SOURCE), str(REPOSITORY)))
     return _main(["python", *sys.argv[1:]])
 
 

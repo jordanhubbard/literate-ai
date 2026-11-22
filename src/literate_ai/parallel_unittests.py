@@ -21,6 +21,7 @@ from literate_ai.adapters._processes import (
     create_process_tree_ownership,
     terminate_process_tree,
 )
+from literate_ai.parallel_unittest_timing import ModuleTiming
 
 PROTOCOL = "literate-ai/parallel-unittest@1"
 MAX_LOG_BYTES = 16 * 1024 * 1024
@@ -87,6 +88,8 @@ class RunningModule:
     done: bool = False
     failed: bool = False
     invalid: bool = False
+    timing_disposition: str = "normal"
+    exit_observed: bool = False
 
 
 def available_workers(value: str | int = "auto") -> int:
@@ -119,10 +122,31 @@ def module_groups(tests: Sequence[unittest.TestCase]) -> tuple[ModuleGroup, ...]
             cls, "LITAI_TEST_SERIAL", False
         ):
             serial.add(module)
-    return tuple(
+    groups = tuple(
         ModuleGroup(module, tuple(indices), module in serial)
         for module, indices in grouped.items()
     )
+    priorities = {}
+    for group in groups:
+        value = getattr(sys.modules.get(group.module), "LITAI_TEST_PRIORITY", 0)
+        if type(value) is not int or not 0 <= value <= 100:
+            raise ValueError(
+                "LITAI_TEST_PRIORITY must be an integer from 0 through 100"
+            )
+        priorities[group.module] = value
+    # Priority is only a dispatch hint. Preserve intact groups, source/case
+    # indices and every original serial barrier; ties retain discovery order.
+    ordered: list[ModuleGroup] = []
+    segment: list[ModuleGroup] = []
+    for group in groups:
+        if group.serial:
+            ordered.extend(sorted(segment, key=lambda g: -priorities[g.module]))
+            segment.clear()
+            ordered.append(group)
+        else:
+            segment.append(group)
+    ordered.extend(sorted(segment, key=lambda g: -priorities[g.module]))
+    return tuple(ordered)
 
 
 class ParallelSuite:
@@ -153,8 +177,20 @@ class ParallelSuite:
         self.timeout = timeout
         self.active: list[RunningModule] = []
         self.failed = False
+        self.observed: list[RunningModule] = []
+
+    def _timing(self, group: ModuleGroup, kind: str, **values: object) -> None:
+        self.timing.emit(kind, module_id=group.indices[0], **values)
+
+    def _observe_exit(self, worker: RunningModule) -> None:
+        if not worker.exit_observed and worker.process.returncode is not None:
+            worker.exit_observed = True
+            self._timing(
+                worker.group, "exit_observed", returncode=worker.process.returncode
+            )
 
     def _start(self, group: ModuleGroup) -> RunningModule:
+        self._timing(group, "setup_begin")
         directory = self.directory / str(group.indices[0])
         directory.mkdir(parents=True)
         # Scratch fixtures must not inherit this checkout's project authority
@@ -190,6 +226,7 @@ class ParallelSuite:
         log = (directory / "output.log").open("wb")
         process = None
         try:
+            self._timing(group, "spawn_begin")
             process = subprocess.Popen(
                 [
                     sys.executable,
@@ -204,7 +241,12 @@ class ParallelSuite:
                 stderr=subprocess.STDOUT,
                 **ownership.popen_options,
             )
+            returned_ns = time.monotonic_ns()
+            # Bind ownership before diagnostic I/O, retaining the return sample.
             ownership.bind(process.pid)
+            self._timing(
+                group, "spawn_returned", offset_ns=returned_ns - self.timing.origin
+            )
         except BaseException:
             if process is not None:
                 terminate_process_tree(process, ownership=ownership)
@@ -411,9 +453,16 @@ class ParallelSuite:
         result.errors.append((self.tests[index], message + "\n"))
         worker.failed = self.failed = True
         worker.invalid = True
+        worker.timing_disposition = (
+            "deadline" if isinstance(error, TimeoutError) else "worker-error"
+        )
         print(f"\n{message}; output retained at {worker.root}", file=self.stream)
 
-    def _close(self, worker: RunningModule) -> None:
+    def _close(self, worker: RunningModule, *, retain_scratch: bool = False) -> None:
+        self._observe_exit(worker)
+        self._timing(
+            worker.group, "cleanup_begin", disposition=worker.timing_disposition
+        )
         try:
             # Also close surviving descendants after a normally exiting root.
             terminate_process_tree(worker.process, ownership=worker.ownership)
@@ -425,6 +474,12 @@ class ParallelSuite:
         finally:
             worker.ownership.release()
             worker.log.close()
+        self._observe_exit(worker)
+        self._timing(worker.group, "cleanup_complete")
+        if retain_scratch:
+            # Record the existing policy at process close, before draining any
+            # remaining reports; this does not inspect or alter retained files.
+            self._timing(worker.group, "scratch_retained")
 
     def _finish_failures(self, result: Any) -> None:
         # Other modules stop immediately. Give the failing module's ordinary
@@ -433,7 +488,9 @@ class ParallelSuite:
         cancelled: list[RunningModule] = []
         for worker in tuple(self.active):
             if not worker.failed:
-                self._close(worker)
+                worker.timing_disposition = "peer-cancelled"
+                self._timing(worker.group, "cancel_requested")
+                self._close(worker, retain_scratch=True)
                 self.active.remove(worker)
                 cancelled.append(worker)
         deadline = time.monotonic() + 5
@@ -447,6 +504,7 @@ class ParallelSuite:
                         raise ValueError("worker output exceeds its bound")
                     self._drain(worker, result)
                     if worker.process.poll() is not None:
+                        self._observe_exit(worker)
                         if self._drain(worker, result):
                             continue
                         if not worker.done:
@@ -478,6 +536,22 @@ class ParallelSuite:
             f"parallel tests: {self.workers} workers; logs {self.directory}",
             file=self.stream,
         )
+        self.timing = ModuleTiming(
+            root=self.root,
+            directory=self.directory,
+            workers=self.workers,
+            selected=[
+                {
+                    "module_id": group.indices[0],
+                    "module": group.module,
+                    "cases": len(group.indices),
+                    "serial": group.serial,
+                }
+                for group in self.pending
+            ],
+            stream=self.stream,
+        )
+        completed = False
         try:
             while self.pending or self.active:
                 finished: list[RunningModule] = []
@@ -489,6 +563,7 @@ class ParallelSuite:
                         if time.monotonic() - worker.started > self.timeout:
                             raise TimeoutError("worker exceeded its finite deadline")
                         if worker.process.poll() is not None:
+                            self._observe_exit(worker)
                             if self._drain(worker, result):
                                 continue
                             if (
@@ -512,7 +587,9 @@ class ParallelSuite:
                 for worker in finished:
                     self._close(worker)
                     self.active.remove(worker)
+                    self._timing(worker.group, "scratch_removal_begin")
                     shutil.rmtree(worker.scratch)
+                    self._timing(worker.group, "scratch_removed")
                 while self.pending and len(self.active) < self.workers:
                     group = self.pending[0]
                     if (group.serial and self.active) or any(
@@ -521,7 +598,9 @@ class ParallelSuite:
                         break
                     self.pending.pop(0)
                     try:
-                        self.active.append(self._start(group))
+                        worker = self._start(group)
+                        self.active.append(worker)
+                        self.observed.append(worker)
                     except (OSError, ValueError) as exc:
                         from literate_ai.contracts.identity import canonical_identity
 
@@ -539,15 +618,38 @@ class ParallelSuite:
                             (self.tests[group.indices[0]], message + "\n")
                         )
                         self.failed = True
+                        self._timing(group, "launch_error")
                         break
                     if group.serial:
                         break
                 if self.active:
                     time.sleep(0.01)
+            completed = True
         finally:
-            for worker in self.active:
-                self._close(worker)
-            self.active.clear()
+            cleanup_completed = False
+            try:
+                for worker in self.active:
+                    if not completed:
+                        worker.timing_disposition = "interrupted"
+                        self._timing(worker.group, "cancel_requested")
+                    elif worker.failed and worker.timing_disposition == "normal":
+                        worker.timing_disposition = "failed-report"
+                    self._close(worker, retain_scratch=True)
+                self.active.clear()
+                cleanup_completed = True
+                for worker in self.observed:
+                    self._timing(
+                        worker.group,
+                        "report_observed",
+                        done=worker.done,
+                        failed=worker.failed,
+                        invalid=worker.invalid,
+                        terminal_cases=len(worker.terminal),
+                    )
+            finally:
+                self.timing.close(
+                    completed=completed and cleanup_completed, failed=self.failed
+                )
         # Report failures by discovery order, irrespective of worker completion order.
         order = {id(test): index for index, test in enumerate(self.tests)}
         result.unexpectedSuccesses.sort(

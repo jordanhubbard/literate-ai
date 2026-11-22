@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import json
+import posixpath
 from dataclasses import replace
 from pathlib import Path
+from urllib.parse import unquote, urlsplit
 
 from literate_ai._filesystem import path_is_link_or_reparse
 from literate_ai.adapters.component_markdown import (
@@ -25,6 +28,13 @@ from literate_ai.adapters.project_initialization import (
     discover_installed_initialization_origin,
     render_starter_document,
 )
+from literate_ai.adapters.project_layout_planning import _SHARED
+from literate_ai.adapters.retained_layout import (
+    LEGACY_WRAPPER_COMPONENT,
+    RetainedLayoutError,
+    read_retained_layout_declaration,
+    resolve_structural_layout,
+)
 from literate_ai.contracts import (
     CatalogImportsFile,
     ContentIdentity,
@@ -42,6 +52,7 @@ from literate_ai.documentation import (
     _roadmap_area,
     _roadmap_header_fields,
     _roadmap_owner_fragment,
+    extract_markdown_links,
     markdown_anchors,
 )
 from literate_ai.projects import (
@@ -49,6 +60,7 @@ from literate_ai.projects import (
     LoadedProject,
     ProjectConfigurationStore,
     ProjectError,
+    contained_catalog_coordinates,
     discover_project,
 )
 from literate_ai.repository_urls import repository_origin_continues
@@ -238,15 +250,13 @@ def _project_owned_generation_input_paths(
     return frozenset(protected)
 
 
-_LEGACY_SHIM_AUTHORITY_PATHS = frozenset(
+_LEGACY_SHIM_FLAVOR_PATHS = frozenset(
     {
-        "components/legacy-project-wrapper/component.md",
         "flavors/legacy-project-shim/flavor.md",
         "flavors/legacy-project-shim/openspec/spec.md",
     }
 )
 _LEGACY_SHIM_DEPENDENT_PATHS = (
-    "components/legacy-project-wrapper/implementation",
     "workflows/legacy-adoption/workflow.md",
     "routing/legacy-adoption.json",
     "skills/specification-to-source/legacy-project-shim/SKILL.md",
@@ -254,7 +264,9 @@ _LEGACY_SHIM_DEPENDENT_PATHS = (
 _LEGACY_HARNESS_INVENTORY_PATH = ".literate/harness-inventory.json"
 
 
-def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
+def _retained_legacy_shim_authority_paths(
+    root: Path, *, preserve_evidence: bool
+) -> frozenset[str]:
     """Keep conversion-shim authority while retained legacy state still cites it.
 
     `litai init --convert` (`legacy_shim_authority()` in ``harness_inventory.py``)
@@ -272,16 +284,68 @@ def _retained_legacy_shim_authority_paths(root: Path) -> frozenset[str]:
     legitimately retires them.
     """
 
-    inventory_path = root.joinpath(*Path(_LEGACY_HARNESS_INVENTORY_PATH).parts)
+    context = ProjectConfigurationStore.context(root)
+    inventory_path = context.framework_path(_LEGACY_HARNESS_INVENTORY_PATH)
     if inventory_path.is_symlink() or not inventory_path.is_file():
         return frozenset()
-    for relative in _LEGACY_SHIM_DEPENDENT_PATHS:
+    lift_shift_path = _project_path(
+        root,
+        context.framework_path(".literate/legacy-lift-shift.json")
+        .relative_to(root)
+        .as_posix(),
+    )
+    wrapper_component = LEGACY_WRAPPER_COMPONENT
+    implementation = f"{LEGACY_WRAPPER_COMPONENT}/implementation"
+    if lift_shift_path.is_file():
+        try:
+            content = lift_shift_path.read_bytes()
+            if len(content) > _MAXIMUM_UPDATE_INPUT_BYTES:
+                raise ValueError("lift-and-shift evidence exceeds update input limit")
+            lift_shift = json.loads(content)
+            if not isinstance(lift_shift, dict):
+                raise ValueError("lift-and-shift evidence must be an object")
+            layout = resolve_structural_layout(root, lift_shift)
+            wrapper_component = layout.wrapper_component
+            implementation = layout.implementation_directory
+        except (OSError, UnicodeError, ValueError) as exc:
+            raise ProjectUpdateError(
+                "project.update_retained_layout_invalid",
+                "retained lift-and-shift layout is invalid or redirected",
+            ) from exc
+    else:
+        try:
+            if read_retained_layout_declaration(root) is not None:
+                raise RetainedLayoutError(
+                    "declared layout lacks lift-and-shift evidence"
+                )
+        except RetainedLayoutError as exc:
+            raise ProjectUpdateError(
+                "project.update_retained_layout_invalid",
+                "retained layout declaration is invalid or lacks "
+                "lift-and-shift evidence",
+            ) from exc
+    for relative in (implementation, *_LEGACY_SHIM_DEPENDENT_PATHS):
         candidate = root.joinpath(*Path(relative).parts)
         if candidate.is_symlink() or not candidate.exists():
             return frozenset()
+    authority_paths = {
+        f"{wrapper_component}/component.md",
+        *_LEGACY_SHIM_FLAVOR_PATHS,
+    }
+    if preserve_evidence:
+        wrapper = root / wrapper_component
+        authority_paths.update(
+            path.relative_to(root).as_posix()
+            for pattern in (
+                "component.lock.json",
+                "component.resolution-audit.json",
+                "component.resolution-audit.*.json",
+            )
+            for path in wrapper.glob(pattern)
+        )
     return frozenset(
         path
-        for path in _LEGACY_SHIM_AUTHORITY_PATHS
+        for path in authority_paths
         if (candidate := root.joinpath(*Path(path).parts)).is_file()
         and not candidate.is_symlink()
     )
@@ -448,6 +512,53 @@ def _protect_dangling_roadmap_queue_owners(
     return files
 
 
+def _hold_unplaced_template_additions(project, files, upstream):
+    """Existing root authority cannot introduce a new uncontained dependency."""
+    pending = {
+        item.path
+        for item in files
+        if item.classification is ProjectUpdateClassification.UPSTREAM_ADDED
+        and not item.path.startswith(project.definition.framework_directory + "/")
+    }
+    result = []
+    for item in files:
+        reason = None
+        if item.path in pending:
+            reason = "new framework template needs an owned contained destination"
+        elif (
+            item.classification
+            in {
+                ProjectUpdateClassification.UPSTREAM_ONLY,
+                ProjectUpdateClassification.MERGEABLE,
+            }
+            and item.path.casefold().endswith(".md")
+            and (content := upstream.get(item.path)) is not None
+        ):
+            text = (
+                item.merged_text
+                if item.merged_text is not None
+                else content.decode("utf-8")
+            )
+            for link in extract_markdown_links(text):
+                split = urlsplit(html.unescape(link.destination.strip()))
+                if split.scheme or split.netloc or not split.path:
+                    continue
+                target = posixpath.normpath(
+                    posixpath.join(posixpath.dirname(item.path), unquote(split.path))
+                )
+                if target in pending:
+                    reason = (
+                        f"template references a pending contained destination: {target}"
+                    )
+                    break
+        if reason is not None:
+            item = replace(
+                item, compatibility=("project.update_layout_pending", reason)
+            )
+        result.append(item)
+    return tuple(result)
+
+
 class FilesystemProjectUpdateAdapter:
     """Classify baseline/local/current-template state without mutating the project."""
 
@@ -538,11 +649,15 @@ class FilesystemProjectUpdateAdapter:
             inherited = self._protected_paths
         else:
             imported = _catalog_import_paths(root)
+            logical_skills = contained_catalog_coordinates(root)
             inherited = (
                 imported
+                | frozenset(logical_skills)
                 | frozenset(bases.scopes["catalog"])
                 | _project_owned_generation_input_paths(project, imported)
-                | _retained_legacy_shim_authority_paths(root)
+                | _retained_legacy_shim_authority_paths(
+                    root, preserve_evidence=project.framework_root != root
+                )
                 | self._protected_paths
                 | frozenset(self._catalog_overrides)
             )
@@ -550,6 +665,22 @@ class FilesystemProjectUpdateAdapter:
         # by the lineage adapter. Comparing them here against the installed
         # init-template snapshot reports false conflicts (or would mechanically
         # overwrite current catalog bytes with a stale template).
+        if baseline.profile != "native" and project.framework_root != root:
+            # A migrated generated/retained project still needs its root
+            # integration ownership review. Templates cannot take over those
+            # coordinates or advance a retained root agent skill independently
+            # of its placement and bootstrap references.
+            retained_root = (
+                {project.definition.agent_skill}
+                if project.agent_skill.parent == root
+                else set()
+            )
+            inherited |= _SHARED | retained_root
+        if (
+            project.framework_root != root
+            and (project.framework_root / "literate.release.json").is_file()
+        ):
+            inherited |= {"literate.release.json", "litai/literate.release.json"}
         paths = sorted((set(baseline_by_path) | set(upstream_content)) - inherited)
         files = tuple(
             ProjectUpdateFile(
@@ -602,6 +733,8 @@ class FilesystemProjectUpdateAdapter:
                 adopt_added=self._adopt_added,
                 resolutions=self._resolutions,
             )
+        if baseline.profile != "native" and project.framework_root != root:
+            files = _hold_unplaced_template_additions(project, files, upstream_content)
         return ProjectUpdatePlan(
             project.definition.identity,
             baseline.identity,

@@ -23,6 +23,10 @@ from literate_ai.contracts import (
 )
 from literate_ai.contracts.project_updates import update_adopts_additions
 
+from .native_profile_git import (
+    NativeProfileGitBoundaryError,
+    require_native_profile_git_boundary,
+)
 from .project_updates import (
     ProjectUpdateError,
     _identity,
@@ -38,6 +42,24 @@ MECHANICAL = (
     ProjectUpdateClassification.MERGEABLE,
 )
 OPT_IN = (ProjectUpdateClassification.UPSTREAM_ADDED,)
+
+
+def _selected_update_paths(plan, *, adopt_added, resolutions):
+    adopting = update_adopts_additions(plan.files, explicit=adopt_added)
+    selected = MECHANICAL + OPT_IN if adopting else MECHANICAL
+    return {
+        item.path
+        for item in plan.files
+        if item.compatibility is None
+        and (item.classification in selected or item.path in resolutions)
+    }
+
+
+def _require_native_update_git_boundary(root, paths):
+    try:
+        require_native_profile_git_boundary(root, paths)
+    except NativeProfileGitBoundaryError as exc:
+        raise ProjectUpdateError("project.native_update_nested_git", str(exc)) from exc
 
 
 @dataclass(frozen=True, slots=True)
@@ -99,6 +121,7 @@ def apply_project_update(
     adopt_added: bool = False,
     validator: Callable[[Path], object] | None = None,
     resolutions: dict | None = None,
+    native_lock: Path | None = None,
 ) -> AppliedProjectUpdate:
     """Write one rollback-safe subset and optionally validate the complete result."""
 
@@ -146,8 +169,9 @@ def apply_project_update(
     # baseline has no such decision to make -- there is nothing local to protect and
     # nothing to reconcile -- so refusing there only obstructs the operator. Divergence
     # means the project changed a framework-owned file: local-only or conflict.
-    adopting = update_adopts_additions(plan.files, explicit=adopt_added)
-    selected = set(MECHANICAL) | (set(OPT_IN) if adopting else set())
+    selected = _selected_update_paths(
+        plan, adopt_added=adopt_added, resolutions=resolutions
+    )
 
     baseline_paths = {
         item.path for item in plan.files if item.baseline_identity is not None
@@ -168,9 +192,14 @@ def apply_project_update(
         if item.compatibility is not None:
             if item.path in resolutions:
                 raise ProjectUpdateError(*item.compatibility)
-            refused.setdefault("dependency-incompatible", []).append(item.path)
+            reason = (
+                "layout-pending"
+                if item.compatibility[0] == "project.update_layout_pending"
+                else "dependency-incompatible"
+            )
+            refused.setdefault(reason, []).append(item.path)
             continue
-        if item.classification not in selected and item.path not in resolutions:
+        if item.path not in selected:
             if item.classification in (
                 ProjectUpdateClassification.CONFLICT,
                 ProjectUpdateClassification.LOCAL_ONLY,
@@ -236,11 +265,23 @@ def apply_project_update(
         require_project_roadmap_acyclic(root, write_content)
     except RoadmapDependencyError as exc:
         raise ProjectUpdateError(exc.code, exc.message) from exc
+    native = profile == "native"
+    lock_paths = () if native_lock is None else (native_lock,)
+    native_paths = (*write_content, bases.checkpoint, *lock_paths)
+
+    def checkpoint_guard(path):
+        _require_native_update_git_boundary(root, (path,))
+
+    checkpoint_before_write = checkpoint_guard if native else None
+    if native:
+        _require_native_update_git_boundary(root, native_paths)
     written: list[str] = []
     try:
         for item in selected_items:
             target = _project_path(root, item.path)
             content = write_content[item.path]
+            if native:
+                _require_native_update_git_boundary(root, (target, *lock_paths))
             if content is None:
                 target.unlink(missing_ok=True)
             else:
@@ -250,10 +291,12 @@ def apply_project_update(
                     parent = parent.parent
                 assert content is not None
                 _write_exact(target, content)
-                mode = snapshots[item.path][1]
-                if os.name != "nt" and mode is not None:
-                    os.chmod(target, mode)
             written.append(item.path)
+            mode = snapshots[item.path][1]
+            if content is not None and os.name != "nt" and mode is not None:
+                if native:
+                    _require_native_update_git_boundary(root, (target,))
+                os.chmod(target, mode)
             if item.classification is ProjectUpdateClassification.UPSTREAM_ADDED:
                 adopted.append(item.path)
             else:
@@ -266,26 +309,45 @@ def apply_project_update(
                 content = upstream_content.get(item.path)
                 if content is not None or item in selected_items:
                     bases.advance("framework", item.path, content)
-        bases.write()
+        if native:
+            _require_native_update_git_boundary(root, native_paths)
+        bases.write(before_write=checkpoint_before_write)
         if validator is not None:
             validator(root)
+        if native:
+            _require_native_update_git_boundary(root, native_paths)
     except BaseException:
         try:
-            bases.rollback()
+            rollback_checkpoint = not native or bases.checkpoint_needs_rollback()
+            if native:
+                rollback_paths = (
+                    (*written, bases.checkpoint) if rollback_checkpoint else written
+                )
+                _require_native_update_git_boundary(root, rollback_paths)
+            if rollback_checkpoint:
+                bases.rollback(
+                    before_write=checkpoint_before_write, require_intended=native
+                )
             for path in reversed(written):
                 target = _project_path(root, path)
+                if native:
+                    _require_native_update_git_boundary(root, (target,))
                 previous, mode = snapshots[path]
                 if previous is None:
                     target.unlink(missing_ok=True)
                 else:
                     _write_exact(target, previous)
                     if os.name != "nt" and mode is not None:
+                        if native:
+                            _require_native_update_git_boundary(root, (target,))
                         os.chmod(target, mode)
             for directory in sorted(
                 created_directories,
                 key=lambda item: len(item.parts),
                 reverse=True,
             ):
+                if native:
+                    _require_native_update_git_boundary(root, (directory,))
                 try:
                     directory.rmdir()
                 except OSError:

@@ -19,6 +19,7 @@ from literate_ai.application.roadmap_dependencies import (
     validate_roadmap_dependencies,
 )
 from literate_ai.application.roadmap_work import (
+    RoadmapWorkError,
     RoadmapWorkRecord,
     close_work,
     record_work,
@@ -26,6 +27,7 @@ from literate_ai.application.roadmap_work import (
 from literate_ai.cli.errors import CliFailure
 from literate_ai.cli.work import work_from_args
 from literate_ai.documentation import DocumentationError, validate_documentation_graph
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.release_contributions import (
     ReleaseContributionsError,
     _roadmap_release_goals,
@@ -129,11 +131,13 @@ class RoadmapDependencyTests(unittest.TestCase):
         # A would-be closing fence with an info string is still code content.
         validate_roadmap_dependencies("```text\n```not-a-close\n" + hidden + "```\n")
 
-    def test_legacy_edges_and_repeated_sections_are_not_lost(self):
+    def test_legacy_edges_remain_and_repeated_sections_refuse(self):
         content = item("AAA-001") + "- **Depends on:** BBB-001\n"
         content += item("BBB-001") + "- **Depends on:** AAA-001\n"
         self.assert_cycle(content, "AAA-001 -> BBB-001 -> AAA-001")
-        self.assert_cycle(content + item("AAA-001"), "AAA-001 -> BBB-001 -> AAA-001")
+        with self.assertRaises(RoadmapDependencyError) as caught:
+            validate_roadmap_dependencies(content + item("AAA-001"))
+        self.assertEqual(caught.exception.code, "roadmap.duplicate_work_id")
         self.assert_cycle(
             item("AAA-001", target="1.3.1") + "- **Depends on:** release:1.3.1:ready\n",
             "AAA-001 -> release:1.3.1:ready -> AAA-001",
@@ -163,6 +167,46 @@ class RoadmapDependencyTests(unittest.TestCase):
             record_work("# Queue\n", record)
         with self.assertRaises(RoadmapDependencyError):
             close_work(item("AAA-001", "AAA-001", state="x"), "AAA-001")
+
+    def test_work_id_is_exact_and_hidden_matches_do_not_reserve_it(self):
+        record = RoadmapWorkRecord(
+            "TASK-123",
+            "Work",
+            "P0",
+            "core",
+            "direction",
+            "conclusion",
+            (),
+            ("implement",),
+            ("qualify",),
+        )
+        content = (
+            item("TASK-123-EXTRA", state="x") + "\n<!--\n" + item("TASK-123") + "-->\n"
+        )
+        with self.assertRaises(RoadmapWorkError) as caught:
+            close_work(content, "TASK-123")
+        self.assertEqual(caught.exception.code, "roadmap_work.not_found")
+        recorded = record_work(content, record)
+        self.assertTrue(recorded.startswith(content.rstrip()))
+        self.assertTrue(recorded.endswith("  - [ ] qualify\n"))
+        with self.assertRaises(RoadmapWorkError) as caught:
+            record_work(content + "\n```markdown\n", record)
+        self.assertEqual(caught.exception.code, "roadmap_work.hidden_entry")
+
+    def test_close_changes_only_visible_marker_before_next_major_section(self):
+        content = (
+            "<!-- Example heading lives in a comment. -->\r\n"
+            "### [~] TASK-123 — Actual work\r\n"
+            "  - [x] Verified\r\n"
+            "~~~text <!-- literal in fence info\r\n"
+            "  - [ ] Example obligation\r\n"
+            "~~~\r\n"
+            "## Other program\r\n"
+            "  - [ ] Unrelated obligation\r\n"
+        )
+        self.assertEqual(
+            close_work(content, "TASK-123"), content.replace("[~]", "[x]", 1)
+        )
 
     def project(self, root, content, *, custom=False):
         queue = "docs/roadmap/custom.md" if custom else "docs/roadmap/active-work.md"
@@ -254,9 +298,15 @@ class RoadmapDependencyTests(unittest.TestCase):
                 evidence=["qualify"],
                 completion_prerequisite=["BBB-001"],
             )
+            context = ProjectConfigurationStore.context(root)
+            observed_project = SimpleNamespace(
+                root=root,
+                manifest_path=context.manifest_path,
+                directory_binding=context.directory_binding,
+            )
             with patch(
                 "literate_ai.cli.work.ProjectConfigurationStore.discover",
-                return_value=SimpleNamespace(root=root),
+                return_value=observed_project,
             ):
                 with self.assertRaises(CliFailure):
                     work_from_args(args)
@@ -265,7 +315,7 @@ class RoadmapDependencyTests(unittest.TestCase):
             args.completion_prerequisite = ["AAA-001"]
             with patch(
                 "literate_ai.cli.work.ProjectConfigurationStore.discover",
-                return_value=SimpleNamespace(root=root),
+                return_value=observed_project,
             ):
                 result, status = work_from_args(args)
             self.assertEqual(status, 0)
@@ -362,8 +412,9 @@ class RoadmapDependencyTests(unittest.TestCase):
         )
 
         with tempfile.TemporaryDirectory() as directory:
-            root = Path(directory)
-            (root / "retained").mkdir()
+            root = Path(directory).resolve()
+            retained = "components/legacy-project-wrapper/implementation"
+            (root / retained).mkdir(parents=True)
             (root / "docs/decisions").mkdir(parents=True)
             _, queue = self.project(root, item("AAA-001", "AAA-001"))
             decision = root / "docs/decisions/0002-native-literate-ai-rewrite.md"
@@ -375,7 +426,8 @@ class RoadmapDependencyTests(unittest.TestCase):
             }
             with self.assertRaises(RoadmapDependencyError) as caught:
                 prepare_native_rewrite_program(
-                    {"implementation_directory": "retained"}, project_root=root
+                    {"state": "passed", "implementation_directory": retained},
+                    project_root=root,
                 )
             self.assertEqual(caught.exception.code, "roadmap.dependency_cycle")
             self.assertEqual(
@@ -389,3 +441,23 @@ class RoadmapDependencyTests(unittest.TestCase):
                     if path.is_file()
                 },
             )
+
+    def test_native_rewrite_refuses_unsafe_retained_path_before_writing(self):
+        from literate_ai.adapters.harness_inventory import (
+            prepare_native_rewrite_program,
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "project"
+            (root / "retained").mkdir(parents=True)
+            (root / "docs/roadmap").mkdir(parents=True)
+            queue = root / "docs/roadmap/active-work.md"
+            queue.write_bytes(b"# Active work\n")
+            before = queue.read_bytes()
+            with self.assertRaises(ValueError):
+                prepare_native_rewrite_program(
+                    {"state": "passed", "implementation_directory": "../project"},
+                    project_root=root,
+                )
+            self.assertEqual(queue.read_bytes(), before)
+            self.assertFalse((root / "docs/decisions").exists())

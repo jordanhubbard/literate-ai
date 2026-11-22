@@ -1,0 +1,104 @@
+name: Native coverage pilot
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - .github/workflows/ci-coverage-pilot.yml
+      - .github/qualifications/coverage_pilot/**
+      - src/literate_ai/adapters/release_ci_coverage.py
+      - src/literate_ai/release_ci_coverage.py
+      - tests/e2e/test_release_ci_selection.py
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-coverage-pilot-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  PILOT_HEAD: ${{ github.event.pull_request.head.sha }}
+
+jobs:
+  linux:
+    name: Native coverage Linux
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      receipt: ${{ steps.facts.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.14'
+      - name: Build the native fixture
+        run: python .github/qualifications/coverage_pilot/native.py build --output _build/coverage-pilot/native
+      - name: Test the built fixture
+        run: python .github/qualifications/coverage_pilot/native.py test --output _build/coverage-pilot/native
+      - name: Record completed native facts
+        id: facts
+        run: python .github/qualifications/coverage_pilot/native.py receipt --output _build/coverage-pilot/native
+
+  windows:
+    name: Native coverage Windows
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: windows-latest
+    timeout-minutes: 5
+    outputs:
+      receipt: ${{ steps.facts.outputs.receipt }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.14'
+      - name: Build the native fixture
+        run: python .github/qualifications/coverage_pilot/native.py build --output _build/coverage-pilot/native
+      - name: Test the built fixture
+        env:
+          PILOT_SEED_FAILURE: ${{ contains(github.event.pull_request.labels.*.name, 'coverage-retry-pilot') && github.run_attempt == 1 && '1' || '0' }}
+        run: python .github/qualifications/coverage_pilot/native.py test --output _build/coverage-pilot/native
+      - name: Record completed native facts
+        id: facts
+        run: python .github/qualifications/coverage_pilot/native.py receipt --output _build/coverage-pilot/native
+
+  export:
+    name: Export native coverage
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0
+        with:
+          python-version: '3.14'
+      - name: Install the actual coverage consumer dependencies
+        run: python -m pip install .
+      - name: Export complete native coverage
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LINUX_RECEIPT: ${{ needs.linux.outputs.receipt }}
+          WINDOWS_RECEIPT: ${{ needs.windows.outputs.receipt }}
+          PYTHONPATH: src
+        run: python .github/qualifications/coverage_pilot/export.py --output "${{ runner.temp }}/coverage-pilot/coverage.json"
+      - name: Upload this attempt's coverage report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-coverage-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/coverage-pilot/coverage.json
+          archive: true
+          overwrite: false
+          if-no-files-found: error

@@ -85,7 +85,7 @@ model-egress trust boundary — none abbreviated for time the way a deck must ab
    8.1. The next hardening horizon
       8.1.1. Operator adoption is now an explicit front door
       8.1.2. Exact scheduling, cache, package, and native acceptance slices
-      8.1.3. What 1.3 adds: retained source and native custody
+      8.1.3. How an importer admits a retained Cargo library
       8.1.4. Production containment backends
       8.1.5. Multi-entrypoint deployment and rollback
       8.1.6. Native application-package formats
@@ -113,17 +113,12 @@ line, and marker-based safe collection after worktree/PR inspection. It SHALL di
 LitAI command enforcement from forge protection and make no claim that forge settings are
 live merely because policy exists. It SHALL also describe the continuous
 contribution sweep and authenticated document-pair preflight required for major and
-minor cuts, without claiming that `v1.3.0` is already published.
+minor cuts.
 
-The 1.3 edition SHALL keep the 1.2 foundation (bounded candidate repair, cross-host
-action workers, native Elixir/Mix builds, forge-default coordination, tiered local-first
-qualification, and the fifteen-gate release check) and SHALL describe the 1.3 additions:
-reviewed original-source first binding, target-bound Python source projection, FreeBSD
-worker and target foundations, native SDK tree/topology custody, and retained execution
-hardening. It SHALL distinguish those landed framework slices from complete FreeBSD
-platform admission, Windows ARM64 host realization, remote native-package custody,
-production action-DAG/LAN-cache qualification, and incomplete retained-project native
-acceptance deferred to 1.4 or 1.3.1.
+The 1.4 candidate edition follows the importing team from locked SDK preparation
+to package inspection, provisioning, and admission. Explain which operations write
+packages, when the consumer gates run, and which evidence remains outstanding.
+Use the operator procedure in `docs/user/retained-cargo.md` as the source.
 
 ## Style
 
@@ -134,7 +129,7 @@ text — this becomes a native Google Doc with real heading styles, not an expor
 ## Edition cadence
 
 Label the local `.docx` and the published Google Doc as the last major or minor
-*edition* (this regeneration is the 1.3.0 edition). Realize the `.docx` with the
+*edition* (the current draft is the 1.4.0 candidate edition). Realize the `.docx` with the
 project-local `python-docx` path (`build_narrative.py`); do not make the Codex
 `documents` plugin a hidden requirement. Patch releases keep README citations on that
 edition without regenerating.

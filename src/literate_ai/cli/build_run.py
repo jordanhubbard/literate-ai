@@ -49,7 +49,12 @@ from literate_ai.project_source_index import (
     ProjectSourceIntelligenceError,
     require_lifecycle_project_index,
 )
-from literate_ai.projects import PROJECT_FILENAME, ProjectError, discover_project
+from literate_ai.projects import (
+    PROJECT_FILENAME,
+    ProjectError,
+    configured_component_coordinate,
+    discover_project,
+)
 
 from .errors import CliFailure
 from .execution_workers import (
@@ -84,10 +89,10 @@ def _project_root(path: str) -> Path:
 def _component_argument(args: Any, project: Any) -> str:
     explicit = getattr(args, "component", None)
     if explicit:
-        return explicit
+        return configured_component_coordinate(project, explicit)
     configured = project.definition.repository_policy.default_component
     if configured:
-        return configured
+        return configured_component_coordinate(project, configured)
     raise CliFailure(
         "project.default_component_missing",
         "component is required because repository_policy.default_component is null",
@@ -405,6 +410,17 @@ def run_from_args(args: Any) -> tuple[dict[str, Any], int]:
     selected_worker = select_execution_worker(
         args, project_root=root, target_profile=target_profile
     )
+    release_requested = bool(getattr(args, "release_managed_worker", False))
+    if release_requested and (
+        not getattr(args, "worker", None)
+        or not selected_worker.worker.is_remote
+        or selected_worker.worker.provisioning_identity is None
+    ):
+        raise CliFailure(
+            "execution.terminal_release_unsupported",
+            "--release-managed-worker requires an explicit managed remote worker; "
+            "static, local and command-only workers are preserved.",
+        )
     try:
         project = discover_project(root)
     except ProjectError as exc:
@@ -477,8 +493,18 @@ def run_from_args(args: Any) -> tuple[dict[str, Any], int]:
         application_arguments=tuple(supplied),
         entrypoint=requested_entrypoint,
     )
+    terminal_release = None
+    if release_requested:
+        from literate_ai.adapters.worker_lease_dispatch import TerminalManagedRunRelease
+
+        terminal_release = TerminalManagedRunRelease(dispatch_request.timeout_seconds)
+    timing = (
+        {}
+        if terminal_release is None
+        else {"deadline_monotonic": terminal_release.deadline_monotonic}
+    )
     health = admit_execution_worker_health(
-        args, selected_worker, dispatch_request.identity
+        args, selected_worker, dispatch_request.identity, **timing
     )
     if dispatch_request.authority_identity != export.authority_identity:
         raise CliFailure(
@@ -495,7 +521,14 @@ def run_from_args(args: Any) -> tuple[dict[str, Any], int]:
             dispatcher = (
                 CommandExecutionDispatcher()
                 if selected_worker.worker.kind is ExecutionWorkerKind.COMMAND
-                else SshExecutionDispatcher(SshLifecycleRequestHandler())
+                else SshExecutionDispatcher(
+                    SshLifecycleRequestHandler(),
+                    **(
+                        {}
+                        if terminal_release is None
+                        else {"terminal_release": terminal_release}
+                    ),
+                )
             )
             dispatched, health_polls = dispatch_with_worker_health_poll(
                 args,
@@ -506,15 +539,24 @@ def run_from_args(args: Any) -> tuple[dict[str, Any], int]:
                     dispatch_request,
                     cwd=root,
                 ),
+                **timing,
             )
         except ExecutionDispatchAdapterError as exc:
-            admit_execution_worker_health(
-                args, selected_worker, dispatch_request.identity
-            )
+            if terminal_release is None:
+                admit_execution_worker_health(
+                    args, selected_worker, dispatch_request.identity
+                )
+            else:
+                try:
+                    admit_execution_worker_health(
+                        args, selected_worker, dispatch_request.identity, **timing
+                    )
+                except CliFailure:
+                    pass  # Preserve the original dispatch error and fenced ownership.
             raise CliFailure(exc.code, exc.message) from exc
         if dispatched.status is not DispatchResultStatus.PASSED:
             admit_execution_worker_health(
-                args, selected_worker, dispatch_request.identity
+                args, selected_worker, dispatch_request.identity, **timing
             )
         if dispatched.stderr:
             sys.stderr.write(dispatched.stderr)
@@ -542,6 +584,13 @@ def run_from_args(args: Any) -> tuple[dict[str, Any], int]:
         if health is not None:
             response["worker_health"] = health
             response["worker_health_polls"] = list(health_polls)
+        if terminal_release is not None:
+            # Polling and existing final diagnostics have stopped. Cleanup errors
+            # must not re-enter the adapter-error health path for a retired worker.
+            try:
+                terminal_release.release()
+            except ExecutionDispatchAdapterError as exc:
+                raise CliFailure(exc.code, exc.message) from exc
         return response, (0 if dispatched.status is DispatchResultStatus.PASSED else 1)
     if export.artifact is None:
         raise CliFailure(

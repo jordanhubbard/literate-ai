@@ -96,7 +96,7 @@ goals require a specific unreleased Literate AI capability.
 
 ## Completeness
 
-The [task-oriented skill catalog](docs/user/skills.md) enumerates all 88 canonical
+The [task-oriented skill catalog](docs/user/skills.md) enumerates all 89 canonical
 skills in the reviewed development tree, supporting Goals 1, 2, 5 and 6. The
 [Google skills assessment](docs/architecture/google-skills-assessment.md) records
 composition lessons and proposed adaptations separately from delivered capabilities.
@@ -117,12 +117,36 @@ development (2026-09-10):
 
 ## Current work
 
+The retained Python bridge now has an internal read-only dependency-record
+projection sharing the existing Standard Python verifier. It binds bounded
+metadata and complete recorded payload inventories to current build, source,
+interpreter, target and locked dependency declarations while the filesystem
+owner retains its live guards. This is an implementation foundation only;
+bridge workspace plans, provider admission, both packaging profiles, public
+consumer/source-retirement journeys and receipt integration remain unfinished.
+
+
+RETAINED-PYTHON-BRIDGE-001 implements accepted
+[ADR 0061](docs/decisions/0061-retained-python-library-bridge.md) under Goals 1, 4
+and 6. The directing user confirmed that all recorded roadmap items are reviewed
+in the 2026-11-21 release-resumption instruction. The design requires a current
+qualified provider, sealed source/wheel inputs, prospective full consumer
+qualification before source retirement and exact receipt reopening. Implementation,
+independent source review, installed/native proof and the complete release gates
+remain open; design acceptance completes none of those outcomes.
+
 SDLC-001 makes existing-repository delivery the primary adoption path for 1.4.0.
 The [evidence-backed program](docs/roadmap/existing-repository-delivery.md) and
 [ADR 0074](docs/decisions/0074-existing-repository-delivery.md) consolidate native
 adoption, containment, release measurement and worker lifecycle under existing
 owners. Native source and working build/CI layouts remain application authority;
 generation is an explicit capability. Implementation and pilot acceptance remain open.
+
+AGENT-BOOTSTRAP-001 prepares generated-project setup for 1.5 under Goal 1.
+The contributor bootstrap route is composed with current main, preserving
+project pins, custom instructions and local-tooling exclusions. Forty-one
+focused bootstrap, agent-entrypoint, inventory and update controls pass locally;
+complete installed and integrated acceptance remain open in the active queue.
 
 WHEEL-PYTHON-BINDING-001 closes a qualification-fixture gap under Goals 1 and 4:
 installed continuation must bind its bytecode oracle and native build to the same
@@ -139,8 +163,18 @@ issues #404 and #405 in 1.4 under Goals 1 and 4. Typed native acceptance rejecti
 must remain distinct from archive I/O failure. Generated native-library repair
 requires an explicitly reviewed package-to-attempt custody boundary and the existing
 shared finite retry budget; source custody and private verifier authority remain
-unchanged. PR #406 is under qualification; root-repair design and acceptance remain
-open.
+unchanged. The earlier PR #406 qualification intake is historical: its typed diagnostic
+fix is merged through the transport/diagnostic integration at `25bf1547`.
+NATIVE-ACCEPTANCE-REPAIR-001 is the single current owner for PR #414 and its
+contributor alias CANDIDATE-NATIVE-REPAIR-001. Its reviewed source implementation,
+full source suite and exact candidate's installed native repair pass; final integration
+qualification and resulting-main delivery remain open.
+
+CODEX-STATE-001 includes the SQLite-state and optional remote-catalog finite-limit
+failures in issues #365 and #412 under Goals 3 and 4. Actual Codex 0.166.0 source
+generation now passes under the unchanged 64 MiB ceiling with private state and
+cleanup. Independent source review, whole installed/platform integration and final
+release qualification remain open.
 
 CUDA-SIGNAL-001 records issue #396 as blocking 1.4.0 work under Goals 1, 2, 4
 and 5. Inert source inventory must preserve original bytes and propose CUDA only
@@ -153,7 +187,12 @@ case inventory must preserve every actual node execution; genuinely authored gra
 qualification must not manufacture source-promotion or inverse evidence. The first
 fix is contributor-owned; [ADR 0072](docs/decisions/0072-authored-native-graph-qualification.md)
 was accepted by the directing user on 2026-11-10 for authored admission.
-Implementation and both acceptance gates remain open.
+Implementation and both complete acceptance gates remain open. An actual
+noneditable provider qualification now publishes two clean nominal shared-type
+runs with the original acceptance files unchanged. Ordinary retained consumption
+still blocks closure: separately placed exact exports embed duplicate Cargo path
+packages and fail native lock resolution. The owning queue records the versioned
+shared-export layout and complete receiving work; no source retirement is claimed.
 
 PROJECT-LAYOUT-001 extends Goals 1, 4, 6 and 8 as a blocking 1.4.0 requirement.
 [ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is proposed;
@@ -257,7 +296,10 @@ A2A agents already connected through the coding-agent host, when delegation is
 permitted. Connections and agent communication remain host/orchestrator-owned;
 Literate AI retains pinned authority, execution authorization, artifact verification,
 and acceptance. The [roadmap item](docs/roadmap/active-work.md#a2a-001-guide-agents-to-use-connected-a2a-peers-without-adding-framework-orchestration)
-is open, with no release assigned or native A2A implementation implied.
+is in development: optional host-peer guidance, template routing and a bounded
+scenario review are authored. Skill admission, real initialized-project distribution
+and integrated qualification remain open; no release is assigned or native A2A
+implementation implied.
 
 LAB-AUTHORITY-001 extends Goals 2 and 4 with an independent, progressively richer
 canonical lab curriculum. Each lab must use actual Components, selected Flavors,
@@ -345,8 +387,13 @@ real authored catalog, preserve target-specific lock and source authority
 boundaries, and scale to complete native trees. Explicit POSIX symlink custody
 must retain bounded relative target text, complete internal target coverage and
 immutable snapshots; it must not dereference source links or weaken default
-refusal and legacy identities. Native action, package and
-independent acceptance qualification remain required beyond ownership planning.
+refusal and legacy identities. Explicit link policy must remain bound through
+source snapshots, quarantine, authored SDK source locks, scoped inspection and
+per-command build checks. Scan file aliases under their observable names and
+retain complete target and payload custody. Required source intelligence must
+refuse unsupported link inputs. Complete original-source corpus, installed SDK,
+native catalog/action/package and independent consumer acceptance remain required
+beyond ownership planning.
 
 RETAINED-FS-001 extends Goals 1 and 4 with independent observation of retained
 products' filesystem effects. Development cases bind private fixtures, exact
@@ -369,6 +416,9 @@ execution and current artifact/acceptance evidence. It is open; registering a
 POSIX endpoint or passing mocked dispatch tests alone does not establish support.
 See framework issue #67 and the active queue. Existing three-platform behavior
 and retained-source authority must remain intact.
+The native host-install catalog now declares AMD64 and ARM64 pkg plans. ARM64
+bootstrap and package/probe qualification remain open; a declared plan alone does
+not establish native SDK, model or release acceptance.
 A native pkg provider is being implemented under the same issue, with explicit
 ABI/dependency/payload projection, bound static pkg tooling and independent
 manifest/file/checksum inspection. Portable format checks do not establish native

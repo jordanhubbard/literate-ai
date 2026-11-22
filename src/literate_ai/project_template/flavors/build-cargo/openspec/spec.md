@@ -5,9 +5,10 @@
 When `build.system=cargo` is selected, generated Rust source MUST contain
 `source/Cargo.toml` and MUST NOT contain `source/Cargo.lock`. The authorized lifecycle
 SHALL derive the lock from the admitted manifest in a disposable build projection. The
-derived lock MUST contain checksummed registry packages only; path, Git, workspace,
-build, target-specific, and development dependency authority is outside this initial
-profile.
+derived lock MUST bind checksummed registry packages and any exact locked native
+library graph. Generated manifests MUST NOT supply path, Git, workspace, build,
+target-specific or development dependency authority. Native path edges are projected
+only from the exact current library bindings and immutable provider exports.
 
 #### Scenario: Standard builds a locked package
 
@@ -29,3 +30,23 @@ execution remains outside the initial contract.
 - **WHEN** the locked Cargo build succeeds
 - **THEN** the Standard test phase invokes the exported binary with `--litai-test`
 - **AND** any nonzero result rejects the generated candidate
+
+### Requirement: Shared native packages remain independently consumable
+
+The v3 profile SHALL explicitly select `shared-siblings`. Each native package SHALL
+occupy a full Component-revision directory in a shared sibling forest. Every incoming
+edge SHALL reach the same physical provider package. Provider manifests, source,
+locks and modes SHALL remain byte-for-byte unchanged during forest assembly. A
+provider with embedded native edges SHALL refuse this layout rather than be rewritten.
+The builder SHALL compile the same root manifest and exact provider forest that the
+exported relative dependencies describe. Closed replay SHALL independently recompute
+the source transformation and complete provider file membership without path I/O or
+native execution. The v2 profile SHALL preserve its existing format and behavior.
+
+#### Scenario: Independent exact exports share one nominal type
+
+- **WHEN** a native library graph is built with the explicitly selected shared layout
+- **THEN** independent consumer dependencies may select each exact library export
+- **AND** Cargo resolves one package per provider and accepts the same nominal type across incoming edges
+- **AND** whole-project packaging preserves those shared sibling coordinates
+- **AND** mismatched provider manifests, projection records, source or file membership refuse

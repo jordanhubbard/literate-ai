@@ -44,14 +44,14 @@ class WindowsJobFallbackTests(unittest.TestCase):
         job.terminate.assert_called_once_with()
         job.close.assert_called_once_with()
 
-    def test_successful_job_still_kills_a_root_reported_running(self):
+    def test_successful_job_does_not_repeat_termination_of_a_running_root(self):
         job = mock.Mock()
         job.terminate.return_value = True
         process, popen = self.terminate(
             _processes.ProcessTreeOwnership({}, job), running=True
         )
         popen.assert_not_called()
-        process.kill.assert_called_once_with()
+        process.kill.assert_not_called()
 
     def test_missing_failed_or_released_job_retains_fallback_and_root_kill(self):
         for role in ("missing", "failed", "released"):

@@ -411,6 +411,16 @@ access to shared host state. Its entire module runs alone between completed modu
 groups. Prefer temporary fixture roots and dynamically assigned ports. This marker
 applies to the checkpoint adapter; pytest has its own scheduling rules.
 
+For a measured long module, an optional module-level `LITAI_TEST_PRIORITY` integer
+from 0 through 100 starts higher values earlier within the same nonserial segment.
+The default is 0; equal values retain discovery order. Whole modules, internal
+case order, case IDs and serial barriers stay intact. One-worker debugging keeps
+ordinary unittest order. Invalid hints refuse before any worker starts. This is
+only a scheduling hint: fail-fast may change which peers started before failure,
+while source binding, validated outcomes, cancellation and fresh release checks
+remain authoritative. Use measured evidence before adding a hint; it requires no
+new consumer configuration or duration database.
+
 The native Windows release gate accepts `--test-workers auto|N`, also defaulting
 from `PYTHON_TEST_WORKERS`. Its pytest step uses file-group workers, a private
 base temporary directory, fail-fast and JUnit reports. Each Windows invocation

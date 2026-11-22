@@ -12,7 +12,7 @@ from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from literate_ai.adapters.builders import (
     DEFAULT_ZIG_MINIMUM_VERSION,
@@ -320,6 +320,10 @@ class StandardProjectRuntimeReadiness:
     blockers: tuple[str, ...]
 
 
+if TYPE_CHECKING:
+    from literate_ai.adapters.generation_preparation import PreparedLockedGeneration
+
+
 @dataclass(frozen=True, slots=True)
 class ProjectedStandardToolchainClosure:
     """Typed host realization of one exact locked Standard toolchain closure."""
@@ -345,8 +349,19 @@ class ProjectedStandardToolchainClosure:
     rust_harness_compilers: _RustHarnessCompilerObservations | None = field(
         default=None, repr=False, compare=False
     )
+    # Derived naming context, not a new serialized field or permission.
+    execution_plan: ComponentExecutionPlan | None = field(
+        default=None, repr=False, compare=False
+    )
 
     def require_unchanged(self) -> None:
+        if self.execution_plan is not None and (
+            not isinstance(self.execution_plan, ComponentExecutionPlan)
+            or self.execution_plan.identity != self.record.execution_plan_identity
+            or self.execution_plan.component_lock_identity
+            != self.record.component_lock_identity
+        ):
+            raise ValueError("Standard runtime execution plan changed after projection")
         if self.rust_harness_compilers is not None:
             if (
                 type(self.rust_harness_compilers)
@@ -870,7 +885,7 @@ elif language == "rust":
         completed = subprocess.run([*tool, "check", "--quiet", "--offline",
                                     "--manifest-path", str(temporary / "Cargo.toml"),
                                     "--target-dir", str(temporary / "target")],
-                                   capture_output=True)
+                                   cwd=temporary, capture_output=True)
         sys.stderr.buffer.write(completed.stderr)
         if completed.returncode:
             raise SystemExit(completed.returncode)
@@ -1916,6 +1931,7 @@ def _command_contract(
             build_system.binary,
             compiler.command,
             library=library_surface is not None,
+            package_layout=build_system.package_layout,
         )
         build_argv = (
             "{tool}",
@@ -2290,6 +2306,83 @@ def project_locked_standard_toolchain_closure(
     command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
     observer_identity: ContentIdentity | None = None,
     dependency_guard: Callable[[], None] | None = None,
+) -> ProjectedStandardToolchainClosure:
+    """Derive all Standard command authority from one exact lock and its Flavors."""
+    return _project_locked_standard_toolchain_closure(
+        snapshot=snapshot,
+        execution_plan=execution_plan,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        npm_toolchain_discoverer=npm_toolchain_discoverer,
+        dependency_observer=dependency_observer,
+        native_sdk_inputs=native_sdk_inputs,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
+        _retain_completion=False,
+    )
+
+
+def _project_locked_standard_toolchain_closure_session(
+    snapshot: LockedGenerationAuthoritySnapshot,
+    execution_plan: ComponentExecutionPlan,
+    *,
+    environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
+    | None = None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    native_sdk_inputs=None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
+) -> object:
+    """Private actual original closure and concrete discovery observations."""
+    return _project_locked_standard_toolchain_closure(
+        snapshot=snapshot,
+        execution_plan=execution_plan,
+        environment=environment,
+        host_platform=host_platform,
+        toolchain_discoverer=toolchain_discoverer,
+        npm_toolchain_discoverer=npm_toolchain_discoverer,
+        dependency_observer=dependency_observer,
+        native_sdk_inputs=native_sdk_inputs,
+        command_phases=command_phases,
+        observer_identity=observer_identity,
+        dependency_guard=dependency_guard,
+        _retain_completion=True,
+    )
+
+
+def _project_locked_standard_toolchain_closure(
+    snapshot: LockedGenerationAuthoritySnapshot,
+    execution_plan: ComponentExecutionPlan,
+    *,
+    environment: Mapping[str, str] | None = None,
+    host_platform: str | None = None,
+    toolchain_discoverer: Callable[
+        [str, ToolchainConstraint | None, Mapping[str, str]], object
+    ]
+    | None = None,
+    npm_toolchain_discoverer: Callable[[object, Mapping[str, str]], object]
+    | None = None,
+    dependency_observer: Callable[
+        [tuple[tuple[str, ...], ...]], HostDependencyObservation
+    ]
+    | None = None,
+    native_sdk_inputs=None,
+    command_phases: tuple[ComponentCommandPhase, ...] = tuple(ComponentCommandPhase),
+    observer_identity: ContentIdentity | None = None,
+    dependency_guard: Callable[[], None] | None = None,
+    _retain_completion: bool = False,
 ) -> ProjectedStandardToolchainClosure:
     """Derive all Standard command authority from one exact lock and its Flavors."""
 
@@ -2853,6 +2946,22 @@ def project_locked_standard_toolchain_closure(
         for tool in tools.values()
         if type(tool) is RustToolchain and tool.identity in compiler_identities
     }
+    if _retain_completion:
+        from literate_ai.adapters.authored_provider_tool_completion import (
+            _retain_original_provider_tools,
+        )
+
+        original_closure = replace(
+            closure,
+            rust_harness_compilers=_retain_rust_harness_compilers(
+                tuple(original_compilers[key] for key in sorted(original_compilers))
+            )
+            if original_compilers and set(original_compilers) == compiler_identities
+            else None,
+        )
+        return _retain_original_provider_tools(
+            original_closure, tools, native_sdk_inputs=native_sdk_inputs
+        )
     return replace(
         closure,
         rust_harness_compilers=(
@@ -3107,6 +3216,7 @@ def project_standard_toolchain_closure(
         command_phases,
         dependency_guard,
         mix_targets,
+        execution_plan=execution_plan,
     )
 
 
@@ -3650,6 +3760,7 @@ def assemble_standard_lifecycle_ports(
         "python_targets": toolchain_closure.python_targets,
         "python_wheelhouse": python_wheelhouse,
         "provider_environment": provider_environment,
+        "execution_plan": toolchain_closure.execution_plan,
         "dependency_observation": toolchain_closure.dependency_observation,
         "independent_acceptance_oracle": independent_acceptance_oracle,
         "browser_driver": browser_driver,
@@ -3704,6 +3815,7 @@ def assemble_filesystem_standard_project_runtime(
     native_sdk_inputs=None,
     bazel_cache_arguments: tuple[str, ...] = (),
     shared_cache: BoundSharedCache | None = None,
+    candidate_verification_authority: PreparedLockedGeneration | None = None,
     clock: Callable[[], datetime] = lambda: datetime.now(UTC),
 ) -> FilesystemStandardProjectRuntime:
     """Wire an explicit component-scoped host runtime, never a default CLI claim."""
@@ -3764,6 +3876,20 @@ def assemble_filesystem_standard_project_runtime(
         FilesystemStandardCandidateRepairAdapter,
     )
 
+    candidate_verifier = None
+    if (
+        candidate_verification_authority is not None
+        and toolchain_closure.cargo_targets
+        and independent_acceptance_oracle is not None
+    ):
+        from literate_ai.adapters.native_candidate_verification import (
+            _native_candidate_verifier,
+        )
+
+        candidate_verifier = _native_candidate_verifier(
+            candidate_verification_authority, ports
+        )
+
     application = assemble_standard_project_application_service(
         ports=ports,
         generator=register_source_generator(generator, registry),
@@ -3774,6 +3900,7 @@ def assemble_filesystem_standard_project_runtime(
         candidate_repair_port=FilesystemStandardCandidateRepairAdapter(
             ports.failure_diagnostics
         ),
+        generated_candidate_verifier=candidate_verifier,
         clock=clock,
     )
     return FilesystemStandardProjectRuntime(
@@ -3857,6 +3984,7 @@ def compose_filesystem_standard_source_cache(
         checkpoint_recorder=runtime.checkpoint_store,
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=runtime.application.lifecycle.candidate_repair_port,
+        generated_candidate_verifier=runtime.application.lifecycle.generated_candidate_verifier,
         clock=runtime.application.lifecycle.clock,
     )
     return replace(
@@ -3892,6 +4020,7 @@ def compose_filesystem_standard_lifecycle_checkpoints(
         checkpoint_recorder=store,
         context_evidence_recorder=runtime.context_evidence_recorder,
         candidate_repair_port=lifecycle.candidate_repair_port,
+        generated_candidate_verifier=lifecycle.generated_candidate_verifier,
         clock=lifecycle.clock,
     )
     return replace(runtime, application=application, checkpoint_store=store)

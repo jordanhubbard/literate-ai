@@ -28,6 +28,7 @@ from literate_ai.contracts import (
     RemoteExecutionControlResult,
     RemoteLifecycleEvidenceManifest,
     canonical_json_bytes,
+    remote_cleanup_acknowledgement_identity,
 )
 
 
@@ -113,6 +114,12 @@ class RecordingRunner:
             bundle_size=4096,
             redacted_summary="completed",
         )
+        self.acknowledgement_identity = remote_cleanup_acknowledgement_identity(
+            request_identity=result.request_identity,
+            manifest_identity=manifest.identity,
+            bundle_identity=self.result.evidence_reference.identity,
+            cleanup_token=manifest.cleanup_token,
+        )
 
     def run(self, argv, *, cwd, timeout_seconds):
         self.calls.append(tuple(argv))
@@ -142,7 +149,7 @@ class RecordingRunner:
                             self.result.evidence_manifest.identity.uri
                         ),
                         "bundle_identity": self.result.evidence_reference.identity.uri,
-                        "acknowledgement_identity": identity("e").uri,
+                        "acknowledgement_identity": self.acknowledgement_identity.uri,
                     },
                 }
             )
@@ -185,7 +192,15 @@ class SshExecutionTests(unittest.TestCase):
             with self.subTest(transport=transport):
                 self._assert_staged_custody_transport(transport)
 
-    def _assert_staged_custody_transport(self, transport: str) -> None:
+    def test_handler_refuses_a_well_formed_misbound_cleanup_acknowledgement(
+        self,
+    ) -> None:
+        """A custody receipt must not accept an unrelated acknowledgement hash."""
+        self._assert_staged_custody_transport("ssh", misbound_acknowledgement=True)
+
+    def _assert_staged_custody_transport(
+        self, transport: str, *, misbound_acknowledgement: bool = False
+    ) -> None:
         selected = replace(worker(), transport=transport)
         dispatch_request = replace(request(), worker_identity=selected.identity)
         reference = ContentReference(
@@ -209,6 +224,8 @@ class SshExecutionTests(unittest.TestCase):
             identity("9"),
         )
         runner = RecordingRunner(result)
+        if misbound_acknowledgement:
+            runner.acknowledgement_identity = identity("e")
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             archive = root / "source.tar.gz"
@@ -231,6 +248,26 @@ class SshExecutionTests(unittest.TestCase):
                     return_value=(runner.result.evidence_manifest, identity("f"), ()),
                 ),
             ):
+                if misbound_acknowledgement:
+                    with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+                        SshLifecycleRequestHandler(runner).execute(
+                            selected,
+                            dispatch_request,
+                            cwd=root,
+                            deadline_monotonic=time.monotonic() + 5,
+                        )
+                    self.assertEqual(
+                        raised.exception.code,
+                        "execution.ssh_cleanup_acknowledgement_invalid",
+                    )
+                    self.assertEqual(len(runner.calls), 10)
+                    self.assertTrue(
+                        all(
+                            "worker acknowledge" in " ".join(call)
+                            for call in runner.calls[-3:]
+                        )
+                    )
+                    return
                 actual = SshLifecycleRequestHandler(runner).execute(
                     selected,
                     dispatch_request,

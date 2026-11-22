@@ -75,3 +75,25 @@ class NativeProjectRegistryTests(unittest.TestCase):
                 registry.register_native_project(self.project, second)
         self.assertEqual(path.read_bytes(), before)
         self.assertEqual(list(path.parent.glob(".native-projects.*")), [])
+
+    def test_contained_registry_uses_framework_location_and_exact_child_coordinates(
+        self,
+    ):
+        root = self.base / "contained"
+        ProjectConfigurationStore(root).create(
+            _definition(project_id="contained", framework_directory="litai")
+        )
+        project = load_project(root)
+        child = root / "litai/.literate/native-projects/first"
+        ProjectConfigurationStore(child).create(_definition(project_id="first"))
+        registry.register_native_project(project, child)
+        path = root / "litai" / registry.NATIVE_PROJECTS_FILE
+        before = path.read_bytes()
+        self.assertEqual(registry._native_project_roots(project), (child,))
+        self.assertFalse((root / ".literate").exists())
+        wrong = root / ".literate/native-projects/foreign"
+        ProjectConfigurationStore(wrong).create(_definition(project_id="foreign"))
+        with self.assertRaises(registry.ConversionAuthorityError):
+            registry.register_native_project(project, wrong)
+        self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(registry._native_project_roots(project), (child,))

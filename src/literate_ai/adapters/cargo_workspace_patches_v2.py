@@ -61,6 +61,36 @@ def verify_cargo_workspace_patches_v2(
     derive these bindings from the candidate metadata or patch declaration.
     Unpatched external-to-local and undeclared local packages still refuse.
     """
+    return _verify_cargo_workspace_patches_v2(
+        metadata,
+        workspace_root=workspace_root,
+        plan=plan,
+        workspace_manifest=workspace_manifest,
+        lockfile=lockfile,
+        registry_sources=registry_sources,
+        maximum_document_bytes=maximum_document_bytes,
+    )
+
+
+def _verify_cargo_workspace_patches_v2(
+    metadata: dict,
+    *,
+    workspace_root: Path,
+    plan: RetainedCargoWorkspacePlanV2,
+    workspace_manifest: bytes,
+    lockfile: bytes,
+    registry_sources: Mapping[str, str] | None = None,
+    maximum_document_bytes: int = 16 * 1024 * 1024,
+    _realized_output=None,
+) -> None:
+    """Allow only exact resolved edges explained by independently reviewed patches.
+
+    registry_sources supplies named-registry resolutions from the receiving
+    owner's current captured Cargo configuration. URI keys are literal source
+    locations; crates-io has its canonical native identity. A caller must not
+    derive these bindings from the candidate metadata or patch declaration.
+    Unpatched external-to-local and undeclared local packages still refuse.
+    """
     _require(type(plan) is RetainedCargoWorkspacePlanV2, "v2_plan_required")
     _require(
         type(maximum_document_bytes) is int
@@ -226,4 +256,5 @@ def verify_cargo_workspace_patches_v2(
         workspace_root=workspace_root,
         expected=plan.graph.common,
         reviewed_patch_edges=frozenset(explained),
+        _realized_output=_realized_output,
     )

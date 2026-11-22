@@ -1,0 +1,48 @@
+{
+  "schema": "literate-ai/local-source-verification@1",
+  "kind": "development source and native loopback verification; not release qualification",
+  "source_commit": "57d31db178753c31543ae690b7d5cd8ac69bb0a8",
+  "platform": "macos-arm64",
+  "full_source": {
+    "selected": 3183,
+    "passed": 3082,
+    "skipped": 101,
+    "failed": 0,
+    "known_failed": 0,
+    "python_seconds": 2694.916,
+    "outer_seconds": 2720.671169,
+    "started_utc": "2026-11-18T08:15:47.010361+00:00",
+    "finished_utc": "2026-11-18T09:01:07.681530+00:00",
+    "canonical_report_sha256": "eb00063901188e860b8adf30efd7a2c71306fc691deac5a47128947d485aad4f",
+    "reviewed_subjects_unchanged": true
+  },
+  "native_receipted": {
+    "selected": 2,
+    "passed": 2,
+    "skipped": 0,
+    "failed": 0,
+    "runner_seconds": 10.713,
+    "canonical_report_sha256": "a94a75ef59ca6b5bf9f73a3b359d27c16401bcf0129fe9fdbbf4b61ac271cae2",
+    "binaries": {
+      "LITAI_OPENCODE_V1_BINARY": {
+        "sha256": "feaafead8cd563af0c2dcb386b0757e4355e327ebb6bd1aaad5440fe2f83596c"
+      },
+      "LITAI_OPENCODE_V2_BINARY": {
+        "sha256": "abe4d88594bffb12b364375b8a6732d2d1f7a977195ed1a35c5c76f8e89c9e0e"
+      }
+    },
+    "subjects_and_binaries_unchanged": true
+  },
+  "independent_reviews": {
+    "source": "2a5f7f1aa78b835345279fb0b709bbeb7ca185181e9942fae355548e3a4998ce",
+    "authority": "6ec3e2f05d2e24c1dc68f7f9ba22da61e67721e6badea26182a4a8b76454a075",
+    "native_binary_provenance": "76b7aa0296140392947debef2673994c64790126165e921b840af2294032b108"
+  },
+  "limits": [
+    "Source gate was frozen before committing these exact bytes; report is development evidence and not a release receipt.",
+    "Native tests use real V1.19.5/V2.2.5 CLIs and owned synthetic loopback providers, not paid inference.",
+    "V2 test injects a test-only provider after production configuration confirmation; this does not qualify ordinary saved-provider integration.",
+    "Other operating systems, installed distributions, current-head CI and the later composed candidate require their own verification.",
+    "OpenSpec advisory and GitGuardian dispositions remain open; no gate is waived."
+  ]
+}

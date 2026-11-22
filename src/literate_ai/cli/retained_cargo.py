@@ -65,6 +65,8 @@ def retained_cargo_from_args(args):
     """
     try:
         return _run(args)
+    except CliFailure:
+        raise
     except (OSError, ValueError, TypeError, RuntimeError) as exc:
         # Candidate paths/content and transport details must not enter diagnostics.
         raise CliFailure(
@@ -75,6 +77,12 @@ def retained_cargo_from_args(args):
 
 
 def _run(args):
+    from .retained_cargo_routing import retained_cargo_closed
+
+    return retained_cargo_closed(args)
+
+
+def _run_source_v1(args):
     if args.retained_cargo_command not in {"check", "materialize", "admit"}:
         raise ValueError("retained.cargo.operation-invalid")
     if args.retained_cargo_command == "admit" and (

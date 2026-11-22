@@ -2,7 +2,7 @@
 schema: "literate-ai/flavor-markdown@1"
 namespace: "literate-ai"
 name: "build-cargo"
-version: "1.0.0"
+version: "1.1.0"
 display_name: "Cargo build system"
 primary_axis: "build.system"
 target: "cargo"
@@ -41,3 +41,11 @@ registry dependencies. The Standard lifecycle resolves one exact Cargo command, 
 `cargo metadata --locked` and `cargo build --locked` against `source/Cargo.toml`, places
 all compiler output under its external object root, and exports the named binary without
 modifying the admitted generated source tree.
+
+The v3 command profile explicitly selects `shared-siblings` package layout. Native
+library exports retain ordinary relative Cargo dependencies to one sibling package
+per full Component revision. The authorized builder compiles that exact shared
+forest and preserves every already qualified provider byte. Whole-project packaging
+uses the same sibling coordinates; retained receivers copy exact exports to the
+reviewed coordinates without rewriting manifests. The v2 profile and v1 target keep
+their original embedded layout and identities for existing locks.

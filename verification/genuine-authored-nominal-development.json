@@ -1,0 +1,65 @@
+{
+  "schema": "literate-ai/development-observation@1",
+  "owner": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "source_revision": "39b1af3c67cff95cacd622fe0372f5b3f8d9e88b",
+  "qualification": {
+    "installation": "genuine noneditable supported make install",
+    "distribution_identity": "sha256:f2a61cfdb87f4eacdfc56aab604e274132908ac3f5790e0640a4762f028b7ec4",
+    "qualified": true,
+    "exit_code": 0,
+    "minimum_clean_runs": 2,
+    "library_components": 3,
+    "shared_nominal_type": "beta::Event; alpha and gamma reexport the same type and call actual providers",
+    "profile_identity": "sha256:1f72221c6be115807addf2b6c93e9e09e2a924a47e5af5deab2d72b4ab376400",
+    "plan_identity": "sha256:74be4e67259c2e5bc00371a4192a968425294913bc91e8e5a2d43dfec18a4955",
+    "reference_identity": "sha256:0988406ed52c9a14d9ee922af61f3fbfd375eff09e1ff993b96fc92c4c8d1549",
+    "archive": {
+      "sha256": "e41094d4b9c8abb3765ad911d4e00e3d95e76327eb3e5b6171d689f5d8533cc2",
+      "bytes": 5922864,
+      "records": 457
+    },
+    "duration_seconds": 1823.503,
+    "all_seven_original_oracle_files_unchanged": true,
+    "fixture_ports_used": false
+  },
+  "retained_consumer": {
+    "conversion": "actual supported conversion with native baseline, parity and liftshift",
+    "stage": "retained",
+    "current_receipt": "sha256:c036b35dde38a2364fbb80a33c97ddd601d8050b77eeac79ce8fa2fddffbc915",
+    "current_after_private_git_checkpoint": true,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "original_implementation_preserved": true,
+    "provider_admitted": false
+  },
+  "ordinary_export_layout": {
+    "status": "failed native Cargo compatibility diagnostic",
+    "command": [
+      "cargo",
+      "generate-lockfile",
+      "--offline"
+    ],
+    "exit_code": 101,
+    "diagnostic": "package collision in the lockfile: alpha v1.0.0 in its own unchanged qualified export and the separately qualified gamma export embedded alpha are distinct path packages",
+    "qualified_manifests_modified": false,
+    "test_fixture_ports_used": false,
+    "scope": "Direct Cargo resolution of independently placed exact library exports; not a public receiver result or consumer admission."
+  },
+  "remaining": [
+    "Independent source review and supported driver renewal",
+    "Versioned compatible library layout shared across separate exact exports",
+    "Actual public check/materialize/check, full prospective consumer gates and original test inventory before source retirement, admit, repeat and refusal controls",
+    "Complete integrated native, installed and release gates"
+  ],
+  "release_qualified": false,
+  "independent_replay": {
+    "actual_noneditable_current_authority": true,
+    "transported_archive": true,
+    "all_clean_runs_reopened": 2,
+    "original_scratch_absent": true,
+    "all_original_oracles_unchanged": true,
+    "generation_invoked": false,
+    "duration_seconds": 413.168
+  }
+}

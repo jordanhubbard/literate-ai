@@ -1,0 +1,6 @@
+- [ ] Qualify live external workspace ownership and refusal cases.
+- [ ] Qualify original read-only native producer, retirement and real consumer.
+- [ ] Qualify both SDK layouts and public source/project acquisition entrypoints.
+- [ ] Verify unchanged legacy identities and existing SDK regression coverage.
+- [ ] Obtain independent trust-critical review and run the required gates.
+- [ ] Qualify actual FreeBSD OS SDK and retained consumer/lifecycle integration.

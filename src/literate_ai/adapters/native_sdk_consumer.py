@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import shutil
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
@@ -21,6 +21,7 @@ from literate_ai.adapters.native_sdk_dependencies import (
     project_native_sdk_dependencies,
 )
 from literate_ai.adapters.native_sdk_recipes import select_native_sdk_recipes
+from literate_ai.adapters.native_sdk_revocation_file import SdkRevocationFile
 from literate_ai.adapters.native_sdk_runtime import observe_native_sdk_runtime
 from literate_ai.adapters.native_sdk_source_build import (
     NativeSdkSourceBuild,
@@ -42,7 +43,7 @@ from literate_ai.security import (
     BuildAuthorization,
     BuildRequest,
 )
-from literate_ai.storage import BlobRef
+from literate_ai.storage import BlobRef, FileSystemCAS
 
 
 @dataclass(frozen=True, slots=True)
@@ -83,6 +84,14 @@ class MaterializedNativeSdkInput:
         return self.root / self.binding.build.product.snapshot.import_root
 
 
+@dataclass(frozen=True, slots=True)
+class _ReopenedSdkSource:
+    references: tuple[BlobRef, ...]
+    store: FileSystemCAS
+    revocations: Callable[[], AuthorizationRevocationSet]
+    revocation_file: SdkRevocationFile
+
+
 class NativeSdkConsumerInputs:
     """Live producer-backed inputs for every SDK dependency in one locked project.
 
@@ -98,6 +107,7 @@ class NativeSdkConsumerInputs:
         services: tuple[NativeSdkSourceBuildService, ...],
     ) -> None:
         self.snapshot = snapshot
+        self._refresh_completion = None
         self._services = tuple(services)
         expected = {
             selection.identity: selection
@@ -127,6 +137,62 @@ class NativeSdkConsumerInputs:
             received[selection.identity] = (service, binding)
         if set(received) != set(expected):
             raise ValueError("SDK builds must cover every selected consumer dependency")
+        self._finish_bindings(received)
+
+    @classmethod
+    def _open_authored_completion(
+        cls,
+        authority,
+        *,
+        cache_root,
+        expected_completion,
+        tools,
+        limits,
+        read_limits,
+        max_manifest_bytes,
+        step,
+        revocations,
+        revocation_file,
+    ):
+        from literate_ai.adapters.native_sdk_completion_packet import (
+            read_completion_packet,
+        )
+
+        if not callable(revocations):
+            raise TypeError("Reopened SDK inputs require live revocations")
+        if type(revocation_file) is not SdkRevocationFile:
+            raise TypeError("Reopened SDK inputs require the observed revocation file")
+        selected_tools = dict(tools)
+
+        def refresh():
+            return read_completion_packet(
+                authority,
+                cache_root=cache_root,
+                expected_completion=expected_completion,
+                tools=selected_tools,
+                limits=limits,
+                read_limits=read_limits,
+                revocations=revocations,
+                max_manifest_bytes=max_manifest_bytes,
+                step=step,
+            )
+
+        bindings, references = refresh()
+        owner = cls.__new__(cls)
+        owner.snapshot = authority.locked
+        store = FileSystemCAS(cache_root / "cas", create=False)
+        source = _ReopenedSdkSource(references, store, revocations, revocation_file)
+        owner._services = ()
+        owner._refresh_completion = refresh
+        received = {
+            binding.build.selection.identity: (source, binding) for binding in bindings
+        }
+        if len(received) != len(bindings):
+            raise ValueError("Duplicate reopened SDK selection")
+        owner._finish_bindings(received)
+        return owner
+
+    def _finish_bindings(self, received):
         self._inputs = tuple(
             received[key] for key in sorted(received, key=lambda key: key.uri)
         )
@@ -151,6 +217,13 @@ class NativeSdkConsumerInputs:
 
     def require_unchanged(self) -> None:
         self.snapshot.require_unchanged()
+        if self._refresh_completion is not None:
+            bindings, references = self._refresh_completion()
+            if bindings != tuple(binding for _, binding in self._inputs) or any(
+                source.references != references for source, _ in self._inputs
+            ):
+                raise ValueError("Reopened SDK completion changed after binding")
+            return
         for service, binding in self._inputs:
             if service.completed_result() != binding.build:
                 raise ValueError("SDK consumer input changed after binding")

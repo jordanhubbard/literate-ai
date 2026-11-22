@@ -30,6 +30,7 @@ from literate_ai.contracts import (
     ArtifactExport,
     ComponentCommandContract,
     ComponentCommandPhase,
+    ComponentExecutionPlan,
     ContentIdentity,
     CycloneDxBomBinding,
     canonical_identity,
@@ -38,6 +39,16 @@ from literate_ai.diagnostics import redact_secrets
 from literate_ai.storage import canonical_json_bytes
 
 from .cargo_workspace import sync_projection, workspace_digest
+from .native_cargo_inputs import (
+    bind_native_cargo_inputs,
+    validate_native_cargo_provider_locks,
+)
+from .native_cargo_projection import (
+    MAX_PROJECTION_FILES,
+    project_native_cargo_graph,
+    validate_native_cargo_metadata,
+)
+from .native_cargo_shared import project_shared_cargo_graph
 from .standard_local import (
     LocalComponentToolBinding,
     LocalSourceTreeRegistry,
@@ -66,6 +77,7 @@ class StandardCargoTarget:
     binary: str
     rustc_command: tuple[str, ...]
     library: bool = False
+    package_layout: str = "embedded"
 
     def __post_init__(self) -> None:
         for value, label in (
@@ -97,6 +109,10 @@ class StandardCargoTarget:
             raise ValueError("Cargo target requires one exact Rust compiler command")
         if not isinstance(self.library, bool):
             raise TypeError("Cargo target library marker must be bool")
+        if self.package_layout not in {"embedded", "shared-siblings"}:
+            raise ValueError(
+                "Cargo target requires an explicit supported package layout"
+            )
 
     @property
     def identity(self) -> ContentIdentity:
@@ -117,6 +133,9 @@ class StandardCargoTarget:
         }
         if self.library:
             value["library"] = True
+        if self.package_layout != "embedded":
+            value["schema"] = "literate-ai/standard-cargo-target@2"
+            value["package_layout"] = self.package_layout
         return value
 
 
@@ -216,6 +235,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         python_targets: tuple[StandardPythonTarget, ...] = (),
         python_wheelhouse: Path | None = None,
         provider_environment: Mapping[str, tuple[str, str]] | None = None,
+        execution_plan: ComponentExecutionPlan | None = None,
         dependency_observation: HostDependencyObservation | None = None,
         independent_acceptance_oracle: object | None = None,
         browser_driver: object | None = None,
@@ -237,6 +257,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             python_targets=python_targets,
             python_wheelhouse=python_wheelhouse,
             provider_environment=provider_environment,
+            execution_plan=execution_plan,
             dependency_observation=dependency_observation,
             independent_acceptance_oracle=independent_acceptance_oracle,
             browser_driver=browser_driver,
@@ -272,6 +293,120 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
 
     def _allow_missing_cargo_lock(self, plan: StandardComponentBuildPlan) -> bool:
         return plan.component_revision.uri in self.cargo_targets
+
+    def _project_export_destinations(self, closure, root_export, grouped_roots):
+        destinations = super()._project_export_destinations(
+            closure, root_export, grouped_roots
+        )
+        root_target = self.cargo_targets.get(root_export.component_revision.uri)
+        if root_target is not None and root_target.package_layout == "shared-siblings":
+            for export in closure:
+                target = self.cargo_targets.get(export.component_revision.uri)
+                if target is not None and target.library:
+                    destinations[export.identity.uri] = (
+                        "components/" + export.component_revision.digest
+                    )
+        return destinations
+
+    def _current_native_cargo_inputs(self, plan, providers):
+        if not any(
+            self._contract(item.component_revision).is_library for item in providers
+        ):
+            return None
+        inputs = self.build_execution_inputs(plan)
+        native = bind_native_cargo_inputs(
+            consumer_revision=plan.component_revision,
+            target_identity=self._contract(
+                plan.component_revision
+            ).artifact_export.target_identity,
+            providers=providers,
+            available_exports=self._exports_by_identity,
+            contracts=self.contracts,
+            manifest_paths={
+                revision: target.manifest
+                for revision, target in self.cargo_targets.items()
+            },
+            current_bindings=self.library_consumer_bindings(inputs.intent),
+            read_blob=self.read_artifact_blob,
+        )
+        validate_native_cargo_provider_locks(graph=native[0], sources=native[1])
+        return native
+
+    def _cargo_workspace_identity(self, plan, providers, contract, native):
+        compatibility = self.cargo_targets[
+            plan.component_revision.uri
+        ].identity_document()
+        compatibility.pop("component_revision")
+        return canonical_identity(
+            {
+                "schema": "literate-ai/cargo-workspace@1",
+                "cargo": compatibility,
+                "target": contract.artifact_export.target_identity.uri,
+                "abi": contract.artifact_export.abi_identity.uri,
+                "providers": self._provider_materials(providers, consumer_plan=plan),
+                "compiler_cache": self.shared_cache.identity.uri
+                if self.shared_cache
+                else None,
+                **(
+                    {"native_provider_projection_v1": native[0].identity.uri}
+                    if native
+                    else {}
+                ),
+            }
+        )
+
+    def _native_cargo_evidence(self, plan, providers, native, metadata, lock_bytes):
+        graph, sources = native
+        target = self.cargo_targets[plan.component_revision.uri]
+        root = self.source_trees.resolve(plan.request.source_tree_identity)
+        original = self._read_bounded(
+            root / target.manifest, label="original native manifest"
+        )
+        workspace = self._cargo_workspace_identity(
+            plan, providers, self._contract(plan.component_revision), native
+        )
+        binding = validate_native_cargo_metadata(
+            graph=graph,
+            root_manifest=original,
+            root_manifest_path=target.manifest,
+            sources=sources,
+            projection_root=self.object_root
+            / "cargo-work"
+            / workspace.digest
+            / "projection"
+            / (
+                target.component_revision.digest
+                if target.package_layout == "shared-siblings"
+                else ""
+            ),
+            metadata=metadata,
+            package_layout=target.package_layout,
+        )
+        provider_locks = validate_native_cargo_provider_locks(
+            graph=graph,
+            sources=sources,
+            consumer_manifest=original,
+            consumer_lock=lock_bytes,
+        )
+        return {
+            "schema": "literate-ai/standard-native-cargo-evidence@1",
+            "graph": graph.to_dict(),
+            "original_manifest_identity": "sha256:"
+            + hashlib.sha256(original).hexdigest(),
+            "metadata_binding": binding,
+            "provider_locks": provider_locks,
+        }
+
+    def _cargo_build_environment(self, providers):
+        # Native library imports are represented by the admitted manifest graph,
+        # not by an otherwise unused process-runtime environment binding.
+        return self._environment(
+            tuple(
+                item
+                for item in providers
+                if not self._contract(item.component_revision).is_library
+            )
+        )
 
     @staticmethod
     def _read_bounded(path: Path, *, label: str) -> bytes:
@@ -309,6 +444,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         target: StandardCargoTarget,
         lock_bytes: bytes,
         metadata_bytes: bytes,
+        native_evidence: Mapping[str, object] | None = None,
     ) -> dict[str, object]:
         evidence_root = artifact_root / ".literate" / "cargo"
         if evidence_root.exists() or evidence_root.is_symlink():
@@ -318,6 +454,10 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         evidence_root.mkdir(parents=True)
         (evidence_root / "Cargo.lock").write_bytes(lock_bytes)
         (evidence_root / "metadata.json").write_bytes(metadata_bytes)
+        native_bytes = None
+        if native_evidence is not None:
+            native_bytes = canonical_json_bytes(native_evidence)
+            (evidence_root / "native-provider-graph.json").write_bytes(native_bytes)
         manifest = {
             "schema": "urn:literate-ai:schema:v1:standard-cargo-dependency-evidence",
             "authorization_id": plan.request.authorization_identity.uri,
@@ -337,6 +477,8 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         if self._evidence_recorder is not None:
             for payload in (lock_bytes, metadata_bytes, manifest_bytes):
                 self._evidence_recorder.remember_bytes(payload)
+            if native_bytes is not None:
+                self._evidence_recorder.remember_bytes(native_bytes)
             self._record_evidence(target.identity_document())
         return {
             "authorization_id": plan.request.authorization_identity.uri,
@@ -446,6 +588,26 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 "retained Cargo lock differs from resolved dependency evidence"
             )
         target = self.cargo_targets[plan.component_revision.uri]
+        providers = tuple(
+            self._exports_by_identity[identity.uri]
+            for identity in plan.provider_artifact_identities
+        )
+        native = self._current_native_cargo_inputs(plan, providers)
+        native_path = manifest_path.parent / "native-provider-graph.json"
+        if native is not None:
+            expected_native = self._native_cargo_evidence(
+                plan, providers, native, metadata, lock_bytes
+            )
+            if self._read_bounded(
+                native_path, label="native provider evidence"
+            ) != canonical_json_bytes(expected_native):
+                raise LocalStandardLifecycleError(
+                    "retained native Cargo graph differs from current qualified inputs"
+                )
+        elif native_path.exists() or native_path.is_symlink():
+            raise LocalStandardLifecycleError(
+                "unexpected native Cargo provider evidence"
+            )
         return {
             "authorization_id": plan.request.authorization_identity.uri,
             "builder_id": "literate-ai/standard-cargo-lifecycle@1",
@@ -475,11 +637,22 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             if key != "evidence_manifest_digest"
         }
         additional["cargo_lifecycle_profile"] = True
+        providers = tuple(
+            self._exports_by_identity[identity.uri]
+            for identity in plan.provider_artifact_identities
+        )
+        native = self._current_native_cargo_inputs(plan, providers)
         return self._resolve_and_write_sbom(
             plan,
             artifact_root,
             artifact_digest=manifest_digest,
             additional_build_evidence=additional,
+            native_cargo_graph=native[0] if native else None,
+            native_cargo_manifest=self.cargo_targets[
+                plan.component_revision.uri
+            ].manifest
+            if native
+            else None,
         )
 
     def _build_locked(
@@ -491,23 +664,12 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
         target = self.cargo_targets.get(plan.component_revision.uri)
         if target is None:
             return self._build_cargo_locked(plan, provider_artifacts, contract)
-        # Revisions and source bytes deliberately do not partition intermediates:
-        # Cargo invalidates changed inputs. Toolchain, target and providers do.
-        compatibility = target.identity_document()
-        compatibility.pop("component_revision")
-        workspace_key = canonical_identity(
-            {
-                "schema": "literate-ai/cargo-workspace@1",
-                "cargo": compatibility,
-                "target": contract.artifact_export.target_identity.uri,
-                "abi": contract.artifact_export.abi_identity.uri,
-                "providers": self._provider_materials(
-                    provider_artifacts, consumer_revision=plan.component_revision
-                ),
-                "compiler_cache": (
-                    self.shared_cache.identity.uri if self.shared_cache else None
-                ),
-            }
+        # Without native providers, Cargo invalidates changed consumer inputs.
+        # Native graph identity also includes the consumer revision, so native
+        # workspaces remain conservatively partitioned by that revision.
+        native = self._current_native_cargo_inputs(plan, provider_artifacts)
+        workspace_key = self._cargo_workspace_identity(
+            plan, provider_artifacts, contract, native
         )
         with exclusive_cache_lock(
             self.object_root / ".cargo-locks" / workspace_key.digest
@@ -587,6 +749,22 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
 
         source = self.source_trees.resolve(plan.request.source_tree_identity)
         source_identity = local_generated_source_tree_identity(source)
+        # Even a provider-free leaf must not manufacture framework provenance.
+        # Check before cache reuse as well as before any native command/export.
+        for metadata in source.iterdir():
+            if metadata.name.casefold() != ".literate":
+                continue
+            if path_is_link_or_reparse(metadata):
+                raise LocalStandardLifecycleError(
+                    "generated native Cargo source contains unsafe authority"
+                )
+            if metadata.is_dir() and any(
+                child.name.casefold() == "native-cargo" for child in metadata.iterdir()
+            ):
+                raise LocalStandardLifecycleError(
+                    "generated native Cargo source contains "
+                    "ambient or reserved authority"
+                )
         source_manifest = source / Path(*PurePosixPath(target.manifest).parts)
         source_lock = source_manifest.with_name("Cargo.lock")
         if source_lock.exists() or source_lock.is_symlink():
@@ -598,8 +776,9 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 "generated Cargo source requires its locked Cargo.toml path"
             )
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
+        native = self._current_native_cargo_inputs(plan, provider_artifacts)
         cache_identity = canonical_identity(
             {
                 "schema": "literate-ai/local-standard-cargo-cache-key@1",
@@ -608,6 +787,11 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 "build_plan_identity": plan.identity.uri,
                 "source_tree_identity": plan.request.source_tree_identity.uri,
                 "provider_materials": provider_materials,
+                **(
+                    {"native_provider_projection_v1": native[0].identity.uri}
+                    if native
+                    else {}
+                ),
                 **(
                     {"compiler_cache_identity": self.shared_cache.identity.uri}
                     if self.shared_cache is not None
@@ -635,7 +819,9 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             raise LocalStandardLifecycleError("Cargo build requires a locked workspace")
         staging = stable_staging
         staging.mkdir(parents=True, exist_ok=True)
-        projection = staging / "projection"
+        shared = target.package_layout == "shared-siblings"
+        forest = staging / "projection"
+        projection = forest / target.component_revision.digest if shared else forest
         object_workspace = staging / "objects"
         artifact_workspace = staging / "artifact"
         try:
@@ -644,6 +830,46 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 *PurePosixPath(target.manifest).parts
             )
             projected_lock = projected_manifest.with_name("Cargo.lock")
+            if native is not None:
+                # Only the disposable tree receives framework-owned path edges.
+                # Existing source cannot preoccupy the reserved projection namespace.
+                count = 0
+                for path in projection.rglob("*"):
+                    count += 1
+                    if count > MAX_PROJECTION_FILES:
+                        raise LocalStandardLifecycleError(
+                            "native Cargo source exceeds its file bound"
+                        )
+                    relative = path.relative_to(projection).as_posix().casefold()
+                    if (
+                        ".cargo" in relative.split("/")
+                        or relative.startswith(".literate/native-cargo")
+                        or relative
+                        == str(
+                            PurePosixPath(target.manifest).with_name("build.rs")
+                        ).casefold()
+                    ):
+                        raise LocalStandardLifecycleError(
+                            "generated native Cargo source contains "
+                            "ambient or reserved authority"
+                        )
+                projector = (
+                    project_shared_cargo_graph if shared else project_native_cargo_graph
+                )
+                rewritten, files = projector(
+                    graph=native[0],
+                    root_manifest=self._read_bounded(
+                        source_manifest, label="original native manifest"
+                    ),
+                    root_manifest_path=target.manifest,
+                    sources=native[1],
+                )
+                projected_manifest.write_bytes(rewritten)
+                for row in files:
+                    destination = (forest if shared else projection) / row.path
+                    destination.parent.mkdir(parents=True, exist_ok=True)
+                    destination.write_bytes(row.content)
+                    destination.chmod(row.mode)
             object_workspace.mkdir(exist_ok=True)
             artifact_workspace.mkdir()
             binding_identity = contract.tool_binding(
@@ -668,7 +894,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             def run(arguments: tuple[str, ...], *, cache_environment=None):
                 binding.require_unchanged()
                 environment = self._binding_environment(
-                    self._environment(provider_artifacts), cargo_binding
+                    self._cargo_build_environment(provider_artifacts), cargo_binding
                 )
                 if cache_environment is not None:
                     environment = dict(cache_environment)
@@ -741,6 +967,13 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                         "Cargo metadata contains an invalid package"
                     )
             metadata_bytes = canonical_json_bytes(metadata_document)
+            native_evidence = (
+                self._native_cargo_evidence(
+                    plan, provider_artifacts, native, metadata_document, lock_bytes
+                )
+                if native
+                else None
+            )
             try:
                 lock_document = tomllib.loads(lock_bytes.decode("utf-8"))
             except (UnicodeDecodeError, tomllib.TOMLDecodeError) as exc:
@@ -780,7 +1013,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 with compiler_cache_session(
                     self.shared_cache,
                     environment=self._binding_environment(
-                        self._environment(provider_artifacts), cargo_binding
+                        self._cargo_build_environment(provider_artifacts), cargo_binding
                     ),
                     workspace=projected_manifest.parent,
                 ) as cache_session:
@@ -797,6 +1030,15 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             export_path = artifact_workspace / contract.artifact_export.export_id
             if target.library:
                 shutil.copytree(projection, export_path)
+                if shared and native is not None:
+                    # Local tests use the immutable artifact, before whole-project
+                    # packaging. Keep its exact provider siblings under the same
+                    # sealed artifact tree; they are not additional exports.
+                    for node in native[0].nodes:
+                        shutil.copytree(
+                            forest / node.component_revision.digest,
+                            artifact_workspace / node.component_revision.digest,
+                        )
             else:
                 suffix = ".exe" if os.name == "nt" else ""
                 produced = (
@@ -820,6 +1062,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 target=target,
                 lock_bytes=lock_bytes,
                 metadata_bytes=metadata_bytes,
+                native_evidence=native_evidence,
             )
 
             def process_identity(result, phase: str) -> str:

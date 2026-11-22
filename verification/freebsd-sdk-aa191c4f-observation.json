@@ -1,0 +1,45 @@
+{
+  "schema": "literate-ai/freebsd-evidence-readback@1",
+  "run": 44968092203,
+  "artifact": 14733276886,
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "archive_sha256": "17f1c1023abc36741685863bbec2d7cf42a4564803a64bb03a3139e15a05e6ba",
+  "guest_records_rehashed": 44,
+  "wheel_records_rehashed": 1519,
+  "wheel_sha256": "4f9d7db339d29c47ea2290cd291a294c754c26f6865a0e5f3b14af044a7de7b1",
+  "terminal_passed": true,
+  "scope": "Installed public CLI SDK microfixture and installed owner controls",
+  "native_platform": {
+    "system": "FreeBSD",
+    "release": "15.1-RELEASE-p3",
+    "machine": "amd64",
+    "python": "3.12.14",
+    "unprivileged": true
+  },
+  "installed_controls": {
+    "selected": 48,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "production_modules_verified": 611
+  },
+  "canonical_cli": {
+    "stage": "complete-local-runtime",
+    "retained_receipt": "sha256:7c9d06128ec8ee124932da2773f1baad50c2883399f81a6d9aaf6eac4143a776",
+    "canonical_installed_cli_qualified": true,
+    "consumer_rpath": false,
+    "without_loader_exit_code": 1,
+    "reviewed_loader_required": true,
+    "compiler_sdk_admitted": false,
+    "product_receipt": false,
+    "iso_created": false,
+    "release_acceptance": false
+  },
+  "product_release_admission": false,
+  "installed_imports_rehashed_against_wheel": 611,
+  "artifact_url": "https://github.com/jordanhubbard/literate-ai/actions/runs/44968092203/artifacts/14733276886",
+  "scope_limits": [
+    "Canonical SDK CLI microfixture uses no test doubles; installed owner controls may use protocol fixtures.",
+    "Compiler SDK admission, product receipt, ISO creation, whole FreeBSD lifecycle and release acceptance remain unproven."
+  ]
+}
