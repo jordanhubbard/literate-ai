@@ -19377,6 +19377,12 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   keep prerequisite selection and installation inside that original installer.
   Record the real resolved package-manager version and retain native renewal
   as pending until installation and all host controls actually pass.
+  Run `45049961476` stops in the floating WinGet repair module with
+  `Not Found`; the terse error does not identify the upstream request. Use the
+  vendor's versioned MSIX, license and ARM64 dependency archive instead, each
+  SHA-256 pinned and independently downloaded/checked before this change.
+  Provision with the documented Windows Appx commands, then register the
+  native package and run the unchanged supported Litai installer and controls.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was

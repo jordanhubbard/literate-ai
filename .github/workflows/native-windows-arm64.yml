@@ -72,16 +72,42 @@ jobs:
             scope = 'Installed native host controls; no SDK, provider or release acceptance'
           } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root 'source-binding.json') -Encoding utf8
       - name: Bootstrap the native Windows package manager when absent
-        shell: pwsh
+        shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
           $env:PATH = "$applications;$env:PATH"
           if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
-            # Microsoft's documented stable WinGet bootstrap for isolated hosts.
-            Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery -Scope CurrentUser
-            Import-Module Microsoft.WinGet.Client -ErrorAction Stop
-            Repair-WinGetPackageManager -AllUsers
+            $bootstrap = Join-Path $env:QUALIFICATION_ROOT 'wg'
+            if (Test-Path -LiteralPath $bootstrap) { throw 'Preserve occupied package-manager bootstrap root' }
+            New-Item -ItemType Directory -Path $bootstrap | Out-Null
+            $release = 'https://github.com/microsoft/winget-cli/releases/download/v1.29.380'
+            $assets = @(
+              @{ Name = 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'; SHA256 = '65dea9c01ce08ee7b763366b27c0e651f97db857c11ca9b9c301826c10092f2e' },
+              @{ Name = 'DesktopAppInstaller_Dependencies.zip'; SHA256 = 'ba875afe9d190f61218985ac0292a99d1db710bf93e13c68944ca9d89f0d82d1' },
+              @{ Name = 'e53e159d00e04f729cc2180cffd1c02e_License1.xml'; SHA256 = 'bcb15118ec47df24e3e6013a7006147c3a15b3a8104ed660fe87c8b4ed01f485' }
+            )
+            foreach ($asset in $assets) {
+              $download = Join-Path $bootstrap $asset.Name
+              Invoke-WebRequest -UseBasicParsing -Uri "$release/$($asset.Name)" -OutFile $download
+              $observed = (Get-FileHash -Algorithm SHA256 -LiteralPath $download).Hash.ToLowerInvariant()
+              if ($observed -cne $asset.SHA256) { throw "Package-manager asset checksum mismatch: $($asset.Name)" }
+            }
+            $assets | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager-assets.json') -Encoding utf8
+            $dependencyRoot = Join-Path $bootstrap 'deps'
+            Expand-Archive -LiteralPath (Join-Path $bootstrap 'DesktopAppInstaller_Dependencies.zip') -DestinationPath $dependencyRoot
+            $dependencies = @(Get-ChildItem -LiteralPath (Join-Path $dependencyRoot 'arm64') -Filter '*.appx' -File | ForEach-Object { $_.FullName })
+            if ($dependencies.Count -ne 3) { throw 'Reviewed native ARM64 dependency set is missing' }
+            try {
+              Add-AppxProvisionedPackage -Online `
+                -PackagePath (Join-Path $bootstrap 'Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle') `
+                -LicensePath (Join-Path $bootstrap 'e53e159d00e04f729cc2180cffd1c02e_License1.xml') `
+                -DependencyPackagePath $dependencies -ErrorAction Stop | Out-Null
+              Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe -ErrorAction Stop
+            } catch {
+              $_ | Format-List * -Force | Out-String | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager-error.txt') -Encoding utf8
+              throw
+            }
           }
           $command = Get-Command winget.exe -ErrorAction Stop
           $version = & $command.Source --version

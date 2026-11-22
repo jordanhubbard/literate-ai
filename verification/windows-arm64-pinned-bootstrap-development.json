@@ -1,0 +1,52 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Pinned vendor Appx bootstrap for the ephemeral native Windows ARM64 runner; no runtime or host qualification claim",
+  "prior_failed_run": "https://github.com/jordanhubbard/literate-ai/actions/runs/45049961476",
+  "prior_diagnostic": "Repair-WinGetPackageManager -AllUsers returns Not Found; exact upstream request not exposed by original diagnostic.",
+  "vendor_release": "https://github.com/microsoft/winget-cli/releases/tag/v1.29.380",
+  "downloaded_payloads_independently_verified_against_vendor_digests": [
+    {
+      "name": "DesktopAppInstaller_Dependencies.zip",
+      "bytes": 97760717,
+      "sha256": "ba875afe9d190f61218985ac0292a99d1db710bf93e13c68944ca9d89f0d82d1"
+    },
+    {
+      "name": "e53e159d00e04f729cc2180cffd1c02e_License1.xml",
+      "bytes": 2686,
+      "sha256": "bcb15118ec47df24e3e6013a7006147c3a15b3a8104ed660fe87c8b4ed01f485"
+    },
+    {
+      "name": "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle",
+      "bytes": 217276577,
+      "sha256": "65dea9c01ce08ee7b763366b27c0e651f97db857c11ca9b9c301826c10092f2e"
+    }
+  ],
+  "dependency_zip_full_crc_passed": true,
+  "arm64_dependency_files": [
+    "Microsoft.VCLibs.140.00_14.0.33519.0_arm64.appx",
+    "Microsoft.VCLibs.140.00.UWPDesktop_14.0.33728.0_arm64.appx",
+    "Microsoft.WindowsAppRuntime.1.8_8000.616.304.0_arm64.appx"
+  ],
+  "official_installation_documentation": [
+    "https://github.com/microsoft/winget-cli/blob/master/doc/troubleshooting/README.md",
+    "https://learn.microsoft.com/en-us/powershell/module/dism/add-appxprovisionedpackage"
+  ],
+  "runtime_and_harness_source_unchanged": true,
+  "native_windows_execution_passed": false,
+  "full_goal_qualified": false,
+  "release_qualified": false,
+  "source_sha256": {
+    ".github/workflows/native-windows-arm64.yml": "b4e2fdf3c7e694b7cfda5ab5ef716a30cb7d5122d98e0034f797926615f577c3"
+  },
+  "local_static_gates_passed": [
+    "lint",
+    "format-check",
+    "repository-layout-check",
+    "public-export-check",
+    "documentation-review-record",
+    "documentation-review",
+    "documentation-check",
+    "openspec-check"
+  ],
+  "static_log_sha256": "575ecde92fba987156b59473fc669e506a4b9097bf2f996e9c99024a4267d5d7"
+}
