@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Authored qualification: reuse bounded syntax observations inside each current
+  plan guard, preserving every native authority, selector and review check and
+  starting each independent guard with fresh parse state. Receiving timeout and
+  installed qualification remain open.
+
 - Cargo controls: stage changed bytes and replace the disposable launcher after
   its real version probe in original-file and completion controls, preserving the
   late byte-change refusal on Linux

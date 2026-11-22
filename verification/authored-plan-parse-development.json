@@ -1,0 +1,60 @@
+{
+  "schema": "literate-ai/authored-plan-parse-development@1",
+  "parent": "bf1402712f27d724bde834c4c15bbbeed8ec993d",
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_qualification_planning.py": "fbefc9fa9724fc7272049be184fad40957d45959427ae54527ef273812f72dfe",
+    "tests/critical/test_authored_qualification_parse_scope.py": "fcb9e884b44409af73be860e9a81e260fe81eae5450274ea86ed0a1240f99b7d"
+  },
+  "focused": {
+    "parse_scope": {
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      },
+      "report_sha256": "975b77238e82a683f3fce53e60a53f0398b301ae67abcc7b97b4c7636bc39cab"
+    },
+    "planning": {
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "report_sha256": "27fab44ff92036b6a7109c6714660b515b6fab6f435d33fde5859162ada9192e"
+    },
+    "sdk_planning": {
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "report_sha256": "345dbae627041232e9beca70904f48246e6ffd043a0cb9040f81f3d98ec33f0c"
+    }
+  },
+  "ports": "Focused controls use explicit fixture framework, reviewer and provider ports; native configuration/Flavor/currentness reads are real.",
+  "installed_predecessor": {
+    "revision": "0ddbc6cae1a2b8d5446d4fd08b6dadb68269a9f0",
+    "public_check_outer_deadline_seconds": 2100,
+    "public_check_passed": false,
+    "consumer_admitted": false,
+    "source_retired": false,
+    "guard_scope_diagnostic_seconds": [
+      6.979397,
+      4.94801,
+      5.056393
+    ],
+    "authority_guard_invocations_each": 12,
+    "scope": "Existing parse contexts around actual predecessor current guard; no source candidate, provider, replay or admission qualification."
+  },
+  "source_gate_passed": false,
+  "release_qualified": false
+}
