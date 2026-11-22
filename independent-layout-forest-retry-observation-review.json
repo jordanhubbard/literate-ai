@@ -1,0 +1,59 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_one_recorded_recovery_attempt_observation",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "83ccc1e626cc2f23dc36e8a19823345e5c898f32bc05090170b5eaa22edfc06f"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_witness.py": {
+      "algorithm": "sha256",
+      "digest": "e7a96ee7c3aaee4e8c3adfcd414bd444d366a0f44f8d2d8a5ed6ef4b21686bac"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_transcript.py": {
+      "algorithm": "sha256",
+      "digest": "5b2c2833eafac472b35f93d2e0497e424f4236c1b3f0500af7486e08048a75e5"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_current.py": {
+      "algorithm": "sha256",
+      "digest": "259b5720f03fb09b98a893d94969123646a7853cf92ccc367321683686daca53"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_read.py": {
+      "algorithm": "sha256",
+      "digest": "94a865540e9c00bb7baad11d7a1c36d542b1015722088093172040f868b999ff"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_replay.py": {
+      "algorithm": "sha256",
+      "digest": "d5ed892a185ecaff7608fb33870e8a9976b7d99cd984e0e00e1dbf09978b86a4"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_current.py": {
+      "algorithm": "sha256",
+      "digest": "633e04fe5a5271029d279dde9cf5ddbeb3a9456d6646a3641ca6275273282c18"
+    },
+    "tests/critical/test_retained_layout_forest_recovery_retry.py": {
+      "algorithm": "sha256",
+      "digest": "dad61bc04f5c2b0a8155824dbd56fb4d0b39de92e068fa3d5f1cc5aa582b8b07"
+    }
+  },
+  "findings_closed": [
+    "Acquisition-only strict transcripts remain sealed but do not imply any data-recovery attempt. Actual fresh original-current observation remains available; original native continuation after the suffix still refuses.",
+    "Native reader freezes one original contiguous native prefix at actual raw/canonical reacquisition. Strict suffix grammar retains actual raw pairs, canonical pairs and supplemental publication/lease records; unknown, duplicate, reordered and original continuation records refuse.",
+    "Real recovery intent@2 carries typed original interruption evidence bound in its actual acknowledged plan. Reconstructed pending entry/mode state can only retain original child/parent identity and known original payloads; unrecorded creation remains unresolved.",
+    "Actual fresh canonical roles independently supply control custody. The exact original deterministic inverse programme and durable commit rule must match the recorded recovery header before current source payload verification.",
+    "Observed inverse entries move only known original nodes. A pending inverse classifies exact original-before or original-inode-after, retaining complete source, parking, metadata, retirement and quarantine membership without overwrite, deletion or a new occupied-source baseline.",
+    "Same-ledger views are funded before source endpoints and known payload passes. Original pool/journal/selected-storage, native ancestry and portable coordinate separation constrain quarantine. Descriptions and old decoded objects grant no effect rights.",
+    "Final pure original-registration and derived-view seals close after dependency callbacks, final native checks, pending endpoint reads and actual access teardown. The causal regression asserts the teardown callback was reached."
+  ],
+  "scope": "Initial source pass requested trailing derived-seal repair. Final source pass approved the repair and twelve-method fixture; terminal test-only follow-up approved the independent OS subprocess thirteenth method. A final source-only follow-up approved the acquisition-only dispatch correction; all other source subjects remained unchanged.",
+  "not_proven": [
+    "Wrong-primitive JSON mutation qualification for exact raw/canonical/recovery record types, including boolean versus integer completion flags and nested actions",
+    "Actual fresh acknowledged retry effects from remaining inverse moves, including typed resolution of pending recovery effects and multiple strictly chained attempts; current planner deliberately refuses existing recovery prefixes",
+    "Fresh-process qualification of original metadata/mode/control and all canonical reacquisition interruption boundaries beyond the demonstrated original native-entry and recovery-entry cases",
+    "Actual existing supplemental public-control generation discovery/reacquisition/projection while retaining every original/private/newer-public native node",
+    "Actual forest verified-data handoff to canonical control disposition using genuine normalization/retirement receipts",
+    "Genuine integrated canonical original forest SourcePhase/partition execution and durable commit/recovery acceptance before public or legacy admission guards change",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all remaining roadmap obligations"
+  ]
+}

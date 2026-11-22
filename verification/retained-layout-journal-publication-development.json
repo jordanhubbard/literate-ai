@@ -1,0 +1,279 @@
+{
+  "schema": "literate-ai/journal-publication-development@1",
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "state": "narrow-source-reviewed-full-retry-still-failing",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_layout_disposition_recording.py": "d090e899f8f2ca46621017949dd86341cab85a6b830c34b3db17b6c52f7724b6",
+    "src/literate_ai/adapters/retained_layout_journal.py": "9937b0e3837ea79d491dc9d458796a3a0693a3f4b1a61742e43024b8470e096a",
+    "tests/critical/test_retained_layout_journal.py": "9639018769a6f8d4598c9c0e89f04fa4d3a90408e41bf05a8c8b083ed7963b41"
+  },
+  "review": "independent-layout-journal-publication-review.json",
+  "observed_local_result": {
+    "selected": 23,
+    "passed": 23,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 2.931,
+    "scope": "macOS native private journal module; actual filesystem and child-process controls"
+  },
+  "observed_body_io": {
+    "before_bytes": 2044,
+    "after_bytes": 1022,
+    "scope": "Same small publication fixture; standalone validation and explicit reopening retain full-byte reads. Not a release-wall-time measurement."
+  },
+  "causal_controls": [
+    "Original source escaped four final-guard payload/native/member changes until teardown; corrected controls require publication itself to refuse.",
+    "First optimization missed old-payload changes during terminal enumeration; reviewer probe and maintained test reproduced it.",
+    "Second optimization missed late foreign membership and regressed journal/ancestor rename refusal; three maintained causal failures reproduced it.",
+    "Final ordering retains actual stage/published body reads, exact immutable rows, original named ancestry, known file signatures and directory change signatures before pure closure."
+  ],
+  "development_failures": [
+    "Initial mutation test allowed context teardown to satisfy refusal; corrected before claiming causal coverage.",
+    "Final-path fixture initially required the older record/membership diagnostic but correctly received directory-changed; expectation updated without production relaxation.",
+    "Fixture callback loop bindings were moved into per-case helpers after Ruff B023 findings."
+  ],
+  "native_retry": {
+    "selected": 1,
+    "failed": 1,
+    "seconds": 531.879,
+    "exit_code": 2,
+    "previous_failure": "Publication I/O preflight required69170 files against unchanged65536 limit.",
+    "current_failure": "Passed that frontier, then fresh G2 supplemental control planning exhausted its original observation allowance while read_history funded event decoding. Full retry did not pass.",
+    "source": "tests/critical/test_retained_layout_forest_operation_g2_retry.py:111"
+  },
+  "remaining": [
+    "Implement reviewed plan-local single semantic decode with exact original rows and native closure; no cross-operation cache or capacity increase. Qualify adversarial callbacks and complete retry.",
+    "Separate mixed-mode _prepay capacity failure remains.",
+    "All other retained-layout public, native, installed, integrated and release obligations remain; no blanket review of unrelated worktree changes."
+  ],
+  "retained_log_sha256": {
+    "before-controls.log": "e1b9b3c8949f293dd26dc8302dcdbf77612c934b296a38fe367cad2ece3b7251",
+    "before-controls-corrected.log": "a8d52d770be2f40a08720dbc847594de9e2424b7456ffa5db176ae9e0b6da507",
+    "before-enumeration-control.log": "ac83a9537f4aaf4283caa1a0ff874b725221a1f917c38e256350a986332c1a0d",
+    "before-path-controls.log": "f375314982822971f2aba993335d05a4e90a3bbcb3ba384f24bd82cffb874d17",
+    "closed-path-journal.log": "58a7c46f744949d159754a74427fe6ba712747acb1a081801412ac1b9d9fc0c4",
+    "closed-bindings.log": "174e65014cf30bb09b45817f8615b5b54cbaa8cfa3860b828bcfaae423e7b45c",
+    "g2-retry.log": "19900531090ba12d8a1dce6fc0913239e330a45e0438455a4200c8e71c1030b1"
+  },
+  "semantic_replay_measurement": {
+    "schema": "literate-ai/retained-history-measurement@1",
+    "qualified": false,
+    "result": "failed",
+    "seconds": 488.162,
+    "history_calls": 10,
+    "calls": [
+      {
+        "number": 1,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "__enter__",
+          "observed_forest_recovery",
+          "load_original_native_forest",
+          "load_native_forest_frontier",
+          "_read_native_forest"
+        ],
+        "seconds": 0.03827241691760719,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 2,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "plan_controls",
+          "plan_layout_control_recovery",
+          "_records",
+          "control_events",
+          "control_history"
+        ],
+        "seconds": 0.035673624952323735,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 3,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "plan_controls",
+          "plan_layout_control_recovery",
+          "_disposition_areas",
+          "control_events",
+          "control_history"
+        ],
+        "seconds": 0.03872220905032009,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 4,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "__enter__",
+          "canonical_epoch",
+          "plan_controls",
+          "plan_layout_control_recovery",
+          "control_history"
+        ],
+        "seconds": 0.03820970805827528,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 5,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "acquire_layout_recovery_controls",
+          "plan_layout_control_recovery",
+          "_records",
+          "control_events",
+          "control_history"
+        ],
+        "seconds": 0.037663750001229346,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 6,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "acquire_layout_recovery_controls",
+          "plan_layout_control_recovery",
+          "_disposition_areas",
+          "control_events",
+          "control_history"
+        ],
+        "seconds": 0.03681775007862598,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 7,
+        "events": 198,
+        "members": 304,
+        "callers": [
+          "enter_context",
+          "__enter__",
+          "acquire_layout_recovery_controls",
+          "plan_layout_control_recovery",
+          "control_history"
+        ],
+        "seconds": 0.03532674990128726,
+        "delta": {
+          "files": 608,
+          "bytes": 3511368,
+          "records": 105124,
+          "charged": 749178944
+        }
+      },
+      {
+        "number": 8,
+        "events": 200,
+        "members": 306,
+        "callers": [
+          "plan_controls",
+          "plan_layout_control_recovery",
+          "_records",
+          "control_events",
+          "control_history"
+        ],
+        "seconds": 0.03774320799857378,
+        "delta": {
+          "files": 612,
+          "bytes": 3513592,
+          "records": 105548,
+          "charged": 751769664
+        }
+      },
+      {
+        "number": 9,
+        "events": 200,
+        "members": 306,
+        "callers": [
+          "plan_controls",
+          "plan_layout_control_recovery",
+          "_disposition_areas",
+          "control_events",
+          "control_history"
+        ],
+        "seconds": 0.037264542072080076,
+        "delta": {
+          "files": 612,
+          "bytes": 3513592,
+          "records": 105548,
+          "charged": 751769664
+        }
+      },
+      {
+        "number": 10,
+        "events": 200,
+        "members": 306,
+        "callers": [
+          "__enter__",
+          "canonical_epoch",
+          "plan_controls",
+          "plan_layout_control_recovery",
+          "control_history"
+        ],
+        "seconds": 0.0005538329714909196,
+        "delta": {
+          "files": 612,
+          "bytes": 3513592,
+          "records": 88472,
+          "charged": 592005696
+        }
+      }
+    ],
+    "failure": {
+      "event": "capacity_failure",
+      "allowance": 4521126064,
+      "counters": {
+        "files": 7938,
+        "bytes": 58945568,
+        "records": 1559573,
+        "charged": 17296944192
+      },
+      "maximum": {
+        "files": 65536,
+        "bytes": 2147483648,
+        "records": 4000000,
+        "charged": 17179869184
+      }
+    },
+    "log_sha256": "7e82f3df3c197af5d4494223bba3bf5467084cfea7cfb504459a2acb27302b30",
+    "interpretation": "One planning call decodes the same200 events/306 members three times. Each completed decode adds751769664 charged bytes but takes about0.037s. Charged allowance is conservative accounting, not RSS or release runner time. Single-decode plan is reviewed design only; no source change or successful retry.",
+    "review_record_sha256": "a1da98e52c3d50f1dc6ace5144c58e2b27f328af4094c38bbff7245a93524cf6"
+  }
+}

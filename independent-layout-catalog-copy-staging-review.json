@@ -1,0 +1,161 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T02:58:33.657910+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "8906e4a2a26a5c132b2ccf870c72afc11fa22f65",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "b7374f35958879c8c74738220f3d4bc21fd401b4effbc7fef9851cd21a4d4882",
+      "bytes": 22508,
+      "subject": true
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "dcb0b0cba76fbf2d60dd896aea6653be1dd14bc840326ff77c058aac7d9de8ff",
+      "bytes": 14648,
+      "subject": true
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04",
+      "bytes": 27868,
+      "subject": true
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_staging.py",
+      "sha256": "794093fe80bf695af7bcd75ebd6717a7a0910f2297ad3974cef025185f3bb45a",
+      "bytes": 15270,
+      "subject": true
+    }
+  ],
+  "dependency_context": [
+    {
+      "path": "src/literate_ai/adapters/retained_layout_journal.py",
+      "sha256": "25835cf1aed40729989e3e589226a4d45ca22939e70dba2fad5ae3f54338b14b",
+      "bytes": 19408,
+      "subject": false
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-reviewed-subjects",
+  "scope": "Actual canonical private-copy staging only: bounded local plan, expanded copy projection, native copies and private durable journal, opaque live tokens. No canonical project publication/imported-role/source-partition authority.",
+  "findings": [
+    {
+      "id": "CATALOG-STAGING-ADMISSION-001",
+      "severity": "blocking",
+      "status": "open",
+      "location": "src/literate_ai/adapters/catalog_copy_staging.py:62",
+      "title": "Direct actual-type owner construction bypasses real journal and private-root admission",
+      "cause": "_CatalogCopyStages has no guarded factory admission or independent actual journal/plan/root/ledger binding validation. catalog_import._copy_item accepts any object of this exact class, so exact-type dispatch alone is insufficient.",
+      "causal_cases": [
+        {
+          "case": "descriptive journal substitute",
+          "setup": "Real current plan/ledger and real pinned native private descriptors; SimpleNamespace journal with no-op require_current/append and actual empty journal directory.",
+          "observed": {
+            "actual_copy_created": true,
+            "journal_files": 0,
+            "descriptive_append_calls": 2,
+            "owner_rejected": false
+          },
+          "result": "1 failure,0 errors,0.074s"
+        },
+        {
+          "case": "actual live journal but source-project private root",
+          "setup": "Real retained_layout_journal, correct canonical plan binding and stored plan payload, real pinned directory under actual source_root, actual current plan+ledger.",
+          "observed": {
+            "actual_journal": true,
+            "copy_inside_source_project": true,
+            "owner_rejected": false
+          },
+          "result": "Part of2-failure admission cohort0.130s"
+        }
+      ],
+      "required_change": "Require admitted factory provenance and validate the actual active journal/context, original FD/guard/budget, exact plan/header and private-root scope, plus original reserved shared ledger. Guard actual journal registration against reconstruction of an exact class with a no-op guard. An actual journal type alone does not fix source-root admission bypass.",
+      "reproducers": [
+        "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-constructor-probe.py",
+        "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-admission-probes.py"
+      ]
+    },
+    {
+      "id": "CATALOG-STAGING-FILE-BUDGET-002",
+      "severity": "blocking_for_original_budget_contract",
+      "status": "open",
+      "location": "src/literate_ai/adapters/catalog_copy_staging.py:469",
+      "title": "Journal per-file reader allowance can exceed original plan ceiling",
+      "cause": "Shared journal storage/files are precharged, but effective journal reader limit max(128KiB record limit, maximum_payload_bytes) is not intersected with original maximum_file_bytes before private creation.",
+      "causal_case": "Valid original64KiB-file plan and default1MiB journal payload budget are admitted. Grow actual same-inode journal/header.json to65537 bytes. Actual os.read accounting shows journal require_current reads all65537 bytes before rejecting changed record, exceeding original65536 ceiling.",
+      "observed": {
+        "original_file_ceiling": 65536,
+        "actual_journal_payload_read": 65537
+      },
+      "required_change": "Refuse incompatible journal effective per-file allowance before any private journal/stage creation, or apply a sound original-ceiling-bound reader throughout. Preserve existing generic journal defaults for other owners.",
+      "reproducer": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-admission-probes.py",
+      "result": "Part of2-failure admission cohort0.130s; this is a finite intersection violation, not an unbounded-reader claim."
+    }
+  ],
+  "source_assessment": [
+    "Read full staging/test modules and both integration diffs; inspected actual journal reader/writer and canonical copy/plan contracts.",
+    "Factory-path projection/copy controls preserve selected bytes, modes/mtime and alias dereference/.git filtering at exercised scope; output receipts, native facts and complete census verify actual created output.",
+    "Factory has durable plan payload and per-stage intent before item effects; incomplete/changed stages retain outputs and poison owner. Current final combined namespace-then-pure-native closure and original descriptor teardown revocation pass maintained controls.",
+    "Plan usage tuple is actual frozen ledger usage, not new wire rights. Factory reconstructs fresh actual plan before staging and copies actual fresh usage. Constructor bypass undermines that admission unless separately fixed.",
+    "Journal aggregate storage/records/files are charged; original per-file journal limit remains missing. Expanded alias bytes are bounded; no RSS/exhaustive allocator proof.",
+    "No new project publication/canonical imported-role ownership capability is implemented; token inspection explicitly describes private outputs only."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_staging tests.critical.test_catalog_copy_plan tests.smoke.test_catalog_import tests.e2e.test_repository_catalogs tests.e2e.test_retained_catalog_discovery",
+      "result": "57 passed,0 failed/errors/skips,15.891s;20 staging+20 plan+17 ordinary regressions",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-independent-cohort.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-constructor-probe.py",
+      "result": "1 failed,0 errors,0.074s; actual copy/token without durable journal",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-constructor-probe.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-admission-probes.py",
+      "result": "2 failed,0 errors,0.130s; real-journal source-root construction and actual per-file overread",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-admission-probes.log"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-independent-cohort.log",
+      "sha256": "74d97d58995e568648e3508ae121248424580747a829e75c496c5fbbfbbc64d2",
+      "bytes": 10700
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-constructor-probe.py",
+      "sha256": "da6da5b493780560f8f675ec7c4ea6ac2cb3226c2fe54ba13fb3a52a793de4c0",
+      "bytes": 2023
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-constructor-probe.log",
+      "sha256": "852f3943e1a7778fdd8244992f76d76f9be9871792e79fd0c64b0915e829923c",
+      "bytes": 1252
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-admission-probes.py",
+      "sha256": "744b02454feadfb39072fc30ae506f429835c4e57f2f90272b2e42a176ef741b",
+      "bytes": 3146
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-staging-admission-probes.log",
+      "sha256": "9529b211c95096d468b4375ddd7ef66f35d8763da8d80f51f0effe8a117ea716",
+      "bytes": 2151
+    }
+  ],
+  "terminal_process_state": "All independent tests/probes terminal; no reviewer-owned process remains. Author gates not independently relabeled.",
+  "limits": [
+    "Private materialization dependency only; no actual canonical project publication, overwrite retirement, imported-role/source-partition live join or full-feature/program/release acceptance.",
+    "Cross-item topology/alias-copy transforms, xattrs, actual public effects/ownership/recovery and remaining acceptance cells still required.",
+    "Local maintained editable POSIX/macOS evidence only; no isolated installed/wheel, native Linux/Windows/cross-platform or full application acceptance.",
+    "No continuous hostile same-user atomic snapshot or authenticated historical provenance claim.",
+    "No source/test/pin edits, installs, subagents, network or external posts; private disposable probes/evidence/source snapshots and requested immutable root report only."
+  ]
+}

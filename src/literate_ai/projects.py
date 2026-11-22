@@ -490,6 +490,8 @@ class ProjectConfigurationStore:
         self,
         expected: ProjectConfigurationSnapshot,
         definition: ProjectDefinition,
+        *,
+        require_current: Callable[[], None] | None = None,
     ) -> ProjectConfigurationSnapshot:
         if not isinstance(expected, ProjectConfigurationSnapshot):
             raise TypeError("expected must be a ProjectConfigurationSnapshot")
@@ -514,6 +516,7 @@ class ProjectConfigurationStore:
                     "project.manifest_stale",
                     "project manifest location changed since it was read",
                 )
+            before = path.lstat() if require_current is not None else None
             current = self._read_manifest(path)
             if current != expected.content:
                 raise ProjectError(
@@ -525,13 +528,54 @@ class ProjectConfigurationStore:
                     "project.manifest_stale",
                     "project manifest location changed while it was read",
                 )
+
+            def close_publication_inputs():
+                require_current()
+                if self.context(root) != selected:
+                    raise ProjectError(
+                        "project.manifest_stale",
+                        "project manifest location changed during publication checks",
+                    )
+                after = path.lstat()
+                if any(
+                    getattr(before, name) != getattr(after, name)
+                    for name in (
+                        "st_dev",
+                        "st_ino",
+                        "st_mode",
+                        "st_size",
+                        "st_mtime_ns",
+                        "st_ctime_ns",
+                    )
+                ):
+                    raise ProjectError(
+                        "project.manifest_stale",
+                        "project manifest changed during publication checks",
+                    )
+
             if content != current:
-                self._replace(path, content)
+                if require_current is None:
+                    self._replace(path, content)
+                else:
+                    self._replace(
+                        path, content, require_current=close_publication_inputs
+                    )
+            elif require_current is not None:
+                close_publication_inputs()
         return ProjectConfigurationSnapshot(
             root, definition, content, path, selected.directory_binding
         )
 
     def _read_manifest(self, path: Path) -> bytes:
+        from literate_ai.adapters.bounded_role_observation import (
+            current_role_observation,
+        )
+
+        observation = current_role_observation()
+        if observation is not None:
+            content = observation.file(path, maximum_bytes=self.maximum_bytes).content
+            observation.json_value(content, str(path))
+            return content
         flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0)
         flags |= (
             getattr(os, "O_NOFOLLOW", 0)
@@ -973,7 +1017,9 @@ class ProjectConfigurationStore:
                 pass
 
     @staticmethod
-    def _replace(path: Path, content: bytes) -> None:
+    def _replace(
+        path: Path, content: bytes, *, require_current: Callable[[], None] | None = None
+    ) -> None:
         descriptor, name = tempfile.mkstemp(
             prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
         )
@@ -983,6 +1029,8 @@ class ProjectConfigurationStore:
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
+            if require_current is not None:
+                require_current()
             temporary.replace(path)
             # Fsync the parent directory so the rename is durable. Windows does
             # not permit FlushFileBuffers on a directory handle (it raises
@@ -1130,6 +1178,15 @@ class PinnedInputClosure:
     @property
     def total_bytes(self) -> int:
         return self._total_bytes
+
+    @property
+    def pinned_paths(self) -> tuple[Path, ...]:
+        """Current bounded leaf names for native closing checks, not ownership.
+
+        This read-only inspection grants no exclusion, write or execution rights.
+        Consumers must still validate this actual closure and its original inputs.
+        """
+        return tuple(dict.fromkeys(entry.path for entry in self._entries.values()))
 
     def to_dict(self) -> dict[str, object]:
         return {

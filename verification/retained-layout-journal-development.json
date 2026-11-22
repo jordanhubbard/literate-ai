@@ -1,0 +1,76 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Retained-layout private POSIX journal dependency, actual macOS source development",
+  "base_revision": "cd8e1d774bea293b0887ead1e59d53ce0fabe2ab",
+  "independent_review": {
+    "decision": "approved within private POSIX journal dependency source scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "70863548fc767a0a0812c093afd04e1e35bc466246f93e0b7097f12057338a2c"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "a2f2bb5467ef005e3933208400190052da0989a22ed3ce06715bad2904e2078f"
+      },
+      "tests/critical/test_retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "7168efef472afdeda3b97f7f3c27f55fc3153584c4856a40a0766368cf9a8d56"
+      },
+      "src/literate_ai/_cache_lock.py": {
+        "algorithm": "sha256",
+        "digest": "f3f353261783bdee578baa1da632bae7591afbfcd6943bebe010f4e88ebc0838"
+      },
+      "src/literate_ai/_filesystem.py": {
+        "algorithm": "sha256",
+        "digest": "48372e2df82da255222607c4e916fb60cff11ccdcf303cfaadd4961a31e1f1c6"
+      },
+      "src/literate_ai/adapters/exclusive_directory.py": {
+        "algorithm": "sha256",
+        "digest": "0bf6808090c65da613a8421df7a9f411d971a2fccb5a21f6b091bcacff35376a"
+      },
+      "src/literate_ai/contracts/identity.py": {
+        "algorithm": "sha256",
+        "digest": "730437c1a4ac356474b45d6b260dbf16b76a42bff3125d1674d0627fc4b2fb3b"
+      }
+    },
+    "prior_changes_requested_report_identity": {
+      "algorithm": "sha256",
+      "digest": "86656d67a19e4f2be3bc60a33ab0777f343f46f1288016e6c956bf68352068bb"
+    }
+  },
+  "native_macos_source_cases": {
+    "journal_maintained_passed": 15,
+    "independent_supplementary_passed": 7,
+    "affected_neighborhood_passed": 70,
+    "skipped": 0,
+    "causal_predecessor_failures": 3
+  },
+  "causal_repairs": [
+    "Existing-only recovery mutex acquisition never initializes foreign empty files, including a lock-open boundary outside hardlink",
+    "Initial mutex creation is exclusive; recovery opens relative to the held journal without CREATE, verifies single-link private NUL bytes and actual FD/name before and after OS locking",
+    "Complete private membership closes after all known-record reads, before the final ancestry/mutex guard"
+  ],
+  "preserved": [
+    "Explicit caller-selected private framework state may reside inside the project; no external-home or legacy metadata location is prescribed",
+    "Finite canonical binding, event/payload counts, per-payload size, cumulative storage and retained-stage ceilings",
+    "Raw immutable payloads and present hash-linked events, native exclusive staged publication and file/directory synchronization before return",
+    "Actual private writer mutex, original ancestry/descriptors and process/context lifetime",
+    "Interrupted private stages remain diagnostics; foreign files/links and unknown state are never deleted or initialized",
+    "Existing shared cache lock, filesystem, native rename and canonical identity helpers are unchanged"
+  ],
+  "required_caller_boundaries": [
+    "Actual current project/conversion/Git/control authority, complete raw source custody and exact approved plan",
+    "Live canonical project mutex and descriptor-backed reservations",
+    "Durable effect intent followed by fresh real endpoint classification for recovery",
+    "A present chain is descriptive: missing historical intent never proves no external effect or grants movement/deletion/acceptance"
+  ],
+  "remaining": [
+    "Native Windows durability and actual other-host execution",
+    "Complete transaction/control/Git/reservation owner, structural renewal and public initial plain/root/custom placement",
+    "Every relocation, interruption recovery and genuine lock/baseline/parity/readmission/receipt renewal cell",
+    "Installed/full-source/integration/exact-head/main/feature/release acceptance"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

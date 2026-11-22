@@ -45,11 +45,15 @@ from literate_ai.adapters.monorepo_adoption import (
     _source_members,
     _unique_object,
 )
+from literate_ai.adapters.repository_refresh import _file, _signature
 from literate_ai.adapters.retained_harness_receipts import (
     _sanitized_phases,
     _strict_test_total,
     retained_harness_worker_identity,
 )
+from literate_ai.adapters.retained_layout import RETAINED_LAYOUT_PATH
+from literate_ai.adapters.retained_layout_partition import _lineage
+from literate_ai.adapters.retained_layout_renewal import observe_retained_layout_renewal
 from literate_ai.contracts import (
     ContentIdentity,
     ProjectTestEvidence,
@@ -65,6 +69,7 @@ BUNDLE_SCHEMA = "literate-ai/monorepo-component-bundle@1"
 BINDING_SCHEMA = "literate-ai/monorepo-component-binding@1"
 RECEIPT_SCHEMA = "literate-ai/monorepo-component-receipt@1"
 INSTALLATION_SCHEMA = "literate-ai/monorepo-component-installation@1"
+INSTALLATION_LAYOUT_SCHEMA = "literate-ai/monorepo-component-installation@2"
 INSTALLATION_ROOT = ".literate/monorepo-components"
 _MANIFEST = "bundle.json"
 _SUITE = "monorepo-retained-harness"
@@ -156,6 +161,176 @@ def _source_root(path: Path) -> Path:
     root = Path(path).absolute()
     require_safe_directory(root)
     return root
+
+
+def _installation_document(content):
+    installation = _parse_document(content)
+    schema = installation.get("schema")
+    if schema not in {INSTALLATION_SCHEMA, INSTALLATION_LAYOUT_SCHEMA}:
+        _fail("installation_invalid", "unsupported installed Component schema")
+    _fields(
+        installation,
+        {
+            "schema",
+            "state",
+            "stage",
+            "authority",
+            "source_root",
+            "bundle_identity",
+            "receipt_identities",
+            "retained_check_identity",
+            "components",
+            "boundary_transfer",
+            "source_copied",
+        }
+        | (
+            {"retained_layout_identity"}
+            if schema == INSTALLATION_LAYOUT_SCHEMA
+            else set()
+        ),
+        "installed Component custody",
+    )
+    if (
+        installation["state"] != "current"
+        or installation["stage"] != "retained"
+        or installation["authority"] != "original-source"
+        or installation["source_copied"] is not False
+        or _relative(installation["source_root"]) == "."
+    ):
+        _fail("installation_invalid", "unsupported installed Component custody")
+    if schema == INSTALLATION_LAYOUT_SCHEMA:
+        try:
+            ContentIdentity.parse_uri(installation["retained_layout_identity"])
+        except (TypeError, ValueError):
+            _fail("installation_invalid", "invalid retained layout identity")
+    return installation
+
+
+def _installed_inputs(project, installation, original):
+    """Retain the complete consumed payload set before validating its contents."""
+    bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
+    manifest_input = _file(bundle / _MANIFEST, maximum_bytes=_MAX_DOCUMENT)
+    manifest = _parse_document(manifest_input.content)
+    if canonical_identity(manifest).uri != installation["bundle_identity"]:
+        _fail("installation_changed", "installed bundle differs from original binding")
+    names = installation["components"]
+    if (
+        not isinstance(names, list)
+        or not all(isinstance(name, str) for name in names)
+        or names != sorted(set(names))
+        or not isinstance(manifest.get("files"), dict)
+    ):
+        _fail("installation_invalid", "installed payload inventory is invalid")
+    relatives = tuple(
+        dict.fromkeys(
+            (
+                f"{INSTALLATION_ROOT}/installation.json",
+                f"{INSTALLATION_ROOT}/bundle/{_MANIFEST}",
+                *(
+                    f"{INSTALLATION_ROOT}/bundle/{_relative(name)}"
+                    for name in manifest["files"]
+                ),
+                *(f"{INSTALLATION_ROOT}/receipts/{name}.json" for name in names),
+                *(
+                    f"components/{name}/{filename}"
+                    for name in names
+                    for filename in ("binding.json", "component.md")
+                ),
+            )
+        )
+    )
+    paths = {name: _direct(project, name) for name in relatives}
+    native = {name: _signature(path) for name, path in paths.items()}
+    native[f"{INSTALLATION_ROOT}/installation.json"] = original.signature
+    native[f"{INSTALLATION_ROOT}/bundle/{_MANIFEST}"] = manifest_input.signature
+    ancestry = tuple(
+        (parent, _lineage(parent))
+        for parent in dict.fromkeys(path.parent for path in paths.values())
+    )
+
+    def require_ancestry_current():
+        if any(_lineage(path) != nodes for path, nodes in ancestry):
+            _fail("installation_changed", "installed payload ancestry changed")
+
+    def require_current():
+        if any(_signature(paths[name]) != node for name, node in native.items()):
+            _fail(
+                "installation_changed",
+                "original installed payload changed during observation",
+            )
+        require_ancestry_current()
+        if os.path.lexists(project / "litai/layout.pending"):
+            _fail("layout_pending", "pending relocation requires explicit recovery")
+
+    return native, require_current, require_ancestry_current
+
+
+def _layout_source(project, installation=None, *, renewing=False):
+    """Select actual declared source; saved installation coordinates grant no rights."""
+    if os.path.lexists(project / "litai/layout.pending"):
+        _fail("layout_pending", "pending relocation requires explicit recovery")
+    if not os.path.lexists(project / RETAINED_LAYOUT_PATH):
+        if (
+            installation is not None
+            and installation.get("schema") != INSTALLATION_SCHEMA
+        ):
+            _fail("layout_changed", "layout-bound installation lost its declaration")
+        return None, None, lambda: None
+    from literate_ai.projects import load_project
+
+    from .conversion_authority import FilesystemConversionAuthorityStore
+
+    role_inputs = tuple(
+        _file(project / name, maximum_bytes=_MAX_DOCUMENT)
+        for name in ("literate.project.json", ".literate/conversion-authority.json")
+    )
+    actual_project = load_project(project)
+    conversion = FilesystemConversionAuthorityStore(project).load_optional()
+    if (
+        conversion is None
+        or conversion.project_id != actual_project.definition.project_id
+    ):
+        _fail(
+            "layout_invalid",
+            "declared retained source lacks current conversion authority",
+        )
+    try:
+        observed = observe_retained_layout_renewal(project)
+    except (OSError, ValueError) as exc:
+        _fail("layout_invalid", str(exc))
+    identity = canonical_identity(json.loads(observed.inputs[1].content)).uri
+    source = observed.layout.implementation_root
+    if (
+        installation is not None
+        and not renewing
+        and (
+            installation.get("schema") != INSTALLATION_LAYOUT_SCHEMA
+            or installation.get("retained_layout_identity") != identity
+            or installation.get("source_root")
+            != observed.layout.implementation_directory
+        )
+    ):
+        _fail(
+            "layout_stale",
+            "installed retained evidence requires current-layout refresh",
+        )
+    from .retained_scope_refresh import (
+        _close_source_native_inputs,
+        _source_native_inputs,
+    )
+
+    scope = capture_retained_source_scope(source)
+    native = _source_native_inputs(source, [{"path": name} for name in scope["paths"]])
+
+    def require_current():
+        observed.require_current()
+        _close_source_native_inputs(native)
+        if any(_signature(item.path) != item.signature for item in role_inputs):
+            _fail("layout_changed", "actual project/conversion authority changed")
+        if os.path.lexists(project / "litai/layout.pending"):
+            _fail("layout_pending", "pending relocation requires explicit recovery")
+
+    return source, identity, require_current
 
 
 def _scope(paths: list[str]) -> dict[str, Any]:
@@ -823,7 +998,13 @@ def check_monorepo_retained_receipts(
     return {**result, "identity": canonical_identity(result).uri}
 
 
-def _publish_payloads(root: Path, payloads: dict[str, bytes]) -> None:
+def _publish_payloads(
+    root: Path,
+    payloads: dict[str, bytes],
+    *,
+    require_current: Callable[[], None] | None = None,
+    validate: Callable[[], dict[str, Any]] | None = None,
+) -> dict[str, Any] | None:
     created: list[tuple[Path, tuple[int, int], bytes]] = []
     directories: list[tuple[Path, tuple[int, int]]] = []
     try:
@@ -843,7 +1024,27 @@ def _publish_payloads(root: Path, payloads: dict[str, bytes]) -> None:
                 directories.append((directory, (node.st_dev, node.st_ino)))
             if path.exists() or path.is_symlink():
                 _fail("destination_exists", "installed Component path must be new")
+            if require_current is not None:
+                require_current()
             created.append((path, _write_new(path, content), content))
+            if require_current is not None:
+                require_current()
+        published = tuple(
+            _file(path, maximum_bytes=_MAX_DOCUMENT)
+            for path, _node, _content in created
+        )
+        for item, (_path, node, content) in zip(published, created, strict=True):
+            if item.signature[:2] != node or item.content != content:
+                _fail("installation_changed", "newly published payload changed")
+        result = None if validate is None else validate()
+        if require_current is not None:
+            require_current()
+        if any(_signature(item.path) != item.signature for item in published):
+            _fail(
+                "installation_changed",
+                "published payload changed during final observations",
+            )
+        return result
     except BaseException:
         for path, node, content in reversed(created):
             _remove_owned(path, node, content)
@@ -864,14 +1065,26 @@ def _replace_payloads(
     payloads: dict[str, bytes],
     *,
     validate: Callable[[], dict[str, Any]] | None = None,
+    require_current: Callable[[], None] | None = None,
+    expected_inputs: dict[str, tuple] | None = None,
 ) -> dict[str, Any] | None:
     """Replace one closed installed payload set, restoring owned bytes on failure."""
 
     paths = {relative: _direct(root, relative) for relative in sorted(payloads)}
+    native = (
+        {relative: _signature(path) for relative, path in paths.items()}
+        if expected_inputs is None
+        else dict(expected_inputs)
+    )
+    if set(native) != set(paths):
+        _fail(
+            "installation_changed",
+            "replacement payload set differs from original inputs",
+        )
     before = {relative: _read(path) for relative, path in paths.items()}
     written: list[str] = []
 
-    def replace(path: Path, content: bytes) -> None:
+    def replace(path: Path, content: bytes, *, forward=False) -> None:
         require_safe_directory(path.parent)
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=f".{path.name}.", dir=path.parent
@@ -882,6 +1095,15 @@ def _replace_payloads(
                 stream.write(content)
                 stream.flush()
                 os.fsync(stream.fileno())
+            if forward and require_current is not None:
+                require_current()
+                if any(
+                    _signature(paths[name]) != node for name, node in native.items()
+                ):
+                    _fail(
+                        "installation_changed",
+                        "installed inputs changed before replacement",
+                    )
             os.replace(temporary, path)
         finally:
             with suppress(FileNotFoundError):
@@ -889,9 +1111,18 @@ def _replace_payloads(
 
     try:
         for relative, content in sorted(payloads.items()):
-            replace(paths[relative], content)
+            replace(paths[relative], content, forward=True)
             written.append(relative)
-        return None if validate is None else validate()
+            native[relative] = _signature(paths[relative])
+        result = None if validate is None else validate()
+        if require_current is not None:
+            require_current()
+            if any(_signature(paths[name]) != node for name, node in native.items()):
+                _fail(
+                    "installation_changed",
+                    "installed outputs changed during final validation",
+                )
+        return result
     except BaseException:
         for relative in reversed(written):
             if _read(paths[relative]) == payloads[relative]:
@@ -914,6 +1145,9 @@ def _installation_payloads(
             "source_invalid",
             "installed retained source must be a project-relative directory",
         )
+    declared_source, layout_identity, require_current = _layout_source(project)
+    if declared_source is not None and source != declared_source:
+        _fail("layout_changed", "installed source differs from actual retained layout")
     bundle = Path(bundle_root).absolute()
     check = check_monorepo_retained_receipts(
         source,
@@ -967,6 +1201,11 @@ def _installation_payloads(
         "source_copied": False,
     }
     payloads[f"{INSTALLATION_ROOT}/installation.json"] = _json_bytes(installation)
+    if layout_identity is not None:
+        installation["schema"] = INSTALLATION_LAYOUT_SCHEMA
+        installation["retained_layout_identity"] = layout_identity
+        payloads[f"{INSTALLATION_ROOT}/installation.json"] = _json_bytes(installation)
+    require_current()
     return project, payloads, installation
 
 
@@ -979,6 +1218,7 @@ def install_monorepo_components(
     expected_bundle_identity: str,
 ) -> dict[str, Any]:
     """Publish verified source-free projections and retained receipt custody."""
+    _source, _identity, require_current = _layout_source(_source_root(project_root))
     project, payloads, installation = _installation_payloads(
         source_root,
         bundle_root,
@@ -992,42 +1232,30 @@ def install_monorepo_components(
     ]
     if any(path.exists() or path.is_symlink() for path in destinations):
         _fail("destination_exists", "installed Component paths must be new")
-    _publish_payloads(project, payloads)
-    return check_installed_monorepo_components(project)
+    result = _publish_payloads(
+        project,
+        payloads,
+        require_current=require_current,
+        validate=lambda: check_installed_monorepo_components(project),
+    )
+    assert result is not None
+    return result
 
 
 def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
     """Reopen an installed refined-adoption projection without executing commands."""
     project = _source_root(project_root)
     installation_path = _direct(project, f"{INSTALLATION_ROOT}/installation.json")
-    before = _read(installation_path)
-    installation = _parse_document(before)
-    _fields(
-        installation,
-        {
-            "schema",
-            "state",
-            "stage",
-            "authority",
-            "source_root",
-            "bundle_identity",
-            "receipt_identities",
-            "retained_check_identity",
-            "components",
-            "boundary_transfer",
-            "source_copied",
-        },
-        "installed Component custody",
+    installation_input = _file(installation_path, maximum_bytes=_MAX_DOCUMENT)
+    before = installation_input.content
+    installation = _installation_document(before)
+    _native, require_installed_current, _ancestry = _installed_inputs(
+        project, installation, installation_input
     )
-    if (
-        installation["schema"] != INSTALLATION_SCHEMA
-        or installation["state"] != "current"
-        or installation["stage"] != "retained"
-        or installation["authority"] != "original-source"
-        or installation["source_copied"] is not False
-    ):
-        _fail("installation_invalid", "unsupported installed Component custody")
-    source = _direct(project, installation["source_root"])
+    declared_source, layout_identity, require_current = _layout_source(
+        project, installation
+    )
+    source = declared_source or _direct(project, installation["source_root"])
     bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
     names = installation["components"]
     if not isinstance(names, list) or names != sorted(set(names)):
@@ -1074,6 +1302,10 @@ def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
                 _fail("binding_changed", "installed Component projection changed")
     if _read(installation_path) != before:
         _fail("installation_changed", "installed Component custody changed")
+    require_current()
+    require_installed_current()
+    if _signature(installation_path) != installation_input.signature:
+        _fail("installation_changed", "installed custody changed during layout closure")
     return {**installation, "identity": canonical_identity(installation).uri}
 
 
@@ -1093,10 +1325,24 @@ def refresh_installed_monorepo_components(
             "Component refresh execution requires acknowledgement",
         )
     project = _source_root(project_root)
-    installation = _document(_direct(project, f"{INSTALLATION_ROOT}/installation.json"))
+    installation_path = _direct(project, f"{INSTALLATION_ROOT}/installation.json")
+    installation_input = _file(installation_path, maximum_bytes=_MAX_DOCUMENT)
+    installation = _installation_document(installation_input.content)
+    original_native, require_installed_current, require_original_ancestry = (
+        _installed_inputs(project, installation, installation_input)
+    )
+    declared_source, layout_identity, require_layout_current = _layout_source(
+        project, installation, renewing=True
+    )
+    layout_changed = layout_identity is not None and (
+        installation.get("schema") != INSTALLATION_LAYOUT_SCHEMA
+        or installation.get("retained_layout_identity") != layout_identity
+        or installation.get("source_root")
+        != declared_source.relative_to(project).as_posix()
+    )
     old_bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
     old_plan = _verified_bundle(old_bundle, installation["bundle_identity"])
-    source = _direct(project, installation["source_root"])
+    source = declared_source or _direct(project, installation["source_root"])
     names = list(installation["components"])
     old_receipts = {
         name: _direct(project, f"{INSTALLATION_ROOT}/receipts/{name}.json")
@@ -1130,6 +1376,10 @@ def refresh_installed_monorepo_components(
         for name in names:
             receipt = receipts_root / f"{name}.json"
             try:
+                if layout_changed:
+                    _fail(
+                        "layout_stale", "new layout requires fresh Component execution"
+                    )
                 check_component_retained_receipt(
                     source, bundle, name, old_receipts[name]
                 )
@@ -1170,11 +1420,27 @@ def refresh_installed_monorepo_components(
                 "installation_invalid",
                 "installed Component payload inventory changed outside refresh",
             )
+
+        def require_current():
+            require_layout_current()
+            require_installed_current()
+            if _signature(installation_path) != installation_input.signature:
+                _fail("installation_changed", "installation changed during refresh")
+
+        def require_publication_current():
+            require_layout_current()
+            require_original_ancestry()
+
+        # Per-file facts evolve only under the replacement owner; the original
+        # parent identities remain fixed through every publication and validation.
+        require_current()
         try:
             refreshed = _replace_payloads(
                 project,
                 payloads,
                 validate=lambda: check_installed_monorepo_components(project),
+                require_current=require_publication_current,
+                expected_inputs=original_native,
             )
         except MonorepoAdoptionError:
             _fail("refresh_invalid", "refreshed Component custody did not reopen")

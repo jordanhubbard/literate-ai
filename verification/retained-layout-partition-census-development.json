@@ -1,0 +1,83 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Read-only retained-layout complete partition census, source development",
+  "base_revision": "59b7ee828a0ce37fe6a395c770fa9fdeaba056b9",
+  "independent_review": {
+    "decision": "approved at descriptive census scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "ec3f6fb9e9c92fb3904543fd7a30f553021becb5e9de4f5325f26fe56c4d6871"
+    },
+    "manifest": {
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "ce1b350cb8f32f369a923097d9b902322740975d0a44a094a9fe77615c4254c5"
+      },
+      "tests/critical/test_retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "524ab34ab2434b7645c708dcc689f1de8656634e884eb6b4741289c61e98c8c5"
+      },
+      "docs/roadmap/retained-layout-transactions.md": {
+        "algorithm": "sha256",
+        "digest": "b2a6fa7bcfab03059dc60a4aedb1652bbad4f2c028094d8794004830f661a000"
+      },
+      "src/literate_ai/adapters/retained_cargo_tree_v2.py": {
+        "algorithm": "sha256",
+        "digest": "dbd724a86dbb4a25e172cc89b3907b6bc6c9f31822694ef70fe03c4730c3d3fa"
+      },
+      "src/literate_ai/adapters/retained_project_inputs.py": {
+        "algorithm": "sha256",
+        "digest": "6dfdcae5128efbb822465e545a406412cc396ae523d29b7cbc74d38ecf672f24"
+      },
+      "src/literate_ai/contracts/native_sdk_trees.py": {
+        "algorithm": "sha256",
+        "digest": "263a2fe39846b2d17bd6c63e1a03006a99507c569e2841f6ac8379c74eed6ab7"
+      },
+      "src/literate_ai/contracts/retained_cargo_custody.py": {
+        "algorithm": "sha256",
+        "digest": "5146839605a2384359edf58ecf91a2c269a9172d392f32fd68577c5bc8ce2c30"
+      },
+      "src/literate_ai/contracts/paths.py": {
+        "algorithm": "sha256",
+        "digest": "5f459e789f9f32069afbaf16cbbb5a421e6fa3ac9202b919d9f08262e252adf7"
+      },
+      "src/literate_ai/adapters/retained_layout.py": {
+        "algorithm": "sha256",
+        "digest": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e"
+      },
+      "src/literate_ai/_filesystem.py": {
+        "algorithm": "sha256",
+        "digest": "48372e2df82da255222607c4e916fb60cff11ccdcf303cfaadd4961a31e1f1c6"
+      },
+      "src/literate_ai/contracts/identity.py": {
+        "algorithm": "sha256",
+        "digest": "730437c1a4ac356474b45d6b260dbf16b76a42bff3125d1674d0627fc4b2fb3b"
+      },
+      "docs/roadmap/active-work.md": {
+        "algorithm": "sha256",
+        "digest": "74309d219f1c7db19a195bb990cde82c422cff4c61edf6c5413d951a22f50286"
+      }
+    }
+  },
+  "causal_predecessor_failures": 2,
+  "maintained_census_passed": 11,
+  "independent_supplementary_closing_controls_passed": 4,
+  "affected_neighborhood_passed": 37,
+  "skipped": 0,
+  "host": "macOS native temporary files, modes, aliases and hardlinks; source environment",
+  "semantics": [
+    "Complete raw namespace with no exclusions or payload copies",
+    "Exact-file proposed framework labels; other actual inputs and empty directories remain visible",
+    "Partition/intermediate alias, complete hardlink and mixed-directory boundaries refuse",
+    "Census identity binds logical bytes/topology, physical source nodes, original ancestry and labels",
+    "Fresh whole-namespace currentness bracketed by original ancestry observations"
+  ],
+  "scope_limits": [
+    "Descriptive data and point-in-time observations; no continuous descriptor ownership or execution/movement authorization",
+    "Actual Git/control authority, source/destination reservations, aggregate transaction quotas, effects/journal/recovery remain required",
+    "Structural renewal, plain/root/custom placement, relocation and genuine receipt/public CLI acceptance remain open",
+    "Installed, other-host native, full source/wheel/integration and release acceptance pending"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

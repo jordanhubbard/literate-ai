@@ -98,19 +98,88 @@ class AppliedProjectUpdate:
         return value
 
 
-def _write_exact(target: Path, content: bytes) -> None:
+def _write_exact(target: Path, content: bytes, *, _observation=None, _mode=None):
     """Replace a file atomically; a crash must not leave a half-written file."""
 
     target.parent.mkdir(parents=True, exist_ok=True)
     handle, temporary = tempfile.mkstemp(dir=target.parent, prefix=".litai-update-")
+    prepared = None
     try:
         with os.fdopen(handle, "wb") as stream:
             stream.write(content)
             stream.flush()
+            if _observation is not None and _mode is not None:
+                os.fchmod(stream.fileno(), _mode)
+            if _observation is not None:
+                prepared = os.fstat(stream.fileno())
             os.fsync(stream.fileno())
-        os.replace(temporary, target)
+            if _observation is not None:
+                from .retained_cargo_tree_v2 import _node
+
+                if _node(os.fstat(stream.fileno())) != _node(prepared):
+                    raise ProjectUpdateError(
+                        "project.update_local_changed",
+                        "private update payload changed during fsync",
+                    )
+        if _observation is None:
+            os.replace(temporary, target)
+        else:
+            from .retained_layout_control_publication import _pinned_directory
+
+            with _pinned_directory(target.parent) as (descriptor, guard):
+                guard()
+                _observation.before_replace(target, Path(temporary), prepared)
+                os.replace(
+                    Path(temporary).name,
+                    target.name,
+                    src_dir_fd=descriptor,
+                    dst_dir_fd=descriptor,
+                )
+                descriptor_file = os.open(
+                    target.name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=descriptor
+                )
+                try:
+                    published = os.fstat(descriptor_file)
+                finally:
+                    os.close(descriptor_file)
+                attrs = (
+                    "st_dev",
+                    "st_ino",
+                    "st_mode",
+                    "st_size",
+                    "st_mtime_ns",
+                    "st_nlink",
+                    "st_uid",
+                    "st_gid",
+                )
+                if any(
+                    getattr(prepared, name) != getattr(published, name)
+                    for name in attrs
+                ):
+                    raise ProjectUpdateError(
+                        "project.update_local_changed", "published update node changed"
+                    )
+                guard()
+                return (
+                    published.st_dev,
+                    published.st_ino,
+                    published.st_mode,
+                    published.st_size,
+                    published.st_mtime_ns,
+                    published.st_ctime_ns,
+                )
+        return None
     except BaseException:
-        Path(temporary).unlink(missing_ok=True)
+        if _observation is None:
+            Path(temporary).unlink(missing_ok=True)
+        elif prepared is not None:
+            from .retained_cargo_tree_v2 import _node
+
+            try:
+                if _node(Path(temporary).lstat()) == _node(prepared):
+                    Path(temporary).unlink()
+            except FileNotFoundError:
+                pass
         raise
 
 
@@ -122,6 +191,7 @@ def apply_project_update(
     validator: Callable[[Path], object] | None = None,
     resolutions: dict | None = None,
     native_lock: Path | None = None,
+    _role_observation=None,
 ) -> AppliedProjectUpdate:
     """Write one rollback-safe subset and optionally validate the complete result."""
 
@@ -147,10 +217,18 @@ def apply_project_update(
                 "initialization baseline changed; re-plan",
             )
         profile = baseline.profile
+    if _role_observation is not None:
+        from .framework_update_roles import _FrameworkUpdateRoles
+
+        if type(_role_observation) is not _FrameworkUpdateRoles:
+            raise TypeError("actual framework update observation required")
+        _role_observation._before_apply(plan, root)
     from .update_merge import UpdateBases, resolution_content
 
     resolutions = resolutions or {}
-    bases = UpdateBases(root)
+    bases = (
+        UpdateBases(root) if _role_observation is None else _role_observation.bases()
+    )
     if (
         plan.update_bases_identity is not None
         and _identity(bases.original or b"") != plan.update_bases_identity
@@ -176,10 +254,8 @@ def apply_project_update(
     baseline_paths = {
         item.path for item in plan.files if item.baseline_identity is not None
     }
-    upstream_content = (
-        _upstream_template(baseline_paths, profile="native")
-        if profile == "native"
-        else _upstream_template(baseline_paths)
+    upstream_content = _upstream_template(
+        baseline_paths, profile=profile, observation=_role_observation
     )
     applied: list[str] = []
     adopted: list[str] = []
@@ -232,7 +308,11 @@ def apply_project_update(
                 "project.update_path_unsafe",
                 f"{item.path} is a link and cannot be replaced",
             )
-        observed_content = target.read_bytes() if target.is_file() else None
+        observed_content = (
+            (target.read_bytes() if target.is_file() else None)
+            if _role_observation is None
+            else _role_observation.read(item.path, optional=True)
+        )
         observed = None if observed_content is None else _identity(observed_content)
         if observed != item.local_identity:
             raise ProjectUpdateError(
@@ -241,7 +321,7 @@ def apply_project_update(
             )
 
         write_content[item.path] = resolution_content(
-            item, observed_content, content, resolutions
+            item, observed_content, content, resolutions, _observation=_role_observation
         )
         if (
             item.classification is ProjectUpdateClassification.MERGEABLE
@@ -256,13 +336,25 @@ def apply_project_update(
 
     from .project_update_compatibility import require_selected_skill_closure
 
-    require_selected_skill_closure(root, write_content)
+    if _role_observation is not None:
+        _role_observation.before_writes(selected_items)
+    if _role_observation is None:
+        require_selected_skill_closure(root, write_content)
+    else:
+        require_selected_skill_closure(
+            root, write_content, _observation=_role_observation
+        )
     from literate_ai.application.roadmap_dependencies import RoadmapDependencyError
 
     from .roadmap_dependencies import require_project_roadmap_acyclic
 
     try:
-        require_project_roadmap_acyclic(root, write_content)
+        if _role_observation is None:
+            require_project_roadmap_acyclic(root, write_content)
+        else:
+            require_project_roadmap_acyclic(
+                root, write_content, _observation=_role_observation
+            )
     except RoadmapDependencyError as exc:
         raise ProjectUpdateError(exc.code, exc.message) from exc
     native = profile == "native"
@@ -276,6 +368,10 @@ def apply_project_update(
     if native:
         _require_native_update_git_boundary(root, native_paths)
     written: list[str] = []
+    receipts = {}
+    advanced = []
+    checkpoint = None
+    checkpoint_receipt = None
     try:
         for item in selected_items:
             target = _project_path(root, item.path)
@@ -283,17 +379,39 @@ def apply_project_update(
             if native:
                 _require_native_update_git_boundary(root, (target, *lock_paths))
             if content is None:
-                target.unlink(missing_ok=True)
+                if _role_observation is not None:
+                    _role_observation.retire(target)
+                else:
+                    target.unlink(missing_ok=True)
+                receipts[item.path] = None
             else:
                 parent = target.parent
                 while parent != root and not parent.exists():
                     created_directories.add(parent)
                     parent = parent.parent
                 assert content is not None
-                _write_exact(target, content)
+                receipts[item.path] = (
+                    _write_exact(target, content)
+                    if _role_observation is None
+                    else _write_exact(
+                        target,
+                        content,
+                        _observation=_role_observation,
+                        _mode=snapshots[item.path][1],
+                    )
+                )
+            if _role_observation is not None:
+                _role_observation.after_publication(
+                    target, content, receipts[item.path]
+                )
             written.append(item.path)
             mode = snapshots[item.path][1]
-            if content is not None and os.name != "nt" and mode is not None:
+            if (
+                content is not None
+                and os.name != "nt"
+                and mode is not None
+                and _role_observation is None
+            ):
                 if native:
                     _require_native_update_git_boundary(root, (target,))
                 os.chmod(target, mode)
@@ -309,14 +427,33 @@ def apply_project_update(
                 content = upstream_content.get(item.path)
                 if content is not None or item in selected_items:
                     bases.advance("framework", item.path, content)
+                    advanced.append(item)
         if native:
             _require_native_update_git_boundary(root, native_paths)
-        bases.write(before_write=checkpoint_before_write)
+        if _role_observation is None:
+            bases.write(before_write=checkpoint_before_write)
+        else:
+            checkpoint = bases.write(
+                _observation=_role_observation, before_write=checkpoint_before_write
+            )
+            checkpoint_receipt = bases.published_node
         if validator is not None:
             validator(root)
         if native:
             _require_native_update_git_boundary(root, native_paths)
-    except BaseException:
+    except BaseException as error:
+        if _role_observation is not None:
+            from .framework_update_roles import FrameworkUpdateRoleError
+
+            if not isinstance(error, Exception):
+                error.add_note(
+                    "update did not complete; observed state retained; "
+                    "handoff unavailable"
+                )
+                raise
+            raise FrameworkUpdateRoleError(
+                "update did not complete; observed state retained; handoff unavailable"
+            ) from error
         try:
             rollback_checkpoint = not native or bases.checkpoint_needs_rollback()
             if native:
@@ -359,7 +496,7 @@ def apply_project_update(
             ) from rollback_error
         raise
 
-    return AppliedProjectUpdate(
+    result = AppliedProjectUpdate(
         tuple(sorted(applied)),
         tuple(sorted(adopted)),
         {key: tuple(sorted(value)) for key, value in refused.items()},
@@ -375,6 +512,25 @@ def apply_project_update(
             else "the project has not diverged from its baseline"
         ),
     )
+    if _role_observation is not None:
+        from .framework_update_roles import FrameworkUpdateRoleError
+
+        try:
+            _role_observation._complete(
+                plan,
+                result,
+                advanced,
+                upstream_content,
+                write_content,
+                receipts,
+                checkpoint,
+                checkpoint_receipt,
+            )
+        except Exception as error:
+            raise FrameworkUpdateRoleError(
+                "update applied, handoff unavailable: " + str(error)
+            ) from error
+    return result
 
 
 __all__ = [

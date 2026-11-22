@@ -1,0 +1,165 @@
+{
+  "schema": "literate-ai/forest-effects-development@1",
+  "state": "source_reviewed_guarded_future_effects_scoped_development_checks",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-effects-review.json",
+    "sha256": "d26293452792ba6728f855e995b324302dd79c5e45838f35db1dbbd75bcafab7"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-effects-maintained-report.json",
+        "sha256": "818da8a0b93615bf7fdb476f3a2a828d93a0e87bebe7390b9543572cef10d741"
+      },
+      "log": {
+        "path": "_build/forest-effects-maintained.log",
+        "sha256": "eb2e6fc8fee8aba954706f66f92c18667914fee48d8b7d8bf923ce57d903978b"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "39d4339c577dde2ef4c3bd13d2286c5c601c1066e0e0aa669619800c74b52f37",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope": "Actual private pin, allowance and mandatory-document data/refusal controls; no canonical source enrollment."
+    },
+    {
+      "report": {
+        "path": "_build/forest-effects-native-report.json",
+        "sha256": "8738f821ab617212286a2dfdab488c91a4c294cf301d1374d245094ca9347aed"
+      },
+      "log": {
+        "path": "_build/forest-effects-native-maintained.log",
+        "sha256": "12cec0b51695900986f3a623bcb6b18ae7f0c7a448831b4978eb32057dc3293c"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6cbd4b8c6e6cabf2ff05df24b792aeb9e5fdc5819fe4e33f45d39c2748c7226e",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope": "Existing actual unmanaged native/reader-transfer regression."
+    },
+    {
+      "report": {
+        "path": "_build/forest-effects-finalization-report.json",
+        "sha256": "85ffa2d4ee79d50610fb565f49b170dfcb84db6bd416e41ffc8d7d64d8f4953b"
+      },
+      "log": {
+        "path": "_build/forest-effects-finalization-maintained.log",
+        "sha256": "e628cf5b4abf2e41944e00eaff0743d4b85985dd7ca5db0586fe997791c60c9a"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "1bce73bbe25d10b8025dbb13111443591b42538772858efb510177bc12fd6da2",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "scope": "Existing canonical single-rename source/metadata/finalization regression; no forest execution claim."
+    }
+  ],
+  "distinct_scoped_methods_passed": 61,
+  "diagnostics": [
+    {
+      "path": "_build/forest-effects-first-diagnostic.log",
+      "sha256": "89533bba59ee3bf45ac97975f69cb36a1235bc4876ed563131d740434be407b1"
+    },
+    {
+      "path": "_build/forest-effects-second-diagnostic.log",
+      "sha256": "6a3b03b744e4ff3664a1a4efe9e35c3030283bfe8d9bb71264bebd4cc78e72bd"
+    },
+    {
+      "path": "_build/forest-effects-documents-diagnostic.log",
+      "sha256": "8f77de07af529891732daa512a3730d3a2db3907d2a64046199a05ddbd2ccb1a"
+    }
+  ],
+  "fixture_correction": "First diagnostic43pass/1owned pin-teardown error: after asserting original root replacement refusal, preserve replacement and restore the held original pathname before its genuine pin context exits. Production refusal unchanged.",
+  "pending": [
+    "Carrier-based Git finalization separation and frozen parking/container terminal custody through genuine resource teardown.",
+    "Fresh recovery with actual canonical reservations and current endpoint reclassification before guard removal.",
+    "Genuine canonical forest source/metadata/finalization/recovery execution under original policy; full public/installed/platform/integration/release and all other roadmap scope."
+  ],
+  "static": {
+    "exit": 0,
+    "log": {
+      "path": "_build/forest-effects-final-static.log",
+      "sha256": "51c40db7801e5c598d9bf2cc7be8717151732be912051e5f591c74a13f6556a6"
+    },
+    "checks": [
+      "reviewed-driver-record",
+      "documentation-authority-record",
+      "lint",
+      "format",
+      "repository-layout",
+      "public-export",
+      "driver-review",
+      "runner-review",
+      "openspec",
+      "roadmap-dependencies",
+      "documentation"
+    ]
+  },
+  "verify": {
+    "exit": 1,
+    "report": {
+      "path": "_build/forest-effects-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "note": "Authority passes; full project receipt remains stale. No complete canonical forest execution or release qualification."
+  }
+}

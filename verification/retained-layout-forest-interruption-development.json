@@ -1,0 +1,180 @@
+{
+  "schema": "literate-ai/forest-interruption-development@1",
+  "state": "source_reviewed_three_actual_control_boundaries_and_prior_retry_maintained_pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-interruption-review.json",
+    "sha256": "9ad26dbc58e9eeceb86fed91e629467c85c9b77a6f5b97264b9737a1f8413793"
+  },
+  "production_change": false,
+  "prior_checkpoint": {
+    "path": "verification/retained-layout-forest-terminal-replay-development.json",
+    "sha256": "193b12b2249926a3cd0d03022327f3272eeb135a1e7f46becce6cdfa114bb2b0"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-interruption-boundary-pwrite-report.json",
+        "sha256": "fc6c03fae52634fcd28ae8940ceb7d0f2661a50f529f9cb7a59b9ebdce5637ff"
+      },
+      "log": {
+        "path": "_build/forest-interruption-boundary-pwrite-maintained.log",
+        "sha256": "1e1fe7ce677d13e80159b18f91f971dff9c41d9dc25a0f35a0d944d3a8cdc646"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6c7a36792da5755268062e4d7e32e94a74c1b69ca242196e478d87689e79517a",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "test": "tests.critical.test_retained_layout_forest_pwrite_retry.ForestPwriteRetryTests.test_actual_pwrite_before_truncate_reacquires_and_completes"
+    },
+    {
+      "report": {
+        "path": "_build/forest-interruption-boundary-normalized-report.json",
+        "sha256": "56125be5ea4282bfa51c6ae66d1fe570b77809f83c8f35ea95eba1844d37a4c2"
+      },
+      "log": {
+        "path": "_build/forest-interruption-boundary-normalized-maintained.log",
+        "sha256": "98f2ccb72ec45238e800b90c4a714ff07e6027f4a3a5aad2b0553ba5b3130489"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "c38ce7c8319db4cade2969afecf785ae9fab28c0bc943d3d6bbf421fea440065",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "test": "tests.critical.test_retained_layout_forest_normalization_retry.ForestNormalizationRetryTests.test_actual_normalization_before_observed_reacquires_and_completes"
+    },
+    {
+      "report": {
+        "path": "_build/forest-interruption-boundary-retired-report.json",
+        "sha256": "53185dbb322dffe5f26843575a188e07b31610bbf35bc6b452f844f680c43a46"
+      },
+      "log": {
+        "path": "_build/forest-interruption-boundary-retired-maintained.log",
+        "sha256": "1b2e3d84eb9b2ef9a26279566870c292d2033a6cfcead4791d8fae52f0792ddf"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "fbeed5a241c93de883b420d4eda0059eb8f95ed070d039c11420bfeaa79a774d",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "test": "tests.critical.test_retained_layout_forest_retirement_retry.ForestRetirementRetryTests.test_actual_retirement_before_observed_reacquires_and_completes"
+    },
+    {
+      "report": {
+        "path": "_build/forest-interruption-boundary-original-report.json",
+        "sha256": "6151d7451d97aa360834eb8e518bcaa5f2add96df280ca8020f024f362bdb01b"
+      },
+      "log": {
+        "path": "_build/forest-interruption-boundary-original-maintained.log",
+        "sha256": "1af03a8278f59fb74d4ce66e8ea334d02cfbfb73e86717f0caed3df67c240ce9"
+      },
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "f04b49f28eff3deb8f419410b0aa547de436bd4b113681ce952952fa8c5cde8b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "test": "tests.critical.test_retained_layout_forest_disposition_retry.ForestDispositionRetryTests.test_interrupted_retirement_retries_with_real_replacement_generation"
+    }
+  ],
+  "final_maintained_passes": 4,
+  "distinct_maintained_passes_across_prior_and_current_lineage": 50,
+  "scope": [
+    "Actual first advisory pwrite changes byte zero on its held FD while preserving the original multi-byte size and all remaining bytes; interruption precedes truncate.",
+    "Actual normalization and receipt adoption complete with one zero byte on the same original inode, but the matching durable observation append is interrupted.",
+    "Actual native retirement and receipt adoption complete with the original inode only at the private destination, but the matching durable observation append is interrupted.",
+    "Predecision advisory interruptions preserve the injected exception. The native pending retirement occurs after the durable release decision and wraps the injected cause as the existing outcome type.",
+    "Every original owner and descriptor context ends before a fresh actual observer/raw/canonical owner reacquires controls. Advisory cases need no replacement native generation; retired native cases require an actual newly published G2 generation.",
+    "The separately acknowledged second disposition completes. Actual terminal raw owners prove two/three generations, two disposition attempts, the original pending intent and final completion without terminal journal/publication writes or public native controls.",
+    "Every previously retained private inode and byte remains unchanged; each interrupted advisory inode ends normalized in place. Original post-observed retirement and duplicate-handoff subcases retain their original test key and behavior."
+  ],
+  "not_proven": [
+    "Original canonical forest SourcePhase/acquired partition execution, full public project reentry, committed forests and every native/metadata/control/mode or descriptor boundary beyond the precise three new cases remain unqualified.",
+    "Initial/wrapper/root/shared/renewal, installed/platform/integration/release and all other pending roadmap obligations remain open. Production admission and legacy guards are unchanged."
+  ],
+  "diagnostics": [
+    {
+      "exit": 1,
+      "log": {
+        "path": "_build/forest-normalization-pwrite-next-diagnostic.log",
+        "sha256": "6b869f3adc6745ab32a9cb4b9bd8ef62e3ffebdf22e643f66c39006aef71a1d3"
+      },
+      "classification": "invalid_harness",
+      "cause": "Reached actual partial pwrite, but expected postdecision outcome for predecision injected exception. No production recovery defect established."
+    },
+    {
+      "exit": 1,
+      "log": {
+        "path": "_build/forest-interruption-normalized-next-diagnostic.log",
+        "sha256": "4facefbe5fa5f1a0e0f39db47733ded09cb16c2e75ab55a66f74d39d73d672a6"
+      },
+      "classification": "invalid_harness",
+      "cause": "Reached actual normalization before observed, but expected postdecision outcome for predecision injected exception. No production recovery defect established."
+    },
+    {
+      "exit": 0,
+      "seconds": 279.818,
+      "log": {
+        "path": "_build/forest-normalization-pwrite-retry-diagnostic.log",
+        "sha256": "5adcc4332530f5c4705630314e7a2cb69d46d020235aa1e0eb6ee4b04bc92162"
+      },
+      "classification": "corrected_actual_boundary_retry"
+    },
+    {
+      "exit": 0,
+      "seconds": 278.11,
+      "log": {
+        "path": "_build/forest-interruption-normalized-retry-diagnostic.log",
+        "sha256": "f3058d984bc1b530eef62da402c4e1f7377f772c7752dadefa868f3a00be7da7"
+      },
+      "classification": "corrected_actual_boundary_retry"
+    },
+    {
+      "exit": 0,
+      "seconds": 295.227,
+      "log": {
+        "path": "_build/forest-interruption-retired-next-diagnostic.log",
+        "sha256": "2b719558f120e3dfea97111bd0d0c3a44458ad1833b99efee803b3018211b783"
+      },
+      "classification": "actual_boundary_retry"
+    }
+  ]
+}

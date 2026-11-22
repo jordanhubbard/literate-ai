@@ -1,0 +1,227 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "b79a1c8a52fbff6ceed5b5152f41b41658cfeaf6",
+  "scope": "Internal read-only persistent source-planning core before actual phase/partition/effect admission.",
+  "subjects": {
+    "src/literate_ai/adapters/bounded_role_observation.py": {
+      "algorithm": "sha256",
+      "digest": "d3b77dd6e3293c67dfda608289309d6498f25b7fb29b50ab41e392a2c1320196"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "bec7260d792ad58df66e0400ec1afedaa190f0d56ade90514dda2c86db9a191d"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "55bb3583ad803c96967916e43654b087abedc68fd2be5abd38a347a414f6f1bb"
+    },
+    "tests/critical/test_retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "e94521896247890cf284bfd5abaabc25940dab88bf6c059b50aeba0921bf36a3"
+    }
+  },
+  "behavior": [
+    "One actual registered read owner and original _Observation exist before canonical project/conversion/layout/Git discovery. Source capture consumes the remaining ledger, with explicit original input/metadata ceilings.",
+    "Sequential activations preserve original cache, ancestry and usage. No ContextVar spans the caller yield. Ended/copied/foreign activations refuse; input, metadata and buffer policy changes poison the original owner.",
+    "Genuine framework or catalog usage is imported once. A joined catalog already includes framework accounting; producer caches remain separate. The shared reread buffer covers the larger original producer or successor reserve.",
+    "Final activation payload traversal precedes destination/source namespace scans and final original metadata/Git/ancestry/pending/membership/native/lifetime closure. An actual closing registration binds the original State/tree/native objects and revokes in finally.",
+    "Distinct funded plans are refused by the legacy effect entry. Read observations, saved plans and identities grant no source-phase, partition or effect authority."
+  ],
+  "qualified_author_make": {
+    "command": "make python-check",
+    "selection": "tests/critical/test_retained_layout_source_preparation.py",
+    "exit_code": 0,
+    "summary": {
+      "executed": 23,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 23,
+      "selected": 23,
+      "skipped": 0
+    },
+    "seconds": 61.126,
+    "report": {
+      "path": "_build/source-preparation-closing-qualified-make-report.json",
+      "sha256": "71023226478ccf83fe7b978a0e6ed5ab3372042dd6b83ce018903454c35757e8"
+    },
+    "log": {
+      "path": "_build/source-preparation-closing-qualified-make.log",
+      "sha256": "5162d0b62eeb43373592a89a54ce2a15fa22f53e6cd23171d3eb54f4497ff61f"
+    },
+    "also_checks": [
+      "compileall src/tests",
+      "maintained sample/script py_compile",
+      "host-path policy"
+    ]
+  },
+  "causal_controls": [
+    {
+      "finding": "Metadata payload callback changes source after earlier source closure.",
+      "before": {
+        "path": "_build/source-preparation-late-close-before.log",
+        "sha256": "ddd26031945463428d648407c0ba80f546f02a45bb4affc4625da47322e5b57b",
+        "exit_code": 1,
+        "tests": 1,
+        "seconds": 2.073,
+        "footer": "FAILED (failures=1)"
+      },
+      "after_historical_fix": {
+        "path": "_build/source-preparation-late-close-after.log",
+        "sha256": "ff3a6f48102f2d9cf309c0c150f549d92bd0969895d8c0dec4eec8dc72dd21fa",
+        "exit_code": 0,
+        "tests": 1,
+        "seconds": 2.051,
+        "footer": "OK"
+      }
+    },
+    {
+      "finding": "Late pending insertion and metadata change during destination namespace scan.",
+      "before": {
+        "path": "_build/source-preparation-final-span-before.log",
+        "sha256": "1b70a98d91af1b2e2ab09a56eacb591ec15dbea3be086ffed583bf5d00ebc5cb",
+        "exit_code": 1,
+        "tests": 2,
+        "seconds": 2.164,
+        "footer": "FAILED (failures=2)"
+      },
+      "after_historical_fix": {
+        "path": "_build/source-preparation-final-span-after.log",
+        "sha256": "9d0f782898a9092d607658480bd7558812ab5753b221cc50f212b5ae689a86ae",
+        "exit_code": 0,
+        "tests": 3,
+        "seconds": 2.283,
+        "footer": "OK"
+      }
+    },
+    {
+      "finding": "Destination-parent membership changes during later source namespace traversal.",
+      "before": {
+        "path": "_build/source-preparation-destination-span-before.log",
+        "sha256": "664621e0f97aa35597d02ef488b273b62b8153b6e43f445ad73d24f2a6e15c95",
+        "exit_code": 1,
+        "tests": 1,
+        "seconds": 2.107,
+        "footer": "FAILED (failures=1)"
+      },
+      "after_final_fix": {
+        "path": "_build/source-preparation-destination-span-after.log",
+        "sha256": "d2d78a42dcf19df9c14e8e83b15db0e0a2755f0b9f8e8641d736ba8399f3fc48",
+        "exit_code": 0,
+        "tests": 4,
+        "seconds": 2.507,
+        "footer": "OK"
+      }
+    }
+  ],
+  "author_history": [
+    {
+      "path": "_build/source-preparation-focused.log",
+      "sha256": "72c4b74459527e0c782017983b4ec96af83c22fe3d9ee43c39beb1bea6e56663",
+      "exit_code": 0,
+      "tests": 44,
+      "seconds": 9.193,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-preparation-make.log",
+      "sha256": "201001bfde353ec27e63678e286b48a495f20d811d1be8e592c2e67bee510f6e",
+      "exit_code": 2,
+      "tests": 3,
+      "seconds": 48.319,
+      "footer": "make: *** [python-check] Error 1"
+    },
+    {
+      "path": "_build/source-preparation-final-make.log",
+      "sha256": "d90c516eb75a216b8e9c5d5054a089f4461a5adabe0940d470c2a6e92abf1071",
+      "exit_code": 0,
+      "tests": 18,
+      "seconds": 57.851,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-preparation-reader-policy.log",
+      "sha256": "8cff5a0ff9eda295ad03d919f99ee4cf6debc2c5caab81d2fbbc4d561dbe62e3",
+      "exit_code": 0,
+      "tests": 47,
+      "seconds": 9.485,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-preparation-qualified-make.log",
+      "sha256": "f2086ad308fb702b265853a65b57fc8f8a9077fc17f3c72ad10cde80434b6649",
+      "exit_code": 0,
+      "tests": 20,
+      "seconds": 57.751,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-preparation-final-span-make.log",
+      "sha256": "1aa6ce6c3ef51951eaf8c589964fe80c90fe0a755de27820791e4bf3c61a5234",
+      "exit_code": 0,
+      "tests": 22,
+      "seconds": 58.613,
+      "footer": "OK"
+    }
+  ],
+  "history_interpretation": "Earlier passing runs bind earlier subjects and do not qualify final source. The first Make run remains failed: the newly added combined test left a genuine framework/catalog successor unconsumed; repaired test completes the actual legacy consuming transaction only after read-only preparation ends.",
+  "independent_review": {
+    "path": "independent-layout-source-preparation-review.json",
+    "sha256": "8b3da8948666518138eb79fa62d7c19282e330728df48401203dc151fb3e3fa4",
+    "decision": "approved_at_limited_planning_core_scope",
+    "mode": "source-only",
+    "independent_dynamic_qualification": false
+  },
+  "supplemental_regression": {
+    "state": "pass",
+    "runner": "managed Python unittest -v",
+    "exit_code": 0,
+    "passed": 241,
+    "skipped": 0,
+    "seconds": 409.302,
+    "unique_case_lines": 241,
+    "modules": [
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_catalog_copy_roles",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_topology"
+    ],
+    "log": {
+      "path": "_build/source-preparation-regression.log",
+      "sha256": "ad1de1c0eab3f008f6417d50534e09006580b8b5bac8795e552293a386b9705a"
+    }
+  },
+  "acceptance": {
+    "read_only_planning_core": true,
+    "source_phase_admission": false,
+    "partition_consumption": false,
+    "verified_effect_expectation_advancement": false,
+    "canonical_authored_role_admission": false,
+    "root_layout_or_recovery": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Join the actual preparation to source-phase admission, retain the exact ledger through complete partition consumption, advance cached expectations only from verified actual control/metadata effects, then admit immutable canonical authored witnesses. Preserve root/public apply guards and complete acceptance.",
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-preparation-final-static.log",
+      "sha256": "c7abf5183e54c75edbee2162de2cef3ecc52c0d4c996af81884c6e8fc2c584f1"
+    }
+  },
+  "qualification_interpretation": "Two separate successful final author cohorts: scoped Make23 and the supplemental241 maintained tests, zero skips. Full package, independent dynamic, installed/native/cross-platform, integration/release and full-roadmap acceptance remain open."
+}

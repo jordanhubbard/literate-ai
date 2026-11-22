@@ -92,7 +92,7 @@ def _project_path(root: Path, relative: str) -> Path:
     return path
 
 
-def _read_contract(root: Path, relative: str, contract_type):
+def _read_contract(root: Path, relative: str, contract_type, observation=None):
     path = _project_path(
         ProjectConfigurationStore.context(root).framework_root, relative
     )
@@ -102,7 +102,9 @@ def _read_contract(root: Path, relative: str, contract_type):
             f"initialized-project evidence is unavailable: {relative}",
         )
     try:
-        content = path.read_bytes()
+        content = (
+            path.read_bytes() if observation is None else observation.read(relative)
+        )
     except OSError as exc:
         raise ProjectUpdateError(
             "project.update_evidence_unavailable",
@@ -114,7 +116,11 @@ def _read_contract(root: Path, relative: str, contract_type):
             f"initialized-project evidence exceeds the size limit: {relative}",
         )
     try:
-        value = json.loads(content)
+        value = (
+            json.loads(content)
+            if observation is None
+            else observation.json_value(content, relative)
+        )
         contract = contract_type.from_dict(value)
     except (TypeError, ValueError, UnicodeError) as exc:
         raise ProjectUpdateError(
@@ -129,7 +135,9 @@ def _read_contract(root: Path, relative: str, contract_type):
     return contract
 
 
-def _local_bytes(root: Path, relative: str) -> bytes | None:
+def _local_bytes(root: Path, relative: str, observation=None) -> bytes | None:
+    if observation is not None:
+        return observation.read(relative, optional=True)
     path = _project_path(root, relative)
     if not path.exists():
         return None
@@ -153,15 +161,28 @@ def _local_bytes(root: Path, relative: str) -> bytes | None:
     return content
 
 
-def _local_identity(root: Path, relative: str) -> ContentIdentity | None:
-    content = _local_bytes(root, relative)
+def _local_identity(
+    root: Path, relative: str, observation=None
+) -> ContentIdentity | None:
+    content = _local_bytes(root, relative, observation)
     return None if content is None else _identity(content)
 
 
-def _catalog_import_paths(root: Path) -> frozenset[str]:
+def _catalog_import_paths(root: Path, observation=None) -> frozenset[str]:
     """Return destinations recorded as catalog-inherited, not template-scaffolded."""
 
     root = ProjectConfigurationStore.context(root).framework_root
+    if observation is not None:
+        raw = observation.read(CatalogImportsFile.PATH, optional=True)
+        if raw is None:
+            return frozenset()
+        imports = CatalogImportsFile.from_dict(
+            observation.json_value(raw, CatalogImportsFile.PATH)
+        )
+        return frozenset(
+            file.path for imported in imports.imports for file in imported.files
+        )
+
     imports_path = root / CatalogImportsFile.PATH
     if not imports_path.is_file():
         return frozenset()
@@ -186,7 +207,7 @@ _PROJECT_GLOBAL_INPUT_KINDS = frozenset(
 
 
 def _project_owned_generation_input_paths(
-    project: LoadedProject, imported_paths: frozenset[str]
+    project: LoadedProject, imported_paths: frozenset[str], observation=None
 ) -> frozenset[str]:
     """Keep local Component closure out of framework-template retirement.
 
@@ -206,7 +227,12 @@ def _project_owned_generation_input_paths(
     )
     protected: set[str] = set()
     for component_root in project.roots("component"):
-        for manifest in sorted(component_root.rglob("component.md")):
+        manifests = (
+            sorted(component_root.rglob("component.md"))
+            if observation is None
+            else observation.component_paths(component_root)
+        )
+        for manifest in manifests:
             relative = manifest.relative_to(root).as_posix()
             if relative in imported_paths:
                 continue
@@ -216,7 +242,7 @@ def _project_owned_generation_input_paths(
                     f"project-owned Component is not a regular file: {relative}",
                 )
             try:
-                content = _local_bytes(root, relative)
+                content = _local_bytes(root, relative, observation)
                 assert content is not None
                 authoring = parse_component_markdown(
                     manifest,
@@ -265,7 +291,7 @@ _LEGACY_HARNESS_INVENTORY_PATH = ".literate/harness-inventory.json"
 
 
 def _retained_legacy_shim_authority_paths(
-    root: Path, *, preserve_evidence: bool
+    root: Path, observation=None, *, preserve_evidence: bool = False
 ) -> frozenset[str]:
     """Keep conversion-shim authority while retained legacy state still cites it.
 
@@ -298,13 +324,23 @@ def _retained_legacy_shim_authority_paths(
     implementation = f"{LEGACY_WRAPPER_COMPONENT}/implementation"
     if lift_shift_path.is_file():
         try:
-            content = lift_shift_path.read_bytes()
+            content = (
+                lift_shift_path.read_bytes()
+                if observation is None
+                else observation.read(".literate/legacy-lift-shift.json")
+            )
             if len(content) > _MAXIMUM_UPDATE_INPUT_BYTES:
                 raise ValueError("lift-and-shift evidence exceeds update input limit")
-            lift_shift = json.loads(content)
+            lift_shift = (
+                json.loads(content)
+                if observation is None
+                else observation.json_value(content, ".literate/legacy-lift-shift.json")
+            )
             if not isinstance(lift_shift, dict):
                 raise ValueError("lift-and-shift evidence must be an object")
-            layout = resolve_structural_layout(root, lift_shift)
+            layout = resolve_structural_layout(
+                root, lift_shift, _observation=observation
+            )
             wrapper_component = layout.wrapper_component
             implementation = layout.implementation_directory
         except (OSError, UnicodeError, ValueError) as exc:
@@ -314,7 +350,10 @@ def _retained_legacy_shim_authority_paths(
             ) from exc
     else:
         try:
-            if read_retained_layout_declaration(root) is not None:
+            if (
+                read_retained_layout_declaration(root, _observation=observation)
+                is not None
+            ):
                 raise RetainedLayoutError(
                     "declared layout lacks lift-and-shift evidence"
                 )
@@ -352,21 +391,22 @@ def _retained_legacy_shim_authority_paths(
 
 
 def _upstream_template(
-    baseline_paths: set[str], *, profile: str = "generated"
+    baseline_paths: set[str], *, profile: str = "generated", observation=None
 ) -> dict[str, bytes]:
     if profile == "native":
         from .native_project_bootstrap import native_template_files
 
         return native_template_files()
     converted = LEGACY_LIFT_SHIFT_ADR in baseline_paths
+    reader = _template_text if observation is None else observation.template_text
     content = {
-        destination: _template_text(resource).encode("utf-8")
+        destination: reader(resource).encode("utf-8")
         for destination, resource in _TEMPLATE_FILES.items()
     }
     if set(_STARTER_TEMPLATE_FILES) & baseline_paths:
         content.update(
             {
-                destination: _template_text(resource).encode("utf-8")
+                destination: reader(resource).encode("utf-8")
                 for destination, resource in _STARTER_TEMPLATE_FILES.items()
             }
         )
@@ -443,6 +483,7 @@ def _protect_dangling_roadmap_queue_owners(
     root: Path,
     files: tuple[ProjectUpdateFile, ...],
     upstream_content: dict[str, bytes],
+    observation=None,
 ) -> tuple[ProjectUpdateFile, ...]:
     """Refuse a blind queue replacement that would strand a preserved roadmap owner.
 
@@ -485,7 +526,7 @@ def _protect_dangling_roadmap_queue_owners(
             continue
         if _roadmap_area(item.path) is None:
             continue
-        content = _local_bytes(root, item.path)
+        content = _local_bytes(root, item.path, observation)
         if content is None:
             continue
         try:
@@ -571,7 +612,9 @@ class FilesystemProjectUpdateAdapter:
         catalog_overrides=None,
         adopt_added=False,
         resolutions=None,
+        _observation=None,
     ):
+        self._observation = _observation
         self._base_reader = base_reader
         self._origin_provider = origin_provider
         self._protected_paths = frozenset(protected_paths)
@@ -580,8 +623,13 @@ class FilesystemProjectUpdateAdapter:
         self._resolutions = dict(resolutions or {})
 
     def plan(self, selected: Path, *, check_compatibility=True) -> ProjectUpdatePlan:
+        observation = self._observation
         try:
-            project = discover_project(Path(selected))
+            project = (
+                discover_project(Path(selected))
+                if observation is None
+                else observation.project(Path(selected))
+            )
         except ProjectError as exc:
             raise ProjectUpdateError(exc.code, exc.message) from exc
         if project is None:
@@ -590,10 +638,13 @@ class FilesystemProjectUpdateAdapter:
             )
         root = project.root
         previous = _read_contract(
-            root, INITIALIZATION_ORIGIN_FILE, ProjectInitializationOrigin
+            root, INITIALIZATION_ORIGIN_FILE, ProjectInitializationOrigin, observation
         )
         baseline = _read_contract(
-            root, INITIALIZATION_BASELINE_FILE, ProjectInitializationBaseline
+            root,
+            INITIALIZATION_BASELINE_FILE,
+            ProjectInitializationBaseline,
+            observation,
         )
         if baseline.origin_identity != previous.identity:
             raise ProjectUpdateError(
@@ -621,13 +672,11 @@ class FilesystemProjectUpdateAdapter:
             )
         from .update_merge import UpdateBases, enrich_merge, recover_bases
 
-        bases = UpdateBases(root)
+        bases = UpdateBases(root) if observation is None else observation.bases()
         baseline_by_path = {item.path: item.identity for item in baseline.files}
         baseline_by_path.update(bases.identities("framework"))
-        upstream_content = (
-            _upstream_template(set(baseline_by_path), profile="native")
-            if baseline.profile == "native"
-            else _upstream_template(set(baseline_by_path))
+        upstream_content = _upstream_template(
+            set(baseline_by_path), profile=baseline.profile, observation=observation
         )
         if baseline.profile == "native":
             imports_path = project.framework_root / CatalogImportsFile.PATH
@@ -648,15 +697,15 @@ class FilesystemProjectUpdateAdapter:
             # It grants no exclusions from the contained template policy.
             inherited = self._protected_paths
         else:
-            imported = _catalog_import_paths(root)
+            imported = _catalog_import_paths(root, observation)
             logical_skills = contained_catalog_coordinates(root)
             inherited = (
                 imported
                 | frozenset(logical_skills)
                 | frozenset(bases.scopes["catalog"])
-                | _project_owned_generation_input_paths(project, imported)
+                | _project_owned_generation_input_paths(project, imported, observation)
                 | _retained_legacy_shim_authority_paths(
-                    root, preserve_evidence=project.framework_root != root
+                    root, observation, preserve_evidence=project.framework_root != root
                 )
                 | self._protected_paths
                 | frozenset(self._catalog_overrides)
@@ -688,7 +737,7 @@ class FilesystemProjectUpdateAdapter:
                 _framework_classification(
                     relative,
                     baseline_by_path.get(relative),
-                    local := _local_identity(root, relative),
+                    local := _local_identity(root, relative, observation),
                     current := (
                         _identity(upstream_content[relative])
                         if relative in upstream_content
@@ -716,12 +765,15 @@ class FilesystemProjectUpdateAdapter:
             enrich_merge(
                 item,
                 bases.get(item.baseline_identity),
-                _local_bytes(root, item.path),
+                _local_bytes(root, item.path, observation),
                 upstream_content.get(item.path),
+                _observation=observation,
             )
             for item in files
         )
-        files = _protect_dangling_roadmap_queue_owners(root, files, upstream_content)
+        files = _protect_dangling_roadmap_queue_owners(
+            root, files, upstream_content, observation
+        )
         from .project_update_compatibility import classify_skill_compatibility
 
         if check_compatibility:
@@ -732,6 +784,7 @@ class FilesystemProjectUpdateAdapter:
                 catalog_overrides=self._catalog_overrides,
                 adopt_added=self._adopt_added,
                 resolutions=self._resolutions,
+                _observation=observation,
             )
         if baseline.profile != "native" and project.framework_root != root:
             files = _hold_unplaced_template_additions(project, files, upstream_content)

@@ -43,6 +43,7 @@ from literate_ai.projects import (
     ProjectConfigurationStore,
     ProjectError,
     catalog_placement_root,
+    parse_project_configuration,
 )
 
 _GIT_TIMEOUT_SECONDS = 300
@@ -242,6 +243,7 @@ def _clone_git_source(
         local = Path(url).expanduser()
         if local.exists():
             url = local.resolve().as_uri()
+    clone_owner_pid = os.getpid()
     clone_parent = Path(tempfile.mkdtemp(prefix="litai-c-")).resolve()
     clone_root = clone_parent / "src"
     try:
@@ -342,7 +344,8 @@ def _clone_git_source(
             )
         return clone_root, f"git:{sanitize_git_url(url)}@{commit}"
     except Exception:
-        shutil.rmtree(clone_parent, ignore_errors=True)
+        if clone_owner_pid == os.getpid():
+            shutil.rmtree(clone_parent, ignore_errors=True)
         raise
 
 
@@ -364,14 +367,92 @@ def _open_source(
     """Resolve a local path or git URL into a project tree and provenance ref."""
 
     if _is_git_source_spec(source_spec):
+        source_owner_pid = os.getpid()
         clone_root, ref = _clone_git_source(source_spec, paths)
         clone_parent = clone_root.parent
         try:
             yield clone_root, ref
         finally:
-            shutil.rmtree(clone_parent, ignore_errors=True)
+            # A fork child may unwind its inherited context, but pathname
+            # deletion would also destroy the parent's still-live checkout.
+            if source_owner_pid == os.getpid():
+                shutil.rmtree(clone_parent, ignore_errors=True)
         return
     yield _resolve_local_source(source_spec)
+
+
+def _project_record(root: Path, observation=None):
+    if observation is None:
+        snapshot = ProjectConfigurationStore(root).read()
+        return snapshot.definition, snapshot.content_identity.uri
+    coordinate = (
+        ProjectConfigurationStore.manifest_path(root).relative_to(root).as_posix()
+    )
+    content = observation.read(root, coordinate)
+    observation.json_value(content, str(root / coordinate))
+    return parse_project_configuration(content), "sha256:" + hashlib.sha256(
+        content
+    ).hexdigest()
+
+
+def _read_imports(source_root: Path, observation=None) -> CatalogImportsFile:
+    if observation is None:
+        snapshot = ProjectConfigurationStore(source_root).read()
+        return _parse_provenance(
+            _catalog_provenance(snapshot),
+            contained=snapshot.definition.framework_directory is not None,
+        )[1]
+    coordinate = (
+        ProjectConfigurationStore.context(source_root)
+        .framework_path(CatalogImportsFile.PATH)
+        .relative_to(source_root)
+        .as_posix()
+    )
+    content = observation.read(source_root, coordinate, optional=True)
+    if content is None:
+        return CatalogImportsFile(imports=())
+    return CatalogImportsFile.from_dict(
+        observation.json_value(content, str(source_root / coordinate))
+    )
+
+
+def _read_origin(source_root: Path, observation=None):
+    coordinate = (
+        ProjectConfigurationStore.context(source_root)
+        .framework_path(_ORIGIN_PATH)
+        .relative_to(source_root)
+        .as_posix()
+    )
+    if observation is None:
+        snapshot = ProjectConfigurationStore(source_root).read()
+        content = _provenance_bytes(snapshot, _ORIGIN_PATH)
+    else:
+        content = observation.read(source_root, coordinate, optional=True)
+    if content is None:
+        return None, None
+    value = (
+        json.loads(content)
+        if observation is None
+        else observation.json_value(content, str(source_root / coordinate))
+    )
+    return value, content
+
+
+def _read_observed_source_ancestors(source_root: Path, observation):
+    context = ProjectConfigurationStore.context(source_root)
+    values = []
+    for relative in (_ORIGIN_PATH, CatalogImportsFile.PATH):
+        coordinate = (
+            context.framework_path(relative).relative_to(source_root).as_posix()
+        )
+        raw = observation.read(source_root, coordinate, optional=True)
+        if raw is not None:
+            observation.json_value(raw, str(source_root / coordinate))
+        values.append(raw)
+    origin, imports = _parse_provenance(
+        tuple(values), contained=context.framework_root != source_root
+    )
+    return _read_source_ancestors(origin, values[0], imports)
 
 
 def _read_source_project(source_root: Path) -> ProjectConfigurationSnapshot:
@@ -633,6 +714,7 @@ def check_dag_safe(
     dest_root: Path,
     source_project_id: str,
     source_ancestors: tuple[TransitiveAncestor, ...],
+    observation=None,
 ) -> None:
     """
     Raise CatalogImportError if adding this source would create a cycle.
@@ -643,22 +725,19 @@ def check_dag_safe(
     """
     # Read dest's own project_id
     try:
-        dest_project_id = (
-            ProjectConfigurationStore(dest_root).read().definition.project_id
-        )
+        dest_project_id = _project_record(dest_root, observation)[0].project_id
     except ProjectError as exc:
         raise CatalogImportError(
             "catalog.import_destination_invalid", "destination project is invalid"
         ) from exc
 
     # Compute dest's ancestor project IDs
-    dest_imports = CatalogImportsFile.load(dest_root)
+    dest_imports = _read_imports(dest_root, observation)
     dest_ancestor_ids = dest_imports.all_source_project_ids()
 
     # Also add the literate-ai root from dest's initialization-origin
-    dest_origin = dest_root / ".literate" / "initialization-origin.json"
-    if dest_origin.exists():
-        origin = json.loads(dest_origin.read_text(encoding="utf-8"))
+    origin, _origin_content = _read_origin(dest_root, observation)
+    if _origin_content is not None:
         dist_name = origin.get("distribution_name", "literate-ai")
         dest_ancestor_ids = dest_ancestor_ids | {dist_name}
 
@@ -752,9 +831,17 @@ def _copy_item(
     name: str,
     overwrite: bool,
     *,
-    portable: bool,
+    portable: bool = False,
+    _observation=None,
 ) -> list[CatalogImportFile]:
-    """Copy item directory tree. Returns list of copied CatalogImportFile records."""
+    """Copy a selected item, or delegate to its actual private stage owner."""
+    if _observation is not None:
+        from .catalog_copy_staging import _CatalogCopyStages
+
+        if type(_observation) is not _CatalogCopyStages:
+            raise TypeError("actual live catalog stage owner required")
+        return _observation._copy_item(src_dir, dest_root, kind, name, overwrite)
+
     source_root = src_dir.parents[len(Path(name).parts) - 1]
     dst_dir = (
         dest_root / "samples" / name

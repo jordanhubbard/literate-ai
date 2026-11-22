@@ -128,3 +128,31 @@ The implementation is `adapters/monorepo_components.py`: `stage_monorepo_compone
 `check_component_retained_receipt`, plus `check_monorepo_retained_receipts` for the
 complete boundary set. These are internal integration APIs, not new
 CLI commands or a substitute for completing #365's adoption transaction.
+
+## Declared retained layouts
+
+For a project with a current retained-layout declaration, installed Component
+inspection resolves source through that declaration and current project/conversion
+authority. A layout-bound installation uses
+`literate-ai/monorepo-component-installation@2` and records
+`retained_layout_identity`. Its source coordinate and declaration identity must
+match the actual current layout. A historical installation is stale even when its
+Component input bytes happen to be unchanged; inspection does not execute or
+repair it. Undeclared projects retain their existing `@1` installation schema.
+
+Acknowledged refresh can locate structurally current source before overall retained
+readmission. It reuses the verified boundary selection and executes every selected
+Component when the layout binding changed, then publishes a new installation bound
+to that declaration. Component receipts remain retained boundary evidence; this
+operation grants no whole-project parity, native authority or fresh project receipt.
+Pending relocation, changed layout/source/project inputs or intervening installed
+payload edits refuse. Publication guards run after private temporary output is
+flushed and before replacement; final inspection closes original known facts.
+Installed inspection retains the complete consumed bundle, receipt and projection
+file set through its final layout read. Refresh retains those original file facts
+across execution and transfers them, including the same original parent ancestry,
+to the replacement writer. An intervening edit or substituted parent cannot become
+a later accepted baseline. Initial publication closes its known
+written outputs after validation within its ordinary rollback span.
+Ordinary failure restores only still-owned bytes. Full root/initial/wrapper/public
+relocation and installed/native acceptance remain under ADR 0057's open owner.

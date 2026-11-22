@@ -1,0 +1,127 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_original_canonical_storage_observation_scope",
+  "scope": "Actual canonical lock selection under the creating source preparation/reader/ledger, exact plan binding, external observations separate from project roles, private effect separation and readonly terminal registration.",
+  "subjects": {
+    "src/literate_ai/adapters/component_lock_observation.py": {
+      "algorithm": "sha256",
+      "digest": "0a5df71dfa63cd0139435ceff5809ea49ad8a47deef5550808fe0a9e2cc8f68e"
+    },
+    "src/literate_ai/adapters/component_locks.py": {
+      "algorithm": "sha256",
+      "digest": "db9d4c21e74f79d52f6ddebaf5376665c44d59bd69d7f50b39b51c03d2bed93a"
+    },
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "54074d75a29a0b6696bdc17553d4e01fd61d1285c48f67165e84bc18b23f37e8"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "fcd0d02ad216cc9f3f5ecf9269453b532f949b7ba8f43f7d3c4e14bc81ac4881"
+    },
+    "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+      "algorithm": "sha256",
+      "digest": "6c19770ec36a503675abc5f15d1d8fd8772123b40840a69eaa2a44106835cf5b"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "9568fee0a3dae9fb6cadd6fb5c2334665ec2adc3089442baeb98075573081be1"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "62fa8de27b52144fa307bd16737bf6087f786e21e4381ce8454df92bd14b452d"
+    },
+    "tests/critical/test_retained_layout_source_storage.py": {
+      "algorithm": "sha256",
+      "digest": "ca71950e42291db8f1753f127ebfb2829c7d69caab9cd50a7d570fd8f9c74308"
+    },
+    "tests/critical/test_retained_layout_source_selectors.py": {
+      "algorithm": "sha256",
+      "digest": "e953b39ad56239801da2ea85d71fb67473bb4c4e6783a991ebc976cbc2e152b5"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "algorithm": "sha256",
+      "digest": "253daa6a88ef8db3fb2cf337c442fbe3a362f2622c76d6ba2b6c21bbfbe76fdd"
+    }
+  },
+  "method": "Independent source inspection only; no reviewer tests, native probes or edits.",
+  "findings": [
+    {
+      "finding": "Registered record storage root could change while path, cached snapshot and acknowledged identity remained original; actual altered record still performed57nativepresence probes.",
+      "resolution": "Independent exact-record/field seal includes snapshot and identity primitives, validates before reads, freezes completed observations, permits one plan binding and refuses foreign active native closure.",
+      "state": "closed"
+    }
+  ],
+  "test_fixture_addendum": {
+    "subject": "tests/critical/test_retained_layout_source_storage.py",
+    "previous_sha256": "5252ed60a84a43f2d34bee13030c16bf7785615c3606bd997aa3dfb68b5ebef1",
+    "decision": "approved_source_only",
+    "change": "Allow already created actual pool directory in fixture setup; native overlap refusal and pre-effect assertions remain unchanged."
+  },
+  "limits": [
+    "No independent dynamic qualification; author checks remain separate.",
+    "Original failed baseline and fixture setup cohort remain separate.",
+    "Root/shared/initial/wrapper effects, public recovery/apply and installed/native/platform/integration/release and full roadmap acceptance remain open."
+  ],
+  "review_history": [
+    {
+      "decision": "approved_source_only_before_record_integrity_finding",
+      "subjects": {
+        "src/literate_ai/adapters/component_lock_observation.py": {
+          "algorithm": "sha256",
+          "digest": "f68a9e4dbd3301a9c596f5e6c03fb17a42646220eb51aaff349fe75718ccc5a5"
+        },
+        "src/literate_ai/adapters/component_locks.py": {
+          "algorithm": "sha256",
+          "digest": "db9d4c21e74f79d52f6ddebaf5376665c44d59bd69d7f50b39b51c03d2bed93a"
+        },
+        "src/literate_ai/adapters/retained_layout_source_authored.py": {
+          "algorithm": "sha256",
+          "digest": "54074d75a29a0b6696bdc17553d4e01fd61d1285c48f67165e84bc18b23f37e8"
+        },
+        "src/literate_ai/adapters/retained_layout_source_admission.py": {
+          "algorithm": "sha256",
+          "digest": "fcd0d02ad216cc9f3f5ecf9269453b532f949b7ba8f43f7d3c4e14bc81ac4881"
+        },
+        "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+          "algorithm": "sha256",
+          "digest": "6c19770ec36a503675abc5f15d1d8fd8772123b40840a69eaa2a44106835cf5b"
+        },
+        "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+          "algorithm": "sha256",
+          "digest": "9568fee0a3dae9fb6cadd6fb5c2334665ec2adc3089442baeb98075573081be1"
+        },
+        "src/literate_ai/adapters/retained_layout_transaction.py": {
+          "algorithm": "sha256",
+          "digest": "62fa8de27b52144fa307bd16737bf6087f786e21e4381ce8454df92bd14b452d"
+        },
+        "tests/critical/test_retained_layout_source_storage.py": {
+          "algorithm": "sha256",
+          "digest": "120fcd8dd37444e9abdb30b106a9b0bb187e672158aa2594e3c3a427b5765140"
+        },
+        "tests/critical/test_retained_layout_source_selectors.py": {
+          "algorithm": "sha256",
+          "digest": "e953b39ad56239801da2ea85d71fb67473bb4c4e6783a991ebc976cbc2e152b5"
+        },
+        "tests/critical/test_retained_layout_authored_roles.py": {
+          "algorithm": "sha256",
+          "digest": "320952724c73c4c2749556bdfd8c64f02353e3cdc8b679994aca2d745d4fef1a"
+        }
+      }
+    },
+    {
+      "decision": "changes_requested",
+      "reason": "Original record identity and storage geometry were not independently frozen"
+    },
+    {
+      "decision": "approved_source_only",
+      "scope": "Exact registry seals and immutable creation/plan-binding transitions; fixed finite profiles and callback causality."
+    }
+  ],
+  "test_profile_addendum": {
+    "positive": "131072 entries declared before preparation; original4GiBmetadata,file and payload ceilings unchanged.",
+    "negative": "Original65536-entry/4GiB profile retained, must reach actual control receipt guard with document/metadata headroom but fewer than256 entries.",
+    "teardown": "Existing authored owner test now requires successful actual registry revocation callback before accepting committed error."
+  }
+}

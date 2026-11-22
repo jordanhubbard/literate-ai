@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Retained layout integration: preserve recovered recovery work alongside current
+  contained project metadata, native update rollback and nominal consumer custody.
+  Focused composition controls pass; complete combined qualification remains open.
+
 - Self-hosting: declare optional gRPC import names from project authority when
   optional runtimes are absent. Offline replication controls pass; native FreeBSD
   source renewal remains pending, including a separate source-drift finding.
@@ -303,6 +307,194 @@
   and rejection of built-in or consumer-scope collisions (#447).
   Expected directory keys remain portable on Windows while retaining exact
   namespace, mode, byte and link/reparse verification.
+- Internal layout recovery: fund the actual finite native action checks and
+  marker reads separately. The three-generation retry and five disposition
+  controls pass under their existing limits; public and release qualification
+  remain pending.
+
+- Internal retained-layout journal publication halves repeated body reads while preserving bounded native path, membership and content checks. Complete retained-layout recovery qualification remains pending.
+
+- Retained-layout development can prepare and durably reopen the original
+  logical source forest for root-out planning. Actual canonical ownership,
+  complete namespace custody and fresh bounded decoding remain required.
+  Root/shared execution and legacy recovery for that profile stay guarded (#265).
+
+- Retained-layout development now journals the acknowledged plan, complete
+  original namespace and role observations, and packed metadata bytes before
+  acquiring public controls. Recovery requires a fresh bounded reader and actual
+  canonical owners. Repeated raw metadata chunks reopen with physical
+  deduplication and bounded logical expansion. Root/shared execution and complete
+  public recovery remain unfinished (#265).
+
+- Retained-layout development now observes initializer, provider and authored
+  roles before source-plan acknowledgement. Admission retains the original
+  participants and shared observation allowance. Changed plan bindings and
+  provider selections refuse. Root and shared-directory execution, public
+  application and recovery remain unfinished (#265).
+
+- Retained-layout development now binds the complete original project namespace
+  before source-plan acknowledgement. Actual canonical control publications
+  advance that observation through their live receipts and acquired descriptors;
+  unknown neighbors, replacements and changed witnesses refuse. Root/shared
+  execution, public application and recovery remain unfinished (#265).
+
+- Retained-layout development now binds a source move graph to its live
+  ownership partition and durable intent. Proposed shared ancestors stay fixed;
+  collisions, changed alias targets and additions inside Git or independent
+  project namespaces refuse. Root execution, public application and complete
+  lifecycle qualification remain unfinished (#265).
+
+- Retained-layout development can preserve selected external Component lock
+  evidence through its internal source transaction under the original read
+  allowance. Existing and absent locks stay read-only; changed or replaced
+  observations and overlapping private effects refuse. This internal nonroot
+  result remains unqualified (#265).
+
+- Retained-layout development now resolves relative and prospective in-project
+  matrix cell roots under the original observation allowance. Store selection
+  stays fixed after environment or working-directory changes; redirected,
+  source-crossing and changed resolution paths refuse. Native ancestor checks
+  tolerate unrelated sibling activity while preserving held-directory identity
+  and strict source/output checks. Public/root/shared and
+  complete lifecycle qualification remain open (#265).
+
+- Retained-layout development can carry an external original initializer's
+  Git-backed observations through the source transaction under its existing
+  allowance, including readonly checks after descriptor teardown. Expired or
+  replaced participants and overlapping private outputs refuse. This internal
+  nonroot result remains unqualified; broader layouts, public recovery and
+  installed/platform/release acceptance remain open (#265).
+
+- Retained-layout development can carry a nonroot transaction from funded
+  discovery through source movement, metadata publication and control handoff
+  under its original allowance. It preserves source topology, unknown neighbors,
+  original producer witnesses and verified metadata backups. Terminal observation
+  survives successful descriptor teardown and refuses late changes. This internal
+  result remains unqualified. Selected canonical metadata and optional lock roles
+  now follow actual original discovery, including absent locks and in-project
+  matrix storage. Later environment changes cannot redirect those roles, and
+  aliased moving-source storage refuses. External provider admission, other layout
+  cells, public recovery and installed/platform/release acceptance remain open (#265).
+
+- Catalog-copy development can observe multiple selected sources as one bounded
+  forest, resolve cross-item links while copying and carry the original
+  observations through source ownership handoff. Native closing scans reject
+  unknown entries before retaining or descending into them. Complete public
+  application, recovery and platform qualification remain unfinished (#265).
+
+- Catalog-copy development can retain an actual canonical Git checkout through
+  source ownership handoff and record its resolved commit in provenance. Source
+  observations share the copy budget; ended or changed leases refuse. Complete
+  public application and platform qualification remain unfinished. Canonical
+  clone cleanup preserves the parent's checkout when a fork child unwinds an
+  inherited context (#265).
+
+- Retained-layout development can carry an actual completed catalog copy into a
+  fresh nonroot source plan, classify its precise imported paths and consume the
+  live handoff once. Setup and later phases share the original budget, including
+  an optional actual framework-update predecessor. Complete public application,
+  recovery and platform qualification remain unfinished (#265).
+
+- Catalog-copy development can finalize its original held controls after verified
+  provenance publication, preserve existing advisory bytes and retire native
+  markers with the pending barrier last. Git reads charge actual channel usage
+  within unchanged limits. Imported-role handoff remains unfinished (#265).
+
+- Catalog-copy development can publish canonical provenance from verified item
+  receipts, preserving old metadata, unrelated imports and inheritance decisions.
+  Local source references and prospective metadata share the original finite
+  allowance; control finalization and imported-role handoff remain pending (#265).
+
+- Catalog-copy development can retain original item directories and exclusively
+  publish verified stages under actual held controls, including missing parent
+  chains with ordinary modes. Entry effects remain explicitly incomplete until
+  provenance and control finalization exist; no imported roles are issued (#265).
+
+- Catalog-publication development joins actual held project/Git controls to
+  bounded retained-source, wrapper and child-project protections. Alternate target
+  spellings and cross-role aliases refuse during preflight; publication and
+  imported-role handoff remain unfinished (#265).
+
+- Retained-source planning and partitioning recognize portable project-manifest
+  spellings and alias leaves before source movement. Registered children retain
+  their actual independent roles; a basename alone grants no ownership (#265).
+
+- Retained-layout development can bound canonical project, conversion, migration,
+  child-registry and Git role inputs under one operation-local allowance while
+  preserving ordinary reader defaults. Changed inputs and ended scopes refuse;
+  the read scope grants no catalog publication or movement rights (#265).
+
+- Catalog-copy development can materialize bounded private trees with durable
+  journal intent and validated source/output identities, retaining partial stages
+  after interruption without publishing into the project (#265).
+
+- Catalog-copy development can inspect complete destination and selected-source
+  namespaces with bounded canonical project/DAG inputs before any copy effects.
+  Saved provenance remains descriptive and grants no ownership (#265).
+
+- Retained-layout development can carry actual framework update additions and
+  reviewed local overlays into acknowledged nonroot source moves. Changed inputs
+  and ended update contexts refuse ownership handoff; strict removals retain
+  original nodes and durable intent in a private directory (#265).
+
+- Retained-layout ownership validates observed update checkpoints through the
+  canonical parser and includes their records in the shared metadata budget,
+  preserving legacy update data and changed checkpoint bytes (#265).
+
+- Retained-layout producer fingerprints use a versioned structural encoding so
+  the same reviewed helper transitions work across Python 3.11 through 3.14 (#265).
+
+- Retained-layout development can verify supported historical initializer roles
+  from exact local Git objects without fetching or executing historical code.
+  Unsupported producers, forged later endpoints and changed provider inputs refuse
+  before source movement (#265).
+
+- Retained-layout development joins complete live initializer, source, control and
+  independent-child roles before a normal source move, preserving unknown entries
+  and refusing changed private state. Historical initializer providers and root
+  placement remain pending (#265).
+
+- Native rewrite planning uses genuinely readmitted declared source while preserving
+  custom progress. Monorepo refresh reruns retained Components after a layout change
+  and binds their installation to the current declaration (#265).
+
+- Retained source-scope refresh and schema migration can locate declared nonroot
+  source before readmission, preserve historical evidence, and refuse pending or
+  changed inputs without granting execution admission (#265).
+
+- Retained harness receipts and Cargo contexts can use freshly readmitted nonroot
+  layouts and their selected wrapper locks; prior receipts stay stale and pending
+  or mismatched layout evidence refuses (#265).
+
+- Retained-layout development can rerun direct harness and wrapper parity at a
+  relocated nonroot source location, retaining prior evidence and refusing changed
+  layout or pending transaction state; qualified admission remains pending (#265).
+
+- Retained-layout development releases recovery controls through their original
+  descriptors, preserving evidence and permitting a fresh ordinary layout transaction;
+  public recovery and full relocation acceptance remain pending (#265).
+
+- Retained-layout development restores still-owned source and metadata after
+  interruption, preserving foreign files and durable committed layouts;
+  recovery control release and public transaction recovery remain pending (#265).
+
+- Retained-layout development binds recovery to current project/Git control roles
+  and reacquires released native controls through acknowledged staged publication;
+  source/metadata and public transaction recovery remain pending (#265).
+
+- Retained-layout development can reacquire retained control descriptors after
+  interruption with exact acknowledgement and fresh native locks, preserving
+  unresolved state; source/metadata and public recovery remain pending (#265).
+
+- Retained-layout development adds normal control handoff with a durable,
+  unqualified commit decision and explicit post-commit error outcomes; public
+  relocation and fresh recovery remain pending (#265).
+
+- Add exclusive native entry movement for retained-layout transactions, preserving
+  nodes and retaining closing conflicts for explicit recovery (#265).
+
+- Add a read-only retained-layout partition census for transactional placement
+  and relocation, with raw source and physical-custody checks (#265).
 
 - Generated bootstrap checks cap stdout and stderr while reading and retire
   owned helpers on completion, timeout or overflow, preserving runtime pins (#332).

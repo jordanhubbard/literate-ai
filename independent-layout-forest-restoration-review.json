@@ -1,0 +1,43 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_initial_fresh_forest_data_restoration_dependency",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "955c31e81ee162a758160acf79942d8e7fb7b98795be71329e27bb827811ac56"
+    },
+    "src/literate_ai/adapters/exclusive_entry.py": {
+      "algorithm": "sha256",
+      "digest": "ae45b3c37e2a763f87d06c34bd949127b39941c5369da474b992c6f1f33aa6e2"
+    },
+    "tests/critical/test_retained_layout_forest_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "29f4758bf2a9003ff0eb663e52b27e5ec6b53b9dc49706938e518cac2cc96d9d"
+    },
+    "tests/critical/test_exclusive_layout_entry.py": {
+      "algorithm": "sha256",
+      "digest": "a01c87ff3b89b35052702634f00f4bdaa7f9e29a1f9d297f8b8f6025e72ac61c"
+    }
+  },
+  "findings_closed": [
+    "Retry guard now inspects actual current journal tail; same-observer old saved.events cannot hide recovery records. One original actual planning roster is sealed through final callbacks, so acknowledged history cannot omit accepted baseline events.",
+    "Incompatible additional named reader/cache/presence/lineage facts and native directory/file aliases refuse before any recovery intent. Portable aliases and recorded actual directory ancestry are both checked; original observations are preserved rather than dropped.",
+    "One actual non-reentrant verifier workspace bounds simultaneous retained/current/successor/checker maps. All planned source file/byte passes and retained journal history are prepaid within unchanged existing policy ceilings.",
+    "Exact independent action schedule, in-flight substeps and one-use journal/native/observed tokens reject unscheduled events, reentry and None/unissued read coupons. Observed receipts store exact canonical bytes.",
+    "Exact ContentIdentity acknowledgement and actual original role/effect registration close at the exclusive primitive final checked pre-effect boundary. Existing primitive callers retain their default behavior."
+  ],
+  "scope": [
+    "Actual creating fresh observer and independently registered canonical/raw descriptors, exact acknowledged actual plan and explicit host authority enroll a one-use restoration effect owner. Plans, snapshots and copies alone grant no rights.",
+    "Inverse source/metadata coordinates derive only from the already validated original journal prefix. Exclusive actual moves retain original nodes, prospective metadata and all newly created directories; no deletion, overwrite, rollback assumption or new source payload baseline.",
+    "Actual original phase admission still refuses. Unmanaged original native/metadata dependencies and real normal control finalization supply inputs honestly; the recovery itself uses real fresh roles, registrations and effects. No SourcePhase or acquired partition is fabricated."
+  ],
+  "not_proven": [
+    "Bound original future-effects/pins-only observation for incomplete native prefixes carrying a real forest-source-intent; existing native-only pending fixtures do not establish this production-shaped path",
+    "Strict fresh-process recovery-prefix observation/replay and actual retry effects for every original/recovery intent/effect/observation boundary; current native loader rejects these new recovery kinds until that join is implemented",
+    "Actual forest verified-data handoff and canonical control disposition, including complete control-inclusive span advancement through genuine normalization/retirement receipts; do not fabricate a legacy single-tree DataRecoveryPlan",
+    "Genuine canonical integrated original forest execution and durable commit/recovery acceptance before public or legacy admission guard removal",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all remaining roadmap obligations"
+  ]
+}

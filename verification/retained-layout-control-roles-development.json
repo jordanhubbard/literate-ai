@@ -1,0 +1,114 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Actual project/conversion and native Git control-role composition with staged POSIX descriptors, macOS source development",
+  "base_revision": "55c53134a06d38a1874af02c226c70a26adeaa3f",
+  "independent_review": {
+    "decision": "approved at exact internal POSIX control-role dependency source scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "a180ef4f6e4f0d461d35249786743c8ade9b887980bb1a01d7534d2b27287bef"
+    },
+    "prior_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "f919074c5cd66e7a13db285a83f205360bfb5cf667d1ddab9a89a2e0ccdd57fd"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/retained_layout_git_controls.py": {
+        "algorithm": "sha256",
+        "digest": "927b500d13f6cf5b0f84dfef2899b658deb82fc3062e1b9abe17acdf4b17bf5f"
+      },
+      "src/literate_ai/adapters/retained_layout_control_roles.py": {
+        "algorithm": "sha256",
+        "digest": "ac2b1266d91f5c2911947771846c80e343cbc71956b1009d034e391fd37c22da"
+      },
+      "src/literate_ai/adapters/retained_layout_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "e07ad13be328861dd3ae917fcc96a696c2d0efc24118e2e779242d44f125fa7f"
+      },
+      "tests/critical/test_retained_layout_control_roles.py": {
+        "algorithm": "sha256",
+        "digest": "9412b4365939a5a5c28dd4355b4bf80408678bd58775c140277ad88d2ad2c001"
+      },
+      "src/literate_ai/adapters/repository_refresh.py": {
+        "algorithm": "sha256",
+        "digest": "4aa4b18744e079bd4800181582b69cc31325ac46e88a3717d5e0a79a6f8c3d1f"
+      },
+      "src/literate_ai/adapters/repository_refresh_refs.py": {
+        "algorithm": "sha256",
+        "digest": "09394420824a52bfb5897374e48358b27f7d7d9abd883c605fc2137c58b438b5"
+      },
+      "src/literate_ai/adapters/repository_refresh_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "51039fc1defa64b0e8844a35dc40f0ffa89afed6afe48bdee00dd884ff9ddfae"
+      },
+      "src/literate_ai/adapters/repository_orchestration.py": {
+        "algorithm": "sha256",
+        "digest": "1a560e47ee52262d6a8bd32d88d2e2d77fb2b361607a34ecb8b43a54487c7ed3"
+      },
+      "src/literate_ai/adapters/conversion_authority.py": {
+        "algorithm": "sha256",
+        "digest": "c2512731c646e1242d2e98a616167b17847f1d26399d9eed35f61ec99d43d98e"
+      },
+      "src/literate_ai/adapters/lifecycle_lock.py": {
+        "algorithm": "sha256",
+        "digest": "0075643b160fce0563e42b566ecb63043ba3d7bd4b0ed2988dad0922345706ce"
+      },
+      "src/literate_ai/adapters/_write_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "41142605231279e20cd34706c4afcc4b38949a6d819b84011460f382f72adf2a"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "src/literate_ai/adapters/retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "01c10715e44d9289f899e5d77fa68d4348eb9943590fc5f30e2b51c914738c83"
+      },
+      "src/literate_ai/adapters/retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "25835cf1aed40729989e3e589226a4d45ca22939e70dba2fad5ae3f54338b14b"
+      }
+    }
+  },
+  "native_macos_source_cases": {
+    "maintained_role_methods_passed": 22,
+    "independently_rerun_methods_passed": 22,
+    "independent_supplementary_passed": 3,
+    "selected_neighborhood_passed": 133,
+    "skipped": 0,
+    "initial_closing_predecessor_failures": 3,
+    "reviewed_include_writer_predecessor_failures": 5,
+    "intermediate_redirect_predecessor_failures": 1
+  },
+  "preserved": [
+    "Actual original-source project/conversion identity derives lifecycle, manifest and conversion mutex targets and acquires each through real staged descriptors",
+    "Physical bounded discovery and native registered Git state cover absent repositories, unborn/absent index, detached/packed HEAD, linked worktrees and containing repositories; malformed candidates refuse before public effects",
+    "Exact HEAD/ref/index/commondir/configuration bytes or explicit absence, full physical nodes and original ancestry remain current through logical role checks and cheap final native/dependency closure",
+    "Native Git expanded declared include targets supplement effective origins, including empty/missing files; relative paths resolve from actual declaring origins and inactive conditional targets are conservatively writer-reserved",
+    "Canceled parent traversal prefixes are physically validated before normalization and retain original lineage; missing/redirected parents refuse before public controls",
+    "Fixed repository anchors and protected administrative coordinates are facts only; they do not grant source exclusions or ownership of shared ancestors",
+    "Partial/completed reservation retention, actual OS locks, process/context lifetime and unchanged shared helper contracts remain in effect"
+  ],
+  "causal_repairs": [
+    "Three initial closing controls returned across late HEAD/index byte changes or same-byte conversion inode replacement; native cross-input closure refuses all three",
+    "Five actual native config writers bypassed reviewed empty/missing/nested-relative/tilde/conditional include controls; declared-target inputs and writer reservations exclude them",
+    "Intermediate lexical normalization hid a symlink before parent traversal and minted the wrong coordinate; retained safe canceled-prefix ancestry refuses while ordinary parent-relative includes stay supported"
+  ],
+  "limits": [
+    "All native Git/project fixtures are bounded development source controls on macOS; currentness is point-in-time cooperative state, not hostile-process containment",
+    "The independent reviewer reran22methods and3supplementary cases; the author separately ran the133method affected neighborhood",
+    "The source extraction in the staged owner is bound here at its changed hash; historical staged/journal evidence retains its original source subjects unchanged",
+    "Roles-current checks allow separately authorized same-project manifest replacement; require_initial_inputs remains exact, and prospective metadata/source ownership still requires the transaction owner",
+    "Conservative include-target writer coordinates grant no source ownership, exclusions, cleanup or arbitrary host execution",
+    "No native Windows, other-native-host, installed/noneditable, complete-source, full-feature, integration-head/main or release qualification is inferred"
+  ],
+  "remaining": [
+    "Compose selected-wrapper/current structural layout, actual initialization authority, complete original-source/partition custody, exact acknowledged plan/prospective metadata and host execution authorization",
+    "Implement journaled source effects, coherent metadata publication, explicit normal control finalization and fresh acknowledged endpoint recovery",
+    "Complete all structural renewal and initial plain/root/custom placement, every relocation and genuine lock/inventory/baseline/parity/readmission/receipt renewal cell",
+    "Complete actual platform/installed/full-source/integration/exact-head/main and release acceptance before closing ADR0057 or ADOPT-RELOCATE-001"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

@@ -1,0 +1,163 @@
+{
+  "schema": "literate-ai/forest-restoration-development@1",
+  "state": "source_reviewed_actual_initial_data_restoration_effects",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "initial_fresh_restoration_effects_proven": true,
+  "fresh_process_retry_proven": false,
+  "control_disposition_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-restoration-review.json",
+    "sha256": "f78a3b78a05b3c25c71329c804573a4fcaf154ec7f69a0fab79571f202eb6966"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-restoration-final-owner-report.json",
+        "sha256": "7a437926ce193d9eb6cb92f8227e279cff7241368abe8654afb495e4e61c56cc"
+      },
+      "log": {
+        "path": "_build/forest-restoration-final-owner-maintained.log",
+        "sha256": "0a12d7c1f48aa6f704dcf720e1b1a0cc0072d5062cbe18756461445d877f2881"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "198ce3a8b5ec7c5634fd182fffbd088c91d3786bc016a5ec548fca089d1daac2",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-restoration-exclusive-report.json",
+        "sha256": "d69d453aaec2795a620b974f84b1d6069e527b1aff81e8651cc658485dbbe05f"
+      },
+      "log": {
+        "path": "_build/forest-restoration-exclusive-maintained.log",
+        "sha256": "b68261cfaeb6c308ce84710af73553743f7d6f9c0cff70b2a5d028399a731c87"
+      },
+      "summary": {
+        "executed": 18,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 18,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6ff40c3b3be6f6c33f24f93bb204d5629e950795af5254c9ed9f1b9c21f3cbd9",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 26,
+  "pre_fix_maintained_failure": {
+    "report": {
+      "path": "_build/forest-restoration-owner-report.json",
+      "sha256": "61a8d8d9cc8c87192d3f58aaf4ba9e37eafacac933c85e4686cb4c26ba678354"
+    },
+    "log": {
+      "path": "_build/forest-restoration-owner-maintained.log",
+      "sha256": "738544955e6ab24f104c8a4fe580f277f48b99029bcd97d8b21c4961ed6c1446"
+    },
+    "cause": "Expanded symlink assertion compared original native link_target=None with actual receipt raw text, even though original links stores text separately. Expected native target now derives from original retained raw link witness; physical os.readlink/inode/metadata checks remain."
+  },
+  "diagnostics": [
+    {
+      "path": "_build/forest-restoration-first-diagnostic.log",
+      "sha256": "5b6f86d5e8d22e5ba617f0f42ca3716cf2a6b3fea89ab7617ac10181b005a8a1"
+    },
+    {
+      "path": "_build/forest-restoration-second-diagnostic.log",
+      "sha256": "11a852f61075a78db873021b10375cb001bec5fa84275a8b0930c15cba543251"
+    },
+    {
+      "path": "_build/forest-restoration-third-diagnostic.log",
+      "sha256": "c923a93c535ee8c03864c263b1342fc464394fb470fd4dad0d6bbbdbf9557985"
+    },
+    {
+      "path": "_build/forest-restoration-fourth-diagnostic.log",
+      "sha256": "1fc7d5405f4874022d8ad89a1a78e8621ebe4ea58a264d69a9a7851e89efbcf2"
+    },
+    {
+      "path": "_build/forest-restoration-fifth-diagnostic.log",
+      "sha256": "3e8a8f9bde607d4fc4a9f0b177155d2d35d433484d2c7fdd8139c4700a57ecb8"
+    },
+    {
+      "path": "_build/forest-restoration-sixth-diagnostic.log",
+      "sha256": "840a544eb6a3502adc4a8f33572301b297626f637ca265970da24c241bea77ef"
+    },
+    {
+      "path": "_build/forest-restoration-seventh-diagnostic.log",
+      "sha256": "28186aa83e684c8e6c1b62036f920778fb3e946aeb972911067bbe334c09a2c9"
+    },
+    {
+      "path": "_build/forest-restoration-eighth-diagnostic.log",
+      "sha256": "5c68be10cb6c12ff2d6210bbb96c511fb6b5a91d12febb8b761544252fe3b1ce"
+    }
+  ],
+  "causal_notes": [
+    "Actual precursor full restoration passed153.315s. A later six-case diagnostic passed five negatives but failed observed dict/bytes encoding after its first effect; corrected canonical receipt encoding then passed26diagnostic methods421.958s. These remain precursor diagnostics, separate from final maintained source/topology.",
+    "Final positive declares and actually restores a directory payload, cross-carrier native hardlink, raw relative symlink and empty directory created BEFORE original preparation. Exact complete original roster, source/metadata hashes, native inodes/modes/owners/link facts and raw link text are checked; prospective metadata/private stages and original/private/incoming controls remain retained. Controls remain held and unreleased.",
+    "Real denied ack/copied plan, read/event/action reentry, outside-read None coupon without FD access, actual final primitive-stat role revocation without rename, and source mutation during actual durable append after payload validation are tested with real entry/hit and preservation assertions.",
+    "Same-observer retry is denied from the actual current tail before another source observation. Incompatible cached source facts and actual alternative-case moving-directory ancestry deny before intent. Last final planning callback appends a real record; original-prefix closure refuses rather than accepting an unacknowledged baseline.",
+    "Invalid fixture ceilings initially failed before execution:4,194,304 exceeds4m entries and128GiB exceeds16GiB metadata. Final explicit fresh policy stays within existing4m/16GiB production limits; original source preparation policy stays unchanged. No ledger refunds/resets.",
+    "The original128-event/8MiB journal cannot fit the complete recovery and is retained as a real pre-effect refusal. Positive original256-event/16MiB journal is declared BEFORE original durable creation; recovery never enlarges immutable producer policy.",
+    "Sequential whole-view prepay originally exhausted16GiB. One registered non-reentrant scratch workspace now funds true simultaneous views once; cumulative planned source files/bytes and retained history are fully charged before first intent."
+  ],
+  "remaining": [
+    "Bound original future-effects/pins-only observation for incomplete native prefixes carrying a real forest-source-intent; existing native-only pending fixtures do not establish this production-shaped path",
+    "Strict fresh-process recovery-prefix observation/replay and actual retry effects for every original/recovery intent/effect/observation boundary; current native loader rejects these new recovery kinds until that join is implemented",
+    "Actual forest verified-data handoff and canonical control disposition, including complete control-inclusive span advancement through genuine normalization/retirement receipts; do not fabricate a legacy single-tree DataRecoveryPlan",
+    "Genuine canonical integrated original forest execution and durable commit/recovery acceptance before public or legacy admission guard removal",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all remaining roadmap obligations"
+  ],
+  "static_checks": {
+    "state": "pass",
+    "log": {
+      "path": "_build/forest-restoration-final-static.log",
+      "sha256": "47d4482bed37449017c51a20d7e36354f82da725e4908c88bd434aff28074a32"
+    },
+    "exit": 0,
+    "completed": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap-dependency-graph",
+      "documentation-check"
+    ],
+    "readonly_log": {
+      "path": "_build/forest-restoration-readonly-static.log",
+      "sha256": "752f379edda922112b18ca733f5fb2fd1b09ed9cb84a351295195e9c9bdb5aac"
+    },
+    "git_diff_check_exit": 0
+  },
+  "project_verify": {
+    "report": {
+      "path": "_build/forest-restoration-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "skipped": 3,
+    "whole_project_qualification": false
+  }
+}

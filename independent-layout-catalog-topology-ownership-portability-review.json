@@ -1,0 +1,134 @@
+{
+  "schema": "literate-ai/independent-dynamic-review@1",
+  "decision": "approved_at_limited_internal_linux_scope",
+  "scope": "Tenth maintained ownership fixture portability correction; source review and exact three-case Linux check only.",
+  "predecessors": [
+    {
+      "path": "independent-layout-catalog-topology-linux-qualification-review.json",
+      "sha256": "cfa0ef1ae9b62c79b498596e483208dce3f72b98f606321bcce45ae3281504ab",
+      "preserved": true,
+      "scope": "Original eight subjects, independent50."
+    },
+    {
+      "path": "independent-layout-catalog-topology-planner-linux-review.json",
+      "sha256": "78044cbb5b184ed5601eb6ff8ca1a3ad918a8fc4471b01eda113bf196438e0c9",
+      "preserved": true,
+      "scope": "Ninth planner-test correction, independent20."
+    }
+  ],
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_forest.py",
+      "sha256": "3ddc3317fcce8bc8839b8d1b2ccb075717e7728c73e8172a4d6d7aa3b10316b8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "18454f60dbb63aed6645fbd7cf3da0016427a79eace1a402a07dbe565c418b05"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_forest.py",
+      "sha256": "f87d948171af60b52d552bf4aabb2dff413048304bb9c2bfc1b73387e4814bc5"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_topology.py",
+      "sha256": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_plan.py",
+      "sha256": "500a2bdbdd96f1f1982f36c01fbcca4e0f1deaefc2b0a5f5dc7b3c89e9ce63b6"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_ownership.py",
+      "sha256": "ad7988e41852099dfcf7b3bb5e6d12284d2de67d291e819a05d63dfaab08fde3"
+    }
+  ],
+  "executed_subject": {
+    "base_commit": "77492b6e4f422d9aca465404c52566b7bdc6d50d",
+    "base_tree": "0399de246c0cdee8b0e52a7d6f0cfa5ebaa0bb5b",
+    "overlays": "Exact planner and ownership test hashes above. These were the only observed tracked src/tests differences; no new commit identity is claimed.",
+    "author_identified_tenth_patch_sha256": "3db2d398ff4a43d03514ed2a57dd69d4d3d4523411cbc02cebbb2728dd6ae5a3",
+    "verification": "All10 files checked against expected hashes before execution and after execution; before/after source manifests are identical."
+  },
+  "source_assessment": [
+    "Changed positive derives original selector from the same canonical host_platform_selector imported and used by actual fixture _selectors.",
+    "Explicit assertIn proves that selector was present in the actual original manifest before removal. Exact selector removal then changes current selection without changing initialization history.",
+    "Flavor file and expected framework role key derive from that original selector rather than hardcoded macOS. Role assertion and local-overlay byte-preservation assertion remain.",
+    "No production behavior, baseline/provider metadata, fixture admission or ownership policy is altered. Inactive-endpoint forgery and original-manifest-blob identity negative cases remain unchanged and pass on Linux."
+  ],
+  "independent_execution": {
+    "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_selected_flavor_remains_framework_after_manifest_edit tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_forged_baseline_cannot_claim_an_inactive_template_endpoint tests.critical.test_retained_layout_ownership.RetainedLayoutOwnershipTests.test_original_manifest_blob_must_match_its_baseline_identity",
+    "session": 99303,
+    "timeout_seconds": 180,
+    "terminal": true,
+    "transport_exit": 0,
+    "explicit_test_exit": 0,
+    "tests": 3,
+    "unique_cases": 3,
+    "passed": 3,
+    "skipped": 0,
+    "seconds": 7.248,
+    "platform": "Linux x86_64",
+    "environment": "Owning qualification checkout Make-managed Python3.12.3",
+    "temporary_policy": "Task-owned directory outside all Git checkouts.",
+    "verification": "Read actual three case outcomes, unittest footer and explicit INDEPENDENT_PORTABILITY_EXIT=0; did not infer from transport return0.",
+    "log": {
+      "path": "_build/catalog-topology-independent-linux-portability.log",
+      "sha256": "bad26475f4d474d106ac6e6cef0a497ce54536271f65cc45da3c05f3207086ce"
+    }
+  },
+  "evidence": {
+    "before_manifest_sha256": "baaf3848807a04034a62009a75240274c8b382de863f14c19bb9af6c7b81190f",
+    "after_manifest_sha256": "baaf3848807a04034a62009a75240274c8b382de863f14c19bb9af6c7b81190f",
+    "terminal": {
+      "path": "_build/catalog-topology-independent-linux-portability-terminal.txt",
+      "sha256": "a1a447317da9e78f7b07bd61b05a1684ce534ad7260e8ad486a15f4157ef7283"
+    },
+    "archive": {
+      "path": "_build/catalog-topology-independent-linux-portability-evidence.tar.gz",
+      "sha256": "e8062b836c20cf7200219bfec33318140fb74a692013ea0d37373148f54144e4",
+      "retrieval": "Canonical guarded download to new destination. Four expected regular members listed; named members read to controlled local files via tar stdout. Remote/local archive hash matches."
+    }
+  },
+  "author_failed_companion": {
+    "path": "_build/catalog-topology-linux-broad-transport.log",
+    "sha256": "0d4baebc17ef76e768f9ab32cbe163c215b59a0ce6f3d1f9f3fdbaeef6be2985",
+    "attribution": "Author execution, not reviewer broad execution. Parent reports291passed/4skipped/1error; independently read tail confirms296tests719.152s, errors1/skipped4 and CTQ_BROAD_EXIT=1.",
+    "cause_at_test_scope": "FileNotFoundError reading hardcoded flavors/os-macos/flavor.md before ownership inspection in real Linux-host fixture.",
+    "qualification": "Failed companion remains failed historical evidence. Three focused passes do not relabel or replace the required complete companion replay."
+  },
+  "health": {
+    "measured_initial_utc": "2026-11-14T10:33:09Z",
+    "measured_final_utc": "2026-11-14T10:34:09Z",
+    "initial_available_KiB": 15614300,
+    "final_available_KiB": 15614220,
+    "memory_available_bytes": 30055956480,
+    "cpu_count": 16,
+    "classification": "Disk warning persists around3.1% free; above10GiB reserve and11GiB dispatch gate. No critical condition observed.",
+    "cleanup": "No cleanup, repair or installation."
+  },
+  "findings": [],
+  "limits": [
+    "Only the changed positive and two requested negative controls independently executed. No full ownership module,296-method companion or whole catalog/native qualification claim.",
+    "Original50, planner20 and this3 are distinct executions at distinct subject sets, not one73-case cohort.",
+    "No local tests/builds, bespoke probes/reproduction scripts, source/pin edits, worker repairs, credential/endpoint changes, cleanup or new agents.",
+    "Slot1 was solely assigned for this test and released at terminal notification before author replay. No further test dispatches.",
+    "Linux source-checkout fixture qualification only, not other platforms, installed-wheel, public/root/shared/recovery/full-program/feature/release acceptance.",
+    "No reviewer test or transport remains live. All prior reports preserved; source can unfreeze from reviewer side after parent-owned jobs permit."
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "schema": "independent-source-review@1",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "approved_at_exact_read_only_preflight_scope",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "6a600e7711db6bd3ea1ed20270430ddfa823a668",
+  "scope": "Read-only catalog protection preflight joining actual admitted stage/control owners with bounded canonical retained-layout/child metadata. No effects/publication/imported ownership.",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_protection.py",
+      "sha256": "8f53e7790f9af4deebf3fff212abf5aafeb5a8ae8da744a081f503a79f42b539",
+      "changed_since_initial_review": true
+    },
+    {
+      "path": "src/literate_ai/adapters/bounded_role_observation.py",
+      "sha256": "f6c2eb49244b3d2f9281d4cbb38169b11afd82fcf2f439b1dba4baf225173432",
+      "changed_since_initial_review": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "d466bd32144f2dbc6dbdbe42610acf8d19b9348982c9888dd9a7f84fe59542dd",
+      "changed_since_initial_review": false
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_control_roles.py",
+      "sha256": "cb0c3712e7a88a5b7cfcc0ee9e8ec87051a8a51c340b068387b5b13c3f6a6243",
+      "changed_since_initial_review": false
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_protection.py",
+      "sha256": "96340eb53f5d5292fe993385e5bfb63fdfc599d8235f066c0714f3dbff07320b",
+      "changed_since_initial_review": true
+    }
+  ],
+  "prior_report": {
+    "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-protection-review.json",
+    "sha256": "02b7e3e88951f589bb9605adb32ae1253a0d70a9d7e2740fa4b644f99567d7f7",
+    "unchanged_verified": true
+  },
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-PROTECTION-PHYSICAL-001",
+      "status": "closed_in_exact_reviewed_bytes",
+      "evidence": "An original-name and NFC-casefold index is precharged before allocation. Every target prefix must match an exact original native receipt, or be genuinely absent and free of portable/native alternate-name collision. This prevents case-alias coordinates from bypassing later lexical/native protected-node selection. Maintained protected-uppercase refusal and genuinely new uppercase positive both pass."
+    },
+    {
+      "id": "CATALOG-PROTECTION-CLOSING-002",
+      "status": "closed_in_exact_reviewed_bytes",
+      "evidence": "The actual Git close, including possible linked-worktree owns()->verify_all dependent reads, now precedes the final stage._close_known. Subsequent closures are known-native/ancestry or pure eligibility checks. Maintained real linked-worktree event instrumentation confirms final stage close occurs after last owned-lock read."
+    }
+  ],
+  "source_assessment": [
+    "Read current protection module and new test bodies; checked all five exact hashes. Three existing integration subjects remain byte-identical to the initial review.",
+    "Target prefixes reject existing native nodes absent from their exact original complete census names, even when portable normalization alone does not describe the filesystem alias. Exact existing nodes must match original _from_stat receipts.",
+    "Portable-name index allocations debit original shared ledger before construction. Genuinely new uppercase coordinates remain supported rather than imposing a lower-case-only policy.",
+    "Lexical retained source/wrapper/registered-child/admin/private checks, alias resolution and physical inode protection remain present after prefix admission.",
+    "The actual stage private-item/journal/root known facts close after all linked Git ownership traversal; scope/control-private/project-plan known facts then close without further payload/enumeration.",
+    "Actual normal acquisition registry, real descriptor/path/private journal binding, bounded canonical parsers and scope lifetime remain unchanged. The preflight continues to describe grants_effects:false."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_protection",
+      "result": "19 passed,0 failures/errors/skips,37.912s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-protection-independent-rereview-focused.log",
+      "log_sha256": "17434d89b53ee6ad3ccd83e008aefb6f6eead6f1d7ba340b3c16899b5debb868"
+    }
+  ],
+  "historical_independent_evidence": {
+    "reference": "Initial immutable review",
+    "result": "16 focused passed28.457s plus71 maintained neighborhood passed15.897s on initial revision.",
+    "qualification": "Historical scope only; current protection/test bytes are covered by new19 run, not relabeled by earlier results."
+  },
+  "terminal_process_state": "Independent58953 is terminal exit0; no reviewer-owned process remains live. No bespoke probes/reproduction scripts were run. Author final affected replay is not admitted or relabeled here.",
+  "acceptance_limits": [
+    "Approval only for exact five-subject read-only protection prerequisite. Destination-to-effect receiver transfer, actual catalog publication/overwrite retirement, imported ownership/source-partition join, recovery/public/full-feature/program/release acceptance remain pending.",
+    "Portable-case maintained test exercises prefix refusal policy; it does not characterize all filesystem Unicode/case behavior across platforms.",
+    "Linked-worktree test uses actual native Git and real ownership reads with event-order instrumentation. No arbitrary late stage-payload mutation probe or bespoke reproduction was executed.",
+    "Local maintained editable-source POSIX/macOS evidence only; no isolated installed/wheel/Linux/Windows/cross-platform or full application qualification.",
+    "No saved preflight/plan/metadata record confers ownership, exclusion, publication or mutation rights. Full actual owners must still be joined before future effects.",
+    "No continuous hostile same-user atomic snapshot or authenticated historical provenance claim.",
+    "No implementation/test/pin edits, installs, subagents, network or external posts. Only requested new immutable review report written; initial report unchanged."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "changes_requested",
+  "review_mode": "source-only supplemental audit; no new execution",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "7e087729e3863b9e703253880056a3cd18f2cfdc",
+  "prior": {
+    "path": "independent-layout-catalog-source-review.json",
+    "sha256": "8a1f66a6089b55097d0ac1a9a0b5d4d8fc83c18e1d1c44363ea399815469d169",
+    "preserved": true,
+    "qualification": "Earlier approval and11-method evidence remain immutable at their recorded scope; this supplement supersedes approval of inherited/fork-unwind source-lifetime cleanup."
+  },
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "bbe1c831559a3883a1e231cb91350363a12d5597bf054d9942369b73be47ceaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "05832c6fea2c194866bf279afd63dae6ddc83c9021a4b7b8b1b9d147c981d21d"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_roles.py",
+      "sha256": "f72870decc7ed0508ef6d677ea517f883a239d975f7181de74755ed8b6164aaa"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_provenance_publication.py",
+      "sha256": "b0cf092f2dba0d2a86afc72f3c2a45fb81f65c1549289e3507452b7cbf48ece9"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_lease.py",
+      "sha256": "dae05a85411127d8a7fd316491b5d9eea5099aa6d74c3cbb3368be3501f530de"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04",
+      "role": "unchanged canonical acquisition/cleanup dependency"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-SOURCE-FORK-CLEANUP-001",
+      "severity": "blocking",
+      "status": "open",
+      "title": "Inherited context teardown can delete the acquiring parent's still-live canonical clone",
+      "locations": [
+        "src/literate_ai/adapters/catalog_import.py:339",
+        "src/literate_ai/adapters/catalog_import.py:350",
+        "src/literate_ai/adapters/catalog_source_lease.py:222",
+        "src/literate_ai/adapters/catalog_source_lease.py:46",
+        "src/literate_ai/adapters/catalog_copy_roles.py:708"
+      ],
+      "source_evidence": [
+        "New outer prepared_git_catalog_copy_roles holds canonical _open_source across nested copy and caller exposure.",
+        "_SourceLease._close rejects child PID/thread for read and admission, but its finally only removes the child-local registry entry. Nested copy error/cleanup likewise cannot prevent the outer with statement's finally.",
+        "Full inherited child context unwind therefore exits pin stacks and reaches _open_source's unconditional shutil.rmtree(clone_parent,ignore_errors=True). This cleanup has no acquiring-PID condition and does not call source admission.",
+        "Fork memory registries and descriptor copies are process-local; filesystem namespace deletion is shared. Held parent directory descriptors do not prevent recursive deletion of that clone's entries."
+      ],
+      "consequence": "The parent can still hold its valid original registry/pins while inherited child teardown deletes its source checkout. This contradicts the new guarantee that canonical source remains live until the acquiring enclosing producer ends. Subsequent parent currentness should refuse missing/changed source; no unauthorized project write, corruption outcome, or dynamically demonstrated effect bypass is claimed.",
+      "dependency_boundary": "The unconditional cleanup is unchanged existing canonical dependency behavior, not a newly introduced rmtree line. The new long-lived handoff exposes and relies upon that dependency's inherited teardown; unchanged source does not establish the stronger lifetime claim.",
+      "required_change": "Bind destructive canonical clone cleanup to its actual acquiring process and perform it only there. Child teardown may revoke its own copied registry and close its own descriptor copies, but must not remove the parent's clone. Put the condition at the actual cleanup owner; checking only read/admission PID or a saved descriptive source flag is insufficient.",
+      "verification_needed": "Concrete repaired-source review and maintained inherited child full-unwind coverage are required before restoring this lifetime approval. No additional test/probe was requested or executed in this source-only supplement.",
+      "evidence_limit": "Source control-flow conclusion, not a native fork reproduction or exploitation claim."
+    }
+  ],
+  "execution": {
+    "new_tests": 0,
+    "new_probes": 0,
+    "new_reproduction_scripts": 0,
+    "description": "Read-only source snippets, symbol locations and SHA256 verification only. Earlier11PASS75.322 evidence does not exercise inherited child context teardown and is not reused as proof of this boundary.",
+    "live_reviewer_processes": 0
+  },
+  "limits": [
+    "No implementation or previous report modified.",
+    "No full/public/root/shared/recovery/installed/cross-platform/program/release acceptance.",
+    "No general re-audit of all existing canonical clone cleanup behavior, remote-source storage limits or garbage collection authority.",
+    "Exact subject hashes remain unchanged from earlier review.",
+    "Source-only inspection complete; no reviewer execution prevents repair. Parent-owned jobs must reach terminal state before source edits as instructed."
+  ]
+}

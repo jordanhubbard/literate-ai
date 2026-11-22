@@ -1,0 +1,136 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "scope": "Compose recovered retained-layout development history with the current native candidate and Windows ARM64 installer-step correction; local focused composition controls only",
+  "base_revision": "f83936626ec6a2f776418d86ebb0d7b2b5dbde08",
+  "layout_checkpoint": "040758a204afc8533c0688e4bd4a5df19a38ce0e",
+  "arm_prerequisite_revision": "518eb9d5ebd22ffea81cbdd0e56623f0f8129695",
+  "preserved_recovered_files": 171,
+  "complete_recovered_history_preserved": true,
+  "current_driver_pin_retained_without_author_repin": true,
+  "focused_tests": [
+    {
+      "cell": "composition-project-configuration",
+      "report_sha256": "90ce377ddbe95134d29857babbce513d6e80407f34da4a352f335d974fc162cb",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      }
+    },
+    {
+      "cell": "composition-cargo-tree",
+      "report_sha256": "096009de6c01674192b872de5dc2c5554235cad66f919d3be67d2d89f3f99bd0",
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      }
+    },
+    {
+      "cell": "composition-catalog-plan",
+      "report_sha256": "c2577492f23e480ccbbb86ef0888a1fc8d89a21ede5b2d3184a8497c6fba5888",
+      "summary": {
+        "executed": 20,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 20,
+        "selected": 20,
+        "skipped": 0
+      }
+    },
+    {
+      "cell": "composition-catalog-staging-v2",
+      "report_sha256": "319c39f9ad639c3a45fb3d2a1750800a35e64ef0ddba2532ff0a5d45832efa5c",
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "cell": "composition-native-updates",
+      "report_sha256": "d2c493e41e440de2777c2fdec9812405314ec72cdf5754abba0f17296a08fd54",
+      "summary": {
+        "executed": 18,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 18,
+        "selected": 18,
+        "skipped": 0
+      }
+    },
+    {
+      "cell": "composition-framework-update-v3",
+      "report_sha256": "448022efe747fe53a06b744fd8e64493aab6a5c0a3d1e76bbee8ea1efb614d36",
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      }
+    },
+    {
+      "cell": "composition-authored-wrapper-v2",
+      "report_sha256": "b5ff9b911d59089999162c05ada511c4d1e63b8a15f98734c5fdf1d499e32075",
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      }
+    }
+  ],
+  "source_sha256": {
+    "src/literate_ai/projects.py": "56af7108d112e42808d3c19634b8058ab48633c09f786b3db4cd3abb57b38f56",
+    "src/literate_ai/adapters/catalog_import.py": "e17862850331b67c44e2b6f3197e1943c9d6ecfb917f922451e7f3e04f1263e7",
+    "src/literate_ai/adapters/catalog_copy_plan.py": "4599671fc55576379de31487f5a56ca2ba2bdd33aa19bb342d94e168db97f339",
+    "src/literate_ai/adapters/conversion_authority.py": "4d2a03f9048ba03bad9494ec79df62e40550b4f42fa6965e8303adfa34eaa080",
+    "src/literate_ai/adapters/project_updates.py": "9d92f5978dab036e11f480cd3a3d5f54c36388db91c7e8f6c7358eedb01d1bd3",
+    "src/literate_ai/adapters/project_update_apply.py": "f7f274b90045458d01c90b8cfeb8ca49b6b8ce5f0a8782ea76f93e83e77423e4",
+    "src/literate_ai/adapters/retained_cargo_tree_v2.py": "b5a5fe1b55adc0d3a3b4e6f5239a53a25623b09ab9a2d5861398e5f31a0b6a0d",
+    "src/literate_ai/adapters/retained_cargo_wrapper_core.py": "a21b900fdd5cbcc80b2f6a8b9ffdbd4b26e33b853e0bf31b97323b98d7ea279d",
+    "src/literate_ai/adapters/retained_cargo_wrapper_v2.py": "eb2675626d74b24fbeefc849e3b400aca227aaf39d0fc8a526fc28e67b5de720",
+    "src/literate_ai/adapters/retained_harness_receipts.py": "bd34032004f4e59d2976c945e284f3365e9c16ff658e80cbf2b29b9e907704fd",
+    "src/literate_ai/adapters/retained_evidence_migration.py": "6225a8c601582ab49a81b1b808dd30b18b23880c9bf9fc90b04f45eadf3e861b",
+    "src/literate_ai/adapters/retained_layout.py": "1054e8d3f348adaea1c4ebc1f8edc08049c3dfaed1e49855d9ec0eedd39e7bc0",
+    "src/literate_ai/adapters/retained_scope_refresh.py": "eb50e133dddaa9822d3c677492ec547ccddb6ee8b0b786325f5c55a4c27bbd60",
+    "src/literate_ai/adapters/update_merge.py": "3027e74b18c7a629bd5a138c079b269a4d1e57c603879c868e82619c7f32d0b1",
+    "src/literate_ai/adapters/repository_lineage.py": "2db645f1ab71c3a7c7093b3052cb7d3b444fbac6fbafe9fe9baf4ec634b22743",
+    "tests/critical/test_catalog_copy_staging.py": "a7e9ab989c9b919568d3f50ad84c917a7744fe63bf9830d9fc39f709bf54720a",
+    "tests/critical/test_retained_layout_partition.py": "7a21d0d206998bc3f6a18a0d0a7f964135c417ca67fbf0b2df3100392eb82c83"
+  },
+  "composition_decisions": [
+    "Keep current contained project configuration coordinates and bind original source observations to those paths.",
+    "Preserve native-profile Git boundaries and exact rollback while retaining role-owned publication, original mode receipts, callback refusal and bounded input observations.",
+    "Keep current shared nominal consumer wrappers and read-only separation; port original native namespace, source-path and lineage closure into the actual shared owner.",
+    "Keep both actual census passes and Windows handle change-time witnesses. Ordinary source censuses without extra platform witnesses preserve the original two-part physical representation; native output representation is unchanged.",
+    "The staging comparator now supplies the actual selected item directory to the current canonical copy helper; expected content, modes, timestamps and path inventory are unchanged.",
+    "The contained wrapper regression exposed root-level evidence coordinates in the recovered resolver; current project framework coordinates now select the actual metadata."
+  ],
+  "prior_composition_failures_preserved": [
+    "initial census merge returned three values instead of all four observations",
+    "extra chmod after role-owned publication changed its sealed namespace facts",
+    "old staging comparator supplied a catalog root to the selected-item copy helper",
+    "recovered qualified-layout resolver read root metadata in a contained project"
+  ],
+  "complete_combined_source_suite_passed": false,
+  "combined_three_generation_native_renewal_passed": false,
+  "installed_native_combined_qualified": false,
+  "independent_current_implementation_review": false,
+  "full_feature_complete": false,
+  "release_qualified": false
+}

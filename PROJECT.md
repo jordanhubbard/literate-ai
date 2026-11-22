@@ -274,6 +274,37 @@ ADOPT-RELOCATE-001 extends Goals 1, 4 and 6 with supported retained implementati
 placement and transactional relocation, including repository-root placement and
 custom wrapper Component names. The directing user accepted ADR 0057 for 1.4 under issue #265 on
 2026-11-03; implementation, rollback and fresh receipt qualification remain open.
+The internal source transaction now binds a descriptive role-based move graph,
+including shared ancestors, empty logical roots and protected Git/child namespaces.
+It also binds the complete original project namespace before acknowledgement,
+projects canonical control changes from actual publication receipts and acquired
+descriptors, and closes the complete namespace through premovement admission.
+The creating preparation also owns canonical initializer, provider and authored
+roles before acknowledgement. Admission retains those actual participants and
+their original shared reader; a fresh post-lock discovery cannot replace them.
+Development persistence retains bounded original namespace, role, native and raw
+metadata observations before canonical publication. Saved descriptions grant no
+effect rights; recovery still requires fresh actual canonical owners. Repeated
+metadata chunks preserve physical deduplication and fund bounded logical
+expansion before assembly; twelve maintained persistence checks pass. All 611
+affected maintained methods pass across six disjoint cohorts. The combined
+provider operation completes through teardown under predeclared 9 GiB source
+and catalog policies with its original 2 GiB updater policy and at least 512 MiB
+of source metadata headroom. Full source and broader qualification, including a
+current project test receipt, remain open.
+Its production executor still accepts only the existing nonroot single-rename
+profile; root/shared movement, public application and recovery remain unfinished.
+Internal root-out preparation now derives a distinct logical source forest from
+the actual original canonical role partition and complete namespace. Unknown
+metadata remains source, shared native directories stay fixed, and acknowledged
+forest data survives bounded private-journal reopening. Independent source review
+and 177 scoped maintained methods cover this read-only prerequisite. Its source
+profile explicitly refuses legacy execution/recovery admission; broader ordinary
+prepared-phase and full-source qualification remain open.
+The recovered development checkpoint also passes the actual three-generation
+recovery retry and five disposition controls under their original finite limits.
+Current composition retains that history; combined native renewal and complete
+public, installed and release qualification remain outstanding.
 
 Issue #217's reviewed Rust library acceptance-harness dependencies are covered by
 ADR 0056, explicitly accepted by the directing user on 2026-11-03. Implementation

@@ -1,0 +1,103 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "95a0a8dd3ef7d40be946b3cb46b2b3fefdf9f549",
+  "scope": "Actual internal normal nonroot POSIX closed-item retirement, private parent preparation and exclusive project entry publication only; complete catalog application remains unfinished",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_staging.py": {
+      "algorithm": "sha256",
+      "digest": "6bf9342513422e74dbd37f4c0a9078746916b9588b2de2eab6a057d8b3e8ab02"
+    },
+    "src/literate_ai/adapters/catalog_entry_publication.py": {
+      "algorithm": "sha256",
+      "digest": "73bd8790c0f832e777d40172449b690f784c65ddcb67b0e84a4541213e9fa94c"
+    },
+    "tests/critical/test_catalog_entry_publication.py": {
+      "algorithm": "sha256",
+      "digest": "93d71ab7a1436dc6bf4519b1ba7d85bc1fc92ba32751d713de16fedd9cd94f5a"
+    }
+  },
+  "behavior": [
+    "Require genuinely staged unique selected items, authentic creating stage registration and held normal controls; complete actual protection and original input revalidation before transfer.",
+    "Fund current-view metadata/files/payloads and predictable journal intent/event/storage room from the original shared ledger before effects.",
+    "Compare complete project/private digest and native views against exact known effects. Retain originals via exclusive native move before overwrite; preserve closed internal aliases/hardlinks and actual node identities.",
+    "Prepare missing public parents privately with ordinary mkdir/umask modes, move actual items into them and promote known private roots exclusively.",
+    "Journal exact intent before each native effect and completion after verified fsync/currentness; preserve original error types and ambiguous endpoints without undo or collection.",
+    "Actual receiver registration governs stage dispatch/refusal/teardown independently of mutable hint; original nonce equality and factory policy references still close. Writer admission ends with application context; observation remains only until actual stage teardown, then revokes before original descriptor/journal cleanup.",
+    "Normal published exit raises incomplete; registry-backed touched state cannot be hidden by inspection data. Return/inspection grant no imported roles."
+  ],
+  "author_focused": {
+    "passed": 17,
+    "seconds": 52.723,
+    "skipped": 0,
+    "log_sha256": "ae34f4e535dd76824659f8c15d8f073bae94fc73b96f2462616316f7e96b8748"
+  },
+  "maintained_make": {
+    "pattern": "test_catalog_entry_publication.py",
+    "passed": 17,
+    "seconds": 58.645,
+    "skipped": 0,
+    "report_sha256": "14003a3613111acbd61c89ca72377f5c16e52f1060c858043867210f13eece56"
+  },
+  "final_affected_suite": {
+    "passed": 144,
+    "seconds": 135.675,
+    "skipped": 0,
+    "modules": [
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_journal"
+    ],
+    "log_sha256": "4c643ceac676b7b0e55a92c860f1503f3d3186d5e11a083d4a7aa182819b1d84"
+  },
+  "review_chain": [
+    {
+      "path": "independent-layout-catalog-entry-review.json",
+      "sha256": "e62fc1960b3badd849231300439c22075ac7e5b4f343f9c711387add2f40f290",
+      "decision": "changes_requested",
+      "finding": "CATALOG-ENTRY-CUSTODY-001",
+      "execution": "Source-only review; no independent tests launched."
+    },
+    {
+      "path": "independent-layout-catalog-entry-rereview.json",
+      "sha256": "1d02aab2a189c48419aa9546bcdb57d06c6040557493a272d65c2d0de024ba12",
+      "decision": "approved_at_limited_scope",
+      "independent_maintained": {
+        "passed": 17,
+        "seconds": 58.063,
+        "skipped": 0
+      }
+    }
+  ],
+  "historical_failure": {
+    "suite": "Initial affected seven-module run on older source manifest",
+    "executed": 138,
+    "errors": 1,
+    "log_sha256": "f2b9570b1162dca3e8969f418507f540882562a5416467cbdd29c04b4ec5919d",
+    "detail": "Unchanged exclusive_entry.layout_entry_node reported layout.move.entry-changed during containing-repository control acquisition, before catalog stage/receiver use. No cause claimed established or fixed; fail-closed native guard remains unchanged.",
+    "standalone_followup": {
+      "passed": 1,
+      "seconds": 4.119,
+      "log_sha256": "3604d41c8e0b4418a7797cc9028288bfd179321b0a2dd3cce54737c72e0392ae",
+      "scope": "Same maintained case, unchanged native primitive; does not erase initial conflict."
+    }
+  },
+  "static_checks": [
+    "lint PASS",
+    "format-check PASS",
+    "repository-layout-check PASS",
+    "public-export-check PASS",
+    "git diff --check PASS"
+  ],
+  "acceptance_limits": [
+    "Canonical CatalogImportsFile publication, actual control finalization and one-use live imported-role/source-custody handoff remain required; public catalog_copy routing is unchanged.",
+    "Cross-item original topology is explicitly refused pending its complete receiver; full alias/xattr/platform behavior remains open.",
+    "Only local editable-source POSIX/macOS maintained evidence. No installed/wheel/native Linux/Windows/full-source/program/integration/release acceptance.",
+    "No saved observation, hint, event or returned publication data grants ownership, imported roles, source exclusion, recovery or collection.",
+    "Observed-span/currentness and cooperative native effect guarantees only; no continuous hostile same-user atomic snapshot proof.",
+    "The initial containing-Git native guard conflict is retained as a validation limitation; a passing replay does not establish its cause."
+  ]
+}

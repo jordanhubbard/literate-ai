@@ -1,0 +1,160 @@
+{
+  "schema": "literate-ai/original-shared-storage-development@1",
+  "state": "source_reviewed_internal_actual_shared_storage_planning_scoped69pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-shared-storage-review.json",
+    "sha256": "8ccaf9a8e5ab74bb5048a67d659f8b2c69ad8b68037456c64111976e210596b0"
+  },
+  "distinct_scoped_methods_passed": 69,
+  "checks": [
+    {
+      "report": {
+        "path": "_build/source-shared-forest-report.json",
+        "sha256": "1a75bd76fc7c18e2baef3a92a4f255ee7d6fea69ad401dbf6c444c925c2c2628"
+      },
+      "log": {
+        "path": "_build/source-shared-forest.log",
+        "sha256": "701e14350e2b8e54f252e28920d455664a9c7dffc979987593844aac7047d924"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "ce27c16c1660442fdffa9cb7da0ad0be61056f04095e4fdc22ebde8556b8805c",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-shared-preparation-report.json",
+        "sha256": "c246f0a4208d894d8039e1e5b651f843cc66fe8f1fa9fa20bae35760baf4647a"
+      },
+      "log": {
+        "path": "_build/source-shared-preparation.log",
+        "sha256": "d1c7d1b47ce5cdf9626dacea958133ce25a97da4c1c56d7bb04c06d21499c6c5"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "692c61fde22ff5cdcce602c40c34805a772688dcc4ee3cbe5b46eb28286f7899",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/source-shared-storage-report.json",
+        "sha256": "8517fa531fd6068ce3e02be8d1af62dfc7a8682214e34630d3b1d2a1c58b0c9e"
+      },
+      "log": {
+        "path": "_build/source-shared-storage.log",
+        "sha256": "4c95138ad21024ac0433739b64b39d26f74ce303b31be12db00ddd9f7ee3d413"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "8b7e91a87ad6f82ec8628989c4c0af0fddc4838d6d346581bc1cd97cf16427a8",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "causal_diagnostics": [
+    {
+      "path": "_build/source-shared-storage-before.log",
+      "sha256": "82c0b8c2cfb54c4b370bffcf7ca9ee64c6f1d3d5d0857a52523e216b543c23d2"
+    },
+    {
+      "path": "_build/source-shared-storage-custody.log",
+      "sha256": "fdc034005c9d3f475dcdec5f0dbd57f727865f711badfc2e4f80e3b86ca04a1b"
+    }
+  ],
+  "fixture_limits": [
+    "Genuine initializer/conversion, actual ComponentLockStore selection and original preparation/native/graph participants",
+    "Real selected matrix root inside original source, both absent and present actual canonical lock; no patched ownership result or fabricated phase",
+    "Private state may persist but forest source admission still refuses before public controls; no native source movement claimed"
+  ],
+  "pending": [
+    "Complete receipt-backed all-carriers-parked executor and retained empty-container custody",
+    "Coherent metadata, explicit bounded fresh recovery and full post-control destination currentness",
+    "Public initial placement/relocation/recovery/renewal, installed/native/integration/release and all remaining roadmap obligations",
+    "Broader current full-source and receipt qualification"
+  ],
+  "static_gates": {
+    "log": {
+      "path": "_build/source-shared-final-static.log",
+      "sha256": "d0a96f81380d4edc63fb7fa83fd87a4f08060cf88e05b6a535df1627a152a264"
+    },
+    "passed": [
+      "driver-review-record",
+      "documentation-review-record",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check"
+    ]
+  },
+  "full_project_verify": {
+    "report": {
+      "path": "_build/source-shared-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "exit": 1,
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ],
+    "qualification": false
+  }
+}

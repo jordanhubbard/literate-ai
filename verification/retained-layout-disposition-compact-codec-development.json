@@ -1,0 +1,89 @@
+{
+  "schema": "literate-ai/disposition-compact-codec-development@1",
+  "state": "reviewed_disabled_codec_live_protocol_pending",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "prior_checkpoint": {
+    "path": "verification/retained-layout-forest-canonical-topology-development.json",
+    "sha256": "5977490db713bd9a708bf6b3b176e771bd0adc45f507046527fa6863b01d69f4"
+  },
+  "review": {
+    "path": "independent-layout-disposition-compact-codec-review.json",
+    "sha256": "4fc1e7f0dc07af82f5bf1e3c9f424549629028d4b3d2707be4cc117ee1073e96"
+  },
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/retained_layout_disposition_compact.py",
+      "sha256": "085afb97bb3bd21d0effb51413284f4010f2fdce4c2d0c9abc3dd7f7de691e0e"
+    },
+    {
+      "path": "tests/critical/test_retained_layout_disposition_compact.py",
+      "sha256": "86333c970379f5449408d448dfbdc8a484fca3f2d13ecd9cd1b769651c02dfd0"
+    }
+  ],
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-compact-codec-roster-report.json",
+        "sha256": "4f2fd67debc4fff55b4b586358a976659c330f9f9417eff83c743c581fb5ad76"
+      },
+      "log": {
+        "path": "_build/forest-compact-codec-roster-maintained.log",
+        "sha256": "3b7fb61e0eb3dd3b750289c43db99a1b13a8a8021a4f47da65106d85c32405bd"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "source_stage": "prior_dto_stage"
+    },
+    {
+      "report": {
+        "path": "_build/forest-compact-codec-raw-report.json",
+        "sha256": "a67a771a867ef79029216f59117bb22938f6c6e8d93239f12939995c407221d4"
+      },
+      "log": {
+        "path": "_build/forest-compact-codec-raw-maintained.log",
+        "sha256": "9841f2722bfe47e2a35d184ae158b86eb0f472e628973d3ceb8c2095269dcca6"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "source_stage": "final_raw_manifest"
+    }
+  ],
+  "distinct_maintained_methods": 10,
+  "final_affected_methods": 10,
+  "initial_failed_fixture": {
+    "report": {
+      "path": "_build/forest-compact-codec-report.json",
+      "sha256": "f9e5ecaa0e9463ee5d4f1d7371754a5e34875913714b087e53c0e087602ae9be"
+    },
+    "log": {
+      "path": "_build/forest-compact-codec-maintained.log",
+      "sha256": "a2c0726e512e8e922e43c77b234e9950ce9da9575147f04cbd84e7d5a6744d70"
+    },
+    "reason": "Duplicate-source case used pending barrier first and reached the existing pending-last guard before duplicate-source check. Corrected fixture uses another control before pending; no production change for this failure."
+  },
+  "remaining": [
+    "Disabled pure codec only: no compact events are emitted or consumed by any live factory.",
+    "Actual factory must derive and bind complete held-control roster, original namespace, canonical epoch and data recovery provenance; descriptive caller fields grant no rights.",
+    "Implement real writer payload/backend and actual immutable resource preflight including decode/retained-workspace/read coupons, payload slots, stages and crash orphans before intent.",
+    "Implement strict suffix/raw control/metadata/terminal replay together and durable abandoned-prefix head anchoring in subsequent actual raw acquisition intent.",
+    "Normalization format currently explicitly restricts physical source to public target; actual planner must prove this restriction or refuse before effects.",
+    "Rerun unchanged actual late mixed-mode interruption through final release and all mixed custody assertions; the old insufficient-event failure remains unresolved.",
+    "Legacy compatibility, all remaining topology/boundary/public reentry/installed/platform/integration/release and other roadmap obligations remain open."
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "schema": "literate-ai/forest-disposition-development@1",
+  "state": "source_reviewed_actual_live_forest_data_handoff_and_control_effects",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "actual_live_forest_control_disposition_proven": true,
+  "fresh_process_disposition_reopen_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-disposition-review.json",
+    "sha256": "c1632b8850d96e10bd575479555db825c9ca5ad442d67a893b36fae7e97aa187"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-disposition-effects-report.json",
+        "sha256": "a6ad57efae64c5e8f73d4ffc557c8952b5b0fed7964cddaf93805c99a9d20f01"
+      },
+      "log": {
+        "path": "_build/forest-disposition-effects-maintained.log",
+        "sha256": "7b33d201e36b658e2b8aaa98f6be4990be74822db5aeec4d816ef46f74459e9b"
+      },
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "4e470b047b48f80f2cafba8e8aa4c6c5a35629c2d2e315a8c6c9bffcea547e5d",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-disposition-legacy-final-report.json",
+        "sha256": "f553940aeaa91fb678d3d43d22a381727e754e7685c222508583dbad509d29dc"
+      },
+      "log": {
+        "path": "_build/forest-disposition-legacy-final-maintained.log",
+        "sha256": "2ace8af4565f2da131896787fd12887cfca9d67c1594fe2dbc7e660458f7572b"
+      },
+      "summary": {
+        "executed": 26,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 26,
+        "selected": 26,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "923d49ee6684610445b66c85a37707e05bed130f8ad4f92412e5ddd97754aad1",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 29,
+  "scope": [
+    "Only the actual fresh zero-action forest data planner and its registered prepared witness can create this same-observer/canonical-role disposition proposal. Its original reader ancestry is enrolled before the data seal; no old facts are discarded or retrospectively resealed.",
+    "A copied proposal, missing/exact-wrong acknowledgement or absent host authority cannot enroll effects. The actual shared _RecoveryDisposition writer remains the exact class recognized by existing raw, incoming and role factories. Legacy _DataRecoveryPlan and public source guards remain unchanged.",
+    "The new empty retirement root uses original no-follow/two-way source, parking, pool, journal and selected canonical storage geometry, including the nearest existing anchor of absent storage. The new complete span appends this root without shifting original area indices.",
+    "Finite complete-read coupons, cumulative original-ledger files/bytes, cached metadata and retained scratch are funded before intent. A registered non-reentrant read workspace and consumed native method-entry token prevent verifier/method callback overlap before borrowed descriptors or native writes.",
+    "Exact dispatch phase guards close before advisory pwrite/ftruncate/fsync and at the exclusive rename primitive last checked boundary. Payload and event append receipts admit only the exact new private row/envelope while retaining all unrelated journal identities and ordering.",
+    "Real observed advisory normalization and native retirement advance the complete forest and exact control input cache/presence facts together. Only the registered in-flight marker path and original real descriptor can use a bounded raw observation; unrelated reader facts are closed unchanged.",
+    "Every derived successor span/root/budget/node/payload/entry/area field reference and canonical content is sealed before callback-bearing native verification and checked again after access teardown, immediately before installation. Original producer/role/journal/reader seals also close at that boundary.",
+    "Observed physical control aliases and portable prospective retirement aliases without exact transfer support refuse before intent. No alias observation is dropped to make a write possible.",
+    "Actual G0-private/G1-public recovery normalizes owned advisory tokens while retaining their inodes, retires exact native controls with pending last after the durable release decision, verifies the complete resulting source/private span, revokes ordinary canonical access, and closes actual original descriptor contexts.",
+    "Original source/native execution remains an explicitly unmanaged dependency under real normal canonical roles with acquired_partition_payload_digest=None. No original canonical forest phase or partition, release qualification, or disposition-reopen support is manufactured."
+  ],
+  "causal_failures": [
+    {
+      "log": {
+        "path": "_build/forest-disposition-successor-before-diagnostic.log",
+        "sha256": "92cc0f64e7cfed521ff66c0c176b41046c5e105adfe1614c969d89e2bb436066"
+      },
+      "seconds": 206.915,
+      "cause": "A reached last native callback replaced the actual derived successor budget with an equal-valued copy. Predecessor completed disposition instead of refusing, so the ValueError-not-raised assertion failed; actual durable-outcome annotation then wrapped that assertion during teardown. This demonstrates a derived reference closure gap, not an unowned native-effect grant."
+    },
+    {
+      "log": {
+        "path": "_build/forest-disposition-alias-before-diagnostic.log",
+        "sha256": "995de30588e9e93c1fd4ade62f852f8611acee2c44e7365b5727eb3976c20255"
+      },
+      "seconds": 191.474,
+      "cause": "An actual case alias was read and cached through the creating observer before planning. Predecessor returned a disposition plan instead of refusing; events, original inode/bytes and empty retirement root were verified unchanged. This is a pre-effect compatibility failure; no mutation was attempted."
+    }
+  ],
+  "predecessor_sources": [
+    {
+      "path": "_build/forest-disposition-predecessor.py",
+      "sha256": "17d3605dea2205d2d82fe7bcf825a0c44bfb245fc9a21d63d146bc7bc8b6c99d"
+    },
+    {
+      "path": "_build/forest-disposition-reads-predecessor.py",
+      "sha256": "7e86d639d077790822f5a0b56e649f86089f2e42d164acf3f95c0a0a5fb0c99d"
+    }
+  ],
+  "development_failures": [
+    {
+      "log": {
+        "path": "_build/forest-disposition-first-diagnostic.log",
+        "sha256": "07bcd62fa96d3fc24f6b50cf8842033e594bae9f4af61ae41a1c6fc1e2e30f1b"
+      },
+      "seconds": 191.361,
+      "cause": "Wrong completion check used retained original_position instead of actual completed recovery segment; refused before effects."
+    },
+    {
+      "log": {
+        "path": "_build/forest-disposition-second-diagnostic.log",
+        "sha256": "138976d8c9eb6b7a55c865816fc30fb55eb117fd1418e7620a273cb10feb2b5f"
+      },
+      "seconds": 186.337,
+      "cause": "Retirement ancestry was enrolled after the original data reader seal; planner correctly refused changed provenance before effects. Enrollment now precedes data planning."
+    },
+    {
+      "log": {
+        "path": "_build/forest-disposition-third-diagnostic.log",
+        "sha256": "6e30351516ca4907824bd9a6a42e1f93c303c65e43b4846b500a054f58463ec4"
+      },
+      "seconds": 207.414,
+      "cause": "Initial effect verifier assumed optional canonical _disposition existed before handoff; failed before effects."
+    },
+    {
+      "log": {
+        "path": "_build/forest-disposition-fourth-diagnostic.log",
+        "sha256": "3de76cc86684b804e746c769f61ab7cb627290835326dc03a0da9deb2b89bd51"
+      },
+      "seconds": 212.093,
+      "cause": "A real advisory normalization changed owned bytes; ordinary bound marker read correctly refused original cache facts. Exact native-receipt control reader transfer was then implemented; this failed run is not completed disposition evidence."
+    }
+  ],
+  "positive_precursor": {
+    "path": "_build/forest-disposition-fifth-diagnostic.log",
+    "sha256": "99319ea1a98095a4ee1997f92ea60fd18ccd33bf92dd1884c4d553811326e393"
+  },
+  "alignment": {
+    "path": "_build/forest-disposition-alignment.json",
+    "sha256": "fdafd12ff0cc7f54875f6bcd47a150bbf69f5892676ea14042dfa8abd1e8c74a"
+  },
+  "worker_scope": "Local macos aligned, no local findings. Remote unreachable/low-disk findings remain; no remote jobs dispatched.",
+  "not_proven": [
+    "Maintained/public ordinary project reentry acceptance beyond the actual new-journal canonical role acquisition observed in the next-boundary diagnostic",
+    "Strict fresh-process disposition transcript decoding, current source/control span replay and acknowledged interruption retry across normalization, native retirement, decision and descriptor acquisition boundaries",
+    "Larger/multiple supplemental generations and replacement targets, source/metadata/mode/control interruption matrices, committed forest disposition and general public recovery qualification",
+    "Genuine original canonical forest SourcePhase/acquired partition execution and full program/commit/recovery integration before public or legacy admission changes",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and every other pending roadmap obligation"
+  ],
+  "next_boundary_diagnostic": {
+    "log": {
+      "path": "_build/forest-disposition-next-reentry-diagnostic.log",
+      "sha256": "75b5f15b1de100d950f6893822572ad2e68215faeecc1330724580a4847f6fb1"
+    },
+    "seconds": 229.519,
+    "exit": 1,
+    "ordinary_canonical_role_reentry_observed": true,
+    "terminal_disposition_reopen_proven": false,
+    "scope": "After real complete forest disposition and all original descriptor teardown, a fresh old-journal observer refused the unimplemented recovery-control-disposition suffix. Independently, actual ordinary canonical roles acquired under a new real journal and verified current. All old and newly retired control inode/bytes were preserved. This diagnostic is not an additional maintained pass or full public project reentry qualification."
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_actual_registered_forest_data_to_control_disposition_effects",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_disposition.py": {
+      "algorithm": "sha256",
+      "digest": "f27266eb452a65baa7f09898fc544e7776e46d2862cd2a031ef591796676f229"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_disposition.py": {
+      "algorithm": "sha256",
+      "digest": "5dcf7612982eadbbaf3d0bf62c5729c35700700ef086ca8da58569bba9ec3a90"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_disposition_reads.py": {
+      "algorithm": "sha256",
+      "digest": "232e13049f9b3e71d23a56462e9af91e09a06c5aca2a106078048836453f3526"
+    },
+    "tests/critical/test_retained_layout_forest_disposition.py": {
+      "algorithm": "sha256",
+      "digest": "6e8f622726f19a9c2d56467b8ab88f141e1c006196931535681e8c2300e72afd"
+    }
+  },
+  "findings_closed": [
+    "Only the actual fresh zero-action forest data planner and its registered prepared witness can create this same-observer/canonical-role disposition proposal. Its original reader ancestry is enrolled before the data seal; no old facts are discarded or retrospectively resealed.",
+    "A copied proposal, missing/exact-wrong acknowledgement or absent host authority cannot enroll effects. The actual shared _RecoveryDisposition writer remains the exact class recognized by existing raw, incoming and role factories. Legacy _DataRecoveryPlan and public source guards remain unchanged.",
+    "The new empty retirement root uses original no-follow/two-way source, parking, pool, journal and selected canonical storage geometry, including the nearest existing anchor of absent storage. The new complete span appends this root without shifting original area indices.",
+    "Finite complete-read coupons, cumulative original-ledger files/bytes, cached metadata and retained scratch are funded before intent. A registered non-reentrant read workspace and consumed native method-entry token prevent verifier/method callback overlap before borrowed descriptors or native writes.",
+    "Exact dispatch phase guards close before advisory pwrite/ftruncate/fsync and at the exclusive rename primitive last checked boundary. Payload and event append receipts admit only the exact new private row/envelope while retaining all unrelated journal identities and ordering.",
+    "Real observed advisory normalization and native retirement advance the complete forest and exact control input cache/presence facts together. Only the registered in-flight marker path and original real descriptor can use a bounded raw observation; unrelated reader facts are closed unchanged.",
+    "Every derived successor span/root/budget/node/payload/entry/area field reference and canonical content is sealed before callback-bearing native verification and checked again after access teardown, immediately before installation. Original producer/role/journal/reader seals also close at that boundary.",
+    "Observed physical control aliases and portable prospective retirement aliases without exact transfer support refuse before intent. No alias observation is dropped to make a write possible."
+  ],
+  "not_proven": [
+    "Actual fresh ordinary project reentry after the forest disposition descriptor teardown",
+    "Strict fresh-process disposition transcript decoding, current source/control span replay and acknowledged interruption retry across normalization, native retirement, decision and descriptor acquisition boundaries",
+    "Larger/multiple supplemental generations and replacement targets, source/metadata/mode/control interruption matrices, committed forest disposition and general public recovery qualification",
+    "Genuine original canonical forest SourcePhase/acquired partition execution and full program/commit/recovery integration before public or legacy admission changes",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and every other pending roadmap obligation"
+  ]
+}

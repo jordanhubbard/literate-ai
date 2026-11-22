@@ -1,0 +1,147 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_shared_original_provider_nonroot_scope",
+  "scope": "Same actual external original initializer observer under original source reader and cumulative allowance, through partition/source/metadata/control effects and readonly terminal observation after descriptor teardown. Native local fixture scope only.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "0159ea73a8edcedab401eaaa56fe9b20526737fcbcb38dba53255a87bcefb887"
+    },
+    "src/literate_ai/adapters/retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "74c08813a5e40af2f57f5b91f0136bb41ca5be2166d8a77bc49d11b00fbe6809"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "eacbb634b9f88e7a282badd6a9ca6d2c948eab367c2d0b418121c01a63ece0e0"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "ee92f1f1c3c4e0525012894867ec17b3af03b1c1442358e550a8a60daa90e566"
+    },
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "803f2ffccfdebeca8472d1efbf8a99c7914ada11e486b33916f44e82f95cf92e"
+    },
+    "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+      "algorithm": "sha256",
+      "digest": "dea3bff5cde8ec707c0d4aaba661846f4df96d894ae2f4b83da1ab5506faf38b"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "1bcd2a3225cacd1cb5502e313df7bc598b08841f5d753bc0f523054ac6059325"
+    },
+    "tests/critical/test_retained_layout_source_provider.py": {
+      "algorithm": "sha256",
+      "digest": "480edaedfed2326bfa508074836b9f682837dfdaaa0600f17f843ffce616e8fd"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "dba942b24b85ac9ad980e563f428af1906794f54b362f97fb3e109108083bef1"
+    },
+    "tests/critical/test_retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "2981d216c5015d7135f0a65be3ddb174ed0328f4b1addf493c8fe4a1ef8c1ef7"
+    }
+  },
+  "method": "Independent source inspection only. No reviewer tests or native probes. Author qualification remains separate.",
+  "findings": [
+    {
+      "finding": "Mutable _shared hints could select legacy native I/O or fresh-observer revalidation before lifetime checks.",
+      "resolution": "Weak construction provenance governs every observer/roster entry point, validates hints and actual registered source participant, and remains attached to retained ended objects until their collection.",
+      "state": "closed"
+    },
+    {
+      "finding": "Reinitialization could overwrite provenance; foreign shared callbacks or unjoined legacy construction could probe before authentication.",
+      "resolution": "Reject any profiled object or roster before mutation, authenticate exact registered _Provider under active original reader, and refuse fresh unjoined legacy observers in canonical scopes before native reads.",
+      "state": "closed"
+    },
+    {
+      "finding": "Revocation test targeted first generic _close_tree return rather than actual last admitted span.",
+      "resolution": "Filter exact admitted phase, confirm live span/tree, and exercise its readonly currentness boundary.",
+      "state": "closed"
+    },
+    {
+      "finding": "Broad committed exception alone did not prove actual Git corruption and provider refusal.",
+      "resolution": "Callback confirms chmod/write/readback, flags actual corruption, asserts provider validation cause chain, and restores exact original bytes/mode. Registry teardown likewise confirms pop and refusal cause.",
+      "state": "closed"
+    }
+  ],
+  "review_history": [
+    {
+      "decision": "changes_requested",
+      "provider_sha256": "8a47c0274d9ebbc129c4dcde3f98d4395b60bc9f6e27c765fc9f7ed27e50e52b",
+      "source_provider_sha256": "ce53afba4dc41a2b2feef9074801cb6a299faae1ef47a9287e1ad5559cbf4379",
+      "finding": "mutable dispatch hints"
+    },
+    {
+      "decision": "changes_requested",
+      "provider_sha256": "ac12ceb6d21e9647c0e19f1bce694df0b93b87a3790288847dee1feed6f6dd43",
+      "finding": "construction reinit, foreign callbacks and unjoined canonical legacy reads"
+    },
+    {
+      "decision": "production_approved_test_addendum_requested",
+      "tests_sha256": "6c4bfc2e22d159b63e4a71eb53fa7256335698aebc29d6dd213f6d4b965cde84",
+      "finding": "two causal evidence-strength gaps"
+    },
+    {
+      "decision": "approved_source_only",
+      "subjects": {
+        "src/literate_ai/adapters/retained_layout_source_provider.py": {
+          "algorithm": "sha256",
+          "digest": "0159ea73a8edcedab401eaaa56fe9b20526737fcbcb38dba53255a87bcefb887"
+        },
+        "src/literate_ai/adapters/retained_layout_provider.py": {
+          "algorithm": "sha256",
+          "digest": "74c08813a5e40af2f57f5b91f0136bb41ca5be2166d8a77bc49d11b00fbe6809"
+        },
+        "src/literate_ai/adapters/retained_layout_ownership.py": {
+          "algorithm": "sha256",
+          "digest": "eacbb634b9f88e7a282badd6a9ca6d2c948eab367c2d0b418121c01a63ece0e0"
+        },
+        "src/literate_ai/adapters/retained_layout_source_admission.py": {
+          "algorithm": "sha256",
+          "digest": "ee92f1f1c3c4e0525012894867ec17b3af03b1c1442358e550a8a60daa90e566"
+        },
+        "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+          "algorithm": "sha256",
+          "digest": "803f2ffccfdebeca8472d1efbf8a99c7914ada11e486b33916f44e82f95cf92e"
+        },
+        "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+          "algorithm": "sha256",
+          "digest": "dea3bff5cde8ec707c0d4aaba661846f4df96d894ae2f4b83da1ab5506faf38b"
+        },
+        "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+          "algorithm": "sha256",
+          "digest": "1bcd2a3225cacd1cb5502e313df7bc598b08841f5d753bc0f523054ac6059325"
+        },
+        "tests/critical/test_retained_layout_source_provider.py": {
+          "algorithm": "sha256",
+          "digest": "480edaedfed2326bfa508074836b9f682837dfdaaa0600f17f843ffce616e8fd"
+        }
+      }
+    }
+  ],
+  "limits": [
+    "No independent dynamic qualification.",
+    "Constructed local historical Git fixtures establish native handling, not authenticity or availability on a remote upstream.",
+    "Internal normal nonroot transaction remains committed-unqualified.",
+    "Broader selectors/root/shared/initial/wrapper effects, complete public recovery/apply, installed/native/platform/integration/release and full roadmap acceptance remain open."
+  ],
+  "test_profile_addendum": {
+    "subject": "tests/critical/test_retained_layout_source_admission.py",
+    "decision": "approved_source_only",
+    "reason": "Positive declares 131072 entries and 8 GiB before either producer, retains file/payload limits and checks actual original ledger policy/usage after movement. Production capacity guard unchanged; no active allowance enlarged."
+  },
+  "finalization_test_profile_addendum": {
+    "subject": "tests/critical/test_retained_layout_source_finalization.py",
+    "decision": "approved_source_only",
+    "reason": "Positive entry headroom declared before preparation, original smaller Git policy explicitly retained, and descriptor callback flag plus exact cause confirm the intended boundary. Production guards unchanged."
+  },
+  "metadata_negative_profile_addendum": {
+    "subject": "tests/critical/test_retained_layout_source_admission.py",
+    "decision": "approved_source_only",
+    "reason": "Original69632-entry/8GiB profile is declared before producers, permits actual movement and requires metadata-specific refusal with unchanged public/private assertions; earlier movement failure is not accepted."
+  }
+}

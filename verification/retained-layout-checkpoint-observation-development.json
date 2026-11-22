@@ -1,0 +1,105 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Canonical observed update checkpoint parsing integrated with original retained-layout ownership; local development evidence only",
+  "base_commit": "63890c7afc2b4550c071c8dfbd2398c49338bab2",
+  "subjects": {
+    "src/literate_ai/adapters/update_merge.py": {
+      "algorithm": "sha256",
+      "digest": "2433a46df2deee4c84e6e6e2814ac7399ed0ef855e26beda194c523333629871"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "fbee72a759ac1b364fab5595f3cf84c864095cff92f78884fd52306f65047b88"
+    },
+    "tests/critical/test_update_base_observation.py": {
+      "algorithm": "sha256",
+      "digest": "172b7ba00e52a40db3bd8238cf630a6cc3500d25e378062bf6a257d2b9f0b408"
+    },
+    "tests/critical/test_retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "98316fdc93fd9b2eefbb5b9f72415f5f6b1a71fcc84eac3fcdd1bde7f7046f03"
+    }
+  },
+  "behavior": [
+    "Decode the original bounded checkpoint bytes through the canonical update store parser without reopening its path.",
+    "Validate all checkpoint inventories and content identities; preserve legacy identity-only records and catalog source refs.",
+    "Bound checkpoint inventory records before blob decoding and charge them into shared ownership metadata and entry budgets.",
+    "Preserve changed or newly appeared checkpoint bytes through the existing publication comparison.",
+    "Malformed and over-budget checkpoints refuse before source movement."
+  ],
+  "affected_suite": {
+    "modules": [
+      "tests.critical.test_update_base_observation",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_retained_layout_provider",
+      "tests.e2e.test_project_update_adapter",
+      "tests.e2e.test_project_update_apply",
+      "tests.e2e.test_project_update_merge",
+      "tests.e2e.test_project_update_compatibility"
+    ],
+    "selected": 75,
+    "passed": 75,
+    "skipped": 0,
+    "seconds": 185.467,
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "2cae9cc77d7d24cc9438caa07ddb1a4f60b9b53e9788534215e02f1d20762171"
+    }
+  },
+  "make_python_check": {
+    "scope": "Scoped6method parser module;managedMakeenvironment,compileall and host path policy;no full-suite claim",
+    "exit_code": 0,
+    "selected": 6,
+    "passed": 6,
+    "skipped": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "4a4be164d296d0719214bf817e733b417e995a39632146f98703587a41e04285"
+    },
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "bddaed562574f5c3ce0a0d65b01af3c2a78463f003987ce0820adc0ebb1532cc"
+    }
+  },
+  "static_checks": {
+    "commands": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "exit_code": 0,
+    "log_identity": {
+      "algorithm": "sha256",
+      "digest": "0f3eda8e0e35aa98d236e51d1b2e7848fa8a761095765ca6e98c86d7f54a5d99"
+    }
+  },
+  "limitations": [
+    "No live framework update-role participant or durable historical overlay provenance is implemented.",
+    "Checkpoint data alone supplies no ownership or write authority.",
+    "Update/import/authored metadata ownership and root/shared/initial/wrapper/public effects remain open.",
+    "This is local authored development verification, not full-source, installed, cross-platform or release acceptance."
+  ],
+  "independent_review": {
+    "path": "independent-layout-observed-checkpoint-review.json",
+    "identity": {
+      "algorithm": "sha256",
+      "digest": "2413890372263ecda96984722daff837be6be3798d34e5a674b33edad9b1b48b"
+    },
+    "decision": "approved_at_limited_scope",
+    "regression_methods_passed": 63,
+    "additional_false_ownership_control_passed": 1,
+    "skipped": 0,
+    "scope": "Canonical store-observation decoder and its initializer-ownership integration only. No actual updater-to-source role handoff or new managed-file authority implemented."
+  },
+  "authority_checks": {
+    "driver_review": "passed",
+    "runner_review": "passed",
+    "project_validate": "passed",
+    "review_log_identity": {
+      "algorithm": "sha256",
+      "digest": "8efe3a5d4c64173c9815454725120c4fa0dd26158ac3f6a6408e943467768db4"
+    }
+  }
+}

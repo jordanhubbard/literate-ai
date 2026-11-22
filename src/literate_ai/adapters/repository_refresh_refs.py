@@ -39,6 +39,13 @@ def _reference_file(anchor, relative, reservations):
         if not os.path.lexists(candidate):
             # A packed ref need not have a loose parent directory. A later live
             # reservation may create it; that does not change the absent ref.
+            from .bounded_role_observation import current_role_observation
+
+            observation = current_role_observation()
+            if observation is not None:
+                return observation.file(
+                    path, optional=True, maximum_bytes=_MAX_REF_BYTES
+                )
             return RefreshFileObservation(path, None, None)
         require_safe_directory(candidate)
         parent = candidate

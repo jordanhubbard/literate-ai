@@ -17,6 +17,7 @@ def require_project_roadmap_acyclic(
     proposed: Mapping[str, bytes | None] | None = None,
     *,
     additional_queue: str | None = None,
+    _observation=None,
 ) -> None:
     """Validate an in-memory overlay, without creating or modifying any file."""
     proposed = proposed or {}
@@ -28,6 +29,8 @@ def require_project_roadmap_acyclic(
             )
         if relative in proposed:
             return proposed[relative]
+        if _observation is not None:
+            return _observation.read(relative, optional=True)
         path = root / relative
         return path.read_bytes() if path.exists() else None
 
@@ -35,7 +38,11 @@ def require_project_roadmap_acyclic(
         policy_bytes = read("literate.release.json")
         manifest_path = None
         if policy_bytes is not None:
-            policy = json.loads(policy_bytes)
+            policy = (
+                json.loads(policy_bytes)
+                if _observation is None
+                else _observation.json_value(policy_bytes, "literate.release.json")
+            )
             manifest_path = policy.get("contributions", {}).get("roadmap_goal_manifest")
         manifest = None
         queue = "docs/roadmap/active-work.md"
@@ -43,7 +50,11 @@ def require_project_roadmap_acyclic(
             raw = read(manifest_path)
             if raw is None:
                 raise ValueError(f"missing release goal manifest: {manifest_path}")
-            manifest = json.loads(raw)
+            manifest = (
+                json.loads(raw)
+                if _observation is None
+                else _observation.json_value(raw, manifest_path)
+            )
             queue = manifest["roadmap"]
         raw_queue = read(queue)
         if raw_queue is None:

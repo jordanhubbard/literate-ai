@@ -1,0 +1,433 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "7e087729e3863b9e703253880056a3cd18f2cfdc",
+  "scope": "Actual canonical Git source acquisition held through internal normal nonroot POSIX catalog copy and one fresh retained-source consumer; process-owned canonical cleanup and exact selector/census association",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_source_lease.py": {
+      "algorithm": "sha256",
+      "digest": "bbe1c831559a3883a1e231cb91350363a12d5597bf054d9942369b73be47ceaa"
+    },
+    "src/literate_ai/adapters/catalog_copy_plan.py": {
+      "algorithm": "sha256",
+      "digest": "b1590a148fb58b92edf6e81a317c4389ba896b24f44e2918c157563c0d88025e"
+    },
+    "src/literate_ai/adapters/catalog_copy_roles.py": {
+      "algorithm": "sha256",
+      "digest": "f72870decc7ed0508ef6d677ea517f883a239d975f7181de74755ed8b6164aaa"
+    },
+    "src/literate_ai/adapters/catalog_provenance_publication.py": {
+      "algorithm": "sha256",
+      "digest": "b0cf092f2dba0d2a86afc72f3c2a45fb81f65c1549289e3507452b7cbf48ece9"
+    },
+    "src/literate_ai/adapters/catalog_import.py": {
+      "algorithm": "sha256",
+      "digest": "840ca1462a0778403161509927bbf7416f6568d349b37d38e722ddd89b94a1ba"
+    },
+    "tests/critical/test_catalog_source_lease.py": {
+      "algorithm": "sha256",
+      "digest": "e3607d186d4683ad284cbbaf750d192c3b814dfef2b79bd8712d263d1838e4ab"
+    }
+  },
+  "behavior": [
+    "Only a live actual canonical acquisition supplies Git source provenance. Bind actual resolved commit to detached owned checkout HEAD, pinned source/.git nodes, original Git administration and project inputs, and original selected complete censuses. Normalize macOS temporary acquisition spelling once while proving the same direct native leaf.",
+    "All retained source observations use original copy ledger before project control setup. Transfer original selected censuses and native tuples by identity into actual acknowledged plan, with incurred resource use intact. Actual included framework predecessor work debited before source I/O and not debited twice.",
+    "Exact original actor registry, PID/thread, immutable input/census/binding identities and callbacks close custody. Copy final pure lifetime close checks its original source lease after dependent native callbacks. Saved descriptions, ended or changed contexts and fabricated actors grant no source roles.",
+    "Nested factories end copy and source admission before canonical clone cleanup. Both clone-failure and opened-source final cleanup require actual acquiring PID, preserving parent clone on inherited child unwind. Existing descriptor-copy teardown preserves parent journal lock.",
+    "Fresh planning requires selected item count/order and each actual canonical source directory to match its original transferred census root. No replacement census or budget reset on runtime mapping change. Later original registry currentness checks continue to refuse drift.",
+    "Canonical provenance records genuine resolved Git ref; ordinary local/default plan fields remain omitted and local provenance unchanged. Original source-move partition and one-use copy consumption still govern imported ownership."
+  ],
+  "author_focused": {
+    "tests": 13,
+    "seconds": 81.725,
+    "result": "OK",
+    "log": "_build/catalog-source-final-focused.log",
+    "log_sha256": "0b967cccdbe04d39a5bbc8ec7b91da6d03396fa7e392554d0d002b5b1821f2ee",
+    "skipped": 0
+  },
+  "final_affected_suite": {
+    "tests": 347,
+    "seconds": 641.117,
+    "result": "OK",
+    "log": "_build/catalog-source-final-affected.log",
+    "log_sha256": "f68f5c20d0f53363963b226aa72621d1b6a87c58c255f0611f5a04b70ab29683",
+    "skipped": 0,
+    "modules": [
+      "tests.critical.test_catalog_control_finalization",
+      "tests.critical.test_catalog_provenance_publication",
+      "tests.critical.test_catalog_entry_publication",
+      "tests.critical.test_catalog_copy_staging",
+      "tests.critical.test_catalog_copy_protection",
+      "tests.critical.test_catalog_copy_plan",
+      "tests.critical.test_bounded_role_observation",
+      "tests.critical.test_retained_layout_control_roles",
+      "tests.critical.test_retained_layout_journal",
+      "tests.critical.test_retained_layout_finalization",
+      "tests.critical.test_retained_layout_reservations",
+      "tests.e2e.test_repository_orchestration",
+      "tests.critical.test_retained_layout_transaction",
+      "tests.critical.test_retained_layout_ownership",
+      "tests.critical.test_framework_update_roles",
+      "tests.critical.test_retained_layout_program_consumers",
+      "tests.critical.test_retained_layout_structural_consumers",
+      "tests.critical.test_catalog_copy_roles",
+      "tests.smoke.test_catalog_import"
+    ]
+  },
+  "maintained_make": {
+    "tests": 13,
+    "seconds": 77.842,
+    "result": "OK",
+    "log": "_build/catalog-source-final-make.log",
+    "log_sha256": "051d6fbfd2b36c832b7eeb575f0e0f5fdf20a794f65c09ca6f3fd449981cf956",
+    "skipped": 0,
+    "pattern": "test_catalog_source_lease.py",
+    "report_sha256": "376ced7e4dcf1212b34f9d85100de96b952dc284532945da67b58340c7020f68"
+  },
+  "review_chain": [
+    {
+      "path": "independent-layout-catalog-source-review.json",
+      "sha256": "8a1f66a6089b55097d0ac1a9a0b5d4d8fc83c18e1d1c44363ea399815469d169",
+      "decision": "approved_at_limited_scope",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease > _build/catalog-source-independent.log 2>&1",
+        "session": 46945,
+        "exit_code": 0,
+        "tests": 11,
+        "passed": 11,
+        "skipped": 0,
+        "seconds": 75.322,
+        "log": "_build/catalog-source-independent.log",
+        "log_sha256": "afff2730f42d5ebfd463b5aaacdb5fdf64ecfcc88c7b8ca2aa8f6ef7c13bdfa3",
+        "terminal": true,
+        "bespoke_probes": 0,
+        "coverage": [
+          "Real canonical file:// immutable commit clone, exact Git provenance, actual copy teardown and retained-source move/metadata/finalization; clone cleanup after use.",
+          "Original HEAD and selected checkout payload mutation refuse before selected entry effect.",
+          "Fabricated actor and saved description refusal before project pending publication.",
+          "Original source file ceiling refuses before project markers and private copy setup.",
+          "Symbolic revision records actual resolved detached commit.",
+          "Actual copy/source registry revocation before canonical clone cleanup.",
+          "Actual framework predecessor and Git catalog share one retained-source move.",
+          "Source final guard and copy final guard callback revocation refusal; expired source/copy cannot create a fresh source plan."
+        ]
+      },
+      "executions": null,
+      "scope": "Internal canonical Git source acquisition held through actual catalog copy and one fresh retained-source consumer; existing cloning policy remains a separate provider operation."
+    },
+    {
+      "path": "independent-layout-catalog-source-fork-supplemental-review.json",
+      "sha256": "cdd483476f085a9ec55c8e8263d9012b5fad6b24620b1d701081ed600cd0fd67",
+      "decision": "changes_requested",
+      "execution": null,
+      "executions": null,
+      "scope": null
+    },
+    {
+      "path": "independent-layout-catalog-source-rereview.json",
+      "sha256": "678dbbf6b56daa07d1d2d3b5c5c6f11488546f72f2ae87389d85fc51a2e35b97",
+      "decision": "approved_at_limited_scope",
+      "execution": {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-repaired-independent.log 2>&1",
+        "session": 98734,
+        "exit_code": 0,
+        "tests": 23,
+        "passed": 23,
+        "skipped": 0,
+        "seconds": 82.962,
+        "log": "_build/catalog-source-repaired-independent.log",
+        "log_sha256": "17051115ece0cdab1c5614c9ba264b56b3c6c8f1bf4845e4bb2514f3bb8116c1",
+        "terminal": true,
+        "bespoke_probes": 0,
+        "additional_input": {
+          "path": "tests/smoke/test_catalog_import.py",
+          "sha256": "19d1763b0755892cfe9b332d35c316453398ff527109b6748325822cc03384aa"
+        },
+        "coverage": [
+          "All12 source-lease methods, including actual inherited context unwind and successful subsequent parent publication, source/copy revocation, lifetime callbacks, budget refusal, genuine resolved/symbolic refs and actual framework/source move composition.",
+          "All11 canonical smoke methods: DAG cycle, immutable revision/shallow/sparse behavior, selected submodule revision and metadata filtering, unavailable unrelated submodule, missing pin preserving destination, traversal/invalid locator rejection and SHA256 repository case on this host."
+        ]
+      },
+      "executions": null,
+      "scope": "Canonical Git source held through internal catalog/source handoff, including acquiring-process-only clone cleanup after inherited context unwind."
+    },
+    {
+      "path": "independent-layout-catalog-source-correspondence-supplemental-review.json",
+      "sha256": "3e18d44927f722708cd2bf8a45bcc6683bb6b41a23e0711824746083be2916cd",
+      "decision": "changes_requested",
+      "execution": null,
+      "executions": null,
+      "scope": null
+    },
+    {
+      "path": "independent-layout-catalog-source-correspondence-rereview.json",
+      "sha256": "ccf0de16325b93611b9ff18535aba54163a4aed1c7cc1140cf055aa8c3a0132a",
+      "decision": "approved_at_limited_scope",
+      "execution": null,
+      "executions": [
+        {
+          "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent.log 2>&1",
+          "session": 12266,
+          "exit_code": 1,
+          "tests": 24,
+          "passed": 23,
+          "failed": 0,
+          "errors": 1,
+          "skipped": 0,
+          "seconds": 80.577,
+          "log": "_build/catalog-source-final-independent.log",
+          "sha256": "07c5f0b7ff91a4755c965ca10997dfbbb58eb3c209e01e2ecbf360380d2654f8",
+          "terminal": true,
+          "detail": "Symbolic revision positive errored during catalog entry native move: catalog_copy_roles.apply -> catalog_entry_publication.publish/_publish/_move -> exclusive_entry.move_layout_entry_exclusive.guard -> layout_entry_node two-lstat guard -> ValueError layout.move.entry-changed. Correspondence case and canonical smoke11 passed."
+        },
+        {
+          "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease.CatalogSourceLeaseTests.test_symbolic_revision_records_actual_resolved_commit > _build/catalog-source-final-symbolic-independent-retry.log 2>&1",
+          "session": 57215,
+          "exit_code": 0,
+          "tests": 1,
+          "passed": 1,
+          "skipped": 0,
+          "seconds": 9.329,
+          "log": "_build/catalog-source-final-symbolic-independent-retry.log",
+          "sha256": "026e50fc43aecbdc9988686afee96aaf253b8efebaa89d42bbd9041c8b215ffe",
+          "terminal": true
+        },
+        {
+          "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent-replay.log 2>&1",
+          "session": 11012,
+          "exit_code": 0,
+          "tests": 24,
+          "passed": 24,
+          "skipped": 0,
+          "seconds": 79.73,
+          "log": "_build/catalog-source-final-independent-replay.log",
+          "sha256": "8ed023de8164ae20575bf59acaa6479c4c84e32a3e3623727f2084f655584a49",
+          "terminal": true,
+          "detail": "One explicitly requested unchanged complete maintained replay following actual cohort error. No further loop."
+        }
+      ],
+      "scope": "Internal canonical source selector/census correspondence repair, composed with previously reviewed source lease, shared accounting and acquiring-PID clone cleanup."
+    }
+  ],
+  "independent_final_replay": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent-replay.log 2>&1",
+    "session": 11012,
+    "exit_code": 0,
+    "tests": 24,
+    "passed": 24,
+    "skipped": 0,
+    "seconds": 79.73,
+    "log": "_build/catalog-source-final-independent-replay.log",
+    "sha256": "8ed023de8164ae20575bf59acaa6479c4c84e32a3e3623727f2084f655584a49",
+    "terminal": true,
+    "detail": "One explicitly requested unchanged complete maintained replay following actual cohort error. No further loop."
+  },
+  "independent_execution_history": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent.log 2>&1",
+      "session": 12266,
+      "exit_code": 1,
+      "tests": 24,
+      "passed": 23,
+      "failed": 0,
+      "errors": 1,
+      "skipped": 0,
+      "seconds": 80.577,
+      "log": "_build/catalog-source-final-independent.log",
+      "sha256": "07c5f0b7ff91a4755c965ca10997dfbbb58eb3c209e01e2ecbf360380d2654f8",
+      "terminal": true,
+      "detail": "Symbolic revision positive errored during catalog entry native move: catalog_copy_roles.apply -> catalog_entry_publication.publish/_publish/_move -> exclusive_entry.move_layout_entry_exclusive.guard -> layout_entry_node two-lstat guard -> ValueError layout.move.entry-changed. Correspondence case and canonical smoke11 passed."
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease.CatalogSourceLeaseTests.test_symbolic_revision_records_actual_resolved_commit > _build/catalog-source-final-symbolic-independent-retry.log 2>&1",
+      "session": 57215,
+      "exit_code": 0,
+      "tests": 1,
+      "passed": 1,
+      "skipped": 0,
+      "seconds": 9.329,
+      "log": "_build/catalog-source-final-symbolic-independent-retry.log",
+      "sha256": "026e50fc43aecbdc9988686afee96aaf253b8efebaa89d42bbd9041c8b215ffe",
+      "terminal": true
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent-replay.log 2>&1",
+      "session": 11012,
+      "exit_code": 0,
+      "tests": 24,
+      "passed": 24,
+      "skipped": 0,
+      "seconds": 79.73,
+      "log": "_build/catalog-source-final-independent-replay.log",
+      "sha256": "8ed023de8164ae20575bf59acaa6479c4c84e32a3e3623727f2084f655584a49",
+      "terminal": true,
+      "detail": "One explicitly requested unchanged complete maintained replay following actual cohort error. No further loop."
+    }
+  ],
+  "historical_author_runs": [
+    {
+      "log": "_build/catalog-source-focused.log",
+      "sha256": "0e309aaf196615ed25303709bdba38f8e3825ec451bd4d096e665cc585b2b7fa",
+      "tests": 7,
+      "seconds": 4.062,
+      "result": "FAILED (errors=6)"
+    },
+    {
+      "log": "_build/catalog-source-focused-v2.log",
+      "sha256": "f414a02a94b69caa82865e40fa7a3cbbee6a577d58043c98d4138411fd42ba8a",
+      "tests": 7,
+      "seconds": 19.441,
+      "result": "OK"
+    },
+    {
+      "log": "_build/catalog-source-focused-v3.log",
+      "sha256": "e89fe269b4738df18f62be9f2d61681da8ecf7c524efdc791ad68037d9b6aeb0",
+      "tests": 10,
+      "seconds": 59.634,
+      "result": "OK"
+    },
+    {
+      "log": "_build/catalog-source-focused-v4.log",
+      "sha256": "7898ba060256101b3e3d804761130fb880b323b2df4609eab0250bded4ba9d28",
+      "tests": 11,
+      "seconds": 66.189,
+      "result": "OK"
+    },
+    {
+      "log": "_build/catalog-source-fork-before.log",
+      "sha256": "cb668223d097e5bd879197af58357de19bdd14e743ae73310f4083e6666b394b",
+      "tests": 1,
+      "seconds": 2.995,
+      "result": "FAILED (failures=1)"
+    },
+    {
+      "log": "_build/catalog-source-fork-after.log",
+      "sha256": "161df728ceb1330e81f35ba9415d2a932de7019157c01277ecd940e8ffab7ec2",
+      "tests": 1,
+      "seconds": 8.018,
+      "result": "OK"
+    },
+    {
+      "log": "_build/catalog-source-repaired-focused.log",
+      "sha256": "8da7b1eb8d2734511fdb2c6e558c0f68d54c2298b7b4d5302acf662f24826304",
+      "tests": 12,
+      "seconds": 80.393,
+      "result": "OK"
+    },
+    {
+      "tests": 1,
+      "seconds": 3.051,
+      "result": "FAILED (failures=1)",
+      "log": "_build/catalog-source-correspondence-before.log",
+      "log_sha256": "71e6bc582f5905a7390c0e18177b38b246aa38efa8814f64a05fd6a69d69805e",
+      "skipped": 0
+    },
+    {
+      "tests": 1,
+      "seconds": 2.799,
+      "result": "OK",
+      "log": "_build/catalog-source-correspondence-after.log",
+      "log_sha256": "da5599b9b6f52b21189389583099a9a094e69faaf18b01d70f118b5e21e97679",
+      "skipped": 0
+    },
+    {
+      "tests": 13,
+      "seconds": 81.725,
+      "result": "OK",
+      "log": "_build/catalog-source-final-focused.log",
+      "log_sha256": "0b967cccdbe04d39a5bbc8ec7b91da6d03396fa7e392554d0d002b5b1821f2ee",
+      "skipped": 0
+    }
+  ],
+  "predecessor_broad_runs": [
+    {
+      "tests": 347,
+      "seconds": 635.096,
+      "result": "OK",
+      "log": "_build/catalog-source-affected.log",
+      "log_sha256": "c82f7a1a02f6c3a6d5224ff477af9c63e097e720b47df19b479309a90e0bdca3",
+      "skipped": 0,
+      "qualification": "Before acquiring-PID cleanup repair; not final repaired-source qualification."
+    },
+    {
+      "tests": 347,
+      "seconds": 640.646,
+      "result": "OK",
+      "log": "_build/catalog-source-repaired-affected.log",
+      "log_sha256": "04f5a82ceecb23ca78c42615b78dc6329d7e4bfc1f8549e43bc1b39ed5437c5b",
+      "skipped": 0,
+      "qualification": "After PID repair, before selector/census root repair; not final source qualification."
+    }
+  ],
+  "causal_qualification": [
+    "Initial seven-method author run had six errors at macOS /var direct-path safety, before actual source/copy effects. Canonical acquisition spelling normalization retains same-native leaf checks and later direct paths.",
+    "Maintained full-context fork case fails on old canonical cleanup (parent checkout removed), then passes after actual acquiring-PID cleanup guards; parent completes actual copy/provenance and normal cleanup.",
+    "Maintained genuine setup callback changes private runtime selector mapping with two actual source candidates: old code issues inconsistent plan, repaired planner refuses. No entry publication bypass was attempted or claimed."
+  ],
+  "unresolved_observations": [
+    {
+      "kind": "native-guard-refusal",
+      "detail": "Independent initial final24 cohort:23 passes,1 error in symbolic-revision positive at exclusive_entry.layout_entry_node two-lstat guard. Native helper unchanged. Same-case and full unchanged replay pass, but failed run stays failed. Changed node/path cause remains unestablished; diagnose before complete native/program acceptance.",
+      "failed_execution": {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease tests.smoke.test_catalog_import > _build/catalog-source-final-independent.log 2>&1",
+        "session": 12266,
+        "exit_code": 1,
+        "tests": 24,
+        "passed": 23,
+        "failed": 0,
+        "errors": 1,
+        "skipped": 0,
+        "seconds": 80.577,
+        "log": "_build/catalog-source-final-independent.log",
+        "sha256": "07c5f0b7ff91a4755c965ca10997dfbbb58eb3c209e01e2ecbf360380d2654f8",
+        "terminal": true,
+        "detail": "Symbolic revision positive errored during catalog entry native move: catalog_copy_roles.apply -> catalog_entry_publication.publish/_publish/_move -> exclusive_entry.move_layout_entry_exclusive.guard -> layout_entry_node two-lstat guard -> ValueError layout.move.entry-changed. Correspondence case and canonical smoke11 passed."
+      },
+      "retry_execution": {
+        "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_source_lease.CatalogSourceLeaseTests.test_symbolic_revision_records_actual_resolved_commit > _build/catalog-source-final-symbolic-independent-retry.log 2>&1",
+        "session": 57215,
+        "exit_code": 0,
+        "tests": 1,
+        "passed": 1,
+        "skipped": 0,
+        "seconds": 9.329,
+        "log": "_build/catalog-source-final-symbolic-independent-retry.log",
+        "sha256": "026e50fc43aecbdc9988686afee96aaf253b8efebaa89d42bbd9041c8b215ffe",
+        "terminal": true
+      }
+    }
+  ],
+  "source_acquisition_policy": "Canonical clone/fetch/checkout/submodule storage and existing deadlines/output limits are separate provider behavior. Clone storage is not bounded by or charged as copy payload budget. Cleanup ownership changes only inherited acquiring-process deletion behavior.",
+  "open_requirements": [
+    "Cross-item source topology/group alias and hardlink ownership; broader framework/catalog overwrite composition.",
+    "Authored metadata roles, root/shared/initial/wrapper placement, complete public application and recovery.",
+    "New source-lease remote/network and SHA256/submodule composition qualification; canonical dependency smoke cases alone do not establish every new lease/provider combination.",
+    "Unexplained retained native guard refusal, full installed/native cross-platform/program/integration/release acceptance.",
+    "All other pending roadmap goals; active objective remains complete all pending roadmap items."
+  ],
+  "qualification": {
+    "feature_complete": false,
+    "live_internal_git_source_admitted": true,
+    "process_owned_clone_cleanup": true,
+    "exact_selector_census_pairing": true,
+    "saved_source_records_grant_roles": false,
+    "public_catalog_complete": false,
+    "release_evidence": false
+  },
+  "static_validation": {
+    "status": "passed",
+    "gates": [
+      "driver-review",
+      "runner-review",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check"
+    ],
+    "log_sha256": "ab2f182b210cba1cfeef1fd9a9fdee0a0be6d6382dc4119347bb7720972a54ea",
+    "project_validate": {
+      "ok": true,
+      "log_sha256": "bc76a2991deb81e631e0d4fa51506d98567243fd43f770c7a89a1f4d6609dfca"
+    },
+    "authority_renewal": "Supported make driver-review-record then documentation-review-record after exact reviewed source/test subjects were staged. No hand-edited authority pins."
+  }
+}

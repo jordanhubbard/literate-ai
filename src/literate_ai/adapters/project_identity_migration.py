@@ -66,47 +66,54 @@ def _history_path(root: Path, identity: ContentIdentity) -> Path:
 def _read_record(root: Path, identity: ContentIdentity) -> dict[str, Any]:
     path = _history_path(root, identity)
     try:
-        named_before = path.lstat()
-        fd = os.open(
-            path,
-            os.O_RDONLY
-            | getattr(os, "O_NOFOLLOW", 0)
-            | getattr(os, "O_NONBLOCK", 0)
-            | getattr(os, "O_BINARY", 0),
-        )
-        try:
-            before = os.fstat(fd)
-            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 262144:
-                raise ValueError
-            content = os.read(fd, 262145)
-            after = os.fstat(fd)
-            named = path.lstat()
+        from .bounded_role_observation import current_role_observation
 
-            def stamp(s):
-                return (
-                    s.st_dev,
-                    s.st_ino,
-                    s.st_mode,
-                    s.st_size,
-                    s.st_mtime_ns,
-                    s.st_ctime_ns,
-                    s.st_nlink,
-                )
+        observation = current_role_observation()
+        if observation is not None:
+            content = observation.file(path, maximum_bytes=262144).content
+            observation.json_value(content, str(path))
+        else:
+            named_before = path.lstat()
+            fd = os.open(
+                path,
+                os.O_RDONLY
+                | getattr(os, "O_NOFOLLOW", 0)
+                | getattr(os, "O_NONBLOCK", 0)
+                | getattr(os, "O_BINARY", 0),
+            )
+            try:
+                before = os.fstat(fd)
+                if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 262144:
+                    raise ValueError
+                content = os.read(fd, 262145)
+                after = os.fstat(fd)
+                named = path.lstat()
 
-            # Windows fstat and lstat can expose different ctime meanings.
-            # Preserve change detection within each observer; bind their file
-            # identity with the conversion store's native Windows fallback.
-            if (
-                len(content) != before.st_size
-                or stamp(before) != stamp(after)
-                or stamp(named_before) != stamp(named)
-                or (before.st_size, before.st_mtime_ns)
-                != (named.st_size, named.st_mtime_ns)
-                or not _named_file_matches(path, fd, before)
-            ):
-                raise ValueError
-        finally:
-            os.close(fd)
+                def stamp(s):
+                    return (
+                        s.st_dev,
+                        s.st_ino,
+                        s.st_mode,
+                        s.st_size,
+                        s.st_mtime_ns,
+                        s.st_ctime_ns,
+                        s.st_nlink,
+                    )
+
+                # Windows fstat and lstat can expose different ctime meanings.
+                # Preserve change detection within each observer; bind their file
+                # identity with the conversion store's native Windows fallback.
+                if (
+                    len(content) != before.st_size
+                    or stamp(before) != stamp(after)
+                    or stamp(named_before) != stamp(named)
+                    or (before.st_size, before.st_mtime_ns)
+                    != (named.st_size, named.st_mtime_ns)
+                    or not _named_file_matches(path, fd, before)
+                ):
+                    raise ValueError
+            finally:
+                os.close(fd)
         record = json.loads(content)
         if (
             content != canonical_json_bytes(record) + b"\n"

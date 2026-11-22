@@ -1,0 +1,109 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T02:31:27.168033+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "a21007acfddc62450fcb9798a08e0154fb458035",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "385f31f3960340ae687dec57fa33f3cabb9fd8e37b866689d5f16fc685059718",
+      "bytes": 13518
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "e66a1bf858546f7163332fc666a3ff2d51bf953aedc8576226f3d0ca829ca1f8",
+      "bytes": 27527
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_plan.py",
+      "sha256": "e510e7617c4476ca8cee7b571811679a6352f07ea344ddaad990fc8b664cb45c",
+      "bytes": 12303
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-reviewed-subjects",
+  "scope": "Read-only exact local-input catalog-copy plan using actual canonical selector/project/DAG/import readers and complete destination/selected-source census; no effects or ownership capability.",
+  "findings": [
+    {
+      "id": "CATALOG-COPY-PLAN-CLOSING-001",
+      "severity": "blocking_for_currentness_dependency",
+      "status": "open",
+      "location": "src/literate_ai/adapters/catalog_copy_plan.py:89",
+      "title": "Later census namespace reads invalidate already closed metadata and earlier census facts",
+      "cause": "_close_native closes metadata ancestry/signatures before per-census full _close_tree traversals. Source metadata outside selected item trees and earlier destination facts are not closed after the later namespace reads.",
+      "causal_cases": [
+        {
+          "interleaving": "After final selected-source _close_tree, change actual source manifest project_id and bytes.",
+          "observed": "require_current returns; old source identity remains accepted."
+        },
+        {
+          "interleaving": "After final selected-source _close_tree, insert unknown real file under already closed complete destination root.",
+          "observed": "require_current returns; new destination member absent from original census."
+        }
+      ],
+      "reproducer": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.py",
+      "result": "2 tests,2 failures,0 errors,0 skips,0.073s",
+      "required_change": "Finish all namespace/payload observations first. Then close original metadata/absence/anchors plus every original census known entry/root stamp and ancestry across the entire plan using native facts only. No later enumeration/payload reads. Repeating full _close_tree per earlier census only moves the window."
+    }
+  ],
+  "source_assessment": [
+    "Read full new plan/test modules and catalog_import diff; inspected reused census/_native_tree/_close_tree and actual canonical DAG contracts.",
+    "Optional observed readers preserve ordinary copy defaults. Origin raw bytes now parsed+hashed once. No framework labels/exclusions: unknown destination members and aliases remain in complete census.",
+    "Frozen plan and detached document have no apply/spend/live role capability. Saved import labels/rows do not mint ownership.",
+    "Shared file/entry/payload/metadata accounting covers complete captures, code/metadata reads, decoded canonical records, actual mapping/selectors and output serialization. Maintained quota boundaries passed; no exhaustive allocator/RSS proof claimed.",
+    "Original optional metadata absence and nearest-existing ancestry are represented, but must close after every later namespace observation.",
+    "Future copy must independently join actual controls/producer roles, durable intent/overwrite retirement, alias transforms and one-use live handoff. Descriptive plan cannot be treated as saved authority."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_plan",
+      "result": "18 passed,0 failed,0 errors,0 skipped,0.362s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-independent-focused.log"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.smoke.test_catalog_import tests.e2e.test_repository_catalogs tests.e2e.test_retained_catalog_discovery",
+      "result": "17 passed,0 failed,0 errors,0 skipped,13.989s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-independent-regression.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.py",
+      "result": "2 failed,0 errors,0 skipped,0.073s; expected refusals absent",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.log"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-independent-focused.log",
+      "sha256": "4d52545b09fbfed7501be5f51adaee548727d4a21d16e0e5321327cbf261aa82",
+      "bytes": 3379
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-independent-regression.log",
+      "sha256": "316c0284b7906e028b9929abef73db313aa898a55d510cb5c59baa7a3d24d4e4",
+      "bytes": 3222
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.py",
+      "sha256": "d1613e498bf4a053d9d0bbff28ca213b913f5ee27d7ecc0358b1850399578a97",
+      "bytes": 1907
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-copy-plan-closing-probe.log",
+      "sha256": "426ce61d57124cd4975cb2405cb1fba68234f96a104e89881d2f6ee4d1aaa349",
+      "bytes": 1588
+    }
+  ],
+  "terminal_process_state": "All independent tests/probes terminal; no reviewer-owned process remains. Author gates not independently relabeled.",
+  "limits": [
+    "Read-only prerequisite only: no copy/overwrite/retirement, ownership/source exclusion, live handoff, CLI/network/recovery/public/full-feature acceptance.",
+    "Local managed editable-source POSIX/macOS evidence only; no isolated installed/wheel, native Windows/Linux/cross-platform or release qualification.",
+    "Existing canonical DAG contract reused; no new global graph ownership/authenticated historical provenance claim.",
+    "Actual alias-copy transforms, overlaps, full ownership/finalization, platform and effect acceptance remain required.",
+    "No hostile same-user continuous atomic snapshot; observed-span currentness still must refuse these two concrete changes.",
+    "No source/test/pin edits, installs, subagents, network or external posts. Only private disposable probes/evidence and requested immutable root report written."
+  ]
+}

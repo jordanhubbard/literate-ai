@@ -1,0 +1,50 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_actual_fresh_observation_and_existing_canonical_role_acquisition",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_observation.py": {
+      "algorithm": "sha256",
+      "digest": "833815d4ef4e14b262b1cebacb680bdd8074341864814753ace7bea4ab1859df"
+    },
+    "src/literate_ai/adapters/component_lock_observation.py": {
+      "algorithm": "sha256",
+      "digest": "87ec5faf065a820b47996f192e51c62d9a01c0741062cd261fd9f7c1890441e4"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_controls.py": {
+      "algorithm": "sha256",
+      "digest": "925615731f9ca2aaadec1b61723c11f72d8ad0c259a6d30da7c7370b5a2f3a38"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_roles.py": {
+      "algorithm": "sha256",
+      "digest": "2bb5c2f113edfb61624d4c44b3c1c4c18ae43d524e30cea3e5e91e9142467c2a"
+    },
+    "tests/critical/test_retained_layout_forest_observation.py": {
+      "algorithm": "sha256",
+      "digest": "3fa04b81bd1bf3678155eb9e0646ef0f357096b48bbdc5e91d040ed91a56b3c2"
+    },
+    "tests/critical/test_retained_layout_recovery_roles.py": {
+      "algorithm": "sha256",
+      "digest": "9e8501e1c3e2ab9a4f930dcbca90c776e3c2eb9be577951e4a096ebad24acca8"
+    }
+  },
+  "findings_closed": [
+    "Independent actual raw descriptor and canonical role creation registries reject constructed/copied owners before native FD access.",
+    "Canonical role, raw descriptor, fresh parent and canonical-store registries close purely after the final dependent native callback.",
+    "Actual canonical store selection uses the same original fresh reader without recursive parent validation.",
+    "Fresh journal policy/original prefix sealed; actual physical private pool/journal separation enforced.",
+    "Established ended-context diagnostics preserved while active unregistered objects still fail the provenance check."
+  ],
+  "scope": [
+    "Actual context-registered fresh forest observer, one cumulative finite ledger and genuine current canonical store selection.",
+    "Real descriptor and OS mutex reacquisition for the complete existing current canonical project/Git roster.",
+    "No source phase/partition fabrication or canonical forest admission guard removal."
+  ],
+  "not_proven": [
+    "Incoming missing-control observation advancement through actual incoming acquisition/publication receipts",
+    "Current carrier/parking/metadata/control endpoint classification and acknowledged source/metadata/control recovery effects",
+    "Genuine canonical integrated forest execution",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

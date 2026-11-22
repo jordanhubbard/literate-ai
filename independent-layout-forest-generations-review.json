@@ -1,0 +1,41 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_existing_supplemental_generation_discovery_reacquisition_projection",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_generations.py": {
+      "algorithm": "sha256",
+      "digest": "3cc746f848cfa49a564aed81cc48a0767659450c6f973cc45ccd9554b8696558"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_observation.py": {
+      "algorithm": "sha256",
+      "digest": "e6366ab35ca055b140288caee21b55ba9df5ac7db2baca1f375849b8e7aebc47"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_transcript.py": {
+      "algorithm": "sha256",
+      "digest": "1810b93e5d643f10bedceb2892f7edfd901180d6d907114f22384f19d46ffe5e"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_control_projection.py": {
+      "algorithm": "sha256",
+      "digest": "92a1036d9ad196f1035ebabff68455e91dadab56b25ed824a5287d9a5dc69dd6"
+    },
+    "tests/critical/test_retained_layout_forest_generations.py": {
+      "algorithm": "sha256",
+      "digest": "67d6892f2768e0063e5d5404a4c3f7ef83ee639dd974f9f24c0e15ba666f87ce"
+    }
+  },
+  "findings_closed": [
+    "Strict completed canonical epochs retain descriptive generation/lease/publication/handoff facts. No saved descriptor or effect rights are reconstructed from them.",
+    "Current canonical producers discover complete existing supplemental target groups under real held original mutexes. Each request still requires a fresh proposal, exact acknowledgement and the existing actual raw acquisition factory.",
+    "Current projection joins original private and supplemental public descriptors by complete lease/publication/actual handoff ancestry; original source controls must belong to the saved original partition. All private nodes remain in the complete span.",
+    "Exact derived request/target field references and canonical bytes close after final native callbacks. Catalogue active lifetime and original receiver close again after final producer target accessors.",
+    "Final test-only review correction restores the actual fresh_metadata_limit required by the inherited child observer helper."
+  ],
+  "not_proven": [
+    "Genuine forest verified-data receipt handoff to canonical control disposition and control-inclusive span advancement through actual normalization and native retirement",
+    "Larger supplemental topologies and multiple replacement targets/generations; general native/metadata/mode/control and canonical acquisition interruption matrices",
+    "Genuine integrated original canonical forest SourcePhase/acquired partition execution and full commit/recovery acceptance before public or legacy admission changes",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and every other pending roadmap obligation"
+  ]
+}

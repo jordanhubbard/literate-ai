@@ -1,0 +1,114 @@
+{
+  "schema": "literate-ai/independent-dynamic-review@1",
+  "decision": "approved_at_limited_internal_linux_scope",
+  "scope": "Ninth maintained planner-test correction and independent complete planner module; original eight-subject50-case qualification remains separate.",
+  "predecessor": {
+    "path": "independent-layout-catalog-topology-linux-qualification-review.json",
+    "sha256": "cfa0ef1ae9b62c79b498596e483208dce3f72b98f606321bcce45ae3281504ab",
+    "preserved": true
+  },
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_forest.py",
+      "sha256": "3ddc3317fcce8bc8839b8d1b2ccb075717e7728c73e8172a4d6d7aa3b10316b8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "18454f60dbb63aed6645fbd7cf3da0016427a79eace1a402a07dbe565c418b05"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_forest.py",
+      "sha256": "f87d948171af60b52d552bf4aabb2dff413048304bb9c2bfc1b73387e4814bc5"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_topology.py",
+      "sha256": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_plan.py",
+      "sha256": "500a2bdbdd96f1f1982f36c01fbcca4e0f1deaefc2b0a5f5dc7b3c89e9ce63b6"
+    }
+  ],
+  "executed_subject": {
+    "base_commit": "77492b6e4f422d9aca465404c52566b7bdc6d50d",
+    "base_tree": "0399de246c0cdee8b0e52a7d6f0cfa5ebaa0bb5b",
+    "overlay": "Exact ninth test file above; sole observed tracked working-tree difference in src/tests. Not attributed to unmodified base tree or a new commit.",
+    "author_identified_patch_sha256": "856c523f2463ce7f2165b0bee0896cfe95f1cbecde391a3f6841e3be120285ef",
+    "verification": "Original8 checksum manifest verified before and after. Ninth hash verified before and after. Actual remote tracked source/test difference was checked equal to only ninth test."
+  },
+  "source_assessment": [
+    "Legacy count3 reflected destination plus separate per-item censuses. Corrected test requires exact destination+one shared forest2, actual forest pointer at plan census1, exact sorted selected roots, exact wire forest and namespace identities, exact selected file set and require_current.",
+    "Single-item positive independently requires no forest object or optional forest wire fields, preserving the existing single-item contract.",
+    "This strengthens the intended union behavior instead of merely changing an integer expectation. No production source or policy changed, and no original assertion about selected items/source observation was removed."
+  ],
+  "execution": {
+    "command": "PYTHONPATH=src _build/python-envs/ctq-20261114/bin/python -B -m unittest -v tests.critical.test_catalog_copy_plan",
+    "timeout_seconds": 120,
+    "session": 56558,
+    "terminal": true,
+    "transport_exit": 0,
+    "explicit_test_exit": 0,
+    "tests": 20,
+    "unique_case_lines": 20,
+    "passed": 20,
+    "skipped": 0,
+    "seconds": 0.558,
+    "platform": "Linux x86_64",
+    "python": "3.12.3",
+    "temporary_policy": "Task-owned directory outside all Git checkouts.",
+    "verification": "Unittest footer,20 unique case lines and INDEPENDENT_PLANNER_EXIT=0 inspected; transport return alone not accepted.",
+    "log": {
+      "path": "_build/catalog-topology-independent-linux-planner.log",
+      "sha256": "8468bb1adfa11ca46fd78a40dc9826fd6d83ad551a58280792838f87d149c13b"
+    }
+  },
+  "evidence": {
+    "source_after": {
+      "path": "_build/catalog-topology-independent-linux-planner-source-after.sha256",
+      "sha256": "31dffbbda14d45f2c3ed6b77ec72e36fbf81bb8e4703b1801dd3d444fc91cdfd"
+    },
+    "terminal": {
+      "path": "_build/catalog-topology-independent-linux-planner-terminal.txt",
+      "sha256": "d3ec1c0f54b1d655b371ecb32cb65b6d732e581e8173c13b7148fc16361d7f3b"
+    },
+    "archive": {
+      "path": "_build/catalog-topology-independent-linux-planner-evidence.tar.gz",
+      "sha256": "314aa15671a9934e5ef2e79c9b0bcdeeaacfb16c9839adb64c3709eb188a6b94",
+      "method": "Canonical guarded archive download to new destination. Exactly3 expected regular members listed; only named members read to controlled local files through tar stdout."
+    }
+  },
+  "health": {
+    "classification": "Disk warning persists above required reserve.",
+    "dispatch_available_KiB": 15561252,
+    "final_available_KiB": 15560928,
+    "reserve_GiB": 10,
+    "dispatch_gate_GiB": 11,
+    "no_critical_condition_observed": true,
+    "no_cleanup_or_repairs": true
+  },
+  "findings": [],
+  "limits": [
+    "Original50 passed before ninth overlay. This20-case module is a separate execution; not a single70-method cohort or full catalog-suite pass.",
+    "Author147-method Make was a separate live job and its outcome is not inferred. Authority renewal/full phase acceptance remains separate.",
+    "Only one independent test process ran at a time. Planner20 was already terminal when descriptor-slot clarification arrived; no further tests dispatched.",
+    "No local dynamic tests/builds/installs, bespoke probes/reproductions, source/pin edits, worker repairs, network service changes, manual cleanup or new agents.",
+    "Internal Linux source checkout qualification only; no installed-wheel, independent other-platform, public/root/shared/recovery/full-program/feature/release acceptance.",
+    "All nine exact subjects remain bound. No reviewer test or transport remains live. Prior immutable reports preserved."
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "review_mode": "SOURCE-ONLY; independent dynamic qualification held",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "e519dc90697c5556b6f209481e93b60171bb9959",
+  "predecessor": {
+    "path": "independent-layout-catalog-topology-review.json",
+    "sha256": "34689f671fc20c4beb27b1045ef4a1d6d08ecd42305956cd32897619db80a24d",
+    "preserved": true
+  },
+  "scope": "Selected-union native membership closing resource repair and corresponding legacy whole-tree early rejection; not dynamic topology/whole-feature acceptance.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/retained_cargo_tree_v2.py",
+      "sha256": "b414254a00afc597d7ddf03a566c04fd810db2430d695c8ffd99c02f716162c1"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "d9e371b51275fe932d3a75640e360985a4d3433a9ab49b60afb12d216e7d8f41"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "00765874a87d09a4f9ddb72a366a27fefe42f94cc0c3acc0cd3b77d4d13f3a2f"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_lease.py",
+      "sha256": "7a363781f066f51bfac82878dd9d29b72fc2911b107af587af7074b2d2c7cbdc"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_source_forest.py",
+      "sha256": "3ddc3317fcce8bc8839b8d1b2ccb075717e7728c73e8172a4d6d7aa3b10316b8"
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "18454f60dbb63aed6645fbd7cf3da0016427a79eace1a402a07dbe565c418b05"
+    },
+    {
+      "path": "tests/critical/test_catalog_source_forest.py",
+      "sha256": "f87d948171af60b52d552bf4aabb2dff413048304bb9c2bfc1b73387e4814bc5"
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_topology.py",
+      "sha256": "4caef53604fc267f71e8408950b076346f15b44ee48d73cd9b85c3c4653dccfd"
+    }
+  ],
+  "findings": [],
+  "resolved": [
+    {
+      "id": "CATALOG-FOREST-NATIVE-METADATA-001",
+      "assessment": "Source fix closes original selected namespace allocation gap. close_native builds a map from original retained native facts; each actual observed name/node must match before insertion into observed. _inventory calls observer before adding a node to its retained results or descending into a directory. First unknown or changed node therefore stops traversal rather than allowing a new graph to consume the old entry ceiling.",
+      "missing_members": "Final observed != known comparison remains, detecting deletions even when all remaining visited nodes match. Final original named-node pass remains files-first/deep-directories/root-last.",
+      "legacy_extension": "The same early observer applies to whole-tree _close_tree; its initial scandir also rejects unknown root names before roots.append. Missing-member and final controls/private/native closures are retained.",
+      "resource_qualification": "Known/observed/result maps are bounded by the original retained roster and its funded metadata; at most the single currently visited unexpected coordinate is constructed before refusal. No payload streaming or new larger metadata allowance is added.",
+      "evidence": "Source inspection plus independently read author maintained causal logs; no independent dynamic execution."
+    }
+  ],
+  "source_assessment": [
+    "Unchanged selected-union engine still precharges canonical selected roots/partial ancestors, rejects overlap/redirected selected roots, preserves complete raw topology and partial-ancestor alias refusal, and hashes complete regular groups once.",
+    "Observed-roster metadata reduction remains conservative relative to selection cost, node/canonical-name charges and symlink size. Early known-node rejection now prevents final closing from retaining a larger unknown graph outside that reduced bound.",
+    "Forest remains distinct non-V2 tree/census data, with no framework/exclusion/whole-project partition capability. Default ordinary capture wrapper still selects no forest and returns original V2 type/schema/fields.",
+    "Exact canonical selected-root equality and authenticated source forest identity remain bound into fresh local/Git plans. Stage projection starts at each exact registry prefix, uses the original shared graph, and charges each expanded copied output separately.",
+    "Source actor original census/ledger/native identities, PID/thread and pure lifetime closures remain unchanged from preceding topology subject; no resource cap growth or refreshed foreign baseline.",
+    "Full-tree native observer preserves ordinary valid graph behavior by comparing the same original known facts earlier. Unexpected types/redirected/changed nodes refuse before descent; legitimate known traversal and missing-name detection remain."
+  ],
+  "author_causal_evidence_read": [
+    {
+      "path": "_build/catalog-topology-native-budget-before.log",
+      "sha256": "beda924747b2c8ea0e76fb40e8310bca419510705f02264b404002a6aed73fd7",
+      "attribution": "Author maintained predecessor run; independently read, not independently executed.1 method with2 failed subtests,0.008s; both forest and whole-tree closers visited unknown descendants."
+    },
+    {
+      "path": "_build/catalog-topology-native-budget-after.log",
+      "sha256": "295385fa33c85071b364b01bcd1d47d84ea249d05756d6fe731747b580a65a52",
+      "attribution": "Author repaired cheap regression run; independently read, not independent qualification.33 passed0.126s. Parent reports subsequent test-helper loop-binding/ruff-only refactor; this log is not claimed as exact-current test-file execution."
+    }
+  ],
+  "independent_execution": {
+    "tests": 0,
+    "probes": 0,
+    "reproduction_scripts": 0,
+    "builds": 0,
+    "installs": 0,
+    "description": "Bounded source/test/log/hash inspection and immutable report write only. No repository code executed.",
+    "reason": "Explicit critical-storage hold. No permission inferred for database termination, disk cleanup or broader jobs.",
+    "live_reviewer_processes": 0
+  },
+  "limits": [
+    "Approval is source-only correctness closure of the named finding; dynamic qualification remains held.",
+    "Four actual copy/Git/source workflow passes18.934s preceded observer repair and do not qualify this final subject. No current broad/Make/installed/native acceptance inferred.",
+    "Required focused/current workflows, broad reader/source consumers, Make and authority renewal still remain before phase completion.",
+    "Conservative full native root/ancestor stamps can refuse unselected sibling metadata changes; no dynamic independent-neighbor guarantee.",
+    "No public/root/shared/cross-item recovery/installed/cross-platform/full-program/feature/release acceptance or generic partition/exclusion rights.",
+    "No implementation/test/pin edits, tests, probes, builds, installs, network or new agents. Prior report immutable.",
+    "Inspection terminal; source safe to unfreeze from reviewer side once parent-owned jobs permit. Storage hold remains separately applicable."
+  ]
+}

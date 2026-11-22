@@ -15,19 +15,22 @@ from literate_ai.adapters.conversion_authority import (
     FilesystemConversionAuthorityStore,
 )
 from literate_ai.adapters.harness_tree import (
+    EXCLUDED_DIRECTORY_NAMES,
     _validated_scope,
     capture_retained_source_scope,
 )
 from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
 from literate_ai.adapters.project_initialization import record_project_authority_review
 from literate_ai.adapters.project_validation import FilesystemProjectValidationAdapter
+from literate_ai.adapters.repository_refresh import _signature
 from literate_ai.adapters.retained_harness_receipts import (
     RETAINED_HARNESS_SUITE_ID,
-    _implementation_root,
     _load_retained_documents,
     _require_qualified_parity,
     retained_harness_receipt_policy,
 )
+from literate_ai.adapters.retained_layout import RETAINED_LAYOUT_PATH
+from literate_ai.adapters.retained_layout_renewal import observe_retained_layout_renewal
 from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.operator_adoption import ConversionAuthorityStage
@@ -173,9 +176,12 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
             "source_not_authoritative",
             "refresh cannot change specification-authoritative source",
         )
+    layout_inputs = observe_retained_layout_renewal(root)
     documents = _load_retained_documents(project)
-    _require_qualified_parity(documents)
-    implementation = _implementation_root(project, documents)
+    if "layout" not in documents:
+        _require_qualified_parity(documents)
+    implementation = layout_inputs.layout.implementation_root
+    layout_inputs.require_current()
     _safe_path(root, implementation.relative_to(root).as_posix())
     inventory = documents["inventory"]["value"]
     old_paths, _ = _validated_scope(inventory.get("source_scope"))
@@ -212,6 +218,8 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         "review_document_identity": _identity(review_path.read_bytes()),
         "conversion_identity": state.identity.uri,
         "implementation": implementation.relative_to(root).as_posix(),
+        "wrapper_component": layout_inputs.layout.wrapper_component,
+        "layout_inputs_identity": layout_inputs.identity.uri,
         "old_inventory": inventory,
         "new_inventory": new_inventory,
         "historical_evidence": {
@@ -220,7 +228,11 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         "preserved_metadata": {
             coordinate: _identity(_safe_path(root, coordinate).read_bytes())
             for coordinate in (
-                _metadata_coordinate(root, relative) for relative in _PRESERVED_METADATA
+                _metadata_coordinate(root, relative)
+                for relative in (
+                    *_PRESERVED_METADATA,
+                    *((RETAINED_LAYOUT_PATH,) if "layout" in documents else ()),
+                )
             )
         },
         "source_members": members,
@@ -236,8 +248,52 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         "execution_performed": False,
         "requalification_required": True,
     }
+    layout_inputs.require_current()
     value["plan_identity"] = canonical_identity(value).uri
     return value
+
+
+def _source_native_inputs(root: Path, members: list[dict[str, Any]]):
+    # Remember known members and every visited directory, including empty ones,
+    # before the final source/layout payload reads. This grants no exclusions.
+    paths = dict.fromkeys(_safe_path(root, item["path"]) for item in members)
+    protected = tuple(item["path"] for item in members)
+    for directory, names, _files in os.walk(root, followlinks=False):
+        current = Path(directory)
+        paths[current] = None
+        names[:] = [
+            name
+            for name in names
+            if name not in EXCLUDED_DIRECTORY_NAMES
+            or any(
+                part.startswith((current / name).relative_to(root).as_posix() + "/")
+                for part in protected
+            )
+        ]
+    result = []
+    for path in paths:
+        try:
+            signature = _signature(path)
+        except FileNotFoundError:
+            signature = None
+        result.append((path, signature))
+    return tuple(result)
+
+
+def _close_source_native_inputs(inputs):
+    for path, expected in inputs:
+        try:
+            signature = _signature(path)
+        except FileNotFoundError:
+            signature = None
+        if signature != expected:
+            _fail("source_changed", "source changed during final refresh observations")
+
+
+def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
+    current = observe_retained_layout_renewal(root)
+    if current.identity.uri != plan["layout_inputs_identity"]:
+        _fail("layout_changed", "layout inputs changed during source-scope refresh")
 
 
 def apply_retained_scope_refresh(
@@ -311,8 +367,10 @@ def apply_retained_scope_refresh(
         written: dict[Path, bytes] = {}
         try:
             content = canonical_json_bytes(plan["new_inventory"]) + b"\n"
+            _require_layout_current(root, plan)
             FilesystemConversionAuthorityStore._atomic_write(inventory_path, content)
             written[inventory_path] = content
+            _require_layout_current(root, plan)
             updated = store.update(
                 snapshot,
                 replace(
@@ -321,6 +379,7 @@ def apply_retained_scope_refresh(
                         plan["new_inventory"]
                     ),
                 ),
+                require_current=lambda: _require_layout_current(root, plan),
             )
             written[manifest_path] = updated.content
             monorepo_refresh = None
@@ -337,13 +396,33 @@ def apply_retained_scope_refresh(
             written[review_path] = AUTHORITY_REVIEW_MARKER.sub(
                 review["expected_marker"].encode("utf-8"), before[review_path], count=1
             )
-            record_project_authority_review(root)
+            _require_layout_current(root, plan)
+            record_project_authority_review(
+                root, require_current=lambda: _require_layout_current(root, plan)
+            )
+            final_metadata = tuple(
+                (path, _signature(path))
+                for path in dict.fromkeys(
+                    (
+                        *written,
+                        *(
+                            _safe_path(root, name)
+                            for name in plan["preserved_metadata"]
+                        ),
+                    )
+                )
+            )
+            if any(path.read_bytes() != content for path, content in written.items()):
+                _fail("metadata_changed", "published metadata changed during refresh")
             if any(
                 _identity(_safe_path(root, relative).read_bytes()) != identity
                 for relative, identity in plan["preserved_metadata"].items()
             ):
                 _fail("metadata_changed", "historical metadata changed during refresh")
             implementation = root / plan["implementation"]
+            source_native_inputs = _source_native_inputs(
+                implementation, plan["source_members"]
+            )
             current_scope = capture_retained_source_scope(
                 implementation,
                 required_paths=tuple(
@@ -362,6 +441,15 @@ def apply_retained_scope_refresh(
                     "source_changed",
                     "source changed during refresh; no new evidence was earned",
                 )
+            _require_layout_current(root, plan)
+            _close_source_native_inputs(source_native_inputs)
+            if any(_signature(path) != expected for path, expected in final_metadata):
+                _fail(
+                    "metadata_changed",
+                    "metadata changed during final refresh observations",
+                )
+            if os.path.lexists(root / "litai/layout.pending"):
+                _fail("layout_pending", "pending relocation requires explicit recovery")
         except BaseException:
             # Ordinary failures restore only bytes still owned by this operation.
             # An abrupt process exit leaves policy/review mismatches fail-closed;

@@ -1,0 +1,47 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_descriptive_program_decode_and_original_custody_binding",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_program_read.py": {
+      "algorithm": "sha256",
+      "digest": "621ee940cd5bc59f92881d13aefcbd8f5d56e0e12e5316215f3f80839007b8ee"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_original_read.py": {
+      "algorithm": "sha256",
+      "digest": "845eadc0b87d59ae5f9db043b9fd6faae40fac64235685d43adb84b3c416f02d"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_read.py": {
+      "algorithm": "sha256",
+      "digest": "45499ea8b170f4a14483f2eed881c2d91fd5ce7c9ac279feb9bde547e16b3413"
+    },
+    "src/literate_ai/adapters/retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "1626a02098d164d836a404c2ad0ed73af66c8258d5b77aa731ad958a8bafdd80"
+    },
+    "tests/critical/test_retained_layout_forest_program_read.py": {
+      "algorithm": "sha256",
+      "digest": "cd47f84ab99e7cdb709dcd0b9e0a9fd5a7389ed25882817a2c63cae385de0d17"
+    },
+    "tests/critical/test_retained_layout_forest_original_read.py": {
+      "algorithm": "sha256",
+      "digest": "d0d3cc06ba0a3313708a6a484e54bbb85c2c29adfdc6381ca81cea79f7104e9c"
+    }
+  },
+  "findings_closed": [
+    "Canonical control publication/native start must follow the single durable-original event.",
+    "The complete saved DTO (all document/plan/events and raw packed byte witness digest) is funded/sealed before dependent native reads, then closed after reads and binding."
+  ],
+  "scope": [
+    "Typed deterministic native program reconstruction from actual forest-native-start bytes and journal phase; no old Python programme object required.",
+    "Same cumulative fresh _Observation for original and native journal reading, with original data projection admitting only paired canonical control additions under original coordinates.",
+    "Complete source bytes/aliases/native roster/source schedule retained; new control-parent stamp changes derive only from accepted publication descriptions."
+  ],
+  "not_proven": [
+    "Genuine fresh canonical forest recovery roles or effect ownership",
+    "Current endpoint classification and acknowledged source/metadata/control recovery effects",
+    "Genuine canonical integrated forest execution",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

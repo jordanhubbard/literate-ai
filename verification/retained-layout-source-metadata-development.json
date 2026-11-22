@@ -1,0 +1,355 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "ac5155b5a7968c0a1c35ab47a63516965c63c185",
+  "scope": "Actual staged/quarantined/published metadata under original source preparation ledger; original producer witnesses remain immutable and close against exact retained backups and prospective public nodes.",
+  "subjects": {
+    "src/literate_ai/adapters/catalog_copy_roles.py": {
+      "algorithm": "sha256",
+      "digest": "8a233686edbad3c46050e63a1e228632f8ca1ff88e468ab3e118ebde4250e4ff"
+    },
+    "src/literate_ai/adapters/catalog_source_lease.py": {
+      "algorithm": "sha256",
+      "digest": "966c9d6cc8e2e34fb9ab1be707b84e204cc95922774e327227fd1e45b066261c"
+    },
+    "src/literate_ai/adapters/framework_update_roles.py": {
+      "algorithm": "sha256",
+      "digest": "92720c324bfc4e4f109b6f09fe9145e30adb11aad768c743253e708da713e4f7"
+    },
+    "src/literate_ai/adapters/retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "ed188907831ee5996dedc96b990cf9992097c0d4eff470db1400f97b33456562"
+    },
+    "src/literate_ai/adapters/retained_layout_source_movement.py": {
+      "algorithm": "sha256",
+      "digest": "c4dfc8ddc5e9d118b3f00eb1b7e57353a4d84069dfc7050f4cb67bf9faa14286"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "d9e7a17a6e11b166974da4276379f1e3e4cce9cb8e7e4285e24356038ae03221"
+    },
+    "src/literate_ai/adapters/retained_layout_source_metadata.py": {
+      "algorithm": "sha256",
+      "digest": "f5a4390ebc40fc90774e5eb4e88e0a6cef89f27b5da3cfee6da84ff566497426"
+    },
+    "tests/critical/test_retained_layout_provider.py": {
+      "algorithm": "sha256",
+      "digest": "2117a4087ab6b9a2733daddef4b70077ddf7913f0aa0ad80104ca2bab170255f"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "dd96536de63589d17b3d07a31ccd026f7029abdbede45c0cea22d3dfb72ca4a6"
+    }
+  },
+  "behavior": [
+    "A one-use registered metadata participant binds the actual creating private area, original held FD/guard/ancestry and fixed six-endpoint namespace. Physical project/private-producer overlap refuses before metadata writes.",
+    "Preflight original remaining records/payload/metadata before applying the charge; preobserve absent private endpoints and charge prospective JSON before staging. No policy growth, new successor ledger or predecessor double subtraction.",
+    "Stage name, bytes and original permission template bind before creating the file. The held creation FD and staged regular/uid/singlelink/mode/gid facts authenticate the bounded receipt read.",
+    "The exact next native rename advances both endpoints, public project graph, private known nodes, parent stamps, original cache/presence and actual current-input inventory from its verified receipt. No complete namespace baseline is resampled.",
+    "Original plans and FW caches/catalog seals stay immutable. Exact original witness lookup closes its retained backup and current public successor; every unrelated producer input stays unchanged.",
+    "Membership and payload reads precede final known private file facts, original guard, held/named/held root stamps and pure participant lifetime binding. The outer activation ends before the final complete resulting-span close.",
+    "Observed-event decoded-node/document headroom is checked after the last destination-absence callback and before native rename. Actual decoded charges still consume the original ledger.",
+    "Publication resolves the acknowledged layout through the original bounded metadata adapter and marks published only after durable observed event, activation teardown and final closure. Pending remains held; finalization/terminal success are unfinished.",
+    "Metadata effects refuse physical overlap with original producer private/source roots, original full source acquisition, its whole actually collected parent, and original Git/common and recursive alternate object-store roots.",
+    "Original canonical source factory funds and pins cleanup parent, checkout and administration with actual descriptors, guards and native receipts. The original source-lease lifetime closes those receipts after separation I/O.",
+    "Original bounded Git provider records distinct exact object-store roots once using original entry charges; metadata separation excludes ordinary traversal-prefix directories."
+  ],
+  "qualified_author_make": {
+    "command": "make python-check",
+    "selection": "tests/critical/test_retained_layout_source_admission.py",
+    "exit_code": 0,
+    "summary": {
+      "executed": 36,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 36,
+      "selected": 36,
+      "skipped": 0
+    },
+    "seconds": 281.791,
+    "report": {
+      "path": "_build/source-metadata-complete-make-report.json",
+      "sha256": "0958fca8294fd919679c4c0ad1876f749368fb5a3ca96c04fdb34166cfa028bf"
+    },
+    "log": {
+      "path": "_build/source-metadata-complete-make.log",
+      "sha256": "465e470381b736022f2266c5e5b4ac456f6d2ee2b24e38367ee317c6bda7b4c0"
+    },
+    "also_checks": [
+      "compileall src/tests",
+      "maintained script py_compile",
+      "host-path policy"
+    ]
+  },
+  "causal_controls": [
+    {
+      "findings": [
+        "Wrong original stage permission template was accepted.",
+        "Last private file observation could invalidate private membership after its root check."
+      ],
+      "before": {
+        "path": "_build/source-metadata-review-before-v2.log",
+        "sha256": "83f9f623ed03b084f69bec1041c5ea746abb56d2f2e374b494c7202aa3663bc7",
+        "tests": 2,
+        "seconds": 17.832,
+        "footer": "FAILED (failures=2)"
+      },
+      "after": "Both methods pass in final Make36."
+    },
+    {
+      "finding": "A last absence callback consumed actual JSON record allowance; rename occurred before observed-event charge failed.",
+      "before": {
+        "path": "_build/source-metadata-headroom-before.log",
+        "sha256": "587d5ab86ffc34607de891160878f1409be3e8e3a6c89095188fb98a431f0259",
+        "tests": 1,
+        "seconds": 7.032,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": "Final Make36 refuses before public rename, retaining original public bytes and the already funded private stages."
+    },
+    {
+      "finding": "Original consumed catalog private controls admitted new metadata stages.",
+      "before": {
+        "path": "_build/source-metadata-predecessor-private-before-v2.log",
+        "sha256": "d933d5db253e574c851064ac1247d3a8a6e6d3378b6d5fd7576d12054d8dc644",
+        "tests": 1,
+        "seconds": 12.474,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": "Maintained final Make36 control refuses before metadata writes; final canonical positive proves retained backups survive actual acquisition cleanup."
+    },
+    {
+      "finding": "Original catalog source admitted new metadata stages.",
+      "before": {
+        "path": "_build/source-metadata-predecessor-source-before.log",
+        "sha256": "090e3285ae43f0d4f826b0fffe5cb409e9eaf05e00fea59c4ceda63dd23199ad",
+        "tests": 1,
+        "seconds": 12.495,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": "Maintained final Make36 control refuses before metadata writes; final canonical positive proves retained backups survive actual acquisition cleanup."
+    },
+    {
+      "finding": "Actual canonical acquisition checkout administration admitted metadata publication.",
+      "before": {
+        "path": "_build/source-metadata-canonical-before.log",
+        "sha256": "6e8eb1328fe9a7cd34437feb41972340febb7de3c4dcbbc63f53105085b74a9c",
+        "tests": 1,
+        "seconds": 16.101,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": "Maintained final Make36 control refuses before metadata writes; final canonical positive proves retained backups survive actual acquisition cleanup."
+    },
+    {
+      "finding": "Sibling under actual collected canonical acquisition parent admitted metadata publication.",
+      "before": {
+        "path": "_build/source-metadata-cleanup-parent-before.log",
+        "sha256": "5d036e0b5196fb017fbc7617dfca25c19030cbd70c907448a8c753c61f2383c8",
+        "tests": 1,
+        "seconds": 16.058,
+        "footer": "FAILED (failures=1)"
+      },
+      "after": "Maintained final Make36 control refuses before metadata writes; final canonical positive proves retained backups survive actual acquisition cleanup."
+    }
+  ],
+  "policy_qualification": {
+    "original_combined_refusal": {
+      "maximum_metadata_bytes": 4294967296,
+      "maximum_entries": 65536,
+      "behavior": "No metadata files created, public bytes unchanged and pending retained."
+    },
+    "positive_combined_chain": {
+      "catalog_and_source_maximum_metadata_bytes": 8589934592,
+      "maximum_entries": 131072,
+      "maximum_files": 4096,
+      "maximum_file_bytes": 4194304,
+      "maximum_total_bytes": 134217728,
+      "framework_predecessor_metadata_bytes": 2147483648,
+      "behavior": "All capacities declared before producer creation. The catalog/source policy remains identical through publication; the framework retains its own unchanged original allowance. Actual producer usage is imported once."
+    },
+    "intermediate_metadata_only_increase_refusal": {
+      "initial_metadata_bytes": 8589934592,
+      "initial_entries": 65536,
+      "diagnostic": {
+        "required_entries_payload_metadata": [
+          4892,
+          26303,
+          61669312
+        ],
+        "remaining_entries_payload_metadata": [
+          1139,
+          96206912,
+          4353735424
+        ],
+        "scope": "Historical counters before later provider-root and acquisition-parent records; not final exact-counter assertions."
+      },
+      "log": {
+        "path": "_build/source-metadata-budget-diagnostic.log",
+        "sha256": "bb33e977c18f93bc5c571518b4abc127fec0d0e729ce37a4c462abbe0a33bffe"
+      }
+    },
+    "targeted_positive_and_original_negative": {
+      "exit_code": 0,
+      "tests": 2,
+      "seconds": 80.514,
+      "log": {
+        "path": "_build/source-metadata-budget-qualified.log",
+        "sha256": "17a15bd2de67a25cc6d9362ed15a1206f09376977d256f3eeb6def6c945b3965"
+      }
+    }
+  },
+  "author_history": [
+    {
+      "path": "_build/source-metadata-first.log",
+      "sha256": "9bf7f4678cad0c08a2d5806bafffa499343253c051946a58abdba46d895b8e94",
+      "tests": 1,
+      "seconds": 10.016,
+      "footer": "OK"
+    },
+    {
+      "path": "_build/source-metadata-focused.log",
+      "sha256": "b658d7a1b7021b4d6936ee6ca6b2af281d5fbf0a4fe5da1aa88d9a3029d1dc47",
+      "tests": 27,
+      "seconds": 156.303,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "Original combined allowance refused at precharge before metadata writes; retained as a negative rather than relabeled as positive."
+    },
+    {
+      "path": "_build/source-metadata-review-before.log",
+      "sha256": "64cb17978449546595b7f2ecec3c0333e74af88fa4acdcaec95bae4552111a6d",
+      "tests": 2,
+      "seconds": 17.792,
+      "footer": "FAILED (failures=1)",
+      "interpretation": "First private-membership fixture injected in earlier observation pass; corrected maintained control isolates final native closer."
+    },
+    {
+      "path": "_build/source-metadata-review-after.log",
+      "sha256": "ae2f829b64254f6f4906a22d8abde2d19341d4b6f76d9e74c5790b13ed7dd2af",
+      "tests": 4,
+      "seconds": 84.045,
+      "footer": "FAILED (errors=1)",
+      "interpretation": "Stage/root repairs and original refusal pass; metadata-only capacity change did not provide required entry records."
+    },
+    {
+      "qualification": "Earlier 31-test Make cohort; superseded by final 36-test cohort",
+      "result": {
+        "command": "make python-check",
+        "selection": "tests/critical/test_retained_layout_source_admission.py",
+        "exit_code": 0,
+        "summary": {
+          "executed": 36,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 36,
+          "selected": 36,
+          "skipped": 0
+        },
+        "seconds": 281.791,
+        "report": {
+          "path": "_build/source-metadata-complete-make-report.json",
+          "sha256": "0958fca8294fd919679c4c0ad1876f749368fb5a3ca96c04fdb34166cfa028bf"
+        },
+        "log": {
+          "path": "_build/source-metadata-complete-make.log",
+          "sha256": "465e470381b736022f2266c5e5b4ac456f6d2ee2b24e38367ee317c6bda7b4c0"
+        },
+        "also_checks": [
+          "compileall src/tests",
+          "maintained script py_compile",
+          "host-path policy"
+        ]
+      }
+    },
+    {
+      "path": "_build/source-metadata-predecessor-private-before.log",
+      "sha256": "772591fff46652d53374a036cda0cc80ae62880c02e31cffa09ae041457c2679",
+      "interpretation": "First private-overlap fixture chose nonempty copies area; corrected causal control uses the actual empty controls area."
+    }
+  ],
+  "interrupted_author_make": {
+    "log": {
+      "path": "_build/source-metadata-make.log",
+      "sha256": "f313a59ce28ac1a3cf408b3802913b1ec803ecd2fc7d82adad643476a897ff35"
+    },
+    "interpretation": "Intentionally interrupted own runner before cosmetic diagnostic repair after lint E501; never a completed or passing cohort."
+  },
+  "initial_static_failure": {
+    "exit_code": 2,
+    "log": {
+      "path": "_build/source-metadata-static.log",
+      "sha256": "fd2baf55bdebe78d6b7cc0e75610d94b79ebd981156c1f1b9ea9652c4dddaaf1"
+    },
+    "interpretation": "One overlong diagnostic f-string; split into adjacent strings without changing text. Final exact subjects separately reviewed and tested."
+  },
+  "independent_review": {
+    "path": "independent-layout-source-metadata-review.json",
+    "sha256": "b9b82df5f9478d95867e96fb6e0594c3cfe264e3555c21c725586e87fca345ad",
+    "decision": "approved_at_metadata_published_finalization_pending_scope",
+    "independent_dynamic_qualification": false
+  },
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-metadata-complete-static.log",
+      "sha256": "92755763b4e9517cbfe8b265a4987cd8254ded4f0e61c0184e64dec71dfd4645"
+    }
+  },
+  "acceptance": {
+    "actual_metadata_publication": true,
+    "original_producer_backup_and_public_successor_observation": true,
+    "metadata_published_finalization_pending": true,
+    "control_finalization_and_verified_release": false,
+    "terminal_preparation_success": false,
+    "normal_complete_nonroot_transaction": false,
+    "canonical_authored_role_completion": false,
+    "root_shared_initial_wrapper_public_recovery": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Join original-ledger control normalization/retirement and explicit verified Git/public input release, retain terminal observation after original descriptor teardown and qualify a normal complete nonroot transaction. Preserve original authored-role/root/public/recovery/installed/platform/full-roadmap requirements.",
+  "supplemental_regression": {
+    "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v",
+    "exit_code": 0,
+    "tests": 389,
+    "unique_test_ids": 389,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 757.903,
+    "log": {
+      "path": "_build/source-metadata-complete-regression.log",
+      "sha256": "25423553924b368b313ae257bad295f12c7a97e8ff211a6abc0dd135f19240eb"
+    },
+    "scope": "Twenty affected suites: bounded observations; source preparation; transaction/control/publication/journal/reservations/ownership/metadata/finalization; catalog plan/roles/staging/protection/topology/publication; framework roles; standard lifecycle; native provider; canonical source lease. Exact final nine reviewed subjects."
+  },
+  "authority_checks": {
+    "driver_record": {
+      "path": "_build/source-metadata-driver-record.log",
+      "sha256": "32715469cbdc3cd0d9a22785bb3df7bf05f4993cdaaeef0908007391ed521a5b",
+      "exit_code": 0
+    },
+    "driver_and_runner_review": {
+      "path": "_build/source-metadata-authority-reviews.log",
+      "sha256": "d8833af08e7ffd51f0774a8a6b7942084b1e5dfdf49059f62e06fa24aa6553be",
+      "exit_code": 0
+    },
+    "project_validate": {
+      "path": "_build/source-metadata-project-validate.json",
+      "sha256": "134395be71c3bb22902ba47e989b6c6e95a68970bd33564594342e7e1a39ae19",
+      "exit_code": 0,
+      "ok": true
+    },
+    "documentation_record": {
+      "path": "_build/source-metadata-documentation-record.log",
+      "sha256": "4733d3d34753afc6304d4b0c04531524646a652babd0b92fa93c215e9e00ab2c",
+      "exit_code": 0
+    }
+  }
+}

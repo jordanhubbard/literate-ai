@@ -1,0 +1,38 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_metadata_receipt_replay_and_current_endpoint_projection",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py": {
+      "algorithm": "sha256",
+      "digest": "f2b50af37abb5a138250cc097dde88b9db12737326e2c28a01ba267d8111d4fc"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_current.py": {
+      "algorithm": "sha256",
+      "digest": "b5bbf38ef7089f01c642a107b1f27a25c8ac5183d11c96a505bfc69528bcebbd"
+    },
+    "src/literate_ai/adapters/retained_layout_source_forest_movement.py": {
+      "algorithm": "sha256",
+      "digest": "91fdc4aac69db3aa67847c6e074a021f125c29149ab4e2a240c9e5e67f6a5e20"
+    },
+    "tests/critical/test_retained_layout_forest_metadata_replay.py": {
+      "algorithm": "sha256",
+      "digest": "13a0b447d97e39fb1bcb13e3938988bbc9012500a6031c95b371d586aaea6ba6"
+    }
+  },
+  "findings_closed": [
+    "The old loader incorrectly compared actual acquired-partition observation payload with the original-role identity document. Shared source-intent@2 now names original_partition_identity separately from acquired_partition_payload_digest. Actual producer records its real acquired document. Non-None/legacy acquired data require actual schema, phase and exact native programme graph."
+  ],
+  "scope": [
+    "Pure metadata replay plus actual fresh current observer join. Durable original raw before/prospective commitments, exact target/order, bound original private metadata root and native inode custody project current known namespace; no data/description restores a lease or grants effects.",
+    "Actual no-follow metadata-root access, fresh same cumulative read ledger, derived projection seals and pending entry before/after. Potential staged paths with no inode witness remain unresolved even if their bytes match.",
+    "Canonical source producer uses shared v2 serializer. Unmanaged fixture explicitly has no acquired partition (None), uses actual pinned data and real staging/exclusive moves under real normal roles; actual ordinary canonical partition fixture separately proves producer wire."
+  ],
+  "not_proven": [
+    "Current canonical control normalization, retirement and supplemental incoming public-node projection under actual fresh descriptor owners",
+    "Actual acknowledged journaled source/metadata/control recovery effects and fresh retries/dispositions",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

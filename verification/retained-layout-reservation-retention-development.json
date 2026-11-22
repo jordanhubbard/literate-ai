@@ -1,0 +1,76 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "One-way live write-reservation retention, actual macOS source development with controlled close-fault scheduling",
+  "base_revision": "8513e031580a9fc211401a452433baa2c3723d46",
+  "independent_review": {
+    "decision": "approved within descriptor-backed reservation retention source scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "08dc8be1f57758f4d9d8599f3f189abc39bd386eae82e4d3b7366eca84423ba8"
+    },
+    "prior_changes_requested_report_identity": {
+      "algorithm": "sha256",
+      "digest": "60ae14f4c188db58ecc33af8cc012522e1287f9317c3d54e58ddcb9c4a693dec"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/_write_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "41142605231279e20cd34706c4afcc4b38949a6d819b84011460f382f72adf2a"
+      },
+      "tests/critical/test_retained_layout_reservation_retention.py": {
+        "algorithm": "sha256",
+        "digest": "394efea9adf1354c4a28e9beb1b9a18b2085ef1d6261e0ed93a5f04cce6b7b2a"
+      },
+      "tests/critical/test_write_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "527e1d522dc3f91ac39c2409ba3424365aa46245c4c9f05f4e4816aa8b9d57bb"
+      },
+      "src/literate_ai/_cache_lock.py": {
+        "algorithm": "sha256",
+        "digest": "f3f353261783bdee578baa1da632bae7591afbfcd6943bebe010f4e88ebc0838"
+      },
+      "src/literate_ai/_filesystem.py": {
+        "algorithm": "sha256",
+        "digest": "48372e2df82da255222607c4e916fb60cff11ccdcf303cfaadd4961a31e1f1c6"
+      },
+      "src/literate_ai/adapters/repository_orchestration.py": {
+        "algorithm": "sha256",
+        "digest": "1a560e47ee52262d6a8bd32d88d2e2d77fb2b361607a34ecb8b43a54487c7ed3"
+      }
+    }
+  },
+  "native_macos_source_cases": {
+    "retention_methods": 9,
+    "existing_critical_marker_methods": 3,
+    "independent_focused_passed": 12,
+    "independent_supplementary_passed": 6,
+    "selected_neighborhood_passed": 79,
+    "skipped": 0,
+    "causal_predecessor_failures": 2
+  },
+  "preserved": [
+    "Only a complete live descriptor-backed owner can select one-way retention; saved markers or state cannot reconstruct ownership",
+    "Retention is selected before currentness checks so an observed conflict retains every other marker and created parent",
+    "Normal and failed exit retain all controls, invalidate the owner and attempt every descriptor close without retrying retired descriptor numbers",
+    "A single release interruption is preserved exactly; mixed failures remain bounded groups, OS-only failures retain typed cleanup diagnostics and original causes, and body/release errors both stay visible",
+    "Default cleanup branch and shared lock/filesystem/Git helpers and existing critical marker tests remain unchanged",
+    "Actual separate-process native mutex acquisition proves successful close releases the kernel lock while the retained token remains a blocker to another reservation owner"
+  ],
+  "causal_repairs": [
+    "Controlled KeyboardInterrupt after first actual close formerly left another owned descriptor open and unattempted",
+    "A body error plus mixed release interruptions formerly omitted later close diagnostics; both maintained regressions fail exact predecessor bytes and pass the repair"
+  ],
+  "limits": [
+    "Close failure may have ambiguous native outcome; attempts are guaranteed by the reviewed loop, successful close is not manufactured or inferred, and retired numbers are not retried",
+    "Existing generic acquisition still creates public controls before their identities can be journaled; the layout owner must stage known nodes privately and persist exact intent before any public effect",
+    "Retention does not journal acquisition, prove project/Git/control roles, authorize source effects, grant future recovery/deletion rights or enable public apply"
+  ],
+  "remaining": [
+    "Actual project/conversion/Git/control authority and canonical reservation owner with staged durable acquisition",
+    "Fresh acknowledged recovery with complete source/endpoint custody and foreign-state preservation",
+    "Native Windows durability and actual platform, installed, full-source, integration and exact-head/main qualification",
+    "All structural renewal, initial plain/root/custom placement, relocation and genuine baseline/parity/lock/readmission/receipt renewal acceptance"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

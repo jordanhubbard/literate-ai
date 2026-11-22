@@ -1,0 +1,83 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_scoped_canonical_topology_and_bounded_descriptor_projection",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_namespace.py": {
+      "algorithm": "sha256",
+      "digest": "02470a9b95c94a1f9f6ba1e34fa8489aa55beb767ac05aa7d6177766f9940895"
+    },
+    "src/literate_ai/adapters/retained_layout_journal.py": {
+      "algorithm": "sha256",
+      "digest": "0c278385bc6b836da06e934f2fca8b31422dc899597acb4a41966ed26fe98e62"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_controls.py": {
+      "algorithm": "sha256",
+      "digest": "afc8ee3a3b13e3b1bd2c671e62801d12b6593ab331bac80807e95ac5b4b7cd91"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_disposition.py": {
+      "algorithm": "sha256",
+      "digest": "aabeac9471b83e27d10beb20d51b64d366e1c0cf248eab5affed4731b0090ba3"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_disposition.py": {
+      "algorithm": "sha256",
+      "digest": "ff37ee9fb3b34709da9d33fb08c6d4a4282fde5d39107133e430f01ee8cf6ac6"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_disposition_budget.py": {
+      "algorithm": "sha256",
+      "digest": "00f2e97a8a2d0e543c6b370316fe9092003abeabc72c115b7c59925d26bfc7bc"
+    },
+    "tests/critical/test_retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "ede59e1d2ad5d3f1819273909d629ff3176a0d37b2dec8982eaaec4255ee34d3"
+    },
+    "tests/critical/test_retained_layout_forest_operation_topology.py": {
+      "algorithm": "sha256",
+      "digest": "a85413490ad4ff0bae26f001bb3be30b45c76416bbff2d2b7c239476e2307b27"
+    },
+    "tests/critical/test_retained_layout_forest_operation_topology_inverse.py": {
+      "algorithm": "sha256",
+      "digest": "86cfb1689910874d904db5394d629db62cf33c476724b8cc49f6bb55f9cad39b"
+    },
+    "tests/critical/test_retained_layout_forest_operation_topology_committed.py": {
+      "algorithm": "sha256",
+      "digest": "699603eeec6957ed05360406ddb57ba605387f1ae22fce25b1bd7def590bc870"
+    },
+    "tests/critical/test_retained_layout_forest_operation_capacity.py": {
+      "algorithm": "sha256",
+      "digest": "bc2ee9c30a7b917f91608d5c49c83a71b3c29b33f182ecdfc7aed2d105d704bd"
+    },
+    "tests/critical/test_retained_layout_journal_event_snapshot.py": {
+      "algorithm": "sha256",
+      "digest": "f7e6f10186e956138a9c0e620a3066dfe592cab5d9176350e75419127839bab8"
+    },
+    "tests/critical/test_retained_layout_forest_disposition_area_bound.py": {
+      "algorithm": "sha256",
+      "digest": "1f76bed900c14a32d726cc18a15c2ed0a59d9c18dc7299dad66125ff22ffd2de"
+    },
+    "tests/critical/test_retained_layout_forest_disposition_owner_bound.py": {
+      "algorithm": "sha256",
+      "digest": "14cd503f21e064185049092c55475a73d193567f7573213d26dbb85483f033d8"
+    },
+    "tests/critical/test_retained_layout_forest_operation_g2_retry.py": {
+      "algorithm": "sha256",
+      "digest": "f9a5ca3bcccb45bdef78e7eb33cd8c162a6a9df8327d98197cfed8a4252da0e7"
+    }
+  },
+  "findings_closed": [
+    "Actual canonical mixed movement, inverse recovery and committed recovery preserve unknown source files beside framework metadata/wrapper authority, executable modes, empty directory inodes/modes, complete hardlink groups and raw file/directory symlink inodes/text/resolution. Fixed shared anchors and Git index custody remain unchanged.",
+    "The completed namespace projects receipt-only node fields to the existing stat-only transaction shape. Actual native owners still retain and verify the full span and logical aliases before/after projection.",
+    "Paid planning reserves new objects/maps/seals and encoding buffers from exact already-funded documents and actual current rosters. Old area enumeration is bounded by the complete verified span and the unchanged 1024 ceiling; required-empty roots stop at the first entry. Foreign symlink name and target text are separately funded.",
+    "Exact raw-envelope byte/token bounds pay for callback-free decoding. The actual registered journal producer authenticates immutable event and payload rows across native callbacks. Only immutable bytes/strings/tuples cross callbacks; entry construction follows actual owner checks and a pure trailing owner/marker/plan/map/path-reference close.",
+    "A staged owner cannot become a raw owner by acquiring a _plan attribute; exact supported factory types select the branch. Existing canonical/raw factories, descriptors, acknowledgements, native checks, cumulative allowances, coupons and policy ceilings remain required.",
+    "A separately declared 14GiB observation reaches actual prepay, which itself refuses before effects. Actual canonical foreign-entry and late-owner enlargement injections refuse before intent or unbounded projection, preserving foreign bytes and the journal.",
+    "A genuine canonical committed operation and fresh data recovery survive interruption after the first actual native control retirement observation BEFORE release decision. All old owners end; real G2 acquisition and a second disposition complete; actual G0/G1/G2 raw owners verify terminal replay with no replay journal/publication writes. Earlier private inode/bytes, source mode/bytes/inode, Git index and public native absences are checked."
+  ],
+  "not_proven": [
+    "Late mixed-directory mode interruption remains incomplete. Actual fresh inverse returned data_verified, but subsequent control-disposition preflight refused for insufficient remaining journal events. The original 256-event ceiling and all live policies remain unchanged; no continuation or compact release protocol has been implemented.",
+    "The failed mode diagnostic did not reach final control release or its post-release full mixed-custody assertions. Do not claim complete mode-boundary recovery.",
+    "This is scoped internal canonical development evidence, not full public root/shared admission/reentry, all topologies or all native/metadata/mode/control interruption boundaries.",
+    "Initial/wrapper/renewal placement, installed/native/platform/full-program acceptance, integration/release and other pending roadmap obligations remain open. Full goal stays active; no commit or push."
+  ]
+}

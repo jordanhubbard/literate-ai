@@ -1,0 +1,58 @@
+{
+  "schema": "independent-source-review@1",
+  "decision": "approved_at_limited_scope",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_commit": "63890c7afc2b4550c071c8dfbd2398c49338bab2",
+  "manifest": {
+    "src/literate_ai/adapters/update_merge.py": "2433a46df2deee4c84e6e6e2814ac7399ed0ef855e26beda194c523333629871",
+    "src/literate_ai/adapters/retained_layout_ownership.py": "fbee72a759ac1b364fab5595f3cf84c864095cff92f78884fd52306f65047b88",
+    "tests/critical/test_update_base_observation.py": "172b7ba00e52a40db3bd8238cf630a6cc3500d25e378062bf6a257d2b9f0b408",
+    "tests/critical/test_retained_layout_ownership.py": "98316fdc93fd9b2eefbb5b9f72415f5f6b1a71fcc84eac3fcdd1bde7f7046f03"
+  },
+  "scope": "Canonical store-observation decoder and its initializer-ownership integration only. No actual updater-to-source role handoff or new managed-file authority implemented.",
+  "findings": [],
+  "assessment": [
+    "UpdateBases constructor and from_observed share _decode;from_observed consumes supplied bounded bytes without rereading checkpoint content. Bytes-orNone and optional exact nonnegative integer entry bound validated. Existing MAX_BYTES,scheme@1,base64 blob hash checks,path/reference checks and catalog source semantics retained.",
+    "All framework/catalog/blob/source inventories must be mappings. Entry count is computed from all four before base64 decoding,so invalid inventories or record exhaustion cannot consume later payload allocations or supply partial parsed ownership.",
+    "Ownership uses the already snapshotted CHECKPOINT and shared decoder. Original manifest exact digest/size checks retained. Parsed record count debits shared entry budget and4096bytes-per-record metadata reservation;provider remaining entries reduced and usage accumulated rather than replacing record count. Native input/file counters remain separately enforced by existing snapshot ledger.",
+    "Encoded checkpoint bytes were already charged conservatively by original snapshot;record metadata receives additional explicit reservation. No independent shared-quota bypass found at this limited scope.",
+    "Framework map is validated as store data only;its rows are not added to framework role set. Actual negative control with genuine public current-upstream hash and arbitrary local bytes remains unclaimed.",
+    "Roadmap correctly labels current metadata roles in progress and actual live updater handoff as next implementation. No decoder-derived namespace exclusion or saved-record grant claimed."
+  ],
+  "independent_executed_evidence": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.critical.test_update_base_observation -q",
+      "result": "6passed0skip0.004s;supplied-byte/no-reread equivalence,later-checkpoint preservation,entry-before-decode,legacy missing blobs/catalogsources,invalid bounds/types,and missing-observation guard"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.critical.test_retained_layout_ownership tests.critical.test_retained_layout_provider -q",
+      "result": "45passed0skip173.759s;27ownership+18provider,including malformed catalog and shared-record exhaustion source-effect refusals"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest tests.e2e.test_project_update_merge tests.e2e.test_project_update_apply -q",
+      "result": "12passed0skip3.636s;legacy actual update/merge/catalog/base recovery/resolution/rollback compatibility"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/observed-checkpoint-no-role.py",
+      "result": "1passed0skip3.104s;forged framework-map row+genuine public Windows upstream hash/blob cannot label arbitrary local content framework;actual complete partition keeps it unclaimed and bytes preserved"
+    }
+  ],
+  "private_control_sha256": {
+    "observed-checkpoint-no-role.py": "91280f1964e2ff12e10a70dfb1bdc432d7d75bdcfe43edb64cb8e10c92cea66e"
+  },
+  "reviewed_roadmap_sha256": "fef0edb0c6524d1063ce8ea2ca5dff5542c1aa26a3ae0b73698918c7ad9d6e7b",
+  "publication_and_compatibility_limits": [
+    "Existing write() still compares current checkpoint bytes with original observation,includingNone absence,then uses unchanged legacy publisher. New tests establish prepublication stale/absence refusal;this change does not add a post-fsync compare-and-swap or stronger concurrent rollback guarantees.",
+    "from_observed is a data constructor,not a live ownership/write-authorization factory. Existing operational methods do not become permission grants. Live update participant/publication/custody design remains separate.",
+    "entry_count and maximum_entries apply to decoded original record inventory;they are not a continuing mutation quota for later advance()/remember_catalog(). Current ownership does not mutate the decoded object.",
+    "Legacy identity-only references may lack blobs and remain parseable for existing recovery. Strict ownership still requires its original manifest blob. Existing pretty/noncanonical JSON formatting acceptance remains;canonical store parsing does not mean a new canonical serialization requirement.",
+    "Snapshot path validation retains existing filesystem/path safety checks;only checkpoint content reread is avoided."
+  ],
+  "limits": [
+    "Independent current evidence6+45+12 methods and1supplement;author75/scopedMake/static evidence remains separate.",
+    "Source/editable-development managed-env tests,not noneditable wheel/installed/platform qualification.",
+    "No actual update-role handoff,durable overlay lineage,fresh restart authority,full metadata ownership,root/shared/initial/wrapper/public/fullL1/L4/nativeWindows/fullfeature/program/release acceptance.",
+    "No production/tests/pins edits,new agents,installs,network/downloads or heavy gates. All independent processes terminal.",
+    "Only requested root-level immutable report and private control/subject snapshots written;report creation uses exclusive mode."
+  ]
+}

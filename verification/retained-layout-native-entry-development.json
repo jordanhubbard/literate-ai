@@ -1,0 +1,63 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Exclusive native layout entry movement and exact local physical identity encoding, source development",
+  "base_revision": "4e791dc8b67bad3888645608f55ce99850fe4699",
+  "independent_review": {
+    "decision": "approved within cooperative primitive source scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "4bc832a4b1ff83f0e22b7d167773e6d635d6e7c1ba31854a7de6883701dbf8c3"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/exclusive_entry.py": {
+        "algorithm": "sha256",
+        "digest": "3910b3bf8c6a6391b40b291dd871c70145ff4d7f8dd76202e2e7e5f9913a178f"
+      },
+      "tests/critical/test_exclusive_layout_entry.py": {
+        "algorithm": "sha256",
+        "digest": "2f5b7ef4c10577fe34647d71fdc9c8434588f033fdadda40759d025f1aa7dc17"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "tests/critical/test_retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "7b848d83ec8bdbc494e23473f68304159adc84390041b94fe006f015e36086b2"
+      }
+    }
+  },
+  "native_macos_source_cases": {
+    "entry_movement": 12,
+    "partition_census": 12,
+    "independent_focused_passed": 24,
+    "independent_closing_fault_controls_passed": 2,
+    "neighborhood_passed": 55,
+    "skipped": 0
+  },
+  "causal_predecessors": {
+    "final_destination_parent_control_failed": 1,
+    "wide_native_integer_encoding_errored": 1
+  },
+  "preserved": [
+    "Existing directory-only publication interfaces and reused native rename/Windows file-identity implementations unchanged",
+    "Files/directories/symlinks move without copy or replacement; source bytes/modes/inodes/link topology retained in actual fixtures",
+    "Occupied/dangling/case-alias destinations refuse; synthetic cross-device preflight and unsupported native call leave endpoints intact",
+    "Actual native post-effect source swaps/repopulation/parent conflicts retain every observed node and close parent handles",
+    "Local physical integers beyond canonical signed64 are tagged decimal, preserving exact distinct identities"
+  ],
+  "required_caller_boundaries": [
+    "Current project/conversion/control/Git authority, full raw source hashes/topology and exact reviewed plan",
+    "Live lifecycle and descriptor-backed reservations",
+    "Same-filesystem/capability/aggregate quota preflight",
+    "Durable bounded private journal intent before source effects",
+    "Explicit supported recovery and foreign-state preservation"
+  ],
+  "remaining": [
+    "Native Windows and other-host actual execution, installed qualification and complete integration",
+    "Structural renewal, actual transaction/journal/control owner and public initial/root/custom apply/relocation/recovery",
+    "Genuine lock/readmission/parity/receipt renewal and full feature/release acceptance"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

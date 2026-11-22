@@ -1,0 +1,144 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "scope": "Actual source-owner metadata publication with retained exact old nodes; explicitly unfinished nonroot POSIX transaction, macOS source development",
+  "base_revision": "1151416010c278164b3fa085f02361cc828fe4dc",
+  "independent_review": {
+    "decision": "approved at exact unfinished internal nonroot POSIX metadata-publication scope",
+    "report_identity": {
+      "algorithm": "sha256",
+      "digest": "526f319374179d0cb68ced3839db4c81a4c60336ab713306960af3b96d3bfd2c"
+    },
+    "prior_changes_requested_identity": {
+      "algorithm": "sha256",
+      "digest": "025191ac4ddddb7ffc1efc03f4d9c4dbf3ffcaa6bbc11d8ea9c209a3b243fb37"
+    },
+    "subjects": {
+      "src/literate_ai/adapters/retained_layout_transaction.py": {
+        "algorithm": "sha256",
+        "digest": "67fb873e7f8f98b43ebcef67e285b7fb3bc51633e7344b67b82a2db975a8a3e8"
+      },
+      "tests/critical/test_retained_layout_metadata.py": {
+        "algorithm": "sha256",
+        "digest": "7368b93fbc21ecaf378a8feb8af61bc26b6ee9876d5fc07a09584ffd647a0c53"
+      },
+      "tests/critical/test_retained_layout_transaction.py": {
+        "algorithm": "sha256",
+        "digest": "a3c211a409ec3bcb5bfdb83d090a24aa21587f793ffa1712b73242a18c3925ce"
+      },
+      "src/literate_ai/adapters/retained_layout_control_roles.py": {
+        "algorithm": "sha256",
+        "digest": "ac2b1266d91f5c2911947771846c80e343cbc71956b1009d034e391fd37c22da"
+      },
+      "src/literate_ai/adapters/retained_layout_git_controls.py": {
+        "algorithm": "sha256",
+        "digest": "927b500d13f6cf5b0f84dfef2899b658deb82fc3062e1b9abe17acdf4b17bf5f"
+      },
+      "src/literate_ai/adapters/retained_layout_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "e07ad13be328861dd3ae917fcc96a696c2d0efc24118e2e779242d44f125fa7f"
+      },
+      "src/literate_ai/adapters/retained_layout_control_publication.py": {
+        "algorithm": "sha256",
+        "digest": "01c10715e44d9289f899e5d77fa68d4348eb9943590fc5f30e2b51c914738c83"
+      },
+      "src/literate_ai/adapters/retained_layout_journal.py": {
+        "algorithm": "sha256",
+        "digest": "25835cf1aed40729989e3e589226a4d45ca22939e70dba2fad5ae3f54338b14b"
+      },
+      "src/literate_ai/adapters/retained_layout_partition.py": {
+        "algorithm": "sha256",
+        "digest": "3317c8975b8bef703e37a1102b7ff0b88e908fae6418f1243a434c5d16e66211"
+      },
+      "src/literate_ai/adapters/retained_layout.py": {
+        "algorithm": "sha256",
+        "digest": "ff7491b941e96130c8a5417fae8afd952cd272d728f08a6003e70756ff04ee3e"
+      },
+      "src/literate_ai/adapters/retained_cargo_tree_v2.py": {
+        "algorithm": "sha256",
+        "digest": "dbd724a86dbb4a25e172cc89b3907b6bc6c9f31822694ef70fe03c4730c3d3fa"
+      },
+      "src/literate_ai/adapters/retained_project_inputs.py": {
+        "algorithm": "sha256",
+        "digest": "6dfdcae5128efbb822465e545a406412cc396ae523d29b7cbc74d38ecf672f24"
+      },
+      "src/literate_ai/adapters/exclusive_entry.py": {
+        "algorithm": "sha256",
+        "digest": "3910b3bf8c6a6391b40b291dd871c70145ff4d7f8dd76202e2e7e5f9913a178f"
+      },
+      "src/literate_ai/adapters/repository_refresh.py": {
+        "algorithm": "sha256",
+        "digest": "4aa4b18744e079bd4800181582b69cc31325ac46e88a3717d5e0a79a6f8c3d1f"
+      },
+      "src/literate_ai/adapters/repository_refresh_reservations.py": {
+        "algorithm": "sha256",
+        "digest": "51039fc1defa64b0e8844a35dc40f0ffa89afed6afe48bdee00dd884ff9ddfae"
+      },
+      "src/literate_ai/adapters/conversion_authority.py": {
+        "algorithm": "sha256",
+        "digest": "c2512731c646e1242d2e98a616167b17847f1d26399d9eed35f61ec99d43d98e"
+      },
+      "src/literate_ai/adapters/component_markdown.py": {
+        "algorithm": "sha256",
+        "digest": "d9e2a25be349baaab15333e6cfd256a07676104a621e8409bb5f9d99939d753f"
+      },
+      "src/literate_ai/contracts/project_initialization.py": {
+        "algorithm": "sha256",
+        "digest": "a5eb673cbe41cb249c92e3cf6e5986ca81379c5e6f3048914e9fd4bb79e8a2f9"
+      },
+      "docs/decisions/0057-retained-implementation-layout-and-relocation.md": {
+        "algorithm": "sha256",
+        "digest": "9499d259afd7ee5c173073f298ed1d83cee99b7eeedfc713db637b2dabaf8589"
+      }
+    }
+  },
+  "native_macos_source_cases": {
+    "metadata_methods_passed": 20,
+    "unchanged_source_methods_passed": 24,
+    "independent_rerun_methods_passed": 44,
+    "independent_supplementary_unique_passed": 8,
+    "selected_neighborhood_passed": 177,
+    "skipped": 0,
+    "maintained_initial_predecessor_failures": 2,
+    "maintained_initial_predecessor_closed_fd_errors": 1,
+    "prior_source_live_plan_replacement_causal_failures": 1
+  },
+  "actual_behavior": [
+    "Use the same live actual canonical project/Git reservation owner and complete moved-original-source custody for the exact acknowledged old/prospective metadata",
+    "Stage exact replacement bytes and known native nodes in caller-selected existing empty private state, including in-project framework state; actual source/private producer/Git identities remain forbidden through aliases",
+    "Preflight remaining finite journal resources, one filesystem, original metadata single-link ownership and mode/group preservation before metadata effects",
+    "Persist known native source/destination/parent/payload intent before quarantining any old node or exclusively publishing a replacement; synchronize held original metadata parent descriptors",
+    "Keep exact old metadata inodes/bytes/modes as private backups, all ambiguous endpoints, old locks/receipts and every unaffected authored input; no deletion or rollback is inferred",
+    "Advance authored currentness only after observed content/signature and final full native facts match the actual moved source node; represent quarantine holes as explicit expected absence",
+    "Revalidate actual controls, complete moved-source bytes/topology/native facts, original ancestry and all authored/private/journal dependencies after blocking reads before progress returns",
+    "Bind cached private area operations to actual phase PID/context lifetime before borrowed descriptor access; invalidate phase before resource teardown and deny reuse of retired descriptor numbers",
+    "Bind every source/metadata entry point to the originally acknowledged live plan; replacing a public plan attribute cannot redirect native source effects",
+    "Resolve structurally current but unqualified metadata and return metadata-published-finalization-pending with qualified false and relocation_complete false; normal context exit still refuses incomplete state"
+  ],
+  "causal_repairs": [
+    "Actual same-byte foreign metadata replacement between native sampling and content read was adopted into currentness and returned pending success; observed signature plus final native identity closure now refuse before map advance",
+    "An optional quarantine-hole read adopted a foreign occupant before later publication refused; explicit expected absence prevents foreign-map admission and refuses before publication intent",
+    "Cached private writer was revived after phase exit by reopening original directories into verified-retired descriptor slots and actually staging another file; phase-bound guards deny both checks and writes before fstat or other borrowed-FD use",
+    "Prior committed source phase accepted a changed live plan pointing at a different valid native destination while journal/acknowledgement still named the original plan; stable live plan binding now refuses before source effects"
+  ],
+  "independent_supplementary_scope": [
+    "Actual exact retired-descriptor reopening, context invalidation before close and child-process writer denial",
+    "Post-content-read same-byte native replacement and hardlink/native-fact changes refuse before authored-map advance",
+    "Final private reads mutating public metadata, earlier private backup or journal refuse and preserve all observed states"
+  ],
+  "limits": [
+    "Internal nonroot source/metadata publication only, not the complete public relocation plan or a completed transaction; normal control finalization/release and fresh acknowledged recovery remain unimplemented",
+    "Actual small macOS filesystem/Git/process fixtures with synthetic initialization origins/baseline commands; no real application/model, generated-code or positive retained qualification is inferred",
+    "Independent reviewer reran44methods and8unique supplemental cases; one supplemental journal fixture initially caught only the inner refusal while the outer owner also correctly refused, then only that exception scope was corrected and1case rerun",
+    "Author separately ran177affected methods; the24source methods and16shared helper subjects are unchanged, while the transaction source has the newly reviewed hash. Historical source/role/journal records retain original subjects unchanged",
+    "Point-in-time cooperative state, not hostile-process containment, continuous arbitrary-payload locks, power-loss proof or saved-record ownership",
+    "No native Windows/other-native-host, installed/noneditable, full-source, integration-head/main, full-feature or release acceptance is inferred"
+  ],
+  "remaining": [
+    "Implement explicit normal journaled control finalization/release and fresh acknowledged recovery under real new descriptors and exact endpoint classification",
+    "Complete root/shared-prefix/nested independent source ownership, wrapper changes, all initial placement and every relocation cell",
+    "Complete L2 structural renewal and genuine ordinary lock/inventory/baseline/parity/readmission/fresh receipt renewal, rejecting historical receipts",
+    "Actual native Windows durability, installed/native/full-source/integration/exact-head/main and release gates before closing ADR0057 or ADOPT-RELOCATE-001"
+  ],
+  "feature_complete": false,
+  "release_complete": false
+}

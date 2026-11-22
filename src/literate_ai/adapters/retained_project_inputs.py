@@ -410,7 +410,10 @@ def _stream(
     *,
     access=None,
     windows_executable: bool = False,
+    _chunk_size: int = _CHUNK,
 ) -> tuple[int, int, str]:
+    if type(_chunk_size) is not int or not 1 <= _chunk_size <= _CHUNK:
+        raise RetainedProjectInputError("Explicit bounded payload chunk required")
     path = root / name
     if access is None:
         require_safe_directory(path.parent)
@@ -439,7 +442,7 @@ def _stream(
             _safe(root, name).lstat() if access is None else access.metadata(path)
         ):
             raise RetainedProjectInputError("Retained input changed before read")
-        while data := stream.read(min(_CHUNK, limit - count + 1)):
+        while data := stream.read(min(_chunk_size, limit - count + 1)):
             count += len(data)
             if count > limit:
                 raise RetainedProjectInputError("Retained input exceeds byte bound")

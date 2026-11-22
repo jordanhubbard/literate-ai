@@ -42,7 +42,13 @@ from tests.support.fixtures_test_retained_harness_receipts import (
 
 @contextmanager
 def scratch_review_fixture(
-    base, *, with_provider=False, fixture=None, build_outputs=(), native_custody=None
+    base,
+    *,
+    with_provider=False,
+    fixture=None,
+    build_outputs=(),
+    native_custody=None,
+    prepare_project=None,
 ):
     project = base / "converted"
     _legacy_project(project)
@@ -60,6 +66,8 @@ def scratch_review_fixture(
         source_intelligence_provider="none",
         convert=True,
     )
+    if prepare_project is not None:
+        prepare_project(project)
     loaded = load_project(project)
     fixture = RetainedCargoImportTests() if fixture is None else fixture
     fixture.setUp()

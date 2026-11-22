@@ -1,0 +1,59 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_strict_disposition_replay_and_actual_interrupted_generation_retry",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_disposition_transcript.py": {
+      "algorithm": "sha256",
+      "digest": "1d3a9801c2d6115607e5965e7a85b9e42a1257ea0e582eb94bef5079d20faafb"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_control_inventory.py": {
+      "algorithm": "sha256",
+      "digest": "90c9fc491a533889b35f3918bef97de5f878f620ee23a73ad709fea97cf1982b"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_terminal_replay.py": {
+      "algorithm": "sha256",
+      "digest": "3adcd91e3a60025bbbc7c67a3f5e6945d9112d96820a7363e0301472d7dd57ec"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_transcript.py": {
+      "algorithm": "sha256",
+      "digest": "3fc8eb2be8a45cdddefcba6c4fd69eaacb34ecb31a4b59c298cc5cbcc1708e70"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_control_projection.py": {
+      "algorithm": "sha256",
+      "digest": "3782bb6fe0251d8190cb4ae044b427e65a04f764ef1c1061121611f6c7f6066c"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_current.py": {
+      "algorithm": "sha256",
+      "digest": "cd659fbbc9afbd49a4fce24bb959861da8a0148c617b8779952e0ec0079f74f5"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "859dec439e67be4f7c2cab78beabc603219ef0fd02b1d2c944b5af945fb9d357"
+    },
+    "tests/critical/test_retained_layout_forest_terminal_replay.py": {
+      "algorithm": "sha256",
+      "digest": "71aaab9ef36826c0047853ed7c0b8265e8f158c3ef7debbe19c33dfacca285d3"
+    },
+    "tests/critical/test_retained_layout_forest_disposition_retry.py": {
+      "algorithm": "sha256",
+      "digest": "aa7c2b7be72e8b43a681db2f200b0384773da8baaa71e09330745297f0f3e76b"
+    }
+  },
+  "findings_closed": [
+    "Strict typed disposition prefix decoding preserves actual durable normalization/retirement intent-observation pairs, original private root identities, pending-last decision, partial attempts and exact canonical epochs. Decoded descriptions grant no ownership.",
+    "Actual same-pool raw G0/G1 owners plus real canonical producer observations can create a separately registered read-only terminal observer. It creates no canonical writer lease, missing native marker, journal event or control publication, and cannot enroll a writer.",
+    "Actual raw plan histories, observer/catalogue/field references and nested canonical facts remain independently sealed across finite prepaid non-reentrant native checks and full final teardown.",
+    "Later disposition roots follow original quarantine, preserving all original data/inverse area indices and private inode/byte custody.",
+    "A genuine separate OS process starts with empty registries, receives descriptive inputs only and reacquires actual raw owners to observe the completed disposition without recreating public native controls.",
+    "Actual interruption after first exclusive native retirement observation ends all owners; a fresh canonical owner publishes a real missing G2 generation, a separately acknowledged disposition completes, and three-generation terminal replay preserves all previously retired private nodes.",
+    "Distinct old owners may hand off the same incoming coordinate. Duplicate old group/path or raw identity/path and inconsistent per-epoch identity/group mappings refuse. Historical opaque IDs are not compared with freshly acquired plan identities; actual private-descriptor lineage remains the ownership proof."
+  ],
+  "review_refinement": "Initial group/path fix was strengthened with independent identity/path duplicate rejection and bijective identity/group consistency after reviewer found relabelled identity duplicates.",
+  "not_proven": [
+    "Original canonical forest SourcePhase/acquired partition execution remains guarded and unproven. Existing fixture source execution is explicitly unmanaged under real normal canonical owners, with no fabricated partition or role.",
+    "General interruption recovery across all normalization primitive boundaries, retire-before-observed, decision, raw/canonical acquisition and all descriptor teardown boundaries remains unqualified.",
+    "Committed forests, multiple replacement targets, larger topology, ordinary public project reentry, initial/wrapper/root/shared/renewal, installed/platform/integration/release and all other pending roadmap obligations remain open."
+  ]
+}

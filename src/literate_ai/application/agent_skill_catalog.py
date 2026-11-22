@@ -173,8 +173,14 @@ class AgentSkillCatalog:
             catalog_roots=catalog_roots,
             root_manifests=root_manifests,
         )
-        authorities = _manifest_authorities(documents)
-        return tuple(physical[path] for path in sorted(authorities.values(), key=str))
+        return tuple(
+            physical[path] for path in cls.manifest_paths_from_documents(documents)
+        )
+
+    @classmethod
+    def manifest_paths_from_documents(cls, documents) -> tuple[PurePosixPath, ...]:
+        """Select canonical sentinels from already observed resource documents."""
+        return tuple(sorted(_manifest_authorities(documents).values(), key=str))
 
     @classmethod
     def from_documents(

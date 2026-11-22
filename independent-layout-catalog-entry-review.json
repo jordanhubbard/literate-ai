@@ -1,0 +1,76 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "decision": "changes_requested",
+  "reviewer": "single authorized independent reviewer",
+  "repository": "/Users/jkh/.worktrees/literate-ai/l1",
+  "head": "95a0a8dd3ef7d40be946b3cb46b2b3fefdf9f549",
+  "scope": "Internal actual catalog entry publication and receiver transition; incomplete provenance/control finalization and imported ownership remain mandatory.",
+  "manifest": [
+    {
+      "path": "src/literate_ai/adapters/catalog_entry_publication.py",
+      "sha256": "10bbe060fcd0f173e7f6791023a583ff4f637020f8a741dfeb13e7e55dcbc638"
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "bc2d28ea8f1a8bacfeec38f3168066f24eb56865015ac3beef6c4fca5d600eaf"
+    },
+    {
+      "path": "tests/critical/test_catalog_entry_publication.py",
+      "sha256": "519a2ecde49b56d333fefbe7cf21a6095ae2b524d6963746883686a8347bfca0"
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-ENTRY-CUSTODY-001",
+      "severity": "blocking",
+      "status": "open",
+      "title": "Mutable stage marker selects the pre-transfer path and teardown despite actual receiver registration",
+      "locations": [
+        "src/literate_ai/adapters/catalog_copy_staging.py:246",
+        "src/literate_ai/adapters/catalog_copy_staging.py:271",
+        "src/literate_ai/adapters/catalog_copy_staging.py:482",
+        "src/literate_ai/adapters/catalog_copy_staging.py:655",
+        "src/literate_ai/adapters/catalog_entry_publication.py:73",
+        "src/literate_ai/adapters/catalog_entry_publication.py:82"
+      ],
+      "evidence": "Source inspection: after the actual _OWNERS registration transfers custody, clearing stages._effect_admission selects the original require_current path and removes the inspect/stage_item transferred-custody refusal. Before public effects, original stage currentness can still hold. The same mutable marker gates _revoke in actual stage-finally, so clearing it also skips removing the actual receiver registration and associated retained references.",
+      "consequence": "One-way stage custody and actual registration lifetime are not enforced independently of the marker. Public receiver operations still compare the original registry nonce and refuse a mismatched marker; this finding does not establish unauthorized public publication.",
+      "required_change": "Select dispatch and transferred-custody refusal from actual receiver registration, retaining the original nonce check. Revoke actual receiver registration at actual stage teardown independently of mutable marker state. Never fall back to the pre-transfer path for a registered receiver with missing or mismatched marker.",
+      "verification": "Source-only state-transition finding; no bespoke probe or new independent maintained execution performed."
+    }
+  ],
+  "inspected_contracts": [
+    "Actual receiver registry, nonce, PID/thread, exact stage factory, acquired controls and live journal admission.",
+    "Durable per-effect intent before exclusive native retirement/publication; retained nodes on ambiguous errors; expected namespace maps advance from observed effects.",
+    "Private preparation and promotion of missing parent chains, same-item topology restrictions, shared view/event/storage reserves.",
+    "Final namespace/payload observations before known native facts and actual admission close.",
+    "Writer revocation at application exit and descriptive observation until enclosing stage teardown; normal published exit deliberately incomplete."
+  ],
+  "independent_execution": {
+    "tests_run": 0,
+    "probes_run": 0,
+    "explanation": "A pending maintained-test launch was interrupted before dispatch. After the source blocker was identified, no tests were launched as instructed.",
+    "live_test_processes": "None launched by this review; no independent handle remains."
+  },
+  "author_evidence": [
+    {
+      "path": "_build/catalog-entry-third.log",
+      "sha256": "4fc32189ef9ad52bc4eadadd89236d3c5a8890ff786f7b13415e171d0cd5c8a5",
+      "observed": "11 tests, 32.669 seconds, OK; author execution, not independent execution."
+    },
+    {
+      "path": "_build/catalog-entry-affected.log",
+      "sha256": "f2b9570b1162dca3e8969f418507f540882562a5416467cbdd29c04b4ec5919d",
+      "observed": "138 tests, 167.178 seconds, FAILED(errors=1). Trace ends in unchanged exclusive_entry.layout_entry_node raising layout.move.entry-changed during control publication/acquisition. No passing broad-suite claim; separate author single-case rerun was pending when reported."
+    }
+  ],
+  "remaining_limits": [
+    "No fresh independent dynamic validation of entry effects, budgets or fault cleanup in this review.",
+    "No other concrete blocker identified in the inspected source; this is not exhaustive dynamic assurance.",
+    "Project publication is partial: canonical provenance, control finalization and imported-role handoff are not completed; normal published exit remains incomplete.",
+    "No whole-feature, root/shared/wrapper, recovery, installed-wheel, native cross-platform, public API or release acceptance.",
+    "Saved plans, records and descriptive results grant no ownership.",
+    "Prior review reports remain immutable."
+  ],
+  "repair_readiness": "Reviewer source inspection complete; original subjects recorded. No independent process prevents source repair. Parent-owned jobs are separate and must be managed by their owner."
+}

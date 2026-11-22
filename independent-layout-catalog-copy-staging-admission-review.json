@@ -1,0 +1,142 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T03:09:31.438921+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "8906e4a2a26a5c132b2ccf870c72afc11fa22f65",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_staging.py",
+      "sha256": "3716434d11a9489fd3d1e2ec847df01fd284c6b6a9e2d12eba5971c40bcda3f2",
+      "bytes": 26368
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_copy_plan.py",
+      "sha256": "dcb0b0cba76fbf2d60dd896aea6653be1dd14bc840326ff77c058aac7d9de8ff",
+      "bytes": 14648
+    },
+    {
+      "path": "src/literate_ai/adapters/catalog_import.py",
+      "sha256": "e288f28730b74873239da220ebe4e39ffe0024f6334202e94b88d156f314ed04",
+      "bytes": 27868
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_journal.py",
+      "sha256": "3a238ada3a787f2b06f9a7c3696d580da04914e58a7794ebcd05ba7c6be653cf",
+      "bytes": 20360
+    },
+    {
+      "path": "tests/critical/test_catalog_copy_staging.py",
+      "sha256": "48314a14e2e36ebaf6fc5d5959883a0c4fcebdf77ed6a390e85ea72629cf3712",
+      "bytes": 21661
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-reviewed-subjects",
+  "prior_report": {
+    "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-catalog-copy-staging-review.json",
+    "sha256": "fa003a8fcecbcfab94ac9f893c833beb7846acee40d3a18d8050e291a91ce621",
+    "unchanged": true
+  },
+  "scope": "Internal private catalog-copy staging and actual journal/factory admission only; no canonical project publication, overwrite retirement or imported-role/source-partition authority.",
+  "resolved": [
+    {
+      "id": "CATALOG-STAGING-ADMISSION-001",
+      "status": "closed_at_original_admission_boundaries",
+      "evidence": "Actual writer registry rejects descriptive/reconstructed/ended journals; distinct stage factory admission binds exact plan/rootFD/guard/journal/ledger/PID. Constructor independently validates root disjointness, actual header/native journal-root, original shared ledger. Original scripts now refuse before their old assertion sites; current phase-inclusive maintained controls pass."
+    },
+    {
+      "id": "CATALOG-STAGING-FILE-BUDGET-002",
+      "status": "closed",
+      "evidence": "Effective max(record,payload) journal read limit is compared with original per-file policy before private creation. Current64KiB case refuses without journal read/creation, and old overread script stops before entry."
+    }
+  ],
+  "findings": [
+    {
+      "id": "CATALOG-JOURNAL-ADMISSION-LIFETIME-003",
+      "severity": "blocking",
+      "status": "open",
+      "location": "src/literate_ai/adapters/retained_layout_journal.py:34",
+      "title": "Actual context can end during guard but live-writer admission still returns",
+      "cause": "_require_live_layout_journal checks actual registration/original fields/PID/poison only before invoking guard(). It does not close those pure eligibility facts afterward.",
+      "causal_case": "Open real retained_layout_journal context. During the final native writer.lock lstat inside its actual registered guard, invoke real context.__exit__(None,None,None). The real context exits and unregisters writer; guard returns its already observed node and admission helper returns writer successfully. No writer private state, guard binding or OS facts are fabricated.",
+      "observed": {
+        "actual_context_ended": true,
+        "writer_still_registered": false,
+        "admission_accepted": true
+      },
+      "reproducer": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-journal-admission-closing-probe.py",
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-journal-admission-closing-probe.py",
+      "result": "1 failure,0 errors,0 skips,0.003s",
+      "required_change": "After actual guard returns, repeat pure original registration/descriptor/guard/budget/PID/poison eligibility comparison before returning, without another native traversal. Registration removed or altered during callback must refuse. Preserve original context binding; saved or reconstructed writer state cannot revive it."
+    }
+  ],
+  "source_assessment": [
+    "Read complete new admission code and journal diff against exact initial5file snapshot/context. Copy-plan usage and canonical copy hook remain unchanged; constructor/factory now establish actual native and ledger bindings.",
+    "Registered writer is added only after actual journal initialization/recovery and currentness, removed in finally before actual lock/FD cleanup. Per-context stage admission similarly revoked before journal/outer FD teardown. New final guard eligibility gap remains as above.",
+    "All staging _live paths consult actual journal and factory admission; original copy/streaming/alias expansion/durable intent/currentness/poison controls retained.",
+    "Per-file journal intersection is now checked before actual private creation. Original default journal wire and budget semantics for other owners unchanged.",
+    "No project publication/imported-role handoff/full-feature capability is introduced by this dependency."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_catalog_copy_staging tests.critical.test_catalog_copy_plan tests.critical.test_retained_layout_journal tests.smoke.test_catalog_import tests.e2e.test_repository_catalogs tests.e2e.test_retained_catalog_discovery",
+      "result": "80 passed,0 failed/errors/skips,18.673s;26stage+20plan+17journal+17ordinary",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-independent-cohort.log"
+    },
+    {
+      "command": "Unchanged original constructor probe",
+      "result": "Raw old harness:1 ERROR0.054s because TypeError actual-live-writer-required now occurs at constructor before old assert around stage_item; intended early refusal, no copy",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-original-constructor.log"
+    },
+    {
+      "command": "Unchanged original real-journal overlap and per-file probes",
+      "result": "Raw old harness:2 ERRORS0.065s because source overlap constructor and original per-file factory policies now refuse before old assertions; maintained phase-inclusive controls independently pass",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-original-probes.log"
+    },
+    {
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-journal-admission-closing-probe.py",
+      "result": "1 failed,0 errors,0.003s; actual ended/unregistered writer returned by admission",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-journal-admission-closing-probe.log"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-independent-cohort.log",
+      "sha256": "9436141241c0af6229217d649a25043233c8a3d4d3d42d23e495c5dd7b8d1bc6",
+      "bytes": 15376
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-original-constructor.log",
+      "sha256": "1224c636474e3ec2f4a8402657a3d915c598cfc61343b7835a6633246697ba11",
+      "bytes": 1401
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-staging-admission-original-probes.log",
+      "sha256": "b53557c4b07c5fba7f8fb605ebcab029505995ded1da8a646d7e3ef4a1e75679",
+      "bytes": 3590
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-journal-admission-closing-probe.py",
+      "sha256": "efd3d146dd915dd77c9c562ff7af8bc1dfa832c03ff1e34b1e9149e0c6a995a8",
+      "bytes": 1638
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/catalog-journal-admission-closing-probe.log",
+      "sha256": "fdebeb100f375b17432705f9e9ed4af8fc2422b903d1683decb9b42693298d9f",
+      "bytes": 1286
+    }
+  ],
+  "terminal_process_state": "All independent maintained/regression/original/causal processes terminal; none live. Author gates not relabeled.",
+  "limits": [
+    "Private staging dependency only. Full canonical project copy publication, overwrite retirement, live imported-role/source-partition joins, recovery/public/full-feature/program/release acceptance remain pending.",
+    "Cross-item topology, actual copy/publication alias transforms, xattrs, native/installed/platform qualification remain open.",
+    "Local editable-source maintained POSIX/macOS evidence only; no isolated wheel/Linux/Windows or full application acceptance.",
+    "No continuous hostile same-user atomic snapshot claim; actual admission must nevertheless close its own live context eligibility after callbacks.",
+    "No source/test/pin edits, installs, subagents, network or external posts; only private disposable probes/evidence/snapshots and requested immutable root report."
+  ]
+}

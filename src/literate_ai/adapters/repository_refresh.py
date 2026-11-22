@@ -95,6 +95,15 @@ class RefreshFileObservation:
 def _file(
     path: Path, *, optional: bool = False, maximum_bytes: int = MAXIMUM_LOCK_BYTES
 ) -> RefreshFileObservation:
+    from .bounded_role_observation import current_role_observation
+
+    observation = current_role_observation()
+    if observation is not None:
+        return observation.file(path, optional=optional, maximum_bytes=maximum_bytes)
+    return _raw_file(path, optional=optional, maximum_bytes=maximum_bytes)
+
+
+def _raw_file(path: Path, *, optional=False, maximum_bytes=MAXIMUM_LOCK_BYTES):
     require_safe_directory(path.parent)
     try:
         before = _signature(path)

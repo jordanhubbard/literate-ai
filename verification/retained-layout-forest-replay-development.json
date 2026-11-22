@@ -1,0 +1,211 @@
+{
+  "schema": "literate-ai/forest-replay-development@1",
+  "state": "source_reviewed_descriptive_forest_prefix_and_fresh_journal_read",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-replay-review.json",
+    "sha256": "86c0c5764b673fcf2c2b59964bda2d5b5c2e4f02533dd7ea308f533de6f60652"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-replay-recovery_read-report.json",
+        "sha256": "8ebc3a4e33e3d395c5e366da15b0d96f3bc7aeda91e1106ae4d5b9a5581397d9"
+      },
+      "log": {
+        "path": "_build/forest-replay-recovery_read-maintained.log",
+        "sha256": "5736237529f88a100d7a3646a54ec6d48e66308b57eb4ed6c1f8d0720e7c0b0f"
+      },
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "b07a550b9bddab70b3272abc6907865fec3cabf3b0c83c9f15b2d0f46c7cd757",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-replay-replay-report.json",
+        "sha256": "ce1bf106f15b711938cdf89d5a6f71e11f82287ce9d1782c94c470dade430391"
+      },
+      "log": {
+        "path": "_build/forest-replay-replay-maintained.log",
+        "sha256": "b9093b63c43528fe003e0bac931b108a6dbfade0cbe0783cc0774f200236b05a"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "c7fde6633c63f905b8982f02487a7367b530b1558938810ef4087a8c56ebbc15",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-replay-native-report.json",
+        "sha256": "7ed37bc859b76146888ef39364ee9ea30701afef2dab2bd8ca98d426ffa034d9"
+      },
+      "log": {
+        "path": "_build/forest-replay-native-maintained.log",
+        "sha256": "602aa2275652ce13af37ed5cefaf4196df5c92dbba953a0f658572ff0e6ced11"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "c1823788c1473b2a591862a7958d89002d8ed5bc68265257bbbcf1bb7315b819",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-replay-terminal-report.json",
+        "sha256": "daa6ab90212cff3d276d0045b8b1a076fb2e5ef5c15ce4a5f8f0a83035a2ca49"
+      },
+      "log": {
+        "path": "_build/forest-replay-terminal-maintained.log",
+        "sha256": "f0585e67d538c1952622197f4569497ab5f6576e525820e7f30815ccdca363d2"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "5d76434575a4f70f9bd16ff154e88937e1bf3d06b0a3e8e091b25a9542f7253b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-replay-effects-report.json",
+        "sha256": "1de0d8ef5a0818f5c7aa2fee3d99de43b20f3b974253d0c79a29c3adb4c93657"
+      },
+      "log": {
+        "path": "_build/forest-replay-effects-maintained.log",
+        "sha256": "bb0b91976aa2d85fa31317240de022c1ede646acb7e181db6904b90ed998f63e"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "975c5c8125aeb4e5263405f19fe60ecd247fa81f53b5be628c8668a0c52940a0",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 77,
+  "diagnostics": [
+    {
+      "path": "_build/forest-replay-first-diagnostic.log",
+      "sha256": "27de855259796b4cd896c43984928002fb83e2d149ed290bf2a02de5d7ad81b9"
+    },
+    {
+      "path": "_build/forest-replay-second-diagnostic.log",
+      "sha256": "5e764b1cdd552a7dffeb24c46f0f1c57c5dc0bd7714c4dd07c49ce354ed587d3"
+    },
+    {
+      "path": "_build/forest-replay-third-diagnostic.log",
+      "sha256": "ccb651f0f2c25d68a552e723a28b0b791e4c5511b39b8bc616e909024da687a7"
+    },
+    {
+      "path": "_build/forest-replay-reader-first-diagnostic.log",
+      "sha256": "a19044192d7f799ea837b55f5d737c81101143106e2885028ad8ab9c760d21da"
+    },
+    {
+      "path": "_build/forest-replay-reader-second-diagnostic.log",
+      "sha256": "22d0fba3ba847d812ca5ba5a5a6894227144391a898fff50aa40868270efc7d1"
+    },
+    {
+      "path": "_build/forest-replay-review-control.log",
+      "sha256": "f45b9b5a498efb724d78addcecc804b06175a0f9e8c553eefe594a84d25d8466"
+    },
+    {
+      "path": "_build/forest-replay-review-fixed-diagnostic.log",
+      "sha256": "e71a4ff6951577c83d9b252512c0ca016feae7ab797c391246530c1ecf4aeb98"
+    }
+  ],
+  "corrections": [
+    "Raw symlink text lives separately in initial span data and on actual movement receipt nodes; replay now reconciles both without dereferencing.",
+    "Small-policy test fixtures must first satisfy real budget consistency, metadata minimums and original guard-identity checks.",
+    "Reviewer controls reproduce fresh traversal-policy failures, source-wrapper selection rejection and borrowed nested-directory inode acceptance. Parent-ancestor inode already had a generic span refusal; new check gives direct creation-identity refusal."
+  ],
+  "fixture_scope": "Actual separately authorized unmanaged native execution and journal reopen only. Wrapper-name tests deliberately use {fixture:true} bodies and assert selection only, never successful canonical source admission. No phase, partition or current canonical recovery owner is fabricated.",
+  "remaining": [
+    "Canonical fresh forest recovery role or effect ownership",
+    "Fresh current carrier/metadata/control endpoint classification and actual restoration/completion",
+    "Genuine canonical integrated forest execution",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static": {
+    "session": 89840,
+    "terminal": true,
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-replay-final-static.log",
+      "sha256": "94000c6be53464250ea5fec252809366a0ff561b308c28143642170fc5fe3288"
+    },
+    "checks": [
+      "supported driver/documentation review records",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap dependencies",
+      "documentation-check"
+    ]
+  },
+  "verify": {
+    "session": 46472,
+    "terminal": true,
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-replay-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "normal_skips": 3
+  },
+  "diff_check": {
+    "exit_code": 0
+  }
+}

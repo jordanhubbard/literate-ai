@@ -1,0 +1,306 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Original canonical relative,parent-segment and prospective in-project matrix cell selectors under the creating source read owner; internal POSIX nonroot only; native ancestor identity observation repair preserves full source/destination custody checks",
+  "base_commit": "6e5a6e9a1a02c935ba4d0623f521b0d876d9c3f2",
+  "review": "independent-layout-source-selectors-review.json",
+  "author_history": [
+    {
+      "state": "failed",
+      "log": {
+        "path": "_build/source-selectors-before.log",
+        "sha256": "956c02ad59c0be139d38b6e9d64129fc550c60436a5c98a24881142985c60a68"
+      },
+      "selection": "Seven selector controls; maintained runner stopped after actual initial absent-cell guard",
+      "executed": 1,
+      "failed": 1,
+      "seconds": 2.025
+    },
+    {
+      "state": "failed",
+      "log": {
+        "path": "_build/source-selectors-positive-before.log",
+        "sha256": "d56bcc80eab013d299c65bdadf7c7bf216f6c0b074669f9afe50de47eccc347a"
+      },
+      "selection": "Three intended canonical positive controls refuse under original relative/absent guards",
+      "executed": 3,
+      "errors": 3,
+      "seconds": 2.277
+    },
+    {
+      "state": "passed_intermediate",
+      "log": {
+        "path": "_build/source-selectors-after.log",
+        "sha256": "e20cf3470418c27ab91d9092d5d7cc7461b6291f0d85e393434212a94d8b063f"
+      },
+      "tests": 7,
+      "seconds": 18.35,
+      "limit": "Before independent helper-lifetime and prefix-allocation findings"
+    },
+    {
+      "state": "failed",
+      "log": {
+        "path": "_build/source-selectors-review-before.log",
+        "sha256": "fb5b2c8b8baaf0d0dd9bced91ab82fc6109a83566e7995acbb26f4c3a8e857a5"
+      },
+      "tests": 2,
+      "failed": 2,
+      "seconds": 2.294,
+      "reason": "Actual finished capture invokes CWD sentinel; prefix list construction hits unfunded allocation sentinel"
+    },
+    {
+      "state": "passed",
+      "log": {
+        "path": "_build/source-selectors-review-after.log",
+        "sha256": "3bec9ee4358ddf638a17e157406b879ed79f3ee934a47ec0600812d3fe0b7154"
+      },
+      "tests": 10,
+      "seconds": 34.018,
+      "skipped": 0,
+      "scope": "Maintained selector suite after both source review findings closed"
+    },
+    {
+      "state": "failed",
+      "log": {
+        "path": "_build/source-selectors-complete-authored.log",
+        "sha256": "cd1bad383a3af1602a9931790b90da9b841ba6cc8b586733bebae4e26dc28da9"
+      },
+      "selection": "17 maintained authored-role tests",
+      "passed": 16,
+      "errors": 1,
+      "seconds": 173.567,
+      "reason": "Actual combined default update/catalog move hit layout.move.entry-changed between two native named-node reads in exclusive_entry.layout_entry_node; canonical matrix selector branch not selected in this fixture. Isolated instrumentation is investigating exact path/native facts."
+    },
+    {
+      "state": "failed",
+      "log": {
+        "path": "_build/source-selectors-regression-before-parent-fix.log",
+        "sha256": "5f16d1a1d7b4162d676cfd9561298562f3ac48920411abf72e52b9b627cb52fa"
+      },
+      "report": {
+        "path": "_build/source-selectors-regression-before-parent-fix-report.json",
+        "sha256": "264bfa8e50c9e96c5f124ee7c1c5b771fac72db4dbd78d83181aa73b8cc5253a"
+      },
+      "tests": 370,
+      "passed": 369,
+      "errors": 1,
+      "seconds": 922.05,
+      "reason": "Actual update/catalog composition hit layout.move.entry-changed in ancestor guard after metadata rename; recurring conservative ancestor-observer failure class now requires repair before qualification."
+    },
+    {
+      "state": "passed_before_ancestor_repair",
+      "tests": 98,
+      "seconds": 1161.092,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-selectors-source-before-parent-fix.log",
+        "sha256": "fd51ab774ac06b21e447d889f1f95d02ccdb6cd900d4b3d40d441e556ed0cdff"
+      },
+      "report": {
+        "path": "_build/source-selectors-source-before-parent-fix-report.json",
+        "sha256": "d1eda324e680197a8f352c560fcf79f48e85b452c50d93351114a04b101bc218"
+      }
+    },
+    {
+      "state": "passed_before_ancestor_repair",
+      "tests": 17,
+      "seconds": 179.956,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-selectors-complete-authored-v2.log",
+        "sha256": "ff007fdd3d7b22bb149fb5b5ce5fc6cd4ef038f7da4212d083751b98f7dde06c"
+      },
+      "report": {
+        "path": "_build/source-selectors-complete-authored-v2-report.json",
+        "sha256": "923fbef8f73f288856c631cace1c309084c56dd74710fde847018380f91e1f16"
+      }
+    },
+    {
+      "state": "failed",
+      "tests": 17,
+      "errors": 3,
+      "seconds": 0.052,
+      "log": {
+        "path": "_build/source-selectors-parent-before.log",
+        "sha256": "c438c689e359c8ce72ca2255d6332058f587a3fee842a73ccb31085ad109fa97"
+      },
+      "reason": "Two genuine conservative sibling refusals plus one fixture readback PermissionError after toggling owner execute permission; fixture corrected to toggle group-read while preserving owner traversal."
+    },
+    {
+      "state": "failed",
+      "tests": 17,
+      "errors": 2,
+      "seconds": 0.049,
+      "log": {
+        "path": "_build/source-selectors-parent-before-corrected.log",
+        "sha256": "98a608cc492fa6882ab00842375d38064550991bf94c8e4a6bbaf56660224efd"
+      },
+      "reason": "Corrected actual native controls: sibling mutation during ancestor pin and held-parent guard falsely refuses; all other controls pass."
+    },
+    {
+      "state": "passed",
+      "tests": 17,
+      "seconds": 0.062,
+      "skipped": 0,
+      "log": {
+        "path": "_build/source-selectors-parent-after.log",
+        "sha256": "8a39ce23aac55686407a5a3632ec90194152708728365c7265bc4398d6915c34"
+      },
+      "report": {
+        "path": "_build/source-selectors-parent-after-report.json",
+        "sha256": "2585fc3f2b8060e9810c1b132ba9ab5784bf12134b1c61c022eaa2de1fa74354"
+      },
+      "scope": "Maintained native move suite after ancestor repair; will overlap the final supplemental cohort and count once."
+    }
+  ],
+  "diagnostics": [
+    {
+      "log": {
+        "path": "_build/source-selectors-regression-startup.log",
+        "sha256": "bac051e27afb7add79dd7eb98a3e4fafce6c5578bce4618a0ec4d99d3e0d1d19"
+      },
+      "reason": "Private supplemental script omitted repository root from import path; selector assertion stopped before tests. Corrected script only, not production or tests."
+    },
+    {
+      "log": {
+        "path": "_build/source-selectors-authored-diagnostic.log",
+        "sha256": "f5b9c237766e0fbf849f4e495336e8c55b1bf8fdc3242f4440d3843b53f6b016"
+      },
+      "tests": 1,
+      "passed": 1,
+      "seconds": 118.449,
+      "scope": "Instrumented isolated actual combined default fixture. Native failure did not recur. Causal assertion confirms new canonical selector helper is not entered. Does not relabel failed authored17."
+    },
+    {
+      "report": {
+        "path": "_build/source-selectors-parent-race.json",
+        "sha256": "be6700f73d7921b2881aa23c0453e69d0c2880876c22d00803e5fc142b79518f"
+      },
+      "scope": "Deterministic isolated native ancestor full-snapshot sensitivity to unrelated sibling creation; actual parent identity remains fixed. Does not establish path or exact cause of uninstrumented earlier failure. Separate owning roadmap follow-up remains open."
+    }
+  ],
+  "final_author_qualification": {
+    "state": "passed",
+    "source_operation": {
+      "state": "passed",
+      "exit_code": 0,
+      "summary": {
+        "executed": 98,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 98,
+        "selected": 98,
+        "skipped": 0
+      },
+      "seconds": 1127.116,
+      "log": {
+        "path": "_build/source-selectors-complete-source-v2.log",
+        "sha256": "e4535c6363b3fac0521192794b6fd970fb059eed6f4b41083f40b7fd50419e4d"
+      },
+      "report": {
+        "path": "_build/source-selectors-complete-source-v2-report.json",
+        "sha256": "297fb94808b606e97193fa61a5b15c2ea47d9e4d42fa7aaf2b994c00ec0168d2"
+      }
+    },
+    "authored_roles": {
+      "state": "passed",
+      "exit_code": 0,
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "seconds": 223.78,
+      "log": {
+        "path": "_build/source-selectors-complete-authored-v3.log",
+        "sha256": "d2ee276c2bc6eaa3895f550310bdf1e756777c497023a5c061393ff293314aa0"
+      },
+      "report": {
+        "path": "_build/source-selectors-complete-authored-v3-report.json",
+        "sha256": "f287848f239fc8395b1c478bd149764d54f55ed448c0d9a6c7634804350705ec"
+      }
+    },
+    "regression": {
+      "seconds": 857.4994366249884,
+      "summary": {
+        "selected": 387,
+        "executed": 387,
+        "failed": 0,
+        "skipped": 0,
+        "passed": 387
+      },
+      "ok": true,
+      "state": "passed",
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-selectors-regression-v2.log",
+        "sha256": "fb7058d61b2d741e9906332dfe1c90582282b1bfa3613c7dcaff256728f025ce"
+      },
+      "report": {
+        "path": "_build/source-selectors-regression-v2-report.json",
+        "sha256": "7fecdb1389c4a735b86a67692bbb4244e7ed24a0a575099694c31aece9bc1a5b"
+      }
+    },
+    "distinct_passing_test_ids": 502,
+    "skipped": 0,
+    "prior_failure": "Earlier failed authored17 and regression370 cohorts remain failed in author_history; the complete fresh runs after the reviewed ancestor repair are reported separately. Native ancestor identity repair is included in the final independently reviewed subjects and fresh qualification."
+  },
+  "acceptance": {
+    "finite_in_project_canonical_selector_join": true,
+    "complete_canonical_selectors_including_external_shared_storage": false,
+    "root_shared_initial_wrapper_effects": false,
+    "complete_public_recovery": false,
+    "complete_public_apply": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false,
+    "finite_native_ancestor_identity_repair": true
+  },
+  "next_action": "Complete original external shared storage and root/shared/initial/wrapper effect graph, public recovery/apply and all remaining installed/native/platform/integration/release and roadmap obligations. Full project test receipt remains stale.",
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-selectors-final-static-v2.log",
+      "sha256": "55a9dc3a134a8e2a16b91d0d1cfa2fbdc3ff6eef79914d06f34a3e9888d48ef8"
+    }
+  },
+  "authority_checks": {
+    "driver_record": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-selectors-driver-record.log",
+        "sha256": "5506c794d7afbb8dfe957575e69b97296cd82e03529f1b62ccfe6d02df52b921"
+      }
+    },
+    "documentation_record": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-selectors-documentation-record.log",
+        "sha256": "2466711e347b59ae534d8986050d883a4489b5048b169c106d31c6c06e6e6346"
+      }
+    },
+    "driver_runner_layout_export": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-selectors-authority-checks.log",
+        "sha256": "d8c2bbaf0a42721a8b0b8fd1a220712aaed753e08af1753181b29c8b01a80ad4"
+      }
+    },
+    "project_validate": {
+      "exit_code": 0,
+      "log": {
+        "path": "_build/source-selectors-project-validate.json",
+        "sha256": "23221e5315bc8c1f5b2db591f28305f54320718871bcda7ec9deb423df154d1d"
+      }
+    }
+  }
+}

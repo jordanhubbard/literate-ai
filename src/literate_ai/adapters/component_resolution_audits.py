@@ -98,8 +98,13 @@ class ComponentResolutionAuditStore:
             storage_root = self.root
         self.storage_root = storage_root
         self.target_name = target_name
-        self.path = storage_root / f"{_AUDIT_PREFIX}{target_name}{_AUDIT_SUFFIX}"
+        self.path = self._path_for_storage(storage_root, target_name)
         self.write_lock_path = storage_root / f".{self.path.name}.write.lock"
+
+    @staticmethod
+    def _path_for_storage(storage_root: Path, target_name: str) -> Path:
+        """Name a validated target's endpoint without filesystem access."""
+        return storage_root / f"{_AUDIT_PREFIX}{target_name}{_AUDIT_SUFFIX}"
 
     def read(self) -> ComponentResolutionAudit:
         content = self._read_bytes(required=True)

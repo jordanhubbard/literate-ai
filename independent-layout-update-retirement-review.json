@@ -1,0 +1,205 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T02:05:49.939468+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "2c2435bff209947161b389353fde6b00dd18c589",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "460768a6f1b8b4a2f0aa799c554950db119548add897585b494e10ff77d401bd",
+      "bytes": 45957
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_apply.py",
+      "sha256": "9bc3e0ead2466a2b0e3d5cbbb407ce7907de9f89ec909e54cad955592c8e2efd",
+      "bytes": 17428
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_compatibility.py",
+      "sha256": "02f7907cacc4f4dd02a3f22d26879905a38f2f75f568a435e467daf6136586e6",
+      "bytes": 6992
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "sha256": "a5494ed0e6a8a65e5c515723d3612e1607a8f751a115d9289f897d4969f33073",
+      "bytes": 25763
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout.py",
+      "sha256": "3eb6c36fc8903f61e852e412bbcd3c550def507e6c07755eae4cbc06a5d8f3bf",
+      "bytes": 20164
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "c92305bfb8aa06a818234be7a93c84a6ace14e083c5659f9f14c0347d3db7f88",
+      "bytes": 24403
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "b607ba06154e94eabd36fd3f416414369eb0219e1b248ef7e9d2c6ee639150e1",
+      "bytes": 53274
+    },
+    {
+      "path": "src/literate_ai/adapters/roadmap_dependencies.py",
+      "sha256": "130a7deeddc15bcbf7503be32982593e6ccca68bb50a8076c16bba8a62b9d534",
+      "bytes": 3179
+    },
+    {
+      "path": "src/literate_ai/adapters/update_merge.py",
+      "sha256": "9d6fb29d1bcf903a536535bed8d1ee2b62a94829264ee5e41272d4419ca01ebd",
+      "bytes": 19565
+    },
+    {
+      "path": "src/literate_ai/application/agent_skill_catalog.py",
+      "sha256": "20c9428f925e4efdbd47e4b43049ed53ac82032f52c900c40a7c1a3f28f007a2",
+      "bytes": 23837
+    },
+    {
+      "path": "tests/critical/test_framework_update_roles.py",
+      "sha256": "ad704fb4d88a852af0b1757b00ef10fc9ac130a8ffd742da7148bac5d2aabab2",
+      "bytes": 27814
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-reviewed-subjects",
+  "prior_reports": [
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-update-handoff-review.json",
+      "sha256": "2d6fa6c4a99dd9703e277e10c6fed198f561704b9da1af55dc20513752a69930",
+      "unchanged": true
+    },
+    {
+      "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-update-handoff-rereview.json",
+      "sha256": "e80f44654ceb60f834378c36ec0a6a6ad3a3008a25f9bfd822eca02768589e3a",
+      "unchanged": true
+    }
+  ],
+  "scope": "Internal POSIX regular-framework-endpoint/source-backed provider live updater handoff, bounded private retirement and optional normal nonroot source ownership integration.",
+  "resolved": [
+    {
+      "id": "UPDATE-HANDOFF-REMOVAL-002",
+      "status": "closed_in_reviewed_bytes",
+      "evidence": "Original independent actual parent replacement control now passes, 4.988s. Original inode/file and foreign replacement file both preserved. Strict retire now durably publishes exact private intent, uses original node/parent native-exclusive move, retains moved nodes rather than unlinking."
+    },
+    {
+      "id": "UPDATE-HANDOFF-LIFETIME-001",
+      "status": "remains_closed_for_prior_final-native-currentness_boundary",
+      "evidence": "Original independent actual context exit during final native close now passes, 7.273s. Final eligibility checks remain present."
+    }
+  ],
+  "findings": [
+    {
+      "id": "UPDATE-HANDOFF-RETIREMENT-LIFETIME-003",
+      "severity": "blocking",
+      "status": "open",
+      "location": "src/literate_ai/adapters/framework_update_roles.py:1141",
+      "title": "Private retirement descriptor teardown precedes owner revocation",
+      "cause": "Owner _active=False is set in the outer finally only after the outer _pinned_directory scope has already exited and closed its original ancestry/retirement descriptors. Cached participant methods still see _active=True during this real descriptor teardown.",
+      "evidence": "Corrected private probe installs its actual os.close wrapper before entering the context, so the real ExitStack retains that wrapper. At the actual retirement-directory descriptor close it closes the real FD, verifies EBADF, opens the same real directory again at the same FD number, and invokes cached handoff.require_current. Currentness succeeds using the replacement descriptor. The real context then completes and only afterward marks the owner inactive. No participant private state is assigned by the reproducer.",
+      "observed": {
+        "original_fd_verified_closed": true,
+        "replacement_fd_same_number": true,
+        "currentness_accepted_during_teardown": true,
+        "inactive_after_exit": true
+      },
+      "reproducer": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.py",
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.py",
+      "result": "1 failure, 0 errors, 4.846s",
+      "required_change": "Revoke actual owner eligibility inside the pinned retirement resource scope, in an inner finally before any original descriptor cleanup begins. Preserve the existing outer fallback for failures before owner creation. Cover normal and exceptional context exits; cached methods must refuse before inspecting potentially recycled descriptor numbers."
+    }
+  ],
+  "source_assessment": [
+    "Reviewed complete retirement addition and all changed integration paths against prior exact manifest.",
+    "Actual private directory is required empty, mode0700, same filesystem, physically disjoint from project. Original ancestry/descriptor facts remain held; explicit private owner and per-retirement intents are exclusive-created and fsynced before native move.",
+    "Retired inode/content and immutable intent observations enter the shared file/entry/byte/metadata accounting; private membership and original native root facts are checked. No unlink/automatic collection is performed by strict retirement.",
+    "Actual updater-only mutation callbacks are blocked outside write scope; selected framework hardlink mutations refuse before writes until complete alias-group ownership exists.",
+    "Canonical importlib.resources.files selection is bound to actual physical source checkout; no alternate resource path gains producer authority.",
+    "Ordinary updater default branches retain their existing behavior; separate 30-method default updater/merge/compatibility/parser cohort passed."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_framework_update_roles",
+      "result": "26 passed, 0 skips, 114.549s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-focused.log"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.e2e.test_project_update_apply tests.e2e.test_project_update_merge tests.e2e.test_project_update_adapter tests.e2e.test_project_update_compatibility tests.critical.test_update_base_observation",
+      "result": "30 passed, 0 skips, 13.006s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-regression.log"
+    },
+    {
+      "command": "Original independent unlink-parent probe unchanged, using current maintained fixture.updated retirement setup",
+      "result": "1 passed, 4.988s; both actual original and foreign file preserved",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-original-removal.log"
+    },
+    {
+      "command": "Original independent context-ending final native close probe unchanged",
+      "result": "1 passed, 7.273s; actual context ended and currentness refused",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-original-lifetime.log"
+    },
+    {
+      "command": "Actual original FD close/reopen during context cleanup control",
+      "result": "1 failed, 4.846s; currentness accepted replacement FD during teardown",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe-corrected.log"
+    }
+  ],
+  "noncausal_probe_development": [
+    {
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.log",
+      "result": "First attempt patched os.close after acquisition, so ExitStack had already captured original callback and target FD close was not intercepted. 1 fixture assertion failure, 5.359s; not causal evidence. Corrected probe installs wrapper before acquisition."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-focused.log",
+      "sha256": "7d42d16910d408097c836089bbf15554c34cba9b8cea1d1ca6300f2d76de28c5",
+      "bytes": 5323
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-regression.log",
+      "sha256": "ee28cc7117f9f75563686083e48491f2cfd8357bc15586ae109b0c395a5a8912",
+      "bytes": 5915
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-original-removal.log",
+      "sha256": "99ecb577e89d14c682c2a70b4ac1a7edeb4e3612893c2ed7a3a55f96a58536bb",
+      "bytes": 359
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-independent-original-lifetime.log",
+      "sha256": "2ba4c1f3296cccf428b6ddf10da3723069b9373810b389781e342a236b280f8e",
+      "bytes": 325
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.py",
+      "sha256": "2505d03e64b0d80c70226a4fbf9d1612f554125fd4cb23ddf872634a56da587f",
+      "bytes": 2079
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe.log",
+      "sha256": "826c1694fd0b26344e040508a7ff8b03c8fa996deec7ae3a73f27239bc1d9b43",
+      "bytes": 1027
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-retirement-descriptor-teardown-probe-corrected.log",
+      "sha256": "3003a4f0af5bb0a1a10863556dca836b51d55ec0ed799eebc3a00db2e47b5964",
+      "bytes": 1289
+    }
+  ],
+  "terminal_process_state": "All independent maintained, regression and private probe processes terminal. Author broad/cohort gates not controlled or admitted by this review.",
+  "limits": [
+    "No source/test/pin edits, installs, subagents, network, pushes or external posts; only private disposable probes/evidence and requested immutable repository-root report written.",
+    "56 maintained/regression passes and 2 repaired predecessor controls are local source/editable POSIX evidence, not isolated installed/wheel qualification.",
+    "Current source-backed physical file-Git-provider profile only. Installed resources/reftable/native Windows and platform qualification remain unsupported or pending.",
+    "No complete framework alias-group mutation ownership; unsupported groups correctly refuse.",
+    "Retirement intent is evidence of intended effects, not a complete fresh recovery API or durable restart ownership grant. No automatic collection or history-authentication claim.",
+    "Root/shared/initial/wrapper movement, public CLI, complete metadata/source recovery, durable historical overlay ownership and whole feature/program/release acceptance remain open.",
+    "No continuous atomic snapshot against hostile same-user mutation is claimed; actual original descriptor lifetime must still not be replaced by descriptor-number reuse during cleanup."
+  ]
+}

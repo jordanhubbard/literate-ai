@@ -1,0 +1,191 @@
+{
+  "schema": "independent-source-review@1",
+  "created_utc": "2026-11-14T01:23:52.906481+00:00",
+  "reviewer": "single authorized independent reviewer",
+  "decision": "changes_requested",
+  "worktree": "/Users/jkh/.worktrees/literate-ai/l1",
+  "base_head": "2c2435bff209947161b389353fde6b00dd18c589",
+  "subjects": [
+    {
+      "path": "src/literate_ai/adapters/project_update_apply.py",
+      "sha256": "a34995a612d3dbadefa65cd0ac3a3fe4539b8a86b48af7417ec269ba7637211e",
+      "bytes": 17316
+    },
+    {
+      "path": "src/literate_ai/adapters/project_update_compatibility.py",
+      "sha256": "02f7907cacc4f4dd02a3f22d26879905a38f2f75f568a435e467daf6136586e6",
+      "bytes": 6992
+    },
+    {
+      "path": "src/literate_ai/adapters/project_updates.py",
+      "sha256": "a5494ed0e6a8a65e5c515723d3612e1607a8f751a115d9289f897d4969f33073",
+      "bytes": 25763
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout.py",
+      "sha256": "3eb6c36fc8903f61e852e412bbcd3c550def507e6c07755eae4cbc06a5d8f3bf",
+      "bytes": 20164
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_ownership.py",
+      "sha256": "c92305bfb8aa06a818234be7a93c84a6ace14e083c5659f9f14c0347d3db7f88",
+      "bytes": 24403
+    },
+    {
+      "path": "src/literate_ai/adapters/retained_layout_transaction.py",
+      "sha256": "b607ba06154e94eabd36fd3f416414369eb0219e1b248ef7e9d2c6ee639150e1",
+      "bytes": 53274
+    },
+    {
+      "path": "src/literate_ai/adapters/roadmap_dependencies.py",
+      "sha256": "130a7deeddc15bcbf7503be32982593e6ccca68bb50a8076c16bba8a62b9d534",
+      "bytes": 3179
+    },
+    {
+      "path": "src/literate_ai/adapters/update_merge.py",
+      "sha256": "9d6fb29d1bcf903a536535bed8d1ee2b62a94829264ee5e41272d4419ca01ebd",
+      "bytes": 19565
+    },
+    {
+      "path": "src/literate_ai/application/agent_skill_catalog.py",
+      "sha256": "20c9428f925e4efdbd47e4b43049ed53ac82032f52c900c40a7c1a3f28f007a2",
+      "bytes": 23837
+    },
+    {
+      "path": "src/literate_ai/adapters/framework_update_roles.py",
+      "sha256": "43422ec44cf886de453d50bcf0bab612855d1699ef40bd58daedee0ab0f4105e",
+      "bytes": 34384
+    },
+    {
+      "path": "tests/critical/test_framework_update_roles.py",
+      "sha256": "bd2e39c2e30cf9b46030e200600c7ea1e493db60cc05f3fd2af4c8ca8c292aa5",
+      "bytes": 22241
+    }
+  ],
+  "preserved_subjects": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-rereviewed-subjects",
+  "prior_report": {
+    "path": "/Users/jkh/.worktrees/literate-ai/l1/independent-layout-update-handoff-review.json",
+    "sha256": "2d6fa6c4a99dd9703e277e10c6fed198f561704b9da1af55dc20513752a69930",
+    "unchanged": true
+  },
+  "scope": "Internal source-backed file-Git-provider, POSIX normal nonroot actual updater live handoff and optional acknowledged source ownership integration.",
+  "resolved": [
+    {
+      "id": "UPDATE-HANDOFF-LIFETIME-001",
+      "status": "closed_in_reviewed_bytes",
+      "evidence": "Exact original independent actual-context reproducer now passes: real context exit during final native close results in currentness refusal, active False, 1 test in 6.859s. Final _live checks added after native callbacks in close_native/spend/before_replace/current_origin; partition eligibility closes actual source/control/reservation lifetime after observations and spend."
+    }
+  ],
+  "findings": [
+    {
+      "id": "UPDATE-HANDOFF-REMOVAL-002",
+      "severity": "blocking",
+      "status": "open",
+      "location": "src/literate_ai/adapters/project_update_apply.py:322",
+      "title": "Strict retirement follows a replacement parent and deletes a foreign file",
+      "evidence": "In a disposable real initialized project, canonical framework update state marks flavors/obsolete-controlled-dir/retired.txt as an untouched old framework catalog endpoint. The real planner selects its removal. After actual strict before_replace returns, a callback renames the original parent intact, creates a new parent at the same public path, and writes a foreign same-named file. The path-based target.unlink deletes the foreign file through the replacement parent. Later complete-namespace refusal retains partial state but cannot preserve the deleted foreign node.",
+      "observed": {
+        "actual_parent_replaced": true,
+        "original_file_preserved": true,
+        "foreign_file_preserved": false
+      },
+      "reproducer": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe.py",
+      "command": "PYTHONPATH=src:. _build/python-envs/roadmap-l1/bin/python -B /Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe.py",
+      "result": "1 failure, 0 errors, 3.348s",
+      "required_change": "Bind retirement effects to the held original parent and actual original native node, recheck the original ancestry and current node at the effect boundary, and preserve foreign replacement nodes on ambiguity. A checked path unlink without parent custody is insufficient. A retained native retirement/quarantine step can avoid irreversible deletion before node identity is established."
+    }
+  ],
+  "source_assessment": [
+    "Reviewed all changed production paths and new participant module, including bounded reader routing, shared quotas, current provider/ref closure, publication receipts, strict no-rollback outcome handling, exact checkpoint plan binding, one-use participant and provider/source disjointness.",
+    "The added physical source-provider shape check refuses installed-layout code borrowing an enclosing unrelated Git checkout; this is deliberately a source-backed development profile.",
+    "Checkpoint rereads after source movement are now capped at exact original observed checkpoint bytes. Maintained case verifies oversized growth is refused without reading that payload.",
+    "Actual clean local overlay merge is covered through the bounded Git merge subprocess; ordinary updater/parser behavior was separately rerun."
+  ],
+  "executed": [
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.critical.test_framework_update_roles",
+      "result": "20 passed, 0 skips, 100.833s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-rereview-focused.log"
+    },
+    {
+      "command": "PYTHONPATH=src _build/python-envs/roadmap-l1/bin/python -B -m unittest -v tests.e2e.test_project_update_apply tests.e2e.test_project_update_merge tests.e2e.test_project_update_adapter tests.e2e.test_project_update_compatibility tests.critical.test_update_base_observation",
+      "result": "30 passed, 0 skips, 12.727s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-rereview-regression.log"
+    },
+    {
+      "command": "Original private context-lifetime reproducer unchanged",
+      "result": "1 passed, 6.859s",
+      "terminal_exit": 0,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe-repaired.log"
+    },
+    {
+      "command": "Private strict removal parent-replacement control with actual catalog retirement",
+      "result": "1 failed, 3.348s; original node preserved in original moved parent, foreign new-parent file deleted",
+      "terminal_exit": 1,
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe-catalog.log"
+    }
+  ],
+  "noncausal_probe_development": [
+    {
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe.log",
+      "result": "Fixture error: attempted .literate metadata merge target correctly refused before update; not causal evidence."
+    },
+    {
+      "log": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe-corrected.log",
+      "result": "Fixture failure: non-catalog obsolete path conservatively preserved by planner; no removal callback occurred. Not causal evidence. Final probe uses actual declared flavor catalog taxonomy."
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-rereview-focused.log",
+      "sha256": "b226d116d95cc122fa495047d15f618a152fe6a8bebd4865cdf0ab7a46d4cbff",
+      "bytes": 3995
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-independent-rereview-regression.log",
+      "sha256": "ab0ed79c592e7c0d44e109b27e39051421aa5c996b100cbb0d4c09988625f8a5",
+      "bytes": 5915
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe.py",
+      "sha256": "b37cd8f2dab5d5c72f3c272c73016be682c0831b6539475ad4dbb3840b5a02e9",
+      "bytes": 1637
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-context-close-probe-repaired.log",
+      "sha256": "99583d94cf37bdf9ce0464d922032feb161be50b7624628094ef526df271980f",
+      "bytes": 325
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe.py",
+      "sha256": "e47029d5bd13911db1f6f5b7fea5c4ff0812f41d7585fd132483dcf24d710586",
+      "bytes": 2139
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe.log",
+      "sha256": "7b395196b21516afcfd30df2941f1f602a30609d68c1309bd534bc122ff25a54",
+      "bytes": 3002
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe-corrected.log",
+      "sha256": "38328d564751eccc55c514eba0de461496d9572e35530b39d4031e35385ae644",
+      "bytes": 935
+    },
+    {
+      "path": "/Users/jkh/.local/state/literate-ai/roadmap-audit-20261112/update-handoff-unlink-parent-probe-catalog.log",
+      "sha256": "0e8a55f7081df510606fe5c04b9a229cf182c014c47eb7706ac8d7e4cfba9b45",
+      "bytes": 1226
+    }
+  ],
+  "terminal_process_state": "All independent focused, regression and private probe processes terminal; author broad gates neither controlled nor admitted by this review.",
+  "limits": [
+    "No source/test/pin edits, installs, subagents, network, pushes or external posts. Only private disposable probes/evidence and requested immutable repository-root report written.",
+    "50 maintained/regression passes plus repaired lifetime control are source/editable local POSIX evidence, not isolated installed/wheel qualification.",
+    "Maintained HEAD change control projects a changed signature; real provider HEAD was not mutated by reviewer.",
+    "Retained checkpoint rows alone remain insufficient for roles; participant requires genuine live actual update and fresh acknowledged source plan. Durable restart and historical overlay ownership remain unimplemented.",
+    "No complete atomic snapshot against hostile same-user mutation; nevertheless the demonstrated deletion of a foreign replacement file is an effect custody failure, not merely a stale returned observation.",
+    "Recovery, complete current metadata ownership, root/shared/initial/wrapper movement, public CLI, Windows/crossplatform/native installed/full feature/program/release acceptance remain open."
+  ]
+}

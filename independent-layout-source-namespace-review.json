@@ -1,0 +1,72 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "decision": "approved_at_internal_original_namespace_and_canonical_control_projection_scope",
+  "scope": "Original complete project namespace captured before source plan acknowledgement; issuer-authenticated live-pool publications joined to actual canonical acquired descriptors; complete original namespace closure through partition and premovement boundaries. Root execution remains guarded.",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_namespace.py": {
+      "algorithm": "sha256",
+      "digest": "1317322879007786e1efacc624003c8a317d288e55247d2392b106cebf410b8c"
+    },
+    "src/literate_ai/adapters/retained_layout_control_publication.py": {
+      "algorithm": "sha256",
+      "digest": "91c5a228aee11724ff2e86f62e62603d0a57ccd00588582d3c0e6779053b6db1"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "c1a9118bdb11cedd36caef274b901cbe4cced6e72a881bec5b72584453bfca39"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "66a894e0db55d0be0d350eea6315023104a24b7d1ff46cb27fd3042cb28febf7"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "d33675085339754263218f7694d56f8bb47b9fbcf2d5af09dc3f42be07e052ad"
+    },
+    "tests/critical/test_retained_layout_source_namespace.py": {
+      "algorithm": "sha256",
+      "digest": "2d0bc5778bcbf3fecfadd2e60fc1f744dce44c8f643c88d8cc95f3bd7a439e96"
+    },
+    "tests/critical/test_retained_layout_control_publication.py": {
+      "algorithm": "sha256",
+      "digest": "57a0c32116394146e67c043e57b53220ca8bb6c94c76717d71da405c7a5de725"
+    },
+    "tests/critical/test_retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "b8f00636daf9b5cefb52887e02228737499a2a886e64febd0bc1e4057e4f813a"
+    },
+    "tests/critical/test_framework_update_roles.py": {
+      "algorithm": "sha256",
+      "digest": "dff618d95e31c67e4b043b1f84a00abf594a59d872be6cc0267d3b648bcacbe5"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "36b6128865df7c73ccada143dd09cfc84558444df14b52c5b6d973af35efff68"
+    }
+  },
+  "method": "Independent source inspection only; no reviewer tests, native probes or edits. Author dynamic checks are separate evidence.",
+  "findings": [
+    {
+      "finding": "The generic namespace transition could reseal replacement census/native facts after acknowledgement while retaining the old identity.",
+      "resolution": "Restrict generic transition to its one actual canonical plan binding. Controlled facts are derived and installed only by the verified original-control descriptor transition.",
+      "state": "closed_source_review_and_causal_author_controls"
+    },
+    {
+      "finding": "Native closing callbacks could replace a nested original witness after the last namespace native scan.",
+      "resolution": "Recheck retained original nested field references after native closure, without another traversal or serialization after the last native callback.",
+      "state": "closed_source_review_and_causal_author_controls"
+    }
+  ],
+  "fixture_addendum": {
+    "decision": "approved_source_only",
+    "scope": "Two positive catalog movement cases declare a finite 131072-entry policy before the catalog producer. Original fixture defaults, smaller negative policies and all live allowance guards remain unchanged. A framework predecessor positive declares its finite metadata policy before the producer; its default remains unchanged and an original smaller-policy negative proves no source effects.",
+    "private_alias_decision": "approved_source_only",
+    "private_alias_scope": "An empty aliased pool exists before preparation and must reach physical-overlap refusal. A plan-bound journal created afterward must cause exact namespace-custody refusal and revoke preparation. Both prohibit actual canonical acquisition, preserve complete membership and source, retain empty journal events and held descriptors. Journal case does not claim later physical-overlap coverage."
+  },
+  "limits": [
+    "No independent dynamic qualification; author tests are separate evidence.",
+    "The public plan still lacks bounded persisted complete namespace and role partition data for restart recovery.",
+    "Root/shared multi-entry execution, original role partition before acknowledgement, initializer/custom wrapper/initial placement, public plan/apply/recovery and installed/native/platform/integration/release/full roadmap acceptance remain open."
+  ]
+}

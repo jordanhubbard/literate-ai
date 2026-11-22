@@ -1,0 +1,30 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_receipt_derived_namespace_output",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_namespace.py": {
+      "algorithm": "sha256",
+      "digest": "364addad04f77bccce7c4e0aa54a178d6c6805a3ae5627204b4a80534e75c0a9"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "713a78c5eda8de086f4f2de1fa8723aa466462dadaad4086ce54eb799e75efe5"
+    },
+    "tests/critical/test_retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "26ba7005169bda2a16d71719e4eaa81b82ac56c6e26b643902dd325631fb2e72"
+    }
+  },
+  "scope": [
+    "Complete project namespace derives only from actual completed live native owner and its verified receipt span; no new inventory baseline.",
+    "Actual fixed nodes, created directory custody, complete hardlink grouping and canonical representative, original raw symbolic text and physical facts.",
+    "Completed schedule and live-owner checks before/after construction; parked payload and expired owner refuse."
+  ],
+  "limitations": [
+    "Output data grants no canonical project/source/control/partition authority.",
+    "Future high-level integration must precharge retained output views to the same original ledger.",
+    "Actual metadata publication and fresh recovery remain unqualified."
+  ]
+}

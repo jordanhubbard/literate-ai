@@ -1,0 +1,141 @@
+{
+  "schema": "literate-ai/forest-incoming-development@1",
+  "state": "source_reviewed_actual_missing_control_observation_advancement",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "incoming_missing_control_advancement_proven": true,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-incoming-review.json",
+    "sha256": "569c80db9824e08c2413989c4c4c9975b9f9793dd3d893cbeb89e3607394786d"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-incoming-owner-report.json",
+        "sha256": "edf5dcacccbc584f52a210f84422838820564b3ca148c87b387bbbea4215f81d"
+      },
+      "log": {
+        "path": "_build/forest-incoming-owner-maintained.log",
+        "sha256": "10171d8f6fc0146bc75757618b0178a2bacdafc06e7bdbc25e18c3b28af1fdc9"
+      },
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "4747e3046c4c633ba1454997cdd55893feca222ebc93e55c6103364ca894f2f4",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-incoming-recovery_roles-report.json",
+        "sha256": "2dac41394984592de89ea2ebf93774b5bc49ac62f3ad6c19e3cdd0baa3b11e2e"
+      },
+      "log": {
+        "path": "_build/forest-incoming-recovery_roles-maintained.log",
+        "sha256": "301fed33e84cf27eaf1e98931c7fa9f3d7d336bd79b3a573cc58c5f1ecd050e9"
+      },
+      "summary": {
+        "executed": 29,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 29,
+        "selected": 29,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "864d24d8b5a1c3cc9855124e03d8f71ded77fbfc48b592aacd511b4ba9d1e890",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 41,
+  "earlier_checkpoint": {
+    "path": "verification/retained-layout-forest-observation-development.json",
+    "scope": "161 maintained methods at the earlier exact six reviewed subjects; not a claim that all161 ran at the current source."
+  },
+  "diagnostics": [
+    {
+      "path": "_build/forest-incoming-baseline-diagnostic.log",
+      "sha256": "0fb10b585636cd8e4fc76d80bab259dbccfd6646ad4d151122ea06748443437b"
+    },
+    {
+      "path": "_build/forest-incoming-first-diagnostic.log",
+      "sha256": "56dc28c7a088718119fad4c28c06fd045072e38529aa2bfdd44407e600b3f581"
+    },
+    {
+      "path": "_build/forest-incoming-second-diagnostic.log",
+      "sha256": "a8b03daaa9fec2916df3763a5699514d528548299d3c992edc05e89d5f516878"
+    },
+    {
+      "path": "_build/forest-incoming-three-diagnostic.log",
+      "sha256": "92118786473a3863e46d2f9e296cff41e2769cdf228c38d878e40e40591b24fd"
+    },
+    {
+      "path": "_build/forest-incoming-three-fixed-diagnostic.log",
+      "sha256": "907250f27628b8ef14898c937eca7d759a5787613c16df6d8bd171e01e6a8769"
+    }
+  ],
+  "causal_notes": [
+    "Real Git repository created after actual original/non-Git native journal retention; nested unborn branch introduces genuine missing Git controls and directories. Actual acknowledged recovery acquires real locks; a native Git writer is excluded. No successful canonical source forest phase or partition is fabricated.",
+    "Baseline genuinely acquired incoming roles but retained the old nearest-directory anchor for its absent loose ref; the new positive now closes the actual read scope with receipt-backed ancestry and created marker observations.",
+    "First implementation expected proposal marker order; actual native factory sorts its roster. Corrected comparison retains exact count and target identities without requiring irrelevant order.",
+    "Late parent registry removal and late unrelated native insertion actually execute (callback-hit asserted), refuse before installing reader maps and preserve unchanged original cache/ancestry. Inserted foreign bytes remain intact.",
+    "Initial parent-revocation diagnostic failed only because its regex omitted the established complete multi-carrier profile refusal. Corrected three-case diagnostic passed191.000s; no implementation guard weakened.",
+    "Review found missing registration/key=None collision. Explicit absence now refuses, with both None and foreign object keys tested behind a native FD sentinel."
+  ],
+  "remaining": [
+    "Current carrier, parking, metadata and control endpoint classification, including pending native intents and missing stage-parent stamps",
+    "Actual acknowledged journaled source/metadata/control recovery effects and fresh dispositions",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static": {
+    "session": 38818,
+    "terminal": true,
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-incoming-final-static.log",
+      "sha256": "c8af97251b7ee89b0ae18793a14faed2fd0e6f6da0bedf4a85241ba9aba19846"
+    },
+    "checks": [
+      "supported driver/documentation review records",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap dependencies",
+      "documentation-check"
+    ]
+  },
+  "verify": {
+    "session": 47862,
+    "terminal": true,
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-incoming-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "normal_skips": 3
+  },
+  "diff_check": {
+    "exit_code": 0
+  }
+}

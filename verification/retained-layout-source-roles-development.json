@@ -1,0 +1,493 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "state": "development_unqualified_scoped_checks_passed",
+  "base_commit": "c5dc8100c3b742d9665d7250aacaa277b9e36b79",
+  "scope": "Actual original initializer/provider/authored role partition and complete role graph owned by preparation before plan acknowledgement, under the original shared reader and allowance; guarded internal nonroot effects only.",
+  "review": "independent-layout-source-roles-review.json",
+  "author_history": [
+    {
+      "state": "historical_failure",
+      "scope": "Synthetic origin fixture correctly refused by actual preacknowledgement producer provenance.",
+      "log": {
+        "path": "_build/original-roles-first-smoke.log",
+        "sha256": "50cac24570e097086c56b1795ac9e0c8581ff9f0355efad3e864116c8b3b3978"
+      }
+    },
+    {
+      "state": "superseded_representation_defect",
+      "scope": "Repeated full metadata bodies and duplicate64 payload accounting inflated charges; not evidence that ordinary4GiB cannot fund original roles.",
+      "log": {
+        "path": "_build/original-roles-capacity-probe.log",
+        "sha256": "dfa21036d9fa8224a718ce7a2065200ead1ad47dbc152a9baeb285ea8146a4ec"
+      }
+    },
+    {
+      "state": "superseded_representation_defect",
+      "scope": "Intermediate8GiB failure from repeated payload representation; never treat as required current capacity.",
+      "log": {
+        "path": "_build/original-roles-predecessor-capacity.log",
+        "sha256": "388f08e94065ff6bb069a0b871007f3b334c30b61b8a5f132cda7f5941ba1116"
+      }
+    },
+    {
+      "state": "superseded_representation_defect",
+      "scope": "Intermediate14GiB failure from repeated payload representation; no guard relaxation.",
+      "log": {
+        "path": "_build/original-roles-predecessor-capacity-second.log",
+        "sha256": "a07239aa6f441a61a21ea65c7d22f8ad0203988d1b87349f4c59929c1cb2a85c"
+      }
+    },
+    {
+      "state": "causal_failure",
+      "scope": "Three original destination/Git/prospective mutation controls failed to refuse against frozen superseded implementation.",
+      "log": {
+        "path": "_build/original-roles-plan-seal-before.log",
+        "sha256": "ddf95681f4f0086901946351b258afe947b14e2a14a2ea5dabc6bc012b9bcd2f"
+      }
+    },
+    {
+      "state": "causal_pass_intermediate",
+      "scope": "Same three controls refused after original correspondence/one-shot whole-plan seal repair.",
+      "log": {
+        "path": "_build/original-roles-plan-seal-after.log",
+        "sha256": "76296fa6cd2e698357c5d42e848c69c0cb63e5872f642fb4dd1f1a1c2aa0bb8a"
+      }
+    },
+    {
+      "state": "historical_failure",
+      "scope": "Real Git configuration observations require their actual canonical observation type, distinct from byte snapshots.",
+      "log": {
+        "path": "_build/original-roles-maintained-third.log",
+        "sha256": "637980359e0130ca6cbe0a2543356aa5886cb6b13c0f9833f1428ee0d8870372"
+      }
+    },
+    {
+      "state": "historical_native_presence_failure",
+      "scope": "Original Git presence changed during preparation. Exact path not reproduced; do not assert a proven external cause.",
+      "log": {
+        "path": "_build/original-roles-maintained-fifth.log",
+        "sha256": "5776bb8b7b88ecec220478d601d8a3f22d7a576c5f98789effd7bad291ec3da7"
+      }
+    },
+    {
+      "state": "diagnostic_pass",
+      "scope": "All16 role controls passed with instrumentation preserving the original presence guard; no path mismatch reproduced.",
+      "log": {
+        "path": "_build/original-roles-presence-diagnostic.log",
+        "sha256": "aede378086f63bc9be7a7678cf1a7789b37e89877bfa9acffd5902ae966d9ed4"
+      }
+    },
+    {
+      "state": "intermediate_policy_result",
+      "scope": "Historical provider terminal passed under intermediate16GiB representation. Superseded capacity evidence; current8GiB provider cohort is separate.",
+      "log": {
+        "path": "_build/original-roles-provider-second.log",
+        "sha256": "440f791d540d5dd5e6c824cb30eebc7f0c2f5e959b02c46606d4f03c88cd7ea6"
+      }
+    },
+    {
+      "state": "diagnostic_capacity_refusal",
+      "scope": "Combined original65536-entry policy reached68393entries with3868330816bytes charged below4294967296metadata; original policy preserved as no-effect refusal.",
+      "log": {
+        "path": "_build/original-roles-combined-capacity-probe.log",
+        "sha256": "e07fa32e5ba2eda8ef2c10a3a90b60806054b5eeea70a6dab286cf028a7d52ec"
+      }
+    },
+    {
+      "state": "historical_fixture_teardown_failure",
+      "scope": "Combined positive passed. New smaller-profile refusal assertions passed, but normal outer update teardown checked its ended catalog successor; corrected inspection exit.",
+      "log": {
+        "path": "_build/original-roles-preparation-fifth.log",
+        "sha256": "0501b0d8ac7615e2b9ae455778f3807e1973f1043bde5af2a90ca1401fa2b654"
+      }
+    },
+    {
+      "state": "historical_fixture_assertion_failure",
+      "scope": "Repeated bounded origin lookup reused original cached files; old test incorrectly expected a fresh file observation.",
+      "log": {
+        "path": "_build/original-roles-preparation-sixth.log",
+        "sha256": "34b2c76eb0a40ff21f27f1c48450d6fee4b31b51a73dfa9fffd4ceffec8112f6"
+      }
+    },
+    {
+      "state": "historical_positive_policy_failure",
+      "scope": "Real Git finalization positive reached its original entry ceiling; exact diagnostic below establishes cause.",
+      "log": {
+        "path": "_build/original-roles-other-source-second.log",
+        "sha256": "b0a37119966fcc99671738655bd21a3d23d432d48bbcdd1c35be067a9c44e7f6"
+      }
+    },
+    {
+      "state": "historical_refusal_stage_failure",
+      "scope": "Original authored65536-entry profile now refuses metadata preflight before finalization; corrected assertion stage preserves smaller policy.",
+      "log": {
+        "path": "_build/original-roles-regression-first.log",
+        "sha256": "f30ac717b8f0f7fcfa827efe39e81e6c2ffbe5f0fb752793fa941851c2b64eb2"
+      }
+    },
+    {
+      "state": "diagnostic_capacity_refusal",
+      "scope": "Real Git finalization needed61640records with75008alreadyspent, exceeding131072entries; metadata2815143360of8589934592 was not limiting.",
+      "log": {
+        "path": "_build/original-roles-finalization-capacity-probe.log",
+        "sha256": "bf08d64498c031bd63af0569f3c559ff8e94f89d5801bed41747ad922e4b696c"
+      }
+    },
+    {
+      "state": "diagnostic_mixed",
+      "scope": "Predeclared262144-entry Git positive passed. Original65536-entry/4GiB Git profile exhausts actual read ledger before source effects; cleanup retains pending authority.",
+      "log": {
+        "path": "_build/original-roles-finalization-entry-policy-probe.log",
+        "sha256": "fb7681ffaf913fcbe0716906d8180691d58342f1d34f2058644a4bfcdab1802e"
+      }
+    },
+    {
+      "state": "diagnostic_mixed",
+      "scope": "Origin reuse and original131072-entry finalization refusal passed. Two added post-context journal.events assertions correctly refused ended writers.",
+      "log": {
+        "path": "_build/original-roles-fixture-corrections-probe.log",
+        "sha256": "bcf66c7aecc48afe3577cd38b0e3b305d53beba55ac419542a54773f907e4234"
+      }
+    },
+    {
+      "state": "diagnostic_pass",
+      "scope": "Both corrected smaller-profile cases pass while comparing retained journal native inode/byte rosters after context exit.",
+      "log": {
+        "path": "_build/original-roles-retained-journal-assertions-probe.log",
+        "sha256": "622d23d373e94360f2cc727092f18a41f97799a2a063646791c207fe2f6ebc72"
+      }
+    },
+    {
+      "state": "historical_fixture_stage_failure",
+      "scope": "Original69632-entry combined policy refused during preparation; prior test assumed a phase existed and referenced an unset variable. Preparation-only refusal and separately funded metadata-reservation controls now distinct.",
+      "log": {
+        "path": "_build/original-roles-other-source-third.log",
+        "sha256": "e0bd755b1b9239b457b7dfe929d92ce237c06c7284207bf48b41528f0e76db36"
+      },
+      "report": {
+        "path": "_build/original-roles-other-source-third-report.json",
+        "sha256": "6cda6c0791a9de0aecdc6dc0ee548fd3b9775eeab5fa38286061b2049191a90e"
+      }
+    },
+    {
+      "state": "historical_diagnostic_assertion_failure",
+      "scope": "Actual teardown callback revoked the provider and correctly reported committed failure; old expected diagnostic missed the earlier original-role guard. Source tracing approves the updated cause-chain assertion; dynamic rerun pending.",
+      "log": {
+        "path": "_build/original-roles-provider-fourth-resumed-second.log",
+        "sha256": "558b285a3d7edfedf4f82374456b81e58ce6c6565501c0c448bfb0ed9271fb18"
+      },
+      "report": {
+        "path": "_build/original-roles-provider-fourth-resumed-second-report.json",
+        "sha256": "0b4dbe0c6a81a0ef22866d5f6897e9fd695858f76776c62e07dbcd0b75309cd2"
+      }
+    },
+    {
+      "state": "diagnostic_mixed",
+      "scope": "Metadata-reservation control passed. Preparation refused with the decoder-specific remaining-allowance diagnostic rather than the aggregate ledger diagnostic. Both remain explicit canonical capacity refusals.",
+      "log": {
+        "path": "_build/original-roles-combined-boundaries-corrected.log",
+        "sha256": "f2db52b286f3d8723e24a34a907380c9f17c10f3de8d98794a44f2ac8105cddd"
+      }
+    },
+    {
+      "state": "diagnostic_pass",
+      "scope": "Original69632-entry preparation refusal preserves original source inode/bytes, complete project membership, canonical metadata, producer allowance, and empty effect/private-output state.",
+      "log": {
+        "path": "_build/original-roles-combined-discovery-refusal-final.log",
+        "sha256": "bd274d0a8718948f9f2065c549dcdf69d696f169d91480b5afa6e780ae2629de"
+      }
+    },
+    {
+      "state": "historical_positive_entry_capacity_failure",
+      "scope": "Admission positive metadata preflight needed2702entries with1457remaining; payload/metadata allowances were ample. Tuple fields are entries,payloadbytes,metadatabytes. Six metadata-target cases now declare131072entries before preparation; shared65536 default preserved.",
+      "log": {
+        "path": "_build/original-roles-final-admission.log",
+        "sha256": "06cadfd9695fc174705b7f6370e0aea138b3118d57ee8fc8c9e5bd745a4aabf2"
+      },
+      "report": {
+        "path": "_build/original-roles-final-admission-report.json",
+        "sha256": "3d03fc7a6d9137e3804ca98a687f2f0a1aa6b53be4826661dd558509686465d2"
+      }
+    },
+    {
+      "state": "diagnostic_pass",
+      "scope": "Native metadata policy pair: positive131072-entry publication and original65536-entry refusal before staging both pass. No production guard or live allowance change.",
+      "log": {
+        "path": "_build/original-roles-original-metadata-policy-pair.log",
+        "sha256": "871869cb0514adcd7cad2ae1827e25ee023c176c3606876f91d2720679672569"
+      }
+    },
+    {
+      "state": "historical_revocation_test_lifetime_failure",
+      "scope": "Last-native provider revocation correctly rejected observed missing provider registration. Restoring its record did not revive the original-role owner, so old test normal context cleanup correctly refused. New controls expect persistent revocation and isolate each admission-provider replacement lifetime.",
+      "log": {
+        "path": "_build/original-roles-final-provider-resumed.log",
+        "sha256": "099b17812e92c7b5e7ddc9af58f248aafd57264d974cdc77d996fa60f3ae564a"
+      },
+      "report": {
+        "path": "_build/original-roles-final-provider-resumed-report.json",
+        "sha256": "252f16bfd33ebaacf731516e406974766dc8932b7a4b7337bc8ef33fb5ee7c8b"
+      }
+    },
+    {
+      "state": "diagnostic_pass",
+      "scope": "Four native provider revocation controls pass: actual last-native callback and independent missing/copied/foreign admitted provider replacements. Restoration cannot revive original-role authority, source custody stays unchanged, and actual control descriptors close. Only adjacent-string formatting changed afterward; runtime literals unchanged.",
+      "log": {
+        "path": "_build/original-roles-provider-permanent-revocation-probe.log",
+        "sha256": "a0b58d156248a90e8497cb44de38a9fce7be11e3418f6a372d03fbb6d151f18c"
+      }
+    }
+  ],
+  "completed_frozen_production_cohorts": [
+    {
+      "scope": "16original-role methods; current production and selected test module unchanged after run",
+      "log": {
+        "path": "_build/original-roles-roles-sixth.log",
+        "sha256": "ace5249ca50fe6189cf4c81d968bcb0fdc7e506760b2f0db7a5feabb64ef4ddf"
+      },
+      "report": {
+        "path": "_build/original-roles-roles-sixth-report.json",
+        "sha256": "0150c8c63a9892de6d8e0a0bb51d542057dee714f5e9ec9bc9cf88f392330047"
+      }
+    },
+    {
+      "scope": "28framework-role methods; current production and selected fixture module unchanged after run",
+      "log": {
+        "path": "_build/original-roles-framework-first.log",
+        "sha256": "bf31254542edb915580db617c28aeb67088f6408bdc089c1207c2c770757f6c8"
+      },
+      "report": {
+        "path": "_build/original-roles-framework-first-report.json",
+        "sha256": "43f961a6f38c31dc27d00a807a409b6edc82d1b75557b8bed912375fa1eef90d"
+      }
+    },
+    {
+      "scope": "28preparation methods on current reviewed preparation test file; production unchanged",
+      "log": {
+        "path": "_build/original-roles-preparation-seventh.log",
+        "sha256": "4ceab45b059b2ecd43a619c3e11259bc4fd1b91c482e41f582002a46f01e8619"
+      },
+      "report": {
+        "path": "_build/original-roles-preparation-seventh-report.json",
+        "sha256": "67831dab0ad3a2d3107b214f37e0c612ee0639d75d5e58ffe9152a6aa7ca425e"
+      }
+    },
+    {
+      "scope": "411remaining retained-layout regressions; production/selected modules and their actual fixture helpers unchanged by later edits to two SourceAdmissionCatalog test methods and one SourceProvider diagnostic assertion",
+      "log": {
+        "path": "_build/original-roles-regression-second.log",
+        "sha256": "d8faa8a23f79a89e04789354a4e9544d85c468c7fee41ae12b4c4804e1076e06"
+      },
+      "report": {
+        "path": "_build/original-roles-regression-second-report.json",
+        "sha256": "6b55c45c8f45a46ad635f1146d2573f0d9f045b59acaf13e63b3e9194995ad3b"
+      }
+    },
+    {
+      "scope": "Complete namespace module; production/selected module and its actual fixture helpers unchanged by later admission test-only policy declarations",
+      "log": {
+        "path": "_build/original-roles-final-namespace.log",
+        "sha256": "9369986a4be5bcd04f1917efd85f4e29ac9cdcf683c36f7ec6f594fbf43c2091"
+      },
+      "report": {
+        "path": "_build/original-roles-final-namespace-report.json",
+        "sha256": "e44159ea3197679aa95e9a6ccf39bdad965065663051b7925cf660f9529f8b1f"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "Complete selectors module; production/selected module and its actual fixture helpers unchanged by later admission test-only policy declarations",
+      "log": {
+        "path": "_build/original-roles-final-selectors.log",
+        "sha256": "af1352ee6b944806c6500d578d1ebfc3b097fe88c0337d47e2f1cd0542d86304"
+      },
+      "report": {
+        "path": "_build/original-roles-final-selectors-report.json",
+        "sha256": "f4a95f0b799e9779d3b59dcbf917d833ad790bcc4936c68c42f30419f329c3a0"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "Complete storage module; production/selected module and its actual fixture helpers unchanged by later admission test-only policy declarations",
+      "log": {
+        "path": "_build/original-roles-final-storage.log",
+        "sha256": "cf320f2686c2eb1ce34375262025249f3fd1a0dcce371e20201a78e6f1a29250"
+      },
+      "report": {
+        "path": "_build/original-roles-final-storage-report.json",
+        "sha256": "a678ac259e4f36ef2d2bab5db9f15de482069b564cfab9db54a459e9d8e97585"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "Complete finalization module; production/selected module and its actual fixture helpers unchanged by later admission test-only policy declarations",
+      "log": {
+        "path": "_build/original-roles-final-finalization.log",
+        "sha256": "e11a49398157e19d52d2f8d7473dc243cbbe7df8b3015e957edc50288ab745a9"
+      },
+      "report": {
+        "path": "_build/original-roles-final-finalization-report.json",
+        "sha256": "259a1609843758fccdeb9576ac67424c01eb7481b0b89b211fdcc39eedac32bc"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "Complete41-method admission module; production/selected module and actual shared fixture helpers unchanged by later provider test-only permanent-revocation corrections",
+      "log": {
+        "path": "_build/original-roles-final-admission-second.log",
+        "sha256": "025c2db65a5a0c3863cfeb52b1d545f5c33d8d7b0736aed6b21bd4d93d8d58fb"
+      },
+      "report": {
+        "path": "_build/original-roles-final-admission-second-report.json",
+        "sha256": "21063c0cc8aa723551cdd3069c4d0d44f50f12c053262a6fae5f64cf61c5c72b"
+      },
+      "summary": {
+        "executed": 41,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 41,
+        "selected": 41,
+        "skipped": 0
+      }
+    },
+    {
+      "scope": "Fresh complete19-method provider module on final reviewed test bytes; no resumed markers or skipped methods in this final run",
+      "log": {
+        "path": "_build/original-roles-final-provider-second.log",
+        "sha256": "78def876b4dd4b8e93a96ff0b0baf7f8d46bac42ac618bc15f42d054fe203fe1"
+      },
+      "report": {
+        "path": "_build/original-roles-final-provider-second-report.json",
+        "sha256": "0c503bfe0d7f8af15eec550d9d16eff3ba14a147cf74ef2f09517ac88b72500c"
+      },
+      "summary": {
+        "executed": 19,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 19,
+        "selected": 19,
+        "skipped": 0
+      }
+    }
+  ],
+  "current_cohorts": "All595distinct methods across10disjoint cohorts pass with zero failures, known failures or skips. Final provider19 run is fresh; earlier interrupted/resumed runs remain historical development evidence only.",
+  "limits": [
+    "No installed/native-platform/integration/release qualification from scoped author repair cohorts.",
+    "Root logical forest, root/shared/parking effects, bounded persisted complete namespace/partition recovery data, initial/custom wrappers and public plan/apply/recovery remain unfinished.",
+    "Full active roadmap goal remains incomplete."
+  ],
+  "partial_validation": {
+    "maintained_methods": "595distinct methods across10disjoint fresh scoped cohorts; no failures, known failures or skips",
+    "repository_checks": {
+      "state": "passed",
+      "scope": "lint,format-check,repository-layout-check,public-export-check,documentation-check,driver-review,runner-review,skills-check",
+      "log": {
+        "path": "_build/original-roles-final-gates.log",
+        "sha256": "eac1f596a6f40240f74a5d13bb8bf78024d715775a024216c747eab4bd8ca2ff"
+      }
+    },
+    "driver_review": {
+      "state": "current_supported_renewal",
+      "implementation_identity": "sha256:c22b81366b291008644f942294d2de358b82fbe3d9d3bbd895215a83a295f47c",
+      "log": {
+        "path": "_build/original-roles-driver-review-record.log",
+        "sha256": "f22886290254edf1b42b2bf80abd69397e55d915e4b15cc84aca1cb7cdf5bfe2"
+      }
+    },
+    "documentation_review": {
+      "state": "current_supported_renewal",
+      "authority_identity": "sha256:281cd5b4f8229dfc5472890d0d01837e58642fce37d9df22018ddfbd0875ce44",
+      "log": {
+        "path": "_build/original-roles-documentation-review-record.log",
+        "sha256": "87aec8e2a3e31ee30c2d4f21717a90f33052008e595f3ad9e4fe89ce90a25983"
+      }
+    },
+    "runner_review": {
+      "state": "current_unchanged",
+      "log": {
+        "path": "_build/original-roles-runner-review.log",
+        "sha256": "75c81ed5c9353054420f98d5e608f965df26a15c8ce336a380b2cba2f47017e4"
+      }
+    },
+    "project_validate": {
+      "state": "passed_authority_only",
+      "report": {
+        "path": "_build/original-roles-project-validate.json",
+        "sha256": "0546c79795de5d19d12d46a97df6dab043352ff57e21fbe5d922bbb80bf99f9b"
+      }
+    },
+    "openspec": {
+      "state": "passed_strict",
+      "log": {
+        "path": "_build/original-roles-openspec-check.log",
+        "sha256": "ed3db4f266a54c1aabda0310dcb8e451a6fd94e379e2476a9d4e1967d0301b50"
+      }
+    },
+    "full_project_verify": "Configured full-source receipt remains unqualified/stale; scoped repair cohorts do not renew it. Exact postcommit verify pending."
+  },
+  "fixture_helper_comparison": {
+    "path": "_build/original-roles-admission-fixture-helpers-comparison.json",
+    "sha256": "f85e4d85f3c448278606f6b03ee7207854352bc338f55116ab11dc90975e02a2"
+  },
+  "method_audit": {
+    "path": "_build/original-roles-final-cohorts-audit.json",
+    "sha256": "68304719dcd01768ffcd103c20dcdccbf8ee26352d5a99987ca2fca4b26f5d7d"
+  },
+  "review_artifact": {
+    "path": "independent-layout-source-roles-review.json",
+    "sha256": "26e79884c97051eb4cf4806a25700ffb2c1517519caf300199f2b0d265c70425"
+  },
+  "summary": {
+    "distinct_methods": 595,
+    "cohorts": 10,
+    "failed": 0,
+    "known_failed": 0,
+    "skipped": 0,
+    "qualified": false,
+    "full_feature_complete": false,
+    "full_roadmap_complete": false
+  },
+  "coordination": {
+    "scope": "Executed named develop-guidance issue/review/peer-start commands and end survey; all returned exit0. Existing green reviews and retained branches remain separate work; no branch collection, cleanup, push or merge performed.",
+    "guidance": {
+      "path": "_build/original-roles-final-guidance.json",
+      "sha256": "48a96da96bed1b91524959e5f6b7c9ab8fbae74f6604dad72c487b8ac2987a5d"
+    },
+    "peer_start": {
+      "path": "_build/original-roles-final-peer-start.json",
+      "sha256": "d95885c0a3212009cbe2b6b521e21bcab1c48204d687d5cf1513837b223cb34b"
+    },
+    "peer_end": {
+      "path": "_build/original-roles-final-peer-end.json",
+      "sha256": "45fa10a66aeedba5a8d4d6f03f2af4ac9363f0edde92adb9ee52409b51c6938f"
+    }
+  }
+}

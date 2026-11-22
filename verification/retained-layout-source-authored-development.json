@@ -1,0 +1,320 @@
+{
+  "schema": "literate-ai/verification-record@1",
+  "base_commit": "fae77f71e0ece198708f429e7ff82b84c3015f3c",
+  "scope": "Finite canonical authored selected metadata ownership under actual original prepared nonroot source discovery, admission, partition, metadata effects and terminal readonly closure. Result remains committed-unqualified.",
+  "subjects": {
+    "src/literate_ai/adapters/component_locks.py": {
+      "algorithm": "sha256",
+      "digest": "9bd2b55118a34c3e836f8af40fe1ec30d17f4f6d52602c90294e5230a3cdc318"
+    },
+    "src/literate_ai/adapters/component_resolution_audits.py": {
+      "algorithm": "sha256",
+      "digest": "f2032814d5cc223098c58c8bd8e07fcd744d1bfcc71e9b4726a02502c42e8130"
+    },
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "9e436d73a7b9dc31a14bbe78a0bd7ab67c6e24853e2a7afe8b95d2263af176a0"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "564b9603ef51ac7cff1b1d9f7fe50b56bc519da122e3c95fa66efd500ce7fc98"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "082000eb05c0ba812d96304583d7268b0b093b50c4519debf9596eb110e8b7a2"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "5cfa8935be3fad89fec709bbcfe3f56b9974185b975b733f44fe66c5bd34d484"
+    },
+    "src/literate_ai/adapters/retained_layout_ownership.py": {
+      "algorithm": "sha256",
+      "digest": "4f68c5862cb4371ec0e74dc3fa9b40e940660531b91be13d66463799b0df5f5c"
+    },
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "5d5fcc5a6a3953500c703d79157cdb7046fa79bd4c943f2c3477d339deabfd98"
+    },
+    "tests/critical/test_retained_layout_authored_roles.py": {
+      "algorithm": "sha256",
+      "digest": "16029bcbe13f73b46438d3720a99fda2626d8357380e7ae6412934e9592e5db8"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "ca7f044ca8ece0da680c0068c5a8655dd17dc651714d68b2f6f957bbe3a63d3d"
+    },
+    "tests/critical/test_retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "ff051696b57df24365df95ef1542c75edbe966919a95226ba2b90f706bf61c1b"
+    }
+  },
+  "behavior": [
+    "Retain actual parsed project/conversion, lift/layout, harness-wrapper and selected Component witnesses and exact original input observations, separate from descriptive saved plans.",
+    "Derive seven actual canonical endpoints, including optional lock presence or absence, and authenticate the exact acquired control seed under the same original reader and ledger.",
+    "Label actual present selected endpoints authored; reconcile original initializer, actual framework-update cache and canonical catalog native/byte receipts; reject ambiguous overlaps while unknown same-named files stay unclaimed.",
+    "Select actual canonical lock storage once during funded discovery with the real store naming policy. Support an actual in-project matrix cell without reading a hardcoded different lock. Later ambient environment changes cannot redirect the frozen endpoint.",
+    "Refuse external storage before probes without an actual shared owner; reject moving source or destination overlap using portable prefixes and original cached ancestry/native source directory identities, including absent locks under actual case aliases.",
+    "Advance expected canonical observations only from the actual verified metadata successor; preserve actual owner lifetime proof through descriptor teardown and read-only terminal observations without reconstructing stores or making new qualification claims."
+  ],
+  "author_history": [
+    {
+      "log": {
+        "path": "_build/source-authored-before.log",
+        "sha256": "412ef17bd81e2e8bb9ce1ada46c922ad602cab6d143204b4c91bd43a14beceb4"
+      },
+      "interpretation": "Fixture assumption failed: actual initializer baseline already includes the canonical host lock. No product defect established by this assertion.",
+      "tests": 1,
+      "seconds": 1.988,
+      "footer": "FAILED (failures=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-canonical-before.log",
+        "sha256": "7349f02eb8dd10842fd3fa0187ef8983d78bb3cf840979c9c346359e41abf06e"
+      },
+      "interpretation": "Product baseline: canonical selected metadata labeled framework; absent optional selected lock treated as required historical initializer input.",
+      "tests": 2,
+      "seconds": 4.663,
+      "footer": "FAILED (failures=1, errors=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-first.log",
+        "sha256": "04d6864409bcda4fde84f4ebbafb77eee725f223f2b3d4d313a6b305aa6e6199"
+      },
+      "interpretation": "Initial two canonical role and absence controls passed before broader owner controls.",
+      "tests": 2,
+      "seconds": 7.145,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-expanded.log",
+        "sha256": "64ad5ce03ffde0aa53d38a1c85709c72d7a21f65d3b31032e2c0828cd186295f"
+      },
+      "interpretation": "Ten of eleven expanded controls passed; missing-unrelated fixture tried removing a nonexistent root README. Corrected to actual initialized docs/user/getting-started.md.",
+      "tests": 11,
+      "seconds": 106.498,
+      "footer": "FAILED (errors=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-store-before.log",
+        "sha256": "565cc4fc7038df178371c9ca388ebbd6e0b8566a735d3ded083be94458e71b70"
+      },
+      "interpretation": "Three actual store controls reproduced reconstructed-store I/O and wrong selected-cell endpoint; two failures and one error.",
+      "tests": 3,
+      "seconds": 2.247,
+      "footer": "FAILED (failures=2, errors=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-store-after.log",
+        "sha256": "1009b7cdf29eae20230244433ba938a59efd700cfb4807c36594e3df3b7b87c3"
+      },
+      "interpretation": "Four targeted controls pass after funded frozen store selection, including unrelated missing initializer refusal.",
+      "tests": 4,
+      "seconds": 5.739,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-roles.log",
+        "sha256": "b4adc672cf9b5e62fe2d03bec435d7fa7306ce166f0fc5c0067a446c060e8633"
+      },
+      "interpretation": "Maintained sixteen-method author group passes before final alias correction; not final qualification.",
+      "tests": 16,
+      "seconds": 121.39,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-alias-before.log",
+        "sha256": "864148b02df9794978ce1b5c26dae80d0e4e60dae9adc0834c60199896a38cdb"
+      },
+      "interpretation": "Native macOS actual source case alias admits an absent canonical lock before repair. One product regression reproduced.",
+      "tests": 1,
+      "seconds": 2.048,
+      "footer": "FAILED (failures=1)"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-alias-after.log",
+        "sha256": "56fe5054c72246a35e7825220ebeae29598c3614d3996074ff5de69765ff09db"
+      },
+      "interpretation": "Native alias refusal and actual selected-cell positive both pass before final allocation-free equivalent.",
+      "tests": 2,
+      "seconds": 4.684,
+      "footer": "OK"
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-final-source.log",
+        "sha256": "e2a4e6c1de2108202a8974367460e8ed51288fdad2e646e7e4bc4a6ea356cc72"
+      },
+      "tests": 52,
+      "passed": 51,
+      "selected": 72,
+      "seconds": 630.224,
+      "footer": "FAILED (failures=1)",
+      "interpretation": "Predecessor-import fixture observed at plan factory entry after new authored metadata precharge64. Corrected observation to actual import boundary, retaining exact single-import/cache and actual ledger identity checks. Remaining20 methods were not executed by this stopped group."
+    },
+    {
+      "log": {
+        "path": "_build/source-authored-predecessor-after.log",
+        "sha256": "2d62347228c57c68d7094a4df5ab4fc80afcf03159c1bca7c7f47f5b18d61dfe"
+      },
+      "tests": 1,
+      "seconds": 31.718,
+      "footer": "OK",
+      "interpretation": "Actual update/catalog/preparation/genuine consuming flow passes with observation at real predecessor debit boundary. Exact counters, empty imported cache, single-debit and actual owner ledger identity retained."
+    }
+  ],
+  "interrupted_pre_fix_runs": [
+    {
+      "path": "_build/source-authored-source.log",
+      "state": "terminated_for_required_alias_source_fix",
+      "exit_code": 2
+    },
+    {
+      "path": "_build/source-authored-regression.log",
+      "state": "terminated_for_required_alias_source_fix",
+      "exit_code": 143
+    }
+  ],
+  "independent_review": {
+    "path": "independent-layout-source-authored-review.json",
+    "sha256": "6f5c5fad03863fd99de5b542c7a94c2b27ae669260c5e96e89f0c5cf90d675d6",
+    "decision": "approved_at_finite_canonical_authored_nonroot_scope",
+    "independent_dynamic_qualification": false
+  },
+  "final_author_qualification": {
+    "state": "passed",
+    "make_selections": [
+      "tests/critical/test_retained_layout_authored_roles.py",
+      "tests/critical/test_retained_layout_source*.py"
+    ],
+    "regression_log": "_build/source-authored-final-regression.log",
+    "authored_roles": {
+      "state": "passed",
+      "command": "make python-check",
+      "selection": "tests/critical/test_retained_layout_authored_roles.py",
+      "exit_code": 0,
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "seconds": 130.031,
+      "report": {
+        "path": "_build/source-authored-final-roles-report.json",
+        "sha256": "f7a9d7f2ae560e14721199aa901348844537b8d223741a0ba5ceab1adc0b72fd"
+      },
+      "log": {
+        "path": "_build/source-authored-final-roles.log",
+        "sha256": "f34627023a3eb450ac02aecfdca8c48edf19008420b7be75a0ed571d8facb813"
+      }
+    },
+    "regression": {
+      "state": "passed",
+      "exit_code": 0,
+      "tests": 370,
+      "seconds": 739.809,
+      "log": {
+        "path": "_build/source-authored-final-regression.log",
+        "sha256": "92e0f7ef3e735af5f1d37cf8462911e1c534947a2f270c0a1b01839237c7c578"
+      },
+      "scope": "Nineteen original affected suites plus two actual canonical-store suites; 370 distinct methods, no skips."
+    },
+    "source_operation": {
+      "state": "passed",
+      "command": "make python-check",
+      "selection": "tests/critical/test_retained_layout_source*.py",
+      "exit_code": 0,
+      "summary": {
+        "executed": 72,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 72,
+        "selected": 72,
+        "skipped": 0
+      },
+      "seconds": 592.634,
+      "report": {
+        "path": "_build/source-authored-complete-source-report.json",
+        "sha256": "2a4744927c75c8af79a4d49efabadbbcf92aa94b6ef20e0bca8b6f9d68aaa9ea"
+      },
+      "log": {
+        "path": "_build/source-authored-complete-source.log",
+        "sha256": "16c143e7f16ac478379753fb4f75a6ff113832e7023a87d8d3e6d81a21de7fbf"
+      }
+    }
+  },
+  "static_gates": {
+    "exit_code": 0,
+    "commands": [
+      "make lint",
+      "make format-check",
+      "make repository-layout-check",
+      "make public-export-check",
+      "make openspec-check",
+      "make skills-check"
+    ],
+    "log": {
+      "path": "_build/source-authored-final-static.log",
+      "sha256": "05b071826fbdabb860054c13ae57f9cd8f04c0bab299700f17dd1a65ab1fa4be"
+    },
+    "additional_test_subject": {
+      "path": "tests/critical/test_retained_layout_source_preparation.py",
+      "commands": [
+        "ruff check",
+        "ruff format --check"
+      ],
+      "exit_code": 0
+    }
+  },
+  "acceptance": {
+    "finite_selected_canonical_authored_role_join": true,
+    "complete_external_original_provider_admission": false,
+    "root_shared_initial_wrapper_effects": false,
+    "complete_public_recovery": false,
+    "complete_public_apply": false,
+    "installed_native_platform_integration_release": false,
+    "full_roadmap": false
+  },
+  "next_action": "Join actual original-provider shared observations before root effects. Preserve guarded broader store selectors and every pending layout, recovery, installed/native/platform/integration/release and roadmap requirement.",
+  "qualified_store_profile": {
+    "default_native_store": true,
+    "absolute_existing_in_project_matrix_cell": true,
+    "external_storage": "refused before probes without actual shared owner",
+    "relative_or_missing_matrix_cell_root": "guarded by this internal source profile; broader selector admission remains unqualified",
+    "qualification": "Selected lock bytes may be stale or absent; ownership never makes evidence fresh."
+  },
+  "combined_unique_passing_test_ids": 459,
+  "authority_checks": {
+    "driver_record": {
+      "path": "_build/source-authored-driver-record.log",
+      "sha256": "6730010b66d02e664565ae862eb5feefb84d0371efb39a7443890d3086e4ec55",
+      "exit_code": 0
+    },
+    "documentation_record": {
+      "path": "_build/source-authored-documentation-record.log",
+      "sha256": "7e488a35ad157b230e51b6f429e55022eab42847d0c9b4e811681518ba441687",
+      "exit_code": 0
+    },
+    "driver_runner_layout_export": {
+      "path": "_build/source-authored-authority-checks.log",
+      "sha256": "a39b78c54cd90687412ef0e05ff7c7311d6bd534e9eee049989e163d08a0373f",
+      "exit_code": 0
+    },
+    "project_validate": {
+      "path": "_build/source-authored-project-validate.json",
+      "sha256": "3dea07d8a4ea2cf1327ab1b267890627fec49439fb7279e4a4a117572f4c7430",
+      "exit_code": 0,
+      "ok": true
+    }
+  }
+}

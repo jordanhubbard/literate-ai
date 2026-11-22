@@ -71,6 +71,35 @@ class GitlinkInventory:
 
 
 def _git(root: Path, *arguments: str, timeout_seconds: float = 60) -> bytes:
+    from .bounded_role_observation import current_role_observation
+
+    observation = current_role_observation()
+    if observation is not None:
+        return observation.git(root, arguments, timeout_seconds=timeout_seconds)
+    return _raw_git(root, *arguments, timeout_seconds=timeout_seconds)
+
+
+def _raw_git(
+    root: Path,
+    *arguments: str,
+    timeout_seconds: float = 60,
+    _maximum_output_bytes=None,
+    _maximum_error_bytes=None,
+    _output_usage=None,
+) -> bytes:
+    if _output_usage is not None and not callable(_output_usage):
+        raise TypeError("Git output usage observer must be callable")
+    output_limit, error_limit = 8 * 1024 * 1024, 64 * 1024
+    for value, ceiling in (
+        (_maximum_output_bytes, output_limit),
+        (_maximum_error_bytes, error_limit),
+    ):
+        if value is not None and (type(value) is not int or not 1 <= value <= ceiling):
+            raise ValueError("Git read ceiling cannot exceed its original limit")
+    if _maximum_output_bytes is not None:
+        output_limit = _maximum_output_bytes
+    if _maximum_error_bytes is not None:
+        error_limit = _maximum_error_bytes
     if (
         isinstance(timeout_seconds, bool)
         or not isinstance(timeout_seconds, (int, float))
@@ -101,8 +130,8 @@ def _git(root: Path, *arguments: str, timeout_seconds: float = 60) -> bytes:
             # observation while allowing a delayed read-only Git process to
             # complete instead of turning runner contention into data drift.
             timeout_seconds=timeout_seconds,
-            stdout_limit_bytes=8 * 1024 * 1024,
-            stderr_limit_bytes=64 * 1024,
+            stdout_limit_bytes=output_limit,
+            stderr_limit_bytes=error_limit,
             error_prefix="orchestration.git",
         )
     except BuildError as exc:
@@ -110,6 +139,8 @@ def _git(root: Path, *arguments: str, timeout_seconds: float = 60) -> bytes:
     if result.returncode:
         # Git diagnostics may contain configured credentials; never echo them.
         _fail("inspection_failed", "Git could not inspect the requested repository")
+    if _output_usage is not None:
+        _output_usage(len(result.stdout), len(result.stderr))
     return result.stdout
 
 

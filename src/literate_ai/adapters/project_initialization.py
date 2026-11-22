@@ -2702,7 +2702,9 @@ def _initialization_baseline(
     )
 
 
-def _atomic_replace(path: Path, content: bytes) -> None:
+def _atomic_replace(
+    path: Path, content: bytes, *, require_current: Callable[[], None] | None = None
+) -> None:
     descriptor, temporary_name = tempfile.mkstemp(
         prefix=f".{path.name}.", dir=path.parent
     )
@@ -2726,6 +2728,8 @@ def _atomic_replace(path: Path, content: bytes) -> None:
             stream.flush()
             os.fsync(stream.fileno())
         stream = None
+        if require_current is not None:
+            require_current()
         os.replace(temporary, path)
     finally:
         if stream is not None:
@@ -3875,9 +3879,12 @@ class FilesystemProjectInitializationAdapter:
         selected: Path,
         *,
         document: str | Path | None = None,
+        require_current: Callable[[], None] | None = None,
     ) -> dict[str, object]:
         """Record the caller's explicit review of current project authority.
 
+        An optional currentness check runs after temporary output is flushed,
+        immediately before replacement; it grants no review acknowledgement.
         Calling this method is the review acknowledgement. It replaces one existing
         stale/current marker, or one placeholder in an explicitly selected declared
         Markdown document, and then requires the complete authority graph to validate.
@@ -3887,7 +3894,9 @@ class FilesystemProjectInitializationAdapter:
             review = self._validation.documentation_review(Path(selected))
         except ProjectValidationError as exc:
             _initialization_error(exc)
-        return self._record_authority_review(Path(selected), review, document=document)
+        return self._record_authority_review(
+            Path(selected), review, document=document, require_current=require_current
+        )
 
     def _record_authority_review(
         self,
@@ -3895,6 +3904,7 @@ class FilesystemProjectInitializationAdapter:
         review: dict[str, object],
         *,
         document: str | Path | None,
+        require_current: Callable[[], None] | None = None,
     ) -> dict[str, object]:
         state = review.get("state")
         expected_marker = review.get("expected_marker")
@@ -3985,6 +3995,7 @@ class FilesystemProjectInitializationAdapter:
                 "authority review marker must be recorded in declared Markdown",
             )
         try:
+            before = path.lstat() if require_current is not None else None
             content = path.read_bytes()
         except OSError as exc:
             raise ProjectInitializationError(
@@ -4017,7 +4028,31 @@ class FilesystemProjectInitializationAdapter:
             try:
                 if path.is_symlink() or not path.is_file():
                     raise OSError("review document changed before replacement")
-                _atomic_replace(path, updated)
+
+                def close_publication_inputs():
+                    require_current()
+                    after = path.lstat()
+                    if any(
+                        getattr(before, name) != getattr(after, name)
+                        for name in (
+                            "st_dev",
+                            "st_ino",
+                            "st_mode",
+                            "st_size",
+                            "st_mtime_ns",
+                            "st_ctime_ns",
+                        )
+                    ):
+                        raise OSError(
+                            "review document changed during publication checks"
+                        )
+
+                if require_current is None:
+                    _atomic_replace(path, updated)
+                else:
+                    _atomic_replace(
+                        path, updated, require_current=close_publication_inputs
+                    )
             except OSError as exc:
                 raise ProjectInitializationError(
                     "project.documentation_authority_review_write_failed",
@@ -4083,11 +4118,12 @@ def record_project_authority_review(
     selected: Path,
     *,
     document: str | Path | None = None,
+    require_current: Callable[[], None] | None = None,
 ) -> dict[str, object]:
     """Record an explicit authority review after a caller layers project catalogs."""
 
     return FilesystemProjectInitializationAdapter().record_authority_review(
-        selected, document=document
+        selected, document=document, require_current=require_current
     )
 
 
