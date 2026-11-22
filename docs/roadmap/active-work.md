@@ -19436,6 +19436,13 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   preferring the current user's ARM64 tag. Check actual native execution and
   required standard-library imports before passing that exact executable to the
   supported installer. A registration string alone is never architecture proof.
+  Run `45058980253` passes fresh registered native-Python selection and the
+  required standard-library probe, then builds the exact framework wheel.
+  Private-runtime installation stops because `cryptography==50.0.1` falls back
+  to a native ARM64 source build and cannot find OpenSSL. Upstream 50.0.1 and
+  50.0.2 wheel inventories contain no Windows ARM64 distribution. Complete the
+  native source-build prerequisite closure while retaining the exact dependency
+  pin, ARM64 target and full installed-host acceptance; the host goal stays open.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was
