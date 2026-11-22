@@ -871,11 +871,20 @@ class LocalComponentToolBinding:
     def command(self) -> tuple[str, ...]:
         return (self.executable, *self.arguments)
 
-    def require_unchanged(self) -> None:
+    def require_command_unchanged(self) -> None:
+        """Check bound command custody without invoking a native observer.
+
+        This does not establish native toolchain currentness. Bounded callers
+        must also use the original native owner with the actual child environment
+        and remaining deadline; ordinary require_unchanged retains that guard.
+        """
         if self._current_identity() != self._initial_identity:
             raise LocalStandardLifecycleError(
                 "locked local tool executable changed after binding"
             )
+
+    def require_unchanged(self) -> None:
+        self.require_command_unchanged()
         if self._authority_guard is not None:
             try:
                 self._authority_guard()
