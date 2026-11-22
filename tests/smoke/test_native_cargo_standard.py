@@ -38,7 +38,14 @@ from tests.support.standard_source_evidence_fixture import register_strict_sourc
     shutil.which("cargo") and shutil.which("rustc"), "native Rust tools unavailable"
 )
 class NativeCargoStandardTests(unittest.TestCase):
-    def system(self, root, *, forged_leaf_projection=False, package_layout="embedded"):
+    def system(
+        self,
+        root,
+        *,
+        forged_leaf_projection=False,
+        package_layout="embedded",
+        declared_provider_bindings=False,
+    ):
         snapshot, execution = _fixture(
             root_name="service", library_names=frozenset({"service", "storage"})
         )
@@ -86,7 +93,9 @@ class NativeCargoStandardTests(unittest.TestCase):
                         for phase in ComponentCommandPhase
                     ),
                     artifact_export=ComponentArtifactExportShape(
-                        "library",
+                        "artifact-" + revision.digest[:20]
+                        if declared_provider_bindings
+                        else "library",
                         "library",
                         fixture._identity("abi"),
                         fixture._identity("platform"),
@@ -117,6 +126,8 @@ class NativeCargoStandardTests(unittest.TestCase):
                 if alpha
                 else "pub struct Event { pub value: u32 }\n"
             )
+            if declared_provider_bindings:
+                (source / "source/src/main.rs").write_text("fn main() {}\n")
             if forged_leaf_projection and not alpha:
                 manifest = source / "source/Cargo.toml"
                 manifest.write_bytes(
@@ -159,6 +170,15 @@ class NativeCargoStandardTests(unittest.TestCase):
             contracts=tuple(contracts),
             cargo_targets=tuple(targets),
             tool_bindings=(cargo, rustc),
+            provider_environment={
+                c.artifact_export.export_id: (
+                    "LITAI_PROVIDER_" + c.component_revision.digest[:20].upper(),
+                    c.artifact_export.export_id + "/source/src/main.rs",
+                )
+                for c in contracts
+                if declared_provider_bindings
+                and c.component_revision != snapshot.authority.lock.root_revision
+            },
         )
         return ports, execution, candidates
 

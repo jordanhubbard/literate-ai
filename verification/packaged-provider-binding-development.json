@@ -1,0 +1,102 @@
+{
+  "schema": "literate-ai/development-observation@1",
+  "owner": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "source_base_commit": "337cd075f33ccb35e194c9ddd237d8b491143cda",
+  "changed_source_sha256": {
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "b2d46f24b82d5f7fb6c54a7ccee0ae86ca3d8eb4a4caf2171c1054e0b96e8908"
+  },
+  "genuine_predecessor": {
+    "source_revision": "337cd075f33ccb35e194c9ddd237d8b491143cda",
+    "qualified": false,
+    "exit_code": 2,
+    "duration_seconds": 417.243,
+    "error_code": "standard_rebuild.independent_acceptance_failed",
+    "error_class": "packaged provider binding is unavailable",
+    "all_seven_original_acceptance_files_unchanged": true,
+    "attempt": "61712d62ab564db3a5902dc66e4dd6f9",
+    "qualification_reference_published": false,
+    "raw_reports_preserved": true
+  },
+  "causal_control": {
+    "summary": {
+      "executed": 1,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 0,
+      "selected": 11,
+      "skipped": 0
+    },
+    "result": "Same actual native complete-package lookup error on unchanged production code; unique export IDs and explicitly declared portable provider bindings.",
+    "duration_seconds": 3.509
+  },
+  "fix": "Resolve declared export-id/suffix beneath the exact actual materialized export location; preserve existing sibling resource meaning, missing/link/escape guards and legacy coordinates.",
+  "coverage": "Actual native whole-project packages under both legacy and shared layouts; current provider environment points to exact packaged files; missing and escaping paths refuse. Explicit fixture generation authority, not genuine qualification.",
+  "reports": [
+    {
+      "report": "binding-native-compat/python-test-report.json",
+      "sha256": "c02cefb6138dfa0d51a4e928b8022a9a653fdc888f2a0a4e563c66cd0127c082",
+      "summary": {
+        "executed": 53,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 53,
+        "selected": 53,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "binding-local-compat/python-test-report.json",
+      "sha256": "5e6f087dddd99bafa43c24cf792f65f3a2097297cea5383e884e1523f38ebbd9",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 6,
+        "skipped": 1
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "binding-runtime-compat/python-test-report.json",
+      "sha256": "14c221e05d89039e786d62206443af350c59f3c529e1c867f0c0cafd6bd50bad",
+      "summary": {
+        "executed": 24,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 24,
+        "selected": 24,
+        "skipped": 0
+      },
+      "release_evidence": false
+    }
+  ],
+  "passed": 82,
+  "skipped": 1,
+  "failed": 0,
+  "skip": "Existing macOS persistent-service smoke skip: 0.6.0 readiness probe timeout on macOS GitHub runners; unchanged.",
+  "fixture_development_correction": "First new negative assertions expected ValueError instead of the maintained LocalStandardLifecycleError RuntimeError; corrected tests only, preserving that first report.",
+  "driver_review": {
+    "state": "stale",
+    "computed": "sha256:e0718aefc628dd6104dacccd547c2024431a7dcad73c850e18814c1dff0db141",
+    "pinned": "sha256:05c3a129f8f50a6a0f33b227ba903f21d56dd5b6e016bc3972eceb96ee81c60f",
+    "recorded": false,
+    "independent_non_author_review": "pending"
+  },
+  "required_next": [
+    "Fresh exact noneditable genuine three-library qualification with two clean all-node runs and all seven original acceptance files unchanged",
+    "Transported closed all-run current-authority replay after original scratch retirement",
+    "Full public retained Cargo receiving/prospective gates/source retirement/admission/repeat and refusals on the same consumer",
+    "Complete integrated source, native, installed and release gates"
+  ],
+  "release_qualified": false,
+  "static_gates": {
+    "lint_format": "2190files;pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "runner_review": "current",
+    "documentation": "181diagrams/1967Markdownfiles/23renderercontrols;pass",
+    "documentation_authority": "current"
+  }
+}

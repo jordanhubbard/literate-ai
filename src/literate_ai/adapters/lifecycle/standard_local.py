@@ -6253,7 +6253,15 @@ class LocalStandardLifecyclePorts:
                 continue
             name, relative_path = binding
             relative = Path(relative_path)
-            target = path.parent / relative
+            try:
+                export_relative = relative.relative_to(export.export_id)
+            except ValueError:
+                # Existing sibling resources retain their declared semantics.
+                target = path.parent / relative
+            else:
+                # A package may explicitly relocate or rename the exact export.
+                # Bind its suffix to the original actual materialized location.
+                target = path / export_relative
             if target.is_symlink() or not target.exists():
                 raise LocalStandardLifecycleError(
                     f"packaged provider binding is unavailable: {export.export_id}"

@@ -24767,6 +24767,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Shared-layout installed predecessor (preserved failure):** The fresh actual
+  noneditable `337cd075f3` nominal run stops after 417.243 seconds with
+  `standard_rebuild.independent_acceptance_failed`: packaged provider binding is
+  unavailable. All seven original private acceptance/profile files stay unchanged.
+  Native builds retain three artifact manifests, but no qualification reference is
+  published. Whole-project package destinations now use revision directories,
+  while the generic packaged environment still resolves a declared
+  `export-id/...` binding from the renamed export's parent. Extend the maintained
+  real-package control with unique export IDs and declared provider bindings to
+  reproduce this lookup failure, then resolve the binding beneath its actual exact
+  export location. Preserve missing, escaping and stale-custody refusals, legacy
+  package behavior and the complete genuine qualification scope.
+  The maintained native package now reproduces the same error against unchanged
+  production code in 3.509 seconds. The correction binds the declared suffix to
+  its actual materialized export, preserving legacy and sibling resource behavior.
+  [Development evidence](../../verification/packaged-provider-binding-development.json)
+  records 82 passes and one unchanged macOS service skip: all 53 native controls,
+  five applicable Standard-local controls and all 24 retained runtime controls.
+  Both package layouts resolve declared providers; missing and escaping paths
+  refuse. The first negative assertion's wrong exception class is preserved as
+  test-development history. Fresh genuine qualification and every full receiver
+  acceptance action remain open; the author does not renew the driver pin.
+
 - **Genuine nominal provider result:** The actual noneditable `39b1af3c67` public
   apply completes two clean all-node runs in 1,823.503 seconds and publishes
   reference `sha256:0988406ed52c9a14d9ee922af61f3fbfd375eff09e1ff993b96fc92c4c8d1549`.

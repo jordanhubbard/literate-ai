@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Packaging: keep declared provider bindings attached to their exact export when
+  an explicit package layout renames its directory. Preserve legacy paths and
+  refuse missing files, links and paths outside package custody.
+
 - Native Cargo: add an explicit shared sibling package layout so independently
   exported libraries can share nominal Rust types without duplicate path packages.
   Preserve legacy profile and target formats; require fresh qualification for the

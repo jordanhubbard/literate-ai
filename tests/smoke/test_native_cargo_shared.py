@@ -17,6 +17,7 @@ from literate_ai.adapters.directory_artifacts import DirectoryExportFile as File
 from literate_ai.adapters.lifecycle.native_cargo_shared import (
     project_shared_cargo_graph,
 )
+from literate_ai.adapters.lifecycle.standard_local import LocalStandardLifecycleError
 from tests.smoke import test_native_cargo_projection as fixture
 from tests.smoke import test_native_cargo_standard as standard_fixture
 from tests.support import (
@@ -325,7 +326,7 @@ class NativeCargoSharedStandardTests(unittest.TestCase):
                 root = Path(temporary).resolve(strict=True)
                 helper = standard_fixture.NativeCargoStandardTests("runTest")
                 ports, execution, candidates = helper.system(
-                    root, package_layout=layout
+                    root, package_layout=layout, declared_provider_bindings=True
                 )
                 built, plans = {}, {}
                 for generation in sorted(
@@ -398,82 +399,119 @@ class NativeCargoSharedStandardTests(unittest.TestCase):
                     self.assertEqual(
                         result.returncode, 0, result.stderr.decode(errors="replace")
                     )
-                if layout == "shared-siblings":
-                    from literate_ai.application.standard_project_lifecycle import (
-                        StandardProjectBuildPlan,
-                    )
-                    from literate_ai.contracts import ArtifactBuildGraph, ExactLinkPlan
+                from literate_ai.application.standard_project_lifecycle import (
+                    StandardProjectBuildPlan,
+                )
+                from literate_ai.contracts import ArtifactBuildGraph, ExactLinkPlan
 
-                    snapshot, same_execution = preparation._fixture(
-                        root_name="service",
-                        library_names=frozenset({"service", "storage"}),
-                    )
-                    self.assertEqual(execution.identity, same_execution.identity)
-                    lock = snapshot.authority.lock
-                    exports = tuple(
-                        e for output in built.values() for e in output.exports
-                    )
-                    manifests = tuple(
-                        replace(plans[r].manifest, exports=built[r].exports)
+                snapshot, same_execution = preparation._fixture(
+                    root_name="service",
+                    library_names=frozenset({"service", "storage"}),
+                )
+                self.assertEqual(execution.identity, same_execution.identity)
+                lock = snapshot.authority.lock
+                exports = tuple(e for output in built.values() for e in output.exports)
+                manifests = tuple(
+                    replace(plans[r].manifest, exports=built[r].exports)
+                    for r in sorted(plans, key=lambda identity: identity.uri)
+                )
+                root_export = built[lock.root_revision].exports[0]
+                link = ExactLinkPlan(
+                    root_export.identity,
+                    tuple(
+                        sorted(
+                            (e.identity for e in exports),
+                            key=lambda identity: identity.uri,
+                        )
+                    ),
+                )
+                graph = ArtifactBuildGraph(
+                    manifests[0].build_system_driver_identity, manifests, (link,)
+                )
+                project_plan = StandardProjectBuildPlan(
+                    execution.identity,
+                    tuple(
+                        plans[r]
                         for r in sorted(plans, key=lambda identity: identity.uri)
-                    )
-                    root_export = built[lock.root_revision].exports[0]
-                    link = ExactLinkPlan(
-                        root_export.identity,
-                        tuple(
-                            sorted(
-                                (e.identity for e in exports),
-                                key=lambda identity: identity.uri,
-                            )
-                        ),
-                    )
-                    graph = ArtifactBuildGraph(
-                        manifests[0].build_system_driver_identity, manifests, (link,)
-                    )
-                    project_plan = StandardProjectBuildPlan(
-                        execution.identity,
-                        tuple(
-                            plans[r]
-                            for r in sorted(plans, key=lambda identity: identity.uri)
-                        ),
-                    )
-                    package_plan, packaged = ports.create_project_package(
-                        lock, execution, project_plan, graph, link
-                    )
-                    custody = ports.project_package_custody(package_plan, packaged)
-                    manifest_text = (consumer / "Cargo.toml").read_text()
-                    for export in exports:
-                        packaged_path = custody.artifact_paths[export.identity.uri]
+                    ),
+                )
+                package_plan, packaged = ports.create_project_package(
+                    lock, execution, project_plan, graph, link
+                )
+                custody = ports.project_package_custody(package_plan, packaged)
+                environment = ports._packaged_provider_environment_values(custody)
+                for export in exports:
+                    if export.export_id in ports.provider_environment:
+                        name, _relative = ports.provider_environment[export.export_id]
                         self.assertEqual(
-                            packaged_path.name, export.component_revision.digest
+                            environment[name],
+                            str(
+                                custody.artifact_paths[export.identity.uri]
+                                / "source/src/main.rs"
+                            ),
                         )
-                        manifest_text = manifest_text.replace(
-                            "../received/"
-                            + export.component_revision.digest
-                            + "/source",
-                            os.path.relpath(packaged_path / "source", consumer),
-                        )
-                    (consumer / "Cargo.toml").write_text(manifest_text)
-                    packaged_result = subprocess.run(
-                        [
-                            shutil.which("cargo"),
-                            "run",
-                            "--offline",
-                            "--quiet",
-                            "--target-dir",
-                            str(root / "packaged-outputs"),
-                        ],
-                        cwd=consumer,
-                        env={**os.environ, "CARGO_INCREMENTAL": "0"},
-                        capture_output=True,
-                        timeout=60,
+                saved_bindings = dict(ports.provider_environment)
+                provider = next(e for e in exports if e.export_id in saved_bindings)
+                name, _ = saved_bindings[provider.export_id]
+                packaged_provider = custody.artifact_paths[provider.identity.uri]
+                outside = root / "alpha/source/src/lib.rs"
+                for invalid, error in (
+                    (
+                        provider.export_id + "/source/src/missing.rs",
+                        "binding is unavailable",
+                    ),
+                    (
+                        os.path.relpath(outside, packaged_provider.parent),
+                        "escaped package custody",
+                    ),
+                ):
+                    try:
+                        ports.provider_environment[provider.export_id] = (name, invalid)
+                        with self.assertRaisesRegex(LocalStandardLifecycleError, error):
+                            ports._packaged_provider_environment_values(custody)
+                    finally:
+                        ports.provider_environment.clear()
+                        ports.provider_environment.update(saved_bindings)
+                manifest_text = (consumer / "Cargo.toml").read_text()
+                for export in exports:
+                    packaged_path = custody.artifact_paths[export.identity.uri]
+                    self.assertEqual(
+                        packaged_path.name,
+                        export.component_revision.digest
+                        if layout == "shared-siblings"
+                        else export.export_id,
                     )
+                    manifest_text = manifest_text.replace(
+                        "../received/" + export.component_revision.digest + "/source",
+                        os.path.relpath(packaged_path / "source", consumer),
+                    )
+                (consumer / "Cargo.toml").write_text(manifest_text)
+                packaged_result = subprocess.run(
+                    [
+                        shutil.which("cargo"),
+                        "run",
+                        "--offline",
+                        "--quiet",
+                        "--target-dir",
+                        str(root / "packaged-outputs"),
+                    ],
+                    cwd=consumer,
+                    env={**os.environ, "CARGO_INCREMENTAL": "0"},
+                    capture_output=True,
+                    timeout=60,
+                )
+                if layout == "shared-siblings":
                     self.assertEqual(
                         packaged_result.returncode,
                         0,
                         packaged_result.stderr.decode(errors="replace"),
                     )
-                    ports.project_package_custody(package_plan, packaged)
+                else:
+                    self.assertEqual(packaged_result.returncode, 101)
+                    self.assertIn(
+                        b"package collision in the lockfile", packaged_result.stderr
+                    )
+                ports.project_package_custody(package_plan, packaged)
                 for destination, before in contents.items():
                     self.assertEqual(
                         before,
