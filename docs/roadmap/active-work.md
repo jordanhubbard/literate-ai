@@ -20949,6 +20949,29 @@ The dependency correction passed all three unchanged self-hosting checks (0 skip
 
 ### [ ] RETAINED-OBSERVATION-PERF-001 — Bound retained authority and native observation cost
 
+- **Installed materialization profile (in progress):** The current installed
+  authored consumer check passes in 1,211.404 seconds without changing consumer
+  bytes or modes. Initial materialization then reaches its original 2,100-second
+  outer bound with `release.real_receiving_timeout`; preexisting consumer files,
+  legacy source and all seven original acceptance inputs remain unchanged.
+  No source retirement or consumer admission follows that failure. A separate
+  read-only installed profile observes 79 resolution-plan snapshots during initial
+  planning and 21 in one independent currentness guard (35.259 and 8.527 profiled
+  seconds). These include complete collision/cycle validation and must not be
+  replaced by a narrower lineage-only check. Profile timings include instrumentation
+  overhead and are not qualification. [Exact-source development evidence](../../verification/authored-receiving-observation-profile-development.json)
+  retains the failed scope and required native/callback/budget boundaries. Trace
+  bounded pure-computation reuse through the actual plan/native owners next,
+  then rerun unchanged public materialization and admission requirements.
+  A native regression also reproduces continued initial publication after the
+  existing operation deadline expires. Propagate that same deadline through the
+  private input owner and check it before further scratch/publication effects;
+  preserve every unexpired native observation. This refusal repair does not
+  qualify receiving latency or the failed installed materialization.
+  Both native expiry regressions and all six existing input-owner controls pass;
+  [deadline and catalog development evidence](../../verification/provisioning-deadline-current-catalog-development.json)
+  retains the original failures and exact source/report identities.
+
 Current next action (in progress): independently review and qualify one-call
 canonical planning inside a genuine execution guard. The exact integrated
 planning/metadata candidate preserves admission checks but still performs at
@@ -23722,6 +23745,13 @@ independent review and the complete combined gate from test one.
   catalog staging, source currentness and contained wrapper drift refusals.
   [Composition evidence](../../verification/retained-layout-current-composition-development.json)
   records the original merge failures and exact source/report identities.
+  The combined source ladder then reaches an obsolete provenance-reader call
+  in the original catalog finalization case (634 passes, 34 skips, one error).
+  Port that writer to the current bounded source-record and ancestry readers;
+  retain its original ledger, publication and finalization refusals.
+  All 32 original native finalization, source-lease and provenance-publication
+  controls pass without skips; [scoped repair evidence](../../verification/provisioning-deadline-current-catalog-development.json)
+  does not close combined source, contained-layout or release qualification.
   Renew the complete combined source and three-generation native journey before
   any whole-feature, installed, platform or release claim. Current independent
   implementation review and normal exact-head delivery remain outstanding.

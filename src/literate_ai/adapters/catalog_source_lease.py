@@ -268,8 +268,8 @@ def prepared_git_catalog_copy_roles(
                 source_root / ".git/HEAD"
             ].content.strip().lower() != commit.lower().encode("ascii"):
                 _fail("actual detached HEAD differs from canonical resolved commit")
-            catalog_import._read_source_project(source_root, ledger)
-            catalog_import._read_source_ancestors(source_root, ledger)
+            catalog_import._project_record(source_root, ledger)
+            catalog_import._read_observed_source_ancestors(source_root, ledger)
             ledger.snapshot(Path(__file__))
             forest = None
             if len(items) == 1:

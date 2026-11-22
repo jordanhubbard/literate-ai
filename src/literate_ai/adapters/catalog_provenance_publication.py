@@ -39,10 +39,11 @@ class _Provenance:
 def prepare_provenance(stages):
     """Reserve prospective metadata before any public entry effect is possible."""
     plan, ledger = stages.plan, stages._ledger
-    source_id, source_identity = catalog_import._read_source_project(
+    source_definition, source_identity = catalog_import._project_record(
         plan.source_root, ledger
     )
-    ancestors = catalog_import._read_source_ancestors(plan.source_root, ledger)
+    source_id = source_definition.project_id
+    ancestors = catalog_import._read_observed_source_ancestors(plan.source_root, ledger)
     catalog_import.check_dag_safe(plan.root, source_id, ancestors, ledger)
     if plan._source_lease is None:
         source_root, ref = catalog_import._resolve_local_source(str(plan.source_root))

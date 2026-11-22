@@ -1,0 +1,53 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "owning_work_item": "RETAINED-OBSERVATION-PERF-001",
+  "scope": "Installed authored receiving timeout and read-only provider observation profile; no new runtime optimization or positive materialization/admission qualification",
+  "qualified_source_revision": "f83936626ec6a2f776418d86ebb0d7b2b5dbde08",
+  "profiled_installed_source_sha256": {
+    "src/literate_ai/adapters/authored_qualification_planning.py": "98645d0e8f3e700bb8d230830354725c10b50c6373d4d9968bad03933c98797e",
+    "src/literate_ai/adapters/locked_generation_authority.py": "2c9604964127eef02e48d7952a101dacb391c3c949e7dae0f42335b9b555e8fd",
+    "src/literate_ai/adapters/component_lock_planning.py": "9edb97bf50b4155ff5134041a1310945e93c29a359e59abdeff40de237155365",
+    "src/literate_ai/project_authority_graph.py": "40b2a5ea57ae41e1da3546c7cf11399365fb8f96aa3c608010b777769a2a92ed"
+  },
+  "public_check": {
+    "passed": true,
+    "seconds": 1211.404,
+    "consumer_byte_mode_snapshot_unchanged": true
+  },
+  "materialization": {
+    "passed": false,
+    "seconds": 2100.111,
+    "controller_error_code": "release.real_receiving_timeout",
+    "outer_deadline_seconds": 2100,
+    "inner_operation_deadline_seconds": 1800,
+    "preexisting_consumer_files_unchanged": true,
+    "legacy_source_bytes_unchanged": true,
+    "original_seven_oracles_unchanged": true,
+    "consumer_admitted": false,
+    "source_retirement_performed": false,
+    "complete_looking_packages_are_not_success": true
+  },
+  "diagnostic_profile": {
+    "initial_planning_seconds": 35.259,
+    "independent_current_guard_seconds": 8.527,
+    "initial_plan_snapshot_calls": 79,
+    "independent_guard_plan_snapshot_calls": 21,
+    "independent_guard_python_calls": 11714332,
+    "independent_guard_lstat_calls": 186020,
+    "timings_include_profiler_overhead": true,
+    "profile_is_not_qualification": true,
+    "original_seven_oracles_unchanged": true,
+    "consumer_modified": false
+  },
+  "required_preservation": [
+    "Do not replace full project graph validation with lineage-only lookup: current construction also refuses collisions and cycles.",
+    "Retain every native currentness, selector, source, review, namespace, mutation and expiry refusal.",
+    "Only consider bounded operation-local pure-computation reuse after its actual inputs, ownership, memory allowance and callback closure are established.",
+    "Keep original finite limits and independent acceptance bytes; do not qualify the failed attempt from package presence.",
+    "Account for real lifecycle and stage-control files in private qualification-controller observations rather than assuming every new file must be package payload."
+  ],
+  "runtime_fix_implemented": false,
+  "current_independent_implementation_review": false,
+  "whole_candidate_qualified": false,
+  "release_qualified": false
+}

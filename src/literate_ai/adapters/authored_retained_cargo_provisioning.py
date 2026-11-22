@@ -120,6 +120,7 @@ def provision_authored_retained_cargo_consumer(
     scratch = None
     original_source_domain = None
     with ExitStack() as owners:
+        _require_native_completion_deadline(deadline)
         session = owners.enter_context(
             _open_authored_retained_cargo_inputs_session(
                 project_root,
@@ -134,6 +135,7 @@ def provision_authored_retained_cargo_consumer(
                 consumer_rustc=consumer_rustc,
                 archive_payload=archive_payload,
                 native_sdk_inputs=native_sdk_inputs,
+                _operation_deadline=deadline,
             )
         )
         current = session.inputs
@@ -155,6 +157,7 @@ def provision_authored_retained_cargo_consumer(
         )
         old_policy._require_current()
         source = _capture_authored_provisioning_source(current, wrapper, **limits)
+        _require_native_completion_deadline(deadline)
         initial = source.before is None
         if operation == "materialize" and initial:
             scratch = owners.enter_context(
@@ -185,6 +188,7 @@ def provision_authored_retained_cargo_consumer(
                 manifest_state="after",
                 package_state="absent",
             )
+            _require_native_completion_deadline(deadline)
             materialized = materialize_authored_retained_cargo_packages(
                 files,
                 scratch=scratch,

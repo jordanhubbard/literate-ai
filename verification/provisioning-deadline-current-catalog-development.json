@@ -1,0 +1,128 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Cooperative expiry of the original provisioning deadline and current bounded catalog provenance/source acquisition APIs; complete combined source renewal pending",
+  "base_revision": "a2713a24c4ee941d79ed761d1220281953fbe816",
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_retained_cargo_inputs.py": "c31b4fb78c49e491baf48aedf5696c045e37cd05a3c88f0734e13a27d0e9fd3b",
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning.py": "15b9fd05da2de4874c70bc643f16cec78b4b0b1e78ef0f9920d328b1e0183abf",
+    "src/literate_ai/adapters/catalog_provenance_publication.py": "57fa787968d439f6449a58c29382ba3c2fb6c35cd2d8b0aebf5fd40034c1b5c4",
+    "src/literate_ai/adapters/catalog_source_lease.py": "cc45c73be2d053bb83fe340cb63e5dbe00feb83c5cf295d1a92749b246887d72",
+    "tests/smoke/test_authored_provisioning_deadline.py": "6867912dd0fc2ecd34e3e824962fda5050fd164269ed33a3ecd4734ff12cc881"
+  },
+  "regression_before_fix": {
+    "production_unchanged": true,
+    "selected": 2,
+    "executed": 1,
+    "failed": 1,
+    "seconds": 73.92,
+    "failure": "Original code performs a second source observation after the expiry injected following initial observation; fail-fast stops before later effect assertions.",
+    "log_sha256": "4d4ffb8b946b826ea9a801834f1ddd3a575d3ca0c1e7edeeb90132d9dc554f48"
+  },
+  "changes": [
+    "Pass the same absolute operation deadline into the original private input owner; retain every unexpired review, Cargo, Rust and provider observation.",
+    "Check expiry before further scratch allocation and package materialization; original owner/nominal refusal order and final completion/closer fences remain.",
+    "Port recovered catalog provenance and source acquisition to the current bounded _project_record and _read_observed_source_ancestors APIs, keeping the original ledger and publication guards."
+  ],
+  "native_development_cells": {
+    "expiry_regressions": {
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "report_sha256": "29c76bfc0190eca7a590f604524cbbcbd4bfc99bf78ff6797a6d5fdaa21ee30b"
+    },
+    "input_owner": {
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "report_sha256": "ac29126fccf1d354f3c8480c0a661d4ff723eb660a5618efafc194e5b521a775"
+    },
+    "catalog_finalization": {
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "report_sha256": "e1aafd637bfe75be5b762f16b731ed6d0ebd978e901f58c1b8763342d4dbd36a"
+    },
+    "catalog_source_lease": {
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "report_sha256": "4201d8df16a12266a86261a2dfcd24c7e3844be9fd279175836ac3ff2fed258c"
+    },
+    "catalog_provenance": {
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "report_sha256": "a7354dafc07b1753ed5ce3e36ea9225648423c6788d9ab592b0d6bbbd62997d5"
+    },
+    "existing_provisioning": {
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "report_sha256": "639f5f7a3d4cfbc27805745c0d34c08e0252e3196ce04cb8701d4a6d33c4f42d",
+      "seconds": 722.15
+    }
+  },
+  "combined_baseline_failure": {
+    "revision": "a2713a24c4ee941d79ed761d1220281953fbe816",
+    "passed": 634,
+    "skipped": 34,
+    "failed": 1,
+    "source_unchanged": true,
+    "error": "Catalog finalization called old _read_source_project(source_root, ledger) signature.",
+    "terminal_sha256": "6b1c00191d006baaf99c59c95876a4cad1b13e62f58465a630fa8be973f50c8d"
+  },
+  "boundaries": {
+    "native_consumer_and_publication_fixtures_are_real": true,
+    "provider_fixture_is_explicit_not_genuine_generation": true,
+    "original_seven_installed_acceptance_inputs_unchanged": true,
+    "timeout_or_budget_increased": false,
+    "installed_failed_initial_materialization_reclassified": false,
+    "observation_latency_fix_implemented": false,
+    "source_retirement_or_consumer_admission_performed": false,
+    "full_combined_source_passed": false,
+    "independent_implementation_review_complete": false,
+    "release_qualified": false
+  },
+  "focused_native_total_passed": 48,
+  "local_static_gates_passed": [
+    "lint",
+    "format-check",
+    "repository-layout-check",
+    "public-export-check",
+    "documentation-review-record",
+    "documentation-review",
+    "documentation-check",
+    "openspec-check"
+  ],
+  "static_log_sha256": "6805fb778a2341ded79fa0419749ef07fb6c8010e2130473d71785b035d26800"
+}

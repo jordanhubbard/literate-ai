@@ -29,6 +29,9 @@ from literate_ai.adapters.retained_cargo_plan import (
     _bound_cargo_package_exports,
     _verify_bound_cargo_package_exports,
 )
+from literate_ai.adapters.retained_cargo_test_execution import (
+    _require_native_completion_deadline,
+)
 from literate_ai.contracts.blobs import BlobRef
 from literate_ai.contracts.identity import ContentIdentity, canonical_identity
 
@@ -160,6 +163,7 @@ def _open_authored_retained_cargo_inputs_session(
     max_package_bytes: int = 256 * 1024**2,
     max_entries: int = 100_000,
     _retain_products=True,
+    _operation_deadline=None,
 ):
     """Reopen operator-reviewed bytes before joining actual current provider data.
 
@@ -196,6 +200,12 @@ def _open_authored_retained_cargo_inputs_session(
         or max_entries > 100_000
     ):
         raise ValueError("retained.cargo.authored-input-limits-invalid")
+
+    def require_deadline():
+        if _operation_deadline is not None:
+            _require_native_completion_deadline(_operation_deadline)
+
+    require_deadline()
     reviewed = read_authored_retained_cargo_review(
         project_root,
         binding_path=binding_path,
@@ -219,11 +229,16 @@ def _open_authored_retained_cargo_inputs_session(
     active = True
 
     def consumer_current():
+        require_deadline()
         reviewed.require_unchanged()
+        require_deadline()
         consumer_cargo.require_unchanged()
+        require_deadline()
         consumer_rustc.require_unchanged()
+        require_deadline()
         if reviewed.identity != reviewed_identity:
             raise ValueError("retained.cargo.authored-reviewed-inputs-changed")
+        require_deadline()
 
     consumer_current()
     try:
@@ -250,6 +265,7 @@ def _open_authored_retained_cargo_inputs_session(
                 raise TypeError("retained.cargo.authored-original-products-required")
             consumer_current()
             products.require_unchanged()
+            require_deadline()
             if (
                 sum(reference.size for reference, _ in products.blobs)
                 > max_package_bytes
@@ -276,6 +292,7 @@ def _open_authored_retained_cargo_inputs_session(
                     raise ValueError("retained.cargo.authored-original-inputs-required")
                 consumer_current()
                 products.require_unchanged()
+                require_deadline()
                 consumer_current()
 
             owner = CurrentAuthoredRetainedCargoInputs(

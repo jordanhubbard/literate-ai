@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Authored provisioning: stop before further scratch allocation or package
+  publication when the original operation deadline expires, retaining native
+  currentness checks for unexpired operations. Installed receiving qualification
+  remains pending.
+- Catalog recovery composition: use the current bounded source-record and ancestry
+  readers when preparing provenance for native publication.
+
 - Retained layout integration: preserve recovered recovery work alongside current
   contained project metadata, native update rollback and nominal consumer custody.
   Focused composition controls pass; complete combined qualification remains open.
