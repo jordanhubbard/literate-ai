@@ -492,7 +492,11 @@ def _sensitive_content(content: bytes, language: str | None) -> bool:
 
 
 def _classify(
-    relative: str, content: bytes, size: int
+    relative: str,
+    content: bytes,
+    size: int,
+    *,
+    _reviewed_credential_content: bool = False,
 ) -> tuple[SourceFileClassification, str | None, str]:
     path = PurePosixPath(relative)
     name = path.name.lower()
@@ -501,7 +505,7 @@ def _classify(
     if (
         name in _SENSITIVE_NAMES
         or suffix in {".key", ".pem", ".p12", ".pfx"}
-        or _sensitive_content(content, language)
+        or (not _reviewed_credential_content and _sensitive_content(content, language))
     ):
         return SourceFileClassification.SENSITIVE, language, ""
     if b"\0" in content[:8192]:

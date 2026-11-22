@@ -1,0 +1,93 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Renew original current-layout allowance regression against unchanged exact known-roster streaming and retain complete native success under same original smaller ceiling; explicit unit shared-ledger pressure tests actual refusal before current endpoints",
+  "base_commit": "7644aa4ebdc94e5cf8850956d176b321fd295247",
+  "failed_frozen_snapshot": "55b474784844d99b51125f239de9192d6c6cc8fddb31010938847cd26d48c51f",
+  "failed_family_summary": {
+    "executed": 247,
+    "failed": 1,
+    "known_failed": 0,
+    "passed": 246,
+    "selected": 891,
+    "skipped": 0
+  },
+  "failed_family_seconds": 2238.88,
+  "failed_family_report_sha256": "3e18c96733483873f0b699766777d2667997c803c5f68ebee7fbe031d1238b6d",
+  "failed_family_source_unchanged": true,
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_layout_forest_current.py": "68814933be83342348145a6b3e1f24bc2747c5f127d594c6b2a9469904b6f3e1",
+    "src/literate_ai/adapters/retained_layout_forest_metadata_replay.py": "3166b55f3f7f901b134e4e0b405b0e9f35f57bb98c11708f12e1721a64ec8b08",
+    "src/literate_ai/adapters/catalog_copy_plan.py": "4599671fc55576379de31487f5a56ca2ba2bdd33aa19bb342d94e168db97f339",
+    "tests/critical/test_retained_layout_forest_metadata_replay.py": "86f87a9f4d928af86571182df78479e5160ea95e2f29acbbb81fa4e91e7ec684",
+    "tests/critical/test_retained_layout_forest_current_allowance.py": "2d61d1a6761969abff0859aa4b6792d2e05443b20656dd142fc47481df11b471"
+  },
+  "focused": {
+    "metadata_replay": {
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "seconds": 366.892,
+      "report_sha256": "f3ea06306c7189367515a65de7eff96f05ed545d9ee0fc35892a5fbd49d956ee"
+    },
+    "known_smaller_allowance": {
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "seconds": 54.144,
+      "report_sha256": "0e3a6a29783312ba13c3f2925037f4b7aa8f06ed1e54cf93dbb55850d93176c0"
+    }
+  },
+  "retained_evidence_manifest_sha256": "afa762e2332b5815df6eedb42891a69de06dd0b5f1bffa1d23fd6b9fb21fae21",
+  "production_layout_or_accounting_changes": false,
+  "metadata_ceiling_deadline_or_g2_caps_changed": false,
+  "original_smaller_fresh_metadata_ceiling": 8455716864,
+  "complete_real_native_view_at_same_ceiling_passed": true,
+  "explicit_unit_shared_metadata_pressure": true,
+  "negative_preparation_still_fits_original_ceiling": true,
+  "current_endpoint_entry_refuses_after_original_shared_capacity_exhaustion": true,
+  "original_regression_name_preserved": true,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "retained_failures": [
+    "Frozen891-selected family:246passed1failed0skipped. Blanket os.open sentinel intercepted original journal currentness before the native endpoint reader.",
+    "Narrower endpoint-only sentinel:6passed1failed8selected326.202s; actual constructor was reached. Original fixed numeric ceiling was not exhausted by actual known-roster work.",
+    "Single actual complete native control at exact same ceiling passes; no production funding, deadline or cap changed. Negative now explicitly spends remaining shared-ledger metadata capacity through its existing charge API and requires preparation to fit before observer entry.",
+    "One attempted positive-probe discovery exposed imported TestCase classes. Its exact owned runner receivedSIGINT, all owned descendant processes were verified gone, and that cancelled attempt supplies no passing gate. Corrected module-only import selects exactly1 method."
+  ],
+  "limits": [
+    "The negative pressure charge is an explicit unit accounting fixture. Native journals, roles, endpoint access, full current source and prospective-node observations use actual existing owners.",
+    "The complete native metadata fixture still records qualified:false; these controls grant no canonical effects, recovery, receipt admission or release qualification.",
+    "The affected891-case family and complete source suite require fresh consolidated qualification;9 focused methods do not replace them."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "c9ef368a488d79b4230e280a9879601b779e852cb9a4effdd134990aba55aa96",
+  "verify": {
+    "exit_code": 1,
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "driver_or_receipt_pins_changed": false
+  }
+}

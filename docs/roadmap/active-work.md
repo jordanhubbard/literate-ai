@@ -3481,7 +3481,7 @@ open. Preserve the historical inventories below.
 | [#333 — Bootstrap generated project agents before LitAI commands](https://github.com/jordanhubbard/literate-ai/pull/333) | `770140dc94731086014c4dbc58db1189424df421` | Exact head ancestral to the combined candidate. |
 | [#326 — Propose ADR 0064 for GitHub issue assignee ownership](https://github.com/jordanhubbard/literate-ai/pull/326) | `4350f552a8b82ebbf59f6514b25a473774e60b6d` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
 | [#322 — Add shadow Git and PR custody with bounded process ownership](https://github.com/jordanhubbard/literate-ai/pull/322) | `712b99fdf1227e9ed071543896aca947d0670713` | Not ancestral; inspect residual changes and original owner before collection. |
-| [#313 — Preserve reviewed source, child and asset promotion boundaries](https://github.com/jordanhubbard/literate-ai/pull/313) | `77be5baf68bbeaf878a5b86151dafffe623beb2e` | Exact head not in the local object database; retain for explicit retrieval and review. |
+| [#313 — Preserve reviewed source, child and asset promotion boundaries](https://github.com/jordanhubbard/literate-ai/pull/313) | `77be5baf68bbeaf878a5b86151dafffe623beb2e` | Exact head retrieved after this inventory; focused accepted asset/intake recovery is under qualification. Newer child and policy work remains preserved. |
 | [#312 — Integrate 1.4 retained promotion and library harness fixes](https://github.com/jordanhubbard/literate-ai/pull/312) | `eda5c4af62f6f47686e34fa94a9da300b8abd82f` | Aggregate not merged wholesale. Audit residuals and collect only focused missing work; retain superseded wheel-cache history. |
 
 ### Historical consolidation inventory (2026-10-23)
@@ -21934,6 +21934,24 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Current-layout allowance compatibility recovery:** The frozen affected-layout
+  attempt ends unchanged with 246 passes, one failure and no skips out of 891
+  selected. The original allowance regression's blanket `os.open` sentinel
+  intercepted journal revalidation, and an endpoint-only probe showed the fixed
+  smaller ceiling was not exhausted before the native reader. A separate actual
+  complete native observation now passes under that exact original ceiling.
+  Preserve it as a positive control; retain the original negative test name,
+  ceiling and before-endpoint refusal by applying explicit unit pressure to its
+  actual shared ledger and proving preparation still fits. All eight existing
+  metadata-replay methods pass in 366.892 seconds; the complete smaller-ceiling
+  control passes in 54.144 seconds. Production accounting, deadlines and G2 caps
+  are unchanged. See [allowance compatibility](../../verification/layout-current-allowance-compatibility-development.json).
+  A fresh consolidated full source/installed run remains required.
+
+- **Whole-source layout control reconciliation:** The frozen 8c428 source attempt fails after 1,944 passes and 39 skips because an older authored-role control requires all canonical storage inside logical source to refuse during preparation. The same failure reproduces locally; all 27 newer source-forest controls pass, explicitly keeping canonical native ancestors fixed while refusing the legacy executor and actual source/destination collisions. Preserve those production guards. Update the older control to observe the fixed forest and require legacy execution refusal before source or metadata effects, retaining native inode/content/absence assertions. The correction passes all 19 authored-role controls and all 27 current source-forest controls without skips, preserving the original control name and production guards. [Exact failures and results](../../verification/layout-canonical-source-forest-compatibility-development.json) retain native inode/content/absence and zero-effect checks. The full failed receipt stays failed; a new complete source gate and installed/native qualification remain required.
+
+- **Promotion audit closure recovery:** Explicitly selecting the legacy locked-promotion fixture exposes a pre-existing missing ordinary-constructor refusal. Current evidence validates generation-closure audit/tree correspondence only inside the Standard-rebind branch. Restore this invariant at the shared typed evidence boundary, preserve all rebind checks and actual qualification gates, and add the original mismatch control to maintained discovery. Retain the initial two-pass/one-failure report; it is not a green compatibility result. The maintained six-case cohort and explicit 24-case legacy/helper cohort pass after repair. This recovery neither changes source/asset admission policy nor grants qualification.
+
 - **Current tracker-link reconciliation (2026-11-22):** The complete forge
   inventory contains 93 open issues. Twenty-four lacked a current-repository
   issue link in this roadmap. Record their intake below under this existing
@@ -21961,9 +21979,9 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 | [#446 — Provide a public configuration surface for privately configured BUILD/TEST tool workers on command receivers](https://github.com/jordanhubbard/literate-ai/issues/446) | WORKER-001 / COMMAND-WORKER-001: qualify private BUILD/TEST receiver configuration through the public surface. |
 | [#443 — How can retained source membership be revised after qualification?](https://github.com/jordanhubbard/literate-ai/issues/443) | Integration retained membership: establish reviewed renewal under specification authority, preserving current receipt requirements. |
 | [#379 — Select reviewed native-child authoring independently of inherited repository lineage](https://github.com/jordanhubbard/literate-ai/issues/379) | Integration native promotion: bind reviewed child authoring independently of inherited repository lineage. |
-| [#368 — Support reviewed local static intake for conservatively excluded credential-free source](https://github.com/jordanhubbard/literate-ai/issues/368) | AUTHORED-GRAPH-QUALIFICATION-001 and reviewed source intake: preserve credential refusal while qualifying explicit static review. |
+| [#368 — Support reviewed local static intake for conservatively excluded credential-free source](https://github.com/jordanhubbard/literate-ai/issues/368) | SOURCE-STATIC-INTAKE-001: preserve credential refusal while qualifying explicit static review. AUTHORED-GRAPH-QUALIFICATION-001 separately owns genuine authored origin. |
 | [#366 — Retained Make build detection can select a help-only default without explicit command admission](https://github.com/jordanhubbard/literate-ai/issues/366) | Integration retained command admission: qualify explicit build selection and supported command renewal. |
-| [#363 — Bind reviewed immutable assets through source promotion](https://github.com/jordanhubbard/literate-ai/issues/363) | Integration source promotion: retain reviewed immutable assets through graph parsing, review, acceptance and lock authority. |
+| [#363 — Bind reviewed immutable assets through source promotion](https://github.com/jordanhubbard/literate-ai/issues/363) | SOURCE-ASSET-PROMOTION-001: recover reviewed immutable assets through graph parsing, review, acceptance and lock authority. |
 | [#345 — Native Rust library edges lack supported Cargo provider dependency projection](https://github.com/jordanhubbard/literate-ai/issues/345) | CARGO-COMPAT-001 and native library integration: qualify exact provider dependency projection and nominal shared Rust types. |
 | [#323 — Use GitHub assignees as durable issue work ownership](https://github.com/jordanhubbard/literate-ai/issues/323) | SDLC-001: qualify native forge assignee ownership, verified claims and handoff semantics. |
 | [#321 — Support multi-member, cross-provider collaboration with versioned context and per-run receipts](https://github.com/jordanhubbard/literate-ai/issues/321) | SDLC-001 integration intake: retain the full multi-member/provider collaboration request; assess design, enrollment, attribution and per-run evidence. |
@@ -27414,3 +27432,74 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Initialization, adoption and update retain the bootstrap route and preserve custom agent instructions. Focused generated-project and update tests pass at `1ec47f356`, with the installed-wheel adoption check preserving the original AGENTS.md.
   - [x] Bootstrap-environment custody controls pass locally: 26 bootstrap/source-inventory/conversion tests and six project-index/materialization/OVA tests, including the no-Git source exclusion. This source change still needs exact-head installed and platform qualification.
   - [ ] Independent review, exact-head CI and noneditable installed distribution checks pass before closure.
+
+
+<a id="source-asset-promotion-001"></a>
+### [ ] SOURCE-ASSET-PROMOTION-001 — Preserve reviewed immutable assets through source promotion
+
+- **Integrated development evidence:** The focused original asset/intake source, original archive-ordering correction and shared audit-closure repair now pass 121 distinct maintained and explicitly selected helper methods without skips. Real local signatures, promotion, source custody and archive reads are exercised; qualification/ledger fixture facts remain explicit. [Recovery evidence](../../verification/source-asset-static-intake-recovery-development.json) retains exact subjects, failures and each cohort. All original genuine provider/consumer generation, installed, admission and application acceptance remains open.
+
+- **Recovery scope (2026-11-22):** Restore the accepted original PR #313 work from `77be5baf68bbeaf878a5b86151dafffe623beb2e`. Its contributor development results below remain evidence for that subject only. Implementation and evidence checkboxes here require renewal against the integrated candidate; no source or goal is retired. The original record remains [available in the retained review](https://github.com/jordanhubbard/literate-ai/blob/77be5baf68bbeaf878a5b86151dafffe623beb2e/docs/roadmap/active-work.md#source-asset-promotion-001). Collect focused asset/intake changes while preserving newer child transactions and policy review.
+
+- **GitHub issue:** [#363](https://github.com/jordanhubbard/literate-ai/issues/363)
+- **ADR:** [0067](../decisions/0067-reviewed-source-assets.md), accepted before implementation.
+- **Release target:** 1.4.0
+- **Current next action (in progress):** Collect the original accepted asset contract, exact source custody, public promotion and regressions onto current source without changing current policy review or native child transactions. Renew focused and complete source gates, then prove the clean installed data-backed generation/overlay/qualification route.
+
+- **Priority:** P1
+- **Owner:** source review, promotion materialization and existing immutable asset lifecycle
+- **Direction:** Carry explicitly reviewed source-backed assets through signed graph identity, normal promotion and the existing immutable overlay.
+- **Conclusion:** Issue #363 reproduces normal review and promotion losing an asset declaration and its changed pin. Follow accepted ADR 0067 without broadening source admission or release authority.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Add canonical optional reviewed asset selectors and strict compatible graph wire handling.
+  - [ ] Validate exact admitted source membership, pin, size and safe collision-free paths before promotion.
+  - [ ] Promote immutable bytes through typed provenance into authored Component assets and normal locks.
+  - [ ] Preserve metadata-only generation and existing overlay, qualification, admission and cache ownership.
+- **Evidence:**
+  - [ ] Normal CLI reviews bind asset changes and preserve asset-free identities; malformed declarations and unknown fields fail closed.
+  - [ ] Missing, changed, symbolic, unsafe or colliding assets fail before project writes; normal promotion retains exact data and lock metadata.
+  - [ ] Actual generation-request metadata excludes asset payload; ordinary overlay, independent acceptance and cache reuse preserve exact bytes.
+  - [ ] Managed source, promotion and existing compatibility checks pass; a clean non-editable wheel proves the public data-backed library route.
+
+Managed source checks pass seven new asset tests, eight source-translation tests,
+13 existing promotion controls and three existing public CLI journeys. Large JSON
+and binary assets retain exact bytes and lock metadata. The four-language graph
+merge preserves the reviewed selector. Normal installed generation, independent
+qualification, admission and cache reuse remain open.
+
+
+<a id="source-static-intake-001"></a>
+### [ ] SOURCE-STATIC-INTAKE-001 — Review exact credential-free source for local static intake
+
+- **Integrated development evidence:** The focused original asset/intake source, original archive-ordering correction and shared audit-closure repair now pass 121 distinct maintained and explicitly selected helper methods without skips. Real local signatures, promotion, source custody and archive reads are exercised; qualification/ledger fixture facts remain explicit. [Recovery evidence](../../verification/source-asset-static-intake-recovery-development.json) retains exact subjects, failures and each cohort. All original genuine provider/consumer generation, installed, admission and application acceptance remains open.
+
+- **Recovery scope (2026-11-22):** Restore the accepted original PR #313 work from `77be5baf68bbeaf878a5b86151dafffe623beb2e`. Its contributor development results below remain evidence for that subject only. Implementation and evidence checkboxes here require renewal against the integrated candidate; no source or goal is retired. The original record remains [available in the retained review](https://github.com/jordanhubbard/literate-ai/blob/77be5baf68bbeaf878a5b86151dafffe623beb2e/docs/roadmap/active-work.md#source-static-intake-001). Collect focused asset/intake changes while preserving newer child transactions and policy review.
+
+- **GitHub issue:** [#368](https://github.com/jordanhubbard/literate-ai/issues/368)
+- **ADR:** [0068](../decisions/0068-reviewed-static-source-intake.md), accepted under directing-operator delegation before implementation.
+- **Release target:** 1.4.0
+- **Next action:** After the focused asset collection, recover signed static-intake contracts, current source/promotion integration and the original retained-record ordering correction. Renew all controls and complete clean installed qualification and admitted consumption.
+
+
+- **Priority:** P1
+- **Owner:** Local source review, static translation and source promotion; PROJECT goals 1, 2, 4 and 6
+- **Direction:** Issue368 requires exact reviewed static intake while preserving the original sensitive inventory and no-egress policy.
+- **Conclusion:** Follow accepted ADR0068. Scope the permission to signed exact paths, preserve ordinary writers and asset readers, and require full regenerative qualification before authority transfer.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Implementation:**
+  - [ ] Add typed signed review, read-only planning and fresh approval with bounded direct-file reads and independent hard exclusions.
+  - [ ] Integrate reviewed static analysis, signed acceptance, versioned private provenance and measured qualification validation without changing original source identities.
+  - [ ] Preserve ordinary bundle5/provenance3 and asset provenance4 writers and all existing qualified-provider identities.
+  - [ ] Order the deduplicated retained-record union before archive encoding; retain strict reader and identity-conflict refusal.
+- **Evidence:**
+  - [ ] Managed positive and adversarial source, signature, scope, custody, policy-opt-in, no-egress and compatibility tests pass.
+  - [ ] A clean non-editable wheel proves public planning, approval, derive, accept, qualification and key-free admitted consumption with swapped-record refusal.
+  - [ ] Real filesystem publication/reopening accepts reverse-ordered intake additions and identical duplicates, preserves ordinary archive bytes and refuses conflicting identities before store creation.
+  - Seventy-one distinct affected tests pass in the canonical Make-managed session
+    environment, including all 23 focused intake tests and ordinary source/asset,
+    qualification archive, schema and wire-version regressions. Lint, formatting,
+    layout and public-export checks pass. Clean installed and actual application
+    qualification remain open.

@@ -183,6 +183,8 @@ lists the per-project fields and their defaults.
 - [Prefix-installed CLI self-update](decisions/0037-prefix-installed-cli-self-update.md)
 - [Continuous upstream shadow qualification](decisions/0063-continuous-upstream-shadow-qualification.md)
 - [Qualified native child revision](decisions/0066-qualified-native-child-revision.md)
+- [Reviewed immutable source assets](decisions/0067-reviewed-source-assets.md)
+- [Reviewed local static source intake](decisions/0068-reviewed-static-source-intake.md)
 - [Source trust and build-security plan](security/source-trust-and-build-policy.md)
 
 ## Migration and roadmap

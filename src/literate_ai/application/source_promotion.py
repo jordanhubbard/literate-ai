@@ -53,9 +53,15 @@ class SourcePromotionService:
         return self._materializer.audit(inputs)
 
     def assess_source_exclusion(
-        self, audit: GenerationInputAudit, source_inventory: SourceInventory
+        self,
+        audit: GenerationInputAudit,
+        source_inventory: SourceInventory,
+        *,
+        authored_asset_bindings=(),
     ) -> SourceExclusionAssessment:
-        return assess_source_exclusion(audit, source_inventory)
+        return assess_source_exclusion(
+            audit, source_inventory, authored_asset_bindings=authored_asset_bindings
+        )
 
     def verify_evidence(
         self,

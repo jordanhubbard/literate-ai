@@ -333,6 +333,12 @@
       },
       {
         "id": "RELEASE-CLOSURE-001"
+      },
+      {
+        "id": "SOURCE-ASSET-PROMOTION-001"
+      },
+      {
+        "id": "SOURCE-STATIC-INTAKE-001"
       }
     ]
   }

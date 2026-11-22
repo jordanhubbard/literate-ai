@@ -71,6 +71,62 @@ or signed release provenance.
 
 ## 2. Derive and inspect
 
+### Review conservatively excluded local source
+
+The default inventory can classify credential-free JavaScript or TypeScript as
+sensitive when it contains a credential-shaped field name. For example, a
+`clientSecret` field read from the caller's environment remains excluded by
+default. An explicit review permits local static analysis of exact selected
+files while preserving their original bytes, classifications and inventory identity.
+
+The reviewer must inspect each selected file and confirm that it contains no
+actual credential. A deliberately public local test value also needs that review.
+A signature records this assertion; it cannot establish that an arbitrary literal
+is public. Private keys, sensitive filenames, unsupported languages, generated,
+binary, minified, oversized and invalid UTF-8 files remain ineligible.
+
+Keep the key, plans and reviews outside the source tree. Use the existing origin
+attestation and the same trusted local key:
+
+```console
+litai spec intake plan path/to/source --file auth.ts \
+  --attestation attestation.json --trust-key local-source.key > intake-plan.json
+litai spec intake approve intake-plan.json --source path/to/source \
+  --attestation attestation.json --actor local-reviewer \
+  --reason "Reviewed exact credential-free source for local static analysis" \
+  --key local-source.key --acknowledge --expect-plan PLAN_ID \
+  --output intake-review.json
+litai spec derive path/to/source --translator static \
+  --attestation attestation.json --trust-key local-source.key \
+  --intake-review intake-review.json > bundle.json
+```
+
+Replace `PLAN_ID` with the inspected plan's identity. Approval recomputes the
+plan, refuses changed source or origin, and creates a new review file without
+replacing existing files. Select one to 32 explicit relative source paths;
+globs, traversal and symbolic links are refused.
+
+This permission enables no source execution or model egress. Model selection,
+model translation and egress flags are refused on this route. Unreviewed sensitive
+files remain excluded. Signed intent review and ordinary `spec accept` are still
+required. Review-bearing bundles use version 6 and private promotion records use
+version 5. Ordinary bundle and promotion writers keep their existing versions.
+The private intake review stays outside forward generation inputs.
+
+Human review is the default. When the operator has explicitly delegated review,
+select `--authority authorized-policy` and a truthful actor at approval. Derivation
+and acceptance each require their separate `--allow-authorized-policy-intake`
+opt-in. An intent review under policy authority separately requires
+`--allow-authorized-policy-review` at acceptance. These records never represent
+operator security acceptance.
+
+During `spec qualify`, supply `--intake-trust-key local-source.key` and the separate
+policy-intake opt-in when applicable. Qualification rechecks the review signature,
+exact source and hard exclusions before generation and before authority transfer.
+Its retained validation binds the source, promotion, review, trust-key identity
+and measured qualification result. Later qualified readers check that exact
+projection-bound validation without retaining or requiring the private key.
+
 ```console
 litai spec derive path/to/source \
   --attestation attestation.json \
@@ -145,6 +201,19 @@ A reviewed `library` graph deliberately carries an empty entrypoint set. On forw
 generation, the selected language Flavor projects its public capabilities into an exact
 package/module/symbol import surface; generated source must implement that surface and a
 framework-only generated-test adapter, not invent a CLI application.
+
+A graph node may declare immutable data in its optional `assets` array using the
+normal Component asset selector: `asset_id`, baseline-relative `source`, assembled
+runtime `path`, `role`, `media_type`, and exact `pin`. Review binds every selector
+to the full source inventory. Binary and large data files need not appear in the
+node's behavioral `source_paths`; their bytes remain outside model text inputs.
+Sensitive inputs, missing files, changed pins, unsafe paths and output collisions
+are refused. Acceptance freezes the reviewed bytes, copies them to the owning
+Component's `assets/<asset_id>` file, authors its selector, and locks the exact
+digest, size and media type through the normal asset resolver. Promotion records
+bind that copy to the original inventory entry. Qualification still requires the
+ordinary immutable overlay and independent acceptance; declaring data does not
+transfer implementation authority. Graphs without assets keep their identities.
 
 ## 3. Review uncertainty
 

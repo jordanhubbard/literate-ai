@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Source promotion recovery: restore reviewed immutable asset declarations and
+  signed local static intake from accepted ADRs 0067 and 0068. Keep ordinary
+  writers, original source inventory, private qualification bindings and exact
+  archive reopening. Local controls pass; installed and release renewal remain open.
+- Promotion evidence: restore ordinary generation-closure audit/tree validation
+  outside Standard rebind, retaining migration and qualification checks. Preserve
+  the original failed control and add it to maintained test discovery.
+
 - Windows ARM64 installation: declare the native C++/Rust/Cargo and complete
   OpenSSL development SDK needed to source-build pinned Python dependencies.
   Bind child build variables to the observed SDK, reject conflicting native

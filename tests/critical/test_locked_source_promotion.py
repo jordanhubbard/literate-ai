@@ -176,6 +176,21 @@ class LockedSourcePromotionTests(unittest.TestCase):
             qualification_lifecycle_result=fresh_qualification,
         )
 
+    def test_generation_closure_must_bind_the_verified_promotion_audit(self):
+        for changes in (
+            {"promotion_tree_identity": _identity("another-promotion-tree")},
+            {"promotion_input_audit_identity": _identity("another-promotion-audit")},
+        ):
+            with self.subTest(changes=changes):
+                with self.assertRaises(SourcePromotionError) as drifted:
+                    replace(
+                        self.evidence,
+                        generation_closure=replace(self.closure, **changes),
+                    )
+                self.assertEqual(
+                    drifted.exception.code, "promotion.lifecycle_evidence_drift"
+                )
+
     def test_standard_rebind_migration_reopens_and_binds_old_and_new_runs(self):
         root = Path(self.temporary.name) / "rebound"
         root.mkdir()
@@ -351,6 +366,11 @@ class LockedSourcePromotionTests(unittest.TestCase):
         ).write_text(json.dumps(current_qualification.to_dict()))
         reopened_current = verify_source_promotion_evidence(root, current_qualified)
         self.assertEqual(reopened_current.standard_rebind_migration, migration)
+        with self.assertRaises(SourcePromotionError) as missing_closure:
+            replace(reopened_current, generation_closure=None)
+        self.assertEqual(
+            missing_closure.exception.code, "promotion.rebind_migration_invalid"
+        )
 
         stale_qualification = qualification_for(prior_driver, "stale-workspace")
         stale_projection = replace(

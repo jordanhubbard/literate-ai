@@ -406,13 +406,50 @@ class AuthoredRoleTests(unittest.TestCase):
                 self.assertEqual(owner.plan.authored_lock, lock)
 
     def test_canonical_cell_inside_source_refuses_before_effects(self):
+        from literate_ai.adapters.retained_layout_source_roles import _BOUND, _FACTS
+
         cell = self.source / "matrix-cell"
         cell.mkdir(mode=0o700)
+        original = self.source.stat().st_ino, cell.stat().st_ino
+        content = (self.source / "app.py").read_bytes()
         with mock.patch.dict(os.environ, {"LITAI_MATRIX_CELL_ROOT": str(cell)}):
-            with self.assertRaises(ValueError):
-                with self.prepare():
-                    self.fail("canonical storage inside moving source was admitted")
+            lock = ComponentLockStore(self.source.parent).path
+            self.assertFalse(lock.exists())
+            with self.prepare() as owner:
+                # Forest planning keeps canonical ancestors fixed. It does not
+                # authorize the legacy whole-directory source executor.
+                self.assertIsNotNone(owner.plan.source_forest)
+                with owner._reads():
+                    facts = _FACTS[_BOUND[owner]]
+                    self.assertIn(
+                        cell.relative_to(self.project).as_posix(),
+                        facts.graph.fixed_directories,
+                    )
+                with self.pool(owner.plan) as (pool, _journal):
+                    with (
+                        mock.patch.object(
+                            transaction, "move_layout_entry_exclusive"
+                        ) as move,
+                        mock.patch.object(transaction._MetadataArea, "stage") as stage,
+                    ):
+                        with self.assertRaisesRegex(
+                            ValueError, "multi-carrier executor"
+                        ):
+                            with owner.source_phase(
+                                pool,
+                                acknowledged_plan_identity=owner.plan.identity,
+                                allow_host_execution=True,
+                            ):
+                                self.fail(
+                                    "shared canonical storage entered legacy move"
+                                )
+                        move.assert_not_called()
+                        stage.assert_not_called()
+                owner.require_current()
+            self.assertFalse(lock.exists())
         self.assertTrue(self.source.is_dir())
+        self.assertEqual(original, (self.source.stat().st_ino, cell.stat().st_ino))
+        self.assertEqual((self.source / "app.py").read_bytes(), content)
         self.assertFalse(self.destination.exists())
 
     def test_absent_canonical_lock_under_actual_source_case_alias_refuses(self):

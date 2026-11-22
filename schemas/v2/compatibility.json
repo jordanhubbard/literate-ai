@@ -115,6 +115,7 @@
     "urn:literate-ai:schema:v2:generation-input-audit",
     "urn:literate-ai:schema:v2:source-promotion-provenance",
     "urn:literate-ai:schema:v3:source-promotion-provenance",
+    "urn:literate-ai:schema:v4:source-promotion-provenance",
     "urn:literate-ai:schema:v1:inverse-evidence-custody",
     "urn:literate-ai:schema:v1:semantic-requirement-graph",
     "urn:literate-ai:schema:v1:semantic-comparison-model-output",
@@ -300,7 +301,11 @@
     "literate-ai/authored-retained-cargo-binding@1",
     "literate-ai/authored-retained-cargo-admission-receipt@1",
     "literate-ai/authored-retained-cargo-provisioning@1",
-    "literate-ai/retained-python-workspace-plan@1"
+    "literate-ai/retained-python-workspace-plan@1",
+    "urn:literate-ai:schema:v5:source-promotion-provenance",
+    "urn:literate-ai:schema:v1:source-static-intake-plan",
+    "urn:literate-ai:schema:v1:source-static-intake-review",
+    "urn:literate-ai:schema:v1:source-static-intake-validation"
   ],
   "read_paths": [
     {

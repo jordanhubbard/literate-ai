@@ -117,6 +117,14 @@ development (2026-09-10):
 
 ## Current work
 
+SOURCE-ASSET-PROMOTION-001 and SOURCE-STATIC-INTAKE-001 restore the accepted
+PR #313 work under Goals 1, 2, 4 and 6. Preserve exact source-backed immutable
+assets, signed bounded local static intake, conservative original inventory and
+ordinary qualification authority. ADRs [0067](docs/decisions/0067-reviewed-source-assets.md)
+and [0068](docs/decisions/0068-reviewed-static-source-intake.md) retain their original
+accepted decisions. Contributor development evidence remains historical until
+focused collection, complete regression and clean installed qualification renew it.
+
 The retained Python bridge now has an internal read-only dependency-record
 projection sharing the existing Standard Python verifier. It binds bounded
 metadata and complete recorded payload inventories to current build, source,

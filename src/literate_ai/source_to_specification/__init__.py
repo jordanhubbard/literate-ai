@@ -147,6 +147,7 @@ from .promotion_materialization import (
     GENERATION_INPUT_AUDIT_SCHEMA,
     PREVIOUS_SOURCE_PROMOTION_PROVENANCE_SCHEMA,
     QUALIFICATION_REBIND_MIGRATION_SCHEMA,
+    REVIEWED_SOURCE_PROMOTION_PROVENANCE_SCHEMA,
     SOURCE_PROMOTION_PROVENANCE_SCHEMA,
     GenerationInputAudit,
     GenerationInputAuditEntry,
@@ -235,6 +236,17 @@ from .skills import (
     load_skill_manifests,
     resolve_skill_set,
 )
+from .static_intake import (
+    StaticIntakeFile,
+    StaticIntakePlan,
+    StaticIntakeReview,
+    StaticIntakeValidation,
+    create_static_intake_plan,
+    read_static_intake_document,
+    sign_static_intake_review,
+    verify_static_intake_review,
+    verify_static_intake_signature,
+)
 from .static_workflow import StaticDerivation, derive_static_checkout
 from .wire_migrations import (
     V1_SOURCE_TO_SPECIFICATION_RESULT_SCHEMA,
@@ -261,6 +273,16 @@ from .workflow import (
 )
 
 __all__ = [
+    "StaticIntakeFile",
+    "StaticIntakePlan",
+    "StaticIntakeReview",
+    "StaticIntakeValidation",
+    "create_static_intake_plan",
+    "read_static_intake_document",
+    "sign_static_intake_review",
+    "verify_static_intake_review",
+    "verify_static_intake_signature",
+    "REVIEWED_SOURCE_PROMOTION_PROVENANCE_SCHEMA",
     "EVIDENCE_PARTITION_MANIFEST_SCHEMA",
     "MODEL_EVIDENCE_BATCH_PLAN_SCHEMA",
     "BEHAVIORAL_SURFACE_INVENTORY_SCHEMA",

@@ -1,0 +1,223 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Focused recovery of accepted source-asset/static-intake work, original archive ordering, and restored ordinary audit closure; no whole-provider, installed or release qualification",
+  "collection_base": "7644aa4ebdc94e5cf8850956d176b321fd295247",
+  "source_review_head": "77be5baf68bbeaf878a5b86151dafffe623beb2e",
+  "source_commits": [
+    "6f3c2237391bf3c3e8f5778ff85b1e2ec3655ef2",
+    "d19b8fdbaa76131c43f47b828bec91a3001ee033",
+    "77be5baf68bbeaf878a5b86151dafffe623beb2e"
+  ],
+  "source_sha256": {
+    "schemas/v2/compatibility.json": "2199b771a726b4ab960d9b87e72758b57e192d789822e20b6b09ee0cd2bda281",
+    "schemas/v2/index.json": "54e0853c65d5de0f7662d0296cd7644870b07b589d9b5fdd5d841033a8de60ff",
+    "schemas/v2/source-promotion.schema.json": "a80e25b524ee99ada6f2b72d02b740c95622f7bd87a8ad1b855bd1af1a843b10",
+    "schemas/v2/source-static-intake.schema.json": "4a5da666f34af5f3a9602450d57f971818999aa73447a1db452dfa898b6880f9",
+    "schemas/v2/source-to-specification-v3.schema.json": "e1872aab3a2a0b44e897d7ad07257c0f66d8ed28d9d640bded5c997acfc7a688",
+    "schemas/v2/source-translation-semantics.schema.json": "cdf0a31c9e57e88565dad740154c3635f6c5acd796fc6f7394eb635e3a7166d8",
+    "src/literate_ai/application/source_promotion.py": "6531a494634e479a7787c9b2f658e171254863bf65f6f814d6ae0cea32589cdc",
+    "src/literate_ai/cli/_wire.py": "51f1723437a27e316de9c49326cf9f4aa24922bd842b32b21398641f6eee3ddd",
+    "src/literate_ai/cli/source_to_specification.py": "e051abeffb52bfcda0cdc9743dbd2ce17df08b5dae2f7916992af5d3a68454b9",
+    "src/literate_ai/schema_catalog.py": "668fcd49152746693cb17b1c72b44fa040e889452bce027424fcaadd34f2068e",
+    "src/literate_ai/source_to_specification/__init__.py": "e50242219a28fcaaefa7c41bfd880b7527c6985b7546c7d9d65b0fa8ba55fa7c",
+    "src/literate_ai/source_to_specification/contracts.py": "ea57ba39b9a76f67dc84f0c198e0a6f4735386f30957c2511334011870bb1a6e",
+    "src/literate_ai/source_to_specification/inventory.py": "5491df4a5f4132edde3aee328210c7999b7f45bc9a8e4db5242e934ca9d51339",
+    "src/literate_ai/source_to_specification/model_workflow.py": "f6105eef08dbfb0ac16822f4a997dea0f9152fd154fb3e6037fc08ccdf6821f0",
+    "src/literate_ai/source_to_specification/promotion_materialization.py": "8066c41fd8aed3ada745fef66f65ee27955b126dc29c0eb29abd9cc0093d3e17",
+    "src/literate_ai/source_to_specification/reviewed_assets.py": "a393dc2ff99f46b1c83e7e58d852693ce790c5d4f9aa3fe1386061d85ac52347",
+    "src/literate_ai/source_to_specification/static_intake.py": "34bd4cb4f142501aeba3ffd588e42efa9bdc11396430eb1c6f208fc060d9b3d5",
+    "src/literate_ai/source_to_specification/static_workflow.py": "fd2a0b86587646a32d209bdcebe49db691e5535bbb063b5cbcffb513e035eb25",
+    "tests/critical/test_locked_source_promotion.py": "441646fcbfe7faa831c1913eb5e2c195ab1a3513bf919b5415007047a1c2ac56",
+    "tests/critical/test_reviewed_source_assets.py": "140420eb76404e4e8ff760ddf2c2ab198e859c1f38fc8409b23a89d00d3173e8",
+    "tests/critical/test_static_intake_qualification.py": "a00c45f64d3f9b08e60f39f91e5d884b9c6122a8988311ca47b7d6a7be2db84e",
+    "tests/critical/test_static_intake_review.py": "0bc7f0b1c4dc3f3ab55abb3a32cc062e294fbf03f7e8ed9e2c485039a1ccfd96",
+    "tests/e2e/test_cli_static_intake_review.py": "6c81b5eb5062f6f870a82ad8bf0a4a45a1ef59c3c14dae5aa0bbcdb3911f758c",
+    "tests/smoke/test_model_source_to_specification.py": "33df033f5e02286d6605dab8568e6667c31227ae8ab10272749d04ea8ae8d1e8"
+  },
+  "cohorts": [
+    {
+      "name": "pr313-intake-critical-first",
+      "summary": {
+        "executed": 17,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 17,
+        "selected": 17,
+        "skipped": 0
+      },
+      "report_sha256": "ec5c7f3ab1dd40646874213b743167882b8ff13471b2c4eeb0d00eed9f991006",
+      "explicit_helper_selection": false
+    },
+    {
+      "name": "pr313-intake-public-first",
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "report_sha256": "fec6ad88b96e8803c0dc5946919345a7cbf3a2576f50692944a22f2ae8805a3f",
+      "explicit_helper_selection": false
+    },
+    {
+      "name": "pr313-final-assets",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "report_sha256": "e11bca3bb77151e5bafffd1496a1f4d9ba3d6e95985d53732cc0a4797411f103",
+      "explicit_helper_selection": false
+    },
+    {
+      "name": "pr313-final-promotion",
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "report_sha256": "4e3a238ce0a2d2142238a7fd0bf63b0129be1e3d23f6858923c5e60352d7def8",
+      "explicit_helper_selection": false
+    },
+    {
+      "name": "pr313-final-qualification-capture",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "report_sha256": "7816df7e1e793f8f4b54b5f3fddc02c9d80b8d634e1ec651d5d1c9f8b1850c52",
+      "explicit_helper_selection": false
+    },
+    {
+      "name": "pr313-final-public-inverse",
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      },
+      "report_sha256": "ac57388fa141bdd7d62d09880e9d99e53ecaca322bd4dc2b51f26f40e995c9e4",
+      "explicit_helper_selection": false
+    },
+    {
+      "name": "pr313-final-legacy-capture",
+      "summary": {
+        "executed": 39,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 39,
+        "selected": 39,
+        "skipped": 0
+      },
+      "report_sha256": "88bd2c441834f5fc3892beb3710d1b7413d117730dabda3a08d18a034691a706",
+      "explicit_helper_selection": true
+    },
+    {
+      "name": "pr313-final-legacy-cargo-import",
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "report_sha256": "4e6d7b2e78964f7a82bdf8f4b82116a59062d7530db4a74295fac71203346ef1",
+      "explicit_helper_selection": true
+    },
+    {
+      "name": "pr313-final-legacy-locked",
+      "summary": {
+        "executed": 24,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 24,
+        "selected": 24,
+        "skipped": 0
+      },
+      "report_sha256": "b50758180f99f1832ee0ee6b8e9e5cca1c43b6d3e88545b3f3c66fbaa031fd93",
+      "explicit_helper_selection": true
+    },
+    {
+      "name": "pr313-final-schema-regression",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "report_sha256": "f1ee84b033f95945d16e83eccc6c0efcd16e6f7f3637db62765bb10c14730a72",
+      "explicit_helper_selection": false
+    }
+  ],
+  "passed_distinct_test_keys": 121,
+  "failed": 0,
+  "skipped": 0,
+  "restored_manifest_goals": {
+    "original_prefix_preserved": 81,
+    "current_total": 83,
+    "goals": [
+      "SOURCE-ASSET-PROMOTION-001",
+      "SOURCE-STATIC-INTAKE-001"
+    ]
+  },
+  "current_schema_catalogue": {
+    "v2_files": 135,
+    "v2_resources": 615,
+    "v1_unchanged": true,
+    "all_original_writer_contracts_preserved": true
+  },
+  "qualified_generation_oracle_fixture_ports": true,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "provider_consumer_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "Original tests exercise real local review signatures, promotion, source custody and archive files. Qualification lifecycle/ledger fixture facts do not establish a real regenerated and admitted provider or consumer.",
+    "Original asset metadata-only generation, overlay, two clean qualification runs, separate admission, cache reuse and consuming integration remain required.",
+    "Original installed static plan/approval/derive/accept/qualification and key-free admitted consumption remain required.",
+    "The failed complete 8c428 source attempt remains a failure; its unrelated layout-control reconciliation requires a fresh full source run."
+  ],
+  "retained_failures": [
+    "Explicit legacy locked-promotion selection: 2 passed, 1 failed before restoring the ordinary closure/audit invariant; 24 selected.",
+    "Maintained ordinary closure/audit regression: 1 failure before repair; 6 selected.",
+    "Initial recovered lint refused one long diagnostic string; wrapped without semantic change.",
+    "Catalogue refused missing explicit v4 asset writer in compatibility metadata; registered the named writer without dropping existing contracts."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "c9ef368a488d79b4230e280a9879601b779e852cb9a4effdd134990aba55aa96",
+  "verify": {
+    "exit_code": 1,
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "driver_or_receipt_pins_changed": false
+  }
+}

@@ -392,8 +392,22 @@ class ForestMetadataReplayTests(unittest.TestCase):
         entered = []
         with self.assertRaisesRegex(ValueError, "allowance"):
             with self.acquired() as (owner, current):
+                # Exact known-roster streaming now fits this unchanged ceiling;
+                # the separate complete native control proves that case. Apply
+                # explicit same-ledger metadata pressure without changing the
+                # original ceiling/reserve. Preparation itself must still fit;
+                # the observer's next prepayment must refuse before endpoints.
+                ledger = observation._record(owner).ledger
+                remaining = ledger.metadata - ledger.charged
+                self.assertGreaterEqual(remaining, 64)
+                ledger.charge_records(0, remaining // 64)
+                ledger.require_capacity()
                 with mock.patch.object(
-                    os, "open", side_effect=AssertionError("unfunded source open")
+                    current_native,
+                    "_EndpointReads",
+                    side_effect=AssertionError(
+                        "unfunded current-source endpoint access"
+                    ),
                 ):
                     entered.append(True)
                     current_native.observe_current_native_forest(owner, current)
