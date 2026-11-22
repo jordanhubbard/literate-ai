@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Native ARM64 CI: select the fresh registered Python after WinGet replaces the
+  setup-python installation, verify its actual native runtime, and pass its
+  absolute executable to the supported installer.
+
 - Native ARM64 CI: provision the declared WinGet Python package before starting
   the installer controller, then recheck its native runtime and required standard
   library. Keep the supported installer's full dependency and installed-host

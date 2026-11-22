@@ -19398,6 +19398,12 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   The unchanged supported installer still verifies the full composed contract,
   installs remaining prerequisites and builds the exact noneditable candidate;
   every installed-host acceptance assertion remains required.
+  Run `45057642552` confirms that provisioning succeeds but the former
+  `hostedtoolcache` Python executable is removed. Resolve the fresh CPython
+  registration using the [Windows registry contract](https://peps.python.org/pep-0514/),
+  preferring the current user's ARM64 tag. Check actual native execution and
+  required standard-library imports before passing that exact executable to the
+  supported installer. A registration string alone is never architecture proof.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was

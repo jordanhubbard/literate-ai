@@ -145,12 +145,44 @@ jobs:
               2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stderr')
             if ($LASTEXITCODE -ne 0) { throw 'Declared native Python provisioning failed' }
           }
-          $nativePython = Join-Path $env:pythonLocation 'python.exe'
+          $setupPython = Join-Path $env:pythonLocation 'python.exe'
+          if ($package -cnotmatch '^Python\.Python\.(\d+\.\d+)$') {
+            throw 'Require a declared CPython major/minor package'
+          }
+          $pythonVersion = $Matches[1]
+          $nativePython = $null
+          $registration = $null
+          foreach ($hive in @('HKCU:', 'HKLM:')) {
+            foreach ($tag in @("$pythonVersion-arm64", $pythonVersion)) {
+              $registryPath = "$hive\Software\Python\PythonCore\$tag\InstallPath"
+              $key = Get-Item -LiteralPath $registryPath -ErrorAction SilentlyContinue
+              if (-not $key) { continue }
+              try {
+                $candidate = [string]$key.GetValue('ExecutablePath')
+                if (-not $candidate) { $candidate = Join-Path ([string]$key.GetValue('')) 'python.exe' }
+                if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                  $nativePython = $candidate
+                  $registration = $registryPath
+                }
+              } finally { $key.Close() }
+              if ($nativePython) { break }
+            }
+            if ($nativePython) { break }
+          }
+          if (-not $nativePython) { throw 'Declared Python has no usable registry executable' }
+          @{
+            package = $package
+            registration = $registration
+            executable = $nativePython
+            setup_python = $setupPython
+            setup_python_still_exists = (Test-Path -LiteralPath $setupPython -PathType Leaf)
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'python-selection.json') -Encoding utf8
           $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
           & $nativePython -I -B -c 'import codecs,ensurepip,json,runpy,ssl,sys,venv; codecs.lookup("idna"); print(json.dumps({"executable":sys.executable,"prefix":sys.prefix,"native":runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()}))' $harness `
             1> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.json') `
             2> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.stderr')
           if ($LASTEXITCODE -ne 0) { throw 'Selected native Python must remain usable after provisioning' }
+          "QUALIFICATION_PYTHON=$nativePython" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Install the exact noneditable framework using its supported installer
         shell: pwsh
         env:
@@ -159,7 +191,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
           $env:PATH = "$env:PATH;$applications"
-          $nativePython = Join-Path $env:pythonLocation 'python.exe'
+          $nativePython = $env:QUALIFICATION_PYTHON
           $installer = Join-Path $env:QUALIFICATION_SOURCE 'scripts/install_litai.py'
           $prefix = Join-Path $env:QUALIFICATION_ROOT 'p'
           & $nativePython $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
