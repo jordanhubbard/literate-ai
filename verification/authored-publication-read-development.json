@@ -1,0 +1,104 @@
+{
+  "boundaries": {
+    "full_provider_checks": "Fresh entry and completion checks on each read-only bounded read; no bytes returned before closing check",
+    "limits": "Existing byte/path/count bounds unchanged",
+    "namespace": "Original directory owner checks before and after traversal and after final provider check; same descriptor/name/leaf comparisons",
+    "reuse": "No currentness cache or cross-call result reuse",
+    "writer": "Existing create/write provider checks remain in place"
+  },
+  "classification": "Native bounded publication-read development; full provider checks enclose every complete read; no receiving admission",
+  "consumer_admitted": false,
+  "full_source_qualified": false,
+  "goal": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "independent_review_of_new_source": false,
+  "installed_candidate_qualified": false,
+  "native_reports": {
+    "publication-regression": {
+      "sha256": "05f098217efe6a4f449dadfabf1b126d5f3eed39a647996dd74e6fe1cca9643d",
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 15,
+        "skipped": 0
+      }
+    },
+    "read-boundary": {
+      "sha256": "98ad7a99cb5c9136f19950609e1658edf20cefc607821bae6aaf25c7654df3e8",
+      "summary": {
+        "executed": 3,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 3,
+        "selected": 3,
+        "skipped": 0
+      }
+    }
+  },
+  "native_windows_qualified": false,
+  "paired_predecessor_diagnostic": {
+    "candidate_source_sha256": {
+      "src/literate_ai/adapters/authored_publication_files.py": "a986db6f378110209d182347a018ab6b3a6d18077f488674ff0f66a2a91a94dd"
+    },
+    "completed": true,
+    "consumer_admitted": false,
+    "deadline_seconds": 300,
+    "distribution_provenance_covers_candidate_functions": false,
+    "generation_requested": false,
+    "qualified": false,
+    "samples": [
+      {
+        "authority_guards": 72,
+        "mode": "baseline",
+        "native_input_reads": 29376,
+        "original_seven_oracles_unchanged": true,
+        "plan_identity_unchanged": true,
+        "seconds": 20.641637,
+        "source_byte_mode_snapshot_unchanged": true
+      },
+      {
+        "authority_guards": 60,
+        "mode": "candidate",
+        "native_input_reads": 24480,
+        "original_seven_oracles_unchanged": true,
+        "plan_identity_unchanged": true,
+        "seconds": 12.277613,
+        "source_byte_mode_snapshot_unchanged": true
+      },
+      {
+        "authority_guards": 60,
+        "mode": "candidate",
+        "native_input_reads": 24480,
+        "original_seven_oracles_unchanged": true,
+        "plan_identity_unchanged": true,
+        "seconds": 10.952698,
+        "source_byte_mode_snapshot_unchanged": true
+      },
+      {
+        "authority_guards": 72,
+        "mode": "baseline",
+        "native_input_reads": 29376,
+        "original_seven_oracles_unchanged": true,
+        "plan_identity_unchanged": true,
+        "seconds": 17.689584,
+        "source_byte_mode_snapshot_unchanged": true
+      }
+    ],
+    "scope": "Actual installed predecessor project and native guards, with candidate functions temporarily patched IN MEMORY for a development comparison only",
+    "seconds": 169.469
+  },
+  "release_qualified": false,
+  "remaining": [
+    "Independent implementation review",
+    "Exact combined full source and integrated CI",
+    "Current noneditable installed public receiving/materialization/admission and original consumer gates",
+    "All other selected roadmap and release requirements"
+  ],
+  "schema": "literate-ai/verification-record@1",
+  "source_retired": false,
+  "source_sha256": {
+    "src/literate_ai/adapters/authored_publication_files.py": "a986db6f378110209d182347a018ab6b3a6d18077f488674ff0f66a2a91a94dd",
+    "tests/critical/test_authored_publication_read_boundary.py": "53defab008067fc7649d85b2e7b7ea37f2588afbfc760881d232620da7434451"
+  }
+}

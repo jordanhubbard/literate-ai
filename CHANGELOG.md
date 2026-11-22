@@ -10,6 +10,10 @@
 - CI maintenance: include the reviewed, SHA-pinned FreeBSD VM 1.6.0 and Bazel
   setup 0.19.2 action updates. Integrated native execution and CI qualification
   remain pending.
+- Authored publication reads: retain full current-provider checks around each
+  complete bounded read, and validate owned directory traversal through its native
+  namespace owner. Writer checks are unchanged. Native drift controls pass;
+  installed receiving and full release qualification remain pending.
 
 - Authored qualification: project oracle identities privately inside one captured
   native plan guard, then close the original owners after all native callbacks.

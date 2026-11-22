@@ -72,7 +72,7 @@ class AuthoredPublicationFiles:
             self.active = False
             self.stack.close()
 
-    def require_current(self):
+    def _require_original_owner(self):
         if not self.active:
             raise ValueError("qualification.authored.publication_owner_expired")
         if self._original != (self, self.current, self.root, self.writable):
@@ -83,12 +83,20 @@ class AuthoredPublicationFiles:
             raise ValueError(
                 "qualification.authored.original_publication_owner_required"
             )
-        self.current.require_unchanged()
+
+    def _require_namespace(self):
+        self._require_original_owner()
         if self.access is not None:
             self.access.require_current()
         else:
             for check in self.held.values():
                 check()
+        self._require_original_owner()
+
+    def require_current(self):
+        self._require_original_owner()
+        self.current.require_unchanged()
+        self._require_namespace()
 
     @staticmethod
     def parts(relative):
@@ -97,8 +105,11 @@ class AuthoredPublicationFiles:
             raise ValueError("qualification.authored.publication_path_limit")
         return parts
 
-    def _directory(self, parts, *, create=False, exclusive=False):
-        self.require_current()
+    def _directory(self, parts, *, create=False, exclusive=False, _read_only=False):
+        if _read_only and (self.writable is not False or create or exclusive):
+            raise ValueError("qualification.authored.publication_read_only")
+        check = self._require_namespace if _read_only else self.require_current
+        check()
         for index, name in enumerate(parts):
             parent = parts[:index]
             child = parts[: index + 1]
@@ -127,7 +138,7 @@ class AuthoredPublicationFiles:
                     )
                 elif create and exclusive and index == len(parts) - 1:
                     raise FileExistsError(path)
-        self.require_current()
+        check()
         return self.access.directory(parts)[0] if self.access is not None else None
 
     def mkdir(self, relative, *, exclusive=False):
@@ -144,7 +155,15 @@ class AuthoredPublicationFiles:
         if type(max_bytes) is not int or max_bytes <= 0:
             raise ValueError("qualification.authored.publication_byte_limit")
         parts = self.parts(relative)
-        parent = self._directory(parts[:-1])
+        read_only = self.writable is False
+        if read_only:
+            # This whole bounded read is enclosed by fresh complete provider
+            # checks. Walking already-owned directories needs their native
+            # namespace checks, without independently replanning the provider
+            # before opening each leaf. No bytes leave before the closing full
+            # check; writer and create paths retain their existing checks.
+            self.require_current()
+        parent = self._directory(parts[:-1], _read_only=read_only)
         name, kwargs = self._location(parts, parent)
         flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
         flags |= getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_CLOEXEC", 0)
