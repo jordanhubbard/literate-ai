@@ -1,0 +1,72 @@
+{
+  "schema": "literate-ai/independent-review@1",
+  "state": "source-reviewed-local-qualified",
+  "reviewer": "sdlc_review",
+  "base_revision": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
+  "review_identity": "sha256:c9d72b875b343a9099dfc5a3f514cc55735d06df7703d042ef39888cf64471e0",
+  "subjects": [
+    {
+      "path": "src/literate_ai/project_releases.py",
+      "sha256": "a9e8ac8122c7e638d6a125b5d62588385e1de85e5e1b85d2b90c9d2e3bb16d18"
+    },
+    {
+      "path": "tests/e2e/test_release_ci_selection.py",
+      "sha256": "aa4e534f3b1171f778dc5a4e67813e9a5f8523106b15fadb769763eb60f23b53"
+    },
+    {
+      "path": "docs/roadmap/existing-repository-delivery.md",
+      "sha256": "f461afd8d4033acd9cf4c9172caad0893a9fb551df59d1b13edcf1a83995e136"
+    },
+    {
+      "path": "verification/ci-run-selection-development.json",
+      "sha256": "a7bf9a8ac20b7321cb11f4c35a0b1e6c7b1ca2ef418e2a10299f2734f5b2a7c1"
+    }
+  ],
+  "independent_controls": {
+    "maintained_passed": 7,
+    "maintained_seconds": 6.995,
+    "boundary_controls_passed": 11
+  },
+  "author_controls": {
+    "selected": 24,
+    "passed": 24,
+    "seconds": 20.433
+  },
+  "observed_provider_read": {
+    "run": 44000908565,
+    "workflow": 371226487,
+    "number": 1090,
+    "attempt": 1,
+    "status": "completed",
+    "conclusion": "success",
+    "scope": "Actual read-only metadata normalization, no release or artifact admission."
+  },
+  "remaining": [
+    "Preserve the reviewed process registration/cleanup fix from PR457 during composition.",
+    "Installed/native and exact combined qualification."
+  ],
+  "nonblocking_advisory_limits": [
+    "Existing failed-log capture and attempt targeting are outside the bounded metadata collector.",
+    "Forge-host binding remains an existing boundary."
+  ],
+  "release_qualification": false,
+  "full_local": {
+    "executed": 2802,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 2802,
+    "selected": 2894,
+    "skipped": 92,
+    "seconds": 3246.765,
+    "workers": 2,
+    "report_sha256": "168e4ce078ba930e630c1b3ea080c161dc3a1d157d32898af6f8fbe1f5a788d8",
+    "log_sha256": "3d201005a60ee7ab1c84d344f873c63bff065c7c76ccb1b5642dfb4cae6319a1",
+    "additional_gates": [
+      "driver-review",
+      "runner-review",
+      "documentation-review",
+      "lint",
+      "format-check"
+    ]
+  }
+}

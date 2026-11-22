@@ -516,6 +516,12 @@ drop platform/feature goals to manufacture a faster green release.
 
 ## Native CI verification implementation
 
+The earlier [exact CI selection repair](../history/roadmap/pr-460-ci-selection.md)
+and its three verification records are retained from PR #460. History
+reconciliation preserves the current extracted collector, tested-file and
+cell-coverage owners, complete tests and original lifecycle pin. This adds no
+current source or release qualification.
+
 SDLC-001 and ORIGINAL-ADOPT-001 own the next contained-adoption slice; no new
 roadmap owner or local execution lifecycle is introduced. The independent design
 review selects a read-only `litai project ci verify --pr NUMBER` observation of
