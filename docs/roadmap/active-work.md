@@ -25482,6 +25482,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Owner:** Framework core; native retained Cargo input observation
 - **Direction:** Keep genuine per-process currentness feasible for complete native inventories without stale observations or relaxed coverage.
 - **Conclusion:** Track issue #432 as the Cargo receiving/verifier facet of existing retained-observation performance work (#117); preserve completed ancestor-traversal contract #86. Optimize only redundant semantic serialization and metadata already freshly observed in the same bounded census, retaining every fresh content hash and closing custody check.
+- **Read-only receiving repair:** The genuine installed authored check timed out
+  after writing lifecycle lock ownership metadata. Its failed unchanged-snapshot
+  verdict remains retained. The source repair gives `check` a separate nominal
+  observation view, preserves exact writable-only scratch and execution gates,
+  and performs no lifecycle lock mutation. Actual native wrapper controls pass
+  9/9, lock-observation regressions 7/7, and the complete same-consumer provisioning
+  fixture 8/8 in 525.368 seconds. Held-peer OS locks and their original owner bytes
+  remain unchanged during both fixture checks. Provider semantics in that fixture
+  remain explicit test ports; this is not genuine installed receiving admission,
+  a timeout speedup, independent authority review, or release qualification.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**

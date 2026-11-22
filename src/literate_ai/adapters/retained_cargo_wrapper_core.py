@@ -7,7 +7,7 @@ lock independently of provider origin. It grants no scratch or execution rights.
 from __future__ import annotations
 
 import json
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from dataclasses import dataclass
 
 from literate_ai.adapters.authored_retained_cargo_review import (
@@ -221,6 +221,15 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
             raise ValueError("retained.cargo.v2-wrapper-project-context-changed")
 
 
+@dataclass(init=False, eq=False, frozen=True)
+class _ReadOnlyCargoConsumerWrapper(_CurrentCargoConsumerWrapper):
+    """Current observations with no mutating lifecycle-lock acquisition.
+
+    Writable facade factories accept the original core's exact nominal type;
+    this observation cannot be upgraded into scratch or execution custody.
+    """
+
+
 class _CargoConsumerWrapperView(_UnsavableConsumerWrapper):
     """Read-only facade mechanics; no public constructor or decoder."""
 
@@ -273,8 +282,8 @@ class _CargoConsumerWrapperView(_UnsavableConsumerWrapper):
 
 
 @contextmanager
-def _open_consumer_wrapper_context(reviewed):
-    """Join current authorities under the lifecycle lock, invalidating on exit.
+def _open_consumer_wrapper_context(reviewed, *, read_only=False):
+    """Observe current authority, locking only a writable operation's lifetime.
 
     The current canonical wrapper coordinate is used directly; custom retained
     layouts require the separately tracked layout resolver, not an alias shim.
@@ -284,13 +293,20 @@ def _open_consumer_wrapper_context(reviewed):
         AuthoredRetainedCargoReviewedFiles,
     ):
         raise TypeError("retained.cargo.consumer-reviewed-files-required")
+    if type(read_only) is not bool:
+        raise TypeError("retained.cargo.wrapper-read-mode-required")
     project = reviewed.project
     operation = (
         "retained-cargo.v2"
         if type(reviewed) is RetainedCargoReviewedFilesV2
         else "retained-cargo.authored"
     )
-    with project_lifecycle_lock(project.root, operation=operation):
+    lock = (
+        nullcontext()
+        if read_only
+        else project_lifecycle_lock(project.root, operation=operation)
+    )
+    with lock:
         reviewed.require_unchanged()
         configuration = ProjectConfigurationStore(project.root).read()
         if (
@@ -328,7 +344,10 @@ def _open_consumer_wrapper_context(reviewed):
         ):
             raise ValueError("retained.cargo.v2-wrapper-owner-mismatch")
         lifetime = _WrapperLifetime()
-        context = _CurrentCargoConsumerWrapper(
+        factory = (
+            _ReadOnlyCargoConsumerWrapper if read_only else _CurrentCargoConsumerWrapper
+        )
+        context = factory(
             _key=_CREATION_KEY,
             reviewed=reviewed,
             revision=revision,

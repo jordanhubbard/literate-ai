@@ -13,12 +13,14 @@ from dataclasses import dataclass, field
 from literate_ai._filesystem import stat_is_link_or_reparse
 from literate_ai.adapters.authored_retained_cargo_wrapper import (
     AuthoredRetainedCargoWrapperContext,
+    AuthoredRetainedCargoWrapperObservation,
 )
 from literate_ai.adapters.component_lock_application import project_component_roots
 from literate_ai.adapters.component_locks import ComponentLockStore
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.retained_cargo_wrapper_core import (
     _CurrentCargoConsumerWrapper,
+    _ReadOnlyCargoConsumerWrapper,
 )
 from literate_ai.contracts.identity import canonical_json_bytes
 from literate_ai.projects import PinnedInputClosure, ProjectConfigurationStore
@@ -114,13 +116,15 @@ class _OriginalAuthoredConsumerLockSet:
 def _capture_authored_consumer_lock_set(wrapper):
     """Retain actual original closure coordinates before consumer execution.
 
-    The caller must own the complete admission operation. This is not a decoder,
-    live wrapper replacement or completed admission. No source-v2 path changes.
+    The caller must own a current read-only observation or writable operation.
+    These original file descriptions grant no lifecycle lock, scratch, execution
+    or completed admission. No source-v2 path changes.
     """
-    if (
-        type(wrapper) is not AuthoredRetainedCargoWrapperContext
-        or type(wrapper._core) is not _CurrentCargoConsumerWrapper
-    ):
+    core_type = {
+        AuthoredRetainedCargoWrapperContext: _CurrentCargoConsumerWrapper,
+        AuthoredRetainedCargoWrapperObservation: _ReadOnlyCargoConsumerWrapper,
+    }.get(type(wrapper))
+    if core_type is None or type(wrapper._core) is not core_type:
         raise TypeError("retained.cargo.authored-live-wrapper-required")
     matrix_selection = os.environ.get(_MATRIX_SELECTION)
     wrapper.require_unchanged()

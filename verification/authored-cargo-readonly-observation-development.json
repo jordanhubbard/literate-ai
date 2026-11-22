@@ -1,0 +1,65 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Native read-only Cargo consumer observation and exact writable-only effect boundaries",
+  "tests": [
+    {
+      "name": "readonly-wrapper-native",
+      "report_sha256": "8b7597741808b2e4caf0a6f6f925f496955caafc53c8cc9456430e9875d26b38",
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "readonly-lock-observation-regression",
+      "report_sha256": "47e22d80133e9bd41aa0535d02a6fdbcb0631a0adc9d2da02eccf70525ef8b6b",
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "readonly-provisioning-lock-records",
+      "report_sha256": "f7edbbbb337bb3de03f823275209548d2bbd3591e8a9a556bd8c5d4dca0801d7",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      }
+    }
+  ],
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_cargo_wrapper_core.py": "dee53ff63ba760ce0d357a1898ab2a73d19c4a1007a8c69fdc787a234473b843",
+    "src/literate_ai/adapters/authored_retained_cargo_wrapper.py": "15196389ae3cff7345807f41974ce7187647182f76780e20b00257dc97679740",
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning.py": "86b2e116aad9905ed3c3d1fe327a4b8696e6a37c6581dc3c1fa77df52a7622dc",
+    "src/literate_ai/adapters/authored_retained_cargo_provisioning_source.py": "e002fcc5645e986598e8454ecf082e127e6bf81fd6c130044f6fdf6ec415cd5e",
+    "src/literate_ai/adapters/authored_retained_cargo_wrapper_files.py": "22746200ed214e4611ae764fdfafb3104d8e4ebfa3f59dbbb337dee40fe43832",
+    "src/literate_ai/adapters/authored_retained_cargo_reopen_census.py": "e9cd8dcafc8c804a0c91ca98b4d81d68ae4ffe46eb1198a09dc8d3431887b2a2",
+    "src/literate_ai/adapters/authored_retained_cargo_lock_observation.py": "a63dc76c95f75e656e9b8ca572bd3b68df24f68989ddc67b7d0056a0305d95c0",
+    "tests/critical/test_authored_retained_cargo_wrapper.py": "a38ef9682beebdd82aa0d56c894672f8db07006a41ff62f2a78f75acc385890b",
+    "tests/smoke/test_authored_provisioning.py": "d0833788a675a3f7009659bb56c6d18d9c8f3086c3173ca2d60961b611811b2d"
+  },
+  "native_filesystem_and_peer_os_locks": true,
+  "provider_semantics_test_ports": true,
+  "genuine_installed_check_passed": false,
+  "consumer_admitted": false,
+  "performance_qualified": false,
+  "independent_authority_review": false,
+  "release_qualified": false,
+  "historical_failures": [
+    "Initial provisioning fixture exposed writable-only lock observation capture; matching nominal read-side types repaired without changing effect factories.",
+    "Genuine exact444 installed check timed out and changed owner metadata; original failed snapshot verdict remains retained.",
+    "First static command used nonexistent python-layout-check target after lint/format passed; supported targets rerun separately."
+  ]
+}
