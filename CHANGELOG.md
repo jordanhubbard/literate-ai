@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Authored publication reads: retain full current-provider checks around each
+  complete bounded read, and validate owned directory traversal through its native
+  namespace owner. Writer checks are unchanged. Native drift controls pass;
+  installed receiving and full release qualification remain pending.
+
 - Authored qualification: project oracle identities privately inside one captured
   native plan guard, then close the original owners after all native callbacks.
   Keep public property validation and every explicit guard. Native regression

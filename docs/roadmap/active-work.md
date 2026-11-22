@@ -24839,6 +24839,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Read-only publication development:** Bound each complete read with fresh full
+  provider checks, while original namespace owners validate directory traversal.
+  Keep bounded native leaf reads, descriptor/name comparisons and writer checks.
+  Three native controls pass, including actual private-oracle and directory
+  replacement during a read; all 15 publication regressions also pass. A paired
+  in-memory comparison on a real predecessor provider measures this read only,
+  without changing that provider's source or its seven acceptance inputs. This
+  is development evidence, not installed candidate or receiving acceptance.
+  [Read-boundary record](../../verification/authored-publication-read-development.json)
+  retains the exact scope; all remaining goal requirements stay open.
+
 - **Current-plan parse development:** The actual installed public receiving check
   on `0ddbc6cae` reaches its 2,100-second outer deadline without admission or
   package materialization; the original consumer source remains present. A real
