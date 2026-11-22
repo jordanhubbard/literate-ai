@@ -19392,6 +19392,12 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   Five portable harness controls pass without runtime or harness changes;
   [scoped renewal evidence](../../verification/windows-arm64-prerequisite-renewal.json)
   records the refusal, step authorization and outstanding native renewal.
+  The renewed native run `45049243709` passes ARM64 preflight and stops
+  because the runner lacks `winget.exe`. Bootstrap the OS package manager with
+  Microsoft's documented WinGet client module before the supported installer;
+  keep prerequisite selection and installation inside that original installer.
+  Record the real resolved package-manager version and retain native renewal
+  as pending until installation and all host controls actually pass.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was
