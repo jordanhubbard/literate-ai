@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+- Internal layout recovery: fund the actual finite native action checks and
+  marker reads separately. The three-generation retry and five disposition
+  controls pass under their existing limits; public and release qualification
+  remain pending.
+
+- Internal retained-layout journal publication halves repeated body reads while preserving bounded native path, membership and content checks. Complete retained-layout recovery qualification remains pending.
+
+- Retained-layout development can prepare and durably reopen the original
+  logical source forest for root-out planning. Actual canonical ownership,
+  complete namespace custody and fresh bounded decoding remain required.
+  Root/shared execution and legacy recovery for that profile stay guarded (#265).
+
 - Retained-layout development now journals the acknowledged plan, complete
   original namespace and role observations, and packed metadata bytes before
   acquiring public controls. Recovery requires a fresh bounded reader and actual

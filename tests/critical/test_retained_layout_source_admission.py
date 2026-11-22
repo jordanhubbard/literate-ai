@@ -1083,7 +1083,11 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
             pass
 
         self.copy_metadata = 8 * 1024**3
-        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
+        # This positive profile includes the real framework/catalog roster,
+        # source handoff and metadata receipts. Declare its complete entry
+        # allowance before the first producer; the separate low-budget refusal
+        # retains its original 69,632-entry policy.
+        self.copy_budget = replace(self.copy_budget, maximum_entries=196608)
         self.update_budget, self.update_sequence = self.copy_budget, 0
         try:
             with self.updated(adopt_added=True) as update:

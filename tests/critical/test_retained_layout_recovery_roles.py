@@ -585,11 +585,22 @@ class RetainedLayoutRecoveryRoleTests(unittest.TestCase):
             plan = self.proposal(pool, raw)
             catalog = roles._RecoveryReservations(pool, raw)
             history = journal.events
+            # The actual retained descriptor catalogue still lacks the current
+            # public pending marker. Check that coverage independently of the
+            # earlier factory-lifetime refusal for a key-constructed lease.
+            targets = tuple(dict.fromkeys(plan.seed.targets() + plan.git.targets()))
+            with self.assertRaisesRegex(ValueError, "coverage"):
+                catalog._require_coverage(targets, complete=True)
             lease = roles._RecoveryRoleLease(
                 plan, catalog, _factory_key=roles._LEASE_KEY
             )
-            with self.assertRaisesRegex(ValueError, "coverage"):
-                lease.require_initial_inputs()
+            with mock.patch.object(
+                os, "fstat", side_effect=AssertionError("uncreated role borrowed FD")
+            ):
+                with self.assertRaisesRegex(
+                    ValueError, "actual creating canonical recovery role"
+                ):
+                    lease.require_initial_inputs()
             self.assertFalse(layout_pending_control_path(self.project).exists())
             self.assertEqual(journal.events, history)
 

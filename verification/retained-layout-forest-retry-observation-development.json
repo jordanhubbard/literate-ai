@@ -1,0 +1,315 @@
+{
+  "schema": "literate-ai/forest-retry-observation-development@1",
+  "state": "source_reviewed_actual_fresh_recovery_transcript_and_current_observation",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "one_completed_recovery_independent_os_process_observation_proven": true,
+  "fresh_retry_effects_proven": false,
+  "control_disposition_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-retry-observation-review.json",
+    "sha256": "78d54a1bff2229ae5acb9ccc520f01113cc07f98cea053ecc6845daf26b2e9c9"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-retry-report.json",
+        "sha256": "e04f43d1d1d7f5cf63834b4d3fb0ff08dd30148e26452e41a20abe57b1ef1925"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-retry-maintained.log",
+        "sha256": "cf65d4353b510ef14628d5a6aa9f0acddfef609d7491bca34642a57ff9a64395"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "97f10f48f855062152690b9c4b5241322adb64a6f8d9f5cf8ef7ee4e3291251d",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-restoration-report.json",
+        "sha256": "89bb150f0f43c72c6c854e0b29788d8d633395d6d6ccccdd33f2ab51d48086a9"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-restoration-maintained.log",
+        "sha256": "ba4c3edcd74c39f028644c936ee5032a866142b7247dc2d9726e617ecef5a57b"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "dc6e8a1d118ae3aeb6441914a2e3d857243cb9c7f87edf02a115d0f11dee76fc",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-bound-report.json",
+        "sha256": "6a3d83ba6c59717128660842df8bbf23aa81a296ff04f09c948e6c086ad00b28"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-bound-maintained.log",
+        "sha256": "c4091b0d660c5b2b19645a2d576169e8785c72ece3fb1fb1d0627d5d642263c5"
+      },
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "e26bb8167033c7e7554bbca245524131315d3e99e0a4c6f753795b32902f98ef",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-current-report.json",
+        "sha256": "ff9097e081e87e1c8045ae29a3b0d61c9e04f4f85d1531d63864e5f74c4655d0"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-current-maintained.log",
+        "sha256": "32feec76867dfb3a2e5ad25c76eb86699d6b664ecc5458a9cf084054cb1551b1"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "9ada148c9c57edb2fc25c7e90e9bd9116faada1805057cb5964d17513e9f42bd",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-metadata-report.json",
+        "sha256": "e49caa4156b31d28a834e407fc11f5da16b699757af1b8c570aa39f3f3b0066b"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-metadata-maintained.log",
+        "sha256": "ee3f13c7269445a5c3d7397fedce498a43f8b8068445dec04697b18c8b0b9bf6"
+      },
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2bfcb6c52c56136e5c32412a8753aa7966545b13becac8b1b4877f6160a1c54c",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-reader-report.json",
+        "sha256": "c158f9e5998a9ef04262aad1f90177962e581bca699bb4d1189eaed94f4a8ac6"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-reader-maintained.log",
+        "sha256": "b62db4be261459ed1a91124c8bc980575f2ef14e21930a04debbd14fed6eef96"
+      },
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2f54a681d61bbadd8df95ef3063a65113d88af112680a89bb93a3c4f0dc9f37b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-replay-report.json",
+        "sha256": "a494fb62eecce1d43a49fa24748bb3ce45ce2a8e1d52e1d33aa0afe519f60a94"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-replay-maintained.log",
+        "sha256": "f31f8bef442a10c9c656d67ceee263d701ddcf73fa47b6a56e0e96e973afbe88"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "dc53dba3b6d0412c43aa4cd9137680e5da4077ad9c5436220caaccf6926e164f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-fresh-replay-final-original-report.json",
+        "sha256": "634127093bbf3169a65ddda39327f55d31d16d4b7851e7cb1e07b5319b4ded2f"
+      },
+      "log": {
+        "path": "_build/forest-fresh-replay-final-original-maintained.log",
+        "sha256": "eaafff2a7998e8eefd394b345c3a2d7e2126369b0758a88e66ae1e64d7bc6f8c"
+      },
+      "summary": {
+        "executed": 7,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 7,
+        "selected": 7,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "66be575e95b78b3063f24be3cc96561eb1d24ecf8962a6f503a82585f2023c05",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 74,
+  "diagnostics": [
+    {
+      "path": "_build/forest-fresh-replay-first-diagnostic.log",
+      "sha256": "312025a195e6581148269ac7de152a45a0ace9f81e685b6b031d70425f7bef2b"
+    },
+    {
+      "path": "_build/forest-fresh-replay-boundaries-diagnostic.log",
+      "sha256": "97e492be16cc51fbf56680a16a4e0483053257de93595f755733b912b854b356"
+    },
+    {
+      "path": "_build/forest-fresh-replay-closing-diagnostic.log",
+      "sha256": "cf1fbee90b713ba738d2615137d65b698806cfde5a75d5500d4224037728e5bd"
+    },
+    {
+      "path": "_build/forest-fresh-replay-subprocess-diagnostic.log",
+      "sha256": "938b4e1ae09e05892638a4becf63f6a6c28e3bc66c6affd8320860e5be397be9"
+    },
+    {
+      "path": "_build/forest-fresh-replay-acquisition-after-diagnostic.log",
+      "sha256": "bbc6a2052af5d65f341e3418becaaddf49d6b9cba5cfa4686c18eff321a30cb3"
+    }
+  ],
+  "pre_fix_maintained_failure": {
+    "report": {
+      "path": "_build/forest-fresh-replay-current-report.json",
+      "sha256": "a90509c46a5236e6cac8810853bbaddc544ef0ee32a60e08bbb15388290d3748"
+    },
+    "log": {
+      "path": "_build/forest-fresh-replay-current-maintained.log",
+      "sha256": "b6ddbbdc6e27aee755a647cecd5d5e4a39d5315aceba786558c44d40e26b7fc1"
+    },
+    "cause": "A second actual read-only raw/canonical acquisition creates a strict suffix with zero data-recovery segments. The new router mistook that for a data attempt and refused before the reached-parent callback. Routing now requires nonempty data segments; the original native/current path still validates actual roles and retains the strict suffix."
+  },
+  "causal_failures": [
+    {
+      "log": {
+        "path": "_build/forest-fresh-replay-roster-before-diagnostic.log",
+        "sha256": "6f09e72b53996eb9466f0752c119545175bd842bc57a7138a355aaf797e41fa0"
+      },
+      "cause": "Actual completed inverse, old-role teardown and reopened original journal/new stage pool fail at genuine raw reacquisition following an incomplete original native prefix, before data recovery records. The original reader incorrectly treats this as an unrelated interruption."
+    },
+    {
+      "log": {
+        "path": "_build/forest-fresh-replay-teardown-confirmed-before-diagnostic.log",
+        "sha256": "48d50fc2cde11f146d86fba39b177381acd9032e4bc3f84e38c4d8bdf6e5939a"
+      },
+      "cause": "The actual source access teardown callback mutates the derived returned roster after its final old seal check; old code returned without rejection. The test finally-assert confirms hit=[True], so this is an executed callback, not an unexercised injection."
+    }
+  ],
+  "alignment": {
+    "path": "_build/forest-fresh-replay-alignment.json",
+    "sha256": "fdafd12ff0cc7f54875f6bcd47a150bbf69f5892676ea14042dfa8abd1e8c74a"
+  },
+  "worker_scope": "Local macos aligned/no findings; remote unreachable and low-disk findings remain, no remote jobs dispatched.",
+  "scope": [
+    "Acquisition-only strict transcripts remain sealed but do not imply any data-recovery attempt. Actual fresh original-current observation remains available; original native continuation after the suffix still refuses.",
+    "Native reader freezes one original contiguous native prefix at actual raw/canonical reacquisition. Strict suffix grammar retains actual raw pairs, canonical pairs and supplemental publication/lease records; unknown, duplicate, reordered and original continuation records refuse.",
+    "Real recovery intent@2 carries typed original interruption evidence bound in its actual acknowledged plan. Reconstructed pending entry/mode state can only retain original child/parent identity and known original payloads; unrecorded creation remains unresolved.",
+    "Actual fresh canonical roles independently supply control custody. The exact original deterministic inverse programme and durable commit rule must match the recorded recovery header before current source payload verification.",
+    "Observed inverse entries move only known original nodes. A pending inverse classifies exact original-before or original-inode-after, retaining complete source, parking, metadata, retirement and quarantine membership without overwrite, deletion or a new occupied-source baseline.",
+    "Same-ledger views are funded before source endpoints and known payload passes. Original pool/journal/selected-storage, native ancestry and portable coordinate separation constrain quarantine. Descriptions and old decoded objects grant no effect rights.",
+    "Final pure original-registration and derived-view seals close after dependency callbacks, final native checks, pending endpoint reads and actual access teardown. The causal regression asserts the teardown callback was reached.",
+    "Original source/native execution remains explicitly unmanaged under real normal canonical control roles; acquired_partition_payload_digest=None is honest. No successful forest SourcePhase or acquired forest partition is manufactured.",
+    "Fresh current reader and raw/canonical factories observe one completed or interrupted recorded recovery attempt after prior roles end. Original pending-after native entry, inverse intent-before-effect, inverse effect-before-observation and observed inverse before completion have real actual-effect fixtures.",
+    "A separate OS process starts with empty observation and role registries, reopens the actual original journal and new stage pool, independently reacquires actual raw/canonical roles under exact fresh acknowledgements and verifies one completed inverse. Parent asserts distinct process ID, exit0, completion and no issues.",
+    "Corrupt original consumed-prefix evidence refuses before source access; an unexecuted extra inverse action refuses. Foreign source bytes and unknown quarantine contents are preserved/refused. Insufficient allowance refuses before current source endpoint access.",
+    "The existing recovery planner still refuses prior recovery prefixes. This observation checkpoint deliberately claims no resumed effects, multiple-attempt replay, supplemental-generation join or forest control disposition."
+  ],
+  "not_proven": [
+    "Wrong-primitive JSON mutation qualification for exact raw/canonical/recovery record types, including boolean versus integer completion flags and nested actions",
+    "Actual fresh acknowledged retry effects from remaining inverse moves, including typed resolution of pending recovery effects and multiple strictly chained attempts; current planner deliberately refuses existing recovery prefixes",
+    "Fresh-process qualification of original metadata/mode/control and all canonical reacquisition interruption boundaries beyond the demonstrated original native-entry and recovery-entry cases",
+    "Actual existing supplemental public-control generation discovery/reacquisition/projection while retaining every original/private/newer-public native node",
+    "Actual forest verified-data handoff to canonical control disposition using genuine normalization/retirement receipts",
+    "Genuine integrated canonical original forest SourcePhase/partition execution and durable commit/recovery acceptance before public or legacy admission guards change",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all remaining roadmap obligations"
+  ],
+  "final_static": {
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-fresh-replay-final-static.log",
+      "sha256": "416c2c4dd4edcbc70ac487dc89be8b92d638961e15faba9bb30e8cc2157b1111"
+    },
+    "checks": [
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "documentation-check",
+      "roadmap-completion-dependencies"
+    ]
+  },
+  "whole_project_verification": {
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-fresh-replay-final-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "counts": {
+      "fail": 1,
+      "pass": 1,
+      "skipped": 3
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "scope": "Seventy-four scoped maintained checks do not replace full-project qualification."
+  }
+}

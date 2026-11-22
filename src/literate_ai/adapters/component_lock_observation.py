@@ -97,9 +97,53 @@ def _require_seal(owner, value):
             _fail("original canonical observation fields changed")
 
 
+def _require_parent_identity(owner, preparation, reader, ledger, root):
+    """Pure child registration close; does not call the parent recursively."""
+    value = _OWNERS.get(owner)
+    _require_seal(owner, value)
+    if (
+        type(owner) is not _Selection
+        or value.owner is not owner
+        or value.preparation is not preparation
+        or value.reader is not reader
+        or value.ledger is not ledger
+        or value.root != root
+        or _BOUND.get(preparation) is not owner
+        or _CREATED.get(preparation) is not owner
+        or _READERS.get(reader) is not owner
+        or (value.pid, value.thread) != (os.getpid(), threading.get_ident())
+        or (
+            value.snapshot is not None
+            and (
+                ledger.cache.get(value.path) is not value.snapshot
+                or ledger.ancestry.get(value.path) != value.anchor
+                or any(
+                    reader._presences.get(path) != node for path, node in value.paths
+                )
+                or value.path not in reader._presences
+                or reader._presences[value.path] != value.presence
+            )
+        )
+    ):
+        _fail("original canonical selection parent registration changed")
+    return value
+
+
+def _preparation_state(preparation):
+    from .retained_layout_source_preparation import _LIVE, _SourcePreparation
+
+    if type(preparation) is _SourcePreparation:
+        original = _LIVE.get(preparation)
+        if original is None:
+            _fail("actual original canonical selection lifetime required")
+        return original
+    from .retained_layout_forest_observation import _selection_context
+
+    return _selection_context(preparation)
+
+
 def _record(owner, *, ready=True, reading=False):
     from .bounded_role_observation import current_role_observation
-    from .retained_layout_source_preparation import _LIVE, _SourcePreparation
 
     if type(owner) is not _Selection:
         _fail("actual original canonical selection required")
@@ -111,10 +155,9 @@ def _record(owner, *, ready=True, reading=False):
         or _READERS.get(value.reader) is not owner
     ):
         _fail("original canonical selection ended or was replaced")
-    original = _LIVE.get(value.preparation)
+    original = _preparation_state(value.preparation)
     if (
-        type(value.preparation) is not _SourcePreparation
-        or original is None
+        original is None
         or original.reader is not value.reader
         or original.ledger is not value.ledger
         or original.root != value.root
@@ -236,9 +279,8 @@ def observe_selection(preparation, component_root):
     from .component_locks import LOCK_FILENAME, ComponentLockStore
     from .repository_refresh_reservations import _custody_wire
     from .retained_layout_git_controls import _presence
-    from .retained_layout_source_preparation import _state
 
-    original = _state(preparation, ready=False)
+    original = _preparation_state(preparation)
     if (
         original.plan is not None
         or current_role_observation() is not original.reader

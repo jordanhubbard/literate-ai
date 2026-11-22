@@ -1,0 +1,51 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_original_destination_prefix_and_graph_profile_planning",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_destination.py": {
+      "algorithm": "sha256",
+      "digest": "9dd23cba0883ab72d7a3602dbf5e46ffbcb7c955aec8b7e1e225d87351366b5e"
+    },
+    "src/literate_ai/adapters/retained_layout_effect_graph.py": {
+      "algorithm": "sha256",
+      "digest": "a056b9d0bc23dba3ae3a80d99a74c5a0e1fd9f0634ed3487cfdf23269e1ec4c4"
+    },
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "bf9137d891dc0a35e0583f106470e2067e538a7bc0f850a7b902c6719ec6ed58"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "f56ea668d497e715c928e646b2c968b8523e3ab4b4ed7a5f2fb3246c9e7e8657"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "3b591a2d3546a7f3ba84409faaf09233421b847007e941846d5804b27988b883"
+    },
+    "src/literate_ai/adapters/retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "9470bd70f99f4abdfc44637a610c1d566dbe7d17557694681b142c516d9b8e95"
+    },
+    "tests/critical/test_retained_layout_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "21107a9388a1ff0f2256a460f3a11c92e964f2a2c9973105727c1e39b856275e"
+    }
+  },
+  "scope": [
+    "Actual original destination descriptor funded before construction and sealed to its creating participant and native witnesses",
+    "Canonical role occupancy admission before graph calculation; unrelated ancestor occupants refuse",
+    "Missing parents retain None/empty original observations instead of borrowing the observed anchor as future executor parent",
+    "Actual validated graph selects exact single-rename or forest profile; unchanged ordinary documents omit both optional fields",
+    "Known prefix/absence/anchor/native closure followed by complete original namespace closure, without serialization in final native checks",
+    "Fresh separately funded data-only decoding rederives destination/path/parent/lineage correspondence from complete original census/native facts"
+  ],
+  "addressed_findings": [
+    "Preserve the established exists-or-aliases diagnostic and add precise portable prefix context; both original assertions unchanged"
+  ],
+  "limitations": [
+    "Internal planning/persistence only; no movement, public authority or positive qualification from decoded data",
+    "General shared occupancy, full executor, metadata/recovery/public/installed/native/release acceptance remain required"
+  ]
+}

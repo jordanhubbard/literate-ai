@@ -43,6 +43,13 @@ _MAX_AUTHORITY_BYTES = 16 * 1024 * 1024
 _MAX_GIT_DIAGNOSTIC_BYTES = 8 * 1024 * 1024
 _MAX_CATALOG_FILES = 16_384
 _MAX_CATALOG_BYTES = 256 * 1024 * 1024
+
+
+def _lineage_writer_lock_path(project_root: Path) -> Path:
+    """Canonical advisory endpoint shared by actual lineage writers and observers."""
+    return Path(project_root) / ".literate" / "repository-lineage.lock"
+
+
 _NON_FETCH_GIT_TIMEOUT_SECONDS = 120
 _SCP_REPOSITORY = re.compile(r"^(?P<user>[^/@:]+)@(?P<host>[^/:]+):(?P<path>.+)$")
 RepositoryGitProcessRunner = Callable[..., BoundedProcessResult]
@@ -219,7 +226,7 @@ class FilesystemRepositoryLineageStore:
                 "repository-lineage metadata root must be a directory",
             )
         metadata.mkdir(parents=True, exist_ok=True)
-        lock = metadata / "repository-lineage.lock"
+        lock = _lineage_writer_lock_path(self.root)
         try:
             with exclusive_cache_lock(lock):
                 current_selection = self._optional(REPOSITORY_PARENT_FILE)
@@ -288,7 +295,7 @@ class FilesystemRepositoryLineageStore:
                 "repository_lineage.concurrent_change",
                 "repository-lineage evidence disappeared before rollback",
             )
-        lock = metadata / "repository-lineage.lock"
+        lock = _lineage_writer_lock_path(self.root)
         try:
             with exclusive_cache_lock(lock):
                 current_selection = self._optional(REPOSITORY_PARENT_FILE)

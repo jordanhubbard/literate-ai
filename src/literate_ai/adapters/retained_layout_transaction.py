@@ -135,6 +135,7 @@ def _inputs(
     _authored_capture=None,
     _authored_lock=None,
     _authored_storage=None,
+    _root_preparation=None,
 ):
     if _observation is None:
         from .bounded_role_observation import current_role_observation
@@ -185,12 +186,27 @@ def _inputs(
         _fail("initialization baseline and origin disagree")
     lift = value(_LIFT)
     declaration = by_name[RETAINED_LAYOUT_PATH].content
+    original_root = False
     if declaration is not None:
         if _observation is not None:
             _observation.json_value(declaration, RETAINED_LAYOUT_PATH)
         if _parse_layout_bytes(declaration).implementation_directory == ".":
-            _fail("root source phase requires the complete mixed-partition owner")
-    layout = resolve_structural_layout(root, lift, _observation=_observation)
+            if _authored_capture is not None:
+                from .retained_layout_source_authored import _Capture
+
+                if type(_authored_capture) is not _Capture:
+                    raise TypeError("actual original root capture required")
+                if _root_preparation not in (None, _authored_capture.preparation):
+                    raise TypeError("one actual original root preparation required")
+                _root_preparation = _authored_capture.preparation
+            if _root_preparation is None:
+                _fail("root source phase requires the complete mixed-partition owner")
+            from .retained_layout import _original_layout_coordinates
+
+            layout = _original_layout_coordinates(_root_preparation, root, lift)
+            original_root = True
+    if not original_root:
+        layout = resolve_structural_layout(root, lift, _observation=_observation)
     lineages.append((layout.wrapper_root, _lineage(layout.wrapper_root)))
     component = _file(layout.wrapper_root / "component.md")
     authoring = parse_component_markdown(
@@ -217,7 +233,7 @@ def _inputs(
         observations += (_file(lock_path, optional=True),)
     elif _authored_storage is None:
         _fail("external canonical storage requires its actual original owner")
-    if layout.implementation_root == root:
+    if layout.implementation_root == root and not original_root:
         _fail("root source phase requires the complete mixed-partition owner")
     # Never classify nested authority from a basename as ownership. Such a
     # candidate needs the later independent-project owner before source effects.
@@ -440,16 +456,34 @@ class _PreparedSourceMovePlan(_SourceMovePlan):
     authored_storage: str | None = None
     project_namespace: str | None = None
     project_roles: str | None = None
+    source_forest: str | None = None
+    destination_state: object = None
+
+    @property
+    def document(self):
+        document = super(_PreparedSourceMovePlan, self).document
+        if self.source_forest is None:
+            del document["plan"]["source_forest"]
+        if self.destination_state is None:
+            del document["plan"]["destination_state"]
+        return document
 
     @property
     def binding(self):
-        return {
+        binding = {
             **super(_PreparedSourceMovePlan, self).binding,
             "original_state_required": True,
         }
+        if self.source_forest is not None:
+            from .retained_layout_source_forest import _FOREST_PROFILE
+
+            binding["source_profile"] = _FOREST_PROFILE
+        return binding
 
 
-def _prospective_metadata(root, layout, inputs, implementation_directory):
+def _prospective_metadata(
+    root, layout, inputs, implementation_directory, *, framework_owned_paths=()
+):
     files = {item.path.relative_to(root).as_posix(): item for item in inputs}
     previous_content = files[RETAINED_LAYOUT_PATH].content
     previous = (
@@ -472,7 +506,7 @@ def _prospective_metadata(root, layout, inputs, implementation_directory):
     declaration = RetainedLayoutDeclaration(
         layout.wrapper_component,
         implementation_directory,
-        (),
+        framework_owned_paths,
         previous_identity,
     )
     lift = json.loads(files[_LIFT].content)
@@ -511,7 +545,7 @@ def plan_retained_layout_source_move(
     _authored_capture=None,
     _provider_checkout=None,
 ):
-    """Read-only exact nonroot source phase; no complete relocation is promised."""
+    """Read-only original source plan; no complete relocation is promised."""
     root = Path(project_root)
     if not root.is_absolute() or ".." in root.parts:
         _fail("project root must be direct and absolute")
@@ -554,14 +588,15 @@ def plan_retained_layout_source_move(
     selected = RetainedLayoutSelection.from_values(
         layout.wrapper_component, implementation_directory
     )
-    if selected.implementation_directory == ".":
+    if selected.implementation_directory == "." and _authored_capture is None:
         _fail("root destination requires the complete mixed-partition owner")
     destination = root / selected.implementation_directory
     source = layout.implementation_root
-    if (
-        destination == source
-        or destination.is_relative_to(source)
-        or source.is_relative_to(destination)
+    original_root = source == root and _observation is not None
+    original_root_destination = destination == root and _authored_capture is not None
+    if destination == source or (
+        (destination.is_relative_to(source) or source.is_relative_to(destination))
+        and _authored_capture is None
     ):
         _fail("source and destination overlap")
     namespace = None
@@ -577,33 +612,39 @@ def plan_retained_layout_source_move(
             path == protected
             or path.is_relative_to(protected)
             or protected.is_relative_to(path)
-            for path in (source, destination)
+            for path in (
+                (destination,)
+                if original_root
+                else (source,)
+                if original_root_destination
+                else (source, destination)
+            )
         ):
             _fail("source move overlaps actual Git administration")
-    ancestry = _lineage(destination.parent)
-    _absence(destination, budget.maximum_entries)
+    ancestry, parent = None, None
+    if _authored_capture is None:
+        ancestry = _lineage(destination.parent)
+        _absence(destination, budget.maximum_entries)
     source_lineage = _lineage(source)
-    tree = (
-        capture_retained_cargo_tree_v2(source, budget=budget)
-        if _observation is None
-        else _observation.capture(source).tree
-    )
-    if any(_project_manifest_candidates(tree)):
+    if original_root:
+        from .retained_layout_source_namespace import _record as namespace_record
+
+        tree = namespace_record(namespace, reading=True).census.tree
+    else:
+        tree = (
+            capture_retained_cargo_tree_v2(source, budget=budget)
+            if _observation is None
+            else _observation.capture(source).tree
+        )
+    if not original_root and any(_project_manifest_candidates(tree)):
         _fail("nested project candidate requires independent authority classification")
     native = _native_tree(tree)
-    source_node, source_parent = (
-        layout_entry_node(source),
-        layout_entry_node(source.parent),
-    )
-    parent = layout_entry_node(destination.parent)
-    if len({source_node.device, source_parent.device, parent.device}) != 1:
-        _fail("source move requires one filesystem")
-    prospective = _prospective_metadata(
-        root, layout, inputs, selected.implementation_directory
-    )
+    source_node = layout_entry_node(source)
+    source_parent = None if original_root else layout_entry_node(source.parent)
     original_roles = None
     if _authored_capture is not None:
         from .retained_layout_source_roles import _observe as observe_roles
+        from .retained_layout_source_roles import _original_prospective_metadata
 
         original_roles = observe_roles(
             _authored_capture,
@@ -611,9 +652,44 @@ def plan_retained_layout_source_move(
             git,
             namespace,
             destination,
-            prospective,
             provider_checkout=_provider_checkout,
         )
+        prospective = _original_prospective_metadata(original_roles)
+    else:
+        prospective = _prospective_metadata(
+            root, layout, inputs, selected.implementation_directory
+        )
+    source_forest, destination_state = None, None
+    forest = None
+    if original_roles is not None:
+        from .retained_layout_source_roles import _original_move_observation
+
+        forest, forest_native, destination_state = _original_move_observation(
+            original_roles
+        )
+    if forest is not None:
+        tree, native = forest, forest_native
+        source_forest = forest.identity.uri
+        source_node = native[0][1]
+        parent = destination_state.parent_node
+        ancestry = destination_state.anchor_lineage if parent is not None else ()
+        if (
+            len(
+                {
+                    destination_state.anchor_node.device,
+                    *(node.device for _, node in native),
+                }
+            )
+            != 1
+        ):
+            _fail("source forest requires one filesystem")
+    else:
+        if ancestry is None:
+            ancestry = _lineage(destination.parent)
+            _absence(destination, budget.maximum_entries)
+        parent = layout_entry_node(destination.parent)
+        if len({source_node.device, source_parent.device, parent.device}) != 1:
+            _fail("source move requires one filesystem")
     plan_type = _SourceMovePlan if _observation is None else _PreparedSourceMovePlan
     plan = plan_type(
         root,
@@ -639,6 +715,8 @@ def plan_retained_layout_source_move(
                 "authored_storage": _authored_capture.selection.identity.uri,
                 "project_namespace": namespace.identity.uri,
                 "project_roles": original_roles.identity.uri,
+                "source_forest": source_forest,
+                "destination_state": destination_state,
             }
             if _authored_capture is not None
             else {}
@@ -667,6 +745,16 @@ def plan_retained_layout_source_move(
 
 
 def _validate_plan_roles(plan):
+    if getattr(plan, "source_forest", None) is not None:
+        from .retained_layout_source_roles import _validate_forest_plan
+
+        _validate_forest_plan(plan)
+        if plan.source_node != plan.native[0][1] or (
+            plan.layout.implementation_root == plan.root
+            and plan.source_parent is not None
+        ):
+            _fail("original forest source observations changed")
+        return
     if (plan.catalog_copy is None) != (plan.catalog_provenance is None):
         _fail("catalog producer identity and provenance must be joined")
     if plan.catalog_copy is not None:
@@ -799,6 +887,11 @@ def _require_prepared(plan, reservations=None):
         maximum_checkpoint_bytes=checkpoint_limit,
         _authored_lock=getattr(plan, "authored_lock", None),
         _authored_storage=storage,
+        _root_preparation=(
+            _original_root_preparation(namespace)
+            if getattr(plan, "source_forest", None) is not None
+            else None
+        ),
     ) != (
         plan.layout,
         plan.inputs,
@@ -806,15 +899,39 @@ def _require_prepared(plan, reservations=None):
     ):
         _fail("selected wrapper/layout/initialization inputs changed")
     plan.git.require_unchanged(reservations)
-    plan.tree.require_unchanged()
-    if _lineage(plan.destination.parent) != plan.destination_lineage:
+    if getattr(plan, "source_forest", None) is None:
+        plan.tree.require_unchanged()
+    else:
+        namespace.require_current()
+    if (
+        getattr(plan, "source_forest", None) is None
+        and _lineage(plan.destination.parent) != plan.destination_lineage
+    ):
         _fail("destination parent ancestry changed")
-    _absence(plan.destination, plan.tree.budget.maximum_entries)
+    _require_initial_destination(plan)
     plan.git.close_native_inputs(reservations)
     _close_authored(plan)
-    _close_tree(plan.tree, plan.native)
+    if getattr(plan, "source_forest", None) is None:
+        _close_tree(plan.tree, plan.native)
+    else:
+        namespace.close_native()
     if namespace is not None:
         namespace.require_current()
+
+
+def _original_root_preparation(namespace):
+    from .retained_layout_source_namespace import _record
+
+    return _record(namespace, reading=True).preparation
+
+
+def _require_initial_destination(plan):
+    if getattr(plan, "source_forest", None) is not None:
+        from .retained_layout_source_roles import _require_forest_destination
+
+        _require_forest_destination(plan)
+    else:
+        _absence(plan.destination, plan.tree.budget.maximum_entries)
 
 
 def _require_catalog_provenance(plan):
@@ -960,6 +1077,26 @@ class _MetadataArea:
         self.require_current()
 
 
+def _finalization_decision(phase, root, *, committed):
+    if getattr(phase.plan, "source_forest", None) is not None:
+        from .retained_layout_source_forest_movement import _decision
+
+        return _decision(phase, root, committed=committed)
+    data = {
+        "source_phase_identity": phase.plan.identity.uri,
+        "moved_root": _custody_wire(phase._moved[1][0][1]),
+        "metadata": [_custody_wire(item) for item in phase._current_inputs],
+        "retirement_root": str(root),
+        "qualified": False,
+    }
+    if committed:
+        data.update(
+            state="committed-unqualified",
+            pending_control=str(layout_pending_control_path(phase.plan.root)),
+        )
+    return canonical_json_bytes(data)
+
+
 class _SourcePhase:
     def __init__(self, key, plan, controls, pool):
         if key is not _KEY:
@@ -995,6 +1132,12 @@ class _SourcePhase:
         from .retained_layout_source_metadata import _require_metadata_moved
 
         if _require_metadata_moved(self):
+            return
+        from .retained_layout_source_forest_movement import (
+            _require_moved as require_forest_moved,
+        )
+
+        if require_forest_moved(self):
             return
         _require_catalog_provenance(self.plan)
         if self._moved is None:
@@ -1354,15 +1497,7 @@ class _SourcePhase:
         self._require_moved()
         journal.append(
             "layout-finalization-intent",
-            canonical_json_bytes(
-                {
-                    "source_phase_identity": self.plan.identity.uri,
-                    "moved_root": _custody_wire(self._moved[1][0][1]),
-                    "metadata": [_custody_wire(item) for item in self._current_inputs],
-                    "retirement_root": str(root),
-                    "qualified": False,
-                }
-            ),
+            _finalization_decision(self, root, committed=False),
         )
         self._require_moved()
         self._finalization_started = True
@@ -1386,19 +1521,7 @@ class _SourcePhase:
             if marker.target.path == pending:
                 # Irreversible logical decision precedes release of the last
                 # recovery barrier. The record grants no future descriptor rights.
-                decision = canonical_json_bytes(
-                    {
-                        "source_phase_identity": self.plan.identity.uri,
-                        "state": "committed-unqualified",
-                        "moved_root": _custody_wire(self._moved[1][0][1]),
-                        "metadata": [
-                            _custody_wire(item) for item in self._current_inputs
-                        ],
-                        "pending_control": str(pending),
-                        "retirement_root": str(root),
-                        "qualified": False,
-                    }
-                )
+                decision = _finalization_decision(self, root, committed=True)
                 self._commit_attempted = True
                 journal.append("layout-commit-observed", decision)
                 self._committed = True
@@ -1558,10 +1681,12 @@ class _SourcePhase:
         ) as owner:
             yield owner
 
-    def move_source(self):
+    def move_source(self, *, metadata_root=None, retirement_root=None):
         from .retained_layout_source_movement import _run_source_move
 
-        return _run_source_move(self)
+        return _run_source_move(
+            self, metadata_root=metadata_root, retirement_root=retirement_root
+        )
 
     def _move_source(self):
         self._live()

@@ -362,21 +362,18 @@ def resolve_legacy_layout(
     )
 
 
-def resolve_structural_layout(
+def _layout_coordinates(
     project_root: Path, lift_shift: dict[str, Any], *, _observation=None
-) -> ResolvedRetainedLayout:
-    """Locate one declared or legacy layout without asserting execution qualification.
-
-    This is available to evidence-renewal planners after a relocation. Receipt
-    admission must separately require current locks and renewed harness evidence.
-    """
+) -> tuple[ResolvedRetainedLayout, RetainedLayoutDeclaration | None]:
+    """Read coordinate and wrapper-role facts; grant no root ownership."""
 
     declaration = read_retained_layout_declaration(
         project_root, _observation=_observation
     )
     if declaration is None:
-        return resolve_legacy_layout(
-            project_root, lift_shift, _observation=_observation
+        return (
+            resolve_legacy_layout(project_root, lift_shift, _observation=_observation),
+            None,
         )
     if (
         lift_shift.get("implementation_directory")
@@ -423,46 +420,6 @@ def resolve_structural_layout(
             item.name == "legacy.pipeline" for item in authoring.provides
         ):
             raise ValueError("selected Component lacks the retained-harness role")
-        if declaration.implementation_directory == ".":
-            from literate_ai.contracts import ProjectInitializationBaseline
-
-            baseline_path = root / ".literate/initialization-baseline.json"
-            if path_is_link_or_reparse(baseline_path) or not baseline_path.is_file():
-                raise ValueError("root ownership lacks initialization baseline")
-            baseline_bytes = (
-                baseline_path.read_bytes()
-                if _observation is None
-                else _observation.read(".literate/initialization-baseline.json")
-            )
-            if len(baseline_bytes) > _MAX_LAYOUT_BYTES:
-                raise ValueError("root initialization baseline exceeds byte limit")
-            baseline = ProjectInitializationBaseline.from_dict(
-                json.loads(baseline_bytes)
-                if _observation is None
-                else _observation.json_value(
-                    baseline_bytes, ".literate/initialization-baseline.json"
-                )
-            )
-            owned_paths = set(declaration.framework_owned_paths)
-            if not {item.path for item in baseline.files}.issubset(owned_paths):
-                raise ValueError("root ownership omits initialized framework files")
-            metadata_root = root / ".literate"
-            metadata_paths = (
-                metadata_root.rglob("*")
-                if _observation is None
-                else _observation.paths_beneath(metadata_root)
-            )
-            for metadata in metadata_paths:
-                if metadata.is_file() or path_is_link_or_reparse(metadata):
-                    if metadata.relative_to(root).as_posix() not in owned_paths:
-                        raise ValueError("root ownership omits current metadata")
-            for relative in declaration.framework_owned_paths:
-                owned = root.joinpath(*relative.split("/"))
-                require_safe_directory(owned.parent)
-                if path_is_link_or_reparse(owned) or not owned.is_file():
-                    raise ValueError(
-                        "root ownership names a missing or redirected file"
-                    )
         require_safe_directory(wrapper_root)
         require_safe_directory(implementation_root)
     except (
@@ -475,9 +432,106 @@ def resolve_structural_layout(
         raise RetainedLayoutError(
             "declared retained layout is unavailable or redirected"
         ) from exc
-    return ResolvedRetainedLayout(
-        wrapper_component=declaration.wrapper_component,
-        wrapper_root=wrapper_root,
-        implementation_directory=declaration.implementation_directory,
-        implementation_root=implementation_root,
+    return (
+        ResolvedRetainedLayout(
+            wrapper_component=declaration.wrapper_component,
+            wrapper_root=wrapper_root,
+            implementation_directory=declaration.implementation_directory,
+            implementation_root=implementation_root,
+        ),
+        declaration,
     )
+
+
+def _require_declared_root_ownership(root, declaration, observation):
+    from literate_ai.contracts import ProjectInitializationBaseline
+
+    baseline_path = root / ".literate/initialization-baseline.json"
+    if path_is_link_or_reparse(baseline_path) or not baseline_path.is_file():
+        raise ValueError("root ownership lacks initialization baseline")
+    baseline_bytes = (
+        baseline_path.read_bytes()
+        if observation is None
+        else observation.read(".literate/initialization-baseline.json")
+    )
+    if len(baseline_bytes) > _MAX_LAYOUT_BYTES:
+        raise ValueError("root initialization baseline exceeds byte limit")
+    baseline = ProjectInitializationBaseline.from_dict(
+        json.loads(baseline_bytes)
+        if observation is None
+        else observation.json_value(
+            baseline_bytes, ".literate/initialization-baseline.json"
+        )
+    )
+    owned_paths = set(declaration.framework_owned_paths)
+    if not {item.path for item in baseline.files}.issubset(owned_paths):
+        raise ValueError("root ownership omits initialized framework files")
+    metadata_root = root / ".literate"
+    metadata_paths = (
+        metadata_root.rglob("*")
+        if observation is None
+        else observation.paths_beneath(metadata_root)
+    )
+    for metadata in metadata_paths:
+        if metadata.is_file() or path_is_link_or_reparse(metadata):
+            if metadata.relative_to(root).as_posix() not in owned_paths:
+                raise ValueError("root ownership omits current metadata")
+    for relative in declaration.framework_owned_paths:
+        owned = root.joinpath(*relative.split("/"))
+        require_safe_directory(owned.parent)
+        if path_is_link_or_reparse(owned) or not owned.is_file():
+            raise ValueError("root ownership names a missing or redirected file")
+
+
+def resolve_structural_layout(
+    project_root: Path, lift_shift: dict[str, Any], *, _observation=None
+) -> ResolvedRetainedLayout:
+    """Resolve coordinates and their existing declared root ownership contract."""
+    layout, declaration = _layout_coordinates(
+        project_root, lift_shift, _observation=_observation
+    )
+    if declaration is not None and declaration.implementation_directory == ".":
+        try:
+            _require_declared_root_ownership(
+                Path(project_root).absolute(), declaration, _observation
+            )
+            require_safe_directory(layout.wrapper_root)
+            require_safe_directory(layout.implementation_root)
+        except (
+            OSError,
+            TypeError,
+            UnicodeError,
+            ValueError,
+            UnsafeFilesystemPathError,
+        ) as exc:
+            raise RetainedLayoutError(
+                "declared retained layout is unavailable or redirected"
+            ) from exc
+    return layout
+
+
+def _original_layout_coordinates(preparation, project_root, lift_shift):
+    """Coordinates for actual original discovery; ownership is checked afterward.
+
+    A description from this function cannot replace the registered original
+    namespace/role/forest participants or admit a source phase.
+    """
+    from .bounded_role_observation import current_role_observation
+    from .retained_layout_source_preparation import _state
+    from .retained_layout_transaction import _SourceMetadataObservation
+
+    original = _state(preparation, ready=False)
+    if (
+        original.root != project_root
+        or current_role_observation() is not original.reader
+    ):
+        raise TypeError("actual original preparation coordinate reader required")
+    original.ledger.charge_records(4, 512 + 4 * len(str(project_root).encode()))
+    layout, declaration = _layout_coordinates(
+        project_root,
+        lift_shift,
+        _observation=_SourceMetadataObservation(project_root, original.reader),
+    )
+    if declaration is None or declaration.implementation_directory != ".":
+        raise ValueError("actual original declared root coordinates required")
+    return layout

@@ -1,0 +1,57 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_dormant_original_owner_forest_join_and_positive_fixture_declaration",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_reader.py": {
+      "algorithm": "sha256",
+      "digest": "3fb9914010cd440bcec08d3306c9896f52910326233e201234fca48c513c1b4e"
+    },
+    "src/literate_ai/adapters/retained_layout_source_forest_movement.py": {
+      "algorithm": "sha256",
+      "digest": "bb066ed06a1a0496770efcc5473601f074fd42e127fa1c4b36d0d31825849c7d"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "eb69fcbd810ebb1fb350046511e5258650569b45ed08f19a6d27b7ddadd1fbaa"
+    },
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "2762d23e7b1b696129dd7de990e354f9552d044f3e8365b253fa218877bee129"
+    },
+    "src/literate_ai/adapters/retained_layout_source_movement.py": {
+      "algorithm": "sha256",
+      "digest": "763bfb9094be5b0fa90c728dc10b1a0e18061f4f5c42b244c851e7ddf27b080b"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "588a33055c46d6bade32e0a7ef253e0a3c683ea5fa91b2e45b12379d6e1d63dc"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "a83a167adf146be4d6941bbf8b44c07e2f474853f9da28371d3cff5a54d8a444"
+    },
+    "tests/critical/test_retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "cad05c5b04cd5589c2829c3c72177950c7d09d853e7c56de6103d89cbb11f255"
+    },
+    "tests/critical/test_retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "ce531664bb86a338385901b9abcc09e51fcdcb609b4d222d46a988d265a62816"
+    }
+  },
+  "addressed_findings": [
+    "Original directory successor stamps come only from authenticated controlled namespace publications; original identities and absent prefixes remain required.",
+    "The actual creating source call precharges the original ledger and binds one following event plus128KiB of physical journal storage into its exact native program.",
+    "A registered native event-substep schedule rejects direct/unplanned calls, bounds issued counts, and admits completion once.",
+    "Original join/program/transfer field references and snapshot seal are independently retained; only actual native resource enrollment advances its row.",
+    "Trailing phase/native callback closures compare original reader-map references and data before installing receipt-derived observations."
+  ],
+  "limitations": [
+    "Public root/shared admission and fresh-recovery guards remain intact.",
+    "The original-owner forest branch has NOT executed under actual canonical enrollment.",
+    "Low-level fixtures use actual separately authorized unmanaged native moves and real bounded file observations, then test pure transfer output; they manufacture no successful canonical phase.",
+    "Metadata, finalization, fresh recovery, installed/public/platform and full-roadmap execution qualification remain open."
+  ]
+}

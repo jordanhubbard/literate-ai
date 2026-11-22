@@ -1,0 +1,25 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_actual_shared_canonical_storage_planning",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "0b96b22a5cf6ec469da6119e772674d484611a947426bb05723a6c6277b2389c"
+    },
+    "tests/critical/test_retained_layout_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "7c035cb393474d7dc0bf32180bc2cae6693af8646ca21354606d2c4cef4d331c"
+    }
+  },
+  "scope": [
+    "Actual selected canonical lock endpoint inside nonroot original source fixes genuine original producer ancestors",
+    "Ordinary same-basename and lock-looking neighboring files remain source",
+    "Actual storage/carrier/create-directory separation and late-change invalidation remain enforced",
+    "Shared execution admission remains guarded"
+  ],
+  "limitations": [
+    "Planning only; no multi-carrier execution, coherent metadata/recovery, public or platform qualification"
+  ]
+}

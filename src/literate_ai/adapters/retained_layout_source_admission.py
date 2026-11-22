@@ -81,6 +81,7 @@ class _Admission:
     resources: object = None
     authored: object = None
     provider: object = None
+    forest_operation: object = None
 
 
 def _record(preparation, *, cleanup=False):
@@ -107,6 +108,9 @@ def _phase_record(phase):
         ):
             _fail("actual source phase admission ended or is missing")
         return None
+    from .retained_layout_forest_operation import _require_operation_admission
+
+    _require_operation_admission(record)
     if (
         _record(record.preparation) is not record
         or phase is not record.phase
@@ -191,6 +195,12 @@ def _close_admitted_inputs(phase, tree, native):
         _close_movement_inputs(record)
         _phase_record(phase)
         return
+    if plan.source_forest is not None:
+        from .retained_layout_source_roles import _require_forest_destination
+
+        _require_forest_destination(plan, _source_preparation=record.preparation)
+        _phase_record(phase)
+        return
     if (
         _lineage(plan.tree.root) != plan.source_lineage
         or _lineage(plan.destination.parent) != plan.destination_lineage
@@ -210,6 +220,30 @@ def _close_admitted_span(record):
     plan, ledger = record.original.plan, record.original.ledger
     if record.span is not None:
         _fail("reentrant admitted closing scope")
+    if plan.source_forest is not None:
+        if record.movement is not None and record.movement.expected is not None:
+            tree, native = record.movement.expected
+        else:
+            from .retained_layout_source_namespace import _current_view
+
+            tree, native = _current_view(record.preparation)
+            if record.partition_binding is not None:
+                tree, native = (
+                    record.partition_binding[0].tree,
+                    record.partition_binding[1],
+                )
+        record.span = tree, native, None
+        try:
+            _close_tree(
+                tree,
+                native,
+                controls=record.controls,
+                _admitted_source_phase=record.phase,
+            )
+            _phase_record(record.phase)
+        finally:
+            record.span = None
+        return
     if record.movement is not None and record.movement.expected is not None:
         tree, native = record.movement.expected
         _absence(plan.tree.root, record.original.ledger.budget.maximum_entries)
@@ -555,10 +589,14 @@ def _fund_journal_document(journal, content):
 
 
 @contextmanager
-def _admit_preparation(preparation, plan, pool):
+def _admit_preparation(preparation, plan, pool, *, forest_operation=None):
     from .retained_layout_source_finalization import _terminal
 
     original = _state(preparation)
+    if forest_operation is not None:
+        from .retained_layout_forest_operation import _require_operation_request
+
+        _require_operation_request(forest_operation, preparation, plan, pool)
     if _terminal(preparation) is not None:
         _fail("terminal preparation grants no source admission")
     if original.plan is not plan or preparation in _ADMISSIONS:
@@ -634,7 +672,13 @@ def _admit_preparation(preparation, plan, pool):
     _close_control_pool_admission(pool, pool_binding)
     _close_live_journal_admission(journal, journal_binding)
     record = _Admission(
-        preparation, original, pool, pool_binding, journal_binding, journal_root
+        preparation,
+        original,
+        pool,
+        pool_binding,
+        journal_binding,
+        journal_root,
+        forest_operation=forest_operation,
     )
     if original.catalog is not None:
         from .catalog_copy_roles import _binding
@@ -667,6 +711,9 @@ def _admit_preparation(preparation, plan, pool):
             _RESERVATIONS.pop(record.controls.reservations, None)
         _JOURNALS.pop(journal, None)
         _ADMISSIONS.pop(preparation, None)
+        from .retained_layout_forest_operation import _end_operation_admission
+
+        _end_operation_admission(record)
 
 
 def _refuse_unfunded_effects(phase):

@@ -1,0 +1,157 @@
+{
+  "schema": "literate-ai/forest-current-development@1",
+  "state": "source_reviewed_actual_current_native_prefix_observations",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "current_native_prefix_observation_proven": true,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-current-review.json",
+    "sha256": "5fa2a17409a086aea4c7bdae9a6d16b2b4937e8dad8a8748eeee2fcdf987cd86"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-current-owner-report.json",
+        "sha256": "323c0fcb6721785c03bc7edbf0265a8783643ec72387f8ed6ebe47829836eae7"
+      },
+      "log": {
+        "path": "_build/forest-current-owner-maintained.log",
+        "sha256": "30a14ad2965b2d7d6801250f15fb2bec61390e5469b32ad77788e2f9140284c5"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "c873fa110eabcb07b328583226f047caa94b2fb1828d4240c3b927116816c506",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-current-span-report.json",
+        "sha256": "ab8bab277582eb55e5acba68621a6771296e1add1265f0e4a306dcf4a2298f43"
+      },
+      "log": {
+        "path": "_build/forest-current-span-maintained.log",
+        "sha256": "196817c9980ac6d75bdcf278e4c456b2c00316637f37ff0fd51682a8c8edbc14"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "db95c3b07e9f3c5a3af8d7b6e6d0586c4dcc07545a80dd56db3a72934d673611",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-current-native-report.json",
+        "sha256": "7761279a138d20f5f609dca8476f5ad5bdb30d9818d53cfddc81ef41ee95ca5f"
+      },
+      "log": {
+        "path": "_build/forest-current-native-maintained.log",
+        "sha256": "32f12e2fbe4968c4f28025ce72c7c2fc9fecba67fb75f630d92fa949f9733707"
+      },
+      "summary": {
+        "executed": 37,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 37,
+        "selected": 37,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2f72ea5e299b09aad5400ddfb55b1c07c73583d58a1920dadc163d392a3d1959",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 56,
+  "pending_prefix_subcases": 9,
+  "diagnostics": [
+    {
+      "path": "_build/forest-current-complete-first-diagnostic.log",
+      "sha256": "3939f0b9022ac3165106e6bcfb561e0d85da8e4835f0a0103e318fe5842b55bb"
+    },
+    {
+      "path": "_build/forest-current-first-diagnostic.log",
+      "sha256": "8963a3170048b92b7134b764ae96ee2cd658b2b9ada345590c00dd98c62f41de"
+    },
+    {
+      "path": "_build/forest-current-review-fixed-diagnostic.log",
+      "sha256": "144f8207b73cd923de86e7ed9897fded66c2bb104104370786ce6025eaae2e83"
+    },
+    {
+      "path": "_build/forest-current-review-controls.log",
+      "sha256": "cf636ebf70578fd9ffc489c11a3ba70bbb692da9d613bfdf1546ef8d3cbfd4e7"
+    }
+  ],
+  "causal_notes": [
+    "Fixtures genuinely exercise original canonical forest admission refusal, then separately acknowledge unmanaged native dependency execution under actual normal canonical project/Git locks. Real native journal callbacks retain real prefix endpoints; no successful source phase/partition is fabricated.",
+    "Nine actual prefix cases cover parking/directory before, unobserved parking/directory creation, observed stage-parent refresh, entry before/after and mode before/after. Unknown unrecorded nodes remain intact and unresolved.",
+    "The predecessor source produces exactly two causal failures with the same actual fixtures: copied role seed property is read before factory validation, and a redirected endpoint parent is followed for preliminary leaf metadata. The control driver asserts both exact sentinels and no unrelated errors; its zero exit indicates expected negative reproduction, not passing maintained methods.",
+    "The first late-change controls injected during initial base-role validation, so their intended after-payload causality was invalid. Final direct replacement selects the exact nested closing callback code and asserts it was actually reached.",
+    "Each late revocation subcase uses a genuinely new acquisition/read allowance; old failed reader counters are never reset or refunded. Shared-budget refusal validates fixture capacity and asserts actual observer entry.",
+    "Corrected targeted role/parent revocation, redirected-parent and complete-span diagnostic passed3 methods in100.730s before maintained qualification."
+  ],
+  "remaining": [
+    "Actual metadata/control publication and retirement endpoint projection through durable original bytes and exact retained intent/observation records",
+    "Actual acknowledged journaled source/metadata/control recovery effects and fresh dispositions",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static": {
+    "session": 58988,
+    "terminal": true,
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-current-final-static.log",
+      "sha256": "faeb7a66857c0ced01a9793a81ec11eff6b5d0f0ba520c97332c0edc9a0df660"
+    },
+    "checks": [
+      "supported driver/documentation review records",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap dependencies",
+      "documentation-check"
+    ]
+  },
+  "verify": {
+    "session": 47074,
+    "terminal": true,
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-current-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "normal_skips": 3
+  },
+  "diff_check": {
+    "exit_code": 0
+  }
+}

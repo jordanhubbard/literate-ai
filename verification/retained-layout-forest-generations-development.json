@@ -1,0 +1,223 @@
+{
+  "schema": "literate-ai/forest-generations-development@1",
+  "state": "source_reviewed_actual_existing_supplemental_generation_join",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "general_canonical_forest_recovery_proven": false,
+  "one_existing_supplemental_generation_descriptor_join_proven": true,
+  "independent_os_process_generation_reentry_proven": true,
+  "control_disposition_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-generations-review.json",
+    "sha256": "146fca7411c117e7e5cb0742f9c4e9367855427455247364ed96e805cd3c2fac"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-generations-process-fixed-report.json",
+        "sha256": "b1b6eb99ecd77dfe84c9230b89f173f6005bad86804d8241bc9206986d82fad6"
+      },
+      "log": {
+        "path": "_build/forest-generations-process-fixed-maintained.log",
+        "sha256": "199f95ee6c7bc74438b4fae0eb11252cbc85f1e18872961b93822108bad148e3"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "e6b602ce18b1b78348be7e573eb44633162f107c44b43d16d4f9f26a4a1419a4",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-generations-affected-0-report.json",
+        "sha256": "a9f746c29b26e624b833679c74132ed7e9f3dfed0861fc1372ee7d12293c64e8"
+      },
+      "log": {
+        "path": "_build/forest-generations-affected-0-maintained.log",
+        "sha256": "1efe5065b013615d610905dcaa6d348af68546ef68ea982b8d619596af8ce2ae"
+      },
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "b2e134309f6cc42b95bd63d69c5eec16dad4c485edc423a37874cad7760d9418",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-generations-affected-1-report.json",
+        "sha256": "3802d3ed85d7471182c7a6589e23f6577c13e7ff77b81f77094454fda7cf04e5"
+      },
+      "log": {
+        "path": "_build/forest-generations-affected-1-maintained.log",
+        "sha256": "ca12f5bd7c10a77a6fcf25aac6c9cb1ee27ac4a3e65fdec4b24f6b7dcde8c0c4"
+      },
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "986db8bf674fa6acd4b45f1739b6e01e80c39014aa0c4ec4ad49019fd905c35b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-generations-affected-2-report.json",
+        "sha256": "2651c0f5a14da945a3936524df85d41f72481e9cba42cab17e8258ecd1c38a72"
+      },
+      "log": {
+        "path": "_build/forest-generations-affected-2-maintained.log",
+        "sha256": "f65899f85a5507838dd07cc2e6f628159b3de6d90a6974bafc8f75b3584e3eba"
+      },
+      "summary": {
+        "executed": 12,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 12,
+        "selected": 12,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "9664588ccefab3004ac14b32527b7fa829fb63fcfa7ac46d8d95ff938f58dc77",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-generations-resume-report.json",
+        "sha256": "b5a0edca0aed3885e9e41d7b3745a504b3503c8eac7154a3cf742dc33447e105"
+      },
+      "log": {
+        "path": "_build/forest-generations-resume-maintained.log",
+        "sha256": "1e1b494fad288cdc80b7dcce45cfe81b81b848248290493a727c576cf3336dc2"
+      },
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2710e13e7eb542896c2c9cfc6e599961849126fa4059b182880725e54bcc89e5",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-generations-recovery_retry-report.json",
+        "sha256": "0251fe6bc75c4614b9b47dd879ee2c8d112b2ae02b70d5b2862708438a826f43"
+      },
+      "log": {
+        "path": "_build/forest-generations-recovery_retry-maintained.log",
+        "sha256": "5c10f1f2422810833037a3f19adc24c95570be27b50ea31d19d65c4f66bf12a6"
+      },
+      "summary": {
+        "executed": 13,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 13,
+        "selected": 13,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "f60d2b6e61d8207476137c300cc62c6f8fad43ee18b63c1b674ac1530c5a770b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-generations-current-report.json",
+        "sha256": "4c5ab50240a2664c8ad462311cf5e836c018bf6fa11f08daee361d6d32340fe7"
+      },
+      "log": {
+        "path": "_build/forest-generations-current-maintained.log",
+        "sha256": "1072d873f1c7ebbab10a5b299c0fc98f8353de26028d9ba443b9ab22d3347165"
+      },
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "26ae7feb67431afc028741fa7bbf279690c2def2e0305c09f5a2511eeb394456",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 49,
+  "scope": [
+    "Strict completed canonical epochs retain descriptive generation/lease/publication/handoff facts. No saved descriptor or effect rights are reconstructed from them.",
+    "Current canonical producers discover complete existing supplemental target groups under real held original mutexes. Each request still requires a fresh proposal, exact acknowledgement and the existing actual raw acquisition factory.",
+    "Current projection joins original private and supplemental public descriptors by complete lease/publication/actual handoff ancestry; original source controls must belong to the saved original partition. All private nodes remain in the complete span.",
+    "Exact derived request/target field references and canonical bytes close after final native callbacks. Catalogue active lifetime and original receiver close again after final producer target accessors.",
+    "One real original finalized-control dependency followed by real data rollback creates a supplemental public generation. Fresh factories reacquire both original and supplemental groups without recreating either node; current observation preserves their distinct inodes and bytes.",
+    "A genuine separate OS process starts with empty observer/canonical registries, receives descriptive inputs only, reopens the journal and acquires both groups through actual factories. Parent checks distinct PID, two owners, complete/no-issue observation and unchanged old-private/new-public nodes.",
+    "Seven reached callback mutations refuse: group, equal tuple, equal target copy, target anchor-node tuple copy, inactive catalogue, receiver change and catalogue revocation in final target accessor.",
+    "Original native/metadata execution remains an explicitly unmanaged dependency under real normal canonical owners with acquired_partition_payload_digest=None. No original forest phase/partition is manufactured; full feature and qualification remain open."
+  ],
+  "causal_failures": [
+    {
+      "log": {
+        "path": "_build/forest-generations-request-before-diagnostic.log",
+        "sha256": "2d08158c6695c20975c12732d290d0000b2314994d455d80ee142a043c4befc5"
+      },
+      "seconds": 156.497,
+      "cause": "Reached actual native-close callback changed the derived request group; predecessor returned without ValueError. No mutated request was passed to an acquisition factory."
+    }
+  ],
+  "harness_failures": [
+    {
+      "log": {
+        "path": "_build/forest-generations-process-maintained.log",
+        "sha256": "225788b3cc9e9d09d75d6d76e728be36e426667217d2e80b41d412bc5c71cca9"
+      },
+      "seconds": 187.051,
+      "cause": "New child harness omitted fresh_metadata_limit and failed before creating observer. This is not recovery evidence; final corrected maintained run supersedes it."
+    }
+  ],
+  "alignment": {
+    "path": "_build/forest-generations-alignment.json",
+    "sha256": "fdafd12ff0cc7f54875f6bcd47a150bbf69f5892676ea14042dfa8abd1e8c74a"
+  },
+  "worker_scope": "Only local host used; remote alignment includes unreachable/low-disk workers, no remote work dispatched.",
+  "not_proven": [
+    "Genuine forest verified-data receipt handoff to canonical control disposition and control-inclusive span advancement through actual normalization and native retirement",
+    "Larger supplemental topologies and multiple replacement targets/generations; general native/metadata/mode/control and canonical acquisition interruption matrices",
+    "Genuine integrated original canonical forest SourcePhase/acquired partition execution and full commit/recovery acceptance before public or legacy admission changes",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and every other pending roadmap obligation"
+  ]
+}

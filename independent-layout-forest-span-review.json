@@ -1,0 +1,31 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_runtime_forest_span_data_verification_kernel",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_span.py": {
+      "algorithm": "sha256",
+      "digest": "74b9444ae986bf21baaffc150038be18b6ab649d3bcad133d2b379d9cd311181"
+    },
+    "tests/critical/test_retained_layout_forest_span.py": {
+      "algorithm": "sha256",
+      "digest": "8438babe6d69c780c4a8e7b1f419871afd66cdb1a935f76584cc919c1a2fbeb6"
+    }
+  },
+  "scope": [
+    "Actual original forest participant authenticates current read scope and funds the complete runtime description",
+    "Finite complete multi-root native inventory, lexical/recorded physical root separation and known ancestry closure",
+    "Raw symbolic text verification without dereferencing temporarily dangling parked aliases; SDK capture remains strict",
+    "One regular payload hash per SDK device/inode hardlink group and final native closure after all payload/link reads",
+    "Committed regular and symbolic read ceilings plus aggregate preflight before I/O"
+  ],
+  "addressed_findings": [
+    "Original-sized accounting previously passed a larger stream/link ceiling; two after-inventory growth controls reproduced forbidden open/read attempts, then passed with committed-size ceilings"
+  ],
+  "limitations": [
+    "This is per-call data verification, not a movement/control/admission capability",
+    "Actual live movement controller must debit cumulative reads/views through its original ledger and seal successor descriptions to verified effects",
+    "No source-phase execution, metadata/recovery/public/platform acceptance is claimed"
+  ]
+}

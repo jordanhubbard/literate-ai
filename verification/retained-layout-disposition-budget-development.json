@@ -1,0 +1,125 @@
+{
+  "schema": "literate-ai/retained-layout-disposition-budget-development@1",
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "state": "native-three-generation-retry-and-affected-disposition-controls-pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "current_independent_implementation_review": false,
+  "scope": "Internal actual canonical transaction and native control recovery on macOS ARM64. No public layout, whole framework, installed or platform release qualification.",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_layout_journal.py": "0f737478628f2fce29f0bd6de9f190171b8c26d0568e298e404f2e9317a78270",
+    "src/literate_ai/adapters/retained_layout_disposition_recording.py": "5cbb4b2f40b3c338d8bad72d73a6e2b8bae6ca76811fb9036d854bd2300e1b24",
+    "src/literate_ai/adapters/retained_layout_disposition_read.py": "52d33d8374917a85fade5cc5d4832bff0a98aea2625557b8cfbd9fb47cc13d50",
+    "src/literate_ai/adapters/retained_layout_forest_disposition.py": "a5620a690317418dc7ec59c6b42a84e467837dbb11c08a02b1ebe407973dbafb",
+    "src/literate_ai/adapters/retained_layout_forest_disposition_budget.py": "f3823c8b865461f053a69413ab6453b7500c0e0a2e956e5d683fde06c1032baa",
+    "src/literate_ai/adapters/retained_layout_forest_disposition_reads.py": "c96b07ab0615bbcb59f4040dc99a8c5a403d3970d7a24d17de080a099b7e4d09",
+    "src/literate_ai/adapters/catalog_copy_plan.py": "31ba5d4eec7b1d9e05ba0d19ea7f02e72d5e68b2b8bc0767f7bb11c9c5856b72",
+    "src/literate_ai/adapters/retained_project_inputs.py": "9f41b2f8c3149ce617d6fa5996c2ce57ce67cdf19e5c9097dec26c1b0b9b8c91",
+    "tests/critical/test_retained_layout_forest_operation_g2_retry.py": "738ebaf44a6ec9bea41a23ff1469b7d51da2eab2bc4bd8dd83a25d2063664c58",
+    "tests/critical/test_retained_layout_forest_disposition.py": "4455e0a669b0dbc6d82f73876d7b88dbf78dd6cfbefc800094fd34bbde662529",
+    "tests/critical/test_retained_layout_journal.py": "9c6303e9463f8aa6190b73c81e6ee8975a4a90c35ea147fae8070070a96739c3",
+    "tests/critical/test_retained_layout_marker_reads.py": "ad6c1742ae019c7d9e73ae1e0f02a312846a11bb1be45539a8e7e2e457e0901a"
+  },
+  "mechanism": [
+    "Journal stage and published bodies are compared as complete bounded streams against the actual original immutable bytes; native descriptor, named path, roster, publication and late closure checks remain.",
+    "Two actual marker-only reads per action have their own finite file/byte allowance and non-reentrant workspace; they grant no full-forest verification policy.",
+    "Each actual native action retains five writer verifications plus one full successor verification. Reserve 32 fixed checks plus six per actual action plus eight per original descriptor owner, before effects.",
+    "The maintained complete native journey observes exactly eight opening/boundary checks plus six checks per action; all actual full reads and native callbacks remain.",
+    "Exhaustion keeps its original ValueError code and adds only bounded numeric notes naming the exhausted dimension."
+  ],
+  "unchanged_policies": {
+    "g2_maximum_files": 65536,
+    "g2_maximum_file_bytes": 4194304,
+    "g2_maximum_total_bytes": 2147483648,
+    "g2_maximum_metadata_bytes": 17179869184,
+    "worker_timeout_seconds": 3600,
+    "original_journal_event_payload_storage_and_stage_limits_unchanged": true,
+    "original_g2_scenario_method_body_topology_and_native_actions_unchanged": true,
+    "g2_current_baseline_sha256": "738ebaf44a6ec9bea41a23ff1469b7d51da2eab2bc4bd8dd83a25d2063664c58",
+    "test_observability": "Earlier recovery adds delegated single-decode and ended-context refusal assertions around the original scenario; these budget changes preserve those exact baseline test bytes."
+  },
+  "current_native_results": {
+    "g2": {
+      "sha256": "a4be600e837cd8849fdb682e0be281dc8495ea5ea74488aa208878136b4f95e7",
+      "summary": {
+        "executed": 1,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 1,
+        "selected": 1,
+        "skipped": 0
+      },
+      "seconds": 2108.113
+    },
+    "disposition": {
+      "sha256": "f0717808b725a0f7cfc725bfba58e16f2f73b4e28c4d940c5b2ddf329a63e4ad",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "seconds": 2613.186
+    }
+  },
+  "g2_actual_assertions": [
+    "Interrupt after actual first predecision native retirement, preserving original inode.",
+    "Reacquire actual canonical G2 roles and complete the separately acknowledged second disposition.",
+    "Reopen three actual descriptor generations and distinguish incomplete first and complete second disposition.",
+    "Observe terminal replay without new journal events or publications.",
+    "Preserve prior retired inode/bytes, application inode/mode/bytes and actual Git index inode/bytes."
+  ],
+  "retained_predecessor_failures": [
+    {
+      "stage": "complete-body-reuse with broad verifier reservations",
+      "seconds": 1393.618,
+      "passed": false
+    },
+    {
+      "stage": "instrumented unchanged accounting diagnostic",
+      "seconds": 1367.353,
+      "passed": false,
+      "files": 70374,
+      "maximum_files": 65536,
+      "charged_metadata": 16170013312,
+      "maximum_metadata": 17179869184,
+      "qualification": false
+    },
+    {
+      "stage": "marker-only allowance before exact full-check reservation",
+      "seconds": 1360.118,
+      "passed": false,
+      "files": 67000,
+      "maximum_files": 65536
+    }
+  ],
+  "other_scoped_native_evidence": {
+    "journal_module_after_body_reuse": {
+      "passed": 26,
+      "skipped": 0,
+      "seconds": 2.687,
+      "scope": "Earlier exact journal source stage; not a current whole-framework pass"
+    },
+    "marker_only_native_reader": {
+      "passed": 3,
+      "skipped": 0,
+      "seconds": 0.005,
+      "scope": "Original native reader bounds, raced growth and hardlink refusal; source unchanged by final coupon calculation"
+    },
+    "marker_allowance_disposition_before_final_reservation": {
+      "passed": 5,
+      "skipped": 0,
+      "seconds": 2364.17
+    }
+  },
+  "remaining": [
+    "Independent review of the new implementation bytes",
+    "Complete recovered-cohort and integrated source gates",
+    "Mixed topology and complete public layout workflows",
+    "Fresh installed and every required native platform gate",
+    "Release acceptance and publication"
+  ]
+}

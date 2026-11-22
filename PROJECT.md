@@ -262,6 +262,13 @@ of source metadata headroom. Full source and broader qualification, including a
 current project test receipt, remain open.
 Its production executor still accepts only the existing nonroot single-rename
 profile; root/shared movement, public application and recovery remain unfinished.
+Internal root-out preparation now derives a distinct logical source forest from
+the actual original canonical role partition and complete namespace. Unknown
+metadata remains source, shared native directories stay fixed, and acknowledged
+forest data survives bounded private-journal reopening. Independent source review
+and 177 scoped maintained methods cover this read-only prerequisite. Its source
+profile explicitly refuses legacy execution/recovery admission; broader ordinary
+prepared-phase and full-source qualification remain open.
 
 Issue #217's reviewed Rust library acceptance-harness dependencies are covered by
 ADR 0056, explicitly accepted by the directing user on 2026-11-03. Implementation

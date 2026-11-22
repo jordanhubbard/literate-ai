@@ -80,7 +80,7 @@ def _role_document(context, facts, namespace):
         "directories": facts.directories,
         "controls": facts.controls,
         "graph": facts.graph.identity.uri,
-        "prospective": canonical_identity(_custody_wire(context.prospective)).uri,
+        "prospective": canonical_identity(_custody_wire(facts.prospective)).uri,
         "origin": facts.origin.to_dict(),
         "provider": None if facts.provider is None else facts.provider.identity.uri,
         "inputs": _custody_wire(_input_commitments(facts.inputs)),
@@ -206,6 +206,8 @@ def _persist_original_state(admission):
                 "inputs": _custody_wire(facts.inputs),
             },
         }
+        if facts.forest is not None:
+            document["partition"]["forest"] = facts.forest.document
         # Pack byte witnesses so a large original metadata roster does not
         # consume one journal payload slot per input file. The immutable journal
         # payload/count/storage policy remains unchanged.
@@ -287,14 +289,30 @@ def _persist_original_state(admission):
 
 
 def _read_original_state(
-    journal, phase_identity=None, *, budget, maximum_metadata_bytes
+    journal, phase_identity=None, *, budget, maximum_metadata_bytes, _allowance=None
 ):
     """Validate durable descriptions; grant no read, publication or recovery lease."""
     from .catalog_copy_plan import _Observation
-    from .retained_layout_journal import _require_live_layout_journal
+    from .retained_layout_journal import (
+        _LIVE_WRITERS,
+        _close_live_journal_admission,
+        _LayoutJournalWriter,
+        _require_live_layout_journal,
+    )
 
-    _require_live_layout_journal(journal)
-    allowance = _Observation(budget, maximum_metadata_bytes, ())
+    if type(journal) is not _LayoutJournalWriter or journal not in _LIVE_WRITERS:
+        _fail("actual live original-state journal required")
+    _close_live_journal_admission(journal, _LIVE_WRITERS[journal])
+    if _allowance is None:
+        allowance = _Observation(budget, maximum_metadata_bytes, ())
+    elif (
+        type(_allowance) is _Observation
+        and _allowance.budget is budget
+        and _allowance.metadata == maximum_metadata_bytes
+    ):
+        allowance = _allowance
+    else:
+        _fail("same explicit fresh original-state allowance required")
 
     known = journal._known
 
@@ -309,7 +327,10 @@ def _read_original_state(
             count, total, peak = count + 1, total + size, max(peak, size)
         allowance.files += count
         allowance.bytes += total
-        allowance.charge_records(2 * count, total + peak + 1)
+        # The actual funded journal comparison streams every member in 64 KiB
+        # chunks. Original cached bodies remain shared; charge the simultaneous
+        # native comparison buffers, retaining every file and byte read above.
+        allowance.charge_records(2 * count, 4 * min(65536, peak + 1))
         roster = tuple(known.items())
         journal.require_current(_expected=roster)
         if journal._known is not known:
@@ -349,11 +370,18 @@ def _read_original_state(
     binding = decode(known["header.json"][1])["binding"]
     if phase_identity is None:
         phase_identity = binding.get("source_phase_identity")
-    if binding != {
+    expected_binding = {
         "schema": "literate-ai/layout-transaction-binding@1",
         "source_phase_identity": phase_identity,
         "original_state_required": True,
-    }:
+    }
+    if "source_profile" in binding:
+        from .retained_layout_source_forest import _FOREST_PROFILE
+
+        if binding["source_profile"] != _FOREST_PROFILE:
+            _fail("unsupported original source profile")
+        expected_binding["source_profile"] = _FOREST_PROFILE
+    if binding != expected_binding:
         _fail("requested phase differs from actual journal binding")
     events = tuple(decode(known[name][1]) for name in journal._events)
     matches = [event["data"] for event in events if event["kind"] == _EVENT]
@@ -372,6 +400,8 @@ def _read_original_state(
     ):
         _fail("noncanonical or unbound original state")
     plan = plan_document["plan"]
+    if (plan.get("source_forest") is not None) != ("source_profile" in binding):
+        _fail("original logical source forest profile disagrees with its binding")
     namespace, partition = document["namespace"], document["partition"]
     if (
         set(document)
@@ -383,7 +413,12 @@ def _read_original_state(
             "byte_witnesses",
         }
         or set(namespace) != {"identity", "document", "census", "native"}
-        or set(partition) != {"identity", "document", "graph", "inputs"}
+        or set(partition)
+        != (
+            {"identity", "document", "graph", "inputs", "forest"}
+            if plan.get("source_forest") is not None
+            else {"identity", "document", "graph", "inputs"}
+        )
         or set(document["byte_witnesses"]) != {"chunks", "size", "index"}
     ):
         _fail("unexpected original-state description fields")
@@ -396,7 +431,7 @@ def _read_original_state(
         or canonical_identity(partition["graph"]).uri != partition["document"]["graph"]
     ):
         _fail("original namespace or partition commitment changed")
-    _validate_description(document, plan)
+    _validate_description(document, plan, allowance)
 
     witnesses = document["byte_witnesses"]
     roster = witnesses["chunks"]
@@ -480,17 +515,16 @@ class _SavedOriginalState:
         return body
 
 
-def _validate_description(document, plan):
+def _namespace_description(document):
     from literate_ai.contracts.blobs import BlobRef
     from literate_ai.contracts.native_sdk_trees import NativeSdkAlias
     from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
 
     from .retained_cargo_tree_v2 import RetainedCargoInputTreeV2
-    from .retained_layout_effect_graph import _source_effect_graph
     from .retained_layout_partition import RetainedLayoutPartitionCensus
     from .retained_layout_recovery_data import _decode
 
-    namespace, partition = document["namespace"], document["partition"]
+    namespace = document["namespace"]
     value = _decode(namespace["census"])
     data = value["tree"]
     native = _decode(namespace["native"])
@@ -534,8 +568,20 @@ def _validate_description(document, plan):
         value["shared_directories"],
         value["_lineage"],
     )
+    return census, native
+
+
+def _validate_description(document, plan, allowance):
+    from .retained_layout_effect_graph import _source_effect_graph
+    from .retained_layout_recovery_data import _decode
+
+    namespace, partition = document["namespace"], document["partition"]
+    census, native = _namespace_description(document)
+    tree = census.tree
     role_document = partition["document"]
     graph = partition["graph"]
+    if plan.get("destination_state") is not None and plan.get("source_forest") is None:
+        _fail("original destination data requires its forest profile")
     if (
         tree.root != Path(plan["root"])
         or namespace["document"]["namespace"] != census.identity.uri
@@ -558,6 +604,83 @@ def _validate_description(document, plan):
         _fail(
             "complete original namespace or effect graph differs from acknowledgement"
         )
+    if plan.get("source_forest") is not None:
+        from .exclusive_entry import LayoutEntryNode
+        from .retained_layout_source_forest import _from_original
+
+        original_roles = _decode(role_document["roles"])
+        original_directories = _decode(role_document["directories"])
+        count = len(native) + len(original_roles) + len(original_directories)
+        path_bytes = sum(len(name.encode()) for name, _ in native)
+        allowance.charge_records(
+            64 + 16 * count, 65536 + 4096 * count + 128 * path_bytes
+        )
+        observed_graph = _source_effect_graph(
+            tree,
+            original_roles,
+            original_directories,
+            graph["source"],
+            graph["destination"],
+            protected_directories=tuple(graph["protected_directories"]),
+        )
+        forest, source_native = _from_original(
+            census,
+            tuple((name, LayoutEntryNode(**node)) for name, node in native),
+            namespace["identity"],
+            partition["identity"],
+            original_roles,
+            original_directories,
+            observed_graph,
+        )
+        if plan.get("destination_state") is None:
+            if (
+                (graph["source"] != "." and graph["destination"] != ".")
+                or plan["destination_parent"] is None
+                or not plan["destination_lineage"]
+            ):
+                _fail("original mixed destination observation is missing")
+        else:
+            from .retained_layout_source_destination import (
+                _allowance as destination_allowance,
+            )
+            from .retained_layout_source_destination import (
+                _from_original as destination_from_original,
+            )
+
+            allowance.charge_records(
+                *destination_allowance(census, graph["destination"])
+            )
+            destination = destination_from_original(
+                census,
+                tuple((name, LayoutEntryNode(**node)) for name, node in native),
+                graph["destination"],
+            )
+            if (
+                plan["destination"] != str(destination.root / destination.coordinate)
+                or canonical_json_bytes(_custody_wire(destination))
+                != canonical_json_bytes(plan["destination_state"])
+                or canonical_json_bytes(_custody_wire(destination.parent_node))
+                != canonical_json_bytes(plan["destination_parent"])
+                or canonical_json_bytes(
+                    _custody_wire(
+                        destination.anchor_lineage
+                        if destination.parent_node is not None
+                        else ()
+                    )
+                )
+                != canonical_json_bytes(plan["destination_lineage"])
+            ):
+                _fail("original destination state differs from acknowledgement")
+        if (
+            forest.identity.uri != plan["source_forest"]
+            or canonical_json_bytes(forest.document)
+            != canonical_json_bytes(partition["forest"])
+            or canonical_json_bytes(_custody_wire(forest))
+            != canonical_json_bytes(plan["tree"])
+            or canonical_json_bytes(_custody_wire(source_native))
+            != canonical_json_bytes(plan["native"])
+        ):
+            _fail("original logical source forest differs from acknowledgement")
     from .repository_refresh import RefreshFileObservation
     from .retained_layout_source_roles import _input_commitments
 

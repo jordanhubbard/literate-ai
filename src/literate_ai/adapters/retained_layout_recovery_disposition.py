@@ -6,9 +6,10 @@ acceptance. Its results and read-only release checks never restore writer rights
 
 from __future__ import annotations
 
+import json
 import os
 import stat
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, fields, is_dataclass, replace
 from pathlib import Path
 from uuid import uuid4
 
@@ -19,11 +20,13 @@ from .repository_refresh_reservations import _custody_wire
 from .retained_layout_control_roles import layout_pending_control_path
 from .retained_layout_partition import _lineage
 from .retained_layout_recovery_controls import (
+    _CREATED_RECOVERIES,
     _close_dependencies,
     _close_dependency_facts,
     _node,
     _optional_node,
     _read_marker,
+    _RecoveredControlSet,
     _recovery_area,
 )
 from .retained_layout_recovery_data import (
@@ -35,7 +38,7 @@ from .retained_layout_recovery_data import (
     plan_layout_data_recovery,
 )
 from .retained_layout_recovery_roles import _RecoveryRoleLease
-from .retained_layout_reservations import _PREFIX
+from .retained_layout_reservations import _PREFIX, _StagedReservationSet
 
 _KEY = object()
 
@@ -84,16 +87,123 @@ def _owners(roles):
     )
 
 
-def _entries(pool, owners):
-    records = [
-        e["data"]
-        for e in pool._journal.events
-        if e["kind"] == "reservation-lease-intent"
-    ]
+def _entry_owner_pin(pool, owner):
+    if type(owner) not in (_RecoveredControlSet, _StagedReservationSet):
+        _fail("actual original descriptor owner required")
+    raw = type(owner) is _RecoveredControlSet
+    registration = _CREATED_RECOVERIES.get(owner) if raw else None
+    if (raw and registration is None) or owner._pool is not pool:
+        _fail("actual original descriptor owner required")
+    names = (
+        "_pool",
+        "_held",
+        "_receiver",
+        "_markers",
+        "_active",
+        "_complete",
+        "_disposition",
+        *(("_plan",) if raw else ("_group", "_expected", "_locations")),
+    )
+    attributes = tuple((name, getattr(owner, name)) for name in names)
+    markers = tuple(owner._markers)
+    maps = []
+    if not raw:
+        for name in ("_expected", "_locations"):
+            value = getattr(owner, name)
+            if type(value) is not dict:
+                _fail("actual original descriptor mapping required")
+            maps.append((value, tuple(value.items())))
+    pending = [markers, owner._plan if raw else owner._group]
+    pending.extend(items for _mapping, items in maps)
+    seen, facts, paths = set(), [], []
+    while pending:
+        value = pending.pop()
+        if id(value) in seen:
+            continue
+        seen.add(id(value))
+        if type(value) is tuple:
+            pending.extend(value)
+        elif type(value) is type(Path()):
+            paths.append((value, type(value), str(value)))
+        elif is_dataclass(value):
+            members = tuple(
+                (field.name, getattr(value, field.name)) for field in fields(value)
+            )
+            facts.append((value, type(value), members))
+            pending.extend(item for _name, item in members)
+    return (
+        owner,
+        registration,
+        attributes,
+        markers,
+        tuple(maps),
+        tuple(facts),
+        tuple(paths),
+    )
+
+
+def _close_entry_owners(pins):
+    for owner, registration, attributes, markers, maps, facts, paths in pins:
+        expected_type = (
+            _RecoveredControlSet if registration is not None else _StagedReservationSet
+        )
+        if type(owner) is not expected_type:
+            _fail("original descriptor descriptions changed")
+        if (
+            any(getattr(owner, name) is not value for name, value in attributes)
+            or owner._active is not True
+            or owner._receiver != os.getpid()
+            or owner._complete is not True
+            or (
+                registration is not None
+                and _CREATED_RECOVERIES.get(owner) is not registration
+            )
+            or len(owner._markers) != len(markers)
+            or any(a is not b for a, b in zip(owner._markers, markers, strict=True))
+            or any(
+                type(value) is not kind
+                or any(getattr(value, name) is not old for name, old in members)
+                for value, kind, members in facts
+            )
+            or any(
+                len(mapping) != len(items)
+                or any(
+                    k is not old_k or v is not old_v
+                    for (k, v), (old_k, old_v) in zip(
+                        mapping.items(), items, strict=True
+                    )
+                )
+                for mapping, items in maps
+            )
+            or any(
+                type(path) is not kind or str(path) != text
+                for path, kind, text in paths
+            )
+        ):
+            _fail("original descriptor descriptions changed")
+
+
+def _entries(pool, owners, *, _event_snapshot=None):
+    pins = []
+    for owner in owners:
+        owner.verify_all()
+        pins.append(_entry_owner_pin(pool, owner))
+    journal = pool._journal
+    if _event_snapshot is None:
+        names = tuple(journal._events)
+        _event_snapshot = names, tuple(journal._known[name] for name in names)
+    events, payloads = journal._raw_documents_from_snapshot(_event_snapshot)
+    _close_entry_owners(pins)
+    return _entries_from_documents(owners, events, dict(payloads))
+
+
+def _entries_from_documents(owners, events, payloads):
+    """Callback-free projection of actual producer-authenticated immutable bytes."""
+    decoded = tuple(json.loads(raw) for raw in events)
+    records = [e["data"] for e in decoded if e["kind"] == "reservation-lease-intent"]
     entries, bindings = [], []
     for index, owner in enumerate(owners):
-        owner.verify_all()
-        raw = hasattr(owner, "_plan")
+        raw = type(owner) is _RecoveredControlSet
         group = owner._plan.group if raw else owner._group
         if type(group) is not str:
             _fail("actual completed descriptor generation required")
@@ -113,7 +223,9 @@ def _entries(pool, owners):
                 _fail("original descriptor generation provenance required")
             lease = leases[0]
             original = _node(lease["node"])
-            original_content = pool._journal.read_payload(lease["payload_digest"])
+            if lease["payload_digest"] not in payloads:
+                raise ValueError("layout.journal.payload-not-recorded")
+            original_content = payloads[lease["payload_digest"]]
             entries.append(
                 _Entry(
                     index,
@@ -189,7 +301,7 @@ def plan_recovery_control_disposition(pool, roles, data, retirement_root):
             forbidden.add((node.device, node.inode))
     areas, public = {}, {}
     for owner in owners:
-        if hasattr(owner, "_plan"):
+        if type(owner) is _RecoveredControlSet:
             roots = tuple(area.root for area in owner._plan.recovery_areas)
             if owner._plan.retirement_root is not None:
                 roots += (owner._plan.retirement_root,)
@@ -262,6 +374,11 @@ class RecoveryDispositionOutcomeError(RuntimeError):
 
 class _RecoveryDisposition:
     def __init__(self, key, pool, roles, plan, owners):
+        if type(plan) is not _DispositionPlan:
+            from .retained_layout_forest_disposition import _initialize
+
+            _initialize(self, key, pool, roles, plan, owners)
+            return
         if (
             key is not _KEY
             or type(roles) is not _RecoveryRoleLease
@@ -386,6 +503,11 @@ class _RecoveryDisposition:
                 _fail("public observation changed after data observations")
 
     def verify(self):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            return forest.verify(self)
         self._resources()
         self.pool.require_current()
         _observe_data(self.plan.data)
@@ -406,6 +528,11 @@ class _RecoveryDisposition:
         self._flags()
 
     def verify_descriptor_owner(self, owner):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            return forest.verify(self, owner)
         if owner not in self.owners or owner._disposition is not self:
             _fail("actual handed-off descriptor owner required")
         self._resources(owner)
@@ -468,6 +595,11 @@ class _RecoveryDisposition:
             error.add_note(str(outcome))
 
     def _adopt(self, entry, node, content, destination=None):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            return forest.advance(self, entry, node, content, destination)
         updated = replace(
             entry, node=node, content=content, named=destination or entry.named
         )
@@ -486,6 +618,37 @@ class _RecoveryDisposition:
                 areas.append(area)
             self._areas_current = tuple(areas)
 
+    def _event(self, kind, data):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            return forest.event(self, kind, data)
+        self.pool._journal.append(kind, canonical_json_bytes(data))
+
+    def _payload(self, content):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            return forest.payload(self, content)
+        return self.pool._journal.store_payload(content)
+
+    def _observed_marker(self, path):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            return forest.read_marker(self, path)
+        return _read_marker(path)
+
+    def _native_admission(self, kind, entry, *, before=False, enter=False):
+        from .retained_layout_forest_disposition import _state
+
+        forest = _state(self)
+        if forest is not None:
+            forest.admit(self, kind, entry, before=before, enter=enter)
+
     def _intent(self, entry, kind, **extra):
         self._writer()
         data = {
@@ -495,40 +658,45 @@ class _RecoveryDisposition:
             "source_phase_identity": self.plan.data.phase_identity,
             "original_node": _custody_wire(entry.original_node),
             "node": _custody_wire(entry.node),
-            "before_payload": self.pool._journal.store_payload(entry.content),
+            "before_payload": self._payload(entry.content),
             **extra,
         }
-        self.pool._journal.append(kind + "-intent", canonical_json_bytes(data))
+        self._event(kind + "-intent", data)
         self._writer()
         return data
 
     def normalize(self, entry):
+        self._native_admission("normalize", entry, enter=True)
         self._writer()
         if entry not in self.entries or entry not in _actions(self.entries)[0]:
             _fail("exact still-owned advisory token required")
         data = self._intent(entry, "recovery-control-normalization")
         marker = self.owners[entry.owner]._markers[entry.ordinal]
+        self._native_admission("normalize", entry, before=True)
         if os.pwrite(marker.descriptor, b"\0", 0) != 1:
             _fail("advisory normalization made no progress")
+        self._native_admission("normalize", entry, before=True)
         os.ftruncate(marker.descriptor, 1)
+        self._native_admission("normalize", entry, before=True)
         os.fsync(marker.descriptor)
         actual = _from_stat(os.fstat(marker.descriptor))
         immutable = ("device", "inode", "mode", "links", "uid", "gid")
         if (
             any(getattr(actual, k) != getattr(entry.node, k) for k in immutable)
-            or _read_marker(entry.named) != (actual, b"\0")
+            or self._observed_marker(entry.named) != (actual, b"\0")
             or _from_stat(os.fstat(marker.descriptor)) != actual
         ):
             _fail("normalized advisory ownership changed")
         self._adopt(entry, actual, b"\0")
         self._writer()
-        self.pool._journal.append(
+        self._event(
             "recovery-control-normalization-observed",
-            canonical_json_bytes({**data, "observed_node": _custody_wire(actual)}),
+            {**data, "observed_node": _custody_wire(actual)},
         )
         self._writer()
 
     def retire(self, entry, ordinal):
+        self._native_admission("retire", entry, enter=True)
         self._writer()
         if entry not in self.entries or entry not in _actions(self.entries)[1]:
             _fail("exact still-owned public native marker required")
@@ -552,6 +720,7 @@ class _RecoveryDisposition:
             expected_source=entry.node,
             expected_source_parent=source_parent,
             expected_destination_parent=destination_parent,
+            _before_effect=lambda: self._native_admission("retire", entry, before=True),
         )
         owner = self.owners[entry.owner]
         for parent in (entry.named.parent, root):
@@ -561,15 +730,15 @@ class _RecoveryDisposition:
         actual = _from_stat(os.fstat(marker.descriptor))
         if (
             actual.after_rename() != entry.node.after_rename()
-            or _read_marker(destination) != (actual, entry.content)
+            or self._observed_marker(destination) != (actual, entry.content)
             or _from_stat(os.fstat(marker.descriptor)) != actual
         ):
             _fail("retired native ownership changed")
         self._adopt(entry, actual, entry.content, destination)
         self._writer()
-        self.pool._journal.append(
+        self._event(
             "recovery-control-retirement-observed",
-            canonical_json_bytes({**data, "observed_node": _custody_wire(actual)}),
+            {**data, "observed_node": _custody_wire(actual)},
         )
         self._writer()
 
@@ -588,22 +757,17 @@ def apply_recovery_control_disposition(
     for owner in owners:
         owner._held.pin(plan.retirement.root)
     effect = _RecoveryDisposition(_KEY, pool, roles, plan, owners)
-    journal = pool._journal
     effect.verify()
-    journal.append(
+    effect._event(
         "recovery-control-disposition-intent",
-        canonical_json_bytes(
-            {
-                "source_phase_identity": plan.data.phase_identity,
-                "disposition_identity": plan.identity.uri,
-                "retirement_root": str(plan.retirement.root),
-                "retirement_node": _custody_wire(
-                    layout_entry_node(plan.retirement.root)
-                ),
-                "data_identity": plan.data.identity.uri,
-                "qualified": False,
-            }
-        ),
+        {
+            "source_phase_identity": plan.data.phase_identity,
+            "disposition_identity": plan.identity.uri,
+            "retirement_root": str(plan.retirement.root),
+            "retirement_node": _custody_wire(layout_entry_node(plan.retirement.root)),
+            "data_identity": plan.data.identity.uri,
+            "qualified": False,
+        },
     )
     effect.verify()
     roles._finalizing = True
@@ -628,17 +792,15 @@ def apply_recovery_control_disposition(
             if entry.target.path == layout_pending_control_path(plan.data.root):
                 effect._writer()
                 effect.decision_attempted = True
-                journal.append(
+                effect._event(
                     "recovery-control-release-decision",
-                    canonical_json_bytes(
-                        {
-                            "source_phase_identity": plan.data.phase_identity,
-                            "disposition_identity": plan.identity.uri,
-                            "state": state,
-                            "pending_control": str(entry.target.path),
-                            "qualified": False,
-                        }
-                    ),
+                    {
+                        "source_phase_identity": plan.data.phase_identity,
+                        "disposition_identity": plan.identity.uri,
+                        "state": state,
+                        "pending_control": str(entry.target.path),
+                        "qualified": False,
+                    },
                 )
                 effect.decision = state
                 effect._writer()
@@ -648,16 +810,14 @@ def apply_recovery_control_disposition(
             _fail("actual recovery controls not fully disposed")
         if os.path.lexists(layout_pending_control_path(plan.data.root)):
             _fail("pending coordinate now occupied; retain foreign state")
-        journal.append(
+        effect._event(
             "recovery-control-disposition-observed",
-            canonical_json_bytes(
-                {
-                    "source_phase_identity": plan.data.phase_identity,
-                    "disposition_identity": plan.identity.uri,
-                    "state": state,
-                    "qualified": False,
-                }
-            ),
+            {
+                "source_phase_identity": plan.data.phase_identity,
+                "disposition_identity": plan.identity.uri,
+                "state": state,
+                "qualified": False,
+            },
         )
         effect._writer()
         effect.finished = True

@@ -1,0 +1,268 @@
+{
+  "schema": "literate-ai/forest-observation-development@1",
+  "state": "source_reviewed_actual_fresh_observation_and_existing_canonical_role_reacquisition",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "canonical_forest_execution_proven": false,
+  "canonical_forest_recovery_proven": false,
+  "existing_complete_current_role_roster_reacquisition_proven": true,
+  "incoming_missing_control_advancement_proven": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-observation-review.json",
+    "sha256": "9633a5d02ef8e9124b414f8b543bd144c07a4476f38cbec100e195ace4f33e96"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-observation-owner-v4-report.json",
+        "sha256": "c2873fd7476c50d6dc6ae3fe4c92e1b9824a8e8eddc959a9b2ab940526059968"
+      },
+      "log": {
+        "path": "_build/forest-observation-owner-v4-maintained.log",
+        "sha256": "fed38083b9fb638da1e3d99746a5864158e8d45945e70c36f2b1e434890929a4"
+      },
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "050599b9f5c45d932f8f7b2c3dfdbf6c0b374d90478864d7755cdac9a456983f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-observation-recovery_controls-v4-report.json",
+        "sha256": "56048afa3cb555b8837d6afa879f5fb7ec922b22af297bb44bb09d57e91d681c"
+      },
+      "log": {
+        "path": "_build/forest-observation-recovery_controls-v4-maintained.log",
+        "sha256": "19738c4db0e989bec32637727327c46333e2e48323f8ffa65a88674063e3aa10"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "0d124f3ecd75d19f02a9def70eac6afb885583102a281b956dcd57aa8ff93d25",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-observation-recovery_roles-v4-report.json",
+        "sha256": "1b8f649041271acc6a0a92469626c7787d9bbbe46b2446fdaf46a5c04b615590"
+      },
+      "log": {
+        "path": "_build/forest-observation-recovery_roles-v4-maintained.log",
+        "sha256": "cd88d8eda285d3cc2ae36781dbe2ea3706f7e0e55e67f2101705f7d30e29474e"
+      },
+      "summary": {
+        "executed": 29,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 29,
+        "selected": 29,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "2c395dc3307c4f917ae1c243856c52e2a9697013a23287f206d49b8dbb81efbc",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-observation-recovery_data-v4-report.json",
+        "sha256": "f168c4d0c50ea6696b371fd12b071a298c32ea9aed992931c4dbfa69f94e7c1a"
+      },
+      "log": {
+        "path": "_build/forest-observation-recovery_data-v4-maintained.log",
+        "sha256": "ca1a1303db2c3b0b0dbe9ea3ced4ef32fc65c0cd32ac1ef61fc726cb168347b9"
+      },
+      "summary": {
+        "executed": 28,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 28,
+        "selected": 28,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "6bde5d3495009f88925d4113a028595ec40143f624f89d085458b9d44bdc4d0a",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-observation-recovery_disposition-v4-report.json",
+        "sha256": "7d936033bda76159c61a6ebb0371c69e9ebf44a8e1411787fb76350d5dfa7e41"
+      },
+      "log": {
+        "path": "_build/forest-observation-recovery_disposition-v4-maintained.log",
+        "sha256": "e13549b75bf22f04980e289b1e095c9af99b5ad447f24247369ec5c3e421be29"
+      },
+      "summary": {
+        "executed": 26,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 26,
+        "selected": 26,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "37514cde1df11ab2a146945dc00343c6d2621fb70ade8543c0ccee98e5e10bd5",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-observation-source_storage-v4-report.json",
+        "sha256": "37e050d7887e25f110d8a42643572d9d1ce07dd135e7144c3fcae14862c26ff6"
+      },
+      "log": {
+        "path": "_build/forest-observation-source_storage-v4-maintained.log",
+        "sha256": "8e1b670553b837b18272561e2155ccf81d03d0f4cf4607e7d0ac31c49fdee8b1"
+      },
+      "summary": {
+        "executed": 14,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 14,
+        "selected": 14,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "418b0e430628920bdc7d84915511ffb7e36dee098871edb2e75b6b105bd4da4b",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    },
+    {
+      "report": {
+        "path": "_build/forest-observation-source_forest-v4-report.json",
+        "sha256": "091a78d6b6c2eb6c07c8f4a20245493667361e1ebb7ff7f0ce8670840d62eb6c"
+      },
+      "log": {
+        "path": "_build/forest-observation-source_forest-v4-maintained.log",
+        "sha256": "e1d5599d23f3f8a81c5ba2e86b3be4585971d73007ba77065c0773b949bc856e"
+      },
+      "summary": {
+        "executed": 27,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 27,
+        "selected": 27,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "1e9251d940de037fb34c4f360c9aa8115c62652218dd4f82040577c1e74bc64f",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "distinct_maintained_passes": 161,
+  "diagnostics": [
+    {
+      "path": "_build/forest-observation-first-diagnostic.log",
+      "sha256": "2b13796e2affcb114fa6cdfc85832854ad487899659a8d5f8baed827fd155122"
+    },
+    {
+      "path": "_build/forest-observation-review-control.log",
+      "sha256": "cd3917d410e6fdd4f73927fdbcb218bf0dfcf702876d8803d6ba9efcb3ac1607"
+    },
+    {
+      "path": "_build/forest-observation-lifetime-control.log",
+      "sha256": "93846a67a1f137d1bc5d7b819bf5a8058bdb48e9a8cc3a989fabbb94aed1d696"
+    },
+    {
+      "path": "_build/forest-observation-review-fixed.log",
+      "sha256": "6996553e588302bfb6f0d8f8620a14384ff868041fbd0448204cf51a1587a2c5"
+    },
+    {
+      "path": "_build/forest-observation-trailing-fixed.log",
+      "sha256": "6b06d2192656761bbab7e2d525e1df388f8f9400e6f90457fa0f983b66a02cfb"
+    },
+    {
+      "path": "_build/forest-observation-final-diagnostic.log",
+      "sha256": "1774009a96f3ef5a1d6db36336e2d84132b562008285fb8a9285c976c553c466"
+    },
+    {
+      "path": "_build/forest-observation-recovery_roles-maintained.log",
+      "sha256": "115394db19a2c4ac2156aa027a0d901313bf9c434611d56a3f328c8ec1f01cc7"
+    },
+    {
+      "path": "_build/forest-observation-recovery_roles-v2-maintained.log",
+      "sha256": "c4fed62e68c95ceb188e146d4f41111c7113d2018b7e58e6fdfb763bb832282b"
+    },
+    {
+      "path": "_build/forest-observation-recovery_data-v3-maintained.log",
+      "sha256": "ffccd3f075987a8cc68507bcbf1975455205708f6cae30f897e7cba69fca63d9"
+    }
+  ],
+  "causal_notes": [
+    "Original canonical source forest phase genuinely refuses after durable-original retention. Separately acknowledged unmanaged native dependency runs under actual normal canonical project/Git locks; no successful source phase or partition is fabricated.",
+    "Fresh actual descriptor/OS lock and canonical role factories reacquire the complete existing current roster under the genuine fresh observer. This does not prove incoming missing controls or source/data recovery.",
+    "Early late-close controls using MagicMock were invalid injection harnesses: the intended caller-frame callback never fired. Corrected direct replacement asserts that injection fires and independently covers current/initial validation with role/raw/parent/store revocation.",
+    "Actual seed-replacement, case-alias private pool and copied raw-owner controls reproduced gaps before the final independent registries/seals.",
+    "Compatibility failures retained: key-built lease now refuses earlier; genuinely ended roles retain their established diagnostic. Native-FD negative sentinels and independent missing-coverage checks remain."
+  ],
+  "remaining": [
+    "Incoming missing-control observation advancement through actual incoming acquisition/publication receipts",
+    "Current carrier/parking/metadata/control endpoint classification and acknowledged source/metadata/control recovery effects",
+    "Genuine canonical integrated forest execution",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ],
+  "static": {
+    "session": 49896,
+    "terminal": true,
+    "exit_code": 0,
+    "log": {
+      "path": "_build/forest-observation-final-static.log",
+      "sha256": "f872751996f4f96c703415ef3046b3ede32676ef1d9497be158f94205e48c7a6"
+    },
+    "checks": [
+      "supported driver/documentation review records",
+      "lint",
+      "format-check",
+      "repository-layout-check",
+      "public-export-check",
+      "driver-review",
+      "runner-review",
+      "openspec-check",
+      "roadmap dependencies",
+      "documentation-check"
+    ]
+  },
+  "verify": {
+    "session": 46531,
+    "terminal": true,
+    "exit_code": 1,
+    "report": {
+      "path": "_build/forest-observation-verify.json",
+      "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+    },
+    "authority": "pass",
+    "receipt": "project.test_receipt_stale",
+    "normal_skips": 3
+  },
+  "diff_check": {
+    "exit_code": 0
+  }
+}

@@ -8,12 +8,17 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import contextmanager, suppress
 from dataclasses import replace
 from pathlib import Path
 from unittest import mock
 
 from literate_ai.adapters import retained_layout_journal as journal
 from literate_ai.contracts.identity import canonical_json_bytes
+
+
+class _EndMutationProbe(Exception):
+    pass
 
 
 @unittest.skipUnless(os.name == "posix", "POSIX durable journal dependency")
@@ -123,6 +128,181 @@ except CacheLockError:
             self.record(writer)
             result = self.child(script)
             self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_publication_reads_old_bytes_twice_and_reopening_still_reads_them(self):
+        with self.open() as writer:
+            self.record(writer)
+            existing_bytes = sum(path.stat().st_size for path in self.path.iterdir())
+            content = b"another immutable payload\0"
+            read = journal.os.read
+            observed = []
+
+            def actual_read(fd, count):
+                result = read(fd, count)
+                observed.append(len(result))
+                return result
+
+            with mock.patch.object(journal.os, "read", actual_read):
+                digest = writer.store_payload(content)
+            self.assertEqual(digest, hashlib.sha256(content).hexdigest())
+            self.assertEqual(sum(observed), 2 * existing_bytes + 2 * len(content))
+            observed.clear()
+            with mock.patch.object(journal.os, "read", actual_read):
+                writer.require_current()
+            self.assertEqual(sum(observed), existing_bytes + len(content))
+        observed.clear()
+        with mock.patch.object(journal.os, "read", actual_read):
+            with self.open(recover=True) as recovered:
+                self.assertEqual(recovered.read_payload(digest), content)
+        self.assertGreaterEqual(sum(observed), existing_bytes + len(content))
+
+    def test_final_publication_guard_cannot_change_previously_authenticated_members(
+        self,
+    ):
+        for change in ("same-size", "replacement", "hardlink", "foreign", "copied-row"):
+            with self.subTest(change=change):
+                self._guard_mutation_case(change)
+
+    def _guard_mutation_case(self, change):
+        self.path = self.root / change
+        reached = []
+        with suppress(_EndMutationProbe):
+            with self.open() as writer:
+                digest = writer.store_payload(b"old bytes")
+                old = self.path / f"p-{digest}.bin"
+                prior = old.stat()
+                sync, fstat = journal.os.fsync, journal.os.fstat
+                published, guards = False, 0
+
+                def actual_sync(fd):
+                    nonlocal published
+                    sync(fd)
+                    if fd == writer._descriptor:
+                        published = True
+
+                def actual_fstat(fd):
+                    nonlocal guards
+                    node = fstat(fd)
+                    if published and fd == writer._descriptor:
+                        guards += 1
+                        if guards == 2:
+                            reached.append(change)
+                            if change == "same-size":
+                                old.write_bytes(b"new bytes")
+                                os.utime(
+                                    old,
+                                    ns=(prior.st_atime_ns, prior.st_mtime_ns),
+                                )
+                            elif change == "replacement":
+                                old.rename(self.root / "preserved-old")
+                                old.write_bytes(b"old bytes")
+                                old.chmod(0o600)
+                            elif change == "hardlink":
+                                os.link(old, self.root / "alias")
+                            elif change == "foreign":
+                                (self.path / "foreign").write_bytes(b"preserve")
+                            else:
+                                writer._known[old.name] = tuple(
+                                    list(writer._known[old.name])
+                                )
+                    return node
+
+                with (
+                    mock.patch.object(journal.os, "fsync", actual_sync),
+                    mock.patch.object(journal.os, "fstat", actual_fstat),
+                ):
+                    with self.assertRaisesRegex(
+                        ValueError,
+                        "record-changed|single-file|membership-changed|roster-changed|directory-changed",
+                    ):
+                        writer.store_payload(b"new publication")
+                # Exit this deliberately changed context without using its
+                # teardown check to satisfy the publication-time refusal.
+                raise _EndMutationProbe
+        self.assertEqual(reached, [change])
+        self.assertEqual(
+            old.read_bytes(),
+            b"new bytes" if change == "same-size" else b"old bytes",
+        )
+        if change == "foreign":
+            self.assertEqual((self.path / "foreign").read_bytes(), b"preserve")
+
+    def test_last_publication_enumeration_cannot_change_members_or_admitted_path(self):
+        for change in ("payload", "foreign", "journal-rename", "ancestor-rename"):
+            with self.subTest(change=change):
+                self._enumeration_mutation_case(change)
+
+    def _enumeration_mutation_case(self, change):
+        parent = self.root / change
+        parent.mkdir(mode=0o700)
+        self.path = parent / "transaction"
+        reached = []
+        with suppress(_EndMutationProbe):
+            with self.open() as writer:
+                digest = writer.store_payload(b"old bytes")
+                old = self.path / f"p-{digest}.bin"
+                kept = old
+                prior = old.stat()
+                sync, scan = journal.os.fsync, journal.os.scandir
+                published, scans, inject_at = False, 0, None
+
+                def actual_sync(fd):
+                    nonlocal published
+                    sync(fd)
+                    if fd == writer._descriptor:
+                        published = True
+
+                @contextmanager
+                def actual_scan(fd):
+                    nonlocal scans, kept
+                    with scan(fd) as entries:
+                        yield entries
+                    if published and fd == writer._descriptor:
+                        scans += 1
+                        if scans == inject_at:
+                            if change == "payload":
+                                old.write_bytes(b"new bytes")
+                                os.utime(
+                                    old,
+                                    ns=(prior.st_atime_ns, prior.st_mtime_ns),
+                                )
+                            elif change == "foreign":
+                                (self.path / "foreign").write_bytes(b"preserve")
+                            elif change == "journal-rename":
+                                target = parent / "preserved-journal"
+                                self.path.rename(target)
+                                kept = target / old.name
+                            else:
+                                target = self.root / "preserved-ancestor"
+                                parent.rename(target)
+                                kept = target / self.path.name / old.name
+                            reached.append(True)
+
+                with (
+                    mock.patch.object(journal.os, "fsync", actual_sync),
+                    mock.patch.object(journal.os, "scandir", actual_scan),
+                ):
+                    # Calibrate the final actual enumeration without
+                    # assuming how many scans an implementation uses.
+                    writer.store_payload(b"calibrate publication scans")
+                    self.assertGreater(scans, 0)
+                    inject_at, scans, published = scans, 0, False
+                    with self.assertRaises((ValueError, OSError)):
+                        writer.store_payload(b"publication under concurrent mutation")
+                self.assertEqual(reached, [True])
+                self.assertEqual(
+                    kept.read_bytes(),
+                    b"new bytes" if change == "payload" else b"old bytes",
+                )
+                self.assertEqual(kept.stat().st_ino, prior.st_ino)
+                if change == "payload":
+                    self.assertEqual(kept.stat().st_mtime_ns, prior.st_mtime_ns)
+                    self.assertNotEqual(kept.stat().st_ctime_ns, prior.st_ctime_ns)
+                elif change == "foreign":
+                    self.assertEqual((self.path / "foreign").read_bytes(), b"preserve")
+                else:
+                    self.assertFalse(self.path.exists())
+                raise _EndMutationProbe
 
     def test_process_death_releases_mutex_and_retains_completed_intent(self):
         script = """
@@ -335,18 +515,18 @@ with j.retained_layout_journal(
         foreign = self.path / "foreign"
         injected = False
         with self.open(recover=True) as writer:
-            original_read = writer._read
+            original_read = writer._compare_member
 
-            def racing_read(name, **kwargs):
+            def racing_read(name, expected):
                 nonlocal injected
-                result = original_read(name, **kwargs)
+                result = original_read(name, expected)
                 if not injected and name == "header.json":
                     injected = True
                     foreign.write_bytes(b"preserve")
                     foreign.chmod(0o600)
                 return result
 
-            with mock.patch.object(writer, "_read", side_effect=racing_read):
+            with mock.patch.object(writer, "_compare_member", side_effect=racing_read):
                 try:
                     with self.assertRaisesRegex(ValueError, "membership-changed"):
                         writer.require_current()
@@ -414,34 +594,154 @@ except CacheLockError:
             with self.open() as writer:
                 digest = writer.store_payload(b"small")
                 target = f"p-{digest}.bin"
-                read = writer._read
+                read = writer._compare_member
 
-                def grown(name, *, maximum_bytes=None):
+                def grown(name, expected):
                     if name == target:
-                        self.assertEqual(maximum_bytes, 5)
+                        self.assertEqual(len(expected[1]), 5)
                         (self.path / target).write_bytes(b"larger than the original")
                         with mock.patch.object(
                             journal.os,
                             "read",
                             side_effect=AssertionError("oversized native read"),
                         ):
-                            return read(name, maximum_bytes=maximum_bytes)
-                    return read(name, maximum_bytes=maximum_bytes)
+                            return read(name, expected)
+                    return read(name, expected)
 
-                with mock.patch.object(writer, "_read", side_effect=grown):
-                    writer.require_current()
+                with mock.patch.object(writer, "_compare_member", side_effect=grown):
+                    try:
+                        writer.require_current()
+                    except ValueError as error:
+                        self.assertRegex(str(error), "layout.journal.file-limit")
+                        raise
+                    else:
+                        self.fail("currentness returned after actual file growth")
 
     def test_in_place_roster_addition_cannot_introduce_an_unfunded_read(self):
         observed = []
         with self.assertRaisesRegex(ValueError, "funded-roster-changed"):
             with self.open() as writer:
-                read = writer._read
+                read = writer._compare_member
 
-                def changed(name, *, maximum_bytes=None):
+                def changed(name, expected):
                     observed.append(name)
                     writer._known["unfunded"] = writer._known[name]
-                    return read(name, maximum_bytes=maximum_bytes)
+                    return read(name, expected)
 
-                with mock.patch.object(writer, "_read", side_effect=changed):
-                    writer.require_current()
+                with mock.patch.object(writer, "_compare_member", side_effect=changed):
+                    try:
+                        writer.require_current()
+                    except ValueError as error:
+                        self.assertRegex(str(error), "funded-roster-changed")
+                        raise
+                    else:
+                        self.fail("currentness returned after actual roster growth")
         self.assertNotIn("unfunded", observed)
+
+    def test_funded_snapshot_streams_every_member_twice_with_bounded_chunks(self):
+        with self.open() as writer:
+            self.record(writer)
+            content = b"a" * (3 * 65536 + 19)
+            digest = writer.store_payload(content)
+            name = "p-" + digest + ".bin"
+            expected = writer._known[name]
+            native_read = journal.os.read
+            reads = []
+
+            def read(fd, size):
+                result = native_read(fd, size)
+                node = os.fstat(fd)
+                if (node.st_dev, node.st_ino) == expected[0][:2]:
+                    reads.append((size, len(result)))
+                return result
+
+            names = tuple(writer._events)
+            rows = tuple(writer._known[item] for item in names)
+            with mock.patch.object(journal.os, "read", read):
+                _events, payloads = writer._raw_documents_from_snapshot(
+                    (names, rows), _expected=tuple(writer._known.items())
+                )
+            self.assertEqual(dict(payloads)[digest], content)
+            self.assertEqual(sum(length for _size, length in reads), 2 * len(content))
+            self.assertEqual(sum(length == 0 for _size, length in reads), 2)
+            self.assertLessEqual(max(size for size, _length in reads), 65536)
+
+    def test_ordinary_checks_and_publication_stream_existing_full_bodies(self):
+        with self.open() as writer:
+            self.record(writer)
+            content = b"a" * (3 * 65536 + 19)
+            digest = writer.store_payload(content)
+            name = "p-" + digest + ".bin"
+            original = (self.path / name).stat()
+            native_read = journal.os.read
+            reads = []
+
+            def read(fd, size):
+                result = native_read(fd, size)
+                node = os.fstat(fd)
+                reads.append(((node.st_dev, node.st_ino), size, len(result)))
+                return result
+
+            with (
+                mock.patch.object(journal.os, "read", read),
+                mock.patch.object(
+                    writer,
+                    "_read",
+                    side_effect=AssertionError("full body joined again"),
+                ),
+            ):
+                writer.require_current()
+                old = original.st_dev, original.st_ino
+                self.assertEqual(
+                    sum(length for node, _size, length in reads if node == old),
+                    len(content),
+                )
+                reads.clear()
+                additional = b"new publication" * 100 + b"!"
+                added = writer.store_payload(additional)
+            self.assertEqual(
+                sum(length for node, _size, length in reads if node == old),
+                2 * len(content),
+            )
+            new = (self.path / ("p-" + added + ".bin")).stat()
+            selected = [r for r in reads if r[0] == (new.st_dev, new.st_ino)]
+            self.assertEqual(
+                sum(length for _node, _size, length in selected), 2 * len(additional)
+            )
+            self.assertEqual(sum(length == 0 for _node, _size, length in selected), 2)
+            self.assertLessEqual(max(size for _node, size, _length in reads), 65536)
+            self.assertIs(writer._known["p-" + added + ".bin"][1], additional)
+
+    def test_funded_snapshot_refuses_actual_late_chunk_change(self):
+        # The context must also refuse the retained native tamper on final close.
+        changed = []
+        with self.assertRaisesRegex(ValueError, "record-changed"):
+            with self.open() as writer:
+                self.record(writer)
+                digest = writer.store_payload(b"a" * (2 * 65536 + 19))
+                target = self.path / ("p-" + digest + ".bin")
+                expected = target.stat()
+                native_read = journal.os.read
+
+                def read(fd, size):
+                    result = native_read(fd, size)
+                    node = os.fstat(fd)
+                    if not changed and (node.st_dev, node.st_ino) == (
+                        expected.st_dev,
+                        expected.st_ino,
+                    ):
+                        changed.append(True)
+                        with target.open("r+b") as stream:
+                            stream.seek(65536 + 7)
+                            stream.write(b"z")
+                    return result
+
+                names = tuple(writer._events)
+                rows = tuple(writer._known[item] for item in names)
+                with mock.patch.object(journal.os, "read", read):
+                    with self.assertRaisesRegex(ValueError, "record-changed"):
+                        writer._raw_documents_from_snapshot(
+                            (names, rows), _expected=tuple(writer._known.items())
+                        )
+                self.assertTrue(changed)
+                self.assertEqual(target.read_bytes()[65536 + 7 : 65536 + 8], b"z")

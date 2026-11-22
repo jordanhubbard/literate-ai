@@ -187,30 +187,41 @@ class _Capture:
         # An absent leaf still belongs to its original nearest-existing anchor.
         # Use captured native identities: alternate directory spellings cannot
         # hide canonical storage inside the source that this operation will move.
-        _, ancestry = self.original.ledger.ancestry[self.lock_path]
-        source_overlap = any(
-            node[1:3] == plan.tree._physical[0][:2]
-            or any(
-                stat.S_ISDIR(physical[2]) and node[1:3] == physical[:2]
-                for _, physical in plan.tree._physical[1]
+        endpoints = (plan.tree.root, plan.destination)
+        if getattr(plan, "source_forest", None) is not None:
+            from .retained_layout_source_roles import (
+                _forest_destination_endpoints,
+                _require_forest_storage,
             )
-            for node in ancestry
-        )
-        source_overlap |= any(
-            node is not None
-            and (
-                node[:2] == plan.tree._physical[0][:2]
+
+            _require_forest_storage(plan, self)
+            source_overlap = False
+            endpoints = _forest_destination_endpoints(plan)
+        else:
+            _, ancestry = self.original.ledger.ancestry[self.lock_path]
+            source_overlap = any(
+                node[1:3] == plan.tree._physical[0][:2]
                 or any(
-                    stat.S_ISDIR(physical[2]) and node[:2] == physical[:2]
+                    stat.S_ISDIR(physical[2]) and node[1:3] == physical[:2]
                     for _, physical in plan.tree._physical[1]
                 )
+                for node in ancestry
             )
-            for _, node in self.selector_paths
-        )
+            source_overlap |= any(
+                node is not None
+                and (
+                    node[:2] == plan.tree._physical[0][:2]
+                    or any(
+                        stat.S_ISDIR(physical[2]) and node[:2] == physical[:2]
+                        for _, physical in plan.tree._physical[1]
+                    )
+                )
+                for _, node in self.selector_paths
+            )
         if source_overlap or any(
             folded(path)[: len(folded(endpoint))] == folded(endpoint)
             for path in (self.lock_path, *(path for path, _ in self.selector_paths))
-            for endpoint in (plan.tree.root, plan.destination)
+            for endpoint in endpoints
         ):
             _fail("canonical lock storage overlaps source movement")
         self.finished = True

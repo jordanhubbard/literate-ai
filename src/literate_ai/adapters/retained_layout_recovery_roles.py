@@ -7,6 +7,7 @@ and records grant no qualification, old receipt admission or saved ownership.
 from __future__ import annotations
 
 import os
+import threading
 from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,6 +37,8 @@ from .retained_layout_reservations import (
 )
 
 _LEASE_KEY = object()
+_CREATED_ROLES = {}
+_READ_ADVANCES = {}
 
 
 def _fail(message):
@@ -74,7 +77,11 @@ class _RecoveryReservations:
     def _live(self):
         if not self._active or self._receiver != os.getpid():
             _fail("canonical recovery descriptor context ended")
+        from .retained_layout_recovery_controls import _require_legacy_recovery_profile
+
+        _require_legacy_recovery_profile(self._pool)
         self._pool._guard()
+        _require_legacy_recovery_profile(self._pool)
 
     def _current_inventory(self):
         inventory = []
@@ -227,6 +234,9 @@ def plan_recovered_layout_roles(project_root, pool, recovered):
     root = Path(project_root)
     if not root.is_absolute() or ".." in root.parts:
         _fail("direct absolute project root required")
+    from .retained_layout_recovery_controls import _require_legacy_recovery_profile
+
+    _require_legacy_recovery_profile(pool)
     catalog = _RecoveryReservations(pool, recovered)
     try:
         seed = _project_roles(root)
@@ -327,7 +337,53 @@ class _RecoveryRoleLease(_ControlRolesLease):
         if value is not self._bound_reservations:
             _fail("acknowledged canonical descriptor binding is immutable")
 
+    def _require_created(self):
+        # Preserve the normal role API's ended-context diagnostic before the
+        # independent provenance check for an otherwise active proposed lease.
+        if (
+            getattr(self, "_active", True) is False
+            or getattr(self, "_receiver", os.getpid()) != os.getpid()
+        ):
+            raise ValueError("layout.control-roles: control role context ended")
+        original = _CREATED_ROLES.get(self)
+        if (
+            original is None
+            or self._active is not True
+            or self._receiver != os.getpid()
+            or original[0] is not self._plan
+            or self._seed is not original[6]
+            or self._bound_git is not original[7]
+            or self._plan.seed is not original[6]
+            or self._plan.git is not original[7]
+            or original[1] is not self._bound_reservations
+            or original[2] is not self._pool
+            or self._bound_reservations._pool is not self._pool
+            or self._bound_reservations._active is not True
+            or self._bound_reservations._receiver != os.getpid()
+            or self._bound_reservations._recovered is not original[8]
+            or self._bound_reservations._incoming is not original[9]
+            or self._bound_reservations._inventory is not original[10]
+            or original[3:5] != (os.getpid(), threading.get_ident())
+            or self._plan.identity.uri != original[5]
+        ):
+            _fail("actual creating canonical recovery role lifetime required")
+        from .retained_layout_recovery_controls import (
+            _require_legacy_recovery_profile,
+            _require_recovered_creation,
+        )
+
+        _require_legacy_recovery_profile(self._pool)
+        for owner in original[8]:
+            _require_recovered_creation(owner)
+        if original[9] is not None and (
+            original[9]._active is not True
+            or original[9]._receiver != os.getpid()
+            or original[9]._pool is not self._pool
+        ):
+            _fail("actual incoming recovered-role descriptor lifetime required")
+
     def require_current(self):
+        self._require_created()
         if (
             self.git is not self._plan.git
             or self.reservations is not self._bound_reservations
@@ -346,8 +402,10 @@ class _RecoveryRoleLease(_ControlRolesLease):
         self.reservations._close_marker_inputs()
         _close_retirement_facts(retirements)
         _close_dependency_facts(self._pool, producers)
+        self._require_created()
 
     def require_initial_inputs(self):
+        self._require_created()
         super().require_initial_inputs()
         current = self._seed.require_initial_inputs()
         targets = tuple(dict.fromkeys(self._seed.targets() + self.git.targets()))
@@ -361,6 +419,7 @@ class _RecoveryRoleLease(_ControlRolesLease):
         self.reservations._close_marker_inputs()
         _close_retirement_facts(retirements)
         _close_dependency_facts(self._pool, producers)
+        self._require_created()
 
     def begin_finalization(self, retirement_root):
         _fail("recovery control dispositions require the recovery effect owner")
@@ -414,7 +473,30 @@ def acquire_recovered_layout_roles(
                 dict.fromkeys(plan.seed.targets() + plan.git.targets())
             )
             lease = _RecoveryRoleLease(plan, catalog, _factory_key=_LEASE_KEY)
+            _CREATED_ROLES[lease] = (
+                plan,
+                catalog,
+                pool,
+                os.getpid(),
+                threading.get_ident(),
+                plan.identity.uri,
+                plan.seed,
+                plan.git,
+                catalog._recovered,
+                incoming,
+                catalog._inventory,
+            )
             try:
+                from .retained_layout_forest_control_read import (
+                    advance_incoming_control_reads,
+                )
+
+                advance_key = object()
+                _READ_ADVANCES[lease] = advance_key
+                try:
+                    advance_incoming_control_reads(lease, advance_key)
+                finally:
+                    _READ_ADVANCES.pop(lease, None)
                 lease.require_initial_inputs()
                 journal.append("recovery-canonical-roles-observed", data)
                 lease.require_initial_inputs()
@@ -432,6 +514,7 @@ def acquire_recovered_layout_roles(
                     disposition.verify_role_exit(lease)
             finally:
                 # Revoke the composed grant before the first new FD can close.
+                _CREATED_ROLES.pop(lease, None)
                 lease._active = False
                 catalog._active = False
     except BaseException as error:

@@ -1,0 +1,52 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_actual_fresh_remaining_inverse_retry_effects",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "28ef0902cf6aeb9b7e44347622eb6214d8e062a116f6349d3818f65cfd96e2b2"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_current.py": {
+      "algorithm": "sha256",
+      "digest": "876d94e9d05688807e59f9bfe00b11ad73dd439593c9a927f03752eacfdad9e2"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_resume.py": {
+      "algorithm": "sha256",
+      "digest": "66842082dd242404ec65ed97a232ae9f1692f77f12170b8df11cef59126fc166"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_transcript.py": {
+      "algorithm": "sha256",
+      "digest": "1df8bb636ccc72386d4310f01caae4330421baf115dc7589afe07f915560ec84"
+    },
+    "tests/critical/test_retained_layout_forest_resume.py": {
+      "algorithm": "sha256",
+      "digest": "9746a7566ed35886c9bb8f1aa24ecc0d5c1399f1ab89bbd9e7b731bff1d60167"
+    },
+    "tests/critical/test_retained_layout_forest_transcript_types.py": {
+      "algorithm": "sha256",
+      "digest": "5b6ac9480c559fe50b43c30c03d32e9eafc7f551dc3063b7f9cece3e0c8790bf"
+    },
+    "tests/critical/test_retained_layout_forest_recovery_retry.py": {
+      "algorithm": "sha256",
+      "digest": "442d45a34a06f6b32444347bad8487b42e8c33affed4adf7f589664472aa33b3"
+    }
+  },
+  "scope": "Initial pass requested a closed actual-current journal-tail gate. The actual late-native-record planning failure reproduced that hole; the final terminal source pass approved exact canonical/raw binding and proposal-history closure. No reviewer tests/probes/edits.",
+  "findings_closed": [
+    "Actual fresh observer and independent canonical/raw factories produce a new acknowledged, one-use retry plan. It uses the complete already-bound nonempty quarantine, original phase/program and exactly the remaining original inverse moves; no empty baseline reset, overwrite or deletion.",
+    "Recovery intent@3 binds the exact predecessor, consumed observed prefix and typed pending-before/after child/parent witness. Strict multi-attempt replay resolves earlier unobserved effects before the next attempt, never by probing obsolete original endpoints or inventing source payloads.",
+    "Post-load forest events refuse before intent. The remaining post-load tail undergoes complete strict acquisition-only decoding; canonical role identity, actual raw identity set and exact role-proposal history bind it to the current live lease. Copied role pairs and forged raw pairs cannot impersonate it.",
+    "Canonical-byte comparisons distinguish JSON booleans and integers in canonical/recovery observations, nested actions, publication/lease observations and reservation completion counts. Original primitive checks remain intact.",
+    "Actual public-observation handoff is decoded only after a complete incoming set and matches a completed raw acquisition plus exact published incoming nonadvisory lease/node/payload. Its explicit false grant flag and descriptive result confer no canonical rights.",
+    "The existing registered executor, finite shared ledger, preflighted complete remaining journal schedule, one-use native receipts and final source/role/payload/registration closures protect retries without relaxing policy ceilings or resetting facts."
+  ],
+  "not_proven": [
+    "Actual existing supplemental public-control generation discovery/reacquisition/projection with all old private and new public native custody retained; parsing actual handoff records does not supply those descriptor owners",
+    "Actual forest verified-data receipt handoff to canonical control disposition, including full control-inclusive span advancement through genuine normalization and native retirement receipts",
+    "General native/metadata/mode/control and canonical reacquisition interruption matrices, larger topologies, durable commit and all public recovery qualification beyond these actual scoped paths",
+    "Genuine integrated canonical original forest SourcePhase/partition execution and commit/recovery acceptance before any public or legacy admission guard changes",
+    "Full public initial/wrapper/root/renewal, installed/native/platform/integration/release and all other roadmap obligations"
+  ]
+}

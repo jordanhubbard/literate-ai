@@ -1,0 +1,44 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_descriptive_forest_replay_and_fresh_journal_read",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_replay.py": {
+      "algorithm": "sha256",
+      "digest": "25d1f1185613779501193a5cb1c3554bc8fca7a43748c32fa5d8b76c6cc2e894"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_recovery_read.py": {
+      "algorithm": "sha256",
+      "digest": "60cf206b1b61de490ea3b23c6c2f837d521d9ffa9402bb174f5ee7a144e13cc7"
+    },
+    "tests/critical/test_retained_layout_forest_replay.py": {
+      "algorithm": "sha256",
+      "digest": "d28e77920b94d69c24e9df2750c5d28afa680f28ffde5b77506cb2e431a34635"
+    },
+    "tests/critical/test_retained_layout_forest_recovery_read.py": {
+      "algorithm": "sha256",
+      "digest": "1ce6670efe7415bb423c394523af0f673547a408a4f41c6d476bed2099cf4b48"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "a6bf10397a6d82bcda4a4817015015b322d75838e8637e53e9b81afd678552fc"
+    }
+  },
+  "findings_closed": [
+    "Fresh per-file/file-count/aggregate-byte/peak allowance is enforced before each complete native journal traversal.",
+    "Exact shared native event kinds distinguish native records from forest-source-intent/observed wrapper markers.",
+    "New parking receipts cannot borrow an original namespace or parking-parent inode."
+  ],
+  "scope": [
+    "Shared deterministic native step/event schedule; actual executor retains original acknowledgment/host/lifetime/journal/receipt checks.",
+    "Descriptive exact native prefix replay under explicit fresh allowance; last recorded predecessor plus pending intent and unrecorded directory-stamp constraints.",
+    "Actual registered freshly reopened journal read, original byte-roster and program binding through final native callback."
+  ],
+  "not_proven": [
+    "Canonical fresh forest recovery role or effect ownership",
+    "Fresh current carrier/metadata/control endpoint classification and actual restoration/completion",
+    "Genuine canonical integrated forest execution",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

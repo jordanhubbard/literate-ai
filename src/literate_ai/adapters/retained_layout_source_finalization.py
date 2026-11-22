@@ -15,6 +15,7 @@ from .retained_layout_source_admission import _control_reads, _fail, _phase_reco
 
 _FINALIZATIONS = {}
 _TERMINALS = {}
+_PARKING_TERMINALS = {}
 
 
 @dataclass(frozen=True, slots=True)
@@ -194,19 +195,26 @@ def _run_finalization(phase, private_root):
     )
     original, ledger = record.original, record.original.ledger
     graph = record.movement.expected[0]
-    count = len(sequence) * (
-        len(record.movement.expected[1]) + len(ledger.cache) + len(markers)
+    from .retained_layout_forest_effects import _finalization_allowance
+
+    required_records, required_size = _finalization_allowance(
+        len(sequence), len(record.movement.expected[1]), len(ledger.cache), len(markers)
     )
-    required_records, required_size = 128 + 12 * count, 1024**2 + 1024 * count
-    if (
-        required_records > ledger.budget.maximum_entries - ledger.records
-        or 4096 * required_records + 64 * required_size
-        > ledger.metadata - ledger.charged
-    ):
-        _fail("finalization preflight exceeds original allowance before effects")
-    ledger.charge_records(required_records, required_size)
+    from .retained_layout_source_forest_movement import _prepaid
+
+    prepaid = _prepaid(record, "finalization", root, (required_records, required_size))
+    if not prepaid:
+        if (
+            required_records > ledger.budget.maximum_entries - ledger.records
+            or 4096 * required_records + 64 * required_size
+            > ledger.metadata - ledger.charged
+        ):
+            _fail("finalization preflight exceeds original allowance before effects")
+        ledger.charge_records(required_records, required_size)
     with _control_reads(record.preparation, record.pool):
         lineage, node = _lineage(root), layout_entry_node(root)
+        if prepaid and (node != prepaid.node or lineage != prepaid.lineage):
+            _fail("retirement area differs from its original pre-movement pin")
         if node.uid != os.geteuid() or stat.S_IMODE(node.mode) != 0o700:
             _fail("owned mode0700 finalization area required")
         identity = node.device, node.inode
@@ -223,23 +231,44 @@ def _run_finalization(phase, private_root):
                 _fail("finalization state physically overlaps another owner")
         _separate_predecessor_state(record, lineage)
         roots = phase.plan.git.protected_admin_entries
-        for admin in (
+        admins = (
             ()
             if phase.plan.git.files is None
             else (
                 phase.plan.git.files.git_directory,
                 phase.plan.git.files.common_directory,
             )
-        ):
-            admin_lineage = _lineage(admin)
-            admin_identity = admin_lineage[-1][1:3]
-            for retained in (phase.plan.root, phase.plan.destination):
-                retained_lineage = _lineage(retained)
-                if admin_identity in {row[1:3] for row in retained_lineage} or (
-                    retained == phase.plan.destination
-                    and retained_lineage[-1][1:3] in {row[1:3] for row in admin_lineage}
-                ):
-                    _fail("Git control handoff overlaps retained project or source")
+        )
+        if phase.plan.source_forest is not None:
+            from .retained_layout_forest_terminal import _git_footprints
+            from .retained_layout_source_forest_movement import _record as forest_record
+
+            forest = forest_record(record)
+            _git_footprints(
+                forest.program,
+                record.movement.expected[1],
+                roots,
+                tuple(_lineage(admin) for admin in admins),
+            )
+        else:
+            for admin in (
+                ()
+                if phase.plan.git.files is None
+                else (
+                    phase.plan.git.files.git_directory,
+                    phase.plan.git.files.common_directory,
+                )
+            ):
+                admin_lineage = _lineage(admin)
+                admin_identity = admin_lineage[-1][1:3]
+                for retained in (phase.plan.root, phase.plan.destination):
+                    retained_lineage = _lineage(retained)
+                    if admin_identity in {row[1:3] for row in retained_lineage} or (
+                        retained == phase.plan.destination
+                        and retained_lineage[-1][1:3]
+                        in {row[1:3] for row in admin_lineage}
+                    ):
+                        _fail("Git control handoff overlaps retained project or source")
         for alias in graph.aliases:
             if alias.kind == "hardlink" and any(
                 (phase.plan.root / alias.path).is_relative_to(p) for p in roots
@@ -281,6 +310,17 @@ def _run_finalization(phase, private_root):
     except BaseException:
         record.failed = True
         raise
+
+
+def _preflight_finalization_document(reservations, raw):
+    from .retained_layout_source_admission import _RESERVATIONS
+
+    record = _RESERVATIONS.get(reservations)
+    if record is None or record.original.plan.source_forest is None:
+        return
+    from .retained_layout_source_forest_movement import _require_event_preview
+
+    _require_event_preview(record, 2, raw)
 
 
 def _bind_finalization_area(phase, area, *, descriptor, guard):
@@ -646,6 +686,64 @@ def _close_retirement_native(record):
 
 
 @dataclass(frozen=True, slots=True)
+class _ParkingBinding:
+    preparation: object
+    snapshot: object
+
+    def _original(self):
+        from .retained_layout_source_preparation import _LIVE, _SourcePreparation
+
+        if type(self.preparation) is not _SourcePreparation:
+            _fail("actual original terminal parking preparation required")
+        bound = _PARKING_TERMINALS.get(self.preparation)
+        if (
+            bound is None
+            or bound[0] is not self
+            or bound[1] is not self.snapshot
+            or _LIVE.get(self.preparation) is not bound[3]
+        ):
+            _fail("original terminal parking binding ended or changed")
+        return bound
+
+    def require_identity(self):
+        from .retained_layout_forest_terminal import _require
+
+        bound = self._original()
+        _require(bound[1], bound[2])
+
+    def require_ended(self):
+        from .retained_layout_forest_terminal import _require
+
+        bound = self._original()
+        _require(bound[1], bound[2], ended=True)
+
+    def verify_current(self):
+        from .retained_layout_forest_terminal import _verify
+
+        bound = self._original()
+        _verify(bound[1], bound[2], ended=True)
+        if self._original() is not bound:
+            _fail("original terminal parking binding changed during closure")
+
+
+def _freeze_parking(record):
+    from .retained_layout_forest_terminal import _freeze
+    from .retained_layout_source_forest_movement import _record as forest_record
+
+    if record.preparation in _PARKING_TERMINALS:
+        _fail("terminal parking snapshot is one use")
+    value = _record(record.phase)
+    if value is None or not value.complete or not record.phase._finalized:
+        _fail("actual complete forest finalization required before terminal parking")
+    forest = forest_record(record)
+    snapshot, seal = _freeze(forest.native)
+    binding = _ParkingBinding(record.preparation, snapshot)
+    _PARKING_TERMINALS[record.preparation] = (binding, snapshot, seal, record.original)
+    binding.require_identity()
+    return (snapshot.root, snapshot.root_node, snapshot.known), binding
+
+
+@dataclass(frozen=True, slots=True)
 class _Terminal:
     admission: object
     original: object
@@ -659,6 +757,7 @@ class _Terminal:
     resource_exit: object
     authored: object
     provider: object
+    parking: object = None
 
 
 def _prepare_terminal_teardown(phase):
@@ -692,6 +791,11 @@ def _prepare_terminal_teardown(phase):
             (metadata.root, metadata.root_node, metadata.known),
             (value.root, value.root_node, value.known),
         ]
+        bindings = [metadata_binding, value.binding]
+        if phase.plan.source_forest is not None:
+            parking, parking_binding = _freeze_parking(record)
+            private.append(parking)
+            bindings.append(parking_binding)
         journal_known = []
         for name, (stamp, content) in journal._known.items():
             native = os.stat(name, dir_fd=journal._descriptor, follow_symlinks=False)
@@ -726,7 +830,7 @@ def _prepare_terminal_teardown(phase):
             phase,
             value,
             terminal_private=tuple(private),
-            terminal_bindings=(metadata_binding, value.binding),
+            terminal_bindings=tuple(bindings),
             terminal_resources=record.resources,
         )
     _require_finalization_current(record)
@@ -762,6 +866,13 @@ def _complete_terminal(record):
     metadata = _METADATA[phase]
     for binding in value.terminal_bindings:
         binding.require_identity()
+    parking = _PARKING_TERMINALS.get(record.preparation)
+    if phase.plan.source_forest is not None:
+        if parking is None:
+            _fail("actual forest parking snapshot required after teardown")
+        parking[0].require_ended()
+    elif parking is not None:
+        _fail("ordinary source phase cannot acquire terminal forest parking")
     terminal = _Terminal(
         record,
         record.original,
@@ -774,6 +885,7 @@ def _complete_terminal(record):
         _closed_phase_resources(record),
         _closing_authored(record),
         record.provider,
+        None if parking is None else parking[0],
     )
     _TERMINALS[record.preparation] = terminal
     try:
@@ -817,10 +929,15 @@ def _require_terminal_current(preparation):
                     names.add(entry.name)
             if names != expected:
                 _fail("terminal private namespace changed")
-        _absence(
-            terminal.original.plan.tree.root,
-            terminal.original.ledger.budget.maximum_entries,
-        )
+        if terminal.original.plan.source_forest is None:
+            _absence(
+                terminal.original.plan.tree.root,
+                terminal.original.ledger.budget.maximum_entries,
+            )
+        else:
+            if terminal.parking is None:
+                _fail("actual terminal forest parking required")
+            terminal.parking.verify_current()
         _close_tree(terminal.tree, terminal.native, _terminal_preparation=preparation)
         _close_terminal_registration(terminal)
         return True
@@ -878,6 +995,17 @@ def _close_terminal_registration(terminal):
         _fail("original terminal preparation or closed phase changed")
     for binding in terminal.bindings:
         binding.require_identity()
+    if terminal.original.plan.source_forest is not None:
+        parking = _PARKING_TERMINALS.get(record.preparation)
+        if (
+            parking is None
+            or terminal.parking is not parking[0]
+            or not any(binding is terminal.parking for binding in terminal.bindings)
+        ):
+            _fail("original terminal forest parking registration changed")
+        terminal.parking.require_ended()
+    elif terminal.parking is not None:
+        _fail("ordinary terminal cannot claim forest parking")
     pool = record.pool
     original = record.pool_binding
     if (
@@ -941,3 +1069,4 @@ def _end_finalization(record):
 
 def _end_terminal(preparation):
     _TERMINALS.pop(preparation, None)
+    _PARKING_TERMINALS.pop(preparation, None)

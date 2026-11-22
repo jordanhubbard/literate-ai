@@ -124,6 +124,7 @@ def move_layout_entry_exclusive(
     expected_source_parent: LayoutEntryNode,
     expected_destination_parent: LayoutEntryNode,
     maximum_directory_entries: int = 16384,
+    _before_effect=None,
 ) -> None:
     """Move one expected node without replacement, copying or implicit cleanup.
 
@@ -248,6 +249,8 @@ def move_layout_entry_exclusive(
                 expected_source, native_identity=None, link_target=None
             ):
                 raise ValueError("layout.move.source-changed")
+            if _before_effect is not None:
+                _before_effect()
             _native_rename(
                 pinned[source.parent][0],
                 os.fsencode(source.name),
@@ -255,6 +258,8 @@ def move_layout_entry_exclusive(
                 pinned[destination.parent][0],
             )
         else:
+            if _before_effect is not None:
+                _before_effect()
             os.rename(source, destination)
         guard()
         if os.path.lexists(source):

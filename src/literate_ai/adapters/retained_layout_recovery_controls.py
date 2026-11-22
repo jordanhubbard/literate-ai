@@ -8,11 +8,14 @@ or removed here, and a retired private token never owns its former public name.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import stat
+import threading
 import unicodedata
 from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass, fields, replace
+from itertools import islice
 from pathlib import Path
 
 from literate_ai._cache_lock import _acquire
@@ -39,9 +42,63 @@ from .retained_layout_reservations import (
     _StagedReservationSet,
 )
 
+_CREATED_RECOVERIES = {}
+
 
 def _fail(message):
     raise ValueError("layout.recovery-controls: " + message)
+
+
+def _require_legacy_recovery_profile(pool):
+    """Reject a cached unsupported format; grant no authority or native access.
+
+    Existing callers retain their original complete owner/liveness validation.
+    In particular, an expired descriptor owner must refuse before any borrowed
+    native FD access, including a new pool or journal liveness probe here.
+    """
+    from .retained_layout_journal import _RECORD_LIMIT, _LayoutJournalWriter
+
+    if type(pool) is not _ControlPool:
+        return
+    try:
+        journal = object.__getattribute__(pool, "_journal")
+        if type(journal) is not _LayoutJournalWriter:
+            return
+        known = object.__getattribute__(journal, "_known")
+    except AttributeError:
+        return
+    if type(known) is not dict:
+        return
+    header = None
+    try:
+        # Even an exact dict may contain colliding foreign keys. Inspect only
+        # plain string keys, without hashing/comparing supplied key objects.
+        # A real journal has at most 256 event and 256 payload records; the
+        # fixed bound also covers its header and private stages.
+        for name, value in islice(known.items(), 1024):
+            if type(name) is str and name == "header.json":
+                header = value
+                break
+    except RuntimeError:
+        return
+    if (
+        type(header) is not tuple
+        or len(header) != 2
+        or type(header[1]) is not bytes
+        or len(header[1]) > _RECORD_LIMIT
+    ):
+        return
+    try:
+        document = json.loads(header[1])
+    except (ValueError, RecursionError):
+        return
+    if type(document) is not dict:
+        return
+    binding = document.get("binding")
+    if type(binding) is dict and "source_profile" in binding:
+        from .retained_layout_forest_observation import _require_profile
+
+        _require_profile(pool, binding)
 
 
 def _node(document):
@@ -113,13 +170,15 @@ class _RecoveryArea:
     entries: tuple
 
 
-def _recovery_area(root):
+def _recovery_area(root, *, maximum_entries=1024):
+    if type(maximum_entries) is not int or not 0 <= maximum_entries <= 1024:
+        _fail("bounded recovery area observation required")
     lineage = _lineage(root)
     node = layout_entry_node(root)
     if node.uid != os.geteuid() or stat.S_IMODE(node.mode) != 0o700:
         _fail("owned private recovery retirement directory required")
     entries = tuple(
-        (name, layout_entry_node(root / name)) for name in _names(root, 1024)
+        (name, layout_entry_node(root / name)) for name in _names(root, maximum_entries)
     )
     if _lineage(root) != lineage:
         _fail("recovery retirement ancestry changed")
@@ -145,9 +204,22 @@ def _recovery_observation(events, intent):
     return None
 
 
-def _disposition_areas(journal):
+def _disposition_areas(pool):
     """Validate whole shared retirement namespaces, without granting their rights."""
-    events = journal.events
+    from .retained_layout_disposition_read import control_events
+
+    journal = pool._journal
+    events = control_events(
+        pool,
+        kinds=frozenset(
+            {
+                "recovery-control-disposition-intent",
+                "reservation-lease-intent",
+                "recovery-control-retirement-intent",
+                "recovery-control-retirement-observed",
+            }
+        ),
+    )
     declarations = [
         e["data"] for e in events if e["kind"] == "recovery-control-disposition-intent"
     ]
@@ -315,14 +387,35 @@ class _ControlRecoveryPlan:
     public_nodes: tuple
     group: str
     recovery_areas: tuple = ()
+    compact_anchor: tuple | None = None
+    compact_steps: tuple = ()
 
     @property
     def identity(self):
         return canonical_identity(_custody_wire(self))
 
 
-def _records(journal, targets, reservation_group):
-    events = journal.events
+def _records(pool, targets, reservation_group):
+    from .retained_layout_disposition_read import control_events
+
+    events = control_events(
+        pool,
+        kinds=frozenset(
+            {
+                "reservation-set-acquired",
+                "reservation-lease-intent",
+                "control-finalization-intent",
+                "advisory-normalization-intent",
+                "advisory-normalization-observed",
+                "native-control-retirement-intent",
+                "native-control-retirement-observed",
+                "recovery-control-normalization-intent",
+                "recovery-control-normalization-observed",
+                "recovery-control-retirement-intent",
+                "recovery-control-retirement-observed",
+            }
+        ),
+    )
     by_path = {str(target.path): target for target in targets}
     if len(by_path) != len(targets):
         _fail("complete actual target coordinates required")
@@ -409,6 +502,16 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         or any(type(target) is not WriteReservationTarget for target in targets)
     ):
         raise TypeError("layout.recovery-controls.live-bounded-inputs-required")
+    _require_legacy_recovery_profile(pool)
+    from .retained_layout_disposition_read import control_plan_history
+
+    with control_plan_history(pool):
+        return _plan_layout_control_recovery(
+            pool, targets, reservation_group=reservation_group
+        )
+
+
+def _plan_layout_control_recovery(pool, targets, *, reservation_group=None):
     pool.require_current()
     aliases = {unicodedata.normalize("NFC", str(t.path).casefold()) for t in targets}
     if len(aliases) != len(targets) or any(
@@ -416,7 +519,7 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
     ):
         _fail("target coordinates alias or overlap")
     journal = pool._journal
-    events, leases, ordered, group = _records(journal, targets, reservation_group)
+    events, leases, ordered, group = _records(pool, targets, reservation_group)
     finalization = [
         event["data"]
         for event in events
@@ -466,7 +569,7 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         for fd in (pool._descriptor, journal._descriptor)
     }
     markers, public_nodes, lineages = [], [], {}
-    recovery_areas = _disposition_areas(journal)
+    recovery_areas = _disposition_areas(pool)
     for area in recovery_areas:
         if any(record[1:3] in protected for record in area.lineage):
             _fail("recovery retirement overlaps current producer")
@@ -623,6 +726,10 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         _fail("control native identities alias")
     if any(m.node.device != os.fstat(pool._descriptor).st_dev for m in markers):
         _fail("recovery controls require one filesystem")
+    from .retained_layout_disposition_read import control_history, has_compact
+
+    compact_anchor = control_history(pool).open_batch if has_compact(journal) else None
+    compact_steps = _compact_steps(journal, compact_anchor)
     plan = _ControlRecoveryPlan(
         pool.root,
         journal._known["header.json"][1],
@@ -634,12 +741,15 @@ def plan_layout_control_recovery(pool, targets, *, reservation_group=None):
         tuple(public_nodes),
         group,
         recovery_areas,
+        compact_anchor,
+        compact_steps,
     )
     _require_inputs(pool, plan)
     return plan
 
 
 def _require_inputs(pool, plan):
+    _require_legacy_recovery_profile(pool)
     pool.require_current()
     if (
         pool.root != plan.pool_root
@@ -663,6 +773,27 @@ def _require_inputs(pool, plan):
     _close_marker_facts(plan)
     _close_retirement_facts(retirements)
     _close_dependency_facts(pool, producers)
+    _close_compact_prefix(pool._journal, plan)
+
+
+def _compact_steps(journal, anchor):
+    if anchor is None:
+        return ()
+    from .retained_layout_disposition_compact import STEP_MAGIC
+
+    prefix = STEP_MAGIC + anchor[0].encode("ascii") + b"\n"
+    return tuple(
+        sorted(
+            digest
+            for digest in journal._payloads
+            if journal._known[f"p-{digest}.bin"][1].startswith(prefix)
+        )
+    )
+
+
+def _close_compact_prefix(journal, plan):
+    if _compact_steps(journal, plan.compact_anchor) != plan.compact_steps:
+        _fail("prepared abandoned compact prefix changed")
 
 
 def _close_dependencies(pool):
@@ -800,6 +931,52 @@ def _close_marker_facts(plan):
             _fail("marker ancestry changed after namespace observations")
 
 
+def _recovered_binding(owner, plan):
+    return (
+        owner._pool,
+        plan,
+        owner._held,
+        os.getpid(),
+        threading.get_ident(),
+        plan.identity.uri,
+        tuple(
+            (m, m.target, m.descriptor, m.node, m.content, m.created, m.advisory_locked)
+            for m in owner._markers
+        ),
+    )
+
+
+def _require_recovered_creation(owner):
+    original = _CREATED_RECOVERIES.get(owner)
+    if (
+        original is None
+        or owner._active is not True
+        or owner._receiver != os.getpid()
+        or original[0] is not owner._pool
+        or original[1] is not owner._plan
+        or original[2] is not owner._held
+        or original[3:5] != (os.getpid(), threading.get_ident())
+        or owner._plan.identity.uri != original[5]
+        or len(owner._markers) != len(original[6])
+        or any(
+            marker is not row[0]
+            or marker.target is not row[1]
+            or (
+                marker.descriptor,
+                marker.node,
+                marker.content,
+                marker.created,
+                marker.advisory_locked,
+            )
+            != row[2:]
+            for marker, row in zip(owner._markers, original[6], strict=True)
+        )
+    ):
+        _fail("actual creating recovered descriptor lifetime required")
+    _require_legacy_recovery_profile(owner._pool)
+    return original
+
+
 class _RecoveredControlSet(WriteReservationSet):
     def __init__(self, pool, plan, held):
         super().__init__(_CREATION_KEY)
@@ -811,8 +988,11 @@ class _RecoveredControlSet(WriteReservationSet):
     def _live(self):
         if not self._active or self._receiver != os.getpid():
             _fail("recovered descriptor context ended")
+        _require_recovered_creation(self)
         self._pool._guard()
+        _require_recovered_creation(self)
         self._held.current()
+        _require_recovered_creation(self)
 
     def verify_all(self):
         if self._disposition is not None:
@@ -849,6 +1029,7 @@ class _RecoveredControlSet(WriteReservationSet):
         _close_retirement_facts(retirements)
         _close_dependency_facts(self._pool, producers)
         self._live()
+        _close_compact_prefix(self._pool._journal, plan)
 
     def relinquish_public_observations(self, incoming):
         """A real staged owner takes exact released names; old private rights stay.
@@ -908,7 +1089,13 @@ class _RecoveredControlSet(WriteReservationSet):
         incoming._close_currentness()
         _close_dependencies(self._pool)
         _close_retirement(view)
+        original = _require_recovered_creation(self)
+        successor = _recovered_binding(self, view)
+        if _require_recovered_creation(self) is not original:
+            _fail("original recovered descriptor changed during handoff")
         self._plan = view
+        _CREATED_RECOVERIES[self] = successor
+        _require_recovered_creation(self)
         return tuple(sorted(paths, key=str))
 
     def owns(self, path):
@@ -946,7 +1133,9 @@ def acquire_layout_recovery_controls(
             for path, _ in plan.lineages:
                 held.pin(path)
             _require_inputs(pool, plan)
-            data = canonical_json_bytes({"recovery_identity": plan.identity.uri})
+            from .retained_layout_disposition_history import acquisition_bytes
+
+            data = acquisition_bytes(plan.identity.uri, plan.compact_anchor)
             journal.append("control-recovery-acquisition-intent", data)
             _require_inputs(pool, plan)
             for item in plan.markers:
@@ -985,6 +1174,7 @@ def acquire_layout_recovery_controls(
                     _acquire(fd, item.named, timeout_seconds=0.0)
                     marker.advisory_locked = True
             owned._complete = True
+            _CREATED_RECOVERIES[owned] = _recovered_binding(owned, plan)
             owned.verify_all()
             journal.append("control-recovery-acquisition-observed", data)
             owned.verify_all()
@@ -995,6 +1185,7 @@ def acquire_layout_recovery_controls(
             _raise_disposition_outcome(owned, exc)
             raise
         finally:
+            _CREATED_RECOVERIES.pop(owned, None)
             try:
                 owned._release()
             except BaseException as release_error:

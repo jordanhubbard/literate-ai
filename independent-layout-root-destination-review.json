@@ -1,0 +1,51 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_read_only_root_destination_planning",
+  "base_commit": "e5087b9b9a6db9f06c180ae33285f6a964445bc8",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "475016b8653033207e719edd40531ee10b62677c58fdf153f0b7dbf5aab842cb"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "852253de2df3c0dc985c7f4daefe99b6780acbe1244cad9fa550f8dd739a902d"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "2b44752ef44d6d388f5b0f56591c7cf22fab88cdad1fe8df5411151f8bc94d5b"
+    },
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "59cbb66021ac22f2bc3f3374b66d2cebd90da24863184e42856019d143addda2"
+    },
+    "src/literate_ai/adapters/retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "b6e2b48bb188ff28e7656c970c19dcfc0c5c62cf04d6e1553af10b58ce595b13"
+    },
+    "tests/critical/test_retained_layout_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "bc9602e65e8cedf48a19bd9b831c0beb487cf4a7156d98fc3ee3dabbf04b53a1"
+    },
+    "tests/critical/test_retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "0e6d323f65cae2c2c43472e22981aa766056b970453f25c1eff6027c958b9f4c"
+    }
+  },
+  "scope": [
+    "Prospective metadata follows actual canonical classification and belongs to immutable sealed role facts; the plan binds its exact tuple",
+    "Root destination ownership derives from real framework/authored/imported/non-Git control roles, preserving unknown ordinary files and actual Git administration",
+    "Actual registered forest and native observations bind source and fixed root destination to the complete original namespace",
+    "Final preparation closure uses actual preparation lifetime and known native facts without serialization or payload reads",
+    "Private durable root-destination state may be reopened as bounded data; public source admission and legacy recovery retain their forest guards"
+  ],
+  "addressed_findings": [
+    "Ordering regression now checks the canonical layout_pending_control_path helper"
+  ],
+  "limitations": [
+    "Source review only; author maintained runs attributed separately",
+    "No shared-overlap planner, multi-carrier executor, coherent complete metadata/recovery, public or platform acceptance is claimed"
+  ]
+}

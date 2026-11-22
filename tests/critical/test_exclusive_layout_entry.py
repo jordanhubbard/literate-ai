@@ -67,6 +67,25 @@ class ExclusiveLayoutEntryTests(unittest.TestCase):
             first_node.after_rename(),
         )
 
+    def test_pure_guard_after_last_native_precheck_can_refuse_without_rename(self):
+        before = movement.layout_entry_node(self.source)
+        entered = []
+
+        def refuse():
+            entered.append(True)
+            raise ValueError("ended caller authority")
+
+        with mock.patch.object(
+            movement,
+            "_native_rename",
+            side_effect=AssertionError("rename after refusal"),
+        ):
+            with self.assertRaisesRegex(ValueError, "ended caller authority"):
+                self.move(_before_effect=refuse)
+        self.assertEqual(entered, [True])
+        self.assertEqual(movement.layout_entry_node(self.source), before)
+        self.assertFalse(self.destination.exists())
+
     def test_native_directory_preserves_exact_subtree(self):
         source = self.old / "subtree"
         source.mkdir()

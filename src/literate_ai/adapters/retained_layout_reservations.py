@@ -42,6 +42,24 @@ from .retained_layout_journal import _directory
 from .retained_layout_journal import _file as _journal_file
 from .retained_layout_partition import _physical_wire
 
+
+def _finalization_intent_data(root, node, markers, expected):
+    """Pure exact event body shared with original pre-effect forest funding."""
+    return {
+        "root": str(root),
+        "node": _physical_wire(asdict(node)),
+        "controls": [
+            {
+                "path": str(m.target.path),
+                "node": _physical_wire(asdict(expected[m.target.path])),
+                "advisory": m.target.advisory,
+                "created": m.created,
+            }
+            for m in markers
+        ],
+    }
+
+
 _PREFIX = b"literate-ai-refresh-reservation\n"
 _FLAGS = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
 _FLAGS |= getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
@@ -421,26 +439,20 @@ class _StagedReservationSet(WriteReservationSet):
                 "changed",
                 "control retirement requires one filesystem before normalization",
             )
-        self._pool._journal.append(
-            "control-finalization-intent",
-            canonical_json_bytes(
-                {
-                    "root": str(retirement_root),
-                    "node": _physical_wire(asdict(layout_entry_node(retirement_root))),
-                    "controls": [
-                        {
-                            "path": str(m.target.path),
-                            "node": _physical_wire(
-                                asdict(self._expected[m.target.path])
-                            ),
-                            "advisory": m.target.advisory,
-                            "created": m.created,
-                        }
-                        for m in self._markers
-                    ],
-                }
-            ),
+        body = canonical_json_bytes(
+            _finalization_intent_data(
+                retirement_root,
+                layout_entry_node(retirement_root),
+                self._markers,
+                self._expected,
+            )
         )
+        from .retained_layout_source_finalization import (
+            _preflight_finalization_document,
+        )
+
+        _preflight_finalization_document(self, body)
+        self._pool._journal.append("control-finalization-intent", body)
         self.verify_all()
         self._retirement_root = retirement_root
         self._finishing = True

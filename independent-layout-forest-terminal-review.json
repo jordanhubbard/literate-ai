@@ -1,0 +1,36 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_guarded_terminal_parking_and_git_footprints",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_terminal.py": {
+      "algorithm": "sha256",
+      "digest": "a7af4bcee2af1c201fcf119d1463de8c0af9de55cbb2a6567a5cde65446965d5"
+    },
+    "tests/critical/test_retained_layout_forest_terminal.py": {
+      "algorithm": "sha256",
+      "digest": "c4eafc2fa9ffde09533849789794545a1cb0990cbd899a4016d861ad68ed1c6f"
+    },
+    "src/literate_ai/adapters/retained_layout_source_finalization.py": {
+      "algorithm": "sha256",
+      "digest": "ddb61d93c30824240f2ada4847dfa9899a64f08855279166d27a6246a41e50ce"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_effects.py": {
+      "algorithm": "sha256",
+      "digest": "4d38db841616593b35aea5f389bf5e73e40d824220ecb761c454fb03bcfb2a61"
+    }
+  },
+  "finding_closed": "All membership scans precede global known-child, ancestry/root native checks and pure binding validation. Deterministic later-child mutation reproduces original false acceptance and fixed refusal; foreign bytes preserved.",
+  "scope": [
+    "Actual completed native parking snapshot; independently enrolled original preparation binding through actual resource-exit receipt.",
+    "Fresh bounded no-follow read-only verification after real native teardown; no ended native owner callback or borrowed FD.",
+    "Finalization uses actual carrier/created-directory Git footprints; ordinary single-source behavior preserved."
+  ],
+  "not_proven": [
+    "Genuine canonical forest execution",
+    "Fresh forest recovery",
+    "Full public apply/initial/wrapper/root placement and renewal",
+    "Installed/native/platform/integration/release acceptance"
+  ]
+}

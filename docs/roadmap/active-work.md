@@ -34210,6 +34210,479 @@ independent review and the complete combined gate from test one.
   partition, not a synthetic phase or a raw whole-project source tree. Bind that
   original forest and graph into the acknowledged, durably retained plan before
   enabling the root/shared executor; keep every existing legacy effect guard.
+  Preparation must first validate coordinates and canonical inputs, then derive
+  actual initializer/provider/authored/catalog/control ownership, and only then
+  validate root ownership claims and construct its logical forest. Unknown
+  metadata neighbors remain source; declaration labels cannot promote them to
+  framework ownership. Exercise this through a genuinely initialized project's
+  explicitly disclosed fixture-only root arrangement, with no fabricated phase
+  or patched ownership result. Root/shared phase admission must still refuse
+  before canonical public control publication until execution and recovery join.
+  The internal root-out preparation prerequisite now derives a distinct source
+  forest from those actual participants and validates declaration claims against
+  canonical ownership. Ordinary metadata and lock-looking neighbors stay source;
+  the actual lineage writers and observer share their canonical lock endpoint.
+  Logical shared directories retain their fixed native counterparts. The plan
+  binds the forest, original namespace/roles/graph and exact native observations;
+  copied descriptor substitution and later additions refuse. Actual private
+  persistence/reopening reconstructs the forest under a fresh explicit allowance.
+  Its restrictive logical-forest profile rejects generic/canonical legacy recovery
+  before acquisition while data-only decoding remains available. Expired roles
+  still refuse before borrowed FD probes; bounded exact-string header-key
+  iteration prevents foreign equality callbacks before mandatory validation.
+  At that root-out checkpoint, independent source review covered twelve subjects,
+  and six disjoint scoped
+  maintained cohorts pass 177 methods without failures or skips. The
+  [forest development evidence](../../verification/retained-layout-source-forest-development.json)
+  preserves source hashes, causal failures, fixture limits and reports. This
+  prerequisite does not qualify production root placement or relocation.
+  Actual root-destination planning now generates prospective metadata only after
+  canonical role discovery, retains its exact tuple with immutable role facts,
+  and binds the plan to that tuple. Canonical root ownership excludes unknown
+  ordinary files and Git administration. The complete original namespace and
+  native observations retain custody of the existing fixed root. Private state
+  reopens under fresh bounded data observation; source phase admission still
+  refuses before public controls. Seven current source subjects are independently
+  reviewed, and six disjoint maintained cohorts pass 231 methods without failures
+  or skips, including ordinary preparation/transaction/admission and recovery.
+  [Root-destination development evidence](../../verification/retained-layout-root-destination-development.json)
+  retains exact review hashes, author reports and diagnostic limitations.
+  A subsequent reviewed increment admits an existing root-source destination
+  only from its actual original source contribution before graph construction.
+  Its own source carrier projects into the destination, while foreign occupancy,
+  portable aliases and changed original bytes refuse without cleanup. The
+  [existing-source overlap evidence](../../verification/retained-layout-source-overlap-development.json)
+  records three reviewed subjects and 83 passing scoped methods at that checkpoint.
+  General destination planning now binds exact original prefixes and absences,
+  the nearest observed directory and its native ancestry through the creating
+  participant. Missing actual parents remain `None`/empty observations; an anchor
+  is not a future executor parent. The validated graph selects the forest profile;
+  ordinary exact single-rename documents retain their previous shape. Complete
+  namespace closure follows known destination facts. Fresh bounded data decoding
+  reconstructs the same destination/path/parent/lineage observations. Seven source
+  subjects are reviewed and five scoped cohorts pass 114 distinct methods,
+  including the 23-method forest replay after preserving the original alias
+  diagnostic. The
+  [destination-prefix evidence](../../verification/retained-layout-destination-prefix-development.json)
+  preserves exact hashes, the diagnostic correction and fixture-only ancestor
+  arrangement limits. No source effect or recovery admission is enabled.
+  The actual selected canonical store may also share nonroot source ancestors.
+  Its real producer endpoint now fixes those ancestors before graph construction;
+  neither an absent lock nor a lock-looking source neighbor grants directory
+  ownership by name. Present selected evidence stays fixed, unknown neighbors
+  remain source, late insertion revokes preparation without cleanup, and source
+  projection cannot create canonical storage. Two subjects are independently
+  reviewed and three scoped cohorts pass 69 methods without failures or skips;
+  [shared-storage evidence](../../verification/retained-layout-shared-storage-development.json)
+  records the actual selected-store fixtures and all limits.
+  The runtime data verifier now closes complete project/parking namespace spans
+  without following temporarily dangling original aliases. It streams each
+  regular hardlink payload once per native group, checks exact original symbolic
+  text, and closes all known native nodes after the last payload read. Genuine
+  original preparation funds its complete description; copied descriptions grant
+  no movement or control authority. Review found oversized post-inventory read
+  ceilings; committed-size regular/link limits and aggregate preflight now refuse
+  both growth races before larger native reads. Thirteen maintained verifier
+  methods pass, alongside 27 unchanged forest methods, with two exact subjects
+  independently reviewed. The
+  [runtime span evidence](../../verification/retained-layout-forest-span-development.json)
+  distinguishes the unmanaged scratch primitive fixture from project execution.
+  This is per-call data verification. The live movement controller must fund
+  newly retained views through the original ledger and advance spans only from
+  actual verified native effects; no forest admission guard is removed.
+  The separately authorized native dependency now parks every source carrier
+  before target publication, stages exact directory attributes, retains empty
+  original containers and preserves interrupted endpoints under the actual held
+  journal. Its registry admits only the exact next acknowledged native step;
+  opaque one-use receipts follow actual effects, and original program/lifetime
+  bindings close after the last native callback. Independent source review
+  covers both new subjects. Seventeen native, thirteen span and 27 planning
+  methods pass through the maintained runner without skips or failures; the
+  [native dependency evidence](../../verification/retained-layout-forest-native-development.json)
+  preserves the unmanaged-fixture scope and earlier umask fixture failures.
+  These ceilings bound retained views and individual checks, rather than lifetime
+  file-open or reread counts. High-level integration must precharge all additional
+  retained representations to the same original ledger. The dependency grants
+  no canonical project authority and enables no admission or recovery guard.
+  The actual completed native owner now returns the complete resulting project
+  namespace for metadata, derived from its verified receipt span. Fixed controls,
+  created-directory identities, canonical hardlink representatives and raw
+  symbolic text remain explicit; this uses no fresh inventory as a baseline.
+  Twenty-one maintained native methods pass, including actual SDK unchanged-tree
+  comparison, retained-container custody and late payload rewrite refusal. Three
+  exact subjects are independently reviewed in
+  [namespace-output evidence](../../verification/retained-layout-forest-namespace-development.json).
+  A dormant original-owner branch now funds its native program and reader
+  transfer in the same ledger, consumes the real partition, keeps the actual
+  native parking owner registered, and joins
+  its result to metadata prerequisites. Reader transfers are simultaneous across
+  overlapping coordinates; canonical observations stay fixed, moved payloads
+  retain inode/byte commitments, and retained-container lineage follows its
+  original private inode. Controlled destination stamps advance only through
+  authenticated publication receipts. The exact native program reserves its
+  following source event; registered journal substeps reject direct event calls.
+  Nine exact subjects are independently reviewed. Scoped maintained checks pass
+  37 native/transfer, 41 existing admission and 14 existing finalization methods;
+  [reader-join evidence](../../verification/retained-layout-forest-reader-join-development.json)
+  separates unmanaged native data tests from existing single-rename regression.
+  The complete positive catalog/metadata fixture declares its measured entry
+  allowance before its first producer; production limits and the original
+  low-budget refusal remain unchanged. Earlier failures are retained.
+  Forest movement now binds both future private effect paths before source
+  effects. Original pins, mode0700 emptiness, physical separation and filesystem
+  compatibility are checked before movement. Metadata and finalization graph/
+  backup representations are prepaid through the same ledger and consumed once;
+  original native/JSON policy is never enlarged. The native program reserves the
+  complete remaining event, payload and storage tail. Known mandatory records
+  are encoded and bounded before effects, then checked against their original
+  previews at publication. Compact versioned forest decisions retain the original
+  plan and chained receipt proof; legacy records keep their fields. Authenticated
+  forest metadata validates exact prospective receipts and bounded coordinates
+  while the public root-ownership guard stays strict. Eight subjects are
+  independently reviewed; ten private pin/budget/document, 37 native/transfer
+  and 14 ordinary canonical finalization methods pass without skips or failures.
+  [Bound-effects evidence](../../verification/retained-layout-forest-effects-development.json)
+  records the low-level fixture scope, corrected teardown and encoding review.
+  Forest finalization now checks actual carrier and created-directory footprints
+  against exact Git administration, allowing root publication beside fixed Git
+  metadata. Before teardown, the actual completed native owner freezes parking
+  and retained empty-container facts; an independent original-preparation binding
+  carries them through the actual resource-exit receipt. Terminal observation uses
+  fresh read-only descriptors and exact bounded membership/native checks without
+  calling the ended native owner. Independent review found an ordering gap:
+  mutation into an earlier container during a later scan escaped closure. An
+  actual two-container regression reproduces that failure; all membership reads
+  now precede complete known-child, ancestry and root checks. Foreign entries are
+  preserved. Four subjects are independently reviewed; nine terminal, 37 native,
+  ten future-effect and 14 ordinary canonical finalization methods pass without
+  failures or skips. [Terminal parking evidence](../../verification/retained-layout-forest-terminal-development.json)
+  retains the causal failure and exact reviewed subjects. This branch is not
+  canonical forest execution proof. Public forest admission remains guarded.
+  Fresh native recovery now has a descriptive prefix interpreter and an actual
+  freshly opened journal reader. The executor and interpreter share the exact
+  native step/event schedule. Original program/payload identities, receipt
+  predecessors, raw symbolic text, hardlink transitions and staged modes are
+  checked under a fresh explicit allowance. Unfinished intents remain unresolved;
+  stage receipts that omit new parent stamps retain an explicit fresh-classification
+  requirement. Both native journal traversals debit fresh file, byte, per-file and
+  peak limits before I/O; exact native event selection leaves surrounding source
+  join markers separate. New parking receipts cannot borrow an original directory
+  inode. Independent review closes all three findings; eleven fresh-reader, ten
+  prefix-replay, 37 native, nine terminal and ten future-effect methods pass:
+  77 distinct maintained methods without failures/skips. Tests replay every real
+  recorded prefix for root movement, nested creation/modes and ancestor merges;
+  an actual move interrupted before its observation record remains pending after
+  journal reopen. [Replay/read evidence](../../verification/retained-layout-forest-replay-development.json)
+  preserves original failures and fixture boundaries. This is read-only descriptive
+  recovery infrastructure; source admission and recovery-profile guards remain.
+  Fresh loading now reconstructs the exact typed deterministic native program
+  from retained start bytes and the actual journal phase, without a surviving old
+  Python object. A separate-process test reopens the real native journal and
+  matches actual program/final-span identities. Complete durable original data
+  and native journal reads share one fresh cumulative ledger. The runtime snapshot
+  must retain original bytes, aliases, native entries and source schedule; only
+  paired canonical-control publications at original coordinates may add entries.
+  Publication and native start must follow the durable original event. The full
+  saved DTO, including packed byte witnesses, is funded and sealed before later
+  native callbacks, then closed after reads and binding. Review controls reproduce
+  the original ordering and decoded-data mutation gaps. Six subjects are
+  independently reviewed; fourteen new loading/binding, 58 native reader/replay/
+  movement and forty original-state/forest methods pass: 112 distinct maintained
+  methods without failures or skips. [Program/original evidence](../../verification/retained-layout-forest-program-development.json)
+  retains the actual unmanaged fixture scope, new-process proof and setup failures.
+  These descriptions restore no canonical role or effect rights. A genuine fresh
+  observation now binds one current pool/journal, explicit cumulative read ledger
+  and actual canonical store-selection participant. Existing acquisition factories
+  reacquire the complete current project/Git descriptor and OS mutex roster.
+  Independent raw/canonical creation registries reject copied/key-built owners;
+  pure final closure checks role, descriptor, parent and store bindings after the
+  last native callback. Journal policy and original event prefix stay sealed;
+  physical private separation is checked through actual lineages. Source review
+  covers six exact subjects; nine new observation, 111 control/role/data/disposition
+  and 41 storage/forest methods pass: 161 distinct maintained methods without
+  failures or skips. [Fresh-observation evidence](../../verification/retained-layout-forest-observation-development.json)
+  preserves causal failures, the corrected callback harness and established ended-
+  context diagnostics. The fixture genuinely exercises canonical forest refusal,
+  then separately acknowledges unmanaged native execution under real normal
+  locks; it fabricates no successful source phase or partition. Actual incoming
+  canonical acquisition now advances the fresh reader's absent marker payloads,
+  native presence and nearest-directory anchors solely from its own authenticated
+  publication/held-descriptor receipts. A one-use factory invocation follows real
+  incoming acquisition and independent role enrollment. The same cumulative ledger
+  funds simultaneous retained views; all unrelated observations remain exact.
+  Native closing precedes pure original role/reader/parent/store closure and
+  installation. An actual newly created Git repository with a nested unborn branch
+  proves missing-parent acquisition, unchanged absent loose ref, native writer
+  exclusion and normal reader-scope exit. Late parent revocation or foreign input
+  insertion refuses before installing observations and preserves foreign bytes.
+  Review closed a missing-registration/None-token sentinel collision; both missing
+  token forms refuse before borrowed FD access. Three subjects are independently
+  reviewed; twelve observation and 29 canonical-role methods pass: 41 distinct
+  current-subject maintained methods without failures/skips. The earlier 161-method
+  checkpoint retains its own exact source scope.
+  [Incoming-control evidence](../../verification/retained-layout-forest-incoming-development.json)
+  preserves the stale-anchor baseline, acquisition-order correction and diagnostic
+  regex correction. An actual current native-prefix observer now joins that fresh
+  read participant with the real canonical recovery lease. One cumulative ledger
+  funds complete current/candidate views and exact bounded physical reads. Known
+  entry/mode intents classify original-before or exact original-inode after;
+  observed stage receipts refresh only their explicitly dirty parents after
+  complete no-follow namespace/payload verification. Occupied unrecorded creations
+  retain explicit unresolved status and grant no inode ownership. All preliminary
+  and closing endpoint probes use retained original-root no-follow descriptors;
+  role factory validation precedes replaceable seed fields. Actual canonical,
+  store and reader callbacks precede the final known-native close. Pure original
+  registrations close after access teardown; exceptional cleanup closes FDs without
+  running success-only reads after revocation. The same real fixtures reproduce
+  both predecessor review holes. Final late-change controls identify the intended
+  after-payload callback and assert it was reached; earlier mistargeted injections
+  remain invalid causal evidence. Three subjects are independently reviewed; six
+  current-observer methods (including nine real prefix subcases), thirteen span
+  methods and 37 native methods pass: 56 distinct maintained methods without
+  failures/skips. [Current-native evidence](../../verification/retained-layout-forest-current-development.json)
+  records actual unmanaged dependency scope and all corrections. These are current
+  native data observations, not recovery effects or canonical forest execution.
+  Actual metadata receipt replay now projects exact old/prospective target bytes
+  and native quarantine/publication transitions through the same fresh reader.
+  Recorded future pins bind private metadata/retirement coordinates; current
+  access holds original-root no-follow descriptors. Dirty parents refresh only
+  after recognized receipts and close against complete current membership and
+  payloads; derived projections stay sealed through callbacks. Occupied staged
+  names without native witnesses remain unresolved even with matching bytes.
+  Current observation proves preserved old inodes and new public bytes, pending
+  last-publication before/after, replaced-root refusal and bounded-input rejection.
+  Source review found a producer mismatch: acquired partition observations differ
+  from original role identity documents. Shared source-intent@2 now separates
+  those fields; actual production supplies its real acquired payload, while the
+  unmanaged fixture explicitly claims none. A real ordinary canonical partition
+  supplies the wire test; no forest phase or partition is fabricated. The full
+  positive declares its measured fresh10GiB metadata allowance before creation;
+  original preparation stays8GiB, and a smaller refusal keeps the same guards.
+  Four subjects are independently reviewed; eight metadata, six current-state,
+  ten future-effect, 37 native and 27 source-forest methods pass: 88 distinct
+  maintained methods without failures/skips. [Metadata projection evidence](../../verification/retained-layout-forest-metadata-development.json)
+  retains the actual unmanaged scope, setup correction, budget measurement and
+  producer/reader distinction. This restores no recovery effects or canonical
+  execution qualification. Current control projection now joins actual fresh raw
+  and canonical descriptor inventories to original in-project marker identities.
+  Actual normalization bytes remain on the original advisory inode; retired native
+  controls remain represented under their complete private roster, while incoming
+  public controls require actual acquisition/publication receipts. The original
+  bound retirement pin, current canonical storage and no-follow private access
+  constrain the view. Complete source membership, payloads and native closure
+  preserve unrelated and foreign entries. Real normal canonical finalization is
+  interrupted after unmanaged metadata effects, then fresh factories reacquire
+  original/private and incoming descriptors; no forest phase is fabricated.
+  Four subjects are independently source-reviewed. Four control, eight metadata
+  and six native-current methods pass: 18 distinct maintained methods without
+  failures/skips. [Control projection evidence](../../verification/retained-layout-forest-controls-development.json)
+  retains the original causal failure and accounting regression: unchanged genuine
+  controls reuse the already funded exact view; actual successor views consume the
+  same fresh ledger. No budgets were enlarged. This proves initial-finalization
+  observations only; general retry generations and all recovery effects remain
+  open. An actual fresh-controller restoration dependency now executes exact
+  acknowledged, exclusive, fsynced inverse source/metadata moves under real roles.
+  It restores original bytes and native link custody while retaining prospective
+  metadata, created directories and old/new controls. Registered one-use actions,
+  journal/native receipts, a bounded non-reentrant workspace and last-boundary
+  lifetime checks protect effects; incompatible named facts refuse before intent.
+  Four subjects are independently reviewed. Eight restoration and eighteen native
+  move methods pass: 26 maintained methods, including actual hardlinks, a raw
+  symlink and an empty directory. [Restoration evidence](../../verification/retained-layout-forest-restoration-development.json)
+  records scope and failures. Bound source-intent prefixes now retain the original
+  metadata and retirement reservations before native completion; unused retirement
+  remains verified after native completion until actual control projection supplies
+  its complete roster. Original pins, native/portable separation and actual fresh
+  producer domains close before source access. Original parking coordinates remain
+  reserved even before any parking inode exists. Native area indices stay fixed
+  through pending classification; an actual retired-control roster supersedes only
+  its original empty fallback and consumes same-ledger successor funding.
+  Independent source review and 33 maintained methods pass without failures/skips:
+  eleven bound-prefix, eight metadata, six current-state and eight restoration.
+  [Bound-prefix evidence](../../verification/retained-layout-forest-bound-prefix-development.json)
+  retains three actual causal omissions and their fixes. Original native execution
+  remains an explicitly unmanaged dependency under real normal roles; genuine fresh
+  recovery effects use actual factories and acknowledgement. No canonical forest
+  phase or partition is manufactured. Fresh recovery observation now composes a
+  strict original native prefix with actual raw/canonical reacquisition and inverse
+  recovery records. Typed original interruption evidence is bound in the actual
+  recovery intent; inverse records can move only the deterministic original known
+  nodes. Fresh roles and complete native/payload closure verify recorded or pending
+  inverse state without a new occupied-source baseline. A pure derived-view seal
+  closes after actual descriptor teardown; its reached-callback regression fails
+  the predecessor. A separate OS process begins with empty registries and reopens
+  one completed inverse under actual fresh factories. Eight subjects are reviewed;
+  74 maintained methods pass without failures/skips, including thirteen retry
+  observation methods. [Retry observation evidence](../../verification/retained-layout-forest-retry-observation-development.json)
+  retains both causal failures, honest unmanaged-original scope and precise process
+  coverage. Actual fresh retry effects now acknowledge only the remaining inverse
+  schedule and retain the already-bound, complete nonempty quarantine. Intent@3
+  binds the exact preceding attempt and typed pending native witness; replay joins
+  multiple attempts before current source probing. New post-load forest events and
+  unknown records refuse. Strict acquisition-only tails bind exact actual canonical
+  and raw identities plus the live proposal history; copied canonical pairs and
+  forged raw pairs cannot replace it. Canonical JSON comparisons close the actual
+  bool/integer confusion. A genuine public-observation handoff now decodes against
+  its completed raw acquisition and exact published incoming lease, without gaining
+  canonical rights. New OS processes resume before/after/observed inverse prefixes;
+  one child exits after a real fsynced inverse, and a third process completes the
+  exact remaining moves. Actual metadata retry retains prospective-file inode/bytes
+  in a nonempty quarantine. Seven subjects are source-reviewed; 86 maintained
+  methods pass without failures/skips, including ten retry-effect and two actual
+  transcript-type methods. [Resume evidence](../../verification/retained-layout-forest-resume-development.json)
+  retains valid causal failures, the corrected invalid fixture and precise actual
+  process/effect scope. Existing supplemental public generations now have bounded
+  descriptive discovery under actual canonical mutexes, followed by independently
+  acknowledged raw acquisition and exact private/public projection. One genuine
+  supplemental generation reenters through fresh factories in a separate OS
+  process; both retained original-private and newer-public inodes/bytes survive.
+  Derived request/target references and catalogue lifetime close after final
+  callbacks. Five subjects are source-reviewed and 49 maintained methods pass
+  without failures/skips, including seven reached closure-mutation subcases.
+  [Generation evidence](../../verification/retained-layout-forest-generations-development.json)
+  preserves the causal request mutation and corrected child-harness failure.
+  A registered actual zero-action forest data witness now hands off to the exact
+  shared canonical control-disposition owner. Native normalization and exclusive
+  retirement advance both complete source/private custody and exact owned reader
+  facts, with pending released last after the durable decision. Original area
+  indices stay fixed. Finite prepaid non-reentrant reads and consumed native-entry
+  tokens close before effects; derived successor references/content close after
+  final native callbacks. Unsupported observed control aliases refuse before
+  intent. Four subjects are source-reviewed; 29 maintained methods pass without
+  failures/skips, including three actual forest handoff methods and all 26 shared
+  legacy disposition methods. [Forest disposition evidence](../../verification/retained-layout-forest-disposition-development.json)
+  retains both causal failures and the development failures before actual receipt
+  transfer. A separate actual diagnostic reacquires ordinary canonical roles
+  under a new real journal after descriptor teardown and preserves both retired
+  namespaces. The former old-journal disposition-suffix refusal is now resolved
+  by strict typed disposition transcript/current-span replay and a distinct
+  read-only owner made from actual fresh raw descriptors. A genuine separate
+  process starts with empty registries and observes the completed disposition
+  without recreating public native controls or canonical writer roles. An actual
+  interruption after the first native retirement observation now ends all owners,
+  reacquires a real missing replacement generation under a fresh canonical owner,
+  completes a separately acknowledged second disposition, and reopens all three
+  generations while preserving every earlier private inode and byte. Distinct old
+  groups may hand off the same incoming coordinate; repeated group/path or raw
+  identity/path and inconsistent identity/group bindings still refuse. Eight
+  affected maintained methods pass on final source; 47 distinct methods pass
+  across the recorded source lineage. Nine subjects are independently source
+  reviewed. [Terminal replay evidence](../../verification/retained-layout-forest-terminal-replay-development.json)
+  retains the causal failures, scoped checks, and exact restoration of accidentally
+  overwritten preexisting parking-terminal files and historical log. This is not
+  full public project reentry qualification. Actual advisory pwrite before truncate,
+  normalization before its observation, and retirement before its observation now
+  have maintained regressions with reached native-state assertions, actual fresh
+  canonical retry, terminal replay and private-custody closure. These three cases
+  and the prior observed-retirement retry pass as four independently reviewed
+  maintained methods; the combined checkpoint covers 50 distinct methods across
+  its recorded lineage. [Interruption evidence](../../verification/retained-layout-forest-interruption-development.json)
+  distinguishes initial incorrect advisory exception expectations from corrected
+  genuine predecision recovery runs; production needed no change for these cases.
+  Next close the genuine original canonical forest SourcePhase/acquired-partition
+  execution gap, including complete movement/metadata/finalization and original
+  budget continuity; public root/shared admission stays guarded until that
+  integration is qualified. Implement a distinct internal complete forest-operation
+  plan/factory binding the actual preparation, plan, pool/journal and private effect
+  coordinates. It must enter the existing genuine canonical source phase and
+  complete partition, drive movement/metadata/finalization, and close actual
+  resource/control teardown before returning. No boolean admission override,
+  manufactured owner or guard mock is permitted; ordinary `source_phase()` remains
+  guarded. Actual native diagnostics now complete root-out and plain-to-root
+  canonical transactions, including real acquired partitions and all original
+  teardown. A real interrupted canonical source effect also restores through
+  independently acknowledged inverse recovery and separately reopened control
+  disposition. Five maintained operation/admission methods and 37 native reader
+  methods pass; fourteen nonroot finalization methods pass. These are development
+  results pending consolidated evidence/gates. Complete committed-operation
+  recovery exposed a discovery cycle: an already published supplemental Git writer
+  marker blocks ordinary Git observation before its actual raw descriptor can be
+  discovered. Bounded descriptive bootstrap requests now use strictly decoded
+  generation receipts and actual prior producer targets under held project mutexes.
+  Normal exact raw acquisition still precedes fresh canonical Git derivation;
+  ordinary Git refusals remain intact and unknown anchors cannot be guessed.
+  Maintained actual canonical inverse, Git-bootstrap and plain-to-root cases each
+  pass. A full committed-operation diagnostic now completes fresh data recovery
+  and separately reopened canonical control disposition within the unchanged
+  16 GiB fresh metadata policy. Its independently reviewed workspace calculation
+  separates already-funded immutable observations, retained journal records and
+  simultaneous serialization scratch while preserving verifier-map funding,
+  cumulative reads, finite coupons and native checks. Three existing disposition
+  methods, actual committed and inverse recovery, and a causal insufficient-capacity
+  refusal pass as six affected methods at that operation checkpoint. Its 15 GiB
+  refusal originates in actual preflight before disposition intent or control
+  effects. Sixteen subjects are independently source-reviewed; 93 distinct
+  maintained methods pass across the precisely recorded source lineage.
+  [Operation evidence](../../verification/retained-layout-forest-operation-development.json)
+  separates earlier compatibility profiles, final affected checks, genuine causal
+  failures, corrected harness errors and the quota-test review correction.
+  Actual canonical mixed movement, interrupted inverse and committed recovery now
+  preserve unknown application files beside framework metadata/wrapper authority,
+  executable modes, empty directories, complete hardlinks and internal file/directory
+  symlinks, including original native custody, fixed shared anchors and Git index.
+  Receipt-only node fields project to the transaction's existing stat-only view;
+  the actual native owner retains and verifies the full span and link commitments.
+  A derived planning-allocation bound fits complete mixed committed control release
+  within the unchanged 16 GiB policy. Required-empty roots stop at the first entry;
+  old private-area scans use their complete verified current roster. Actual immutable
+  journal bytes cross callbacks; funded decoding follows native checks and a pure
+  trailing owner/marker/plan/map/path-reference close. Real canonical foreign-entry
+  and late-marker enlargement regressions refuse before intent or projection.
+  A 14 GiB declared observation causally refuses inside actual preflight before
+  effects. Actual interrupted predecision control retirement after a genuine
+  canonical transaction now retries through real G2 acquisition and a second
+  disposition, then verifies G0/G1/G2 terminal replay without replay writes and
+  preserves previous private nodes and source/Git custody. Fifteen subjects are
+  independently source-reviewed. The scoped record covers 95 maintained methods
+  across its source stages, including 35 affected final-production methods and
+  147 distinct methods when combined with the prior operation record.
+  [Canonical topology evidence](../../verification/retained-layout-forest-canonical-topology-development.json)
+  preserves the real stat-projection and quota failures, review corrections and
+  invalid fixture attempts. A later actual mixed directory-mode interruption
+  completes fresh inverse data recovery but cannot release controls: too few
+  events remain in the immutable 256-event journal. Final release and the diagnostic's
+  post-release mixed-custody assertions were not reached. Next implement supported
+  bounded recovery journal continuation or compact disposition recording, preserving
+  durable pre-effect intent, actual fresh descriptor provenance and complete source
+  custody; do not raise live policies/ceilings or reduce the topology. Then retain
+  the following compact representation: a versioned manifest binds the complete
+  ordered held-control roster and initial namespace before effects; actual intent
+  and observation subrecords remain individually durable in hash-linked immutable
+  journal payloads. Three top-level records commit batch intent, the exact
+  pre-pending release decision, and final completion. Replay must bind exact
+  subrecord indices, predecessor digests, declared actions and decision/completion
+  heads; forks, gaps, extra actions and orphan completion claims refuse. Existing
+  per-entry native dispatch/receipts, raw descriptor factories, legacy formats and
+  root/quarantine indices remain required. Preflight event and payload slots,
+  individual/aggregate bytes, stages, decoding/workspace and finite read coupons
+  before intent; immutable payload capacity is not an alternate unbounded log.
+  Implement writer, suffix/control replay and terminal observation together before
+  enabling this representation. A disabled pure codec now has independent source
+  review and ten focused maintained tests for manifest binding, immutable receipts,
+  forks/gaps, prefix freezing and finite payload/expansion limits. Expansion decodes
+  the raw manifest again; altered cached projections cannot borrow its digest.
+  [Codec evidence](../../verification/retained-layout-disposition-compact-codec-development.json)
+  records the corrected duplicate-source fixture and review corrections. Actual
+  writer, full held-roster/provenance binding, resource funding, suffix/control/
+  terminal replay and durable reacquisition prefix anchoring remain unimplemented.
+  Normalization explicitly restricts this format to the public named coordinate;
+  the actual planner must prove that restriction or refuse before effects.
+  No compact protocol is qualified yet. Retain
+  actual late-mode recovery and the remaining boundary evidence before public
+  integration. Qualify ordinary public reentry and
+  larger/multiple-generation topologies,
+  qualify all remaining native/metadata/mode/control interruption boundaries, then qualify
+  genuine integrated forest execution before enabling admission. Full public placement/renewal,
+  installed/platform, integration/release and all other roadmap obligations remain
+  open. Existing foreign destinations still
+  refuse: a collision-free graph alone grants no occupancy authority. Bind exact
+  original destination/prefix states and nearest observed directory anchors
+  through actual participants; execution must advance parent custody with effects.
+  Full-source qualification remains pending. Preserve public/legacy guards.
+  Root-destination metadata must be generated only after actual canonical role
+  discovery. Retain its prospective bytes with those original role facts before
+  acknowledgement; never accept a caller's ownership list as movement authority.
+  Preserve genuine framework/source collision refusals and all original nodes.
   Account for absent canonical control targets in the original partition:
   existing ancestors become fixed shared directories while their original
   source contents and empty logical directories still project to the destination.
@@ -34590,6 +35063,29 @@ independent review and the complete combined gate from test one.
   - [ ] Run real installed public CLI adoption, relocation, update, refresh, readmission and receipt-renewal journeys for a subdirectory, repository root and a non-default wrapper name.
   - [ ] Prove stale plans, destination collisions, escaping aliases, changed source and interrupted moves refuse without data loss; rollback restores exact original custody and prior evidence.
   - [ ] Verify legacy adopted projects keep their default layout and that changed placement cannot reuse an old receipt or manufacture live source authority.
+
+- **Current finite native-read reservation (in progress):** Complete body reuse
+  passes all 26 native journal controls and five native disposition methods. The
+  original three-generation retry still refuses within its unchanged file and
+  metadata policies: marker-only reservations lower its charged file reads from
+  70,374 to 67,000, still above 65,536. All five marker-aware disposition methods
+  pass. Audit the actual registered dispatch: each action performs six full
+  native verifications (five writer checks plus its successor closure), alongside
+  two independently funded marker reads. Reserve those actual action checks,
+  existing fixed planning/refusal allowance and original descriptor-exit allowance
+  before effects, instead of multiplying every intent/observation schedule row by
+  eight. Preserve all full native reads, journal storage, caller limits and G2
+  test bytes. Make the real complete native journey assert the observed full-read
+  count, then renew the unchanged G2 and five-method disposition gates.
+  The complete actual G2 scenario now passes in 2,108.113 seconds, and all five
+  affected native disposition methods pass in 2,613.186 seconds, without skips.
+  Their unchanged scenario, budgets and deadline retain real G0/G1/G2 acquisition,
+  interruption, native retirement and terminal replay. The full journey's exact
+  action-count assertion passes. This is internal recovery evidence; current
+  independent review, the complete cohort/integration and public/platform/release
+  gates remain required. [Scoped development record](../../verification/retained-layout-disposition-budget-development.json).
+
+- **SDLC journal publication checkpoint:** The two-pass byte observation now has independent narrow source approval and 23 passing native journal controls. The fixture reads 1,022 bytes rather than 2,044; full standalone/reopen checks, exact roster ownership, named ancestry and late file/directory closure remain. The genuine G2 retry advances beyond its earlier 69,170/65,536 file-read refusal but fails after 531.879 seconds while funding repeated event decoding in fresh supplemental-control discovery. Next action in progress: measure that actual replay demand and share only immutable authenticated descriptions within the creating observation, preserving fresh native validation and unchanged limits. The separate mixed-mode prepay failure and complete public/platform/release qualification remain open. [Publication development evidence](../../verification/retained-layout-journal-publication-development.json) retains the causal and failed-run history.
 
 ### [ ] CARGO-COMPAT-001 — Qualify reviewed retained Cargo workspace compatibility
 

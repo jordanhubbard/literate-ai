@@ -399,7 +399,10 @@ def plan_layout_data_recovery(
     """Fresh read-only data frontier under actual current canonical descriptors."""
     if type(roles) is not _RecoveryRoleLease or roles._pool is not pool:
         _fail("actual same-producer canonical recovery owner required")
+    from .retained_layout_recovery_controls import _require_legacy_recovery_profile
+
     roles.require_initial_inputs()
+    _require_legacy_recovery_profile(pool)
     root, private = roles._seed.root, Path(private_root)
     if not private.is_absolute() or ".." in private.parts:
         _fail("direct existing private recovery root required")
@@ -416,6 +419,8 @@ def plan_layout_data_recovery(
             budget=budget,
             maximum_metadata_bytes=maximum_metadata_bytes,
         )
+        if original.get("source_forest") is not None:
+            _fail("source forest recovery requires the complete multi-carrier owner")
         coordinates = original["layout"]
         selected = RetainedLayoutSelection.from_values(
             coordinates["wrapper_component"], coordinates["implementation_directory"]

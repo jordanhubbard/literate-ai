@@ -29,6 +29,7 @@ class _Movement:
     active: bool = True
     expected: object = None
     history: tuple = ()
+    forest: object = None
 
 
 def _advance_movement(record, before, **changes):
@@ -127,10 +128,12 @@ def _capture_moved_source(phase):
     )
 
 
-def _run_source_move(phase):
+def _run_source_move(phase, *, metadata_root=None, retirement_root=None):
     phase._live()
     record = _phase_record(phase)
     if record is None:
+        if metadata_root is not None or retirement_root is not None:
+            _fail("bound effect paths require an original forest phase")
         return phase._move_source()
     if record.movement is not None or phase._attempted:
         _fail("source movement already attempted")
@@ -138,6 +141,14 @@ def _run_source_move(phase):
     if owner is None or record.partition is not owner:
         _fail("actual complete partition required before source movement")
     owner.require_current()
+    if phase.plan.source_forest is not None:
+        from .retained_layout_source_forest_movement import _run
+
+        return _run(
+            record, metadata_root=metadata_root, retirement_root=retirement_root
+        )
+    if metadata_root is not None or retirement_root is not None:
+        _fail("bound effect paths require an original forest phase")
     original, ledger = record.original, record.original.ledger
     # Retain the actual already-funded source view; it reserved before/after
     # recapture metadata at preparation. Fund new graph/history storage without
@@ -372,7 +383,12 @@ def _close_movement_inputs(record):
     from .retained_layout_source_finalization import _close_retirement_native
 
     _close_retirement_native(record)
-    _close_effect_parents(record.original.plan)
+    if movement.forest is not None:
+        from .retained_layout_source_forest_movement import _close_native
+
+        _close_native(record)
+    else:
+        _close_effect_parents(record.original.plan)
 
 
 def _require_movement_current(record):
@@ -397,6 +413,9 @@ def _end_movement(record):
     from .retained_layout_source_finalization import _end_finalization
 
     _end_finalization(record)
+    from .retained_layout_source_forest_movement import _end as end_forest
+
+    end_forest(record)
     from .retained_layout_source_metadata import _end_metadata
 
     _end_metadata(record)

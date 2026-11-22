@@ -26,6 +26,7 @@ from .exclusive_directory import _native_rename
 
 _SCHEMA = "literate-ai/retained-layout-journal@1"
 _DOCUMENT_LIMIT = 64 * 1024
+_COMPARE_CHUNK_BYTES = 64 * 1024
 _RECORD_LIMIT = 2 * _DOCUMENT_LIMIT
 _LABEL = re.compile(r"[a-z][a-z0-9-]{0,63}\Z")
 _DIGEST = re.compile(r"[0-9a-f]{64}\Z")
@@ -225,6 +226,41 @@ class _LayoutJournalWriter:
                 names.add(entry.name)
         return names
 
+    def _compare_member(self, name, expected):
+        """Compare every native byte with fixed, prepaid immutable buffers."""
+        fd = os.open(
+            name,
+            os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC,
+            dir_fd=self._descriptor,
+        )
+        try:
+            before = _file(os.fstat(fd))
+            content = expected[1]
+            if len(content) > max(_RECORD_LIMIT, self._budget.maximum_payload_bytes):
+                raise ValueError("layout.journal.file-limit")
+            if before[5] > len(content):
+                raise ValueError("layout.journal.file-limit")
+            if before != expected[0] or before[5] != len(content):
+                raise ValueError("layout.journal.record-changed")
+            offset = 0
+            while True:
+                chunk = os.read(
+                    fd, min(_COMPARE_CHUNK_BYTES, len(content) + 1 - offset)
+                )
+                if not chunk:
+                    break
+                if chunk != content[offset : offset + len(chunk)]:
+                    raise ValueError("layout.journal.record-changed")
+                offset += len(chunk)
+                if offset > len(content):
+                    raise ValueError("layout.journal.record-changed")
+            after = _file(os.fstat(fd))
+            named = _file(os.stat(name, dir_fd=self._descriptor, follow_symlinks=False))
+            if before != after or before != named or offset != len(content):
+                raise ValueError("layout.journal.record-changed")
+        finally:
+            os.close(fd)
+
     def require_current(self, *, _expected=None):
         admission = _LIVE_WRITERS.get(self)
         roster = tuple(self._known.items()) if _expected is None else _expected
@@ -245,8 +281,7 @@ class _LayoutJournalWriter:
             raise ValueError("layout.journal.membership-changed")
         for name, expected in roster:
             require_roster()
-            if self._read(name, maximum_bytes=len(expected[1])) != expected:
-                raise ValueError("layout.journal.record-changed")
+            self._compare_member(name, expected)
             require_roster()
         if self._names() != set(self._known):
             raise ValueError("layout.journal.membership-changed")
@@ -261,6 +296,68 @@ class _LayoutJournalWriter:
         # Return fresh documents, not mutable aliases into the live writer.
         return tuple(json.loads(self._known[name][1]) for name in self._events)
 
+    def _raw_documents_from_snapshot(self, snapshot, *, _expected=None):
+        """Authenticate immutable raw descriptions without returning mutable JSON."""
+        _require_live_layout_journal(self)
+        admission = _LIVE_WRITERS[self]
+        if (
+            type(snapshot) is not tuple
+            or len(snapshot) != 2
+            or any(type(value) is not tuple for value in snapshot)
+        ):
+            raise ValueError("layout.journal.actual-event-snapshot-required")
+        names, rows = snapshot
+        if len(names) != len(rows) or any(type(name) is not str for name in names):
+            raise ValueError("layout.journal.actual-event-snapshot-required")
+
+        def close():
+            if _expected is not None and (
+                type(_expected) is not tuple
+                or len(self._known) != len(_expected)
+                or any(self._known.get(name) is not row for name, row in _expected)
+            ):
+                raise ValueError("layout.journal.funded-roster-changed")
+            if tuple(self._events) != names or any(
+                self._known.get(name) is not row
+                for name, row in zip(names, rows, strict=True)
+            ):
+                raise ValueError("layout.journal.funded-event-roster-changed")
+
+        close()
+        if _expected is None:
+            self.require_current()
+        else:
+            self.require_current(_expected=_expected)
+        _require_live_layout_journal(self)
+        close()
+        digests = tuple(sorted(self._payloads))
+        payload_rows = tuple(self._known[f"p-{digest}.bin"] for digest in digests)
+        # Only immutable bytes/strings/tuples cross later consumer callbacks.
+        # Decoding belongs to a subsequent callback-free projection.
+        result = (
+            tuple(row[1] for row in rows),
+            tuple(
+                (digest, row[1])
+                for digest, row in zip(digests, payload_rows, strict=True)
+            ),
+        )
+        if _expected is None:
+            self.require_current()
+        else:
+            self.require_current(_expected=_expected)
+        _require_live_layout_journal(self)
+        close()
+        if (
+            _LIVE_WRITERS.get(self) is not admission
+            or tuple(sorted(self._payloads)) != digests
+            or any(
+                self._known.get(f"p-{digest}.bin") is not row
+                for digest, row in zip(digests, payload_rows, strict=True)
+            )
+        ):
+            raise ValueError("layout.journal.funded-payload-roster-changed")
+        return result
+
     def read_payload(self, digest):
         self.require_current()
         if digest not in self._payloads:
@@ -269,6 +366,65 @@ class _LayoutJournalWriter:
 
     def _publish(self, name, content):
         self.require_current()
+        if type(content) is not bytes:
+            raise ValueError("layout.journal.payload-limit")
+        # These immutable rows were byte-authenticated by this operation. Only
+        # our new stage/name may join them; no caller can provide a baseline or
+        # reuse this closure for another publication.
+        original_rows = tuple(self._known.items())
+        descriptor, guard, budget = self._descriptor, self._guard, self._budget
+        admission = _LIVE_WRITERS.get(self)
+
+        def directory_signature():
+            node = os.fstat(descriptor)
+            return (
+                _directory(node),
+                node.st_size,
+                node.st_nlink,
+                node.st_mtime_ns,
+                node.st_ctime_ns,
+            )
+
+        def close_publication(extra_name, extra_row, directory):
+            roster = (*original_rows, (extra_name, extra_row))
+            names = {member for member, _row in roster}
+
+            def close_references():
+                if (
+                    self._descriptor != descriptor
+                    or self._guard is not guard
+                    or self._budget is not budget
+                    or _LIVE_WRITERS.get(self) is not admission
+                    or self._poisoned
+                    or len(self._known) != len(roster)
+                    or any(self._known.get(member) is not row for member, row in roster)
+                ):
+                    raise ValueError("layout.journal.funded-roster-changed")
+                if admission is not None:
+                    _close_live_journal_admission(self, admission)
+
+            close_references()
+            guard()
+            close_references()
+            if self._names() != names:
+                raise ValueError("layout.journal.membership-changed")
+            # Finish enumeration before closing the original named ancestry.
+            # A held directory descriptor alone does not preserve its path.
+            guard()
+            close_references()
+            for member, row in roster:
+                observed = _file(
+                    os.stat(member, dir_fd=descriptor, follow_symlinks=False)
+                )
+                if observed != row[0]:
+                    raise ValueError("layout.journal.record-changed")
+            # Native change times close additions/removals after enumeration.
+            # This baseline comes only from our actual stage create/rename.
+            if directory_signature() != directory:
+                raise ValueError("layout.journal.directory-changed")
+            # No enumeration or guard callback follows these native closures.
+            close_references()
+
         if (
             name in self._known
             or len(self._stages) >= self._budget.maximum_stages
@@ -285,6 +441,7 @@ class _LayoutJournalWriter:
             dir_fd=self._descriptor,
         )
         try:
+            staged_directory = directory_signature()
             original = _file(os.fstat(fd))
             remaining = memoryview(content)
             while remaining:
@@ -293,25 +450,34 @@ class _LayoutJournalWriter:
                     raise OSError("layout.journal.short-write")
                 remaining = remaining[count:]
             os.fsync(fd)
-            observed = self._read(stage)
-            if observed[0][:5] != original[:5] or observed[1] != content:
+            observed = _file(os.fstat(fd)), content
+            if observed[0][:5] != original[:5] or observed[0][5] != len(content):
                 raise ValueError("layout.journal.stage-changed")
+            # The immutable caller body is already funded. Authenticate its
+            # complete native counterpart before retaining that same byte value;
+            # no second full staged body is allocated or trusted without a read.
+            self._compare_member(stage, observed)
             self._known[stage] = observed
         finally:
             os.close(fd)
         # No application effect is authorized until this complete operation returns.
         self._poisoned = False
-        self.require_current()
+        close_publication(stage, observed, staged_directory)
         self._poisoned = True
         _native_rename(self._descriptor, stage.encode("ascii"), name.encode("ascii"))
+        published_directory = directory_signature()
         os.fsync(self._descriptor)
-        published = self._read(name)
-        if published[0][:5] != observed[0][:5] or published[1] != content:
+        published = (
+            _file(os.stat(name, dir_fd=self._descriptor, follow_symlinks=False)),
+            content,
+        )
+        if published[0][:5] != observed[0][:5] or published[0][5] != len(content):
             raise ValueError("layout.journal.publication-changed")
+        self._compare_member(name, published)
         del self._known[stage]
         self._known[name] = published
         self._poisoned = False
-        self.require_current()
+        close_publication(name, published, published_directory)
 
     def store_payload(self, content):
         self.require_current()

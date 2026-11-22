@@ -1,0 +1,88 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_scoped_internal_canonical_forest_operation_and_recovery",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_operation.py": {
+      "algorithm": "sha256",
+      "digest": "6aa58c7bb4a6ab8d755b2058bd354bda445a47f2908eb7eecdc32e9d9d1b8469"
+    },
+    "src/literate_ai/adapters/retained_layout_source_admission.py": {
+      "algorithm": "sha256",
+      "digest": "896d38a632ed553c7c05710bbce24e7a9742f1e4fd448ecadb5c00f926d7b521"
+    },
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "55c7d6e6c7328047e7e29a2f7f1e9c6438dd3725db9bc7c46ef85f84499e8c4a"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_effects.py": {
+      "algorithm": "sha256",
+      "digest": "5d0a0b99fd431848aea34b6073b26cfccf56b303ec8155c1b40c4c73e867d629"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_reader.py": {
+      "algorithm": "sha256",
+      "digest": "738155723dafc03bd22ea3e6e3b8f0a68970b3c884fec059f157038b6fc10203"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_generations.py": {
+      "algorithm": "sha256",
+      "digest": "8d1d9739ecc2461c7fade562f629beb8c062af891f3341b5296bb0049f577be4"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_disposition.py": {
+      "algorithm": "sha256",
+      "digest": "f20d9873020119c5db46e1f34c0b46b97e05cb81ccdde89def1fb811f6cf88fd"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_disposition_budget.py": {
+      "algorithm": "sha256",
+      "digest": "a920b968277b5e2c6196b9a635cf81a8e9ea2dd719e00b4211365167010004f4"
+    },
+    "tests/critical/test_retained_layout_forest_operation.py": {
+      "algorithm": "sha256",
+      "digest": "23c3dca561c96c0764f444a6cc7b2d57a67a5a73c943602f9ba30dd3c3f56f12"
+    },
+    "tests/critical/test_retained_layout_forest_operation_journal.py": {
+      "algorithm": "sha256",
+      "digest": "5f33bb6e2679292f3aa39ccbf1811e34e5e42aedf2feb8e836b3cde8ccc75dc9"
+    },
+    "tests/critical/test_retained_layout_forest_native.py": {
+      "algorithm": "sha256",
+      "digest": "d294424d7fa83cdafa68c277f402165442b6df370915d6ac0969cab0bd81d4e4"
+    },
+    "tests/critical/test_retained_layout_forest_operation_recovery.py": {
+      "algorithm": "sha256",
+      "digest": "c5c554b71dbcafd035c30a67c0d6330b639f55009112c73f7fb70d544c76ea4d"
+    },
+    "tests/critical/test_retained_layout_forest_operation_bootstrap.py": {
+      "algorithm": "sha256",
+      "digest": "4340e977acabdd8169854b2a7a0891d00ea2394cd30d509f6593070a2e69c3bf"
+    },
+    "tests/critical/test_retained_layout_forest_operation_into_root.py": {
+      "algorithm": "sha256",
+      "digest": "b09787820830fe5f8c7b4d06c7feb97d813e6b4a1094c5a7d56f56b1ccb03622"
+    },
+    "tests/critical/test_retained_layout_forest_operation_committed.py": {
+      "algorithm": "sha256",
+      "digest": "bfb53cfab71f2b15371d7f544d489f3dc03225e6fb55be913d301bfa01e84503"
+    },
+    "tests/critical/test_retained_layout_forest_operation_capacity.py": {
+      "algorithm": "sha256",
+      "digest": "01c9b90c748212c3a13250aec226212fa1c4678e79dc59f0fbfc80a3e8ce9744"
+    }
+  },
+  "findings_closed": [
+    "Actual specialized complete-operation proposal binds original preparation, plan, pool/journal and empty private effect areas before acknowledgement. Existing canonical SourcePhase, complete partition, movement, metadata, finalization and original teardown execute without manufactured ownership or an admission boolean.",
+    "Root-out and plain-to-root preserve source inode/bytes/mode and repository/Git custody. Generic source_phase root/shared admission remains guarded.",
+    "Unchanged fixed RefreshFileObservation objects retain original reference identity after fully checked native receipt transfer.",
+    "Interrupted actual canonical source execution retains the genuine nonnull acquired-partition payload; all original owners end before fresh actual canonical inverse recovery and a separately reopened control disposition.",
+    "Existing supplemental Git native controls bootstrap only bounded descriptive requests from exact original targets/anchors and sealed typed receipts under held mutexes. Normal raw acquisition precedes actual canonical Git derivation. Unknown anchors and ordinary Git refusals remain guarded.",
+    "Full genuine committed canonical operation reopens for actual canonical zero-action data recovery, then reopens all actual G0/G1 descriptors and canonical roles again for complete control disposition.",
+    "Disposition preflight funds sizing, retained records and simultaneous wire buffers separately from already-funded immutable observations and verifier maps. Cumulative reads, native checks, finite coupons, nonreentrancy and the 16GiB maximum remain unchanged.",
+    "A separately declared 15GiB observer reaches actual _prepay, which itself raises the allowance error before any disposition append or control/private mutation. No policy is changed after observer creation."
+  ],
+  "test_review_correction": "Initial capacity entry-only trace was insufficient; final wrapper records refusal from actual prepay and finally checks no writes unconditionally. Corrected hash source-approved and maintained pass.",
+  "not_proven": [
+    "This proves the recorded basic internal canonical execution/recovery topologies only. Full public root/shared reentry and admission remain guarded.",
+    "Larger/multiple-generation and overlapping topologies, remaining native/metadata/mode/control interruption boundaries, initial/wrapper/renewal placement and full public recovery remain open.",
+    "Installed/native/platform/full-program acceptance, integration/release and all other pending roadmap obligations remain open. No full-feature, release, or roadmap completion claim; no commit/push."
+  ]
+}

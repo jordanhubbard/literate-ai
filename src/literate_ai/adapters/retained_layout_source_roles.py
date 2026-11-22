@@ -58,7 +58,6 @@ class _Context:
     census: object
     git: object
     destination: Path
-    prospective: tuple
     checkout: object
     pid: int
     thread: int
@@ -79,7 +78,12 @@ class _Facts:
     roles: tuple
     directories: tuple
     graph: object
+    prospective: tuple
     identity: object
+    forest: object = None
+    forest_native: tuple = ()
+    forest_identity: str | None = None
+    destination_state: object = None
 
 
 def _wire(value):
@@ -89,7 +93,16 @@ def _wire(value):
             if f.name == "inputs"
             else getattr(value, f.name)
             for f in fields(_Facts)
-            if f.name not in {"provider", "provider_record"}
+            if f.name
+            not in {
+                "provider",
+                "provider_record",
+                "forest_native",
+                "prospective",
+                "destination_state",
+            }
+            and (f.name != "forest" or value.forest is not None)
+            and (f.name != "forest_identity" or value.forest is not None)
         )
     )
 
@@ -173,6 +186,17 @@ def _references(context, facts):
     objects.extend((context.tree.budget,))
     objects.extend(blob for _, blob, _ in context.tree.files)
     objects.extend(context.tree.aliases)
+    if facts.destination_state is not None:
+        objects.append(facts.destination_state)
+        objects.extend(
+            node for _, node in facts.destination_state.prefixes if node is not None
+        )
+        objects.append(facts.destination_state.anchor_node)
+    if facts.forest is not None:
+        objects.extend((facts.forest, facts.forest.budget))
+        objects.extend(blob for _, blob, _ in facts.forest.files)
+        objects.extend(facts.forest.aliases)
+        objects.extend(node for _, node in facts.forest_native)
     if facts.provider_record is not None:
         objects.extend((facts.provider_record, facts.provider_record.binding))
     return tuple(
@@ -283,6 +307,19 @@ def _read_record(owner, *, reading=False, deep=False):
             or plan.project_roles != facts.identity.uri
         ):
             _fail("original acknowledged role plan changed")
+        if plan is not None:
+            forest = facts.forest
+            if (
+                forest is None and getattr(plan, "source_forest", None) is not None
+            ) or (
+                forest is not None
+                and (
+                    plan.tree is not forest
+                    or plan.native is not facts.forest_native
+                    or plan.source_forest != facts.forest_identity
+                )
+            ):
+                _fail("original acknowledged source forest changed")
     return value
 
 
@@ -340,9 +377,7 @@ def _remaining(ledger):
     ), metadata
 
 
-def _observe(
-    capture, tree, git, namespace, destination, prospective, *, provider_checkout
-):
+def _observe(capture, tree, git, namespace, destination, *, provider_checkout):
     from .retained_cargo_tree_v2 import RetainedCargoInputTreeV2
     from .retained_layout_effect_graph import _source_effect_graph
     from .retained_layout_ownership import (
@@ -412,7 +447,6 @@ def _observe(
         ns.census,
         git,
         destination,
-        prospective,
         provider_checkout,
         os.getpid(),
         threading.get_ident(),
@@ -499,6 +533,23 @@ def _observe(
                 }
             )
         )
+        if (
+            tree.root == context.root
+            or destination == context.root
+            or capture.lock_path.is_relative_to(tree.root)
+        ):
+            from .repository_lineage import _lineage_writer_lock_path
+
+            # Genuine canonical producer endpoints fix their original ancestors;
+            # these observations grant no advisory descriptor or effect rights.
+            extra = {
+                _lineage_writer_lock_path(context.root)
+                .relative_to(context.root)
+                .as_posix()
+            }
+            if capture.lock_path.is_relative_to(context.root):
+                extra.add(capture.lock_path.relative_to(context.root).as_posix())
+            controls = tuple(sorted({*controls, *extra}))
         original.ledger.charge_records(
             16 + 8 * len(role_inputs),
             65536
@@ -521,6 +572,17 @@ def _observe(
             imported_dirs,
             authored=authored,
         )
+        _require_original_destination_occupancy(context, directories)
+        from .retained_layout_source_destination import (
+            _allowance as destination_allowance,
+        )
+        from .retained_layout_source_destination import (
+            _from_original as original_destination,
+        )
+
+        coordinate = destination.relative_to(context.root).as_posix()
+        original.ledger.charge_records(*destination_allowance(ns.census, coordinate))
+        destination_state = original_destination(ns.census, ns.native, coordinate)
         graph = _source_effect_graph(
             ns.census.tree,
             roles,
@@ -535,6 +597,11 @@ def _observe(
             ),
         )
         from .retained_layout_source_provider import _OWNERS as provider_owners
+
+        # Prospective bytes belong to the completed canonical observations, not
+        # caller-supplied construction context. Keep their actual tuple sealed
+        # with those facts before acknowledging any prepared plan.
+        prospective = _prospective_for_context(context, roles)
 
         identity = canonical_identity(
             {
@@ -555,6 +622,24 @@ def _observe(
                 "authored": tuple(sorted(authored)),
             }
         )
+        forest, forest_native = None, ()
+        if not graph.is_single_rename:
+            if tree.root == context.root:
+                _require_original_root_claims(context, roles)
+            from .retained_layout_source_forest import _from_original
+
+            original.ledger.charge_records(
+                64 + 16 * count, 65536 + 4096 * count + 128 * path_bytes
+            )
+            forest, forest_native = _from_original(
+                ns.census,
+                ns.native,
+                ns.identity.uri,
+                identity.uri,
+                roles,
+                directories,
+                graph,
+            )
         facts = _Facts(
             tuple(sorted(framework)),
             tuple(children),
@@ -569,7 +654,12 @@ def _observe(
             roles,
             directories,
             graph,
+            prospective,
             identity,
+            forest,
+            forest_native,
+            None if forest is None else forest.identity.uri,
+            None if forest is None else destination_state,
         )
         _FACTS[owner] = facts
         _SEALS[owner] = (
@@ -584,6 +674,88 @@ def _observe(
     except BaseException:
         _BUILDING.discard(owner)
         raise
+
+
+def _require_original_destination_occupancy(context, directories):
+    """Admit original occupancy before graph calculation; labels grant no rights."""
+    from .retained_layout_source_namespace import _record as namespace_record
+
+    namespace = namespace_record(context.namespace, reading=True)
+    coordinate = context.destination.relative_to(context.root).as_posix()
+    if context.destination == context.root:
+        return
+    if coordinate not in namespace.census.tree.directories:
+        return
+    values = dict(directories)[coordinate]
+    if "source" not in values or (
+        context.tree.root != context.root
+        and not context.destination.is_relative_to(context.tree.root)
+        and values != ("source",)
+    ):
+        _fail("existing destination lacks actual original source ownership")
+
+
+def _prospective_for_context(context, roles):
+    from .retained_layout import RETAINED_LAYOUT_PATH
+    from .retained_layout_transaction import _prospective_metadata
+
+    owned = ()
+    if context.destination == context.root:
+        protected = tuple(
+            path.relative_to(context.root)
+            for path in context.git.protected_admin_entries
+            if path.is_relative_to(context.root)
+        )
+        owned = tuple(
+            sorted(
+                {RETAINED_LAYOUT_PATH}
+                | {
+                    name
+                    for name, role in roles
+                    if role in {"framework", "authored", "imported"}
+                    or (
+                        role == "control"
+                        and not any(
+                            Path(name).is_relative_to(path) for path in protected
+                        )
+                    )
+                }
+            )
+        )
+    return _prospective_metadata(
+        context.root,
+        context.observed[1],
+        context.observed[2],
+        context.destination.relative_to(context.root).as_posix(),
+        framework_owned_paths=owned,
+    )
+
+
+def _require_original_root_claims(context, roles):
+    from .retained_layout import RETAINED_LAYOUT_PATH, _parse_layout_bytes
+
+    raw = next(
+        item.content
+        for item in context.observed[2]
+        if item.path == context.root / RETAINED_LAYOUT_PATH
+    )
+    declaration = _parse_layout_bytes(raw)
+    if (
+        declaration.implementation_directory != "."
+        or declaration.wrapper_component != context.observed[1].wrapper_component
+    ):
+        _fail("original root coordinates differ from canonical inputs")
+    claimed = set(declaration.framework_owned_paths)
+    proven = {
+        name
+        for name, role in roles
+        if role in {"framework", "authored", "control", "imported"}
+    }
+    required = {
+        name for name, role in roles if role in {"framework", "authored", "imported"}
+    }
+    if not required <= claimed or not claimed <= proven:
+        _fail("root declaration ownership differs from actual canonical roles")
 
 
 def _require_calculation(owner, root, wrapper_component):
@@ -703,6 +875,17 @@ def _separate_provider(provider):
             _fail("original provider input overlaps moving source")
 
 
+def _original_prospective_metadata(owner):
+    _record(owner, reading=True, deep=True)
+    return _FACTS[owner].prospective
+
+
+def _original_move_observation(owner):
+    _record(owner, reading=True, deep=True)
+    facts = _FACTS[owner]
+    return facts.forest, facts.forest_native, facts.destination_state
+
+
 def _bind_plan(owner, plan):
     from .component_lock_observation import _require_plan as require_storage
     from .retained_layout_source_namespace import _require_plan as require_namespace
@@ -712,13 +895,14 @@ def _bind_plan(owner, plan):
     if (
         type(plan) is not _PreparedSourceMovePlan
         or owner in _PLAN_SEALS
-        or plan.tree is not value.tree
+        or plan.tree is not (_FACTS[owner].forest or value.tree)
         or plan.inputs is not value.observed[2]
         or plan.layout is not value.observed[1]
         or plan.git is not value.git
         or type(plan.destination) is not type(value.destination)
         or plan.destination != value.destination
-        or plan.prospective is not value.prospective
+        or plan.prospective is not _FACTS[owner].prospective
+        or plan.destination_state is not _FACTS[owner].destination_state
         or type(plan.project_roles) is not str
         or plan.project_roles != _FACTS[owner].identity.uri
     ):
@@ -768,6 +952,188 @@ def _require_plan(plan):
     return owner
 
 
+def _source_forest_for_plan(plan):
+    from .retained_layout_source_forest import _LogicalSourceForest
+
+    owner = _require_plan(plan)
+    forest = _FACTS[owner].forest
+    if type(forest) is not _LogicalSourceForest or plan.tree is not forest:
+        _fail("actual original logical source forest required")
+    return forest
+
+
+def _original_forest_observation(owner):
+    from .retained_layout_source_forest import _LogicalSourceForest
+
+    _record(owner, reading=True, deep=True)
+    facts = _FACTS[owner]
+    if type(facts.forest) is not _LogicalSourceForest:
+        _fail("actual creating original forest observation required")
+    return facts.forest, facts.forest_native
+
+
+def _validate_forest_plan(plan):
+    owner = _require_plan(plan)
+    context, facts = _record(owner, reading=True, deep=True), _FACTS[owner]
+    forest = _source_forest_for_plan(plan)
+    if (
+        forest.source != plan.layout.implementation_directory
+        or forest.root != plan.layout.implementation_root
+        or plan.native is not facts.forest_native
+        or plan.source_forest != facts.forest_identity
+        or facts.graph.source != forest.source
+        or facts.graph.destination != plan.destination.relative_to(plan.root).as_posix()
+        or not plan.destination.is_relative_to(plan.root)
+        or plan.prospective != _prospective_for_context(context, facts.roles)
+        or plan.destination_state is not facts.destination_state
+        or plan.destination_parent is not facts.destination_state.parent_node
+        or plan.destination_lineage
+        != (
+            facts.destination_state.anchor_lineage
+            if facts.destination_state.parent_node is not None
+            else ()
+        )
+    ):
+        _fail("original root forest coordinates or native observations changed")
+    if forest.source == ".":
+        _require_original_root_claims(context, facts.roles)
+    return context
+
+
+def _forest_runtime_graph(admission):
+    """Actual original graph and canonical absent endpoints, never a selector."""
+    owner = _require_plan(admission.original.plan)
+    _require_admission(owner, admission)
+    facts = _FACTS[owner]
+    if facts.forest is None or admission.partition is None:
+        _fail("actual original forest partition required")
+    _validate_forest_plan(admission.original.plan)
+    actual, original = admission.partition._effect_graph, facts.graph
+    if any(
+        getattr(actual, name) != getattr(original, name)
+        for name in (
+            "source",
+            "destination",
+            "carriers",
+            "retain_directories",
+            "create_directories",
+            "projection",
+        )
+    ):
+        _fail("acquired canonical roles changed original source movement schedule")
+    root = admission.original.root
+    fixed = {root / name for name in facts.controls}
+    fixed.update(item.path for item in admission.original.plan.inputs)
+    return actual, frozenset(fixed)
+
+
+def _require_forest_destination(plan, *, _source_preparation=None):
+    from .retained_layout_source_destination import _require_current
+
+    if _source_preparation is None:
+        context = _validate_forest_plan(plan)
+    else:
+        from .retained_layout_source_preparation import _state
+
+        original = _state(_source_preparation)
+        if original.plan is not plan:
+            _fail("actual original destination preparation required")
+        _require_registration(_source_preparation, original)
+        context = _record(_BOUND[_source_preparation])
+    state = _FACTS[_BOUND[context.preparation]].destination_state
+    if plan.destination_state is not state:
+        _fail("original destination description changed")
+    owner = _BOUND[context.preparation]
+    admission = _ADMITTED.get(owner)
+    if admission is not None and admission.controls is not None:
+        _require_admission(owner, admission)
+        from .retained_layout_source_namespace import _current_view
+
+        _tree, current = _current_view(context.preparation)
+        state = _controlled_destination(state, current)
+    _require_current(state, plan.tree.budget.maximum_entries)
+
+
+def _controlled_destination(state, native):
+    """Pure successor data from the authenticated controlled namespace only."""
+    from dataclasses import replace
+
+    nodes = dict(native)
+    prefixes = []
+    for name, before in state.prefixes:
+        current = nodes.get("" if name == "." else name)
+        if before is None:
+            if current is not None:
+                _fail("canonical publication occupies an original destination absence")
+        elif current is None or current.directory_identity != before.directory_identity:
+            _fail("canonical publication changed original destination identity")
+        prefixes.append((name, current))
+    anchor_name = state.anchor.relative_to(state.root).as_posix()
+    anchor = nodes.get("" if anchor_name == "." else anchor_name)
+    if (
+        anchor is None
+        or anchor.directory_identity != state.anchor_node.directory_identity
+    ):
+        _fail("canonical publication changed original destination anchor identity")
+    return replace(
+        state,
+        prefixes=tuple(prefixes),
+        anchor_node=anchor,
+        parent_node=state.parent_node
+        if state.parent_node is None
+        else nodes[
+            ""
+            if state.coordinate == "." or "/" not in state.coordinate
+            else str(Path(state.coordinate).parent)
+        ],
+    )
+
+
+def _preparation_destination_anchor(preparation, plan):
+    from .retained_layout_source_preparation import _state
+
+    original = _state(preparation)
+    if original.plan is not plan:
+        _fail("actual original destination preparation required")
+    _require_registration(preparation, original)
+    state = _FACTS[_BOUND[preparation]].destination_state
+    if state is None or plan.destination_state is not state:
+        _fail("actual original destination observation required")
+    return state.anchor
+
+
+def _forest_destination_endpoints(plan):
+    context = _validate_forest_plan(plan)
+    graph = _FACTS[_BOUND[context.preparation]].graph
+    return tuple(
+        plan.root / name
+        for name in sorted(
+            {target for _, target in graph.carriers} | set(graph.create_directories)
+        )
+    )
+
+
+def _require_forest_storage(plan, capture):
+    owner = _require_plan(plan)
+    context = _validate_forest_plan(plan)
+    if context.capture is not capture:
+        _fail("actual original forest canonical selection required")
+    facts = _FACTS[owner]
+    from .retained_layout_source_namespace import _record as namespace_record
+
+    namespace = namespace_record(context.namespace, reading=True)
+    moving = {name for name, _ in facts.graph.carriers}
+    moving.update(facts.graph.retain_directories)
+    native = dict(namespace.native)
+    identities = {(native[name].device, native[name].inode) for name in moving}
+    _, ancestry = context.ledger.ancestry[capture.lock_path]
+    if any(node[1:3] in identities for node in ancestry) or any(
+        node is not None and node[:2] in identities
+        for _, node in capture.selector_paths
+    ):
+        _fail("canonical lock storage overlaps a native source carrier")
+
+
 def _require_admission(owner, admission):
     value = _record(owner)
     if (
@@ -785,6 +1151,12 @@ def _bind_admission(admission):
 
     owner = _BOUND.get(admission.preparation)
     _require_registration(admission.preparation, admission.original)
+    if _FACTS[owner].forest is not None:
+        if admission.forest_operation is None:
+            _fail("root/shared admission requires the complete multi-carrier executor")
+        from .retained_layout_forest_operation import _bind_operation_admission
+
+        _bind_operation_admission(admission)
     if (
         owner in _ADMISSION_BINDINGS
         or _ADMISSIONS.get(admission.preparation) is not admission

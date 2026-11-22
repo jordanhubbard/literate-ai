@@ -18,6 +18,9 @@ import tests.critical.test_retained_layout_source_admission as fixtures
 from literate_ai.adapters import retained_layout_control_publication as publications
 from literate_ai.adapters import retained_layout_source_state as state
 from literate_ai.adapters.exclusive_entry import _from_stat
+from literate_ai.adapters.retained_layout_control_roles import (
+    layout_pending_control_path,
+)
 from literate_ai.adapters.retained_layout_journal import (
     LayoutJournalBudget,
     retained_layout_journal,
@@ -39,6 +42,44 @@ class SourceStatePersistenceTests(unittest.TestCase):
     def setUp(self):
         fixtures.SourceAdmissionTests.setUp(self)
         self.input_budget = replace(self.input_budget, maximum_entries=131072)
+
+    def test_prospective_bytes_follow_actual_canonical_role_discovery(self):
+        from literate_ai.adapters import retained_layout_ownership as ownership
+        from literate_ai.adapters import retained_layout_source_roles as roles
+        from literate_ai.adapters import retained_layout_transaction as transaction
+
+        classify = ownership._classify_observed_roles
+        serialize = transaction._prospective_metadata
+        discovered = []
+        serialized = []
+
+        def classify_actual(*args, **kwargs):
+            result = classify(*args, **kwargs)
+            discovered.append(result)
+            return result
+
+        def serialize_actual(*args, **kwargs):
+            self.assertTrue(discovered, "metadata preceded canonical role discovery")
+            result = serialize(*args, **kwargs)
+            serialized.append(result)
+            return result
+
+        with (
+            mock.patch.object(ownership, "_classify_observed_roles", classify_actual),
+            mock.patch.object(transaction, "_prospective_metadata", serialize_actual),
+            self.prepare() as owner,
+        ):
+            with owner._reads():
+                participant = roles._BOUND[owner]
+                self.assertIs(
+                    roles._original_prospective_metadata(participant),
+                    owner.plan.prospective,
+                )
+            self.assertTrue(
+                any(value is owner.plan.prospective for value in serialized)
+            )
+            owner.require_current()
+        self.assertFalse(layout_pending_control_path(self.project).exists())
 
     def test_acknowledged_plan_is_durable_before_first_canonical_publication(self):
         class PublicationObserved(Exception):

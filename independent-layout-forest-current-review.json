@@ -1,0 +1,36 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_actual_current_native_prefix_observations",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout_forest_current.py": {
+      "algorithm": "sha256",
+      "digest": "c1df3f8ac43a45e6e4f63f9965ec2a28e7c31e40c4e1c32d87aca2fc816f9bb7"
+    },
+    "src/literate_ai/adapters/retained_layout_forest_span.py": {
+      "algorithm": "sha256",
+      "digest": "3d9108495220c9f6703a18c778f4dec251b696f6cde3727a7c121c3fe59d0782"
+    },
+    "tests/critical/test_retained_layout_forest_current.py": {
+      "algorithm": "sha256",
+      "digest": "bf1a72e6a87359a5519e3ba27a5f88f37e0f484c4640497d6a9dad8dec896119"
+    }
+  },
+  "findings_closed": [
+    "Every preliminary/closing endpoint probe uses retained original-root no-follow access; redirected parents and unavailable safe access refuse.",
+    "Exact role factory authentication precedes replaceable seed/pool fields.",
+    "Pure original registration checks follow each dependent callback; exceptional cleanup passes the actual exception into ExitStack so mandatory FD closure does not borrow revoked FDs for success-only validation."
+  ],
+  "scope": [
+    "Actual registered fresh observer and canonical role lease; same original finite cumulative read ledger. Return descriptive data only, with no effect, source-phase or qualification grant.",
+    "Exact recorded native prefix, pending entry/mode before and after, replay-marked dirty stage parents under complete native membership/payload closure. Unrecorded occupied parking/stage creation remains explicit unresolved.",
+    "Canonical/store/reader callbacks follow payload reads but precede the retained no-follow verifier final known-native pass; pure registries and original journal roster close after access contexts."
+  ],
+  "not_proven": [
+    "Actual metadata/control publication and retirement endpoint projection through durable original bytes and exact retained intent/observation records",
+    "Actual acknowledged journaled source/metadata/control recovery effects and fresh dispositions",
+    "Genuine canonical integrated forest execution before admission guard removal",
+    "Full public placement/renewal, installed/native/platform/integration/release and all pending roadmap obligations"
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "schema": "literate-ai/forest-namespace-development@1",
+  "state": "source_reviewed_native_namespace_output_21_scoped_maintained_pass",
+  "qualified": false,
+  "release_evidence": false,
+  "full_feature_complete": false,
+  "full_roadmap_complete": false,
+  "owning_work_item": "ADOPT-RELOCATE-001",
+  "review": {
+    "path": "independent-layout-forest-namespace-review.json",
+    "sha256": "e46659d969f38791317137bcc4bd95fc71ffd670828595fc8dcd9c167967331d"
+  },
+  "checks": [
+    {
+      "report": {
+        "path": "_build/forest-namespace-native-report.json",
+        "sha256": "031683848aaa0327d005a40b13a97bc4b06213c5d7c348f61bf57ac92b1b690f"
+      },
+      "log": {
+        "path": "_build/forest-namespace-native-maintained.log",
+        "sha256": "5ab004b40539ef33f8a6106cfe4343b243396fb73a52dc11380c2e357663c9d0"
+      },
+      "summary": {
+        "executed": 21,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 21,
+        "selected": 21,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "431cae197aea6d9306741b7f93202d1f40d71ded84fd9335988538698df38c7e",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      }
+    }
+  ],
+  "diagnostic": {
+    "path": "_build/forest-native-namespace-diagnostic.log",
+    "sha256": "94ec2d36b3f0a1b0a58cddf86b2f777d1aae00edf77f0e23ee936f916d8f5904"
+  },
+  "alignment": {
+    "report": {
+      "path": "_build/forest-namespace-alignment.json",
+      "sha256": "fdafd12ff0cc7f54875f6bcd47a150bbf69f5892676ea14042dfa8abd1e8c74a"
+    },
+    "global_exit": 1,
+    "local_worker": "macos aligned with no findings",
+    "remote_dispatch": false
+  },
+  "scope": [
+    "Actual unmanaged native moves return complete metadata namespace derived from verified final receipt span, including actual directory/file physical custody.",
+    "Canonical SDK require_unchanged validates resulting namespace in actual root, ancestor, hardlink and retained-container fixtures.",
+    "Late payload rewrite during output construction refuses; uncompleted/expired native owner refuses."
+  ],
+  "pending": [
+    "Join canonical original source/control/partition and reader-cache participants with same-original-ledger funding before any high-level forest admission.",
+    "Publish coherent metadata and complete finalization.",
+    "Fresh recovery with actual canonical reservations and current endpoint reclassification.",
+    "Complete public placement/renewal, installed/native/platform/full regression and release qualification."
+  ],
+  "static": {
+    "exit": 0,
+    "path": "_build/forest-namespace-final-static.log",
+    "sha256": "945eb543baa612672d274b41d0d6be02f7380c04272e2f398ffd3f3ad9c0cb3b",
+    "checks": [
+      "reviewed-driver-record",
+      "documentation-authority-record",
+      "lint",
+      "format",
+      "repository-layout",
+      "public-export",
+      "driver-review",
+      "runner-review",
+      "openspec",
+      "roadmap-dependencies",
+      "documentation"
+    ]
+  },
+  "verify": {
+    "exit": 1,
+    "path": "_build/forest-namespace-verify.json",
+    "sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "gates": [
+      {
+        "detail": "project authority and documentation review",
+        "gate": "authority",
+        "state": "pass"
+      },
+      {
+        "detail": "no Component declares a committed lock to verify",
+        "gate": "locks",
+        "state": "skipped"
+      },
+      {
+        "detail": "project selects provider 'none'",
+        "gate": "source-intelligence",
+        "state": "skipped"
+      },
+      {
+        "artifacts": [],
+        "detail": "no declared HTML artifacts to verify",
+        "gate": "html-observability",
+        "state": "skipped"
+      },
+      {
+        "detail": "project.test_receipt_stale: configured project test receipt does not bind the current project authority revision",
+        "gate": "receipt",
+        "state": "fail"
+      }
+    ]
+  }
+}

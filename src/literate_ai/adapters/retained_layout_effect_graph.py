@@ -58,14 +58,18 @@ class _SourceEffectGraph:
     def identity(self):
         return canonical_identity(self.document)
 
-    def require_single_rename(self):
-        if (
+    @property
+    def is_single_rename(self):
+        return not (
             self.source == "."
             or self.destination == "."
             or self.carriers != ((self.source, self.destination),)
             or self.retain_directories
             or self.create_directories
-        ):
+        )
+
+    def require_single_rename(self):
+        if not self.is_single_rename:
             _fail("this executor requires the exact single-rename profile")
         return self.carriers[0]
 

@@ -176,13 +176,22 @@ def _close_preparation_inputs(owner, tree, native):
     original.authored.selection.close_native()
     if _lineage(plan.tree.root) != plan.source_lineage:
         _fail("original source ancestry changed")
-    if _lineage(plan.destination.parent) != plan.destination_lineage:
+    anchor = plan.destination.parent
+    if getattr(plan, "source_forest", None) is not None:
+        from .retained_layout_source_roles import _preparation_destination_anchor
+
+        anchor = _preparation_destination_anchor(owner, plan)
+    elif _lineage(plan.destination.parent) != plan.destination_lineage:
         _fail("original destination ancestry changed")
-    if os.path.lexists(plan.destination):
+    if getattr(plan, "source_forest", None) is not None:
+        from .retained_layout_source_roles import _require_forest_destination
+
+        _require_forest_destination(plan, _source_preparation=owner)
+    elif os.path.lexists(plan.destination):
         _fail("original destination is no longer absent")
     if os.path.lexists(layout_pending_control_path(plan.root)):
         _fail("pending control requires explicit recovery")
-    if layout_entry_node(plan.destination.parent) != _CLOSING[owner][1]:
+    if layout_entry_node(anchor) != _CLOSING[owner][1]:
         _fail("destination parent membership changed during final closure")
     _close(owner, original)
 
@@ -193,17 +202,28 @@ def _close_original_native(owner, original):
     plan = original.plan
     if owner in _CLOSING:
         _fail("reentrant source preparation closing is ambiguous")
-    original.ledger.charge_records(
-        2, 2 * len(str(plan.destination.parent).encode("utf-8"))
-    )
-    before = layout_entry_node(plan.destination.parent)
-    _absence(plan.destination, plan.tree.budget.maximum_entries)
-    after = layout_entry_node(plan.destination.parent)
+    anchor = plan.destination.parent
+    if getattr(plan, "source_forest", None) is not None:
+        from .retained_layout_source_roles import _preparation_destination_anchor
+
+        anchor = _preparation_destination_anchor(owner, plan)
+    original.ledger.charge_records(2, 2 * len(str(anchor).encode("utf-8")))
+    before = layout_entry_node(anchor)
+    if getattr(plan, "source_forest", None) is not None:
+        from .retained_layout_source_roles import _require_forest_destination
+
+        _require_forest_destination(plan, _source_preparation=owner)
+    else:
+        _absence(plan.destination, plan.tree.budget.maximum_entries)
+    after = layout_entry_node(anchor)
     if before != after:
         _fail("destination parent membership changed during absence scan")
     _CLOSING[owner] = original, after
     try:
-        _close_tree(plan.tree, plan.native, _source_preparation=owner)
+        if getattr(plan, "source_forest", None) is None:
+            _close_tree(plan.tree, plan.native, _source_preparation=owner)
+        else:
+            _close_preparation_inputs(owner, plan.tree, plan.native)
         from .retained_layout_source_namespace import _PREPARATIONS
 
         _PREPARATIONS[owner].close_native()

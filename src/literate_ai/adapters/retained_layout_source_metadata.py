@@ -125,34 +125,42 @@ def _run_metadata_publication(phase, private_root):
                 _Step(path, root / f"old-{index}", original[path].content, path, True)
             )
         steps.append(_Step(root / f"new-{index}", path, prospective[name], path, False))
-    payload = 2 * sum(len(content) for content in prospective.values()) + sum(
-        len(original[phase.plan.root / name].content or b"") for name in names
+    from .retained_layout_forest_effects import _metadata_allowance
+
+    records, payload, size, step_count = _metadata_allowance(
+        phase.plan.root,
+        root,
+        prospective,
+        phase.plan.inputs,
+        len(admission.movement.expected[1]),
     )
-    count = len(admission.movement.expected[1]) * len(steps)
-    records = 64 + 2 * count + 6 * len(names)
-    size = (
-        payload
-        + 256 * count
-        + 16 * sum(len(str(s.destination).encode()) for s in steps)
-    )
-    remaining = (
-        ledger.budget.maximum_entries - ledger.records,
-        ledger.budget.maximum_total_bytes - ledger.bytes - ledger.reserve,
-        ledger.metadata - ledger.charged,
-    )
-    required = records, payload, 4096 * records + 64 * size
-    if any(
-        need > available for need, available in zip(required, remaining, strict=True)
-    ):
-        _fail(
-            "metadata preflight exceeds original allowance: "
-            f"required={required}, remaining={remaining}"
+    if step_count != len(steps):
+        _fail("metadata allowance differs from exact publication schedule")
+    from .retained_layout_source_forest_movement import _prepaid
+
+    prepaid = _prepaid(admission, "metadata", root, (records, payload, size))
+    if not prepaid:
+        remaining = (
+            ledger.budget.maximum_entries - ledger.records,
+            ledger.budget.maximum_total_bytes - ledger.bytes - ledger.reserve,
+            ledger.metadata - ledger.charged,
         )
-    ledger.bytes += payload
-    ledger.charge_records(records, size)
+        required = records, payload, 4096 * records + 64 * size
+        if any(
+            need > available
+            for need, available in zip(required, remaining, strict=True)
+        ):
+            _fail(
+                "metadata preflight exceeds original allowance: "
+                f"required={required}, remaining={remaining}"
+            )
+        ledger.bytes += payload
+        ledger.charge_records(records, size)
     with _control_reads(admission.preparation, admission.pool):
         lineage = _lineage(root)
         node = layout_entry_node(root)
+        if prepaid and (node != prepaid.node or lineage != prepaid.lineage):
+            _fail("metadata area differs from its original pre-movement pin")
         if node.uid != os.geteuid() or stat.S_IMODE(node.mode) != 0o700:
             _fail("owned mode0700 metadata area required")
         identity = node.device, node.inode
@@ -204,18 +212,31 @@ def _run_metadata_publication(phase, private_root):
         raise
 
 
-def _separate_predecessor_state(admission, candidate_lineage):
+def _separate_predecessor_state(
+    admission, candidate_lineage, *, _before_movement=False
+):
     """Keep original producer state and catalog source inputs read-only."""
     from .component_lock_observation import _separate_effects as separate_storage
     from .retained_layout_partition import _lineage
     from .retained_layout_source_movement import _consumed_predecessor
 
+    if type(_before_movement) is not bool:
+        _fail("exact predecessor phase required")
+    if _before_movement:
+        if (
+            _phase_record(admission.phase) is not admission
+            or admission.movement is not None
+            or admission.phase._attempted
+            or admission.partition is None
+        ):
+            _fail("actual unspent original partition required for future effect areas")
+        admission.partition._require_eligible()
     separate_storage(admission.preparation, candidate_lineage)
 
     roots = []
     catalog = admission.original.catalog
     if catalog is not None:
-        if _consumed_predecessor(catalog) is not admission:
+        if not _before_movement and _consumed_predecessor(catalog) is not admission:
             _fail("actual consumed catalog predecessor required")
         record = admission.catalog_lifetime[0]
         node = record["root_node"]
@@ -247,7 +268,7 @@ def _separate_predecessor_state(admission, candidate_lineage):
             roots.append((census.tree.root, (node.device, node.inode)))
     framework = admission.original.framework
     if framework is not None:
-        if _consumed_predecessor(framework) is not admission:
+        if not _before_movement and _consumed_predecessor(framework) is not admission:
             _fail("actual consumed framework predecessor required")
         if framework._retirement_directory is not None:
             roots.append(
@@ -281,7 +302,7 @@ def _separate_predecessor_state(admission, candidate_lineage):
     # No ready rights are reacquired and no fresh root baseline is accepted.
     for producer in (framework, catalog):
         if producer is not None:
-            producer.close_native(_consumed=True)
+            producer.close_native(_consumed=not _before_movement)
     if (
         catalog is not None
         and admission.catalog_lifetime[0]["source_lease"] is not None
@@ -743,6 +764,34 @@ def _published_layout(phase):
     lift = reader.json_value(
         _file(phase.plan.root / _LIFT).content, str(phase.plan.root / _LIFT)
     )
+    if phase.plan.source_forest is not None:
+        from .retained_layout import _layout_coordinates
+        from .retained_layout_source_forest_movement import _record as forest_record
+        from .retained_layout_source_forest_movement import _validate as validate_forest
+        from .retained_layout_source_movement import _require_movement_current
+
+        forest = forest_record(value.admission)
+        proposed = dict(phase.plan.prospective)
+        receipts = {path: current for path, _old, _backup, current in value.receipts}
+        if value.cursor != len(value.steps) or any(
+            receipts.get(phase.plan.root / name) is None
+            or receipts[phase.plan.root / name].content != body
+            for name, body in proposed.items()
+        ):
+            _fail("complete exact acknowledged forest metadata receipts required")
+        _require_movement_current(value.admission)
+        layout, _declaration = _layout_coordinates(
+            phase.plan.root,
+            lift,
+            _observation=_SourceMetadataObservation(phase.plan.root, reader),
+        )
+        _require_movement_current(value.admission)
+        if (
+            validate_forest(value.admission) is not forest
+            or _record(phase) is not value
+        ):
+            _fail("original forest metadata changed during coordinate validation")
+        return layout
     return resolve_structural_layout(
         phase.plan.root,
         lift,

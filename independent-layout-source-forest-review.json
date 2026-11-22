@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/independent-source-review@1",
+  "reviewer": "guard_review",
+  "review_mode": "source_only_no_tests_probes_or_edits",
+  "decision": "approved_internal_read_only_original_root_out_preparation",
+  "base_commit": "e5087b9b9a6db9f06c180ae33285f6a964445bc8",
+  "subjects": {
+    "src/literate_ai/adapters/retained_layout.py": {
+      "algorithm": "sha256",
+      "digest": "aaf2af998dd9e008ea6aa71920d0e9cd72877d9ef828ad6808313056a31f49df"
+    },
+    "src/literate_ai/adapters/retained_layout_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "978fb977dc84dc17dc632b59a364f170b970a2dc4437bf35ffcaea07ee5270a8"
+    },
+    "src/literate_ai/adapters/retained_layout_source_roles.py": {
+      "algorithm": "sha256",
+      "digest": "52ee825459d4f709be3fec9ef297f7771d95e04437d0fa3e8e291dfb15ee7d40"
+    },
+    "src/literate_ai/adapters/retained_layout_transaction.py": {
+      "algorithm": "sha256",
+      "digest": "b7c06e213147da46a2f61447e8391087217f36d7cfc44a63f812b871e4f71c74"
+    },
+    "src/literate_ai/adapters/retained_layout_source_authored.py": {
+      "algorithm": "sha256",
+      "digest": "95a90557bdc2364d0059723d90f78f076af88acbc2b3aa4be1cce1260acf5df9"
+    },
+    "src/literate_ai/adapters/retained_layout_source_preparation.py": {
+      "algorithm": "sha256",
+      "digest": "b07ab29ab0e5d13230aa09b73e6d243932e72ace0b85249fdf347fbf64010ad6"
+    },
+    "src/literate_ai/adapters/retained_layout_source_state.py": {
+      "algorithm": "sha256",
+      "digest": "e1928bd3ad3f67ed46a71522ed315edc5c98e8cb0ada12f2a36dfe452d3828d1"
+    },
+    "src/literate_ai/adapters/repository_lineage.py": {
+      "algorithm": "sha256",
+      "digest": "8f7fa15b6bb3bdaf796a3442907a7fec6ef004faf54fa9e3c67d94904f8918ce"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_controls.py": {
+      "algorithm": "sha256",
+      "digest": "3ecd1c80a81f26c7289794aef2f3fc759ea5a944c3f0fa50f52b7eff936d0ed4"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_roles.py": {
+      "algorithm": "sha256",
+      "digest": "221c6b21333add3de40c6d73b2f0a43342c44202c221179eeaaad0ab64eb9c47"
+    },
+    "src/literate_ai/adapters/retained_layout_recovery_data.py": {
+      "algorithm": "sha256",
+      "digest": "55e52610321cf947653f3ac8dde6738851c693a33da8d7716880a4ef83ece63b"
+    },
+    "tests/critical/test_retained_layout_source_forest.py": {
+      "algorithm": "sha256",
+      "digest": "d0815e7b60e58f883bb01f55963a43d28d2609849c0ee64adc8fc2642d739d01"
+    }
+  },
+  "scope": [
+    "Actual original reader/ledger coordinate discovery separated from canonical ownership validation",
+    "Distinct complete logical source forest bound to genuine original namespace, roles and effect graph before acknowledgement",
+    "Exact original forest/tree/native/plan reference seals, source currentness and physical shared-directory custody",
+    "Durable bounded private forest data and fresh funded reconstruction with no decoded permissions",
+    "Root source profile explicitly refuses legacy recovery before acquisition; original expired-owner ordering and no foreign cached-key callbacks retained"
+  ],
+  "addressed_findings": [
+    "Coordinate helper funds and constructs actual original-reader adapter internally; no caller-supplied read/json callbacks",
+    "Actual forest producer tags a restrictive source profile; legacy generic/canonical/data recovery remains unsupported for that profile",
+    "Conservative cached-format inspection grants nothing and invokes no native/liveness methods before existing owner validation",
+    "Bounded plain-dict iteration inspects only exact string keys before comparison, avoiding foreign-key equality/hashing"
+  ],
+  "limitations": [
+    "Only internal original root-out preparation and data reopening; no root/shared phase execution",
+    "Root destination/shared-overlap planning, complete executor, metadata, recovery and public/native acceptance remain open",
+    "Dynamic qualification is author-maintained scoped development evidence, not independent execution or full-source/release acceptance"
+  ]
+}

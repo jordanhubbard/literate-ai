@@ -153,7 +153,26 @@ class _Observation:
             or self.records > self.budget.maximum_entries
             or self.charged > self.metadata
         ):
-            _fail("shared catalog input allowance exhausted")
+            try:
+                _fail("shared catalog input allowance exhausted")
+            except ValueError as error:
+                # Retain the existing public refusal while giving native
+                # tracebacks the actual exhausted dimensions, without paths,
+                # payloads or configuration. Do not infer metadata pressure
+                # merely because the final call charged a metadata record.
+                for name, actual, limit in (
+                    ("file reads", self.files, self.budget.maximum_files),
+                    ("entry records", self.records, self.budget.maximum_entries),
+                    (
+                        "input bytes including reserve",
+                        self.bytes + self.reserve,
+                        self.budget.maximum_total_bytes,
+                    ),
+                    ("metadata bytes", self.charged, self.metadata),
+                ):
+                    if actual > limit:
+                        error.add_note(f"catalog.copy-plan {name}: {actual} > {limit}")
+                raise
 
     def charge_records(self, count, size=0):
         self.records += count
