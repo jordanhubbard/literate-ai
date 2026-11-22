@@ -1,0 +1,64 @@
+{
+  "schema": "literate-ai/linux311-partition-observation@1",
+  "candidate_parent": "fa39ddfe29e84243e7348878fac609f89870ff43",
+  "original_ci": {
+    "run": 44941002442,
+    "job": 136958147794,
+    "url": "https://github.com/jordanhubbard/literate-ai/actions/runs/44941002442/job/136958147794",
+    "conclusion": "failure",
+    "reason": "Run conformance gates exceeded 180-minute step limit",
+    "checkpoint_summary": {
+      "selected": 4064,
+      "executed": 3906,
+      "passed": 3906,
+      "skipped": 153,
+      "failed": 0,
+      "known_failed": 0,
+      "unfinished": 5
+    },
+    "native_module": "tests.smoke.test_retained_cargo_receiving_native_v2",
+    "native_module_start_offset_seconds": 10469.646618134,
+    "checkpoint_sha256": "aa7908e6ed760636ae121a9b7e7d6568c9bec3499223ca247d0975598f76fdc2"
+  },
+  "coverage": {
+    "3.11": {
+      "partitions": 8,
+      "whole_modules": 739,
+      "missing": 0,
+      "duplicated": 0,
+      "source_pr_partitions": 8,
+      "base_validation_and_wheel_owner_count": 1
+    },
+    "3.14": {
+      "partitions": 8,
+      "whole_modules": 739,
+      "missing": 0,
+      "duplicated": 0,
+      "source_pr_partitions": 0,
+      "base_validation_and_wheel_owner_count": 1
+    }
+  },
+  "local_policy_summary": {
+    "executed": 34,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 34,
+    "selected": 34,
+    "skipped": 0
+  },
+  "scope": "CI scheduling repair; exact-head runtime fit and full release qualification remain pending.",
+  "local_gates_passed": [
+    "make python-check PYTHON_TEST_PATTERN=test_ci_action_pins.py (34/34)",
+    "make lint",
+    "make format-check",
+    "make driver-review",
+    "make documentation-check (181 rendered diagrams; 23 renderer controls)",
+    "make repository-layout-check",
+    "make public-export-check"
+  ],
+  "project_verify": {
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "scope": "Full project qualification remains required; source authority is current."
+  }
+}

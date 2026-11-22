@@ -1147,35 +1147,9 @@ class CiActionPinTests(unittest.TestCase):
         self.assertIn("_build/python-test-report*.json", upload["with"]["path"])
         self.assertEqual(upload["if"], "always()")
 
-    def test_linux314_partitions_cover_every_whole_module_exactly_once(self):
+    def test_linux_partitions_cover_every_whole_module_exactly_once(self):
         rows = json.loads((ROOT / ".github/ci-matrix.json").read_text())
         cells = [row for row in rows if row["task"] == "conformance"]
-        baseline = [row for row in cells if row["python"] == "3.11"]
-        self.assertEqual(
-            baseline,
-            [
-                {
-                    "task": "conformance",
-                    "name": "ubuntu-latest / Python 3.11",
-                    "os": "ubuntu-latest",
-                    "python": "3.11",
-                    "group": 0,
-                    "pr": True,
-                }
-            ],
-        )
-        selected = [row for row in cells if row["python"] == "3.14"]
-        self.assertEqual(len(selected), 8)
-        self.assertEqual({row["group"] for row in selected}, set(range(8)))
-        self.assertEqual(len({row["name"] for row in selected}), 8)
-        self.assertTrue(all(row["pr"] is False for row in selected))
-        self.assertTrue(all(row["os"] == "ubuntu-latest" for row in selected))
-        base = next(row for row in selected if row["group"] == 0)
-        self.assertEqual(base["name"], "ubuntu-latest / Python 3.14")
-        self.assertNotIn("gates", base)
-        self.assertTrue(
-            all(row.get("gates") == "tests" for row in selected if row["group"] != 0)
-        )
         modules = []
         for path in (ROOT / "tests").rglob("test*.py"):
             directory = path.parent
@@ -1185,18 +1159,35 @@ class CiActionPinTests(unittest.TestCase):
                 directory = directory.parent
             else:
                 modules.append(path)
-        patterns = [
-            pattern for cell in selected for pattern in cell["test_patterns"].split()
-        ]
-        for pattern in patterns:
+        for version in ("3.11", "3.14"):
+            selected = [row for row in cells if row["python"] == version]
+            self.assertEqual(len(selected), 8)
+            self.assertEqual({row["group"] for row in selected}, set(range(8)))
+            self.assertEqual(len({row["name"] for row in selected}), 8)
+            self.assertTrue(all(row["pr"] is (version == "3.11") for row in selected))
+            self.assertTrue(all(row["os"] == "ubuntu-latest" for row in selected))
+            base = next(row for row in selected if row["group"] == 0)
+            self.assertEqual(base["name"], f"ubuntu-latest / Python {version}")
+            self.assertNotIn("gates", base)
             self.assertTrue(
-                any(fnmatchcase(path.name, pattern) for path in modules), pattern
-            )
-        for path in modules:
-            with self.subTest(module=path.relative_to(ROOT)):
-                self.assertEqual(
-                    sum(fnmatchcase(path.name, pattern) for pattern in patterns), 1
+                all(
+                    row.get("gates") == "tests" for row in selected if row["group"] != 0
                 )
+            )
+            patterns = [
+                pattern
+                for cell in selected
+                for pattern in cell["test_patterns"].split()
+            ]
+            for pattern in patterns:
+                self.assertTrue(
+                    any(fnmatchcase(path.name, pattern) for path in modules), pattern
+                )
+            for path in modules:
+                with self.subTest(version=version, module=path.relative_to(ROOT)):
+                    self.assertEqual(
+                        sum(fnmatchcase(path.name, pattern) for pattern in patterns), 1
+                    )
 
     def test_linux_partition_gates_and_raw_evidence_remain_complete_and_bounded(self):
         workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
@@ -1308,3 +1299,54 @@ class CiActionPinTests(unittest.TestCase):
             )["include"]
             with self.subTest(paths=paths):
                 self.assertFalse(expected & {row["name"] for row in rows})
+
+    def test_linux311_partitions_stay_together_on_source_prs_and_full_profiles(self):
+        selector = self.selector()
+        rows = json.loads((ROOT / ".github/ci-matrix.json").read_text())
+        expected = {
+            row["name"]
+            for row in rows
+            if row["task"] == "conformance" and row["python"] == "3.11"
+        }
+        self.assertEqual(len(expected), 8)
+        for event, ref, paths, delta in (
+            (
+                "pull_request",
+                "main",
+                ("src/literate_ai/cli.py",),
+                selector.WorkflowDelta(),
+            ),
+            ("pull_request", "main", None, selector.WorkflowDelta()),
+            ("pull_request", "main", (), selector.WorkflowDelta(broad=True)),
+            (
+                "pull_request",
+                "main",
+                (".github/workflows/ci.yml",),
+                selector.WorkflowDelta(tasks=frozenset({"conformance"})),
+            ),
+            ("workflow_dispatch", "main", (), selector.WorkflowDelta()),
+            (
+                "push",
+                "refs/heads/main",
+                ("src/literate_ai/cli.py",),
+                selector.WorkflowDelta(),
+            ),
+            ("push", "refs/tags/v1.4.0", (), selector.WorkflowDelta()),
+        ):
+            with self.subTest(event=event, ref=ref, paths=paths, delta=delta):
+                selected = selector.select_matrix(event, ref, paths, delta=delta)[
+                    "include"
+                ]
+                self.assertEqual(
+                    {
+                        row["name"]
+                        for row in selected
+                        if row["task"] == "conformance" and row["python"] == "3.11"
+                    },
+                    expected,
+                )
+        for paths in (("README.md",), ("tests/critical/test_ci_action_pins.py",)):
+            selected = selector.select_matrix(
+                "pull_request", "main", paths, delta=selector.WorkflowDelta()
+            )["include"]
+            self.assertFalse(expected & {row["name"] for row in selected})

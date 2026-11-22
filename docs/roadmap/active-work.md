@@ -24984,6 +24984,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
+- **Resumed CI correction (in progress):** Exact candidate `fa39ddfe2` CI
+  [44941002442](https://github.com/jordanhubbard/literate-ai/actions/runs/44941002442)
+  times out its Ubuntu Python 3.11 source gate after 180 minutes. The retained
+  checkpoint records 4,064 selected, 3,906 passed, 153 skipped and five unfinished
+  cases with no recorded failures. Original timing places the eight-case native
+  retained Cargo receiving module's start at 10,469.647 seconds after invocation.
+  Partition Python 3.11 using the existing Python 3.14 whole-module selection,
+  retaining every original case, PR coverage, base validation/installed/wheel
+  ownership, finite deadlines and distinct raw evidence. Require exact-once module
+  coverage and selection tests locally, then actual exact-head CI before claiming
+  runtime fit. [Diagnostic and coverage evidence](../../verification/linux311-partition-observation.json)
+  records all 739 modules exactly once per Linux version and 34 passing policy
+  cases. This repair completes no release goal or platform qualification.
+
 - **GitHub issue:** [#488](https://github.com/jordanhubbard/literate-ai/issues/488)
   tracks static release-checkout ownership admission before worker synchronization. The retained real-Git,
   local-transport reproduction overwrites foreign work at the old basename path;

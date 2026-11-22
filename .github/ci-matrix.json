@@ -91,7 +91,78 @@
     "os": "ubuntu-latest",
     "python": "3.11",
     "group": 0,
-    "pr": true
+    "pr": true,
+    "test_patterns": "test_[!anr]*.py test_a[!u]*.py test_authorized_*.py test_r[!e]*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 2 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 1,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_n*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 3 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 2,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_re[!p]*.py test_repository_[!r]*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 4 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 3,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_repository_r*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 5 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 4,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_authored_[!r]*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 6 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 5,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_authored_re[!t]*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 7 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 6,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_authored_retained_cargo_[!n]*.py"
+  },
+  {
+    "task": "conformance",
+    "name": "ubuntu-latest / Python 3.11 (partition 8 of 8)",
+    "os": "ubuntu-latest",
+    "python": "3.11",
+    "group": 7,
+    "pr": true,
+    "gates": "tests",
+    "test_patterns": "test_authored_retained_cargo_n*.py"
   },
   {
     "task": "conformance",

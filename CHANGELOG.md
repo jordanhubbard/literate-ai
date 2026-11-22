@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- CI: partition the complete Ubuntu Python 3.11 source suite so late native Cargo
+  tests have their own runtime budget; preserve every module and PR gate alongside
+  the existing validation, installation and wheel checks.
+
 - Add authored-native qualification planning, acknowledged Standard execution,
   independent-oracle custody, versioned origin evidence, closed capture/replay
   and recoverable reference publication. Preserve contained project manifest

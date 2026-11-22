@@ -368,9 +368,9 @@ jobs:
         run: make tools-install
       - name: Run conformance gates
         if: matrix.task == 'conformance'
-        # Python 3.11 retains the full single-job source gate. Python 3.14
-        # preserves all modules across whole-module partitions; its base keeps
-        # validate-preflight, skills-check and installed-e2e through validate.
+        # Both Linux versions preserve all modules across whole-module partitions.
+        # Each version's base keeps validate-preflight, skills-check and installed-e2e
+        # through validate; every partition retains its own raw checkpoint/report.
         timeout-minutes: 180
         env:
           TEST_PATTERNS: ${{ matrix.test_patterns || 'test*.py' }}
