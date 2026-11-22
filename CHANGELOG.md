@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained Python bridge development: observe the actual original-source
+  wrapper/parity and complete bounded native source without granting execution.
+  Reject changed source namespaces, unmatched prospective original bytes and
+  missing original stages. Keep native command/test coverage, providers,
+  package execution and public receipt admission open.
+
 - Retained Python bridge development: pin independently reviewed consumer
   documents under byte, file-identity, ancestry and project-context checks,
   including rejection closure. Classify every reviewed gate and preserve exact

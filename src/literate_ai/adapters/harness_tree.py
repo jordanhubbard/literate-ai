@@ -89,9 +89,16 @@ def copy_retained_source_tree(
             shutil.copy2(source_path, destination)
 
 
-def observe_retained_tree(root: Path, scope: object) -> dict[str, Any]:
+def observe_retained_tree(
+    root: Path, scope: object, *, input_closure=None
+) -> dict[str, Any]:
     """Observe pre-command source authority and post-command artifacts separately."""
 
+    if input_closure is not None:
+        from literate_ai.projects import PinnedInputClosure
+
+        if type(input_closure) is not PinnedInputClosure:
+            raise TypeError("retained.source.original-input-closure-required")
     resolved = root.resolve()
     original_paths, declared_excluded = _validated_scope(scope)
     current_paths, observed_excluded = _filesystem_paths(
@@ -100,10 +107,12 @@ def observe_retained_tree(root: Path, scope: object) -> dict[str, Any]:
         protected_paths=frozenset(original_paths),
     )
     source_members, source_bytes, source_missing = _observed_members(
-        resolved, original_paths
+        resolved, original_paths, input_closure=input_closure
     )
     artifact_members, artifact_bytes, artifact_missing = _observed_members(
-        resolved, tuple(sorted(current_paths | set(original_paths)))
+        resolved,
+        tuple(sorted(current_paths | set(original_paths))),
+        input_closure=input_closure,
     )
     source_tree = {
         "identity": _identity(source_members),
@@ -128,7 +137,7 @@ def observe_retained_tree(root: Path, scope: object) -> dict[str, Any]:
 
 
 def _observed_members(
-    root: Path, paths: tuple[str, ...]
+    root: Path, paths: tuple[str, ...], *, input_closure=None
 ) -> tuple[list[dict[str, Any]], int, int]:
     members: list[dict[str, Any]] = []
     total_bytes = 0
@@ -140,7 +149,11 @@ def _observed_members(
             content = os.fsencode(os.readlink(path))
             kind = "symlink"
         elif path.is_file():
-            content = path.read_bytes()
+            content = (
+                path.read_bytes()
+                if input_closure is None
+                else input_closure.pin(path, boundary=root, label=raw)
+            )
             kind = "file"
         else:
             members.append({"path": raw, "kind": "missing"})

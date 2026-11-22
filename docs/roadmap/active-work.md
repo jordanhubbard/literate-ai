@@ -25612,6 +25612,26 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Original wrapper/source observation development:** A distinct expiring Python
+  observation reuses the actual original-source conversion, qualified parity and
+  current catalog/lock owners. Bind the reviewed plan to a complete bounded native
+  source census without exclusions, exact current harness bytes and wrapper,
+  original stage identity/order and prospective original file bytes/absences.
+  A path-list descriptor cannot replace current source content; coherent gate
+  subsets, same-byte inode replacement, new files and late source mutation refuse.
+  Actual observation starts no process, opens no writer, acquires no lifecycle
+  lock and cannot enter Cargo scratch. Eight new controls use real converted
+  Python source whose two unittest cases execute during conversion/parity;
+  provider/export/review declarations and bridge commands remain explicit fixtures.
+  The current 45-method Python cohort, original Cargo-wrapper nine, no-bridge
+  receipt eleven and harness-inventory twelve pass: 77 distinct methods, no
+  failures or skips. The no-bridge contained-layout error mismatch reproduces on
+  unchanged baseline; its renewed assertion requires the existing earlier
+  `layout_unqualified` refusal, zero harness execution and receipt preservation.
+  See [original-wrapper development](../../verification/python-original-wrapper-development.json).
+  Native command equivalence, actual complete test coverage, provider reopening,
+  source/wheel materialization and public admission remain required.
+
 - **Reviewed-file and original-case inventory development:** Reopen independently
   reviewed binding, plan, gate, harness and test documents under exact byte,
   native file-identity, ancestry and project-context custody. Close the original
@@ -25716,7 +25736,7 @@ independent review and the complete combined gate from test one.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
-- **Current next action (in progress):** Join the reviewed documents to the actual original retained wrapper, qualified parity, full source membership and original admitted commands; a reviewed case list alone does not prove current coverage. Then compose current source-derived and authored provider archive reopening under read-only native custody. The internal consumer preflight and reviewed-file snapshot grant no provider or consumer admission; package materialization and every public execution/receipt validation remain required.
+- **Current next action (in progress):** Join the current original stage identities to independently observed native command/tool semantics and actual complete original test coverage; matching stage IDs and a reviewed case list cannot prove those facts. Then compose current source-derived and authored provider archive reopening under read-only native custody. The internal consumer preflight, reviewed-file snapshot and original-wrapper observation grant no provider or consumer admission; package materialization and every public execution/receipt validation remain required.
 
 - **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.
 

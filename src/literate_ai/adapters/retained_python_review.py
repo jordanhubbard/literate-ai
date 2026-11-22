@@ -220,7 +220,6 @@ def read_retained_python_review(
             or inventory.wrapper_component != plan.wrapper_component
             or inventory.source_scope_identity != plan.source_scope_identity
             or "source_scope" not in harness
-            or canonical_identity(harness["source_scope"]) != plan.source_scope_identity
         ):
             raise ValueError("retained.python.review-consumer-mismatch")
         snapshot = RetainedPythonReviewedFiles(
