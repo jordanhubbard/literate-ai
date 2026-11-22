@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import importlib.util
 import json
 import os
@@ -182,7 +183,7 @@ class NativeSdkQualificationHarnessTests(unittest.TestCase):
             ".github/qualifications/native_sdk/collect_results.py"
         )
 
-    def check_collected(self, destination):
+    def check_collected(self, destination, *extra):
         return subprocess.run(
             [
                 sys.executable,
@@ -190,6 +191,7 @@ class NativeSdkQualificationHarnessTests(unittest.TestCase):
                 "--destination",
                 str(destination),
                 "--check",
+                *extra,
             ],
             capture_output=True,
             text=True,
@@ -488,3 +490,132 @@ class NativeSdkQualificationHarnessTests(unittest.TestCase):
             terminal = json.loads((output / "timeout.terminal.json").read_bytes())
             self.assertIsNone(terminal["exit_code"])
             self.assertTrue(terminal["timed_out"])
+
+    def test_requested_full_source_requires_its_complete_matching_actual_report(self):
+        # Fixture records exercise the copyback guard; they establish no native
+        # source qualification. Every mutation is hashed before collection.
+        from copy import deepcopy
+
+        revision = "a" * 40
+        summary = {
+            "selected": 3,
+            "passed": 2,
+            "skipped": 1,
+            "failed": 0,
+            "known_failed": 0,
+        }
+        terminal = {
+            "schema": "literate-ai/native-full-source-qualification@1",
+            "revision": revision,
+            "exit_code": 0,
+            "source_unchanged": True,
+            "source_gate_passed": True,
+            "summary": summary,
+            "controller_distribution_identity": "sha256:" + "c" * 64,
+            "controller_unchanged": True,
+            "platform": {"system": "FreeBSD"},
+        }
+        mutations = (
+            None,
+            {"source_gate_passed": False},
+            {"source_unchanged": False},
+            {"controller_unchanged": False},
+            {"controller_distribution_identity": "sha256:" + "d" * 64},
+            {"platform": {"system": "Linux"}},
+            {"test_report_sha256": "0" * 64},
+            {"summary": {**summary, "passed": 0, "skipped": 3}},
+            {"exit_code": 17},
+            {"exit_code": False},
+            {"revision": "b" * 40},
+            {"summary": {**summary, "selected": 4}},
+            {"summary": {**summary, "known_failed": 1}},
+            {"summary": {**summary, "failed": 1}},
+            {"summary": {**summary, "passed": True}},
+            {"summary": {**summary, "selected": 0, "passed": 0, "skipped": 0}},
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for index, mutation in enumerate(mutations):
+                with self.subTest(mutation=mutation):
+                    source, destination = (
+                        root / f"source-{index}",
+                        root / f"copy-{index}",
+                    )
+                    source.mkdir()
+                    (source / "result.json").write_text(
+                        json.dumps(
+                            {
+                                "schema": "literate-ai/native-sdk-qualification@1",
+                                "passed": True,
+                                "revision": revision,
+                                "wheel": {"full_source_requested": True},
+                                "distribution_identity": "sha256:" + "c" * 64,
+                            }
+                        )
+                    )
+                    report = json.dumps({"summary": summary}).encode()
+                    (source / "native-source.test-report.json").write_bytes(report)
+                    candidate = deepcopy(terminal)
+                    candidate["test_report_sha256"] = hashlib.sha256(report).hexdigest()
+                    if mutation is not None:
+                        candidate.update(mutation)
+                    (source / "native-source.terminal.json").write_text(
+                        json.dumps(candidate)
+                    )
+                    collected = self.collect_fixture(source, destination)
+                    self.assertEqual(collected.returncode, 0, collected.stderr)
+                    observed = self.check_collected(
+                        destination, "--require-full-source"
+                    )
+                    if mutation is None:
+                        self.assertEqual(observed.returncode, 0, observed.stderr)
+                        self.assertEqual(
+                            self.check_collected(destination).returncode, 0
+                        )
+                    else:
+                        self.assertNotEqual(observed.returncode, 0)
+
+    def test_host_full_source_request_cannot_be_satisfied_by_sdk_only_success(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, destination = root / "sdk-only", root / "copy"
+            source.mkdir()
+            (source / "result.json").write_text(
+                json.dumps(
+                    {
+                        "schema": "literate-ai/native-sdk-qualification@1",
+                        "passed": True,
+                    }
+                )
+            )
+            self.assertEqual(self.collect_fixture(source, destination).returncode, 0)
+            self.assertEqual(self.check_collected(destination).returncode, 0)
+            self.assertNotEqual(
+                self.check_collected(destination, "--require-full-source").returncode, 0
+            )
+
+    def test_native_source_controller_refuses_other_platform_before_checkout(self):
+        if sys.platform.startswith("freebsd"):
+            self.skipTest("other-platform refusal requires a non-FreeBSD controller")
+        script = self.collector().with_name("qualify_source.py")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            absent = root / "absent"
+            observed = subprocess.run(
+                [
+                    sys.executable,
+                    str(script),
+                    "--framework",
+                    str(absent),
+                    "--wheel-dir",
+                    str(absent),
+                    "--output",
+                    str(absent),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=20,
+            )
+            self.assertEqual(observed.returncode, 2, observed.stderr)
+            self.assertIn("unprivileged native FreeBSD", observed.stderr)
+            self.assertFalse(absent.exists())

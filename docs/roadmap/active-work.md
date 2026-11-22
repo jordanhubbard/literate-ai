@@ -18359,6 +18359,27 @@ unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
 
 ### [ ] FREEBSD-001 — Add first-class FreeBSD native workers and targets
 
+- **Explicit full-source renewal mode (development):** The installed public SDK
+  microfixture at `0ddbc6cae` passes on FreeBSD 15.1 with 48 owner controls and
+  five publication preflights in run
+  [44990991918](https://github.com/jordanhubbard/literate-ai/actions/runs/44990991918).
+  That slice does not qualify the complete source suite or compiler SDK. The
+  existing workflow now has an opt-in `full_source` cell: preserve the installed
+  SDK scenario, then run canonical `gmake python-check` in an exact detached Git
+  worktree under the guest's `~/.worktrees/literate-ai`. Its independent terminal
+  record binds the source commit/tree, installed controller, complete report,
+  unchanged source and actual status. Two workers retain the existing finite
+  6,600-second worker bound inside a 14,400-second owned process-tree deadline;
+  the selected guest has four CPUs, 8 GiB RAM and a 32 GiB UFS temporary workspace.
+  Check real memory/disk before execution and retain bounded job health samples.
+  A host-requested full suite refuses missing, failed, incomplete, all-skipped,
+  foreign-revision/platform/controller or mismatched source reports even when the
+  SDK-only result passes. Fifteen controller harness checks, source syntax,
+  workflow YAML and lint pass. These are harness controls; the new native full
+  mode, exact integrated source and installed/native release gates remain open.
+  [Scoped development evidence](../../verification/freebsd-full-source-harness-development.json).
+
+
 Native full-suite renewal at `33f1e62` with the accepted-ADR documentation union
 stopped after 874 passes, 36 skips and one process-tree timeout test failure;
 2,658 tests were selected and the remaining cases were not executed. The outer

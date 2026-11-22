@@ -1,0 +1,45 @@
+{
+  "schema": "literate-ai/freebsd-full-source-harness-development@1",
+  "base": "b54bc51e33aa6cf4e7f8d0096be14f8bee9efe4f",
+  "source_sha256": {
+    ".github/workflows/native-sdk-qualification.yml": "f9d0bff8c78c8ee08c8dad573fb0e9f6b0397b41ca454d66a6421861a2a25189",
+    ".github/qualifications/native_sdk/qualify_source.py": "abf47ba2de5d6911f136f7e27f7ec3106f92b5bc5933f341da15ca5d70022244",
+    ".github/qualifications/native_sdk/collect_results.py": "c07fd486276288cb6dd1fe803b209381619e950e4a454692fa4846497df2ee48",
+    "tests/critical/test_native_sdk_qualification_harness.py": "22d9c32269bb5f564380106b28e64643b3086fc717e9013c48bd0c1057c614e1"
+  },
+  "controller_harness": {
+    "summary": {
+      "executed": 15,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 15,
+      "selected": 15,
+      "skipped": 0
+    },
+    "seconds": 8.78,
+    "report_sha256": "886cf4627b67fb88487b5f919a91ab87e3c0e1207b98e510592489e4c92ca4c3"
+  },
+  "syntax": [
+    "Python compile of both qualification owners",
+    "workflow YAML boolean inputs and job expression parsing",
+    "Ruff lint and format of changed Python owners"
+  ],
+  "scope": "Development of explicitly requested full native source mode; no native source, compiler SDK, product or release acceptance",
+  "native_source_run": null,
+  "native_control_process_tree_deadline_seconds": 14400,
+  "native_source_test_workers": 2,
+  "native_source_worker_timeout_seconds": 6600,
+  "source_and_controller_rechecked_after_run": true,
+  "original_sdk_cell_default_preserved": true,
+  "required_copyback_refusals": [
+    "SDK-only success when host requests full source",
+    "missing terminal/report",
+    "nonzero exit",
+    "changed source/controller",
+    "foreign source revision/platform/controller identity",
+    "zero passes or incomplete/failed/known-failed summary",
+    "report digest or summary mismatch"
+  ],
+  "native_qualified": false,
+  "release_qualified": false
+}
