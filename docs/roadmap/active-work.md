@@ -18361,6 +18361,27 @@ unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
 
 ### [ ] FREEBSD-001 — Add first-class FreeBSD native workers and targets
 
+- **Current full-source defect (in progress):** Native run
+  [45028053630](https://github.com/jordanhubbard/literate-ai/actions/runs/45028053630)
+  at `edb3cf2f9` passes the installed SDK microfixture, 48 owner controls and five
+  publication preflights. The separate complete source gate stops after ten
+  passes and 24 skips: snapshot replication cannot declare the optional gRPC
+  import aliases when those distributions are absent from the verification
+  environment. Declare exact optional import mappings in the original project
+  manifest, validate that each maps to a declared optional requirement, and carry
+  them through existing SOURCE-only dependency evidence. Do not install optional
+  runtimes merely to discover their names or treat declaration as installed
+  payload evidence. Add an offline complete replication control with the four
+  distributions unavailable. Preserve the native failure and renew full native
+  qualification. Also retain bounded source-status diagnostics when the guest's
+  unchanged-source check refuses; the current run reports source drift without
+  identifying its paths, so that separate finding remains unresolved.
+  Local renewal passes all four complete self-hosting controls (312.560 seconds),
+  including actual two-generation offline replication with gRPC metadata absent;
+  three declaration/refusal controls and all 15 native-controller harness tests
+  also pass without skips. Native renewal remains required.
+  [Scoped record](../../verification/freebsd-optional-source-declarations-development.json).
+
 - **Explicit full-source renewal mode (development):** The installed public SDK
   microfixture at `0ddbc6cae` passes on FreeBSD 15.1 with 48 owner controls and
   five publication preflights in run
@@ -23744,6 +23765,13 @@ independent review and the complete combined gate from test one.
   - [ ] Verify legacy adopted projects keep their default layout and that changed placement cannot reuse an old receipt or manufacture live source authority.
 
 ### [ ] CARGO-COMPAT-001 — Qualify reviewed retained Cargo workspace compatibility
+
+- **Windows fixture renewal (in progress):** Exact-candidate CI job
+  `137225393211` reaches the real packaged Cargo journey, then refuses the test's
+  generated TOML because native relative paths contain unescaped backslashes.
+  Spell this fixture's dependency paths with forward slashes before inserting
+  them into TOML. Preserve both actual shared-sibling execution and embedded
+  package-collision assertions; renew native Windows CI before qualification.
 
 - **Current combined integration (in progress):** Normal history composes PR425 `123e50c4c`, PR431 `9c3ebb122` and PR434 `ddbda1a35` with current main and the bootstrap/diagnostic/Cargo-currentness batch. Independent review covers original live owners, version-specific metadata/protocol checks, explicit retirement, provider/consumer tool separation, output ownership and bounded streaming custody. Only the native-provider import conflict needs composition: retain the contributed public observation parameters and the previously reviewed PR435 read-only parse scopes, with every fresh/closing guard preserved. `verification/retained-cargo-stack-integration-review.json` binds all changed production files; all except that explicit union match PR434 exactly. The reviewed composition passes strict lint/format, repository layout, public export, driver/runner and documentation-authority checks. Canonical trusted-driver renewal follows the independent contributor review. The canonical Cargo critical subset passes all 43 selected methods with zero skips, including the 12 output-budget/streamed-custody controls. The provider critical subset also passes all selected methods without skips. These bounded controls retain file replacement, write/restore, aliases, complete membership, legacy wire/default identity and independent observation guards; they do not qualify a genuine provider or full application. The complete native macOS receiving module then passes all eight cases with zero skips on combined source `94036ab84`, using actual Cargo/Rust processes. Its reopened v2 receipt binds 16 successful commands and seven targets: five libtest, one custom harness and one permitted exclusion; 59 complete input checks remain exercised. Original-source retirement/refusal and post-process input/permission/binary mutation controls pass. The producer remains the declared synthetic contract fixture; genuine producer/full-application admission is separate. Complete final combined source/installed and exact-head/resulting-main gates remain required. Prior contributor evidence remains scoped to its original revisions; no whole-application or genuine-producer acceptance is inferred.
 

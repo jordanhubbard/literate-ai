@@ -76,6 +76,14 @@ litai-mcp = "literate_ai.mcp_server:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+# SOURCE declarations remain available when optional runtimes are not installed.
+# These aliases grant no installed-payload or execution authority.
+[tool.literate-ai.snapshot-replication.optional-imports]
+protobuf = ["google"]
+grpcio = ["grpc"]
+grpcio-reflection = ["grpc_reflection"]
+grpcio-status = ["grpc_status"]
+
 [tool.setuptools.package-data]
 literate_ai = ["py.typed", "_distribution_origin.json"]
 "literate_ai.project_template" = [

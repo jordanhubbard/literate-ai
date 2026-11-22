@@ -1,0 +1,48 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "goal": "FREEBSD-001",
+  "native_predecessor_revision": "edb3cf2f94e7743f0f14a83dc64c1ee21f2f0880",
+  "native_run": 45028053630,
+  "native_sdk_microfixture_passed": true,
+  "native_installed_controls_passed": 48,
+  "native_publication_controls_passed": 5,
+  "native_full_source_passed": false,
+  "native_full_source_summary": {
+    "passed": 10,
+    "skipped": 24,
+    "failed": 1,
+    "selected": 4105
+  },
+  "native_source_drift_unresolved": true,
+  "development_change": "Declare original project optional import mappings without requiring installed optional distributions; retain original exact requirements and SOURCE-only scope. Include bounded source-drift paths in future native terminal records.",
+  "subjects": {
+    "pyproject.toml": "c12077b6ccfc2d46b94705f1a991c82ac441f5425032e255490f429e453ed5a8",
+    "src/literate_ai/self_hosting.py": "075e9539f176262451d564954303c895555391e5dccd1c352367c1106d920007",
+    "tests/conformance/test_self_hosting.py": "6c42a0038e592e323913dfb04730805da1a220e8ea2cee688e6b9eb0ce6df8d1",
+    "tests/critical/test_self_host_optional_imports.py": "2d3e7296b384f4a407d13de0967bc11da8fbebb7ac547b19013b038dc735a4c8",
+    ".github/qualifications/native_sdk/qualify_source.py": "2ba38c7c4996d72253f6ccf312600c80b6e233991e9dc5e9b377c91f130a13b5"
+  },
+  "local_controls": {
+    "optional_source_declarations": {
+      "selected": 3,
+      "passed": 3,
+      "skipped": 0
+    },
+    "complete_self_hosting_module": {
+      "selected": 4,
+      "passed": 4,
+      "skipped": 0,
+      "seconds": 312.56,
+      "includes_complete_offline_replication_with_grpc_metadata_unavailable": true
+    },
+    "native_sdk_controller_harness": {
+      "selected": 15,
+      "passed": 15,
+      "skipped": 0
+    }
+  },
+  "native_freebsd_fix_qualified": false,
+  "compiler_sdk_admitted": false,
+  "product_or_iso_qualified": false,
+  "release_qualified": false
+}

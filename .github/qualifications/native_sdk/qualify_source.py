@@ -178,6 +178,12 @@ def main():
             terminal["summary"] = json.loads(raw)["summary"]
         try:
             terminal["source_unchanged"] = unchanged()
+            if not terminal["source_unchanged"]:
+                status = git(
+                    "-C", str(root), "status", "--porcelain=v1", "--untracked-files=all"
+                )
+                terminal["source_status_porcelain"] = status[:65536]
+                terminal["source_status_truncated"] = len(status) > 65536
             terminal["controller_unchanged"] = (
                 observe_installed_framework_distribution().identity
                 == distribution.identity

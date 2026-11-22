@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Self-hosting: declare optional gRPC import names from project authority when
+  optional runtimes are absent. Offline replication controls pass; native FreeBSD
+  source renewal remains pending, including a separate source-drift finding.
+- Cargo qualification: use portable dependency paths in the packaged native test's
+  TOML. Native Windows renewal remains required.
+
 - Windows ARM64 development: add a source-bound hosted acceptance route for the
   installed runtime, public host refusals and ordinary MSVC compile/execution.
   Discover Visual Studio 2026's standard `18` directory after existing choices.

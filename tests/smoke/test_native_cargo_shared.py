@@ -483,7 +483,9 @@ class NativeCargoSharedStandardTests(unittest.TestCase):
                     )
                     manifest_text = manifest_text.replace(
                         "../received/" + export.component_revision.digest + "/source",
-                        os.path.relpath(packaged_path / "source", consumer),
+                        Path(
+                            os.path.relpath(packaged_path / "source", consumer)
+                        ).as_posix(),
                     )
                 (consumer / "Cargo.toml").write_text(manifest_text)
                 packaged_result = subprocess.run(
