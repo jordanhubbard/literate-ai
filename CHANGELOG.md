@@ -24,9 +24,9 @@
 - Cargo qualification: use portable dependency paths in the packaged native test's
   TOML. Native Windows renewal remains required.
 
-- Windows ARM64 qualification: bootstrap the runner's missing native WinGet
-  package manager using Microsoft's documented client module before invoking the
-  supported installer. Retain the observed version; native acceptance remains open.
+- Native ARM64 CI: bootstrap WinGet from SHA-256 pinned Microsoft release
+  assets and native dependencies after the module-based repair returned
+  `Not Found`. Supported Litai installation and host acceptance remain required.
 
 - Windows ARM64 qualification: explicitly authorize the supported installer to
   install declared prerequisites on its ephemeral runner after a native preflight

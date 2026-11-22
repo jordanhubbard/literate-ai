@@ -19398,6 +19398,12 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   keep prerequisite selection and installation inside that original installer.
   Record the real resolved package-manager version and retain native renewal
   as pending until installation and all host controls actually pass.
+  Run `45049961476` stops in the floating WinGet repair module with
+  `Not Found`; the terse error does not identify the upstream request. Use the
+  vendor's versioned MSIX, license and ARM64 dependency archive instead, each
+  SHA-256 pinned and independently downloaded/checked before this change.
+  Provision with the documented Windows Appx commands, then register the
+  native package and run the unchanged supported Litai installer and controls.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was
@@ -19410,7 +19416,7 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   close selection. Compile and execute a separately signed, acknowledged C++ host
   fixture through the ordinary guarded builder. Its fresh fixture trust root
   grants no reusable project trust. Keep SDK, provider, full-goal and release
-  flags false; the hosted job has not run yet.
+  flags false until the source-bound native job passes.
   The [official image manifest](https://github.com/actions/runner-images/blob/main/images/windows/Windows11-VS2026-Arm64-Readme.md)
   places VS 2026 in `Microsoft Visual Studio/18/Enterprise`. Extend finite native
   discovery with that standard directory after 2022 and 2019, retaining original
