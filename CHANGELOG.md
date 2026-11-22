@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Cargo receiving: keep authored `check` under a nominal read-only wrapper so it
+  can observe a consumer while another operation holds the lifecycle lock,
+  without writing lock ownership metadata or obtaining scratch/execution rights.
+  Full installed receiving and timeout qualification remain pending.
+
 - Authored qualification: reuse bounded syntax observations inside each current
   plan guard, preserving every native authority, selector and review check and
   starting each independent guard with fresh parse state. Receiving timeout and

@@ -19,6 +19,7 @@ from literate_ai.adapters.authored_retained_cargo_reopen_census import (
 )
 from literate_ai.adapters.authored_retained_cargo_wrapper import (
     AuthoredRetainedCargoWrapperContext,
+    AuthoredRetainedCargoWrapperObservation,
 )
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.retained_cargo_native_output_tree import (
@@ -125,7 +126,11 @@ def _capture_authored_provisioning_source(
 ):
     if (
         type(current) is not CurrentAuthoredRetainedCargoInputs
-        or type(wrapper) is not AuthoredRetainedCargoWrapperContext
+        or type(wrapper)
+        not in (
+            AuthoredRetainedCargoWrapperContext,
+            AuthoredRetainedCargoWrapperObservation,
+        )
         or wrapper.reviewed is not current.reviewed
     ):
         raise TypeError("retained.provision.actual-current-wrapper-required")

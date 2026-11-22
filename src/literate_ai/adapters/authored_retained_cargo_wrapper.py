@@ -15,6 +15,7 @@ from literate_ai.adapters.retained_cargo_wrapper_core import (
     _CargoConsumerWrapperView,
     _CurrentCargoConsumerWrapper,
     _open_consumer_wrapper_context,
+    _ReadOnlyCargoConsumerWrapper,
 )
 
 _CREATION_KEY = object()
@@ -36,15 +37,38 @@ class AuthoredRetainedCargoWrapperContext(_CargoConsumerWrapperView):
         object.__setattr__(self, "_core", core)
 
 
+@dataclass(init=False, eq=False, frozen=True)
+class AuthoredRetainedCargoWrapperObservation(_CargoConsumerWrapperView):
+    """Read-only current consumer facts; no scratch or execution authority."""
+
+    _IDENTITY_SCHEMA = "literate-ai/authored-retained-cargo-wrapper-observation@1"
+
+    def __init__(self, *, _key, core):
+        if (
+            _key is not _CREATION_KEY
+            or type(core) is not _ReadOnlyCargoConsumerWrapper
+            or type(core.reviewed) is not AuthoredRetainedCargoReviewedFiles
+        ):
+            raise TypeError("retained.cargo.authored-live-wrapper-observation-required")
+        object.__setattr__(self, "_core", core)
+
+
 @contextmanager
 def authored_retained_cargo_wrapper_context(
     reviewed: AuthoredRetainedCargoReviewedFiles,
+    *,
+    read_only: bool = False,
 ):
     """Keep actual consumer authority independently of authored provider origin."""
     if type(reviewed) is not AuthoredRetainedCargoReviewedFiles:
         raise TypeError("retained.cargo.authored-reviewed-files-required")
-    with _open_consumer_wrapper_context(reviewed) as core:
-        context = AuthoredRetainedCargoWrapperContext(_key=_CREATION_KEY, core=core)
+    with _open_consumer_wrapper_context(reviewed, read_only=read_only) as core:
+        factory = (
+            AuthoredRetainedCargoWrapperObservation
+            if read_only
+            else AuthoredRetainedCargoWrapperContext
+        )
+        context = factory(_key=_CREATION_KEY, core=core)
         context.require_unchanged()
         yield context
         context.require_unchanged()

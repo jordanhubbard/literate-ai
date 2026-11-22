@@ -141,7 +141,9 @@ def provision_authored_retained_cargo_consumer(
         if type(projection) is not _OriginalAuthoredProjection:
             raise TypeError("retained.provision.original-provider-completion-required")
         wrapper = owners.enter_context(
-            authored_retained_cargo_wrapper_context(current.reviewed)
+            authored_retained_cargo_wrapper_context(
+                current.reviewed, read_only=operation == "check"
+            )
         )
         wrapper_files = _capture_authored_wrapper_files(wrapper)
         limits = dict(

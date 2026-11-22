@@ -12,6 +12,7 @@ from literate_ai.adapters.authored_retained_cargo_lock_observation import (
 )
 from literate_ai.adapters.authored_retained_cargo_wrapper import (
     AuthoredRetainedCargoWrapperContext,
+    AuthoredRetainedCargoWrapperObservation,
 )
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.project_validation import (
@@ -107,7 +108,10 @@ class _OriginalAuthoredWrapperFiles:
 
 
 def _capture_authored_wrapper_files(wrapper):
-    if type(wrapper) is not AuthoredRetainedCargoWrapperContext:
+    if type(wrapper) not in (
+        AuthoredRetainedCargoWrapperContext,
+        AuthoredRetainedCargoWrapperObservation,
+    ):
         raise TypeError("retained.provision.actual-wrapper-required")
     core = wrapper._core
     reviewed = wrapper.reviewed

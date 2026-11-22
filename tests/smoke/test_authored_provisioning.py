@@ -13,6 +13,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 from literate_ai.adapters import authored_retained_cargo_provisioning as subject
+from literate_ai.adapters.lifecycle_lock import (
+    _owner_path,
+    project_lifecycle_lock,
+    project_lifecycle_lock_path,
+)
 from literate_ai.contracts.retained_cargo_native_custody import (
     RetainedCargoOutputBudget,
 )
@@ -56,7 +61,14 @@ class AuthoredProvisioningTests(unittest.TestCase):
             self.assertFalse(output.exists())
             rows = []
             for operation in ("check", "materialize", "check", "materialize"):
-                row = self.call(root, arguments, operation)
+                if operation == "check":
+                    with project_lifecycle_lock(root, operation="peer-readonly-check"):
+                        owner = _owner_path(project_lifecycle_lock_path(root))
+                        original_owner = owner.read_bytes()
+                        row = self.call(root, arguments, operation)
+                        self.assertEqual(owner.read_bytes(), original_owner)
+                else:
+                    row = self.call(root, arguments, operation)
                 official_validator(row["schema"]).validate(row)
                 self.assertFalse(row["consumer_gates_executed"])
                 self.assertFalse(row["importer_admission"])

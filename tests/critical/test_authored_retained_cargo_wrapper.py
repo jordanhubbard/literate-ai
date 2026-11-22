@@ -6,7 +6,10 @@ Public facade controls use the actual retained consumer authority readers.
 """
 
 import copy
+import hashlib
+import os
 import pickle
+import stat
 import tempfile
 import unittest
 from contextlib import contextmanager
@@ -14,9 +17,14 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
+from literate_ai.adapters import authored_retained_cargo_wrapper as authored_wrapper
 from literate_ai.adapters import retained_cargo_wrapper_core as core
+from literate_ai.adapters.authored_retained_cargo_scratch import (
+    reserve_authored_retained_cargo_scratch,
+)
 from literate_ai.adapters.authored_retained_cargo_wrapper import (
     AuthoredRetainedCargoWrapperContext,
+    AuthoredRetainedCargoWrapperObservation,
     authored_retained_cargo_wrapper_context,
 )
 from literate_ai.adapters.lifecycle_lock import (
@@ -142,22 +150,90 @@ class AuthoredRetainedCargoWrapperTests(unittest.TestCase):
                             with entry(value):
                                 self.fail("wrapper bypassed existing mutation lock")
 
-    def test_reviewed_document_drift_refuses_closing_consumer_owner(self):
+    def test_readonly_facts_do_not_acquire_or_mutate_a_live_peer_lock_or_grant_scratch(
+        self,
+    ):
+        def snapshot(root):
+            result = {}
+            for path in root.rglob("*"):
+                node = path.lstat()
+                name = path.relative_to(root).as_posix()
+                if stat.S_ISLNK(node.st_mode):
+                    result[name] = node.st_mode, os.readlink(path)
+                elif stat.S_ISREG(node.st_mode):
+                    result[name] = (
+                        node.st_mode,
+                        hashlib.sha256(path.read_bytes()).hexdigest(),
+                    )
+                else:
+                    result[name] = (node.st_mode,)
+            return result
+
         with self.fixture() as (_old, reviewed):
-            path = reviewed.project.root / "review/policy.json"
-            with self.assertRaises(ValueError):
-                with authored_retained_cargo_wrapper_context(reviewed):
-                    path.write_bytes(path.read_bytes() + b" ")
-            self.assertTrue(path.read_bytes().endswith(b" "))
+            root = reviewed.project.root
+            with project_lifecycle_lock(root, operation="actual-peer-original-owner"):
+                before = snapshot(root)
+                with authored_retained_cargo_wrapper_context(
+                    reviewed, read_only=True
+                ) as context:
+                    self.assertIs(
+                        type(context), AuthoredRetainedCargoWrapperObservation
+                    )
+                    self.assertIs(
+                        type(context._core), core._ReadOnlyCargoConsumerWrapper
+                    )
+                    self.assertIsNotNone(context.identity)
+                    self.assertEqual(snapshot(root), before)
+                    with patch.object(
+                        os,
+                        "open",
+                        side_effect=AssertionError(
+                            "readonly scratch attempted native open"
+                        ),
+                    ):
+                        with self.assertRaisesRegex(
+                            TypeError, "authored-live-wrapper-required"
+                        ):
+                            with reserve_authored_retained_cargo_scratch(context):
+                                self.fail("read-only observation reserved output")
+                        with self.assertRaisesRegex(
+                            TypeError, "authored-live-wrapper-context-required"
+                        ):
+                            AuthoredRetainedCargoWrapperContext(
+                                _key=authored_wrapper._CREATION_KEY, core=context._core
+                            )
+                    for operation in (copy.copy, copy.deepcopy, pickle.dumps):
+                        for owner in (context, context._core):
+                            with self.assertRaises(TypeError):
+                                operation(owner)
+                self.assertEqual(snapshot(root), before)
+            with self.assertRaisesRegex(ValueError, "wrapper-operation-ended"):
+                context.require_unchanged()
+
+    def test_reviewed_document_drift_refuses_closing_consumer_owner(self):
+        for read_only in (False, True):
+            with self.subTest(read_only=read_only), self.fixture() as (_old, reviewed):
+                path = reviewed.project.root / "review/policy.json"
+                with self.assertRaises(ValueError):
+                    with authored_retained_cargo_wrapper_context(
+                        reviewed, read_only=read_only
+                    ):
+                        path.write_bytes(path.read_bytes() + b" ")
+                self.assertTrue(path.read_bytes().endswith(b" "))
 
     def test_actual_retained_source_drift_refuses_and_keeps_changed_source(self):
-        with self.fixture() as (_old, reviewed):
-            with self.assertRaises((ValueError, RuntimeError)):
-                with authored_retained_cargo_wrapper_context(reviewed) as context:
-                    path = context.implementation / "app.py"
-                    self.assertTrue(path.is_file())
-                    path.write_bytes(b"changed original consumer source\n")
-            self.assertEqual(path.read_bytes(), b"changed original consumer source\n")
+        for read_only in (False, True):
+            with self.subTest(read_only=read_only), self.fixture() as (_old, reviewed):
+                with self.assertRaises((ValueError, RuntimeError)):
+                    with authored_retained_cargo_wrapper_context(
+                        reviewed, read_only=read_only
+                    ) as context:
+                        path = context.implementation / "app.py"
+                        self.assertTrue(path.is_file())
+                        path.write_bytes(b"changed original consumer source\n")
+                self.assertEqual(
+                    path.read_bytes(), b"changed original consumer source\n"
+                )
 
     @contextmanager
     def contained_core(self):
