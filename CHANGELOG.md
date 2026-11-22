@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Windows ARM64 qualification: explicitly authorize the supported installer to
+  install declared prerequisites on its ephemeral runner after a native preflight
+  passed and installation safely refused. Portable controls pass; the renewed
+  native installed-host result remains pending.
+
 - Windows ARM64 development: add a source-bound hosted acceptance route for the
   installed runtime, public host refusals and ordinary MSVC compile/execution.
   Discover Visual Studio 2026's standard `18` directory after existing choices.
