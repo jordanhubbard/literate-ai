@@ -113,6 +113,8 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "literate-ai/freebsd-tree-pkg-result@1",
         "urn:literate-ai:schema:v2:package-tree-input@1",
         "literate-ai/retained-project-tree-policy@1",
+        "literate-ai/retained-project-promotion-evidence@1",
+        "literate-ai/retained-project-admission-assertion@1",
         "literate-ai/retained-library-export-set@1",
         "literate-ai/retained-library-binding@1",
         "literate-ai/retained-cargo-workspace-plan@1",

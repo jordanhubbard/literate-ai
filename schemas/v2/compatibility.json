@@ -231,6 +231,8 @@
     "urn:literate-ai:schema:v2:native-sdk-tree-snapshot@1",
     "urn:literate-ai:schema:v2:native-sdk-tree@1",
     "literate-ai/retained-project-tree-policy@1",
+    "literate-ai/retained-project-promotion-evidence@1",
+    "literate-ai/retained-project-admission-assertion@1",
     "urn:literate-ai:schema:v2:package-tree-input@1",
     "urn:literate-ai:schema:v2:tree-package-plan@1",
     "urn:literate-ai:schema:v2:tree-package-result@1",

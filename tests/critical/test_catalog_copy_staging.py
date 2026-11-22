@@ -231,6 +231,8 @@ class CatalogCopyStageTests(unittest.TestCase):
         for mode, occupied in ((0o755, False), (0o700, True)):
             root = self.base / f"bad-{mode}"
             root.mkdir(mode=mode)
+            root.chmod(mode)
+            self.assertEqual(stat.S_IMODE(root.stat().st_mode), mode)
             if occupied:
                 (root / "foreign").write_bytes(b"preserve me\n")
             with self.assertRaises(ValueError):

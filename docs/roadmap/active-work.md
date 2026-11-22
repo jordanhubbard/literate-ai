@@ -23758,6 +23758,11 @@ independent review and the complete combined gate from test one.
   All 32 original native finalization, source-lease and provenance-publication
   controls pass without skips; [scoped repair evidence](../../verification/provisioning-deadline-current-catalog-development.json)
   does not close combined source, contained-layout or release qualification.
+  The renewed exact source ladder then reaches 707 passes before an original
+  negative fixture fails under the controller's private `077` umask: requesting
+  a `0755` directory creates a valid `0700` directory. Set and assert the actual
+  requested fixture permissions explicitly; keep the production private-mode
+  refusal and occupied-directory preservation requirements unchanged.
   Renew the complete combined source and three-generation native journey before
   any whole-feature, installed, platform or release claim. Current independent
   implementation review and normal exact-head delivery remain outstanding.
@@ -25582,6 +25587,13 @@ independent review and the complete combined gate from test one.
     final release qualification remain with the ongoing release integration.
 
 ### [ ] RETAINED-RECEIPT-PROMOTE-001 — Promote a verified retained-project run into the project test receipt
+
+- **Current wire registration (in progress):** Register the exact current
+  promotion-evidence and admission-assertion documents, preserving their existing
+  `@1` identifiers and all false admission/release flags. Validate original live
+  runtime captures against the installed catalog and reject added grants or
+  changed context. This does not implement the missing historical SDK command
+  capture or qualify public receipt promotion for the release.
 
 - **Release target:** 1.4.0
 - **Release scope:** The current included dispositions on issue #295 and PR #297 govern this framework work; the consumer release number is separate.

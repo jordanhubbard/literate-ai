@@ -1000,6 +1000,14 @@
       "public_ids": []
     },
     {
+      "file": "retained-project-promotion.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:retained-project-promotion-contracts",
+      "public_ids": [
+        "literate-ai/retained-project-promotion-evidence@1",
+        "literate-ai/retained-project-admission-assertion@1"
+      ]
+    },
+    {
       "file": "package-tree-input.schema.json",
       "root_id": "urn:literate-ai:schema:v2:package-tree-input@1",
       "public_ids": []

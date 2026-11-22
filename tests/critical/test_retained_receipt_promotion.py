@@ -18,6 +18,9 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
+from jsonschema import Draft202012Validator, ValidationError
+from referencing import Registry, Resource
+
 from literate_ai.adapters.standard_lifecycle_binding import (
     InstalledFrameworkDistribution,
     InstalledFrameworkDistributionMember,
@@ -412,6 +415,33 @@ class RetainedReceiptPromotionTests(unittest.TestCase):
                     self.assertFalse(candidate.exists())
                     self.assertEqual(snapshot(project), before)
             store = FileSystemCAS(Path(run["custody_root"]), create=False)
+            # Validate actual runtime-issued capture bytes, not a fabricated grant.
+            wire = json.loads(
+                (
+                    Path(__file__).parents[2]
+                    / "schemas/v2/retained-project-promotion.schema.json"
+                ).read_bytes()
+            )
+            registry = Registry().with_resource(
+                wire["$id"], Resource.from_contents(wire)
+            )
+            validator = Draft202012Validator(wire, registry=registry)
+            original = json.loads(store.get_bytes(bundle))
+            assertion = json.loads(
+                store.get_bytes(BlobRef.from_dict(original["workspace_admission"]))
+            )
+            for document in (original, assertion):
+                validator.validate(document)
+                for key in ("admitted", "release_authorized", "unreviewed_grant"):
+                    with self.subTest(
+                        captured_schema=document["schema"], injected_grant=key
+                    ):
+                        with self.assertRaises(ValidationError):
+                            validator.validate({**document, key: True})
+                with self.assertRaises(ValidationError):
+                    validator.validate(
+                        {**document, "retained_receipt_identity": "sha256:bad"}
+                    )
             for kind, required_message in (
                 ("report", "retained.unit.test-report-content-differs"),
                 ("nonobject-record", "retained.unit.canonical-run-document-required"),

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Receipt promotion: publish schemas for the current promotion evidence and
+  historical admission assertion documents, preserving their false admission
+  and release-authority flags. Historical SDK capture and release acceptance
+  remain pending.
+
 - Authored provisioning: stop before further scratch allocation or package
   publication when the original operation deadline expires, retaining native
   currentness checks for unexpired operations. Installed receiving qualification
