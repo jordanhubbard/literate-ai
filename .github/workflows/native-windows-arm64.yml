@@ -42,7 +42,8 @@ jobs:
             throw 'An exact lower-case candidate commit is required'
           }
           $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
-          $native = & python -I -B -c 'import json,runpy,sys; print(json.dumps(runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()))' $harness
+          $nativePython = Join-Path $env:pythonLocation 'python.exe'
+          $native = & $nativePython -I -B -c 'import json,runpy,sys; print(json.dumps(runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()))' $harness
           if ($LASTEXITCODE -ne 0) { throw 'Native ARM64 Python/kernel observation failed' }
           $drive = [IO.Path]::GetPathRoot($env:RUNNER_TEMP)
           if ([IO.DriveInfo]::new($drive).AvailableFreeSpace -lt 10GB) {
@@ -76,7 +77,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
-          $env:PATH = "$applications;$env:PATH"
+          $env:PATH = "$env:PATH;$applications"
           if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
             $bootstrap = Join-Path $env:QUALIFICATION_ROOT 'wg'
             if (Test-Path -LiteralPath $bootstrap) { throw 'Preserve occupied package-manager bootstrap root' }
@@ -112,7 +113,6 @@ jobs:
           $command = Get-Command winget.exe -ErrorAction Stop
           $version = & $command.Source --version
           if ($LASTEXITCODE -ne 0) { throw 'Native WinGet bootstrap failed' }
-          $applications | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           @{
             executable = $command.Source
             version = "$version"
@@ -124,9 +124,12 @@ jobs:
           LITAI_INSTALL_DEPENDENCIES: "yes"
         run: |
           $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          $nativePython = Join-Path $env:pythonLocation 'python.exe'
           $installer = Join-Path $env:QUALIFICATION_SOURCE 'scripts/install_litai.py'
           $prefix = Join-Path $env:QUALIFICATION_ROOT 'p'
-          & python $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
+          & $nativePython $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
             1> (Join-Path $env:QUALIFICATION_ROOT 'install.stdout') `
             2> (Join-Path $env:QUALIFICATION_ROOT 'install.stderr')
           if ($LASTEXITCODE -ne 0) { throw 'Exact candidate installation failed' }

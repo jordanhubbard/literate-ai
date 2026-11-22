@@ -19383,6 +19383,11 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   SHA-256 pinned and independently downloaded/checked before this change.
   Provision with the documented Windows Appx commands, then register the
   native package and run the unchanged supported Litai installer and controls.
+  Run `45052684397` now completes the pinned bootstrap (WinGet 1.29.380),
+  then the interpreter launch resolves the WindowsApps Store alias. Append
+  WindowsApps only within the needed steps, preserve setup-python precedence,
+  and invoke its selected native interpreter by absolute path. No framework
+  installation or host acceptance is claimed from that failed launch.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Native ARM64 CI: preserve setup-python precedence while exposing WinGet,
+  and launch the selected native interpreter by absolute path so the Microsoft
+  Store alias cannot intercept framework installation.
+
 - Native ARM64 CI: bootstrap WinGet from SHA-256 pinned Microsoft release
   assets and native dependencies after the module-based repair returned
   `Not Found`. Supported Litai installation and host acceptance remain required.
