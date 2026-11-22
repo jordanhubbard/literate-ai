@@ -1931,6 +1931,7 @@ def _command_contract(
             build_system.binary,
             compiler.command,
             library=library_surface is not None,
+            package_layout=build_system.package_layout,
         )
         build_argv = (
             "{tool}",

@@ -24767,6 +24767,50 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Genuine nominal provider result:** The actual noneditable `39b1af3c67` public
+  apply completes two clean all-node runs in 1,823.503 seconds and publishes
+  reference `sha256:0988406ed52c9a14d9ee922af61f3fbfd375eff09e1ff993b96fc92c4c8d1549`.
+  All seven original private acceptance/profile files remain byte-identical.
+  Manual inspection of both runs' actual exported Rust sources confirms Beta owns
+  `Event`, Alpha reexports it and calls Beta, and Gamma reexports it and calls
+  both Alpha and Beta with the same reference. No fixture provider or review port
+  supplies this qualification. [Scoped observation](../../verification/genuine-authored-nominal-development.json)
+  retains the archive identity and the consumer's actual three-test current
+  retained receipt. A separate installed process reopens both runs from the
+  transported archive against actual current authority in 413.168 seconds,
+  without generation, after confirming original scratch retirement and unchanged
+  oracles. Public receiving, independent source review and complete release gates
+  remain open.
+
+- **Ordinary export layout (in progress):** Native Cargo resolution of the three
+  unchanged qualified exports placed in separate consumer package directories
+  fails with exit 101: Alpha and Gamma's embedded Alpha have the same package
+  name/version but different paths, so Cargo cannot write an unambiguous lock.
+  This is an actual native compatibility diagnostic, not public receiving
+  acceptance. The consumer's original implementation remains authoritative and
+  no provider is admitted. Add an explicitly versioned producer layout which
+  seals ordinary relative paths to shared sibling exports and builds that exact
+  shared forest. Preserve existing target/profile wire formats and identities,
+  closed replay, immutable qualified package checks and every current-authority
+  refusal. Qualify a causal native shared-type consumer before another genuine
+  attempt; never repair qualified manifests during receiver materialization.
+  The development correction now adds explicit Cargo profile v3, target v2 and
+  projection-record v2 selection, preserving legacy formats and identities.
+  Provider files and modes are copied unchanged into one full-revision sibling
+  forest; native builds, local immutable test custody and whole-project package
+  coordinates agree. Closed replay recomputes the complete root transformation
+  and exact provider file membership without I/O or execution. Actual native
+  fixture controls preserve the legacy lock collision and compile independent
+  exact new-layout exports, including a nominal shared-type three-library forest
+  and a complete framework-created package. New genuine qualification and public
+  retained admission remain the next acceptance actions.
+  [Development evidence](../../verification/native-cargo-shared-layout-development.json)
+  records 89 passing maintained methods without skips, including native Cargo,
+  complete package consumption, exact source/provider replay, finite bounds and
+  unchanged legacy/profile/capture/command controls. The first packaging test's
+  temporary-root alias setup failure is retained separately. No driver pin is
+  renewed by the author and no genuine or receiving completion box is advanced.
+
 - **Regenerated provider-material development evidence:** [Native observation](../../verification/provider-material-intent-development.json)
   records the causal second-source build failure against `27f598c0e`: its
   artifact metadata contains two identical bindings instead of the exact current
@@ -24776,10 +24820,11 @@ implementation, policy weakening, qualification or issue closure is recorded her
   selected methods pass without skips, including unchanged strict Cargo capture,
   native-provider, language-builder, JavaScript-import and Mix controls. No
   archive duplicate refusal is relaxed. Independent source review, driver
-  renewal, fresh installed/genuine qualification and full release gates remain
-  required; the original failed genuine attempt is preserved.
+  renewal and full release gates remain required; the fresh genuine provider
+  result below succeeds, while ordinary retained receiving exposes a separate
+  export-layout defect. The original failed genuine attempt is preserved.
 
-- **Regenerated build material investigation (in progress):** The genuine
+- **Regenerated build material predecessor (preserved failure):** The genuine
   noneditable `27f598c0e` shared-Event diamond stops after 1,866.976 seconds with
   `qualification.capture.build-process-invalid`; all seven original oracle files
   remain unchanged and no qualification reference is published. Retained native

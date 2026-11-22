@@ -223,6 +223,14 @@ selects its origin; there is no origin override. Unknown formats, mixed fields
 and source-derived v2 CLI bindings refuse. Source-derived v2 continues through
 its Python receiving transaction above.
 
+For providers explicitly qualified with Cargo profile v3 (`shared-siblings`),
+place library destinations beneath one reviewed parent, naming each destination
+with its full Component revision digest. Their sealed relative Cargo dependencies
+then select the same physical package across incoming edges. Keep the complete
+graph and target inventory in the reviewed consumer plan. Materialization copies
+these exact packages without manifest repair. Older embedded exports keep their
+original format; selecting the new layout requires fresh provider qualification.
+
 An authored binding pins its provider reference, selected run, every export,
 workspace plan, gate policy and typed test inventory. Supply the actual authored
 policy with `--gate-policy` and the inventory with `--tests` for all three

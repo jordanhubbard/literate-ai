@@ -5774,6 +5774,19 @@ class LocalStandardLifecyclePorts:
         custody.require_unchanged()
         return evidence
 
+    def _project_export_destinations(self, closure, root_export, grouped_roots):
+        """Default package coordinates; specialized native layouts stay explicit."""
+        return {
+            item.identity.uri: (
+                f"root/{item.export_id}"
+                if item.identity in grouped_roots
+                else (
+                    f"components/{item.component_revision.digest[:16]}/{item.export_id}"
+                )
+            )
+            for item in closure
+        }
+
     def assemble_project_artifacts(
         self,
         component_lock: ComponentLock,
@@ -5912,16 +5925,9 @@ class LocalStandardLifecyclePorts:
         )
         root_export = exports[link_plan.root_artifact_identity.uri]
         grouped_roots = set(link_plan.resolved_root_artifact_identities)
-        destinations = {
-            item.identity.uri: (
-                f"root/{item.export_id}"
-                if item.identity in grouped_roots
-                else (
-                    f"components/{item.component_revision.digest[:16]}/{item.export_id}"
-                )
-            )
-            for item in closure
-        }
+        destinations = self._project_export_destinations(
+            closure, root_export, grouped_roots
+        )
         root_contract = self._contract(component_lock.root_revision)
         root_plan = self._plans_by_revision.get(component_lock.root_revision.uri)
         if root_plan is None:

@@ -586,6 +586,11 @@
       ]
     },
     {
+      "file": "standard-cargo-command-profile-v3.schema.json",
+      "root_id": "urn:literate-ai:schema:v3:standard-cargo-command-profile",
+      "public_ids": []
+    },
+    {
       "file": "standard-lifecycle-checkpoint.schema.json",
       "root_id": "urn:literate-ai:schema:v2:standard-lifecycle-checkpoint-contracts",
       "public_ids": [

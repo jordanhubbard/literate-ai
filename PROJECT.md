@@ -169,7 +169,12 @@ case inventory must preserve every actual node execution; genuinely authored gra
 qualification must not manufacture source-promotion or inverse evidence. The first
 fix is contributor-owned; [ADR 0072](docs/decisions/0072-authored-native-graph-qualification.md)
 was accepted by the directing user on 2026-11-10 for authored admission.
-Implementation and both acceptance gates remain open.
+Implementation and both complete acceptance gates remain open. An actual
+noneditable provider qualification now publishes two clean nominal shared-type
+runs with the original acceptance files unchanged. Ordinary retained consumption
+still blocks closure: separately placed exact exports embed duplicate Cargo path
+packages and fail native lock resolution. The owning queue records the versioned
+shared-export layout and complete receiving work; no source retirement is claimed.
 
 PROJECT-LAYOUT-001 extends Goals 1, 4, 6 and 8 as a blocking 1.4.0 requirement.
 [ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is proposed;

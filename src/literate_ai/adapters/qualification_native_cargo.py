@@ -37,6 +37,7 @@ def cargo_target(reader, selected):
         binary=raw["binary"],
         rustc_command=tuple(raw["rustc_command"]),
         library=raw.get("library", False),
+        package_layout=raw.get("package_layout", "embedded"),
     )
     if target.identity != selected or canonical_json_bytes(raw) != canonical_json_bytes(
         target.identity_document()
@@ -221,6 +222,7 @@ def reopen_cargo_provider_evidence(
             root_manifest_path=target.manifest,
             sources=sources,
             metadata=metadata,
+            package_layout=target.package_layout,
         ),
         "provider_locks": validate_native_cargo_provider_locks(
             graph=graph,
@@ -231,3 +233,4 @@ def reopen_cargo_provider_evidence(
     }
     if canonical_json_bytes(record) != canonical_json_bytes(wanted):
         raise ValueError("qualification.capture.cargo-native-evidence-mismatch")
+    return graph, sources

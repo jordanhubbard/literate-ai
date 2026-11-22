@@ -48,6 +48,7 @@ def verify_qualification_cargo_build(
         binary=raw["binary"],
         rustc_command=tuple(raw["rustc_command"]),
         library=raw.get("library", False),
+        package_layout=raw.get("package_layout", "embedded"),
     )
     same(raw, target.identity_document())
     grant = reader.read_json(plan.request.authorization_identity)
@@ -171,12 +172,13 @@ def verify_qualification_cargo_build(
     if packages(lock["package"]) != packages(metadata["packages"]):
         mismatch()
 
+    native_inputs = None
     if native:
         from literate_ai.adapters.qualification_native_cargo import (
             reopen_cargo_provider_evidence,
         )
 
-        reopen_cargo_provider_evidence(
+        native_inputs = reopen_cargo_provider_evidence(
             reader,
             plan=plan,
             target=target,
@@ -186,5 +188,19 @@ def verify_qualification_cargo_build(
             current_recipe=current_recipe,
             record=reader.read_json(identity(artifact_files[native_path])),
             metadata=metadata,
+            lock_bytes=reader.read_bytes(lock_id),
+        )
+
+    if target.package_layout == "shared-siblings" and target.library:
+        from literate_ai.adapters.qualification_cargo_shared import (
+            verify_shared_cargo_artifact,
+        )
+
+        verify_shared_cargo_artifact(
+            reader,
+            plan=plan,
+            target=target,
+            native=native_inputs,
+            artifact_files=artifact_files,
             lock_bytes=reader.read_bytes(lock_id),
         )

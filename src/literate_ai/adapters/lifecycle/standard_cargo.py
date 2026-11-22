@@ -48,6 +48,7 @@ from .native_cargo_projection import (
     project_native_cargo_graph,
     validate_native_cargo_metadata,
 )
+from .native_cargo_shared import project_shared_cargo_graph
 from .standard_local import (
     LocalComponentToolBinding,
     LocalSourceTreeRegistry,
@@ -76,6 +77,7 @@ class StandardCargoTarget:
     binary: str
     rustc_command: tuple[str, ...]
     library: bool = False
+    package_layout: str = "embedded"
 
     def __post_init__(self) -> None:
         for value, label in (
@@ -107,6 +109,10 @@ class StandardCargoTarget:
             raise ValueError("Cargo target requires one exact Rust compiler command")
         if not isinstance(self.library, bool):
             raise TypeError("Cargo target library marker must be bool")
+        if self.package_layout not in {"embedded", "shared-siblings"}:
+            raise ValueError(
+                "Cargo target requires an explicit supported package layout"
+            )
 
     @property
     def identity(self) -> ContentIdentity:
@@ -127,6 +133,9 @@ class StandardCargoTarget:
         }
         if self.library:
             value["library"] = True
+        if self.package_layout != "embedded":
+            value["schema"] = "literate-ai/standard-cargo-target@2"
+            value["package_layout"] = self.package_layout
         return value
 
 
@@ -285,6 +294,20 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
     def _allow_missing_cargo_lock(self, plan: StandardComponentBuildPlan) -> bool:
         return plan.component_revision.uri in self.cargo_targets
 
+    def _project_export_destinations(self, closure, root_export, grouped_roots):
+        destinations = super()._project_export_destinations(
+            closure, root_export, grouped_roots
+        )
+        root_target = self.cargo_targets.get(root_export.component_revision.uri)
+        if root_target is not None and root_target.package_layout == "shared-siblings":
+            for export in closure:
+                target = self.cargo_targets.get(export.component_revision.uri)
+                if target is not None and target.library:
+                    destinations[export.identity.uri] = (
+                        "components/" + export.component_revision.digest
+                    )
+        return destinations
+
     def _current_native_cargo_inputs(self, plan, providers):
         if not any(
             self._contract(item.component_revision).is_library for item in providers
@@ -350,8 +373,14 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             projection_root=self.object_root
             / "cargo-work"
             / workspace.digest
-            / "projection",
+            / "projection"
+            / (
+                target.component_revision.digest
+                if target.package_layout == "shared-siblings"
+                else ""
+            ),
             metadata=metadata,
+            package_layout=target.package_layout,
         )
         provider_locks = validate_native_cargo_provider_locks(
             graph=graph,
@@ -790,7 +819,9 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             raise LocalStandardLifecycleError("Cargo build requires a locked workspace")
         staging = stable_staging
         staging.mkdir(parents=True, exist_ok=True)
-        projection = staging / "projection"
+        shared = target.package_layout == "shared-siblings"
+        forest = staging / "projection"
+        projection = forest / target.component_revision.digest if shared else forest
         object_workspace = staging / "objects"
         artifact_workspace = staging / "artifact"
         try:
@@ -822,7 +853,10 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                             "generated native Cargo source contains "
                             "ambient or reserved authority"
                         )
-                rewritten, files = project_native_cargo_graph(
+                projector = (
+                    project_shared_cargo_graph if shared else project_native_cargo_graph
+                )
+                rewritten, files = projector(
                     graph=native[0],
                     root_manifest=self._read_bounded(
                         source_manifest, label="original native manifest"
@@ -832,7 +866,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 )
                 projected_manifest.write_bytes(rewritten)
                 for row in files:
-                    destination = projection / row.path
+                    destination = (forest if shared else projection) / row.path
                     destination.parent.mkdir(parents=True, exist_ok=True)
                     destination.write_bytes(row.content)
                     destination.chmod(row.mode)
@@ -996,6 +1030,15 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
             export_path = artifact_workspace / contract.artifact_export.export_id
             if target.library:
                 shutil.copytree(projection, export_path)
+                if shared and native is not None:
+                    # Local tests use the immutable artifact, before whole-project
+                    # packaging. Keep its exact provider siblings under the same
+                    # sealed artifact tree; they are not additional exports.
+                    for node in native[0].nodes:
+                        shutil.copytree(
+                            forest / node.component_revision.digest,
+                            artifact_workspace / node.component_revision.digest,
+                        )
             else:
                 suffix = ".exe" if os.name == "nt" else ""
                 produced = (

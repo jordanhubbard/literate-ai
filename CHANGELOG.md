@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Native Cargo: add an explicit shared sibling package layout so independently
+  exported libraries can share nominal Rust types without duplicate path packages.
+  Preserve legacy profile and target formats; require fresh qualification for the
+  new selection.
+
+- Qualification development: complete two genuine nominal Rust graph runs through
+  an installed public provider, preserving all original acceptance inputs. Retained
+  consumer admission remains unfinished after native Cargo exposes duplicate
+  embedded dependency packages in separately materialized exports.
+
 - Native library artifacts: record provider bindings from the exact current build
   intent, preventing prior generated-source attempts from duplicating later
   dependency evidence and blocking qualification replay. Strict archive duplicate

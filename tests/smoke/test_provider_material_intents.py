@@ -27,10 +27,16 @@ from tests.support.standard_source_evidence_fixture import register_strict_sourc
 )
 class ProviderMaterialIntentTests(unittest.TestCase):
     def test_regenerated_native_consumer_records_only_its_current_exact_bindings(self):
+        self._exercise("embedded")
+
+    def test_shared_layout_retry_replays_exact_source_and_provider_siblings(self):
+        self._exercise("shared-siblings")
+
+    def _exercise(self, layout):
         with tempfile.TemporaryDirectory(prefix="provider-intent-") as temporary:
             root = Path(temporary)
             helper = native_fixture.NativeCargoStandardTests("runTest")
-            ports, execution, candidates = helper.system(root)
+            ports, execution, candidates = helper.system(root, package_layout=layout)
             recorder = QualificationEvidenceRecorder(
                 max_bytes=64 * 1024**2, max_records=10000
             )
@@ -139,10 +145,11 @@ class ProviderMaterialIntentTests(unittest.TestCase):
                     for edge in consumer.direct_generation_edges
                 )
             )
+            build_evidence = ports.build_evidence_for_test(second_plan, second.exports)
             verify_qualification_build(
                 reader,
                 plan=second_plan,
-                build=ports.build_evidence_for_test(second_plan, second.exports),
+                build=build_evidence,
                 provider_exports={
                     export.identity: export
                     for node in (output, first, second)
@@ -153,6 +160,44 @@ class ProviderMaterialIntentTests(unittest.TestCase):
                 },
                 current_recipe=recipe,
             )
+            if layout == "shared-siblings":
+                from literate_ai.adapters.qualification_cargo_shared import (
+                    verify_shared_cargo_artifact,
+                )
+                from literate_ai.contracts.identity import ContentIdentity
+
+                observed = reader.read_json(build_evidence.build_observation_identity)
+                tree = reader.read_json(
+                    ContentIdentity.parse_uri(observed["artifact_tree_identity"])
+                )
+                files = {r["path"]: "sha256:" + r["sha256"] for r in tree["files"]}
+                target = ports.cargo_targets[second_plan.component_revision.uri]
+                native = ports._current_native_cargo_inputs(second_plan, providers)
+                arguments = dict(
+                    reader=reader,
+                    plan=second_plan,
+                    target=target,
+                    native=native,
+                    lock_bytes=(
+                        ports.artifact_path(second.exports[0]) / "source/Cargo.lock"
+                    ).read_bytes(),
+                )
+                manifest = second.exports[0].export_id + "/source/Cargo.toml"
+                for changed in (
+                    {**files, manifest: "sha256:" + "0" * 64},
+                    {p: identity for p, identity in files.items() if p != manifest},
+                    {
+                        **files,
+                        "unreviewed-provider/source/lib.rs": "sha256:" + "0" * 64,
+                    },
+                ):
+                    with self.subTest(layout=layout, files=len(changed)):
+                        with self.assertRaisesRegex(
+                            ValueError, "cargo-shared-artifact-mismatch"
+                        ):
+                            verify_shared_cargo_artifact(
+                                **arguments, artifact_files=changed
+                            )
             self.assertEqual(first_path.read_bytes(), first_bytes)
             self.assertNotEqual(first.exports[0].identity, second.exports[0].identity)
             with self.assertRaises(LocalStandardLifecycleError):

@@ -1,0 +1,164 @@
+{
+  "schema": "literate-ai/development-observation@1",
+  "owner": "AUTHORED-GRAPH-QUALIFICATION-001",
+  "source_base_commit": "39b1af3c67cff95cacd622fe0372f5b3f8d9e88b",
+  "source_sha256": {
+    "src/literate_ai/adapters/lifecycle/native_cargo_projection.py": "cfef93904f06a2389cfa82c613d0ca4e28e7c551cd8af749c9ead9cac6d2b8c2",
+    "src/literate_ai/adapters/lifecycle/native_cargo_shared.py": "be30aeeba85dc59827471ac95d2eec2aa5a5487e49ce1436aaf3db37b94959e4",
+    "src/literate_ai/adapters/lifecycle/standard_cargo.py": "1fb4c14e05255ed75008bccda8f423b224648c34dbb59eae537505eabad95d9f",
+    "src/literate_ai/adapters/lifecycle/standard_local.py": "d6b242b05e68b6b371d7576079ff4e89d51b1b91cff225b1b80c138378afba7b",
+    "src/literate_ai/adapters/qualification_cargo.py": "4b54d449f1d88276cde19bc3645b9a1b9d4d53fe6f1ec9b8971ee1e31aa56f1c",
+    "src/literate_ai/adapters/qualification_cargo_shared.py": "32a9940ec95550822c32b408cf072abdcbd5c1cef6818d550011b20af44a9a3a",
+    "src/literate_ai/adapters/qualification_native_cargo.py": "3fde12fe9112ed1c8c1afe28c65ca35ef1a04baada103c36cef48b51a925ca98",
+    "src/literate_ai/adapters/standard_project.py": "da8753b6f3c84a7d2b0088b302249f5462f103ab07b76f687413aabca219deb9",
+    "src/literate_ai/contracts/executable_components/standard_command_profiles.py": "90110125a3a962c6304f9ff6a5fc5218e17b95ddcb75188523cb4ee522312cd7",
+    "src/literate_ai/project_template/flavors/build-cargo/flavor.md": "ffeb66c5ee416e68c1decc75274848d8442c50a6353b25ce8ae77ccf15aa42bc",
+    "src/literate_ai/project_template/flavors/build-cargo/openspec/spec.md": "e8931855633c8ea27efa872a8064a24d78391655ac3929eef3967d9a4cd35c47",
+    "src/literate_ai/project_template/flavors/build-cargo/standard-command-profile.json": "12686d9a29d97d5a7cddc7a7fe636637a8314c8d8abb9fe58c10be01aefff329"
+  },
+  "cause": "Native Cargo rejects the actual independently placed qualified alpha and gamma embedded alpha as distinct name/version path packages; original genuine archive and all oracles preserved.",
+  "implementation": {
+    "command_profile": "urn:literate-ai:schema:v3:standard-cargo-command-profile",
+    "target": "literate-ai/standard-cargo-target@2",
+    "projection_record": "literate-ai/native-cargo-projection@2",
+    "selection": "shared-siblings",
+    "canonical_cargo_flavor_version": "1.1.0",
+    "legacy": "Existing profile v2, target v1 and embedded projection v1 defaults and identities remain unchanged.",
+    "provider_bytes": "Copied unchanged, including manifests, locks, source and modes; legacy embedded native providers refuse new selection.",
+    "local_and_packaged": "Native build forest, local sealed input siblings and whole-project library destinations use full Component revision digests.",
+    "replay": "Independently derived current provider graph plus original root sources, exact projected manifest/metadata/lock and complete provider file inventory; no I/O or native execution."
+  },
+  "reports": [
+    {
+      "report": "shared-native-final/python-test-report.json",
+      "sha256": "0931258456b1f6da9b3043d3c5e2ed8344f5bba1d9ab05f0ca85d3e50898ae00",
+      "summary": {
+        "executed": 53,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 53,
+        "selected": 53,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "shared-replay-final/python-test-report.json",
+      "sha256": "9bbd769634c46b9985929845755acd528cd0f0623a4649efd9a0060425cc687a",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "cargo-target-compat/python-test-report.json",
+      "sha256": "3173e53431714d49309ee384fccb1abe09f3c1f0e5cf96c785d70cddc2b86a0a",
+      "summary": {
+        "executed": 10,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 10,
+        "selected": 10,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "cargo-command-compat/python-test-report.json",
+      "sha256": "3605a8943674cab1853caf861c4dd51e450035aa7588e7ab596550c2f795026b",
+      "summary": {
+        "executed": 6,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 6,
+        "selected": 6,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "capture-compat-shared/python-test-report.json",
+      "sha256": "260ceca271caf968e7fd287930c715a8e8ed0d44c4c997cf452eed620fd659c0",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "authored-compat-shared/python-test-report.json",
+      "sha256": "028b3dcff04a448cc7525000cb982b7a0e52f3a379f6aa84d350ab414d0c36dc",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "release_evidence": false
+    },
+    {
+      "report": "schema-compat-shared/python-test-report.json",
+      "sha256": "6bc99a2013771ab7ad7c8c82296c0ef50d62348788bbc91dc925268eab89442c",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "release_evidence": false
+    }
+  ],
+  "maintained_methods": 89,
+  "failed": 0,
+  "skipped": 0,
+  "native_scope": "Explicit fixture generation authority; actual Cargo builds, independently copied exact exports and framework-created whole-project package. Not genuine model qualification or public receiving.",
+  "development_predecessor": {
+    "summary": {
+      "executed": 1,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 0,
+      "selected": 9,
+      "skipped": 0
+    },
+    "cause": "New packaging test used an unresolved macOS temporary-root alias when constructing a relative path; canonicalize original test root before creation. No production source fix or weaker custody.",
+    "preserved_report": "shared-package-first/python-test-report.json"
+  },
+  "required_next": [
+    "Independent source review and supported driver pin renewal",
+    "Fresh noneditable genuine nominal three-library qualification under explicitly selected new Flavor/profile with all seven original oracle files unchanged",
+    "Transported all-run current-authority replay after original scratch retirement",
+    "Actual public separate-process retained check/materialize/check/admit/repeat and refusal cases on one real consumer",
+    "Complete original prospective consumer gates/inventory before retiring original source",
+    "Exact final integrated native, installed and release qualification"
+  ],
+  "release_qualified": false,
+  "static_gates": {
+    "schema_catalog": "132files/605resources;pass",
+    "lint_format": "2190Pythonfiles;pass",
+    "repository_layout": "pass",
+    "public_export": "pass",
+    "runner_review": "current;421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1",
+    "roadmap_dependencies": "acyclic",
+    "documentation": "181diagrams/1967Markdownfiles/23renderercontrols;pass"
+  },
+  "driver_review": {
+    "state": "stale;independentnon-authorreviewpending",
+    "pinned": "sha256:05c3a129f8f50a6a0f33b227ba903f21d56dd5b6e016bc3972eceb96ee81c60f",
+    "computed": "sha256:eba6dd2e2d798ab34b6946ec38cdeaba212d9618f498db714ae3e54a1d04c540",
+    "author_repin": false
+  }
+}

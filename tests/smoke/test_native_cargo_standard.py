@@ -38,7 +38,7 @@ from tests.support.standard_source_evidence_fixture import register_strict_sourc
     shutil.which("cargo") and shutil.which("rustc"), "native Rust tools unavailable"
 )
 class NativeCargoStandardTests(unittest.TestCase):
-    def system(self, root, *, forged_leaf_projection=False):
+    def system(self, root, *, forged_leaf_projection=False, package_layout="embedded"):
         snapshot, execution = _fixture(
             root_name="service", library_names=frozenset({"service", "storage"})
         )
@@ -63,6 +63,7 @@ class NativeCargoStandardTests(unittest.TestCase):
                 name,
                 rustc.command,
                 library=True,
+                package_layout=package_layout,
             )
             targets.append(target)
             public = by_revision[revision].interface_bindings[0]

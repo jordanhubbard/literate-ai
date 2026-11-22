@@ -197,15 +197,24 @@ def original_native_cargo_manifest(files, manifest, revision):
         raise NativeCargoProviderGraphError(
             "cargo.provider.projection_record"
         ) from error
+    _require(type(record) is dict, "projection_record")
+    shared = record.get("schema") == "literate-ai/native-cargo-projection@2"
     _require(
-        type(record) is dict
-        and set(record)
-        == {"schema", "root_manifest", "root_original_manifest_identity", "graph"},
-        "projection_record",
-    )
-    _require(
-        record["schema"] == "literate-ai/native-cargo-projection@1"
-        and record["root_manifest"] == manifest,
+        set(record)
+        == {
+            "schema",
+            "root_manifest",
+            "root_original_manifest_identity",
+            "graph",
+            *({"layout"} if shared else ()),
+        }
+        and record["schema"]
+        in {
+            "literate-ai/native-cargo-projection@1",
+            "literate-ai/native-cargo-projection@2",
+        }
+        and record["root_manifest"] == manifest
+        and (not shared or record["layout"] == "shared-siblings"),
         "projection_record",
     )
     graph = NativeCargoProviderGraph.from_dict(record["graph"])
@@ -439,7 +448,14 @@ def project_native_cargo_graph(*, graph, root_manifest, root_manifest_path, sour
 
 
 def validate_native_cargo_metadata(
-    *, graph, root_manifest, root_manifest_path, sources, projection_root, metadata
+    *,
+    graph,
+    root_manifest,
+    root_manifest_path,
+    sources,
+    projection_root,
+    metadata,
+    package_layout="embedded",
 ):
     """Join actual Cargo path packages and aliases to the admitted shared graph.
 
@@ -461,11 +477,18 @@ def validate_native_cargo_metadata(
         sources=sources,
         projection_root=projection_root,
         metadata=metadata,
+        package_layout=package_layout,
     )
 
 
 def reopen_native_cargo_metadata(
-    *, graph, root_manifest, root_manifest_path, sources, metadata
+    *,
+    graph,
+    root_manifest,
+    root_manifest_path,
+    sources,
+    metadata,
+    package_layout="embedded",
 ):
     """Compare archived path coordinates as data; grant no path ownership or I/O.
 
@@ -493,13 +516,26 @@ def reopen_native_cargo_metadata(
         sources=sources,
         projection_root=coordinate,
         metadata=metadata,
+        package_layout=package_layout,
     )
 
 
 def _validate_native_cargo_metadata(
-    *, graph, root_manifest, root_manifest_path, sources, projection_root, metadata
+    *,
+    graph,
+    root_manifest,
+    root_manifest_path,
+    sources,
+    projection_root,
+    metadata,
+    package_layout="embedded",
 ):
     _require(type(graph) is NativeCargoProviderGraph, "graph")
+    _require(package_layout in {"embedded", "shared-siblings"}, "package_layout")
+    if package_layout == "shared-siblings":
+        _require(
+            projection_root.name == graph.root_revision.digest, "shared_projection_root"
+        )
     _path(root_manifest_path)
     root = _manifest(root_manifest)["package"]
     by_revision = {row.node.component_revision: row for row in sources}
@@ -521,11 +557,17 @@ def _validate_native_cargo_metadata(
         expected[node.component_revision] = (
             node.package,
             node.version,
-            projection_root
-            / _RESERVED
-            / "providers"
-            / node.projection_identity.digest
-            / source.manifest,
+            (
+                projection_root.parent
+                / node.component_revision.digest
+                / source.manifest
+                if package_layout == "shared-siblings"
+                else projection_root
+                / _RESERVED
+                / "providers"
+                / node.projection_identity.digest
+                / source.manifest
+            ),
         )
     _require(
         type(metadata) is dict

@@ -556,7 +556,11 @@ class StandardCargoCommandProfile:
     toolchain: str
     manifest: str
     binary: str
+    package_layout: str = "embedded"
 
+    SHARED_SCHEMA: ClassVar[str] = (
+        "urn:literate-ai:schema:v3:standard-cargo-command-profile"
+    )
     SCHEMA: ClassVar[str] = STANDARD_CARGO_COMMAND_PROFILE_SCHEMA
 
     def __post_init__(self) -> None:
@@ -571,35 +575,56 @@ class StandardCargoCommandProfile:
         if PurePosixPath(self.manifest).name != "Cargo.toml":
             fail("StandardCargoCommandProfile.manifest", "must name Cargo.toml")
         portable_name(self.binary, "StandardCargoCommandProfile.binary")
+        if self.package_layout not in {"embedded", "shared-siblings"}:
+            fail(
+                "StandardCargoCommandProfile.package_layout",
+                "requires a supported package layout",
+            )
 
     @property
     def identity(self) -> ContentIdentity:
         return contract_identity(self)
 
     def to_dict(self) -> dict[str, object]:
-        return {
+        value = {
             "schema": self.SCHEMA,
             "target": self.target,
             "toolchain": self.toolchain,
             "manifest": self.manifest,
             "binary": self.binary,
         }
+        if self.package_layout != "embedded":
+            value["schema"] = self.SHARED_SCHEMA
+            value["package_layout"] = self.package_layout
+        return value
 
     @classmethod
     def from_dict(
         cls, value: Any, *, path: str = "StandardCargoCommandProfile"
     ) -> StandardCargoCommandProfile:
+        shared = isinstance(value, dict) and value.get("schema") == cls.SHARED_SCHEMA
         data = contract_fields(
             value,
             path=path,
-            schema_uri=cls.SCHEMA,
-            required=frozenset({"target", "toolchain", "manifest", "binary"}),
+            schema_uri=cls.SHARED_SCHEMA if shared else cls.SCHEMA,
+            required=frozenset(
+                {
+                    "target",
+                    "toolchain",
+                    "manifest",
+                    "binary",
+                    *({"package_layout"} if shared else ()),
+                }
+            ),
         )
+        if shared and data["package_layout"] != "shared-siblings":
+            fail(f"{path}.package_layout", "v3 requires the shared-siblings layout")
         return cls(
             portable_name(data["target"], f"{path}.target"),
             portable_name(data["toolchain"], f"{path}.toolchain"),
             _relative_path(data["manifest"], f"{path}.manifest"),
             portable_name(data["binary"], f"{path}.binary"),
+            "shared-siblings" if shared else "embedded",
         )
 
 
@@ -968,6 +993,9 @@ def parse_standard_command_profile(
         StandardMakeCommandProfile.SCHEMA: StandardMakeCommandProfile.from_dict,
         StandardCMakeCommandProfile.SCHEMA: StandardCMakeCommandProfile.from_dict,
         StandardCargoCommandProfile.SCHEMA: StandardCargoCommandProfile.from_dict,
+        StandardCargoCommandProfile.SHARED_SCHEMA: (
+            StandardCargoCommandProfile.from_dict
+        ),
         StandardMixCommandProfile.SCHEMA: StandardMixCommandProfile.from_dict,
         StandardNpmCommandProfile.SCHEMA: StandardNpmCommandProfile.from_dict,
         StandardPythonWheelCommandProfile.SCHEMA: (
