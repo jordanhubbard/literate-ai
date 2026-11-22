@@ -24057,12 +24057,12 @@ independent review and the complete combined gate from test one.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
-- **Next action:** Independently review and publish [proposed ADR 0061](../decisions/0061-retained-python-library-bridge.md), then obtain the required explicit design acceptance before implementation. FreeBSD SDK qualification remains first priority.
+- **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.
 
 - **Priority:** high
 - **Owner:** framework retained library bridge and sealed Python test workspace
 - **Direction:** Include newly filed issue #307 in 1.4 under the directing user authorization for new issues.
-- **Conclusion:** A retained Python consumer must import verified qualified committed-cache packages within its sealed workspace through an explicit custody-bound bridge. Inspect existing retained Cargo authority and Python receipt construction, publish a narrow proposed design, and implement after required design acceptance; FreeBSD SDK execution remains first priority.
+- **Conclusion:** A retained Python consumer must import verified qualified committed-cache packages within its sealed workspace through the explicit custody-bound bridge in accepted ADR 0061. Preserve complete consumer/provider/source-retirement custody and receipt reopening; acceptance of the design does not establish implementation or qualification. FreeBSD SDK execution remains first priority.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**

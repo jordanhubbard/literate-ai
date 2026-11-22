@@ -1,12 +1,12 @@
 # ADR 0061: Bind Qualified Python Libraries Into Retained Test Workspaces
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-11-04
 - Decision owners: literate-ai maintainers
 - Release target: 1.4.0
 - Roadmap: [RETAINED-PYTHON-BRIDGE-001](../roadmap/active-work.md#retained-python-bridge-001-consume-qualified-native-library-children-from-retained-python-projects)
 - GitHub issue: [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
-- Approval: pending explicit human acceptance of this design
+- Approval: The directing user's 2026-11-21 release-resumption instruction authorizes all outstanding roadmap work and states, "all items are already reviewed on the roadmap." This accepts the already-recorded design; implementation and every validation outcome below remain required.
 
 ## Context
 
