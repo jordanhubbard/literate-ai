@@ -1,0 +1,68 @@
+{
+  "scope": "Inert Python receiving plan and exact source/wheel intent only; no current provider or consumer qualification",
+  "base_commit": "1eb48eec3b927241beb2490a1523bd313e328b2f",
+  "source_sha256": {
+    "src/literate_ai/contracts/retained_python.py": "2297f878ce8541d897ff9e9f18e9c0e0c5f0fdab7980c7e01fa7cbcec327f1ed",
+    "src/literate_ai/contracts/retained_python_inputs.py": "430751ec4e5f1a9838629c3b1fe07f8ee6feaffffb7654b9778db35898c593d7",
+    "src/literate_ai/schema_catalog.py": "33fd1b6aab3262a48ae0b3f17ab8c462d337a212edbc627aa500b34d16ad7993",
+    "schemas/v2/retained-python-workspace.schema.json": "087c1f2f0162cbfbfbcdc454a4f8fb917927271ada705a941d6c565517eb0b2f",
+    "schemas/v2/index.json": "8728a1578517a15fc18eb70bf4a64025a22e78f58ea6cd4f32333aff84a152b3",
+    "schemas/v2/compatibility.json": "295839584133e30bd1c33c603238a7ba55264b3d1aa26249c4318691e6a24afe",
+    "tests/critical/test_retained_python_workspace_plan.py": "aac5e8851b069974a720e23a6d5fcaf679d482d68983226cc689fc4f53120266"
+  },
+  "focused": {
+    "summary": {
+      "executed": 7,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 7,
+      "selected": 7,
+      "skipped": 0
+    },
+    "seconds": 3.104,
+    "report_sha256": "74dfc64d8aace1332ba94f26a87927d25a72c0723bd23ba28deca1e7c1c605d3"
+  },
+  "schema_catalogs": {
+    "gate": "make schema-check",
+    "exit_code": 0,
+    "v2_schema_files": 132,
+    "v2_resources": 605,
+    "published_v1_modified": false
+  },
+  "retained_failures": [
+    "Initial direct unittest fixture-class import selected 7 existing export fixture tests alongside 7 new controls; later module import limits discovery to the 7 owned controls.",
+    "A stale test import after formatting failed before plan construction; corrected without relaxing assertions.",
+    "Production catalog rejected a relative schema reference accepted by the lightweight test resolver; corrected to the existing absolute contract resource and added production verification to focused controls.",
+    "Production catalog then required the explicit new write-contract allowlist entry; registered it without changing unknown-version refusal."
+  ],
+  "source_gate_passed": false,
+  "provider_current_join_implemented": false,
+  "public_bridge_implemented": false,
+  "consumer_admitted": false,
+  "release_qualified": false,
+  "independent_review_completed": false,
+  "schema_catalog_regression": {
+    "gate": "maintained tests/smoke/test_schema_catalog.py via make python-check",
+    "selected": 2,
+    "passed": 2,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 0.042
+  },
+  "static_checks": {
+    "lint": 0,
+    "format_check": 0,
+    "formatted_python_files": 2192,
+    "repository_layout": 0,
+    "public_export": 0,
+    "invocation_note": "The combined static command completed these four gates, then exited 2 because docs-validate is not a Make target; the correct documentation-check/openspec-check invocation passed separately."
+  },
+  "documentation_checks": {
+    "documentation_check": 0,
+    "diagrams": 181,
+    "markdown_files": 1967,
+    "renderer_controls": 23,
+    "openspec_check": 0,
+    "openspec_items": 5
+  }
+}

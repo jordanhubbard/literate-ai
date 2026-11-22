@@ -24055,6 +24055,22 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Inert workspace-plan development:** Add an explicit Python versioned codec
+  for the exact wrapper/harness/source/test inventories, interpreter/target and
+  environment projection, unchanged full gate policy, complete typed export graph
+  including non-library dependencies, source/wheel import mounts, prospective
+  source-removal delta and finite allowances. Private package destinations are
+  disjoint from the disposable retained implementation. Seven focused structural
+  controls and the production schema-catalog gate pass. Foreign/missing graph
+  members, package aliases and startup shadowing, unsafe destinations, unbound
+  removals, absent wheel runtime metadata, unknown fields and unreviewed
+  interpreter identities refuse. These are inert intent controls, not a current
+  provider, isolated execution or consumer proof. Current-provider joining,
+  exact source/wheel materialization, origin checks, prospective full consumer,
+  public receipt and installed qualification remain open. No acceptance box closes.
+  [Plan development record](../../verification/python-workspace-plan-development.json)
+  retains the exact scope and earlier harness/catalog failures.
+
 - **Original artifact capture development:** Wheel-backed library builds now retain
   the complete artifact's raw bytes while the original dependency observer remains
   live. Match its existing build/custody tree, preflight remaining shared recorder
@@ -24069,8 +24085,8 @@ independent review and the complete combined gate from test one.
   retain the fixture's noncanonical macOS ancestor refusal; the corrected fixture
   matches the production lifecycle's canonical root without relaxing that guard.
   [Capture development record](../../verification/python-artifact-capture-development.json)
-  retains this scope. The closed Python plan, current provider join, both packaging
-  profiles, prospective consumer, public receipt and installed qualification remain
+  retains this scope. The current provider join, both complete packaging profiles,
+  prospective consumer, public receipt and installed qualification remain
   required; no bridge acceptance item closes here.
 
 - **Internal dependency-record evidence:** [Development observation](../../verification/python-dependency-record-reopening-development.json)

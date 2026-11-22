@@ -202,6 +202,17 @@ nor a new sidecar hash may fill the gap during read-only admission. The initial
 controls exercise real native installation/build with explicit source/dependency
 fixtures; no qualified provider or retained consumer is asserted.
 
+The initial inert workspace codec now binds the complete typed export graph,
+original retained inventories, interpreter/target and environment projection,
+reviewed full gates, source/wheel mounts, prospective removal delta and finite
+bounds. It preserves non-library dependencies and rejects ambiguous package
+ownership. Its package destinations address the disposable execution workspace;
+they must not be silently reinterpreted as project-relative publication paths in
+an older binding. The provider join must retain each source-derived or genuinely
+authored origin and authenticate its original evidence independently. Structural
+codecs and schema registration grant no current provider trust, import permission,
+owned materialization, backend execution, source retirement or receipt admission.
+
 The complete bridge implementation remains outstanding. The validation list below, including
 both real packaging profiles, fresh offline repeat, foreign-origin failures,
 unchanged Cargo/no-bridge behavior, independent source review and installed plus

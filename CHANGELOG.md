@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Define an explicit versioned retained Python workspace plan, with complete export
+  destinations, source/wheel mounts, original inventories, interpreter and target,
+  reviewed gates, prospective source removal and finite bounds. Strict codecs and
+  the production schema catalog validate intent only; current provider joining,
+  materialization, execution and public bridge qualification remain pending.
+
 - Python qualification capture: retain bounded raw bytes from the original whole
   wheel-backed library artifact, including runtime siblings, under its live build
   observer and existing recorder limits. Preserve export shapes and native final
