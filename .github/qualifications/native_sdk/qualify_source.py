@@ -143,6 +143,7 @@ def main():
         "controller_unchanged": False,
         "release_qualified": False,
         "deadline_seconds": 14400,
+        "core_dump_limit_bytes": 0,
         "scope": (
             "complete canonical source suite; "
             "separate from installed SDK and product admission"
@@ -152,7 +153,13 @@ def main():
     try:
         with (output / "native-source.stdout").open("xb") as stream:
             result = run_bounded_process(
-                ("/bin/sh", "-c", 'exec "$@" 2>&1', "native-source", *command),
+                (
+                    "/bin/sh",
+                    "-c",
+                    'ulimit -c 0 && exec "$@" 2>&1',
+                    "native-source",
+                    *command,
+                ),
                 cwd=root,
                 environment={**os.environ, "LITAI_NO_SELF_UPDATE": "1"},
                 timeout_seconds=14400,

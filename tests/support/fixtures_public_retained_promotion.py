@@ -412,7 +412,20 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
         return json.loads(store.get_bytes(reference))
 
     completed = read(BlobRef.from_dict(retained_receipt["roots"]["completed-run"]))
-    if kind == "report":
+    targets = None
+    if kind in {"command-environment", "command-dependency"}:
+        field = (
+            "environment_identity"
+            if kind == "command-environment"
+            else "dependency_identity"
+        )
+        targets = []
+        for identity in completed["command_observations"]:
+            reference = by_identity[identity]
+            observation = read(reference)
+            observation[field] = canonical_identity({"forged": kind}).uri
+            targets.append((reference, canonical_json_bytes(observation)))
+    elif kind == "report":
         observation = read(by_identity[completed["test_observations"][0]])
         target = by_identity[observation["blob_identity"]]
         actual_report = read(target)
@@ -427,11 +440,15 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
         raw = b"same exit code, wrong actual " + kind.encode()
     else:
         raise AssertionError("closed forgery scenario required")
-    replacement = store.put_bytes(raw, media_type=target.media_type)
-    replacements = {target.identity: replacement}
+    if targets is None:
+        targets = [(target, raw)]
+    replacements = {
+        reference.identity: store.put_bytes(content, media_type=reference.media_type)
+        for reference, content in targets
+    }
     documents = {}
     for reference in references:
-        if reference.identity == target.identity:
+        if reference.identity in replacements:
             continue
         try:
             value = read(reference)

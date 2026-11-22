@@ -521,6 +521,7 @@ def reopen_retained_unit_run(
         expected_platform=expected_sdk_platform,
         expected_architecture=expected_sdk_architecture,
         current_sdk_snapshots=current_sdk_snapshots,
+        tool_observation_reference=BlobRef.from_dict(evidence["tool_observation"]),
     )
     if {identity.uri for identity in sdk_documents} != {
         value.identity for value in sdk_metadata

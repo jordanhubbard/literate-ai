@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- SDK receipt reopening: bind ordinary command environment and dependency
+  identities to the existing captured launch context and native dependency graph.
+  Actual SDK capture and read-only reopen reject coherent context forgeries;
+  acceptance dependency capture and installed release qualification remain open.
+- Native source qualification: retain the base interpreter for stdlib monorepo
+  fixtures, suppress child core files while preserving failing exit status, and
+  exercise Cargo late-mutation regressions against the current wrapper owner.
+
 - Receipt promotion: publish schemas for the current promotion evidence and
   historical admission assertion documents, preserving their false admission
   and release-authority flags. Historical SDK capture and release acceptance

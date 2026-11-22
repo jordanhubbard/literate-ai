@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from unittest import mock
 
 import tests.critical.test_retained_layout_renewal as fixtures
-from literate_ai.adapters import retained_cargo_wrapper_v2 as cargo_wrapper
+from literate_ai.adapters import retained_cargo_wrapper_core as cargo_wrapper
 from literate_ai.adapters import retained_harness_receipts as receipts
 from literate_ai.adapters.retained_cargo_wrapper_v2 import (
     retained_cargo_wrapper_context_v2,

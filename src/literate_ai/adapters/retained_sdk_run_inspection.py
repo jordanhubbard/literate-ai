@@ -155,6 +155,7 @@ def verify_retained_sdk_run_assertions(
     documents,
     *,
     maximum_steps,
+    tool_observation_reference,
     expected_platform=None,
     expected_architecture=None,
     current_sdk_snapshots=(),
@@ -581,6 +582,9 @@ def verify_retained_sdk_run_assertions(
         observation.action.action_id: observation.output_manifest
         for observation in run.observations
     }
+    # Reuse the reader's custody checks and metadata allocation budget for the
+    # original observation, rather than creating another decoded evidence cache.
+    tool_observation = reader.document(tool_observation_reference)
 
     def chronology():
         for observation in run.observations:
@@ -661,6 +665,26 @@ def verify_retained_sdk_run_assertions(
                 phase=phase,
                 command_binding=binding,
             )
+            if ordinary:
+                environment_identity = canonical_identity(context["environment"])
+                dependency_identity = canonical_identity(
+                    {
+                        "schema": (
+                            "literate-ai/retained-native-dependency-observation@1"
+                        ),
+                        "plan_identity": plan.identity.uri,
+                        "manifest_identity": manifest.identity.uri,
+                        "environment_identity": environment_identity.uri,
+                        "observation": tool_observation,
+                    }
+                )
+                if (
+                    observation.environment_identity != environment_identity
+                    or observation.dependency_identity != dependency_identity
+                ):
+                    raise ValueError(
+                        "retained.sdk.historical-command-observation-context-differs"
+                    )
             current_anchor = canonical_identity(
                 {
                     "workspace_root": context["workspace_root"],

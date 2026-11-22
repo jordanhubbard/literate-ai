@@ -18361,6 +18361,17 @@ unchanged revision 2.0 s (ubuntu-24.04) and 8.5 s (windows-11); one new commit
 
 ### [ ] FREEBSD-001 — Add first-class FreeBSD native workers and targets
 
+- **Source renewal remains open:** Exact `f83936626` native full-source run
+  `45049225430` stops at 242 passes, 32 skips and one fixture setup error:
+  the original stdlib monorepo command binds the controller's `venv` path.
+  Negative native probes also leave two core files, so source cleanliness fails.
+  Preserve the environment-bound-command refusal; select the base interpreter
+  for that stdlib-only fixture and suppress core files only in suite children,
+  retaining failing exit status and strict Git cleanliness. Local native renewal
+  passes five monorepo cases, nine authored completion cases and 15 portable
+  controller controls. The [scoped development evidence](../../verification/sdk-historical-context-source-portability-development.json)
+  preserves both failures and makes no native FreeBSD full-source claim.
+
 - **Current full-source defect (in progress):** Native run
   [45028053630](https://github.com/jordanhubbard/literate-ai/actions/runs/45028053630)
   at `edb3cf2f9` passes the installed SDK microfixture, 48 owner controls and five
@@ -25598,8 +25609,18 @@ independent review and the complete combined gate from test one.
   promotion-evidence and admission-assertion documents, preserving their existing
   `@1` identifiers and all false admission/release flags. Validate original live
   runtime captures against the installed catalog and reject added grants or
-  changed context. This does not implement the missing historical SDK command
-  capture or qualify public receipt promotion for the release.
+  changed context. Public receipt promotion release qualification remains open.
+  Current SDK metadata already retains the launch context. An actual native
+  CMake SDK capture reopens without command execution, SDK acquisition or CAS
+  writes. The original reader accepted coherent command-environment identity
+  forgery; the corrected reader joins every ordinary observation's environment
+  and dependency identity to that launch context and the original dependency
+  graph through the bounded reader. Both coherent forgery controls now refuse
+  while valid reopening passes (151.086 seconds). Acceptance dependency capture,
+  installed promotion and complete release qualification remain separate work.
+  The [scoped development evidence](../../verification/sdk-historical-context-source-portability-development.json)
+  retains the original failing regression and 45 passing native checks across
+  SDK reopening, original promotion and source-portability controls.
 
 - **Release target:** 1.4.0
 - **Release scope:** The current included dispositions on issue #295 and PR #297 govern this framework work; the consumer release number is separate.
