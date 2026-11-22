@@ -19388,6 +19388,16 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   WindowsApps only within the needed steps, preserve setup-python precedence,
   and invoke its selected native interpreter by absolute path. No framework
   installation or host acceptance is claimed from that failed launch.
+  Run `45054678670` passes bootstrap and starts the actual installer. WinGet
+  installs Python and the ARM64 VC runtime; a later managed-artifact download
+  fails with `LookupError: unknown encoding: idna`. Modification of the running
+  controller's Python installation is a working hypothesis, not a proven cause.
+  Provision only the Python package selected by the same ARM64 SBOM before
+  starting the controller, in an external package-manager process. Require a
+  fresh native interpreter, IDNA codec, SSL, venv and ensurepip probe afterward.
+  The unchanged supported installer still verifies the full composed contract,
+  installs remaining prerequisites and builds the exact noneditable candidate;
+  every installed-host acceptance assertion remains required.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was

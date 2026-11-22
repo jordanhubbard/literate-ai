@@ -118,6 +118,39 @@ jobs:
             version = "$version"
             scope = 'Ephemeral runner OS package manager; installed host controls remain required'
           } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager.json') -Encoding utf8
+      - name: Provision declared Python before starting the installer controller
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          $contractPath = Join-Path $env:QUALIFICATION_SOURCE 'flavors/os-windows/host-install/windows/arm64/none.cdx.json'
+          $contract = Get-Content -Raw -LiteralPath $contractPath | ConvertFrom-Json
+          $pythonPackages = @($contract.components | Where-Object {
+            $capabilities = $_.properties | Where-Object name -eq 'literate-ai:host-install:base-capabilities'
+            $capabilities -and (($capabilities.value | ConvertFrom-Json) -contains 'python')
+          })
+          if ($pythonPackages.Count -ne 1) { throw 'Require one declared native Python package' }
+          $package = ($pythonPackages[0].properties | Where-Object name -eq 'literate-ai:host-install:manager-package').value
+          $query = ($contract.metadata.properties | Where-Object name -eq 'literate-ai:host-install:query-arguments').value | ConvertFrom-Json
+          $query = @($query | ForEach-Object { $_.Replace('{package}', $package) })
+          & winget.exe @query `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'python-package-query.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-query.stderr')
+          if ($LASTEXITCODE -ne 0) {
+            $install = ($contract.metadata.properties | Where-Object name -eq 'literate-ai:host-install:install-arguments').value | ConvertFrom-Json
+            $install = @($install | ForEach-Object { $_.Replace('{package}', $package) })
+            & winget.exe @install `
+              1> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stdout') `
+              2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stderr')
+            if ($LASTEXITCODE -ne 0) { throw 'Declared native Python provisioning failed' }
+          }
+          $nativePython = Join-Path $env:pythonLocation 'python.exe'
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          & $nativePython -I -B -c 'import codecs,ensurepip,json,runpy,ssl,sys,venv; codecs.lookup("idna"); print(json.dumps({"executable":sys.executable,"prefix":sys.prefix,"native":runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()}))' $harness `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.json') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Selected native Python must remain usable after provisioning' }
       - name: Install the exact noneditable framework using its supported installer
         shell: pwsh
         env:

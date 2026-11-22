@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Native ARM64 CI: provision the declared WinGet Python package before starting
+  the installer controller, then recheck its native runtime and required standard
+  library. Keep the supported installer's full dependency and installed-host
+  checks; native renewal remains pending.
+
 - Native ARM64 CI: preserve setup-python precedence while exposing WinGet,
   and launch the selected native interpreter by absolute path so the Microsoft
   Store alias cannot intercept framework installation.
