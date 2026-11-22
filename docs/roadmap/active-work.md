@@ -20309,6 +20309,17 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
+- **Exact-candidate FreeBSD evidence:** [Retained readback](../../verification/freebsd-sdk-aa191c4f-observation.json)
+  binds `aa191c4f9` to hosted run `44968092203`, its immutable artifact and a native
+  FreeBSD 15.1 amd64 guest. The installed public SDK microfixture reaches its real
+  local runtime without CLI test doubles; all 48 installed owner controls and five
+  publication-preflight controls pass with zero skips. Owner controls may use
+  protocol fixtures. Independent readback rehashes all 44 guest evidence members,
+  1,519 wheel RECORD members and all 611 observed production imports against that
+  wheel. The missing-loader counterexample still fails as expected. This proves
+  the named SDK runtime slice only; compiler SDK admission, a product receipt,
+  whole FreeBSD lifecycle, ISO creation and final release acceptance remain open.
+
 - **Current SDK composition (in progress):** Compose the complete PR #444 / #445 /
   #467 / #489 dependency closure onto `cd9934394`, preserving the newer shared
   owners. This includes closed POSIX snapshot/quarantine custody, authored link
