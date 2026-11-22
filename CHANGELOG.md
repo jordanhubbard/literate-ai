@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Cargo qualification replay validates native provider graphs against current export/contract bindings, original source, metadata and locked dependency closure, preserving provider-free records and read-only archive handling.
+
 - CI: budget the complete four-case serial authored owning-admission module with a finite 6,600-second worker limit in its Linux/macOS cells, retaining production deadlines, test coverage and overall job limits. Native successor qualification remains pending.
 
 - CI: partition the complete Ubuntu Python 3.11 source suite so late native Cargo

@@ -24767,6 +24767,32 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Native Cargo archive reopening failure (in progress):** The actual installed
+  `aa191c4f9` public apply runs real model generation in two clean roots and
+  retains six native artifact manifests, then refuses with
+  `qualification.capture.cargo-build-mismatch`; all seven original oracle/profile
+  inputs remain unchanged and no qualification is published. [Failure and actual
+  evidence layout](../../verification/native-cargo-capture-failure.json) show the
+  native provider graph member that the old leaf-only Cargo reopener rejects.
+  Extend the closed replay join to independently derived current provider
+  exports/contracts, original source, complete shared graph, native metadata and
+  exact locks. Preserve the leaf format, live build-root ownership, production
+  deadlines and no-execution/no-recorded-path-I/O replay boundary. Require a
+  causal actual native-builder regression, tamper/refusal controls and fresh
+  complete installed public generation/replay/receiving before closure.
+  The original actual-native reproducer fails at the same closed member guard.
+  The correction passes four new methods (including thirteen rehashed/orphan
+  refusals and no-I/O/no-execution replay checks), fifteen maintained capture
+  controls, forty-two native provider controls and eleven authored reopening
+  controls with zero skips or failures. Both origin-specific replay routes carry
+  independently projected current recipes through the shared join; archive
+  interface assertions cannot replace current generation dependencies.
+  Source capture retains the already-verified canonical source-tree coordinate
+  under its existing identity to bind the original manifest. These are declared
+  native-builder/record fixtures; independent source review, supported pin renewal,
+  fresh noneditable genuine nominal-type generation and full replay/receiving
+  remain open. Preserve the actual failed public attempt and unchanged oracles.
+
 - **Authored qualification composition (in progress):** Compose PR #401's
   origin-specific authority, reviewed profile/oracle, public plan/apply,
   Standard execution, closed products and replay with PR #440's original-owner

@@ -140,6 +140,7 @@ def reopen_authored_qualification(
                 execution=execution,
                 component_lock_identity=lock.identity,
                 current_commands=commands,
+                current_recipes=recipes,
             )
             root = reopen_standard_qualification_root(
                 reader,

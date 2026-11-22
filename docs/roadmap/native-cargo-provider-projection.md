@@ -495,3 +495,29 @@ was fabricated or signed. A separately reviewed explicit policy-authority path,
 its own qualified successor wheel, real two-run regeneration, independent
 archive replay and retained consumer admission remain required. This full source
 gate and the narrower public-v2 result do not certify those unfinished paths.
+
+
+## Recovery archive replay join
+
+The genuine installed `aa191c4f9` authored attempt reaches archive capture but the
+old Cargo reopener requires only the provider-free evidence layout. Real native
+alpha/gamma builds include `native-provider-graph.json` and are correctly refused
+until that member has a complete current-authority join. Preserve that failed
+attempt; adding an unchecked extra file would not qualify it.
+
+The correction derives the native graph from current contracts, exact direct and
+transitive exports, canonical consumer bindings and immutable qualified source.
+It verifies original manifest/source coordinates, every provider lock and the
+complete Cargo metadata graph. The complete generated-source capture also retains
+its already-verified canonical source-tree coordinate under its existing identity;
+this provides the original Cargo manifest without trusting a recorded pathname.
+Unknown or orphan evidence and changed source/export/binding/graph/metadata/lock
+facts refuse. Provider-free evidence keeps its existing closed representation.
+
+Archive replay compares portable path coordinates as inert data after the exact
+source/export join. It opens no encoded path, runs no tool and restores no original
+live owner. Live native builds retain their concrete owned-host-path entry guard;
+the shared pure graph comparison does not replace it. Focused native-builder and
+rehash/refusal controls pass at their declared fixture scope. Independent source
+review, supported driver renewal, fresh installed genuine nominal-type all-node
+runs, closed replay and real retained-consumer admission remain required.

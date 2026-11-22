@@ -454,6 +454,52 @@ def validate_native_cargo_metadata(
         isinstance(projection_root, Path) and projection_root.is_absolute(),
         "projection_root",
     )
+    return _validate_native_cargo_metadata(
+        graph=graph,
+        root_manifest=root_manifest,
+        root_manifest_path=root_manifest_path,
+        sources=sources,
+        projection_root=projection_root,
+        metadata=metadata,
+    )
+
+
+def reopen_native_cargo_metadata(
+    *, graph, root_manifest, root_manifest_path, sources, metadata
+):
+    """Compare archived path coordinates as data; grant no path ownership or I/O.
+
+    A sealed package has no original live projection directory after retirement.
+    Current exact export/source bindings must be supplied independently. The
+    metadata prefix cannot select files: only its complete relative native graph
+    is compared. The build entry point retains its original owned-Path guard.
+    """
+    from pathlib import PurePosixPath, PureWindowsPath
+
+    _path(root_manifest_path)
+    _require(type(metadata) is dict, "metadata_packages")
+    raw = metadata.get("workspace_root")
+    _require(type(raw) is str and 0 < len(raw) <= 4096, "metadata_root")
+    windows = PureWindowsPath(raw)
+    coordinate = windows if windows.drive else PurePosixPath(raw)
+    _require(coordinate.is_absolute() and ".." not in coordinate.parts, "metadata_root")
+    for part in reversed(PurePosixPath(root_manifest_path).parent.parts):
+        _require(coordinate.name == part, "metadata_root")
+        coordinate = coordinate.parent
+    return _validate_native_cargo_metadata(
+        graph=graph,
+        root_manifest=root_manifest,
+        root_manifest_path=root_manifest_path,
+        sources=sources,
+        projection_root=coordinate,
+        metadata=metadata,
+    )
+
+
+def _validate_native_cargo_metadata(
+    *, graph, root_manifest, root_manifest_path, sources, projection_root, metadata
+):
+    _require(type(graph) is NativeCargoProviderGraph, "graph")
     _path(root_manifest_path)
     root = _manifest(root_manifest)["package"]
     by_revision = {row.node.component_revision: row for row in sources}

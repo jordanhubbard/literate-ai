@@ -402,9 +402,13 @@ def capture_qualification_source_records(recorder, *, candidate, cas) -> None:
 
     try:
         manifest_bytes = read_identity(candidate.source_manifest_identity)
-        _verify_qualification_source_records(
+        source_tree = _verify_qualification_source_records(
             candidate, manifest_bytes, read, recorder.max_bytes
         )
+        if recorder.remember_json(source_tree) != candidate.tree_identity:
+            raise QualificationCaptureError(
+                "qualification.capture.source-records-mismatch"
+            )
         manifest = json.loads(manifest_bytes)
         invocation = document(
             ContentIdentity.from_dict(manifest["invocation_identity"])
@@ -715,6 +719,10 @@ def _verify_qualification_source_records(candidate, manifest_bytes, read, max_by
                 "qualification.capture.source-records-mismatch"
             )
         read(BlobRef.from_dict(manifest["stage_output_record"]))
+        return [
+            {"path": item.path, "size": item.blob.size, "digest": item.blob.identity}
+            for item in closure.files
+        ]
     except QualificationCaptureError:
         raise
     except (
@@ -1042,7 +1050,9 @@ def reopen_qualification_products(
     if root_product is None:
         raise QualificationCaptureError("qualification.capture.root-export-mismatch")
     for member in result.runs:
-        execution = reopen_qualification_run(reader, member, current_commands=commands)
+        execution = reopen_qualification_run(
+            reader, member, current_commands=commands, current_recipes=recipes
+        )
         if {
             node.component_revision for node in execution.lifecycle.node_results
         } != set(recipes):
@@ -1576,6 +1586,7 @@ def verify_qualification_build(
     build: StandardBuildEvidence,
     provider_exports: Mapping | None = None,
     current_commands: Mapping | None = None,
+    current_recipe: object | None = None,
 ) -> None:
     """Bind build processes and the artifact tree's metadata-only transition."""
 
@@ -1669,7 +1680,7 @@ def verify_qualification_build(
             },
         )
 
-        def artifact_tree():
+        def artifact_tree(*, include_manifest=False):
             def tree_files(identity):
                 document = reader.read_json(identity)
                 files = document["files"]
@@ -1758,7 +1769,7 @@ def verify_qualification_build(
                     "qualification.capture.artifact-tree-mismatch"
                 )
 
-            return before
+            return (before, manifest) if include_manifest else before
 
         value = reader.read_json(process_id)
         if current_commands is not None:
@@ -1783,8 +1794,16 @@ def verify_qualification_build(
                 verify_qualification_cargo_build,
             )
 
+            cargo_files, cargo_manifest = artifact_tree(include_manifest=True)
             verify_qualification_cargo_build(
-                reader, plan=plan, observation=value, files=artifact_tree()
+                reader,
+                plan=plan,
+                observation=value,
+                files=cargo_files,
+                provider_exports=provider_exports or {},
+                current_commands=current_commands or {},
+                provider_materials=cargo_manifest["provider_materials"],
+                current_recipe=current_recipe,
             )
             return
         if value.get("schema") == "literate-ai/mix-build-evidence@1":
@@ -2464,6 +2483,7 @@ def reopen_qualification_run(
     run: QualificationLifecycleRunEvidence,
     *,
     current_commands: Mapping | None = None,
+    current_recipes: Mapping | None = None,
 ) -> QualificationLifecycleExecution:
     """Reopen the complete typed lifecycle membership claimed by one run.
 
@@ -2493,6 +2513,7 @@ def reopen_qualification_run(
         execution=execution,
         component_lock_identity=run.component_lock_identity,
         current_commands=current_commands,
+        current_recipes=current_recipes,
     )
     fields = (
         "source_tree_identities",
@@ -2517,6 +2538,7 @@ def verify_qualification_standard_execution(
     execution: QualificationLifecycleExecution,
     component_lock_identity: ContentIdentity,
     current_commands: Mapping | None = None,
+    current_recipes: Mapping | None = None,
 ):
     """Reopen common Standard stage observations without asserting an origin.
 
@@ -2612,6 +2634,7 @@ def verify_qualification_standard_execution(
                 for export in member.exports
             },
             current_commands=current_commands,
+            current_recipe=(current_recipes or {}).get(node.component_revision),
         )
         verify_qualification_generated_tests(
             reader,

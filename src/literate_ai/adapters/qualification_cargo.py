@@ -10,7 +10,17 @@ from literate_ai.adapters.lifecycle.standard_cargo import StandardCargoTarget
 from literate_ai.contracts.identity import ContentIdentity, canonical_json_bytes
 
 
-def verify_qualification_cargo_build(reader, *, plan, observation, files) -> None:
+def verify_qualification_cargo_build(
+    reader,
+    *,
+    plan,
+    observation,
+    files,
+    provider_exports=None,
+    current_commands=None,
+    provider_materials=(),
+    current_recipe=None,
+) -> None:
     """Bind all native phases and dependency bytes to the recorded build plan."""
 
     from literate_ai.adapters.qualification_capture import QualificationCaptureError
@@ -96,11 +106,23 @@ def verify_qualification_cargo_build(reader, *, plan, observation, files) -> Non
     )
     artifact_files = {item["path"]: "sha256:" + item["sha256"] for item in files}
     prefix = ".literate/cargo/"
-    if {path for path in artifact_files if path.startswith(prefix)} != {
+    native_path = prefix + "native-provider-graph.json"
+    native = native_path in artifact_files
+    expected_files = {
         prefix + "Cargo.lock",
         prefix + "metadata.json",
         prefix + "evidence-manifest.json",
-    }:
+        *({native_path} if native else ()),
+    }
+    if {path for path in artifact_files if path.startswith(prefix)} != expected_files:
+        mismatch()
+    providers = provider_exports or {}
+    commands = current_commands or {}
+    expected_native = any(
+        commands[providers[value].component_revision].is_library
+        for value in plan.provider_artifact_identities
+    )
+    if native != expected_native:
         mismatch()
     manifest = reader.read_json(
         identity(artifact_files[prefix + "evidence-manifest.json"])
@@ -122,8 +144,8 @@ def verify_qualification_cargo_build(reader, *, plan, observation, files) -> Non
             "lock_identity": lock_id.uri,
             "metadata_identity": metadata_id.uri,
             "files": [
-                {"path": prefix + "Cargo.lock", "digest": lock_id.uri},
-                {"path": prefix + "metadata.json", "digest": metadata_id.uri},
+                {"path": path, "digest": artifact_files[path]}
+                for path in sorted(expected_files - {prefix + "evidence-manifest.json"})
             ],
         },
     )
@@ -148,3 +170,21 @@ def verify_qualification_cargo_build(reader, *, plan, observation, files) -> Non
 
     if packages(lock["package"]) != packages(metadata["packages"]):
         mismatch()
+
+    if native:
+        from literate_ai.adapters.qualification_native_cargo import (
+            reopen_cargo_provider_evidence,
+        )
+
+        reopen_cargo_provider_evidence(
+            reader,
+            plan=plan,
+            target=target,
+            provider_exports=providers,
+            current_commands=commands,
+            provider_materials=provider_materials,
+            current_recipe=current_recipe,
+            record=reader.read_json(identity(artifact_files[native_path])),
+            metadata=metadata,
+            lock_bytes=reader.read_bytes(lock_id),
+        )
