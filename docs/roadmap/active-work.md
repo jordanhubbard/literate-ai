@@ -25491,6 +25491,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CARGO-CUSTODY-PERF-001 — Bound redundant native Cargo input custody work
 
+- **Private plan projection follow-up:** Capture the exact original current-plan,
+  plan, oracle and authority fields for a single call. Use pure oracle identity
+  projection at its formerly redundant public-property access points and close
+  those original references and identities after the final native callback.
+  Every explicit native authority, source, selector, reviewer, Standard and SDK
+  guard remains; public properties retain their fresh validation. Four native
+  controls cover cold repeated guards, real changed files, late plan mutation
+  and mutation from the final Flavor closer. All 58 qualification regressions
+  and four SDK planning regressions pass. The
+  [development record](../../verification/authored-plan-projection-development.json)
+  separates these fixture controls from a paired diagnostic on actual generated
+  provider inputs: four alternating calls average 4.101s with public-property
+  validation and 3.286s with private projections, with 4,896 versus 3,578 reads.
+  That diagnostic temporarily attaches candidate methods in memory to the prior
+  installed distribution; it does not qualify a candidate installation, a full
+  receiving operation or a release. Installed receiving, independent review and
+  complete composed qualification remain required.
+
 - **GitHub issue:** [#432](https://github.com/jordanhubbard/literate-ai/issues/432)
 - **Related program:** [#117](https://github.com/jordanhubbard/literate-ai/issues/117); completed traversal prior art [#86](https://github.com/jordanhubbard/literate-ai/issues/86).
 - **Current source evidence:** Eight actual filesystem controls give five passes

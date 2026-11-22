@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from pathlib import Path
 
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.authored_qualification_authority import (
+    CurrentAuthoredQualificationAuthority,
     read_current_authored_qualification_authority,
 )
 from literate_ai.adapters.authored_qualification_oracles import (
@@ -108,6 +109,48 @@ def _require_output_directory(root, relative):
             break
 
 
+def _plan_oracle_projection(oracles):
+    """Pure facts inside an already captured, fully guarded native plan call."""
+    return oracles.authority._origin, oracles._captured_identity()
+
+
+def _capture_plan_fields(current):
+    # Preserve the existing validating path for alternate protocol participants.
+    # Only these actual in-memory owners support private projection and closure.
+    if (
+        type(current) is not CurrentAuthoredQualificationPlan
+        or type(current.plan) is not AuthoredQualificationPlan
+        or type(current.oracles) is not CurrentAuthoredQualificationOracles
+        or type(current.oracles.authority) is not CurrentAuthoredQualificationAuthority
+    ):
+        return None
+    owners = (current, current.plan, current.oracles, current.oracles.authority)
+    return (
+        tuple(
+            (owner, tuple((f.name, getattr(owner, f.name)) for f in fields(owner)))
+            for owner in owners
+        ),
+        current.plan.identity,
+        current.oracles._captured_identity(),
+    )
+
+
+def _close_plan_fields(current, original):
+    if original is None:
+        return
+    bindings, plan_identity, oracle_identity = original
+    if (
+        any(
+            getattr(owner, name) is not value
+            for owner, values in bindings
+            for name, value in values
+        )
+        or current.plan.identity != plan_identity
+        or current.oracles._captured_identity() != oracle_identity
+    ):
+        raise ValueError("qualification.authored.original-plan-observation-changed")
+
+
 @dataclass(frozen=True, slots=True)
 class CurrentAuthoredQualificationPlan:
     """Live observations accompanying a passive plan; deliberately no decoder."""
@@ -139,14 +182,18 @@ class CurrentAuthoredQualificationPlan:
         # native read, selector, review and currentness check below still runs.
         # The next independent guard starts cold, and Flavor membership/bytes
         # close once more when this read-only observation ends.
+        original = _capture_plan_fields(self)
         with (
             read_only_project_configuration_parses(isolated=True),
             read_only_component_catalog_observations(isolated=True),
             read_only_flavor_graph_observations(),
         ):
-            self._require_unchanged()
+            self._require_unchanged(_project_oracles=original is not None)
+        # Flavor closing performs native reads too. Close original references
+        # and pure values after that last callback, with no new filesystem read.
+        _close_plan_fields(self, original)
 
-    def _require_unchanged(self):
+    def _require_unchanged(self, *, _project_oracles=False):
         if self._native_sdk_inputs is not self._planned_sdk_inputs:
             raise ValueError(
                 "qualification.authored.original-planned-sdk-owner-changed"
@@ -163,9 +210,16 @@ class CurrentAuthoredQualificationPlan:
                 pipeline_model=self._pipeline_model
             ),
         ).plan(self.oracles.authority.locked)
+        if _project_oracles is True:
+            origin, oracle_identity = _plan_oracle_projection(self.oracles)
+        else:
+            origin = self.oracles.authority.origin
+            oracle_identity = (
+                self.oracles.identity if origin == self.plan.origin else None
+            )
         if (
-            self.oracles.authority.origin != self.plan.origin
-            or self.oracles.identity != self.plan.oracle_set_identity
+            origin != self.plan.origin
+            or oracle_identity != self.plan.oracle_set_identity
             or self.oracles.profile.identity != self.plan.profile_identity
             or self.oracles.profile.minimum_clean_runs != self.plan.minimum_clean_runs
             or self.standard.execution_plan != self.plan.execution_plan

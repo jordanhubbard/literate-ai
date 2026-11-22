@@ -6,6 +6,11 @@
   setup 0.19.2 action updates. Integrated native execution and CI qualification
   remain pending.
 
+- Authored qualification: project oracle identities privately inside one captured
+  native plan guard, then close the original owners after all native callbacks.
+  Keep public property validation and every explicit guard. Native regression
+  controls pass; installed receiving and full release qualification remain open.
+
 - Cargo receiving: keep authored `check` under a nominal read-only wrapper so it
   can observe a consumer while another operation holds the lifecycle lock,
   without writing lock ownership metadata or obtaining scratch/execution rights.
