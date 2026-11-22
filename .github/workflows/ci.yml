@@ -375,6 +375,7 @@ jobs:
         env:
           TEST_PATTERNS: ${{ matrix.test_patterns || 'test*.py' }}
           GATES: ${{ matrix.gates || 'validate' }}
+          PYTHON_TEST_WORKER_TIMEOUT: ${{ matrix.worker_timeout || 3600 }}
         run: |
           set -euo pipefail
           read -r -a patterns <<< "$TEST_PATTERNS"
@@ -1032,6 +1033,7 @@ jobs:
             group: 5
             gates: "tests"
             test_patterns: "test_authored_[!r]*.py"
+            worker_timeout: 6600
           - name: "macos-latest / Python 3.11 (authored 2 of 4)"
             python: "3.11"
             group: 6
@@ -1053,6 +1055,7 @@ jobs:
             group: 5
             gates: "tests"
             test_patterns: "test_authored_[!r]*.py"
+            worker_timeout: 6600
           - name: "macos-latest / Python 3.14 (authored 2 of 4)"
             python: "3.14"
             group: 6

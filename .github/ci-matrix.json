@@ -132,7 +132,8 @@
     "group": 4,
     "pr": true,
     "gates": "tests",
-    "test_patterns": "test_authored_[!r]*.py"
+    "test_patterns": "test_authored_[!r]*.py",
+    "worker_timeout": 6600
   },
   {
     "task": "conformance",
@@ -211,7 +212,8 @@
     "group": 4,
     "pr": false,
     "gates": "tests",
-    "test_patterns": "test_authored_[!r]*.py"
+    "test_patterns": "test_authored_[!r]*.py",
+    "worker_timeout": 6600
   },
   {
     "task": "conformance",

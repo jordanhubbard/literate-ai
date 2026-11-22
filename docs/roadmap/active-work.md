@@ -24984,6 +24984,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] SDLC-001 — Make existing repository delivery the primary 1.4 adoption path
 
+- **Complete native test-worker budget (in progress):** Exact candidate
+  `aa191c4f9` fails both Linux Python 3.11/3.14 authored-owning cells in actual
+  run `44968003486`. [Raw evidence readback](../../verification/native-module-budget-observation.json)
+  verifies that the entire four-case serial module reaches its 3,600-second
+  worker deadline after three terminal cases, then completes owned cleanup.
+  Preserve the original failures and unchanged per-operation 3,600-second
+  production/test deadlines. Give only cells owning this complete module an
+  explicit finite 6,600-second worker budget, preserving every test, partition,
+  step/job limit and raw report. Validate maintained CI coverage/budget controls
+  and actual native successor execution before claiming the budget sufficient.
+  All 35 maintained CI-policy controls, lint/format, unchanged driver/runner and
+  documentation-authority reviews, repository layout/public export and complete
+  documentation rendering (181 diagrams, 23 controls) pass locally. Every
+  739-module Linux version inventory remains complete and disjoint. Actual
+  Linux/macOS successor execution remains pending.
+
 - **Resumed CI correction (in progress):** Exact candidate `fa39ddfe2` CI
   [44941002442](https://github.com/jordanhubbard/literate-ai/actions/runs/44941002442)
   times out its Ubuntu Python 3.11 source gate after 180 minutes. The retained

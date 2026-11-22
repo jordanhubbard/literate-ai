@@ -1106,7 +1106,11 @@ class CiActionPinTests(unittest.TestCase):
         )
         for cell in cells:
             owns_native_execution = any(
-                fnmatchcase("test_authored_reopened_native_execution.py", pattern)
+                fnmatchcase(module, pattern)
+                for module in (
+                    "test_authored_reopened_native_execution.py",
+                    "test_authored_owning_admission.py",
+                )
                 for pattern in cell["test_patterns"].split()
             )
             expected_timeout = 6600 if owns_native_execution else 3600
@@ -1188,6 +1192,48 @@ class CiActionPinTests(unittest.TestCase):
                     self.assertEqual(
                         sum(fnmatchcase(path.name, pattern) for pattern in patterns), 1
                     )
+
+    def test_native_owning_cells_budget_the_complete_serial_module(self):
+        workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())
+        linux = [
+            row
+            for row in json.loads((ROOT / ".github/ci-matrix.json").read_text())
+            if row.get("task") == "conformance" and row.get("os") == "ubuntu-latest"
+        ]
+        macos = workflow["jobs"]["macos-qualification"]["strategy"]["matrix"]["include"]
+        for cells in (linux, macos):
+            owners = []
+            for version in ("3.11", "3.14"):
+                selected = [
+                    cell
+                    for cell in cells
+                    if cell["python"] == version
+                    and any(
+                        fnmatchcase("test_authored_owning_admission.py", pattern)
+                        for pattern in cell["test_patterns"].split()
+                    )
+                ]
+                self.assertEqual(len(selected), 1, version)
+                self.assertEqual(selected[0]["worker_timeout"], 6600)
+                owners.extend(selected)
+            self.assertEqual(len(owners), 2)
+        for cell in linux:
+            owns_native = any(
+                fnmatchcase("test_authored_owning_admission.py", pattern)
+                for pattern in cell["test_patterns"].split()
+            )
+            self.assertEqual(
+                cell.get("worker_timeout", 3600), 6600 if owns_native else 3600
+            )
+        run = next(
+            step
+            for step in workflow["jobs"]["checks"]["steps"]
+            if step.get("name") == "Run conformance gates"
+        )
+        self.assertEqual(
+            run["env"]["PYTHON_TEST_WORKER_TIMEOUT"],
+            "${{ matrix.worker_timeout || 3600 }}",
+        )
 
     def test_linux_partition_gates_and_raw_evidence_remain_complete_and_bounded(self):
         workflow = load_yaml_subset((ROOT / ".github/workflows/ci.yml").read_text())

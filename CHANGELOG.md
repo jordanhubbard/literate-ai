@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- CI: budget the complete four-case serial authored owning-admission module with a finite 6,600-second worker limit in its Linux/macOS cells, retaining production deadlines, test coverage and overall job limits. Native successor qualification remains pending.
+
 - CI: partition the complete Ubuntu Python 3.11 source suite so late native Cargo
   tests have their own runtime budget; preserve every module and PR gate alongside
   the existing validation, installation and wheel checks.
