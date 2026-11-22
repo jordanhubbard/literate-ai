@@ -73,6 +73,8 @@ jobs:
           } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root 'source-binding.json') -Encoding utf8
       - name: Install the exact noneditable framework using its supported installer
         shell: pwsh
+        env:
+          LITAI_INSTALL_DEPENDENCIES: "yes"
         run: |
           $ErrorActionPreference = 'Stop'
           $installer = Join-Path $env:QUALIFICATION_SOURCE 'scripts/install_litai.py'

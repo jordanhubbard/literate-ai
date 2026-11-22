@@ -19378,6 +19378,21 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 
 ### [ ] HOST-WINARM-001 — Add native Windows ARM64 host-install realization
 
+- **Hosted prerequisite refusal (in progress):** Native run
+  [45040175335](https://github.com/jordanhubbard/literate-ai/actions/runs/45040175335)
+  at exact source `294cbc6de` confirms an ARM64 Python process/kernel and source
+  binding, then stops before installation: the supported installer requires
+  explicit authorization to install the composed native and managed prerequisites.
+  No host tools were changed. Set `LITAI_INSTALL_DEPENDENCIES=yes` on only the
+  ephemeral runner's supported installer step. Keep the declared requirements,
+  actual-platform gate, exact noneditable installation and native MSVC assertions.
+  The actual missing prerequisites remain the installer's decision; the refusal
+  lists the complete composed requirements, not an independently measured missing
+  subset. Renew the native run before any host qualification claim.
+  Five portable harness controls pass without runtime or harness changes;
+  [scoped renewal evidence](../../verification/windows-arm64-prerequisite-renewal.json)
+  records the refusal, step authorization and outstanding native renewal.
+
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was
   restored. Prepare a source-bound `windows-11-arm` job for the platform cell that
