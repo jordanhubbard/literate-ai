@@ -24066,7 +24066,7 @@ independent review and the complete combined gate from test one.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Trace the existing retained Cargo bridge and Python sealed workspace contracts; publish a proposed Python adapter design with exact admitted source and consumer custody.
+  - [x] Trace the existing retained Cargo bridge and Python sealed workspace contracts; publish the exact current-owner map and ordered adapter integration in accepted ADR 0061. This completes design tracing only; no Python bridge implementation or consumer acceptance is claimed.
   - [ ] Implement the accepted bridge without copying generated source into authored implementation or admitting arbitrary ambient paths.
 - **Evidence:**
   - [ ] Exercise a real retained Python consumer with an admitted committed-cache library through full public lifecycle and exact installed qualification.

@@ -119,6 +119,83 @@ acknowledged integration plan retire the original source and publish the reviewe
 binding/packaging delta. Never delete source merely to discover whether a package
 works. Repeating the workflow with an unchanged valid provider is model-free.
 
+## Implementation ownership and execution order
+
+The 2026-11-21 recovery trace identifies these existing boundaries. This map
+specifies where the accepted design must compose; it is not an implementation
+or a qualification claim.
+
+| Boundary | Current owner | Required Python integration |
+| --- | --- | --- |
+| Exact artifact graph and native import declarations | `contracts/retained_libraries.py`, `contracts/library_products.py`, `contracts/library_imports.py` | Reuse the complete export graph and Python import surface; retain non-library dependencies and reject undeclared package substitutions. |
+| Current provider authority | `adapters/retained_provider_authority.py`, `adapters/retained_provider_native.py`, `adapters/retained_provider_promotion.py` | Reopen current source-derived provider qualification and promotion under their live input guards. A decoded export or a committed cache alone grants no permission. |
+| Authored provider qualification | `adapters/authored_qualification_reopening.py`, `adapters/authored_retained_cargo_products.py` | Reuse authored archive reopening independently of the Cargo receiver. Preserve genuinely authored origin and every clean run; never invent source-promotion history. |
+| Explicit immutable delivery | `adapters/retained_bundle_delivery.py`, `adapters/directory_artifacts.py` | Retrieve only the exact declared closure and verify bounded package bytes before exclusive attempt-owned materialization. |
+| Wheel bytes and installed projection | `adapters/dependencies/python_archive.py`, `adapters/dependencies/python_install.py`, `adapters/dependencies/python_installed.py` | Reuse complete RECORD validation and exact installation projection. Read-only inspection must not invoke the installer or a build backend. |
+| Python execution drivers | `adapters/lifecycle/standard_runtime.py` | Compose with isolated `-I -S -B` startup and declared package roots. The existing wheel drivers supply a starting boundary, not retained-provider admission or complete collision/origin checks. |
+| Retained source ownership | `adapters/harness_tree.py`, `adapters/harness_inventory.py`, `adapters/retained_layout.py` | Preserve the authored implementation inventory and wrapper ownership; do not widen source scope to capture a provider ancestor or cache. |
+| Local disposable execution | `adapters/retained_harness_receipts.py` | Materialize verified packages beside the `implementation` copy, retain both input classes through execution, and bind them to the request, workspace and final receipt. |
+| Harness replacement and receipt currency | `adapters/retained_harness_readmission.py`, `application/standard_test_receipts.py`, `test_receipts.py` | Reopen the same package/evidence inputs on readmission and promotion; changed bridge authority must make prior receipts stale. |
+| Remote retained transport | `adapters/retained_harness_remote.py` | Refuse bridge execution before dispatch until this owner transfers and independently revalidates the complete bound package/evidence closure. |
+
+Source paths in this table are relative to `src/literate_ai/`. The proposed
+Python contracts and adapter must use their own explicit versioned codecs;
+Cargo v1/v2 records and no-bridge retained receipts keep their exact meanings.
+
+### First implement the inert plan and current-authority join
+
+The workspace plan must bind the importing project, exact retained wrapper and
+source scope, full gate and test inventory, selected interpreter/target, runtime
+environment projection, package roots, full export closure, exact packaging and
+lock inputs, prospective source-removal delta and finite observation budgets.
+Reference the existing typed export and import-surface records rather than
+copying their fields into an unvalidated dictionary. Match current provider
+recipes, interfaces, original oracles, qualification and policy independently of
+the archive's own declarations. Guard the originating bytes through the final
+operation. A plan describes intent; neither its digest nor its decoded fields
+approve the importer or establish successful consumer execution.
+
+### Then add owned materialization and local execution
+
+Read-only check must finish without creating package roots, importing code,
+starting native tools, invoking a backend or accessing a network. An acknowledged
+plan may reserve and populate only its exclusive package roots. Both source and
+wheel profiles need real execution paths and complete closed inventories. Refuse
+unsupported native/ABI forms explicitly before execution. Reuse existing bounded
+archive and filesystem owners; do not create a second path/link policy.
+
+The current retained receipt path computes `workspace_runtime_identity` from
+external workspace-link locators, copies only `source_scope` into
+`implementation`, then executes its harness. That locator identity cannot stand
+in for provider bytes or qualification. Add a separate versioned bound-library
+workspace input to the request/receipt path and its reopening, without changing
+the legacy empty-bridge calculation. External sibling links are likewise not a
+substitute for immutable provider materialization.
+
+The isolated launcher must include the standard library and only reviewed
+retained/package roots. Validate complete package ownership and collisions before
+launch and actual module origins during the consumer journey. Reuse source/wheel
+runtime owners while adding the missing namespace/shadowing checks; merely
+prepending a directory to `sys.path` cannot establish those facts. Ambient
+`PYTHONPATH`, user sites and `.pth` initialization remain excluded.
+
+### Finally integrate prospective retirement and public receipt reopening
+
+Prove the full proposed consumer, with its source removal and import/packaging
+delta, in an owned disposable workspace before any acknowledged integration
+retires authored source. Require its complete original test identities and all
+gates, with independently qualified providers. A successful provider replay or a
+new subset of consumer tests is insufficient. Recheck both provider and consumer
+custody before admission, then reopen the exact bound package/evidence closure
+when promoting or requiring the receipt. Add the public check/materialize/admit
+routing only when it can reach these real owners; do not expose placeholder
+success or reinterpret a Cargo binding as Python intent.
+
+The implementation remains outstanding. The validation list below, including
+both real packaging profiles, fresh offline repeat, foreign-origin failures,
+unchanged Cargo/no-bridge behavior, independent source review and installed plus
+integrated release gates, remains required in full.
+
 ## Validation
 
 1. Exercise the public conversion, provider qualification, committed-cache
