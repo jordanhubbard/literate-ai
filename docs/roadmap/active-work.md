@@ -24793,6 +24793,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Native wheel and real consumer progress:** The exact `aa191c4f9` native
+  macOS/Python 3.14 [complete wheel gate](../../verification/wheel-aa191c4f-observation.json)
+  exits zero. Independent readback rehashes all 1,519 wheel RECORD entries and
+  compares all 1,362 framework members with the separate actual installed prefix
+  used by the genuine model journey. Archive ZIP digests differ; their framework
+  payloads match. Maintained installed CUDA controls, public Rust harness,
+  retained identity migration and cache continuation pass at their recorded scope;
+  native Windows-only skips remain explicit. A separate [real Cargo consumer](../../verification/real-consumer-aa191c4f-observation.json)
+  passes its initial build, three actual tests and packaging, actual conversion
+  baseline/parity, installed bootstrap and entrypoint checks, then earns a current
+  three-test retained-harness receipt and advances through the supported command
+  to `retained`. Original source remains authority. No authored provider is yet
+  admitted and no source is retired. Complete genuine provider qualification,
+  independent closed replay, same-consumer repeated public receiving/admission and
+  negative controls remain open alongside the fresh complete source/matrix gates.
+
 - **Recovery qualification in progress:** [Retained attempt record](../../verification/release-recovery-aa191c4f-observation.json)
   binds exact candidate `aa191c4f9` to an actual noneditable installation, genuine
   model generation and public authored plan/apply. The first apply fails in Cargo:
