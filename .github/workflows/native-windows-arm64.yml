@@ -71,6 +71,27 @@ jobs:
             runner_architecture = $env:RUNNER_ARCH
             scope = 'Installed native host controls; no SDK, provider or release acceptance'
           } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root 'source-binding.json') -Encoding utf8
+      - name: Bootstrap the native Windows package manager when absent
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$applications;$env:PATH"
+          if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
+            # Microsoft's documented stable WinGet bootstrap for isolated hosts.
+            Install-Module -Name Microsoft.WinGet.Client -Force -Repository PSGallery -Scope CurrentUser
+            Import-Module Microsoft.WinGet.Client -ErrorAction Stop
+            Repair-WinGetPackageManager -AllUsers
+          }
+          $command = Get-Command winget.exe -ErrorAction Stop
+          $version = & $command.Source --version
+          if ($LASTEXITCODE -ne 0) { throw 'Native WinGet bootstrap failed' }
+          $applications | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          @{
+            executable = $command.Source
+            version = "$version"
+            scope = 'Ephemeral runner OS package manager; installed host controls remain required'
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager.json') -Encoding utf8
       - name: Install the exact noneditable framework using its supported installer
         shell: pwsh
         env:

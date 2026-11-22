@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Windows ARM64 qualification: bootstrap the runner's missing native WinGet
+  package manager using Microsoft's documented client module before invoking the
+  supported installer. Retain the observed version; native acceptance remains open.
+
 - Windows ARM64 qualification: explicitly authorize the supported installer to
   install declared prerequisites on its ephemeral runner after a native preflight
   passed and installation safely refused. Portable controls pass; the renewed

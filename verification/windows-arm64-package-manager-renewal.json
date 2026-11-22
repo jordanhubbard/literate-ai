@@ -1,0 +1,28 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Ephemeral native ARM runner package-manager bootstrap; no runtime or installed qualification claim",
+  "failed_run": "https://github.com/jordanhubbard/literate-ai/actions/runs/45049243709",
+  "candidate_revision": "518eb9d5ebd22ffea81cbdd0e56623f0f8129695",
+  "native_preflight_passed": true,
+  "installer_diagnostic": "native package manager 'winget' requires 'winget.exe' and 'winget.exe' on PATH. Bootstrap that operating-system package manager, then rerun.",
+  "official_bootstrap_documentation": "https://learn.microsoft.com/en-us/windows/package-manager/winget/",
+  "change": "When winget.exe is absent, install the official Microsoft.WinGet.Client module and call Repair-WinGetPackageManager -AllUsers before the unchanged supported installer. Retain executable/version and expose the application-alias directory to later steps.",
+  "runtime_and_harness_source_unchanged": true,
+  "native_windows_execution_passed": false,
+  "full_goal_qualified": false,
+  "release_qualified": false,
+  "source_sha256": {
+    ".github/workflows/native-windows-arm64.yml": "0ae6d01f58ec351c3a65091b61af087f8928fd09d274b7e89f87b01be48dc3bc"
+  },
+  "local_static_gates_passed": [
+    "lint",
+    "format-check",
+    "repository-layout-check",
+    "public-export-check",
+    "documentation-review-record",
+    "documentation-review",
+    "documentation-check",
+    "openspec-check"
+  ],
+  "static_log_sha256": "b42f3c0071da873a7d3c0a1a51c466805f39aac86e210fcc5b010f56cd6e8bdb"
+}
