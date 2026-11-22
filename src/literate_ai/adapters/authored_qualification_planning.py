@@ -20,6 +20,12 @@ from literate_ai.adapters.authored_sdk_product_completion import (
 from literate_ai.adapters.generation_preparation import (
     LockedComponentModelSelectionAdapter,
 )
+from literate_ai.adapters.legacy_generation_catalog import (
+    read_only_flavor_graph_observations,
+)
+from literate_ai.adapters.locked_generation_authority import (
+    read_only_component_catalog_observations,
+)
 from literate_ai.adapters.models import (
     InheritedSessionProviderConfig,
     InheritedSessionSelection,
@@ -41,7 +47,11 @@ from literate_ai.contracts.authored_qualification_plans import (
     AuthoredQualificationPlan,
     AuthoredQualificationProjectReview,
 )
-from literate_ai.projects import ProjectConfigurationStore, discover_project
+from literate_ai.projects import (
+    ProjectConfigurationStore,
+    discover_project,
+    read_only_project_configuration_parses,
+)
 
 
 def _coding_selection():
@@ -125,6 +135,18 @@ class CurrentAuthoredQualificationPlan:
         object.__setattr__(self, "_original_sdk_products", products)
 
     def require_unchanged(self):
+        # Match the existing retained-input guard's isolated parse frames. Every
+        # native read, selector, review and currentness check below still runs.
+        # The next independent guard starts cold, and Flavor membership/bytes
+        # close once more when this read-only observation ends.
+        with (
+            read_only_project_configuration_parses(isolated=True),
+            read_only_component_catalog_observations(isolated=True),
+            read_only_flavor_graph_observations(),
+        ):
+            self._require_unchanged()
+
+    def _require_unchanged(self):
         if self._native_sdk_inputs is not self._planned_sdk_inputs:
             raise ValueError(
                 "qualification.authored.original-planned-sdk-owner-changed"

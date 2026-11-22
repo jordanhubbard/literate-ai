@@ -24818,6 +24818,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Current-plan parse development:** The actual installed public receiving check
+  on `0ddbc6cae` reaches its 2,100-second outer deadline without admission or
+  package materialization; the original consumer source remains present. A real
+  current-provider diagnostic retains all twelve authority guard invocations
+  while existing isolated read-only parse scopes reduce one guard from 6.979
+  seconds to 4.948/5.056 seconds. Development now applies those maintained scopes
+  inside each plan guard. Three focused controls retain the native guard sequence,
+  refuse actual component/oracle mutation, restore ambient state on callback
+  failure and prove independent repeats start cold. All seven ordinary planning
+  cases and four SDK planning cases pass. Fixture review/provider ports are
+  explicit; these controls do not qualify the provider or receiving transaction.
+  [Parse development record](../../verification/authored-plan-parse-development.json)
+  retains the scope. Fresh combined source, exact independent review, installed
+  qualification and the ordinary public receiving journey remain required.
+
 - **Recovery source consolidation (not qualified):** The current development join
   combines the Cargo replay, shared-layout and packaged-provider fixes from
   `0ddbc6cae`, alignment capture from `8a45727ad`, and the inert Python dependency
