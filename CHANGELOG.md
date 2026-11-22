@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- CI maintenance: include the reviewed, SHA-pinned FreeBSD VM 1.6.0 and Bazel
+  setup 0.19.2 action updates. Integrated native execution and CI qualification
+  remain pending.
+
 - Cargo receiving: keep authored `check` under a nominal read-only wrapper so it
   can observe a consumer while another operation holds the lifecycle lock,
   without writing lock ownership metadata or obtaining scratch/execution rights.

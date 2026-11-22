@@ -1750,3 +1750,21 @@ recovery, automatic public dispatch resume, physical provider termination,
 automatic lease release, total allocation-through-cleanup deadlines, Windows/GPU
 acceptance or release readiness. The earlier offline corrupt-copy control still
 represents a distinct check performed after acknowledgement.
+
+## Reviewed action updates in the 1.4 recovery queue
+
+The refreshed contribution survey retains all 81 release goals, including the
+46 still open, without target changes or invalid entries. PRs
+[#474](https://github.com/jordanhubbard/literate-ai/pull/474) and
+[#473](https://github.com/jordanhubbard/literate-ai/pull/473) each have five passing
+or declared-skipped checks at their observed exact heads. Their three action
+references were absent from the combined candidate and are now merged into its
+separate local reconciliation queue: FreeBSD VM is pinned to
+`811efaaac0668df8bfb8308c3ec997b5ab50037b` (1.6.0), and Bazel setup to
+`f34d6a05eae3c24acab7fa54587492daeaeffdab` (0.19.2).
+
+The two changed workflow documents parse successfully as YAML; no job, native
+platform selection, source scope or execution deadline changed. This queue does
+not alter the source-frozen candidate already undergoing native qualification.
+The integrated native and full CI gates remain pending; these dependency updates
+do not close FreeBSD, Bazel or release acceptance requirements.
