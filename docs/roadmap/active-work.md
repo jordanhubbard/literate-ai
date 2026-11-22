@@ -19415,6 +19415,27 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   SHA-256 pinned and independently downloaded/checked before this change.
   Provision with the documented Windows Appx commands, then register the
   native package and run the unchanged supported Litai installer and controls.
+  Run `45052684397` now completes the pinned bootstrap (WinGet 1.29.380),
+  then the interpreter launch resolves the WindowsApps Store alias. Append
+  WindowsApps only within the needed steps, preserve setup-python precedence,
+  and invoke its selected native interpreter by absolute path. No framework
+  installation or host acceptance is claimed from that failed launch.
+  Run `45054678670` passes bootstrap and starts the actual installer. WinGet
+  installs Python and the ARM64 VC runtime; a later managed-artifact download
+  fails with `LookupError: unknown encoding: idna`. Modification of the running
+  controller's Python installation is a working hypothesis, not a proven cause.
+  Provision only the Python package selected by the same ARM64 SBOM before
+  starting the controller, in an external package-manager process. Require a
+  fresh native interpreter, IDNA codec, SSL, venv and ensurepip probe afterward.
+  The unchanged supported installer still verifies the full composed contract,
+  installs remaining prerequisites and builds the exact noneditable candidate;
+  every installed-host acceptance assertion remains required.
+  Run `45057642552` confirms that provisioning succeeds but the former
+  `hostedtoolcache` Python executable is removed. Resolve the fresh CPython
+  registration using the [Windows registry contract](https://peps.python.org/pep-0514/),
+  preferring the current user's ARM64 tag. Check actual native execution and
+  required standard-library imports before passing that exact executable to the
+  supported installer. A registration string alone is never architecture proof.
 
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was

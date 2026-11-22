@@ -1,0 +1,31 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Native ARM64 workflow interpreter selection after successful pinned WinGet bootstrap; framework installation remains pending",
+  "prior_run": "https://github.com/jordanhubbard/literate-ai/actions/runs/45052684397",
+  "prior_revision": "d1d6916550c49c547e8f32f3cc39bb8dcd3ecb34",
+  "pinned_vendor_bootstrap_passed": true,
+  "observed_package_manager": {
+    "scope": "Ephemeral runner OS package manager; installed host controls remain required",
+    "version": "v1.29.380",
+    "executable": "C:\\Users\\runneradmin\\AppData\\Local\\Microsoft\\WindowsApps\\winget.exe"
+  },
+  "failure_before_framework_installer_execution": "Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.",
+  "change": "Keep setup-python before WindowsApps, append WindowsApps only within bootstrap/installer processes, and use setup-python pythonLocation/python.exe for native preflight and installer. Do not prepend WindowsApps through GITHUB_PATH.",
+  "workflow_sha256": "3a11979edc3c988800aa86e4609e47334b0d3ca2b22c8aae1431f76f1caca140",
+  "runtime_and_harness_source_unchanged": true,
+  "installed_runtime_qualified": false,
+  "native_msvc_qualified": false,
+  "full_goal_qualified": false,
+  "release_qualified": false,
+  "local_static_gates_passed": [
+    "lint",
+    "format-check",
+    "repository-layout-check",
+    "public-export-check",
+    "documentation-review-record",
+    "documentation-review",
+    "documentation-check",
+    "openspec-check"
+  ],
+  "static_log_sha256": "ccc114329d8584359ecc484f3f3956dc14b63f447682a4a642707343a3fd26a5"
+}

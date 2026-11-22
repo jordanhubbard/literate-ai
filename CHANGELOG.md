@@ -12,8 +12,8 @@
 
 - Receipt promotion: publish schemas for the current promotion evidence and
   historical admission assertion documents, preserving their false admission
-  and release-authority flags. Historical SDK capture and release acceptance
-  remain pending.
+  and release-authority flags. Per-case SDK dependency capture and release
+  acceptance remain pending.
 
 - Authored provisioning: stop before further scratch allocation or package
   publication when the original operation deadline expires, retaining native
@@ -31,6 +31,19 @@
   source renewal remains pending, including a separate source-drift finding.
 - Cargo qualification: use portable dependency paths in the packaged native test's
   TOML. Native Windows renewal remains required.
+
+- Native ARM64 CI: select the fresh registered Python after WinGet replaces the
+  setup-python installation, verify its actual native runtime, and pass its
+  absolute executable to the supported installer.
+
+- Native ARM64 CI: provision the declared WinGet Python package before starting
+  the installer controller, then recheck its native runtime and required standard
+  library. Keep the supported installer's full dependency and installed-host
+  checks; native renewal remains pending.
+
+- Native ARM64 CI: preserve the initial native preflight interpreter while
+  exposing WinGet, then use the fresh registered interpreter by absolute path
+  for installation so the Microsoft Store alias cannot intercept either step.
 
 - Native ARM64 CI: bootstrap WinGet from SHA-256 pinned Microsoft release
   assets and native dependencies after the module-based repair returned

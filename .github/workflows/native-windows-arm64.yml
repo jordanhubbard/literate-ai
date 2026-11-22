@@ -42,7 +42,8 @@ jobs:
             throw 'An exact lower-case candidate commit is required'
           }
           $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
-          $native = & python -I -B -c 'import json,runpy,sys; print(json.dumps(runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()))' $harness
+          $nativePython = Join-Path $env:pythonLocation 'python.exe'
+          $native = & $nativePython -I -B -c 'import json,runpy,sys; print(json.dumps(runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()))' $harness
           if ($LASTEXITCODE -ne 0) { throw 'Native ARM64 Python/kernel observation failed' }
           $drive = [IO.Path]::GetPathRoot($env:RUNNER_TEMP)
           if ([IO.DriveInfo]::new($drive).AvailableFreeSpace -lt 10GB) {
@@ -76,7 +77,7 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
-          $env:PATH = "$applications;$env:PATH"
+          $env:PATH = "$env:PATH;$applications"
           if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
             $bootstrap = Join-Path $env:QUALIFICATION_ROOT 'wg'
             if (Test-Path -LiteralPath $bootstrap) { throw 'Preserve occupied package-manager bootstrap root' }
@@ -112,21 +113,88 @@ jobs:
           $command = Get-Command winget.exe -ErrorAction Stop
           $version = & $command.Source --version
           if ($LASTEXITCODE -ne 0) { throw 'Native WinGet bootstrap failed' }
-          $applications | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           @{
             executable = $command.Source
             version = "$version"
             scope = 'Ephemeral runner OS package manager; installed host controls remain required'
           } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'package-manager.json') -Encoding utf8
+      - name: Provision declared Python before starting the installer controller
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          $contractPath = Join-Path $env:QUALIFICATION_SOURCE 'flavors/os-windows/host-install/windows/arm64/none.cdx.json'
+          $contract = Get-Content -Raw -LiteralPath $contractPath | ConvertFrom-Json
+          $pythonPackages = @($contract.components | Where-Object {
+            $capabilities = $_.properties | Where-Object name -eq 'literate-ai:host-install:base-capabilities'
+            $capabilities -and (($capabilities.value | ConvertFrom-Json) -contains 'python')
+          })
+          if ($pythonPackages.Count -ne 1) { throw 'Require one declared native Python package' }
+          $package = ($pythonPackages[0].properties | Where-Object name -eq 'literate-ai:host-install:manager-package').value
+          $query = ($contract.metadata.properties | Where-Object name -eq 'literate-ai:host-install:query-arguments').value | ConvertFrom-Json
+          $query = @($query | ForEach-Object { $_.Replace('{package}', $package) })
+          & winget.exe @query `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'python-package-query.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-query.stderr')
+          if ($LASTEXITCODE -ne 0) {
+            $install = ($contract.metadata.properties | Where-Object name -eq 'literate-ai:host-install:install-arguments').value | ConvertFrom-Json
+            $install = @($install | ForEach-Object { $_.Replace('{package}', $package) })
+            & winget.exe @install `
+              1> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stdout') `
+              2> (Join-Path $env:QUALIFICATION_ROOT 'python-package-install.stderr')
+            if ($LASTEXITCODE -ne 0) { throw 'Declared native Python provisioning failed' }
+          }
+          $setupPython = Join-Path $env:pythonLocation 'python.exe'
+          if ($package -cnotmatch '^Python\.Python\.(\d+\.\d+)$') {
+            throw 'Require a declared CPython major/minor package'
+          }
+          $pythonVersion = $Matches[1]
+          $nativePython = $null
+          $registration = $null
+          foreach ($hive in @('HKCU:', 'HKLM:')) {
+            foreach ($tag in @("$pythonVersion-arm64", $pythonVersion)) {
+              $registryPath = "$hive\Software\Python\PythonCore\$tag\InstallPath"
+              $key = Get-Item -LiteralPath $registryPath -ErrorAction SilentlyContinue
+              if (-not $key) { continue }
+              try {
+                $candidate = [string]$key.GetValue('ExecutablePath')
+                if (-not $candidate) { $candidate = Join-Path ([string]$key.GetValue('')) 'python.exe' }
+                if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+                  $nativePython = $candidate
+                  $registration = $registryPath
+                }
+              } finally { $key.Close() }
+              if ($nativePython) { break }
+            }
+            if ($nativePython) { break }
+          }
+          if (-not $nativePython) { throw 'Declared Python has no usable registry executable' }
+          @{
+            package = $package
+            registration = $registration
+            executable = $nativePython
+            setup_python = $setupPython
+            setup_python_still_exists = (Test-Path -LiteralPath $setupPython -PathType Leaf)
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $env:QUALIFICATION_ROOT 'python-selection.json') -Encoding utf8
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          & $nativePython -I -B -c 'import codecs,ensurepip,json,runpy,ssl,sys,venv; codecs.lookup("idna"); print(json.dumps({"executable":sys.executable,"prefix":sys.prefix,"native":runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()}))' $harness `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.json') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'python-controller.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Selected native Python must remain usable after provisioning' }
+          "QUALIFICATION_PYTHON=$nativePython" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Install the exact noneditable framework using its supported installer
         shell: pwsh
         env:
           LITAI_INSTALL_DEPENDENCIES: "yes"
         run: |
           $ErrorActionPreference = 'Stop'
+          $applications = Join-Path $env:LOCALAPPDATA 'Microsoft/WindowsApps'
+          $env:PATH = "$env:PATH;$applications"
+          $nativePython = $env:QUALIFICATION_PYTHON
           $installer = Join-Path $env:QUALIFICATION_SOURCE 'scripts/install_litai.py'
           $prefix = Join-Path $env:QUALIFICATION_ROOT 'p'
-          & python $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
+          & $nativePython $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
             1> (Join-Path $env:QUALIFICATION_ROOT 'install.stdout') `
             2> (Join-Path $env:QUALIFICATION_ROOT 'install.stderr')
           if ($LASTEXITCODE -ne 0) { throw 'Exact candidate installation failed' }
