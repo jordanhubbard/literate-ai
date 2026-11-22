@@ -24055,6 +24055,31 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Internal dependency-record evidence:** [Development observation](../../verification/python-dependency-record-reopening-development.json)
+  records eight new maintained methods and 17 explicitly selected existing
+  compatibility methods passing on native macOS without skips. Eleven of those
+  compatibility methods are fixture helpers selected explicitly, not default
+  canonical test discovery. Real offline installation supplies the record bytes;
+  build/provider custody remains an explicit fixture. The projection performs no
+  filesystem or process access. Current build/source/interpreter/target and locked
+  graph mismatches, malformed/rehashed metadata, aliases and complete directory
+  budgets refuse; the actual empty offline closure still passes. Late payload
+  and metadata mutations retain the filesystem owner's final refusals. The
+  initial helper's failed long-path control remains recorded. Static, layout,
+  public-export and unchanged runner checks pass; the driver stays stale pending
+  independent review. This does not implement or qualify the public bridge.
+
+- **Implementation in progress:** Extracted the existing Standard Python
+  dependency record join as an inert byte/inventory verifier, preserving the
+  filesystem owner's live root, full payload, mode and final currency checks.
+  Wheel runtime inputs occupy `python-runtime` and `python-dependencies.json`
+  beside the library export; the export blob alone is insufficient. Reuse these
+  exact qualified sidecars and current source/target/build binding in the Python
+  bridge's later closed plan and read-only current-authority join. This internal
+  foundation grants no importer admission and does not expose public bridge
+  success. Both complete packaging profiles, prospective full consumer gates,
+  retirement, receipt reopening and every ADR 0061 validation remain open.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
 - **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.

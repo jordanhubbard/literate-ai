@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Standard Python artifacts: share bounded dependency-record validation between
+  sealed payload checks and read-only replay, retaining current build, source,
+  interpreter and target bindings plus final filesystem checks. Retained Python
+  bridge integration and public qualification remain pending.
+
 - Worker alignment: bound local configuration and credential-file capture before
   comparison or synchronization; report stalled, unsafe or oversized inputs without
   disclosing contents or preparing a destination from an unreadable source.
