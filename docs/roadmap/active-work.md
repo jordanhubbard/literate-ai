@@ -24767,6 +24767,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Regenerated provider-material development evidence:** [Native observation](../../verification/provider-material-intent-development.json)
+  records the causal second-source build failure against `27f598c0e`: its
+  artifact metadata contains two identical bindings instead of the exact current
+  intent's one binding. The corrected four builder owners select that current
+  plan/intent, preserve prior sealed artifact bytes, refuse a stale plan and
+  replay the real new native build with fixture generation authority. All 109
+  selected methods pass without skips, including unchanged strict Cargo capture,
+  native-provider, language-builder, JavaScript-import and Mix controls. No
+  archive duplicate refusal is relaxed. Independent source review, driver
+  renewal, fresh installed/genuine qualification and full release gates remain
+  required; the original failed genuine attempt is preserved.
+
+- **Regenerated build material investigation (in progress):** The genuine
+  noneditable `27f598c0e` shared-Event diamond stops after 1,866.976 seconds with
+  `qualification.capture.build-process-invalid`; all seven original oracle files
+  remain unchanged and no qualification reference is published. Retained native
+  artifacts show a consumer's repeated generated-source attempts accumulating
+  identical library bindings in later provider-material records. Reproduce this
+  through actual native build intents, then bind material projection to the
+  current exact intent rather than collect every historical intent for the same
+  Component revision. Preserve strict archive duplicate/current-interface
+  refusals, all original evidence and the complete genuine qualification scope.
+
 - **Native Cargo archive reopening failure (in progress):** The actual installed
   `aa191c4f9` public apply runs real model generation in two clean roots and
   retains six native artifact manifests, then refuses with

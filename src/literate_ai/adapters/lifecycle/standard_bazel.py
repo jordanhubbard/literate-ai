@@ -533,7 +533,7 @@ class StandardBazelLifecyclePorts(LocalStandardLifecyclePorts):
         source = self.source_trees.resolve(plan.request.source_tree_identity)
         source_identity = local_generated_source_tree_identity(source)
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         cache_identity = canonical_identity(
             {

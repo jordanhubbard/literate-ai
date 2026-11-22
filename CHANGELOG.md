@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Native library artifacts: record provider bindings from the exact current build
+  intent, preventing prior generated-source attempts from duplicating later
+  dependency evidence and blocking qualification replay. Strict archive duplicate
+  and current-interface checks remain in place; genuine acceptance is pending.
+
 - Cargo qualification replay validates native provider graphs against current export/contract bindings, original source, metadata and locked dependency closure, preserving provider-free records and read-only archive handling.
 
 - CI: budget the complete four-case serial authored owning-admission module with a finite 6,600-second worker limit in its Linux/macOS cells, retaining production deadlines, test coverage and overall job limits. Native successor qualification remains pending.

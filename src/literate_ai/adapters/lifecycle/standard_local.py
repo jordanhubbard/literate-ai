@@ -1553,7 +1553,7 @@ class LocalStandardLifecyclePorts:
         self,
         providers: tuple[ArtifactExport, ...],
         *,
-        consumer_revision: ContentIdentity | None = None,
+        consumer_plan: StandardComponentBuildPlan | None = None,
     ) -> tuple[dict[str, object], ...]:
         pending = list(providers)
         closure: dict[str, ArtifactExport] = {}
@@ -1566,13 +1566,34 @@ class LocalStandardLifecyclePorts:
                 self._exports_by_identity[dependency.uri]
                 for dependency in item.dependency_artifact_identities
             )
-        bindings = tuple(
-            binding
-            for values in self._library_consumer_bindings.values()
-            for binding in values
-            if consumer_revision is not None
-            and binding.consumer_component_revision == consumer_revision
-        )
+        bindings = ()
+        if consumer_plan is not None:
+            if not isinstance(consumer_plan, StandardComponentBuildPlan):
+                raise LocalStandardLifecycleError(
+                    "provider materials require a typed BUILD plan"
+                )
+            revision = consumer_plan.component_revision.uri
+            inputs = self._plan_inputs_by_revision.get(revision)
+            if inputs is None:
+                # Provider-free and non-library compatibility callers have no
+                # import bindings. A library never acquires intent from history.
+                if any(
+                    self._contract(item.component_revision).is_library
+                    for item in providers
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider materials lack current BUILD intent"
+                    )
+            else:
+                if (
+                    self._plans_by_revision.get(revision) != consumer_plan
+                    or tuple(item.identity for item in providers)
+                    != inputs.intent.provider_artifact_identities
+                ):
+                    raise LocalStandardLifecycleError(
+                        "provider materials differ from current BUILD intent"
+                    )
+                bindings = self.library_consumer_bindings(inputs.intent)
         materials = []
         for item in sorted(closure.values(), key=lambda value: value.export_id):
             value: dict[str, object] = {
@@ -3142,7 +3163,7 @@ class LocalStandardLifecyclePorts:
             target.python_toolchain_identity,
         )
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         cache_identity = canonical_identity(
             {
@@ -3527,7 +3548,7 @@ class LocalStandardLifecyclePorts:
         manifest_bytes = source_manifest.read_bytes()
         lockfile_bytes = source_lock.read_bytes()
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         cache_identity = canonical_identity(
             {
@@ -3831,7 +3852,7 @@ class LocalStandardLifecyclePorts:
         source = self.source_trees.resolve(plan.request.source_tree_identity)
         source_identity = local_generated_source_tree_identity(source)
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         javascript_imports = self._javascript_library_imports(
             plan, provider_artifacts, contract
@@ -4278,18 +4299,14 @@ class LocalStandardLifecyclePorts:
                 "transferred artifact is outside object custody"
             )
         tree = local_tree_identity(root)
-        materials = self._provider_materials(
-            inputs.providers, consumer_revision=plan.component_revision
-        )
+        materials = self._provider_materials(inputs.providers, consumer_plan=plan)
 
         def before_register():
             require_authority()
             if (
                 self.source_trees.evidence(plan.request.source_tree_identity).identity
                 != evidence.source_custody_identity
-                or self._provider_materials(
-                    inputs.providers, consumer_revision=plan.component_revision
-                )
+                or self._provider_materials(inputs.providers, consumer_plan=plan)
                 != materials
             ):
                 raise LocalStandardLifecycleError(

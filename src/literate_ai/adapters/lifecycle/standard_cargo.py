@@ -320,9 +320,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 "cargo": compatibility,
                 "target": contract.artifact_export.target_identity.uri,
                 "abi": contract.artifact_export.abi_identity.uri,
-                "providers": self._provider_materials(
-                    providers, consumer_revision=plan.component_revision
-                ),
+                "providers": self._provider_materials(providers, consumer_plan=plan),
                 "compiler_cache": self.shared_cache.identity.uri
                 if self.shared_cache
                 else None,
@@ -749,7 +747,7 @@ class StandardCargoLifecyclePorts(LocalStandardLifecyclePorts):
                 "generated Cargo source requires its locked Cargo.toml path"
             )
         provider_materials = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
+            provider_artifacts, consumer_plan=plan
         )
         native = self._current_native_cargo_inputs(plan, provider_artifacts)
         cache_identity = canonical_identity(

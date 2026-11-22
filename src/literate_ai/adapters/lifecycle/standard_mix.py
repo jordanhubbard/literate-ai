@@ -701,9 +701,7 @@ class StandardMixLifecyclePorts(StandardCargoLifecyclePorts):
                 "Mix export differs from locked command shape"
             )
         source_root = self.source_trees.resolve(plan.request.source_tree_identity)
-        providers = self._provider_materials(
-            provider_artifacts, consumer_revision=plan.component_revision
-        )
+        providers = self._provider_materials(provider_artifacts, consumer_plan=plan)
         cache = canonical_identity(
             {
                 "schema": "literate-ai/standard-mix-cache@1",
