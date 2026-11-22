@@ -24856,6 +24856,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] CUDA-SIGNAL-001 — Keep vendor-only source attribution out of CUDA requirements
 
+- **Installed candidate observation:** The actual noneditable `aa191c4f9`
+  distribution passes [22 inert inventory controls](../../verification/cuda-installed-aa191c4f-observation.json)
+  against original real source bytes: seven attribution, lookalike and bounded
+  indentation negatives plus fifteen source/compiler/header/runtime/driver positives.
+  Every source digest remains unchanged and the installed detector matches the
+  candidate source bytes. Preserve the first probe's incorrect negative expectation:
+  `cudaError_type()` matches the existing broad CUDA-style function-call heuristic;
+  the successor uses the maintained identifier controls. No detector was weakened
+  and no failed probe is relabeled. Complete source, exact integration, driver
+  review and release acceptance remain open; no GPU execution or source promotion
+  is claimed.
+
 - **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds the exact attribution-correction source and test hashes. That correction passed its focused and complete source gates. Positive-signal follow-up and noneditable installed and exact integration acceptance remain open.
 
 - **Release target:** 1.4.0
