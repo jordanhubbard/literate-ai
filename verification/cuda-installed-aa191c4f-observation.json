@@ -1,0 +1,176 @@
+{
+  "schema": "literate-ai/installed-cuda-observation@1",
+  "revision": "aa191c4f987cfc9cdbf70ced7151f05193e5a474",
+  "noneditable_prefix_import_verified": true,
+  "production_module_sha256": "1e0a22f1b835131bbc4fc0cad40f2455e9a2e2dbbfead16aa846ac244579f120",
+  "scope": "Actual installed inert public inventory API on authored real source files; no model, GPU, compiler or source-promotion acceptance claimed",
+  "cases": [
+    {
+      "case": "spdx-copyright",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "4431d335b82ad82cffbc7e15c7e3864cb4a6511890b94221d5b6733c82447c94",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "spdx-license",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "efbf6437f0a963b22ae7455d1c94b50bedda4dd8c1d4432d2f64c862099e7fcb",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "multiline-attribution",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "946cac4d2247252b085fa5af894ee30154e1d955367d5b8e222c1f7fca1250a6",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "xml-attribution",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "4346bb8ee449a490fe148e09203da02c97e6a5ed72a101452870f825eda2d826",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "lookalikes",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "4fefdfd2d1b75bcd4b633ecca4e9a91012d5541e01e8945c9c19fc451fe045a2",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "long-indent",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "58e7be66bc43e8254d8ced53e8a5981f74e572eaa4bae16116ff8c98fceacff9",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "type-in-attribution",
+      "expected_cuda": false,
+      "observed_cuda": false,
+      "source_sha256": "ede9fd0bd78b4ec97782b8005b4b0fded0d2bc3052ad931d19bbbc85fdbc475f",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cuda-source",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "caa13f46524b5d50e241a7f7dba6f03bc5e819af21fa546bf4d6bd689f80e115",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cuda-header",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "d803566737df7b96eeb65cdfb5b805a66691477084384b5c9c2cfb46c3cdf70b",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "compiler",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "c081875194d1c6252781d7f1ef93bdf754ab4c4aa8a31ec119a13f32acd4a959",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "driver-header",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "43415c99d069824a2216d271b2b1b8e8e28b3371c5aa6c9d394bd8898ff5a9ac",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "runtime-header",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "07ba49cf18f1e7c4aa884d9aece6ddda2e0f4563fe762e9658179c78537a04b6",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "api-header",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "d8de3e776f8466a0e0036c171b4e13a88d371e5d288e42a342b5ad3d995ae189",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "runtime-call",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "d7fd54be3aa9431cb167143a11ad6b5c928732f48dfaf090059f6704380d99d0",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "driver-call",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "8cc4e7ad1e0e685a83e3e2e16d3f888fe1cd79db886a194ac0e24c7b6ecabfa7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cargo-feature",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "914141b280d5fd96ad130341f776cda484143f05d5dcff1b68fb0ab7945d71ef",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "toolkit",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "f5d7fd24b31c174c17ec11c6000e724e8a1dd1dc92b746e978b01363695927db",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "runtime-type",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "e8e014d2e63cb2bb73244534249f186a7b7320796e4c335026585e43d96692d9",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "stream-after-attribution",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "4b276585daae922ff8b7a053bbb655b54c6c7ef754524813cb4fbfa85aff6e3d",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "module-load",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "8712712c39568adcabc888e963930f619bf85ad64eceb8eac686bcd00f78a74d",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "module-load-ex",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "dd46ef54921c2fdd30add5867415edfb8d35b84ec1d2d51972d92b784e8ee2e8",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "driver-after-attribution",
+      "expected_cuda": true,
+      "observed_cuda": true,
+      "source_sha256": "2b26b3da772f536d7e63e3fa8a3576ac3a16f7360c6af44e149e4a851d42ee29",
+      "bytes_unchanged": true
+    }
+  ],
+  "passed": 22,
+  "failed": 0,
+  "duration_seconds": 0.026,
+  "goal_complete": false,
+  "release_acceptance": false,
+  "exact_candidate_source_module_matches": true,
+  "retained_predecessor": {
+    "exit_code": 1,
+    "failed_expectation": "lookalikes: function named cudaError_type expected no CUDA but matched existing general cuda[A-Z] function-call heuristic",
+    "script_sha256": "7acaab5e304f6c42891aaded9a8ae64dc32e8204dfd10eb72630a0e05501eb3f",
+    "conclusion": "Original proposed negative case conflicts with documented broad CUDA-call signal. Retain failed probe and source bytes. Successor uses maintained lookalike identifier controls; no source implementation changed.",
+    "release_acceptance": false
+  }
+}

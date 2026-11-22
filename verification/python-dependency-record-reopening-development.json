@@ -1,0 +1,122 @@
+{
+  "schema": "literate-ai/python-dependency-record-reopening-development@1",
+  "goal": "RETAINED-PYTHON-BRIDGE-001",
+  "issue": 307,
+  "candidate_base": "d5cb90775",
+  "subjects": {
+    "src/literate_ai/adapters/lifecycle/standard_python.py": "160b066b12d38c458c9b300aecc826f9401c211769c007d535092f0aa8d85857",
+    "tests/smoke/test_python_dependency_record_reopening.py": "36895f31f06af738acfcc04bb6a108c9a865b0cdc10cc2d80996dc8d227b5198"
+  },
+  "behavior": "Factor the existing Standard Python dependency evidence join into bounded-byte inert replay. Preserve filesystem root, full payload, executable-mode and final currency checks. The projection has no payload path and grants no provider/importer/execution authority.",
+  "controls": [
+    {
+      "pattern": "test_python_dependency_record_reopening.py",
+      "report": "_build/records-guard-final/python-test-report.json",
+      "report_sha256": "c21a17ba2400083b4043b432f7d1a8c73f5a808f5c195adf665177ec27871715",
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "scope": "8 new maintained controls;actual offline package installation with explicit fixture build authority;no bridge admission"
+    },
+    {
+      "pattern": "test_standard_python_evidence.py",
+      "report": "_build/evidence-complete/python-test-report.json",
+      "report_sha256": "fbccbd3abf92fb371bd38227bffcaf7217c3c251951c590f6f4ad0667aeb41fe",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "scope": "2 canonical existing payload/manifest refusal controls"
+    },
+    {
+      "pattern": "fixtures_test_standard_python_evidence.py",
+      "report": "_build/legacy-evidence-complete/python-test-report.json",
+      "report_sha256": "140168883cea9ab6958ca261aa74ebac9a56227655d0d129d32387f2e06aa63c",
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "scope": "11 existing fixture-helper compatibility methods explicitly selected;not included by the default test*.py discovery"
+    },
+    {
+      "pattern": "test_python_wheel_runtime.py",
+      "report": "_build/wheel-runtime-complete/python-test-report.json",
+      "report_sha256": "459cd23e6084866170f1375b3f8c7ea0bd85aebe21ed422df1c3b015ecb6c58d",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "scope": "2 real isolated Python runtime controls using fixture wheel custody"
+    },
+    {
+      "pattern": "test_python_library_verifier_isolation.py",
+      "report": "_build/library-complete/python-test-report.json",
+      "report_sha256": "190fb6b8513687732008f1844d31c694897a85e90ea9238a87814f8017764567",
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "scope": "2 real Python verifier controls using explicit fixture lifecycle custody"
+    }
+  ],
+  "explicit_method_executions": 25,
+  "development_predecessor": {
+    "scope": "The initial new helper, not existing released/main code, lacked the matching path-length limit. The new long-path subtest fails before correction. Fail-fast leaves the following directory-budget subcase and record-topology method unexecuted in this failed run; their later passing outcomes are recorded separately.",
+    "report": "_build/python-record-bounds-original/python-test-report.json",
+    "report_sha256": "727d68e1f398e9715cc35ed991da498d0a5f517a9f8bc0522c7b50e329cc1857",
+    "summary": {
+      "executed": 6,
+      "failed": 1,
+      "known_failed": 0,
+      "passed": 5,
+      "selected": 7,
+      "skipped": 0
+    }
+  },
+  "coverage": [
+    "actual offline wheel payload projection equals the original filesystem evidence",
+    "no file/descriptor/tree/metadata access or process execution during replay",
+    "current original build/source/interpreter/target declarations and complete locked graph",
+    "strict bounded JSON bytes, duplicate-key refusal, closed metadata shape",
+    "finite file/byte/path and complete directory-entry budgets; cross-platform path/alias refusal",
+    "actual empty offline dependency closure preserves existing support",
+    "late actual payload and metadata changes still fail final filesystem currency checks"
+  ],
+  "static": "lint and format-check pass for 2187 files;diff whitespace clean",
+  "documentation": "Final evidence-linked candidate passes documentation-check:181Mermaiddiagrams from1967Markdownfiles and23renderercontrols;roadmap completion dependencies acyclic.",
+  "other_checks": "repository layout and public export pass;test runner identity421dfa16df016a87818b667ffcbe180187827f53b7bb429c497e700d728b6af1 remains current",
+  "driver": {
+    "state": "stale;not repinned;independent nonauthor source review pending",
+    "computed": "sha256:d8c0b71782b51f5970591e833ec2af71d9aba9ddcd6cfd24c06ab6cae1073e12",
+    "scope": "three trusted source files:alignment_file_source.py,worker_alignment.py andlifecycle/standard_python.py;inherited alignment review remains pending"
+  },
+  "pending": [
+    "independent nonauthor source review and supported driver renewal",
+    "closed Python workspace/provider plan and original whole-artifact source/wheel runtime custody",
+    "isolated namespace/origin validation, prospective complete consumer gates,source retirement and versioned request/receipt reopening",
+    "public bridge operations and every accepted ADR0061 validation family",
+    "complete source,fresh noneditable installed,native supported-platform and final combined release gates"
+  ],
+  "release_goal_complete": false
+}

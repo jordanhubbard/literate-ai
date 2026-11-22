@@ -6232,6 +6232,21 @@ the reported failure.
 
 ### [ ] WORKER-001 — Route build, test, and run through declared execution workers
 
+- **Local alignment source deadline (in progress):** [Issue #490](https://github.com/jordanhubbard/literate-ai/issues/490)
+  records a release-recovery hang before remote dispatch: a declared local file
+  open blocks every applicable alignment thread despite bounded remote probes.
+  Capture each local source with a finite process deadline and byte budget;
+  use that private capture for comparison and synchronization. Report failures
+  without contents and preserve destinations when capture fails. Qualify real
+  regular, missing, non-regular and oversized files plus a stalled reader and
+  owned cleanup, then rerun existing inspection/apply and platform controls.
+  [Source development evidence](../../verification/worker-alignment-source-observation.json)
+  records 15 passing maintained alignment controls, lint, formatting and complete
+  documentation rendering (181 diagrams and 23 renderer controls). The real
+  configured local sources now capture without exposing payloads; native Windows,
+  independent review, supported pin renewal and complete acceptance remain open.
+  Keep all worker, source-pin, native and release acceptance obligations open.
+
 Before further release-check fleet use, require repository-bound ownership of
 the exact sync destination. Preserve unmarked and foreign checkouts, including
 when two organizations use the same basename. Provide explicit controller-only
@@ -20294,6 +20309,17 @@ hosted CI and canonical tree worker/live SDK integration remain open.
 
 ### [ ] RETAINED-SDK-PUBLIC-001 — Connect public retained execution to live native SDK producers
 
+- **Exact-candidate FreeBSD evidence:** [Retained readback](../../verification/freebsd-sdk-aa191c4f-observation.json)
+  binds `aa191c4f9` to hosted run `44968092203`, its immutable artifact and a native
+  FreeBSD 15.1 amd64 guest. The installed public SDK microfixture reaches its real
+  local runtime without CLI test doubles; all 48 installed owner controls and five
+  publication-preflight controls pass with zero skips. Owner controls may use
+  protocol fixtures. Independent readback rehashes all 44 guest evidence members,
+  1,519 wheel RECORD members and all 611 observed production imports against that
+  wheel. The missing-loader counterexample still fails as expected. This proves
+  the named SDK runtime slice only; compiler SDK admission, a product receipt,
+  whole FreeBSD lifecycle, ISO creation and final release acceptance remain open.
+
 - **Current SDK composition (in progress):** Compose the complete PR #444 / #445 /
   #467 / #489 dependency closure onto `cd9934394`, preserving the newer shared
   owners. This includes closed POSIX snapshot/quarantine custody, authored link
@@ -24029,18 +24055,43 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Internal dependency-record evidence:** [Development observation](../../verification/python-dependency-record-reopening-development.json)
+  records eight new maintained methods and 17 explicitly selected existing
+  compatibility methods passing on native macOS without skips. Eleven of those
+  compatibility methods are fixture helpers selected explicitly, not default
+  canonical test discovery. Real offline installation supplies the record bytes;
+  build/provider custody remains an explicit fixture. The projection performs no
+  filesystem or process access. Current build/source/interpreter/target and locked
+  graph mismatches, malformed/rehashed metadata, aliases and complete directory
+  budgets refuse; the actual empty offline closure still passes. Late payload
+  and metadata mutations retain the filesystem owner's final refusals. The
+  initial helper's failed long-path control remains recorded. Static, layout,
+  public-export and unchanged runner checks pass; the driver stays stale pending
+  independent review. This does not implement or qualify the public bridge.
+
+- **Implementation in progress:** Extracted the existing Standard Python
+  dependency record join as an inert byte/inventory verifier, preserving the
+  filesystem owner's live root, full payload, mode and final currency checks.
+  Wheel runtime inputs occupy `python-runtime` and `python-dependencies.json`
+  beside the library export; the export blob alone is insufficient. Reuse these
+  exact qualified sidecars and current source/target/build binding in the Python
+  bridge's later closed plan and read-only current-authority join. This internal
+  foundation grants no importer admission and does not expose public bridge
+  success. Both complete packaging profiles, prospective full consumer gates,
+  retirement, receipt reopening and every ADR 0061 validation remain open.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
-- **Next action:** Independently review and publish [proposed ADR 0061](../decisions/0061-retained-python-library-bridge.md), then obtain the required explicit design acceptance before implementation. FreeBSD SDK qualification remains first priority.
+- **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.
 
 - **Priority:** high
 - **Owner:** framework retained library bridge and sealed Python test workspace
 - **Direction:** Include newly filed issue #307 in 1.4 under the directing user authorization for new issues.
-- **Conclusion:** A retained Python consumer must import verified qualified committed-cache packages within its sealed workspace through an explicit custody-bound bridge. Inspect existing retained Cargo authority and Python receipt construction, publish a narrow proposed design, and implement after required design acceptance; FreeBSD SDK execution remains first priority.
+- **Conclusion:** A retained Python consumer must import verified qualified committed-cache packages within its sealed workspace through the explicit custody-bound bridge in accepted ADR 0061. Preserve complete consumer/provider/source-retirement custody and receipt reopening; acceptance of the design does not establish implementation or qualification. FreeBSD SDK execution remains first priority.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [ ] Trace the existing retained Cargo bridge and Python sealed workspace contracts; publish a proposed Python adapter design with exact admitted source and consumer custody.
+  - [x] Trace the existing retained Cargo bridge and Python sealed workspace contracts; publish the exact current-owner map and ordered adapter integration in accepted ADR 0061. This completes design tracing only; no Python bridge implementation or consumer acceptance is claimed.
   - [ ] Implement the accepted bridge without copying generated source into authored implementation or admitting arbitrary ambient paths.
 - **Evidence:**
   - [ ] Exercise a real retained Python consumer with an admitted committed-cache library through full public lifecycle and exact installed qualification.
@@ -24767,6 +24818,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Recovery source consolidation (not qualified):** The current development join
+  combines the Cargo replay, shared-layout and packaged-provider fixes from
+  `0ddbc6cae`, alignment capture from `8a45727ad`, and the inert Python dependency
+  record foundation from `ae2c84c97`. The finite CI worker-budget correction
+  `6948bc2ff` is already an ancestor. Preserve every predecessor observation below
+  with its original revision and scope. The running genuine provider and complete
+  source checks still belong to frozen `0ddbc6cae`, not this union. Source review,
+  canonical pins, full combined source/platform/installed qualification and the
+  complete consumer journey remain open. Python record reopening alone does not
+  implement the retained Python bridge, and this join includes no uncommitted
+  retained-layout journal work.
+
 - **Shared-layout installed predecessor (preserved failure):** The fresh actual
   noneditable `337cd075f3` nominal run stops after 417.243 seconds with
   `standard_rebuild.independent_acceptance_failed`: packaged provider binding is
@@ -24884,6 +24947,53 @@ implementation, policy weakening, qualification or issue closure is recorded her
   fresh noneditable genuine nominal-type generation and full replay/receiving
   remain open. Preserve the actual failed public attempt and unchanged oracles.
 
+- **Additional exact-candidate native wheel readback:** [Three hosted wheel records](../../verification/native-ci-wheels-aa191c4f-observation.json)
+  bind successful Windows/Python 3.12 and Linux/Python 3.11/3.14 jobs from actual
+  run `44968003486` to their uploaded artifact digests, terminal gate JSON and
+  exact qualified wheel manifests. All 1,519 hashed RECORD entries reverify in
+  each wheel; all 1,362 framework payload members match the separately qualified
+  native macOS wheel. Windows CPU observation passes through the actual Windows
+  API with installed origins verified, and both native retained-command modes
+  pass their applicable cases with explicit POSIX-only skips. Keep native skips
+  and every wheel/archive identity separate. The rest of the workflow remains
+  unfinished at collection; these results do not certify the whole matrix,
+  authored graph, retained consumer or release.
+
+- **Native wheel and real consumer progress:** The exact `aa191c4f9` native
+  macOS/Python 3.14 [complete wheel gate](../../verification/wheel-aa191c4f-observation.json)
+  exits zero. Independent readback rehashes all 1,519 wheel RECORD entries and
+  compares all 1,362 framework members with the separate actual installed prefix
+  used by the genuine model journey. Archive ZIP digests differ; their framework
+  payloads match. Maintained installed CUDA controls, public Rust harness,
+  retained identity migration and cache continuation pass at their recorded scope;
+  native Windows-only skips remain explicit. A separate [real Cargo consumer](../../verification/real-consumer-aa191c4f-observation.json)
+  passes its initial build, three actual tests and packaging, actual conversion
+  baseline/parity, installed bootstrap and entrypoint checks, then earns a current
+  three-test retained-harness receipt and advances through the supported command
+  to `retained`. Original source remains authority. No authored provider is yet
+  admitted and no source is retired. Complete genuine provider qualification,
+  independent closed replay, same-consumer repeated public receiving/admission and
+  negative controls remain open alongside the fresh complete source/matrix gates.
+
+- **Recovery qualification in progress:** [Retained attempt record](../../verification/release-recovery-aa191c4f-observation.json)
+  binds exact candidate `aa191c4f9` to an actual noneditable installation, genuine
+  model generation and public authored plan/apply. The first apply fails in Cargo:
+  the operator authored generation interface edges but omitted the corresponding
+  build artifact edges. Preserve that failure and all seven unchanged original
+  oracle/profile inputs. A separately initialized corrected attempt keeps the
+  same mathematical contracts and expected answers, adds build edges and passes
+  public validation and planning before generation. Its two-clean-run apply is
+  live; complete all-node qualification, shared-provider custody, closed replay
+  and actual retained Cargo consumption remain unproven. No fixture result or
+  failed attempt closes this goal.
+
+- **Full-source gate remains open:** The same candidate's complete source run
+  stops with 2,058 passes, one receiver-composition deadline failure and 80 skips
+  out of 4,065 selected cases. The unchanged 24-method receiver module then passes
+  at its original deadlines with reduced contention. A fresh complete run uses
+  four workers; neither that diagnostic pass nor the successful FreeBSD SDK slice
+  replaces the required complete source, installed, platform and release gates.
+
 - **Authored qualification composition (in progress):** Compose PR #401's
   origin-specific authority, reviewed profile/oracle, public plan/apply,
   Standard execution, closed products and replay with PR #440's original-owner
@@ -24927,6 +25037,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [ ] Qualify a genuine three-library diamond through installed public admission, two clean all-node runs, closed relocatable replay and retained Cargo check/materialize/admit; refuse stale, substituted, missing or failed evidence and preserve source-derived admission.
 
 ### [ ] CUDA-SIGNAL-001 — Keep vendor-only source attribution out of CUDA requirements
+
+- **Installed candidate observation:** The actual noneditable `aa191c4f9`
+  distribution passes [22 inert inventory controls](../../verification/cuda-installed-aa191c4f-observation.json)
+  against original real source bytes: seven attribution, lookalike and bounded
+  indentation negatives plus fifteen source/compiler/header/runtime/driver positives.
+  Every source digest remains unchanged and the installed detector matches the
+  candidate source bytes. Preserve the first probe's incorrect negative expectation:
+  `cudaError_type()` matches the existing broad CUDA-style function-call heuristic;
+  the successor uses the maintained identifier controls. No detector was weakened
+  and no failed probe is relabeled. Complete source, exact integration, driver
+  review and release acceptance remain open; no GPU execution or source promotion
+  is claimed.
 
 - **Independent metadata review:** A separate authorized non-author reviewer approves exact source at `7a3658da5`, checks original byte/prompt/classification preservation, and passes all six inventory methods plus six additional C/XML close, attribution, unrelated-platform and bounded-input controls. [Review evidence](../../verification/cuda-metadata-independent-review.json) binds the exact attribution-correction source and test hashes. That correction passed its focused and complete source gates. Positive-signal follow-up and noneditable installed and exact integration acceptance remain open.
 

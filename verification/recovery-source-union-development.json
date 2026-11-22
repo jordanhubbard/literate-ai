@@ -1,0 +1,188 @@
+{
+  "schema": "literate-ai/recovery-union-development@1",
+  "parents": [
+    "0ddbc6cae1a2b8d5446d4fd08b6dadb68269a9f0",
+    "ae2c84c97b69fe4aeb657fadb2c4fe5fca2bb730"
+  ],
+  "ci_budget_ancestor": "6948bc2ff6863e1d12a9902ec02322ad5d6ffa30",
+  "scope": "Cargo correction, bounded alignment capture and inert Python dependency replay source consolidation; not feature/release qualification",
+  "conflicts": "Retain both exact-source predecessor histories in CHANGELOG and roadmap; refresh documentation authority after actual combined validation. No source conflict or dropped implementation.",
+  "controls": [
+    {
+      "pattern": "test_worker_alignment*.py",
+      "exit_code": 0,
+      "seconds": 26.006,
+      "summary": {
+        "executed": 15,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 15,
+        "selected": 15,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/0/python-test-report.json",
+      "report_sha256": "d8e1e9208b9db12a3e839033a7cc8b3eec34e2f79a06c2343ea2ade9709e0c9e"
+    },
+    {
+      "pattern": "test_python_dependency_record_reopening.py",
+      "exit_code": 0,
+      "seconds": 48.427,
+      "summary": {
+        "executed": 8,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 8,
+        "selected": 8,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/1/python-test-report.json",
+      "report_sha256": "862bc53b1e4ef946fef98b9ce48e5f1e05d11224fbf0490c0cc41284e5cd144f"
+    },
+    {
+      "pattern": "test_standard_python_evidence.py",
+      "exit_code": 0,
+      "seconds": 21.445,
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/2/python-test-report.json",
+      "report_sha256": "6864b26a387d7b36b274dcd679d10c845004d059dca2668040d6b1556854bdeb"
+    },
+    {
+      "pattern": "fixtures_test_standard_python_evidence.py",
+      "exit_code": 0,
+      "seconds": 77.465,
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/3/python-test-report.json",
+      "report_sha256": "291dcfc0d1c41ad7a750a4544839022420d2e122f8f09e3be41c652d6e8c9eb2"
+    },
+    {
+      "pattern": "test_python_wheel_runtime.py",
+      "exit_code": 0,
+      "seconds": 28.061,
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/4/python-test-report.json",
+      "report_sha256": "dea343151e09806d6a88ab30f6a316b456c9eb2610b1cd9b8a0bc33082d529c0"
+    },
+    {
+      "pattern": "test_python_library_verifier_isolation.py",
+      "exit_code": 0,
+      "seconds": 21.49,
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/5/python-test-report.json",
+      "report_sha256": "6979165cbd6ae04b1e90712ae913c9aa69b71e2b5a0fd9ed476edafa00d6aed2"
+    },
+    {
+      "pattern": "test_provider_material_intents.py",
+      "exit_code": 0,
+      "seconds": 26.715,
+      "summary": {
+        "executed": 2,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 2,
+        "selected": 2,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/6/python-test-report.json",
+      "report_sha256": "86dab552d0b9e87f5dbba5d5bed8ddccc4be365de5794ad576b1971b23db5f48"
+    },
+    {
+      "pattern": "test_native_cargo_shared.py",
+      "exit_code": 0,
+      "seconds": 21.85,
+      "summary": {
+        "executed": 11,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 11,
+        "selected": 11,
+        "skipped": 0
+      },
+      "report": "_build/union-focused/7/python-test-report.json",
+      "report_sha256": "4f9502a12ca38a6abaf22cfea3a7b24bb976ab0b4290437b5cb9bca96833e46d"
+    }
+  ],
+  "summary": {
+    "selected": 53,
+    "passed": 53,
+    "skipped": 0,
+    "failed": 0
+  },
+  "static": [
+    "lint",
+    "format-check:2193files",
+    "repository-layout-check",
+    "public-export-check",
+    "schema-check:132v2files/605resources",
+    "runner-review:unchangedcurrent",
+    "roadmap-dependencies",
+    "documentation-check:181diagrams/1967Markdown/23renderercontrols",
+    "openspec-check:5strictitems",
+    "documentation-review"
+  ],
+  "driver": {
+    "state": "stale",
+    "pinned": "sha256:05c3a129f8f50a6a0f33b227ba903f21d56dd5b6e016bc3972eceb96ee81c60f",
+    "computed": "sha256:c55f9142e4d320cef066138305049f089075ec35a64b277a7f8622a9d4d7a1ea",
+    "changed_paths": [
+      "src/literate_ai/adapters/alignment_file_source.py",
+      "src/literate_ai/adapters/authored_qualification_reopening.py",
+      "src/literate_ai/adapters/lifecycle/native_cargo_projection.py",
+      "src/literate_ai/adapters/lifecycle/native_cargo_shared.py",
+      "src/literate_ai/adapters/lifecycle/standard_bazel.py",
+      "src/literate_ai/adapters/lifecycle/standard_cargo.py",
+      "src/literate_ai/adapters/lifecycle/standard_local.py",
+      "src/literate_ai/adapters/lifecycle/standard_mix.py",
+      "src/literate_ai/adapters/lifecycle/standard_python.py",
+      "src/literate_ai/adapters/qualification_capture.py",
+      "src/literate_ai/adapters/qualification_cargo.py",
+      "src/literate_ai/adapters/qualification_cargo_shared.py",
+      "src/literate_ai/adapters/qualification_native_cargo.py",
+      "src/literate_ai/adapters/standard_project.py",
+      "src/literate_ai/adapters/worker_alignment.py",
+      "src/literate_ai/contracts/executable_components/standard_command_profiles.py",
+      "src/literate_ai/project_template/flavors/build-cargo/flavor.md",
+      "src/literate_ai/project_template/flavors/build-cargo/openspec/spec.md",
+      "src/literate_ai/project_template/flavors/build-cargo/standard-command-profile.json"
+    ],
+    "recorded": false
+  },
+  "remaining": [
+    "Independent exact-source review and supported driver-pin renewal.",
+    "Complete union source, platform, installed and prepared-release gates.",
+    "Frozen0dd genuine provider/source and hosted FreeBSD results keep their original revisions.",
+    "Public full same-consumer admission and original-source retirement remain unproved.",
+    "Python bridge beyond dependency-record foundation remains unimplemented.",
+    "Retained-layout journal work remains outside this union.",
+    "All outstanding immutable release goals and publication obligations remain in scope."
+  ],
+  "qualified": false,
+  "release_goal_complete": false
+}

@@ -117,6 +117,24 @@ development (2026-09-10):
 
 ## Current work
 
+The retained Python bridge now has an internal read-only dependency-record
+projection sharing the existing Standard Python verifier. It binds bounded
+metadata and complete recorded payload inventories to current build, source,
+interpreter, target and locked dependency declarations while the filesystem
+owner retains its live guards. This is an implementation foundation only;
+bridge workspace plans, provider admission, both packaging profiles, public
+consumer/source-retirement journeys and receipt integration remain unfinished.
+
+
+RETAINED-PYTHON-BRIDGE-001 implements accepted
+[ADR 0061](docs/decisions/0061-retained-python-library-bridge.md) under Goals 1, 4
+and 6. The directing user confirmed that all recorded roadmap items are reviewed
+in the 2026-11-21 release-resumption instruction. The design requires a current
+qualified provider, sealed source/wheel inputs, prospective full consumer
+qualification before source retirement and exact receipt reopening. Implementation,
+independent source review, installed/native proof and the complete release gates
+remain open; design acceptance completes none of those outcomes.
+
 SDLC-001 makes existing-repository delivery the primary adoption path for 1.4.0.
 The [evidence-backed program](docs/roadmap/existing-repository-delivery.md) and
 [ADR 0074](docs/decisions/0074-existing-repository-delivery.md) consolidate native
