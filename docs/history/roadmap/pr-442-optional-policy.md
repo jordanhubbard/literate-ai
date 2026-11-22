@@ -1,5 +1,9 @@
 # Historical optional-policy branch record
 
+- **Status:** historical
+- **Owning queue item:** [RELEASE-CLOSURE-001](../../roadmap/active-work.md#release-closure-001-make-release-closure-executable-and-continuous)
+- **Completion / archival evidence:** [Original independent parser review](https://github.com/jordanhubbard/literate-ai/commit/4c102f1267e51e4b60d980b00e9516b1f43193a1); current combined and release qualification remain separate.
+
 The following is the original PR #442 record, retained during release recovery.
 The parser fix is already present under current `RELEASE-CLOSURE-001`. Its
 proposed separate goal is historical context; the current release manifest and

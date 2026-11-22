@@ -1,5 +1,9 @@
 # Historical lexical-custody branch record
 
+- **Status:** historical
+- **Owning queue item:** [CARGO-CUSTODY-PERF-001](../../roadmap/active-work.md#cargo-custody-perf-001-bound-redundant-native-cargo-input-custody-work)
+- **Completion / archival evidence:** [Original Linux source/comparison record](../../../verification/retained-cargo-lexical-linux.json); current combined and release qualification remain separate.
+
 This is the original PR #438 branch record, retained during release recovery.
 Its lexical implementation is part of current `CARGO-CUSTODY-PERF-001`; its
 proposed separate goal below is historical branch context, not an additional

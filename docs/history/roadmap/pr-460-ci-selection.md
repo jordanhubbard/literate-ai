@@ -1,5 +1,9 @@
 # Historical exact CI selection repair
 
+- **Status:** historical
+- **Owning queue item:** [SDLC-001](../../roadmap/active-work.md#sdlc-001-make-existing-repository-delivery-the-primary-14-adoption-path)
+- **Completion / archival evidence:** [Original selector source review](../../../verification/ci-run-selection-review.json); current combined and release qualification remain separate.
+
 This is the original PR #460 repair and development record. The current release
 owner has since extracted the collector into `adapters/github_observation.py`
 and added separate tested-file and cell-coverage enforcement. Those newer owners
