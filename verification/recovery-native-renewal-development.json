@@ -39,7 +39,41 @@
     "seconds": 0.785,
     "report_sha256": "4ff3eb201cfd523a2a4c710c6542bbee9314b81fa4b98ec2a4fc5735a4523f17"
   },
-  "linux_corrected_focus": "pending",
+  "linux_corrected_focus": {
+    "revision": "bf1402712f27d724bde834c4c15bbbeed8ec993d",
+    "selected": 4,
+    "passed": 4,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 6.344
+  },
   "source_gate_passed": false,
-  "release_qualified": false
+  "release_qualified": false,
+  "second_linux_source_failure": {
+    "revision": "bf1402712f27d724bde834c4c15bbbeed8ec993d",
+    "exit_code": 2,
+    "seconds": 741.062,
+    "selected": 4098,
+    "passed": 719,
+    "skipped": 34,
+    "failed": 1,
+    "report_sha256": "f83bb9f46f7913a609410b158c85c36bdf05467fc815d212c71144eb949c7563",
+    "case": "tests.critical.test_authored_tool_completion.AuthoredToolCompletionTests.test_last_independent_gate_guard_cannot_mutate_an_earlier_compiler_launcher",
+    "error": "same native ETXTBSY in a second owned test launcher append, before mutation callback state is reached"
+  },
+  "completion_fixture_repair": {
+    "scope": "Only owned disposable launcher tamper setup changes; actual Cargo probes and production final original-file refusal remain. No process or production deadline changes.",
+    "controller_summary": {
+      "executed": 7,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 7,
+      "selected": 7,
+      "skipped": 0
+    },
+    "seconds": 504.798,
+    "report_sha256": "a3d2588f20d79b28867c2c28f85f42e4dbeb0cd2707d08d7096fd88cdd8901db",
+    "native_linux_focus": "pending",
+    "source_sha256": "a7d23af3314e1b4d2af4c9f58e4ca39757df1cba0243b8e74a9da25746a37d68"
+  }
 }

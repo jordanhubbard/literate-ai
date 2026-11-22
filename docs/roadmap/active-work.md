@@ -24839,7 +24839,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
   after the real version probe. The isolated unchanged module reproduces it.
   Stage changed bytes and replace only that disposable pathname, retaining the
   real probe, exact refusal and tampered bytes. Four controller controls pass;
-  corrected Linux focus and complete renewal remain required.
+  all four corrected native Linux controls also pass. The next exact full Linux
+  run reaches 719 passes and 34 skips before a second copied-launcher fixture
+  encounters the same write exclusion inside its last independent gate callback.
+  Apply the same owned-path replacement to the completion fixture; all seven
+  controller completion controls pass with actual native probes. Both failed
+  source runs remain preserved; corrected completion native focus and complete
+  renewal remain required.
   [Scoped renewal evidence](../../verification/recovery-native-renewal-development.json)
   preserves that failed full run. Source review,
   canonical pins, full combined source/platform/installed qualification and the

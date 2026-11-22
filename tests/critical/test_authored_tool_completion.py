@@ -34,6 +34,17 @@ from tests.support.fixtures_authored_retained_cargo_retirement import (
 )
 
 
+def _replace_owned_launcher(path: Path, marker: bytes) -> None:
+    # Linux can retain an executable's write exclusion after a completed probe.
+    # Replace only this fixture's selected pathname, preserving the changed bytes
+    # for the production completion guard to reject after every real probe.
+    replacement = path.with_name(path.name + ".changed")
+    with replacement.open("xb") as stream:
+        stream.write(path.read_bytes() + marker)
+    replacement.chmod(stat.S_IMODE(path.stat().st_mode))
+    replacement.replace(path)
+
+
 class AuthoredToolCompletionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -70,8 +81,7 @@ class AuthoredToolCompletionTests(unittest.TestCase):
                 def gate_guard():
                     measured.require_unchanged()
                     if state["armed"]:
-                        with path.open("ab") as stream:
-                            stream.write(b"preserved late gate callback")
+                        _replace_owned_launcher(path, b"preserved late gate callback")
                         state["armed"] = False
                         state["changed"] = True
 
@@ -116,8 +126,7 @@ class AuthoredToolCompletionTests(unittest.TestCase):
         with self.fixture() as (inputs, args, close, path, _state):
             completion = _capture_authored_consumer_tools(inputs, **args)
             close()
-            with path.open("ab") as stream:
-                stream.write(b"preserved direct launcher drift")
+            _replace_owned_launcher(path, b"preserved direct launcher drift")
             changed = path.read_bytes()
             with patch("subprocess.Popen", side_effect=AssertionError("raw probe")):
                 with self.assertRaises(BuildError):

@@ -3,7 +3,8 @@
 ## Unreleased
 
 - Cargo controls: stage changed bytes and replace the disposable launcher after
-  its real version probe, preserving the late byte-change refusal on Linux
+  its real version probe in original-file and completion controls, preserving the
+  late byte-change refusal on Linux
   systems that retain executable image references after process exit.
 
 - Packaging: keep declared provider bindings attached to their exact export when
