@@ -12,6 +12,7 @@ from literate_ai.adapters.builders import run_bounded_process
 from literate_ai.adapters.builders._process import BoundedProcessResult
 from literate_ai.adapters.lifecycle.standard_local import LocalComponentToolBinding
 from literate_ai.adapters.retained_project_dependencies import (
+    retained_export_dependency_document,
     retained_export_dependency_identity,
 )
 from literate_ai.adapters.retained_project_filesystem import (
@@ -220,16 +221,18 @@ def verify_retained_acceptance_action(
                     **environment,
                     **{key: str(cwd) for key in ("HOME", "TMPDIR", "TMP", "TEMP")},
                 }
-            before = retained_export_dependency_identity(
+            before_document = retained_export_dependency_document(
                 outputs, manifest, plan, environment
             )
-            case_before = (
-                before
+            before = canonical_identity(before_document)
+            case_before_document = (
+                before_document
                 if filesystem is None
-                else retained_export_dependency_identity(
+                else retained_export_dependency_document(
                     outputs, manifest, plan, case_environment
                 )
             )
+            case_before = canonical_identity(case_before_document)
             arguments = tuple(
                 arg.replace("{output_root}", str(outputs)) for arg in case.argv
             )
@@ -253,6 +256,12 @@ def verify_retained_acceptance_action(
                     environment=case_environment,
                     action_identity=case.identity,
                     phase="accept",
+                    acceptance_dependency_documents={
+                        "dependency": before_document,
+                        "filesystem_dependency": (
+                            case_before_document if filesystem is not None else None
+                        ),
+                    },
                 )
             )
             with context as sdk_scope:

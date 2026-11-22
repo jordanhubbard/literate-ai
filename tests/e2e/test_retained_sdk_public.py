@@ -94,7 +94,11 @@ class PublicRetainedSdkRuntimeTests(unittest.TestCase):
         sdk_commands = [
             r
             for r in evidence
-            if r.get("schema") == "literate-ai/native-sdk-command-execution@5"
+            if r.get("schema")
+            in {
+                "literate-ai/native-sdk-command-execution@5",
+                "literate-ai/native-sdk-command-execution@6",
+            }
         ]
         self.assertEqual(len(sdk_commands), 6)
         self.assertTrue(

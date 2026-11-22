@@ -19,7 +19,10 @@ from literate_ai.adapters.retained_project_inputs import verify_retained_project
 from literate_ai.adapters.retained_project_metadata import (
     read_retained_project_document,
 )
-from literate_ai.adapters.retained_sdk_command_context import EXECUTION_SCHEMA
+from literate_ai.adapters.retained_sdk_command_context import (
+    ACCEPTANCE_EXECUTION_SCHEMA,
+    EXECUTION_SCHEMA,
+)
 from literate_ai.contracts import (
     ComponentLock,
     ContentIdentity,
@@ -336,7 +339,13 @@ class RetainedProjectNativeSdkInputs:
 
     @contextmanager
     def command_scope(
-        self, argv, *, action_identity, command_context=None, **arguments
+        self,
+        argv,
+        *,
+        action_identity,
+        command_context=None,
+        acceptance_dependency_documents=None,
+        **arguments,
     ):
         self.require_unchanged()
         expected_argv = tuple(argv)
@@ -352,6 +361,63 @@ class RetainedProjectNativeSdkInputs:
             ):
                 raise ValueError("retained.sdk.command-context-launch-differs")
             original_record = arguments["record"]
+            original_record_many = arguments.get("record_many")
+            acceptance_references = None
+            if acceptance_dependency_documents is not None:
+                if (
+                    arguments["phase"] != "accept"
+                    or type(acceptance_dependency_documents) is not dict
+                    or set(acceptance_dependency_documents)
+                    != {"dependency", "filesystem_dependency"}
+                    or type(acceptance_dependency_documents["dependency"]) is not dict
+                    or (
+                        acceptance_dependency_documents["filesystem_dependency"]
+                        is not None
+                        and type(
+                            acceptance_dependency_documents["filesystem_dependency"]
+                        )
+                        is not dict
+                    )
+                ):
+                    raise ValueError("retained.sdk.acceptance-dependency-phase-differs")
+                acceptance_dependency_documents = json.loads(
+                    canonical_json_bytes(acceptance_dependency_documents)
+                )
+
+            def acceptance_dependencies():
+                nonlocal acceptance_references
+                if acceptance_references is None:
+                    names = tuple(
+                        name
+                        for name, document in acceptance_dependency_documents.items()
+                        if document is not None
+                    )
+                    documents = tuple(
+                        acceptance_dependency_documents[name] for name in names
+                    )
+                    identities = (
+                        original_record_many(lambda: iter(documents), count=len(names))
+                        if original_record_many is not None
+                        else tuple(original_record(value) for value in documents)
+                    )
+                    if len(identities) != len(documents) or any(
+                        identity != canonical_identity(document)
+                        for identity, document in zip(
+                            identities, documents, strict=True
+                        )
+                    ):
+                        raise ValueError(
+                            "retained.sdk.acceptance-dependency-retention-differs"
+                        )
+                    acceptance_references = {
+                        name: None for name in acceptance_dependency_documents
+                    }
+                    acceptance_references.update(
+                        (name, identity.to_dict())
+                        for name, identity in zip(names, identities, strict=True)
+                    )
+                return acceptance_references
+
             runtime_observations = {
                 execution.manifest_identity: [
                     {
@@ -378,6 +444,14 @@ class RetainedProjectNativeSdkInputs:
                             ContentIdentity.from_dict(document["manifest_identity"])
                         ],
                     }
+                    if acceptance_dependency_documents is not None:
+                        document = {
+                            **document,
+                            "schema": ACCEPTANCE_EXECUTION_SCHEMA,
+                            "retained_acceptance_dependencies": (
+                                acceptance_dependencies()
+                            ),
+                        }
                 return document
 
             def record(document):
@@ -390,7 +464,6 @@ class RetainedProjectNativeSdkInputs:
                     raise ValueError("retained.sdk.command-context-retention-differs")
                 return identity
 
-            original_record_many = arguments.get("record_many")
             if original_record_many is not None:
 
                 def record_many(documents, *, count):

@@ -18,6 +18,7 @@ from literate_ai.adapters.retained_sdk_authority import current_retained_sdk_sna
 from literate_ai.contracts import ContentIdentity
 from tests.e2e import test_retained_sdk_public as fixtures
 from tests.support.fixtures_public_retained_promotion import forge_public_run_evidence
+from tests.support.fixtures_test_retained_filesystem import select_filesystem_case
 
 LITAI_TEST_PRIORITY = 10
 LITAI_TEST_SERIAL = True
@@ -40,6 +41,13 @@ class RetainedSdkPromotionTests(unittest.TestCase):
     def test_sdk_capture_reopens_readonly_and_rejects_coherent_command_context_forgery(
         self,
     ):
+        self.verify_capture_forgery(private_filesystem=False)
+
+    def test_sdk_private_case_dependency_facts_reopen_after_cleanup_readonly(self):
+        select_filesystem_case(self.case.completed)
+        self.verify_capture_forgery(private_filesystem=True)
+
+    def verify_capture_forgery(self, *, private_filesystem):
         args, kwargs = self.public_runtime_arguments()
         captured = []
         with patch(
@@ -101,14 +109,41 @@ class RetainedSdkPromotionTests(unittest.TestCase):
                 ContentIdentity.parse_uri(captured[0].identity),
             )
             self.assertEqual(completed.identity, admission.run.identity)
-            for kind in ("command-environment", "command-dependency"):
+            forgeries = [
+                (
+                    "command-environment",
+                    "historical-command-observation-context-differs",
+                ),
+                (
+                    "command-dependency",
+                    "historical-command-observation-context-differs",
+                ),
+                (
+                    "acceptance-dependency",
+                    "historical-acceptance-dependency-context-differs",
+                ),
+                (
+                    "acceptance-dependency-context",
+                    "historical-acceptance-dependency-context-differs",
+                ),
+            ]
+            if private_filesystem:
+                forgeries.extend(
+                    (kind, "historical-acceptance-dependency-context-differs")
+                    for kind in (
+                        "acceptance-filesystem-dependency",
+                        "acceptance-filesystem-environment",
+                    )
+                )
+                self.assertEqual(list(_workspace.objects.glob("verifier-case-*")), [])
+            for kind, expected_error in forgeries:
                 with self.subTest(coherent_forgery=kind):
                     receipt, evidence = forge_public_run_evidence(
                         store, admission.receipt.to_dict(), captured[0], kind=kind
                     )
                     with self.assertRaisesRegex(
                         ValueError,
-                        "retained.sdk.historical-command-observation-context-differs",
+                        "retained.sdk." + expected_error,
                     ):
                         reopen(
                             ContentIdentity.parse_uri(receipt.identity),

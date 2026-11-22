@@ -5,10 +5,13 @@ These assertions never replace the authenticated worker's genuine execution and
 live SDK/LINK checks, nor grant a controller permission to run anything.
 """
 
+import json
 from collections import defaultdict
+from itertools import chain
 from pathlib import PurePosixPath, PureWindowsPath
 
 from literate_ai.adapters.builders.python import UNSANDBOXED_HOST_BUILD_PRIVILEGES
+from literate_ai.adapters.dependencies.types import HostDependencyObservation
 from literate_ai.adapters.locked_generation_authority import (
     LockedGenerationAuthoritySnapshot,
 )
@@ -21,6 +24,7 @@ from literate_ai.adapters.native_sdk_qualification import (
     verify_historical_sdk_authority_checks,
 )
 from literate_ai.adapters.native_sdk_recipes import select_native_sdk_recipes
+from literate_ai.adapters.retained_project_dependencies import _freeze
 from literate_ai.adapters.retained_project_execution import (
     RetainedProjectCommandObservation,
 )
@@ -29,6 +33,7 @@ from literate_ai.adapters.retained_project_sdks import (
     require_retained_sdk_product_placement,
 )
 from literate_ai.adapters.retained_sdk_command_context import (
+    ACCEPTANCE_EXECUTION_SCHEMA,
     EXECUTION_SCHEMA,
     verify_retained_sdk_command_context,
 )
@@ -53,6 +58,7 @@ from literate_ai.contracts.retained_project_sdks import (
 from literate_ai.contracts.sbom import (
     ManagedComponentKind,
     project_component_lock_managed_graph,
+    retained_project_bom_ref,
 )
 from literate_ai.security import BuildAuthorization, BuildRequest, SecurityProfile
 
@@ -585,6 +591,46 @@ def verify_retained_sdk_run_assertions(
     # Reuse the reader's custody checks and metadata allocation budget for the
     # original observation, rather than creating another decoded evidence cache.
     tool_observation = reader.document(tool_observation_reference)
+    action_environment_identities = {}
+
+    def acceptance_dependency(reference, expected, environment, output_manifest):
+        document = read(identity(reference))
+        fields(
+            document,
+            "schema plan_identity output_manifest_identity environment_identity "
+            "observation",
+        )
+        if (
+            canonical_identity(document) != expected
+            or document["schema"]
+            != "literate-ai/retained-export-dependency-observation@1"
+            or document["plan_identity"] != plan.identity.uri
+            or document["output_manifest_identity"] != output_manifest.identity.uri
+            or document["environment_identity"] != environment.uri
+        ):
+            raise ValueError(
+                "retained.sdk.historical-acceptance-dependency-context-differs"
+            )
+        value = document["observation"]
+        fields(value, "components edges")
+        require(type(value["components"]) is list and type(value["edges"]) is list)
+        for _item in chain(value["components"], value["edges"]):
+            step()
+        # Reuse the native owner's pure bounded graph validator. No paths are
+        # opened and no native observation or executable authority is acquired.
+        try:
+            frozen = _freeze(
+                HostDependencyObservation(
+                    tuple(value["components"]),
+                    tuple(tuple(edge) for edge in value["edges"]),
+                ),
+                retained_project_bom_ref(plan.identity),
+            )
+        except (TypeError, ValueError):
+            raise ValueError(
+                "retained.sdk.historical-acceptance-dependency-context-differs"
+            ) from None
+        require(json.loads(frozen) == value)
 
     def chronology():
         for observation in run.observations:
@@ -629,15 +675,22 @@ def verify_retained_sdk_run_assertions(
             step()
             execution = read(execution_id)
             captured = bool(plan.profile.runtime_library_paths)
+            if not ordinary and execution.get("schema") != ACCEPTANCE_EXECUTION_SCHEMA:
+                raise ValueError(
+                    "retained.sdk.historical-acceptance-dependency-capture-required"
+                )
             fields(
                 execution,
                 "schema phase command_binding request authorization "
                 "runtime_identity manifest_identity dependencies "
                 "checks retained_command_context retained_sdk_runtime_observations"
+                + (" retained_acceptance_dependencies" if not ordinary else "")
                 + (" captured_runtime_context" if captured else ""),
             )
             require(
-                execution["schema"] == EXECUTION_SCHEMA and execution["phase"] == phase
+                execution["schema"]
+                == (EXECUTION_SCHEMA if ordinary else ACCEPTANCE_EXECUTION_SCHEMA)
+                and execution["phase"] == phase
             )
             binding = execution["command_binding"]
             fields(
@@ -684,6 +737,36 @@ def verify_retained_sdk_run_assertions(
                 ):
                     raise ValueError(
                         "retained.sdk.historical-command-observation-context-differs"
+                    )
+                action_environment_identities[observation.action.action_id] = (
+                    environment_identity
+                )
+            else:
+                references = execution["retained_acceptance_dependencies"]
+                fields(references, "dependency filesystem_dependency")
+                base_environment = action_environment_identities[case.action_id]
+                case_environment = canonical_identity(context["environment"])
+                acceptance_dependency(
+                    references["dependency"],
+                    observation.dependency_identity,
+                    base_environment,
+                    stage_manifest,
+                )
+                if case.filesystem is None:
+                    require(
+                        references["filesystem_dependency"] is None
+                        and case_environment == base_environment
+                    )
+                else:
+                    if observation.filesystem_environment_identity != case_environment:
+                        raise ValueError(
+                            "retained.sdk.historical-acceptance-dependency-context-differs"
+                        )
+                    acceptance_dependency(
+                        references["filesystem_dependency"],
+                        observation.filesystem_dependency_identity,
+                        case_environment,
+                        stage_manifest,
                     )
             current_anchor = canonical_identity(
                 {

@@ -322,6 +322,84 @@
           "value": "[\"bin/codex-code-mode-host.exe\",\"codex-package.json\",\"codex-path/rg.exe\",\"codex-resources/codex-command-runner.exe\",\"codex-resources/codex-windows-sandbox-setup.exe\"]"
         }
       ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pkg:generic/winget-shininglight-openssl-dev",
+      "name": "WinGet OpenSSL ARM64 source-build SDK",
+      "version": ">=4.0.3,<4.1",
+      "properties": [
+        {
+          "name": "literate-ai:host-install:realization-kind",
+          "value": "native-build-prerequisite"
+        },
+        {
+          "name": "literate-ai:host-install:manager-package",
+          "value": "ShiningLight.OpenSSL.Dev"
+        },
+        {
+          "name": "literate-ai:host-install:for-capabilities",
+          "value": "[\"python-venv\"]"
+        },
+        {
+          "name": "literate-ai:host-install:requires-capabilities",
+          "value": "[\"cxx\",\"rustc\",\"cargo\"]"
+        },
+        {
+          "name": "literate-ai:host-install:build-minimum-versions",
+          "value": "{\"rustc\":\"1.83\",\"cargo\":\"1.83\"}"
+        },
+        {
+          "name": "literate-ai:host-install:probe-id",
+          "value": "openssl-build"
+        },
+        {
+          "name": "literate-ai:host-install:probe-kind",
+          "value": "command"
+        },
+        {
+          "name": "literate-ai:host-install:probe-candidates",
+          "value": "[\"%ProgramFiles%/OpenSSL/bin/openssl.exe\"]"
+        },
+        {
+          "name": "literate-ai:host-install:probe-arguments",
+          "value": "[\"version\"]"
+        },
+        {
+          "name": "literate-ai:host-install:sdk-executable-relative",
+          "value": "bin/openssl.exe"
+        },
+        {
+          "name": "literate-ai:host-install:required-runtime-paths",
+          "value": "[\"bin/libcrypto-4-arm64.dll\",\"bin/libssl-4-arm64.dll\"]"
+        },
+        {
+          "name": "literate-ai:host-install:required-development-paths",
+          "value": "[\"include/openssl/ssl.h\",\"include/openssl/opensslv.h\",\"lib/VC/arm64/MD/libcrypto_static.lib\",\"lib/VC/arm64/MD/libssl_static.lib\"]"
+        },
+        {
+          "name": "literate-ai:host-install:build-environment",
+          "value": "{\"OPENSSL_DIR\":\"{sdk_root}\",\"OPENSSL_LIB_DIR\":\"{sdk_root}/lib/VC/arm64/MD\",\"OPENSSL_INCLUDE_DIR\":\"{sdk_root}/include\",\"OPENSSL_STATIC\":\"1\",\"OPENSSL_LIBS\":\"libssl_static:libcrypto_static\"}"
+        },
+        {
+          "name": "literate-ai:host-install:install-arguments",
+          "value": "[\"install\",\"--id\",\"{package}\",\"--exact\",\"--version\",\"4.0.3\",\"--source\",\"winget\",\"--silent\",\"--accept-package-agreements\",\"--accept-source-agreements\",\"--disable-interactivity\",\"--architecture\",\"arm64\"]"
+        },
+        {
+          "name": "literate-ai:host-install:reason",
+          "value": "Pinned cryptography 50.0.1 has no Windows ARM64 wheel; its native source build requires the existing C++/Rust/Cargo capabilities and a complete native OpenSSL development SDK. Static libraries keep the private Python extension independent of an external DLL search path."
+        }
+      ],
+      "externalReferences": [
+        {
+          "type": "distribution",
+          "url": "https://github.com/microsoft/winget-pkgs/blob/master/manifests/s/ShiningLight/OpenSSL/Dev/4.0.3/ShiningLight.OpenSSL.Dev.installer.yaml"
+        },
+        {
+          "type": "website",
+          "url": "https://cryptography.io/en/50.0.1/installation/"
+        }
+      ]
     }
   ],
   "dependencies": [
@@ -335,7 +413,8 @@
         "pkg:generic/winget-msvc-build-tools",
         "pkg:generic/winget-kitware-cmake",
         "pkg:generic/winget-rustlang-rustup",
-        "pkg:generic/codex-windows-arm64"
+        "pkg:generic/codex-windows-arm64",
+        "pkg:generic/winget-shininglight-openssl-dev"
       ]
     },
     {
@@ -368,6 +447,10 @@
     },
     {
       "ref": "pkg:generic/codex-windows-arm64",
+      "dependsOn": []
+    },
+    {
+      "ref": "pkg:generic/winget-shininglight-openssl-dev",
       "dependsOn": []
     }
   ]

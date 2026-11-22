@@ -487,7 +487,15 @@ class RetainedProjectExecutionWorkspace:
         return self._dependencies.identity
 
     def _sdk_command_scope(
-        self, argv, *, tool, cwd, environment, action_identity, phase
+        self,
+        argv,
+        *,
+        tool,
+        cwd,
+        environment,
+        action_identity,
+        phase,
+        acceptance_dependency_documents=None,
     ):
         if self._native_sdks is None:
             return nullcontext(None)
@@ -533,6 +541,7 @@ class RetainedProjectExecutionWorkspace:
             action_identity=action_identity,
             phase=phase,
             command_context=command_context,
+            acceptance_dependency_documents=acceptance_dependency_documents,
             authorize=self._native_sdk_authorize,
             clock=lambda: datetime.now(UTC),
             record=self._native_sdk_record,

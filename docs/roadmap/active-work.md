@@ -19444,6 +19444,26 @@ subsequent Make-environment correction is not part of that wheel's evidence.
   native source-build prerequisite closure while retaining the exact dependency
   pin, ARM64 target and full installed-host acceptance; the host goal stays open.
 
+- **Native Python build closure (in progress):** The ARM64 tuple now names the
+  physical OpenSSL development SDK and the existing C++/Rust/Cargo contracts
+  required to build pinned `cryptography==50.0.1`. The universal base and selected
+  Flavor contracts stay unchanged; the finite physical build closure strengthens
+  Rust/Cargo to the source dependency's required minimum. The current 4.0.3 ARM64
+  MSI matches both the vendor hash feed and WinGet manifest. CRC-checked installer
+  metadata confirms the native DLL, header and static-library destinations;
+  no Windows installer was executed on the coordinator. Use the observed SDK
+  root for child-only OpenSSL build variables, including explicit static library
+  selection, and reject conflicting ordinary or native target-prefixed settings.
+  Six protocol controls, nine existing host-install controls and 21 FreeBSD
+  controls pass with no skips. The host fixtures are counterexamples, not native
+  execution proof. The earlier missing-compiler fixture failed because it omitted
+  the newly declared SDK; extend only that controlled fixture, preserving its
+  original no-replacement, explicit selection and exact installation assertions.
+  The fresh full-source run remains failed at Git setup: 559 tests passed and 29
+  skipped before a local `git submodule status --recursive` launch exceeded the
+  original 30-second limit. Keep this failed result and renew complete source and
+  actual native Windows installation before any host or release qualification.
+
 - **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
   remains unreachable with SSH exit 255 after its retained local transport was
   restored. Prepare a source-bound `windows-11-arm` job for the platform cell that
@@ -25649,6 +25669,28 @@ independent review and the complete combined gate from test one.
   The [scoped development evidence](../../verification/sdk-historical-context-source-portability-development.json)
   retains the original failing regression and 45 passing native checks across
   SDK reopening, original promotion and source-portability controls.
+
+- **SDK acceptance dependency capture (in progress):** The actual native
+  capture/reopen regression first reproduces coherent acceptance dependency
+  forgery acceptance (190.677 seconds). Retain the original bounded base and
+  private-case export-dependency documents through additive SDK acceptance
+  execution metadata `@6`, keeping ordinary `@5` and frozen receipt/acceptance
+  wires unchanged. The read-only inspector follows the explicit references
+  through the existing bounded metadata owner and joins plan, stage manifest,
+  native graph and actual action/case environments. Missing old SDK facts require
+  fresh capture. The original valid capture and three forgery checks pass in
+  254.325 seconds without CAS writes, command execution or SDK acquisition.
+  The extended two-case native capture/reopen cohort passes in 482.293 seconds,
+  including coherent dependency-document and private filesystem environment
+  forgeries. Its initial fixture collapsed two documents into the same forged
+  identity and hit the existing uniqueness guard; preserve that failed run and
+  correct only the forgery fixture to keep its original contexts distinct.
+  The thirteen original SDK, eleven public SDK, seven captured-runtime, fourteen
+  acceptance and eleven private filesystem controls pass with no skips. The
+  acceptance drift control now checks both actual native observations around the
+  original program. The [58-case development record](../../verification/sdk-acceptance-dependency-context-development.json)
+  retains exact report/source hashes and both original failures. Complete combined
+  source, installed promotion, independent review and release remain required.
 
 - **Release target:** 1.4.0
 - **Release scope:** The current included dispositions on issue #295 and PR #297 govern this framework work; the consumer release number is separate.

@@ -321,17 +321,22 @@ def observe_retained_export_dependencies(
 
 def retained_export_dependency_identity(root, manifest, plan, environment):
     """Freeze actual exported native dependencies; this is not SDK/BOM admission."""
+    return canonical_identity(
+        retained_export_dependency_document(root, manifest, plan, environment)
+    )
+
+
+def retained_export_dependency_document(root, manifest, plan, environment):
+    """Keep the original bounded native facts for historical consistency checks."""
     observation = observe_retained_export_dependencies(
         root, manifest, plan, environment
     )
     root_ref = retained_project_bom_ref(plan.identity)
     payload = _freeze(observation, root_ref)
-    return canonical_identity(
-        {
-            "schema": "literate-ai/retained-export-dependency-observation@1",
-            "plan_identity": plan.identity.uri,
-            "output_manifest_identity": manifest.identity.uri,
-            "environment_identity": canonical_identity(dict(environment)).uri,
-            "observation": json.loads(payload),
-        }
-    )
+    return {
+        "schema": "literate-ai/retained-export-dependency-observation@1",
+        "plan_identity": plan.identity.uri,
+        "output_manifest_identity": manifest.identity.uri,
+        "environment_identity": canonical_identity(dict(environment)).uri,
+        "observation": json.loads(payload),
+    }

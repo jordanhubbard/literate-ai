@@ -84,7 +84,11 @@ class CapturedRetainedSdkRuntimeTests(unittest.TestCase):
         sdk = [
             r
             for r in records
-            if r.get("schema") == "literate-ai/native-sdk-command-execution@5"
+            if r.get("schema")
+            in {
+                "literate-ai/native-sdk-command-execution@5",
+                "literate-ai/native-sdk-command-execution@6",
+            }
         ]
         self.assertEqual(len(sdk), 6)
         for command in sdk:
@@ -188,7 +192,11 @@ class CapturedRetainedSdkRuntimeTests(unittest.TestCase):
         commands = [
             v
             for v in self.case.documents.values()
-            if v.get("schema") == "literate-ai/native-sdk-command-execution@5"
+            if v.get("schema")
+            in {
+                "literate-ai/native-sdk-command-execution@5",
+                "literate-ai/native-sdk-command-execution@6",
+            }
         ]
         self.assertEqual(len(commands), 6)
 

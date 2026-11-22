@@ -9,6 +9,7 @@ from dataclasses import replace
 from unittest.mock import patch
 
 from literate_ai.adapters import retained_project_acceptance as acceptance
+from literate_ai.adapters import retained_project_dependencies as dependencies
 from literate_ai.adapters.builders import BuildError
 from literate_ai.adapters.retained_project_inputs import (
     RetainedProjectInputError,
@@ -222,15 +223,30 @@ class RetainedProjectAcceptanceTests(unittest.TestCase):
             self.execute()
 
     def test_native_dependency_drift_is_rejected_after_actual_command(self):
-        before = canonical_identity("before")
-        after = canonical_identity("after")
+        native_observe = dependencies.observe_retained_export_dependencies
+        calls = []
+
+        def changed_after_command(*args, **kwargs):
+            observation = native_observe(*args, **kwargs)
+            calls.append(observation)
+            if len(calls) == 2:
+                return replace(
+                    observation,
+                    components=tuple(
+                        {**component, "version": "changed-native-dependency"}
+                        for component in observation.components
+                    ),
+                )
+            return observation
+
         with patch.object(
-            acceptance,
-            "retained_export_dependency_identity",
-            side_effect=(before, after),
+            dependencies,
+            "observe_retained_export_dependencies",
+            side_effect=changed_after_command,
         ):
             with self.assertRaisesRegex(ValueError, "native-dependencies-changed"):
                 self.execute()
+        self.assertEqual(len(calls), 2)
 
     def test_actual_program_output_budget_is_enforced(self):
         self.case = replace(self.case, argv=("spam", "unused"))

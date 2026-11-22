@@ -120,6 +120,12 @@ class HostPackageRequirement:
     reason: str
     install_arguments: tuple[str, ...] = ()
     path_entries: tuple[str, ...] = ()
+    prerequisite_for: tuple[str, ...] = ()
+    probe_contract: UniversalCapabilityRequirement | None = None
+    sdk_executable_relative: str | None = None
+    required_runtime_paths: tuple[str, ...] = ()
+    required_development_paths: tuple[str, ...] = ()
+    build_environment: tuple[tuple[str, str], ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -220,6 +226,33 @@ class HostInstallSbom:
     package_manager: NativePackageManagerRequirement
     packages: tuple[HostPackageRequirement, ...]
     artifacts: tuple[HostManagedArtifact, ...]
+    build_capabilities: tuple[UniversalCapabilityRequirement, ...] = ()
+
+    def capability(self, name: str) -> UniversalCapabilityRequirement:
+        for item in (*self.base.capabilities, *self.build_capabilities):
+            if item.capability == name:
+                return item
+        return self.base.capability(name)
+
+
+@dataclass(frozen=True, slots=True)
+class _NativeBuildPrerequisite:
+    requirement: HostPackageRequirement
+    requires_capabilities: tuple[str, ...]
+    minimum_versions: tuple[tuple[str, str], ...] = ()
+
+    @property
+    def bom_ref(self) -> str:
+        return self.requirement.bom_ref
+
+    @property
+    def manager_package(self) -> str:
+        return self.requirement.manager_package
+
+    @property
+    def capabilities(self) -> tuple[str, ...]:
+        # This physical SDK does not replace any Flavor's logical contract.
+        return ()
 
 
 def normalize_architecture(machine: str) -> str:
@@ -513,10 +546,13 @@ def parse_host_install_sbom(
         )
     realizations = tuple(_realization(item) for item in components)
     native = tuple(item for item in realizations if isinstance(item, _NativePackage))
+    prerequisites = tuple(
+        item for item in realizations if isinstance(item, _NativeBuildPrerequisite)
+    )
     artifacts = tuple(
         item for item in realizations if isinstance(item, HostManagedArtifact)
     )
-    names = [item.manager_package for item in native]
+    names = [item.manager_package for item in (*native, *prerequisites)]
     if len(names) != len(set(names)):
         raise HostInstallRequirementError(
             "host-install.package-duplicate",
@@ -529,9 +565,50 @@ def parse_host_install_sbom(
             "host-install SBOM realizes one base capability more than once",
         )
     capability_catalog = catalog or base
+    contracts = {item.capability: item for item in capability_catalog.capabilities}
+    probe_ids = set()
+    for item in prerequisites:
+        requirement = item.requirement
+        if requirement.capability in contracts or requirement.capability in probe_ids:
+            raise HostInstallRequirementError(
+                "host-install.build-prerequisite-probe-collision",
+                "native build prerequisite probe identifiers must be distinct",
+            )
+        probe_ids.add(requirement.capability)
+        for name in (*requirement.prerequisite_for, *item.requires_capabilities):
+            if name not in contracts or contracts[name].group is not None:
+                raise HostInstallRequirementError(
+                    "host-install.build-prerequisite-owner-unknown",
+                    "native build prerequisite references unknown logical owner "
+                    f"{name!r}",
+                )
+    required_build = set()
+    required_logical = {
+        item.capability for item in base.capabilities if item.group is None
+    }
+    while True:
+        discovered = {
+            name
+            for item in prerequisites
+            if required_logical.intersection(item.requirement.prerequisite_for)
+            for name in item.requires_capabilities
+        } - required_logical
+        if not discovered:
+            break
+        required_build.update(discovered)
+        required_logical.update(discovered)
+    minimum_versions: dict[str, str] = {}
+    for item in prerequisites:
+        if required_logical.intersection(item.requirement.prerequisite_for):
+            for name, minimum in item.minimum_versions:
+                previous = minimum_versions.get(name)
+                if previous is None or _version_tuple(minimum) > _version_tuple(
+                    previous
+                ):
+                    minimum_versions[name] = minimum
     base_names = {item.capability for item in capability_catalog.capabilities}
     unknown = sorted(set(realized) - base_names)
-    required = {item.capability for item in base.capabilities if item.group is None}
+    required = required_logical
     missing = sorted(required - set(realized))
     agents = {item.capability for item in base.coding_agents}
     if not agents.intersection(realized):
@@ -554,7 +631,12 @@ def parse_host_install_sbom(
             capability,
             base_requirement.name,
             item.manager_package,
-            base_requirement.version_constraint,
+            base_requirement.version_constraint
+            + (
+                ",>=" + minimum_versions[capability]
+                if capability in minimum_versions
+                else ""
+            ),
             base_requirement.probe_kind,
             item.probe_candidates or base_requirement.probe_candidates,
             (
@@ -570,10 +652,18 @@ def parse_host_install_sbom(
         for capability in item.capabilities
         for base_requirement in (capability_catalog.capability(capability),)
     )
+    packages += tuple(item.requirement for item in prerequisites)
     _validate_dependency_graph(
         root, metadata, tuple(item.bom_ref for item in realizations)
     )
-    return HostInstallSbom(target, base, manager, packages, artifacts)
+    return HostInstallSbom(
+        target,
+        base,
+        manager,
+        packages,
+        artifacts,
+        tuple(contracts[name] for name in sorted(required_build)),
+    )
 
 
 def version_satisfies(observed: str, constraint: str) -> bool:
@@ -721,11 +811,162 @@ def _capability_contract(
     )
 
 
-def _realization(value: object) -> _NativePackage | HostManagedArtifact:
+def _native_build_prerequisite(
+    bom_ref: str, name: str, version: str, properties: Mapping[str, str]
+) -> _NativeBuildPrerequisite:
+    if PROPERTY_PREFIX + "base-capabilities" in properties:
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-owner-invalid",
+            "native build prerequisites cannot define logical Flavor capabilities",
+        )
+    if _identifier_property(properties, "probe-kind") != "command":
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-probe-invalid",
+            "native SDK prerequisites require an executable version probe",
+        )
+    probe_id = _identifier_property(properties, "probe-id")
+    owners = _identifier_array_property(properties, "for-capabilities")
+    requires = _identifier_array_property(properties, "requires-capabilities")
+    try:
+        minimum_versions = json.loads(
+            _optional_property(properties, "build-minimum-versions") or "{}"
+        )
+    except json.JSONDecodeError as exc:
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-version-invalid",
+            "build minimum versions must be a JSON string map",
+        ) from exc
+    if (
+        type(minimum_versions) is not dict
+        or not set(minimum_versions) <= set(requires)
+        or any(
+            type(value) is not str
+            or re.fullmatch(r"[0-9]{1,8}(?:\.[0-9]{1,8}){0,3}", value) is None
+            for value in minimum_versions.values()
+        )
+    ):
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-version-invalid",
+            "build minimum versions must name required logical capabilities",
+        )
+    candidates = _string_array_property(properties, "probe-candidates")
+    arguments = _arguments_property(properties, "probe-arguments")
+    if not candidates or not arguments:
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-probe-invalid",
+            "native SDK prerequisites need executable candidates and arguments",
+        )
+    try:
+        executable = _safe_relative_property(properties, "sdk-executable-relative")
+        runtime = _safe_relative_paths_property(properties, "required-runtime-paths")
+        development = _safe_relative_paths_property(
+            properties, "required-development-paths"
+        )
+        if not development or "." in (executable, *runtime, *development):
+            raise ValueError("SDK file references must name files")
+    except ValueError as exc:
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-path-invalid",
+            "native SDK prerequisites require contained relative file paths",
+        ) from exc
+    try:
+        environment = json.loads(_required_property(properties, "build-environment"))
+    except json.JSONDecodeError as exc:
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-environment-invalid",
+            "native SDK build environment must be a JSON string map",
+        ) from exc
+    allowed = {
+        "OPENSSL_DIR",
+        "OPENSSL_LIB_DIR",
+        "OPENSSL_INCLUDE_DIR",
+        "OPENSSL_STATIC",
+        "OPENSSL_LIBS",
+    }
+    if (
+        type(environment) is not dict
+        or not environment
+        or not set(environment) <= allowed
+        or any(
+            type(value) is not str
+            or not value
+            or len(value) > 4096
+            or any(character in value for character in "\x00\r\n")
+            or "{" in value.replace("{sdk_root}", "")
+            or "}" in value.replace("{sdk_root}", "")
+            for value in environment.values()
+        )
+    ):
+        raise HostInstallRequirementError(
+            "host-install.build-prerequisite-environment-invalid",
+            "native SDK build environment contains unsupported variables or templates",
+        )
+    for key, value in environment.items():
+        if not key.endswith("_DIR"):
+            continue
+        normalized = value.replace("\\", "/")
+        try:
+            if normalized.count("{sdk_root}") != 1:
+                raise ValueError("one observed SDK root is required")
+            if normalized != "{sdk_root}":
+                if not normalized.startswith("{sdk_root}/"):
+                    raise ValueError("SDK directories must be root-relative")
+                _safe_relative_path(normalized[len("{sdk_root}/") :], label=key)
+        except ValueError as exc:
+            raise HostInstallRequirementError(
+                "host-install.build-prerequisite-environment-invalid",
+                "native SDK build directories must stay under the observed SDK root",
+            ) from exc
+    install = _arguments_property(properties, "install-arguments", required=False)
+    if install and "{package}" not in install:
+        raise HostInstallRequirementError(
+            "host-install.package-install-template-invalid",
+            "native prerequisite install override needs {package}",
+        )
+    probe = UniversalCapabilityRequirement(
+        bom_ref,
+        probe_id,
+        name,
+        version,
+        "command",
+        candidates,
+        arguments,
+        _required_property(properties, "reason"),
+    )
+    return _NativeBuildPrerequisite(
+        HostPackageRequirement(
+            bom_ref,
+            probe_id,
+            name,
+            _required_property(properties, "manager-package"),
+            version,
+            "command",
+            candidates,
+            arguments,
+            probe.reason,
+            install,
+            _native_path_entries_property(properties),
+            owners,
+            probe,
+            executable,
+            runtime,
+            development,
+            tuple(sorted(environment.items())),
+        ),
+        requires,
+        tuple(sorted(minimum_versions.items())),
+    )
+
+
+def _realization(
+    value: object,
+) -> _NativePackage | HostManagedArtifact | _NativeBuildPrerequisite:
     component = _mapping(value, "host-install realization component")
     bom_ref, name, version = _component_identity(component, "host realization")
     properties = _properties(component.get("properties"), f"component {name!r}")
     kind = _identifier_property(properties, "realization-kind")
+    if kind == "native-build-prerequisite":
+        return _native_build_prerequisite(bom_ref, name, version, properties)
     capabilities = _identifier_array_property(properties, "base-capabilities")
     if kind == "native-package":
         native = _NativePackage(

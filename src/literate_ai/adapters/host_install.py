@@ -320,7 +320,9 @@ def observe_host_install_dependencies(
         runner=runner,
         locator=locate,
     )
-    required = {item.capability for item in sbom.base.capabilities}
+    required = {
+        item.capability for item in (*sbom.base.capabilities, *sbom.build_capabilities)
+    }
     manager = sbom.package_manager
     query_path = locate(manager.query_executable, observed_environment.get("PATH"))
     native = tuple(
@@ -333,8 +335,12 @@ def observe_host_install_dependencies(
             locator=locate,
         )
         for requirement in sbom.packages
-        if requirement.capability in required
-        and sbom.base.capability(requirement.capability).group is None
+        if (
+            bool(required.intersection(requirement.prerequisite_for))
+            if requirement.prerequisite_for
+            else requirement.capability in required
+            and sbom.capability(requirement.capability).group is None
+        )
     )
     native_capabilities = {item.requirement.capability for item in native}
     managed = tuple(
@@ -542,8 +548,9 @@ def ensure_host_install_dependencies(
 
 
 def apply_host_install_path(report: HostInstallReport) -> None:
-    """Expose verified native and per-user managed tools to child processes."""
+    """Expose verified native tools and source-build SDK paths to children."""
 
+    build_environment = _native_build_environment(report, os.environ)
     entries = [str(item) for item in report.managed_paths]
     entries.extend(
         str(item.executable.parent)
@@ -553,6 +560,92 @@ def apply_host_install_path(report: HostInstallReport) -> None:
     os.environ["PATH"] = os.pathsep.join(
         (*dict.fromkeys(entries), os.environ.get("PATH", ""))
     )
+    os.environ.update(build_environment)
+
+
+def _native_sdk_root(requirement, executable):
+    relative = requirement.sdk_executable_relative
+    if relative is None or executable is None:
+        return None
+    parts = PurePosixPath(relative).parts
+    if tuple(part.casefold() for part in executable.parts[-len(parts) :]) != tuple(
+        part.casefold() for part in parts
+    ):
+        return None
+    return executable.parents[len(parts) - 1]
+
+
+def _native_sdk_files_present(requirement, executable):
+    root = _native_sdk_root(requirement, executable)
+    if root is None:
+        return False
+    try:
+        for relative in (
+            *requirement.required_runtime_paths,
+            *requirement.required_development_paths,
+        ):
+            path = root.joinpath(*PurePosixPath(relative).parts)
+            if (
+                not path.is_file()
+                or path.stat().st_size == 0
+                or path.absolute() != path.resolve(strict=True)
+            ):
+                return False
+    except OSError:
+        return False
+    return True
+
+
+def _native_build_environment(report, environment):
+    observations = {item.requirement.capability: item for item in report.observations}
+    result = {}
+    for requirement in report.sbom.packages:
+        if not requirement.build_environment:
+            continue
+        observation = observations.get(requirement.capability)
+        if observation is None:
+            continue
+        if (
+            report.sbom.target.operating_system == "windows"
+            and report.sbom.target.architecture == "arm64"
+        ):
+            observation = _observe_windows_arm64_images(
+                observation, report.sbom, environment
+            )
+        if (
+            not report.ready
+            or not observation.ready
+            or not _native_sdk_files_present(requirement, observation.executable)
+        ):
+            raise HostInstallError(
+                "host-install.build-sdk-changed",
+                "Native source-build SDK is incomplete; no environment was changed.",
+            )
+        root = _native_sdk_root(requirement, observation.executable)
+        for name, template in requirement.build_environment:
+            value = template.replace("{sdk_root}", str(root))
+            names = [name]
+            if (
+                report.sbom.target.operating_system == "windows"
+                and report.sbom.target.architecture == "arm64"
+            ):
+                # openssl-sys gives its native target-prefixed setting priority.
+                names.append("AARCH64_PC_WINDOWS_MSVC_" + name)
+            for candidate in names:
+                previous = result.get(candidate, environment.get(candidate))
+                equal = previous == value or (
+                    previous is not None
+                    and name.endswith("_DIR")
+                    and Path(previous) == Path(value)
+                )
+                if previous is not None and not equal:
+                    raise HostInstallError(
+                        "host-install.build-environment-conflict",
+                        f"Native SDK build variable {candidate} conflicts "
+                        "with its selected SDK.",
+                    )
+            result[name] = value
+    return result
 
 
 def _load_flavor_toolchains(root: Path) -> dict[str, UniversalToolchainSbom]:
@@ -705,7 +798,8 @@ def _observe_native_package(
             in (query.stdout + query.stderr).casefold()
         )
     base = replace(
-        sbom.base.capability(requirement.capability),
+        requirement.probe_contract or sbom.capability(requirement.capability),
+        version_constraint=requirement.version_constraint,
         probe_candidates=requirement.probe_candidates,
         probe_arguments=requirement.probe_arguments,
     )
@@ -754,6 +848,12 @@ def _observe_native_package(
             else None
         ),
     )
+    if requirement.sdk_executable_relative is not None:
+        probe = (
+            probe[0] and _native_sdk_files_present(requirement, probe[2]),
+            probe[1],
+            probe[2],
+        )
     return HostCapabilityObservation(
         base,
         "native-package",
@@ -830,6 +930,15 @@ def _observe_windows_arm64_images(
         paths = [("executable", observation.executable)]
     if requirement.probe_kind in {"current-python", "python-module"}:
         paths.append(("python-runtime", _python_runtime_image()))
+    for package in sbom.packages:
+        if package.capability != requirement.capability:
+            continue
+        root = _native_sdk_root(package, observation.executable)
+        if root is not None:
+            paths.extend(
+                ("native-sdk-runtime-image", root.joinpath(*PurePosixPath(name).parts))
+                for name in package.required_runtime_paths
+            )
     for artifact in sbom.artifacts:
         if requirement.capability not in artifact.capabilities:
             continue

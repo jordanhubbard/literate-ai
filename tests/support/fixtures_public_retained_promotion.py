@@ -425,6 +425,44 @@ def forge_public_run_evidence(store, retained_receipt, promotion_reference, *, k
             observation = read(reference)
             observation[field] = canonical_identity({"forged": kind}).uri
             targets.append((reference, canonical_json_bytes(observation)))
+    elif kind in {
+        "acceptance-dependency",
+        "acceptance-filesystem-dependency",
+        "acceptance-filesystem-environment",
+    }:
+        field = {
+            "acceptance-dependency": "dependency_identity",
+            "acceptance-filesystem-dependency": "filesystem_dependency_identity",
+            "acceptance-filesystem-environment": "filesystem_environment_identity",
+        }[kind]
+        targets = []
+        for identity in completed["acceptance_observations"]:
+            reference = by_identity[identity]
+            observation = read(reference)
+            if field not in observation:
+                raise AssertionError("actual private filesystem observation required")
+            observation[field] = canonical_identity({"forged": kind}).uri
+            targets.append((reference, canonical_json_bytes(observation)))
+        if not targets:
+            raise AssertionError("actual acceptance observations required")
+    elif kind == "acceptance-dependency-context":
+        targets = []
+        for row in run_evidence["sdk_metadata_records"]:
+            reference = BlobRef.from_dict(row)
+            document = read(reference)
+            if document.get("schema") != (
+                "literate-ai/retained-export-dependency-observation@1"
+            ):
+                continue
+            document["environment_identity"] = canonical_identity(
+                {
+                    "forged": kind,
+                    "original_environment": document["environment_identity"],
+                }
+            ).uri
+            targets.append((reference, canonical_json_bytes(document)))
+        if not targets:
+            raise AssertionError("actual captured native dependency facts required")
     elif kind == "report":
         observation = read(by_identity[completed["test_observations"][0]])
         target = by_identity[observation["blob_identity"]]

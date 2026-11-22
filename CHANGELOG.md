@@ -2,10 +2,18 @@
 
 ## Unreleased
 
-- SDK receipt reopening: bind ordinary command environment and dependency
-  identities to the existing captured launch context and native dependency graph.
-  Actual SDK capture and read-only reopen reject coherent context forgeries;
-  acceptance dependency capture and installed release qualification remain open.
+- Windows ARM64 installation: declare the native C++/Rust/Cargo and complete
+  OpenSSL development SDK needed to source-build pinned Python dependencies.
+  Bind child build variables to the observed SDK, reject conflicting native
+  target overrides, and select its static libraries. Portable controls and
+  vendor metadata inspection pass; native installed-host renewal remains open.
+
+- SDK receipt reopening: bind ordinary command identities to the existing
+  captured launch context, and retain original per-case native dependency facts
+  in additive SDK acceptance execution metadata. Historical inspection joins
+  those facts without execution, SDK acquisition or writes. Original and private
+  case reopening plus 58 focused SDK/acceptance controls pass; installed
+  promotion and full release qualification remain open.
 - Native source qualification: retain the base interpreter for stdlib monorepo
   fixtures, suppress child core files while preserving failing exit status, and
   exercise Cargo late-mutation regressions against the current wrapper owner.
