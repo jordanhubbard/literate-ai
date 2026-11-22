@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained Python bridge development: compare exact reviewed plans with current
+  consumer inventories, complete gates, target/environment and the original
+  live interpreter observation. Close custody on success and refusal. Current
+  provider resolution, package execution and public receipt admission remain open.
+
 - Windows ARM64 installation: declare the native C++/Rust/Cargo and complete
   OpenSSL development SDK needed to source-build pinned Python dependencies.
   Bind child build variables to the observed SDK, reject conflicting native
