@@ -3419,7 +3419,72 @@ invalid. Ordinary queue items do not gain separate files merely to satisfy this 
 
 ## Open pull-request landing queue
 
-### Current consolidation inventory
+### Current 1.4 forge inventory (2026-11-22)
+
+The full current-repository inventory has 50 open reviews. Exact Git
+ancestry proves 33 review heads are contained in the private combined source
+candidate `8c4280f975319128624f185f719e5716067297c1`; seventeen are not proven
+contained. This records source inclusion only. It grants no current CI, review,
+installed qualification, merge or issue-closure claim. Main remains
+`ebf88985be10f733dd64f469b7cd4aa685ce9083` at this observation.
+RELEASE-INTEGRATION-005 owns collection and final landing; individual roadmap
+owners retain their complete acceptance. Uncollected and design-only work stays
+open. Preserve the historical inventories below.
+
+| Open review | Observed head | Source collection status |
+| --- | --- | --- |
+| [#491 — Keep Rust harness native guards within their owned execution budget](https://github.com/jordanhubbard/literate-ai/pull/491) | `551e32e47a4c96e230137ccf9ac93cae38c6fbea` | Exact head ancestral; original Rust guard recovery collected. Native/installed and main landing gates remain. |
+| [#489 — Allow native SDK builds to place outputs outside immutable source](https://github.com/jordanhubbard/literate-ai/pull/489) | `6e67c86b2ab08034bf0eae60170672890d97431e` | Exact head ancestral to the combined candidate. |
+| [#475 — Integrate 1.4 adoption, SDK custody and authored Cargo receiving work](https://github.com/jordanhubbard/literate-ai/pull/475) | `edb3cf2f94e7743f0f14a83dc64c1ee21f2f0880` | Exact head ancestral to the combined candidate. |
+| [#474 — Bump vmactions/freebsd-vm from 1.5.9 to 1.6.0](https://github.com/jordanhubbard/literate-ai/pull/474) | `c01620b358aa12065bf3d585e8f5148f85513540` | Exact head ancestral to the combined candidate. |
+| [#473 — Bump bazel-contrib/setup-bazel from 0.19.1 to 0.19.2](https://github.com/jordanhubbard/literate-ai/pull/473) | `a52878640e7f040ea14cf9b5fb93e8852fd0ff86` | Exact head ancestral to the combined candidate. |
+| [#472 — Refuse validation failures before expensive Make gates](https://github.com/jordanhubbard/literate-ai/pull/472) | `d383f294123f713f082042db4bf6044c387b83c4` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#471 — Record actual delivery qualification and skill comparison evidence](https://github.com/jordanhubbard/literate-ai/pull/471) | `9ed5a266e5d07bb720292a067d7af50954a6bbd1` | Exact head ancestral to the combined candidate. |
+| [#470 — Separate documentation dependencies and enforce both tool audits](https://github.com/jordanhubbard/literate-ai/pull/470) | `18d98aab3588b3112323ead2fdd959fd785803f4` | Exact head ancestral to the combined candidate. |
+| [#467 — Declare native FreeBSD ARM64 host prerequisite installation](https://github.com/jordanhubbard/literate-ai/pull/467) | `7ed194f729a6ab19dd6ed7ed887e3f09731fba20` | Exact head ancestral to the combined candidate. |
+| [#465 — Prove native CI coverage with an exact-head producer pilot](https://github.com/jordanhubbard/literate-ai/pull/465) | `af11434c90d58489a923114a8d8f0c7bdb1ebba0` | Exact head ancestral to the combined candidate. |
+| [#464 — Verify explicit native CI coverage for release preparation](https://github.com/jordanhubbard/literate-ai/pull/464) | `c1038afa28a8e19b51ecdc0b5cb0654ec4004592` | Exact head ancestral to the combined candidate. |
+| [#463 — Observe native repository CI and compose reviewed delivery safeguards](https://github.com/jordanhubbard/literate-ai/pull/463) | `0686ca7ed5adb1392571c9666fb06fba0c8a2cf2` | Exact head ancestral to the combined candidate. |
+| [#460 — Bind release gates to the newest exact CI run and attempt](https://github.com/jordanhubbard/literate-ai/pull/460) | `abe7ca02b60a5d4f732d9d956d88984f4ba18b70` | Exact head ancestral to the combined candidate. |
+| [#459 — Preserve HTTP refusals and synchronize scheduler repair](https://github.com/jordanhubbard/literate-ai/pull/459) | `913ad5920288af37ed0c436089531fed2c437e13` | Exact head ancestral to the combined candidate. |
+| [#458 — Validate documentation on PRs and preserve native fixture bytes](https://github.com/jordanhubbard/literate-ai/pull/458) | `48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#457 — Compose retained-source custody and bounded parsing improvements](https://github.com/jordanhubbard/literate-ai/pull/457) | `a5709da778b542b6adf83b70fe4d950e3b434d12` | Exact head ancestral to the combined candidate. |
+| [#456 — Retain bounded module timing across release evidence export](https://github.com/jordanhubbard/literate-ai/pull/456) | `af4ab36e03b0784d7758b5599f16fb79ff28fbb2` | Exact head ancestral to the combined candidate. |
+| [#453 — Propose ADR 0073 for sealed libraries in TypeScript Node SDKs](https://github.com/jordanhubbard/literate-ai/pull/453) | `44f73e1d0722795f179f32cd53753eb7e4da9330` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#445 — Preserve source-link custody through authored acquisition and native SDKs](https://github.com/jordanhubbard/literate-ai/pull/445) | `f23678d8a194f8cce8a2844a556f84a2d864564d` | Exact head ancestral to the combined candidate. |
+| [#444 — Preserve closed POSIX source links through snapshot and quarantine custody](https://github.com/jordanhubbard/literate-ai/pull/444) | `a731a32f1777d152f19e55ae66e03de0e30f0620` | Exact head ancestral to the combined candidate. |
+| [#442 — Accept an omitted optional contribution roadmap manifest](https://github.com/jordanhubbard/literate-ai/pull/442) | `4c102f1267e51e4b60d980b00e9516b1f43193a1` | Exact head ancestral to the combined candidate. |
+| [#440 — Preserve original authored scratch identity during retirement](https://github.com/jordanhubbard/literate-ai/pull/440) | `676d8855a1836bf579d28b7a5ce42a6c989971b7` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#439 — Isolate parse reuse within v2 Cargo input observations (depends on #434)](https://github.com/jordanhubbard/literate-ai/pull/439) | `b6a4cdf6f584a509e7669b65084d259a2910ec18` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#438 — Bound lexical parsing within retained Cargo input captures](https://github.com/jordanhubbard/literate-ai/pull/438) | `86bf37ad182e1a458e7741963a489bc6f3a774ee` | Exact head ancestral to the combined candidate. |
+| [#437 — Integrate reviewed bootstrap, retained-layout and bounded execution repairs](https://github.com/jordanhubbard/literate-ai/pull/437) | `d35a4fc1631c9a6aa6ae16d6006ded856d4ef18d` | Exact head ancestral to the combined candidate. |
+| [#435 — Reduce duplicate Cargo custody observations within each guard](https://github.com/jordanhubbard/literate-ai/pull/435) | `e6edc3614f4a98ec85b3a6ba510271464b4c30ba` | Exact head ancestral to the combined candidate. |
+| [#434 — Bound native Cargo output custody with opt-in streamed budgets](https://github.com/jordanhubbard/literate-ai/pull/434) | `ddbda1a35e1bcea95bdba428dfebbe931d5bb583` | Exact head ancestral to the combined candidate. |
+| [#431 — Preserve distinct provider and consumer tool authority and owned secondary outputs](https://github.com/jordanhubbard/literate-ai/pull/431) | `9c3ebb122c0be7f6d5f31437c869df2615b85260` | Exact head ancestral to the combined candidate. |
+| [#428 — Avoid redundant Windows cleanup and quadratic export scans](https://github.com/jordanhubbard/literate-ai/pull/428) | `6f060715206a54b45ab0eed9353cb444eed1993b` | Exact head ancestral to the combined candidate. |
+| [#425 — Support public v2 retained Cargo receiving and admitted-compiler test oracles](https://github.com/jordanhubbard/literate-ai/pull/425) | `123e50c4c69d056ed30012aaeb5c568cccfcb8ee` | Exact head ancestral to the combined candidate. |
+| [#423 — Bind locked runtime capabilities through node and packaged execution](https://github.com/jordanhubbard/literate-ai/pull/423) | `a7482175ef97724339edfd1261396e2fe89ec418` | Exact head ancestral to the combined candidate. |
+| [#416 — Build bounded telemetry with original-process native observations](https://github.com/jordanhubbard/literate-ai/pull/416) | `6e42b7ef3f4ae5a25cb4e344388dcefb8398a7b3` | Exact head ancestral to the combined candidate. |
+| [#414 — Repair native Rust result rejection within the bounded candidate loop](https://github.com/jordanhubbard/literate-ai/pull/414) | `58bc138109c5358a0c74d39fe03eacddfbb5272a` | Exact head ancestral to the combined candidate. |
+| [#413 — Own bounded Codex runtime state and isolate remote catalog access](https://github.com/jordanhubbard/literate-ai/pull/413) | `7ad91075d939162305921ab650218cd47eaeb703` | Exact head ancestral to the combined candidate. |
+| [#410 — Correct CUDA inventory signals and qualify positive coverage](https://github.com/jordanhubbard/literate-ai/pull/410) | `a5bee312c0cfd9e5561682c76cd4bea898a169c0` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#409 — Propose typed bounded repair after native root acceptance rejection](https://github.com/jordanhubbard/literate-ai/pull/409) | `4bebbf31ad1c04bd5a2cdf5fff8eb536f4815e25` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#401 — Add acknowledged authored graph qualification and recoverable publication](https://github.com/jordanhubbard/literate-ai/pull/401) | `97362d5c5a8a7966dce649a526f7b32b354af606` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#398 — Keep vendor copyright from implying CUDA requirements](https://github.com/jordanhubbard/literate-ai/pull/398) | `4b051a9af074e4255789370922cd98bb874c70fc` | Exact head ancestral to the combined candidate. |
+| [#391 — Retain bounded original diagnostics when qualification fails](https://github.com/jordanhubbard/literate-ai/pull/391) | `2b4b883816de8145b54298f25f437d15a67c7588` | Exact head ancestral to the combined candidate. |
+| [#382 — docs: propose ADR 0070 for reviewed retained command renewal](https://github.com/jordanhubbard/literate-ai/pull/382) | `221f86af737bea7bfa7fa49ab8cf348edb39c794` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#381 — docs: propose ADR 0069 for independent promotion authoring](https://github.com/jordanhubbard/literate-ai/pull/381) | `9a9d2489095b49b2382e1af49b3a5a8e53af3aff` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#359 — Add reviewed qualified-child membership transactions](https://github.com/jordanhubbard/literate-ai/pull/359) | `9732a114a48d19aa279654f414d278784b7e72b5` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#349 — Centralize retained-layout resolution and plan selected placement](https://github.com/jordanhubbard/literate-ai/pull/349) | `3c37247492937063604312907daae51c56b00975` | Exact head ancestral to the combined candidate. |
+| [#347 — WIP: project qualified native Rust graphs through Standard Cargo builds](https://github.com/jordanhubbard/literate-ai/pull/347) | `7ce065e3299d753a4bdd42e3f376cd5ed34ce56d` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#334 — Propose ADR 0065 for shared cross-provider work](https://github.com/jordanhubbard/literate-ai/pull/334) | `2e7fc4096905f1b9a081399149910e394e34b1f8` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#333 — Bootstrap generated project agents before LitAI commands](https://github.com/jordanhubbard/literate-ai/pull/333) | `770140dc94731086014c4dbc58db1189424df421` | Exact head ancestral to the combined candidate. |
+| [#326 — Propose ADR 0064 for GitHub issue assignee ownership](https://github.com/jordanhubbard/literate-ai/pull/326) | `4350f552a8b82ebbf59f6514b25a473774e60b6d` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#322 — Add shadow Git and PR custody with bounded process ownership](https://github.com/jordanhubbard/literate-ai/pull/322) | `712b99fdf1227e9ed071543896aca947d0670713` | Not ancestral; inspect residual changes and original owner before collection. |
+| [#313 — Preserve reviewed source, child and asset promotion boundaries](https://github.com/jordanhubbard/literate-ai/pull/313) | `77be5baf68bbeaf878a5b86151dafffe623beb2e` | Exact head not in the local object database; retain for explicit retrieval and review. |
+| [#312 — Integrate 1.4 retained promotion and library harness fixes](https://github.com/jordanhubbard/literate-ai/pull/312) | `eda5c4af62f6f47686e34fa94a9da300b8abd82f` | Aggregate not merged wholesale. Audit residuals and collect only focused missing work; retain superseded wheel-cache history. |
+
+### Historical consolidation inventory (2026-10-23)
 
 **Follow-up (2026-10-23):** PR #133 is merged at `d17881fa`; exact-main CI 40031696168 passes all 26 jobs. Scoped issues #91, #84, #85, #94 and #134 are closed against their retained evidence. Twenty-six issues remain open. The provided Windows renewal still times out at its unchanged 5400-second limit after 121 completed wheel spans; #121/#123/#129 remain open, and no complete native or release acceptance follows.
 
@@ -21868,6 +21933,44 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 <a id="release-integration-005"></a>
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
+
+- **Current tracker-link reconciliation (2026-11-22):** The complete forge
+  inventory contains 93 open issues. Twenty-four lacked a current-repository
+  issue link in this roadmap. Record their intake below under this existing
+  release-integration owner; the named narrower owners guide implementation and
+  evidence reconciliation. The issue bodies remain the complete request, including
+  their original refusal and native acceptance cases. This table establishes no
+  completion, design acceptance, scope deferral or replacement of an existing
+  goal. Preserve every current release-goal manifest entry and checkbox. All
+  listed issues remain open pending exact source, independent review, installed
+  qualification and the repository landing workflow where required.
+
+| Current issue | Owning work and next acceptance |
+| --- | --- |
+| [#485 — Source-test child CLIs can exercise a different checkout when an editable interpreter is reused](https://github.com/jordanhubbard/literate-ai/issues/485) | TEST-CACHE-001 / SDLC-001: qualify child CLI origin in matched, mismatched and installed environments. |
+| [#483 — Expose a read-only containment plan for legacy canonical projects](https://github.com/jordanhubbard/literate-ai/issues/483) | PROJECT-LAYOUT-001: qualify the read-only containment plan and retain the complete migration obligations. |
+| [#476 — Recognize in-progress roadmap goals in release contribution sweeps](https://github.com/jordanhubbard/literate-ai/issues/476) | RELEASE-CLOSURE-001: renew in-progress heading coverage without changing the manifest or unfinished goals. |
+| [#469 — Exclude foreign dependency component.json descriptors from migration discovery](https://github.com/jordanhubbard/literate-ai/issues/469) | Integration catalog discovery: exclude foreign dependency descriptors while preserving genuine authored migration refusal. |
+| [#468 — Qualified conversion stage blocks multi-boundary rewrite programs (no child integration, no parent-component qualification)](https://github.com/jordanhubbard/literate-ai/issues/468) | QUALIFIED-CHILD-ADD-001 / AUTHORED-GRAPH-QUALIFICATION-001: resolve both qualified-stage child addition and genuinely authored qualification. |
+| [#466 — Allow native SDK source producers to own build and staging outputs outside source](https://github.com/jordanhubbard/literate-ai/issues/466) | RETAINED-SDK-PUBLIC-001: qualify separately owned native build/output placement, unchanged source custody and real relocated consumption. |
+| [#462 — Avoid ceiling-sized allocations when pinning small input files](https://github.com/jordanhubbard/literate-ai/issues/462) | RETAINED-SCALE-LIMITS-001 / FREEBSD-001: qualify bounded allocation with the complete original corpus and unchanged ceilings/deadlines. |
+| [#461 — Qualify stable metadata across orchestration initialization and refresh on UFS](https://github.com/jordanhubbard/literate-ai/issues/461) | FREEBSD-001 / release integration: resolve initializer publication metadata before current installed refresh acceptance. |
+| [#455 — pip wheel METADATA omits Requires-Python from the locked language toolchain floor](https://github.com/jordanhubbard/literate-ai/issues/455) | Integration Python packaging: project the locked interpreter floor into actual wheel metadata and qualify resolver behavior. |
+| [#454 — pip wheel for portable-application Components ships no importable module surface declared by the specification](https://github.com/jordanhubbard/literate-ai/issues/454) | Integration Python packaging/library authority: resolve the declared import surface and qualify installed consumption. |
+| [#452 — Compose sealed Component libraries into TypeScript npm SDK packages](https://github.com/jordanhubbard/literate-ai/issues/452) | Integration JavaScript/npm composition: qualify sealed provider, package/type closure and relocated CommonJS/ESM/TypeScript consumption. |
+| [#446 — Provide a public configuration surface for privately configured BUILD/TEST tool workers on command receivers](https://github.com/jordanhubbard/literate-ai/issues/446) | WORKER-001 / COMMAND-WORKER-001: qualify private BUILD/TEST receiver configuration through the public surface. |
+| [#443 — How can retained source membership be revised after qualification?](https://github.com/jordanhubbard/literate-ai/issues/443) | Integration retained membership: establish reviewed renewal under specification authority, preserving current receipt requirements. |
+| [#379 — Select reviewed native-child authoring independently of inherited repository lineage](https://github.com/jordanhubbard/literate-ai/issues/379) | Integration native promotion: bind reviewed child authoring independently of inherited repository lineage. |
+| [#368 — Support reviewed local static intake for conservatively excluded credential-free source](https://github.com/jordanhubbard/literate-ai/issues/368) | AUTHORED-GRAPH-QUALIFICATION-001 and reviewed source intake: preserve credential refusal while qualifying explicit static review. |
+| [#366 — Retained Make build detection can select a help-only default without explicit command admission](https://github.com/jordanhubbard/literate-ai/issues/366) | Integration retained command admission: qualify explicit build selection and supported command renewal. |
+| [#363 — Bind reviewed immutable assets through source promotion](https://github.com/jordanhubbard/literate-ai/issues/363) | Integration source promotion: retain reviewed immutable assets through graph parsing, review, acceptance and lock authority. |
+| [#345 — Native Rust library edges lack supported Cargo provider dependency projection](https://github.com/jordanhubbard/literate-ai/issues/345) | CARGO-COMPAT-001 and native library integration: qualify exact provider dependency projection and nominal shared Rust types. |
+| [#323 — Use GitHub assignees as durable issue work ownership](https://github.com/jordanhubbard/literate-ai/issues/323) | SDLC-001: qualify native forge assignee ownership, verified claims and handoff semantics. |
+| [#321 — Support multi-member, cross-provider collaboration with versioned context and per-run receipts](https://github.com/jordanhubbard/literate-ai/issues/321) | SDLC-001 integration intake: retain the full multi-member/provider collaboration request; assess design, enrollment, attribution and per-run evidence. |
+| [#216 — No path to replace a retained Cargo binary crate with a native Component](https://github.com/jordanhubbard/literate-ai/issues/216) | Integration retained process boundaries: retain the executable replacement and process-protocol requirements; library-only receiving does not close this request. |
+| [#146 — Allow explicit on-demand source-intelligence indexing when automatic provider is none](https://github.com/jordanhubbard/literate-ai/issues/146) | Integration explicit source intelligence: preserve disabled automatic indexing while assessing the separately requested on-demand path. |
+| [#138 — Native Mix intent cannot declare OTP application dependencies](https://github.com/jordanhubbard/literate-ai/issues/138) | ELIXIR-002: qualify exact OTP application declarations and selected-installation include/runtime custody. |
+| [#137 — Native Mix custody rejects Rebar3 Hex dependencies required by Broadway](https://github.com/jordanhubbard/literate-ai/issues/137) | ELIXIR-002: qualify exact Mix/Rebar3 manager, tool, archive and offline runtime closure. |
 
 - **Probe timeout versus UTC freshness control (in progress):** Native Windows
   shard one correctly reports a timed-out storage probe but completes two UTC
