@@ -19357,6 +19357,26 @@ subsequent Make-environment correction is not part of that wheel's evidence.
 
 ### [ ] HOST-WINARM-001 — Add native Windows ARM64 host-install realization
 
+- **Fresh native acceptance route (in progress):** The prior supplied ARM64 host
+  remains unreachable with SSH exit 255 after its retained local transport was
+  restored. Prepare a source-bound `windows-11-arm` job for the platform cell that
+  the aligned supplied workers cannot cover. It uses native ARM64 Python, checks
+  the actual process/kernel tuple, installs the exact source through the supported
+  noneditable installer and observes installed framework members and native
+  extension images. Public readiness must preserve ready tools; explicit missing
+  and actually foreign MSVC selections must refuse, and unsupported Make must
+  close selection. Compile and execute a separately signed, acknowledged C++ host
+  fixture through the ordinary guarded builder. Its fresh fixture trust root
+  grants no reusable project trust. Keep SDK, provider, full-goal and release
+  flags false; the hosted job has not run yet.
+  The [official image manifest](https://github.com/actions/runner-images/blob/main/images/windows/Windows11-VS2026-Arm64-Readme.md)
+  places VS 2026 in `Microsoft Visual Studio/18/Enterprise`. Extend finite native
+  discovery with that standard directory after 2022 and 2019, retaining original
+  selection priority, bounded default-toolset reads and actual PE inspection.
+  [Development controls](../../verification/windows-arm64-host-development.json)
+  distinguish real portable compiler/signature work and PE-format fixtures from
+  required native Windows execution. No acceptance checkbox closes here.
+
 - **Current alignment repair:** Native Windows inventory finds the declared
   OpenCode executable outside `PATH`, and its explicit version command succeeds.
   The model check instead invokes the bare name, so its empty reply does not

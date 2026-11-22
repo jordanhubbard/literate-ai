@@ -1,0 +1,113 @@
+name: Native Windows ARM64 host qualification
+
+on:
+  push:
+    branches:
+      - main
+      - work/1.4-reviewed-queue
+      - feat/1.4-native-winarm-qualification
+  workflow_dispatch:
+    inputs:
+      candidate_revision:
+        description: Exact clean framework commit to install and observe
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  installed-host:
+    name: Installed host controls / Windows 11 ARM64
+    runs-on: windows-11-arm
+    timeout-minutes: 90
+    env:
+      CANDIDATE_REVISION: ${{ inputs.candidate_revision || github.sha }}
+      LITAI_NO_SELF_UPDATE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.13"
+          architecture: arm64
+      - name: Require native execution and reserve exact candidate source
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:CANDIDATE_REVISION -cnotmatch '^[0-9a-f]{40}$') {
+            throw 'An exact lower-case candidate commit is required'
+          }
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          $native = & python -I -B -c 'import json,runpy,sys; print(json.dumps(runpy.run_path(sys.argv[1])["require_native_windows_arm64"]()))' $harness
+          if ($LASTEXITCODE -ne 0) { throw 'Native ARM64 Python/kernel observation failed' }
+          $drive = [IO.Path]::GetPathRoot($env:RUNNER_TEMP)
+          if ([IO.DriveInfo]::new($drive).AvailableFreeSpace -lt 10GB) {
+            throw 'Native host qualification requires 10 GiB free'
+          }
+          $root = Join-Path $drive 'lq'
+          if (Test-Path -LiteralPath $root) { throw 'Preserve occupied qualification root' }
+          New-Item -ItemType Directory -Path $root | Out-Null
+          "QUALIFICATION_ROOT=$root" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $native | Set-Content -LiteralPath (Join-Path $root 'native-process.json') -Encoding utf8
+          $worktrees = Join-Path $env:USERPROFILE '.worktrees/literate-ai'
+          New-Item -ItemType Directory -Force -Path $worktrees | Out-Null
+          $source = Join-Path $worktrees 'arm-candidate'
+          git cat-file -e "$($env:CANDIDATE_REVISION)^{commit}"
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate commit is unavailable' }
+          git worktree add --detach $source $env:CANDIDATE_REVISION
+          if ($LASTEXITCODE -ne 0) { throw 'Exact candidate checkout failed' }
+          "QUALIFICATION_SOURCE=$source" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          $tree = git -C $source rev-parse 'HEAD^{tree}'
+          if ($LASTEXITCODE -ne 0) { throw 'Candidate tree is unavailable' }
+          @{
+            candidate_revision = $env:CANDIDATE_REVISION
+            candidate_tree = $tree
+            harness_revision = $env:GITHUB_SHA
+            harness_sha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $harness).Hash.ToLowerInvariant()
+            runner_architecture = $env:RUNNER_ARCH
+            scope = 'Installed native host controls; no SDK, provider or release acceptance'
+          } | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $root 'source-binding.json') -Encoding utf8
+      - name: Install the exact noneditable framework using its supported installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Join-Path $env:QUALIFICATION_SOURCE 'scripts/install_litai.py'
+          $prefix = Join-Path $env:QUALIFICATION_ROOT 'p'
+          & python $installer --source $env:QUALIFICATION_SOURCE --prefix $prefix `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'install.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'install.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Exact candidate installation failed' }
+      - name: Observe installed runtime, native compiler and public refusals
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $runtime = Join-Path $env:QUALIFICATION_ROOT 'p/share/literate-ai/venv'
+          $python = Join-Path $runtime 'Scripts/python.exe'
+          $harness = Join-Path $env:GITHUB_WORKSPACE 'tests/support/windows_arm64_qualification.py'
+          & $python -I -B $harness --prefix $runtime `
+            --output (Join-Path $env:QUALIFICATION_ROOT 'proof') `
+            --candidate-revision $env:CANDIDATE_REVISION --allow-host-execution `
+            1> (Join-Path $env:QUALIFICATION_ROOT 'harness.stdout') `
+            2> (Join-Path $env:QUALIFICATION_ROOT 'harness.stderr')
+          if ($LASTEXITCODE -ne 0) { throw 'Native installed host controls failed' }
+          $state = git -C $env:QUALIFICATION_SOURCE status --porcelain=v1 --untracked-files=all
+          if ($LASTEXITCODE -ne 0 -or $state) { throw 'Candidate source changed during qualification' }
+          $head = git -C $env:QUALIFICATION_SOURCE rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $head -cne $env:CANDIDATE_REVISION) {
+            throw 'Candidate source revision changed'
+          }
+      - name: Retain native observations and original failure diagnostics
+        if: always() && env.QUALIFICATION_ROOT != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: windows-arm64-host-${{ github.run_id }}
+          if-no-files-found: error
+          path: |
+            ${{ env.QUALIFICATION_ROOT }}/*.json
+            ${{ env.QUALIFICATION_ROOT }}/*.stdout
+            ${{ env.QUALIFICATION_ROOT }}/*.stderr
+            ${{ env.QUALIFICATION_ROOT }}/proof/**

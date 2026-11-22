@@ -1,0 +1,63 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Windows ARM64 host acceptance harness and bounded VS2026 directory discovery; native job pending",
+  "tests": [
+    {
+      "name": "arm-harness-controls",
+      "sha256": "292255313cf95f97742c99a0be5997342b8a0e8e62aed5f8ded5d51af6a2f6b2",
+      "summary": {
+        "executed": 5,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 5,
+        "selected": 5,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "msvc-standard-roots",
+      "sha256": "ae4729ff4006107e7ff25ebe3a01699e4fe55cc444831d134de5602ca0771de0",
+      "summary": {
+        "executed": 4,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 4,
+        "selected": 4,
+        "skipped": 0
+      }
+    },
+    {
+      "name": "msvc-host-install-regressions",
+      "sha256": "c180f8f93f7b5a873d9e7f2ef5b574002582550560e5bc4d5423a2707cfb1746",
+      "summary": {
+        "executed": 9,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 9,
+        "selected": 9,
+        "skipped": 0
+      }
+    }
+  ],
+  "source_sha256": {
+    ".github/workflows/native-windows-arm64.yml": "3a5bbb57f45f4de6b22f366f39082f3b4cf0ab3ccf2d3f5a037f0b25a85ef3bc",
+    "tests/support/windows_arm64_qualification.py": "c453ddbbbbd464c60d441af79c85fcc1ecbe2974db4b8eb252bcf648f3e487d2",
+    "tests/critical/test_windows_arm64_qualification_harness.py": "41a50889a2bc36b437fe1b9fa703e703e8d1b639d65bed851ae68b42c2d2c8fc",
+    "tests/critical/test_msvc_standard_roots.py": "1291879644f235116677e52c0c8cc12f01142ac59cb4efeafd1f72dc7a8f7c33",
+    "src/literate_ai/bootstrap/windows_msvc.py": "76c6dbbed43f718198566120da875d46b826c996c99c3d4454e82dd1d7f6bf21"
+  },
+  "portable_native_compile_and_real_fixture_signature_passed": true,
+  "pe_header_directory_fixtures_are_not_native_windows_evidence": true,
+  "native_windows_execution_passed": false,
+  "installed_framework_native_qualification_passed": false,
+  "full_dependency_closure_qualified": false,
+  "sdk_qualified": false,
+  "provider_qualified": false,
+  "full_goal_qualified": false,
+  "release_qualified": false,
+  "independent_authority_review": false,
+  "official_runner_reference": "https://docs.github.com/en/actions/reference/runners/github-hosted-runners",
+  "official_image_reference": "https://github.com/actions/runner-images/blob/main/images/windows/Windows11-VS2026-Arm64-Readme.md",
+  "prior_supplied_worker": "unreachable after local transport restoration; no remote worker changes",
+  "historical_setup_correction": "Initial worktree name wa14 already existed; preserved that clean prior ARM64 checkout and created armq14 instead."
+}

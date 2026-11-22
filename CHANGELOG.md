@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Windows ARM64 development: add a source-bound hosted acceptance route for the
+  installed runtime, public host refusals and ordinary MSVC compile/execution.
+  Discover Visual Studio 2026's standard `18` directory after existing choices.
+  Portable controls pass; native execution and whole-goal qualification remain open.
+
 - CI maintenance: include the reviewed, SHA-pinned FreeBSD VM 1.6.0 and Bazel
   setup 0.19.2 action updates. Integrated native execution and CI qualification
   remain pending.
