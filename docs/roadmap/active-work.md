@@ -24215,6 +24215,31 @@ independent review and the complete combined gate from test one.
 
 - **Fixture correction development evidence:** The same maintained public rebuild control first failed through the actual synthetic operator wrapper (exit 91 and marker; three passes, one failure, two remaining selected cases unexecuted). After preserving the provisioned Cargo home, all six native Rust controls pass with zero skips, including the public rebuild and existing source, checksum, feature, graph and boundary refusals. No operator files, production source or TCB pin changed. The first fresh canonical Python 3.12 source gate completes with root exit zero: 2,655 passed, 119 skipped, zero failures out of 2,774 selected cases, reconciled against every indexed event in all 597 completed groups. Lint, formatting, project/documentation authority, current unchanged driver pin and 181 rendered diagrams pass. See [the development record](../../verification/rust-fixture-cargo-home-development.json). Final review then corrected JSON surrogate escaping in the new Cargo configuration and gave the actual wrapper a path containing a space, accented letter and non-BMP character; the final-byte fresh whole-source gate also passes with the same 2,655 passes, 119 skips and zero failures, including all six native controls using the real Unicode wrapper path. Every indexed outcome matches the report across all 597 completed groups and the root exits zero. Exact PR/integrated CI remains pending; the original reported failed whole gate remains failed.
 
+- **Focused guard recovery from PR #312:** Recover only the Rust verifier's pure
+  command-custody check and explicitly bounded native-owner observations. Reading
+  `toolchain_identity` or using the ordinary binding guard currently performs
+  ambient native observations outside the child environment and original
+  deadline. Preserve the newer finally-based closure on semantic rejection,
+  ordinary binding guards, actual launcher/source drift refusal and the complete
+  native observer sequence. The ongoing release integration retains the SDK
+  promotion, schema and strict-readonly work separately.
+  - [x] Reproduce the implicit native observations with the original five protocol
+    controls, then recover the correction against the current integration base.
+  - [x] Verify the complete protocol cohort and affected existing harness controls
+    through the maintained Make runner; retain scope separately from native,
+    installed, platform and release qualification.
+  - **Development evidence:** On the published integration base, the original
+    cohort selects five cases and fails its first executed case before reaching
+    the controlled native command. With the focused correction, all five protocol
+    cases pass, all six maintained local command-adapter cases pass, and all six
+    maintained native Rust driver/dependency cases pass (219.504 seconds), with
+    zero failures or skips. The native cases retain actual Cargo execution,
+    public rebuild and source/checksum/feature/output refusals. Repository-wide
+    lint and formatting pass for 2,206 files. `litai verify` passes authority and
+    refuses the stale project test receipt; no receipt or driver pin is renewed.
+    Independent integration review, complete source/installed/platform gates and
+    final release qualification remain with the ongoing release integration.
+
 ### [ ] RETAINED-RECEIPT-PROMOTE-001 — Promote a verified retained-project run into the project test receipt
 
 - **Release target:** 1.4.0

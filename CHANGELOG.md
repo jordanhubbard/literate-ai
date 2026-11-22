@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Rust library verifier guards keep native tool observations within the actual
+  child environment and original deadline, while preserving launcher/source drift
+  refusal and closing checks after rejected results (issue #217).
+
 - Windows ARM64 development: add a source-bound hosted acceptance route for the
   installed runtime, public host refusals and ordinary MSVC compile/execution.
   Discover Visual Studio 2026's standard `18` directory after existing choices.
