@@ -24055,6 +24055,24 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Original artifact capture development:** Wheel-backed library builds now retain
+  the complete artifact's raw bytes while the original dependency observer remains
+  live. Match its existing build/custody tree, preflight remaining shared recorder
+  limits before allocating payload buffers, use the existing bounded native reader,
+  then close the real interpreter/lock/runtime observer and full original tree.
+  Existing export shapes stay unchanged; no new sidecar grants admission. Seven
+  focused controls pass, including a real offline library build, cache reuse,
+  complete byte reopening after original-root retirement, late native mutations
+  and record/byte exhaustion before capture allocation. All eight existing Python
+  lifecycle controls also pass. These controls use explicit source/dependency
+  fixtures and do not qualify a provider or consumer. The first two failed runs
+  retain the fixture's noncanonical macOS ancestor refusal; the corrected fixture
+  matches the production lifecycle's canonical root without relaxing that guard.
+  [Capture development record](../../verification/python-artifact-capture-development.json)
+  retains this scope. The closed Python plan, current provider join, both packaging
+  profiles, prospective consumer, public receipt and installed qualification remain
+  required; no bridge acceptance item closes here.
+
 - **Internal dependency-record evidence:** [Development observation](../../verification/python-dependency-record-reopening-development.json)
   records eight new maintained methods and 17 explicitly selected existing
   compatibility methods passing on native macOS without skips. Eleven of those

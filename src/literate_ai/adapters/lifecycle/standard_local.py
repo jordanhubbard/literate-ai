@@ -4475,6 +4475,21 @@ class LocalStandardLifecyclePorts:
                 "transferred build differs from exact expected evidence"
             )
         if self._evidence_recorder is not None:
+            if (
+                plan.component_revision.uri in self.python_targets
+                and self._contract(plan.component_revision).library_import_surface
+                is not None
+            ):
+                from .standard_python_capture import (
+                    capture_standard_python_artifact_records,
+                )
+
+                capture_standard_python_artifact_records(
+                    artifact,
+                    expected_tree=artifact_tree,
+                    observer=self._python_observers.get(str(artifact_root)),
+                    recorder=self._evidence_recorder,
+                )
             # Preserve validated raw payloads under their existing byte identities.
             # JSON reserialization would change SBOM or generated-suite identity.
             for payload, expected in (

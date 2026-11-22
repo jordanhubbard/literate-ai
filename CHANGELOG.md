@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Python qualification capture: retain bounded raw bytes from the original whole
+  wheel-backed library artifact, including runtime siblings, under its live build
+  observer and existing recorder limits. Preserve export shapes and native final
+  checks. Public Python bridge integration and qualification remain pending.
+
 - Standard Python artifacts: share bounded dependency-record validation between
   sealed payload checks and read-only replay, retaining current build, source,
   interpreter and target bindings plus final filesystem checks. Retained Python
