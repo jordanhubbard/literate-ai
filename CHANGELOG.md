@@ -321,6 +321,11 @@
 - Identify the published 1.3.1 lab curriculum as historical at its front door and
   route current readers to current setup guidance while retaining the open 1.4
   multi-Component curriculum requirements.
+- Reuse the existing admitted-compiler test oracle for accepted-source bytecode
+  on mixed-interpreter hosts, preserving full artifact and binding assertions (#424).
+
+- Reuse bounded lexical path parsing during retained Cargo input capture while
+  keeping all filesystem observations, byte reads and currentness guards fresh (#432).
 
 - Exercise adopted-project identity migration through the installed console in the
   whole-wheel gate, using two successive renames and real retained build, unit-test

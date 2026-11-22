@@ -25482,6 +25482,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Owner:** Framework core; native retained Cargo input observation
 - **Direction:** Keep genuine per-process currentness feasible for complete native inventories without stale observations or relaxed coverage.
 - **Conclusion:** Track issue #432 as the Cargo receiving/verifier facet of existing retained-observation performance work (#117); preserve completed ancestor-traversal contract #86. Optimize only redundant semantic serialization and metadata already freshly observed in the same bounded census, retaining every fresh content hash and closing custody check.
+- **Lexical PR history reconciliation:** PR [#438](https://github.com/jordanhubbard/literate-ai/pull/438) retains this goal's lexical follow-up and its [historical branch record](../history/roadmap/pr-438-lexical.md). The current retained-input reader and two focused test modules match that branch byte for byte; newer native Windows custody checks remain in place. Its earlier Linux source/comparison evidence is retained without replacing current native receiving or release qualification. The current 81-goal manifest and original lifecycle pin remain unchanged.
 - **Read-only receiving repair:** The genuine installed authored check timed out
   after writing lifecycle lock ownership metadata. Its failed unchanged-snapshot
   verdict remains retained. The source repair gives `check` a separate nominal
