@@ -24793,6 +24793,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] AUTHORED-GRAPH-QUALIFICATION-001 — Admit genuinely authored native graphs to public qualification
 
+- **Additional exact-candidate native wheel readback:** [Three hosted wheel records](../../verification/native-ci-wheels-aa191c4f-observation.json)
+  bind successful Windows/Python 3.12 and Linux/Python 3.11/3.14 jobs from actual
+  run `44968003486` to their uploaded artifact digests, terminal gate JSON and
+  exact qualified wheel manifests. All 1,519 hashed RECORD entries reverify in
+  each wheel; all 1,362 framework payload members match the separately qualified
+  native macOS wheel. Windows CPU observation passes through the actual Windows
+  API with installed origins verified, and both native retained-command modes
+  pass their applicable cases with explicit POSIX-only skips. Keep native skips
+  and every wheel/archive identity separate. The rest of the workflow remains
+  unfinished at collection; these results do not certify the whole matrix,
+  authored graph, retained consumer or release.
+
 - **Native wheel and real consumer progress:** The exact `aa191c4f9` native
   macOS/Python 3.14 [complete wheel gate](../../verification/wheel-aa191c4f-observation.json)
   exits zero. Independent readback rehashes all 1,519 wheel RECORD entries and
