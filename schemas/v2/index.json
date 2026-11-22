@@ -1243,6 +1243,11 @@
         "literate-ai/authored-retained-cargo-provisioning@1",
         "literate-ai/authored-retained-cargo-exclusion-authority@1"
       ]
+    },
+    {
+      "file": "retained-python-workspace.schema.json",
+      "root_id": "literate-ai/retained-python-workspace-plan@1",
+      "public_ids": []
     }
   ]
 }

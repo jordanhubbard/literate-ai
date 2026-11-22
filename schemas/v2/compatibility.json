@@ -297,7 +297,8 @@
     "urn:literate-ai:schema:v2:authored-qualification-comparison",
     "literate-ai/authored-retained-cargo-binding@1",
     "literate-ai/authored-retained-cargo-admission-receipt@1",
-    "literate-ai/authored-retained-cargo-provisioning@1"
+    "literate-ai/authored-retained-cargo-provisioning@1",
+    "literate-ai/retained-python-workspace-plan@1"
   ],
   "read_paths": [
     {

@@ -116,6 +116,7 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "literate-ai/retained-library-export-set@1",
         "literate-ai/retained-library-binding@1",
         "literate-ai/retained-cargo-workspace-plan@1",
+        "literate-ai/retained-python-workspace-plan@1",
         "literate-ai/version-check@1",
         "literate-ai/project-verify@1",
         "literate-ai/project-verify@2",

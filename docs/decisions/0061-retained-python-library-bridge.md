@@ -191,7 +191,41 @@ when promoting or requiring the receipt. Add the public check/materialize/admit
 routing only when it can reach these real owners; do not expose placeholder
 success or reinterpret a Cargo binding as Python intent.
 
-The implementation remains outstanding. The validation list below, including
+The capture prerequisite now retains the original whole wheel-backed library
+artifact's bytes under its already-live dependency observer and exact existing
+build/custody tree. Export blobs still describe only their selected exports. This
+does not turn a retained byte record into provider authority: the Python receiver
+must reopen the complete matching build, original artifact tree, runtime manifest,
+current source/target/lock and every named file before materialization. An older
+archive missing any required runtime byte refuses; neither a mutable cache read
+nor a new sidecar hash may fill the gap during read-only admission. The initial
+controls exercise real native installation/build with explicit source/dependency
+fixtures; no qualified provider or retained consumer is asserted.
+
+The initial inert workspace codec now binds the complete typed export graph,
+original retained inventories, interpreter/target and environment projection,
+reviewed full gates, source/wheel mounts, prospective removal delta and finite
+bounds. It preserves non-library dependencies and rejects ambiguous package
+ownership. Its package destinations address the disposable execution workspace;
+they must not be silently reinterpreted as project-relative publication paths in
+an older binding. The provider join must retain each source-derived or genuinely
+authored origin and authenticate its original evidence independently. Structural
+codecs and schema registration grant no current provider trust, import permission,
+owned materialization, backend execution, source retirement or receipt admission.
+
+The internal interpreter observation now compares an independently pinned running
+Python with bounded original executable bytes, process metadata and freshly
+resolved command names. It uses the existing pinned-input reader, starts no tool,
+and closes original ownership and input fields after native callbacks. Other
+interpreters and command flags refuse explicitly. Eight native controls compare
+against an independently executed interpreter probe and exercise substitution,
+limits, actual alias replacement, expiry, non-copyability, reentry and late owner
+or input replacement. This observation grants no native version-probe authority,
+execution, provider qualification or consumer admission. The complete bridge must
+independently select its expected interpreter pin and current provider/consumer
+authority; it must not accept those expectations from an archive or decoded DTO.
+
+The complete bridge implementation remains outstanding. The validation list below, including
 both real packaging profiles, fresh offline repeat, foreign-origin failures,
 unchanged Cargo/no-bridge behavior, independent source review and installed plus
 integrated release gates, remains required in full.

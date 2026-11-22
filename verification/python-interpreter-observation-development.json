@@ -1,0 +1,37 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Bounded running-interpreter file continuity against a separate exact pin; no native version probe or execution grant",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_python_interpreter.py": "280f5ae97435ac5d16b3eccab5f269ff46e2c29e595a1bfa6617755b43714997",
+    "tests/critical/test_retained_python_interpreter.py": "84080eafb4546e9df5986ca8885c18642db9597f65257403c536d70e2b985feb"
+  },
+  "native_test_report_sha256": "5a8bbb55e1d11c7b3630175e231ae72762ec79b9030b585fbea6ab45945ffb1f",
+  "summary": {
+    "executed": 8,
+    "failed": 0,
+    "known_failed": 0,
+    "passed": 8,
+    "selected": 8,
+    "skipped": 0
+  },
+  "seconds": 0.414,
+  "baseline_native_interpreter_probe_executed": true,
+  "read_only_observation_starts_processes": false,
+  "real_alias_replacement_exercised": true,
+  "provider_oracle_or_framework_fixture_ports": false,
+  "current_provider_consumer_join_implemented": false,
+  "source_and_wheel_materialization_implemented": false,
+  "public_bridge_implemented": false,
+  "receipt_extension_implemented": false,
+  "genuine_provider_consumer_qualified": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "Only the same resolved running interpreter and a single executable command are observed; other selections require their acknowledged native owner.",
+    "The expected identity must be supplied independently by current importer and qualified interpreter authority; this helper cannot establish that authority.",
+    "Explicit finite file and metadata ceilings bound the existing pinned-input reader.",
+    "All ADR0061 public/current-provider, packaging, origin, complete-consumer and receipt requirements remain pending."
+  ]
+}
