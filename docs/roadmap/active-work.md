@@ -24823,8 +24823,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
   `0ddbc6cae`, alignment capture from `8a45727ad`, and the inert Python dependency
   record foundation from `ae2c84c97`. The finite CI worker-budget correction
   `6948bc2ff` is already an ancestor. Preserve every predecessor observation below
-  with its original revision and scope. The running genuine provider and complete
-  source checks still belong to frozen `0ddbc6cae`, not this union. Source review,
+  with its original revision and scope. The complete controller source check
+  still belongs to frozen `0ddbc6cae`. Its genuine installed provider now passes
+  both clean runs and independent transported/current-authority replay; the
+  original seven oracle/profile files remain unchanged. The same consumer's
+  disposable prospective workspace passes its original build, test, package and
+  run commands with all three unchanged qualified libraries. Native inventory
+  covers six dependency edges, ten targets and thirteen named tests; public
+  receiving and actual consumer source retirement remain unfinished.
+  The exact `0ddbc6cae` FreeBSD 15.1 installed SDK microfixture also passes all
+  48 owner controls and five publication preflights. This does not establish
+  full FreeBSD, compiler SDK, Daemonarchy, product or ISO qualification.
+  The union's first complete Linux attempt stops after 584 passes, 34 skips and
+  one failure: its copied-launcher tamper fixture encounters native `ETXTBSY`
+  after the real version probe. The isolated unchanged module reproduces it.
+  Stage changed bytes and replace only that disposable pathname, retaining the
+  real probe, exact refusal and tampered bytes. Four controller controls pass;
+  corrected Linux focus and complete renewal remain required.
+  [Scoped renewal evidence](../../verification/recovery-native-renewal-development.json)
+  preserves that failed full run. Source review,
   canonical pins, full combined source/platform/installed qualification and the
   complete consumer journey remain open. Python record reopening alone does not
   implement the retained Python bridge, and this join includes no uncommitted

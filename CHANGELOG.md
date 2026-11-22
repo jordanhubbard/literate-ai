@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Cargo controls: stage changed bytes and replace the disposable launcher after
+  its real version probe, preserving the late byte-change refusal on Linux
+  systems that retain executable image references after process exit.
+
 - Packaging: keep declared provider bindings attached to their exact export when
   an explicit package layout renames its directory. Preserve legacy paths and
   refuse missing files, links and paths outside package custody.
@@ -13,8 +17,9 @@
 
 - Qualification development: complete two genuine nominal Rust graph runs through
   an installed public provider, preserving all original acceptance inputs. Retained
-  consumer admission remains unfinished after native Cargo exposes duplicate
-  embedded dependency packages in separately materialized exports.
+  consumer admission remains unfinished. A fresh shared-layout provider and
+  transported replay now pass, and a disposable consumer passes its original
+  commands with unchanged qualified packages; public admission remains pending.
 
 - Native library artifacts: record provider bindings from the exact current build
   intent, preventing prior generated-source attempts from duplicating later

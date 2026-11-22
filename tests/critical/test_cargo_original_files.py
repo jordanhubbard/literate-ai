@@ -72,8 +72,15 @@ class CargoOriginalFileTests(unittest.TestCase):
 
         def changed(*args, **kwargs):
             result = original(*args, **kwargs)
-            with self.path.open("ab") as stream:
-                stream.write(marker)
+            # A completed Linux version probe can retain an executable image
+            # reference after its last process exits (ETXTBSY).
+            # Replace our disposable selected pathname with changed bytes. The
+            # real probe and final launcher-byte refusal remain unchanged.
+            replacement = self.path.with_name(self.path.name + ".changed")
+            with replacement.open("xb") as stream:
+                stream.write(self.path.read_bytes() + marker)
+            replacement.chmod(stat.S_IMODE(self.path.stat().st_mode))
+            replacement.replace(self.path)
             return result
 
         with patch.object(cargo, "_probe_cargo", changed):

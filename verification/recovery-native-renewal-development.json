@@ -1,0 +1,45 @@
+{
+  "schema": "literate-ai/recovery-native-renewal-development@1",
+  "parent": "b54bc51e33aa6cf4e7f8d0096be14f8bee9efe4f",
+  "linux_source_failure": {
+    "exit_code": 2,
+    "seconds": 693.906,
+    "selected": 4098,
+    "passed": 584,
+    "skipped": 34,
+    "failed": 1,
+    "report_sha256": "1248bbbf18be72fbd98d899d87cfdf8cdec83cc7e3d0889b4f02243e9cd7e237",
+    "case": "tests.critical.test_cargo_original_files.CargoOriginalFileTests.test_real_probe_late_launcher_mutation_still_refuses_and_preserves_bytes",
+    "error": "OSError errno26 ETXTBSY while test appends copied native executable after actual Cargo probe"
+  },
+  "linux_unchanged_focus": {
+    "selected": 4,
+    "passed": 3,
+    "failed": 1,
+    "seconds": 0.22,
+    "same_error": true
+  },
+  "native_owner_observation": {
+    "kernel": "7.0.0-43-generic",
+    "cargo": "1.98.0",
+    "same_executable_live_processes_observed": 0,
+    "mutation_errno": 26,
+    "scope": "bounded procfs observation after probe, not a process-tree qualification"
+  },
+  "repair": "Change only owned test launcher by exclusive staged byte copy and atomic pathname replacement after actual native probe. Preserve final production byte-currentness refusal and tampered-file preservation; no production code or deadline change.",
+  "controller_focus": {
+    "summary": {
+      "executed": 4,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 4,
+      "selected": 4,
+      "skipped": 0
+    },
+    "seconds": 0.785,
+    "report_sha256": "4ff3eb201cfd523a2a4c710c6542bbee9314b81fa4b98ec2a4fc5735a4523f17"
+  },
+  "linux_corrected_focus": "pending",
+  "source_gate_passed": false,
+  "release_qualified": false
+}
