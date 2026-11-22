@@ -17,7 +17,6 @@ prefixes only.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 import shlex
@@ -27,6 +26,10 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 
+from literate_ai.adapters.alignment_file_source import (
+    AlignmentSourceError,
+    capture_alignment_source,
+)
 from literate_ai.adapters.remote_transport import (
     BoundedRemoteProcessRunner,
     RemoteWorkerTransport,
@@ -407,10 +410,6 @@ class WorkerReport:
             "findings": [item.to_dict() for item in self.findings],
             "applied": list(self.applied),
         }
-
-
-def _digest(content: bytes) -> str:
-    return hashlib.sha256(content).hexdigest()
 
 
 def _windows(worker: ExecutionWorker) -> bool:
@@ -871,14 +870,16 @@ class WorkerAligner:
                 )
         for index, item in enumerate(files):
             try:
-                local = _digest(item.source.read_bytes())
-            except OSError:
+                with capture_alignment_source(item.source) as (_, local):
+                    pass
+            except AlignmentSourceError as exc:
                 report.findings.append(
                     Finding(
                         "file",
                         item.destination,
-                        "source-missing",
-                        f"declared source {item.source} is unreadable",
+                        exc.code,
+                        "declared local source could not be captured within its bounds",
+                        "restore source readability and rerun alignment",
                     )
                 )
                 continue
@@ -1066,6 +1067,18 @@ class WorkerAligner:
             )
 
     def _sync_file(self, worker: ExecutionWorker, item: AlignedFile, stamp: str):
+        try:
+            with capture_alignment_source(item.source) as (captured, _digest):
+                self._sync_captured_file(worker, item, stamp, captured)
+        except AlignmentSourceError as exc:
+            raise WorkerAlignmentError(
+                "worker_alignment.source_unavailable",
+                f"cannot capture {item.destination}: {exc.code}",
+            ) from None
+
+    def _sync_captured_file(
+        self, worker: ExecutionWorker, item: AlignedFile, stamp: str, captured: Path
+    ):
         relative = item.destination[2:]
         backup = f"{relative}.bak-{stamp}"
         if _windows(worker):
@@ -1098,7 +1111,7 @@ class WorkerAligner:
                 f"cannot prepare {item.destination} on {worker.worker_id}",
             )
         copied = RemoteWorkerTransport(worker).upload(
-            item.source,
+            captured,
             relative,
             cwd=self.cwd,
             timeout_seconds=_PROBE_TIMEOUT_SECONDS,

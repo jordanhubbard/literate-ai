@@ -6232,6 +6232,20 @@ the reported failure.
 
 ### [ ] WORKER-001 — Route build, test, and run through declared execution workers
 
+- **Local alignment source deadline (in progress):** [Issue #490](https://github.com/jordanhubbard/literate-ai/issues/490)
+  records a release-recovery hang before remote dispatch: a declared local file
+  open blocks every applicable alignment thread despite bounded remote probes.
+  Capture each local source with a finite process deadline and byte budget;
+  use that private capture for comparison and synchronization. Report failures
+  without contents and preserve destinations when capture fails. Qualify real
+  regular, missing, non-regular and oversized files plus a stalled reader and
+  owned cleanup, then rerun existing inspection/apply and platform controls.
+  [Source development evidence](../../verification/worker-alignment-source-observation.json)
+  records 15 passing maintained alignment controls, lint and formatting. The real
+  configured local sources now capture without exposing payloads; native Windows,
+  independent review, supported pin renewal and complete acceptance remain open.
+  Keep all worker, source-pin, native and release acceptance obligations open.
+
 Before further release-check fleet use, require repository-bound ownership of
 the exact sync destination. Preserve unmarked and foreign checkouts, including
 when two organizations use the same basename. Provide explicit controller-only

@@ -954,6 +954,13 @@ then inspects again. Secret contents never appear in reports; only hash prefixes
 Align never deletes worker data; low disk points to `litai worker health` and
 `litai worker cleanup`.
 
+Local alignment files must be regular files of at most 64 MiB. Each capture has
+its own ten-second read deadline, including opening the source. A stalled source
+is reported as `source-timeout`; it never establishes alignment. Synchronization
+captures the source before preparing or backing up the worker destination and
+copies only that private capture. File contents are omitted from diagnostics.
+
+
 `BUILD_DIR` defaults to `generated/` beneath the project. `OBJ_DIR` defaults to
 `_build/` beneath the project. Export either to place its cache elsewhere; relative values remain
 project-relative. Explicit values travel through the lifecycle driver's allowlisted

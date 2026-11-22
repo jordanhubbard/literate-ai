@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Worker alignment: bound local configuration and credential-file capture before
+  comparison or synchronization; report stalled, unsafe or oversized inputs without
+  disclosing contents or preparing a destination from an unreadable source.
+
 - CI: partition the complete Ubuntu Python 3.11 source suite so late native Cargo
   tests have their own runtime budget; preserve every module and PR gate alongside
   the existing validation, installation and wheel checks.
