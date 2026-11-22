@@ -25612,6 +25612,22 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Reviewed-file and original-case inventory development:** Reopen independently
+  reviewed binding, plan, gate, harness and test documents under exact byte,
+  native file-identity, ancestry and project-context custody. Close the original
+  inputs on success and candidate rejection; same-byte inode replacement refuses.
+  Preserve contained project authority and the existing harness terminal-newline
+  form without changing its reviewed digest. The versioned Python inventory
+  reuses original case/report contracts, requires explicit classification of
+  every reviewed gate and refuses missing/extra cases, failures, undeclared skips
+  and zero execution. Twelve new controls plus the original 25 interpreter,
+  plan and preflight controls pass without skips: 37 methods in 5.449 seconds.
+  Filesystem custody is real; source inventories, review and export declarations
+  remain explicit synthetic fixtures. These records do not establish current
+  wrapper parity, actual source/test coverage, provider trust or a consumer run.
+  See [reviewed-file development](../../verification/python-reviewed-files-development.json).
+  Every ADR 0061 acceptance requirement remains open.
+
 - **Current consumer preflight development:** Reopen exact bounded canonical plan
   bytes and require its full export graph and destinations to match the reviewed
   binding. Join independently supplied current wrapper, source/harness/test
@@ -25700,7 +25716,7 @@ independent review and the complete combined gate from test one.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
-- **Current next action (in progress):** Resolve the original consumer reviewed files and complete test inventory, then compose current source-derived and authored provider archive reopening under read-only native custody. The internal consumer preflight above grants no provider or consumer admission; package materialization and every public execution/receipt validation remain required.
+- **Current next action (in progress):** Join the reviewed documents to the actual original retained wrapper, qualified parity, full source membership and original admitted commands; a reviewed case list alone does not prove current coverage. Then compose current source-derived and authored provider archive reopening under read-only native custody. The internal consumer preflight and reviewed-file snapshot grant no provider or consumer admission; package materialization and every public execution/receipt validation remain required.
 
 - **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.
 

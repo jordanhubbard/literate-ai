@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained Python bridge development: pin independently reviewed consumer
+  documents under byte, file-identity, ancestry and project-context checks,
+  including rejection closure. Classify every reviewed gate and preserve exact
+  original test membership and declared skips. Actual wrapper/source coverage,
+  qualified providers, execution and public receipt admission remain open.
+
 - Retained Python bridge development: compare exact reviewed plans with current
   consumer inventories, complete gates, target/environment and the original
   live interpreter observation. Close custody on success and refusal. Current
