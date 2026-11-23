@@ -82,7 +82,41 @@ class HistoricalInitializerTests(unittest.TestCase):
             raise AssertionError(
                 "fixture requires the actual bootstrap template endpoint"
             )
-        cls.initializer.write_text(current.replace(line, ""))
+        publication_import = (
+            "from literate_ai._atomic_publication "
+            "import publish_atomic_file_if_scoped\n"
+        )
+        publication_dispatch = (
+            "    if publish_atomic_file_if_scoped(\n"
+            "        path, content, require_current=require_current, "
+            "preserve_mode=True\n"
+            "    ):\n"
+            "        return\n"
+        )
+        if (
+            current.count(publication_import) != 1
+            or current.count(publication_dispatch) != 1
+        ):
+            raise AssertionError("fixture requires the exact publication transition")
+        # The original committed producer predates both the bootstrap endpoint
+        # and the finite publication port. All original ownership/move oracles
+        # below now exercise that actual older helper against the current one.
+        previous = (
+            current.replace(line, "")
+            .replace(publication_import, "")
+            .replace(publication_dispatch, "")
+        )
+        helper = next(
+            node
+            for node in ast.parse(previous).body
+            if isinstance(node, ast.FunctionDef) and node.name == "_atomic_replace"
+        )
+        if (
+            provider.initializer_ast_fingerprint(helper)
+            != provider._HELPER_PAIRS["_atomic_replace"][1]
+        ):
+            raise AssertionError("fixture lost the exact earlier initializer helper")
+        cls.initializer.write_text(previous)
         shutil.copyfile(
             provider.harness_inventory.__file__,
             package / "adapters/harness_inventory.py",

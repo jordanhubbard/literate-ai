@@ -21987,6 +21987,21 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     composition with exact sealed providers and actual relocated CJS/ESM/type
     consumers, preserving the ordinary application/npm contracts.
 
+- **Initializer publication compatibility recovery:** The unchanged `1218584d`
+  complete source attempt fails after 1,933 passes and 39 skips because the
+  original exact five-helper transition control detects the newly added finite
+  publication dispatch in `_atomic_replace`. The original failure reproduces on
+  the command-renewal branch. Preserve every earlier helper pair; add only the
+  exact prior-to-publication helper edge and its single direct import, retaining
+  comparison of all other module syntax, source rosters and template mappings.
+  The original six AST controls, five new mutation/refusal controls, all 19
+  historical-provider controls and 43 publication controls pass without skips.
+  The historical Git producer now explicitly predates the publication port and
+  retains every original ownership and real-move assertion. See
+  [scoped compatibility evidence](../../verification/initializer-publication-compatibility-development.json).
+  Independent review and a new complete integrated source/installed/platform gate
+  remain required; no driver or receipt pin is advanced by this recovery.
+
 - **Current-layout allowance compatibility recovery:** The frozen affected-layout
   attempt ends unchanged with 246 passes, one failure and no skips out of 891
   selected. The original allowance regression's blanket `os.open` sentinel

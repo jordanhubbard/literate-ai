@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Initializer compatibility: retain earlier exact helper transitions while
+  admitting the finite retained-readmission publication port and its one direct
+  import. Preserve historical template ownership and refuse changed callbacks,
+  destinations, imports and surrounding producer code. Full integration remains open.
+
 - Retained readmission publication: retain exact original and staged native files,
   preserve foreign replacements and failed evidence, and block ordinary project
   reads while metadata publication is pending. Add acknowledged rollback recovery
