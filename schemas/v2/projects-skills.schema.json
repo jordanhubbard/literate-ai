@@ -83,6 +83,21 @@
       "dependentRequired": {
         "test_receipt_policy": ["test_receipt"]
       },
+      "allOf": [
+        {
+          "if": {"required": ["native_root_run_policy"]},
+          "then": {
+            "required": ["lifecycle_driver"],
+            "properties": {
+              "lifecycle_driver": {
+                "required": ["binding"],
+                "properties": {"binding": {"const": "standard"}}
+              },
+              "component_roots": {"minItems": 1}
+            }
+          }
+        }
+      ],
       "properties": {
         "schema": {"const": "urn:literate-ai:schema:v2:project-definition"},
         "framework_directory": {"const": "litai"},
@@ -148,6 +163,9 @@
         },
         "lifecycle_driver": {
           "$ref": "urn:literate-ai:schema:v2:project-lifecycle-driver"
+        },
+        "native_root_run_policy": {
+          "$ref": "urn:literate-ai:schema:v2:native-root-continuation#/$defs/NativeRootRunPolicy"
         },
         "test_receipt": {
           "description": "A normalized receipt path outside the project manifest, agent skill, and declared catalog roots.",

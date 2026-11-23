@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Native root repair development: add closed continuation, terminal-history and
+  run-policy contracts, optional explicit project policy selection and an
+  original-run lifetime constraint. Preserve absent-policy project identities.
+  The shipped policy selects 1,800 seconds and three candidates; reviewed longer
+  finite policies retain the same original expiry and existing operation caps.
+  CLI admission, packaged continuation and closed replay remain implementation-open.
+
 - Native candidate repair: keep substituted case IDs or capabilities terminal
   even when they share the historical result-mismatch code. Bind early repair
   eligibility to the current attempt's actual verifier return. Full versioned

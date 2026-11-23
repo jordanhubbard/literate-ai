@@ -27103,6 +27103,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
   streams and oracle remain unchanged. This failing development counterexample
   confirms the packaged continuation requirement below remains implementation-open.
 
+- **Continuation foundation (development only):** New closed domain records in
+  the current v2 catalog preserve accepted node history, exact original project
+  authority and a single three-candidate ledger, including preparation stops and
+  root-stage failures before complete package evidence exists. An optional explicit
+  project run policy preserves old identities when absent. The live lifetime
+  constraint seals its original clocks, policy and project/framework bindings;
+  copying, replay, mutation, expiry and closure cannot renew it. The
+  [foundation record](../../verification/native-root-continuation-foundation-development.json)
+  binds 38 passing source controls and the separately failing actual native
+  late-package regression. These foundations are not connected to CLI admission,
+  root orchestration, native/package custody, publication or closed replay yet;
+  the full implementation and qualification below remain open.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)
 
@@ -27117,7 +27130,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
   - [x] Record the accepted ADR 0073 fresh generated root package-to-attempt custody design; design acceptance grants no execution or qualification evidence.
   - [x] Retain PR414's early per-node native check, sanitized feedback, rejected source/export observations and shared finite node retry budget, including sealed build-blob and original native executable/tool checks.
   - [x] Complete values-only classification and attempt-local verifier origin controls without accepting a generic or decoded mismatch as retry authority; retain exact source-development evidence separately from installed and full packaged-root qualification.
-  - [ ] Introduce the separately versioned acceptance-repair contract, codecs and schema binding original attempt/request, root build, artifact graph, package plan/result, target/profile, approved authority, native custody and original run owner/deadline; preserve frozen v2 meanings and refuse mixed versions.
+  - [ ] Complete and integrate the separately versioned acceptance-repair contracts, codecs and schema with actual original attempt/request, root build, artifact graph, package plan/result, target/profile, approved authority, native custody and original run owner/deadline; preserve frozen v2 meanings and refuse mixed versions.
   - [ ] Continue the same original candidate counter after actual packaged-root rejection, preserving completed node observations and the rejected package without rewriting an accepted v2 attempt. Repeat every required fresh candidate stage through packaging and independent root acceptance.
   - [ ] Revalidate the original live continuation owner, deadline, source, verifier, tools and package at each boundary; retain immutable qualified dependencies without regenerating them, and preserve original failures for unsupported graph shapes.
 - **Evidence:**

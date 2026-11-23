@@ -1,0 +1,90 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "goal": "NATIVE-ACCEPTANCE-REPAIR-001",
+  "base_revision": "049ebd810861b0f199ea0c26b95ffa94e8bb4b26",
+  "scope": "Closed continuation contracts, explicit policy selection and original-run lifetime foundation only; runtime orchestration remains unimplemented",
+  "source_files": {
+    "src/literate_ai/application/native_root_run.py": "3b588814fa54b5983e3b4f926c9685c8c08b35fe863a9da83ec63adc0c0458eb",
+    "src/literate_ai/contracts/native_root_continuation.py": "a00ec080025e17818805b8b814de25b81a69c8f9ebb48cf6ac90ab7956f33224",
+    "src/literate_ai/contracts/projects.py": "8d3e12d27ccde91f2f993c38b2da69cb3676511ac9f73d76773dd871d756508b",
+    "src/literate_ai/schema_catalog.py": "f91cd74b6f2705a76c530164be2402f495af29773bbaea3dd7bdea8bf09b004c",
+    "src/literate_ai/standard_policies/native-root-run-v1.json": "7a560365c60c39543add0ad15993edeaae9730869ee3106860a4b8ce1b3a6dac",
+    "schemas/v2/native-root-continuation.schema.json": "124b0f1264215ceb149dcf0a17249ccc069cb9655fef35ebe44a71cc371e5c21",
+    "schemas/v2/projects-skills.schema.json": "d0cd19c6dc0701508441c6df9e47e61b425a37a523d3eb303ad1eda9f0eef747",
+    "schemas/v2/index.json": "6a1772345053825c2143b6a4aa5c89fb478d212133a2a9139ff1fce93e79fcc9",
+    "schemas/v2/compatibility.json": "1e7a6932053a2cc53ffe977ed3cd2f289a808c58ee8fd7e5f043cb38d51a1a90",
+    "tests/critical/test_native_root_run.py": "2206e891d2bab1402bfd92eb9d75828bbaea54f820b69b549c8d6da8da2eb214",
+    "tests/critical/test_native_root_continuation_contracts.py": "a6c9f62199a499c1d2f060d808b9bdba4209c85d4ac52414af316bea82881e0d",
+    "tests/critical/test_native_root_policy_selection.py": "937847c196c032f43cd2da99eb186652c09e4ca25c5d51887f1dc578058729c4",
+    "tests/e2e/test_native_late_package_counterexample.py": "7a12129f4678a15543cec12eb235558ed68c677b0e5a230b0579a2a34fe59b54"
+  },
+  "focused_source_controls": {
+    "summary": {
+      "executed": 38,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 38,
+      "selected": 38,
+      "skipped": 0
+    },
+    "report_sha256": "60712837716663fc9bfc5396eaf4079e7b4c629337ecaf7d8b6023ee1146217f",
+    "scope": "15 contract/schema controls,7 project-policy controls,16 temporal owner controls; no generated native execution in this passing cohort"
+  },
+  "behavior": {
+    "contracts": "Twelve new domain-versioned records in the existing v2 catalog; exact schema discriminators, original project authority, immutable accepted node history, terminal stops, truthful post-node failure and shared three-candidate data joins",
+    "wire_compatibility": "Absent optional project policy preserves the pre-extension project identity and wire bytes; old Standard driver/policy wires unchanged; unknown or null policy refuses",
+    "policy": "No absent-policy fallback or automatic selection. Shipped policy explicitly1800seconds/3candidates; reviewed policies may select1..86400seconds. This is a new constraint, not an inherited local total deadline.",
+    "live_owner": "Original monotonic+UTC expiry fixed once, intersected with admitted upstream and operation bounds; PID/self/immutable project+framework+policy URI snapshots, selected policy and deadline seals; close/revoke on errors, expiry and generator close; no copy/pickle or authority from decoded data",
+    "non_authority": "Neither closed record validators nor the temporal owner grant host-execution permission"
+  },
+  "development_failures_retained": [
+    {
+      "log_sha256": "91b66f621ac6529af0f51a0b3bba84e3f1fc997a1b3e9952a6c36b2c8d3a37dd",
+      "reason": "Changed original project binding remained live; independent review reproduced and immutable URI snapshot fix closes all3bindings even after restoration"
+    },
+    {
+      "log_sha256": "c413728673098f75202481cceb81c2f23128a58e4119b6305342c2abbb4ccf38",
+      "reason": "Completed node followed by root-stage failure lacked truthful terminal representation; root-terminal added without inventing package or rewriting accepted node"
+    }
+  ],
+  "actual_native_counterexample": {
+    "scope": "Separate actual native controlled-provider source journey, synthetic framework distribution observer; foundation before configurable duration ceiling expansion, runtime code path unactivated",
+    "log_sha256": "49b34f9c43f78f1b62bb6d764efe157972480fcad77f3b2dedadd46e9de47346",
+    "observations_sha256": "30f94b6bf4963dd3a7c0af9396db632cf4e33f3e277c4652779f7152cf02bfbe",
+    "actual_sequence": [
+      "early-export:42",
+      "final-package:41"
+    ],
+    "native_exit_codes": [
+      0,
+      0
+    ],
+    "source_requests": 1,
+    "replacement_prepared": false,
+    "current_receipt_created": false,
+    "executed": 1,
+    "passed": 0,
+    "failed": 1,
+    "seconds": 47.049,
+    "native_streams_replaced": false,
+    "oracle_modified": false,
+    "conclusion": "Known failing maintained regression; data/lifetime foundations do not implement packaged-root continuation"
+  },
+  "independent_review": {
+    "lifetime_receipt_sha256": "984127edae6fe0b379b0d11dc1794c46e5634a04912de4bad480af67da492c4f",
+    "contract_receipt_sha256": "cdcaabbe98ece66322d6dd38284bf4d891fe674002583dca49cb26552f53297e",
+    "scope": "Local source review and separately reported source controls, not native/platform qualification"
+  },
+  "remaining": [
+    "Original CLI admission before source preparation and policy selection in public plan/acknowledgement",
+    "Same live owner propagated through aggregates, model/build/native waits, package, publication and receipt; no reset from replacements or records",
+    "One global3candidate controller through actual final root rejection; genuine live native/package rejection origin and retained rejected package/source history",
+    "Restore frozen legacy v2 repair semantics through the new native domain rather than broadening ACCEPT in v2",
+    "Require and validate complete acceptance closure/ledger in capture/replay, including held dependencies and two clean independent qualification runs",
+    "Maintained actual late-package regression must pass, existing native13 remain, exact installed Linux/macOS/Windows and full integrated/release gates"
+  ],
+  "runtime_activated": false,
+  "goal_complete": false,
+  "qualified": false,
+  "release_evidence": false
+}

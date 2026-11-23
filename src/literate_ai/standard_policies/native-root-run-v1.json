@@ -1,0 +1,5 @@
+{
+  "schema": "literate-ai/native-root-run-policy@1",
+  "max_duration_seconds": 1800,
+  "candidate_limit": 3
+}

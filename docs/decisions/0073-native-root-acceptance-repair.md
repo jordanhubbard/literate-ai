@@ -32,6 +32,34 @@ the CLI, as required by issue #404, does not establish repair eligibility.
 
 ## Decision
 
+### Admit one explicit original-run lifetime
+
+The ordinary local Standard driver has no existing total-run deadline. Its
+per-intent grants, generation budget and per-command timeouts retain their own
+meanings. The new optional project `native_root_run_policy` selects a separate
+closed policy without changing the frozen Standard driver or lifecycle policy
+wire. An absent selection retains its original project identity and provides no
+implicit policy for this continuation.
+
+The shipped run policy selects 1,800 seconds and exactly three candidates.
+Explicitly reviewed policies may select a positive whole-run duration up to
+86,400 seconds. This is a new finite policy bound; it does not assert that an
+ordinary local run previously had a total deadline. The candidate limit remains
+three, and existing operation bounds continue to apply.
+
+Admit one live owner at the original command boundary, before source preparation,
+and retain it across aggregate components and every replacement. Its original
+monotonic and UTC expiry, selected policy and original project/framework bindings
+cannot be changed by later requests. Intersect operation waits with the remaining
+original bound and any already admitted upstream deadline. Project selection
+belongs in the public plan and acknowledgement; a running invocation cannot
+substitute a shipped policy when its selected policy disappears or changes.
+
+Deadline and run records are correlation data. Decoding them never restores the
+active owner, execution authorization, native custody or continuation. Temporal
+boundary checks also require bounded blocking operations and owned cancellation;
+the checks alone do not interrupt a blocked operation.
+
 ### Admit only an attributable generated root
 
 Start with one generated native-library root whose complete locked generation,
@@ -158,3 +186,9 @@ binding, rejected-package retention, shared-budget continuation and closed repla
 remain implementation requirements alongside current source, installed, platform
 and release qualification. See
 [the existing integration review](../../verification/native-candidate-repair-integration-review.json).
+
+The [foundation development record](../../verification/native-root-continuation-foundation-development.json)
+separately records the closed contracts, policy selection and lifetime controls.
+It leaves CLI admission, the shared root controller, native/package custody and
+capture/replay integration open. The maintained actual late-package counterexample
+still reproduces the missing continuation.

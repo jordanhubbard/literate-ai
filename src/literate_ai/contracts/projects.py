@@ -24,6 +24,7 @@ from .channel_events import reject_secret_shaped
 from .generation_cache import SourceCacheConfiguration, SourceCacheRootKind
 from .html_observability import HtmlRenderRequest
 from .identity import SCHEMA_PREFIX, ContentIdentity, contract_identity
+from .native_root_continuation import NativeRootRunPolicy
 from .paths import canonical_relative_posix_path
 from .repository_orchestration import RepositoryOrchestration
 from .testing import ProjectTestReceiptPolicy
@@ -1262,6 +1263,7 @@ class ProjectDefinition:
     scale_limits: ProjectScaleLimits | None = None
     framework_directory: str | None = None
     agent_entrypoints: tuple[str, ...] | None = None
+    native_root_run_policy: NativeRootRunPolicy | None = None
 
     SCHEMA: ClassVar[str] = PROJECT_DEFINITION_SCHEMA
 
@@ -1380,6 +1382,23 @@ class ProjectDefinition:
                 "ProjectDefinition.lifecycle_driver",
                 "must be a standard or external Project lifecycle driver",
             )
+        if self.native_root_run_policy is not None:
+            if type(self.native_root_run_policy) is not NativeRootRunPolicy:
+                fail(
+                    "ProjectDefinition.native_root_run_policy",
+                    "must be a NativeRootRunPolicy",
+                )
+            self.native_root_run_policy.__post_init__()
+            if not isinstance(self.lifecycle_driver, StandardProjectLifecycleDriver):
+                fail(
+                    "ProjectDefinition.native_root_run_policy",
+                    "requires a configured Standard lifecycle driver",
+                )
+            if not self.component_roots:
+                fail(
+                    "ProjectDefinition.native_root_run_policy",
+                    "requires generated Component catalog roots",
+                )
         if self.source_cache is not None and not isinstance(
             self.source_cache, SourceCacheConfiguration
         ):
@@ -1541,6 +1560,8 @@ class ProjectDefinition:
         }
         if self.lifecycle_driver is not None:
             value["lifecycle_driver"] = self.lifecycle_driver.to_dict()
+        if self.native_root_run_policy is not None:
+            value["native_root_run_policy"] = self.native_root_run_policy.to_dict()
         if self.source_cache is not None:
             value["source_cache"] = self.source_cache.to_dict()
         if self.test_receipt is not None:
@@ -1687,6 +1708,7 @@ class ProjectDefinition:
                     "scale_limits",
                     "framework_directory",
                     "agent_entrypoints",
+                    "native_root_run_policy",
                 }
             ),
         )
@@ -1730,6 +1752,14 @@ class ProjectDefinition:
                     data["lifecycle_driver"], path=f"{path}.lifecycle_driver"
                 )
                 if "lifecycle_driver" in data
+                else None
+            ),
+            native_root_run_policy=(
+                NativeRootRunPolicy.from_dict(
+                    data["native_root_run_policy"],
+                    path=f"{path}.native_root_run_policy",
+                )
+                if "native_root_run_policy" in data
                 else None
             ),
             source_cache=(

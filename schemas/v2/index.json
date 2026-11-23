@@ -1272,6 +1272,24 @@
       "file": "retained-python-tests.schema.json",
       "root_id": "literate-ai/retained-python-test-inventory@1",
       "public_ids": []
+    },
+    {
+      "file": "native-root-continuation.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:native-root-continuation",
+      "public_ids": [
+        "literate-ai/native-root-run-policy@1",
+        "literate-ai/native-root-run-deadline@1",
+        "literate-ai/native-root-qualified-dependency-binding@1",
+        "literate-ai/native-root-run-binding@1",
+        "literate-ai/native-root-acceptance-rejection@1",
+        "literate-ai/native-root-repair-diagnostic@1",
+        "literate-ai/native-root-repair-request@1",
+        "literate-ai/native-root-candidate-attempt@1",
+        "literate-ai/native-root-continuation-stop@1",
+        "literate-ai/native-root-continuation-ledger@1",
+        "literate-ai/native-root-acceptance-closure@1",
+        "literate-ai/native-root-execution-result@1"
+      ]
     }
   ]
 }

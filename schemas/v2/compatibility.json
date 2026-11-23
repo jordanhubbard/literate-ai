@@ -306,7 +306,19 @@
     "urn:literate-ai:schema:v1:source-static-intake-plan",
     "urn:literate-ai:schema:v1:source-static-intake-review",
     "urn:literate-ai:schema:v1:source-static-intake-validation",
-    "literate-ai/retained-python-test-inventory@1"
+    "literate-ai/retained-python-test-inventory@1",
+    "literate-ai/native-root-run-policy@1",
+    "literate-ai/native-root-run-deadline@1",
+    "literate-ai/native-root-qualified-dependency-binding@1",
+    "literate-ai/native-root-run-binding@1",
+    "literate-ai/native-root-acceptance-rejection@1",
+    "literate-ai/native-root-repair-diagnostic@1",
+    "literate-ai/native-root-repair-request@1",
+    "literate-ai/native-root-candidate-attempt@1",
+    "literate-ai/native-root-continuation-stop@1",
+    "literate-ai/native-root-continuation-ledger@1",
+    "literate-ai/native-root-acceptance-closure@1",
+    "literate-ai/native-root-execution-result@1"
   ],
   "read_paths": [
     {
@@ -674,6 +686,78 @@
       "status": "unreleased-development-compatibility",
       "adapter": "RebuildSourceCachePublicationOffer.from_dict(...).to_dict",
       "output": "urn:literate-ai:schema:v2:rebuild-source-cache-publication-offer"
+    },
+    {
+      "input": "literate-ai/native-root-run-policy@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRunPolicy.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-run-policy@1"
+    },
+    {
+      "input": "literate-ai/native-root-run-deadline@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRunDeadline.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-run-deadline@1"
+    },
+    {
+      "input": "literate-ai/native-root-qualified-dependency-binding@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootQualifiedDependencyBinding.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-qualified-dependency-binding@1"
+    },
+    {
+      "input": "literate-ai/native-root-run-binding@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRunBinding.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-run-binding@1"
+    },
+    {
+      "input": "literate-ai/native-root-acceptance-rejection@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootAcceptanceRejection.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-acceptance-rejection@1"
+    },
+    {
+      "input": "literate-ai/native-root-repair-diagnostic@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRepairDiagnostic.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-repair-diagnostic@1"
+    },
+    {
+      "input": "literate-ai/native-root-repair-request@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootRepairRequest.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-repair-request@1"
+    },
+    {
+      "input": "literate-ai/native-root-candidate-attempt@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootCandidateAttempt.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-candidate-attempt@1"
+    },
+    {
+      "input": "literate-ai/native-root-continuation-stop@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootContinuationStop.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-continuation-stop@1"
+    },
+    {
+      "input": "literate-ai/native-root-continuation-ledger@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootContinuationLedger.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-continuation-ledger@1"
+    },
+    {
+      "input": "literate-ai/native-root-acceptance-closure@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootAcceptanceClosure.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-acceptance-closure@1"
+    },
+    {
+      "input": "literate-ai/native-root-execution-result@1",
+      "status": "unreleased-development-compatibility",
+      "adapter": "NativeRootExecutionResult.from_dict(...).to_dict",
+      "output": "literate-ai/native-root-execution-result@1"
     }
   ],
   "incompatible_inputs": [
