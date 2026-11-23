@@ -122,12 +122,12 @@ def main():
         result = run(("git", *arguments), cwd=project)
         require(result.returncode == 0, "owned fixture Git command failed")
 
-    def selection(path):
+    def selection(path, *, initial=False):
         value = {
             "schema": "literate-ai/monorepo-adoption-selection@1",
             "components": [
                 {
-                    "name": "legacy-project-wrapper",
+                    "name": "native-initial" if initial else "legacy-project-wrapper",
                     "root": ".",
                     "commands": [
                         {
@@ -141,6 +141,17 @@ def main():
             ],
             "shared_sources": [],
         }
+        if initial:
+            # Initial refined ownership explicitly declares its complete harness.
+            # Renewal separately overrides only build and retains admitted tests.
+            value["components"][0]["commands"].append(
+                {
+                    "id": "test",
+                    "command": "make -f Makefile test",
+                    "cwd": ".",
+                    "evidence": "Makefile",
+                }
+            )
         path.write_bytes(canonical_json_bytes(value) + b"\n")
 
     def current_receipt(project, candidate):
@@ -233,7 +244,7 @@ def main():
             "Original native application",
         )
         selected = workspace / (kind + ".json")
-        selection(selected)
+        selection(selected, initial=kind == "initial-selection")
         arguments = (
             "onboard",
             "adopt",

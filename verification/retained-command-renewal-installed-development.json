@@ -1,0 +1,30 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Installed single-wrapper command renewal journey; first-attempt failure retained",
+  "attempts": [
+    {
+      "revision": "77dbd5c58bf58014aace1d8f358823dbda23612f",
+      "tree": "995d9b298ce2b16e553b7907df7e5665032dcb86",
+      "seconds": 130.485,
+      "wheel_sha256": "9355931ecc73df895d46ba3795b5cdeb8ec923e76e32309498beafdb06b50e72",
+      "distribution": "sha256:2bc352a029374db6a5a323ebc532d03c7c38d4bf6a423773d5e92d02d7230070",
+      "source_unchanged": true,
+      "scope_passed": false,
+      "runtime_records": "Clean copied noneditable runtime, pip RECORD, framework RECORD and installed binding pass before native journey",
+      "failure": "Initial refined ownership declared only build; its mandatory retained test phase is absent. No test-stage refusal is waived.",
+      "stderr_sha256": "736510a20eacdbf43b3df9b6969979b3a7edbc8ab0806d6136b66b9e3441715c",
+      "first_selection_sha256": "58865b77526bf0e31e5ba1a0088b337aff75c2c819b69e803c5ff3d8b0e3e91f"
+    }
+  ],
+  "fixture_correction": {
+    "script": "scripts/installed_retained_command_smoke.py",
+    "sha256": "eb0da8a52357e6240dd781d39782abf4676b4d91ac7cea1f0fc58ab1417f19d3",
+    "initial": "Declare complete build/test ownership under a distinct native-initial Component",
+    "renewal": "Continue to select build only for the actual existing wrapper and preserve its admitted test phase automatically",
+    "production_modules_changed": false,
+    "checks": "changed script Ruff format/lint and py_compile pass"
+  },
+  "next_attempt": "pending exact clean checkpoint build and actual installed execution",
+  "qualified": false,
+  "release_evidence": false
+}
