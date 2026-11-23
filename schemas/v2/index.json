@@ -1267,6 +1267,11 @@
         "urn:literate-ai:schema:v1:source-static-intake-review",
         "urn:literate-ai:schema:v1:source-static-intake-validation"
       ]
+    },
+    {
+      "file": "retained-python-tests.schema.json",
+      "root_id": "literate-ai/retained-python-test-inventory@1",
+      "public_ids": []
     }
   ]
 }

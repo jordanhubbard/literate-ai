@@ -1,0 +1,75 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Read-only consumer plan preflight under independently supplied current facts, original native file custody and the live running-interpreter observation; provider/archive/current-file resolution and public admission remain pending",
+  "base_commit": "8c4280f975319128624f185f719e5716067297c1",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_python_plan.py": "79e3d37c721b5bbf01b6d36471c492cd1fdbc4f5f0e9fc18094e0f0508f7b3ae",
+    "src/literate_ai/adapters/retained_python_interpreter.py": "09468c5261ca41ba013f6f5540cc05c633acd3c6ce518cf61c8ddf9e5439530e",
+    "src/literate_ai/contracts/retained_python.py": "2297f878ce8541d897ff9e9f18e9c0e0c5f0fdab7980c7e01fa7cbcec327f1ed",
+    "src/literate_ai/contracts/retained_python_inputs.py": "430751ec4e5f1a9838629c3b1fe07f8ee6feaffffb7654b9778db35898c593d7",
+    "tests/critical/test_retained_python_consumer_inputs.py": "b34d8efa584201521c5dc463b70fc5717eb43ad90120f8c59598b0595de6fc2f",
+    "tests/critical/test_retained_python_interpreter.py": "84080eafb4546e9df5986ca8885c18642db9597f65257403c536d70e2b985feb",
+    "tests/critical/test_retained_python_workspace_plan.py": "aac5e8851b069974a720e23a6d5fcaf679d482d68983226cc689fc4f53120266"
+  },
+  "focused": {
+    "summary": {
+      "executed": 25,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 25,
+      "selected": 25,
+      "skipped": 0
+    },
+    "seconds": 5.29,
+    "report_sha256": "cc23462acd6b81ef5be58e60a5b6e580db4a8cbe3ccec205c01ab37aa5cdd7b4",
+    "new_consumer_methods": 10,
+    "existing_interpreter_methods": 8,
+    "existing_plan_methods": 7
+  },
+  "retained_evidence_manifest_sha256": "b49684c541f8276e1c6bd174a2b0d8bb480113632dd9a20a6605d597ff367322",
+  "native_interpreter_baseline_probed_before_readonly_check": true,
+  "real_pinned_consumer_file_mutation_exercised": true,
+  "synthetic_consumer_review_and_export_fixtures": true,
+  "source_and_wheel_intent_only": true,
+  "readonly_operation_starts_processes": false,
+  "readonly_operation_writes_files": false,
+  "rejection_closes_original_custody": true,
+  "original_review_inventory_resolver_implemented": false,
+  "current_provider_join_implemented": false,
+  "source_and_wheel_materialization_implemented": false,
+  "public_bridge_implemented": false,
+  "consumer_admitted": false,
+  "receipt_extension_implemented": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "retained_failures": [
+    "Initial static gate refused separated imports in the new test; combined imports before the final 25-method cohort.",
+    "First local evidence collection assumed completed runs retained their checkpoint files; reports remain present, absent checkpoints are recorded as unavailable. No test result changed."
+  ],
+  "limits": [
+    "The caller must independently resolve original consumer review, configuration, complete inventories, target and environment under the supplied custody guard. A DTO and a digest do not authenticate those facts.",
+    "Plans require exact reviewed bytes, the complete export graph and destinations. Prospective original source changes still need native validation before materialization or retirement.",
+    "Only the original live running-interpreter observation is accepted. This provides byte continuity, not an execution or native version-probe grant.",
+    "All six ADR0061 public/current-provider, packaging, origin, full-consumer, receipt, remote refusal and installed validation requirements remain open."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "01b8b314d5b853e5e672990461752acc5a92d674a663a9443e1a12ac92542cdd",
+  "verify": {
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "exit_code": 1,
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec"
+  }
+}

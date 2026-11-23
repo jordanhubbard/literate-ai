@@ -804,12 +804,19 @@ class RetainedHarnessReceiptTests(unittest.TestCase):
                 canonical_json_bytes(layout.to_dict()) + b"\n"
             )
             blocked_candidate = workspace / "declared-candidate.json"
-            status, blocked = receipt("run-retained", blocked_candidate)
+            current_receipt_before = current_path.read_bytes()
+            with mock.patch(
+                "literate_ai.adapters.retained_harness_receipts.execute_retained_harness",
+                side_effect=AssertionError("unqualified layout executed its harness"),
+            ) as executed:
+                status, blocked = receipt("run-retained", blocked_candidate)
+            executed.assert_not_called()
             self.assertEqual(status, 2, blocked)
             self.assertEqual(
-                blocked["error"]["code"], "retained_receipt.lift_shift_invalid"
+                blocked["error"]["code"], "retained_receipt.layout_unqualified"
             )
             self.assertFalse(blocked_candidate.exists())
+            self.assertEqual(current_path.read_bytes(), current_receipt_before)
 
     def test_remote_worker_is_selected_exactly_and_finalized_by_coordinator(
         self,

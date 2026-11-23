@@ -39,6 +39,7 @@ from literate_ai.adapters.retained_harness_receipts import (
 )
 from literate_ai.adapters.retained_layout import RETAINED_LAYOUT_PATH
 from literate_ai.adapters.retained_layout_partition import _lineage
+from literate_ai.adapters.retained_python_review import RetainedPythonReviewedFiles
 from literate_ai.contracts.identity import canonical_identity, canonical_json_bytes
 from literate_ai.projects import (
     PinnedInputClosure,
@@ -94,6 +95,7 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
         bindings,
         lifetime,
         configuration,
+        input_closure=None,
     ):
         if _key is not _CREATION_KEY:
             raise TypeError("retained.cargo.v2-live-wrapper-context-required")
@@ -104,7 +106,13 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
             ("bindings", bindings),
             ("_lifetime", lifetime),
             ("implementation", _implementation_root(reviewed.project, documents)),
-            ("workspace", reviewed.project.root / reviewed.plan.common.workspace_root),
+            (
+                "workspace",
+                _implementation_root(reviewed.project, documents)
+                if type(reviewed) is RetainedPythonReviewedFiles
+                else reviewed.project.root / reviewed.plan.common.workspace_root,
+            ),
+            ("_source_inputs", input_closure),
         ):
             object.__setattr__(self, name, value)
         if not self.workspace.is_relative_to(self.implementation):
@@ -212,6 +220,7 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
             revision,
             documents=documents,
             implementation=self.implementation,
+            **({"input_closure": input_closure} if input_closure is not None else {}),
         )
         object.__setattr__(self, "source_authority", source_authority)
 
@@ -225,6 +234,11 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
                     self.implementation,
                     self.workspace,
                     *self._source_paths,
+                    *(
+                        self._source_inputs.pinned_paths
+                        if self._source_inputs is not None
+                        else ()
+                    ),
                     *self._authority_paths,
                     self._project_context.framework_path(RETAINED_LAYOUT_PATH),
                     root / "litai",
@@ -289,6 +303,8 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
         reviewed.require_unchanged()
         self._require_context()
         self._inputs.require_unchanged()
+        if self._source_inputs is not None:
+            self._source_inputs.require_unchanged()
         if (
             directory_node(self.implementation) != self._implementation_node
             or directory_node(self.workspace) != self._workspace_node
@@ -313,10 +329,17 @@ class _CurrentCargoConsumerWrapper(_UnsavableConsumerWrapper):
             self.revision,
             documents=documents,
             implementation=self.implementation,
+            **(
+                {"input_closure": self._source_inputs}
+                if self._source_inputs is not None
+                else {}
+            ),
         )
         if current != self.source_authority:
             raise ValueError("retained.cargo.v2-wrapper-source-changed")
         self._inputs.require_unchanged()
+        if self._source_inputs is not None:
+            self._source_inputs.require_unchanged()
         reviewed.require_unchanged()
         self._require_context()
         if (
@@ -405,7 +428,7 @@ class _CargoConsumerWrapperView(_UnsavableConsumerWrapper):
 
 
 @contextmanager
-def _open_consumer_wrapper_context(reviewed, *, read_only=False):
+def _open_consumer_wrapper_context(reviewed, *, read_only=False, input_closure=None):
     """Observe current authority, locking only a writable operation's lifetime.
 
     The current canonical wrapper coordinate is used directly; custom retained
@@ -414,10 +437,16 @@ def _open_consumer_wrapper_context(reviewed, *, read_only=False):
     if type(reviewed) not in (
         RetainedCargoReviewedFilesV2,
         AuthoredRetainedCargoReviewedFiles,
+        RetainedPythonReviewedFiles,
     ):
         raise TypeError("retained.cargo.consumer-reviewed-files-required")
     if type(read_only) is not bool:
         raise TypeError("retained.cargo.wrapper-read-mode-required")
+    if type(reviewed) is RetainedPythonReviewedFiles:
+        if not read_only or type(input_closure) is not PinnedInputClosure:
+            raise TypeError("retained.python.readonly-original-inputs-required")
+    elif input_closure is not None:
+        raise TypeError("retained.cargo.wrapper-foreign-input-closure")
     project = reviewed.project
     operation = (
         "retained-cargo.v2"
@@ -479,6 +508,7 @@ def _open_consumer_wrapper_context(reviewed, *, read_only=False):
             bindings=bindings,
             lifetime=lifetime,
             configuration=configuration,
+            **({"input_closure": input_closure} if input_closure is not None else {}),
         )
         try:
             yield context

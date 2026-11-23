@@ -1,0 +1,85 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Bounded independently reviewed Python document custody and complete reviewed gate/case classification; current original-wrapper/source authority, provider trust and actual consumer execution remain pending",
+  "base_commit": "ab1f4968ed42a3a0c702089b417598aae6aa194d",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_python_review.py": "4050373f357313b70f42e33297310de8f97250f6cd7a4cb91c88b9236a8e1245",
+    "src/literate_ai/contracts/retained_python_tests.py": "7c4914d3caa93c3d445e744a6a618dd5f1eef7d59862e61a3bd681646fbf62b3",
+    "src/literate_ai/adapters/retained_python_plan.py": "79e3d37c721b5bbf01b6d36471c492cd1fdbc4f5f0e9fc18094e0f0508f7b3ae",
+    "src/literate_ai/adapters/retained_python_interpreter.py": "09468c5261ca41ba013f6f5540cc05c633acd3c6ce518cf61c8ddf9e5439530e",
+    "schemas/v2/retained-python-tests.schema.json": "59606ccb28cb2eeefe8124ff7dde8dc039d08f00001f9fe0b1c2e63c0f8db7f5",
+    "schemas/v2/index.json": "e53feadbe70bf6e021d25277b8178002f544e5b67b937079aab24367e321b651",
+    "schemas/v2/compatibility.json": "5d907a103317de7601b1526d5a5a9eeebf37edf83026f7ef0a79bd446638c6d0",
+    "src/literate_ai/schema_catalog.py": "4179642120ea1613470c5f4bd8b50999a21f7e994704ab32ef7e3edb73cc5e1b",
+    "tests/critical/test_retained_python_review.py": "275675e531ad6ff5ee2e126a5587f1d1c779ea2a575acabb88692dcc6ee23610",
+    "tests/critical/test_retained_python_consumer_inputs.py": "b34d8efa584201521c5dc463b70fc5717eb43ad90120f8c59598b0595de6fc2f",
+    "tests/critical/test_retained_python_interpreter.py": "84080eafb4546e9df5986ca8885c18642db9597f65257403c536d70e2b985feb",
+    "tests/critical/test_retained_python_workspace_plan.py": "aac5e8851b069974a720e23a6d5fcaf679d482d68983226cc689fc4f53120266"
+  },
+  "focused": {
+    "summary": {
+      "executed": 37,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 37,
+      "selected": 37,
+      "skipped": 0
+    },
+    "seconds": 5.449,
+    "new_reviewed_file_methods": 12,
+    "existing_interpreter_plan_preflight_methods": 25,
+    "report_sha256": "a3edf43daa8d1744e5ec967c300ac5327143d3cb61fb6caabbe82318cf91b39a"
+  },
+  "retained_evidence_manifest_sha256": "828049d2e91b03f2654a5e4eb69e3feb8156298a59170e1aad3f5e9860051454",
+  "real_filesystem_byte_inode_ancestry_context_custody": true,
+  "synthetic_review_source_inventory_and_export_fixtures": true,
+  "readonly_operation_starts_processes": false,
+  "readonly_operation_writes_files": false,
+  "rejection_closes_original_custody": true,
+  "retained_failures": [
+    "Initial run:2 pass/1 fail of10 selected; same-byte original project configuration replacement bypassed byte-only closure. Added original native node/ancestry guards before/after bytes.",
+    "Second run:7 pass/1 error of10 selected; native closing guard correctly refused late original replacement before the byte guard. Updated assertion to require that exact native refusal, retaining both success and rejection variants.",
+    "First static lint refused late-bound callback loop variable; bound the refusal variant explicitly before final37-method cohort."
+  ],
+  "original_wrapper_parity_and_source_membership_join_implemented": false,
+  "original_gate_and_actual_case_coverage_proven": false,
+  "current_provider_join_implemented": false,
+  "source_and_wheel_materialization_implemented": false,
+  "public_bridge_implemented": false,
+  "consumer_admitted": false,
+  "receipt_extension_implemented": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "Reviewed references are independent importer inputs, never candidate self-approval. The snapshot does not grant execution or certify a named provider.",
+    "The original wrapper, current source and actual admitted command/test membership still require their current native owners. Explicit review alone cannot establish those facts.",
+    "The report verifier checks decoded semantic equality only. Original sealed report bytes, full gates and positive current execution require separate custody.",
+    "All six ADR0061 complete public/provider/packaging/retirement/receipt/native/installed validation outcomes remain required."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "657351954e23cd5086bbcd5e0068932d0af7ad5e56f444bf8fa9fa911e648f5c",
+  "verify": {
+    "exit_code": 1,
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "skipped": [
+      "locks: no committed Component lock",
+      "source-intelligence: provider none",
+      "html-observability: no declared artifacts"
+    ],
+    "driver_or_receipt_pins_changed": false
+  }
+}

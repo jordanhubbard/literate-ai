@@ -3477,9 +3477,9 @@ open. Preserve the historical inventories below.
 | [#359 — Add reviewed qualified-child membership transactions](https://github.com/jordanhubbard/literate-ai/pull/359) | `9732a114a48d19aa279654f414d278784b7e72b5` | Not ancestral; inspect residual changes and original owner before collection. |
 | [#349 — Centralize retained-layout resolution and plan selected placement](https://github.com/jordanhubbard/literate-ai/pull/349) | `3c37247492937063604312907daae51c56b00975` | Exact head ancestral to the combined candidate. |
 | [#347 — WIP: project qualified native Rust graphs through Standard Cargo builds](https://github.com/jordanhubbard/literate-ai/pull/347) | `7ce065e3299d753a4bdd42e3f376cd5ed34ce56d` | Not ancestral; inspect residual changes and original owner before collection. |
-| [#334 — Propose ADR 0065 for shared cross-provider work](https://github.com/jordanhubbard/literate-ai/pull/334) | `2e7fc4096905f1b9a081399149910e394e34b1f8` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#334 — Propose ADR 0065 for shared cross-provider work](https://github.com/jordanhubbard/literate-ai/pull/334) | `2e7fc4096905f1b9a081399149910e394e34b1f8` | Existing forge disposition defers this proposed design to 1.5.0; preserve its milestone and pending acceptance. Exact head not ancestral. |
 | [#333 — Bootstrap generated project agents before LitAI commands](https://github.com/jordanhubbard/literate-ai/pull/333) | `770140dc94731086014c4dbc58db1189424df421` | Exact head ancestral to the combined candidate. |
-| [#326 — Propose ADR 0064 for GitHub issue assignee ownership](https://github.com/jordanhubbard/literate-ai/pull/326) | `4350f552a8b82ebbf59f6514b25a473774e60b6d` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#326 — Propose ADR 0064 for GitHub issue assignee ownership](https://github.com/jordanhubbard/literate-ai/pull/326) | `4350f552a8b82ebbf59f6514b25a473774e60b6d` | Existing forge disposition defers this proposed design to 1.5.0; preserve its milestone and pending acceptance. Exact head not ancestral. |
 | [#322 — Add shadow Git and PR custody with bounded process ownership](https://github.com/jordanhubbard/literate-ai/pull/322) | `712b99fdf1227e9ed071543896aca947d0670713` | Not ancestral; inspect residual changes and original owner before collection. |
 | [#313 — Preserve reviewed source, child and asset promotion boundaries](https://github.com/jordanhubbard/literate-ai/pull/313) | `77be5baf68bbeaf878a5b86151dafffe623beb2e` | Exact head retrieved after this inventory; focused accepted asset/intake recovery is under qualification. Newer child and policy work remains preserved. |
 | [#312 — Integrate 1.4 retained promotion and library harness fixes](https://github.com/jordanhubbard/literate-ai/pull/312) | `eda5c4af62f6f47686e34fa94a9da300b8abd82f` | Aggregate not merged wholesale. Audit residuals and collect only focused missing work; retain superseded wheel-cache history. |
@@ -21983,8 +21983,8 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 | [#366 — Retained Make build detection can select a help-only default without explicit command admission](https://github.com/jordanhubbard/literate-ai/issues/366) | Integration retained command admission: qualify explicit build selection and supported command renewal. |
 | [#363 — Bind reviewed immutable assets through source promotion](https://github.com/jordanhubbard/literate-ai/issues/363) | SOURCE-ASSET-PROMOTION-001: recover reviewed immutable assets through graph parsing, review, acceptance and lock authority. |
 | [#345 — Native Rust library edges lack supported Cargo provider dependency projection](https://github.com/jordanhubbard/literate-ai/issues/345) | CARGO-COMPAT-001 and native library integration: qualify exact provider dependency projection and nominal shared Rust types. |
-| [#323 — Use GitHub assignees as durable issue work ownership](https://github.com/jordanhubbard/literate-ai/issues/323) | SDLC-001: qualify native forge assignee ownership, verified claims and handoff semantics. |
-| [#321 — Support multi-member, cross-provider collaboration with versioned context and per-run receipts](https://github.com/jordanhubbard/literate-ai/issues/321) | SDLC-001 integration intake: retain the full multi-member/provider collaboration request; assess design, enrollment, attribution and per-run evidence. |
+| [#323 — Use GitHub assignees as durable issue work ownership](https://github.com/jordanhubbard/literate-ai/issues/323) | Existing forge disposition: deferred from 1.4.0 to 1.5.0 with proposed ADR 0064 / review #326. Preserve that recorded design/ownership scope and milestone. |
+| [#321 — Support multi-member, cross-provider collaboration with versioned context and per-run receipts](https://github.com/jordanhubbard/literate-ai/issues/321) | Existing forge disposition: deferred from 1.4.0 to 1.5.0 with proposed ADR 0065 / review #334. Preserve the complete collaboration request and its recorded milestone. |
 | [#216 — No path to replace a retained Cargo binary crate with a native Component](https://github.com/jordanhubbard/literate-ai/issues/216) | Integration retained process boundaries: retain the executable replacement and process-protocol requirements; library-only receiving does not close this request. |
 | [#146 — Allow explicit on-demand source-intelligence indexing when automatic provider is none](https://github.com/jordanhubbard/literate-ai/issues/146) | Integration explicit source intelligence: preserve disabled automatic indexing while assessing the separately requested on-demand path. |
 | [#138 — Native Mix intent cannot declare OTP application dependencies](https://github.com/jordanhubbard/literate-ai/issues/138) | ELIXIR-002: qualify exact OTP application declarations and selected-installation include/runtime custody. |
@@ -25630,6 +25630,56 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RETAINED-PYTHON-BRIDGE-001 — Consume qualified native library children from retained Python projects
 
+- **Original wrapper/source observation development:** A distinct expiring Python
+  observation reuses the actual original-source conversion, qualified parity and
+  current catalog/lock owners. Bind the reviewed plan to a complete bounded native
+  source census without exclusions, exact current harness bytes and wrapper,
+  original stage identity/order and prospective original file bytes/absences.
+  A path-list descriptor cannot replace current source content; coherent gate
+  subsets, same-byte inode replacement, new files and late source mutation refuse.
+  Actual observation starts no process, opens no writer, acquires no lifecycle
+  lock and cannot enter Cargo scratch. Eight new controls use real converted
+  Python source whose two unittest cases execute during conversion/parity;
+  provider/export/review declarations and bridge commands remain explicit fixtures.
+  The current 45-method Python cohort, original Cargo-wrapper nine, no-bridge
+  receipt eleven and harness-inventory twelve pass: 77 distinct methods, no
+  failures or skips. The no-bridge contained-layout error mismatch reproduces on
+  unchanged baseline; its renewed assertion requires the existing earlier
+  `layout_unqualified` refusal, zero harness execution and receipt preservation.
+  See [original-wrapper development](../../verification/python-original-wrapper-development.json).
+  Native command equivalence, actual complete test coverage, provider reopening,
+  source/wheel materialization and public admission remain required.
+
+- **Reviewed-file and original-case inventory development:** Reopen independently
+  reviewed binding, plan, gate, harness and test documents under exact byte,
+  native file-identity, ancestry and project-context custody. Close the original
+  inputs on success and candidate rejection; same-byte inode replacement refuses.
+  Preserve contained project authority and the existing harness terminal-newline
+  form without changing its reviewed digest. The versioned Python inventory
+  reuses original case/report contracts, requires explicit classification of
+  every reviewed gate and refuses missing/extra cases, failures, undeclared skips
+  and zero execution. Twelve new controls plus the original 25 interpreter,
+  plan and preflight controls pass without skips: 37 methods in 5.449 seconds.
+  Filesystem custody is real; source inventories, review and export declarations
+  remain explicit synthetic fixtures. These records do not establish current
+  wrapper parity, actual source/test coverage, provider trust or a consumer run.
+  See [reviewed-file development](../../verification/python-reviewed-files-development.json).
+  Every ADR 0061 acceptance requirement remains open.
+
+- **Current consumer preflight development:** Reopen exact bounded canonical plan
+  bytes and require its full export graph and destinations to match the reviewed
+  binding. Join independently supplied current wrapper, source/harness/test
+  inventories, complete gates, target/environment and the original live running
+  interpreter observation; general tool objects and expired observations refuse.
+  Original consumer file custody closes on success and candidate refusal. Ten
+  new methods plus the original eight interpreter and seven plan methods pass
+  without skips: 25 methods in 5.290 seconds. Review/export/selection facts remain
+  explicit synthetic fixtures; native file custody and the independent runtime
+  baseline are real. This is internal preflight, not current file resolution,
+  provider qualification, package execution or admission. See
+  [consumer input development](../../verification/python-consumer-inputs-development.json).
+  Every ADR 0061 acceptance requirement remains open.
+
 - **Read-only interpreter development:** A private live observation compares a
   separately pinned running interpreter against bounded original executable
   bytes, current process metadata and freshly resolved command names, without
@@ -25704,6 +25754,8 @@ independent review and the complete combined gate from test one.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#307](https://github.com/jordanhubbard/literate-ai/issues/307)
+- **Current next action (in progress):** Join the current original stage identities to independently observed native command/tool semantics and actual complete original test coverage; matching stage IDs and a reviewed case list cannot prove those facts. Then compose current source-derived and authored provider archive reopening under read-only native custody. The internal consumer preflight, reviewed-file snapshot and original-wrapper observation grant no provider or consumer admission; package materialization and every public execution/receipt validation remain required.
+
 - **Next action:** Implement [accepted ADR 0061](../decisions/0061-retained-python-library-bridge.md) through the current retained provider, sealed workspace and receipt owners, then qualify its complete public native and installed journeys. FreeBSD SDK qualification remains first priority. The directing user's 2026-11-21 release-resumption instruction confirms all recorded roadmap items are already reviewed; no further manual design approval is pending. Independent implementation review and all evidence gates remain required.
 
 - **Priority:** high

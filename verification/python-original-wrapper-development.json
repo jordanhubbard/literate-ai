@@ -1,0 +1,134 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Actual current original-source Python wrapper/parity and complete bounded native source observation only; native command/test coverage, provider reopening and consumer/public admission remain pending",
+  "base_commit": "de81a09823e54a1f9c95dd858213b6afee431327",
+  "source_sha256": {
+    "src/literate_ai/adapters/retained_python_wrapper.py": "f203a6ba086c37fd281518ac3b77f5ec34cfcfd738d523c026bf1f0d82bf0f82",
+    "src/literate_ai/adapters/retained_python_review.py": "0a6d901f44ff21937ad2452293d7750f28dfdc0a998eb1bf74a9545029e8ae7b",
+    "src/literate_ai/adapters/retained_cargo_wrapper_core.py": "b95c9d3397bf04543d215764e8d5ebd7d95298285636bec4bd7e00a919caa333",
+    "src/literate_ai/adapters/harness_tree.py": "c48d565821198f82b8fd91d6f663304f022e2934612919b2c90e49c1277b0b5e",
+    "src/literate_ai/adapters/retained_harness_receipts.py": "8f76c4efcc809ebfef96a80b0e7d012193898992c4817630dcc432346b094336",
+    "src/literate_ai/contracts/retained_python.py": "2297f878ce8541d897ff9e9f18e9c0e0c5f0fdab7980c7e01fa7cbcec327f1ed",
+    "src/literate_ai/contracts/retained_python_inputs.py": "430751ec4e5f1a9838629c3b1fe07f8ee6feaffffb7654b9778db35898c593d7",
+    "tests/critical/test_retained_python_wrapper.py": "5bceaed857c6941ce2d680342cdc1fe4631c334fae36593b98c0f997f6f0ade6",
+    "tests/critical/test_retained_python_review.py": "275675e531ad6ff5ee2e126a5587f1d1c779ea2a575acabb88692dcc6ee23610",
+    "tests/critical/test_authored_retained_cargo_wrapper.py": "a38ef9682beebdd82aa0d56c894672f8db07006a41ff62f2a78f75acc385890b",
+    "tests/e2e/test_retained_harness_receipts.py": "c3ebd5fc7280c69bd822af7dd3471edd8a2886cfd59caf8a7b2fa0062afa2379",
+    "tests/e2e/test_harness_inventory.py": "defd6ddd5cbf04fcb29ced3082ee843a9440fffd774f8ca75317e0d638b8754f"
+  },
+  "focused": {
+    "cohorts": {
+      "python": {
+        "summary": {
+          "executed": 45,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 45,
+          "selected": 45,
+          "skipped": 0
+        },
+        "seconds": 53.252,
+        "report_sha256": "19f501c5a2804907f331487ab8b4c6e7fc5550ecbcef7c867d6b3ea526a14400"
+      },
+      "cargo_original": {
+        "summary": {
+          "executed": 9,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 9,
+          "selected": 9,
+          "skipped": 0
+        },
+        "seconds": 43.541,
+        "report_sha256": "0c2dffbf7caff665aba17a1d4dd2ef8c5f59f2581f4b892daae8c6ff997f30e7"
+      },
+      "no_bridge": {
+        "summary": {
+          "executed": 11,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 11,
+          "selected": 11,
+          "skipped": 0
+        },
+        "seconds": 34.839,
+        "report_sha256": "a586e3c199bc5c6263d02327d97549fe12f07295c14410321c254753e9fe6e90"
+      },
+      "inventory": {
+        "summary": {
+          "executed": 12,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 12,
+          "selected": 12,
+          "skipped": 0
+        },
+        "seconds": 22.817,
+        "report_sha256": "874501d6c50a8ac95b4d93d11c626d01bbb60ca7766f75d0bae98f0235e501f0"
+      }
+    },
+    "distinct_test_keys": 77,
+    "new_original_wrapper_methods": 8,
+    "failed": 0,
+    "skipped": 0
+  },
+  "retained_evidence_manifest_sha256": "b77395a4856ecdde91f2a4f4e3231063a9078589a455fceaa3da6536a3d69192",
+  "actual_original_source_conversion_and_parity": true,
+  "real_unittest_fixture_cases_executed_during_conversion": 2,
+  "synthetic_review_commands_exports_and_provider_declarations": true,
+  "complete_native_source_census_without_exclusions": true,
+  "source_scope_identity_is_full_current_source_observation": true,
+  "path_list_descriptor_alone_refuses": true,
+  "prospective_original_bytes_and_absences_guarded": true,
+  "original_stage_identity_and_order_guarded": true,
+  "readonly_observation_starts_processes": false,
+  "readonly_observation_opens_writers": false,
+  "readonly_observation_acquires_lifecycle_lock": false,
+  "readonly_observation_grants_cargo_scratch": false,
+  "original_custody_closes_on_candidate_rejection": true,
+  "retained_failures": [
+    "Initial actual wrapper fixture:0passed1error5selected4.791s; inert16MiB example lacked native census baseline plus namespace allowance. Retain original16MiB pre-entry refusal; actual fixture independently declares32MiB. No existing qualification budget or G2 cap changes.",
+    "Original no-bridge contained-layout control:0passed1failed11selected8.659s. Same stale expected lift_shift_invalid instead of earlier layout_unqualified reproduced on unchanged8c baseline in11.427s. Renew only that expectation, additionally requiring zero harness execution and original receipt bytes. No production layout guard change."
+  ],
+  "native_command_equivalence_proven": false,
+  "actual_complete_original_test_coverage_proven": false,
+  "current_provider_join_implemented": false,
+  "source_and_wheel_materialization_implemented": false,
+  "public_bridge_implemented": false,
+  "consumer_admitted": false,
+  "receipt_extension_implemented": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "The original two-test fixture executes for conversion/parity, not through a complete public Python library bridge. The77 control methods are distinct from those fixture executions.",
+    "Exact current original stage identities cannot be omitted or reordered. Native command/tool semantic equivalence and complete actual case coverage still require independent joining; synthetic command declarations never execute.",
+    "The reviewed document reader binds declared references. Only the live original source observation supplies full current source identity; a harness path-list digest is insufficient.",
+    "All six ADR0061 complete public/provider/packaging/retirement/receipt/native/installed validation outcomes remain required."
+  ],
+  "static_gates": {
+    "lint": 0,
+    "format-check": 0,
+    "repository-layout-check": 0,
+    "public-export-check": 0,
+    "documentation-review-record": 0,
+    "documentation-review": 0,
+    "documentation-check": 0,
+    "openspec-check": 0,
+    "schema-check": 0
+  },
+  "static_log_sha256": "ecaf248ea060082453fcc7550cbab3d4662c58fbb72c245055f988b3e44f298e",
+  "verify": {
+    "exit_code": 1,
+    "authority": "pass",
+    "receipt": "fail: project.test_receipt_stale",
+    "report_sha256": "12685b3dab45a16a8462b692fd65f44610624767bc6e7866f06e3aeead5ca9ec",
+    "skipped": [
+      "locks: no committed Component lock",
+      "source-intelligence: provider none",
+      "html-observability: no declared artifacts"
+    ],
+    "driver_or_receipt_pins_changed": false
+  }
+}

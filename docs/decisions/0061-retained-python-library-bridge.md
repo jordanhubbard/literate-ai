@@ -225,6 +225,29 @@ execution, provider qualification or consumer admission. The complete bridge mus
 independently select its expected interpreter pin and current provider/consumer
 authority; it must not accept those expectations from an archive or decoded DTO.
 
+The internal original-wrapper observation now reuses actual conversion, qualified
+parity and current catalog/lock owners through an explicit expiring read-only
+Python facade. Its complete bounded native source census has no exclusions and
+supplies the plan's current source-input identity; a hash of the harness's path-list
+descriptor alone cannot supply that identity. Exact original harness bytes, wrapper
+coordinate, stage identity/order and prospective original file bytes/absences must
+match. Existing source/parity observation can retain its original bounded file
+closure without changing ordinary no-bridge/Cargo defaults. Source changes and new
+namespace members refuse under the original live owner, including rejection
+closure. No writable lifecycle lock, process start, package root or Cargo scratch
+authority is acquired by the Python observation.
+
+Eight controls exercise a real converted Python fixture and its original two
+unittest cases during conversion/parity; reviewed bridge commands, exports and
+provider declarations remain explicit fixtures. The 77-method affected cohort
+includes unchanged Cargo, no-bridge receipt and harness-inventory controls. This
+does not prove native equivalence of reviewed commands or complete actual test
+coverage. Those joins, current providers, both packaging profiles, prospective
+consumer execution, retirement and receipt/public installed qualification remain
+required. The native reader's insufficient original metadata allowance refusal
+is retained; the actual source fixture declares its own finite allowance rather
+than treating an inert codec example as an executable capacity grant.
+
 The complete bridge implementation remains outstanding. The validation list below, including
 both real packaging profiles, fresh offline repeat, foreign-origin failures,
 unchanged Cargo/no-bridge behavior, independent source review and installed plus

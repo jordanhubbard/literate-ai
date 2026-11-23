@@ -27,6 +27,23 @@ _KEY = object()
 _OWNERS = WeakKeyDictionary()
 
 
+def require_retained_python_interpreter(observation, expected_identity):
+    """Require the original live observation, never a lookalike tool or callback.
+
+    The expected identity still belongs to independently resolved current input
+    authority. This check grants neither execution nor provider admission.
+    """
+    if (
+        type(observation) is not _RetainedPythonInterpreterObservation
+        or type(expected_identity) is not ContentIdentity
+    ):
+        raise TypeError("retained.python.original-interpreter-required")
+    observation.require_unchanged()
+    if observation.identity != expected_identity.uri:
+        raise ValueError("retained.python.interpreter-identity-mismatch")
+    observation.require_unchanged()
+
+
 def _runtime_metadata():
     return (
         sys.implementation.name,

@@ -305,7 +305,8 @@
     "urn:literate-ai:schema:v5:source-promotion-provenance",
     "urn:literate-ai:schema:v1:source-static-intake-plan",
     "urn:literate-ai:schema:v1:source-static-intake-review",
-    "urn:literate-ai:schema:v1:source-static-intake-validation"
+    "urn:literate-ai:schema:v1:source-static-intake-validation",
+    "literate-ai/retained-python-test-inventory@1"
   ],
   "read_paths": [
     {

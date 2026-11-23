@@ -1046,6 +1046,7 @@ def _retained_project_authority_observation(
     *,
     documents: dict[str, dict[str, Any]] | None = None,
     implementation: Path | None = None,
+    input_closure=None,
 ) -> tuple[ContentIdentity, dict[str, Any]]:
     selected_documents = documents or _load_retained_documents(project)
     _require_qualified_parity(selected_documents)
@@ -1060,7 +1061,9 @@ def _retained_project_authority_observation(
     assert isinstance(inventory, dict)
     try:
         source_tree = observe_retained_tree(
-            selected_implementation, inventory.get("source_scope")
+            selected_implementation,
+            inventory.get("source_scope"),
+            **({"input_closure": input_closure} if input_closure is not None else {}),
         )["source_tree"]
     except (OSError, ValueError) as exc:
         _error(

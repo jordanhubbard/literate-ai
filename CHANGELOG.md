@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+- Retained Python bridge development: observe the actual original-source
+  wrapper/parity and complete bounded native source without granting execution.
+  Reject changed source namespaces, unmatched prospective original bytes and
+  missing original stages. Keep native command/test coverage, providers,
+  package execution and public receipt admission open.
+
+- Retained Python bridge development: pin independently reviewed consumer
+  documents under byte, file-identity, ancestry and project-context checks,
+  including rejection closure. Classify every reviewed gate and preserve exact
+  original test membership and declared skips. Actual wrapper/source coverage,
+  qualified providers, execution and public receipt admission remain open.
+
+- Retained Python bridge development: compare exact reviewed plans with current
+  consumer inventories, complete gates, target/environment and the original
+  live interpreter observation. Close custody on success and refusal. Current
+  provider resolution, package execution and public receipt admission remain open.
+
 - Source promotion recovery: restore reviewed immutable asset declarations and
   signed local static intake from accepted ADRs 0067 and 0068. Keep ordinary
   writers, original source inventory, private qualification bindings and exact
