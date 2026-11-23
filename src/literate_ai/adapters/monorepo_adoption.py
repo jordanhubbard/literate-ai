@@ -276,6 +276,25 @@ def plan_monorepo_adoption(
             "separate_history", "submodules require the separate orchestration profile"
         )
     selection = _selection(selection_path)
+    plan = _plan_monorepo_selection(root, selection, inventory)
+    if _selection(selection_path) != selection:
+        _fail("selection_changed", "root selection changed during planning; replan")
+    return plan
+
+
+def _plan_monorepo_selection(
+    root: Path, selection: dict[str, Any], inventory: dict[str, Any]
+) -> dict[str, Any]:
+    """Apply the same complete ownership validator to a composed selection.
+
+    File-backed callers retain their original bounded reader and final re-read.
+    Readmission can compose preserved owners without writing a temporary plan.
+    """
+    selection = _fields(
+        selection, {"schema", "components", "shared_sources"}, "root plan"
+    )
+    if selection["schema"] != SELECTION_SCHEMA:
+        _fail("selection_invalid", f"root plan requires {SELECTION_SCHEMA}")
     components = selection["components"]
     shared = selection["shared_sources"]
     if not isinstance(components, list) or not components:
@@ -422,8 +441,6 @@ def plan_monorepo_adoption(
         _fail("source_changed", "source membership changed during planning; replan")
     if _source_members(root, paths) != members:
         _fail("source_changed", "source bytes changed during planning; replan")
-    if _selection(selection_path) != selection:
-        _fail("selection_changed", "root selection changed during planning; replan")
     plan = {
         "schema": PLAN_SCHEMA,
         "selection": selection,

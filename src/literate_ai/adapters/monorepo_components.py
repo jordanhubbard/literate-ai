@@ -206,7 +206,7 @@ def _installation_document(content):
     return installation
 
 
-def _installed_inputs(project, installation, original):
+def _installed_inputs(project, installation, original, *, maximum_files=None):
     """Retain the complete consumed payload set before validating its contents."""
     bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
     manifest_input = _file(bundle / _MANIFEST, maximum_bytes=_MAX_DOCUMENT)
@@ -239,6 +239,8 @@ def _installed_inputs(project, installation, original):
             )
         )
     )
+    if maximum_files is not None and len(relatives) > maximum_files:
+        _fail("input_limit", "installed Component payload count exceeds its bound")
     paths = {name: _direct(project, name) for name in relatives}
     native = {name: _signature(path) for name, path in paths.items()}
     native[f"{INSTALLATION_ROOT}/installation.json"] = original.signature
