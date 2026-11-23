@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Refined retained command renewal: add a distinct acknowledged public request
+  that preserves admitted phases and other owners, uses current project bounds,
+  executes through the existing Component harness, and joins the actual metadata
+  publication journal. Preserve original receipts, failed staging and foreign
+  nodes. Charge the original root receipt in preflight and preserve whole-file
+  binding and archival across streamed reads. Source development passes a real
+  native journey; fresh installed and complete release qualification remain open.
+
 - Initializer compatibility: retain earlier exact helper transitions while
   admitting the finite retained-readmission publication port and its one direct
   import. Preserve historical template ownership and refuse changed callbacks,

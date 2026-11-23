@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import tempfile
@@ -679,6 +680,8 @@ def reopen_retained_command_renewal_plan(
 
 _EXECUTION_PLAN_SCHEMA = "literate-ai/retained-harness-readmission-plan@3"
 _EXECUTION_RENEWAL_SCHEMA = "literate-ai/retained-command-renewal@1"
+_REFINED_EXECUTION_PLAN_SCHEMA = "literate-ai/retained-harness-readmission-plan@4"
+_REFINED_EXECUTION_RENEWAL_SCHEMA = "literate-ai/retained-command-renewal@2"
 
 
 def _prior_receipt_inputs(selected):
@@ -689,7 +692,7 @@ def _prior_receipt_inputs(selected):
     name = snapshot.definition.test_receipt
     path = _safe_path(snapshot.root, name, must_exist=False) if name else None
     node = None
-    identities = []
+    digest = hashlib.sha256()
     if path is not None:
         require_safe_directory(path.parent, allow_missing=True)
     parent = (
@@ -702,13 +705,17 @@ def _prior_receipt_inputs(selected):
         node = _signature(path)
         _consume_direct_file(
             path,
-            lambda content: identities.append(_identity(content)),
+            digest.update,
             maximum_bytes=DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
         )
     binding = {
         "path": name,
-        "state": "present" if identities else "missing" if name else "unconfigured",
-        "identity": identities[0] if identities else None,
+        "state": "present"
+        if node is not None
+        else "missing"
+        if name
+        else "unconfigured",
+        "identity": "sha256:" + digest.hexdigest() if node is not None else None,
     }
 
     def close():
@@ -725,14 +732,150 @@ def _prior_receipt_inputs(selected):
     return snapshot, binding, close
 
 
+def _refined_command_execution_plan(
+    selected, command_selection, *, prior_test_receipt, **options
+):
+    from literate_ai.adapters.monorepo_adoption import _consume_direct_file
+    from literate_ai.adapters.retained_component_commands import (
+        plan_installed_component_command_renewal,
+    )
+    from literate_ai.adapters.retained_readmission_publication import MAXIMUM_TARGETS
+
+    if options.get("execution_worker") is not None:
+        _fail(
+            "refined_worker_unavailable", "refined renewal requires its local executor"
+        )
+    project = load_project(selected)
+    limits = project.definition.scale_limits
+    bounds = {
+        "files": min(
+            MAXIMUM_TARGETS,
+            limits.pinned_input_files if limits else DEFAULT_MAXIMUM_PINNED_INPUT_FILES,
+        ),
+        "file_bytes": min(
+            DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+            limits.pinned_input_total_bytes
+            if limits
+            else DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+        ),
+        "total_bytes": min(
+            DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES,
+            limits.pinned_input_total_bytes
+            if limits
+            else DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES,
+        ),
+    }
+    component_plan = plan_installed_component_command_renewal(
+        project.root, command_selection, input_limits=bounds
+    )
+    old_inventory = _load_json(_safe_path(project.root, INVENTORY))
+    retained = tuple(
+        dict.fromkeys(
+            [stage["id"] for stage in old_inventory["stages"]]
+            + list(options.get("retained_stage_ids", ()))
+        )
+    )
+    current = plan_retained_harness_readmission(
+        project.root, **{**options, "retained_stage_ids": retained}
+    )
+    if current["implementation"] != component_plan["source_root"]:
+        _fail("command_owner_invalid", "refined source differs from retained authority")
+    names = [item["name"] for item in component_plan["old_selection"]["components"]]
+    if PurePosixPath(current["wrapper_component"]).name in names:
+        _fail("command_owner_invalid", "wrapper and refined Component roles overlap")
+    relatives = {
+        **current["old_documents"],
+        **component_plan["old_documents"],
+    }
+    if prior_test_receipt["state"] == "present":
+        relatives[prior_test_receipt["path"]] = prior_test_receipt["identity"]
+    for name in names:
+        for filename in ("component.lock.json", "component.resolution-audit.host.json"):
+            relatives[f"components/{name}/{filename}"] = None
+    nodes = {}
+    ancestry = {}
+    remaining = bounds["total_bytes"]
+    if len(relatives) > bounds["files"]:
+        _fail("publication_limit", "refined metadata exceeds the current file bound")
+    for relative, expected in relatives.items():
+        path = _safe_path(project.root, relative)
+        nodes[path] = _signature(path)
+        ancestry.setdefault(path.parent, _lineage(path.parent))
+        if remaining < 1:
+            _fail("publication_limit", "refined metadata exceeds its total byte bound")
+        chunks = []
+        _consume_direct_file(
+            path, chunks.append, maximum_bytes=min(bounds["file_bytes"], remaining)
+        )
+        content = b"".join(chunks)
+        remaining -= len(content)
+        identity = _identity(content)
+        if expected is not None and expected != identity:
+            _fail("plan_stale", "refined metadata changed during planning")
+        relatives[relative] = identity
+    if any(_signature(path) != node for path, node in nodes.items()) or any(
+        _lineage(path) != prior for path, prior in ancestry.items()
+    ):
+        _fail("plan_stale", "original refined metadata changed during planning")
+    current["old_documents"] = relatives
+    current["command_renewal"] = {
+        "schema": _REFINED_EXECUTION_RENEWAL_SCHEMA,
+        "wrapper_component": current["wrapper_component"],
+        "selection_plan": {"selection": component_plan["request"]},
+        "refined_components": component_plan,
+        "compilation_coverage": "unknown",
+        "execution_performed": False,
+        "apply_supported": True,
+    }
+    current["qualification"]["refined_components"] = names
+    current["changes_required"] = (
+        current["changes_required"]
+        or component_plan["commands_changed"]
+        or component_plan["source_changed"]
+    )
+    current["schema"] = _REFINED_EXECUTION_PLAN_SCHEMA
+    return current
+
+
 def _current_command_execution_plan(selected, *, command_selection, **options):
     if command_selection is None:
         _fail("command_selection_required", "execution renewal requires a selection")
     snapshot, prior_receipt, close_receipt = _prior_receipt_inputs(selected)
     # The complete existing planning owner retains validation, source custody,
     # phase conservation and fixed bounds. Never reinterpret its saved v2 form.
-    current = plan_retained_harness_readmission(
-        selected, command_selection=command_selection, **options
+    from literate_ai.adapters.monorepo_adoption import _selection
+
+    limits = snapshot.definition.scale_limits
+    request = _selection(
+        command_selection,
+        maximum_bytes=min(
+            DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+            limits.pinned_input_total_bytes
+            if limits
+            else DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+        ),
+    )
+    owners = request["components"]
+    wrapper = PurePosixPath(_layout(snapshot.root).wrapper_component).name
+    direct_wrapper = (
+        isinstance(owners, list)
+        and len(owners) == 1
+        and isinstance(owners[0], dict)
+        and owners[0].get("name") == wrapper
+    )
+    installed = snapshot.root / ".literate/monorepo-components/installation.json"
+    refined = not direct_wrapper and os.path.lexists(installed)
+    current = (
+        _refined_command_execution_plan(
+            selected,
+            command_selection,
+            prior_test_receipt=prior_receipt,
+            **options,
+        )
+        if refined
+        else plan_retained_harness_readmission(
+            selected, command_selection=command_selection, **options
+        )
     )
     close_receipt()
     if (
@@ -747,11 +890,15 @@ def _current_command_execution_plan(selected, *, command_selection, **options):
             **current["old_documents"],
             prior_receipt["path"]: prior_receipt["identity"],
         }
-    current["schema"] = _EXECUTION_PLAN_SCHEMA
+    current["schema"] = (
+        _REFINED_EXECUTION_PLAN_SCHEMA if refined else _EXECUTION_PLAN_SCHEMA
+    )
     current["apply_supported"] = True
     current["command_renewal"] = {
         **current["command_renewal"],
-        "schema": _EXECUTION_RENEWAL_SCHEMA,
+        "schema": (
+            _REFINED_EXECUTION_RENEWAL_SCHEMA if refined else _EXECUTION_RENEWAL_SCHEMA
+        ),
         "apply_supported": True,
     }
     current["plan_identity"] = _identity(current)
@@ -790,10 +937,13 @@ def reopen_retained_command_renewal_execution_plan(
             raise ValueError("noncanonical executable renewal")
         renewal = data.get("command_renewal")
         if (
-            data.get("schema") != _EXECUTION_PLAN_SCHEMA
-            or data.get("apply_supported") is not True
+            data.get("apply_supported") is not True
             or not isinstance(renewal, dict)
-            or renewal.get("schema") != _EXECUTION_RENEWAL_SCHEMA
+            or (data.get("schema"), renewal.get("schema"))
+            not in {
+                (_EXECUTION_PLAN_SCHEMA, _EXECUTION_RENEWAL_SCHEMA),
+                (_REFINED_EXECUTION_PLAN_SCHEMA, _REFINED_EXECUTION_RENEWAL_SCHEMA),
+            }
             or renewal.get("apply_supported") is not True
             or renewal.get("execution_performed") is not False
             or renewal.get("compilation_coverage") != "unknown"
@@ -1420,6 +1570,17 @@ def apply_retained_harness_readmission(
                 f"{wrapper_component}/component.resolution-audit.host.json",
             ):
                 paths[relative] = _safe_path(root, relative)
+            refined = plan.get("command_renewal", {}).get("refined_components")
+            if refined is not None:
+                for relative in refined["old_documents"]:
+                    paths[relative] = _safe_path(root, relative)
+                for item in refined["old_selection"]["components"]:
+                    for filename in (
+                        "component.lock.json",
+                        "component.resolution-audit.host.json",
+                    ):
+                        relative = f"components/{item['name']}/{filename}"
+                        paths[relative] = _safe_path(root, relative)
             before = {name: path.read_bytes() for name, path in paths.items()}
             if any(
                 _identity(content) != plan["old_documents"][name]
@@ -1450,7 +1611,7 @@ def apply_retained_harness_readmission(
                     content.append,
                     maximum_bytes=DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
                 )
-                before[name] = content[0]
+                before[name] = b"".join(content)
                 if _identity(before[name]) != prior_receipt["identity"]:
                     _fail(
                         "prior_receipt_changed", "prior receipt changed before history"
@@ -1506,6 +1667,27 @@ def apply_retained_harness_readmission(
             )
             try:
                 with atomic_publication_scope(publication):
+                    component_result = None
+                    if refined is not None:
+                        from .retained_component_command_execution import (
+                            _execute_component_command_renewal,
+                        )
+
+                        def require_refined_source_current():
+                            source_inputs.require_current()
+                            require_selection_current()
+                            _require_layout_current(root, plan)
+
+                        component_result = _execute_component_command_renewal(
+                            root,
+                            command_selection,
+                            planning_record=refined,
+                            publication=publication,
+                            acknowledge=True,
+                            require_source_current=require_refined_source_current,
+                            worker_id=plan["qualification"]["worker_id"],
+                            timeout_seconds=timeout_seconds,
+                        )
                     replacements = {
                         INVENTORY: canonical_json_bytes(inventory) + b"\n",
                         BASELINE: canonical_json_bytes(baseline) + b"\n",
@@ -1539,22 +1721,29 @@ def apply_retained_harness_readmission(
                         _component_locks_from_args,
                     )
 
-                    lock_result, lock_status = _component_locks_from_args(
-                        Namespace(
-                            component=str(root / wrapper_component),
-                            target="host",
-                            flavor_root=[],
-                            flavor=[],
-                            check=False,
-                            diff=False,
-                            large_review=None,
+                    lock_components = [wrapper_component]
+                    if refined is not None:
+                        lock_components.extend(
+                            f"components/{item['name']}"
+                            for item in refined["old_selection"]["components"]
                         )
-                    )
-                    if lock_status != 0:
-                        _fail(
-                            "lock_reconciliation_failed",
-                            f"component lock reconciliation failed: {lock_result}",
+                    for component in lock_components:
+                        lock_result, lock_status = _component_locks_from_args(
+                            Namespace(
+                                component=str(root / component),
+                                target="host",
+                                flavor_root=[],
+                                flavor=[],
+                                check=False,
+                                diff=False,
+                                large_review=None,
+                            )
                         )
+                        if lock_status != 0:
+                            _fail(
+                                "lock_reconciliation_failed",
+                                f"component lock reconciliation failed: {lock_result}",
+                            )
                     record_project_authority_review(root)
                     current_inventory = inspect_harness(implementation)
                     current_source_tree = observe_retained_tree(
@@ -1596,7 +1785,7 @@ def apply_retained_harness_readmission(
                 # Failed evidence stays readable in history. Never recursively
                 # delete a directory that another writer may have extended.
                 raise
-            return {
+            result = {
                 **plan,
                 "applied": True,
                 "history": history.relative_to(root).as_posix(),
@@ -1604,3 +1793,6 @@ def apply_retained_harness_readmission(
                 "baseline_identity": _identity(baseline),
                 "parity_identity": _identity(parity),
             }
+            if component_result is not None:
+                result["component_renewal"] = component_result
+            return result

@@ -6,6 +6,7 @@ import json
 import unittest
 from unittest import mock
 
+from literate_ai.adapters import monorepo_adoption
 from literate_ai.adapters import retained_harness_readmission as readmission
 from tests.e2e import test_retained_command_renewal as fixtures
 from tests.support.fixtures_test_retained_harness_receipts import _invoke
@@ -80,6 +81,37 @@ class RetainedCommandReceiptInputsTests(unittest.TestCase):
         ):
             with self.assertRaises((ValueError, RuntimeError)):
                 self.apply(plan)
+
+    def test_streamed_prior_receipt_is_archived_in_full_without_qualification(self):
+        # A stream may split an ordinary valid receipt into multiple chunks.
+        # Keep the real bounded reader and every custody/size check; only split
+        # its callback delivery, without enlarging the receipt-owner limit.
+        native_reader = monorepo_adoption._consume_direct_file
+        deliveries = []
+
+        def streamed(path, consume, **options):
+            if path != self.receipt:
+                return native_reader(path, consume, **options)
+
+            def deliver(content):
+                boundary = len(content) // 2
+                for chunk in (content[:boundary], content[boundary:]):
+                    deliveries.append(len(chunk))
+                    consume(chunk)
+
+            return native_reader(path, deliver, **options)
+
+        plan = self.plan()
+        with mock.patch.object(monorepo_adoption, "_consume_direct_file", streamed):
+            result = self.apply(plan)
+        self.assertGreaterEqual(len(deliveries), 2)
+        self.assertEqual(self.receipt.read_bytes(), self.original)
+        self.assertEqual(
+            (
+                self.root / result["prior_evidence_history"] / self.receipt_name
+            ).read_bytes(),
+            self.original,
+        )
 
     def test_receipt_appearing_after_review_refuses_before_commands(self):
         self.receipt.unlink()

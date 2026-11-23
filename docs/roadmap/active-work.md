@@ -21980,10 +21980,26 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     assignments without writing a temporary plan. Complete bounded planning
     read-back binds original metadata/receipts and current source; nine new
     controls and 52 existing monorepo/command controls pass. This internal record
-    remains planning-only: the actual public refined request still refuses, and
-    execution, scoped journal publication, per-project policy integration and
-    installed/native acceptance remain required. See
+    remains planning-only; its original public refusal is preserved. A distinct
+    v4 outer executable form now composes current project bounds, complete
+    refined-owner read-back and actual scoped journal publication. One public
+    source-CLI attempt against a private copy of the genuine installed initial
+    refinement passes in 1,499.183 seconds within the unchanged 1,800-second
+    deadline: the selected Component executes real compilation and both original
+    tests, and the transaction preserves prior evidence. This is source development,
+    not a fresh v4 installed-wheel acceptance. A separate short, exclusively created
+    artifact directory retains failed staging without adopting occupied names.
+    Fresh installed, contained-layout and independent native acceptance remain
+    required. See
     [refined preparation evidence](../../verification/retained-component-command-planning-development.json).
+    Current execution controls and their exact scope are recorded in
+    [refined execution evidence](../../verification/retained-component-command-execution-development.json).
+    The current focused union has 98 distinct passes without skips or failures.
+    Independent source review identified a missing original root-receipt byte
+    charge in refined preflight. Its valid Make-comment regression reproduces
+    the omission; including the receipt in the complete original input union
+    refuses before commands. Streamed receipt binding and archival now retain
+    every bounded callback chunk without changing the receipt owner's size limit.
     Refined-Component and modern contained renewal, independent acceptance/review,
     combined source and full native release
     qualification remain open; keep #366 and all acceptance prerequisites open.

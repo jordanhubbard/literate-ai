@@ -27,8 +27,21 @@ def require(value, message):
 
 
 def main():
+    require(
+        len(sys.argv) in (4, 5),
+        "workspace, distribution, parent and optional case required",
+    )
     workspace = Path(sys.argv[1]).absolute()
     expected_distribution, parent_source = sys.argv[2:4]
+    case_names = (
+        "initial-selection",
+        "post-adoption-renewal",
+        "refined-component-renewal",
+    )
+    selected_case = sys.argv[4] if len(sys.argv) == 5 else None
+    require(
+        selected_case is None or selected_case in case_names, "unknown installed case"
+    )
     require(
         sys.flags.isolated and sys.prefix != sys.base_prefix,
         "isolated installation required",
@@ -122,7 +135,7 @@ def main():
         result = run(("git", *arguments), cwd=project)
         require(result.returncode == 0, "owned fixture Git command failed")
 
-    def selection(path, *, initial=False):
+    def selection(path, *, initial=False, help_only=False):
         value = {
             "schema": "literate-ai/monorepo-adoption-selection@1",
             "components": [
@@ -132,7 +145,9 @@ def main():
                     "commands": [
                         {
                             "id": "build",
-                            "command": "make -f Makefile build-all",
+                            "command": "make -f Makefile help"
+                            if help_only
+                            else "make -f Makefile build-all",
                             "cwd": ".",
                             "evidence": "Makefile",
                         }
@@ -206,7 +221,10 @@ def main():
         return records
 
     results = {}
-    for kind in ("initial-selection", "post-adoption-renewal"):
+    for kind in case_names:
+        if selected_case is not None and kind != selected_case:
+            continue
+        refined = kind == "refined-component-renewal"
         project = workspace / kind
         project.mkdir()
         original = {
@@ -244,7 +262,11 @@ def main():
             "Original native application",
         )
         selected = workspace / (kind + ".json")
-        selection(selected, initial=kind == "initial-selection")
+        selection(
+            selected,
+            initial=kind == "initial-selection" or refined,
+            help_only=refined,
+        )
         arguments = (
             "onboard",
             "adopt",
@@ -257,7 +279,7 @@ def main():
             "main",
             "--run-baseline",
         )
-        if kind == "initial-selection":
+        if kind == "initial-selection" or refined:
             arguments += ("--root-plan", str(selected))
         planned = cli(*arguments)
         require(
@@ -296,6 +318,15 @@ def main():
                 "receipt_sha256": hashlib.sha256(old_receipt).hexdigest(),
             }
             continue
+        prior_component = None
+        if refined:
+            selected_value = json.loads(selected.read_bytes())
+            commands = selected_value["components"][0]["commands"]
+            commands[:] = [{**commands[0], "command": "make -f Makefile build-all"}]
+            selected.write_bytes(canonical_json_bytes(selected_value) + b"\n")
+            prior_component = (
+                project / ".literate/monorepo-components/receipts/native-initial.json"
+            ).read_bytes()
         require(
             not (source / "build/native").exists(),
             "help-only path unexpectedly compiled",
@@ -339,7 +370,58 @@ def main():
             plan["plan_identity"],
         )
         require(result["applied"] is True, "renewal was not applied")
-        renewed = observations(project, compiled=True)
+        renewed = observations(project, compiled=not refined)
+        component_observation = None
+        if refined:
+            require(
+                plan["schema"] == "literate-ai/retained-harness-readmission-plan@4",
+                "refined execution did not use its distinct request version",
+            )
+            installed_component = (
+                project / ".literate/monorepo-components/receipts/native-initial.json"
+            ).read_bytes()
+            component_observation = json.loads(installed_component)
+            phases = {
+                phase["phase"]: phase
+                for phase in component_observation["evidence"]["phases"]
+            }
+            require(
+                phases["build"]["exit_code"] == 0
+                and phases["build"]["stdout_identity"]
+                == "sha256:"
+                + hashlib.sha256(
+                    b"mkdir -p build\ncc -o build/native main.c\n42\n"
+                ).hexdigest(),
+                "refined native build/result does not match the actual C harness",
+            )
+            require(
+                phases["test"]["exit_code"] == 0
+                and phases["test"]["test_collection"]
+                == {
+                    "state": "nonempty",
+                    "total": 2,
+                    "passed": 2,
+                    "failed": 0,
+                    "known_failed": 0,
+                    "skipped": 0,
+                },
+                "refined renewal did not retain both real original tests",
+            )
+            require(
+                installed_component != prior_component
+                and (
+                    project
+                    / result["prior_evidence_history"]
+                    / ".literate/monorepo-components/receipts/native-initial.json"
+                ).read_bytes()
+                == prior_component,
+                "refined renewal lost the original Component receipt",
+            )
+            require(
+                result["component_renewal"]["executed_components"] == ["native-initial"]
+                and result["component_renewal"]["qualification_granted"] is False,
+                "unexpected refined execution or qualification claim",
+            )
         archive = (
             project
             / result["prior_evidence_history"]
@@ -359,7 +441,7 @@ def main():
             expected_error="stale",
         )
         _path, new_receipt = current_receipt(
-            project, workspace / "renewed-receipt.json"
+            project, workspace / (kind + "-renewed-receipt.json")
         )
         require(
             new_receipt != old_receipt and archive.read_bytes() == old_receipt,
@@ -372,12 +454,14 @@ def main():
             )
         results[kind] = {
             "help_only": initial,
-            "compiled": renewed,
+            "preserved_root_harness" if refined else "compiled": renewed,
             "original_tests": 2,
             "old_receipt_sha256": hashlib.sha256(old_receipt).hexdigest(),
             "new_receipt_sha256": hashlib.sha256(new_receipt).hexdigest(),
             "old_receipt_preserved": True,
         }
+        if refined:
+            results[kind]["component_execution"] = component_observation
     installed_origins()
     require(
         observe_installed_framework_distribution().identity.uri

@@ -221,13 +221,23 @@ def _read_direct_bytes(path: Path, maximum_bytes: int) -> bytes:
     return b"".join(chunks)
 
 
-def _selection(path: Path) -> dict[str, Any]:
+def _selection(path: Path, *, maximum_bytes: int | None = None) -> dict[str, Any]:
     # Bound reads even when a declared selection grows during inspection.
     try:
-        raw = _read_direct_bytes(path, _MAX_SELECTION_BYTES)
+        raw = _read_direct_bytes(
+            path,
+            _MAX_SELECTION_BYTES
+            if maximum_bytes is None
+            else min(maximum_bytes, _MAX_SELECTION_BYTES),
+        )
     except MonorepoAdoptionError as exc:
         if exc.code == "monorepo.input_too_large":
-            _fail("selection_invalid", "root plan exceeds 256 KiB")
+            _fail(
+                "selection_invalid",
+                "root plan exceeds 256 KiB"
+                if maximum_bytes is None
+                else "root plan exceeds its explicit input bound",
+            )
         if exc.code == "monorepo.source_invalid":
             _fail("selection_invalid", exc.message)
         raise

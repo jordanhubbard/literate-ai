@@ -36,6 +36,7 @@ from literate_ai.projects import (
 )
 
 PLAN_SCHEMA = "literate-ai/retained-component-command-planning@1"
+BOUNDED_PLAN_SCHEMA = "literate-ai/retained-component-command-planning@2"
 
 
 def _merged_selection(old, request, installation):
@@ -90,26 +91,45 @@ def _merged_selection(old, request, installation):
 
 
 def plan_installed_component_command_renewal(
-    project_root: Path, command_selection: Path
+    project_root: Path,
+    command_selection: Path,
+    *,
+    input_limits: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Preserve every other owner and phase, without writing a temporary plan."""
     project = components._source_root(project_root)
+    limits = {
+        "files": DEFAULT_MAXIMUM_PINNED_INPUT_FILES,
+        "file_bytes": DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+        "total_bytes": DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES,
+    }
+    if input_limits is not None:
+        if (
+            not isinstance(input_limits, dict)
+            or set(input_limits) != set(limits)
+            or any(
+                type(value) is not int or value < 1 for value in input_limits.values()
+            )
+        ):
+            _fail("input_limit", "Component input limits are invalid")
+        limits = {key: min(value, input_limits[key]) for key, value in limits.items()}
     request_path = Path(command_selection).absolute()
     request_node = _signature(request_path)
     request_ancestry = _lineage(request_path.parent)
-    request = _selection(request_path)
+    selection_options = (
+        {} if input_limits is None else {"maximum_bytes": limits["file_bytes"]}
+    )
+    request = _selection(request_path, **selection_options)
     installation_path = _direct(
         project, f"{components.INSTALLATION_ROOT}/installation.json"
     )
-    original = _file(
-        installation_path, maximum_bytes=DEFAULT_MAXIMUM_PINNED_INPUT_BYTES
-    )
+    original = _file(installation_path, maximum_bytes=limits["file_bytes"])
     installation = components._installation_document(original.content)
     native, close_installed, _ancestry = components._installed_inputs(
         project,
         installation,
         original,
-        maximum_files=DEFAULT_MAXIMUM_PINNED_INPUT_FILES,
+        maximum_files=limits["files"],
     )
     for field in ("receipt_identities", "boundary_transfer"):
         if not isinstance(installation[field], dict) or set(installation[field]) != set(
@@ -117,13 +137,13 @@ def plan_installed_component_command_renewal(
         ):
             _fail("installation_invalid", "installed owner metadata roster is invalid")
     documents = {}
-    remaining = DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES
+    remaining = limits["total_bytes"]
     for relative, node in native.items():
         if remaining < 1:
             _fail("input_limit", "installed Component inputs exceed their byte bound")
         observed = _file(
             _direct(project, relative),
-            maximum_bytes=min(DEFAULT_MAXIMUM_PINNED_INPUT_BYTES, remaining),
+            maximum_bytes=min(limits["file_bytes"], remaining),
         )
         if observed.signature != node:
             _fail("installation_changed", "installed input changed during capture")
@@ -162,7 +182,7 @@ def plan_installed_component_command_renewal(
     close_layout()
     close_installed()
     if (
-        _selection(request_path) != request
+        _selection(request_path, **selection_options) != request
         or _signature(request_path) != request_node
         or _lineage(request_path.parent) != request_ancestry
     ):
@@ -187,8 +207,14 @@ def plan_installed_component_command_renewal(
         "execution_performed": False,
         "apply_supported": False,
     }
+    if input_limits is not None:
+        result["schema"] = BOUNDED_PLAN_SCHEMA
+        result["input_limits"] = limits
+        result["source_changed"] = (
+            refinement["source_identity"] != old_plan["source_identity"]
+        )
     result["plan_identity"] = canonical_identity(result).uri
-    if len(canonical_json_bytes(result)) + 1 > DEFAULT_MAXIMUM_PINNED_INPUT_BYTES:
+    if len(canonical_json_bytes(result)) + 1 > limits["file_bytes"]:
         _fail("plan_too_large", "Component renewal plan exceeds the pinned-file bound")
     return result
 
@@ -199,6 +225,7 @@ def reopen_installed_component_command_renewal_plan(
     *,
     command_selection: Path,
     reviewed_plan_identity: str,
+    input_limits: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Reopen complete planning-only bytes; a self-hash grants no execution."""
     try:
@@ -212,7 +239,8 @@ def reopen_installed_component_command_renewal_plan(
         if not isinstance(value, dict) or content not in (encoded, encoded + b"\n"):
             raise ValueError("noncanonical planning bytes")
         if (
-            value.get("schema") != PLAN_SCHEMA
+            value.get("schema")
+            != (PLAN_SCHEMA if input_limits is None else BOUNDED_PLAN_SCHEMA)
             or value.get("apply_supported") is not False
             or value.get("execution_performed") is not False
             or value.get("writes") is not False
@@ -229,7 +257,9 @@ def reopen_installed_component_command_renewal_plan(
         _fail("plan_invalid", "invalid saved Component command planning record")
     if reviewed_plan_identity != identity:
         _fail("plan_stale", "saved Component command plan was not reviewed")
-    current = plan_installed_component_command_renewal(project_root, command_selection)
+    current = plan_installed_component_command_renewal(
+        project_root, command_selection, input_limits=input_limits
+    )
     if canonical_json_bytes(current) != encoded:
         _fail("plan_stale", "saved Component command plan differs from current inputs")
     return current

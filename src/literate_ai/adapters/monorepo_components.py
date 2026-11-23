@@ -15,6 +15,10 @@ from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
+from literate_ai._atomic_publication import (
+    _scoped_atomic_writer,
+    publish_atomic_file_if_scoped,
+)
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
     require_safe_directory,
@@ -1085,6 +1089,34 @@ def _replace_payloads(
         )
     before = {relative: _read(path) for relative, path in paths.items()}
     written: list[str] = []
+
+    writer = _scoped_atomic_writer()
+    if writer is not None:
+        # The ordinary producer still owns the closed payload set, input
+        # currentness and final consumer validation. Physical writes and rollback
+        # belong to the original finite readmission writer while it is scoped.
+        def require_scoped_current():
+            if _scoped_atomic_writer() is not writer:
+                _fail("publication_scope_changed", "original Component writer changed")
+            if require_current is not None:
+                require_current()
+            if _scoped_atomic_writer() is not writer:
+                _fail("publication_scope_changed", "Component callback changed writer")
+            if any(_signature(paths[name]) != node for name, node in native.items()):
+                _fail("installation_changed", "installed Component payload changed")
+
+        for relative, content in sorted(payloads.items()):
+            if not publish_atomic_file_if_scoped(
+                paths[relative],
+                content,
+                require_current=require_scoped_current,
+                preserve_mode=False,
+            ):
+                _fail("publication_scope_changed", "original Component writer closed")
+            native[relative] = _signature(paths[relative])
+        result = None if validate is None else validate()
+        require_scoped_current()
+        return result
 
     def replace(path: Path, content: bytes, *, forward=False) -> None:
         require_safe_directory(path.parent)

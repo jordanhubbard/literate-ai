@@ -704,6 +704,13 @@ class ReadmissionPublication:
         self._guard()
         return True
 
+    def require_current_targets(self):
+        """Close every currently owned target before another execution phase."""
+        self._guard()
+        for name in self.before:
+            if not self._matches(self.heads[name], self.root / name):
+                _refuse("foreign_node")
+
     def _aliases(self, record):
         names = [record["path"]]
         names.extend(record[key] for key in ("pin", "temporary") if record[key])

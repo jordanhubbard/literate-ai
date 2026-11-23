@@ -2921,7 +2921,11 @@ def _main() -> int:
                 or retained_command_renewal.get("installed_module_origins_verified")
                 is not True
                 or set(retained_command_renewal.get("cases", {}))
-                != {"initial-selection", "post-adoption-renewal"}
+                != {
+                    "initial-selection",
+                    "post-adoption-renewal",
+                    "refined-component-renewal",
+                }
                 or hashlib.sha256(command_script.read_bytes()).hexdigest()
                 != command_script_digest
             ):

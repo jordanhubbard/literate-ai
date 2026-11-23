@@ -103,3 +103,13 @@ def scoped_writer_permits_project_read(root: Path) -> bool:
         raise AtomicPublicationScopeError("the original atomic writer scope is closed")
     permit = getattr(scope.writer, "permits_project_read", None)
     return callable(permit) and permit(root) is True
+
+
+def _scoped_atomic_writer() -> ScopedAtomicWriter | None:
+    """Observe the original finite writer for one closed batch of replacements."""
+    scope = _ACTIVE.get()
+    if scope is None:
+        return None
+    if not scope.active or scope.pid != os.getpid():
+        raise AtomicPublicationScopeError("the original atomic writer scope is closed")
+    return scope.writer
