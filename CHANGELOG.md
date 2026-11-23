@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained command renewal development: plan explicit commands through the
+  existing adoption validator, preserve unselected admitted phases, and reject
+  changed source/selection inputs. The new plan grants no apply authority;
+  public routing, execution/recovery and installed qualification remain open.
+
 - Retained Python bridge development: observe the actual original-source
   wrapper/parity and complete bounded native source without granting execution.
   Reject changed source namespaces, unmatched prospective original bytes and

@@ -268,6 +268,91 @@ def _retain_admitted_stages(
     return result
 
 
+def _review_command_selection(
+    implementation: Path,
+    selection_path: Path,
+    old_inventory: dict[str, Any],
+    inspected_inventory: dict[str, Any],
+    *,
+    wrapper_component: str,
+    retained_stage_ids: tuple[str, ...],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Plan one existing wrapper's commands with initial adoption's validator.
+
+    This is read-only planning. No CLI or execution owner consumes this new
+    binding until its execution and publication currentness are implemented.
+    """
+    from literate_ai.adapters.monorepo_adoption import (
+        plan_monorepo_adoption,
+        single_root_baseline_inventory,
+    )
+
+    refinement = plan_monorepo_adoption(
+        implementation, selection_path, inspected_inventory, submodules=[]
+    )
+    components = refinement["components"]
+    if (
+        len(components) != 1
+        or components[0]["root"] != "."
+        or components[0]["name"] != PurePosixPath(wrapper_component).name
+        or refinement["selection"]["shared_sources"]
+    ):
+        _fail(
+            "command_owner_invalid",
+            "renewal requires the actual single retained wrapper and its whole root",
+        )
+    _retain_admitted_stages(
+        old_inventory,
+        inspected_inventory,
+        retained_stage_ids,
+        implementation=implementation,
+    )
+    phases = {stage["id"] for stage in components[0]["commands"]}
+    if any(stage.split(".", 1)[0] in phases for stage in retained_stage_ids):
+        _fail(
+            "command_selection_conflict",
+            "a selected command phase cannot also retain its old stage",
+        )
+    old_stages = old_inventory.get("stages")
+    if not isinstance(old_stages, list) or not all(
+        isinstance(stage, dict) and isinstance(stage.get("id"), str)
+        for stage in old_stages
+    ):
+        _fail("inventory_invalid", "admitted command stages are incomplete")
+    stage_ids = tuple(stage["id"] for stage in old_stages)
+    # The existing owner checks uniqueness, executable phases and direct evidence.
+    _retain_admitted_stages(
+        old_inventory, inspected_inventory, stage_ids, implementation=implementation
+    )
+    source_paths = set(refinement["source_scope"]["paths"])
+    if any(stage.get("evidence") not in source_paths for stage in old_stages):
+        _fail("command_evidence_invalid", "admitted evidence left current source scope")
+    if not isinstance(old_inventory.get("commands"), dict):
+        _fail("inventory_invalid", "admitted command definitions are incomplete")
+    # Fresh discovery supplies diagnostics and source membership. Only explicit
+    # overrides replace admitted phases; newly detected phases gain no command grant.
+    inventory = single_root_baseline_inventory(
+        {
+            **inspected_inventory,
+            "stages": [dict(stage) for stage in old_stages],
+            "commands": dict(old_inventory["commands"]),
+        },
+        refinement,
+    )
+    binding = {
+        "schema": "literate-ai/retained-command-renewal-planning@1",
+        "wrapper_component": wrapper_component,
+        "selection_plan": refinement,
+        "old_stages": old_stages,
+        "detected_stages": inspected_inventory["stages"],
+        "selected_phases": sorted(phases),
+        "compilation_coverage": "unknown",
+        "execution_performed": False,
+        "apply_supported": False,
+    }
+    return inventory, binding
+
+
 def plan_retained_harness_readmission(
     selected: Path,
     *,
@@ -275,6 +360,7 @@ def plan_retained_harness_readmission(
     worker_catalog_identity: ContentIdentity | None = None,
     timeout_seconds: int = 1800,
     retained_stage_ids: tuple[str, ...] = (),
+    command_selection: Path | None = None,
 ) -> dict[str, Any]:
     """Re-inspect one wrapped implementation without changing project bytes."""
 
@@ -299,12 +385,34 @@ def plan_retained_harness_readmission(
     authority_path = _safe_path(root, CONVERSION_AUTHORITY_FILE)
     old_inventory = _load_json(inventory_path)
     new_inventory = inspect_harness(implementation)
-    new_inventory = _retain_admitted_stages(
-        old_inventory,
-        new_inventory,
-        retained_stage_ids,
-        implementation=implementation,
-    )
+    command_renewal = None
+    renewal_nodes: tuple = ()
+    renewal_ancestry: tuple = ()
+    if command_selection is None:
+        new_inventory = _retain_admitted_stages(
+            old_inventory,
+            new_inventory,
+            retained_stage_ids,
+            implementation=implementation,
+        )
+    else:
+        new_inventory, command_renewal = _review_command_selection(
+            implementation,
+            command_selection,
+            old_inventory,
+            new_inventory,
+            wrapper_component=layout.wrapper_component,
+            retained_stage_ids=retained_stage_ids,
+        )
+        renewal_paths = (
+            *(implementation / path for path in new_inventory["source_scope"]["paths"]),
+            command_selection.absolute(),
+        )
+        renewal_nodes = tuple((path, _signature(path)) for path in renewal_paths)
+        renewal_ancestry = tuple(
+            (path, _lineage(path))
+            for path in dict.fromkeys(path.parent for path in renewal_paths)
+        )
     if "workspace_links" in old_inventory:
         new_inventory["workspace_links"] = old_inventory["workspace_links"]
     if execution_worker is not None and new_inventory.get("workspace_links"):
@@ -362,6 +470,13 @@ def plan_retained_harness_readmission(
     ):
         relative = path.relative_to(root).as_posix()
         old_documents[relative] = _identity(_safe_path(root, relative).read_bytes())
+    if command_renewal is not None:
+        metadata_paths = tuple(root / relative for relative in old_documents)
+        renewal_nodes += tuple((path, _signature(path)) for path in metadata_paths)
+        renewal_ancestry += tuple(
+            (path, _lineage(path))
+            for path in dict.fromkeys(path.parent for path in metadata_paths)
+        )
     plan: dict[str, Any] = {
         "schema": PLAN_SCHEMA,
         "project_id": project.definition.project_id,
@@ -434,6 +549,46 @@ def plan_retained_harness_readmission(
     # Re-open structural inputs after every inventory/document read. This closes
     # stale location, declaration and pending-state changes before exposing a plan.
     _require_layout_current(root, plan)
+    if command_renewal is not None:
+        current_inventory, current_renewal = _review_command_selection(
+            implementation,
+            command_selection,
+            old_inventory,
+            inspect_harness(implementation),
+            wrapper_component=layout.wrapper_component,
+            retained_stage_ids=retained_stage_ids,
+        )
+        # Workspace-link transport remains the existing separate owner.
+        if "workspace_links" in old_inventory:
+            current_inventory["workspace_links"] = old_inventory["workspace_links"]
+        if current_renewal != command_renewal or current_inventory != new_inventory:
+            _fail("command_selection_stale", "renewal source or selection changed")
+        if any(
+            _identity(_safe_path(root, relative).read_bytes()) != identity
+            for relative, identity in old_documents.items()
+        ):
+            _fail("plan_stale", "project metadata changed during renewal planning")
+        # Payload reads have finished. Close namespace, original known nodes and
+        # physical ancestry without accepting replacement facts as a new snapshot.
+        try:
+            current_scope = capture_retained_source_scope(
+                implementation,
+                required_paths=tuple(
+                    stage["evidence"] for stage in new_inventory["stages"]
+                ),
+            )
+            unchanged = (
+                current_scope == new_inventory["source_scope"]
+                and all(_signature(path) == node for path, node in renewal_nodes)
+                and all(_lineage(path) == node for path, node in renewal_ancestry)
+            )
+        except (OSError, RetainedLayoutError):
+            unchanged = False
+        if not unchanged:
+            _fail("command_selection_stale", "renewal native inputs changed")
+        plan["schema"] = "literate-ai/retained-harness-readmission-plan@2"
+        plan["command_renewal"] = command_renewal
+        plan["apply_supported"] = False
     plan["plan_identity"] = _identity(plan)
     return plan
 

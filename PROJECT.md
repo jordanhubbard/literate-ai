@@ -117,6 +117,12 @@ development (2026-09-10):
 
 ## Current work
 
+ADR 0070 command renewal now has internal read-only planning under
+RELEASE-INTEGRATION-005 / issue #366. It preserves unselected admitted phases
+and keeps compilation coverage unknown. Public selection/apply routing, current
+execution custody, recoverable publication, native and installed qualification
+remain open; completed initial-adoption selection is preserved.
+
 The recovered, already-recorded 1.4 designs for independent promotion authoring
 ([ADR 0069](docs/decisions/0069-independent-promotion-authoring-selection.md)),
 retained command renewal ([ADR 0070](docs/decisions/0070-reviewed-retained-command-renewal.md)),
