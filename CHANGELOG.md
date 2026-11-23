@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained readmission journal: reject Boolean values substituted for integer
+  header limits or step indexes in the live guard. Preserve every bounded native
+  record read, namespace check and malformed-record diagnostic. Scoped source
+  controls pass; installed and complete release qualification remain open.
+
 - Refined retained command renewal: add a distinct acknowledged public request
   that preserves admitted phases and other owners, uses current project bounds,
   executes through the existing Component harness, and joins the actual metadata

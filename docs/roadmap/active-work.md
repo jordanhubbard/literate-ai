@@ -21994,12 +21994,19 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     [refined preparation evidence](../../verification/retained-component-command-planning-development.json).
     Current execution controls and their exact scope are recorded in
     [refined execution evidence](../../verification/retained-component-command-execution-development.json).
-    The current focused union has 98 distinct passes without skips or failures.
+    The `cbf4804e8` source checkpoint has 98 distinct passes without skips or failures.
     Independent source review identified a missing original root-receipt byte
     charge in refined preflight. Its valid Make-comment regression reproduces
     the omission; including the receipt in the complete original input union
     refuses before commands. Streamed receipt binding and archival now retain
     every bounded callback chunk without changing the receipt owner's size limit.
+    A separate live journal-guard follow-up rejects Boolean/integer aliasing
+    without omitting any native disk read, namespace check or malformed-record
+    diagnostic. Seven new controls and 28 existing publication controls pass;
+    independent source review finds no further defect in the delta. Its native
+    guard microbenchmark proves no wall-time speedup, so observation-performance
+    completion remains open. See
+    [typed record development evidence](../../verification/readmission-typed-record-development.json).
     Refined-Component and modern contained renewal, independent acceptance/review,
     combined source and full native release
     qualification remain open; keep #366 and all acceptance prerequisites open.

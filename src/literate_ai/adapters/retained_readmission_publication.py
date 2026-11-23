@@ -147,9 +147,7 @@ def _new_json(path, value):
     _sync(path.parent)
 
 
-def _json_file(path, *, links=1):
-    content, _node = _read_file(path, MAXIMUM_RECORD_BYTES, links)
-
+def _json_record(content):
     def unique(pairs):
         value = {}
         for key, item in pairs:
@@ -168,6 +166,39 @@ def _json_file(path, *, links=1):
         return value
     except (ValueError, TypeError, RecursionError):
         _refuse("record_invalid")
+
+
+def _json_file(path, *, links=1):
+    content, _node = _read_file(path, MAXIMUM_RECORD_BYTES, links)
+    return _json_record(content)
+
+
+def _plain_json_value(value):
+    if isinstance(value, dict):
+        return type(value) is dict and all(
+            isinstance(key, str) and _plain_json_value(item)
+            for key, item in value.items()
+        )
+    if isinstance(value, list):
+        return type(value) is list and all(_plain_json_value(item) for item in value)
+    return value is None or isinstance(value, (str, bool, int))
+
+
+def _require_json_record(path, expected, changed):
+    content, _node = _read_file(path, MAXIMUM_RECORD_BYTES, 1)
+    try:
+        # Factory-owned records contain plain JSON containers. Do not let
+        # canonical serialization hide a foreign tuple or mapping mutation.
+        if not _plain_json_value(expected):
+            _refuse(changed)
+        expected_content = canonical_json_bytes(expected) + b"\n"
+    except (ValueError, TypeError, RecursionError):
+        _refuse(changed)
+    if content != expected_content:
+        # Preserve malformed-record diagnostics from the very bytes observed.
+        # Never reread a name that another writer could already have restored.
+        _json_record(content)
+        _refuse(changed)
 
 
 def _fields(value, names):
@@ -682,9 +713,11 @@ class ReadmissionPublication:
             _identity(self.root / ACTIVE) != self.activation_identity
             or _identity(self.attempt / "activation.json") != self.activation_identity
             or active != canonical_json_bytes(self.activation) + b"\n"
-            or _json_file(self.attempt / "header.json") != self.header
         ):
             _refuse("activation_changed")
+        _require_json_record(
+            self.attempt / "header.json", self.header, "activation_changed"
+        )
         saved = []
         with os.scandir(self.attempt) as entries:
             for count, entry in enumerate(entries):
@@ -695,8 +728,9 @@ class ReadmissionPublication:
         if sorted(saved) != [f"s{index:04d}.json" for index in range(len(self.steps))]:
             _refuse("record_changed")
         for index, step in enumerate(self.steps):
-            if _json_file(self.attempt / f"s{index:04d}.json") != step:
-                _refuse("record_changed")
+            _require_json_record(
+                self.attempt / f"s{index:04d}.json", step, "record_changed"
+            )
 
     def permits_project_read(self, root):
         if self.reopened or Path(root).absolute() != self.root:
