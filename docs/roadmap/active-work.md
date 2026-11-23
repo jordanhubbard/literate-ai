@@ -22000,6 +22000,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     the omission; including the receipt in the complete original input union
     refuses before commands. Streamed receipt binding and archival now retain
     every bounded callback chunk without changing the receipt owner's size limit.
+    A fresh noneditable wheel at `cbf4804e81346864560a4e3c016eb440d57f2135`
+    passes all three local macOS installed journeys: initial selection, wrapper
+    renewal and refined-Component renewal. Real compilation, both original unit
+    tests, stale receipt refusal, fresh receipt renewal and unchanged original
+    archives pass in 1,920.761 seconds under the unchanged per-case bounds.
+    See [installed refined development evidence](../../verification/retained-component-command-installed-development.json).
+    This subject precedes the separately scoped typed journal-guard follow-up;
+    complete integrated and platform qualification remain required.
     Refined-Component and modern contained renewal, independent acceptance/review,
     combined source and full native release
     qualification remain open; keep #366 and all acceptance prerequisites open.

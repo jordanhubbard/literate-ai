@@ -8,7 +8,9 @@
   publication journal. Preserve original receipts, failed staging and foreign
   nodes. Charge the original root receipt in preflight and preserve whole-file
   binding and archival across streamed reads. Source development passes a real
-  native journey; fresh installed and complete release qualification remain open.
+  native journey. A fresh noneditable wheel passes local installed initial,
+  wrapper-renewal and refined-renewal journeys with real compilation, both
+  original tests and receipt preservation. Complete release qualification remains open.
 
 - Initializer compatibility: retain earlier exact helper transitions while
   admitting the finite retained-readmission publication port and its one direct
