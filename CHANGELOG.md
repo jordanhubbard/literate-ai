@@ -13,15 +13,12 @@
   parity, preserve absolute-path bytes and native disposable build transformations,
   and close the observation after success or refusal. Installed renewal stays open.
 
-- Retained command renewal development: reopen canonical saved plans against
-  their reviewed identity and complete current planning. Reject changed inputs,
-  unknown fields, added grants and oversized records. Execution and public apply
-  remain open; saved v1 plans retain their existing meaning.
-
-- Retained command renewal development: plan explicit commands through the
-  existing adoption validator, preserve unselected admitted phases, and reject
-  changed source/selection inputs. The new plan grants no apply authority;
-  public routing, execution/recovery and installed qualification remain open.
+- Retained command renewal: explicitly select one existing wrapper's commands
+  through the readmission CLI, preserving every unselected phase and historical
+  evidence. Reopen complete versioned requests, reject stale or unacknowledged
+  changes, and revalidate source/selection before execution and publication.
+  Preserve saved v1 and planning-only v2 meanings. Successful command exit alone
+  grants no compilation claim. Installed and full native renewal remain open.
 
 - Retained Python bridge development: observe the actual original-source
   wrapper/parity and complete bounded native source without granting execution.

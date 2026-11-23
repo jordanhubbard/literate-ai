@@ -2893,6 +2893,39 @@ def _main() -> int:
         operator_golden_paths = assert_installed_operator_golden_paths(
             litai, root, parent_source=parent_source, python=python
         )
+        retained_command_renewal = {
+            "passed": False,
+            "platform": sys.platform,
+            "reason": "native command fixture requires POSIX Make/C tools",
+        }
+        if os.name == "posix":
+            command_script = repository / "scripts/installed_retained_command_smoke.py"
+            command_script_digest = hashlib.sha256(
+                command_script.read_bytes()
+            ).hexdigest()
+            retained_command_renewal = json.loads(
+                run(
+                    str(python),
+                    "-I",
+                    str(command_script),
+                    str(root / "retained-command-renewal"),
+                    standard_binding["distribution"],
+                    parent_source,
+                    cwd=root,
+                ).stdout
+            )
+            if (
+                retained_command_renewal.get("passed") is not True
+                or retained_command_renewal.get("distribution")
+                != standard_binding["distribution"]
+                or retained_command_renewal.get("installed_module_origins_verified")
+                is not True
+                or set(retained_command_renewal.get("cases", {}))
+                != {"initial-selection", "post-adoption-renewal"}
+                or hashlib.sha256(command_script.read_bytes()).hexdigest()
+                != command_script_digest
+            ):
+                raise RuntimeError("installed command renewal evidence mismatch")
         retained_catalog_discovery = {
             "qualified": False,
             "platform": sys.platform,
@@ -3565,6 +3598,7 @@ def _main() -> int:
                     "parallel_checkpoint": parallel_checkpoint,
                     "operator_golden_paths": operator_golden_paths,
                     "retained_catalog_discovery": retained_catalog_discovery,
+                    "retained_command_renewal": retained_command_renewal,
                     "repository_refresh": repository_refresh,
                     "html_observability": html_observability,
                     "tree_html": tree_html,

@@ -21954,31 +21954,24 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   - [ ] RUST-HARNESS-DEPS-001 / #379: implement and qualify ADR 0069 authoring
     selection before sealing a new promotion audit, preserving lineage, signed
     intent, original acceptance and every execution/resource boundary.
-  - **Command renewal next action (in progress):** Bind current execution and
-    recoverable publication through the existing readmission owner before exposing
-    public selection/apply. Internal planning retains unselected admitted phases
-    and closes source membership, original file facts and ancestry after payload
-    reads. Complete bounded read-back compares the saved body and reviewed identity
-    with independently regenerated current planning, rejecting unknown nested
-    fields and added grants. Twenty-five planning/read-back controls pass; saved
-    v1 behavior and the separate completed initial-adoption scope stay unchanged.
-    Execution/public CLI routing, transactional recovery, actual native compilation,
-    installed acceptance and independent review remain open. The existing execution
-    owner now uses one finite source observation across direct baseline and parity.
-    Before the first target, verify raw bytes/modes and exact initial-copy names;
-    close original source facts after success/refusal. Fifty distinct focused
-    controls pass, including unchanged absolute-path bytes, late original/copy
-    refusal and actual native disposable build transformations. Preserve ordinary
-    normalized report meanings; no selected-command public apply is implemented.
-    Publication development now retains original and staged native nodes before
-    replacement and records bounded durable intents in existing readmission
-    history. Three original regressions prove foreign lock/inventory replacements
-    and foreign evidence entries survive failed publication. Pending metadata
-    blocks ordinary project reads; explicit current-plan recovery restores only
-    owned originals under the same lifecycle lock, including with an invalid
-    manifest. Real subprocess exits before and after replacement reopen for
-    rollback. Current combined source, installed/native and independent review
-    gates remain open; no selected-command public apply is implemented.
+  - **Command renewal current development:** The existing readmission owner
+    exposes bounded complete v3 read-back and acknowledged public command selection,
+    preserving saved v1 and planning-only v2 meanings and every unselected admitted
+    phase. Revalidate current source, selection, ownership, metadata and execution
+    bounds before commands and publication; keep original source custody open until
+    publication inputs close. Neither detected nor explicit command spelling grants
+    compilation coverage. The source CLI's real Clang fixture distinguishes a
+    help-only default from explicit compilation and native result `42`, retaining
+    both original real unit tests in direct and wrapper runs and leaving source
+    unchanged. Existing readmission publication retains original/staged native
+    nodes, durable bounded intent and failed evidence; foreign replacements survive
+    rollback. Pending project metadata requires explicit current-plan recovery under
+    the existing lifecycle lock, including after real subprocess exits or an invalid
+    manifest. [Publication controls](../../verification/readmission-publication-development.json)
+    retain their exact subject and scope. Refined-Component and modern contained
+    renewal, installed genuine receipt renewal, independent acceptance/review,
+    combined source and full native release
+    qualification remain open; keep #366 and all acceptance prerequisites open.
   - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
     command renewal through the existing readmission owner. Preserve completed
     ADOPT-BASELINE-COMMANDS-001 / #207 initial selection and all unselected phases.

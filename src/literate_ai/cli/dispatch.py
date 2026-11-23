@@ -2499,6 +2499,11 @@ def _parser() -> JsonArgumentParser:
     harness_readmit.add_argument("--apply", action="store_true")
     harness_readmit.add_argument("--acknowledge", action="store_true")
     harness_readmit.add_argument("--expected-plan-identity")
+    harness_readmit.add_argument(
+        "--command-selection",
+        metavar="PATH",
+        help="review explicit retained command renewal using an adoption selection",
+    )
     harness_readmit.add_argument("--worker-id", default="local")
     harness_readmit.add_argument("--worker-config")
     harness_readmit.add_argument("--timeout-seconds", type=int, default=1800)
@@ -3680,9 +3685,7 @@ def main(
     )
     deferred_retained_frontdoor = command in {"build", "test", "rebuild"}
     scoped_retained_cargo = command == "project.retained-cargo"
-    scoped_readmission_recovery = command == "project.retained-harness" and arguments[
-        arguments.index("retained-harness") + 1 :
-    ][:1] == ("recover",)
+    deferred_retained_harness = command == "project.retained-harness"
     scoped_worker_health = command == "worker.health"
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
     scoped_native_ci = command == "project.ci"
@@ -3698,7 +3701,6 @@ def main(
         or scoped_authored_qualification
         or scoped_tree_render
         or scoped_retained_promotion
-        or scoped_readmission_recovery
     )
     scoped_evidence = (
         command.startswith("project.")
@@ -3718,11 +3720,19 @@ def main(
         and not scoped_evidence
         and not scoped_retained_cargo
         and not deferred_retained_frontdoor
+        and not deferred_retained_harness
     ):
         maybe_host_self_update(raw)
     try:
         parser = _parser()
         args = parser.parse_args(arguments)
+        scoped_retained_harness = deferred_retained_harness and (
+            getattr(args, "retained_harness_command", None) == "recover"
+            or getattr(args, "command_selection", None) is not None
+        )
+        scoped_orchestration = scoped_orchestration or scoped_retained_harness
+        if deferred_retained_harness and not scoped_retained_harness:
+            maybe_host_self_update(raw)
         # Canonical parsing recognizes accepted option abbreviations. A retained
         # read-only plan must be identified before any implicit host writer.
         scoped_orchestration = scoped_orchestration or (
@@ -3829,7 +3839,7 @@ def main(
             return 0
         recorder = (
             None
-            if scoped_readmission_recovery
+            if scoped_retained_harness
             else PerformanceRecorder(
                 build_root=_perf_build_root(args),
                 project_root=getattr(args, "project", None) or Path.cwd(),

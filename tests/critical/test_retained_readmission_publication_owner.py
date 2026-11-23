@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from contextvars import copy_context
 from pathlib import Path
+from unittest import mock
 
 from literate_ai import _atomic_publication as port
 from literate_ai.adapters import retained_readmission_publication as publication
@@ -321,3 +322,47 @@ os._exit(73)
         self.assertEqual((self.root / "b.json").read_bytes(), b"changed b\n")
         owner.rollback()
         self.assert_original()
+
+    def test_evidence_publication_preserves_a_concurrent_empty_destination(self):
+        history = self.root / publication.HISTORY / "before.evidence"
+        actual = publication.publish_directory_exclusive
+        foreign = []
+        staging = []
+
+        def occupied(source, destination, **kwargs):
+            destination.mkdir()
+            foreign.append(destination.stat().st_ino)
+            staging.append(source)
+            return actual(source, destination, **kwargs)
+
+        with mock.patch.object(
+            publication, "publish_directory_exclusive", side_effect=occupied
+        ):
+            with self.assertRaisesRegex(
+                publication.ReadmissionPublicationError, "history_collision"
+            ):
+                publication.publish_readmission_evidence(
+                    history, self.before, maximum_total_bytes=1024
+                )
+        self.assertEqual(history.stat().st_ino, foreign[0])
+        self.assertEqual(tuple(history.iterdir()), ())
+        self.assertTrue(staging[0].is_dir())
+        self.assertEqual((staging[0] / "a.json").read_bytes(), self.before["a.json"])
+
+    def test_existing_evidence_reopens_without_deleting_foreign_extra_files(self):
+        history = self.root / publication.HISTORY / "before.evidence"
+        self.assertTrue(
+            publication.publish_readmission_evidence(
+                history, self.before, maximum_total_bytes=1024
+            )
+        )
+        foreign = history / "foreign-note.txt"
+        foreign.write_bytes(b"foreign history annotation\n")
+        inode = foreign.stat().st_ino
+        self.assertFalse(
+            publication.publish_readmission_evidence(
+                history, self.before, maximum_total_bytes=1024
+            )
+        )
+        self.assertEqual(foreign.stat().st_ino, inode)
+        self.assertEqual(foreign.read_bytes(), b"foreign history annotation\n")

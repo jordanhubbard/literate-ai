@@ -24,7 +24,11 @@ from literate_ai._filesystem import (
     stat_identity_value,
     stat_is_link_or_reparse,
 )
-from literate_ai.adapters.exclusive_directory import _native_rename
+from literate_ai.adapters.exclusive_directory import (
+    _native_rename,
+    directory_node,
+    publish_directory_exclusive,
+)
 from literate_ai.adapters.native_child_publication import (
     NativeChildPublicationError,
     _read,
@@ -229,6 +233,95 @@ def _rename_absent(source, destination):
             )
         finally:
             os.close(descriptor)
+
+
+def publish_readmission_evidence(
+    history: Path, before: dict[str, bytes], *, maximum_total_bytes: int
+):
+    """Publish bounded old bytes exclusively; preserve every failed staging tree."""
+    if (
+        not before
+        or len(before) > MAXIMUM_TARGETS
+        or type(maximum_total_bytes) is not int
+        or maximum_total_bytes < 1
+        or any(
+            type(content) is not bytes or len(content) > MAXIMUM_FILE_BYTES
+            for content in before.values()
+        )
+        or sum(len(content) for content in before.values())
+        > min(maximum_total_bytes, MAXIMUM_TOTAL_BYTES)
+    ):
+        _refuse("payload_limit")
+    for name in before:
+        if _relative(name) != name:
+            _refuse("path_invalid")
+    require_safe_directory(history, allow_missing=True)
+    if os.path.lexists(history):
+        for name, content in before.items():
+            current, _node = _read_file(history / name, MAXIMUM_FILE_BYTES, 1)
+            if current != content:
+                _refuse("history_collision")
+        return False
+    parent = directory_node(history.parent)
+    stage = Path(tempfile.mkdtemp(prefix=f".{history.stem}.", dir=history.parent))
+    stage_node = directory_node(stage)
+    children = {Path("."): set()}
+    for name in before:
+        path = Path(name)
+        for child in (path, *path.parents):
+            if child == Path("."):
+                break
+            children.setdefault(child.parent, set()).add(child.name)
+    with ExitStack() as stack:
+        root_native = stack.enter_context(_held_identity(stage))
+        native = {}
+        for name, content in before.items():
+            path = stage / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with path.open("xb") as stream:
+                stream.write(content)
+                stream.flush()
+                os.fsync(stream.fileno())
+                native[name] = stack.enter_context(
+                    _held_identity(path, descriptor=stream.fileno())
+                )
+
+        def require_complete(root):
+            if _identity(root) != root_native:
+                _refuse("history_changed")
+            for relative, expected in children.items():
+                directory = root / relative
+                require_safe_directory(directory)
+                observed = set()
+                with os.scandir(directory) as names:
+                    for entry in names:
+                        if entry.name not in expected:
+                            _refuse("history_changed")
+                        observed.add(entry.name)
+                if observed != expected:
+                    _refuse("history_changed")
+            for name, content in before.items():
+                path = root / name
+                actual, _node = _read_file(path, MAXIMUM_FILE_BYTES, 1)
+                if actual != content or _identity(path) != native[name]:
+                    _refuse("history_changed")
+
+        require_complete(stage)
+        for relative in sorted(
+            children, key=lambda path: len(path.parts), reverse=True
+        ):
+            _sync(stage / relative)
+        try:
+            publish_directory_exclusive(
+                stage, history, expected_source=stage_node, expected_parent=parent
+            )
+        except FileExistsError as exc:
+            raise ReadmissionPublicationError("history_collision") from exc
+        _sync(history.parent)
+        require_complete(history)
+    # There is deliberately no recursive cleanup on any failure. Even this
+    # private staging tree may contain a concurrent writer's unique data.
+    return True
 
 
 class ReadmissionPublication:
