@@ -185,6 +185,10 @@ lists the per-project fields and their defaults.
 - [Qualified native child revision](decisions/0066-qualified-native-child-revision.md)
 - [Reviewed immutable source assets](decisions/0067-reviewed-source-assets.md)
 - [Reviewed local static source intake](decisions/0068-reviewed-static-source-intake.md)
+- [Promotion authoring independent of lineage](decisions/0069-independent-promotion-authoring-selection.md)
+- [Reviewed retained command renewal](decisions/0070-reviewed-retained-command-renewal.md)
+- [Bounded native root acceptance repair](decisions/0073-native-root-acceptance-repair.md)
+- [Sealed library composition in Node SDKs](decisions/0075-sealed-node-sdk-composition.md)
 - [Source trust and build-security plan](security/source-trust-and-build-policy.md)
 
 ## Migration and roadmap
