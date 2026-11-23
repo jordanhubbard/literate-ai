@@ -888,6 +888,11 @@ class SourceAdmissionCatalogTests(unittest.TestCase):
         catalog_fixtures.CatalogCopyRoleTests.setUp(self)
 
     def test_admitted_currentness_revalidates_external_catalog_inputs(self):
+        # Fund durable original-state and actual ancestor observations before
+        # the producer starts, including the parallel runner's nested TMPDIR.
+        # Separate low-budget controls retain the original refusal boundaries.
+        self.copy_budget = replace(self.copy_budget, maximum_entries=131072)
+
         class StopInspection(Exception):
             pass
 
