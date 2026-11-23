@@ -21963,7 +21963,13 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     fields and added grants. Twenty-five planning/read-back controls pass; saved
     v1 behavior and the separate completed initial-adoption scope stay unchanged.
     Execution/public CLI routing, transactional recovery, actual native compilation,
-    installed acceptance and independent review remain open.
+    installed acceptance and independent review remain open. The existing execution
+    owner now uses one finite source observation across direct baseline and parity.
+    Before the first target, verify raw bytes/modes and exact initial-copy names;
+    close original source facts after success/refusal. Fifty distinct focused
+    controls pass, including unchanged absolute-path bytes, late original/copy
+    refusal and actual native disposable build transformations. Preserve ordinary
+    normalized report meanings; no selected-command public apply is implemented.
   - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
     command renewal through the existing readmission owner. Preserve completed
     ADOPT-BASELINE-COMMANDS-001 / #207 initial selection and all unselected phases.

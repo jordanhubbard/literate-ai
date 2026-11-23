@@ -19,6 +19,7 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+from collections.abc import Callable
 from datetime import UTC, datetime
 from importlib.resources import files
 from pathlib import Path
@@ -1698,6 +1699,7 @@ def execute_harness_wrapper_parity(
     timeout_seconds: int = HARNESS_COMMAND_TIMEOUT_SECONDS,
     diagnostic_limit_chars: int = HARNESS_DIAGNOSTIC_CHARS,
     workspace_links: tuple[HarnessWorkspaceLink, ...] = (),
+    initial_source_guard: Callable[[Path], None] | None = None,
 ) -> dict[str, object]:
     """Run the generated wrapper and compare each stage with direct baseline output."""
 
@@ -1789,6 +1791,8 @@ def execute_harness_wrapper_parity(
         if source_scope is None:
             source_scope = capture_retained_source_scope(legacy_root)
         copy_retained_source_tree(legacy_root, parity_root, source_scope)
+        if initial_source_guard is not None:
+            initial_source_guard(parity_root)
         with materialize_harness_workspace_links(workspace_root, workspace_links):
             for baseline_phase in baseline_phases:
                 if not isinstance(baseline_phase, dict):

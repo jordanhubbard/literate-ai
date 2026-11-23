@@ -7,6 +7,7 @@ import os
 import shutil
 import tempfile
 from argparse import Namespace
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -31,6 +32,7 @@ from literate_ai.adapters.harness_inventory import (
 from literate_ai.adapters.harness_tree import (
     capture_retained_source_scope,
     copy_retained_source_tree,
+    observe_retained_source_bytes,
     observe_retained_tree,
 )
 from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
@@ -77,6 +79,7 @@ BASELINE = ".literate/legacy-harness-baseline.json"
 PARITY = ".literate/legacy-wrapper-parity.json"
 LIFT_SHIFT = ".literate/legacy-lift-shift.json"
 _PARITY_SOURCE_CAPTURE_ATTEMPTS = 2
+_SOURCE_INPUTS_KEY = object()
 
 
 class RetainedHarnessReadmissionError(RuntimeError):
@@ -717,6 +720,119 @@ def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
         _fail("layout_changed", "retained layout ancestry changed during readmission")
 
 
+def _source_native_inputs(root: Path, paths: tuple[str, ...]):
+    nodes = {root}
+    for relative in paths:
+        path = root / relative
+        nodes.add(path)
+        nodes.update(parent for parent in path.parents if parent.is_relative_to(root))
+    facts = tuple((path, _signature(path)) for path in sorted(nodes))
+    parents = {root}
+    parents.update((root / relative).parent for relative in paths)
+    ancestry = tuple((path, _lineage(path)) for path in sorted(parents))
+    return facts, ancestry
+
+
+class _ReadmissionSourceInputs:
+    """Finite original-source observation, distinct from saved plan assertions."""
+
+    def __init__(self, key, root, scope):
+        from literate_ai.adapters.harness_tree import _validated_scope
+
+        if key is not _SOURCE_INPUTS_KEY:
+            raise TypeError("original readmission source owner required")
+        self.root = root
+        self.scope = json.loads(canonical_json_bytes(scope))
+        self.paths, _excluded = _validated_scope(self.scope)
+        self.closed = False
+        self.nodes, self.ancestry = _source_native_inputs(root, self.paths)
+        self.raw = observe_retained_source_bytes(root, self.scope)
+        if self.raw["missing_count"]:
+            _fail("source_changed", "original retained source is missing")
+
+    def require_current(self):
+        if self.closed:
+            _fail("source_inputs_expired", "original source observation is closed")
+        try:
+            paths = capture_retained_source_scope(self.root, required_paths=self.paths)[
+                "paths"
+            ]
+            current = (
+                paths == list(self.paths)
+                and all(_signature(path) == fact for path, fact in self.nodes)
+                and all(_lineage(path) == fact for path, fact in self.ancestry)
+            )
+        except (OSError, ValueError, RetainedLayoutError):
+            current = False
+        if not current:
+            _fail("source_changed", "original retained source changed")
+
+    def require_for(self, root, inventory):
+        if root != self.root or inventory["source_scope"] != self.scope:
+            _fail("source_changed", "source observation belongs to another operation")
+        self.require_current()
+
+    def require_copy(self, root):
+        self.require_current()
+        try:
+            nodes, ancestry = _source_native_inputs(root, self.paths)
+            _require_initial_copy_namespace(root, self.paths)
+            raw = observe_retained_source_bytes(root, self.scope)
+            _require_initial_copy_namespace(root, self.paths)
+            self.require_current()
+            current = (
+                raw == self.raw
+                and all(_signature(path) == fact for path, fact in nodes)
+                and all(_lineage(path) == fact for path, fact in ancestry)
+            )
+        except (OSError, ValueError, RetainedLayoutError):
+            current = False
+        if not current:
+            _fail("source_changed", "disposable source differs from original inputs")
+
+
+def _require_initial_copy_namespace(root, paths):
+    children: dict[Path, set[str]] = {root: set()}
+    for relative in paths:
+        path = root / relative
+        while path != root:
+            children.setdefault(path.parent, set()).add(path.name)
+            path = path.parent
+    for directory, expected in children.items():
+        found = set()
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                if entry.name not in expected:
+                    _fail("source_changed", "unexpected initial disposable source name")
+                found.add(entry.name)
+        if found != expected:
+            _fail("source_changed", "initial disposable source name is missing")
+
+
+@contextmanager
+def _readmission_source_inputs(implementation, inventory, *, expected_tree=None):
+    try:
+        inputs = _ReadmissionSourceInputs(
+            _SOURCE_INPUTS_KEY, implementation, inventory["source_scope"]
+        )
+    except (OSError, ValueError, RetainedLayoutError):
+        _fail("source_changed", "original retained source is unavailable or redirected")
+    try:
+        if (
+            expected_tree is not None
+            and observe_retained_tree(implementation, inputs.scope)["source_tree"]
+            != expected_tree
+        ):
+            _fail("source_changed", "original source differs from the reviewed plan")
+        inputs.require_current()
+        yield inputs
+    finally:
+        try:
+            inputs.require_current()
+        finally:
+            inputs.closed = True
+
+
 def _baseline_report(
     inventory: dict[str, Any],
     *,
@@ -727,19 +843,39 @@ def _baseline_report(
     plan_identity: ContentIdentity,
     project_id: str,
     executor: RetainedHarnessSshExecutor,
+    source_inputs: _ReadmissionSourceInputs | None = None,
 ) -> dict[str, Any]:
+    if source_inputs is None:
+        with _readmission_source_inputs(implementation, inventory) as inputs:
+            return _baseline_report(
+                inventory,
+                implementation=implementation,
+                timeout_seconds=timeout_seconds,
+                worker=worker,
+                worker_catalog_identity=worker_catalog_identity,
+                plan_identity=plan_identity,
+                project_id=project_id,
+                executor=executor,
+                source_inputs=inputs,
+            )
+    if type(source_inputs) is not _ReadmissionSourceInputs:
+        _fail("source_changed", "original source observation is required")
+    source_inputs.require_for(implementation, inventory)
     if worker is None:
         with tempfile.TemporaryDirectory(prefix="litai-readmit-direct-") as directory:
-            execution_root = Path(directory) / "legacy"
+            execution_root = Path(directory).resolve() / "legacy"
             copy_retained_source_tree(
                 implementation, execution_root, inventory["source_scope"]
             )
-            return execute_harness_baseline(
+            source_inputs.require_copy(execution_root)
+            result = execute_harness_baseline(
                 inventory,
                 legacy_root=execution_root,
                 timeout_seconds=timeout_seconds,
                 run_baseline=True,
             )
+            source_inputs.require_current()
+            return result
     assert worker_catalog_identity is not None
     observed = observe_retained_tree(implementation, inventory["source_scope"])[
         "source_tree"
@@ -760,6 +896,7 @@ def _baseline_report(
         timeout_seconds=timeout_seconds,
         cwd=implementation,
     )
+    source_inputs.require_current()
     phases = [dict(item) for item in result.phases]
     return {
         "schema": HARNESS_BASELINE_SCHEMA,
@@ -836,23 +973,46 @@ def _parity_report(
     plan_identity: ContentIdentity,
     project_id: str,
     executor: RetainedHarnessSshExecutor,
+    source_inputs: _ReadmissionSourceInputs | None = None,
 ) -> dict[str, Any]:
+    if source_inputs is None:
+        with _readmission_source_inputs(implementation, inventory) as inputs:
+            return _parity_report(
+                inventory,
+                baseline,
+                wrapper,
+                implementation=implementation,
+                timeout_seconds=timeout_seconds,
+                worker=worker,
+                worker_catalog_identity=worker_catalog_identity,
+                plan_identity=plan_identity,
+                project_id=project_id,
+                executor=executor,
+                source_inputs=inputs,
+            )
+    if type(source_inputs) is not _ReadmissionSourceInputs:
+        _fail("source_changed", "original source observation is required")
+    source_inputs.require_for(implementation, inventory)
     if worker is None:
         with tempfile.TemporaryDirectory(prefix="litai-readmit-wrapper-") as directory:
-            project_root = Path(directory)
+            project_root = Path(directory).resolve()
             (project_root / HARNESS_WRAPPER_FILENAME).write_bytes(wrapper)
-            return execute_harness_wrapper_parity(
+            result = execute_harness_wrapper_parity(
                 inventory,
                 baseline,
                 project_root=project_root,
                 legacy_root=implementation,
                 timeout_seconds=timeout_seconds,
+                initial_source_guard=source_inputs.require_copy,
             )
+            source_inputs.require_current()
+            return result
     assert worker_catalog_identity is not None
     with tempfile.TemporaryDirectory(prefix="litai-readmit-wrapper-") as directory:
-        source_root = Path(directory)
+        source_root = Path(directory).resolve()
         legacy = source_root / "legacy"
         copy_retained_source_tree(implementation, legacy, inventory["source_scope"])
+        source_inputs.require_copy(legacy)
         (source_root / HARNESS_WRAPPER_FILENAME).write_bytes(wrapper)
         parity_inventory = _parity_inventory(inventory, source_root)
         observed = observe_retained_tree(source_root, parity_inventory["source_scope"])[
@@ -862,6 +1022,7 @@ def _parity_report(
         while True:
             source_capture_attempts += 1
             try:
+                source_inputs.require_current()
                 result = executor.execute(
                     worker,
                     project_id=project_id,
@@ -883,6 +1044,7 @@ def _parity_report(
                     timeout_seconds=timeout_seconds,
                     cwd=implementation,
                 )
+                source_inputs.require_current()
                 break
             except RetainedHarnessRemoteError as exc:
                 if (
@@ -1007,28 +1169,33 @@ def apply_retained_harness_readmission(
         ).encode("utf-8")
         executor = remote_executor or RetainedHarnessSshExecutor()
         plan_identity = ContentIdentity.parse_uri(plan["plan_identity"])
-        baseline = _baseline_report(
-            inventory,
-            implementation=implementation,
-            timeout_seconds=timeout_seconds,
-            worker=execution_worker,
-            worker_catalog_identity=worker_catalog_identity,
-            plan_identity=plan_identity,
-            project_id=project.definition.project_id,
-            executor=executor,
-        )
-        parity = _parity_report(
-            inventory,
-            baseline,
-            wrapper,
-            implementation=implementation,
-            timeout_seconds=timeout_seconds,
-            worker=execution_worker,
-            worker_catalog_identity=worker_catalog_identity,
-            plan_identity=plan_identity,
-            project_id=project.definition.project_id,
-            executor=executor,
-        )
+        with _readmission_source_inputs(
+            implementation, inventory, expected_tree=plan["source_tree"]
+        ) as source_inputs:
+            baseline = _baseline_report(
+                inventory,
+                implementation=implementation,
+                timeout_seconds=timeout_seconds,
+                worker=execution_worker,
+                worker_catalog_identity=worker_catalog_identity,
+                plan_identity=plan_identity,
+                project_id=project.definition.project_id,
+                executor=executor,
+                source_inputs=source_inputs,
+            )
+            parity = _parity_report(
+                inventory,
+                baseline,
+                wrapper,
+                implementation=implementation,
+                timeout_seconds=timeout_seconds,
+                worker=execution_worker,
+                worker_catalog_identity=worker_catalog_identity,
+                plan_identity=plan_identity,
+                project_id=project.definition.project_id,
+                executor=executor,
+                source_inputs=source_inputs,
+            )
         _require_layout_current(root, plan)
         if "layout_readmission" in plan:
             if baseline.get("state") != "passed" or parity.get("state") != "passed":

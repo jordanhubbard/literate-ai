@@ -119,7 +119,9 @@ development (2026-09-10):
 
 ADR 0070 command renewal now has internal read-only planning and bounded current
 read-back under
-RELEASE-INTEGRATION-005 / issue #366. It preserves unselected admitted phases
+RELEASE-INTEGRATION-005 / issue #366. The existing readmission owner now checks
+raw initial-copy inputs before commands and rechecks original source across
+baseline/parity; native disposable build transformations remain supported. It preserves unselected admitted phases
 and keeps compilation coverage unknown. Public selection/apply routing, current
 execution custody, recoverable publication, native and installed qualification
 remain open; completed initial-adoption selection is preserved.

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained readmission: verify original bytes, modes and initial copy membership
+  before direct or wrapper commands. Recheck original source across baseline and
+  parity, preserve absolute-path bytes and native disposable build transformations,
+  and close the observation after success or refusal. Installed renewal stays open.
+
 - Retained command renewal development: reopen canonical saved plans against
   their reviewed identity and complete current planning. Reject changed inputs,
   unknown fields, added grants and oversized records. Execution and public apply
