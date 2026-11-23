@@ -117,7 +117,8 @@ development (2026-09-10):
 
 ## Current work
 
-ADR 0070 command renewal now has internal read-only planning under
+ADR 0070 command renewal now has internal read-only planning and bounded current
+read-back under
 RELEASE-INTEGRATION-005 / issue #366. It preserves unselected admitted phases
 and keeps compilation coverage unknown. Public selection/apply routing, current
 execution custody, recoverable publication, native and installed qualification

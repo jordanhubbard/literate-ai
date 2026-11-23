@@ -64,7 +64,11 @@ from literate_ai.contracts import (
     canonical_identity,
     canonical_json_bytes,
 )
-from literate_ai.projects import ProjectConfigurationStore, load_project
+from literate_ai.projects import (
+    DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+    ProjectConfigurationStore,
+    load_project,
+)
 
 PLAN_SCHEMA = "literate-ai/retained-harness-readmission-plan@1"
 HISTORY = ".literate/retained-harness-readmission"
@@ -590,7 +594,77 @@ def plan_retained_harness_readmission(
         plan["command_renewal"] = command_renewal
         plan["apply_supported"] = False
     plan["plan_identity"] = _identity(plan)
+    if (
+        command_renewal is not None
+        and len(canonical_json_bytes(plan)) + 1 > DEFAULT_MAXIMUM_PINNED_INPUT_BYTES
+    ):
+        _fail("plan_too_large", "renewal plan exceeds the existing pinned-file limit")
     return plan
+
+
+def reopen_retained_command_renewal_plan(
+    selected: Path,
+    content: bytes,
+    *,
+    reviewed_plan_identity: str,
+    command_selection: Path,
+    execution_worker: ExecutionWorker | None = None,
+    worker_catalog_identity: ContentIdentity | None = None,
+    timeout_seconds: int = 1800,
+    retained_stage_ids: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Reopen bounded saved intent against the actual current planning owner.
+
+    Matching a self-hash is insufficient. Regeneration independently supplies
+    the complete supported structure and current values, including nested
+    inventories and command definitions. This reader supplies no apply grant.
+    """
+    try:
+        if (
+            type(content) is not bytes
+            or len(content) > DEFAULT_MAXIMUM_PINNED_INPUT_BYTES
+            or command_selection is None
+        ):
+            raise ValueError("invalid bounded renewal bytes")
+        data = json.loads(content)
+        encoded = canonical_json_bytes(data)
+        if content not in (encoded, encoded + b"\n") or not isinstance(data, dict):
+            raise ValueError("noncanonical renewal bytes")
+        renewal = data.get("command_renewal")
+        if (
+            data.get("schema") != "literate-ai/retained-harness-readmission-plan@2"
+            or data.get("apply_supported") is not False
+            or not isinstance(renewal, dict)
+            or renewal.get("schema")
+            != "literate-ai/retained-command-renewal-planning@1"
+            or renewal.get("apply_supported") is not False
+            or renewal.get("execution_performed") is not False
+            or renewal.get("compilation_coverage") != "unknown"
+        ):
+            raise ValueError("unsupported renewal form or authority")
+        identity = _identity(
+            {key: value for key, value in data.items() if key != "plan_identity"}
+        )
+        if data.get("plan_identity") != identity:
+            raise ValueError("renewal body differs from its identity")
+        ContentIdentity.parse_uri(reviewed_plan_identity)
+    except (ValueError, TypeError, RecursionError, OverflowError):
+        _fail("plan_invalid", "saved renewal plan is invalid or unsupported")
+    if identity != reviewed_plan_identity:
+        _fail("plan_stale", "saved renewal plan differs from the reviewed identity")
+    current = plan_retained_harness_readmission(
+        selected,
+        command_selection=command_selection,
+        execution_worker=execution_worker,
+        worker_catalog_identity=worker_catalog_identity,
+        timeout_seconds=timeout_seconds,
+        retained_stage_ids=retained_stage_ids,
+    )
+    if canonical_json_bytes(current) != encoded:
+        _fail(
+            "plan_stale", "saved renewal differs from complete current planning inputs"
+        )
+    return current
 
 
 def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:

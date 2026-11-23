@@ -1,0 +1,86 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Strict read-only current read-back for internal retained command-renewal plans",
+  "base_commit": "145f732a89b94b6d782d744ed5661a98a1ceb179",
+  "source_files": {
+    "src/literate_ai/adapters/retained_harness_readmission.py": "280c29ad0e03273c2c28b78af2d21b80bff15de60ba8161e89c2d37f2643cbc3",
+    "tests/e2e/test_retained_command_renewal.py": "0e7c3f519cd9341aa812d2a016e9ed04965f1acfd4fafa0a2d175e2f2ff521a4",
+    "tests/e2e/test_retained_command_renewal_readback.py": "8f8a1e94e577dcc4b68ec1d603197e653807603240ef7c4af4d9c92df73798c4",
+    "src/literate_ai/adapters/monorepo_adoption.py": "a860eea9f36f8bcec37e4fdf730219d581c58a4d0a13b40e146f2bffd954ba72",
+    "src/literate_ai/projects.py": "56af7108d112e42808d3c19634b8058ab48633c09f786b3db4cd3abb57b38f56"
+  },
+  "planning_and_readback_controls": {
+    "summary": {
+      "executed": 25,
+      "failed": 0,
+      "known_failed": 0,
+      "passed": 25,
+      "selected": 25,
+      "skipped": 0
+    },
+    "seconds": 32.247,
+    "report_sha256": "52b2d41de851558235bd96e944ba4e3630877bb360c4de898224a6227f8d3818"
+  },
+  "original_failure": {
+    "executed": 1,
+    "selected": 9,
+    "error": "Missing reopen_retained_command_renewal_plan",
+    "retained_locally": true
+  },
+  "producer_and_reader_limit": {
+    "authority": "projects.DEFAULT_MAXIMUM_PINNED_INPUT_BYTES",
+    "maximum_bytes": 2097152,
+    "optional_single_terminal_newline_within_limit": true
+  },
+  "complete_current_body_compared": true,
+  "self_hash_alone_accepted": false,
+  "source_or_selection_changes_accepted": false,
+  "unknown_nested_fields_accepted": false,
+  "added_execution_or_apply_grant_accepted": false,
+  "saved_v1_reinterpreted": false,
+  "new_apply_supported": false,
+  "public_selection_apply_routing": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "driver_or_receipt_pins_changed": false,
+  "limits": [
+    "The reader consumes already captured bounded bytes; actual plan-file custody and every execution/publication boundary remain with the future application owner.",
+    "It regenerates the complete current read-only plan rather than accepting candidate-supplied current facts or a self-hash as authority.",
+    "A successful read-back returns planning data and grants no process execution, publication, admission or source retirement.",
+    "Future execution forms must preserve these planning-only meanings and support complete versioned read-back before publication.",
+    "Current lifecycle-lock custody, disposable baseline/parity source validation, recoverable publication, actual native compilation and installed/platform/integration qualification remain required."
+  ],
+  "current_report_union": {
+    "distinct_passed": 31,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "scope": "planning-readback",
+        "summary": {
+          "executed": 25,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 25,
+          "selected": 25,
+          "skipped": 0
+        },
+        "report_sha256": "52b2d41de851558235bd96e944ba4e3630877bb360c4de898224a6227f8d3818"
+      },
+      {
+        "scope": "existing-readmission",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "report_sha256": "a5ef20ad27ad103b69aefc5570797b3b93ceca7b8970a4059786625e60980d4c"
+      }
+    ]
+  }
+}

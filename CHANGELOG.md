@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained command renewal development: reopen canonical saved plans against
+  their reviewed identity and complete current planning. Reject changed inputs,
+  unknown fields, added grants and oversized records. Execution and public apply
+  remain open; saved v1 plans retain their existing meaning.
+
 - Retained command renewal development: plan explicit commands through the
   existing adoption validator, preserve unselected admitted phases, and reject
   changed source/selection inputs. The new plan grants no apply authority;

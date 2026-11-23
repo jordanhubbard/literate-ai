@@ -21954,13 +21954,16 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
   - [ ] RUST-HARNESS-DEPS-001 / #379: implement and qualify ADR 0069 authoring
     selection before sealing a new promotion audit, preserving lineage, signed
     intent, original acceptance and every execution/resource boundary.
-  - **Command renewal next action (in progress):** Complete closed v2 read-back
-    before wiring selection into the existing readmission execution owner. Internal
-    planning reuses the initial-adoption validator, retains unselected admitted
-    phases and closes source membership, original file facts and ancestry after
-    payload reads. Fifteen planning controls plus ten existing readmission/adoption
-    controls pass. Execution/public CLI routing, transactional recovery, actual
-    native compilation, installed acceptance and independent review remain open.
+  - **Command renewal next action (in progress):** Bind current execution and
+    recoverable publication through the existing readmission owner before exposing
+    public selection/apply. Internal planning retains unselected admitted phases
+    and closes source membership, original file facts and ancestry after payload
+    reads. Complete bounded read-back compares the saved body and reviewed identity
+    with independently regenerated current planning, rejecting unknown nested
+    fields and added grants. Twenty-five planning/read-back controls pass; saved
+    v1 behavior and the separate completed initial-adoption scope stay unchanged.
+    Execution/public CLI routing, transactional recovery, actual native compilation,
+    installed acceptance and independent review remain open.
   - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
     command renewal through the existing readmission owner. Preserve completed
     ADOPT-BASELINE-COMMANDS-001 / #207 initial selection and all unselected phases.
