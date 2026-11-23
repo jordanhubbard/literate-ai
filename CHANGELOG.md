@@ -18,7 +18,9 @@
   evidence. Reopen complete versioned requests, reject stale or unacknowledged
   changes, and revalidate source/selection before execution and publication.
   Preserve saved v1 and planning-only v2 meanings. Successful command exit alone
-  grants no compilation claim. Installed and full native renewal remain open.
+  grants no compilation claim. A fresh installed macOS journey passes actual
+  native compilation and genuine receipt renewal while preserving old evidence.
+  Refined/contained renewal and full native release qualification remain open.
 
 - Retained Python bridge development: observe the actual original-source
   wrapper/parity and complete bounded native source without granting execution.

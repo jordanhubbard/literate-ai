@@ -1,6 +1,6 @@
 {
   "schema": "literate-ai/development-evidence@1",
-  "scope": "Installed single-wrapper command renewal journey; first-attempt failure retained",
+  "scope": "Installed single-wrapper command renewal journey; successful exact clean macOS attempt and original failure retained",
   "attempts": [
     {
       "revision": "77dbd5c58bf58014aace1d8f358823dbda23612f",
@@ -14,6 +14,53 @@
       "failure": "Initial refined ownership declared only build; its mandatory retained test phase is absent. No test-stage refusal is waived.",
       "stderr_sha256": "736510a20eacdbf43b3df9b6969979b3a7edbc8ab0806d6136b66b9e3441715c",
       "first_selection_sha256": "58865b77526bf0e31e5ba1a0088b337aff75c2c819b69e803c5ff3d8b0e3e91f"
+    },
+    {
+      "revision": "2b6f5f388bc01baa8f5f6b87466ea3b7ff6c433f",
+      "tree": "eb76915dd6214c3963252223d3eb8987a5d0ca88",
+      "seconds": 773.755,
+      "wheel_sha256": "8f19a72debdb2386cdfcc1c34b740216953e02db340a7d6cd92db0f0a2d8aa68",
+      "distribution": "sha256:f83fa323b4af6fd79de217309f2552e1025279ceabe5648dd0513ec72e90d263",
+      "source_unchanged": true,
+      "script_unchanged": true,
+      "scope_passed": true,
+      "script_sha256": "eb0da8a52357e6240dd781d39782abf4676b4d91ac7cea1f0fc58ab1417f19d3",
+      "wheel_helper_sha256": "647f437c5703335539015f76c4c7e14bc816744bd11cbf3a7f30b4581a542b70",
+      "terminal_sha256": "dc6e4f88a5bb3fb2d11a78d37644cb2bd89d66f32cbd1d288bfba20d6dce56fa",
+      "platform": "darwin",
+      "observed": {
+        "cases": {
+          "initial-selection": {
+            "observations": {
+              "legacy-harness-baseline.json": "989dfae81b85b316c662b78a5f6eadbce18b2b5ee683a45b437dbfabf3a3862f",
+              "legacy-wrapper-parity.json": "06b5430c45f8b422373c8905dde549b2bca87e73034e4608ffb23a28a77d10db"
+            },
+            "original_tests": 2,
+            "receipt_sha256": "ef2ceed8115d882dcbbc2a9bc2aa33b5b3224aa784bf42f84d7581338baa642f"
+          },
+          "post-adoption-renewal": {
+            "compiled": {
+              "legacy-harness-baseline.json": "44c4eb1c1c5664b4701eca0dcd76d92e63004fb7a85ec3082ce848c2b629372c",
+              "legacy-wrapper-parity.json": "e8a692fe5c586d02148638a24fd014bb7d639a154d75b7ac910e7834b0dd1918"
+            },
+            "help_only": {
+              "legacy-harness-baseline.json": "4521e8b1a5253e2689eaa8e30ef2ab8955f69fecdebfb972eee95c10e84bea41",
+              "legacy-wrapper-parity.json": "f12b1356102daa02d1b726948cdeb0071efffe65fab0e5fa5d4dc6085476fbde"
+            },
+            "new_receipt_sha256": "fb22fbe0129ff91fe10259ed0ae365ef89595095a5ef34b6ddf255cd342489d3",
+            "old_receipt_preserved": true,
+            "old_receipt_sha256": "59ded6b2d9fcbdedbcd090d39e5d887b9d5a66d06b95598bdb8671b5a41f579c",
+            "original_tests": 2
+          }
+        },
+        "distribution": "sha256:f83fa323b4af6fd79de217309f2552e1025279ceabe5648dd0513ec72e90d263",
+        "installed_module_origins_verified": true,
+        "passed": true,
+        "platform": "darwin",
+        "release_evidence": false,
+        "schema": "literate-ai/installed-command-renewal@1"
+      },
+      "runtime_records": "Fresh noneditable wheel, private copied runtime, pip and framework RECORD, installed module origins and distribution binding verified"
     }
   ],
   "fixture_correction": {
@@ -24,7 +71,11 @@
     "production_modules_changed": false,
     "checks": "changed script Ruff format/lint and py_compile pass"
   },
-  "next_attempt": "pending exact clean checkpoint build and actual installed execution",
   "qualified": false,
-  "release_evidence": false
+  "release_evidence": false,
+  "remaining": [
+    "Refined Component and modern contained-layout command renewal",
+    "Independent implementation review and complete exact integrated source/native gates",
+    "Native Windows/FreeBSD and full release qualification"
+  ]
 }

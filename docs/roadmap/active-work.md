@@ -21968,8 +21968,14 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     rollback. Pending project metadata requires explicit current-plan recovery under
     the existing lifecycle lock, including after real subprocess exits or an invalid
     manifest. [Publication controls](../../verification/readmission-publication-development.json)
-    retain their exact subject and scope. Refined-Component and modern contained
-    renewal, installed genuine receipt renewal, independent acceptance/review,
+    retain their exact subject and scope. A fresh noneditable macOS wheel at
+    `2b6f5f388bc01baa8f5f6b87466ea3b7ff6c433f` passes the separate initial-selection
+    and post-adoption renewal journeys in 773.755 seconds: actual native result
+    `42`, both original real tests, complete installed request read-back, stale
+    receipt refusal, fresh receipt renewal and unchanged original archive bytes.
+    The first failed fixture attempt remains retained. See
+    [installed development evidence](../../verification/retained-command-renewal-installed-development.json).
+    Refined-Component and modern contained renewal, independent acceptance/review,
     combined source and full native release
     qualification remain open; keep #366 and all acceptance prerequisites open.
   - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
