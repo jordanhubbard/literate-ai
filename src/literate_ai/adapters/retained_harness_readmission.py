@@ -12,6 +12,7 @@ from dataclasses import replace
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from literate_ai._atomic_publication import atomic_publication_scope
 from literate_ai.adapters.conversion_authority import (
     CONVERSION_AUTHORITY_FILE,
     FilesystemConversionAuthorityStore,
@@ -59,7 +60,9 @@ from literate_ai.adapters.retained_layout import (
     resolve_structural_layout,
 )
 from literate_ai.adapters.retained_layout_partition import _lineage
-from literate_ai.application.project_authority import AUTHORITY_REVIEW_MARKER
+from literate_ai.adapters.retained_readmission_publication import (
+    ReadmissionPublication,
+)
 from literate_ai.contracts import (
     ContentIdentity,
     ExecutionWorker,
@@ -68,6 +71,8 @@ from literate_ai.contracts import (
 )
 from literate_ai.projects import (
     DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+    DEFAULT_MAXIMUM_PINNED_INPUT_FILES,
+    DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES,
     ProjectConfigurationStore,
     load_project,
 )
@@ -1227,7 +1232,7 @@ def apply_retained_harness_readmission(
             for name, content in before.items()
         ):
             _fail("plan_stale", "project metadata changed before publication")
-        for relative in (LIFT_SHIFT, RETAINED_LAYOUT_PATH):
+        for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT, RETAINED_LAYOUT_PATH):
             if relative in plan["old_documents"]:
                 before[relative] = _safe_path(root, relative).read_bytes()
                 if _identity(before[relative]) != plan["old_documents"][relative]:
@@ -1239,7 +1244,6 @@ def apply_retained_harness_readmission(
         )
         history.parent.mkdir(parents=True, exist_ok=True)
         history_bytes = canonical_json_bytes(plan) + b"\n"
-        created_history = False
         if history.exists():
             if history.read_bytes() != history_bytes:
                 _fail("history_collision", "readmission history has different bytes")
@@ -1248,50 +1252,62 @@ def apply_retained_harness_readmission(
                 stream.write(history_bytes)
                 stream.flush()
                 os.fsync(stream.fileno())
-            created_history = True
-        evidence_history, created_evidence_history = _history_evidence(
+        evidence_history, _created_evidence_history = _history_evidence(
             root,
             plan_identity=plan_identity,
             before=before,
         )
-        written: dict[str, bytes] = {}
+        limits = project.definition.scale_limits
+        maximum_files = (
+            limits.pinned_input_files if limits else DEFAULT_MAXIMUM_PINNED_INPUT_FILES
+        )
+        if len(before) > maximum_files:
+            _fail("publication_limit", "readmission metadata exceeds project limits")
+        publication = ReadmissionPublication.create(
+            root,
+            before=before,
+            writable=tuple(paths),
+            plan_identity=plan["plan_identity"],
+            maximum_total_bytes=(
+                limits.pinned_input_total_bytes
+                if limits
+                else DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES
+            ),
+            maximum_steps=maximum_files,
+        )
         try:
-            replacements = {
-                INVENTORY: canonical_json_bytes(inventory) + b"\n",
-                BASELINE: canonical_json_bytes(baseline) + b"\n",
-                PARITY: canonical_json_bytes(parity) + b"\n",
-                HARNESS_WRAPPER_FILENAME: wrapper,
-                **{
-                    relative: content.encode("utf-8")
-                    for relative, content in shim.items()
-                },
-            }
-            for name, content in replacements.items():
-                _require_layout_current(root, plan)
-                FilesystemConversionAuthorityStore._atomic_write(paths[name], content)
-                written[name] = content
-            store = ProjectConfigurationStore(root)
-            snapshot = store.read()
-            updated = store.update(
-                snapshot,
-                replace(
-                    snapshot.definition,
-                    test_receipt_policy=retained_harness_receipt_policy(inventory),
-                    default_flavor_selectors=tuple(
-                        plan["new_default_flavor_selectors"]
+            with atomic_publication_scope(publication):
+                replacements = {
+                    INVENTORY: canonical_json_bytes(inventory) + b"\n",
+                    BASELINE: canonical_json_bytes(baseline) + b"\n",
+                    PARITY: canonical_json_bytes(parity) + b"\n",
+                    HARNESS_WRAPPER_FILENAME: wrapper,
+                    **{
+                        relative: content.encode("utf-8")
+                        for relative, content in shim.items()
+                    },
+                }
+                for name, content in replacements.items():
+                    _require_layout_current(root, plan)
+                    FilesystemConversionAuthorityStore._atomic_write(
+                        paths[name], content
+                    )
+                store = ProjectConfigurationStore(root)
+                snapshot = store.read()
+                store.update(
+                    snapshot,
+                    replace(
+                        snapshot.definition,
+                        test_receipt_policy=retained_harness_receipt_policy(inventory),
+                        default_flavor_selectors=tuple(
+                            plan["new_default_flavor_selectors"]
+                        ),
                     ),
-                ),
-            )
-            written["literate.project.json"] = updated.content
-            from literate_ai.adapters.component_lock_commands import (
-                _component_locks_from_args,
-            )
+                )
+                from literate_ai.adapters.component_lock_commands import (
+                    _component_locks_from_args,
+                )
 
-            lock_paths = (
-                f"{wrapper_component}/component.lock.json",
-                f"{wrapper_component}/component.resolution-audit.host.json",
-            )
-            try:
                 lock_result, lock_status = _component_locks_from_args(
                     Namespace(
                         component=str(root / wrapper_component),
@@ -1303,54 +1319,37 @@ def apply_retained_harness_readmission(
                         large_review=None,
                     )
                 )
-            finally:
-                for relative in lock_paths:
-                    current = paths[relative].read_bytes()
-                    if current != before[relative]:
-                        written[relative] = current
-            if lock_status != 0:
-                _fail(
-                    "lock_reconciliation_failed",
-                    f"component lock reconciliation failed: {lock_result}",
-                )
-            review = FilesystemProjectValidationAdapter().documentation_review(root)
-            review_name = plan["authority_review"]
-            review_content = AUTHORITY_REVIEW_MARKER.sub(
-                review["expected_marker"].encode("utf-8"),
-                before[review_name],
-                count=1,
-            )
-            written[review_name] = review_content
-            record_project_authority_review(root)
-            current_inventory = inspect_harness(implementation)
-            current_source_tree = observe_retained_tree(
-                implementation, current_inventory["source_scope"]
-            )["source_tree"]
-            if (
-                current_inventory["source_scope"] != inventory["source_scope"]
-                or current_source_tree != plan["source_tree"]
-            ):
-                _fail("source_changed", "source changed during readmission")
-            for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT):
-                if (
-                    _identity(_safe_path(root, relative).read_bytes())
-                    != plan["old_documents"][relative]
-                ):
+                if lock_status != 0:
                     _fail(
-                        "historical_evidence_changed",
-                        "conversion authority or lift-and-shift evidence changed",
+                        "lock_reconciliation_failed",
+                        f"component lock reconciliation failed: {lock_result}",
                     )
-            _require_layout_current(root, plan)
+                record_project_authority_review(root)
+                current_inventory = inspect_harness(implementation)
+                current_source_tree = observe_retained_tree(
+                    implementation, current_inventory["source_scope"]
+                )["source_tree"]
+                if (
+                    current_inventory["source_scope"] != inventory["source_scope"]
+                    or current_source_tree != plan["source_tree"]
+                ):
+                    _fail("source_changed", "source changed during readmission")
+                for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT):
+                    if (
+                        _identity(_safe_path(root, relative).read_bytes())
+                        != plan["old_documents"][relative]
+                    ):
+                        _fail(
+                            "historical_evidence_changed",
+                            "conversion authority or lift-and-shift evidence changed",
+                        )
+                _require_layout_current(root, plan)
+                publication.commit()
         except BaseException:
-            for name, content in reversed(tuple(written.items())):
-                if paths[name].read_bytes() == content:
-                    FilesystemConversionAuthorityStore._atomic_write(
-                        paths[name], before[name]
-                    )
-            if created_history and history.read_bytes() == history_bytes:
-                history.unlink()
-            if created_evidence_history:
-                shutil.rmtree(evidence_history)
+            if not publication.closed:
+                publication.rollback()
+            # Failed evidence stays readable in history. Never recursively
+            # delete a directory that another writer may have extended.
             raise
         return {
             **plan,

@@ -155,6 +155,17 @@ def retained_harness_from_args(args: Namespace) -> dict[str, Any]:
     )
 
     try:
+        if getattr(args, "retained_harness_command", None) == "recover":
+            from literate_ai.adapters.retained_readmission_publication import (
+                recover_retained_readmission_publication,
+            )
+
+            return recover_retained_readmission_publication(
+                Path(args.project),
+                apply=args.apply,
+                acknowledge=args.acknowledge,
+                expected_plan_identity=args.expected_plan_identity,
+            )
         from .project import _select_retained_execution_worker
 
         worker, catalog_identity = _select_retained_execution_worker(

@@ -2487,6 +2487,13 @@ def _parser() -> JsonArgumentParser:
         required=True,
         parser_class=JsonArgumentParser,
     )
+    harness_recover = retained_harness_commands.add_parser(
+        "recover", help="inspect or roll back interrupted readmission metadata"
+    )
+    harness_recover.add_argument("--project", default=".")
+    harness_recover.add_argument("--apply", action="store_true")
+    harness_recover.add_argument("--acknowledge", action="store_true")
+    harness_recover.add_argument("--expected-plan-identity")
     harness_readmit = retained_harness_commands.add_parser("readmit")
     harness_readmit.add_argument("--project", default=".")
     harness_readmit.add_argument("--apply", action="store_true")
@@ -3673,6 +3680,9 @@ def main(
     )
     deferred_retained_frontdoor = command in {"build", "test", "rebuild"}
     scoped_retained_cargo = command == "project.retained-cargo"
+    scoped_readmission_recovery = command == "project.retained-harness" and arguments[
+        arguments.index("retained-harness") + 1 :
+    ][:1] == ("recover",)
     scoped_worker_health = command == "worker.health"
     scoped_agent_entrypoints = command == "project.agent-entrypoints"
     scoped_native_ci = command == "project.ci"
@@ -3688,6 +3698,7 @@ def main(
         or scoped_authored_qualification
         or scoped_tree_render
         or scoped_retained_promotion
+        or scoped_readmission_recovery
     )
     scoped_evidence = (
         command.startswith("project.")
@@ -3816,9 +3827,13 @@ def main(
             else:
                 output.write(help_text)
             return 0
-        recorder = PerformanceRecorder(
-            build_root=_perf_build_root(args),
-            project_root=getattr(args, "project", None) or Path.cwd(),
+        recorder = (
+            None
+            if scoped_readmission_recovery
+            else PerformanceRecorder(
+                build_root=_perf_build_root(args),
+                project_root=getattr(args, "project", None) or Path.cwd(),
+            )
         )
         perf_target = next(
             (

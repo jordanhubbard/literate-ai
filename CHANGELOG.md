@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Retained readmission publication: retain exact original and staged native files,
+  preserve foreign replacements and failed evidence, and block ordinary project
+  reads while metadata publication is pending. Add acknowledged rollback recovery
+  that can inspect an invalid manifest without replaying saved commands or
+  granting qualification. Installed and native platform renewal remain open.
+
 - Retained readmission: verify original bytes, modes and initial copy membership
   before direct or wrapper commands. Recheck original source across baseline and
   parity, preserve absolute-path bytes and native disposable build transformations,

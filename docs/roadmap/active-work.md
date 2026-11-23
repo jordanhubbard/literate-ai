@@ -21970,6 +21970,15 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
     controls pass, including unchanged absolute-path bytes, late original/copy
     refusal and actual native disposable build transformations. Preserve ordinary
     normalized report meanings; no selected-command public apply is implemented.
+    Publication development now retains original and staged native nodes before
+    replacement and records bounded durable intents in existing readmission
+    history. Three original regressions prove foreign lock/inventory replacements
+    and foreign evidence entries survive failed publication. Pending metadata
+    blocks ordinary project reads; explicit current-plan recovery restores only
+    owned originals under the same lifecycle lock, including with an invalid
+    manifest. Real subprocess exits before and after replacement reopen for
+    rollback. Current combined source, installed/native and independent review
+    gates remain open; no selected-command public apply is implemented.
   - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
     command renewal through the existing readmission owner. Preserve completed
     ADOPT-BASELINE-COMMANDS-001 / #207 initial selection and all unselected phases.

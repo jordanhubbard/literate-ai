@@ -20,6 +20,10 @@ from dataclasses import dataclass, fields, is_dataclass
 from enum import Enum
 from pathlib import Path
 
+from literate_ai._atomic_publication import (
+    publish_atomic_file_if_scoped,
+    scoped_writer_permits_project_read,
+)
 from literate_ai._cache_lock import (
     _is_windows,
     _lock_cleanup_allowed,
@@ -263,6 +267,15 @@ class ProjectConfigurationStore:
         explicitly declares the containing application's framework directory.
         """
         root = Path(root)
+        # Legacy retained readmission owns this root's metadata. Its pending
+        # publication cannot become current project authority in another reader.
+        # An independent child named litai does not inherit the parent's marker.
+        if os.path.lexists(root / ".literate/retained-harness-readmission/active.json"):
+            if not scoped_writer_permits_project_read(root):
+                raise ProjectError(
+                    "project.retained_readmission_recovery_required",
+                    "retained readmission metadata publication requires recovery",
+                )
         direct = root / PROJECT_FILENAME
         child = root / "litai"
         contained = child / PROJECT_FILENAME
@@ -1020,6 +1033,10 @@ class ProjectConfigurationStore:
     def _replace(
         path: Path, content: bytes, *, require_current: Callable[[], None] | None = None
     ) -> None:
+        if publish_atomic_file_if_scoped(
+            path, content, require_current=require_current
+        ):
+            return
         descriptor, name = tempfile.mkstemp(
             prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
         )
