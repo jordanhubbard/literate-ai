@@ -69,7 +69,8 @@ def _json(raw):
     )
 
 
-def _require_results(raw, oracle):
+def _result_values_differ(raw, oracle):
+    """Classify values only after the complete protocol and inventory agree."""
     from literate_ai.contracts.product_json import product_json_values_equal
 
     result = _json(raw)
@@ -92,12 +93,19 @@ def _require_results(raw, oracle):
             _refuse("result_protocol")
         observed[case["case_id"]] = case
     if set(observed) != {case.case_id for case in oracle.cases} or any(
-        observed[case.case_id]["capability"] != case.capability
-        or not product_json_values_equal(
+        observed[case.case_id]["capability"] != case.capability for case in oracle.cases
+    ):
+        _refuse("result_mismatch")
+    return any(
+        not product_json_values_equal(
             observed[case.case_id]["result"], case.expected_result
         )
         for case in oracle.cases
-    ):
+    )
+
+
+def _require_results(raw, oracle):
+    if _result_values_differ(raw, oracle):
         _refuse("result_mismatch")
 
 

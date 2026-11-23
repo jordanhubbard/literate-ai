@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Native candidate repair: keep substituted case IDs or capabilities terminal
+  even when they share the historical result-mismatch code. Bind early repair
+  eligibility to the current attempt's actual verifier return. Full versioned
+  packaged-root continuation and release qualification remain open.
+
 - Retained readmission journal: reject Boolean values substituted for integer
   header limits or step indexes in the live guard. Preserve every bounded native
   record read, namespace check and malformed-record diagnostic. Scoped source

@@ -27067,11 +27067,41 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Accepted canonical design:** [ADR 0073](../decisions/0073-native-root-acceptance-repair.md)
   restores review #409 under the directing user's recorded roadmap authorization.
-  Existing reviewed PR #414 implementation remains integrated. Preserve its
-  original shared candidate budget, private-oracle boundary and rejection closure;
-  restoring the design record does not replace current native/installed evidence.
+  The reviewed PR #414 early-check subset remains integrated. Preserve its shared
+  candidate budget, private-oracle boundary and rejection closure. Actual packaged
+  root continuation still needs implementation as well as current qualification.
 
-- **Current combined integration (in progress):** Normal history composes independently reviewed PR414 `58bc1381` with the current bootstrap/diagnostic/Cargo/runtime batch. The eight non-assembly native-repair production files remain byte-identical to the contributor; Standard project assembly retains both the held runtime execution plan and the native candidate verifier, while runtime environment port bytes remain unchanged. Independent review covers the original three-candidate budget, exact fresh single-root Rust-v2 custody, fixed-category feedback, private oracle boundaries, sealed export hashes and executable/tool closure even after rejection. `verification/native-candidate-repair-integration-review.json` binds those source comparisons. Run current native/contract/runtime coupling controls, canonical driver/documentation renewal and the complete final source/installed/exact integration gates before advancing completion. Earlier contributor qualification remains scoped to its original candidate.
+- **Historical combined-integration checkpoint:** Normal history composed independently reviewed PR414 `58bc1381` with the bootstrap/diagnostic/Cargo/runtime batch. Its eight non-assembly native-repair production files matched the contributor; Standard project assembly retained both the held runtime execution plan and the native candidate verifier, while runtime environment port bytes were unchanged. Independent review covered the original three-candidate budget, fresh single-root Rust-v2 custody, fixed-category feedback, private oracle boundaries, sealed export hashes and executable/tool closure after rejection. `verification/native-candidate-repair-integration-review.json` retains those exact source comparisons. This checkpoint and the contributor qualification below remain evidence for their original subjects.
+
+- **Current implementation audit:** PR414 checks native results during per-node
+  acceptance, before project artifact assembly, packaging and independent root
+  acceptance. Its bounded node loop has already returned when actual packaged
+  acceptance runs; no late rejection continues that same counter. The internal
+  rejection record does not bind a rejected root package, and no separate typed
+  acceptance-repair schema or packaged continuation/replay join is implemented.
+  The existing v2 diagnostic was broadened to accept native ACCEPT rejection;
+  restoring ADR 0073 requires preserving frozen v2 meanings through the new
+  versioned route. Early-check source correctness is therefore a subset of this
+  goal, not completion of its implementation.
+
+- **Early-check safety correction:** The historical public mismatch
+  code also covers substituted case IDs and capabilities. Only a complete exact
+  result inventory with differing values may create a retryable native rejection.
+  Keep one attempt's actual verifier-return origin separate from decoded failure
+  data, so a generic error with the same public code stays terminal. Retain all
+  original seven native source controls, three controlled result-transport
+  corruption controls and three actual native protocol adversaries. The
+  [development record](../../verification/native-result-classification-development.json)
+  binds 48 distinct passing source controls, including all thirteen native cases.
+  The external source provider and framework-distribution observation remain
+  controlled fixtures; these are not installed-framework qualification.
+
+- **Actual late-package counterexample:** A separate isolated source journey
+  passes real early native acceptance with answer 42, then returns answer 41 in
+  real final packaged acceptance. The original run fails after one source request
+  with no replacement or current receipt. Both native processes exit zero;
+  streams and oracle remain unchanged. This failing development counterexample
+  confirms the packaged continuation requirement below remains implementation-open.
 
 - **Release target:** 1.4.0
 - **GitHub issue:** [#405](https://github.com/jordanhubbard/literate-ai/issues/405)
@@ -27080,17 +27110,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Owner:** Standard generated-candidate attempt chain and packaged independent acceptance; PROJECT Goals 1 and 4
 - **Direction:** Include issue 405: a generated native-library root result mismatch occurs outside the existing bounded candidate-repair loop.
 - **Contributor alias and history:** `CANDIDATE-NATIVE-REPAIR-001` was the contributor's original work ID in [PR #414](https://github.com/jordanhubbard/literate-ai/pull/414). It is an alias of this current release-goal owner, not a second issue or independently scheduled deliverable. Both IDs retain the same issue #405 scope; the release-goal manifest continues to include NATIVE-ACCEPTANCE-REPAIR-001.
-- **Conclusion:** The reviewed implementation joins exact rejected-package custody to the existing attempt chain only for a fresh single-node Rust-v2 generated root. Reuse the shared three-total-candidate budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. Final packaged independent acceptance remains required. Source implementation, candidate qualification and resulting-main delivery remain separate states.
+- **Conclusion:** Implement the accepted connection from actual rejected root-package custody to the existing attempt chain. Reuse the shared three-total-candidate budget and changed-request/fresh-workspace rules; keep private oracle material, arbitrary native stderr, authority/custody/deadline failures and retained/original source outside repair eligibility. Preserve the existing rule that source-cache publication follows successful independent root acceptance. The early check, full packaged continuation, candidate qualification and resulting-main delivery are separate states; this goal remains open.
 - **Depends on:** none
 - **Completion prerequisites:** none
 - **Implementation:**
-  - [x] Specify and independently review the exact fresh generated root package-to-attempt custody boundary in the existing repair authority.
-  - [x] Implement only the reviewed generated native-library root route with sanitized feedback, preserved rejected evidence and the existing shared finite retry budget; join actual export bytes to the sealed build blob and close original native executable/tool pins on rejection.
+  - [x] Record the accepted ADR 0073 fresh generated root package-to-attempt custody design; design acceptance grants no execution or qualification evidence.
+  - [x] Retain PR414's early per-node native check, sanitized feedback, rejected source/export observations and shared finite node retry budget, including sealed build-blob and original native executable/tool checks.
+  - [x] Complete values-only classification and attempt-local verifier origin controls without accepting a generic or decoded mismatch as retry authority; retain exact source-development evidence separately from installed and full packaged-root qualification.
+  - [ ] Introduce the separately versioned acceptance-repair contract, codecs and schema binding original attempt/request, root build, artifact graph, package plan/result, target/profile, approved authority, native custody and original run owner/deadline; preserve frozen v2 meanings and refuse mixed versions.
+  - [ ] Continue the same original candidate counter after actual packaged-root rejection, preserving completed node observations and the rejected package without rewriting an accepted v2 attempt. Repeat every required fresh candidate stage through packaging and independent root acceptance.
+  - [ ] Revalidate the original live continuation owner, deadline, source, verifier, tools and package at each boundary; retain immutable qualified dependencies without regenerating them, and preserve original failures for unsupported graph shapes.
 - **Evidence:**
-  - [x] Seven real native public-CLI source controls prove same-authority fresh repair, the shared generated-test/native budget, exhaustion, command refusal and physical export-before/export-during/native-executable mutation refusal. Twelve focused contract/lifecycle controls pass; independent review covers both custody fixes and prompt privacy. The full local source gate passes 2,640 tests with 144 declared skips and no failures.
-  - [ ] Complete exact final integration source/noneditable-wheel qualification, maintained installed public repair/final-package acceptance and normal exact-head/resulting-main delivery before this release-goal owner closes.
+  - [x] Preserve the historical seven public-CLI source controls for early native rejection: real native commands with a controlled external generator and synthetic source-framework observer cover fresh repair, the shared generated-test/native budget, exhaustion, command refusal and physical export-before/export-during/native-executable mutation refusal. The original checkpoint records twelve focused contract/lifecycle controls and a 2,640-pass, 144-declared-skip source gate; its source review and prompt-privacy evidence retain their original scope.
+  - [ ] Prove an actual packaged-root rejection after the early check succeeds, then a fresh same-authority replacement and complete packaged acceptance within the original shared budget; retain exact rejected package/request/workspace/source/observation history.
+  - [ ] Preserve terminal behavior for wrong IDs/capabilities, malformed results, expired or changed authority/custody, retained/admitted source, changed dependencies and unsupported graphs; inspect bounded feedback for private-oracle and native-output exclusion.
+  - [ ] Capture two independently allocated qualification runs and reopen each final candidate with its complete rejection/replacement/package lineage, refusing missing or substituted evidence without restoring authority from records.
+  - [ ] Complete exact final integration source/noneditable-wheel qualification, required Linux/macOS/Windows installed/native cells, independent review and normal exact-head/resulting-main delivery before this release-goal owner closes. Controlled source-generator fixtures must remain explicit; synthetic framework observers cannot establish installed-wheel identity.
 
-- **Candidate qualification:** The exact reviewed integration `88fd979250a5257bc265aa3cf05fc628315cb986` retains unchanged native repair implementation/test bodies plus the earlier inventory and typed-diagnostic fixes. Its full noneditable-wheel gate and genuine installed Rust acceptance pass; an additional isolated installation passes all sixteen typed-diagnostic boundary controls separately from the actual native-result repair journey. That journey executes two actual fresh source requests/workspaces, observes one native ACCEPT result rejection, repairs within the original budget and commits the final packaged receipt. Original runtime, source authority, custody and private verifier data remain unchanged. The normal merge of newer main's qualified transport/diagnostic cohort is a separate source composition awaiting its overlap checks and supported authority renewal; these candidate results do not claim that resulting-main integration is complete.
+- **Historical candidate qualification:** The exact reviewed integration `88fd979250a5257bc265aa3cf05fc628315cb986` retains unchanged native repair implementation/test bodies plus the earlier inventory and typed-diagnostic fixes. Its full noneditable-wheel gate and genuine installed Rust acceptance pass; an additional isolated installation passes all sixteen typed-diagnostic boundary controls separately from the actual native-result repair journey. That journey executes two actual fresh source requests/workspaces, observes one native ACCEPT result rejection, repairs within the original budget and commits the final packaged receipt. Original runtime, source authority, custody and private verifier data remain unchanged. The normal merge of newer main's qualified transport/diagnostic cohort is a separate source composition awaiting its overlap checks and supported authority renewal; these candidate results do not claim that resulting-main integration is complete. This records early node rejection followed by a successful final package, not rejection of an already constructed root package or the full versioned continuation required above.
 
 ### [ ] PYTHON-BINARY-CLOSURE-001 — Qualify binary framework dependency closure for every supported Python runtime
 

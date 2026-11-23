@@ -150,7 +150,11 @@ the existing candidate lineage, without an extra retry budget or a broader error
 whitelist. This requires versioned evidence and orchestration work, rather than
 an exception-handler change. The initial single-root boundary follows issue
 #405's requested starting point; no current release goal is deferred or closed by
-this decision. The reviewed PR #414 implementation is already integrated under
-NATIVE-ACCEPTANCE-REPAIR-001; current source, installed, platform and release
-qualification remain separate requirements. See
+this decision. PR #414's reviewed early per-node native-check subset is already
+integrated under NATIVE-ACCEPTANCE-REPAIR-001. It checks sealed build exports before
+project packaging; it does not provide the separately versioned packaged-root
+rejection continuation specified here. That contract, original-owner/deadline
+binding, rejected-package retention, shared-budget continuation and closed replay
+remain implementation requirements alongside current source, installed, platform
+and release qualification. See
 [the existing integration review](../../verification/native-candidate-repair-integration-review.json).

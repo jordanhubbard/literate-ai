@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 import time
 from collections.abc import Callable, Generator, Mapping
@@ -10,6 +11,7 @@ from contextvars import copy_context
 from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from functools import partial
+from threading import Lock
 
 from literate_ai.application.action_dag_planning import plan_lifecycle_action_dag
 from literate_ai.application.action_dag_scheduler import LifecycleActionKind
@@ -176,6 +178,55 @@ class StandardProjectLifecycleError(RuntimeError):
     def __init__(self, code: str, message: str) -> None:
         self.code = code
         super().__init__(message)
+
+
+class _GeneratedCandidateRejectionOrigin:
+    """One attempt's actual verifier return; never restored from failure data."""
+
+    def __init__(self):
+        self._owner = self
+        self._pid = os.getpid()
+        self._active = True
+        self._observed = None
+        self._lock = Lock()
+
+    def record(self, failure, output):
+        if self._owner is not self or self._pid != os.getpid():
+            raise StandardProjectLifecycleError(
+                "standard_lifecycle.candidate_rejection_origin_invalid",
+                "candidate rejection belongs to another controller",
+            )
+        with self._lock:
+            if not self._active or self._observed is not None:
+                self._active = False
+                self._observed = None
+                raise StandardProjectLifecycleError(
+                    "standard_lifecycle.candidate_rejection_origin_invalid",
+                    "candidate rejection is expired or ambiguous",
+                )
+            self._observed = (failure, output)
+
+    def matches_and_close(self, failure, output):
+        if self._owner is not self or self._pid != os.getpid():
+            return False
+        with self._lock:
+            observed = self._observed
+            matched = (
+                self._active
+                and observed is not None
+                and observed[0] is failure
+                and observed[1] is output
+            )
+            self._active = False
+            self._observed = None
+            return matched
+
+    def close(self):
+        if self._owner is not self or self._pid != os.getpid():
+            return
+        with self._lock:
+            self._active = False
+            self._observed = None
 
 
 _PORTABLE_FAILURE_CODE = re.compile(r"[a-z0-9](?:[a-z0-9._-]{0,126}[a-z0-9])?")
@@ -2945,21 +2996,33 @@ class StandardProjectLifecycleService:
             getattr(prepared.recipe, "identity", None), "prepared recipe identity"
         )
         for attempt_index in range(3):
-            generation, plan, result = yield from self._run_complete_node_once_steps(
-                execution_plan,
-                generation_plan,
-                current,
-                candidate if attempt_index == 0 else None,
-                source_cache_membership if attempt_index == 0 else None,
-                source_generation_resume if attempt_index == 0 else None,
-                provider_artifacts,
-                package_artifacts,
-                regenerate if attempt_index == 0 else True,
-                source_execution if attempt_index == 0 else None,
-                artifact_inputs,
-                execution_inputs,
-                accepted_build_providers,
-            )
+            origin = _GeneratedCandidateRejectionOrigin()
+            try:
+                (
+                    generation,
+                    plan,
+                    result,
+                ) = yield from self._run_complete_node_once_steps(
+                    execution_plan,
+                    generation_plan,
+                    current,
+                    candidate if attempt_index == 0 else None,
+                    source_cache_membership if attempt_index == 0 else None,
+                    source_generation_resume if attempt_index == 0 else None,
+                    provider_artifacts,
+                    package_artifacts,
+                    regenerate if attempt_index == 0 else True,
+                    source_execution if attempt_index == 0 else None,
+                    artifact_inputs,
+                    execution_inputs,
+                    accepted_build_providers,
+                    _native_rejection_sink=origin.record,
+                )
+                native_rejection = origin.matches_and_close(
+                    result.failure_evidence, result.source_output
+                )
+            finally:
+                origin.close()
             if (
                 result.failure_evidence is not None
                 and result.failure_evidence.phase is StandardNodeFailurePhase.DEPENDENCY
@@ -2974,6 +3037,13 @@ class StandardProjectLifecycleService:
                 if (
                     self.candidate_repair_port is None
                     or output.provenance.retained_source_identity is not None
+                    or (
+                        # A generic acceptance exception can have the same
+                        # public code; only this attempt's verifier return
+                        # establishes a native behavior rejection.
+                        failure.phase is StandardNodeFailurePhase.ACCEPT
+                        and not native_rejection
+                    )
                 ):
                     diagnostic = CandidateRepairDiagnostic(
                         result.component_revision,
@@ -3198,6 +3268,11 @@ class StandardProjectLifecycleService:
         execution_inputs: _ExecutionInputResolver | None = None,
         accepted_build_providers: Callable[
             [], tuple[StandardComponentAcceptanceEvidence, ...]
+        ]
+        | None = None,
+        *,
+        _native_rejection_sink: Callable[
+            [StandardNodeFailureEvidence, SourceGenerationRunOutput], None
         ]
         | None = None,
     ) -> Generator[
@@ -3578,6 +3653,7 @@ class StandardProjectLifecycleService:
                     ),
                     execution_inputs,
                     accepted_build_providers,
+                    _native_rejection_sink=_native_rejection_sink,
                 )
             ),
         )
@@ -3728,6 +3804,11 @@ class StandardProjectLifecycleService:
         execution_inputs: _ExecutionInputResolver | None = None,
         accepted_build_providers: Callable[
             [], tuple[StandardComponentAcceptanceEvidence, ...]
+        ]
+        | None = None,
+        *,
+        _native_rejection_sink: Callable[
+            [StandardNodeFailureEvidence, SourceGenerationRunOutput], None
         ]
         | None = None,
     ) -> Generator[_LifecycleStep, object, StandardNodeLifecycleResult]:
@@ -3964,6 +4045,8 @@ class StandardProjectLifecycleService:
                             "standard_lifecycle.candidate_verification_failure_invalid",
                             "native candidate rejection must bind its exact Component",
                         )
+                    if _native_rejection_sink is not None:
+                        _native_rejection_sink(failure, source_output)
                     raise _GeneratedCandidateRejected(failure)
             return raw
 

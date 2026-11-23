@@ -31,7 +31,7 @@ from literate_ai.adapters.rust_library_acceptance import (
     capture_loaded_rust_library_verifier_inputs,
 )
 from literate_ai.adapters.rust_library_harness_execution import (
-    _require_results,
+    _result_values_differ,
     execute_rust_library_harness,
 )
 from literate_ai.contracts.component_locking import ComponentLock
@@ -251,11 +251,12 @@ class _NativeCandidateVerifier:
                     ) from error
                 identity, raw = last[0]
                 try:
-                    _require_results(raw, oracle)
-                except ComponentAcceptanceError as replay:
-                    if replay.code != _MISMATCH:
-                        raise
-                else:
+                    values_differ = _result_values_differ(raw, oracle)
+                except ComponentAcceptanceError:
+                    # Inventory/capability substitution keeps its historical
+                    # public code but cannot authorize a behavior replacement.
+                    raise error from None
+                if not values_differ:
                     raise ValueError(
                         "native result did not reproduce its rejection"
                     ) from error
