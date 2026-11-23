@@ -32,6 +32,15 @@ def profile_vectors():
     )
     if pairs.keys() != fixture["helpers"].keys():
         raise ValueError("reviewed initializer helper roster changed")
+    publication = next(
+        ast.literal_eval(node.value)
+        for node in provider.body
+        if isinstance(node, ast.Assign)
+        and any(
+            isinstance(target, ast.Name) and target.id == "_PUBLICATION_HELPER_PAIRS"
+            for target in node.targets
+        )
+    )
     modules, result = {}, {}
     allowed = {
         "src/literate_ai/adapters/project_initialization.py",
@@ -55,7 +64,12 @@ def profile_vectors():
             initializer_ast_fingerprint(original[0]),
             initializer_ast_fingerprint(current[0]),
         ]
-        if observed != list(pairs[name]):
+        expected = list(pairs[name])
+        if name in publication:
+            if publication[name][0] != expected[1]:
+                raise ValueError("publication transition lost its prior helper")
+            expected[1] = publication[name][1]
+        if observed != expected:
             raise ValueError("initializer helper fingerprint differs: " + name)
         result[name] = observed
     return result

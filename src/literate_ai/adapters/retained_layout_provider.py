@@ -52,6 +52,16 @@ _HELPER_PAIRS = {
     ),
 }
 
+# Preserve every earlier transition. This additional edge admits only the
+# initializer's exact finite publication-port delegation; it changes neither
+# template endpoints nor the ordinary writer's prior body/callback contract.
+_PUBLICATION_HELPER_PAIRS = {
+    "_atomic_replace": (
+        "bf35a9eda50c6f1fc60cbde970de8443306e37a22546a6c6806eea6e64f406d1",
+        "acad25c12a254240132dc74614a77da563fc145eb337bde5cb567067d2db7894",
+    ),
+}
+
 
 def _fail(message):
     raise ValueError("layout.provider: " + message)
@@ -546,6 +556,28 @@ def _shape(content, *, initializer, maximum_nodes, charge_path=None):
             if node.name in helpers:
                 _fail("ambiguous original producer helper")
             helpers[node.name] = initializer_ast_fingerprint(node)
+    if (
+        initializer
+        and helpers.get("_atomic_replace")
+        == (_PUBLICATION_HELPER_PAIRS["_atomic_replace"][1])
+    ):
+        # The complete helper fingerprint fixes the port, path/content,
+        # require_current callback, preserve_mode=True and unchanged fallback.
+        # Permit precisely its one direct import, not arbitrary new imports,
+        # aliases or repeated imports. All other module syntax stays compared.
+        imports = [
+            node
+            for node in module.body
+            if isinstance(node, ast.ImportFrom)
+            and node.level == 0
+            and node.module == "literate_ai._atomic_publication"
+            and len(node.names) == 1
+            and node.names[0].name == "publish_atomic_file_if_scoped"
+            and node.names[0].asname is None
+        ]
+        if len(imports) != 1:
+            _fail("initializer publication helper requires its exact direct import")
+        module.body.remove(imports[0])
     for node in module.body:
         if (
             initializer
@@ -609,6 +641,29 @@ def _shape(content, *, initializer, maximum_nodes, charge_path=None):
     ):
         _fail("original template producer requires an exact literal mapping")
     return ast.dump(module, include_attributes=False), mapping, helpers
+
+
+def _require_supported_shapes(original, current):
+    if original[0] != current[0]:
+        _fail("original initializer producer shape is unsupported")
+    if original[2].keys() != current[2].keys():
+        _fail("original initializer helper shape is unsupported")
+    for name, before in original[2].items():
+        after = current[2][name]
+        if before == after or (before, after) == _HELPER_PAIRS[name]:
+            continue
+        edge = _PUBLICATION_HELPER_PAIRS.get(name)
+        if (
+            edge is not None
+            and after == edge[1]
+            and before
+            in {
+                _HELPER_PAIRS[name][0],
+                edge[0],
+            }
+        ):
+            continue
+        _fail("original initializer helper shape is unsupported")
 
 
 class _OriginalRoster:
@@ -747,14 +802,7 @@ def _build_original_roster(
             if _shared is None
             else _shared.shape_limit(inputs[index].content, metadata_limit // 512),
         )
-        if original[0] != current[0]:
-            _fail("original initializer producer shape is unsupported")
-        if original[2].keys() != current[2].keys() or any(
-            original[2][name] != current[2][name]
-            and (original[2][name], current[2][name]) != _HELPER_PAIRS[name]
-            for name in original[2]
-        ):
-            _fail("original initializer helper shape is unsupported")
+        _require_supported_shapes(original, current)
         if index == 0:
             mapping = original[1]
     flavors = objects.flavor_files()

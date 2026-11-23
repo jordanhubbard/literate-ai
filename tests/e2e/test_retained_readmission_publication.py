@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 from unittest import mock
 
 from literate_ai.adapters import component_lock_commands
@@ -95,6 +96,32 @@ class ReadmissionPublicationTests(unittest.TestCase):
         ):
             with self.assertRaises(RuntimeError):
                 self.apply()
+        self.assertTrue(observed[0][0].is_file())
+        self.assertEqual(observed[0][0].read_bytes(), foreign)
+        self.assertEqual(observed[0][0].stat().st_ino, observed[0][1])
+
+    def test_foreign_staged_history_entry_survives_failed_evidence_copy(self):
+        original_open = Path.open
+        observed = []
+        foreign = b"foreign staging data; do not recursively delete\n"
+        history = self.root / readmission.HISTORY
+
+        def failed_copy(path, mode="r", *args, **kwargs):
+            if (
+                mode == "xb"
+                and path.name == Path(readmission.INVENTORY).name
+                and path.is_relative_to(history)
+            ):
+                note = path.parent / "foreign-staging-note.txt"
+                note.write_bytes(foreign)
+                observed.append((note, note.stat().st_ino))
+                raise OSError("injected evidence copy failure")
+            return original_open(path, mode, *args, **kwargs)
+
+        with mock.patch.object(Path, "open", new=failed_copy):
+            with self.assertRaisesRegex(OSError, "evidence copy failure"):
+                self.apply()
+        self.assertEqual(len(observed), 1)
         self.assertTrue(observed[0][0].is_file())
         self.assertEqual(observed[0][0].read_bytes(), foreign)
         self.assertEqual(observed[0][0].stat().st_ino, observed[0][1])

@@ -1,0 +1,113 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Exact initializer publication-port transition compatibility; no template or execution grant",
+  "base_commit": "e79c52f4d2f5e540dbbd64efd6f1e3eaffb45875",
+  "source_files": {
+    "src/literate_ai/adapters/retained_layout_provider.py": "bce9ba70b76fe3d5997d4e01137989647bf25c40d7c288f1f5ec471e9e9d1556",
+    "tests/support/fixtures_initializer_ast.py": "194fc41e6e098afad78e1a424c785352280f2a3585be2c3fc095e42063f1b5ff",
+    "tests/critical/test_initializer_publication_profile.py": "95ce742e1ecd10ddd3a328a3bd3acff2b04cf74e2bd1985a8fb3ca2ebab1b70e",
+    "tests/critical/test_retained_layout_provider.py": "d257917931a30c6879223120f3c904ebd326aed92dbb8d433ba7c675e3cea8d4",
+    "tests/critical/test_retained_layout_ast.py": "66db21f2dbe2355a16b708345fb74ef17bfb44635f6d8dce96aa2dc2a3b49044",
+    "src/literate_ai/adapters/project_initialization.py": "19f0f54c8919e652f5e3fe0fc196f0d20cc332991d9bec81dba87c6d619fb682"
+  },
+  "original_complete_source_failure": {
+    "revision": "1218584d875f69fc42c8cb1aa3b874f52dee9262",
+    "source_unchanged": true,
+    "passed": 1933,
+    "failed": 1,
+    "skipped": 39,
+    "selected": 5390,
+    "seconds": 5128.494,
+    "terminal_sha256": "ff058cad6be090ddb21d2cffd4577892f4d2490b9fa1bf10a19b9f092bf66e70",
+    "test": "tests.critical.test_retained_layout_ast.InitializerAstTests.test_exact_five_reviewed_transitions_match_historical_and_current_syntax",
+    "error": "initializer helper fingerprint differs: _atomic_replace"
+  },
+  "original_focused_reproduction": {
+    "passed": 1,
+    "failed": 1,
+    "selected": 6,
+    "log_sha256": "35331ed3f34403524963ef5ba1e37260f7781f4fc5b769eeaf62ab8d5a4e278b"
+  },
+  "current_report_union": {
+    "distinct_passed": 73,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "cohort": "0",
+        "summary": {
+          "executed": 5,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 5,
+          "selected": 5,
+          "skipped": 0
+        },
+        "sha256": "b43ce583859e706452bf74f26e6e38286bac9264c8ad3b2fed878d42a777cde4"
+      },
+      {
+        "cohort": "1",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "sha256": "8b525a648060a2717e0a61854007f8823abcad3d347bcd0d45d52390cb641d82"
+      },
+      {
+        "cohort": "provider",
+        "summary": {
+          "executed": 19,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 19,
+          "selected": 19,
+          "skipped": 0
+        },
+        "sha256": "5d5279290e3bca13002d19f7bc8e8acdb2d879dea67687250ad3ad8ca626cd78"
+      },
+      {
+        "cohort": "publication",
+        "summary": {
+          "executed": 43,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 43,
+          "selected": 43,
+          "skipped": 0
+        },
+        "sha256": "cfa4db5a87d03490023c673e24d6e6a2a5b6c63f20b25f8dadd35f9969fec38d"
+      }
+    ]
+  },
+  "compatibility": {
+    "all_five_existing_helper_pairs_unchanged": true,
+    "added_exact_edge": {
+      "_atomic_replace": [
+        "bf35a9eda50c6f1fc60cbde970de8443306e37a22546a6c6806eea6e64f406d1",
+        "acad25c12a254240132dc74614a77da563fc145eb337bde5cb567067d2db7894"
+      ]
+    },
+    "import": "Exactly one direct literate_ai._atomic_publication.publish_atomic_file_if_scoped import can differ only with the complete known helper fingerprint. All other module syntax remains compared.",
+    "helper": "Exact path/content, require_current callback, preserve_mode=True, return and prior fallback body are fixed by the complete portable AST fingerprint.",
+    "historical_native_git": "Original fixture commit predates publication port and bootstrap endpoint; all original ownership, source move, finalization and refusal assertions retained.",
+    "negative_controls": [
+      "changed callback, mode, destination, payload or fallback",
+      "missing, aliased, repeated or foreign import",
+      "surrounding producer mutation or writer shadow",
+      "changed or ambiguous helper roster"
+    ],
+    "budgets_and_execution_limits_changed": false,
+    "driver_or_receipt_pins_changed": false
+  },
+  "open_work": [
+    "Independent implementation review",
+    "Complete exact integrated source gate",
+    "Installed/platform and full release qualification"
+  ],
+  "qualified": false,
+  "release_evidence": false
+}

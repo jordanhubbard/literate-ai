@@ -4,15 +4,15 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import tempfile
 from argparse import Namespace
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from dataclasses import replace
 from pathlib import Path, PurePosixPath
 from typing import Any
 
 from literate_ai._atomic_publication import atomic_publication_scope
+from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.conversion_authority import (
     CONVERSION_AUTHORITY_FILE,
     FilesystemConversionAuthorityStore,
@@ -62,6 +62,8 @@ from literate_ai.adapters.retained_layout import (
 from literate_ai.adapters.retained_layout_partition import _lineage
 from literate_ai.adapters.retained_readmission_publication import (
     ReadmissionPublication,
+    ReadmissionPublicationError,
+    publish_readmission_evidence,
 )
 from literate_ai.contracts import (
     ContentIdentity,
@@ -675,6 +677,171 @@ def reopen_retained_command_renewal_plan(
     return current
 
 
+_EXECUTION_PLAN_SCHEMA = "literate-ai/retained-harness-readmission-plan@3"
+_EXECUTION_RENEWAL_SCHEMA = "literate-ai/retained-command-renewal@1"
+
+
+def _prior_receipt_inputs(selected):
+    """Read old receipt bytes as bounded history inputs, never as admission."""
+    from literate_ai.adapters.monorepo_adoption import _consume_direct_file
+
+    snapshot = ProjectConfigurationStore(selected).read()
+    name = snapshot.definition.test_receipt
+    path = _safe_path(snapshot.root, name, must_exist=False) if name else None
+    node = None
+    identities = []
+    if path is not None:
+        require_safe_directory(path.parent, allow_missing=True)
+    parent = (
+        next((p for p in path.parents if p.is_dir()), snapshot.root)
+        if path
+        else snapshot.root
+    )
+    ancestry = _lineage(parent)
+    if path is not None and os.path.lexists(path):
+        node = _signature(path)
+        _consume_direct_file(
+            path,
+            lambda content: identities.append(_identity(content)),
+            maximum_bytes=DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+        )
+    binding = {
+        "path": name,
+        "state": "present" if identities else "missing" if name else "unconfigured",
+        "identity": identities[0] if identities else None,
+    }
+
+    def close():
+        if _lineage(parent) != ancestry:
+            _fail("prior_receipt_changed", "prior receipt ancestry changed")
+        if path is not None:
+            require_safe_directory(path.parent, allow_missing=True)
+            _safe_path(snapshot.root, name, must_exist=False)
+            current = _signature(path) if os.path.lexists(path) else None
+            if current != node:
+                _fail("prior_receipt_changed", "prior receipt changed during planning")
+
+    close()
+    return snapshot, binding, close
+
+
+def _current_command_execution_plan(selected, *, command_selection, **options):
+    if command_selection is None:
+        _fail("command_selection_required", "execution renewal requires a selection")
+    snapshot, prior_receipt, close_receipt = _prior_receipt_inputs(selected)
+    # The complete existing planning owner retains validation, source custody,
+    # phase conservation and fixed bounds. Never reinterpret its saved v2 form.
+    current = plan_retained_harness_readmission(
+        selected, command_selection=command_selection, **options
+    )
+    close_receipt()
+    if (
+        current["old_documents"]["literate.project.json"]
+        != snapshot.content_identity.uri
+    ):
+        _fail("plan_stale", "receipt location changed during renewal planning")
+    current.pop("plan_identity")
+    current["prior_test_receipt"] = prior_receipt
+    if prior_receipt["state"] == "present":
+        current["old_documents"] = {
+            **current["old_documents"],
+            prior_receipt["path"]: prior_receipt["identity"],
+        }
+    current["schema"] = _EXECUTION_PLAN_SCHEMA
+    current["apply_supported"] = True
+    current["command_renewal"] = {
+        **current["command_renewal"],
+        "schema": _EXECUTION_RENEWAL_SCHEMA,
+        "apply_supported": True,
+    }
+    current["plan_identity"] = _identity(current)
+    if len(canonical_json_bytes(current)) + 1 > DEFAULT_MAXIMUM_PINNED_INPUT_BYTES:
+        _fail("plan_too_large", "renewal plan exceeds the existing pinned-file limit")
+    return current
+
+
+def reopen_retained_command_renewal_execution_plan(
+    selected: Path,
+    content: bytes,
+    *,
+    reviewed_plan_identity: str,
+    command_selection: Path,
+    execution_worker: ExecutionWorker | None = None,
+    worker_catalog_identity: ContentIdentity | None = None,
+    timeout_seconds: int = 1800,
+    retained_stage_ids: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Reopen the complete executable request; acknowledgement remains separate.
+
+    A self-hash or an older planning record supplies no execution authority.
+    Fresh planning independently supplies every nested field and current input.
+    This operation itself performs no target invocation or publication.
+    """
+    try:
+        if (
+            type(content) is not bytes
+            or len(content) > DEFAULT_MAXIMUM_PINNED_INPUT_BYTES
+            or command_selection is None
+        ):
+            raise ValueError("invalid executable renewal bytes")
+        data = json.loads(content)
+        encoded = canonical_json_bytes(data)
+        if not isinstance(data, dict) or content not in (encoded, encoded + b"\n"):
+            raise ValueError("noncanonical executable renewal")
+        renewal = data.get("command_renewal")
+        if (
+            data.get("schema") != _EXECUTION_PLAN_SCHEMA
+            or data.get("apply_supported") is not True
+            or not isinstance(renewal, dict)
+            or renewal.get("schema") != _EXECUTION_RENEWAL_SCHEMA
+            or renewal.get("apply_supported") is not True
+            or renewal.get("execution_performed") is not False
+            or renewal.get("compilation_coverage") != "unknown"
+        ):
+            raise ValueError("unsupported executable renewal form")
+        identity = _identity(
+            {key: value for key, value in data.items() if key != "plan_identity"}
+        )
+        if data.get("plan_identity") != identity:
+            raise ValueError("executable renewal body identity mismatch")
+        ContentIdentity.parse_uri(reviewed_plan_identity)
+    except (ValueError, TypeError, RecursionError, OverflowError):
+        _fail("plan_invalid", "saved executable renewal is invalid or unsupported")
+    if identity != reviewed_plan_identity:
+        _fail("plan_stale", "saved executable renewal differs from reviewed identity")
+    current = _current_command_execution_plan(
+        selected,
+        command_selection=command_selection,
+        execution_worker=execution_worker,
+        worker_catalog_identity=worker_catalog_identity,
+        timeout_seconds=timeout_seconds,
+        retained_stage_ids=retained_stage_ids,
+    )
+    if canonical_json_bytes(current) != encoded:
+        _fail("plan_stale", "saved executable renewal differs from current inputs")
+    return current
+
+
+def plan_retained_command_renewal_execution(
+    selected: Path,
+    *,
+    command_selection: Path,
+    execution_worker: ExecutionWorker | None = None,
+    worker_catalog_identity: ContentIdentity | None = None,
+    timeout_seconds: int = 1800,
+    retained_stage_ids: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Expose a fresh executable request only with complete read-back support."""
+    return _current_command_execution_plan(
+        selected,
+        command_selection=command_selection,
+        execution_worker=execution_worker,
+        worker_catalog_identity=worker_catalog_identity,
+        timeout_seconds=timeout_seconds,
+        retained_stage_ids=retained_stage_ids,
+    )
+
+
 def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
     # Capture known native inputs before parsing any layout/history payloads.
     # The final pass below reads no payloads and never accepts resampled facts.
@@ -1104,38 +1271,22 @@ def _history_evidence(
     *,
     plan_identity: ContentIdentity,
     before: dict[str, bytes],
+    maximum_total_bytes: int,
 ) -> tuple[Path, bool]:
     history_root = _safe_path(
         root,
         f"{HISTORY}/{plan_identity.digest}.evidence",
         must_exist=False,
     )
-    if history_root.exists():
-        if not history_root.is_dir() or any(
-            _safe_path(history_root, relative).read_bytes() != content
-            for relative, content in before.items()
-        ):
-            _fail("history_collision", "prior-evidence history has different bytes")
-        return history_root, False
-    staging = Path(
-        tempfile.mkdtemp(
-            prefix=f".{plan_identity.digest}.",
-            dir=history_root.parent,
-        )
-    )
     try:
-        for relative, content in before.items():
-            destination = staging.joinpath(*PurePosixPath(relative).parts)
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            with destination.open("xb") as stream:
-                stream.write(content)
-                stream.flush()
-                os.fsync(stream.fileno())
-        os.replace(staging, history_root)
-    except BaseException:
-        shutil.rmtree(staging, ignore_errors=True)
+        created = publish_readmission_evidence(
+            history_root, before, maximum_total_bytes=maximum_total_bytes
+        )
+    except ReadmissionPublicationError as exc:
+        if exc.code == "retained_harness.publication_history_collision":
+            _fail("history_collision", "prior-evidence history has different bytes")
         raise
-    return history_root, True
+    return history_root, created
 
 
 def apply_retained_harness_readmission(
@@ -1148,6 +1299,7 @@ def apply_retained_harness_readmission(
     worker_catalog_identity: ContentIdentity | None,
     retained_stage_ids: tuple[str, ...] = (),
     remote_executor: RetainedHarnessSshExecutor | None = None,
+    command_selection: Path | None = None,
 ) -> dict[str, Any]:
     """Qualify and atomically publish one freshly re-inspected harness."""
 
@@ -1155,18 +1307,53 @@ def apply_retained_harness_readmission(
         _fail("acknowledgement_required", "readmission requires acknowledgement")
     project = load_project(selected)
     with project_lifecycle_lock(project.root, operation="retained-harness.readmit"):
-        plan = plan_retained_harness_readmission(
-            project.root,
-            execution_worker=execution_worker,
-            worker_catalog_identity=worker_catalog_identity,
-            timeout_seconds=timeout_seconds,
-            retained_stage_ids=retained_stage_ids,
+        options = {
+            "execution_worker": execution_worker,
+            "worker_catalog_identity": worker_catalog_identity,
+            "timeout_seconds": timeout_seconds,
+            "retained_stage_ids": retained_stage_ids,
+        }
+        plan = (
+            plan_retained_harness_readmission(project.root, **options)
+            if command_selection is None
+            else plan_retained_command_renewal_execution(
+                project.root, command_selection=command_selection, **options
+            )
         )
+
+        def require_renewal_current():
+            if command_selection is not None:
+                current = plan_retained_command_renewal_execution(
+                    project.root, command_selection=command_selection, **options
+                )
+                if current["plan_identity"] != expected_plan_identity:
+                    _fail("plan_stale", "renewal inputs changed during execution")
+
         if plan["plan_identity"] != expected_plan_identity:
             _fail("plan_stale", "source or metadata changed after review")
         if not plan["changes_required"]:
             return {**plan, "applied": False}
         root = project.root
+        selection_node = selection_ancestry = None
+        if command_selection is not None:
+            command_selection = command_selection.absolute()
+            selection_node = _signature(command_selection)
+            selection_ancestry = _lineage(command_selection.parent)
+
+        def require_selection_current():
+            if command_selection is None:
+                return
+            from literate_ai.adapters.monorepo_adoption import _selection
+
+            if (
+                _selection(command_selection)
+                != plan["command_renewal"]["selection_plan"]["selection"]
+                or _signature(command_selection) != selection_node
+                or _lineage(command_selection.parent) != selection_ancestry
+            ):
+                _fail("command_selection_stale", "reviewed command selection changed")
+
+        require_selection_current()
         implementation = root / plan["implementation"]
         inventory = plan["new_inventory"]
         wrapper = render_harness_wrapper(
@@ -1174,9 +1361,12 @@ def apply_retained_harness_readmission(
         ).encode("utf-8")
         executor = remote_executor or RetainedHarnessSshExecutor()
         plan_identity = ContentIdentity.parse_uri(plan["plan_identity"])
-        with _readmission_source_inputs(
-            implementation, inventory, expected_tree=plan["source_tree"]
-        ) as source_inputs:
+        with ExitStack() as source_stack:
+            source_inputs = source_stack.enter_context(
+                _readmission_source_inputs(
+                    implementation, inventory, expected_tree=plan["source_tree"]
+                )
+            )
             baseline = _baseline_report(
                 inventory,
                 implementation=implementation,
@@ -1188,6 +1378,8 @@ def apply_retained_harness_readmission(
                 executor=executor,
                 source_inputs=source_inputs,
             )
+            source_inputs.require_current()
+            require_renewal_current()
             parity = _parity_report(
                 inventory,
                 baseline,
@@ -1201,161 +1393,214 @@ def apply_retained_harness_readmission(
                 executor=executor,
                 source_inputs=source_inputs,
             )
-        _require_layout_current(root, plan)
-        if "layout_readmission" in plan:
-            if baseline.get("state") != "passed" or parity.get("state") != "passed":
-                _fail("layout_unqualified", "fresh baseline and parity must pass")
-            baseline["layout_readmission"] = plan["layout_readmission"]
-            parity["layout_readmission"] = plan["layout_readmission"]
-        shim = legacy_shim_authority(
-            inventory, baseline, wrapper_component=plan["wrapper_component"]
-        )
-        paths = {
-            INVENTORY: _safe_path(root, INVENTORY),
-            BASELINE: _safe_path(root, BASELINE),
-            PARITY: _safe_path(root, PARITY),
-            HARNESS_WRAPPER_FILENAME: _safe_path(root, HARNESS_WRAPPER_FILENAME),
-            "literate.project.json": _safe_path(root, "literate.project.json"),
-            plan["authority_review"]: _safe_path(root, plan["authority_review"]),
-        }
-        for relative in shim:
-            paths[relative] = _safe_path(root, relative)
-        wrapper_component = plan["wrapper_component"]
-        for relative in (
-            f"{wrapper_component}/component.lock.json",
-            f"{wrapper_component}/component.resolution-audit.host.json",
-        ):
-            paths[relative] = _safe_path(root, relative)
-        before = {name: path.read_bytes() for name, path in paths.items()}
-        if any(
-            _identity(content) != plan["old_documents"][name]
-            for name, content in before.items()
-        ):
-            _fail("plan_stale", "project metadata changed before publication")
-        for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT, RETAINED_LAYOUT_PATH):
-            if relative in plan["old_documents"]:
-                before[relative] = _safe_path(root, relative).read_bytes()
-                if _identity(before[relative]) != plan["old_documents"][relative]:
-                    _fail("layout_changed", "layout changed before history publication")
-        history = _safe_path(
-            root,
-            f"{HISTORY}/{plan_identity.digest}.json",
-            must_exist=False,
-        )
-        history.parent.mkdir(parents=True, exist_ok=True)
-        history_bytes = canonical_json_bytes(plan) + b"\n"
-        if history.exists():
-            if history.read_bytes() != history_bytes:
-                _fail("history_collision", "readmission history has different bytes")
-        else:
-            with history.open("xb") as stream:
-                stream.write(history_bytes)
-                stream.flush()
-                os.fsync(stream.fileno())
-        evidence_history, _created_evidence_history = _history_evidence(
-            root,
-            plan_identity=plan_identity,
-            before=before,
-        )
-        limits = project.definition.scale_limits
-        maximum_files = (
-            limits.pinned_input_files if limits else DEFAULT_MAXIMUM_PINNED_INPUT_FILES
-        )
-        if len(before) > maximum_files:
-            _fail("publication_limit", "readmission metadata exceeds project limits")
-        publication = ReadmissionPublication.create(
-            root,
-            before=before,
-            writable=tuple(paths),
-            plan_identity=plan["plan_identity"],
-            maximum_total_bytes=(
-                limits.pinned_input_total_bytes
-                if limits
-                else DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES
-            ),
-            maximum_steps=maximum_files,
-        )
-        try:
-            with atomic_publication_scope(publication):
-                replacements = {
-                    INVENTORY: canonical_json_bytes(inventory) + b"\n",
-                    BASELINE: canonical_json_bytes(baseline) + b"\n",
-                    PARITY: canonical_json_bytes(parity) + b"\n",
-                    HARNESS_WRAPPER_FILENAME: wrapper,
-                    **{
-                        relative: content.encode("utf-8")
-                        for relative, content in shim.items()
-                    },
-                }
-                for name, content in replacements.items():
-                    _require_layout_current(root, plan)
-                    FilesystemConversionAuthorityStore._atomic_write(
-                        paths[name], content
-                    )
-                store = ProjectConfigurationStore(root)
-                snapshot = store.read()
-                store.update(
-                    snapshot,
-                    replace(
-                        snapshot.definition,
-                        test_receipt_policy=retained_harness_receipt_policy(inventory),
-                        default_flavor_selectors=tuple(
-                            plan["new_default_flavor_selectors"]
-                        ),
-                    ),
-                )
-                from literate_ai.adapters.component_lock_commands import (
-                    _component_locks_from_args,
-                )
-
-                lock_result, lock_status = _component_locks_from_args(
-                    Namespace(
-                        component=str(root / wrapper_component),
-                        target="host",
-                        flavor_root=[],
-                        flavor=[],
-                        check=False,
-                        diff=False,
-                        large_review=None,
-                    )
-                )
-                if lock_status != 0:
-                    _fail(
-                        "lock_reconciliation_failed",
-                        f"component lock reconciliation failed: {lock_result}",
-                    )
-                record_project_authority_review(root)
-                current_inventory = inspect_harness(implementation)
-                current_source_tree = observe_retained_tree(
-                    implementation, current_inventory["source_scope"]
-                )["source_tree"]
-                if (
-                    current_inventory["source_scope"] != inventory["source_scope"]
-                    or current_source_tree != plan["source_tree"]
-                ):
-                    _fail("source_changed", "source changed during readmission")
-                for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT):
-                    if (
-                        _identity(_safe_path(root, relative).read_bytes())
-                        != plan["old_documents"][relative]
-                    ):
+            source_inputs.require_current()
+            require_renewal_current()
+            _require_layout_current(root, plan)
+            if "layout_readmission" in plan:
+                if baseline.get("state") != "passed" or parity.get("state") != "passed":
+                    _fail("layout_unqualified", "fresh baseline and parity must pass")
+                baseline["layout_readmission"] = plan["layout_readmission"]
+                parity["layout_readmission"] = plan["layout_readmission"]
+            shim = legacy_shim_authority(
+                inventory, baseline, wrapper_component=plan["wrapper_component"]
+            )
+            paths = {
+                INVENTORY: _safe_path(root, INVENTORY),
+                BASELINE: _safe_path(root, BASELINE),
+                PARITY: _safe_path(root, PARITY),
+                HARNESS_WRAPPER_FILENAME: _safe_path(root, HARNESS_WRAPPER_FILENAME),
+                "literate.project.json": _safe_path(root, "literate.project.json"),
+                plan["authority_review"]: _safe_path(root, plan["authority_review"]),
+            }
+            for relative in shim:
+                paths[relative] = _safe_path(root, relative)
+            wrapper_component = plan["wrapper_component"]
+            for relative in (
+                f"{wrapper_component}/component.lock.json",
+                f"{wrapper_component}/component.resolution-audit.host.json",
+            ):
+                paths[relative] = _safe_path(root, relative)
+            before = {name: path.read_bytes() for name, path in paths.items()}
+            if any(
+                _identity(content) != plan["old_documents"][name]
+                for name, content in before.items()
+            ):
+                _fail("plan_stale", "project metadata changed before publication")
+            for relative in (
+                CONVERSION_AUTHORITY_FILE,
+                LIFT_SHIFT,
+                RETAINED_LAYOUT_PATH,
+            ):
+                if relative in plan["old_documents"]:
+                    before[relative] = _safe_path(root, relative).read_bytes()
+                    if _identity(before[relative]) != plan["old_documents"][relative]:
                         _fail(
-                            "historical_evidence_changed",
-                            "conversion authority or lift-and-shift evidence changed",
+                            "layout_changed",
+                            "layout changed before history publication",
                         )
-                _require_layout_current(root, plan)
-                publication.commit()
-        except BaseException:
-            if not publication.closed:
-                publication.rollback()
-            # Failed evidence stays readable in history. Never recursively
-            # delete a directory that another writer may have extended.
-            raise
-        return {
-            **plan,
-            "applied": True,
-            "history": history.relative_to(root).as_posix(),
-            "prior_evidence_history": evidence_history.relative_to(root).as_posix(),
-            "baseline_identity": _identity(baseline),
-            "parity_identity": _identity(parity),
-        }
+            prior_receipt = plan.get("prior_test_receipt")
+            if prior_receipt is not None and prior_receipt["state"] == "present":
+                name = prior_receipt["path"]
+                path = _safe_path(root, name)
+                from literate_ai.adapters.monorepo_adoption import _consume_direct_file
+
+                content = []
+                _consume_direct_file(
+                    path,
+                    content.append,
+                    maximum_bytes=DEFAULT_MAXIMUM_PINNED_INPUT_BYTES,
+                )
+                before[name] = content[0]
+                if _identity(before[name]) != prior_receipt["identity"]:
+                    _fail(
+                        "prior_receipt_changed", "prior receipt changed before history"
+                    )
+            limits = project.definition.scale_limits
+            maximum_files = (
+                limits.pinned_input_files
+                if limits
+                else DEFAULT_MAXIMUM_PINNED_INPUT_FILES
+            )
+            if len(before) > maximum_files:
+                _fail(
+                    "publication_limit", "readmission metadata exceeds project limits"
+                )
+            history = _safe_path(
+                root,
+                f"{HISTORY}/{plan_identity.digest}.json",
+                must_exist=False,
+            )
+            history.parent.mkdir(parents=True, exist_ok=True)
+            history_bytes = canonical_json_bytes(plan) + b"\n"
+            if history.exists():
+                if history.read_bytes() != history_bytes:
+                    _fail(
+                        "history_collision", "readmission history has different bytes"
+                    )
+            else:
+                with history.open("xb") as stream:
+                    stream.write(history_bytes)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            evidence_history, _created_evidence_history = _history_evidence(
+                root,
+                plan_identity=plan_identity,
+                before=before,
+                maximum_total_bytes=(
+                    limits.pinned_input_total_bytes
+                    if limits
+                    else DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES
+                ),
+            )
+            publication = ReadmissionPublication.create(
+                root,
+                before=before,
+                writable=tuple(paths),
+                plan_identity=plan["plan_identity"],
+                maximum_total_bytes=(
+                    limits.pinned_input_total_bytes
+                    if limits
+                    else DEFAULT_MAXIMUM_PINNED_INPUT_TOTAL_BYTES
+                ),
+                maximum_steps=maximum_files,
+            )
+            try:
+                with atomic_publication_scope(publication):
+                    replacements = {
+                        INVENTORY: canonical_json_bytes(inventory) + b"\n",
+                        BASELINE: canonical_json_bytes(baseline) + b"\n",
+                        PARITY: canonical_json_bytes(parity) + b"\n",
+                        HARNESS_WRAPPER_FILENAME: wrapper,
+                        **{
+                            relative: content.encode("utf-8")
+                            for relative, content in shim.items()
+                        },
+                    }
+                    for name, content in replacements.items():
+                        _require_layout_current(root, plan)
+                        FilesystemConversionAuthorityStore._atomic_write(
+                            paths[name], content
+                        )
+                    store = ProjectConfigurationStore(root)
+                    snapshot = store.read()
+                    store.update(
+                        snapshot,
+                        replace(
+                            snapshot.definition,
+                            test_receipt_policy=retained_harness_receipt_policy(
+                                inventory
+                            ),
+                            default_flavor_selectors=tuple(
+                                plan["new_default_flavor_selectors"]
+                            ),
+                        ),
+                    )
+                    from literate_ai.adapters.component_lock_commands import (
+                        _component_locks_from_args,
+                    )
+
+                    lock_result, lock_status = _component_locks_from_args(
+                        Namespace(
+                            component=str(root / wrapper_component),
+                            target="host",
+                            flavor_root=[],
+                            flavor=[],
+                            check=False,
+                            diff=False,
+                            large_review=None,
+                        )
+                    )
+                    if lock_status != 0:
+                        _fail(
+                            "lock_reconciliation_failed",
+                            f"component lock reconciliation failed: {lock_result}",
+                        )
+                    record_project_authority_review(root)
+                    current_inventory = inspect_harness(implementation)
+                    current_source_tree = observe_retained_tree(
+                        implementation, current_inventory["source_scope"]
+                    )["source_tree"]
+                    if (
+                        current_inventory["source_scope"] != inventory["source_scope"]
+                        or current_source_tree != plan["source_tree"]
+                    ):
+                        _fail("source_changed", "source changed during readmission")
+                    for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT):
+                        if (
+                            _identity(_safe_path(root, relative).read_bytes())
+                            != plan["old_documents"][relative]
+                        ):
+                            _fail(
+                                "historical_evidence_changed",
+                                "conversion authority or lift-and-shift "
+                                "evidence changed",
+                            )
+                    _require_layout_current(root, plan)
+                    source_inputs.require_current()
+                    require_selection_current()
+                    if command_selection is not None:
+                        _snapshot, prior, close_receipt = _prior_receipt_inputs(root)
+                        close_receipt()
+                        if prior != plan["prior_test_receipt"]:
+                            _fail(
+                                "prior_receipt_changed",
+                                "prior receipt changed during publication",
+                            )
+                    # Close the original observation while rollback is still
+                    # pending; its finally refusal must precede commit.
+                    source_stack.close()
+                    publication.commit()
+            except BaseException:
+                if not publication.closed:
+                    publication.rollback()
+                # Failed evidence stays readable in history. Never recursively
+                # delete a directory that another writer may have extended.
+                raise
+            return {
+                **plan,
+                "applied": True,
+                "history": history.relative_to(root).as_posix(),
+                "prior_evidence_history": evidence_history.relative_to(root).as_posix(),
+                "baseline_identity": _identity(baseline),
+                "parity_identity": _identity(parity),
+            }

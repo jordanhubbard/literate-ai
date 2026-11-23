@@ -151,6 +151,7 @@ def retained_scope_from_args(args: Namespace) -> dict[str, Any]:
 def retained_harness_from_args(args: Namespace) -> dict[str, Any]:
     from literate_ai.adapters.retained_harness_readmission import (
         apply_retained_harness_readmission,
+        plan_retained_command_renewal_execution,
         plan_retained_harness_readmission,
     )
 
@@ -171,6 +172,8 @@ def retained_harness_from_args(args: Namespace) -> dict[str, Any]:
         worker, catalog_identity = _select_retained_execution_worker(
             args, Path(args.project).resolve()
         )
+        selection = getattr(args, "command_selection", None)
+        selection = Path(selection) if selection is not None else None
         if args.apply:
             if not args.expected_plan_identity:
                 raise CliFailure(
@@ -184,6 +187,16 @@ def retained_harness_from_args(args: Namespace) -> dict[str, Any]:
                 timeout_seconds=args.timeout_seconds,
                 execution_worker=worker,
                 worker_catalog_identity=catalog_identity,
+                retained_stage_ids=tuple(args.retain_stage),
+                command_selection=selection,
+            )
+        if selection is not None:
+            return plan_retained_command_renewal_execution(
+                Path(args.project),
+                command_selection=selection,
+                execution_worker=worker,
+                worker_catalog_identity=catalog_identity,
+                timeout_seconds=args.timeout_seconds,
                 retained_stage_ids=tuple(args.retain_stage),
             )
         return plan_retained_harness_readmission(
