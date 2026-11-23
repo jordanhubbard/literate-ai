@@ -1,0 +1,76 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Restore four already-recorded 1.4 design authorities under existing directing-user roadmap authorization; preserve complete technical acceptance and actual implementation status",
+  "base_commit": "7580dd8b2c5e7118f625ba7bf01aa128eed45dfd",
+  "source_proposals": [
+    {
+      "review": 381,
+      "source_head": "9a9d2489095b49b2382e1af49b3a5a8e53af3aff",
+      "source_path": "docs/decisions/0069-independent-promotion-authoring-selection.md",
+      "source_sha256": "20a5271a3bf909728efc0fa1bb334b18494eff5d94e807cdb27923c884bc939f",
+      "canonical_path": "docs/decisions/0069-independent-promotion-authoring-selection.md",
+      "canonical_sha256": "4c6798157b1b84a4e23ea9bf831a6ba93afe7d3331d57a74e29487f10d024688",
+      "status": "Accepted under existing directing-user roadmap authorization",
+      "implementation_or_qualification_claimed": false
+    },
+    {
+      "review": 382,
+      "source_head": "221f86af737bea7bfa7fa49ab8cf348edb39c794",
+      "source_path": "docs/decisions/0070-reviewed-retained-command-renewal.md",
+      "source_sha256": "a9321ae14fb725c2dfb7aaf56603e26cc69d7439206171b5ee57badf55ace771",
+      "canonical_path": "docs/decisions/0070-reviewed-retained-command-renewal.md",
+      "canonical_sha256": "bac89ecf537352a62ca46ea48f2c98cd8364807e1e4d741f522f089887883cf8",
+      "status": "Accepted under existing directing-user roadmap authorization",
+      "implementation_or_qualification_claimed": false
+    },
+    {
+      "review": 409,
+      "source_head": "4bebbf31ad1c04bd5a2cdf5fff8eb536f4815e25",
+      "source_path": "docs/decisions/0073-native-root-acceptance-repair.md",
+      "source_sha256": "dec3cdf8429efaa8367acb57193aa7f53ad8501a25c87599500f72c70567ba0a",
+      "canonical_path": "docs/decisions/0073-native-root-acceptance-repair.md",
+      "canonical_sha256": "b65d3be439fb778ea5c835ae55ebc4fda7f11558d8c73b2cb8d590946cefe520",
+      "status": "Accepted under existing directing-user roadmap authorization",
+      "implementation_or_qualification_claimed": false
+    },
+    {
+      "review": 453,
+      "source_head": "44f73e1d0722795f179f32cd53753eb7e4da9330",
+      "source_path": "docs/decisions/0073-sealed-node-sdk-composition.md",
+      "source_sha256": "9a9556eaa06ad5371640681be7f576e25796345aa482940e22ed0705454ae80e",
+      "canonical_path": "docs/decisions/0075-sealed-node-sdk-composition.md",
+      "canonical_sha256": "98f46a4497e41cd2ea873afa7f8ba2d340aa1e5ba9bf6704a98190b300bb5f0d",
+      "status": "Accepted under existing directing-user roadmap authorization",
+      "implementation_or_qualification_claimed": false
+    }
+  ],
+  "canonical_number_resolution": {
+    "original_node_proposal": "0073",
+    "canonical_node_record": "0075",
+    "native_root_record_preserved": "0073",
+    "existing_repository_delivery_record_preserved": "0074"
+  },
+  "existing_release_goal_manifest_byte_identical": true,
+  "original_goal_manifest_sha256": "33ba8b80958200d0b2bda4a78853505590a52e654272cf68e5e19ca00a456b2d",
+  "existing_initial_command_selection_stays_complete": true,
+  "existing_native_root_repair_implementation_ancestral": "58bc138109c5358a0c74d39fe03eacddfbb5272a",
+  "four_existing_1_5_deferrals_preserved": [
+    321,
+    323,
+    326,
+    334
+  ],
+  "production_source_changed": false,
+  "driver_or_receipt_pins_changed": false,
+  "independent_source_review": false,
+  "implementation_or_qualification_from_document_restore": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "limits": [
+    "This records already directed design acceptance, not forge review approval, implementation completion, lifecycle acknowledgement or successful qualification.",
+    "Original native-root repair has integrated reviewed code; its current exact source/installed/platform gates remain required.",
+    "Initial #207 command selection remains complete. #366 post-adoption renewal is an explicit separate unchecked integration task.",
+    "The v1 Node SDK scope and every refusal/actual consumer/platform acceptance requirement are preserved; original proposal0073 is identified by exact source head and hash."
+  ]
+}

@@ -117,6 +117,28 @@ development (2026-09-10):
 
 ## Current work
 
+ADR 0070 command renewal now has internal read-only planning and bounded current
+read-back under
+RELEASE-INTEGRATION-005 / issue #366. The existing readmission owner now checks
+raw initial-copy inputs before commands and rechecks original source across
+baseline/parity; native disposable build transformations remain supported. It preserves unselected admitted phases
+and keeps compilation coverage unknown. Public selection/apply routing, current
+execution custody, recoverable publication, native and installed qualification
+remain open; completed initial-adoption selection is preserved.
+
+The recovered, already-recorded 1.4 designs for independent promotion authoring
+([ADR 0069](docs/decisions/0069-independent-promotion-authoring-selection.md)),
+retained command renewal ([ADR 0070](docs/decisions/0070-reviewed-retained-command-renewal.md)),
+bounded native root repair ([ADR 0073](docs/decisions/0073-native-root-acceptance-repair.md))
+and sealed Node SDK composition ([ADR 0075](docs/decisions/0075-sealed-node-sdk-composition.md))
+trace to Goals 1, 2, 4, 5 and 6 and their existing release owners. The directing
+user's release-resumption instruction accepts the recorded designs. Preserve
+every separate execution acknowledgement and validation outcome. Native root
+repair already has an integrated implementation; its current qualification
+remains required. Initial adoption command selection keeps its completed scope;
+post-adoption renewal is separate work under RELEASE-INTEGRATION-005. No release
+goal or implementation/qualification outcome closes from restoring these records.
+
 SOURCE-ASSET-PROMOTION-001 and SOURCE-STATIC-INTAKE-001 restore the accepted
 PR #313 work under Goals 1, 2, 4 and 6. Preserve exact source-backed immutable
 assets, signed bounded local static intake, conservative original inventory and

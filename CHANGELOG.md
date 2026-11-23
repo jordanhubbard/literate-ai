@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+- Retained readmission publication: retain exact original and staged native files,
+  preserve foreign replacements and failed evidence, and block ordinary project
+  reads while metadata publication is pending. Add acknowledged rollback recovery
+  that can inspect an invalid manifest without replaying saved commands or
+  granting qualification. Installed and native platform renewal remain open.
+
+- Retained readmission: verify original bytes, modes and initial copy membership
+  before direct or wrapper commands. Recheck original source across baseline and
+  parity, preserve absolute-path bytes and native disposable build transformations,
+  and close the observation after success or refusal. Installed renewal stays open.
+
+- Retained command renewal development: reopen canonical saved plans against
+  their reviewed identity and complete current planning. Reject changed inputs,
+  unknown fields, added grants and oversized records. Execution and public apply
+  remain open; saved v1 plans retain their existing meaning.
+
+- Retained command renewal development: plan explicit commands through the
+  existing adoption validator, preserve unselected admitted phases, and reject
+  changed source/selection inputs. The new plan grants no apply authority;
+  public routing, execution/recovery and installed qualification remain open.
+
 - Retained Python bridge development: observe the actual original-source
   wrapper/parity and complete bounded native source without granting execution.
   Reject changed source namespaces, unmatched prospective original bytes and

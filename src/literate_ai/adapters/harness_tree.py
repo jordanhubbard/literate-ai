@@ -136,8 +136,25 @@ def observe_retained_tree(
     return {"tree": tree, "source_tree": source_tree, "excluded": excluded_summary}
 
 
+def observe_retained_source_bytes(root: Path, scope: object) -> dict[str, Any]:
+    """Observe raw source bytes and modes without rewriting published evidence.
+
+    This is input data for a surrounding native-custody owner, not a held grant.
+    Ordinary baseline and artifact reports keep their normalized wire meaning.
+    """
+    paths, _excluded = _validated_scope(scope)
+    members, total_bytes, missing = _observed_members(root, paths, normalize=False)
+    return {
+        "identity": _identity(members),
+        "file_count": len(members) - missing,
+        "missing_count": missing,
+        "total_bytes": total_bytes,
+        "scope": "raw-authored-source-inputs",
+    }
+
+
 def _observed_members(
-    root: Path, paths: tuple[str, ...], *, input_closure=None
+    root: Path, paths: tuple[str, ...], *, input_closure=None, normalize=True
 ) -> tuple[list[dict[str, Any]], int, int]:
     members: list[dict[str, Any]] = []
     total_bytes = 0
@@ -159,16 +176,17 @@ def _observed_members(
             members.append({"path": raw, "kind": "missing"})
             missing_count += 1
             continue
-        normalized = _normalized_content(content, root=root)
+        normalized = _normalized_content(content, root=root) if normalize else content
         total_bytes += len(normalized)
-        members.append(
-            {
-                "path": raw,
-                "kind": kind,
-                "size": len(normalized),
-                "sha256": hashlib.sha256(normalized).hexdigest(),
-            }
-        )
+        member = {
+            "path": raw,
+            "kind": kind,
+            "size": len(normalized),
+            "sha256": hashlib.sha256(normalized).hexdigest(),
+        }
+        if not normalize:
+            member["mode"] = path.lstat().st_mode & 0o7777
+        members.append(member)
     return members, total_bytes, missing_count
 
 

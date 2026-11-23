@@ -12,6 +12,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from literate_ai._atomic_publication import publish_atomic_file_if_scoped
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
 from literate_ai._filesystem import (
     UnsafeFilesystemPathError,
@@ -193,15 +194,8 @@ class ComponentResolutionAuditStore:
                     if revalidate is not None:
                         revalidate()
                     return False
-                descriptor, temporary_name = tempfile.mkstemp(
-                    prefix=f".{self.path.name}.", dir=self.storage_root
-                )
-                temporary = Path(temporary_name)
-                try:
-                    with os.fdopen(descriptor, "wb") as stream:
-                        stream.write(content)
-                        stream.flush()
-                        os.fsync(stream.fileno())
+
+                def close_publication_inputs():
                     if revalidate is not None:
                         revalidate()
                     self._require_root_current()
@@ -221,6 +215,21 @@ class ComponentResolutionAuditStore:
                             "component_resolution_audit.path_unsafe",
                             "resolution-audit destination must be a regular file",
                         )
+
+                if publish_atomic_file_if_scoped(
+                    self.path, content, require_current=close_publication_inputs
+                ):
+                    return True
+                descriptor, temporary_name = tempfile.mkstemp(
+                    prefix=f".{self.path.name}.", dir=self.storage_root
+                )
+                temporary = Path(temporary_name)
+                try:
+                    with os.fdopen(descriptor, "wb") as stream:
+                        stream.write(content)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    close_publication_inputs()
                     os.replace(temporary, self.path)
                     _fsync_directory(self.storage_root)
                 finally:
@@ -301,6 +310,23 @@ class ComponentResolutionAuditStore:
         return content
 
     def _replace_bytes(self, content: bytes, *, prefix: str) -> None:
+        def close_publication_inputs():
+            self._require_root_current()
+            if path_is_link_or_reparse(self.path):
+                raise ComponentResolutionAuditStoreError(
+                    "component_resolution_audit.path_unsafe",
+                    "resolution-audit destination cannot be a link or reparse point",
+                )
+            if self.path.exists() and not self.path.is_file():
+                raise ComponentResolutionAuditStoreError(
+                    "component_resolution_audit.path_unsafe",
+                    "resolution-audit destination must be a regular file",
+                )
+
+        if publish_atomic_file_if_scoped(
+            self.path, content, require_current=close_publication_inputs
+        ):
+            return
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=prefix, dir=self.storage_root
         )

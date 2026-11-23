@@ -8,6 +8,7 @@ import stat
 import tempfile
 from pathlib import Path, PurePosixPath
 
+from literate_ai._atomic_publication import publish_atomic_file_if_scoped
 from literate_ai._cache_lock import (
     CacheLockError,
     _is_windows,
@@ -475,6 +476,8 @@ class FilesystemConversionAuthorityStore:
 
     @staticmethod
     def _atomic_write(path: Path, content: bytes) -> None:
+        if publish_atomic_file_if_scoped(path, content):
+            return
         descriptor, temporary_name = tempfile.mkstemp(
             prefix=f".{path.name}.", dir=path.parent
         )

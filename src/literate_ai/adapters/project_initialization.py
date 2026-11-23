@@ -22,6 +22,7 @@ from typing import Any, NoReturn
 from urllib.parse import unquote, urlsplit
 from urllib.request import url2pathname
 
+from literate_ai._atomic_publication import publish_atomic_file_if_scoped
 from literate_ai.adapters.component_lock_application import update_component_lock
 from literate_ai.adapters.component_lock_planning import ComponentLockPlanningError
 from literate_ai.adapters.component_locks import ComponentLockStoreError
@@ -2705,6 +2706,10 @@ def _initialization_baseline(
 def _atomic_replace(
     path: Path, content: bytes, *, require_current: Callable[[], None] | None = None
 ) -> None:
+    if publish_atomic_file_if_scoped(
+        path, content, require_current=require_current, preserve_mode=True
+    ):
+        return
     descriptor, temporary_name = tempfile.mkstemp(
         prefix=f".{path.name}.", dir=path.parent
     )

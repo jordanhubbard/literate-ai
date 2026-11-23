@@ -1,0 +1,111 @@
+{
+  "schema": "literate-ai/development-evidence@1",
+  "scope": "Internal read-only retained command-renewal planning under ADR 0070 / RELEASE-INTEGRATION-005 / issue #366",
+  "base_commit": "f3c71723b9e350b86df80f3d26c877d638fd78e7",
+  "source_files": {
+    "src/literate_ai/adapters/retained_harness_readmission.py": "2758a6edfbc33721e06247e9bbda746afd32fb95777b61dd61b1f58bde47192b",
+    "src/literate_ai/adapters/monorepo_adoption.py": "a860eea9f36f8bcec37e4fdf730219d581c58a4d0a13b40e146f2bffd954ba72",
+    "src/literate_ai/adapters/harness_inventory.py": "1f6c2484071a1030b4a5cee98e473b0c16cbbe00d03997f6a37acbf991ae6bab",
+    "src/literate_ai/adapters/harness_tree.py": "c48d565821198f82b8fd91d6f663304f022e2934612919b2c90e49c1277b0b5e",
+    "src/literate_ai/adapters/lifecycle_lock.py": "09efba4e68cf6a98750bfea4807b4a4dfbd6d8d5f09108c2b7266e3e5375e347",
+    "tests/e2e/test_retained_command_renewal.py": "0e7c3f519cd9341aa812d2a016e9ed04965f1acfd4fafa0a2d175e2f2ff521a4"
+  },
+  "new_controls": {
+    "selected": 15,
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "seconds": 16.851,
+    "target": "make python-check PYTHON_TEST_PATTERN=test_retained_command_renewal.py"
+  },
+  "original_failure": {
+    "executed": 1,
+    "selected": 7,
+    "error": "Unexpected command_selection keyword on the unchanged original planner",
+    "retained_locally": true
+  },
+  "additional_failures": [
+    {
+      "executed": 10,
+      "passed": 9,
+      "failed": 1,
+      "cause": "Refusal test did not account for the existing stable lifecycle lock file; seed that actual owner before complete byte comparison"
+    },
+    {
+      "executed": 12,
+      "passed": 11,
+      "failed": 1,
+      "cause": "New renewal planning omitted validation of explicit retained-stage IDs; reuse the original stage validator"
+    },
+    {
+      "executed": 12,
+      "selected": 13,
+      "passed": 11,
+      "failed": 1,
+      "cause": "Source changed during final metadata reads after its last payload observation; close membership and original native facts/ancestry after payload reads"
+    }
+  ],
+  "existing_v1_plan_preserved": true,
+  "initial_adoption_validator_reused": true,
+  "unselected_admitted_stages_preserved": true,
+  "newly_detected_unselected_commands_admitted": false,
+  "compilation_coverage": "unknown",
+  "new_apply_supported": false,
+  "public_command_selection_routing": false,
+  "original_initial_adoption_completion_changed": false,
+  "independent_source_review": false,
+  "complete_source_gate_passed": false,
+  "installed_qualified": false,
+  "release_qualified": false,
+  "driver_or_receipt_pins_changed": false,
+  "limits": [
+    "This is an internal planning foundation; no public CLI selector or application path consumes the new v2 plan.",
+    "The refusal control exercises the existing lifecycle lock and proves no baseline/parity execution or authority/history publication.",
+    "Fixture conversion uses the original Make/Python fixture. Its printed test summary supplies no complete retained-case or native compilation evidence.",
+    "Execution input custody, complete read-back, recoverable publication, actual native compilation and installed/platform/integration qualification remain required."
+  ],
+  "current_report_union": {
+    "distinct_passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "reports": [
+      {
+        "scope": "renewal",
+        "summary": {
+          "executed": 15,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 15,
+          "selected": 15,
+          "skipped": 0
+        },
+        "report_sha256": "c0989c87c09070c538b583c8ce27a0bc3ac96c8fd425bf8e553c571db3939ef3"
+      },
+      {
+        "scope": "readmission",
+        "summary": {
+          "executed": 6,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 6,
+          "selected": 6,
+          "skipped": 0
+        },
+        "report_sha256": "b1df1ad11f6b5c4331a90908a4646c8193132f3a4457de02da06b43e08ff1d49"
+      },
+      {
+        "scope": "initial-adoption",
+        "summary": {
+          "executed": 4,
+          "failed": 0,
+          "known_failed": 0,
+          "passed": 4,
+          "selected": 4,
+          "skipped": 0
+        },
+        "report_sha256": "ec44d57a65185a0027df8efc909467116736b52dbe7d489da5d50f279c661879"
+      }
+    ]
+  },
+  "source_namespace_and_native_fact_closure": true
+}

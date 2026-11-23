@@ -190,6 +190,16 @@ CI-IMPACT-001. #251 remains RELEASE-017 / GOLDEN-PATH-001.
 
 ### [ ] LIBRARY-ARTIFACT-001 — Admit an importable library-artifact Component
 
+- **Accepted sealed Node SDK composition:** Recover [ADR 0075](../decisions/0075-sealed-node-sdk-composition.md)
+  from review #453 under the directing user's recorded roadmap authorization.
+  Its original proposed number 0073 collided with native root repair; canonical
+  0075 preserves that record and existing ADR 0074. Implement the bounded v1
+  pure-CommonJS-provider / TypeScript SDK plan through one shared materializer,
+  exact declarations, dual-format exports, complete npm closure and actual
+  relocated runtime/type consumers. Ordinary npm applications retain their
+  existing contract. Design acceptance supplies no artifact, provider, retained
+  consumer, package-publication or release qualification.
+
 - **Priority:** P1 (authority transfer; not portable-application subprocess)
 - **Release target:** 1.1.0 (current tracker milestone; design accepted)
 - **Design review:** [ADR 0039](../decisions/0039-1.1-capability-boundaries.md), Accepted by explicit maintainer approval.
@@ -3450,7 +3460,7 @@ open. Preserve the historical inventories below.
 | [#458 — Validate documentation on PRs and preserve native fixture bytes](https://github.com/jordanhubbard/literate-ai/pull/458) | `48e3d1ef30fb0f11ba27cc55dcfdab9253c15a68` | Not ancestral; inspect residual changes and original owner before collection. |
 | [#457 — Compose retained-source custody and bounded parsing improvements](https://github.com/jordanhubbard/literate-ai/pull/457) | `a5709da778b542b6adf83b70fe4d950e3b434d12` | Exact head ancestral to the combined candidate. |
 | [#456 — Retain bounded module timing across release evidence export](https://github.com/jordanhubbard/literate-ai/pull/456) | `af4ab36e03b0784d7758b5599f16fb79ff28fbb2` | Exact head ancestral to the combined candidate. |
-| [#453 — Propose ADR 0073 for sealed libraries in TypeScript Node SDKs](https://github.com/jordanhubbard/literate-ai/pull/453) | `44f73e1d0722795f179f32cd53753eb7e4da9330` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#453 — Propose ADR 0073 for sealed libraries in TypeScript Node SDKs](https://github.com/jordanhubbard/literate-ai/pull/453) | `44f73e1d0722795f179f32cd53753eb7e4da9330` | Accepted canonical [ADR 0075](../decisions/0075-sealed-node-sdk-composition.md) restored from the original ADR 0073 proposal, preserving native-root ADR 0073 and existing ADR 0074. Implementation/public qualification remain open; exact head not ancestral. |
 | [#445 — Preserve source-link custody through authored acquisition and native SDKs](https://github.com/jordanhubbard/literate-ai/pull/445) | `f23678d8a194f8cce8a2844a556f84a2d864564d` | Exact head ancestral to the combined candidate. |
 | [#444 — Preserve closed POSIX source links through snapshot and quarantine custody](https://github.com/jordanhubbard/literate-ai/pull/444) | `a731a32f1777d152f19e55ae66e03de0e30f0620` | Exact head ancestral to the combined candidate. |
 | [#442 — Accept an omitted optional contribution roadmap manifest](https://github.com/jordanhubbard/literate-ai/pull/442) | `4c102f1267e51e4b60d980b00e9516b1f43193a1` | Exact head ancestral to the combined candidate. |
@@ -3468,12 +3478,12 @@ open. Preserve the historical inventories below.
 | [#414 — Repair native Rust result rejection within the bounded candidate loop](https://github.com/jordanhubbard/literate-ai/pull/414) | `58bc138109c5358a0c74d39fe03eacddfbb5272a` | Exact head ancestral to the combined candidate. |
 | [#413 — Own bounded Codex runtime state and isolate remote catalog access](https://github.com/jordanhubbard/literate-ai/pull/413) | `7ad91075d939162305921ab650218cd47eaeb703` | Exact head ancestral to the combined candidate. |
 | [#410 — Correct CUDA inventory signals and qualify positive coverage](https://github.com/jordanhubbard/literate-ai/pull/410) | `a5bee312c0cfd9e5561682c76cd4bea898a169c0` | Not ancestral; inspect residual changes and original owner before collection. |
-| [#409 — Propose typed bounded repair after native root acceptance rejection](https://github.com/jordanhubbard/literate-ai/pull/409) | `4bebbf31ad1c04bd5a2cdf5fff8eb536f4815e25` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#409 — Propose typed bounded repair after native root acceptance rejection](https://github.com/jordanhubbard/literate-ai/pull/409) | `4bebbf31ad1c04bd5a2cdf5fff8eb536f4815e25` | Accepted canonical [ADR 0073](../decisions/0073-native-root-acceptance-repair.md) restored. Existing reviewed PR #414 implementation is integrated; current qualification remains open. Original proposal head not ancestral. |
 | [#401 — Add acknowledged authored graph qualification and recoverable publication](https://github.com/jordanhubbard/literate-ai/pull/401) | `97362d5c5a8a7966dce649a526f7b32b354af606` | Not ancestral; inspect residual changes and original owner before collection. |
 | [#398 — Keep vendor copyright from implying CUDA requirements](https://github.com/jordanhubbard/literate-ai/pull/398) | `4b051a9af074e4255789370922cd98bb874c70fc` | Exact head ancestral to the combined candidate. |
 | [#391 — Retain bounded original diagnostics when qualification fails](https://github.com/jordanhubbard/literate-ai/pull/391) | `2b4b883816de8145b54298f25f437d15a67c7588` | Exact head ancestral to the combined candidate. |
-| [#382 — docs: propose ADR 0070 for reviewed retained command renewal](https://github.com/jordanhubbard/literate-ai/pull/382) | `221f86af737bea7bfa7fa49ab8cf348edb39c794` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
-| [#381 — docs: propose ADR 0069 for independent promotion authoring](https://github.com/jordanhubbard/literate-ai/pull/381) | `9a9d2489095b49b2382e1af49b3a5a8e53af3aff` | Design review retained; exact head not ancestral. Preserve its recorded decision status until acceptance is established. |
+| [#382 — docs: propose ADR 0070 for reviewed retained command renewal](https://github.com/jordanhubbard/literate-ai/pull/382) | `221f86af737bea7bfa7fa49ab8cf348edb39c794` | Accepted canonical [ADR 0070](../decisions/0070-reviewed-retained-command-renewal.md) restored; post-adoption renewal remains separate from completed initial selection. Original exact head not ancestral. |
+| [#381 — docs: propose ADR 0069 for independent promotion authoring](https://github.com/jordanhubbard/literate-ai/pull/381) | `9a9d2489095b49b2382e1af49b3a5a8e53af3aff` | Accepted canonical [ADR 0069](../decisions/0069-independent-promotion-authoring-selection.md) restored from this proposal under directing-user roadmap authorization. Implementation/native qualification remain open; original exact head not ancestral. |
 | [#359 — Add reviewed qualified-child membership transactions](https://github.com/jordanhubbard/literate-ai/pull/359) | `9732a114a48d19aa279654f414d278784b7e72b5` | Not ancestral; inspect residual changes and original owner before collection. |
 | [#349 — Centralize retained-layout resolution and plan selected placement](https://github.com/jordanhubbard/literate-ai/pull/349) | `3c37247492937063604312907daae51c56b00975` | Exact head ancestral to the combined candidate. |
 | [#347 — WIP: project qualified native Rust graphs through Standard Cargo builds](https://github.com/jordanhubbard/literate-ai/pull/347) | `7ce065e3299d753a4bdd42e3f376cd5ed34ce56d` | Not ancestral; inspect residual changes and original owner before collection. |
@@ -21934,6 +21944,50 @@ feedback. Canonical curriculum and generated lifecycle admission remain open.
 
 ### [ ] RELEASE-INTEGRATION-005 — Resolve the outstanding tracker backlog and publish 1.4.0
 
+- **Recovered design execution owners:** The directing user's release-resumption
+  instruction accepts the already-recorded designs in reviews #381, #382, #409
+  and #453. Their canonical records and original source hashes are retained in
+  [the design recovery record](../../verification/recovered-design-authority-development.json).
+  Preserve existing 1.5 deferrals for #321/#323 and #326/#334. Keep the 83-goal
+  manifest, completed initial-selection scope and every existing acceptance
+  prerequisite. The following work remains under the existing owning programs:
+  - [ ] RUST-HARNESS-DEPS-001 / #379: implement and qualify ADR 0069 authoring
+    selection before sealing a new promotion audit, preserving lineage, signed
+    intent, original acceptance and every execution/resource boundary.
+  - **Command renewal next action (in progress):** Bind current execution and
+    recoverable publication through the existing readmission owner before exposing
+    public selection/apply. Internal planning retains unselected admitted phases
+    and closes source membership, original file facts and ancestry after payload
+    reads. Complete bounded read-back compares the saved body and reviewed identity
+    with independently regenerated current planning, rejecting unknown nested
+    fields and added grants. Twenty-five planning/read-back controls pass; saved
+    v1 behavior and the separate completed initial-adoption scope stay unchanged.
+    Execution/public CLI routing, transactional recovery, actual native compilation,
+    installed acceptance and independent review remain open. The existing execution
+    owner now uses one finite source observation across direct baseline and parity.
+    Before the first target, verify raw bytes/modes and exact initial-copy names;
+    close original source facts after success/refusal. Fifty distinct focused
+    controls pass, including unchanged absolute-path bytes, late original/copy
+    refusal and actual native disposable build transformations. Preserve ordinary
+    normalized report meanings; no selected-command public apply is implemented.
+    Publication development now retains original and staged native nodes before
+    replacement and records bounded durable intents in existing readmission
+    history. Three original regressions prove foreign lock/inventory replacements
+    and foreign evidence entries survive failed publication. Pending metadata
+    blocks ordinary project reads; explicit current-plan recovery restores only
+    owned originals under the same lifecycle lock, including with an invalid
+    manifest. Real subprocess exits before and after replacement reopen for
+    rollback. Current combined source, installed/native and independent review
+    gates remain open; no selected-command public apply is implemented.
+  - [ ] #366 integration intake: implement and qualify ADR 0070 post-adoption
+    command renewal through the existing readmission owner. Preserve completed
+    ADOPT-BASELINE-COMMANDS-001 / #207 initial selection and all unselected phases.
+  - [ ] NATIVE-ACCEPTANCE-REPAIR-001 / #405: retain the integrated reviewed PR #414
+    implementation and earn every current ADR 0073 source/installed/platform gate.
+  - [ ] LIBRARY-ARTIFACT-001 / #452: implement and qualify ADR 0075 Node SDK
+    composition with exact sealed providers and actual relocated CJS/ESM/type
+    consumers, preserving the ordinary application/npm contracts.
+
 - **Current-layout allowance compatibility recovery:** The frozen affected-layout
   attempt ends unchanged with 246 passes, one failure and no skips out of 891
   selected. The original allowance regression's blanket `os.open` sentinel
@@ -25773,6 +25827,14 @@ independent review and the complete combined gate from test one.
 
 ### [ ] RUST-HARNESS-DEPS-001 — Execute reviewed offline Rust library verifier dependencies
 
+- **Accepted independent-authoring gate:** [ADR 0069](../decisions/0069-independent-promotion-authoring-selection.md)
+  restores review #381 / issue #379 under the directing user's recorded roadmap
+  authorization. Preserve the native-child preparation failure, exact signed
+  intent, host lineage and current qualification profile. Implement a separately
+  acknowledged, bounded new-promotion authoring selection before sealing its
+  audit; requalify actual native behavior. An accepted design or successful plan
+  supplies no model, provider, retirement or release grant.
+
 - **Release target:** 1.4.0
 - **GitHub issue:** [#217](https://github.com/jordanhubbard/literate-ai/issues/217)
 - **Accepted design:** [ADR 0056](../decisions/0056-reviewed-rust-library-harness-dependencies.md), explicitly accepted on 2026-11-03.
@@ -25896,6 +25958,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Combined source preparation (pending independent review and gate):** The current integration retains qualified HCI `f146a2d69da2cc3d6e96194ee8a98c6b7f905f69`, GPI `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0`, root Python/Git-readiness commit `dcd33ba4a31518c4508ef352770072d1869f9976`, current main `70cf6b20a152953fa01764086ef90b12e3147d94`, the complete published receipt-promotion base `09bb4ff9c59798b43360c162d1e98329a4934be0` plus its independently reviewed correction, and the exact reviewed Rust-harness delta from ancestor `072d66e81eff85f58515a09d93d19528499a5ec1`. Both installed tree and Rust journeys remain in the wheel driver. The root branch's source gate passed 2,559 tests with 131 declared skips and no failures; the direct Rust profile passed six native development cases; receipt promotion passed its real public planning and critical journey with complete source custody unchanged. These are separate exact-snapshot results, not qualification of this new union. Preserve all 47 current release-goal IDs, including the existing receipt-promotion queue item missing from its previous manifest. Canonical pin renewal, one fresh complete source gate, exact-head full platform CI, fresh installed qualification and all remaining native/consumer/browser acceptance remain required. Proposed ADR 0061 still requires directing-user design acceptance before implementation.
 
 ### [x] ADOPT-BASELINE-COMMANDS-001 — Select reviewed baseline commands for a single adoption root
+
+- **Separate accepted renewal scope:** [ADR 0070](../decisions/0070-reviewed-retained-command-renewal.md)
+  restores review #382 / issue #366 under the directing user's recorded roadmap
+  authorization. Completed initial #207 selection stays complete. Post-adoption
+  command renewal remains an explicit unchecked RELEASE-INTEGRATION-005 task:
+  preserve unselected phases, historical receipts, exact plan acknowledgement,
+  real baseline/parity and the distinction between command success and compilation.
 
 - **Priority:** P1
 - **Release target:** 1.4.0
@@ -26949,6 +27018,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
 <a id="candidate-native-repair-001-bind-native-library-rejection-to-existing-bounded-candidate-repair"></a>
 
 ### [ ] NATIVE-ACCEPTANCE-REPAIR-001 — Bind generated native-library acceptance rejection to bounded candidate repair
+
+- **Accepted canonical design:** [ADR 0073](../decisions/0073-native-root-acceptance-repair.md)
+  restores review #409 under the directing user's recorded roadmap authorization.
+  Existing reviewed PR #414 implementation remains integrated. Preserve its
+  original shared candidate budget, private-oracle boundary and rejection closure;
+  restoring the design record does not replace current native/installed evidence.
 
 - **Current combined integration (in progress):** Normal history composes independently reviewed PR414 `58bc1381` with the current bootstrap/diagnostic/Cargo/runtime batch. The eight non-assembly native-repair production files remain byte-identical to the contributor; Standard project assembly retains both the held runtime execution plan and the native candidate verifier, while runtime environment port bytes remain unchanged. Independent review covers the original three-candidate budget, exact fresh single-root Rust-v2 custody, fixed-category feedback, private oracle boundaries, sealed export hashes and executable/tool closure even after rejection. `verification/native-candidate-repair-integration-review.json` binds those source comparisons. Run current native/contract/runtime coupling controls, canonical driver/documentation renewal and the complete final source/installed/exact integration gates before advancing completion. Earlier contributor qualification remains scoped to its original candidate.
 
