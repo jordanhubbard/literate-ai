@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -49,6 +50,33 @@ class CatalogContinuationResultTests(unittest.TestCase):
             self.assertEqual(result, value)
             self.assertEqual(result["plan"], self.plan)
             self.assertIsNot(result["plan"], value["plan"])
+
+    def test_standard_schema_registry_resolves_embedded_plan_and_public_ids(self):
+        from jsonschema import Draft202012Validator
+        from jsonschema.exceptions import ValidationError
+        from referencing import Registry, Resource
+
+        registry = Registry()
+        documents = {}
+        for name in (
+            "project-layout-catalog-continuation",
+            "project-layout-catalog-continuation-result",
+        ):
+            document = json.loads((V2_ROOT / (name + ".schema.json")).read_bytes())
+            documents[name] = document
+            registry = registry.with_resource(
+                document["$id"], Resource.from_contents(document)
+            )
+        registry = registry.crawl()
+        self.assertEqual(registry.resolver().lookup(SCHEMA).contents["$id"], SCHEMA)
+        validator = Draft202012Validator(
+            documents["project-layout-catalog-continuation-result"], registry=registry
+        )
+        validator.validate(self.value)
+        changed = copy.deepcopy(self.value)
+        changed["plan"]["writes"] = True
+        with self.assertRaises(ValidationError):
+            validator.validate(changed)
 
     def test_codec_performs_no_filesystem_access(self):
         with (

@@ -1,0 +1,154 @@
+"""Actual original initialized membership, explicitly modeled historical bytes."""
+
+from __future__ import annotations
+
+import re
+import unittest
+from dataclasses import replace
+from unittest.mock import patch
+
+from literate_ai.adapters import project_layout_framework_resources as resources
+from literate_ai.adapters import project_layout_framework_selection as production
+from literate_ai.adapters.project_layout_planning import ProjectLayoutObservation
+from literate_ai.adapters.update_merge import UpdateBases
+from literate_ai.contracts import (
+    ContentIdentity,
+    ProjectInitializationBaselineFile,
+    canonical_json_bytes,
+)
+from tests.critical import test_project_layout_framework_source_proofs as support
+
+
+class OriginalInitializedItemTests(unittest.TestCase):
+    def fixture(self, build_files):
+        helper = support.InitializedFrameworkProofTests("runTest")
+        self.addCleanup(helper.doCleanups)
+        project, previous = helper.fixture()
+        files, selected = build_files(previous)
+        rows = {row.path: row for row in project.baseline.files}
+        bases = UpdateBases(project.root)
+        for logical, content in files.items():
+            project.write(logical, content)
+            rows[logical] = ProjectInitializationBaselineFile(
+                logical,
+                len(content),
+                ContentIdentity.parse_uri(support.identity(content)),
+            )
+            bases.advance("framework", logical, content)
+        project.baseline = replace(
+            project.baseline, files=tuple(rows[name] for name in sorted(rows))
+        )
+        project.write(
+            "litai/.literate/initialization-baseline.json",
+            canonical_json_bytes(project.baseline.to_dict()) + b"\n",
+        )
+        project.write("litai/.literate/update-bases.json", bases.serialized())
+        project.refresh()
+        project.inventory["retained_implementation"] = None
+        project.rehash()
+        observed = ProjectLayoutObservation(
+            project.snapshot,
+            project.context,
+            project.inventory,
+            project.observations,
+            project.contents,
+            project.bases,
+        )
+        with patch.object(
+            resources, "_read_current_origin", return_value=previous.origin
+        ):
+            owner = resources.observe_original_framework_resources(observed)
+        proofs = tuple(
+            helper.prove(project, owner, logical=name, source_path=name)
+            for name in selected
+        )
+        public, private = production.select_existing_framework_authority(
+            project.snapshot,
+            project.context,
+            project.inventory,
+            resources=owner,
+            source_proofs=proofs,
+            update_bases=project.bases,
+            contents=project.contents,
+            observations=project.observations,
+        )
+        return project, owner, files, public, private
+
+    def test_nearest_original_nested_skill_item_does_not_adopt_its_sibling(self):
+        chosen = "skills/agent/align-workers/SKILL.md"
+        sibling = "skills/agent/package-artifacts/SKILL.md"
+
+        def files(owner):
+            # Preserve REAL manifests/frontmatter; historical bodies are explicit
+            # fixture data, recorded by the original initializer/update owners.
+            result = {}
+            for logical in ("skills/agent/SKILL.md", chosen, sibling):
+                head, _body = owner.files[logical].split(b"\n---\n", 1)
+                result[logical] = head + b"\n---\n\n# Original unchanged Skill\n"
+            return result, (chosen,)
+
+        _project, _owner, original, public, private = self.fixture(files)
+        self.assertEqual(set(public["placements"]), {chosen})
+        self.assertEqual(
+            private.rewritten_contents["litai/" + chosen], original[chosen]
+        )
+        self.assertNotIn(sibling, public["placements"])
+        self.assertNotIn("litai/" + sibling, private.rewritten_contents)
+        self.assertNotIn("skills/agent/", private.coordinate_map)
+        self.assertFalse(public["applicable"])  # original mixed-root resolver gate
+
+    def test_original_complete_item_does_not_adopt_new_current_package_members(self):
+        logical = "flavors/os-base/flavor.md"
+
+        def files(owner):
+            historical = (
+                owner.files[logical]
+                .decode()
+                .replace(
+                    'specification_roots:\n  - "openspec/spec.md"',
+                    "specification_roots: []",
+                )
+            )
+            historical = re.sub(
+                r"(?ms)^contributions:\n.*?(?=^conflicts:)",
+                "contributions: []\n",
+                historical,
+            )
+            return {logical: historical.encode()}, (logical,)
+
+        _project, owner, original, public, private = self.fixture(files)
+        self.assertIn("flavors/os-base/toolchain.cdx.json", owner.files)
+        self.assertEqual(set(public["placements"]), {logical})
+        self.assertEqual(
+            private.rewritten_contents["litai/" + logical], original[logical]
+        )
+        self.assertNotIn(
+            "litai/flavors/os-base/toolchain.cdx.json", private.rewritten_contents
+        )
+        self.assertFalse(
+            any(
+                row["owner"] == "initializer-catalog"
+                for row in public["required_owners"]
+            )
+        )
+
+    def test_missing_bootstrap_helper_prunes_ghost_destination_before_docs_render(self):
+        bootstrap = "scripts/bootstrap_litai.py"
+
+        def files(owner):
+            return {
+                "SKILL.md": b"See [original bootstrap](scripts/bootstrap_litai.py).\n",
+                bootstrap: owner.files[bootstrap],
+            }, ("SKILL.md", bootstrap)
+
+        _project, _owner, _original, public, private = self.fixture(files)
+        self.assertNotIn(bootstrap, public["owned_placements"])
+        self.assertEqual(private.coordinate_map[bootstrap], bootstrap)
+        self.assertNotIn("litai/" + bootstrap, private.rewritten_contents)
+        self.assertIn(
+            b"](../scripts/bootstrap_litai.py)",
+            private.rewritten_contents["litai/SKILL.md"],
+        )
+        self.assertTrue(
+            any(row["owner"] == "bootstrap-update" for row in public["required_owners"])
+        )

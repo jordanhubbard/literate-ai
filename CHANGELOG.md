@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Existing framework authority selection uses genuine initialized-file proofs and original catalog item membership, preserves historical catalog bytes, and renders references only to actual selected/resident coordinates. Versioned inert plans reject mixed fields and portable path aliases. Schema document roots and cross-references now resolve through the standard registry while retaining public payload identifiers. Source/schema checks pass; complete migration effects and installed acceptance remain open.
+
 - Initialized Components now use their genuine initialization/base proof with the original catalog, lock and audit owners, without inventing inherited imports. Fresh destination checks preserve source-guard lifetime boundaries. Inherited catalog publication remains restricted to inherited provenance; source regressions pass.
 
 - Component writers retain their original directory, authoring and project witnesses and acquire the original layout gate before creating coordination paths. Retired or replaced source roots refuse without recreation. Genuine publication hardlink pins remain valid read inputs; changed bytes still refuse. Source and readmission controls pass; source retirement and native Windows qualification remain open.

@@ -368,7 +368,12 @@ class CatalogContinuationTests(unittest.TestCase):
         validator = Draft202012Validator(schema)
         validator.validate(plan)
         index = json.loads((root / "schemas/v2/index.json").read_bytes())
-        self.assertTrue(any(row["root_id"] == SCHEMA for row in index["schemas"]))
+        self.assertTrue(
+            any(
+                SCHEMA in (row["root_id"], *row["public_ids"])
+                for row in index["schemas"]
+            )
+        )
         self.assertEqual(decode_catalog_continuation_plan(plan), plan)
         for field, payload in (
             ("schema", SCHEMA.replace("@1", "@2")),
