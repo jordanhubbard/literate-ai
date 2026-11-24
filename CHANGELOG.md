@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Layout planning retains the original addresses and bytes of all seven converter inputs; mixed layouts preserve the original Makefile location, and ambiguous producer addresses refuse selection.
+
 - Layout creation inputs are limited to the contained framework ignore file and a proven bootstrap helper, with fresh absence, namespace, source and resource checks before publication.
 
 - Layout planning can reproduce all seven original conversion-wrapper outputs from retained records and initializer resources, refusing custom edits and incomplete stage evidence.

@@ -21,6 +21,9 @@ from literate_ai.adapters.harness_tree import (
     _normalized_content,
     _validated_scope,
 )
+from literate_ai.adapters.project_layout_converter_coordinates import (
+    original_converter_input_addresses,
+)
 from literate_ai.adapters.project_layout_framework_observation import (
     _capture_bound_source_scope,
     _close_bound_source_nodes,
@@ -36,14 +39,15 @@ from literate_ai.adapters.project_layout_planning import (
     _capture,
 )
 from literate_ai.adapters.retained_layout import (
+    LEGACY_WRAPPER_COMPONENT,
     ResolvedRetainedLayout,
+    RetainedLayoutDeclaration,
     resolve_structural_layout,
 )
 from literate_ai.adapters.retained_scaffold_coordinates import (
     retained_scaffold_coordinate,
 )
 from literate_ai.contracts import canonical_json_bytes
-from literate_ai.contracts.paths import canonical_relative_posix_path
 
 
 def _fail(message):
@@ -73,6 +77,8 @@ class OriginalBoundedRetainedSource:
     contents: object
     records: object
     record_observations: object
+    converter_coordinates: object
+    converter_ambiguities: tuple
     _guard: object
 
 
@@ -303,13 +309,19 @@ _ORIGINAL_FUNCTIONS = tuple(
         "_identity",
         "_normalized_content",
         "_validated_scope",
+        "original_converter_input_addresses",
     )
 )
 
 
 _METADATA_CLASSES = tuple(
     (cls, tuple(vars(cls).items()), cls.__bases__, cls.__mro__)
-    for cls in (_Metadata, ResolvedRetainedLayout, ProjectLayoutObservation)
+    for cls in (
+        _Metadata,
+        ResolvedRetainedLayout,
+        RetainedLayoutDeclaration,
+        ProjectLayoutObservation,
+    )
 )
 
 
@@ -344,25 +356,34 @@ def observe_original_bounded_retained_source(observation, resources):
             "legacy-wrapper-parity.json",
             "conversion-authority.json",
         )
-    ) + (
-        snapshot.manifest_path.relative_to(snapshot.root).as_posix(),
-        context.framework_path("litai.harness.mk")
-        .relative_to(snapshot.root)
-        .as_posix(),
-    )
+    ) + (snapshot.manifest_path.relative_to(snapshot.root).as_posix(),)
     nodes, contents = _capture(snapshot.root, selected_scopes=producer_paths)
     lift_path, _layout_path, inventory_path, *_ = producer_paths
     if lift_path not in contents or inventory_path not in contents:
         _fail("actual retained layout/inventory producer preimages required")
     first_nodes, first_contents = _producer_namespace(nodes), dict(contents)
     lift = json.loads(contents[lift_path])
-    wrapper = lift.get("wrapper_component", "components/legacy-project-wrapper")
-    canonical_relative_posix_path(wrapper, label="actual retained wrapper Component")
-    # Original coordinate resolution may request the wrapper role. Capture only
-    # that finite file; no producer directory or old harness tree fallback opens.
-    actual_wrapper = retained_scaffold_coordinate(snapshot.root, wrapper)
-    candidates = (actual_wrapper + "/component.md",)
-    all_paths = producer_paths + candidates
+    if type(lift) is not dict:
+        _fail("actual original lift-and-shift producer must be an object")
+    if producer_paths[1] in contents:
+        declaration = RetainedLayoutDeclaration.from_dict(
+            json.loads(contents[producer_paths[1]])
+        )
+        actual_wrapper = declaration.wrapper_component
+    else:
+        actual_wrapper = retained_scaffold_coordinate(
+            snapshot.root, LEGACY_WRAPPER_COMPONENT
+        )
+    addresses, converter_paths, converter_ambiguities = (
+        original_converter_input_addresses(
+            snapshot,
+            resources,
+            wrapper_component=actual_wrapper,
+        )
+    )
+    # Fixed finite original converter inputs only. Capturing a candidate gives
+    # no authority: missing/ambiguous roles cannot pass the original projector.
+    all_paths = tuple(dict.fromkeys((*producer_paths, *converter_paths)))
     nodes, contents = _capture(snapshot.root, selected_scopes=all_paths)
     selected_first_nodes = {
         path: row
@@ -379,6 +400,8 @@ def observe_original_bounded_retained_source(observation, resources):
     )
     reader = _Metadata(snapshot, context, contents)
     layout = resolve_structural_layout(snapshot.root, lift, _observation=reader)
+    if layout.wrapper_component != actual_wrapper:
+        _fail("original wrapper coordinate changed between producer phases")
     root = layout.implementation_root
     require_safe_directory(root)
     native = root.lstat()
@@ -462,6 +485,8 @@ def observe_original_bounded_retained_source(observation, resources):
         MappingProxyType(
             {path: MappingProxyType(dict(row)) for path, row in nodes.items()}
         ),
+        MappingProxyType(dict(addresses)),
+        converter_ambiguities,
         current,
     )
     owner = OriginalBoundedRetainedSource(*values)
