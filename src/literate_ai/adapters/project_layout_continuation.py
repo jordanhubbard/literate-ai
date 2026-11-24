@@ -20,7 +20,7 @@ from literate_ai._cache_lock import exclusive_cache_lock
 from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.adapters.project_layout_component_transition import (
-    require_original_component_transition as _require_original_component_transition,
+    require_original_inherited_component_transition as _admit_inherited_component,
 )
 from literate_ai.adapters.project_layout_operation_custody import (
     hold_migration_namespaces,
@@ -1079,7 +1079,7 @@ def _transition_type():
 
 def _admit_transition(transition):
     """Validate factory origin before reading or binding current callbacks."""
-    _require_original_component_transition(transition)
+    _admit_inherited_component(transition)
 
 
 def _raw_method(instance, name):

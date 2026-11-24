@@ -36,6 +36,15 @@ from literate_ai.adapters.locked_generation_authority import (
     FilesystemLockedGenerationAuthorityReader,
     LockedGenerationAuthorityReaderError,
 )
+from literate_ai.adapters.project_layout_framework_resources import (
+    require_current_framework_resources as _initialized_resources_current,
+)
+from literate_ai.adapters.project_layout_framework_source_proofs import (
+    InitializedFrameworkFileProof,
+)
+from literate_ai.adapters.project_layout_framework_source_proofs import (
+    require_original_initialized_framework_file_proof as _admit_initialized_source,
+)
 from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutPlanError,
     _capture,
@@ -248,6 +257,8 @@ class ComponentLayoutProducerTransition:
     original_audit_store: ComponentResolutionAuditStore | None
     _source_guard: Callable[[], None]
     _destination_guard: Callable[[ProjectConfigurationSnapshot], None]
+    source_kind: str = "inherited"
+    initialized_source: object = None
 
     def require_current(self):
         """Original source selection, valid ONLY before intentional moves."""
@@ -341,6 +352,16 @@ def require_original_component_transition(transition):
     _require_factory_transition(transition)
 
 
+def require_original_inherited_component_transition(transition):
+    """The existing imported-catalog protocol accepts only inherited provenance."""
+    require_original_component_transition(transition)
+    if (
+        transition.source_kind != "inherited"
+        or transition.initialized_source is not None
+    ):
+        _fail("inherited catalog protocol requires original inherited provenance")
+
+
 def require_current_component_transition(transition):
     """Invoke the actual admitted source guard without dynamic method lookup."""
     return _invoke_admitted_transition(transition, _SOURCE_GUARD)
@@ -386,27 +407,74 @@ def observe_component_layout_transition(
     original_lock_store,
     original_audit_store=None,
 ):
-    """Bind actual existing producer owners to the exact current observation.
+    """Original inherited-only ingress; initialized sources use their own owner."""
+    if type(imported_component) is not CatalogImport:
+        _fail("actual original imported Component source required")
+    return _observe_component_layout_transition(
+        snapshot,
+        context,
+        imported_component,
+        source_root=source_root,
+        contents=contents,
+        observations=observations,
+        original_catalog=original_catalog,
+        original_lock_store=original_lock_store,
+        original_audit_store=original_audit_store,
+    )
 
-    No owner is reconstructed from archived IDs. A missing old record is only a
-    guarded empty inventory; None is not an accepted unknown target selection.
-    Original guarded source provenance/candidate eligibility remains the planner's
-    independent responsibility before calling this explicit read-only selector.
+
+@_original_owner_boundary
+def observe_initialized_component_layout_transition(
+    snapshot,
+    context,
+    source_proof,
+    *,
+    source_root,
+    contents,
+    observations,
+    original_catalog,
+    original_lock_store,
+    original_audit_store=None,
+):
+    """Admit a genuine initialized source into the SAME original producer core.
+
+    No CatalogImport is synthesized. Original source/resource guards expire at
+    first intentional movement; destination proof reopens its normal owner.
+    The observer separately proves complete item and application-source closure.
     """
+    _admit_initialized_source(source_proof)
+    if type(source_proof) is not InitializedFrameworkFileProof:
+        _fail("actual original initialized Component proof required")
+    return _observe_component_layout_transition(
+        snapshot,
+        context,
+        source_proof,
+        source_root=source_root,
+        contents=contents,
+        observations=observations,
+        original_catalog=original_catalog,
+        original_lock_store=original_lock_store,
+        original_audit_store=original_audit_store,
+    )
+
+
+def _observe_component_layout_transition(
+    snapshot,
+    context,
+    source_provenance,
+    *,
+    source_root,
+    contents,
+    observations,
+    original_catalog,
+    original_lock_store,
+    original_audit_store=None,
+):
+    """Shared original producer core, with explicit independently admitted source."""
     _classes_current()
     if (
         type(snapshot) is not ProjectConfigurationSnapshot
         or type(context) is not ProjectContext
-        or type(imported_component) is not CatalogImport
-        or imported_component.kind != "component"
-        or type(imported_component.files) is not tuple
-        or any(type(row) is not CatalogImportFile for row in imported_component.files)
-        or type(imported_component.source) is not CatalogImportSource
-        or type(imported_component.source.transitive_ancestors) is not tuple
-        or any(
-            type(row) is not TransitiveAncestor
-            for row in imported_component.source.transitive_ancestors
-        )
         or type(original_catalog) is not ComponentCatalogSnapshot
         or type(original_lock_store) is not ComponentLockStore
         or (
@@ -415,6 +483,73 @@ def observe_component_layout_transition(
         )
     ):
         _fail("actual original Component/catalog/store selection required")
+    manifest = source_root + "/component.md"
+    initialized_source = None
+    imported_source = None
+    if type(source_provenance) is CatalogImport:
+        imported = source_provenance
+        if (
+            imported.kind != "component"
+            or type(imported.files) is not tuple
+            or any(type(row) is not CatalogImportFile for row in imported.files)
+            or type(imported.source) is not CatalogImportSource
+            or type(imported.source.transitive_ancestors) is not tuple
+            or any(
+                type(row) is not TransitiveAncestor
+                for row in imported.source.transitive_ancestors
+            )
+        ):
+            _fail("actual original imported Component source required")
+        record = next((row for row in imported.files if row.path == manifest), None)
+        if record is None:
+            _fail("original imported Component manifest is absent")
+        manifest_identity = record.identity
+        source_kind, imported_source = "inherited", imported.source
+        provenance_members = (
+            imported,
+            imported.source,
+            *imported.files,
+            *imported.source.transitive_ancestors,
+        )
+
+        def provenance_admit():
+            return None  # exact immutable members are sealed below
+
+        def provenance_current():
+            return None  # original imported source/catalog guard owns currentness
+
+    elif type(source_provenance) is InitializedFrameworkFileProof:
+        _admit_initialized_source(source_provenance)
+        proof = source_provenance
+        if (
+            proof.snapshot is not snapshot
+            or proof.context is not context
+            or proof.source_path != manifest
+            or not proof.logical.endswith("/component.md")
+            or proof.role != "immutable-catalog"
+            or not any(
+                source_root.startswith(root + "/")
+                for root in snapshot.definition.component_roots
+            )
+            or contents.get(manifest) != proof.source_bytes
+            or observations.get(manifest) != dict(proof.native_observation)
+        ):
+            _fail("original initialized Component proof/source pairing differs")
+        manifest_identity = proof.source_identity
+        source_kind, initialized_source = "initialized", proof
+        provenance_members = (proof,)
+
+        def provenance_admit():
+            _admit_initialized_source(proof)
+
+        def provenance_current():
+            # This live source owner is used ONLY before intentional movement.
+            _admit_initialized_source(proof)
+            _initialized_resources_current(proof.resources)
+            _admit_initialized_source(proof)
+
+    else:
+        _fail("original imported or initialized Component source required")
     if os.environ.get("LITAI_MATRIX_CELL_ROOT"):
         _fail("matrix producer mapping requires a separately admitted original owner")
     observations = _freeze_original_observations(observations)
@@ -444,10 +579,7 @@ def observe_component_layout_transition(
         context,
         snapshot.definition,
         original_catalog.project,
-        imported_component,
-        imported_component.source,
-        *imported_component.files,
-        *imported_component.source.transitive_ancestors,
+        *provenance_members,
     ):
         if owner is None:
             continue
@@ -465,6 +597,7 @@ def observe_component_layout_transition(
 
     def owners_current():
         _classes_current()
+        provenance_admit()
         if os.environ.get("LITAI_MATRIX_CELL_ROOT"):
             _fail("producer mapping environment changed")
         for owner, values in owner_seals:
@@ -476,6 +609,7 @@ def observe_component_layout_transition(
 
     def source_owners_current():
         owners_current()
+        provenance_current()
         _require_original_source_namespace(snapshot, context, source_root, observations)
 
     source_owners_current()
@@ -483,15 +617,11 @@ def observe_component_layout_transition(
     root_authoring = _CATALOG_ROOT(original_catalog)
     source_bytes = _CATALOG_CONTENT(original_catalog, root_authoring.identity)
     source_owners_current()
-    expected_import = next(
-        (row for row in imported_component.files if row.path == manifest), None
-    )
     if (
-        expected_import is None
-        or contents.get(manifest) != source_bytes
-        or observations[manifest]["identity"] != expected_import.identity
+        contents.get(manifest) != source_bytes
+        or observations[manifest]["identity"] != manifest_identity
     ):
-        _fail("original Component import/current catalog source differs")
+        _fail("original Component provenance/current catalog source differs")
     before_nodes, before_bytes = _capture(source)
     source_owners_current()
     for path, content in before_bytes.items():
@@ -683,8 +813,8 @@ def observe_component_layout_transition(
     original_values = (
         source_root,
         destination_root,
-        expected_import.identity,
-        imported_component.source,
+        manifest_identity,
+        imported_source,
         () if lock is None else (lock.target_name,),
         MappingProxyType(record_data),
         MappingProxyType(original_records),
@@ -694,6 +824,8 @@ def observe_component_layout_transition(
         original_audit_store,
         source_current,
         destination_current,
+        source_kind,
+        initialized_source,
     )
     result = ComponentLayoutProducerTransition(*original_values)
     try:

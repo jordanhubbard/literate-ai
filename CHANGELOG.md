@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Initialized Components now use their genuine initialization/base proof with the original catalog, lock and audit owners, without inventing inherited imports. Fresh destination checks preserve source-guard lifetime boundaries. Inherited catalog publication remains restricted to inherited provenance; source regressions pass.
+
 - Component writers retain their original directory, authoring and project witnesses and acquire the original layout gate before creating coordination paths. Retired or replaced source roots refuse without recreation. Genuine publication hardlink pins remain valid read inputs; changed bytes still refuse. Source and readmission controls pass; source retirement and native Windows qualification remain open.
 
 - Combined layout regressions preserve strict provenance custody after the standard Python copy cache appears, reject foreign cache shapes, and create explicit legacy input for old-layout migration fixtures. Combined source and scaffold publication checks pass.

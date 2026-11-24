@@ -25,7 +25,7 @@ from literate_ai.adapters.exclusive_directory import (
     publish_directory_between_owned_parents_exclusive,
 )
 from literate_ai.adapters.project_layout_component_transition import (
-    require_original_component_transition as _admit,
+    require_original_inherited_component_transition as _admit,
 )
 from literate_ai.adapters.project_layout_component_transition import (
     verify_component_transition_destination_current as _destination_current,
