@@ -26575,6 +26575,16 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Authority placement progress:** Original initialized-file selection, Component
+  producer ingress, bounded retained-source read custody and reconstruction of
+  the seven recorded conversion-wrapper outputs now have focused source coverage.
+  Private recovery journals use an explicit second version while retaining the
+  original five-directory recovery format. Finite creation inputs cover only a
+  contained framework ignore file and an original bootstrap helper, with fresh
+  absence and resource checks; custom files remain outside that inventory.
+  Full migration effects, ordinary producer renewal/finalization, lifecycle and
+  installed supported-platform qualification remain open below.
+
 - **Discovery progress:** Direct framework ancestry is checked before target
   probes. Nine new no-follow controls and 22 existing configuration, readmission,
   publication and public migration controls pass locally. Contained selection

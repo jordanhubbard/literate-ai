@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Layout creation inputs are limited to the contained framework ignore file and a proven bootstrap helper, with fresh absence, namespace, source and resource checks before publication.
+
 - Layout planning can reproduce all seven original conversion-wrapper outputs from retained records and initializer resources, refusing custom edits and incomplete stage evidence.
 
 - Layout planning can retain an original bounded source observation through readmission checks, refusing changed source, metadata, inventory and ownership without a fallback scan.
