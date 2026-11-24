@@ -85,7 +85,7 @@ def _renderer_current():
         _fail("original finite renderer function changed")
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True, slots=True, weakref_slot=True)
 class FrameworkAuthoritySelection:
     public_plan: dict
     placements: object
@@ -102,6 +102,7 @@ class FrameworkAuthoritySelection:
     resources: object
     source_proofs: tuple
     coordinate_map: object
+    observation_owner: object | None = None
 
 
 def _plain_observation(contents, observations):
