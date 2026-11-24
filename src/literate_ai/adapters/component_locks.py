@@ -20,6 +20,13 @@ from literate_ai._filesystem import (
     require_safe_directory,
     stat_is_link_or_reparse,
 )
+from literate_ai.adapters.component_namespace import (
+    ComponentNamespaceError,
+    bind_component_namespace,
+    component_mutation_gate,
+    require_component_mutation_current,
+    require_component_physical_current,
+)
 from literate_ai.contracts.component_locking import ComponentAuthoring, ComponentLock
 from literate_ai.contracts.identity import (
     ContentIdentity,
@@ -126,6 +133,12 @@ class ComponentLockStore:
         self.path = storage_root / LOCK_FILENAME
         self.write_lock_path = storage_root / _WRITE_LOCK_FILENAME
         self.operation_lock_path = storage_root / _OPERATION_LOCK_FILENAME
+        try:
+            bind_component_namespace(self)
+        except (ComponentNamespaceError, OSError) as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
 
     @staticmethod
     def observe_selection(preparation, component_root):
@@ -150,10 +163,17 @@ class ComponentLockStore:
         """Serialize every lock/audit operation for this Component root."""
 
         try:
-            with exclusive_cache_lock(self.operation_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.operation_lock_path),
+            ):
                 self._require_root_current()
                 yield
                 self._require_root_current()
+        except ComponentNamespaceError as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
         except ComponentLockStoreError:
             raise
         except CacheLockError as exc:
@@ -180,7 +200,10 @@ class ComponentLockStore:
         expected = _lock_bytes(expected_current)
         replacement = snapshot.content
         try:
-            with exclusive_cache_lock(self.write_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.write_lock_path),
+            ):
                 self._require_root_current()
                 if self._read_bytes(required=False) != expected:
                     return False
@@ -192,6 +215,10 @@ class ComponentLockStore:
                     return True
                 self._replace_bytes(replacement, prefix=f".{LOCK_FILENAME}.rollback.")
                 return True
+        except ComponentNamespaceError as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
         except ComponentLockStoreError:
             raise
         except (CacheLockError, OSError) as exc:
@@ -410,7 +437,10 @@ class ComponentLockStore:
                 "Component lock exceeds the persisted byte limit",
             )
         try:
-            with exclusive_cache_lock(self.write_lock_path):
+            with (
+                component_mutation_gate(self),
+                exclusive_cache_lock(self.write_lock_path),
+            ):
                 self._require_root_current()
                 current = self._read_bytes(required=False)
                 if current == content:
@@ -422,6 +452,7 @@ class ComponentLockStore:
                     if revalidate is not None:
                         revalidate()
                     self._require_root_current()
+                    require_component_mutation_current(self)
                     if self._read_bytes(required=False) != current:
                         raise ComponentLockStoreError(
                             "component_lock.concurrent_change",
@@ -457,6 +488,10 @@ class ComponentLockStore:
                     _fsync_directory(self.storage_root)
                 finally:
                     temporary.unlink(missing_ok=True)
+        except ComponentNamespaceError as error:
+            raise ComponentLockStoreError(
+                "component_lock.root_unsafe", str(error)
+            ) from error
         except ComponentLockStoreError:
             raise
         except (CacheLockError, OSError) as exc:
@@ -517,6 +552,7 @@ class ComponentLockStore:
     def _replace_bytes(self, content: bytes, *, prefix: str) -> None:
         def close_publication_inputs():
             self._require_root_current()
+            require_component_mutation_current(self)
             if path_is_link_or_reparse(self.path):
                 raise ComponentLockStoreError(
                     "component_lock.path_unsafe",
@@ -558,9 +594,10 @@ class ComponentLockStore:
 
     def _require_root_current(self) -> None:
         try:
+            require_component_physical_current(self)
             require_safe_directory(self.root)
             require_safe_directory(self.storage_root, allow_missing=True)
-        except UnsafeFilesystemPathError as exc:
+        except (UnsafeFilesystemPathError, ComponentNamespaceError) as exc:
             raise ComponentLockStoreError(
                 "component_lock.root_unsafe", "Component root became unsafe"
             ) from exc
@@ -702,3 +739,27 @@ __all__ = [
     "ComponentLockStoreError",
     "LOCK_FILENAME",
 ]
+
+
+# Original field descriptors are captured with the actual class, before callbacks.
+_COMPONENT_NAMESPACE_ORIGIN = (
+    ComponentLockStore,
+    type.__getattribute__(ComponentLockStore, "__bases__"),
+    type.__getattribute__(ComponentLockStore, "__mro__"),
+    tuple(
+        (name, ComponentLockStore.__dict__.get(name))
+        for name in (
+            "root",
+            "storage_root",
+            "path",
+            "write_lock_path",
+            "operation_lock_path",
+            "target_name",
+            "__dict__",
+            "__getattribute__",
+            "__getattr__",
+            "__hash__",
+            "__eq__",
+        )
+    ),
+)

@@ -237,6 +237,9 @@ class ProjectConfigurationSnapshot:
         )
 
 
+_LAYOUT_ACQUIRED_LEASE_KEY = object()
+
+
 class ProjectConfigurationStore:
     """Atomic project manifest storage using exact-byte compare-and-swap."""
 
@@ -502,10 +505,27 @@ class ProjectConfigurationStore:
         transient root reservation. Both reuse the manifest lock's bounded
         identity-checked protocol and idle-file cleanup.
         """
+        try:
+            require_safe_directory(Path(root).absolute())
+        except (UnsafeFilesystemPathError, OSError) as error:
+            raise ProjectError(
+                "project.layout_lock_unsafe", "original layout root is unsafe"
+            ) from error
         root = Path(root).resolve(strict=True)
+        from literate_ai.adapters.project_layout_lease import (
+            current_layout_lease,
+            require_layout_lease,
+        )
+
+        existing = current_layout_lease(root)
+        if existing is not None:
+            require_layout_lease(existing, root)
+            yield
+            require_layout_lease(existing, root)
+            return
         directory = cls.layout_metadata_directory(root)
         coordinate = (directory or root) / "literate-layout"
-        with cls(root)._lock(root, manifest_path=coordinate):
+        with cls(root)._lock(root, manifest_path=coordinate, _layout_lease_root=root):
             yield
 
     def create(self, definition: ProjectDefinition) -> ProjectConfigurationSnapshot:
@@ -809,6 +829,7 @@ class ProjectConfigurationStore:
         *,
         manifest_path: Path | None = None,
         require_path: Callable[[Path], None] | None = None,
+        _layout_lease_root: Path | None = None,
     ) -> Iterator[None]:
         path = (
             self.lock_path(root)
@@ -822,7 +843,26 @@ class ProjectConfigurationStore:
             if require_path is not None:
                 require_path(path)
             descriptor, locked, opened = self._open_and_acquire(path)
-            yield
+            if _layout_lease_root is None:
+                yield
+            else:
+                from literate_ai.adapters.project_layout_lease import (
+                    ProjectLayoutLeaseError,
+                    acquired_layout_lease,
+                )
+
+                try:
+                    with acquired_layout_lease(
+                        _layout_lease_root,
+                        path,
+                        descriptor,
+                        _origin=_LAYOUT_ACQUIRED_LEASE_KEY,
+                    ):
+                        yield
+                except ProjectLayoutLeaseError as error:
+                    raise ProjectError(
+                        "project.layout_lock_unsafe", str(error)
+                    ) from error
         except ProjectError:
             raise
         except OSError as exc:
