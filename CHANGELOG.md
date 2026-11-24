@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Capture initialized Component lock/audit transitions through the original producer readers, refusing held, private, unknown or incomplete source scopes before broad reads.
+
 - Recheck retained-source reader origin around callbacks and preserve original cleanup/error handling before migration planning continues.
 
 - Compose original absent-target ownership for contained framework ignore/bootstrap creation into read-only migration planning; preserve occupied files and historical initialization records.
