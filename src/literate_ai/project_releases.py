@@ -23,6 +23,7 @@ from typing import Any
 
 from packaging.version import InvalidVersion, Version
 
+from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
 from literate_ai.adapters._processes import run_with_tree_kill
 from literate_ai.adapters.builders._process import run_bounded_process
 from literate_ai.adapters.execution_dispatch import (
@@ -2768,10 +2769,15 @@ def _digest_text(value: str) -> str:
     return "sha256:" + hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def _release_build_root(root: Path) -> Path:
+    """The selected project's framework-owned default build/state coordinate."""
+    return ProjectConfigurationStore.context(root).framework_root / "_build"
+
+
 def _release_perf_build_root(root: Path) -> Path:
     configured = os.environ.get("OBJ_DIR", "").strip()
     if not configured:
-        return root / "_build"
+        return _release_build_root(root)
     configured_path = Path(configured)
     return configured_path if configured_path.is_absolute() else root / configured_path
 
@@ -4040,6 +4046,28 @@ def _release_record_destination(
     root: Path, output: Path, *, tested_file: CITestedFile | None = None
 ) -> Path:
     destination = output if output.is_absolute() else root / output
+    # Classify lexical project-local destinations before resolving ancestry:
+    # a local link must not turn into permission for an external export.
+    lexical_root = Path(os.path.abspath(root))
+    lexical_destination = Path(os.path.abspath(destination))
+    build_root = Path(os.path.abspath(_release_build_root(root)))
+    local_name = lexical_destination.is_relative_to(lexical_root)
+    if local_name:
+        if not lexical_destination.is_relative_to(build_root):
+            raise ProjectReleaseError(
+                "release.record_overlaps_authority",
+                "a project-local prepared record must be written beneath "
+                + build_root.relative_to(lexical_root).as_posix(),
+            )
+        try:
+            # Read-only original ancestor owner, including missing suffixes;
+            # refuse a redirected local parent BEFORE opening its target.
+            require_safe_directory(destination.parent.absolute(), allow_missing=True)
+        except (OSError, UnsafeFilesystemPathError) as exc:
+            raise ProjectReleaseError(
+                "release.record_unsafe",
+                "prepared-record parent is redirected or unsafe",
+            ) from exc
     try:
         resolved_root = root.resolve(strict=True)
         resolved_parent = destination.parent.resolve(strict=False)
@@ -4051,11 +4079,16 @@ def _release_record_destination(
         resolved_parent == resolved_root or resolved_root in resolved_parent.parents
     )
     if inside:
-        relative = destination.relative_to(root)
-        if not relative.parts or relative.parts[0] != "_build":
+        resolved_build = build_root.resolve(strict=False)
+        if (
+            not local_name
+            or not resolved_parent.is_relative_to(resolved_build)
+            or not resolved_build.is_relative_to(resolved_root)
+        ):
             raise ProjectReleaseError(
                 "release.record_overlaps_authority",
-                "a project-local prepared record must be written beneath _build",
+                "a project-local prepared record must be written beneath "
+                + build_root.relative_to(lexical_root).as_posix(),
             )
     if destination.is_symlink():
         raise ProjectReleaseError(

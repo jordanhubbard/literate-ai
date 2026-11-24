@@ -69,11 +69,19 @@ from literate_ai.contracts import (
     canonical_json_bytes,
 )
 
+from .retained_scaffold_coordinates import (
+    retained_scaffold_coordinate as _metadata_coordinate,
+)
+from .retained_scaffold_coordinates import (
+    retained_scaffold_path as _metadata_path,
+)
+
 BUNDLE_SCHEMA = "literate-ai/monorepo-component-bundle@1"
 BINDING_SCHEMA = "literate-ai/monorepo-component-binding@1"
 RECEIPT_SCHEMA = "literate-ai/monorepo-component-receipt@1"
 INSTALLATION_SCHEMA = "literate-ai/monorepo-component-installation@1"
 INSTALLATION_LAYOUT_SCHEMA = "literate-ai/monorepo-component-installation@2"
+
 INSTALLATION_ROOT = ".literate/monorepo-components"
 _MANIFEST = "bundle.json"
 _SUITE = "monorepo-retained-harness"
@@ -212,7 +220,9 @@ def _installation_document(content):
 
 def _installed_inputs(project, installation, original, *, maximum_files=None):
     """Retain the complete consumed payload set before validating its contents."""
-    bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
+    bundle = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle")
+    )
     manifest_input = _file(bundle / _MANIFEST, maximum_bytes=_MAX_DOCUMENT)
     manifest = _parse_document(manifest_input.content)
     if canonical_identity(manifest).uri != installation["bundle_identity"]:
@@ -243,12 +253,17 @@ def _installed_inputs(project, installation, original, *, maximum_files=None):
             )
         )
     )
+    relatives = tuple(_metadata_coordinate(project, name) for name in relatives)
     if maximum_files is not None and len(relatives) > maximum_files:
         _fail("input_limit", "installed Component payload count exceeds its bound")
     paths = {name: _direct(project, name) for name in relatives}
     native = {name: _signature(path) for name, path in paths.items()}
-    native[f"{INSTALLATION_ROOT}/installation.json"] = original.signature
-    native[f"{INSTALLATION_ROOT}/bundle/{_MANIFEST}"] = manifest_input.signature
+    native[_metadata_coordinate(project, f"{INSTALLATION_ROOT}/installation.json")] = (
+        original.signature
+    )
+    native[_metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle/{_MANIFEST}")] = (
+        manifest_input.signature
+    )
     ancestry = tuple(
         (parent, _lineage(parent))
         for parent in dict.fromkeys(path.parent for path in paths.values())
@@ -275,7 +290,7 @@ def _layout_source(project, installation=None, *, renewing=False):
     """Select actual declared source; saved installation coordinates grant no rights."""
     if os.path.lexists(project / "litai/layout.pending"):
         _fail("layout_pending", "pending relocation requires explicit recovery")
-    if not os.path.lexists(project / RETAINED_LAYOUT_PATH):
+    if not os.path.lexists(_metadata_path(project, RETAINED_LAYOUT_PATH)):
         if (
             installation is not None
             and installation.get("schema") != INSTALLATION_SCHEMA
@@ -287,7 +302,7 @@ def _layout_source(project, installation=None, *, renewing=False):
     from .conversion_authority import FilesystemConversionAuthorityStore
 
     role_inputs = tuple(
-        _file(project / name, maximum_bytes=_MAX_DOCUMENT)
+        _file(_metadata_path(project, name), maximum_bytes=_MAX_DOCUMENT)
         for name in ("literate.project.json", ".literate/conversion-authority.json")
     )
     actual_project = load_project(project)
@@ -1240,6 +1255,9 @@ def _installation_payloads(
         installation["retained_layout_identity"] = layout_identity
         payloads[f"{INSTALLATION_ROOT}/installation.json"] = _json_bytes(installation)
     require_current()
+    payloads = {
+        _metadata_coordinate(project, key): value for key, value in payloads.items()
+    }
     return project, payloads, installation
 
 
@@ -1261,8 +1279,11 @@ def install_monorepo_components(
         expected_bundle_identity=expected_bundle_identity,
     )
     destinations = [
-        project.joinpath(*Path(INSTALLATION_ROOT).parts),
-        *(project / "components" / name for name in installation["components"]),
+        _metadata_path(project, INSTALLATION_ROOT),
+        *(
+            _metadata_path(project, f"components/{name}")
+            for name in installation["components"]
+        ),
     ]
     if any(path.exists() or path.is_symlink() for path in destinations):
         _fail("destination_exists", "installed Component paths must be new")
@@ -1279,7 +1300,9 @@ def install_monorepo_components(
 def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
     """Reopen an installed refined-adoption projection without executing commands."""
     project = _source_root(project_root)
-    installation_path = _direct(project, f"{INSTALLATION_ROOT}/installation.json")
+    installation_path = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/installation.json")
+    )
     installation_input = _file(installation_path, maximum_bytes=_MAX_DOCUMENT)
     before = installation_input.content
     installation = _installation_document(before)
@@ -1290,12 +1313,17 @@ def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
         project, installation
     )
     source = declared_source or _direct(project, installation["source_root"])
-    bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
+    bundle = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle")
+    )
     names = installation["components"]
     if not isinstance(names, list) or names != sorted(set(names)):
         _fail("installation_invalid", "installed Component inventory is invalid")
     receipts = {
-        name: _direct(project, f"{INSTALLATION_ROOT}/receipts/{name}.json")
+        name: _direct(
+            project,
+            _metadata_coordinate(project, f"{INSTALLATION_ROOT}/receipts/{name}.json"),
+        )
         for name in names
     }
     if installation["receipt_identities"] != {
@@ -1330,9 +1358,12 @@ def check_installed_monorepo_components(project_root: Path) -> dict[str, Any]:
         _fail("installation_invalid", "Component boundary-transfer state is invalid")
     for name in names:
         for filename in ("binding.json", "component.md"):
-            if _read(_direct(project, f"components/{name}/{filename}")) != _read(
-                _direct(bundle, f"components/{name}/{filename}")
-            ):
+            if _read(
+                _direct(
+                    project,
+                    _metadata_coordinate(project, f"components/{name}/{filename}"),
+                )
+            ) != _read(_direct(bundle, f"components/{name}/{filename}")):
                 _fail("binding_changed", "installed Component projection changed")
     if _read(installation_path) != before:
         _fail("installation_changed", "installed Component custody changed")
@@ -1359,7 +1390,9 @@ def refresh_installed_monorepo_components(
             "Component refresh execution requires acknowledgement",
         )
     project = _source_root(project_root)
-    installation_path = _direct(project, f"{INSTALLATION_ROOT}/installation.json")
+    installation_path = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/installation.json")
+    )
     installation_input = _file(installation_path, maximum_bytes=_MAX_DOCUMENT)
     installation = _installation_document(installation_input.content)
     original_native, require_installed_current, require_original_ancestry = (
@@ -1374,12 +1407,17 @@ def refresh_installed_monorepo_components(
         or installation.get("source_root")
         != declared_source.relative_to(project).as_posix()
     )
-    old_bundle = _direct(project, f"{INSTALLATION_ROOT}/bundle")
+    old_bundle = _direct(
+        project, _metadata_coordinate(project, f"{INSTALLATION_ROOT}/bundle")
+    )
     old_plan = _verified_bundle(old_bundle, installation["bundle_identity"])
     source = declared_source or _direct(project, installation["source_root"])
     names = list(installation["components"])
     old_receipts = {
-        name: _direct(project, f"{INSTALLATION_ROOT}/receipts/{name}.json")
+        name: _direct(
+            project,
+            _metadata_coordinate(project, f"{INSTALLATION_ROOT}/receipts/{name}.json"),
+        )
         for name in names
     }
     with tempfile.TemporaryDirectory(
@@ -1442,10 +1480,12 @@ def refresh_installed_monorepo_components(
         expected_paths = set(payloads)
         current_paths = {
             path.relative_to(project).as_posix()
-            for path in _direct(project, INSTALLATION_ROOT).rglob("*")
+            for path in _direct(
+                project, _metadata_coordinate(project, INSTALLATION_ROOT)
+            ).rglob("*")
             if path.is_file()
         } | {
-            f"components/{name}/{filename}"
+            _metadata_coordinate(project, f"components/{name}/{filename}")
             for name in names
             for filename in ("binding.json", "component.md")
         }

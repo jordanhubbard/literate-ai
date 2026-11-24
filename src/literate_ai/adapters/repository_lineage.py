@@ -49,7 +49,7 @@ _MAX_CACHE_OBJECT_ENTRIES = 131_072
 
 def _lineage_writer_lock_path(project_root: Path) -> Path:
     """Canonical advisory endpoint shared by actual lineage writers and observers."""
-    return Path(project_root) / ".literate" / "repository-lineage.lock"
+    return _metadata_path(Path(project_root), ".literate/repository-lineage.lock")
 
 
 _NON_FETCH_GIT_TIMEOUT_SECONDS = 120

@@ -318,7 +318,9 @@
     "literate-ai/native-root-continuation-stop@1",
     "literate-ai/native-root-continuation-ledger@1",
     "literate-ai/native-root-acceptance-closure@1",
-    "literate-ai/native-root-execution-result@1"
+    "literate-ai/native-root-execution-result@1",
+    "literate-ai/project-layout-catalog-continuation@1",
+    "literate-ai/project-layout-catalog-continuation-result@1"
   ],
   "read_paths": [
     {

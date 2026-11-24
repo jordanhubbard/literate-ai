@@ -20,7 +20,18 @@ def require_project_roadmap_acyclic(
     _observation=None,
 ) -> None:
     """Validate an in-memory overlay, without creating or modifying any file."""
+    from literate_ai.projects import ProjectConfigurationStore
+
     proposed = proposed or {}
+    context = ProjectConfigurationStore.context(root)
+    policy_coordinate = (
+        context.framework_path("literate.release.json").relative_to(root).as_posix()
+    )
+    conventional_queue = (
+        context.framework_path("docs/roadmap/active-work.md")
+        .relative_to(root)
+        .as_posix()
+    )
 
     def read(relative: str) -> bytes | None:
         if Path(relative).is_absolute() or ".." in Path(relative).parts:
@@ -35,17 +46,17 @@ def require_project_roadmap_acyclic(
         return path.read_bytes() if path.exists() else None
 
     try:
-        policy_bytes = read("literate.release.json")
+        policy_bytes = read(policy_coordinate)
         manifest_path = None
         if policy_bytes is not None:
             policy = (
                 json.loads(policy_bytes)
                 if _observation is None
-                else _observation.json_value(policy_bytes, "literate.release.json")
+                else _observation.json_value(policy_bytes, policy_coordinate)
             )
             manifest_path = policy.get("contributions", {}).get("roadmap_goal_manifest")
         manifest = None
-        queue = "docs/roadmap/active-work.md"
+        queue = conventional_queue
         if manifest_path is not None:
             raw = read(manifest_path)
             if raw is None:
@@ -63,13 +74,13 @@ def require_project_roadmap_acyclic(
         else:
             validate_roadmap_dependencies(raw_queue.decode("utf-8"), manifest)
         # The work CLI's conventional queue can coexist with a custom release queue.
-        if queue != "docs/roadmap/active-work.md":
-            conventional = read("docs/roadmap/active-work.md")
+        if queue != conventional_queue:
+            conventional = read(conventional_queue)
             if conventional is not None:
                 validate_roadmap_dependencies(conventional.decode("utf-8"))
         if additional_queue is not None and additional_queue not in {
             queue,
-            "docs/roadmap/active-work.md",
+            conventional_queue,
         }:
             additional = read(additional_queue)
             if additional is not None:

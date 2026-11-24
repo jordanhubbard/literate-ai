@@ -17,6 +17,7 @@ from literate_ai.evidence_ledger import (
 from literate_ai.project_releases import (
     RELEASE_TARGETS,
     ProjectReleaseError,
+    _release_build_root,
     advance_default_branch_version,
     backport_commits,
     backport_status,
@@ -33,6 +34,31 @@ from literate_ai.project_releases import (
     set_release_state,
     verify_published_release,
 )
+
+
+def _release_output(project: Path, declared: str | None, filename: str) -> Path:
+    if declared is not None:
+        # Explicit paths keep their original application-relative/export meaning.
+        return Path(declared)
+    from literate_ai.projects import ProjectConfigurationStore
+
+    try:
+        snapshot = ProjectConfigurationStore.discover(project.resolve(strict=True))
+    except (OSError, ValueError) as exc:
+        raise ProjectReleaseError(
+            "release.project_unavailable", "cannot resolve the selected project"
+        ) from exc
+    if snapshot is None:
+        raise ProjectReleaseError(
+            "release.project_not_found", "no literate.project.json found"
+        )
+    # Return an application-relative coordinate just like the old root default;
+    # backend policy/admission/publication still belongs to its original owner.
+    return (
+        _release_build_root(snapshot.root).relative_to(snapshot.root)
+        / "release"
+        / filename
+    )
 
 
 def _evidence_run(args: argparse.Namespace) -> EvidenceRun:
@@ -156,7 +182,9 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
             result = check_release(
                 Path(args.project),
                 Path(args.plan),
-                output=Path(args.output),
+                output=_release_output(
+                    Path(args.project), args.output, "prepared.json"
+                ),
                 target=args.target,
                 actor=args.actor,
                 break_glass_reason=args.break_glass_reason,
@@ -210,7 +238,12 @@ def _release_from_args_body(args: argparse.Namespace) -> tuple[dict[str, Any], i
                 0,
             )
         if args.release_command == "qualify":
-            return qualify_release(Path(args.project), output=Path(args.output)), 0
+            return qualify_release(
+                Path(args.project),
+                output=_release_output(
+                    Path(args.project), args.output, "qualification.json"
+                ),
+            ), 0
         if args.release_command == "rc":
             return (
                 create_release_candidate(
@@ -417,8 +450,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     check.add_argument("--project", default=".")
     check.add_argument(
         "--output",
-        default="_build/release/prepared.json",
-        help="prepared-release record (default: _build/release/prepared.json)",
+        default=None,
+        help=(
+            "prepared-release record "
+            "(default: selected framework _build/release/prepared.json)"
+        ),
     )
     check.add_argument(
         "--actor", default=None, help="assert authenticated GitHub login"
@@ -545,8 +581,11 @@ def add_release_parser(commands: argparse._SubParsersAction) -> None:
     qualify.add_argument("--project", default=".")
     qualify.add_argument(
         "--output",
-        default="_build/release/qualification.json",
-        help="qualification record (default: _build/release/qualification.json)",
+        default=None,
+        help=(
+            "qualification record "
+            "(default: selected framework _build/release/qualification.json)"
+        ),
     )
 
     state = release_commands.add_parser("state", help="inspect or set release state")

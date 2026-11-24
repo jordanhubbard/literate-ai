@@ -21,6 +21,7 @@ from literate_ai.adapters.project_initialization import (
     host_platform_selector,
     record_project_authority_review,
 )
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.adapters.retained_evidence_migration import (
     LEGACY_WRAPPER_PARITY_SCHEMA_V1,
     migrate_retained_evidence,
@@ -63,8 +64,20 @@ def _origin() -> ProjectInitializationOrigin:
     )
 
 
+class _LegacyMigrationInitializationAdapter(FilesystemProjectInitializationAdapter):
+    """Build the old root layout that these compatibility/migration cases consume.
+
+    Actual new contained creation/conversion is exercised separately by the
+    scaffold publication cohort. Root-parent selection itself remains contained.
+    """
+
+    def initialize(self, target, **kwargs):
+        kwargs["_layout"] = ScaffoldLayout.LEGACY_ROOT_FIXTURE
+        return super().initialize(target, **kwargs)
+
+
 def _adapter() -> FilesystemProjectInitializationAdapter:
-    return FilesystemProjectInitializationAdapter(
+    return _LegacyMigrationInitializationAdapter(
         initialization_origin_provider=_origin,
         standard_binding_provider=lambda: None,
     )

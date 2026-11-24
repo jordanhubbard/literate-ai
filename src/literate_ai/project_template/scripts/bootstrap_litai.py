@@ -157,10 +157,86 @@ def _run_version_probe(command: list[str], *, cwd: Path, timeout: float = 30):
     )
 
 
+def _native_directory(path: Path) -> None:
+    # Bootstrap intentionally precedes framework imports. Select the same finite
+    # declared root/contained layout using stdlib-only, no-follow inspections.
+    for ancestor in (*reversed(path.parents), path):
+        observed = ancestor.lstat()
+        if not stat.S_ISDIR(observed.st_mode) or (
+            getattr(observed, "st_file_attributes", 0)
+            & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+        ):
+            raise ValueError("Bootstrap project ancestry is redirected or unavailable")
+
+
+def _native_manifest(path: Path) -> dict[str, object]:
+    _native_directory(path.parent)
+    before = path.lstat()
+    if not stat.S_ISREG(before.st_mode) or (
+        getattr(before, "st_file_attributes", 0)
+        & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    ):
+        raise ValueError("Bootstrap project manifest is redirected or unavailable")
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    with os.fdopen(os.open(path, flags), "rb") as stream:
+        opened = os.fstat(stream.fileno())
+        if not stat.S_ISREG(opened.st_mode) or opened.st_size > 1024 * 1024:
+            raise ValueError(
+                "Bootstrap project manifest exceeds its regular-file bound"
+            )
+        content = stream.read(1024 * 1024 + 1)
+        after = os.fstat(stream.fileno())
+    _native_directory(path.parent)
+    final = path.lstat()
+
+    def identity(value):
+        return (
+            value.st_dev,
+            value.st_ino,
+            value.st_mode,
+            value.st_size,
+            value.st_mtime_ns,
+        )
+
+    if not (identity(before) == identity(opened) == identity(after) == identity(final)):
+        raise ValueError("Bootstrap project manifest changed during read")
+    if len(content) != opened.st_size:
+        raise ValueError("Bootstrap project manifest changed size during read")
+    value = json.loads(content)
+    if not isinstance(value, dict):
+        raise ValueError("Bootstrap project manifest must be an object")
+    return value
+
+
+def _declared_project(project: Path):
+    project = project.absolute()
+    _native_directory(project)
+    direct = project / "literate.project.json"
+    child = project / "litai"
+    contained = child / "literate.project.json"
+    if os.path.lexists(child):
+        _native_directory(child)
+    if os.path.lexists(contained):
+        definition = _native_manifest(contained)
+        if definition.get("framework_directory") == "litai":
+            if os.path.lexists(direct):
+                raise ValueError("Root and contained project manifests are ambiguous")
+            return project, contained, definition
+    definition = _native_manifest(direct)
+    if definition.get("framework_directory") == "litai":
+        if project.name != "litai" or os.path.lexists(
+            project.parent / "literate.project.json"
+        ):
+            raise ValueError(
+                "Declared contained project manifest has the wrong location"
+            )
+        return project.parent, direct, definition
+    return project, direct, definition
+
+
 def check(project: Path, executable: str | None) -> dict[str, object]:
-    manifest = project / "literate.project.json"
     try:
-        definition = json.loads(manifest.read_text(encoding="utf-8"))
+        project, manifest, definition = _declared_project(project)
         driver = definition["lifecycle_driver"]
         if not isinstance(driver, dict):
             raise ValueError("project has no Standard framework distribution pin")
@@ -190,7 +266,10 @@ def check(project: Path, executable: str | None) -> dict[str, object]:
             "state": "missing",
             "ok": False,
             "required_distribution": required,
-            "detail": "LitAI is not on PATH; follow docs/user/bootstrap.md",
+            "detail": "LitAI is not on PATH; follow "
+            + (
+                manifest.parent.relative_to(project) / "docs/user/bootstrap.md"
+            ).as_posix(),
         }
     try:
         completed = _run_version_probe(
@@ -321,7 +400,7 @@ def main(argv: list[str] | None = None) -> int:
     result = (
         verify_wheel(args.wheel, args.wheel_sha256)
         if args.wheel is not None
-        else check(args.project.resolve(), args.litai)
+        else check(args.project.absolute(), args.litai)
     )
     if args.json:
         print(json.dumps(result, sort_keys=True))

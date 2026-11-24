@@ -1290,6 +1290,16 @@
         "literate-ai/native-root-acceptance-closure@1",
         "literate-ai/native-root-execution-result@1"
       ]
+    },
+    {
+      "file": "project-layout-catalog-continuation.schema.json",
+      "root_id": "literate-ai/project-layout-catalog-continuation@1",
+      "public_ids": []
+    },
+    {
+      "file": "project-layout-catalog-continuation-result.schema.json",
+      "root_id": "literate-ai/project-layout-catalog-continuation-result@1",
+      "public_ids": []
     }
   ]
 }

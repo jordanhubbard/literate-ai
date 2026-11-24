@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Derived-project layout: place reviewed imported catalogs into an existing
+  `litai/` directory through the acknowledged project migration, preserving
+  application files, Git state and earlier journals. Recover exact owned entries
+  after interruption and preserve concurrent changes. Contained release output
+  defaults now use `litai/_build/release/`. Focused source controls pass; complete
+  containment and installed platform qualification remain in progress.
+
 - Native root repair development: add closed continuation, terminal-history and
   run-policy contracts, optional explicit project policy selection and an
   original-run lifetime constraint. Preserve absent-policy project identities.

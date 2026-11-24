@@ -218,8 +218,8 @@ def _capture_authored_provider_authority_files(authority):
         *catalog.authoring_roots,
         *catalog.flavor_roots,
         *(
-            root / relative
-            for root in roots
+            context.framework_root / relative
+            for _, context in contexts
             for relative in ("provenance", "provenance/component-authority")
         ),
     }

@@ -113,6 +113,67 @@ or claim a passing run.
 The manifest's `source_intelligence` object is configuration authority. Default
 init selects provider `none` with every stage `off`.
 
+## Derived-project containment and migration
+
+The 1.4 layout requirement puts framework-owned derived-project authority and
+state under `litai/`. The application root remains the base for project-relative
+paths. Its source, package metadata, native build and CI, changelog and product
+documentation retain their application coordinates. The framework repository
+continues to use its own authoring layout. The accepted contract and remaining
+qualification are tracked by
+[PROJECT-LAYOUT-001](../roadmap/active-work.md#project-layout-001-contain-derived-project-literate-ai-files-under-litai)
+and [ADR 0071](../decisions/0071-derived-project-litai-directory.md).
+
+A contained project's manifest is `litai/literate.project.json`. Its declared
+catalogs, onboarding skill, framework documentation, locks and durable receipts
+belong to that same framework directory. Contained release output defaults use
+`litai/_build/release/`. A project-relative application path still resolves from
+the application root; declaring a framework directory does not rebase it.
+
+Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
+`.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned
+content delegates into the configured onboarding skill. Custom instructions and
+application-owned sections remain with their owners. Root ignore rules and native
+build entrypoints retain their explicitly owned integration regions.
+
+Inspect the current ownership and unresolved transitions first:
+
+```console
+litai --json project layout plan --project .
+```
+
+An incomplete inventory returns exit status 1 with an `ok: true` result envelope
+and `planning_complete: false`. Root and descendant paths select the same project.
+Inventory classifications describe the work required; an acknowledged migration
+plan separately selects exact files and reference edits.
+
+For an eligible legacy converted project, request its migration plan with
+`project layout plan --migration`. Review `blocked_references`, then repeat the
+plan with one `--rewrite-reference PATH` per authorized document. Apply with
+`project layout apply --acknowledge --plan-identity ID`, repeating the same scope
+and reference options. The ID must be copied from that exact reviewed plan.
+
+After metadata placement, an existing contained converted project can request
+its imported-catalog continuation with
+`project layout plan --migration --place-imported-catalogs`. Apply that exact plan
+using `project layout apply --place-imported-catalogs` and the acknowledgement,
+identity and reviewed reference options. This phase preserves imported source
+identities, original application files, Git state and earlier migration journals.
+Unresolved ownership and unsupported reference transformations remain visible.
+
+Catalog apply and recovery return
+`literate-ai/project-layout-catalog-continuation-result@1`. The original read-only
+plan remains unchanged under `plan`; `applied` or `rolled_back` reports the file
+transaction. `qualification` and `full_containment` remain false. Recovery uses
+`project layout recover --acknowledge --plan-identity ID`; it restores exact owned
+states and preserves concurrent changes. `retained_scaffolding` identifies
+coordination directories deliberately retained after rollback.
+
+Path-bound evidence requires its ordinary producer's currentness check and any
+necessary renewal. Historical records remain historical. Fresh creation, complete
+existing-project placement and installed Linux/macOS/Windows acceptance remain
+open until every PROJECT-LAYOUT-001 evidence item passes.
+
 ## Framework origin and project updates
 
 `litai init` creates and validates the canonical scaffold, initial Component locks,

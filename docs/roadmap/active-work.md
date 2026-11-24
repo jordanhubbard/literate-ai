@@ -26575,6 +26575,10 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Execution order:** The directing user prioritizes this requirement before the
+  remaining 1.4.0 release work. Preserve unrelated release changes while completing
+  the whole containment and migration acceptance contract below.
+
 - **Native update and removal custody (in progress):** [Issue 484](https://github.com/jordanhubbard/literate-ai/issues/484)
   reproduces a previously reviewed removal deleting unchanged working files of a
   newly independent Git checkout under `litai/`. Native update similarly replaces
@@ -26608,16 +26612,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
 - **Release target:** 1.4.0
 - **Completion prerequisites:** none
 - **Accepted implementation direction:** [ADR 0071](../decisions/0071-derived-project-litai-directory.md) specifies the shared project context, finite root integrations and recoverable migration. [ADR 0074](../decisions/0074-existing-repository-delivery.md) records the subsequent explicit user delegation to implement the review recommendations in this release.
-- **Next action:** Qualify the corrected nested-index and public metadata
-  migration paths on the combined release candidate. Continue the ownership
-  and reference transitions for imported Skills, Flavors and Components on
-  the original converted-project fixture. Preserve host integrations,
-  unclassified members and Git boundaries on both apply and recovery.
-  Restore release state and planning for converted projects after migration.
-  Revalidate both paths selected by the release policy, the version manifest
-  and the sample passed to its test gate. Preserve the host's changelog,
-  independently owned root files and the refusal for a minimal native project.
-  [Paired public CLI evidence](../../verification/contained-converted-release-observation.json).
+- **Next action:** Complete framework-owned root authority/reference placement,
+  original Component producer transitions and fresh canonical creation under
+  `litai/`. Continue through update/reparent and installed supported-platform
+  qualification. Existing contained projects now have a per-entry catalog
+  continuation through the original acknowledged public migration, with retained
+  journals and exact rollback rather than replacement of the framework tree.
+  Source controls cover interrupted placement/recovery and a real inherited
+  converted-project Skill journey; these do not close full containment or native
+  platform acceptance. Preserve host integrations, custom files, application
+  source and Git boundaries throughout. Contained release defaults and converted
+  release discovery have focused regression coverage; the earlier
+  [paired public CLI observation](../../verification/contained-converted-release-observation.json)
+  remains historical failed evidence rather than a renewed qualification.
 - **Current implementation boundary:** The reviewed writer moved 13 identified
   metadata files in a disposable project converted by the published 1.3.1
   framework, including the declared test receipt. It preserved seven

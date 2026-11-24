@@ -40,6 +40,8 @@ _COMPATIBILITY_READ_PATH_KEYS = frozenset({"input", "status", "adapter", "output
 _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
     {
         "literate-ai/authored-retained-cargo-binding@1",
+        "literate-ai/project-layout-catalog-continuation@1",
+        "literate-ai/project-layout-catalog-continuation-result@1",
         "literate-ai/authored-retained-cargo-admission-receipt@1",
         "literate-ai/authored-retained-cargo-provisioning@1",
         "urn:literate-ai:schema:v2:authored-qualification-comparison",

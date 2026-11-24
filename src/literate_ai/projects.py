@@ -1504,9 +1504,7 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
         name
         for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
         for name in ((primary, "samples") if kind == "component" else (primary,))
-        if {name, f"litai/{name}"}.issubset(
-            getattr(snapshot.definition, f"{kind}_roots")
-        )
+        if f"litai/{name}" in getattr(snapshot.definition, f"{kind}_roots")
     }
     if not enabled:
         return {}
@@ -1521,6 +1519,16 @@ def contained_catalog_coordinates(root: Path) -> dict[str, str]:
     except CatalogImportError as exc:
         raise ProjectError(exc.code, str(exc)) from exc
     if imports is None:
+        # A newly authored contained-only catalog is declared directly, without
+        # invented parent imports. Mixed old/new imported catalogs still require
+        # their original strict provenance mapping.
+        if all(
+            name not in getattr(snapshot.definition, f"{kind}_roots")
+            for kind, primary in CATALOG_PLACEMENT_ROOTS.items()
+            for name in ((primary, "samples") if kind == "component" else (primary,))
+            if name in enabled
+        ):
+            return {}
         raise ProjectError(
             "project.skill_placement_missing",
             "contained Skill import authority is absent",
@@ -1594,7 +1602,34 @@ def configured_catalog_path(boundary: Path, base: Path, uri: str, *, kind: str) 
     else:
         destination = coordinates.get(relative)
     if destination is None:
-        return configured
+        root_name = relative.split("/", 1)[0]
+        field = {
+            "skills": "skill_roots",
+            "workflows": "workflow_roots",
+            "routing": "routing_roots",
+        }.get(root_name)
+        if field is not None:
+            store = ProjectConfigurationStore(boundary)
+            snapshot = store.read()
+            declared = getattr(snapshot.definition, field)
+            if (
+                snapshot.definition.framework_directory == "litai"
+                and f"litai/{root_name}" in declared
+                and root_name not in declared
+            ):
+                from literate_ai.adapters.retained_layout import (
+                    original_source_occupies_coordinate,
+                )
+
+                if original_source_occupies_coordinate(boundary, relative):
+                    raise ProjectError(
+                        "project.skill_placement_conflict",
+                        "old-root source shadows an explicitly contained "
+                        "catalog reference",
+                    )
+                destination = f"litai/{relative}"
+        if destination is None:
+            return configured
     selected = boundary / destination
     try:
         require_safe_directory(selected.parent, allow_missing=True)
@@ -1631,19 +1666,51 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
     roots = project.roots("skill")
     if not roots:
         raise ProjectError("project.skill_invalid", "project declares no skill roots")
+    coordinates = {
+        old: new
+        for old, new in contained_catalog_coordinates(project.root).items()
+        if old.startswith("skills/")
+    }
+    contained_only = (
+        project.definition.framework_directory == "litai"
+        and "litai/skills" in project.definition.skill_roots
+        and "skills" not in project.definition.skill_roots
+    )
+    if contained_only and project.definition.agent_skill == "litai/SKILL.md":
+        coordinates["SKILL.md"] = "litai/SKILL.md"
     try:
-        return AgentSkillCatalog.discover(
+        catalog = AgentSkillCatalog.discover(
             project.root,
             catalog_roots=roots,
             root_manifests=(project.agent_skill,),
             validate_dependencies=True,
             validate_references=True,
-            reference_coordinates={
-                old: new
-                for old, new in contained_catalog_coordinates(project.root).items()
-                if old.startswith("skills/")
-            },
+            reference_coordinates=coordinates,
+            **(
+                {"reference_root_coordinates": {"skills": "litai/skills"}}
+                if contained_only
+                else {}
+            ),
         )
+        if contained_only:
+            from literate_ai.adapters.retained_layout import (
+                original_source_occupies_coordinate,
+            )
+
+            for skill in catalog.skills:
+                for logical in skill.owned_paths:
+                    if not (
+                        logical.parts[0] == "skills"
+                        or str(logical) == "SKILL.md"
+                        and coordinates.get("SKILL.md") == "litai/SKILL.md"
+                    ):
+                        continue
+                    if original_source_occupies_coordinate(project.root, str(logical)):
+                        raise ProjectError(
+                            "project.skill_placement_conflict",
+                            "old-root file shadows contained skill authority",
+                        )
+        return catalog
     except AgentSkillCatalogError as exc:
         raise ProjectError(exc.code, exc.message) from exc
 

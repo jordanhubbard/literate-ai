@@ -7,7 +7,6 @@ import json
 import os
 import posixpath
 import re
-import stat
 import subprocess
 import tempfile
 from contextlib import ExitStack, contextmanager
@@ -16,7 +15,7 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit, urlunsplit
 
 from literate_ai._cache_lock import exclusive_cache_lock
-from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
+from literate_ai._filesystem import require_safe_directory
 from literate_ai.adapters.catalog_import import _contained_catalog_records
 from literate_ai.adapters.conversion_authority import FilesystemConversionAuthorityStore
 from literate_ai.adapters.exclusive_directory import (
@@ -25,6 +24,11 @@ from literate_ai.adapters.exclusive_directory import (
     publish_directory_between_owned_parents_exclusive,
 )
 from literate_ai.adapters.forward_skill_placement import plan_forward_skill_placement
+from literate_ai.adapters.project_layout_filesystem import (
+    flush_migration_directory,
+    read_migration_file,
+    write_migration_file,
+)
 from literate_ai.adapters.project_layout_planning import (
     _MAX_FILE_BYTES,
     _PRODUCERS,
@@ -139,45 +143,17 @@ def _identity(content: bytes) -> str:
 
 
 def _file(path: Path) -> tuple[list[int], bytes, int]:
-    require_safe_directory(path.parent)
-    before = path.lstat()
-    if (
-        not stat.S_ISREG(before.st_mode)
-        or stat_is_link_or_reparse(before)
-        or before.st_nlink != 1
-        or before.st_size > _MAX_FILE_BYTES
-    ):
-        _fail("path_unsafe", f"migration requires bounded direct file {path.name}")
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    with os.fdopen(os.open(path, flags), "rb") as stream:
-        if _stamp(os.fstat(stream.fileno())) != _stamp(before):
-            _fail(
-                "plan_stale", f"migration file changed before observation: {path.name}"
-            )
-        content = stream.read(_MAX_FILE_BYTES + 1)
-    if _stamp(path.lstat()) != _stamp(before) or len(content) != before.st_size:
-        _fail("plan_stale", f"migration file changed during observation: {path.name}")
-    return (
-        [before.st_dev, before.st_ino, before.st_mode],
-        content,
-        stat.S_IMODE(before.st_mode),
+    return read_migration_file(
+        path, maximum_bytes=_MAX_FILE_BYTES, fail=_fail, stamp=_stamp
     )
 
 
 def _flush(directory: Path) -> None:
-    descriptor = os.open(directory, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-    try:
-        os.fsync(descriptor)
-    finally:
-        os.close(descriptor)
+    flush_migration_directory(directory)
 
 
 def _write(path: Path, content: bytes, mode: int = 0o600) -> None:
-    with path.open("xb") as stream:
-        os.fchmod(stream.fileno(), mode)
-        stream.write(content)
-        stream.flush()
-        os.fsync(stream.fileno())
+    write_migration_file(path, content, mode)
 
 
 def _documentation_edits(
@@ -318,7 +294,22 @@ def _read_selection(
     root = snapshot.root
     git_dir = _worktree(root)
     if inventory["framework_directory"] is not None:
-        _fail("migration_profile", "migration requires canonical legacy root authority")
+        if (
+            inventory["framework_directory"] != "litai"
+            or not place_imported_catalogs
+            or place_forward_skills
+            or place_release_policy
+        ):
+            _fail(
+                "migration_profile",
+                "contained continuation requires only --place-imported-catalogs",
+            )
+        from literate_ai.adapters.project_layout_planning import (
+            plan_contained_catalog_continuation,
+        )
+
+        plan, selection = plan_contained_catalog_continuation(root, references)
+        return plan, git_dir, {"catalog_continuation": selection}
     if os.path.lexists(git_dir / _JOURNAL):
         _fail("recovery_pending", "inspect or recover the existing migration journal")
     files = {item["path"]: item for item in inventory["members"]}
@@ -906,6 +897,12 @@ def apply_legacy_layout_migration(
             _fail(
                 "reference_authority", "review and authorize the listed reference edits"
             )
+        if "catalog_continuation" in content:
+            from literate_ai.adapters.project_layout_continuation import (
+                apply_catalog_continuation,
+            )
+
+            return apply_catalog_continuation(content["catalog_continuation"], expected)
         journal, intent = _journal(root, git_dir, plan, content)
         future = journal / "future"
         try:
@@ -960,6 +957,16 @@ def recover_legacy_layout_migration(
     _worktree(root)
     with ProjectConfigurationStore.layout_lock(root):
         git_dir = _worktree(root)
+        from literate_ai.adapters.project_layout_continuation import (
+            journal_path,
+            recover_catalog_continuation,
+        )
+
+        continuation = journal_path(root, expected)
+        require_safe_directory(continuation.parent, allow_missing=True)
+        if os.path.lexists(continuation):
+            require_safe_directory(continuation)
+            return recover_catalog_continuation(root, expected)
         journal, intent = _load_journal(git_dir, expected)
         if intent["plan"]["project"] != str(root):
             _fail("recovery_conflict", "journal belongs to another worktree")

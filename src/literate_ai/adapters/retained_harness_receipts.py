@@ -660,7 +660,9 @@ def _load_retained_documents(
             "retained harness inventory has an unsupported schema",
         )
     _inventory_phase_kinds(inventory)
-    wrapper = project.root / _WRAPPER_PATH
+    from .retained_scaffold_coordinates import retained_scaffold_path
+
+    wrapper = retained_scaffold_path(project.root, _WRAPPER_PATH)
     try:
         if wrapper.is_symlink() or not wrapper.is_file():
             raise OSError

@@ -1736,7 +1736,9 @@ def execute_harness_wrapper_parity(
                 workspace_links
             )
         return skipped
-    wrapper = project_root / HARNESS_WRAPPER_FILENAME
+    from .retained_scaffold_coordinates import retained_scaffold_path
+
+    wrapper = retained_scaffold_path(project_root, HARNESS_WRAPPER_FILENAME)
     if not wrapper.is_file() or wrapper.is_symlink():
         raise HarnessBaselineError(
             "project.convert_wrapper_unavailable",
@@ -1783,7 +1785,7 @@ def execute_harness_wrapper_parity(
 
     with tempfile.TemporaryDirectory(
         prefix=".literate-ai-convert-wrapper-",
-        dir=project_root,
+        dir=wrapper.parent,
     ) as parity_directory:
         workspace_root = Path(parity_directory)
         parity_root = workspace_root / "legacy"
@@ -2403,9 +2405,25 @@ def prepare_native_rewrite_program(
             )
         ).hexdigest()
     )
-    adr_relative = "docs/decisions/0002-native-literate-ai-rewrite.md"
-    roadmap_relative = "docs/roadmap/native-rewrite-program.md"
-    active = project_root / "docs" / "roadmap" / "active-work.md"
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(project_root)
+    adr_relative = (
+        context.framework_path("docs/decisions/0002-native-literate-ai-rewrite.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
+    roadmap_relative = (
+        context.framework_path("docs/roadmap/native-rewrite-program.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
+    queue_relative = (
+        context.framework_path("docs/roadmap/active-work.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
+    active = project_root / queue_relative
     active_text = active.read_text(encoding="utf-8")
     item = f"""
 
@@ -2430,7 +2448,7 @@ def prepare_native_rewrite_program(
     from .roadmap_dependencies import require_project_roadmap_acyclic
 
     require_project_roadmap_acyclic(
-        project_root, {"docs/roadmap/active-work.md": proposed.encode("utf-8")}
+        project_root, {queue_relative: proposed.encode("utf-8")}
     )
     (project_root / adr_relative).write_text(
         render_native_rewrite_adr(
@@ -2447,7 +2465,7 @@ def prepare_native_rewrite_program(
     )
     if proposed != active_text:
         active.write_text(proposed, encoding="utf-8", newline="\n")
-    docs_readme = project_root / "docs" / "README.md"
+    docs_readme = context.framework_path("docs/README.md")
     links = (
         "- [Native rewrite decision](decisions/0002-native-literate-ai-rewrite.md)\n"
         "- [Native rewrite program](roadmap/native-rewrite-program.md)"
@@ -2519,7 +2537,9 @@ def lift_shift_legacy_project(
                     "vcs": mode,
                 }
             )
-        wrapper = project_root / HARNESS_WRAPPER_FILENAME
+        from .retained_scaffold_coordinates import retained_scaffold_path
+
+        wrapper = retained_scaffold_path(project_root, HARNESS_WRAPPER_FILENAME)
         original_wrapper = wrapper.read_text(encoding="utf-8")
         implementation_relative = implementation.relative_to(project_root).as_posix()
         wrapper.write_text(
@@ -2579,7 +2599,14 @@ def lift_shift_legacy_project(
             )
         ).hexdigest()
     )
-    adr_relative = "docs/decisions/0001-legacy-project-lift-and-shift.md"
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(project_root)
+    adr_relative = (
+        context.framework_path("docs/decisions/0001-legacy-project-lift-and-shift.md")
+        .relative_to(project_root)
+        .as_posix()
+    )
     adr = project_root / adr_relative
     adr.parent.mkdir(parents=True, exist_ok=True)
     adr.write_text(

@@ -54,6 +54,11 @@ from literate_ai.adapters.monorepo_adoption import (
     plan_monorepo_adoption,
     single_root_baseline_inventory,
 )
+from literate_ai.adapters.project_scaffold_placement import (
+    ScaffoldLayout,
+    ScaffoldPlacementError,
+    project_scaffold_placement,
+)
 from literate_ai.adapters.project_validation import (
     FilesystemProjectValidationAdapter,
     ProjectValidationError,
@@ -1792,7 +1797,7 @@ def _starter_acceptance_cases(specification: str) -> list[dict[str, object]]:
     ]
 
 
-def _write_starter_acceptance_oracle(target: Path) -> str:
+def _write_starter_acceptance_oracle(target: Path, *, placement=None) -> str:
     """Scaffold the starter Component's verifier-owned acceptance oracle.
 
     Generated source must be independently accepted, so a Component with no oracle
@@ -1804,8 +1809,9 @@ def _write_starter_acceptance_oracle(target: Path) -> str:
     reads would tell the model exactly where to look.
     """
 
+    framework = target if placement is None else placement.context.framework_root
     lock = json.loads(
-        (target / "samples" / "hello-component" / "component.lock.json").read_text(
+        (framework / "samples" / "hello-component" / "component.lock.json").read_text(
             encoding="utf-8"
         )
     )
@@ -1822,35 +1828,51 @@ def _write_starter_acceptance_oracle(target: Path) -> str:
             f"{specification['algorithm']}:{specification['digest']}"
         ),
         "cases": _starter_acceptance_cases(
-            (target / "samples" / "hello-component" / "component.md").read_text(
+            (framework / "samples" / "hello-component" / "component.md").read_text(
                 encoding="utf-8"
             )
         ),
     }
     relative = "verification/acceptance/hello-component.json"
-    path = target.joinpath(*Path(relative).parts)
+    path = framework.joinpath(*Path(relative).parts)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
     return relative
 
 
-def _require_initializable_target(target: Path) -> None:
+def _require_initializable_target(target: Path, *, placement=None) -> None:
     """Admit only harmless repository bootstrap state before scaffolding."""
 
+    from literate_ai._filesystem import require_safe_directory, stat_is_link_or_reparse
+
+    permitted = _PRESERVED_INITIALIZATION_ENTRIES
+    if placement is not None:
+        permitted |= {
+            "AGENTS.md",
+            "CLAUDE.md",
+            "agents",
+            ".cursor",
+            ".gitignore",
+            "CHANGELOG.md",
+        }
     unexpected: list[str] = []
     for entry in sorted(target.iterdir(), key=lambda item: item.name):
-        if entry.name not in _PRESERVED_INITIALIZATION_ENTRIES:
+        if entry.name not in permitted:
             unexpected.append(entry.name)
             continue
+        directory = entry.name in {".git", "agents", ".cursor"}
+        metadata = entry.lstat()
         if (
-            entry.is_symlink()
-            or (entry.name == ".git" and not entry.is_dir())
-            or (entry.name == "README.md" and not entry.is_file())
+            stat_is_link_or_reparse(metadata)
+            or (directory and not stat.S_ISDIR(metadata.st_mode))
+            or (not directory and not stat.S_ISREG(metadata.st_mode))
         ):
             raise ProjectInitializationError(
                 "project.init_target_invalid",
                 f"preserved repository bootstrap entry is unsafe: {entry.name}",
             )
+        if directory:
+            require_safe_directory(entry)
     if unexpected:
         preview = ", ".join(unexpected[:8])
         if len(unexpected) > 8:
@@ -2790,7 +2812,97 @@ class FilesystemProjectInitializationAdapter:
         parent_selection: RepositoryParentSelection | None = None,
         default_branch: str | None = None,
         root_plan: Path | None = None,
+        _layout: ScaffoldLayout = ScaffoldLayout.DERIVED_CONTAINED,
     ) -> dict[str, Any]:
+        if type(_layout) is not ScaffoldLayout:
+            raise ProjectInitializationError(
+                "project.scaffold.layout_invalid",
+                "explicit typed internal layout required",
+            )
+        if _layout is ScaffoldLayout.DERIVED_CONTAINED:
+            try:
+                placement = project_scaffold_placement(
+                    target,
+                    (*_TEMPLATE_FILES, *_STARTER_TEMPLATE_FILES, *_STARTER_DOCS),
+                    layout=_layout,
+                )
+                placement.preflight_new_destination()
+                return self._initialize_contained_scaffold(
+                    placement,
+                    flavor_selectors=flavor_selectors,
+                    project_id=project_id,
+                    profile=profile,
+                    source_intelligence_provider=source_intelligence_provider,
+                    empty=empty,
+                    project_type=project_type,
+                    bootstrap_tools=bootstrap_tools,
+                    convert=convert,
+                    run_baseline=run_baseline,
+                    baseline_timeout_seconds=baseline_timeout_seconds,
+                    baseline_diagnostic_chars=baseline_diagnostic_chars,
+                    harness_workspace_links=harness_workspace_links,
+                    allow_unready=allow_unready,
+                    parent_selection=parent_selection,
+                    default_branch=default_branch,
+                    root_plan=root_plan,
+                )
+            except ScaffoldPlacementError as exc:
+                raise ProjectInitializationError(exc.code, exc.message) from exc
+        # Explicit INTERNAL root authoring/legacy fixtures preserve the historical
+        # body. A root parent alone never chooses this branch.
+        return self._initialize_project_scaffold(
+            target,
+            flavor_selectors=flavor_selectors,
+            project_id=project_id,
+            profile=profile,
+            source_intelligence_provider=source_intelligence_provider,
+            empty=empty,
+            project_type=project_type,
+            bootstrap_tools=bootstrap_tools,
+            convert=convert,
+            run_baseline=run_baseline,
+            baseline_timeout_seconds=baseline_timeout_seconds,
+            baseline_diagnostic_chars=baseline_diagnostic_chars,
+            harness_workspace_links=harness_workspace_links,
+            allow_unready=allow_unready,
+            parent_selection=parent_selection,
+            default_branch=default_branch,
+            root_plan=root_plan,
+        )
+
+    def _initialize_project_scaffold(
+        self,
+        target: Path,
+        *,
+        flavor_selectors: tuple[str, ...] | None = None,
+        project_id: str | None = None,
+        profile: str = "canonical",
+        source_intelligence_provider: str = "none",
+        empty: bool = False,
+        project_type: str | None = None,
+        bootstrap_tools: bool = True,
+        convert: bool = False,
+        run_baseline: bool = False,
+        baseline_timeout_seconds: int = HARNESS_COMMAND_TIMEOUT_SECONDS,
+        baseline_diagnostic_chars: int = HARNESS_DIAGNOSTIC_CHARS,
+        harness_workspace_links: tuple[HarnessWorkspaceLink, ...] = (),
+        allow_unready: bool = False,
+        parent_selection: RepositoryParentSelection | None = None,
+        default_branch: str | None = None,
+        root_plan: Path | None = None,
+        _placement=None,
+        _bootstrap_inputs=None,
+    ) -> dict[str, Any]:
+        def coordinate(relative):
+            return (
+                relative
+                if _placement is None
+                else _placement.produced_coordinate(relative)
+            )
+
+        def framework_path(relative):
+            return resolved_target.joinpath(*Path(coordinate(relative)).parts)
+
         try:
             baseline_timeout_seconds = validate_harness_command_timeout(
                 baseline_timeout_seconds
@@ -2961,7 +3073,10 @@ class FilesystemProjectInitializationAdapter:
                 *Path(INITIALIZATION_BASELINE_FILE).parts
             ).is_file()
         elif resolved_target.exists():
-            _require_initializable_target(resolved_target)
+            _require_initializable_target(
+                resolved_target,
+                **({"placement": _placement} if _placement is not None else {}),
+            )
         origin = self._initialization_origin_provider()
         if not isinstance(origin, ProjectInitializationOrigin):
             raise ProjectInitializationError(
@@ -3045,6 +3160,9 @@ class FilesystemProjectInitializationAdapter:
             project_type=resolved_project_type,
             repository_policy=repository_policy,
         )
+        if _placement is not None:
+            definition = _placement.project_definition(definition)
+            inherited_catalogs = _placement.inherited_catalog_plan(inherited_catalogs)
         active_flavors = frozenset(
             _FLAVOR_DIRECTORY_BY_CANONICAL[
                 FLAVOR_SELECTOR_CANONICAL_NAMES.get(
@@ -3156,10 +3274,8 @@ class FilesystemProjectInitializationAdapter:
         resolved_target.mkdir(parents=True, exist_ok=True)
         _mkdir_exist_ok = convert
         for relative in directories:
-            resolved_target.joinpath(*Path(relative).parts).mkdir(
-                parents=True, exist_ok=_mkdir_exist_ok
-            )
-        (resolved_target / "verification").mkdir(exist_ok=_mkdir_exist_ok)
+            framework_path(relative).mkdir(parents=True, exist_ok=_mkdir_exist_ok)
+        framework_path("verification").mkdir(exist_ok=_mkdir_exist_ok)
         # Place .gitkeep in declared roots that may start empty so Git
         # preserves them across clone.  Only target roots that a converted
         # project declares but the init template may not populate. Components
@@ -3168,9 +3284,11 @@ class FilesystemProjectInitializationAdapter:
         # See #207 and SUBMODULE-ORCH-001's clean-clone acceptance.
         _GITKEEP_CANDIDATES = ("components", "samples", "mcps", "verification")
         for relative in _GITKEEP_CANDIDATES:
-            path = resolved_target.joinpath(*Path(relative).parts)
+            path = framework_path(relative)
             if path.is_dir() and not any(path.iterdir()):
                 (path / ".gitkeep").write_text("", encoding="utf-8")
+        if _placement is not None:
+            ProjectConfigurationStore(resolved_target).create(definition)
         harness_inventory_document: dict[str, object] | None = None
         harness_baseline_document: dict[str, object] | None = None
         harness_parity_document: dict[str, object] | None = None
@@ -3240,7 +3358,7 @@ class FilesystemProjectInitializationAdapter:
                     harness_inventory_document
                 ),
             )
-            evidence_dir = resolved_target / ".literate"
+            evidence_dir = framework_path(".literate")
             evidence_dir.mkdir(exist_ok=True)
             inventory_path = evidence_dir / "harness-inventory.json"
             inventory_path.write_bytes(
@@ -3258,7 +3376,9 @@ class FilesystemProjectInitializationAdapter:
                     # the CI workspace can mount it.
                     with tempfile.TemporaryDirectory(
                         prefix=".literate-ai-convert-baseline-",
-                        dir=resolved_target,
+                        dir=resolved_target
+                        if _placement is None
+                        else framework_path(".literate"),
                     ) as baseline_directory:
                         workspace_root = Path(baseline_directory)
                         baseline_root = workspace_root / "legacy"
@@ -3294,15 +3414,19 @@ class FilesystemProjectInitializationAdapter:
                     legacy_directory=str(quarantine["directory"]),
                     legacy_root=resolved_target / str(quarantine["directory"]),
                 )
-                wrapper_path = resolved_target / HARNESS_WRAPPER_FILENAME
+                wrapper_path = framework_path(HARNESS_WRAPPER_FILENAME)
                 wrapper_path.write_text(wrapper_text, encoding="utf-8", newline="\n")
                 harness_wrapper_path = HARNESS_WRAPPER_FILENAME
                 shim_authority = legacy_shim_authority(
                     harness_inventory_document, harness_baseline_document
                 )
                 for relative, content in shim_authority.items():
-                    path = resolved_target.joinpath(*Path(relative).parts)
+                    path = framework_path(relative)
                     path.parent.mkdir(parents=True, exist_ok=True)
+                    if _placement is not None:
+                        content = _placement.template_content(
+                            relative, content.encode()
+                        ).decode()
                     path.write_text(content, encoding="utf-8", newline="\n")
                     shim_authority_paths.append(relative)
                 harness_parity_document = execute_harness_wrapper_parity(
@@ -3343,7 +3467,13 @@ class FilesystemProjectInitializationAdapter:
                         outcome="literate-ai conversion was rolled back",
                     ),
                 ) from exc
-        ProjectConfigurationStore(resolved_target).create(definition)
+        if _placement is None:
+            ProjectConfigurationStore(resolved_target).create(definition)
+        elif definition != ProjectConfigurationStore(resolved_target).read().definition:
+            # Retained suite policy is derived from actual original inventory. It
+            # becomes current before ordinary wrapper metadata/lock consumers.
+            snapshot = ProjectConfigurationStore(resolved_target).read()
+            ProjectConfigurationStore(resolved_target).update(snapshot, definition)
         created: list[str] = [PROJECT_FILENAME]
         if harness_wrapper_path is not None:
             created.extend(
@@ -3358,9 +3488,32 @@ class FilesystemProjectInitializationAdapter:
         for destination, resource in _TEMPLATE_FILES.items():
             if not _include_template_file(destination, active_flavors):
                 continue
-            path = resolved_target.joinpath(*Path(destination).parts)
+            path = framework_path(destination)
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(_template_text(resource), encoding="utf-8", newline="\n")
+            content = _template_text(resource).encode("utf-8")
+            if _placement is not None:
+                row = _placement.entry(destination)
+                original = (_bootstrap_inputs or {}).get(destination)
+                if row.role == "application-seed" and original is not None:
+                    # Existing product history is never rewritten or claimed as
+                    # newly initialized framework-owned baseline authority.
+                    original[1]()
+                    continue
+                if row.role == "root-delegate":
+                    before, guard = original if original is not None else (None, None)
+                    edit = _placement.plan_delegate(destination, before)
+                    if guard is not None:
+                        guard()
+                    elif os.path.lexists(path):
+                        raise ProjectInitializationError(
+                            "project.scaffold.delegate_stale",
+                            "originally absent root delegate appeared "
+                            "before publication",
+                        )
+                    content = edit.content
+                else:
+                    content = _placement.template_content(destination, content)
+            path.write_bytes(content)
             created.append(destination)
         if (
             convert
@@ -3475,9 +3628,7 @@ class FilesystemProjectInitializationAdapter:
                 finally:
                     monorepo_staging.cleanup()
                     monorepo_staging = None
-                for path in resolved_target.joinpath(
-                    *Path(".literate/monorepo-components").parts
-                ).rglob("*"):
+                for path in framework_path(".literate/monorepo-components").rglob("*"):
                     if path.is_file():
                         created.append(path.relative_to(resolved_target).as_posix())
                 for name in monorepo_components_document["components"]:
@@ -3499,11 +3650,12 @@ class FilesystemProjectInitializationAdapter:
         )
         if include_starter and not inherited_starter:
             for destination, resource in _STARTER_TEMPLATE_FILES.items():
-                path = resolved_target.joinpath(*Path(destination).parts)
+                path = framework_path(destination)
                 path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(
-                    _template_text(resource), encoding="utf-8", newline="\n"
-                )
+                content = _template_text(resource).encode("utf-8")
+                if _placement is not None:
+                    content = _placement.template_content(destination, content)
+                path.write_bytes(content)
                 created.append(destination)
         if repository_lineage.nodes:
             try:
@@ -3530,23 +3682,23 @@ class FilesystemProjectInitializationAdapter:
         # fresh project's later `lock --check` observes.  Derived lock/audit/oracle
         # evidence is intentionally added after this point and remains dynamic rather
         # than framework-template update authority.
-        evidence_root = resolved_target / ".literate"
+        evidence_root = framework_path(".literate")
         evidence_root.mkdir(exist_ok=True)
-        origin_path = resolved_target.joinpath(*Path(INITIALIZATION_ORIGIN_FILE).parts)
+        origin_path = framework_path(INITIALIZATION_ORIGIN_FILE)
         origin_path.write_bytes(canonical_json_bytes(origin.to_dict()) + b"\n")
         created.append(INITIALIZATION_ORIGIN_FILE)
-        baseline = _initialization_baseline(resolved_target, origin, created)
-        baseline_path = resolved_target.joinpath(
-            *Path(INITIALIZATION_BASELINE_FILE).parts
+        baseline = _initialization_baseline(
+            resolved_target, origin, [coordinate(row) for row in created]
         )
+        baseline_path = framework_path(INITIALIZATION_BASELINE_FILE)
         baseline_path.write_bytes(canonical_json_bytes(baseline.to_dict()) + b"\n")
         if harness_inventory_document is not None:
             try:
                 update_component_lock(
-                    resolved_target / "components" / "legacy-project-wrapper",
+                    framework_path("components/legacy-project-wrapper"),
                     target_name="host",
                     flavor_selectors=("+flavor://legacy-adoption/build-legacy-shim",),
-                    flavor_roots=(resolved_target / "flavors",),
+                    flavor_roots=(framework_path("flavors"),),
                 )
             except (
                 ComponentLockPlanningError,
@@ -3569,12 +3721,12 @@ class FilesystemProjectInitializationAdapter:
             for name in monorepo_components_document["components"]:
                 try:
                     update_component_lock(
-                        resolved_target / "components" / name,
+                        framework_path(f"components/{name}"),
                         target_name="host",
                         flavor_selectors=(
                             "+flavor://legacy-adoption/build-legacy-shim",
                         ),
-                        flavor_roots=(resolved_target / "flavors",),
+                        flavor_roots=(framework_path("flavors"),),
                     )
                 except (
                     ComponentLockPlanningError,
@@ -3600,10 +3752,10 @@ class FilesystemProjectInitializationAdapter:
         ):
             try:
                 update_component_lock(
-                    resolved_target / "components" / "document-pair",
+                    framework_path("components/document-pair"),
                     target_name="host",
                     flavor_selectors=(),
-                    flavor_roots=(resolved_target / "flavors",),
+                    flavor_roots=(framework_path("flavors"),),
                 )
             except (
                 ComponentLockPlanningError,
@@ -3624,10 +3776,10 @@ class FilesystemProjectInitializationAdapter:
         if include_starter or (not effective_empty and inherited_starter):
             try:
                 initial_lock = update_component_lock(
-                    resolved_target / "samples" / "hello-component",
+                    framework_path("samples/hello-component"),
                     target_name="host",
                     flavor_selectors=(),
-                    flavor_roots=(resolved_target / "flavors",),
+                    flavor_roots=(framework_path("flavors"),),
                 )
             except (
                 ComponentLockPlanningError,
@@ -3645,20 +3797,23 @@ class FilesystemProjectInitializationAdapter:
                     "samples/hello-component/component.resolution-audit.host.json",
                 )
             )
-            created.append(_write_starter_acceptance_oracle(resolved_target))
+            created.append(
+                _write_starter_acceptance_oracle(
+                    resolved_target,
+                    **({"placement": _placement} if _placement is not None else {}),
+                )
+            )
         else:
             initial_lock = None
         for destination in _STARTER_DOCS:
-            path = resolved_target.joinpath(*Path(destination).parts)
+            path = framework_path(destination)
             path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(
-                render_starter_document(
-                    destination,
-                    converted=harness_lift_shift_document is not None,
-                ),
-                encoding="utf-8",
-                newline="\n",
-            )
+            content = render_starter_document(
+                destination, converted=harness_lift_shift_document is not None
+            ).encode("utf-8")
+            if _placement is not None:
+                content = _placement.template_content(destination, content)
+            path.write_bytes(content)
             created.append(destination)
         try:
             initialized_project = self._validation.validate(
@@ -3676,7 +3831,7 @@ class FilesystemProjectInitializationAdapter:
         current_review = self._record_authority_review(
             resolved_target,
             review,
-            document=DEFAULT_AUTHORITY_REVIEW_DOCUMENT,
+            document=coordinate(DEFAULT_AUTHORITY_REVIEW_DOCUMENT),
         )
         authority_identity = current_review.get("authority_identity")
         if not isinstance(authority_identity, str):
@@ -3688,7 +3843,9 @@ class FilesystemProjectInitializationAdapter:
         # documentation review exist.  Its catalog sentinel set is identical to the
         # provisional pre-lock baseline above, so this enrichment cannot change the
         # authority graph to which those locks were bound.
-        baseline = _initialization_baseline(resolved_target, origin, created)
+        baseline = _initialization_baseline(
+            resolved_target, origin, [coordinate(row) for row in created]
+        )
         baseline_path.write_bytes(canonical_json_bytes(baseline.to_dict()) + b"\n")
         created.append(INITIALIZATION_BASELINE_FILE)
         from literate_ai.contracts import CatalogImportsFile
@@ -3698,11 +3855,13 @@ class FilesystemProjectInitializationAdapter:
         bases = UpdateBases(resolved_target)
         for relative in created:
             if not relative.startswith(".literate/"):
-                path = resolved_target / relative
+                path = framework_path(relative)
                 if path.is_file():
                     bases.retain(path.read_bytes())
-        if (resolved_target / CatalogImportsFile.PATH).is_file():
-            bases.remember_catalog(CatalogImportsFile.load(resolved_target).imports)
+        if framework_path(CatalogImportsFile.PATH).is_file():
+            bases.remember_catalog(
+                CatalogImportsFile.load(evidence_root.parent).imports
+            )
         bases.write()
         created.append(CHECKPOINT)
         try:
@@ -3763,23 +3922,23 @@ class FilesystemProjectInitializationAdapter:
             "source_intelligence": initialized_project["source_intelligence"],
             "tool_bootstrap": tool_bootstrap,
             "prerequisites": prerequisites,
-            "created": sorted(set(created)),
+            "created": sorted({coordinate(row) for row in created}),
             "initialization_origin": {
-                "path": INITIALIZATION_ORIGIN_FILE,
+                "path": coordinate(INITIALIZATION_ORIGIN_FILE),
                 "identity": origin.identity.uri,
             },
             "initialization_baseline": {
-                "path": INITIALIZATION_BASELINE_FILE,
+                "path": coordinate(INITIALIZATION_BASELINE_FILE),
                 "identity": baseline.identity.uri,
                 "template_protocol": baseline.template_protocol,
                 "file_count": len(baseline.files),
             },
             "repository_parent": {
-                "path": REPOSITORY_PARENT_FILE,
+                "path": coordinate(REPOSITORY_PARENT_FILE),
                 "identity": selection.identity.uri,
             },
             "repository_lineage": {
-                "path": REPOSITORY_LINEAGE_FILE,
+                "path": coordinate(REPOSITORY_LINEAGE_FILE),
                 "identity": repository_lineage.identity.uri,
                 "node_count": len(repository_lineage.nodes),
             },
@@ -3789,10 +3948,12 @@ class FilesystemProjectInitializationAdapter:
                     {item.source.identity for item in inherited_catalogs.items}
                 ),
                 "provenance": (
-                    ".literate/imports.json" if repository_lineage.nodes else None
+                    coordinate(".literate/imports.json")
+                    if repository_lineage.nodes
+                    else None
                 ),
             },
-            "catalogs": list(directories),
+            "catalogs": [coordinate(row) for row in directories],
             "initial_lock": initial_lock,
             "standard_binding": (
                 "retained-harness"
@@ -3804,17 +3965,17 @@ class FilesystemProjectInitializationAdapter:
             "test_matrix": {
                 "state": "optional-user-configured",
                 "configuration": str(test_configuration),
-                "example": "literate.test.example.json",
+                "example": coordinate("literate.test.example.json"),
                 "worker_configuration": str(private_paths.worker_config),
-                "worker_example": "literate.workers.example.json",
-                "documentation": "docs/user/test-matrix.md",
+                "worker_example": coordinate("literate.workers.example.json"),
+                "documentation": coordinate("docs/user/test-matrix.md"),
                 "version_control": "outside-project",
             },
             "preserved": [],
             "convert_quarantine": quarantine,
             "harness_inventory": (
                 {
-                    "path": ".literate/harness-inventory.json",
+                    "path": coordinate(".literate/harness-inventory.json"),
                     "finding_count": len(harness_inventory_document["findings"]),
                     "commands": sorted(harness_inventory_document["commands"]),
                     "workspace_link_destinations": list(
@@ -3826,12 +3987,14 @@ class FilesystemProjectInitializationAdapter:
                 if harness_inventory_document is not None
                 else None
             ),
-            "harness_wrapper": harness_wrapper_path,
+            "harness_wrapper": coordinate(harness_wrapper_path)
+            if harness_wrapper_path is not None
+            else None,
             "monorepo_components": monorepo_components_document,
-            "shim_authority": sorted(shim_authority_paths),
+            "shim_authority": sorted(coordinate(path) for path in shim_authority_paths),
             "harness_baseline": (
                 {
-                    "path": ".literate/legacy-harness-baseline.json",
+                    "path": coordinate(".literate/legacy-harness-baseline.json"),
                     "state": harness_baseline_document["state"],
                     "phase_count": harness_baseline_document["phase_count"],
                     "timeout_seconds": harness_baseline_document["timeout_seconds"],
@@ -3841,7 +4004,7 @@ class FilesystemProjectInitializationAdapter:
             ),
             "harness_parity": (
                 {
-                    "path": ".literate/legacy-wrapper-parity.json",
+                    "path": coordinate(".literate/legacy-wrapper-parity.json"),
                     "state": harness_parity_document["state"],
                     "phase_count": harness_parity_document["phase_count"],
                     "timeout_seconds": harness_parity_document["timeout_seconds"],
@@ -3851,7 +4014,7 @@ class FilesystemProjectInitializationAdapter:
             ),
             "lift_shift": (
                 {
-                    "path": ".literate/legacy-lift-shift.json",
+                    "path": coordinate(".literate/legacy-lift-shift.json"),
                     "state": harness_lift_shift_document["state"],
                     "implementation_directory": harness_lift_shift_document[
                         "implementation_directory"
@@ -3870,7 +4033,7 @@ class FilesystemProjectInitializationAdapter:
             else [],
             "conversion_authority": (
                 {
-                    "path": CONVERSION_AUTHORITY_FILE,
+                    "path": coordinate(CONVERSION_AUTHORITY_FILE),
                     "identity": conversion_authority.identity.uri,
                     **conversion_authority.to_dict(),
                 }
@@ -3878,6 +4041,41 @@ class FilesystemProjectInitializationAdapter:
                 else None
             ),
         }
+
+    def _initialize_contained_scaffold(self, placement, **kwargs):
+        from literate_ai._filesystem import require_safe_directory
+        from literate_ai.projects import PinnedInputClosure
+
+        original_inputs = {}
+        if not kwargs["convert"]:
+            for row in placement.files:
+                if row.role not in {"root-delegate", "application-seed"}:
+                    continue
+                path = placement.context.root / row.coordinate
+                require_safe_directory(path.parent, allow_missing=True)
+                if not os.path.lexists(path):
+                    continue
+                pins = PinnedInputClosure(
+                    maximum_files=1,
+                    maximum_file_bytes=16 * 1024**2,
+                    maximum_total_bytes=16 * 1024**2,
+                )
+                content = pins.pin(
+                    path,
+                    boundary=placement.context.root,
+                    label="original bootstrap integration",
+                )
+                if row.role == "root-delegate":
+                    # Preflight custom-region conflicts before origin callbacks or
+                    # any scaffold/quarantine publication.
+                    placement.plan_delegate(row.logical, content)
+                original_inputs[row.logical] = (content, pins.require_unchanged)
+        return self._initialize_project_scaffold(
+            placement.context.root,
+            _placement=placement,
+            _bootstrap_inputs=original_inputs,
+            **kwargs,
+        )
 
     def record_authority_review(
         self,

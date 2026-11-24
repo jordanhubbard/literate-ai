@@ -90,11 +90,25 @@ def _require_existing_contained_parent_authority(project) -> None:
             snapshot = ProjectConfigurationStore(project.root).read()
             imports = read_contained_catalog_imports(snapshot)
             recorded = FilesystemRepositoryLineageStore(project.root).load_optional()
-            if (
-                imports is not None
-                and imports.imports
-                and recorded
-                and recorded[1].nodes
+            if recorded and (
+                (imports is not None and imports.imports and recorded[1].nodes)
+                or (
+                    not recorded[1].nodes
+                    and recorded[0] == RepositoryParentSelection.root()
+                    and project.agent_skill == project.framework_root / "SKILL.md"
+                    and all(
+                        row.path.startswith("litai/")
+                        or row.path
+                        in {
+                            "AGENTS.md",
+                            "CLAUDE.md",
+                            "agents/openai.yaml",
+                            ".cursor/rules/literate-ai.mdc",
+                            "CHANGELOG.md",
+                        }
+                        for row in baseline.files
+                    )
+                )
             ):
                 return
     except (

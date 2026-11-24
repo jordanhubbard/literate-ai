@@ -348,9 +348,12 @@ def resolve_legacy_layout(
     implementation_directory, implementation_root = resolve_legacy_implementation(
         project_root, lift_shift, _observation=_observation
     )
-    wrapper_root = (
-        Path(project_root).absolute().joinpath(*LEGACY_WRAPPER_COMPONENT.split("/"))
+    from .retained_scaffold_coordinates import retained_scaffold_coordinate
+
+    wrapper_component = retained_scaffold_coordinate(
+        Path(project_root).absolute(), LEGACY_WRAPPER_COMPONENT
     )
+    wrapper_root = Path(project_root).absolute().joinpath(*wrapper_component.split("/"))
     try:
         require_safe_directory(wrapper_root)
     except (OSError, UnsafeFilesystemPathError) as exc:
@@ -358,7 +361,7 @@ def resolve_legacy_layout(
             "retained wrapper is unavailable or redirected"
         ) from exc
     return ResolvedRetainedLayout(
-        wrapper_component=LEGACY_WRAPPER_COMPONENT,
+        wrapper_component=wrapper_component,
         wrapper_root=wrapper_root,
         implementation_directory=implementation_directory,
         implementation_root=implementation_root,

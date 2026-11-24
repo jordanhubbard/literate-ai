@@ -1,0 +1,358 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "literate-ai/project-layout-catalog-continuation@1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "mode",
+    "transaction_mode",
+    "project",
+    "project_id",
+    "framework_directory",
+    "inventory_identity",
+    "root_node",
+    "framework_node",
+    "git_state",
+    "framework_git_state",
+    "placements",
+    "resident_edits",
+    "reference_edits",
+    "held",
+    "blockers",
+    "blocked_references",
+    "renewal",
+    "applicable",
+    "writes",
+    "full_containment",
+    "plan_identity"
+  ],
+  "properties": {
+    "schema": {
+      "const": "literate-ai/project-layout-catalog-continuation@1"
+    },
+    "mode": {
+      "const": "read-only"
+    },
+    "transaction_mode": {
+      "const": "contained-catalog-continuation"
+    },
+    "project": {
+      "type": "string",
+      "minLength": 1
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "framework_directory": {
+      "const": "litai"
+    },
+    "inventory_identity": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "root_node": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "framework_node": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "git_state": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "head",
+            "index"
+          ],
+          "properties": {
+            "head": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "index": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        }
+      ]
+    },
+    "framework_git_state": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "head",
+            "index"
+          ],
+          "properties": {
+            "head": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            },
+            "index": {
+              "type": "string",
+              "pattern": "^sha256:[0-9a-f]{64}$"
+            }
+          }
+        }
+      ]
+    },
+    "placements": {
+      "type": "object",
+      "maxProperties": 8192,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "destination",
+          "from",
+          "to",
+          "mode"
+        ],
+        "properties": {
+          "destination": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)[^\\\\\\x00-\\x1f]+$"
+          },
+          "from": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "mode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          }
+        }
+      }
+    },
+    "resident_edits": {
+      "type": "object",
+      "maxProperties": 8192,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to",
+          "mode",
+          "owner"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "mode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "reference_edits": {
+      "type": "object",
+      "maxProperties": 8192,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "from",
+          "to",
+          "mode",
+          "links"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "to": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "mode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          },
+          "links": {
+            "type": "array",
+            "maxItems": 8192,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "line",
+                "from",
+                "to"
+              ],
+              "properties": {
+                "line": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "from": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "to": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "held": {
+      "type": "array",
+      "maxItems": 8192,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "role",
+          "identity",
+          "mode"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)[^\\\\\\x00-\\x1f]+$"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          },
+          "identity": {
+            "type": "string",
+            "pattern": "^sha256:[0-9a-f]{64}$"
+          },
+          "mode": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4095
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 8192,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "owner",
+          "reason"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "blocked_references": {
+      "type": "array",
+      "maxItems": 8192,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "line",
+          "target"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)[^\\\\\\x00-\\x1f]+$"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?/)[^\\\\\\x00-\\x1f]+$"
+          }
+        }
+      }
+    },
+    "renewal": {
+      "type": "array",
+      "maxItems": 8192,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "applicable": {
+      "type": "boolean"
+    },
+    "writes": {
+      "const": false
+    },
+    "full_containment": {
+      "const": false
+    },
+    "plan_identity": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

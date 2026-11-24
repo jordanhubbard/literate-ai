@@ -277,7 +277,10 @@ class GenerationInputAudit:
         root = _require_direct_directory(Path(project_root), label="promoted project")
         for entry in self.entries:
             migration_target = (
-                entry.target_path == "literate.project.json"
+                entry.target_path
+                == _framework_metadata_coordinate(
+                    Path(project_root), "literate.project.json"
+                ).as_posix()
                 and standard_rebind_migration is not None
             )
             content = _read_regular_file(
@@ -1591,6 +1594,15 @@ def _string(value: Any, path: str, field: str) -> str:
     return value
 
 
+def _framework_metadata_coordinate(project_root: Path, relative: str) -> PurePosixPath:
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(project_root)
+    return PurePosixPath(
+        context.framework_path(relative).relative_to(context.root).as_posix()
+    )
+
+
 def verify_source_promotion_evidence(
     project_root: Path,
     projection: ComponentAuthorityProjection,
@@ -1606,7 +1618,9 @@ def verify_source_promotion_evidence(
         )
     promotion_identity = projection.provenance_reference_identity
     record_path = (
-        PurePosixPath("provenance/source-promotion")
+        _framework_metadata_coordinate(
+            Path(project_root), "provenance/source-promotion"
+        )
         / (promotion_identity.digest)
         / "reference.json"
     )
@@ -1768,7 +1782,9 @@ def verify_source_promotion_evidence(
             record["translation_identity"], "translation identity"
         )
         translation_path = (
-            PurePosixPath("provenance/source-promotion")
+            _framework_metadata_coordinate(
+                Path(project_root), "provenance/source-promotion"
+            )
             / promotion_identity.digest
             / "source-translation.json"
         )
@@ -1813,7 +1829,9 @@ def verify_source_promotion_evidence(
             )
             inverse_content = _read_regular_file(
                 Path(project_root),
-                PurePosixPath("provenance/source-promotion")
+                _framework_metadata_coordinate(
+                    Path(project_root), "provenance/source-promotion"
+                )
                 / promotion_identity.digest
                 / "inverse-evidence.json",
                 max_bytes=64 * 1024 * 1024,
@@ -1867,7 +1885,9 @@ def verify_source_promotion_evidence(
     persisted_migrations: list[QualificationStandardRebindMigration] = []
     for evidence_identity in projection.evidence_identities:
         migration_path = (
-            PurePosixPath("provenance/qualification-rebind")
+            _framework_metadata_coordinate(
+                Path(project_root), "provenance/qualification-rebind"
+            )
             / f"{evidence_identity.digest}.json"
         )
         try:
@@ -1922,7 +1942,9 @@ def verify_source_promotion_evidence(
                 "audit reference is not at its content-addressed path",
             )
         project_relative = (
-            PurePosixPath("provenance/source-promotion")
+            _framework_metadata_coordinate(
+                Path(project_root), "provenance/source-promotion"
+            )
             / promotion_identity.digest
             / relative
         )
@@ -1942,7 +1964,11 @@ def verify_source_promotion_evidence(
             )
         audit_migration = standard_rebind_migration
         if prior_project_configuration is not None and any(
-            entry.target_path == "literate.project.json" for entry in audit.entries
+            entry.target_path
+            == _framework_metadata_coordinate(
+                Path(project_root), "literate.project.json"
+            ).as_posix()
+            for entry in audit.entries
         ):
             if audit_migration is not None:
                 raise SourcePromotionError(
@@ -1951,7 +1977,9 @@ def verify_source_promotion_evidence(
                 )
             current_configuration = _read_regular_file(
                 Path(project_root),
-                PurePosixPath("literate.project.json"),
+                _framework_metadata_coordinate(
+                    Path(project_root), "literate.project.json"
+                ),
                 max_bytes=1024 * 1024,
             )
             audit_migration = QualificationStandardRebindMigration(
@@ -1996,9 +2024,9 @@ def verify_source_promotion_evidence(
         )
     from .qualification_lifecycle import QualificationLifecycleResult
 
-    qualification_relative = PurePosixPath("provenance/qualification") / (
-        f"{closure.qualification_evidence_identity.digest}.json"
-    )
+    qualification_relative = _framework_metadata_coordinate(
+        Path(project_root), "provenance/qualification"
+    ) / (f"{closure.qualification_evidence_identity.digest}.json")
     qualification_content = _read_regular_file(
         Path(project_root), qualification_relative, max_bytes=16 * 1024 * 1024
     )
@@ -2044,7 +2072,9 @@ def verify_source_promotion_evidence(
             current_manifest = json.loads(
                 _read_regular_file(
                     Path(project_root),
-                    PurePosixPath("literate.project.json"),
+                    _framework_metadata_coordinate(
+                        Path(project_root), "literate.project.json"
+                    ),
                     max_bytes=1024 * 1024,
                 )
             )

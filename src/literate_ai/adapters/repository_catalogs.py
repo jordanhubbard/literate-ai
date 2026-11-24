@@ -437,8 +437,13 @@ def materialize_inherited_catalogs(
             if os.name != "nt":
                 os.chmod(destination, 0o755 if inherited.executable else 0o644)
             created.append(inherited.destination)
-    catalog_imports_for_plan(plan).save(root)
-    created.append(CatalogImportsFile.PATH)
+    from literate_ai.projects import ProjectConfigurationStore
+
+    context = ProjectConfigurationStore.context(root)
+    catalog_imports_for_plan(plan).save(context.framework_root)
+    created.append(
+        context.framework_path(CatalogImportsFile.PATH).relative_to(root).as_posix()
+    )
     return tuple(sorted(set(created)))
 
 

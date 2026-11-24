@@ -391,12 +391,18 @@ def _retained_legacy_shim_authority_paths(
 
 
 def _upstream_template(
-    baseline_paths: set[str], *, profile: str = "generated", observation=None
+    baseline_paths: set[str],
+    *,
+    profile: str = "generated",
+    observation=None,
+    placement=None,
 ) -> dict[str, bytes]:
     if profile == "native":
         from .native_project_bootstrap import native_template_files
 
         return native_template_files()
+    if placement is not None:
+        baseline_paths = {path.removeprefix("litai/") for path in baseline_paths}
     converted = LEGACY_LIFT_SHIFT_ADR in baseline_paths
     reader = _template_text if observation is None else observation.template_text
     content = {
@@ -419,6 +425,10 @@ def _upstream_template(
             if destination != DEFAULT_AUTHORITY_REVIEW_DOCUMENT
         }
     )
+    if placement is not None:
+        return {
+            row.coordinate: value for row, value in placement.project_templates(content)
+        }
     return content
 
 
@@ -675,8 +685,22 @@ class FilesystemProjectUpdateAdapter:
         bases = UpdateBases(root) if observation is None else observation.bases()
         baseline_by_path = {item.path: item.identity for item in baseline.files}
         baseline_by_path.update(bases.identities("framework"))
+        placement = None
+        if (
+            baseline.profile != "native"
+            and project.definition.framework_directory == "litai"
+            and project.agent_skill == project.framework_root / "SKILL.md"
+        ):
+            from .project_scaffold_placement import project_scaffold_placement
+
+            placement = project_scaffold_placement(
+                root, (*_TEMPLATE_FILES, *_STARTER_TEMPLATE_FILES, *_STARTER_DOCS)
+            )
         upstream_content = _upstream_template(
-            set(baseline_by_path), profile=baseline.profile, observation=observation
+            set(baseline_by_path),
+            profile=baseline.profile,
+            observation=observation,
+            **({"placement": placement} if placement is not None else {}),
         )
         if baseline.profile == "native":
             imports_path = project.framework_root / CatalogImportsFile.PATH

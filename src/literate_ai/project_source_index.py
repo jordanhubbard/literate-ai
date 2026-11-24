@@ -113,6 +113,7 @@ class _CodeGraphCommandEngine:
         timeout_seconds: int,
         maximum_snapshot_files: int = _MAXIMUM_SNAPSHOT_FILES,
         maximum_snapshot_bytes: int = _MAXIMUM_SNAPSHOT_BYTES,
+        metadata_directory: str = ".codegraph",
     ) -> None:
         if not binary or timeout_seconds <= 0:
             raise ValueError("source-index command and timeout must be positive")
@@ -122,45 +123,122 @@ class _CodeGraphCommandEngine:
         self.timeout_seconds = timeout_seconds
         self.maximum_snapshot_files = maximum_snapshot_files
         self.maximum_snapshot_bytes = maximum_snapshot_bytes
+        if type(metadata_directory) is not str or metadata_directory not in {
+            ".codegraph",
+            "litai",
+        }:
+            raise ValueError("unsupported explicit CodeGraph metadata directory")
+        self.metadata_directory = metadata_directory
         self._executable: Path | None = None
         self._executable_identity: str | None = None
 
+    def _selected_context_guard(self, project_root: Path):
+        if self.metadata_directory == ".codegraph":
+            return lambda: None
+        from literate_ai.projects import ProjectConfigurationStore
+
+        store = ProjectConfigurationStore(project_root)
+        snapshot = store.read()
+        context = store.context(project_root)
+        selected_directory = self.metadata_directory
+        policy = snapshot.definition.source_intelligence
+        if (
+            selected_directory != "litai"
+            or context.framework_root != context.root / "litai"
+            or policy.provider_id != "codegraph-cli"
+            or policy.artifact_path != "litai/codegraph.db"
+            or SemanticVersion.parse(policy.minimum_version)
+            < SemanticVersion.parse("1.6.0")
+        ):
+            self._fail(
+                "project.source_intelligence_path_unsupported",
+                "explicit current contained CodeGraph policy required",
+            )
+
+        def require_current():
+            current = store.read()
+            if (
+                self.metadata_directory != selected_directory
+                or current.content != snapshot.content
+                or current.directory_binding != snapshot.directory_binding
+                or store.context(project_root) != context
+            ):
+                self._fail(
+                    "project.source_intelligence_context_changed",
+                    "original application/framework CodeGraph context changed",
+                )
+
+        return require_current
+
     def preflight(self, working_directory: Path) -> tuple[str, str]:
+        require_current = self._selected_context_guard(working_directory)
         version = self._run(working_directory, "--version").strip()
+        require_current()
         if not version or "\n" in version or "\r" in version:
             self._fail(
                 "project.source_intelligence_version_invalid",
                 "the CodeGraph command did not report one semantic version",
+            )
+        if self.metadata_directory == "litai" and SemanticVersion.parse(
+            version
+        ) < SemanticVersion.parse("1.6.0"):
+            self._fail(
+                "project.source_intelligence_version_unsupported",
+                "contained CodeGraph requires verified CODEGRAPH_DIR "
+                "support from 1.6.0",
             )
         return version, self._require_executable_identity()
 
     def capture(
         self, project_root: Path, *, synchronize: bool
     ) -> _ProjectIndexSnapshot:
+        require_current = self._selected_context_guard(project_root)
         root = self._safe_root(project_root)
-        index = root / ".codegraph"
+        index = root / self.metadata_directory
         database = index / "codegraph.db"
         runtime_version, executable_identity = self.preflight(root)
+        require_current()
         self._require_safe_database(root, database, allow_missing=synchronize)
+        original_source_paths = None
+        if self.metadata_directory == "litai":
+            original_source_paths = self._source_paths(root)
+            if any(
+                "litai" in PurePosixPath(path).parts[:-1]
+                for path in original_source_paths
+            ):
+                self._fail(
+                    "project.source_intelligence_snapshot_unsupported",
+                    "CodeGraph's data-directory exclusion aliases "
+                    "nested application source",
+                )
+            require_current()
         if synchronize:
             if database.is_file():
                 self._run(root, "sync", str(root), "--quiet")
             else:
                 self._run(root, "init", str(root))
+            require_current()
         self._require_safe_database(root, database, allow_missing=False)
         source_paths = self._source_paths(root)
+        if original_source_paths is not None and source_paths != original_source_paths:
+            self._fail(
+                "project.source_intelligence_snapshot_changed",
+                "application source membership changed during "
+                "CodeGraph synchronization",
+            )
         with tempfile.TemporaryDirectory(
             prefix="literate-codegraph-project-status-"
         ) as temporary:
             shadow = (Path(temporary) / "project").resolve()
             shadow.mkdir()
             inventory = self._copy_source_snapshot(root, shadow, source_paths)
-            shadow_index = shadow / ".codegraph"
+            shadow_index = shadow / self.metadata_directory
             shadow_index.mkdir()
             database_identity, live_database_identity = self._copy_database_snapshot(
                 root, database, shadow_index / "codegraph.db"
             )
             status = self._status(shadow)
+            require_current()
             self._require_source_unchanged(root, inventory)
             self._require_safe_database(root, database, allow_missing=False)
             final_database_identity, _final_live_identity = (
@@ -173,13 +251,15 @@ class _CodeGraphCommandEngine:
                     "project.source_intelligence_database_changed",
                     "the CodeGraph database changed while status was observed",
                 )
-        return self._validated_snapshot(
+        result = self._validated_snapshot(
             status,
             project_path=shadow,
             runtime_version=runtime_version,
             executable_identity=executable_identity,
             database_identity=database_identity,
         )
+        require_current()
+        return result
 
     @staticmethod
     def _safe_root(project_root: Path) -> Path:
@@ -263,6 +343,7 @@ class _CodeGraphCommandEngine:
                     candidate = current / name
                     if (
                         name in _IGNORED_DIRECTORIES
+                        or (current == root and name == self.metadata_directory)
                         or name.startswith(".venv-")
                         or name.startswith("venv-")
                         or name.startswith(".codegraph-")
@@ -317,9 +398,10 @@ class _CodeGraphCommandEngine:
                     "project.source_intelligence_snapshot_unsafe",
                     "the source snapshot contains an unsafe path",
                 )
-            if relative.parts[0] == ".codegraph" or relative.parts[0].startswith(
-                ".codegraph-"
-            ):
+            if relative.parts[0] in {
+                ".codegraph",
+                self.metadata_directory,
+            } or relative.parts[0].startswith(".codegraph-"):
                 continue
             paths.add(relative.as_posix())
             if len(paths) > self.maximum_snapshot_files:
@@ -536,7 +618,7 @@ class _CodeGraphCommandEngine:
             self._invalid_status("the CodeGraph index is not initialized")
         if status.get("projectPath") != str(project_path):
             self._invalid_status("CodeGraph status names another project root")
-        if status.get("indexPath") != str(project_path / ".codegraph"):
+        if status.get("indexPath") != str(project_path / self.metadata_directory):
             self._invalid_status("CodeGraph status names another index path")
         if status.get("version") != runtime_version:
             self._fail(
@@ -753,8 +835,7 @@ class _CodeGraphCommandEngine:
             )
         return current
 
-    @staticmethod
-    def _environment() -> dict[str, str]:
+    def _environment(self) -> dict[str, str]:
         environment = {
             key: os.environ[key] for key in _ENVIRONMENT_KEYS if key in os.environ
         }
@@ -765,6 +846,14 @@ class _CodeGraphCommandEngine:
                 "NO_COLOR": "1",
             }
         )
+        if self.metadata_directory == "litai":
+            environment.update(
+                {
+                    "CODEGRAPH_DIR": "litai",
+                    "DO_NOT_TRACK": "1",
+                    "CODEGRAPH_TELEMETRY": "0",
+                }
+            )
         return environment
 
     @staticmethod
@@ -801,10 +890,21 @@ class CodeGraphProjectSourceIntelligence:
                 "project.source_intelligence_provider_unsupported",
                 "the configured project source-intelligence provider is unsupported",
             )
-        if policy.artifact_path != ".codegraph/codegraph.db":
+        if policy.artifact_path not in {
+            ".codegraph/codegraph.db",
+            "litai/codegraph.db",
+        }:
             raise ProjectSourceIntelligenceError(
                 "project.source_intelligence_path_unsupported",
                 "CodeGraph project intelligence must use .codegraph/codegraph.db",
+            )
+        contained = policy.artifact_path == "litai/codegraph.db"
+        if contained and SemanticVersion.parse(
+            policy.minimum_version
+        ) < SemanticVersion.parse("1.6.0"):
+            raise ProjectSourceIntelligenceError(
+                "project.source_intelligence_version_unsupported",
+                "contained CodeGraph requires minimum_version at least 1.6.0",
             )
         if engine is not None and binary is not None:
             raise ValueError("inject either a source-index engine or binary, not both")
@@ -813,7 +913,9 @@ class CodeGraphProjectSourceIntelligence:
             raise ValueError("source-index command must not be empty")
         self.policy = policy
         self.engine = engine or _CodeGraphCommandEngine(
-            command, timeout_seconds=timeout_seconds
+            command,
+            timeout_seconds=timeout_seconds,
+            **({"metadata_directory": "litai"} if contained else {}),
         )
 
     def probe(self, working_directory: Path) -> str:
@@ -827,9 +929,51 @@ class CodeGraphProjectSourceIntelligence:
         return self._inspect(project_root, synchronize=True)
 
     def _inspect(self, project_root: Path, *, synchronize: bool) -> dict[str, object]:
-        preflight_version, _identity = self.engine.preflight(project_root)
-        self._validated_version(preflight_version)
-        snapshot = self.engine.capture(project_root, synchronize=synchronize)
+        if self.policy.artifact_path == "litai/codegraph.db":
+            from literate_ai.projects import ProjectConfigurationStore
+
+            store = ProjectConfigurationStore(project_root)
+            original = store.read()
+            context = store.context(project_root)
+            policy, engine = self.policy, self.engine
+            if (
+                original.definition.source_intelligence != policy
+                or context.framework_root != context.root / "litai"
+            ):
+                raise ProjectSourceIntelligenceError(
+                    "project.source_intelligence_context_changed",
+                    "current declared application/framework CodeGraph policy required",
+                )
+            preflight, capture = engine.preflight, engine.capture
+
+            def require_current():
+                current = store.read()
+                if (
+                    self.engine is not engine
+                    or self.policy is not policy
+                    or (
+                        type(engine) is _CodeGraphCommandEngine
+                        and engine.metadata_directory != "litai"
+                    )
+                    or current.content != original.content
+                    or current.directory_binding != original.directory_binding
+                    or store.context(project_root) != context
+                ):
+                    raise ProjectSourceIntelligenceError(
+                        "project.source_intelligence_context_changed",
+                        "original selected CodeGraph context changed",
+                    )
+
+            require_current()
+            preflight_version, _identity = preflight(project_root)
+            require_current()
+            self._validated_version(preflight_version)
+            snapshot = capture(project_root, synchronize=synchronize)
+            require_current()
+        else:
+            preflight_version, _identity = self.engine.preflight(project_root)
+            self._validated_version(preflight_version)
+            snapshot = self.engine.capture(project_root, synchronize=synchronize)
         runtime_version = self._validated_version(snapshot.runtime_version)
         return {
             "schema": "literate-ai/project-source-intelligence-status@1",

@@ -142,14 +142,50 @@ class AgentSkillCatalog:
         validate_dependencies: bool = True,
         validate_references: bool = False,
         reference_coordinates: Mapping[str, str] | None = None,
+        reference_root_coordinates: Mapping[str, str] | None = None,
     ) -> AgentSkillCatalog:
         """Read bounded real files beneath declared roots without following links."""
 
+        if reference_root_coordinates:
+            catalog_roots = tuple(catalog_roots)
         documents, physical = _discover_documents(
             project_root,
             catalog_roots=catalog_roots,
             root_manifests=root_manifests,
         )
+        if reference_root_coordinates:
+            # Expand only ACTUAL original discovered resources. The calling
+            # project owner separately binds current declared roots and shadows.
+            declared = {
+                Path(path).relative_to(project_root).as_posix()
+                for path in catalog_roots
+            }
+            coordinates = dict(reference_coordinates or {})
+            for source_root, destination_root in reference_root_coordinates.items():
+                source = _logical_path(source_root)
+                destination = _logical_path(destination_root)
+                if (
+                    str(destination) not in declared
+                    or str(source) in declared
+                    or source == PurePosixPath(".")
+                    or destination == PurePosixPath(".")
+                ):
+                    raise AgentSkillCatalogError(
+                        "agent_skill.path_conflict",
+                        "logical reference root requires one declared physical catalog",
+                    )
+                for observed in documents:
+                    if not observed.is_relative_to(destination):
+                        continue
+                    logical = (source / observed.relative_to(destination)).as_posix()
+                    target = observed.as_posix()
+                    if logical in coordinates and coordinates[logical] != target:
+                        raise AgentSkillCatalogError(
+                            "agent_skill.path_conflict",
+                            "logical reference has competing physical locations",
+                        )
+                    coordinates[logical] = target
+            reference_coordinates = coordinates
         return cls.from_documents(
             documents,
             physical_paths=physical,

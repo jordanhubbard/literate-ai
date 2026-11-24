@@ -11,7 +11,9 @@ import json
 import os
 import stat
 import unicodedata
+from dataclasses import dataclass
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any
 
 from literate_ai._filesystem import (
@@ -86,8 +88,24 @@ def _stamp(value: os.stat_result) -> tuple[int, ...]:
     )
 
 
-def _capture(root: Path) -> tuple[dict[str, dict[str, Any]], dict[str, bytes]]:
+def _capture(
+    root: Path,
+    *,
+    selected_scopes: tuple[str, ...] | None = None,
+) -> tuple[dict[str, dict[str, Any]], dict[str, bytes]]:
     """Bound a no-follow observation, including unknown and special members."""
+    if selected_scopes is not None:
+        for scope in selected_scopes:
+            canonical_relative_posix_path(scope, label="curated layout scope")
+
+    def selected(relative):
+        return selected_scopes is None or any(
+            relative == scope
+            or relative.startswith(scope + "/")
+            or scope.startswith(relative + "/")
+            for scope in selected_scopes
+        )
+
     observations: dict[str, dict[str, Any]] = {}
     contents: dict[str, bytes] = {}
     total = 0
@@ -96,11 +114,26 @@ def _capture(root: Path) -> tuple[dict[str, dict[str, Any]], dict[str, bytes]]:
     while pending:
         directory = pending.pop()
         require_safe_directory(directory)
+        if (
+            selected_scopes is not None
+            and directory != root
+            and os.path.lexists(directory / ".git")
+        ):
+            relative = directory.relative_to(root).as_posix()
+            observations[relative]["kind"] = "git-boundary"
+            observations[relative]["git_marker_stamp"] = _stamp(
+                (directory / ".git").lstat()
+            )
+            continue
         before = directory.lstat()
         with os.scandir(directory) as entries:
             children = []
             aliases: set[str] = set()
+            scanned = 0
             for entry in entries:
+                scanned += 1
+                if selected_scopes is not None and scanned > _MAX_ENTRIES:
+                    _fail("entry_limit", "curated directory census exceeds entry limit")
                 if len(observations) + len(children) >= _MAX_ENTRIES:
                     _fail("entry_limit", "containment observation exceeds entry limit")
                 alias = unicodedata.normalize("NFC", entry.name.casefold())
@@ -111,7 +144,9 @@ def _capture(root: Path) -> tuple[dict[str, dict[str, Any]], dict[str, bytes]]:
                     if stat_is_link_or_reparse(entry.stat(follow_symlinks=False)):
                         _fail("path_unsafe", "Git administration is redirected")
                     continue
-                children.append(entry.name)
+                relative = (directory / entry.name).relative_to(root).as_posix()
+                if selected(relative):
+                    children.append(entry.name)
         for name in sorted(children):
             path = directory / name
             relative = path.relative_to(root).as_posix()
@@ -271,7 +306,54 @@ def _git_state(root: Path) -> dict[str, str] | None:
     return result
 
 
+@dataclass(frozen=True, slots=True)
+class ProjectLayoutObservation:
+    snapshot: object
+    context: object
+    inventory: dict
+    observations: object
+    contents: object
+    update_bases: object | None = None
+
+
 def plan_project_layout(start: Path) -> dict[str, Any]:
+    """Return the public observation; captured bytes stay private."""
+    return observe_project_layout(start).inventory
+
+
+def _curated_canonical_scopes(snapshot, context, contents):
+    # These are observation scopes ONLY, never ownership or permission to move.
+    # Do not walk unrelated application output simply because litai exists.
+    prefix = context.framework_root.relative_to(snapshot.root).as_posix()
+    scopes = {prefix, *_SHARED, ".github/workflows", snapshot.definition.agent_skill}
+    for field in _ROOT_FIELDS:
+        scopes.update(getattr(snapshot.definition, field))
+    protected = set()
+    layout_path = prefix + "/.literate/legacy-lift-shift.json"
+    harness_path = prefix + "/.literate/harness-inventory.json"
+    implementation = None
+    if layout_path in contents:
+        from literate_ai.adapters.harness_tree import _validated_scope
+        from literate_ai.adapters.retained_layout import resolve_structural_layout
+
+        layout = resolve_structural_layout(snapshot.root, _json(contents, layout_path))
+        implementation = layout.implementation_directory
+        if harness_path not in contents:
+            _fail("provenance_missing", "retained source scope is unavailable")
+        paths, _excluded = _validated_scope(
+            _json(contents, harness_path).get("source_scope")
+        )
+        for path in paths:
+            physical = path if implementation == "." else implementation + "/" + path
+            canonical_relative_posix_path(physical, label="retained application member")
+            scopes.add(physical)
+            protected.add(physical)
+    for scope in scopes:
+        canonical_relative_posix_path(scope, label="curated layout scope")
+    return tuple(sorted(scopes)), frozenset(protected), implementation
+
+
+def observe_project_layout(start: Path) -> ProjectLayoutObservation:
     """Return prospective file decisions; never acquire a writer lock or fetch."""
     selected = Path(start).absolute()
     require_safe_directory(selected if selected.is_dir() else selected.parent)
@@ -293,7 +375,13 @@ def plan_project_layout(start: Path) -> dict[str, Any]:
     prefix = context.framework_root.relative_to(root).as_posix()
     prefix = "" if prefix == "." else prefix + "/"
 
+    curated_scopes = None
+    protected_application = frozenset()
+    curated_implementation = None
+
     def capture():
+        if curated_scopes is not None:
+            return _capture(root, selected_scopes=curated_scopes)
         nodes, data = _capture(context.framework_root)
         return (
             {prefix + path: value for path, value in nodes.items()},
@@ -310,6 +398,20 @@ def plan_project_layout(start: Path) -> dict[str, Any]:
     origin = ProjectInitializationOrigin.from_dict(_json(contents, origin_path))
     if baseline.origin_identity != origin.identity:
         _fail("provenance_invalid", "initialization origin and baseline disagree")
+    if context.framework_root != root and baseline.profile != "native":
+        curated_scopes, protected_application, curated_implementation = (
+            _curated_canonical_scopes(snapshot, context, contents)
+        )
+        initial_producers = (contents[baseline_path], contents[origin_path])
+        observed, contents = capture()
+        if (
+            contents.get(manifest) != snapshot.content
+            or (contents.get(baseline_path), contents.get(origin_path))
+            != initial_producers
+        ):
+            _fail(
+                "capture_changed", "contained authority changed before curated capture"
+            )
     binding = context.directory_binding
     if binding is None:
         _fail("capture_changed", "project directory binding is unavailable")
@@ -377,7 +479,13 @@ def plan_project_layout(start: Path) -> dict[str, Any]:
             "scope": "already-contained native profile; no legacy relocation proposed",
         }
         result["plan_identity"] = canonical_identity(result).uri
-        return result
+        return ProjectLayoutObservation(
+            snapshot,
+            context,
+            result,
+            MappingProxyType(observed),
+            MappingProxyType(contents),
+        )
     initialized = {item.path: item for item in baseline.files}
     blockers: list[dict[str, str]] = []
 
@@ -432,7 +540,7 @@ def plan_project_layout(start: Path) -> dict[str, Any]:
         block(
             manifest,
             "project context",
-            "contained canonical migration is not yet supported",
+            "catalog/reference continuation requires its explicit reviewed transaction",
         )
     if not native and implementation is None:
         block(
@@ -457,8 +565,9 @@ def plan_project_layout(start: Path) -> dict[str, Any]:
         }
         target = None
         renewal = None
-        if implementation is not None and (
-            path == implementation or path.startswith(implementation + "/")
+        if path in protected_application or (
+            implementation not in {None, "."}
+            and (path == implementation or path.startswith(implementation + "/"))
         ):
             role, decision = "application", "keep"
         elif path in _SHARED:
@@ -665,5 +774,94 @@ def plan_project_layout(start: Path) -> dict[str, Any]:
         "qualification": False,
         "planning_complete": contained and native and not blockers,
     }
+    if curated_scopes is not None:
+        result.update(
+            inventory_scope="curated-contained-canonical",
+            observed_scopes=list(curated_scopes),
+            protected_application_members=sorted(protected_application),
+            retained_implementation=curated_implementation,
+            opaque_git_boundaries=sorted(
+                name for name, row in observed.items() if row["kind"] == "git-boundary"
+            ),
+            reference_documents=sorted(
+                name
+                for name in contents
+                if name == snapshot.definition.agent_skill
+                or (
+                    name.endswith(".md")
+                    and any(
+                        name.startswith(path + "/")
+                        for path in snapshot.definition.documentation_roots
+                    )
+                )
+            ),
+        )
     result["plan_identity"] = canonical_identity(result).uri
-    return result
+    return ProjectLayoutObservation(
+        snapshot,
+        context,
+        result,
+        MappingProxyType(observed),
+        MappingProxyType(contents),
+        bases,
+    )
+
+
+def plan_contained_catalog_continuation(
+    start: Path,
+    references: tuple[str, ...] = (),
+):
+    """Plan the SAME captured contained authority; return no live writer grant.
+
+    Public data contains identities/modes/paths only. Exact observed and rewritten
+    bytes stay private for the original migration writer's fresh revalidation.
+    """
+    from literate_ai.adapters.project_layout_catalog_continuation import (
+        select_contained_catalog_continuation,
+    )
+    from literate_ai.contracts import RepositoryLineage, RepositoryParentSelection
+
+    observation = observe_project_layout(start)
+    snapshot, context = observation.snapshot, observation.context
+    prefix = context.framework_root.relative_to(snapshot.root).as_posix() + "/"
+    imports = CatalogImportsFile.from_dict(
+        _json(observation.contents, prefix + CatalogImportsFile.PATH)
+    )
+    baseline = ProjectInitializationBaseline.from_dict(
+        _json(observation.contents, prefix + ".literate/initialization-baseline.json")
+    )
+    parent = RepositoryParentSelection.from_dict(
+        _json(observation.contents, prefix + ".literate/repository-parent.json")
+    )
+    lineage = RepositoryLineage.from_dict(
+        _json(observation.contents, prefix + ".literate/repository-lineage.json")
+    )
+    if lineage.selection != parent:
+        _fail("provenance_invalid", "current parent and lineage disagree")
+    from literate_ai.adapters.project_layout_component_transition import (
+        capture_component_layout_transitions,
+        require_current_component_transition,
+    )
+
+    transitions = capture_component_layout_transitions(observation, imports, lineage)
+    selection = select_contained_catalog_continuation(
+        snapshot,
+        context,
+        observation.inventory,
+        contents=observation.contents,
+        observations=observation.observations,
+        imports=imports,
+        lineage=lineage,
+        baseline=baseline,
+        update_bases=observation.update_bases,
+        approved_references=references,
+        component_transitions=transitions,
+    )
+    for transition in transitions:
+        require_current_component_transition(transition)
+    if (_git_state(snapshot.root), _git_state(context.framework_root)) != (
+        observation.inventory["git_state"],
+        observation.inventory["framework_git_state"],
+    ):
+        _fail("capture_changed", "original Git state changed during catalog selection")
+    return selection.public_plan, selection

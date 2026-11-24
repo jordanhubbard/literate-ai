@@ -1439,35 +1439,58 @@ def _create_promoted_project(
                 parent_selection=parent_selection,
             )
         )
+        _scaffold_context = ProjectConfigurationStore.context(staging)
+        _scaffold_framework = _scaffold_context.framework_root
+
+        def _scaffold_coordinate(relative):
+            # Compiler-produced paths only, never source/import path rewriting.
+            if _scaffold_framework == staging or relative.startswith("litai/"):
+                return relative
+            return (
+                _scaffold_context.framework_path(relative)
+                .relative_to(staging)
+                .as_posix()
+            )
+
         # Canonical initialization includes a tutorial Component.  A promotion is
         # itself the complete application graph, so retaining that unrelated lock
         # would both pollute the graph and become stale when reviewed Flavors replace
         # template Flavors at the same paths.
-        starter_component = staging / "samples" / "hello-component"
+        starter_component = _scaffold_framework / "samples" / "hello-component"
         if starter_component.is_dir() and not starter_component.is_symlink():
             shutil.rmtree(starter_component)
         workflow_path = (
-            staging / "workflows" / "production" / "staging" / "dev" / "workflow.md"
+            _scaffold_framework
+            / "workflows"
+            / "production"
+            / "staging"
+            / "dev"
+            / "workflow.md"
         )
         routing_path = (
-            staging / "routing" / "production" / "staging" / "dev" / "routing.json"
+            _scaffold_framework
+            / "routing"
+            / "production"
+            / "staging"
+            / "dev"
+            / "routing.json"
         )
         skill_path = (
-            staging
+            _scaffold_framework
             / "skills"
             / "specification-to-source"
             / "portable-application"
             / "SKILL.md"
         )
         implementation_skill_path = (
-            staging
+            _scaffold_framework
             / "skills"
             / "specification-to-source"
             / "portable-application-implementation"
             / "SKILL.md"
         )
         planning_skill_path = (
-            staging
+            _scaffold_framework
             / "skills"
             / "specification-to-source"
             / "portable-specification-planning"
@@ -1475,17 +1498,19 @@ def _create_promoted_project(
         )
         workflow_ref = _raw_reference(
             "workflow",
-            "workflows/production/staging/dev/workflow.md",
+            _scaffold_coordinate("workflows/production/staging/dev/workflow.md"),
             workflow_path.read_bytes(),
         )
         routing_ref = _raw_reference(
             "routing-policy",
-            "routing/production/staging/dev/routing.json",
+            _scaffold_coordinate("routing/production/staging/dev/routing.json"),
             routing_path.read_bytes(),
         )
         skill_ref = _raw_reference(
             "specification-to-source-skill",
-            "skills/specification-to-source/portable-application/SKILL.md",
+            _scaffold_coordinate(
+                "skills/specification-to-source/portable-application/SKILL.md"
+            ),
             skill_path.read_bytes(),
         )
         # A selected language Flavor contributes its own portable-application
@@ -1496,13 +1521,17 @@ def _create_promoted_project(
         # _resolved_recipe_skills to admit the flavor's skill.
         implementation_skill_ref = _raw_reference(
             "specification-to-source-skill",
-            "skills/specification-to-source/portable-application-implementation/"
-            "SKILL.md",
+            _scaffold_coordinate(
+                "skills/specification-to-source/portable-application-implementation/"
+                "SKILL.md"
+            ),
             implementation_skill_path.read_bytes(),
         )
         planning_skill_ref = _raw_reference(
             "specification-to-source-skill",
-            "skills/specification-to-source/portable-specification-planning/SKILL.md",
+            _scaffold_coordinate(
+                "skills/specification-to-source/portable-specification-planning/SKILL.md"
+            ),
             planning_skill_path.read_bytes(),
         )
         root_acceptance_contracts: list[dict[str, object]] = []
@@ -1572,7 +1601,7 @@ def _create_promoted_project(
 
         for node in graph.nodes:
             node_namespace, node_name = node_coordinates[node.coordinate]
-            component_root = staging / "components" / node_name
+            component_root = _scaffold_framework / "components" / node_name
             try:
                 specification_projection = promoted_component_specification_projection(
                     provider=result.draft.output_provider,
@@ -1806,7 +1835,7 @@ def _create_promoted_project(
             created_flavors.append(flavor)
             axis = str(proposal.get("axis", "implementation.language-ecosystem"))
             created_flavor_axes[directory] = axis
-            flavor_root = staging / "flavors" / directory
+            flavor_root = _scaffold_framework / "flavors" / directory
             flavor_path = flavor_root / "flavor.md"
             spec_path = flavor_root / "openspec" / "spec.md"
             spec_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1924,7 +1953,9 @@ def _create_promoted_project(
                 continue
             selected_name = flavor_selector_directory(selector)
             selected_aliases.add(canonical_flavor_selector(selector)[1:])
-            selected_path = staging / "flavors" / selected_name / "flavor.md"
+            selected_path = (
+                _scaffold_framework / "flavors" / selected_name / "flavor.md"
+            )
             if not selected_path.is_file():
                 continue
             selected_authoring, _description = parse_authoring_markdown(
@@ -1976,7 +2007,7 @@ def _create_promoted_project(
             else:
                 inherited_selector = "+" + inherited.selection.coordinate_uri
                 inherited_path = (
-                    staging
+                    _scaffold_framework
                     / "flavors"
                     / flavor_selector_directory(inherited_selector)
                     / "flavor.md"
@@ -2025,7 +2056,7 @@ def _create_promoted_project(
             if not selector.startswith("+"):
                 continue
             flavor = flavor_selector_directory(selector)
-            flavor_path = staging / "flavors" / flavor / "flavor.md"
+            flavor_path = _scaffold_framework / "flavors" / flavor / "flavor.md"
             if not flavor_path.is_file():
                 continue
             selected_authoring, selected_description = parse_authoring_markdown(
@@ -2051,7 +2082,7 @@ def _create_promoted_project(
 
         from .component_locks import component_lock_from_args
 
-        component_root = staging / "components" / name
+        component_root = _scaffold_framework / "components" / name
         lock_report, lock_status = component_lock_from_args(
             Namespace(
                 component=str(component_root),
@@ -2083,7 +2114,7 @@ def _create_promoted_project(
         ):
             if other_coordinate == graph.root_coordinate:
                 continue
-            other_component_root = staging / "components" / other_name
+            other_component_root = _scaffold_framework / "components" / other_name
             _other_report, other_status = component_lock_from_args(
                 Namespace(
                     component=str(other_component_root),
@@ -2171,7 +2202,7 @@ def _create_promoted_project(
             if not selector.startswith("+"):
                 continue
             flavor = flavor_selector_directory(selector)
-            flavor_root = staging / "flavors" / flavor
+            flavor_root = _scaffold_framework / "flavors" / flavor
             if not flavor_root.is_dir() or flavor_root.is_symlink():
                 raise CliFailure(
                     "promotion.flavor_missing",
@@ -2182,6 +2213,9 @@ def _create_promoted_project(
                     continue
                 relative = flavor_input.relative_to(staging).as_posix()
                 forward_paths[relative] = PromotionInputKind.REVIEWED_FLAVOR
+        forward_paths = {
+            _scaffold_coordinate(path): kind for path, kind in forward_paths.items()
+        }
         forward_inputs = tuple(
             SourcePromotionInput(
                 kind=kind,
@@ -2206,13 +2240,15 @@ def _create_promoted_project(
                         component_coordinate=f"component://{node_coordinates[node.coordinate][0]}/{node_coordinates[node.coordinate][1]}",
                         asset_id=asset.asset_id,
                         source_path=asset.source,
-                        project_path=f"components/{node_coordinates[node.coordinate][1]}/assets/{asset.asset_id}",
+                        project_path=_scaffold_coordinate(
+                            f"components/{node_coordinates[node.coordinate][1]}/assets/{asset.asset_id}"
+                        ),
                         runtime_path=asset.path,
                         role=asset.role,
                         media_type=asset.media_type,
                         content_identity=asset.pin.uri,
                         byte_count=(
-                            staging
+                            _scaffold_framework
                             / "components"
                             / node_coordinates[node.coordinate][1]
                             / "assets"
@@ -2273,7 +2309,10 @@ def _create_promoted_project(
             }
         promotion_identity = canonical_identity(promotion_record)
         promotion_root = (
-            staging / "provenance" / "source-promotion" / promotion_identity.digest
+            _scaffold_framework
+            / "provenance"
+            / "source-promotion"
+            / promotion_identity.digest
         )
         audit_root = promotion_root / "generation-input-audits"
         audit_root.mkdir(parents=True)
@@ -2390,9 +2429,9 @@ def _create_promoted_project(
         raise
     return {
         "project_target": str(project_target),
-        "component": f"components/{name}/component.md",
+        "component": _scaffold_coordinate(f"components/{name}/component.md"),
         "components": sorted(
-            f"components/{node_name}/component.md"
+            _scaffold_coordinate(f"components/{node_name}/component.md")
             for _node_namespace, node_name in node_coordinates.values()
         ),
         "component_authoring_count": len(authored_components),
@@ -3060,7 +3099,7 @@ def _complete_standard_lifecycle_qualification(
             trust_key_id=intake_review.key_id,
         )
         validation_root = (
-            project.root
+            project.framework_root
             / "provenance"
             / "source-promotion"
             / current_projection.provenance_reference_identity.digest
@@ -3152,7 +3191,7 @@ def _complete_standard_lifecycle_qualification(
         static_intake_validation=intake_validation,
     )
     if migration is not None:
-        migration_root = project.root / "provenance" / "qualification-rebind"
+        migration_root = project.framework_root / "provenance" / "qualification-rebind"
         migration_root.mkdir(parents=True, exist_ok=True)
         if migration_root.is_symlink() or not migration_root.is_dir():
             raise CliFailure(
@@ -3173,7 +3212,7 @@ def _complete_standard_lifecycle_qualification(
                 )
         else:
             _write_new_json(migration_path, migration.to_dict())
-    qualification_root = project.root / "provenance" / "qualification"
+    qualification_root = project.framework_root / "provenance" / "qualification"
     qualification_root.mkdir(parents=True, exist_ok=True)
     if qualification_root.is_symlink() or not qualification_root.is_dir():
         raise CliFailure(
