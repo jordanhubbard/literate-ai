@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Join all seven recorded conversion-wrapper inputs to their original initialization preimages, producer records and current source observation before migration projection.
+
 - Capture initialized Component lock/audit transitions through the original producer readers, refusing held, private, unknown or incomplete source scopes before broad reads.
 
 - Recheck retained-source reader origin around callbacks and preserve original cleanup/error handling before migration planning continues.
