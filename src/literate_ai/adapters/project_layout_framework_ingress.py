@@ -16,6 +16,12 @@ from pathlib import Path
 from types import MappingProxyType
 
 from literate_ai._filesystem import require_safe_directory
+from literate_ai.adapters.project_layout_finite_creations import (
+    close_original_finite_framework_creation,
+    observe_original_finite_framework_creation,
+    require_current_finite_framework_creation,
+    require_original_finite_framework_creation,
+)
 from literate_ai.adapters.project_layout_framework_observation import (
     _close_bound_source_nodes,
     capture_framework_source_scope,
@@ -29,6 +35,7 @@ from literate_ai.adapters.project_layout_framework_resources import (
 )
 from literate_ai.adapters.project_layout_framework_selection import (
     FrameworkAuthoritySelection,
+    project_framework_creation_coordinates,
     select_existing_framework_authority,
 )
 from literate_ai.adapters.project_layout_framework_source_proofs import (
@@ -58,6 +65,21 @@ from literate_ai.projects import ProjectConfigurationStore
 
 def _bind_original_ingress(imported_originals):
     namespace = globals()
+    close_original_finite_framework_creation = imported_originals[
+        "close_original_finite_framework_creation"
+    ]
+    observe_original_finite_framework_creation = imported_originals[
+        "observe_original_finite_framework_creation"
+    ]
+    project_framework_creation_coordinates = imported_originals[
+        "project_framework_creation_coordinates"
+    ]
+    require_current_finite_framework_creation = imported_originals[
+        "require_current_finite_framework_creation"
+    ]
+    require_original_finite_framework_creation = imported_originals[
+        "require_original_finite_framework_creation"
+    ]
     hashlib = imported_originals["hashlib"]
     json = imported_originals["json"]
     os = imported_originals["os"]
@@ -116,6 +138,7 @@ def _bind_original_ingress(imported_originals):
     canonical_json_bytes = imported_originals["canonical_json_bytes"]
     ProjectConfigurationStore = imported_originals["ProjectConfigurationStore"]
     _retained_cleanup = close_original_bounded_retained_source
+    _creation_cleanup = close_original_finite_framework_creation
     error_type = ProjectLayoutPlanError
     original_add_note = BaseException.add_note
     module_bindings = tuple(
@@ -246,6 +269,7 @@ def _bind_original_ingress(imported_originals):
         resources: object
         retained_source: object
         selection_ref: object
+        owned_creation_owners: tuple
         _guard: object
 
     _OWNER_FIELDS = tuple(
@@ -352,6 +376,8 @@ def _bind_original_ingress(imported_originals):
                 _invoke(require_original_bounded_retained_source, record[1][3])
             for proof in selection.source_proofs:
                 _invoke(require_original_initialized_framework_file_proof, proof)
+            for creation in selection.creation_owners:
+                _invoke(require_original_finite_framework_creation, creation)
             return (owner, record[1])
 
         def register(owner, values, selection):
@@ -380,8 +406,12 @@ def _bind_original_ingress(imported_originals):
             for key, record in tuple(records.items()):
                 if record[1][4]() is selection:
                     records.pop(key, None)
-                    if record[1][3] is not None:
-                        _retained_cleanup(record[1][3])
+                    try:
+                        if record[1][3] is not None:
+                            _retained_cleanup(record[1][3])
+                    finally:
+                        for creation in record[1][5]:
+                            _creation_cleanup(creation)
                     return
 
         return (register, require, close)
@@ -410,7 +440,9 @@ def _bind_original_ingress(imported_originals):
             raise
         _require(selection)
 
-    def observe_existing_framework_authority(observation, *, resources=None):
+    def observe_existing_framework_authority(
+        observation, *, resources=None, creation_owners=()
+    ):
         """Use SAME observed snapshot/context and fresh original inputs throughout."""
         _check()
         if type(observation) is not ProjectLayoutObservation:
@@ -422,7 +454,15 @@ def _bind_original_ingress(imported_originals):
         if observation.snapshot is not snapshot or observation.context is not context:
             _fail("same original project/resource observation required")
         _invoke(require_current_framework_resources, resources)
+        if type(creation_owners) is not tuple or len(creation_owners) > 2:
+            _fail("original bounded creation owner tuple required")
+        for creation in creation_owners:
+            _invoke(require_original_finite_framework_creation, creation)
+            _invoke(require_current_finite_framework_creation, creation)
+            if creation.resources is not resources:
+                _fail("creation uses a foreign original resource observation")
         retained = None
+        acquired_creations = []
         try:
             if resources.converted:
                 retained = _acquire(
@@ -432,6 +472,8 @@ def _bind_original_ingress(imported_originals):
                     resources,
                 )
             paths = set(_metadata_paths(snapshot, context))
+            # Exact finite targets; never infer absence from census exclusions.
+            paths.update(("litai/.gitignore", "litai/scripts/_bootstrap_processes.py"))
             paths.update(
                 (
                     "litai/" + logical
@@ -561,7 +603,109 @@ def _bind_original_ingress(imported_originals):
                         imported_paths=frozenset(imported),
                     )
                 )
+            for creation in creation_owners:
+                attached = creation.bootstrap_proof
+                if attached is None:
+                    continue
+                _invoke(require_original_initialized_framework_file_proof, attached)
+                matches = [
+                    proof for proof in proofs if proof.logical == attached.logical
+                ]
+                if (
+                    len(matches) != 1
+                    or matches[0].identity != attached.identity
+                    or attached.resources is not resources
+                    or attached.snapshot is not snapshot
+                    or attached.context is not context
+                ):
+                    _fail(
+                        "creation bootstrap proof differs from actual captured source"
+                    )
+                proofs[proofs.index(matches[0])] = attached
             inventory = dict(observation.inventory)
+            creation_blockers = []
+            selected_creations = {
+                creation.logical: creation for creation in creation_owners
+            }
+            if len(selected_creations) != len(creation_owners):
+                _fail("duplicate original creation owner")
+            if ".gitignore" not in selected_creations:
+                if "litai/.gitignore" not in nodes:
+                    acquired = _acquire(
+                        observe_original_finite_framework_creation,
+                        _creation_cleanup,
+                        resources,
+                        ".gitignore",
+                    )
+                    acquired_creations.append(acquired)
+                    selected_creations[acquired.logical] = acquired
+                else:
+                    creation_blockers.append(
+                        {
+                            "path": "litai/.gitignore",
+                            "owner": "existing-contained-ignore",
+                            "reason": (
+                                "actual resident target requires original ignore "
+                                "classification; no overwrite"
+                            ),
+                        }
+                    )
+            bootstrap = next(
+                (
+                    proof
+                    for proof in proofs
+                    if proof.logical == "scripts/bootstrap_litai.py"
+                ),
+                None,
+            )
+            helper = "scripts/_bootstrap_processes.py"
+            helper_proof = next(
+                (proof for proof in proofs if proof.logical == helper), None
+            )
+            if (
+                bootstrap is not None
+                and bootstrap.source_path != "litai/" + bootstrap.logical
+                and helper_proof is None
+                and helper not in selected_creations
+            ):
+                if helper in nodes or "litai/" + helper in nodes:
+                    creation_blockers.append(
+                        {
+                            "path": "litai/" + helper,
+                            "owner": "existing-bootstrap-helper",
+                            "reason": (
+                                "actual resident helper lacks original selected "
+                                "source proof; no overwrite"
+                            ),
+                        }
+                    )
+                else:
+                    coordinates = _invoke(
+                        project_framework_creation_coordinates,
+                        snapshot,
+                        context,
+                        inventory,
+                        resources=resources,
+                        source_proofs=tuple(proofs),
+                        update_bases=bases,
+                        contents=contents,
+                        observations=nodes,
+                        protected_paths=protected,
+                        imported_paths=frozenset(imported),
+                        source_held=held,
+                        creation_owners=tuple(selected_creations.values()),
+                    )
+                    acquired = _acquire(
+                        observe_original_finite_framework_creation,
+                        _creation_cleanup,
+                        resources,
+                        helper,
+                        bootstrap_proof=bootstrap,
+                        coordinate_map=dict(coordinates),
+                    )
+                    acquired_creations.append(acquired)
+                    selected_creations[helper] = acquired
+            creation_owners = tuple(selected_creations.values())
             public, selection = _invoke(
                 select_existing_framework_authority,
                 snapshot,
@@ -575,6 +719,12 @@ def _bind_original_ingress(imported_originals):
                 protected_paths=protected,
                 imported_paths=frozenset(imported),
                 source_held=held,
+                **({"creation_owners": creation_owners} if creation_owners else {}),
+                **(
+                    {"creation_blockers": tuple(creation_blockers)}
+                    if creation_blockers
+                    else {}
+                ),
             )
             git_pair = (inventory["git_state"], inventory["framework_git_state"])
 
@@ -587,6 +737,8 @@ def _bind_original_ingress(imported_originals):
                 _invoke(require_current_framework_resources, resources)
                 if retained is not None:
                     _invoke(require_current_bounded_retained_source, retained)
+                for creation in creation_owners:
+                    _invoke(require_current_finite_framework_creation, creation)
                 (
                     fresh_nodes,
                     fresh_contents,
@@ -624,6 +776,7 @@ def _bind_original_ingress(imported_originals):
                 resources,
                 retained,
                 _invoke(weakref.ref, selection),
+                tuple(acquired_creations),
                 current,
             )
             owner = OriginalFrameworkAuthorityObservation(*values)
@@ -634,6 +787,8 @@ def _bind_original_ingress(imported_originals):
         except BaseException as primary:
             if "selection" in locals():
                 _cleanup(primary, close_observed_framework_selection, selection)
+            for creation in acquired_creations:
+                _cleanup(primary, _creation_cleanup, creation)
             if retained is not None:
                 _cleanup(primary, _retained_cleanup, retained)
             raise
@@ -689,6 +844,11 @@ def _bind_original_ingress(imported_originals):
             "Path",
             "MappingProxyType",
             "require_safe_directory",
+            "close_original_finite_framework_creation",
+            "observe_original_finite_framework_creation",
+            "project_framework_creation_coordinates",
+            "require_current_finite_framework_creation",
+            "require_original_finite_framework_creation",
             "_close_bound_source_nodes",
             "capture_framework_source_scope",
             "_producer_namespace",
@@ -767,6 +927,11 @@ def _bind_original_ingress(imported_originals):
                 "Path",
                 "MappingProxyType",
                 "require_safe_directory",
+                "close_original_finite_framework_creation",
+                "observe_original_finite_framework_creation",
+                "project_framework_creation_coordinates",
+                "require_current_finite_framework_creation",
+                "require_original_finite_framework_creation",
                 "_close_bound_source_nodes",
                 "capture_framework_source_scope",
                 "_producer_namespace",
@@ -872,6 +1037,11 @@ globals().update(
                     "Path",
                     "MappingProxyType",
                     "require_safe_directory",
+                    "close_original_finite_framework_creation",
+                    "observe_original_finite_framework_creation",
+                    "project_framework_creation_coordinates",
+                    "require_current_finite_framework_creation",
+                    "require_original_finite_framework_creation",
                     "_close_bound_source_nodes",
                     "capture_framework_source_scope",
                     "_producer_namespace",
@@ -907,6 +1077,11 @@ globals().update(
                     Path,
                     MappingProxyType,
                     require_safe_directory,
+                    close_original_finite_framework_creation,
+                    observe_original_finite_framework_creation,
+                    project_framework_creation_coordinates,
+                    require_current_finite_framework_creation,
+                    require_original_finite_framework_creation,
                     _close_bound_source_nodes,
                     capture_framework_source_scope,
                     _producer_namespace,

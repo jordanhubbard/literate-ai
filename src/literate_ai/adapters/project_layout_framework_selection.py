@@ -18,6 +18,10 @@ from urllib.parse import unquote, urlsplit
 from literate_ai._filesystem import stat_identity_value
 from literate_ai.adapters import project_scaffold_references as references
 from literate_ai.adapters import project_scaffold_transitions as transitions
+from literate_ai.adapters.project_layout_finite_creations import (
+    require_current_finite_framework_creation,
+    require_original_finite_framework_creation,
+)
 from literate_ai.adapters.project_layout_framework_resources import (
     original_framework_initialization,
     require_original_framework_resources,
@@ -103,6 +107,7 @@ class FrameworkAuthoritySelection:
     source_proofs: tuple
     coordinate_map: object
     observation_owner: object | None = None
+    creation_owners: tuple = ()
 
 
 def _plain_observation(contents, observations):
@@ -162,6 +167,9 @@ def select_existing_framework_authority(
     protected_paths=frozenset(),
     imported_paths=frozenset(),
     source_held=(),
+    creation_owners=(),
+    _creation_coordinate_only=False,
+    creation_blockers=(),
 ):
     """Project only original proved files; return public data + PRIVATE bytes.
 
@@ -169,6 +177,11 @@ def select_existing_framework_authority(
     and app scope, bracket this projection with fresh original owners/Git, and
     carry those SAME owners into the parent's separately versioned writer.
     """
+    if (
+        type(_creation_coordinate_only) is not bool
+        or type(creation_blockers) is not tuple
+    ):
+        _fail("original inert projection flags required")
     _renderer_current()
     require_original_framework_resources(resources)
     if resources.snapshot is not snapshot or resources.context is not context:
@@ -214,6 +227,26 @@ def select_existing_framework_authority(
         if rechecked.identity != proof.identity:
             _fail("actual original producer/source proof joins changed")
         proofs[proof.logical] = proof
+    if type(creation_owners) is not tuple or len(creation_owners) > 2:
+        _fail("original bounded creation tuple required")
+    creations = {}
+    for owner in creation_owners:
+        require_original_finite_framework_creation(owner)
+        require_current_finite_framework_creation(owner)
+        if (
+            owner.resources is not resources
+            or owner.logical in creations
+            or owner.destination != "litai/" + owner.logical
+            or owner.logical not in {".gitignore", "scripts/_bootstrap_processes.py"}
+            or owner.destination in observations
+            or owner.destination in protected_paths | imported_paths
+        ):
+            _fail("original creation/resource/absence pairing changed")
+        if owner.bootstrap_proof is not None and (
+            proofs.get("scripts/bootstrap_litai.py") is not owner.bootstrap_proof
+        ):
+            _fail("helper creation requires SAME selected original bootstrap proof")
+        creations[owner.logical] = owner
     destinations = {
         logical: proof.source_path
         if proof.role == "root-delegate"
@@ -221,7 +254,7 @@ def select_existing_framework_authority(
         for logical, proof in proofs.items()
         if proof.role not in {"application-seed", "framework-ignore"}
     }
-    blockers = []
+    blockers = [dict(row) for row in creation_blockers]
     _items, item_owner, original_members = original_initialized_item_inventory(
         snapshot,
         context,
@@ -266,13 +299,26 @@ def select_existing_framework_authority(
                 }
             )
     bootstrap_group = {"scripts/bootstrap_litai.py", "scripts/_bootstrap_processes.py"}
+    prospective_helper = (
+        _creation_coordinate_only
+        and "scripts/bootstrap_litai.py" in destinations
+        and "scripts/_bootstrap_processes.py" not in proofs
+        and proofs["scripts/bootstrap_litai.py"].source_path
+        != destinations["scripts/bootstrap_litai.py"]
+    )
     if bootstrap_group & destinations.keys():
         helper = "scripts/_bootstrap_processes.py"
-        ready = (
-            bootstrap_group <= destinations.keys()
-            and proofs[helper].source_bytes == resources.files[helper]
+        ready = "scripts/bootstrap_litai.py" in destinations and (
+            (
+                helper in destinations
+                and proofs[helper].source_bytes == resources.files[helper]
+            )
+            or helper in creations
+            or prospective_helper
         )
         if not ready:
+            if helper in creations:
+                _fail("helper creation has no selected original bootstrap move")
             for logical in bootstrap_group:
                 destinations.pop(logical, None)
             blockers.append(
@@ -309,6 +355,13 @@ def select_existing_framework_authority(
             if destination != logical and destination == proofs[logical].source_path:
                 coordinates.pop(destination, None)
             coordinates[logical] = destination
+        for logical, owner in creations.items():
+            if owner.bootstrap_proof is not None:
+                coordinates[logical] = owner.destination
+        if prospective_helper:
+            coordinates["scripts/_bootstrap_processes.py"] = (
+                "litai/scripts/_bootstrap_processes.py"
+            )
         return coordinates
 
     # Exact catalog bytes can move only when their UNCHANGED raw links retain
@@ -373,6 +426,13 @@ def select_existing_framework_authority(
             and all(coordinates.get(name) == "litai/" + name for name in children)
         ):
             coordinates[path + "/"] = "litai/" + path + "/"
+    if _creation_coordinate_only:
+        return MappingProxyType(coordinates)
+    for owner in creation_owners:
+        if owner.bootstrap_proof is not None and dict(owner.coordinates) != coordinates:
+            _fail(
+                "original helper creation coordinate map differs from final projection"
+            )
     renderer = ProjectScaffoldPlacement(
         context,
         ScaffoldLayout.DERIVED_CONTAINED,
@@ -401,7 +461,7 @@ def select_existing_framework_authority(
             ).content
         elif logical == "scripts/bootstrap_litai.py" and source != destination:
             helper = "scripts/_bootstrap_processes.py"
-            if helper not in destinations:
+            if helper not in destinations and helper not in creations:
                 _fail("bootstrap atomic closure changed after coordinate planning")
             rewritten = _BOOTSTRAP(
                 before,
@@ -413,7 +473,10 @@ def select_existing_framework_authority(
                 original_helper_bytes=resources.files[helper],
                 helper_sha256=hashlib.sha256(resources.files[helper]).hexdigest(),
             )
-            if proofs[helper].source_bytes != resources.files[helper]:
+            if (
+                helper in proofs
+                and proofs[helper].source_bytes != resources.files[helper]
+            ):
                 blockers.append(
                     {
                         "path": proofs[helper].source_path,
@@ -496,6 +559,29 @@ def select_existing_framework_authority(
     manifest = snapshot.manifest_path.relative_to(snapshot.root).as_posix()
     if contents.get(manifest) != snapshot.content:
         _fail("exact original project manifest capture required")
+    creation_rows = {}
+    for logical, owner in creations.items():
+        creation_rows[owner.destination] = {
+            "from": None,
+            "to": _identity(owner.content),
+            "mode": owner.mode,
+            "logical": logical,
+            "source_proof": owner.identity,
+            "resource_identity": resources.identity,
+            "owner": "original-finite-creation",
+            "projection": "finite-resource-creation",
+            "projection_identity": canonical_identity(
+                {
+                    "domain": "existing-framework-finite-creation-v1",
+                    "proof": owner.identity,
+                    "destination": owner.destination,
+                    "content": _identity(owner.content),
+                    "mode": owner.mode,
+                    "resources": resources.identity,
+                }
+            ).uri,
+        }
+        after[owner.destination] = owner.content
     definition = snapshot.definition
     if definition.agent_skill in moved:
         updates["agent_skill"] = moved[definition.agent_skill]
@@ -564,7 +650,7 @@ def select_existing_framework_authority(
             ).uri,
         }
         after[manifest] = rewritten_manifest
-    if moved:
+    if moved or creations:
         _origin, baseline, _origin_bytes, baseline_bytes = (
             original_framework_initialization(resources)
         )
@@ -601,6 +687,10 @@ def select_existing_framework_authority(
             content = after[destination]
             projected_bases.blobs[_identity(content)] = content
             projected_bases.scopes["framework"][destination] = _identity(content)
+        # This is a new current framework producer base, never an old-init row.
+        # Use the original UpdateBases producer operation; no import is invented.
+        for creation in creation_owners:
+            projected_bases.advance("framework", creation.destination, creation.content)
         for path, original, rewritten, owner, projection in (
             (
                 "litai/.literate/initialization-baseline.json",
@@ -689,10 +779,12 @@ def select_existing_framework_authority(
         "resident_edits": resident,
         "delegate_edits": delegates,
         "reference_edits": {},
-        "owned_creations": {},
+        "owned_creations": creation_rows,
         "required_owners": blockers,
         "renewal": ["normal destination producer currentness remains required"],
-        "applicable": bool(placements or owned or resident or delegates)
+        "applicable": bool(
+            placements or owned or resident or delegates or creation_rows
+        )
         and not blockers,
         "writes": False,
         "full_containment": False,
@@ -700,6 +792,8 @@ def select_existing_framework_authority(
     public["plan_identity"] = canonical_identity(public).uri
     for proof in source_proofs:
         require_original_initialized_framework_file_proof(proof)
+    for creation in creation_owners:
+        require_current_finite_framework_creation(creation)
     require_original_framework_resources(resources)
     _renderer_current()
     from .project_layout_framework_plan import decode_framework_authority_plan
@@ -712,7 +806,7 @@ def select_existing_framework_authority(
         MappingProxyType(resident),
         MappingProxyType({}),
         MappingProxyType(delegates),
-        MappingProxyType({}),
+        MappingProxyType(creation_rows),
         MappingProxyType(dict(contents)),
         MappingProxyType(after),
         MappingProxyType(
@@ -723,5 +817,19 @@ def select_existing_framework_authority(
         resources,
         source_proofs,
         MappingProxyType(coordinates),
+        creation_owners=creation_owners,
     )
     return public, selection
+
+
+def _bind_original_coordinate_projection(original_select):
+    def project_framework_creation_coordinates(*args, **kwargs):
+        """Return only inert coordinates; no public plan/selection or live grant."""
+        return original_select(*args, **kwargs, _creation_coordinate_only=True)
+
+    return project_framework_creation_coordinates
+
+
+project_framework_creation_coordinates = _bind_original_coordinate_projection(
+    select_existing_framework_authority
+)

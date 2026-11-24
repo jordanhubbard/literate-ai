@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Compose original absent-target ownership for contained framework ignore/bootstrap creation into read-only migration planning; preserve occupied files and historical initialization records.
+
 - Framework layout plans now retain their original source, metadata, resource and Git observation; copied plans, changed inputs and substituted callbacks cannot reuse that ownership.
 
 - New-project guidance now uses contained Component, package and release paths, distinguishes the framework authoring checkout, and keeps existing 1.3.1 migration limits explicit.

@@ -623,7 +623,64 @@
         },
         "owned_creations": {
           "type": "object",
-          "maxProperties": 0
+          "maxProperties": 2,
+          "propertyNames": {
+            "enum": [
+              "litai/.gitignore",
+              "litai/scripts/_bootstrap_processes.py"
+            ]
+          },
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "to",
+              "mode",
+              "logical",
+              "source_proof",
+              "resource_identity",
+              "owner",
+              "projection",
+              "projection_identity"
+            ],
+            "properties": {
+              "from": {
+                "type": "null"
+              },
+              "to": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "mode": {
+                "const": 420
+              },
+              "logical": {
+                "enum": [
+                  ".gitignore",
+                  "scripts/_bootstrap_processes.py"
+                ]
+              },
+              "source_proof": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "resource_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              },
+              "owner": {
+                "const": "original-finite-creation"
+              },
+              "projection": {
+                "const": "finite-resource-creation"
+              },
+              "projection_identity": {
+                "type": "string",
+                "pattern": "^sha256:[0-9a-f]{64}$"
+              }
+            }
+          }
         },
         "required_owners": {
           "type": "array",

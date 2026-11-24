@@ -127,17 +127,30 @@ def decode_framework_authority_plan(value):
                     *(("destination",) if moving else ()),
                 ),
             )
-            # Creations need an original absence/staging owner. This version does
-            # not pretend an initialized file proof is such an owner.
-            if group == "owned_creations":
-                _fail("original finite creation owner contract not supplied")
-            identity(row["from"])
+            creating = group == "owned_creations"
+            if creating:
+                if (
+                    row["from"] is not None
+                    or row["logical"]
+                    not in {".gitignore", "scripts/_bootstrap_processes.py"}
+                    or coordinate != "litai/" + row["logical"]
+                    or row["owner"] != "original-finite-creation"
+                    or row["projection"] != "finite-resource-creation"
+                    or row["mode"] != 0o644
+                    or row["resource_identity"] != value["resource_selection_identity"]
+                ):
+                    _fail("unknown finite creation shape or coordinate")
+                identity(row["source_proof"])
+            else:
+                identity(row["from"])
             identity(row["to"])
             identity(row["projection_identity"])
             path(row["logical"])
             if type(row["mode"]) is not int or not 0 <= row["mode"] <= 0o7777:
                 _fail("original native mode required")
-            if row["owner"] == "initialized-file":
+            if creating:
+                pass  # Strict inert creation shape above; never a live absence grant.
+            elif row["owner"] == "initialized-file":
                 identity(row["source_proof"])
                 identity(row["resource_identity"])
                 if row["projection"] not in {
@@ -201,6 +214,17 @@ def decode_framework_authority_plan(value):
                 _fail("immutable catalog cannot transform source bytes")
     if sources & destinations or edits & (sources | destinations):
         _fail("moved source/destination and nonmoving edits overlap")
+    if "litai/scripts/_bootstrap_processes.py" in value["owned_creations"]:
+        bootstrap = [
+            row
+            for group in ("placements", "owned_placements")
+            for row in value[group].values()
+            if row["logical"] == "scripts/bootstrap_litai.py"
+            and row["destination"] == "litai/scripts/bootstrap_litai.py"
+            and row["projection"] == "reviewed-bootstrap"
+        ]
+        if len(bootstrap) != 1:
+            _fail("helper creation requires exact reviewed bootstrap move")
     paths = sources | destinations | edits
     aliases = {}
     for coordinate in paths:
