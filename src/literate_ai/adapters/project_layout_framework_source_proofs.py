@@ -48,22 +48,43 @@ class InitializedFrameworkFileProof:
     identity: str
 
 
+def _data_namespace(cls):
+    namespace = dict(vars(cls))
+    if cls is UpdateBases and "__slotnames__" in namespace:
+        # Standard copyreg caches [] for this original class without slots.
+        # Validate its complete shape before excluding incidental runtime data.
+        cache = namespace.pop("__slotnames__")
+        if type(cache) is not list or len(cache) != 0:
+            _fail("original initialized-file slot cache changed")
+    return namespace
+
+
 _DATA_NAMESPACES = tuple(
-    (cls, tuple(vars(cls).items()), cls.__bases__, cls.__mro__)
+    (cls, tuple(_data_namespace(cls).items()), cls.__bases__, cls.__mro__)
     for cls in (InitializedFrameworkFileProof, UpdateBases)
 )
 
 
 def _data_current():
     for cls, values, bases, mro in _DATA_NAMESPACES:
-        current = vars(cls)
+        current = _data_namespace(cls)
         if (
             cls.__bases__ is not bases
             or cls.__mro__ is not mro
             or set(current) != {name for name, _ in values}
             or any(current[name] is not value for name, value in values)
         ):
-            _fail("original initialized-file data descriptor changed")
+            expected = dict(values)
+            names = sorted(set(current) ^ set(expected))
+            changed = sorted(
+                name
+                for name in set(current) & set(expected)
+                if current[name] is not expected[name]
+            )
+            _fail(
+                f"original initialized-file data descriptor changed: {cls.__name__}; "
+                f"names={names}; replaced={changed}"
+            )
 
 
 _PROOF_FIELDS = tuple(field.name for field in fields(InitializedFrameworkFileProof))

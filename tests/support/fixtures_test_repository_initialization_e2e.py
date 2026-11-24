@@ -9,6 +9,7 @@ from pathlib import Path
 from literate_ai.adapters.project_initialization import (
     FilesystemProjectInitializationAdapter,
 )
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.contracts import (
     ProjectInitializationOrigin,
     RepositoryLineage,
@@ -46,7 +47,7 @@ def origin() -> ProjectInitializationOrigin:
     )
 
 
-def initialize_root(target: Path) -> None:
+def initialize_root(target: Path, *, _layout: ScaffoldLayout | None = None) -> None:
     root = RepositoryParentSelection.root()
     FilesystemProjectInitializationAdapter(
         standard_binding_provider=lambda: None,
@@ -60,4 +61,5 @@ def initialize_root(target: Path) -> None:
         source_intelligence_provider="none",
         empty=True,
         parent_selection=root,
+        **({"_layout": _layout} if _layout is not None else {}),
     )

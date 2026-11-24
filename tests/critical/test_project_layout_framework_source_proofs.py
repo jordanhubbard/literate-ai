@@ -94,6 +94,25 @@ class InitializedFrameworkProofTests(unittest.TestCase):
             project.snapshot, project.context, **arguments
         )
 
+    def test_standard_copy_cache_keeps_original_source_proof_current(self):
+        project, owner = self.fixture()
+        copied = copy.copy(project.bases)
+        self.assertIsNot(copied, project.bases)
+        self.assertEqual(copied.root, project.bases.root)
+        proof = self.prove(project, owner)
+        production.require_original_initialized_framework_file_proof(proof)
+        self.assertIs(proof.resources, owner)
+
+    def test_foreign_slot_cache_shape_refuses_original_proof(self):
+        project, owner = self.fixture()
+        for value in (["foreign"], (), None):
+            with (
+                self.subTest(value=value),
+                patch.object(UpdateBases, "__slotnames__", value, create=True),
+            ):
+                with self.assertRaisesRegex(ProjectLayoutPlanError, "slot cache"):
+                    self.prove(project, owner)
+
     def test_actual_source_original_base_and_records_join_without_filesystem_io(self):
         project, owner = self.fixture()
         with (

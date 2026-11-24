@@ -14,6 +14,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.cli import main
 from tests.support.fixtures_test_repository_initialization_e2e import initialize_root
 from tests.support.native_repository import NativeRepositoryFixture
@@ -40,7 +41,8 @@ class ProjectLayoutPlanningTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory()
         cls.addClassCleanup(temporary.cleanup)
         cls.template = Path(temporary.name).resolve() / "template"
-        initialize_root(cls.template)
+        # This cohort inventories the pre-containment layout for migration.
+        initialize_root(cls.template, _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE)
 
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
