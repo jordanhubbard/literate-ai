@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Existing-project layout planning gains original initializer resource custody, corroborated per-file initialization/update-base provenance, and bounded source observation that keeps private state and output trees unopened. Source controls pass; full migration publication and platform acceptance remain in progress.
+
 - Default profiling logs, telemetry caches and retained wheel outputs follow the declared project context from root or descendants. Invalid managed contexts refuse root fallbacks; explicit output overrides retain their meaning. Source regressions pass; native wheel qualification remains open.
 
 - Existing-project layout rendering follows explicit selected and resident coordinates, preserves immutable catalog bytes, replaces exact reviewed root delegate regions, and binds bootstrap updates to their original helper. Source controls pass; full migration and installed qualification remain open.
