@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import unittest
 from unittest.mock import patch
 
@@ -252,14 +253,20 @@ class IngressCallbackCustodyTests(unittest.TestCase):
             project.bases,
         )
         acquired, foreign = [], []
-        original_register = retained._register
         original_close = production.close_original_bounded_retained_source
 
-        def register(owner, values):
-            original_register(owner, values)
-            acquired.append(owner)
-
         def origin():
+            # Observe only original typed objects during the real origin callback;
+            # no replacement production registration or factory is adopted.
+            owner_type = type(old)
+            for item in gc.get_objects():
+                if (
+                    type(item) is owner_type
+                    and item is not old
+                    and object.__getattribute__(item, "resources") is old.resources
+                    and all(item is not known for known in acquired)
+                ):
+                    acquired.append(item)
             if acquired:
                 production.close_original_bounded_retained_source = lambda *_args: (
                     foreign.append(True)
@@ -267,10 +274,7 @@ class IngressCallbackCustodyTests(unittest.TestCase):
             return old.resources.origin
 
         try:
-            with (
-                patch.object(retained, "_register", register),
-                patch.object(resources, "_read_current_origin", origin),
-            ):
+            with patch.object(resources, "_read_current_origin", origin):
                 with self.assertRaises(ProjectLayoutPlanError):
                     production.observe_existing_framework_authority(
                         observation, resources=old.resources

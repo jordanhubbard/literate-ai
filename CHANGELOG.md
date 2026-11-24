@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Recheck retained-source reader origin around callbacks and preserve original cleanup/error handling before migration planning continues.
+
 - Compose original absent-target ownership for contained framework ignore/bootstrap creation into read-only migration planning; preserve occupied files and historical initialization records.
 
 - Framework layout plans now retain their original source, metadata, resource and Git observation; copied plans, changed inputs and substituted callbacks cannot reuse that ownership.
