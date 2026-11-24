@@ -140,21 +140,85 @@ def _build_profile_report(
     }
 
 
+def _profile_log_selection(args: Any):
+    """Select original declared default logs without rebasing explicit outputs."""
+    from literate_ai._filesystem import (
+        UnsafeFilesystemPathError,
+        require_safe_directory,
+    )
+    from literate_ai.projects import ProjectConfigurationStore, ProjectError
+
+    from .errors import CliFailure
+
+    selected = Path(getattr(args, "project", ".")).absolute()
+    try:
+        require_safe_directory(selected, allow_missing=True)
+        original = ProjectConfigurationStore.discover(selected)
+    except ProjectError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+    except (OSError, UnsafeFilesystemPathError) as exc:
+        raise CliFailure(
+            "profile.project_path_unsafe",
+            "profile project path must be direct and available",
+        ) from exc
+    selected_root = selected.resolve()
+    override = os.environ.get("LITAI_LOG_DIR") or getattr(args, "profile_log_dir", None)
+    if override:
+        # Existing relative --log-dir/LITAI_LOG_DIR stays relative to the selected
+        # argument, even when canonical discovery selects an ancestor app root.
+        log_root = (
+            Path(override) if os.path.isabs(override) else selected_root / override
+        )
+    else:
+        log_root = (
+            selected_root / "logs"
+            if original is None
+            else original.root / original.definition.log_dir
+        )
+
+    def require_current():
+        try:
+            require_safe_directory(selected, allow_missing=True)
+            if not override:
+                require_safe_directory(log_root, allow_missing=True)
+            current = ProjectConfigurationStore.discover(selected)
+        except ProjectError as exc:
+            raise CliFailure(exc.code, exc.message) from exc
+        except (OSError, UnsafeFilesystemPathError) as exc:
+            raise CliFailure(
+                "profile.log_directory_unsafe",
+                "original default profile log context is unsafe",
+            ) from exc
+        if original is None:
+            same = current is None
+        else:
+            same = current is not None and (
+                current.root == original.root
+                and current.manifest_path == original.manifest_path
+                and current.content == original.content
+                and current.directory_binding == original.directory_binding
+            )
+        if not same:
+            raise CliFailure(
+                "profile.project_context_changed",
+                "original profile project/framework context changed",
+            )
+
+    require_current()
+    return log_root, require_current
+
+
+def _profile_log_root(args: Any) -> Path:
+    return _profile_log_selection(args)[0]
+
+
 def profile_from_args(args: Any) -> dict[str, Any]:
     """Run a command under structured logging, then report timings."""
 
     from literate_ai.diagnostics import operation_log
 
-    root = Path(getattr(args, "project", ".")).resolve()
-    log_dir_str = (
-        os.environ.get("LITAI_LOG_DIR")
-        or getattr(args, "profile_log_dir", None)
-        or "logs"
-    )
-    if os.path.isabs(log_dir_str):
-        log_root = Path(log_dir_str)
-    else:
-        log_root = root / log_dir_str
+    log_root, require_log_current = _profile_log_selection(args)
+    require_log_current()
     log_root.mkdir(parents=True, exist_ok=True)
     log_path = log_root / "profile.ndjson"
     log_path.unlink(missing_ok=True)
@@ -180,6 +244,7 @@ def profile_from_args(args: Any) -> dict[str, Any]:
             error_info = {"type": type(exc).__name__, "message": str(exc)}
             raise
 
+    require_log_current()
     records = _parse_log(log_path)
     report = _build_profile_report(records, command_result)
     if error_info:

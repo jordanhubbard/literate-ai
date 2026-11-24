@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Default profiling logs, telemetry caches and retained wheel outputs follow the declared project context from root or descendants. Invalid managed contexts refuse root fallbacks; explicit output overrides retain their meaning. Source regressions pass; native wheel qualification remains open.
+
 - Existing-project layout rendering follows explicit selected and resident coordinates, preserves immutable catalog bytes, replaces exact reviewed root delegate regions, and binds bootstrap updates to their original helper. Source controls pass; full migration and installed qualification remain open.
 
 - Derived-project discovery rejects redirected framework and manifest ancestry

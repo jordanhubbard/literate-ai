@@ -2993,7 +2993,8 @@ def _parser() -> JsonArgumentParser:
         "--log-dir",
         dest="profile_log_dir",
         default=None,
-        help="directory for the raw NDJSON trace (default: logs/ under project root)",
+        help="directory for the raw NDJSON trace "
+        "(default: declared project log directory)",
     )
     profile.add_argument(
         "--target", default="host", help="generation/Flavor target profile"
@@ -3583,40 +3584,51 @@ _HUMAN_RENDERERS = {
 
 
 def _perf_build_root(args: argparse.Namespace) -> Path | None:
-    """Anchor performance telemetry to the invoked project's own OBJ_DIR.
+    """Anchor managed telemetry to the original selected application/cache owner.
 
-    A relative ``OBJ_DIR`` must resolve against the project this exact
-    command targets, not this process's ambient working directory --
-    otherwise a command invoked with ``--project`` pointing elsewhere (or a
-    test harness with a different cwd) writes telemetry into the wrong tree.
-    Once a usable project root is known, every fallback stays anchored to
-    that root too: never hand off to the recorder's own environment-only
-    default, which would re-read an unanchored relative ``OBJ_DIR`` and
-    reintroduce exactly the leak this function exists to prevent. Falls
-    back to no explicit root only when no project was declared at all;
-    performance telemetry must never fail, slow, or redirect the command it
-    is only observing.
+    Explicit cache flags and relative OBJ_DIR retain application-relative meaning.
+    An invalid declared context/cache refuses rather than reviving root _build.
+    The legacy fallback remains only for genuinely unmanaged directories.
     """
-
     project = getattr(args, "project", None)
     if project is None:
         return None
-    try:
-        project_root = Path(project).resolve(strict=True)
-    except OSError:
-        return None
-    try:
-        from literate_ai.cache_directories import (
-            CacheDirectoryError,
-            select_cache_directories,
-        )
+    from literate_ai._filesystem import (
+        UnsafeFilesystemPathError,
+        require_safe_directory,
+    )
+    from literate_ai.cache_directories import (
+        CacheDirectoryError,
+        select_cache_directories,
+    )
+    from literate_ai.projects import ProjectConfigurationStore, ProjectError
 
+    selected = Path(project).absolute()
+    try:
+        require_safe_directory(selected, allow_missing=True)
+        snapshot = ProjectConfigurationStore.discover(selected)
+    except ProjectError as exc:
+        raise CliFailure(exc.code, exc.message) from exc
+    except (OSError, UnsafeFilesystemPathError) as exc:
+        raise CliFailure(
+            "perf.project_path_unsafe",
+            "performance project path must be direct and available",
+        ) from exc
+    try:
+        project_root = (
+            selected.resolve(strict=True) if snapshot is None else snapshot.root
+        )
+    except OSError:
+        return None  # Unmanaged, unavailable old target; no declared authority.
+    try:
         return select_cache_directories(
             project_root,
             build_dir=getattr(args, "build_dir", None),
             obj_dir=getattr(args, "obj_dir", None),
         ).obj_dir
-    except CacheDirectoryError:
+    except CacheDirectoryError as exc:
+        if snapshot is not None:
+            raise CliFailure("perf.cache_root_invalid", str(exc)) from exc
         return project_root / "_build"
 
 

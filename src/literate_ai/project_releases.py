@@ -5268,6 +5268,40 @@ def _build_wheel(root: Path) -> Path | None:
     if not ((root / "pyproject.toml").is_file() or (root / "setup.py").is_file()):
         return None
 
+    from literate_ai._filesystem import (
+        UnsafeFilesystemPathError,
+        path_is_link_or_reparse,
+        require_safe_directory,
+    )
+
+    store = ProjectConfigurationStore(root)
+    try:
+        context = store.context(root)
+        original = store.read() if os.path.lexists(context.manifest_path) else None
+        output_root = _release_build_root(root)
+
+        def require_output_current():
+            require_safe_directory(output_root, allow_missing=True)
+            if store.context(root) != context:
+                raise ValueError("wheel output project/framework context changed")
+            if original is None:
+                if os.path.lexists(context.manifest_path):
+                    raise ValueError("wheel output acquired late project authority")
+            else:
+                current = store.read()
+                if (
+                    current.content != original.content
+                    or current.directory_binding != original.directory_binding
+                ):
+                    raise ValueError("wheel output original project authority changed")
+
+        require_output_current()
+    except (ProjectError, OSError, ValueError, UnsafeFilesystemPathError) as exc:
+        raise ProjectReleaseError(
+            "release.wheel_output_unavailable",
+            "wheel output requires the original safe framework context",
+        ) from exc
+
     with tempfile.TemporaryDirectory(prefix="litai-wheel-") as wheel_dir:
         try:
             subprocess.run(
@@ -5299,9 +5333,30 @@ def _build_wheel(root: Path) -> Path | None:
                 f"Expected exactly one wheel, found {len(wheels)}",
             )
         wheel = wheels[0]
-        final = root / "_build" / wheel.name
-        final.parent.mkdir(parents=True, exist_ok=True)
+        final = output_root / wheel.name
+        try:
+            require_output_current()
+            final.parent.mkdir(parents=True, exist_ok=True)
+            require_output_current()
+            if path_is_link_or_reparse(final) or (
+                final.exists() and not final.is_file()
+            ):
+                raise ValueError("wheel destination is not an ordinary file")
+        except (ProjectError, OSError, ValueError, UnsafeFilesystemPathError) as exc:
+            raise ProjectReleaseError(
+                "release.wheel_output_unavailable",
+                "wheel output original framework context changed or became unsafe",
+            ) from exc
         shutil.copy2(str(wheel), str(final))
+        try:
+            require_output_current()
+        except (ProjectError, OSError, ValueError, UnsafeFilesystemPathError) as exc:
+            # Copy completion is not authority to accept a changed context. Keep
+            # the artifact for inspection; never remove a concurrent user's file.
+            raise ProjectReleaseError(
+                "release.wheel_output_unavailable",
+                "wheel output original framework context changed during copy",
+            ) from exc
         return final
 
 
