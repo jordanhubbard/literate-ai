@@ -37,6 +37,7 @@ from literate_ai.adapters.project_scaffold_transitions import (
     reviewed_bootstrap_transition,
 )
 from literate_ai.contracts import canonical_identity
+from literate_ai.contracts.paths import canonical_relative_posix_path
 
 _IGNORE = scaffold._FRAMEWORK_IGNORE
 _HELPER = "scripts/_bootstrap_processes.py"
@@ -321,4 +322,69 @@ _FUNCTIONS += tuple(
         "close_original_finite_framework_creation",
         "require_current_finite_framework_creation",
     )
+)
+
+
+def _bind_original_destination_absence(
+    absence, implementation_current, admit, relative
+):
+    namespace = globals()
+    error = ProjectLayoutPlanError
+    bindings = tuple(
+        (name, namespace[name])
+        for name in (
+            "_fail",
+            "_absence",
+            "_alias",
+            "_implementation_current",
+            "_RESOURCE_ORIGINAL",
+            "_FUNCTIONS",
+            "_CONSTANTS",
+            "_bind_original_destination_absence",
+        )
+    )
+
+    def current():
+        if any(namespace.get(name) is not value for name, value in bindings) or (
+            namespace.get("observe_original_framework_destination_absence")
+            is not observe_original_framework_destination_absence
+        ):
+            raise error(
+                "framework_creation_unavailable", "original destination reader changed"
+            )
+        implementation_current()
+
+    def observe_original_framework_destination_absence(resources, coordinates):
+        """Return native missing frontiers only; never issue an effect grant.
+
+        Callers select exact planned targets from original source ownership.
+        Read only ancestor names/directories; never stat/open an occupied leaf.
+        The original native reader is shared with the two finite creation owners.
+        """
+        current()
+        admit(resources)
+        if (
+            type(coordinates) is not tuple
+            or len(coordinates) > 8192
+            or any(type(path) is not str for path in coordinates)
+            or len(set(coordinates)) != len(coordinates)
+        ):
+            _fail("bounded original destination coordinate tuple required")
+        result = []
+        for path in coordinates:
+            relative(path, label="original framework destination")
+            if not path.startswith("litai/") or ".git" in path.split("/"):
+                _fail("original destination must remain in contained authority")
+            current()
+            result.append((path, absence(resources, path)))
+            current()
+        admit(resources)
+        current()
+        return tuple(result)
+
+    return observe_original_framework_destination_absence
+
+
+observe_original_framework_destination_absence = _bind_original_destination_absence(
+    _absence, _implementation_current, _RESOURCE_ORIGINAL, canonical_relative_posix_path
 )

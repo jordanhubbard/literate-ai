@@ -18,6 +18,9 @@ from urllib.parse import unquote, urlsplit
 from literate_ai._filesystem import stat_identity_value
 from literate_ai.adapters import project_scaffold_references as references
 from literate_ai.adapters import project_scaffold_transitions as transitions
+from literate_ai.adapters.project_layout_component_transition import (
+    require_original_component_transition,
+)
 from literate_ai.adapters.project_layout_finite_creations import (
     require_current_finite_framework_creation,
     require_original_finite_framework_creation,
@@ -108,6 +111,7 @@ class FrameworkAuthoritySelection:
     coordinate_map: object
     observation_owner: object | None = None
     creation_owners: tuple = ()
+    component_endpoints: tuple = ()
 
 
 def _plain_observation(contents, observations):
@@ -168,6 +172,7 @@ def select_existing_framework_authority(
     imported_paths=frozenset(),
     source_held=(),
     creation_owners=(),
+    component_endpoints=(),
     _creation_coordinate_only=False,
     creation_blockers=(),
 ):
@@ -247,6 +252,37 @@ def select_existing_framework_authority(
         ):
             _fail("helper creation requires SAME selected original bootstrap proof")
         creations[owner.logical] = owner
+    if type(component_endpoints) is not tuple or len(component_endpoints) > 8192:
+        _fail("original bounded Component transition tuple required")
+    components = {}
+    coordination_paths = set()
+    for endpoint in component_endpoints:
+        require_original_component_transition(endpoint)
+        proof = endpoint.initialized_source
+        if (
+            endpoint.source_kind != "initialized"
+            or proof is None
+            or proofs.get(proof.logical) is not proof
+            or endpoint.source_root in components
+            or proof.source_path != endpoint.source_root + "/component.md"
+            or endpoint.destination_root != "litai/" + endpoint.source_root
+        ):
+            _fail("SAME original initialized Component/source proof required")
+        for path, content in endpoint.original_contents.items():
+            row = endpoint.records[path]
+            if (
+                path in protected_paths | imported_paths
+                or contents.get(path) != content
+                or _identity(content) != row["identity"]
+                or observations.get(path, {}).get("mode") != row["mode"]
+                or not path.startswith(endpoint.source_root + "/")
+            ):
+                _fail("original typed Component record differs from source capture")
+        original_paths = set(endpoint.records) | set(endpoint.coordination_paths)
+        if original_paths & (protected_paths | imported_paths):
+            _fail("original Component producer overlaps application/import scope")
+        coordination_paths.update(endpoint.coordination_paths)
+        components[endpoint.source_root] = endpoint
     destinations = {
         logical: proof.source_path
         if proof.role == "root-delegate"
@@ -279,6 +315,11 @@ def select_existing_framework_authority(
             and item_owner(path.removeprefix(prefix)) == root
             and row["kind"] == "file"
         }
+        endpoint = components.get(root)
+        if endpoint is not None:
+            # Only original typed producer/coordination custody can distinguish
+            # these files from authored payload. Names alone never exclude them.
+            actual -= set(endpoint.records) | set(endpoint.coordination_paths)
         known = {name for name in proofs if root and item_owner(name) == root}
         expected = original_members.get(root, frozenset())
         if not root or actual != known or known != expected:
@@ -290,7 +331,7 @@ def select_existing_framework_authority(
                     "reason": "whole original item proof required",
                 }
             )
-        if root and root.startswith(("components/", "samples/")):
+        if root and root.startswith(("components/", "samples/")) and endpoint is None:
             blockers.append(
                 {
                     "path": proof.source_path,
@@ -331,8 +372,8 @@ def select_existing_framework_authority(
     actual_aliases = {
         unicodedata.normalize("NFC", path.casefold()): path for path in observations
     }
-    for logical, destination in destinations.items():
-        source = proofs[logical].source_path
+
+    def require_destination(source, destination):
         parts = destination.split("/")
         for count in range(1, len(parts) + 1):
             candidate = "/".join(parts[:count])
@@ -349,6 +390,9 @@ def select_existing_framework_authority(
             if node is not None and node.get("kind") != "directory":
                 _fail("destination ancestor is not an original observed directory")
 
+    for logical, destination in destinations.items():
+        require_destination(proofs[logical].source_path, destination)
+
     def reference_coordinates():
         coordinates = {path: path for path in contents}
         for logical, destination in destinations.items():
@@ -362,6 +406,14 @@ def select_existing_framework_authority(
             coordinates["scripts/_bootstrap_processes.py"] = (
                 "litai/scripts/_bootstrap_processes.py"
             )
+        for endpoint in component_endpoints:
+            manifest = endpoint.initialized_source.logical
+            if (
+                destinations.get(manifest)
+                == endpoint.destination_root + "/component.md"
+            ):
+                for path in endpoint.records:
+                    coordinates[path] = "litai/" + path
         return coordinates
 
     # Exact catalog bytes can move only when their UNCHANGED raw links retain
@@ -409,7 +461,11 @@ def select_existing_framework_authority(
     for path, row in observations.items():
         if row["kind"] != "directory" or path.startswith("litai/") or path == "litai":
             continue
-        children = {name for name in contents if name.startswith(path + "/")}
+        children = {
+            name
+            for name in contents
+            if name.startswith(path + "/") and name not in coordination_paths
+        }
         unknown = {
             name
             for name, value in observations.items()
@@ -533,6 +589,49 @@ def select_existing_framework_authority(
         elif before != rewritten:
             (delegates if proof.role == "root-delegate" else resident)[source] = row
         after[destination] = rewritten
+    for endpoint in component_endpoints:
+        if destinations.get(endpoint.initialized_source.logical) != (
+            endpoint.destination_root + "/component.md"
+        ):
+            continue
+        producer_input = canonical_identity(
+            {
+                "domain": "original-initialized-component-producer-input-v1",
+                "source": endpoint.source_root,
+                "destination": endpoint.destination_root,
+                "manifest_proof": endpoint.initialized_source.identity,
+                "targets": list(endpoint.target_names),
+                "records": {path: dict(row) for path, row in endpoint.records.items()},
+                "coordination": list(endpoint.coordination_paths),
+            }
+        ).uri
+        for path, original in endpoint.original_contents.items():
+            destination = "litai/" + path
+            require_destination(path, destination)
+            if path in placements:
+                _fail("original Component producer placement overlaps selected scope")
+            row = endpoint.records[path]
+            placements[path] = {
+                "from": row["identity"],
+                "to": row["identity"],
+                "mode": row["mode"],
+                "logical": path,
+                "source_proof": producer_input,
+                "resource_identity": resources.identity,
+                "owner": "original-component-producer",
+                "projection": "original-bytes",
+                "projection_identity": canonical_identity(
+                    {
+                        "domain": "original-component-producer-placement-v1",
+                        "producer": producer_input,
+                        "source": path,
+                        "destination": destination,
+                        "record": dict(row),
+                    }
+                ).uri,
+                "destination": destination,
+            }
+            after[destination] = original
     # Unproved files, outputs, imported/custom data stay in place. Opaque source
     # cannot be interpreted as complete app/reference coverage by this selector.
     for row in source_held:
@@ -597,7 +696,11 @@ def select_existing_framework_authority(
         original = getattr(definition, field)
         rewritten_roots = []
         for root in original:
-            children = {name for name in contents if name.startswith(root + "/")}
+            children = {
+                name
+                for name in contents
+                if name.startswith(root + "/") and name not in coordination_paths
+            }
             selected = {name for name in children if moved.get(name) == "litai/" + name}
             opaque = any(
                 row.get("source") is not False and row["path"].startswith(root + "/")
@@ -794,6 +897,8 @@ def select_existing_framework_authority(
         require_original_initialized_framework_file_proof(proof)
     for creation in creation_owners:
         require_current_finite_framework_creation(creation)
+    for endpoint in component_endpoints:
+        require_original_component_transition(endpoint)
     require_original_framework_resources(resources)
     _renderer_current()
     from .project_layout_framework_plan import decode_framework_authority_plan
@@ -818,6 +923,7 @@ def select_existing_framework_authority(
         source_proofs,
         MappingProxyType(coordinates),
         creation_owners=creation_owners,
+        component_endpoints=component_endpoints,
     )
     return public, selection
 

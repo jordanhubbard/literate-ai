@@ -223,7 +223,8 @@
                   "initialized-file",
                   "current-project-definition",
                   "initialization-coordinate-transition",
-                  "framework-base-coordinate-transition"
+                  "framework-base-coordinate-transition",
+                  "original-component-producer"
                 ]
               },
               "projection": {

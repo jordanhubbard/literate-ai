@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Include original initialized Component lock/audit records in default containment planning, preserve coordination custody, and reject occupied or aliased destinations through no-follow absence checks.
+
 - Join all seven recorded conversion-wrapper inputs to their original initialization preimages, producer records and current source observation before migration projection.
 
 - Capture initialized Component lock/audit transitions through the original producer readers, refusing held, private, unknown or incomplete source scopes before broad reads.

@@ -16,9 +16,14 @@ from pathlib import Path
 from types import MappingProxyType
 
 from literate_ai._filesystem import require_safe_directory
+from literate_ai.adapters.project_layout_component_transition import (
+    require_current_component_transition,
+    require_original_component_transition,
+)
 from literate_ai.adapters.project_layout_finite_creations import (
     close_original_finite_framework_creation,
     observe_original_finite_framework_creation,
+    observe_original_framework_destination_absence,
     require_current_finite_framework_creation,
     require_original_finite_framework_creation,
 )
@@ -41,6 +46,9 @@ from literate_ai.adapters.project_layout_framework_selection import (
 from literate_ai.adapters.project_layout_framework_source_proofs import (
     prove_initialized_framework_file,
     require_original_initialized_framework_file_proof,
+)
+from literate_ai.adapters.project_layout_initialized_component_capture import (
+    capture_initialized_framework_component_transitions,
 )
 from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutObservation,
@@ -79,6 +87,18 @@ def _bind_original_ingress(imported_originals):
     ]
     require_original_finite_framework_creation = imported_originals[
         "require_original_finite_framework_creation"
+    ]
+    capture_initialized_framework_component_transitions = imported_originals[
+        "capture_initialized_framework_component_transitions"
+    ]
+    require_current_component_transition = imported_originals[
+        "require_current_component_transition"
+    ]
+    require_original_component_transition = imported_originals[
+        "require_original_component_transition"
+    ]
+    observe_original_framework_destination_absence = imported_originals[
+        "observe_original_framework_destination_absence"
     ]
     hashlib = imported_originals["hashlib"]
     json = imported_originals["json"]
@@ -378,6 +398,8 @@ def _bind_original_ingress(imported_originals):
                 _invoke(require_original_initialized_framework_file_proof, proof)
             for creation in selection.creation_owners:
                 _invoke(require_original_finite_framework_creation, creation)
+            for endpoint in selection.component_endpoints:
+                _invoke(require_original_component_transition, endpoint)
             return (owner, record[1])
 
         def register(owner, values, selection):
@@ -603,6 +625,19 @@ def _bind_original_ingress(imported_originals):
                         imported_paths=frozenset(imported),
                     )
                 )
+            component_endpoints = _invoke(
+                capture_initialized_framework_component_transitions,
+                snapshot,
+                context,
+                resources=resources,
+                source_proofs=tuple(proofs),
+                update_bases=bases,
+                contents=contents,
+                observations=nodes,
+                source_held=held,
+                protected_paths=protected,
+                imported_paths=frozenset(imported),
+            )
             for creation in creation_owners:
                 attached = creation.bootstrap_proof
                 if attached is None:
@@ -694,6 +729,7 @@ def _bind_original_ingress(imported_originals):
                         imported_paths=frozenset(imported),
                         source_held=held,
                         creation_owners=tuple(selected_creations.values()),
+                        component_endpoints=component_endpoints,
                     )
                     acquired = _acquire(
                         observe_original_finite_framework_creation,
@@ -721,10 +757,32 @@ def _bind_original_ingress(imported_originals):
                 source_held=held,
                 **({"creation_owners": creation_owners} if creation_owners else {}),
                 **(
+                    {"component_endpoints": component_endpoints}
+                    if component_endpoints
+                    else {}
+                ),
+                **(
                     {"creation_blockers": tuple(creation_blockers)}
                     if creation_blockers
                     else {}
                 ),
+            )
+            destination_coordinates = tuple(
+                sorted(
+                    {
+                        *(row["destination"] for row in selection.placements.values()),
+                        *(
+                            row["destination"]
+                            for row in selection.owned_placements.values()
+                        ),
+                        *selection.owned_creations,
+                    }
+                )
+            )
+            destination_absence = _invoke(
+                observe_original_framework_destination_absence,
+                resources,
+                destination_coordinates,
             )
             git_pair = (inventory["git_state"], inventory["framework_git_state"])
 
@@ -739,6 +797,17 @@ def _bind_original_ingress(imported_originals):
                     _invoke(require_current_bounded_retained_source, retained)
                 for creation in creation_owners:
                     _invoke(require_current_finite_framework_creation, creation)
+                for endpoint in component_endpoints:
+                    _invoke(require_current_component_transition, endpoint)
+                if (
+                    _invoke(
+                        observe_original_framework_destination_absence,
+                        resources,
+                        destination_coordinates,
+                    )
+                    != destination_absence
+                ):
+                    _fail("original framework destination absence frontier changed")
                 (
                     fresh_nodes,
                     fresh_contents,
@@ -846,9 +915,13 @@ def _bind_original_ingress(imported_originals):
             "require_safe_directory",
             "close_original_finite_framework_creation",
             "observe_original_finite_framework_creation",
+            "observe_original_framework_destination_absence",
             "project_framework_creation_coordinates",
             "require_current_finite_framework_creation",
             "require_original_finite_framework_creation",
+            "capture_initialized_framework_component_transitions",
+            "require_current_component_transition",
+            "require_original_component_transition",
             "_close_bound_source_nodes",
             "capture_framework_source_scope",
             "_producer_namespace",
@@ -929,9 +1002,13 @@ def _bind_original_ingress(imported_originals):
                 "require_safe_directory",
                 "close_original_finite_framework_creation",
                 "observe_original_finite_framework_creation",
+                "observe_original_framework_destination_absence",
                 "project_framework_creation_coordinates",
                 "require_current_finite_framework_creation",
                 "require_original_finite_framework_creation",
+                "capture_initialized_framework_component_transitions",
+                "require_current_component_transition",
+                "require_original_component_transition",
                 "_close_bound_source_nodes",
                 "capture_framework_source_scope",
                 "_producer_namespace",
@@ -1039,9 +1116,13 @@ globals().update(
                     "require_safe_directory",
                     "close_original_finite_framework_creation",
                     "observe_original_finite_framework_creation",
+                    "observe_original_framework_destination_absence",
                     "project_framework_creation_coordinates",
                     "require_current_finite_framework_creation",
                     "require_original_finite_framework_creation",
+                    "capture_initialized_framework_component_transitions",
+                    "require_current_component_transition",
+                    "require_original_component_transition",
                     "_close_bound_source_nodes",
                     "capture_framework_source_scope",
                     "_producer_namespace",
@@ -1079,9 +1160,13 @@ globals().update(
                     require_safe_directory,
                     close_original_finite_framework_creation,
                     observe_original_finite_framework_creation,
+                    observe_original_framework_destination_absence,
                     project_framework_creation_coordinates,
                     require_current_finite_framework_creation,
                     require_original_finite_framework_creation,
+                    capture_initialized_framework_component_transitions,
+                    require_current_component_transition,
+                    require_original_component_transition,
                     _close_bound_source_nodes,
                     capture_framework_source_scope,
                     _producer_namespace,

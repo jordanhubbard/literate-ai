@@ -160,6 +160,21 @@ def decode_framework_authority_plan(value):
                     "reviewed-bootstrap",
                 }:
                     _fail("unknown initialized projection")
+            elif row["owner"] == "original-component-producer":
+                if (
+                    group != "placements"
+                    or coordinate.startswith("litai/")
+                    or row["destination"] != "litai/" + coordinate
+                    or row["logical"] != coordinate
+                    or row["projection"] != "original-bytes"
+                    or row["from"] != row["to"]
+                    or row["resource_identity"] != value["resource_selection_identity"]
+                ):
+                    _fail(
+                        "original Component producer cannot impersonate other actions"
+                    )
+                identity(row["source_proof"])
+                identity(row["resource_identity"])
             elif row["owner"] == "current-project-definition":
                 if (
                     group != "resident_edits"
