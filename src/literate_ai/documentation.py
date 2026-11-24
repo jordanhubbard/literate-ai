@@ -18,6 +18,8 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from urllib.parse import unquote, urlsplit
 
+from literate_ai.application.roadmap_paths import RoadmapPaths
+
 _FENCE = re.compile(r"^( {0,3})(`{3,}|~{3,})([^\r\n]*)$")
 _REFERENCE_DEFINITION = re.compile(
     r"^ {0,3}\[([^\]]+)\]:[ \t]*(?:<([^>\r\n]*)>|([^\s]+))"
@@ -45,9 +47,10 @@ _PUNCTUATION = re.compile(r"[^\w\-\s]", re.UNICODE)
 _WHITESPACE = re.compile(r"\s+")
 _REFERENCE_SPACE = re.compile(r"\s+")
 _ALLOWED_REMOTE_SCHEMES = frozenset({"http", "https", "mailto"})
-_ROADMAP_ACTIVE_ROOT = "docs/roadmap"
-_ROADMAP_HISTORY_ROOT = "docs/history/roadmap"
-_ACTIVE_WORK_PATH = "docs/roadmap/active-work.md"
+# Compatibility coordinates for canonical-root update reconciliation.
+_ACTIVE_WORK_PATH = RoadmapPaths().queue
+_ROADMAP_ACTIVE_ROOT = RoadmapPaths().active_root
+_ROADMAP_HISTORY_ROOT = RoadmapPaths().history_root
 _ROADMAP_STATES = frozenset(
     {"active", "partial", "deferred", "completed", "historical"}
 )
@@ -312,12 +315,13 @@ def _content_identity(content: bytes) -> str:
     return "sha256:" + hashlib.sha256(content).hexdigest()
 
 
-def _roadmap_area(path: str) -> str | None:
-    if path == _ACTIVE_WORK_PATH or not path.endswith(".md"):
+def _roadmap_area(path: str, namespace: RoadmapPaths | None = None) -> str | None:
+    namespace = namespace or RoadmapPaths()
+    if path == namespace.queue or not path.endswith(".md"):
         return None
-    if path.startswith(_ROADMAP_ACTIVE_ROOT + "/"):
+    if path.startswith(namespace.active_root + "/"):
         return "active"
-    if path.startswith(_ROADMAP_HISTORY_ROOT + "/"):
+    if path.startswith(namespace.history_root + "/"):
         return "history"
     return None
 
@@ -353,7 +357,11 @@ def _roadmap_header_fields(path: str, content: str) -> dict[str, str]:
 
 
 def _roadmap_owner_fragment(
-    *, path: str, value: str, active_work_anchors: frozenset[str]
+    *,
+    path: str,
+    value: str,
+    active_work_anchors: frozenset[str],
+    active_work_path: str = _ACTIVE_WORK_PATH,
 ) -> str:
     links = tuple(link for link in extract_markdown_links(value) if not link.image)
     if len(links) != 1:
@@ -370,13 +378,13 @@ def _roadmap_owner_fragment(
         split.scheme
         or split.netloc
         or "\\" in destination
-        or target != _ACTIVE_WORK_PATH
+        or target != active_work_path
         or not fragment
     ):
         raise DocumentationError(
             "project.roadmap_lifecycle_owner_invalid",
             "detailed roadmap Owning queue item must target one heading in "
-            f"docs/roadmap/active-work.md: {path}",
+            f"{active_work_path}: {path}",
         )
     if fragment not in active_work_anchors:
         raise DocumentationError(
@@ -386,7 +394,9 @@ def _roadmap_owner_fragment(
     return fragment
 
 
-def validate_roadmap_lifecycle(documents: Mapping[str, str]) -> None:
+def _validate_roadmap_namespace(
+    documents: Mapping[str, str], namespace: RoadmapPaths
+) -> None:
     """Require explicit ownership and terminal evidence for detailed roadmaps.
 
     ``active-work.md`` remains the sole resumable queue. Supporting plans beneath
@@ -396,19 +406,19 @@ def validate_roadmap_lifecycle(documents: Mapping[str, str]) -> None:
     """
 
     roadmap_paths = tuple(
-        path for path in sorted(documents) if _roadmap_area(path) is not None
+        path for path in sorted(documents) if _roadmap_area(path, namespace) is not None
     )
     if not roadmap_paths:
         return
-    active_work = documents.get(_ACTIVE_WORK_PATH)
+    active_work = documents.get(namespace.queue)
     if active_work is None:
         raise DocumentationError(
             "project.roadmap_lifecycle_queue_missing",
-            "detailed roadmaps require docs/roadmap/active-work.md",
+            f"detailed roadmaps require {namespace.queue}",
         )
     active_work_anchors = markdown_anchors(active_work)
     for path in roadmap_paths:
-        area = _roadmap_area(path)
+        area = _roadmap_area(path, namespace)
         assert area is not None
         fields = _roadmap_header_fields(path, documents[path])
         status = fields["Status"]
@@ -429,6 +439,7 @@ def validate_roadmap_lifecycle(documents: Mapping[str, str]) -> None:
             path=path,
             value=fields["Owning queue item"],
             active_work_anchors=active_work_anchors,
+            active_work_path=namespace.queue,
         )
         evidence = fields["Completion / archival evidence"]
         if status in {"completed", "historical"}:
@@ -443,6 +454,20 @@ def validate_roadmap_lifecycle(documents: Mapping[str, str]) -> None:
                 )
 
 
+def validate_roadmap_lifecycle(
+    documents: Mapping[str, str], *, framework_directory: str | None = None
+) -> None:
+    """Validate selected framework plans and separately declared host plans.
+
+    A host queue never substitutes for selected contained framework authority.
+    Root documents are considered only when present in the declared inventory.
+    """
+    selected = RoadmapPaths.for_framework(framework_directory)
+    _validate_roadmap_namespace(documents, selected)
+    if framework_directory is not None:
+        _validate_roadmap_namespace(documents, RoadmapPaths())
+
+
 def validate_documentation_graph(
     *,
     project_root: Path,
@@ -450,6 +475,7 @@ def validate_documentation_graph(
     agent_skill_content: bytes | None = None,
     documents: Mapping[str, bytes],
     assets: Mapping[str, bytes],
+    framework_directory: str | None = None,
 ) -> dict[str, object]:
     """Validate every local link and require a fully reachable documentation spine."""
 
@@ -477,11 +503,16 @@ def validate_documentation_graph(
     )
 
     try:
-        if _ACTIVE_WORK_PATH in contents:
-            validate_roadmap_dependencies(contents[_ACTIVE_WORK_PATH])
+        selected = RoadmapPaths.for_framework(framework_directory)
+        queues = {selected.queue}
+        if framework_directory is not None:
+            queues.add(RoadmapPaths().queue)
+        for queue in sorted(queues):
+            if queue in contents:
+                validate_roadmap_dependencies(contents[queue])
     except RoadmapDependencyError as exc:
         raise DocumentationError(exc.code, exc.message) from exc
-    validate_roadmap_lifecycle(contents)
+    validate_roadmap_lifecycle(contents, framework_directory=framework_directory)
     skill_path = agent_skill.resolve(strict=True)
     skill_relative = skill_path.relative_to(root).as_posix()
     try:

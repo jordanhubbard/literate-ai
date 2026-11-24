@@ -10,6 +10,7 @@ from literate_ai.application.roadmap_dependencies import (
     RoadmapDependencyError,
     validate_roadmap_dependencies,
 )
+from literate_ai.application.roadmap_paths import RoadmapPaths
 
 
 def require_project_roadmap_acyclic(
@@ -18,6 +19,7 @@ def require_project_roadmap_acyclic(
     *,
     additional_queue: str | None = None,
     _observation=None,
+    framework_directory: str | None = None,
 ) -> None:
     """Validate an in-memory overlay, without creating or modifying any file."""
     proposed = proposed or {}
@@ -35,17 +37,18 @@ def require_project_roadmap_acyclic(
         return path.read_bytes() if path.exists() else None
 
     try:
-        policy_bytes = read("literate.release.json")
+        namespace = RoadmapPaths.for_framework(framework_directory)
+        policy_bytes = read(namespace.release_policy)
         manifest_path = None
         if policy_bytes is not None:
             policy = (
                 json.loads(policy_bytes)
                 if _observation is None
-                else _observation.json_value(policy_bytes, "literate.release.json")
+                else _observation.json_value(policy_bytes, namespace.release_policy)
             )
             manifest_path = policy.get("contributions", {}).get("roadmap_goal_manifest")
         manifest = None
-        queue = "docs/roadmap/active-work.md"
+        queue = namespace.queue
         if manifest_path is not None:
             raw = read(manifest_path)
             if raw is None:
@@ -63,13 +66,13 @@ def require_project_roadmap_acyclic(
         else:
             validate_roadmap_dependencies(raw_queue.decode("utf-8"), manifest)
         # The work CLI's conventional queue can coexist with a custom release queue.
-        if queue != "docs/roadmap/active-work.md":
-            conventional = read("docs/roadmap/active-work.md")
+        if queue != namespace.queue:
+            conventional = read(namespace.queue)
             if conventional is not None:
                 validate_roadmap_dependencies(conventional.decode("utf-8"))
         if additional_queue is not None and additional_queue not in {
             queue,
-            "docs/roadmap/active-work.md",
+            namespace.queue,
         }:
             additional = read(additional_queue)
             if additional is not None:
