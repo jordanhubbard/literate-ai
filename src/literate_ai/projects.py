@@ -261,59 +261,119 @@ class ProjectConfigurationStore:
 
     @staticmethod
     def context(root: Path) -> ProjectContext:
-        """Select one declared location without writes or implicit migration.
+        """Select direct authority without probing redirected target ancestry."""
+        from literate_ai._filesystem import stat_is_link_or_reparse
 
-        A child repository named ``litai`` is independent unless its manifest
-        explicitly declares the containing application's framework directory.
-        """
         root = Path(root)
-        # Legacy retained readmission owns this root's metadata. Its pending
-        # publication cannot become current project authority in another reader.
-        # An independent child named litai does not inherit the parent's marker.
-        if os.path.lexists(root / ".literate/retained-harness-readmission/active.json"):
-            if not scoped_writer_permits_project_read(root):
+
+        def entry(path):
+            try:
+                return path.lstat()
+            except FileNotFoundError:
+                return None
+
+        def unsafe():
+            raise ProjectError(
+                "project.framework_directory_unsafe",
+                "framework directory must be direct and unredirected",
+            )
+
+        def direct_directory(path, *, missing=False):
+            try:
+                require_safe_directory(path.absolute(), allow_missing=missing)
+            except (UnsafeFilesystemPathError, OSError) as error:
+                raise ProjectError(
+                    "project.framework_directory_unsafe",
+                    "framework directory must be direct and unredirected",
+                ) from error
+            node = entry(path)
+            if node is not None and (
+                stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode)
+            ):
+                unsafe()
+            return node
+
+        def observed(application, framework):
+            values = []
+            for path in (application, framework):
+                node = direct_directory(path, missing=True)
+                if node is None:
+                    return ProjectContext(application, framework)
+                values.append(
+                    (node.st_dev, node.st_ino, node.st_mode, node.st_uid, node.st_gid)
+                )
+            return ProjectContext(application, framework, tuple(values))
+
+        def pending(directory, *, owned):
+            parent = directory
+            for name in (".literate", "retained-harness-readmission"):
+                parent = parent / name
+                node = entry(parent)
+                if node is None:
+                    return
+                if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
+                    if owned:
+                        unsafe()
+                    return  # unrelated unmanaged metadata: no target descent
+                direct_directory(parent)
+            if entry(
+                parent / "active.json"
+            ) is not None and not scoped_writer_permits_project_read(directory):
                 raise ProjectError(
                     "project.retained_readmission_recovery_required",
                     "retained readmission metadata publication requires recovery",
                 )
-        direct = root / PROJECT_FILENAME
-        child = root / "litai"
-        contained = child / PROJECT_FILENAME
 
-        def declared(path: Path) -> bool:
+        def declared(path):
+            node = entry(path)
+            if node is None:
+                return False
+            if stat_is_link_or_reparse(node) or not stat.S_ISREG(node.st_mode):
+                raise ProjectError(
+                    "project.manifest_unavailable",
+                    f"project root must contain {PROJECT_FILENAME}",
+                )
             content = ProjectConfigurationStore(path.parent)._read_manifest(path)
             return parse_project_configuration(content).framework_directory == "litai"
 
-        def require_direct(directory: Path) -> None:
-            try:
-                require_safe_directory(directory.absolute())
-            except (UnsafeFilesystemPathError, OSError) as exc:
-                raise ProjectError(
-                    "project.framework_directory_unsafe",
-                    "framework directory must be direct and unredirected",
-                ) from exc
-
-        if root.name == "litai" and direct.is_file() and not direct.is_symlink():
+        if direct_directory(root, missing=True) is None:
+            return observed(root, root)
+        direct = root / PROJECT_FILENAME
+        direct_node = entry(direct)
+        if root.name == "litai" and direct_node is not None:
+            pending(root, owned=True)  # this coordinate owns either profile's metadata
             if declared(direct):
-                require_direct(root)
-                legacy = root.parent / PROJECT_FILENAME
-                if legacy.exists() or legacy.is_symlink():
+                direct_directory(root.parent)
+                if entry(root.parent / PROJECT_FILENAME) is not None:
                     raise ProjectError(
                         "project.manifest_ambiguous",
                         "root and contained project authority cannot coexist",
                     )
-                return ProjectContext.observe(root.parent, root)
-        if contained.exists() or contained.is_symlink():
-            # Inspect no manifest through redirected directory ancestry.
-            require_direct(child)
-            if declared(contained):
-                if direct.exists() or direct.is_symlink():
-                    raise ProjectError(
-                        "project.manifest_ambiguous",
-                        "root and contained project authority cannot coexist",
-                    )
-                return ProjectContext.observe(root, child)
-        return ProjectContext.observe(root, root)
+                return observed(root.parent, root)
+        child = root / "litai"
+        child_node = entry(child)
+        if child_node is not None:
+            if stat_is_link_or_reparse(child_node):
+                unsafe()  # never ask exists/stat about a child target
+            if stat.S_ISDIR(child_node.st_mode):
+                direct_directory(child)
+                contained = child / PROJECT_FILENAME
+                if entry(contained) is not None and declared(contained):
+                    if direct_node is not None:
+                        raise ProjectError(
+                            "project.manifest_ambiguous",
+                            "root and contained project authority cannot coexist",
+                        )
+                    pending(child, owned=True)
+                    # Root .literate is application-owned in this profile.
+                    return observed(root, child)
+        pending(root, owned=direct_node is not None)
+        if direct_node is not None and stat_is_link_or_reparse(direct_node):
+            raise ProjectError(
+                "project.manifest_unavailable",
+                f"project root must contain {PROJECT_FILENAME}",
+            )
+        return observed(root, root)
 
     @classmethod
     def lock_path(cls, root: Path) -> Path:

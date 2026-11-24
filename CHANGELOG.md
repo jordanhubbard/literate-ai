@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Derived-project discovery rejects redirected framework and manifest ancestry
+  before probing targets, preserves independent children and pending-readmission
+  protections, and leaves contained projects' application metadata untouched.
+  Focused discovery, readmission, publication and migration controls pass.
+
 - Derived-project layout: place reviewed imported catalogs into an existing
   `litai/` directory through the acknowledged project migration, preserving
   application files, Git state and earlier journals. Recover exact owned entries

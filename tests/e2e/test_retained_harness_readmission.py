@@ -25,8 +25,10 @@ from literate_ai.adapters.retained_harness_remote import (
 )
 from literate_ai.contracts import canonical_identity
 from literate_ai.projects import load_project
+
+# Readmission compatibility consumes an explicit pre-containment project.
+from tests.e2e.test_retained_harness_receipts import _adapter
 from tests.support.fixtures_test_retained_harness_receipts import (
-    _adapter,
     _invoke,
     _legacy_project,
     _selectors,

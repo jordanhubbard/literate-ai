@@ -26575,6 +26575,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Discovery progress:** Direct framework ancestry is checked before target
+  probes. Nine new no-follow controls and 22 existing configuration, readmission,
+  publication and public migration controls pass locally. Contained selection
+  leaves application-owned root metadata untouched; independent child projects
+  and the original pending-readmission writer boundary remain distinct. These
+  source checks do not close full containment or installed platform acceptance.
+
 - **Execution order:** The directing user prioritizes this requirement before the
   remaining 1.4.0 release work. Preserve unrelated release changes while completing
   the whole containment and migration acceptance contract below.

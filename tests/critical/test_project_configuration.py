@@ -264,12 +264,13 @@ class ProjectConfigurationStoreTests(unittest.TestCase):
                 # Identical bytes may share parsing, never the discovered root.
                 nested = store.create(_definition())
                 self.assertEqual(ProjectConfigurationStore.discover(child).root, child)
+                manifest = store.path  # retain the direct path before tampering
                 backup = child / "original.json"
-                store.path.rename(backup)
+                manifest.rename(backup)
                 try:
-                    store.path.symlink_to(backup.name)
+                    manifest.symlink_to(backup.name)
                 except OSError:
-                    backup.rename(store.path)
+                    backup.rename(manifest)
                     if os.name == "nt":
                         return
                     raise
@@ -279,8 +280,8 @@ class ProjectConfigurationStoreTests(unittest.TestCase):
                     with self.assertRaises(ProjectError):
                         ProjectConfigurationStore.discover(child)
                 finally:
-                    store.path.unlink()
-                    backup.rename(store.path)
+                    manifest.unlink()
+                    backup.rename(manifest)
                 self.assertEqual(store.read().definition, nested.definition)
 
     @unittest.skipIf(os.name == "nt", "POSIX replacement uses an open inode")
@@ -292,9 +293,11 @@ class ProjectConfigurationStoreTests(unittest.TestCase):
             original_open = os.open
             replaced = False
 
-            def replace_after_open(path: object, flags: int, *args: object) -> int:
+            def replace_after_open(
+                path: object, flags: int, *args: object, **kwargs: object
+            ) -> int:
                 nonlocal replaced
-                descriptor = original_open(path, flags, *args)
+                descriptor = original_open(path, flags, *args, **kwargs)
                 if Path(path).name == PROJECT_FILENAME and not replaced:
                     replaced = True
                     replacement = root / "replacement.json"
