@@ -1710,6 +1710,8 @@ def configured_catalog_path(boundary: Path, base: Path, uri: str, *, kind: str) 
         }.get(root_name)
         if field is not None:
             store = ProjectConfigurationStore(boundary)
+            if store.context(boundary).framework_root == boundary:
+                return configured
             snapshot = store.read()
             declared = getattr(snapshot.definition, field)
             if (

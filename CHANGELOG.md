@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Standalone Component planning preserves native relative catalog references without requiring a project manifest; contained-project namespace checks still apply.
+
 - Layout planning retains the original addresses and bytes of all seven converter inputs; mixed layouts preserve the original Makefile location, and ambiguous producer addresses refuse selection.
 
 - Layout creation inputs are limited to the contained framework ignore file and a proven bootstrap helper, with fresh absence, namespace, source and resource checks before publication.

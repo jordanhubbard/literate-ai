@@ -8,6 +8,7 @@ import shutil
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from literate_ai.adapters.component_lock_planning import (
     ComponentLockPlanningError,
@@ -19,7 +20,11 @@ from literate_ai.contracts.catalog_imports import (
     CatalogImportFile,
     CatalogImportSource,
 )
-from literate_ai.projects import ProjectError
+from literate_ai.projects import (
+    ProjectConfigurationStore,
+    ProjectError,
+    configured_catalog_path,
+)
 
 _REPOSITORY_ROOT = Path(__file__).resolve().parents[2]
 
@@ -115,6 +120,34 @@ def _fixture(root: Path) -> tuple[Path, Path]:
 
 
 class ComponentLockPlanningTests(unittest.TestCase):
+    def test_standalone_catalog_reference_never_reads_missing_project_manifest(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary).resolve()
+            component, flavors = _fixture(root)
+            base = flavors / "lang-python"
+            uri = (
+                "../../skills/specification-to-source/"
+                "python-portable-application/SKILL.md"
+            )
+            with patch.object(
+                ProjectConfigurationStore,
+                "read",
+                side_effect=AssertionError("standalone project manifest read"),
+            ):
+                self.assertEqual(
+                    configured_catalog_path(
+                        root, base, uri, kind="specification-to-source-skill"
+                    ),
+                    base / uri,
+                )
+                planned = FilesystemComponentLockPlanner().plan(
+                    component,
+                    target_name="macos-host",
+                    flavor_selectors=("+macos", "+python"),
+                    flavor_roots=(flavors,),
+                )
+                self.assertEqual(planned.target_name, "macos-host")
+
     def test_selected_flavor_content_resolves_recorded_contained_skill(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary).resolve()
