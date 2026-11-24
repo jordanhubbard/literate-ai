@@ -7,11 +7,53 @@ inert transform provides no permission to rewrite custom text or imported bytes.
 from __future__ import annotations
 
 import re
+import unicodedata
 
+from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.documentation import _INLINE_LINK, _REFERENCE_DEFINITION
 
 
-def project_owned_runtime_references(placement, logical, content):
+def validate_reference_coordinates(coordinate_map, *, document):
+    """Validate inert original→actual coordinates; grant no file ownership.
+
+    A trailing slash denotes an explicitly admitted directory instruction. No
+    ancestor inference, selected starter, or taxonomy directory is added here.
+    The original update/migration owner must prove provenance and complete closure.
+    """
+    if type(coordinate_map) is not dict or len(coordinate_map) > 8192:
+        raise ValueError("explicit reference coordinates require a bounded plain map")
+    result, source_aliases, destination_aliases = {}, set(), set()
+    for original, actual in coordinate_map.items():
+        if (
+            type(original) is not str
+            or type(actual) is not str
+            or max(len(original.encode()), len(actual.encode())) > 4096
+        ):
+            raise ValueError("reference coordinates must be bounded plain paths")
+        if original.endswith("/") != actual.endswith("/"):
+            raise ValueError("directory/file reference coordinate kinds differ")
+        for value, aliases in (
+            (original, source_aliases),
+            (actual, destination_aliases),
+        ):
+            path = canonical_relative_posix_path(
+                value.rstrip("/"), label="explicit reference coordinate"
+            )
+            alias = tuple(
+                unicodedata.normalize("NFC", part.casefold()) for part in path.parts
+            )
+            if alias in aliases:
+                raise ValueError("explicit reference coordinates have portable aliases")
+            aliases.add(alias)
+        result[original] = actual
+    if document not in result or document.endswith("/"):
+        raise ValueError("explicit map must bind the original document coordinate")
+    return result
+
+
+def project_owned_runtime_references(
+    placement, logical, content, *, coordinate_map=None
+):
     """Render original app-cwd path tokens using the finite placement inventory.
 
     Markdown navigation remains document-relative and belongs to the link renderer.
@@ -19,20 +61,23 @@ def project_owned_runtime_references(placement, logical, content):
     """
     if not logical.endswith((".md", ".mdc")):
         return content
-    coordinates = {
-        row.logical: row.coordinate
-        for row in placement.files
-        if row.role == "framework"
-    }
-    # These are explicit original operator instructions naming owned directories,
-    # rather than filename ownership inferred for arbitrary application contents.
-    if logical == "SKILL.md":
-        coordinates.update(
-            {"skills/agent/": "litai/skills/agent/", "docs/": "litai/docs/"}
-        )
-    # The selected starter command names the Component directory, not component.md.
-    if "samples/hello-component/component.md" in coordinates:
-        coordinates["samples/hello-component"] = "litai/samples/hello-component"
+    if coordinate_map is not None:
+        coordinates = validate_reference_coordinates(coordinate_map, document=logical)
+    else:
+        coordinates = {
+            row.logical: row.coordinate
+            for row in placement.files
+            if row.role == "framework"
+        }
+        # These are explicit original operator instructions naming owned directories,
+        # rather than filename ownership inferred for arbitrary application contents.
+        if logical == "SKILL.md":
+            coordinates.update(
+                {"skills/agent/": "litai/skills/agent/", "docs/": "litai/docs/"}
+            )
+        # The selected starter command names the Component directory, not component.md.
+        if "samples/hello-component/component.md" in coordinates:
+            coordinates["samples/hello-component"] = "litai/samples/hello-component"
     coordinates.update(
         {
             key.replace("/", "\\"): value.replace("/", "\\")
@@ -49,7 +94,9 @@ def project_owned_runtime_references(placement, logical, content):
         + r")(?![A-Za-z0-9_./\\-])"
     )
     text = content.decode("utf-8")
-    if logical == "docs/user/bootstrap.md":
+    if logical == "docs/user/bootstrap.md" and (
+        coordinate_map is None or coordinates.get(".gitignore") == "litai/.gitignore"
+    ):
         text = text.replace(
             "The generated `.gitignore` excludes\n"
             "   `.litai-venv/`, and LitAI treats that environment "

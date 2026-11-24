@@ -361,48 +361,118 @@ class ProjectScaffoldPlacement:
             source_intelligence=intelligence,
         )
 
-    def template_content(self, logical, content):
+    def template_content(self, logical, content, *, coordinate_map=None):
         if type(content) is not bytes or len(content) > _MAX_FILE_BYTES:
             _fail("template_bound", "owned template exceeds its byte bound")
         row = self.entry(logical)
-        if self.layout is not ScaffoldLayout.DERIVED_CONTAINED:
+        if (
+            self.layout is not ScaffoldLayout.DERIVED_CONTAINED
+            and coordinate_map is None
+        ):
             return content
-        if row.role == "root-delegate":
-            return self.plan_delegate(logical, None).content
-        if row.role == "framework-ignore":
-            return _FRAMEWORK_IGNORE
+        if coordinate_map is not None:
+            from .project_scaffold_references import validate_reference_coordinates
+
+            coordinate_map = validate_reference_coordinates(
+                coordinate_map, document=logical
+            )
+
         if PurePosixPath(logical).parts[0] in CATALOG_SOURCE_ROOTS | {"mcps"}:
             # Catalog authority has exact dependency/source pins. Its original
             # bytes remain intact; configured roots resolve logical input URIs.
             return content
+
+        def reference(relative):
+            return (
+                self.framework_coordinate(relative)
+                if coordinate_map is None
+                else coordinate_map.get(relative, relative)
+            )
+
+        if logical == "scripts/bootstrap_litai.py" and coordinate_map is not None:
+            if coordinate_map[logical] != logical:
+                _fail(
+                    "bootstrap_transition_required",
+                    "moved historical bootstrap requires original "
+                    "reviewed update transition",
+                )
+        if row.role == "root-delegate":
+            return self.plan_delegate(
+                logical,
+                None,
+                **(
+                    {"coordinate_map": coordinate_map}
+                    if coordinate_map is not None
+                    else {}
+                ),
+            ).content
+        if row.role == "application-seed" and coordinate_map is not None:
+            if coordinate_map[logical] != logical:
+                _fail(
+                    "application_coordinate",
+                    "application product seed cannot be moved by framework rendering",
+                )
+            return content
+        if row.role == "framework-ignore":
+            if coordinate_map is not None and coordinate_map[logical] == logical:
+                return content
+            return _FRAMEWORK_IGNORE
         if logical == "literate.release.json":
             value = json.loads(content)
             binding = value["version_authority"]
             if binding["path"] == "literate.project.json":
-                binding["path"] = self.framework_coordinate(binding["path"])
+                binding["path"] = reference(binding["path"])
             gate = value["gate"]["argv"]
             if gate[:2] == ["litai", "test"] and len(gate) > 2:
-                component = gate[2].rstrip("/") + "/component.md"
-                if any(item.logical == component for item in self.files):
-                    gate[2] = str(
-                        PurePosixPath(self.framework_coordinate(component)).parent
+                component_argument_is_file = coordinate_map is not None and gate[
+                    2
+                ].endswith("/component.md")
+                component = (
+                    gate[2]
+                    if component_argument_is_file
+                    else gate[2].rstrip("/") + "/component.md"
+                )
+                if (
+                    component in coordinate_map
+                    if coordinate_map is not None
+                    else any(item.logical == component for item in self.files)
+                ):
+                    gate[2] = (
+                        reference(component)
+                        if component_argument_is_file
+                        else str(PurePosixPath(reference(component)).parent)
                     )
             contributions = value.get("contributions")
             if contributions is not None:
                 ledger = contributions["roadmap_goal_manifest"]
-                contributions["roadmap_goal_manifest"] = self.framework_coordinate(
-                    ledger
-                )
+                contributions["roadmap_goal_manifest"] = reference(ledger)
             return (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode()
         if logical == "docs/roadmap/release-goals.json":
             value = json.loads(content)
-            value["roadmap"] = self.framework_coordinate(value["roadmap"])
+            value["roadmap"] = reference(value["roadmap"])
             return (json.dumps(value, indent=2, ensure_ascii=False) + "\n").encode()
         if logical.endswith((".md", ".mdc")):
             from .project_scaffold_references import project_owned_runtime_references
 
-            content = project_owned_runtime_references(self, logical, content)
-            return self._markdown_links(logical, content)
+            content = project_owned_runtime_references(
+                self,
+                logical,
+                content,
+                **(
+                    {"coordinate_map": coordinate_map}
+                    if coordinate_map is not None
+                    else {}
+                ),
+            )
+            return self._markdown_links(
+                logical,
+                content,
+                **(
+                    {"coordinate_map": coordinate_map}
+                    if coordinate_map is not None
+                    else {}
+                ),
+            )
         return content
 
     def project_templates(self, contents, *, application_files=None):
@@ -432,12 +502,23 @@ class ProjectScaffoldPlacement:
                 projected.append((row, self.template_content(logical, content)))
         return tuple(projected)
 
-    def _markdown_links(self, logical, content):
+    def _markdown_links(self, logical, content, *, coordinate_map=None):
         text = content.decode("utf-8")
         original_lines = text.splitlines(keepends=True)
         visible = _visible_markdown_lines(text)
-        coordinates = {row.logical: row.coordinate for row in self.files}
-        destination = self.entry(logical).coordinate
+        coordinates = (
+            {row.logical: row.coordinate for row in self.files}
+            if coordinate_map is None
+            else {
+                key.rstrip("/"): value.rstrip("/")
+                for key, value in coordinate_map.items()
+            }
+        )
+        destination = (
+            self.entry(logical).coordinate
+            if coordinate_map is None
+            else coordinate_map[logical]
+        )
         for index, line in enumerate(visible):
             edits = []
             reference = _REFERENCE_DEFINITION.match(line)
@@ -460,11 +541,14 @@ class ProjectScaffoldPlacement:
                 old_target = posixpath.normpath(
                     posixpath.join(posixpath.dirname(logical), unquote(parsed.path))
                 )
-                if old_target not in coordinates:
+                if old_target not in coordinates and coordinate_map is None:
                     continue
                 relocated = posixpath.relpath(
-                    coordinates[old_target], posixpath.dirname(destination) or "."
+                    coordinates.get(old_target, old_target),
+                    posixpath.dirname(destination) or ".",
                 )
+                if coordinate_map is not None and parsed.path.endswith("/"):
+                    relocated += "/"
                 new_target = urlunsplit(
                     (
                         "",
@@ -483,7 +567,15 @@ class ProjectScaffoldPlacement:
                 )
         return "".join(original_lines).encode()
 
-    def plan_delegate(self, relative, current, *, expected_region=None):
+    def plan_delegate(
+        self,
+        relative,
+        current,
+        *,
+        expected_region=None,
+        legacy_owned_region=None,
+        coordinate_map=None,
+    ):
         if relative not in _ROOT_DELEGATES:
             _fail(
                 "not_root_delegate", "root integration is not in the finite inventory"
@@ -492,19 +584,30 @@ class ProjectScaffoldPlacement:
             type(current) is not bytes or len(current) > _MAX_FILE_BYTES
         ):
             _fail("delegate_bound", "root integration exceeds its original input bound")
+        skill = "litai/SKILL.md"
+        if coordinate_map is not None:
+            from .project_scaffold_references import validate_reference_coordinates
+
+            coordinates = validate_reference_coordinates(
+                coordinate_map, document=relative
+            )
+            if coordinates[relative] != relative:
+                _fail(
+                    "not_root_delegate",
+                    "shared root integration must remain at the root",
+                )
+            skill = coordinates.get("SKILL.md", "SKILL.md")
         yaml = relative == "agents/openai.yaml"
         begin, end = (_YAML_BEGIN, _YAML_END) if yaml else (_BEGIN, _END)
         if yaml:
             body = (
                 'interface:\n  display_name: "Literate AI"\n'
                 '  short_description: "Project onboarding"\n'
-                '  default_prompt: "Read litai/SKILL.md and use '
+                f'  default_prompt: "Read {skill} and use '
                 '$literate-ai for this project."\n'
             )
         else:
-            target = posixpath.relpath(
-                "litai/SKILL.md", posixpath.dirname(relative) or "."
-            )
+            target = posixpath.relpath(skill, posixpath.dirname(relative) or ".")
             body = f"Read and follow [project authority]({target}).\n"
         region = (begin + "\n" + body + end).encode()
         original = current or b""
@@ -514,7 +617,49 @@ class ProjectScaffoldPlacement:
         ):
             _fail("delegate_markers", "root integration markers are ambiguous")
         start = original.find(begin.encode())
-        if start >= 0:
+        if legacy_owned_region is not None:
+            if (
+                type(legacy_owned_region) is not bytes
+                or not legacy_owned_region
+                or len(legacy_owned_region) > _MAX_FILE_BYTES
+                or start >= 0
+                or expected_region is not None
+                or original.count(legacy_owned_region) != 1
+            ):
+                _fail(
+                    "delegate_ownership",
+                    "legacy root region is absent, changed or ambiguous",
+                )
+            legacy_start = original.find(legacy_owned_region)
+            legacy_stop = legacy_start + len(legacy_owned_region)
+            if (
+                legacy_start and original[legacy_start - 1 : legacy_start] != b"\n"
+            ) or (
+                legacy_stop < len(original)
+                and original[legacy_stop - 1 : legacy_stop] != b"\n"
+                and original[legacy_stop : legacy_stop + 1] != b"\n"
+            ):
+                _fail(
+                    "delegate_ownership",
+                    "legacy root region is not at original line boundaries",
+                )
+            outside = original[:legacy_start] + original[legacy_stop:]
+            self._check_yaml_outside(yaml, outside)
+            replacement = region + (
+                b"\n" if legacy_owned_region.endswith(b"\n") else b""
+            )
+            if relative.endswith(".mdc") and legacy_owned_region.startswith(b"---\n"):
+                if legacy_start != 0:
+                    _fail(
+                        "delegate_ownership",
+                        "legacy Cursor frontmatter is not at document start",
+                    )
+                replacement = (
+                    b"---\ndescription: Project onboarding\nalwaysApply: true\n---\n\n"
+                    + replacement
+                )
+            output = original[:legacy_start] + replacement + original[legacy_stop:]
+        elif start >= 0:
             closing = original.find(end.encode(), start)
             stop = closing + len(end.encode())
             if (

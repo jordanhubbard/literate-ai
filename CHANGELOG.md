@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Existing-project layout rendering follows explicit selected and resident coordinates, preserves immutable catalog bytes, replaces exact reviewed root delegate regions, and binds bootstrap updates to their original helper. Source controls pass; full migration and installed qualification remain open.
+
 - Derived-project discovery rejects redirected framework and manifest ancestry
   before probing targets, preserves independent children and pending-readmission
   protections, and leaves contained projects' application metadata untouched.
