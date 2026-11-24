@@ -29,7 +29,8 @@ from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.paths import canonical_relative_posix_path
 
 _PLAN = "literate-ai/project-layout-catalog-continuation@1"
-_JOURNAL = "literate-ai/project-layout-catalog-continuation-journal@1"
+_JOURNAL_V1 = "literate-ai/project-layout-catalog-continuation-journal@1"
+_JOURNAL = "literate-ai/project-layout-catalog-continuation-journal@2"
 _MAX_ENTRIES = 8192
 _FENCES = ContextVar("layout_continuation_component_fences", default=())
 _SLOT = re.compile(r"[0-9]{5}\Z")
@@ -269,9 +270,46 @@ def _names(path):
         return result
 
 
+def _journal_directories(schema):
+    original = ("before", "after", "directories", "coordination", "history")
+    if schema == _JOURNAL_V1:
+        return original
+    if schema == _JOURNAL:
+        return (*original, "retired-source")
+    _fail("recovery_conflict", "unknown catalog continuation journal version")
+
+
+def _source_location(root, journal, intent, coordinate):
+    _journal_directories(intent["schema"])
+    if intent["schema"] == _JOURNAL_V1:
+        return root / coordinate
+    if not _names(journal / "retired-source"):
+        return root / coordinate
+    from literate_ai.adapters.component_namespace_closing import source_closure_location
+
+    return source_closure_location(root, journal, intent, coordinate)
+
+
+@contextmanager
+def _restore_source_namespaces(root, journal, intent):
+    _journal_directories(intent["schema"])
+    if intent["schema"] == _JOURNAL_V1:
+        yield
+        return
+    from literate_ai.adapters.component_namespace_closing import (
+        restore_retired_source_namespaces,
+    )
+
+    with restore_retired_source_namespaces(root, journal, intent):
+        yield
+
+
 def _guard_directories(root, journal, intent):
     for coordinate, node in intent["original_directories"].items():
-        if list(directory_node(root / coordinate)) != node:
+        if (
+            list(directory_node(_source_location(root, journal, intent, coordinate)))
+            != node
+        ):
             _fail("recovery_conflict", "original catalog parent changed")
     for coordinate, row in intent["new_directories"].items():
         live, staged = root / coordinate, journal / "directories" / row["slot"]
@@ -332,6 +370,9 @@ def _guard_journal(root, journal, intent):
         "coordination",
         "history",
     }
+    if intent["schema"] == _JOURNAL:
+        allowed.add("retired-source")
+    _journal_directories(intent["schema"])
     if not _names(journal) <= allowed:
         _fail("recovery_conflict", "catalog journal has unknown content")
     for name, node in intent["journal_directories"].items():
@@ -373,7 +414,9 @@ def _guard_journal(root, journal, intent):
             _fail("recovery_conflict", "historical producer bytes changed")
     _coordination_states(root, journal, intent)
     for path, row in intent["source_coordination"].items():
-        if not _coord_matches(_coordination_view(root / path), row):
+        if not _coord_matches(
+            _coordination_view(_source_location(root, journal, intent, path)), row
+        ):
             _fail("recovery_conflict", "original source coordination inode changed")
     _guard_directories(root, journal, intent)
 
@@ -712,7 +755,7 @@ def _stage(root, selection, namespace, components, witnesses):
         incoming = Path(
             tempfile.mkdtemp(prefix=".catalog-placement-", dir=destination.parent)
         )
-    for name in ("before", "after", "directories", "coordination", "history"):
+    for name in _journal_directories(_JOURNAL):
         with _parent_scope(namespace, incoming):
             (incoming / name).mkdir(mode=0o700)
     for ordinal, (source, entry) in enumerate(entries.items()):
@@ -766,7 +809,7 @@ def _stage(root, selection, namespace, components, witnesses):
         "journal_node": list(directory_node(incoming)),
         "journal_directories": {
             name: list(directory_node(incoming / name))
-            for name in ("before", "after", "directories", "coordination", "history")
+            for name in _journal_directories(_JOURNAL)
         },
     }
     intent["identity"] = canonical_identity(intent).uri
@@ -788,7 +831,7 @@ def _unique(pairs):
     return result
 
 
-def _load(root, expected):
+def _decode_intent(root, expected):
     from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 
     journal = journal_path(root, expected)
@@ -797,7 +840,7 @@ def _load(root, expected):
         intent = json.loads(raw, object_pairs_hook=_unique)
         identity = intent.pop("identity")
         if (
-            intent.get("schema") != _JOURNAL
+            intent.get("schema") not in (_JOURNAL_V1, _JOURNAL)
             or canonical_identity(intent).uri != identity
         ):
             raise ValueError("catalog journal identity changed")
@@ -989,16 +1032,25 @@ def _load(root, expected):
             if stat.S_IMODE(row["node"][2]) != _mode(row["mode"]):
                 raise ValueError("catalog directory mode differs")
         _node(intent["journal_node"], directory=True)
-        if set(intent["journal_directories"]) != {
-            "before",
-            "after",
-            "directories",
-            "coordination",
-            "history",
-        }:
+        if set(intent["journal_directories"]) != set(
+            _journal_directories(intent["schema"])
+        ):
             raise ValueError("catalog journal subdirectories differ")
         for node in intent["journal_directories"].values():
             _node(node, directory=True)
+    except ProjectLayoutPlanError:
+        raise
+    except (OSError, KeyError, TypeError, ValueError) as error:
+        _fail("recovery_conflict", f"catalog continuation journal invalid: {error}")
+    return journal, intent
+
+
+def _load(root, expected):
+    from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
+
+    journal, intent = _decode_intent(root, expected)
+    try:
+        entries = intent["entries"]
         _owner()._require_worktree_members(
             root, (*entries, *(row["destination"] for row in entries.values()))
         )
@@ -1517,67 +1569,74 @@ def apply_catalog_continuation(selection, expected):
 def recover_catalog_continuation(root, expected):
     root = Path(root).absolute()
     with _operation(root) as namespace, _reserve(root, namespace):
-        journal, intent = _load(root, expected)
-        _current(root, journal, intent, namespace)
-        entries = intent["entries"]
-        for source, entry in entries.items():
-            _entry_state(root, journal, source, entry)
-        with (
-            _component_fences(root, intent["components"], namespace),
-            _component_fences(
-                root,
-                intent["components"],
-                namespace,
-                destinations=True,
-                intent=intent,
-                journal=journal,
-            ),
-        ):
-            for source, entry in reversed(tuple(entries.items())):
-                _current(root, journal, intent, namespace)
-                state = _entry_state(root, journal, source, entry)
-                if state == "published":
-                    _move(
-                        root / entry["destination"],
-                        journal / "after" / entry["slot"],
-                        entry,
-                        original=False,
-                        namespace=namespace,
-                    )
-                if state != "original":
-                    _move(
-                        journal / "before" / entry["slot"],
-                        root / source,
-                        entry,
-                        original=True,
-                        namespace=namespace,
-                    )
-        retained = {row["path"] for row in _scaffolding(root, journal, intent)}
-        for path, row in sorted(
-            intent["new_directories"].items(),
-            key=lambda item: len(Path(item[0]).parts),
-            reverse=True,
-        ):
+        journal, intent = _decode_intent(root, expected)
+        _guard(root, intent["plan"])
+        with _restore_source_namespaces(root, journal, intent):
+            journal, intent = _load(root, expected)
             _current(root, journal, intent, namespace)
-            live, staged = root / path, journal / "directories" / row["slot"]
-            if path in retained:
-                continue
-            if os.path.lexists(live):
-                if _names(live):
-                    _fail(
-                        "recovery_conflict",
-                        "new catalog directory has unrelated content",
-                    )
-                _move_directory(live, staged, row["node"], namespace)
-        _current(root, journal, intent, namespace)
-        for source, entry in entries.items():
-            if _entry_state(root, journal, source, entry) != "original":
-                _fail("recovery_conflict", "catalog original was not restored")
-        if not os.path.lexists(journal / "rolled-back"):
-            _owner()._write(journal / "rolled-back", b"catalog placement rolled back\n")
-        _owner()._flush(journal)
-        _current(root, journal, intent, namespace)
-        retained_paths = [row["path"] for row in _scaffolding(root, journal, intent)]
+            entries = intent["entries"]
+            for source, entry in entries.items():
+                _entry_state(root, journal, source, entry)
+            with (
+                _component_fences(root, intent["components"], namespace),
+                _component_fences(
+                    root,
+                    intent["components"],
+                    namespace,
+                    destinations=True,
+                    intent=intent,
+                    journal=journal,
+                ),
+            ):
+                for source, entry in reversed(tuple(entries.items())):
+                    _current(root, journal, intent, namespace)
+                    state = _entry_state(root, journal, source, entry)
+                    if state == "published":
+                        _move(
+                            root / entry["destination"],
+                            journal / "after" / entry["slot"],
+                            entry,
+                            original=False,
+                            namespace=namespace,
+                        )
+                    if state != "original":
+                        _move(
+                            journal / "before" / entry["slot"],
+                            root / source,
+                            entry,
+                            original=True,
+                            namespace=namespace,
+                        )
+            retained = {row["path"] for row in _scaffolding(root, journal, intent)}
+            for path, row in sorted(
+                intent["new_directories"].items(),
+                key=lambda item: len(Path(item[0]).parts),
+                reverse=True,
+            ):
+                _current(root, journal, intent, namespace)
+                live, staged = root / path, journal / "directories" / row["slot"]
+                if path in retained:
+                    continue
+                if os.path.lexists(live):
+                    if _names(live):
+                        _fail(
+                            "recovery_conflict",
+                            "new catalog directory has unrelated content",
+                        )
+                    _move_directory(live, staged, row["node"], namespace)
+            _current(root, journal, intent, namespace)
+            for source, entry in entries.items():
+                if _entry_state(root, journal, source, entry) != "original":
+                    _fail("recovery_conflict", "catalog original was not restored")
+            if not os.path.lexists(journal / "rolled-back"):
+                _owner()._write(
+                    journal / "rolled-back", b"catalog placement rolled back\n"
+                )
+            _owner()._flush(journal)
+            _current(root, journal, intent, namespace)
+            retained_paths = [
+                row["path"] for row in _scaffolding(root, journal, intent)
+            ]
     envelope = {
         "schema": "literate-ai/project-layout-catalog-continuation-result@1",
         "operation": "recover",
