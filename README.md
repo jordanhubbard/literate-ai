@@ -222,9 +222,11 @@ cd my-litai-app
 litai project validate
 ```
 
-Initialization creates the complete project taxonomy and an inheritable
-`samples/hello-component` application. Its defaults are Python, GNU Make, the host OS,
-and pip-wheel packaging.
+The 1.4 development initializer places framework authority under `litai/`, including
+the inheritable `litai/samples/hello-component` application. Its defaults are Python,
+GNU Make, the host OS, and pip-wheel packaging. Published 1.3.1 projects retain their
+recorded paths; inspect the [layout migration guidance](docs/user/project-layout.md#derived-project-containment-and-migration)
+before changing an existing tree.
 Use `litai onboard create PATH --from URL[#REVISION]` to inspect inherited authority from that
 repository's complete ancestor DAG without executing parent repository code.
 Apply the reviewed plan with `--apply --acknowledge`. `litai init` remains the
@@ -233,9 +235,9 @@ lower-level initialization command.
 ### 3. Build, test, and run hello on this host
 
 ```bash
-litai build samples/hello-component --target host
-litai test samples/hello-component --target host
-litai run samples/hello-component --target host -- '{"name":"LitAI"}'
+litai build litai/samples/hello-component --target host
+litai test litai/samples/hello-component --target host
+litai run litai/samples/hello-component --target host -- '{"name":"LitAI"}'
 ```
 
 These commands generate source and current tests from the specification,
@@ -429,7 +431,9 @@ make really-clean   # also remove BUILD_DIR (default: ./generated) generated sou
 The root `_build/` tree is disposable: Git ignores it, and `clean` may
 remove it in full. Do not put authored source, specifications, or durable evidence there.
 
-Project releases use the same CLI and remain project-owned:
+Project releases use the same CLI and remain project-owned. The following example
+runs in this framework's authoring checkout. Derived 1.4 projects declare their
+release policy and default release output beneath `litai/`:
 
 ```bash
 mkdir -p _build/release

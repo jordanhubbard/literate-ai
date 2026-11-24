@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- New-project guidance now uses contained Component, package and release paths, distinguishes the framework authoring checkout, and keeps existing 1.3.1 migration limits explicit.
+
 - Layout checks distinguish current destination records from records needing normal producer renewal, retain original history, and refuse changed nonproducer files or substituted callbacks.
 
 - Standalone Component planning preserves native relative catalog references without requiring a project manifest; contained-project namespace checks still apply.

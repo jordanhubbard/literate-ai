@@ -609,18 +609,21 @@ litai init --convert --plan path/to/existing
 litai init --convert path/to/existing
 ```
 
-Then continue the `dev` workflow:
+For a newly initialized 1.4 development project, continue the `dev` workflow using
+its contained Component path. Published 1.3.1 and existing root-layout projects keep
+their recorded paths until a reviewed migration changes them; see
+[derived-project containment and migration](project-layout.md#derived-project-containment-and-migration).
 
 ```console
 cd path/to/my-project
 litai lock --check
-litai plan samples/hello-component
-litai build samples/hello-component --target host
-litai test samples/hello-component --target host
-litai run samples/hello-component --target host -- '{"name":"LitAI"}'
-litai package plan samples/hello-component --target host
-litai package build samples/hello-component --target host --allow-host-execution
-litai package verify samples/hello-component --target host
+litai plan litai/samples/hello-component
+litai build litai/samples/hello-component --target host
+litai test litai/samples/hello-component --target host
+litai run litai/samples/hello-component --target host -- '{"name":"LitAI"}'
+litai package plan litai/samples/hello-component --target host
+litai package build litai/samples/hello-component --target host --allow-host-execution
+litai package verify litai/samples/hello-component --target host
 ```
 
 The target can already be a fresh `git init` repository and may have an existing root
@@ -628,9 +631,10 @@ The target can already be a fresh `git init` repository and may have an existing
 plain `litai init`. Adopt them with `litai init --convert --plan` first, then
 `litai init --convert`, rather than an implicit, lossy merge.
 
-The initializer creates the complete literate taxonomy, a provider-neutral root
-`SKILL.md`, linked documentation, canonical catalog roots, Python/Make/host-OS plus
-pip-wheel starter Flavors, portable generation and package-artifact skills, and one
+The initializer creates the complete literate taxonomy under `litai/`, including
+the provider-neutral `litai/SKILL.md`, linked documentation, canonical catalog roots,
+Python/Make/host-OS plus pip-wheel starter Flavors, portable generation and
+package-artifact skills, and one
 minimal portable starter Component with its current host lock. Bazel remains an explicit
 replaceable build-system Flavor. Use `litai init --empty` when the
 framework infrastructure is wanted without that starter. Generated source is still
@@ -642,7 +646,7 @@ specification-to-source-to-binary proof, runs generated tests and the applicatio
 updates the project's succinct passing receipt:
 
 ```console
-litai rebuild samples/hello-component --project . \
+litai rebuild litai/samples/hello-component --project . \
   --allow-host-execution --update-receipt
 ```
 
@@ -654,7 +658,7 @@ passes, so a receipt without a usable artifact is not accepted as the starter pr
 The initialized hello Component also selects `package-pip`. Package planning is
 read-only. Package construction deliberately reruns the accepted lifecycle before it
 creates a wheel, embeds `component.md` and the resolved CycloneDX SBOM, and retains the
-content-addressed batch beneath `_build/packages/`. Verification reopens those retained
+content-addressed batch beneath `litai/_build/packages/`. Verification reopens those retained
 bytes independently; publication remains a separate, explicitly authorized release
 operation.
 
@@ -664,20 +668,27 @@ contract companion.
 
 ```text
 my-project/
-├── SKILL.md                    agent onboarding authority
-├── literate.project.json       project roots, policies, and exact pins
-├── components/                 behavior and acceptance specifications
-├── flavors/                    OS, language, build, and deployment variation
-├── skills/
-│   ├── specification-to-source/
-│   └── source-to-specification/
-├── workflows/                  ordered lifecycle stages
-├── routing/                    eligible model decisions
-├── docs/                       reviewed explanation and Mermaid diagrams
-├── verification/current.json   one compact current passing state
+├── README.md                   application documentation, preserved if present
+├── CHANGELOG.md                application release history
+├── AGENTS.md                   optional owned delegate to litai/SKILL.md
+└── litai/
+    ├── SKILL.md                agent onboarding authority
+    ├── literate.project.json   project roots, policies, and exact pins
+    ├── literate.release.json   framework-managed release policy
+    ├── components/             behavior and acceptance specifications
+    ├── samples/hello-component/ portable starter
+    ├── flavors/                OS, language, build, and deployment variation
+    ├── skills/
+    │   ├── specification-to-source/
+    │   └── source-to-specification/
+    ├── workflows/              ordered lifecycle stages
+    ├── routing/                eligible model decisions
+    ├── docs/                   framework explanation and Mermaid diagrams
+    ├── _build/                 disposable framework outputs
+    └── verification/current.json compact passing state after successful checks
 ```
 
-Create one readable `component.md` under `components/`, put its behavior and measurable
+Create one readable `component.md` under `litai/components/`, put its behavior and measurable
 acceptance in the Markdown body, declare its variation slots, then resolve target
 Flavors with `litai lock`. Add layered `literate-markdown` documents only when a real
 domain/module/protocol boundary makes the split easier to understand. Review the lock
@@ -690,12 +701,12 @@ repository's content-pinned driver is the executable reference.
 
 ## 5. Release one exact project revision
 
-Every initialized project owns `literate.release.json`. The policy chooses canonical
-Semantic Versioning by default, names the authoritative version field and mirrors, and
+The full 1.4 initialization profile owns `litai/literate.release.json`. The policy
+chooses canonical Semantic Versioning by default, names the authoritative version field and mirrors, and
 declares the gate, changelog, tag, Git remote, signing rule, and optional provider.
 Python distribution projects can deliberately select PEP 440 instead.
 
-Repository governance is separate and per-project under `literate.project.json`'s
+Repository governance is separate and per-project under `litai/literate.project.json`'s
 `repository_policy`. Its fields name the writable default branch, Free/Pre-release state
 and `major.minor` target, merge method and labels, README Release Engineer source,
 strict/loose patch authority and loose-mode writers, work queue and sample roots, remote,
@@ -714,7 +725,7 @@ flowchart LR
     G --> O[optional provider release]
 ```
 
-Save the JSON plan beneath ignored `_build/`, prepare it, review and commit only the
+Save the JSON plan beneath ignored `litai/_build/`, prepare it, review and commit only the
 declared changes, then run the policy gate. When the policy names `default_branch`,
 `plan` from that trunk cuts a missing `release/<major>.<minor>.x` line at
 `prepare`; plan from the existing line for a patch. `check` and `publish` refuse
@@ -737,17 +748,17 @@ Literate-AI-Release: none
 Use the current Pre-release target or `none`; do not rely on branch-name inference.
 
 ```console
-mkdir -p _build/release
-litai --json release plan --bump patch > _build/release/plan.json
-litai release prepare _build/release/plan.json
+mkdir -p litai/_build/release
+litai --json release plan --bump patch > litai/_build/release/plan.json
+litai release prepare litai/_build/release/plan.json
 # Review and commit the version and changelog diff.
-litai release check _build/release/plan.json
+litai release check litai/_build/release/plan.json
 ```
 
 Publication is deliberately separate and requires explicit external-write authority:
 
 ```console
-litai release publish _build/release/prepared.json --authorize-external-write
+litai release publish litai/_build/release/prepared.json --authorize-external-write
 ```
 
 An interrupted publication can be retried only while the checked revision remains

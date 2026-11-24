@@ -1,8 +1,45 @@
 # Project layout
 
-A Literate AI project is recognizable from its root. An agent or tool should not need
-to infer conventions from neighboring directories. The manifest and provider-neutral
-onboarding skill define authority:
+A Literate AI project declares its layout through its manifest and provider-neutral
+onboarding skill. A derived 1.4 project keeps the application repository as its root
+and places framework-owned authority and state in `litai/`:
+
+```text
+project/
+├── README.md                   # application documentation
+├── CHANGELOG.md                # application release history
+├── source/                     # application source; native layout is preserved
+├── AGENTS.md                   # optional owned delegate into litai/SKILL.md
+└── litai/
+    ├── literate.project.json   # exact catalog roots and structural profile
+    ├── SKILL.md                # framework onboarding authority
+    ├── literate.release.json   # optional framework release policy
+    ├── components/             # framework-owned Component catalog
+    ├── samples/                # full-profile starter application
+    ├── flavors/
+    ├── skills/
+    ├── workflows/
+    ├── routing/
+    ├── docs/                   # framework documentation and roadmap
+    ├── .literate/              # original provenance and migration history
+    ├── generated/              # accepted-source cache
+    ├── _build/                 # disposable framework build/runtime state
+    └── verification/           # verifier contracts and durable passing receipts
+```
+
+This is the 1.4 development layout. Minimal native adoption creates a smaller
+contained profile and preserves native build and release tools. Optional catalogs,
+delegates and receipts appear only when their profile or owner creates them.
+Existing 1.3.1/root-layout projects retain their declared paths until migrated;
+the [migration section below](#derived-project-containment-and-migration) records
+the supported phases and remaining qualification.
+
+## Framework authoring and legacy root layouts
+
+This repository authors the framework itself and retains the following root
+layout. Existing root-layout projects may also declare these coordinates.
+The lifecycle discussion uses logical framework-relative names; in a contained
+derived project, use the actual `litai/` coordinates declared by its manifest.
 
 ```text
 project/
