@@ -5,7 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import sys
 import tempfile
+import weakref
 from argparse import Namespace
 from contextlib import ExitStack, contextmanager
 from dataclasses import replace
@@ -1058,11 +1060,37 @@ def _source_native_inputs(root: Path, paths: tuple[str, ...]):
 class _ReadmissionSourceInputs:
     """Finite original-source observation, distinct from saved plan assertions."""
 
-    def __init__(self, key, root, scope):
+    def __init__(
+        self, key, root, scope, *, _bounded_source=None, _original_inventory=None
+    ):
         from literate_ai.adapters.harness_tree import _validated_scope
 
         if key is not _SOURCE_INPUTS_KEY:
             raise TypeError("original readmission source owner required")
+        if _bounded_source is not None:
+            _bounded_readmission_class_current()
+            from .project_layout_retained_source_observation import (
+                bounded_retained_source_data_for,
+            )
+
+            original_scope, paths, raw = bounded_retained_source_data_for(
+                _bounded_source, root, _original_inventory
+            )
+            if scope is not original_scope:
+                _fail("source_changed", "same original retained scope required")
+            _bounded_readmission_class_current()
+            values = (
+                root,
+                scope,
+                paths,
+                raw,
+                None,
+                None,
+                _bounded_source,
+                _original_inventory,
+            )
+            _bind_bounded_readmission(self, values)
+            return
         self.root = root
         self.scope = json.loads(canonical_json_bytes(scope))
         self.paths, _excluded = _validated_scope(self.scope)
@@ -1073,6 +1101,21 @@ class _ReadmissionSourceInputs:
             _fail("source_changed", "original retained source is missing")
 
     def require_current(self):
+        bounded = _bounded_readmission(self)
+        if bounded is not None:
+            from .project_layout_retained_source_observation import (
+                require_bounded_retained_source_for,
+            )
+
+            try:
+                require_bounded_retained_source_for(bounded[6], bounded[0], bounded[7])
+            except (OSError, ValueError, RetainedLayoutError) as exc:
+                try:
+                    _fail("source_changed", "original bounded retained source changed")
+                except RetainedHarnessReadmissionError as error:
+                    raise error from exc
+            _bounded_readmission(self)
+            return
         if self.closed:
             _fail("source_inputs_expired", "original source observation is closed")
         try:
@@ -1090,18 +1133,24 @@ class _ReadmissionSourceInputs:
             _fail("source_changed", "original retained source changed")
 
     def require_for(self, root, inventory):
+        bounded = _bounded_readmission(self)
+        if bounded is not None:
+            if root is not bounded[0] or inventory is not bounded[7]:
+                _fail("source_changed", "same original source/inventory required")
+            _current_readmission(self)
+            return
         if root != self.root or inventory["source_scope"] != self.scope:
             _fail("source_changed", "source observation belongs to another operation")
-        self.require_current()
+        _current_readmission(self)
 
     def require_copy(self, root):
-        self.require_current()
+        _current_readmission(self)
         try:
             nodes, ancestry = _source_native_inputs(root, self.paths)
             _require_initial_copy_namespace(root, self.paths)
             raw = observe_retained_source_bytes(root, self.scope)
             _require_initial_copy_namespace(root, self.paths)
-            self.require_current()
+            _current_readmission(self)
             current = (
                 raw == self.raw
                 and all(_signature(path) == fact for path, fact in nodes)
@@ -1111,6 +1160,113 @@ class _ReadmissionSourceInputs:
             current = False
         if not current:
             _fail("source_changed", "disposable source differs from original inputs")
+
+
+def _bounded_readmission_admissions(cls):
+    """Original opt-in pairing; absent legacy instances acquire no new owner."""
+    namespace = tuple(vars(cls).items())
+    bases, mro = cls.__bases__, cls.__mro__
+    dictionary = vars(cls)["__dict__"]
+    original_current = vars(cls)["require_current"]
+    names = (
+        "root",
+        "scope",
+        "paths",
+        "raw",
+        "nodes",
+        "ancestry",
+        "_bounded_source",
+        "_bounded_inventory",
+    )
+    records = {}
+
+    def class_current():
+        if globals().get("_ReadmissionSourceInputs") is not cls:
+            _fail("source_changed", "original readmission source class replaced")
+        current = dict(vars(cls))
+        if (
+            "__slotnames__" not in dict(namespace)
+            and type(current.get("__slotnames__")) is list
+            and not current["__slotnames__"]
+        ):
+            current.pop("__slotnames__")
+        if (
+            cls.__bases__ is not bases
+            or cls.__mro__ is not mro
+            or set(current) != {name for name, _value in namespace}
+            or any(current[name] is not value for name, value in namespace)
+        ):
+            _fail("source_changed", "original bounded readmission descriptor changed")
+
+    def data(owner):
+        if type(owner) is not cls:
+            _fail("source_changed", "original readmission source receiver required")
+        actual = dictionary.__get__(owner, cls)
+        if type(actual) is not dict or any(type(name) is not str for name in actual):
+            _fail("source_changed", "original source instance data changed")
+        return actual
+
+    def require(owner):
+        record = records.get(id(owner))
+        if record is None or record[0]() is not owner:
+            if data(owner).get("_bounded_source") is not None:
+                _fail("source_changed", "unadmitted bounded source receiver")
+            return None
+        class_current()
+        actual = data(owner)
+        if record[2] or actual.get("closed") is True:
+            record[2] = True
+            _fail("source_inputs_expired", "original source observation is closed")
+        if actual.get("closed") is not False or any(
+            actual.get(name) is not value
+            for name, value in zip(names, record[1], strict=True)
+        ):
+            _fail("source_changed", "original bounded source pairing changed")
+        return record[1]
+
+    def bind(owner, values):
+        class_current()
+        if id(owner) in records:
+            _fail("source_changed", "bounded source receiver cannot renew")
+        actual = data(owner)
+        actual.update(dict(zip(names, values, strict=True)))
+        actual["closed"] = False
+        key = id(owner)
+
+        def release(dead):
+            old = records.get(key)
+            if old is not None and old[0] is dead:
+                records.pop(key, None)
+
+        records[key] = [weakref.ref(owner, release), values, False]
+        require(owner)
+
+    def current(owner):
+        if require(owner) is None:
+            return owner.require_current()
+        return original_current(owner)
+
+    def end(owner):
+        record = records.get(id(owner))
+        if record is not None and record[0]() is owner:
+            record[2] = True
+            try:
+                actual = dictionary.__get__(owner, cls)
+            except TypeError:
+                return
+            if type(actual) is dict:
+                actual["closed"] = True
+
+    return bind, require, current, end, class_current
+
+
+(
+    _bind_bounded_readmission,
+    _bounded_readmission,
+    _current_readmission,
+    _end_bounded_readmission,
+    _bounded_readmission_class_current,
+) = _bounded_readmission_admissions(_ReadmissionSourceInputs)
 
 
 def _require_initial_copy_namespace(root, paths):
@@ -1132,27 +1288,71 @@ def _require_initial_copy_namespace(root, paths):
 
 
 @contextmanager
-def _readmission_source_inputs(implementation, inventory, *, expected_tree=None):
+def _readmission_source_inputs(
+    implementation, inventory, *, expected_tree=None, _bounded_source=None
+):
     try:
-        inputs = _ReadmissionSourceInputs(
-            _SOURCE_INPUTS_KEY, implementation, inventory["source_scope"]
-        )
+        if _bounded_source is None:
+            inputs = _ReadmissionSourceInputs(
+                _SOURCE_INPUTS_KEY, implementation, inventory["source_scope"]
+            )
+        else:
+            _bounded_readmission_class_current()
+            inputs = _ReadmissionSourceInputs(
+                _SOURCE_INPUTS_KEY,
+                implementation,
+                inventory["source_scope"],
+                _bounded_source=_bounded_source,
+                _original_inventory=inventory,
+            )
     except (OSError, ValueError, RetainedLayoutError):
         _fail("source_changed", "original retained source is unavailable or redirected")
     try:
-        if (
+        if _bounded_source is not None:
+            if expected_tree is not None:
+                from .project_layout_retained_source_observation import (
+                    bounded_retained_source_tree_for,
+                )
+
+                if (
+                    bounded_retained_source_tree_for(
+                        _bounded_source, implementation, inventory
+                    )
+                    != expected_tree
+                ):
+                    _fail(
+                        "source_changed",
+                        "original source differs from the reviewed plan",
+                    )
+        elif (
             expected_tree is not None
             and observe_retained_tree(implementation, inputs.scope)["source_tree"]
             != expected_tree
         ):
             _fail("source_changed", "original source differs from the reviewed plan")
-        inputs.require_current()
+        _current_readmission(inputs)
         yield inputs
     finally:
-        try:
-            inputs.require_current()
-        finally:
-            inputs.closed = True
+        if _bounded_source is None:
+            try:
+                inputs.require_current()
+            finally:
+                inputs.closed = True
+        else:
+            primary = sys.exception()
+            try:
+                _current_readmission(inputs)
+            except BaseException:
+                if primary is None:
+                    raise
+                try:
+                    primary.add_note(
+                        "original bounded source closing guard also refused"
+                    )
+                except BaseException:
+                    pass
+            finally:
+                _end_bounded_readmission(inputs)
 
 
 def _baseline_report(

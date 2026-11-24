@@ -208,8 +208,33 @@ def capture_framework_source_scope(snapshot, context):
         or context.directory_binding is None
     ):
         _fail("original source context witness unavailable")
+    return _capture_bound_source_scope(root, context.directory_binding[0][:3])
+
+
+def _capture_bound_source_scope(
+    root, expected, *, required_paths=None, excluded_roots=()
+):
+    """Internal original native-root capture; never synthesize ProjectContext.
+
+    Optional exact retained paths select READ scope only. Original producer scope
+    and live root/metadata custody must already be admitted by its original owner.
+    Unknown ordinary namespace remains an explicit missing closure fact.
+    """
+    if (
+        type(expected) is not tuple
+        or len(expected) not in {3, 5}
+        or any(type(value) is not int for value in expected)
+    ):
+        _fail("original native source-root witness required")
+    if required_paths is not None and (
+        type(required_paths) is not tuple or len(required_paths) > _MAX_ENTRIES
+    ):
+        _fail("bounded exact original retained scope required")
+    if type(excluded_roots) is not tuple or len(excluded_roots) > _MAX_ENTRIES:
+        _fail("bounded original exclusion scope required")
+    for path in (*(required_paths or ()), *excluded_roots):
+        canonical_relative_posix_path(path, label="original retained source path")
     require_safe_directory(root)
-    expected = context.directory_binding[0][:3]
     nodes, contents, held = {}, {}, []
     total = entries = 0
 
@@ -238,7 +263,15 @@ def capture_framework_source_scope(snapshot, context):
             ).append(name)
         for name in sorted(names):
             path = name if not relative else relative + "/" + name
-            if name == ".git" or name in _OUTPUTS:
+            retained_litai = (
+                name == "litai"
+                and required_paths is not None
+                and any(
+                    target == path or target.startswith(path + "/")
+                    for target in required_paths
+                )
+            )
+            if name == ".git" or (name in _OUTPUTS and not retained_litai):
                 hold(
                     path,
                     "unopened-output",
@@ -257,7 +290,16 @@ def capture_framework_source_scope(snapshot, context):
                 or private_name.startswith(".env.")
                 or private_base.endswith(_PRIVATE_SUFFIXES)
             ):
-                hold(path, "private-state", "private/session state stays unopened")
+                explicitly_excluded = any(
+                    path == value or path.startswith(value + "/")
+                    for value in excluded_roots
+                )
+                hold(
+                    path,
+                    "private-state",
+                    "private/session state stays unopened",
+                    source=not explicitly_excluded,
+                )
                 continue
             try:
                 canonical_relative_posix_path(path, label="source observation member")
@@ -270,6 +312,27 @@ def capture_framework_source_scope(snapshot, context):
                 continue
             if len(aliases[unicodedata.normalize("NFC", name.casefold())]) != 1:
                 hold(path, "portable-alias", "ambiguous source namespace")
+                continue
+            if any(
+                path == value or path.startswith(value + "/")
+                for value in excluded_roots
+            ):
+                hold(
+                    path,
+                    "original-excluded",
+                    "original retained exclusion; no disposal permission",
+                    source=False,
+                )
+                continue
+            if required_paths is not None and not any(
+                target == path or target.startswith(path + "/")
+                for target in required_paths
+            ):
+                hold(
+                    path,
+                    "undeclared-source",
+                    "ordinary source outside original retained scope remains unopened",
+                )
                 continue
             named = _named(cursor, name)
             row = {
@@ -315,10 +378,62 @@ def capture_framework_source_scope(snapshot, context):
         if _stamp(after) != _stamp(before):
             _fail("source directory changed during census")
 
-    with _root_cursor(root, expected) as cursor:
+    with _root_cursor(root, expected[:3]) as cursor:
+        if len(expected) == 5:
+            opened = os.stat(cursor) if os.name == "nt" else os.fstat(cursor)
+            if (*_identity(opened), opened.st_uid, opened.st_gid) != expected:
+                _fail("original source-root ownership changed")
         visit(cursor, "", 0)
+        if len(expected) == 5:
+            closing = os.stat(cursor) if os.name == "nt" else os.fstat(cursor)
+            if (*_identity(closing), closing.st_uid, closing.st_gid) != expected:
+                _fail("original source-root ownership changed while captured")
     return (
         nodes,
         contents,
         tuple(sorted(held, key=lambda row: (row["path"], row["kind"]))),
     )
+
+
+def _close_bound_source_nodes(root, expected, nodes, *, metadata_directories=False):
+    """Close original native facts AFTER all foreign owner callbacks, no payload.
+
+    This is not admission or a baseline: the original live owner supplies ONLY
+    the exact facts from its already closed capture. Leaf bytes were freshly
+    hashed at this boundary; inode/full-stamp checks close subsequent drift.
+    """
+    children = {}
+    for path, row in nodes.items():
+        parent, _separator, name = path.rpartition("/")
+        if parent and (parent not in nodes or nodes[parent]["kind"] != "directory"):
+            _fail("original closing source ancestry is incomplete")
+        children.setdefault(parent, []).append((name, path, row))
+
+    def same(native, row):
+        if stat_is_link_or_reparse(native):
+            return False
+        observed = _stamp(native)
+        original = row["stamp"]
+        if row["kind"] == "directory" and metadata_directories:
+            return observed[:3] == original[:3]
+        return observed == original
+
+    def visit(cursor, relative):
+        for name, path, row in sorted(children.get(relative, ())):
+            native = _named(cursor, name)
+            if not same(native, row):
+                _fail("original selected native input changed at closing")
+            if row["kind"] == "directory":
+                with _child_cursor(
+                    cursor, name, root / path, _identity(native)
+                ) as child:
+                    visit(child, path)
+            if not same(_named(cursor, name), row):
+                _fail("original selected native input changed during closing")
+
+    with _root_cursor(root, expected[:3]) as cursor:
+        visit(cursor, "")
+        if len(expected) == 5:
+            native = os.stat(cursor) if os.name == "nt" else os.fstat(cursor)
+            if (*_identity(native), native.st_uid, native.st_gid) != expected:
+                _fail("original source-root ownership changed at closing")

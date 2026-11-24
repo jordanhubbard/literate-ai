@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Layout planning can retain an original bounded source observation through readmission checks, refusing changed source, metadata, inventory and ownership without a fallback scan.
+
 - Layout recovery now versions source-retirement journals explicitly while preserving recovery of the original five-directory journal format.
 
 - Existing framework authority selection uses genuine initialized-file proofs and original catalog item membership, preserves historical catalog bytes, and renders references only to actual selected/resident coordinates. Versioned inert plans reject mixed fields and portable path aliases. Schema document roots and cross-references now resolve through the standard registry while retaining public payload identifiers. Source/schema checks pass; complete migration effects and installed acceptance remain open.
