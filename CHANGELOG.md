@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Layout planning can reproduce all seven original conversion-wrapper outputs from retained records and initializer resources, refusing custom edits and incomplete stage evidence.
+
 - Layout planning can retain an original bounded source observation through readmission checks, refusing changed source, metadata, inventory and ownership without a fallback scan.
 
 - Layout recovery now versions source-retirement journals explicitly while preserving recovery of the original five-directory journal format.

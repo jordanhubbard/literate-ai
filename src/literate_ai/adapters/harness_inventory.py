@@ -1881,6 +1881,7 @@ def legacy_shim_authority(
     baseline: dict[str, object],
     *,
     wrapper_component: str = "components/legacy-project-wrapper",
+    _workflow_template: bytes | None = None,
 ) -> dict[str, str]:
     """Render the minimal first-class authority wrapping one proven legacy pipeline."""
 
@@ -2033,11 +2034,24 @@ their resulting tree identities with the direct baseline before adoption proceed
 - **WHEN** all available wrapper stages complete
 - **THEN** every stage has exact successful parity evidence
 """
+    if _workflow_template is None:
+        workflow_template = (
+            files("literate_ai.project_template")
+            .joinpath("workflows", "production", "staging", "dev", "workflow.md")
+            .read_text(encoding="utf-8")
+        )
+    else:
+        if (
+            type(_workflow_template) is not bytes
+            or not _workflow_template
+            or len(_workflow_template) > 1024**2
+        ):
+            raise ValueError("original workflow resource must be bounded exact bytes")
+        workflow_template = _workflow_template.decode("utf-8")
     workflow = (
-        files("literate_ai.project_template")
-        .joinpath("workflows", "production", "staging", "dev", "workflow.md")
-        .read_text(encoding="utf-8")
-        .replace('workflow_id: "dev"', 'workflow_id: "legacy-adoption"')
+        workflow_template.replace(
+            'workflow_id: "dev"', 'workflow_id: "legacy-adoption"'
+        )
         .replace("# Dev\n", "# Legacy adoption wrapper\n")
         .replace(
             "The default named workflow selected when a Component does not point at a "
