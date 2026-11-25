@@ -26585,6 +26585,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original release Git process ownership (source prerequisite partial):**
+  The original temporary-checkout Git caller now uses the established process-tree
+  timeout owner already used by the main release Git caller. Preserve its 60-second
+  deadline, inherited stdin, text stdout/stderr, unchecked status and original
+  typed Git/timeout error contracts. The actual baseline started a descendant
+  that kept writing after the direct child timed out; the fixture retained only
+  its actual original process owner for cleanup. The fixed caller stops that
+  actual group, while direct native Git controls cover successful captured output
+  and checked/unchecked failures. Existing local release/backport controls remain
+  required. This does not establish successful-command group quiescence, native
+  workspace/output ownership, safe force removal or Git-registration cleanup.
+  Complete worktree placement, common-Git/source custody, private/foreign-state
+  preservation and all original platform/lifecycle/release acceptance remain
+  open. Canonical project-worktree reservation observations do not issue output
+  or recursive disposal ownership.
+
 - **Original release-asset readback (source partial):** Asset downloads and
   wheel builds now share actual original contained native workspace admission,
   with separate typed staging failures and unchanged wheel entry points. The

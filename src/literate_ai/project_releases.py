@@ -2226,10 +2226,10 @@ def _git_in(
     directory: Path, *arguments: str, check: bool = True
 ) -> subprocess.CompletedProcess[str]:
     try:
-        return subprocess.run(
+        return run_with_tree_kill(
             ("git", "-C", str(directory), *arguments),
             check=check,
-            capture_output=True,
+            stdin=None,
             text=True,
             timeout=60,
         )

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Terminate the original temporary-checkout Git process tree on timeout while preserving captured output and existing release errors, preventing Git helpers from surviving into cleanup.
+
 - Contain release-asset readback in original project native staging with bounded downloader processes, retained size/digest verification and preservation of conflicting private or replaced output.
 
 - Stage both original GitHub release-note files under contained project custody, preserving UTF-8 bytes, original consumer errors and foreign state when disposal is refused.
