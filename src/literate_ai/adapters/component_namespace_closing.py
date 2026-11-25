@@ -11,6 +11,7 @@ import json
 import os
 import re
 import stat
+import unicodedata
 import uuid
 import weakref
 from contextlib import ExitStack, contextmanager
@@ -274,10 +275,66 @@ def _owned_stack():
         stack.close()
 
 
+def _census_residual(path, record, *, restored):
+    files = {
+        **record["coordination"],
+        **(record["payloads"] if restored else {}),
+    }
+    directories = record["empty_directories"]
+    seen = set()
+
+    def walk(current, prefix=""):
+        aliases = set()
+        with os.scandir(current) as entries:
+            for entry in entries:
+                if len(seen) >= 8192:
+                    _fail("source residual exceeds original finite bound")
+                alias = unicodedata.normalize("NFC", entry.name.casefold())
+                if alias in aliases:
+                    _fail("source residual gained a portable alias")
+                aliases.add(alias)
+                name = prefix + entry.name
+                if entry.name == ".git":
+                    _fail("independent Git blocks source retirement")
+                if name not in files and name not in directories:
+                    _fail(
+                        "source residual contains application, foreign "
+                        "or unselected data"
+                    )
+                _coordinate(name)
+                if name in directories:
+                    if list(directory_node(Path(entry.path))) != directories[name]:
+                        _fail("original source subdirectory changed")
+                    seen.add(name)
+                    walk(Path(entry.path), name + "/")
+                else:
+                    observed = entry.stat(follow_symlinks=False)
+                    if (
+                        stat_is_link_or_reparse(observed)
+                        or not stat.S_ISREG(observed.st_mode)
+                        or observed.st_nlink != 1
+                        or [observed.st_dev, observed.st_ino, observed.st_mode]
+                        != files[name]["node"]
+                    ):
+                        _fail("source residual file changed")
+                    seen.add(name)
+
+    walk(path)
+    if not set(record["coordination"]) <= seen or set(directories) != seen & set(
+        directories
+    ):
+        _fail("original source coordination or directory is missing")
+
+
 def _residual(path, record, *, restored=False):
-    if os.path.lexists(path / ".git"):
-        _fail("independent Git blocks source retirement")
-    nodes, _ = _capture(path)
+    # Reject unknown names BEFORE opening any payload, including private files.
+    # A late new name is excluded from the bounded leaf read, then rejected by
+    # the closing census. Directory ancestry comes from these exact file scopes.
+    _census_residual(path, record, restored=restored)
+    nodes, _ = _capture(
+        path, selected_scopes=tuple({**record["coordination"], **record["payloads"]})
+    )
+    _census_residual(path, record, restored=restored)
     expected_files = record["coordination"]
     expected_dirs = record["empty_directories"]
     if restored:

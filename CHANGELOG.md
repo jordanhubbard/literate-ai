@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Finalize inherited Component source namespaces from fresh Root and normal producer checks while preserving native control inodes and original rollback history. Reject unknown residual names before payload reads; public/full-project and supported-platform qualification remain open.
+
 - Join inherited-catalog producer renewal to an explicitly selected framework metadata successor using exact native beforeimages. Preserve ordered recovery, original v1 pair journals and newly authored policy; full containment and installed-platform qualification remain open.
 
 - Add internal native-history-backed renewal for inherited catalog producer pairs, sharing finite atomic publication with framework renewals and preserving exact rollback across process interruption. Full containment and release qualification remain open.

@@ -26575,6 +26575,26 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Fresh inherited source namespace closure (partial):** The current Root lease,
+  original catalog journal and freshly prepared ordinary destination producers
+  now issue source retirement after process restart. An explicitly selected
+  successor retains its separate native metadata proof; no retired inherited
+  transition is restored from data. The closer holds original source control
+  descriptors, validates their native identities and records bounded durable
+  recovery intent before archiving the original directory. Existing original
+  recovery restores that directory before normal source fences and then restores
+  the exact original producer and payload inodes. Cold processes repeat framework
+  and inherited source closure after real changed producer pairs, preserving
+  original intent/history, application files and newly authored local policy.
+  Old logical stores refuse before a creating writer-lock open. Unknown residual
+  names are rejected before payload reads; a closing census also catches late
+  changes. Actual process exits before and after the native source-directory move
+  remain recoverable, and private data added to an archive is preserved unopened
+  while recovery refuses. Historical origin declarations remain fixture data.
+  These are POSIX source controls. Qualified Windows handles, whole-project and
+  source-parent ownership, public finalization, complete authority/state placement
+  and installed supported-platform lifecycle acceptance remain open.
+
 - **Explicit successor metadata ownership (partial):** The fresh inherited-catalog
   producer can join an explicitly selected original framework placement journal.
   A successor must hold the catalog's exact metadata postimage inode, bytes and
