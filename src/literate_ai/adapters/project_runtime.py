@@ -14,7 +14,7 @@ import tempfile
 import threading
 from contextlib import ExitStack, contextmanager
 from contextvars import ContextVar
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from weakref import WeakKeyDictionary
 
@@ -48,6 +48,7 @@ class _InspectionScope:
     stage: object
     parent: Path
     native_parent: Path
+    runtime_owner: object
     require_current: object
     execution_lock: object
     closed: object
@@ -93,6 +94,9 @@ class _RuntimeState:
     cache_stack: ExitStack
     runtime_path: Path | None = None
     runtime_node: tuple | None = None
+    inspection_children: set = field(default_factory=set)
+    inspection_lock: object = field(default_factory=threading.Lock)
+    closing: bool = False
 
 
 class ContainedProjectRuntime:
@@ -144,9 +148,17 @@ class ContainedProjectRuntime:
         if type(keep) is not bool:
             raise TypeError("runtime retention must be explicit")
         state = _state(self)
+        with state.inspection_lock:
+            object.__setattr__(state, "closing", True)
         try:
             try:
                 _guard(state)
+                with state.inspection_lock:
+                    if not keep and state.inspection_children:
+                        raise ProjectRuntimeError(
+                            "original inspection child retirement is unproven; "
+                            "preserve enclosing runtime"
+                        )
             finally:
                 # Retire the handle and close original reservation descriptors
                 # even on conflicts. Keep the object-cache lock through deletion.
@@ -380,9 +392,11 @@ def project_inspection_staging(project, *, prefix):
             _require_inspection_scope(enclosing)
             parent = enclosing.parent
             native_parent = enclosing.native_parent
+            runtime_owner = enclosing.runtime_owner
         elif owner is not None:
             parent = ContainedProjectRuntime.path.__get__(owner)
             native_parent = _state(owner).object_root
+            runtime_owner = owner
         else:
             directories = resolve_cache_directories(project.root, environment={})
             from .scaffold_custody import prepare_scaffold_inspection_control
@@ -396,35 +410,52 @@ def project_inspection_staging(project, *, prefix):
             locks.enter_context(exclusive_cache_lock(lock_path))
             parent = directories.obj_dir
             native_parent = directories.obj_dir
+            runtime_owner = None
         require_current()
-        with evidence_staging(parent, prefix=prefix) as stage:
-            require_current()
-            scope = _InspectionScope(
-                project,
-                stage,
-                parent,
-                native_parent,
-                require_current,
-                threading.Lock(),
-                threading.Event(),
-                os.getpid(),
-            )
-            token = _CURRENT_INSPECTION.set(scope)
-            try:
-                yield stage
-            finally:
-                scope.closed.set()
-                original_error = sys.exception()
+        # The original parent registers admission before any child allocation.
+        # Only the actual allocator's completed native retirement clears a slot.
+        runtime_state = None if runtime_owner is None else _state(runtime_owner)
+        child = object()
+        if runtime_state is not None:
+            with runtime_state.inspection_lock:
+                if runtime_state.closing:
+                    raise ProjectRuntimeError("enclosing runtime is already closing")
+                runtime_state.inspection_children.add(child)
+        stage = None
+        try:
+            with evidence_staging(parent, prefix=prefix) as stage:
+                require_current()
+                scope = _InspectionScope(
+                    project,
+                    stage,
+                    parent,
+                    native_parent,
+                    runtime_owner,
+                    require_current,
+                    threading.Lock(),
+                    threading.Event(),
+                    os.getpid(),
+                )
+                token = _CURRENT_INSPECTION.set(scope)
                 try:
-                    require_current()
-                except Exception as error:
-                    if original_error is None:
-                        raise
-                    original_error.add_note(
-                        "Inspection project custody changed: " + str(error)
-                    )
+                    yield stage
                 finally:
-                    _CURRENT_INSPECTION.reset(token)
+                    scope.closed.set()
+                    original_error = sys.exception()
+                    try:
+                        require_current()
+                    except Exception as error:
+                        if original_error is None:
+                            raise
+                        original_error.add_note(
+                            "Inspection project custody changed: " + str(error)
+                        )
+                    finally:
+                        _CURRENT_INSPECTION.reset(token)
+        finally:
+            if runtime_state is not None and stage is not None and stage.retired:
+                with runtime_state.inspection_lock:
+                    runtime_state.inspection_children.discard(child)
         require_current()
 
 

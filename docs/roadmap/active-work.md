@@ -26576,14 +26576,27 @@ implementation, policy weakening, qualification or issue closure is recorded her
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
 - **Next action — runtime child retention and native platform custody (in progress):**
-  Propagate actual inspection-child retirement conflicts through original enclosing
-  runtime cleanup; complete supported-platform native execution custody. Preserve
+  Complete supported-platform native execution custody and the original remaining
+  project-layout producer/lifecycle acceptance inventory. Preserve
   strict source/output separation and exact original conversion-failure recovery,
   including private/foreign-state refusal. Trace actual plan/Git/source-policy
   continuity before changing ordering; do not fabricate a future initialized project
   or infer disposal from names, paths or content identities. Complete every original
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
+
+- **Original runtime inspection-child retirement (source partial):** The
+  original runtime registers each actual inspection child before allocation and
+  clears its slot only after that original stage reports completed retirement.
+  Nested stages inherit the actual runtime owner. Child admission and close share
+  a lock; closing prevents later admission. Refused or unfinished child retirement
+  prevents recursive parent cleanup while original runtime handles still expire.
+  Explicit retention preserves private state without leaving a usable handle.
+  The regression reproduced actual deletion of a refused child's private inode on
+  the previous code. Current controls cover that preservation, nested refusal,
+  explicit retention and close during an active original child, alongside normal
+  cleanup. This is scoped source evidence; native Windows, installed-platform,
+  general concurrency, whole-project/source-parent and release gates remain open.
 
 - **Original POSIX retained execution workspace (source partial):** Actual
   contained Component execution now allocates its fresh private run through the

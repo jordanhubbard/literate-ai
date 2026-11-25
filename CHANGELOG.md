@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve enclosing project runtimes when an original inspection child cannot retire; retain private child state and expire runtime execution handles, including nested and active-child cleanup conflicts.
+
 - PROJECT-LAYOUT-001: contain actual POSIX Component execution copies and diagnostics under the live inspection object root, close original native producer postimages and process groups before exact retirement, and preserve foreign state and original gate rejection through failed or enclosing runtime cleanup. Windows native and full layout/release qualification remain open.
 
 - PROJECT-LAYOUT-001: stage actual refined-conversion bundles and receipts under the initialized contained project after source transfer; preserve selection identity and require original stage retirement before exact source rollback, including real Component command failures. Native execution scratch containment remains open.

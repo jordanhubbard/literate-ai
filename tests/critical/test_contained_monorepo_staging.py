@@ -444,3 +444,129 @@ class ContainedMonorepoStagingTests(unittest.TestCase):
             private.read_bytes(), b"preserve through enclosing runtime cleanup"
         )
         self.assertEqual(snapshot(self.retained), source)
+
+    def test_00_refused_metadata_child_survives_enclosing_runtime_close(self):
+        from literate_ai.adapters.project_runtime import (
+            ProjectRuntimeError,
+            allocate_project_runtime,
+            close_project_runtime,
+            project_runtime_scope,
+            require_project_runtime,
+        )
+
+        project = load_project(self.project)
+        owner = allocate_project_runtime(project, nested=True)
+        runtime = owner.path
+        observed = {}
+
+        def add_private(selection):
+            private = selection.parent / "operator-private"
+            private.write_bytes(b"preserve refused metadata child")
+            observed.update(path=private, inode=private.stat().st_ino)
+
+        with (
+            project_runtime_scope(owner, project),
+            self.watch(add_private),
+            self.assertRaises(monorepo.MonorepoAdoptionError),
+        ):
+            self.refresh()
+        closing_error = None
+        try:
+            close_project_runtime(owner, keep=False)
+        except ProjectRuntimeError as error:
+            closing_error = error
+        private = observed["path"]
+        self.assertTrue(
+            private.is_file(), "enclosing runtime deleted refused child private state"
+        )
+        self.assertIsInstance(closing_error, ProjectRuntimeError)
+        self.assertTrue(runtime.parent.exists())
+        self.assertEqual(private.stat().st_ino, observed["inode"])
+        self.assertEqual(private.read_bytes(), b"preserve refused metadata child")
+        with self.assertRaises(ProjectRuntimeError):
+            require_project_runtime(owner, project)
+
+    def test_refused_metadata_child_explicit_keep_preserves_parent(self):
+        from literate_ai.adapters.project_runtime import (
+            ProjectRuntimeError,
+            allocate_project_runtime,
+            close_project_runtime,
+            project_runtime_scope,
+            require_project_runtime,
+        )
+
+        project = load_project(self.project)
+        owner = allocate_project_runtime(project, nested=True)
+        runtime = owner.path
+        observed = {}
+
+        def add_private(selection):
+            private = selection.parent / "operator-private"
+            private.write_bytes(b"explicit keep private state")
+            observed.update(path=private, inode=private.stat().st_ino)
+
+        with (
+            project_runtime_scope(owner, project),
+            self.watch(add_private),
+            self.assertRaises(monorepo.MonorepoAdoptionError),
+        ):
+            self.refresh()
+        self.assertTrue(close_project_runtime(owner, keep=True))
+        self.assertTrue(runtime.parent.exists())
+        self.assertEqual(observed["path"].read_bytes(), b"explicit keep private state")
+        self.assertEqual(observed["path"].stat().st_ino, observed["inode"])
+        with self.assertRaises(ProjectRuntimeError):
+            require_project_runtime(owner, project)
+
+    def test_nested_refused_child_retains_original_enclosing_runtime(self):
+        from literate_ai.adapters.project_runtime import (
+            ProjectRuntimeError,
+            allocate_project_runtime,
+            close_project_runtime,
+            project_inspection_staging,
+            project_runtime_scope,
+        )
+
+        project = load_project(self.project)
+        owner = allocate_project_runtime(project, nested=True)
+        runtime = owner.path
+        with project_runtime_scope(owner, project):
+            with project_inspection_staging(project, prefix=".outer-") as outer:
+                with self.assertRaisesRegex(RuntimeError, "original nested rejection"):
+                    with project_inspection_staging(project, prefix=".inner-") as inner:
+                        private = inner.path / "operator-private"
+                        private.write_bytes(b"nested private state")
+                        inode = private.stat().st_ino
+                        raise RuntimeError("original nested rejection")
+            self.assertTrue(outer.retired)
+            self.assertFalse(inner.retired)
+        with self.assertRaises(ProjectRuntimeError):
+            close_project_runtime(owner, keep=False)
+        self.assertTrue(runtime.parent.exists())
+        self.assertEqual(private.read_bytes(), b"nested private state")
+        self.assertEqual(private.stat().st_ino, inode)
+
+    def test_close_with_original_child_active_preserves_parent_and_expires_handle(self):
+        from literate_ai.adapters.project_runtime import (
+            ProjectRuntimeError,
+            allocate_project_runtime,
+            close_project_runtime,
+            project_inspection_staging,
+            project_runtime_scope,
+            require_project_runtime,
+        )
+
+        project = load_project(self.project)
+        owner = allocate_project_runtime(project, nested=True)
+        runtime = owner.path
+        with self.assertRaises(ProjectRuntimeError):
+            with project_runtime_scope(owner, project):
+                with project_inspection_staging(project, prefix=".active-") as child:
+                    child.write("owned", b"actual original child")
+                    with self.assertRaises(ProjectRuntimeError):
+                        close_project_runtime(owner, keep=False)
+                    self.assertTrue(runtime.parent.exists())
+        self.assertTrue(child.retired)
+        self.assertTrue(runtime.parent.exists())
+        with self.assertRaises(ProjectRuntimeError):
+            require_project_runtime(owner, project)
