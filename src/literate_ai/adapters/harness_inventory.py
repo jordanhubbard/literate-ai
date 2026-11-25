@@ -18,6 +18,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 from collections.abc import Callable
 from datetime import UTC, datetime
@@ -1159,6 +1160,13 @@ def _sanitized_git_environment() -> dict[str, str]:
 
 
 def _ensure_disposable_git_identity(observed_root: Path) -> None:
+    from .retained_execution_workspace import native_git_production
+
+    with native_git_production(observed_root):
+        _materialize_disposable_git_identity(observed_root)
+
+
+def _materialize_disposable_git_identity(observed_root: Path) -> None:
     """Give one disposable harness phase root its own deterministic Git identity.
 
     Nested linbuild-style tooling resolves a build revision with ``git
@@ -1305,10 +1313,18 @@ def _run_harness_command(
         if phase.split(".", 1)[0] == "test"
         else {}
     )
+    from .retained_execution_workspace import (
+        native_command_complete,
+        native_command_not_started,
+        native_command_start,
+        native_diagnostics_directory,
+    )
+
+    diagnostics_directory = native_diagnostics_directory(observed_root)
     started = datetime.now(UTC)
     with (
-        tempfile.TemporaryFile() as stdout_file,
-        tempfile.TemporaryFile() as stderr_file,
+        tempfile.TemporaryFile(dir=diagnostics_directory) as stdout_file,
+        tempfile.TemporaryFile(dir=diagnostics_directory) as stderr_file,
     ):
         invocation = command if command_arguments is None else command_arguments
         trace_subprocess(
@@ -1317,6 +1333,7 @@ def _run_harness_command(
             environment=environment,
         )
         ownership = create_process_tree_ownership()
+        native_command_start(observed_root)
         try:
             process = subprocess.Popen(
                 invocation,
@@ -1329,6 +1346,7 @@ def _run_harness_command(
                 **ownership.popen_options,
             )
         except OSError as exc:
+            native_command_not_started()
             ownership.release()
             if exc.errno in {errno.ENOSPC, getattr(errno, "EDQUOT", errno.ENOSPC)}:
                 raise HarnessBaselineError(
@@ -1358,7 +1376,21 @@ def _run_harness_command(
             )
             process.wait(timeout=10)
         finally:
-            ownership.release()
+            original_error = sys.exception()
+            try:
+                native_command_complete(process)
+            except BaseException as error:
+                if original_error is None and not timed_out and process.returncode == 0:
+                    raise
+                if original_error is not None:
+                    original_error.add_note(
+                        "Native command closure refused: " + str(error)
+                    )
+                # A known failed/timed-out command still builds its original
+                # bounded gate diagnostic below. Native custody remains broken,
+                # so disposal refuses without replacing that rejecting error.
+            finally:
+                ownership.release()
         stdout_file.flush()
         stderr_file.flush()
         stdout_size = _stream_size(stdout_file)

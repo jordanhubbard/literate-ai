@@ -26575,15 +26575,52 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — original native execution custody (in progress):**
-  Join actual retained Component execution copies/diagnostics, original native
-  process/output custody and source recovery through their original owners. Preserve
+- **Next action — runtime child retention and native platform custody (in progress):**
+  Propagate actual inspection-child retirement conflicts through original enclosing
+  runtime cleanup; complete supported-platform native execution custody. Preserve
   strict source/output separation and exact original conversion-failure recovery,
   including private/foreign-state refusal. Trace actual plan/Git/source-policy
   continuity before changing ordering; do not fabricate a future initialized project
   or infer disposal from names, paths or content identities. Complete every original
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
+
+- **Original POSIX retained execution workspace (source partial):** Actual
+  contained Component execution now allocates its fresh private run through the
+  live inspection execution marker and held object-cache owner, under the real
+  `litai/_build/`. Copied regular source files join exclusive creator descriptors,
+  original input descriptors and closing native postimages. Original synchronous
+  sanitized Git and native command producers close their own mutable output
+  postimages at their original boundaries, before returning to unrelated callers.
+  Anonymous stdout/stderr files use that same actual native workspace. Native
+  command completion checks the original Popen and owned POSIX process group;
+  releasing a process handle or merely seeing a missing path cannot prove cleanup.
+  Closing native namespaces reject unfinished groups, foreign/private additions
+  after producer closure, replaced equal-byte copies and changed native postimages.
+  Exact original entries retire through native parent handles and original empty-
+  directory deletion observations. Only an original recorded output-directory FD
+  can acquire owner write/execute bits for cleanup. Actual partial copy failures
+  retire their original creations and restore exact original source. Failure plus
+  a group-closing refusal preserves the original bounded gate rejection. Native
+  runs bind the original object root outside an enclosing disposable runtime, so
+  closing that runtime cannot remove refused native output or its private file.
+  Closed/thread/PID inspection markers cannot issue a fresh native run from saved
+  metadata. The original full default refined namespace journey now passes for
+  both bundle and real execution-copy placement. Nine native namespace/diagnostic/
+  rejection/partial/readonly controls, five actual metadata/selection controls, five
+  source/Git rollback cases, fourteen monorepo metadata/execution controls, ten
+  runtime-owner controls, twelve original harness cases and twelve creator/control
+  cases pass 67 source checks without skips/failures plus static gates. Two native
+  group-refusal cases explicitly model the OS liveness result; ordinary native
+  commands use the real process-group probe. This is cooperative private-run
+  custody, not hostile host-code or same-UID isolation. Root-parent/Standard-binding
+  fixture seams and unrelated native harness/Windows assertion WIP stay explicit.
+  Native Windows and legacy external execution keep their historical host scratch
+  route and remain unqualified; this does not close supported-platform or installed
+  acceptance. Generic refused inspection-metadata children still need original
+  retirement-conflict propagation through enclosing runtime cleanup. Complete
+  original source-parent/whole-project, migration/history, alias/link/concurrency,
+  full-source, independent-review and protected release requirements remain open.
 
 - **Refined conversion metadata staging (source partial):** Contained refined
   conversion keeps original observation-only preflight, then stages its actual

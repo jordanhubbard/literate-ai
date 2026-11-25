@@ -71,6 +71,10 @@ def copy_retained_source_tree(
 ) -> None:
     """Copy only the captured authored-source paths into a fresh directory."""
 
+    from .retained_execution_workspace import copy_into_native_workspace
+
+    if copy_into_native_workspace(source_root, destination_root, scope):
+        return
     source = source_root.resolve()
     paths, _excluded = _validated_scope(scope)
     if destination_root.exists():

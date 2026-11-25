@@ -398,3 +398,49 @@ class ContainedMonorepoStagingTests(unittest.TestCase):
                 self.refresh()
         self.assertEqual(caught.exception.code, "monorepo.staging_conflict")
         self.assertEqual(list(private.iterdir()), [])
+
+    def test_live_runtime_cleanup_preserves_refused_native_workspace(self):
+        from literate_ai.adapters.project_runtime import (
+            allocate_project_runtime,
+            close_project_runtime,
+            project_runtime_scope,
+        )
+
+        (self.retained / "kit/value.py").write_bytes(b"VALUE = 2\n")
+        source = snapshot(self.retained)
+        project = load_project(self.project)
+        owner = allocate_project_runtime(project, nested=True)
+        runtime = owner.path
+        run = monorepo.execute_retained_harness
+        observed = {}
+
+        def actual_run(*args, **kwargs):
+            run(*args, **kwargs)
+            private = Path(kwargs["legacy_root"]).parent / "operator-private"
+            private.write_bytes(b"preserve through enclosing runtime cleanup")
+            observed.update(path=private, inode=private.stat().st_ino)
+            raise monorepo.MonorepoAdoptionError(
+                "injected_failure", "original runtime native rejection"
+            )
+
+        try:
+            with (
+                project_runtime_scope(owner, project),
+                patch.object(
+                    monorepo, "execute_retained_harness", side_effect=actual_run
+                ),
+                self.assertRaises(monorepo.MonorepoAdoptionError) as caught,
+            ):
+                self.refresh()
+            self.assertIn("original runtime native rejection", caught.exception.message)
+        finally:
+            close_project_runtime(owner, keep=False)
+        self.assertFalse(runtime.parent.exists())
+        private = observed["path"]
+        self.assertTrue(private.is_relative_to(self.framework / "_build"))
+        self.assertFalse(private.is_relative_to(runtime.parent))
+        self.assertEqual(private.stat().st_ino, observed["inode"])
+        self.assertEqual(
+            private.read_bytes(), b"preserve through enclosing runtime cleanup"
+        )
+        self.assertEqual(snapshot(self.retained), source)

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- PROJECT-LAYOUT-001: contain actual POSIX Component execution copies and diagnostics under the live inspection object root, close original native producer postimages and process groups before exact retirement, and preserve foreign state and original gate rejection through failed or enclosing runtime cleanup. Windows native and full layout/release qualification remain open.
+
 - PROJECT-LAYOUT-001: stage actual refined-conversion bundles and receipts under the initialized contained project after source transfer; preserve selection identity and require original stage retirement before exact source rollback, including real Component command failures. Native execution scratch containment remains open.
 
 - PROJECT-LAYOUT-001: retire only original scaffold creations during conversion rollback, preserving foreign state and rejecting errors; restore exact source/Git custody on ordinary failure and resolve contained wrapper/Component metadata during real source-scope refresh.

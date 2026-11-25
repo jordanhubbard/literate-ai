@@ -931,6 +931,31 @@ def _component_lifecycle(bundle, name, output_owner):
         yield
 
 
+@contextmanager
+def _component_workspace(output_owner):
+    if output_owner is None or os.name != "posix":
+        with tempfile.TemporaryDirectory(
+            prefix="litai-component-retained-"
+        ) as temporary:
+            yield Path(temporary).resolve()
+        return
+    from .retained_execution_workspace import (
+        RetainedExecutionWorkspaceError,
+        retained_execution_workspace,
+    )
+
+    try:
+        with retained_execution_workspace(output_owner) as path:
+            yield path
+    except MonorepoAdoptionError:
+        raise
+    except (RetainedExecutionWorkspaceError, OSError, ValueError):
+        _fail(
+            "execution_custody",
+            "native execution custody refused; preserve remaining runtime state",
+        )
+
+
 def run_component_retained_harness(
     source_root: Path,
     bundle_root: Path,
@@ -964,12 +989,8 @@ def run_component_retained_harness(
         before = component_retained_revision(source, bundle, name)
         binding, _ = _binding(bundle, name)
         inventory = binding["inventory"]
-        with tempfile.TemporaryDirectory(
-            prefix="litai-component-retained-"
-        ) as temporary:
-            # Canonicalize our newly created temporary parent (macOS /var is an
-            # OS alias), not any operator-supplied source or evidence path.
-            execution = Path(temporary).resolve() / "source"
+        with _component_workspace(_output_owner) as temporary:
+            execution = temporary / "source"
             copy_retained_source_tree(source, execution, inventory["source_scope"])
             if (
                 _source_members(execution, inventory["source_scope"]["paths"])

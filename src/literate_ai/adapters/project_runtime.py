@@ -39,6 +39,7 @@ _ISSUER = object()
 _LIVE = WeakKeyDictionary()
 _CURRENT = ContextVar("contained_project_runtime", default=None)
 _CURRENT_INSPECTION = ContextVar("contained_project_inspection", default=None)
+_CURRENT_EXECUTION = ContextVar("original_inspection_execution", default=None)
 
 
 @dataclass(frozen=True, slots=True)
@@ -46,6 +47,7 @@ class _InspectionScope:
     project: LoadedProject
     stage: object
     parent: Path
+    native_parent: Path
     require_current: object
     execution_lock: object
     closed: object
@@ -377,8 +379,10 @@ def project_inspection_staging(project, *, prefix):
                 raise ProjectRuntimeError("original enclosing inspection changed")
             _require_inspection_scope(enclosing)
             parent = enclosing.parent
+            native_parent = enclosing.native_parent
         elif owner is not None:
             parent = ContainedProjectRuntime.path.__get__(owner)
+            native_parent = _state(owner).object_root
         else:
             directories = resolve_cache_directories(project.root, environment={})
             from .scaffold_custody import prepare_scaffold_inspection_control
@@ -391,6 +395,7 @@ def project_inspection_staging(project, *, prefix):
             )
             locks.enter_context(exclusive_cache_lock(lock_path))
             parent = directories.obj_dir
+            native_parent = directories.obj_dir
         require_current()
         with evidence_staging(parent, prefix=prefix) as stage:
             require_current()
@@ -398,6 +403,7 @@ def project_inspection_staging(project, *, prefix):
                 project,
                 stage,
                 parent,
+                native_parent,
                 require_current,
                 threading.Lock(),
                 threading.Event(),
@@ -465,7 +471,13 @@ def project_inspection_execution(owner):
                 )
                 with EvidenceStage.created(owner, relative, descriptor, access):
                     _require_inspection_scope(scope)
-                    yield
+                    execution_token = _CURRENT_EXECUTION.set(
+                        (scope, os.getpid(), threading.get_ident())
+                    )
+                    try:
+                        yield
+                    finally:
+                        _CURRENT_EXECUTION.reset(execution_token)
         finally:
             original_error = sys.exception()
             try:
@@ -479,6 +491,30 @@ def project_inspection_execution(owner):
                 )
     finally:
         scope.execution_lock.release()
+
+
+def inspection_native_binding(owner):
+    scope = _CURRENT_INSPECTION.get()
+    execution = _CURRENT_EXECUTION.get()
+    if (
+        scope is None
+        or scope.stage is not owner
+        or execution is None
+        or execution != (scope, os.getpid(), threading.get_ident())
+    ):
+        raise ProjectRuntimeError("original allocating inspection execution required")
+
+    def require_current():
+        if (
+            _CURRENT_EXECUTION.get() is not execution
+            or _CURRENT_INSPECTION.get() is not scope
+            or (os.getpid(), threading.get_ident()) != execution[1:]
+        ):
+            raise ProjectRuntimeError("original native inspection execution closed")
+        _require_inspection_scope(scope)
+
+    require_current()
+    return scope.native_parent, require_current
 
 
 def require_scoped_runtime_candidate(path):
