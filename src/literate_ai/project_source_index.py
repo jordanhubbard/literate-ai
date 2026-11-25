@@ -11,15 +11,25 @@ import subprocess
 import tempfile
 import threading
 from collections.abc import Mapping
+from contextlib import ExitStack, contextmanager
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
+from literate_ai._cache_lock import cache_lock_path, exclusive_cache_lock
+from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
 from literate_ai.adapters._processes import (
     ProcessTreeOwnership,
     create_process_tree_ownership,
     terminate_process_tree,
 )
+from literate_ai.adapters.evidence_files import _access
+from literate_ai.adapters.evidence_staging import EvidenceStagingError, evidence_staging
+from literate_ai.adapters.project_runtime import (
+    current_project_runtime,
+    require_project_runtime,
+)
+from literate_ai.cache_directories import resolve_cache_directories
 from literate_ai.contracts import (
     ProjectSourceIntelligencePolicy,
     SemanticVersion,
@@ -27,6 +37,7 @@ from literate_ai.contracts import (
     SourceIntelligenceStage,
 )
 from literate_ai.contracts.identity import canonical_identity
+from literate_ai.projects import load_project
 
 _MAXIMUM_COMMAND_OUTPUT_BYTES = 1024 * 1024
 _MAXIMUM_SNAPSHOT_FILES = 100_000
@@ -226,16 +237,13 @@ class _CodeGraphCommandEngine:
                 "application source membership changed during "
                 "CodeGraph synchronization",
             )
-        with tempfile.TemporaryDirectory(
-            prefix="literate-codegraph-project-status-"
-        ) as temporary:
-            shadow = (Path(temporary) / "project").resolve()
-            shadow.mkdir()
-            inventory = self._copy_source_snapshot(root, shadow, source_paths)
+        with self._status_workspace(root, require_current) as (shadow, stage):
+            inventory = self._copy_source_snapshot(
+                root, shadow, source_paths, _stage=stage
+            )
             shadow_index = shadow / self.metadata_directory
-            shadow_index.mkdir()
             database_identity, live_database_identity = self._copy_database_snapshot(
-                root, database, shadow_index / "codegraph.db"
+                root, database, shadow_index / "codegraph.db", _stage=stage
             )
             status = self._status(shadow)
             require_current()
@@ -243,7 +251,7 @@ class _CodeGraphCommandEngine:
             self._require_safe_database(root, database, allow_missing=False)
             final_database_identity, _final_live_identity = (
                 self._copy_database_snapshot(
-                    root, database, shadow_index / "codegraph-final.db"
+                    root, database, shadow_index / "codegraph-final.db", _stage=stage
                 )
             )
             if final_database_identity != database_identity:
@@ -260,6 +268,53 @@ class _CodeGraphCommandEngine:
         )
         require_current()
         return result
+
+    @contextmanager
+    def _status_workspace(self, root, require_current):
+        if self.metadata_directory == ".codegraph":
+            with tempfile.TemporaryDirectory(
+                prefix="literate-codegraph-project-status-"
+            ) as temporary:
+                shadow = (Path(temporary) / "project").resolve()
+                shadow.mkdir()
+                (shadow / self.metadata_directory).mkdir()
+                yield shadow, None
+            return
+        # Resolve only the declared project's defaults, never ambient cache overrides.
+        # Reject redirected ancestry before the resolver can follow it.
+        require_current()
+        try:
+            require_safe_directory(root / "litai" / "_build", allow_missing=True)
+        except UnsafeFilesystemPathError as error:
+            raise ProjectSourceIntelligenceError(
+                "project.source_intelligence_path_unsafe",
+                "source-index scratch ancestry must be a direct directory",
+            ) from error
+        project = load_project(root)
+        with ExitStack() as locks:
+            owner = current_project_runtime(project)
+            if owner is not None:
+                require_project_runtime(owner, project)
+                parent = owner.path
+            else:
+                directories = resolve_cache_directories(root, environment={})
+                lock = cache_lock_path(root, directories.obj_dir, "lifecycle.lock")
+                locks.enter_context(exclusive_cache_lock(lock))
+                parent = directories.obj_dir
+            require_current()
+            try:
+                with evidence_staging(parent, prefix=".cg-") as stage:
+                    stage.prepare("project/litai/codegraph.db")
+                    yield stage.path / "project", stage
+                    if owner is not None:
+                        require_project_runtime(owner, project)
+                    require_current()
+            except EvidenceStagingError as error:
+                raise ProjectSourceIntelligenceError(
+                    "project.source_intelligence_snapshot_unsafe",
+                    "original source-index scratch custody changed; "
+                    "conflicting state retained",
+                ) from error
 
     @staticmethod
     def _safe_root(project_root: Path) -> Path:
@@ -431,7 +486,7 @@ class _CodeGraphCommandEngine:
         return result.stdout
 
     def _copy_source_snapshot(
-        self, root: Path, shadow: Path, paths: tuple[str, ...]
+        self, root: Path, shadow: Path, paths: tuple[str, ...], *, _stage=None
     ) -> tuple[tuple[str, tuple[int, int, int, int], str], ...]:
         inventory: list[tuple[str, tuple[int, int, int, int], str]] = []
         total_bytes = 0
@@ -458,10 +513,16 @@ class _CodeGraphCommandEngine:
             if total_bytes > self.maximum_snapshot_bytes:
                 self._snapshot_limit()
             destination = shadow.joinpath(*PurePosixPath(relative).parts)
-            destination.parent.mkdir(parents=True, exist_ok=True)
+            if _stage is None:
+                destination.parent.mkdir(parents=True, exist_ok=True)
             try:
                 content = resolved.read_bytes()
-                destination.write_bytes(content)
+                if _stage is None:
+                    destination.write_bytes(content)
+                else:
+                    _stage.write(
+                        destination.relative_to(_stage.path).as_posix(), content
+                    )
                 after = source.stat(follow_symlinks=False)
             except OSError as exc:
                 raise ProjectSourceIntelligenceError(
@@ -519,7 +580,7 @@ class _CodeGraphCommandEngine:
 
     @staticmethod
     def _copy_database_snapshot(
-        root: Path, source: Path, target: Path
+        root: Path, source: Path, target: Path, *, _stage=None
     ) -> tuple[str, str]:
         del root
         try:
@@ -528,11 +589,26 @@ class _CodeGraphCommandEngine:
                 before_version = source_connection.execute(
                     "PRAGMA data_version"
                 ).fetchone()
-                target_connection = sqlite3.connect(target)
-                try:
-                    source_connection.backup(target_connection)
-                finally:
-                    target_connection.close()
+                with ExitStack() as writers:
+                    if _stage is not None:
+                        relative = target.relative_to(_stage.path).as_posix()
+                        parts = _stage.prepare(relative)
+                        access = writers.enter_context(_access(_stage.path))
+                        descriptor = access.open(
+                            parts,
+                            os.O_WRONLY
+                            | os.O_CREAT
+                            | os.O_EXCL
+                            | getattr(os, "O_BINARY", 0),
+                        )
+                        writers.enter_context(
+                            _stage.created(relative, descriptor, access)
+                        )
+                    target_connection = sqlite3.connect(target)
+                    try:
+                        source_connection.backup(target_connection)
+                    finally:
+                        target_connection.close()
                 after_version = source_connection.execute(
                     "PRAGMA data_version"
                 ).fetchone()

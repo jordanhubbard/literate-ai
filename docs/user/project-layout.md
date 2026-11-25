@@ -190,6 +190,13 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Contained CodeGraph status checks place their source and SQLite snapshots under
+`litai/_build/`. They reuse the current project runtime when one is active;
+standalone checks hold the project cache lifecycle lock. The original staging
+owner disposes only its recorded native postimages. Unknown provider/private
+output or replaced files are retained and reported, including when status fails.
+Legacy framework-authoring status retains its existing temporary placement.
+
 Project-aware source caches reserve the configured intelligence database and its
 finite provider controls. For contained CodeGraph projects this includes
 `litai/codegraph.db`, its SQLite sidecars and lock/log/control files. Cache targets

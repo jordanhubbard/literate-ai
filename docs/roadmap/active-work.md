@@ -26577,13 +26577,33 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 - **Next action — remaining producer/runtime ownership (in progress):** Continue
   the actual framework-owned path inventory and original source-parent/whole-project
-  ownership. Contain remaining implicit status/audit/fetch scratch roots through
-  their original project/runtime owners; directory-name changes alone do not grant
-  disposal authority. Finish metadata/source/cache original temporary creators and
-  partial/immediate disposal, remote RUN/legacy/explicit short-cache/general external
-  drivers, migrated history and all original installed/platform/native/full-source/
-  review/release requirements. Scoped cache/index controls below do not close full
+  ownership. Contain remaining implicit audit/fetch scratch roots through their
+  original owners; directory-name changes alone do not grant disposal authority.
+  Finish metadata/source/cache original temporary creators and partial/immediate
+  disposal, remote RUN/legacy/explicit short-cache/general external drivers,
+  migrated history and all original installed/platform/native/full-source/review/
+  release requirements. Scoped status/cache/index controls do not close full
   layout or provider acceptance.
+
+- **Source-index status scratch (source partial):** The original contained
+  command engine now creates its actual source and SQLite status snapshots under
+  the selected project's default `litai/_build/`, ignoring ambient cache overrides.
+  It reuses the original live project runtime when present, without reacquiring
+  that runtime's held lifecycle lock. Standalone status owns the canonical cache
+  lock through observation and disposal. Original project context checks surround
+  the work. The existing native evidence-stage owner records actual source writes
+  and exclusive SQLite destination creator descriptors through connection close;
+  only those original postimages may be disposed. Unknown provider/private files
+  and equal-byte foreign replacements cause retention, and disposal conflicts do
+  not hide an original status rejection. Legacy/framework-authoring status keeps
+  its original temporary workspace. The baseline real source/SQLite capture
+  reproduced an out-of-project snapshot. Corrected contained/runtime reuse,
+  original error, foreign/private preservation, unsafe ancestry, legacy and
+  existing source-index/staging/retained-runtime cohorts pass 50 distinct source
+  checks without skips/failures, plus static gates. The status command/version is
+  an explicit fixture port; no actual CodeGraph index or installed/native-platform
+  qualification is claimed. Complete producer/runtime and source-parent ownership,
+  migrated history and every original release requirement remain open.
 
 - **Source-cache/index context (source partial):** Original project-aware cache
   protection now includes the declared intelligence artifact. CodeGraph's finite
