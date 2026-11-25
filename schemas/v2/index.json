@@ -1318,6 +1318,13 @@
       "public_ids": [
         "literate-ai/project-layout-framework-authority-result@1"
       ]
+    },
+    {
+      "file": "project-layout-framework-producer-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-framework-producer-result",
+      "public_ids": [
+        "literate-ai/project-layout-framework-producer-result@1"
+      ]
     }
   ]
 }

@@ -223,6 +223,23 @@ read-only plan under `plan`. Original normal producer currentness and required
 renewal remain separate; these transactions do not claim full containment or
 qualification. Retained application implementation stays at its native path.
 
+Renew a selected original producer after placement with
+`litai project layout renew --place-framework-authority --acknowledge
+--plan-identity ID --project PATH --component litai/components/NAME
+--target TARGET`. The Component coordinate is relative to the application root;
+`PATH` may name that root or a descendant. The original native journal determines
+which Component and target are eligible before normal planning starts. Supply
+ordinary `--flavor SELECTOR` and project-relative `--flavor-root DIRECTORY` options
+when selecting local policy; omitted roots use the project's declared catalogs.
+The command obtains a fresh normal preparation and current Root owner rather
+than restoring a retired source actor.
+
+The result is `literate-ai/project-layout-framework-producer-result@1`.
+`current` reports the normal producer check; `writes` distinguishes an unchanged
+pair from actual lock/audit renewal. The journal retains original native history
+for exact rollback. `finalized`, `full_containment` and `qualification` remain
+false. Other path-bound evidence still requires its own normal producer.
+
 Path-bound evidence requires its ordinary producer's currentness check and any
 necessary renewal. Historical records remain historical. Fresh creation, complete
 existing-project placement and installed Linux/macOS/Windows acceptance remain

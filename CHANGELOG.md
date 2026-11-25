@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add acknowledged project layout renew for an original migrated Component/target, using fresh normal preparation and native journal custody, with registered inert result schema and exact public rollback support.
+
 - Verify fresh-process producer renewal after the original Component directory is archived, preserving its control inodes and newly authored local policy through exact rollback.
 
 - Renew migrated Component producers from a fresh destination owner bound to the current Root, actual normal preparation and original native journal, using the existing atomic publisher without reviving the retired source actor.

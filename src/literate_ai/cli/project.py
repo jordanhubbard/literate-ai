@@ -1168,6 +1168,13 @@ def project_layout_from_args(args) -> dict[str, Any]:
 
     try:
         project = Path(args.project)
+        if args.layout_command == "renew" and not getattr(
+            args, "place_framework_authority", False
+        ):
+            raise ProjectLayoutPlanError(
+                "framework_scope_conflict",
+                "producer renewal requires --place-framework-authority",
+            )
         if getattr(args, "place_framework_authority", False):
             if getattr(args, "rewrite_reference", ()) or any(
                 getattr(args, field, False)
@@ -1209,6 +1216,10 @@ def project_layout_from_args(args) -> dict[str, Any]:
                     "acknowledgement_required",
                     "acknowledge the exact framework authority migration plan",
                 )
+            if args.layout_command == "renew":
+                from .layout_framework_renewal import renew_framework_from_args
+
+                return renew_framework_from_args(args)
             if args.layout_command == "recover":
                 # Recovery owns exact original native facts, even while the
                 # manifest is backed up. Do not reconstruct a live source owner.

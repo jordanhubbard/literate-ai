@@ -26575,6 +26575,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Public normal producer renewal (partial):** The acknowledged
+  `project layout renew --place-framework-authority` command joins an explicit
+  original plan, contained Component and recorded target to the fresh native
+  destination owner. Root and descendant requests use current canonical discovery;
+  project-relative Flavor roots and ordinary normal preparation supply selection.
+  Unsupported coordinates and targets refuse before normal preparation, alongside
+  missing acknowledgement/scope and a new Git boundary. Real cold Python CLI
+  processes preserve an already-current pair without a journal, or renew an
+  explicitly changed local Flavor selection and recover original history through
+  repeated public rollback. Implicit host updates/user configuration stay outside
+  the command. The inert versioned result/schema distinguishes writes and retains
+  false finalization, containment and qualification claims. Historical origin
+  fixture seams remain explicit; this is source public-CLI evidence, with composed
+  multi-owner, full containment and installed supported-platform qualification
+  still open.
+
 - **Fresh destination producer owner (partial):** Renewal can now issue a new
   call-local guard from the actual current Root lease, normal prepared producer,
   destination project/catalog and original native framework journal. It neither
