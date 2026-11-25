@@ -367,11 +367,14 @@ class GuardedRustJavaScriptBuilder:
         source_digest: str,
         environment: dict[str, str],
     ) -> tuple[str, ...]:
-        compiler_output = Path(tempfile.mkdtemp(prefix="literate-rustc-"))
-        compiled_executable = compiler_output / executable.name
-        dependency_file = compiler_output / "sample.d"
-        self.toolchain.rust.require_unchanged(environment)
-        try:
+        from ..project_runtime import project_compiler_workspace
+
+        with project_compiler_workspace(
+            executable.parent, source_root, prefix="literate-rustc-"
+        ) as compiler_output:
+            compiled_executable = compiler_output / executable.name
+            dependency_file = compiler_output / "sample.d"
+            self.toolchain.rust.require_unchanged(environment)
             try:
                 completed = _run_bounded_process(
                     [
@@ -417,8 +420,6 @@ class GuardedRustJavaScriptBuilder:
             )
             shutil.copy2(compiled_executable, executable)
             return consumed
-        finally:
-            shutil.rmtree(compiler_output, ignore_errors=True)
 
     @staticmethod
     def _require_only_backend_output(root: Path, executable_file: str) -> None:

@@ -26585,6 +26585,37 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original contained compiler output custody (source partial):** Guarded
+  Rust, Go and Rust/JavaScript backend compilation now obtains its fresh native
+  output workspace through the actual contained project inspection/execution
+  owner. A live runtime supplies its original project and held lock; standalone
+  admission freshly loads the actual declared contained project. Neither saved
+  runtime metadata nor output facts restore an old cleanup actor. Native output
+  lives beneath the original object root outside a disposable parent runtime.
+  The actual bounded Popen creator/owner closes compiler output postimages after
+  process/stream completion and original POSIX group checks, before post-process
+  trace or caller callbacks. Toolchain version probes outside the bound source coordinate
+  do not gain output-admission authority. Compiler TMPDIR/TEMP/TMP and Go's
+  explicit temporary/cache destinations stay in that actual native workspace.
+  An unquiesced owned descendant or rejection is stopped through the original
+  process-tree owner before release. Refused native cleanup retains private or
+  equal-byte replaced outputs and preserves original compiler/deadline errors.
+  The original dependency file now retires with its owner rather than an early
+  pathname unlink. Closing facts are projected once and entries retired together;
+  no native observation or guard is removed to avoid repeated pure projection.
+  Eleven controls execute actual authorized host compilers and runnable Rust,
+  Go and composite-backend artifacts, fresh standalone admission, private and
+  replacement refusal, post-process trace isolation, real launch/timeout failure
+  and a real live descendant group. Inputs are small authored fixtures with
+  explicit test policy/project seams, not model-generated product qualification.
+  Existing native-workspace and host-authorization controls remain required.
+  Telemetry's actual Linux pidfd cases remain declared skips on this macOS host;
+  unrelated observer work is excluded from this increment. Native Windows and
+  legacy/framework-authoring scratch paths remain explicit and unqualified.
+  Complete original source-parent/whole-project, producer inventory, migration/
+  history, concurrency, installed/native-platform/full-source/independent review
+  and every protected release requirement remain open.
+
 - **Locked remote asset stream staging (source partial):** Original locked
   asset admission now stages its bounded download below the actual receiving CAS,
   selected under the contained candidate build root by ordinary generation. The

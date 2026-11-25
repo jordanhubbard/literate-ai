@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 import threading
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -12,10 +13,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import BinaryIO
 
-from literate_ai.adapters.worker_telemetry_processes import (
-    register_original_process_launch,
-    retire_original_process_observation,
-)
+from literate_ai.application.native_root_run import current_native_root_run
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
 
 from .._process_interrupt import (
@@ -118,6 +116,9 @@ def run_bounded_process(
     caps the ordinary relative execution timeout without restarting its budget.
     """
 
+    live_run = current_native_root_run()
+    if live_run is not None:
+        timeout_seconds = live_run.clamp_timeout(timeout_seconds)
     if timeout_seconds <= 0:
         raise ValueError("tool process timeout must be positive")
     if inactivity_timeout_seconds is not None and inactivity_timeout_seconds <= 0:
@@ -149,8 +150,20 @@ def run_bounded_process(
         interrupt_guard()
     if stdout_sink is not None and not stdout_sink.writable():
         raise ValueError("tool stdout sink must be writable")
+    from ..retained_execution_workspace import (
+        native_bounded_command_start,
+        native_command_complete,
+        native_command_environment,
+        native_command_not_started,
+    )
+
+    native_joined = native_bounded_command_start(cwd)
     ownership = create_process_tree_ownership()
-    child_environment = inherited_verbose_environment(environment)
+    child_environment = inherited_verbose_environment(
+        native_command_environment(environment) if native_joined else environment
+    )
+    native_closed = not native_joined
+    native_refused = False
     started_monotonic = clock()
     try:
         _started = datetime.now(UTC)
@@ -173,19 +186,21 @@ def run_bounded_process(
             **ownership.popen_options,
         )
     except OSError as exc:
+        if native_joined:
+            native_command_not_started()
         ownership.release()
         raise BuildError(
             f"{error_prefix}_launch_failed", "Tool process could not start"
         ) from exc
     except BaseException:
+        if native_joined:
+            native_command_not_started()
         ownership.release()
         raise
-    observation = None
     writer = None
     readers: list[threading.Thread] = []
     try:
         ownership.bind(process.pid)
-        observation = register_original_process_launch(process)
         assert process.stdout is not None and process.stderr is not None
         streams = {
             "stdout": (process.stdout, stdout_limit_bytes),
@@ -288,6 +303,9 @@ def run_bounded_process(
                 with state_lock:
                     inactive = now - last_activity[0]
                 total_remaining = timeout_seconds - elapsed
+                if live_run is not None:
+                    live_run.require_current()
+                    total_remaining = min(total_remaining, live_run.remaining())
                 if deadline_monotonic is not None:
                     total_remaining = min(total_remaining, deadline_monotonic - now)
                 inactive_remaining = (
@@ -388,6 +406,17 @@ def run_bounded_process(
             stderr_truncated=stderr_tail_bytes is not None
             and counts["stderr"] > stderr_tail_bytes,
         )
+        if native_joined:
+            try:
+                native_command_complete(process)
+            except BaseException:
+                native_refused = True
+                if result.returncode == 0:
+                    raise
+                # The caller still constructs its original failed-command rejection.
+                # A refused completion leaves native ownership broken and retained.
+            finally:
+                native_closed = True
         if trace:
             trace_subprocess(
                 command,
@@ -398,6 +427,8 @@ def run_bounded_process(
                 stderr=result.stderr,
                 started_at=_started,
             )
+        if live_run is not None:
+            live_run.require_current()
         return result
     except KeyboardInterrupt:
         if terminate_descendants:
@@ -409,13 +440,27 @@ def run_bounded_process(
             )
         raise
     finally:
+        original_error = sys.exception()
         try:
-            retire_original_process_observation(observation)
-        finally:
-            if process.poll() is None or terminate_descendants:
+            if (
+                process.poll() is None
+                or terminate_descendants
+                or native_refused
+                or (native_joined and original_error is not None)
+            ):
                 _terminate_process_tree(process, ownership=ownership)
                 with suppress(subprocess.TimeoutExpired):
                     process.wait(timeout=_PROCESS_EXIT_WAIT_SECONDS)
+            if not native_closed:
+                try:
+                    native_command_complete(process)
+                except BaseException as error:
+                    if original_error is None:
+                        raise
+                    original_error.add_note(
+                        "Native process closure refused: " + str(error)
+                    )
+        finally:
             ownership.release()
             _close_process_pipes(process)
             if process.stdin is not None:

@@ -484,137 +484,142 @@ class GuardedGoBuilder:
         destination_root = artifact_store.resolve()
         destination_root.mkdir(parents=True, exist_ok=True)
         staging = Path(tempfile.mkdtemp(prefix="go-build-", dir=destination_root))
-        compiler_output = Path(tempfile.mkdtemp(prefix="literate-go-"))
-        executable_name = "sample.exe" if os.name == "nt" else "sample"
-        compiled_executable = compiler_output / executable_name
-        executable = staging / executable_name
-        command = [
-            *self.toolchain.command,
-            "build",
-            "-o",
-            str(compiled_executable),
-            "source/main.go",
-        ]
-        build_environment = dict(os.environ)
-        build_environment.pop("GOROOT", None)
-        build_environment["GO111MODULE"] = "off"
-        build_environment["GOFLAGS"] = "-mod=mod"
-        build_environment["GOCACHE"] = str(compiler_output / "go-build-cache")
-        build_environment["GOPATH"] = str(compiler_output / "gopath")
-        build_environment["GOMODCACHE"] = str(compiler_output / "module-cache")
-        build_environment["GOWORK"] = "off"
-        build_environment["GOENV"] = "off"
-        build_environment["GOTOOLCHAIN"] = "local"
-        build_environment["GOPROXY"] = "off"
-        build_environment["GOSUMDB"] = "off"
-        build_environment["CGO_ENABLED"] = "0"
-        try:
+        from ..project_runtime import project_compiler_workspace
+
+        with project_compiler_workspace(
+            destination_root, resolved_source, prefix="literate-go-"
+        ) as compiler_output:
+            executable_name = "sample.exe" if os.name == "nt" else "sample"
+            compiled_executable = compiler_output / executable_name
+            executable = staging / executable_name
+            command = [
+                *self.toolchain.command,
+                "build",
+                "-o",
+                str(compiled_executable),
+                "source/main.go",
+            ]
+            build_environment = dict(os.environ)
+            build_environment.pop("GOROOT", None)
+            build_environment["GO111MODULE"] = "off"
+            build_environment["GOFLAGS"] = "-mod=mod"
+            build_environment["GOCACHE"] = str(compiler_output / "go-build-cache")
+            build_environment["GOTMPDIR"] = str(compiler_output)
+            build_environment["GOPATH"] = str(compiler_output / "gopath")
+            build_environment["GOMODCACHE"] = str(compiler_output / "module-cache")
+            build_environment["GOWORK"] = "off"
+            build_environment["GOENV"] = "off"
+            build_environment["GOTOOLCHAIN"] = "local"
+            build_environment["GOPROXY"] = "off"
+            build_environment["GOSUMDB"] = "off"
+            build_environment["CGO_ENABLED"] = "0"
             try:
-                consumed_source_files = _go_compiled_source_files(
-                    self.toolchain,
+                try:
+                    consumed_source_files = _go_compiled_source_files(
+                        self.toolchain,
+                        resolved_source,
+                        build_environment,
+                        timeout_seconds=self.timeout_seconds,
+                    )
+                    completed = _run_bounded_process(
+                        command,
+                        cwd=resolved_source,
+                        environment=build_environment,
+                        timeout_seconds=self.timeout_seconds,
+                        stdout_limit_bytes=self.stdout_limit_bytes,
+                        stderr_limit_bytes=self.stderr_limit_bytes,
+                        error_prefix="builder.go_compile",
+                    )
+                finally:
+                    self.toolchain.require_unchanged()
+                    _require_source_tree_unchanged(
+                        resolved_source, actual_source_digest
+                    )
+                if completed.returncode != 0 or not compiled_executable.is_file():
+                    detail = (completed.stdout + completed.stderr)[-4000:].decode(
+                        "utf-8", errors="replace"
+                    )
+                    raise BuildError(
+                        "builder.go_compile_failed", "Go compilation failed: " + detail
+                    )
+
+                shutil.copy2(compiled_executable, executable)
+                _require_generated_files_covered(
                     resolved_source,
-                    build_environment,
-                    timeout_seconds=self.timeout_seconds,
+                    consumed_source_files,
+                    lifecycle_consumed_files,
+                    build_system_consumed_files,
                 )
-                completed = _run_bounded_process(
-                    command,
-                    cwd=resolved_source,
-                    environment=build_environment,
-                    timeout_seconds=self.timeout_seconds,
-                    stdout_limit_bytes=self.stdout_limit_bytes,
-                    stderr_limit_bytes=self.stderr_limit_bytes,
-                    error_prefix="builder.go_compile",
-                )
-            finally:
-                self.toolchain.require_unchanged()
                 _require_source_tree_unchanged(resolved_source, actual_source_digest)
-            if completed.returncode != 0 or not compiled_executable.is_file():
-                detail = (completed.stdout + completed.stderr)[-4000:].decode(
-                    "utf-8", errors="replace"
-                )
-                raise BuildError(
-                    "builder.go_compile_failed", "Go compilation failed: " + detail
-                )
 
-            shutil.copy2(compiled_executable, executable)
-            _require_generated_files_covered(
-                resolved_source,
-                consumed_source_files,
-                lifecycle_consumed_files,
-                build_system_consumed_files,
-            )
-            _require_source_tree_unchanged(resolved_source, actual_source_digest)
-
-            executable_digest = (
-                f"sha256:{hashlib.sha256(executable.read_bytes()).hexdigest()}"
-            )
-            manifest = {
-                "authorization_id": authorization.authorization_id,
-                "builder_id": self.builder_id,
-                "compiler_identity": self.toolchain.identity,
-                "consumed_source_files": list(consumed_source_files),
-                "lifecycle_consumed_files": list(lifecycle_consumed_files),
-                "build_system_consumed_files": list(build_system_consumed_files),
-                "build_input_consumption_identity": (
-                    build_input_consumption.identity
-                    if build_input_consumption is not None
-                    else None
-                ),
-                "executable_digest": executable_digest,
-                "executable_file": executable_name,
-                "source_bundle_digest": actual_source_digest,
-            }
-            manifest_bytes = json.dumps(
-                manifest, sort_keys=True, separators=(",", ":")
-            ).encode("utf-8")
-            artifact_digest = f"sha256:{hashlib.sha256(manifest_bytes).hexdigest()}"
-            (staging / "build-manifest.json").write_bytes(manifest_bytes)
-            if not _cached_go_artifact_matches(
-                staging,
-                executable_name=executable_name,
-                executable_digest=executable_digest,
-                manifest_bytes=manifest_bytes,
-            ):
-                raise BuildError(
-                    "builder.artifact_invalid",
-                    "Built artifact differs from its exact manifest",
+                executable_digest = (
+                    f"sha256:{hashlib.sha256(executable.read_bytes()).hexdigest()}"
                 )
-            final = destination_root / artifact_digest.removeprefix("sha256:")
-            if final.exists():
+                manifest = {
+                    "authorization_id": authorization.authorization_id,
+                    "builder_id": self.builder_id,
+                    "compiler_identity": self.toolchain.identity,
+                    "consumed_source_files": list(consumed_source_files),
+                    "lifecycle_consumed_files": list(lifecycle_consumed_files),
+                    "build_system_consumed_files": list(build_system_consumed_files),
+                    "build_input_consumption_identity": (
+                        build_input_consumption.identity
+                        if build_input_consumption is not None
+                        else None
+                    ),
+                    "executable_digest": executable_digest,
+                    "executable_file": executable_name,
+                    "source_bundle_digest": actual_source_digest,
+                }
+                manifest_bytes = json.dumps(
+                    manifest, sort_keys=True, separators=(",", ":")
+                ).encode("utf-8")
+                artifact_digest = f"sha256:{hashlib.sha256(manifest_bytes).hexdigest()}"
+                (staging / "build-manifest.json").write_bytes(manifest_bytes)
                 if not _cached_go_artifact_matches(
-                    final,
+                    staging,
                     executable_name=executable_name,
                     executable_digest=executable_digest,
                     manifest_bytes=manifest_bytes,
                 ):
                     raise BuildError(
-                        "builder.artifact_collision", "Existing artifact differs"
+                        "builder.artifact_invalid",
+                        "Built artifact differs from its exact manifest",
                     )
-                shutil.rmtree(staging)
-            else:
-                os.replace(staging, final)
-            return GoBuildArtifact(
-                artifact_digest=artifact_digest,
-                artifact_path=final,
-                source_bundle_digest=actual_source_digest,
-                authorization_id=authorization.authorization_id,
-                executable_file=executable_name,
-                compiler_identity=self.toolchain.identity,
-                consumed_source_files=consumed_source_files,
-                lifecycle_consumed_files=lifecycle_consumed_files,
-                build_system_consumed_files=build_system_consumed_files,
-                build_input_consumption_identity=(
-                    build_input_consumption.identity
-                    if build_input_consumption is not None
-                    else None
-                ),
-            )
-        except Exception:
-            if staging.exists():
-                shutil.rmtree(staging)
-            raise
-        finally:
-            shutil.rmtree(compiler_output, ignore_errors=True)
+                final = destination_root / artifact_digest.removeprefix("sha256:")
+                if final.exists():
+                    if not _cached_go_artifact_matches(
+                        final,
+                        executable_name=executable_name,
+                        executable_digest=executable_digest,
+                        manifest_bytes=manifest_bytes,
+                    ):
+                        raise BuildError(
+                            "builder.artifact_collision", "Existing artifact differs"
+                        )
+                    shutil.rmtree(staging)
+                else:
+                    os.replace(staging, final)
+                return GoBuildArtifact(
+                    artifact_digest=artifact_digest,
+                    artifact_path=final,
+                    source_bundle_digest=actual_source_digest,
+                    authorization_id=authorization.authorization_id,
+                    executable_file=executable_name,
+                    compiler_identity=self.toolchain.identity,
+                    consumed_source_files=consumed_source_files,
+                    lifecycle_consumed_files=lifecycle_consumed_files,
+                    build_system_consumed_files=build_system_consumed_files,
+                    build_input_consumption_identity=(
+                        build_input_consumption.identity
+                        if build_input_consumption is not None
+                        else None
+                    ),
+                )
+            except Exception:
+                if staging.exists():
+                    shutil.rmtree(staging)
+                raise
 
 
 def _cached_go_artifact_matches(

@@ -34,9 +34,12 @@ def _fail(message):
 
 
 class _Run:
-    def __init__(self, path, parent, root, guard, root_stack):
+    def __init__(self, path, parent, root, guard, root_stack, command_root):
         self.path, self.parent, self.root, self.guard = path, parent, root, guard
         self.root_stack = root_stack
+        self.command_root = (
+            self.path / "source" if command_root is None else command_root
+        )
         self.parent_node, self.root_node = _root(parent), _root(root)
         self.nodes = {(): self.root_node}
         self.closed = self.broken = self.running = False
@@ -207,11 +210,11 @@ class _Run:
                         self.nodes[parts] = _value(node, (node.st_dev, node.st_ino))
                     finally:
                         os.close(descriptor)
+        facts = {"/".join(p): _facts(v) for p, v in self.nodes.items()}
         for parts in sorted(
             (p for p in self.nodes if p), key=lambda p: (len(p), p), reverse=True
         ):
             expected = self.nodes[parts]
-            facts = {"/".join(p): _facts(v) for p, v in self.nodes.items()}
 
             def guard(parts=parts, expected=expected):
                 self.current()
@@ -223,6 +226,7 @@ class _Run:
                 self.path, "/".join(parts), facts["/".join(parts)], facts, guard
             )
             del self.nodes[parts]
+            del facts["/".join(parts)]
         self.known()
         from .qualification_workspace_namespace import (
             _require_original_directory_removal,
@@ -244,7 +248,7 @@ class _Run:
 
 
 @contextmanager
-def retained_execution_workspace(owner):
+def retained_execution_workspace(owner, *, _command_root=None):
     from .project_runtime import inspection_native_binding
 
     if os.name != "posix" or _CURRENT.get() is not None:
@@ -258,7 +262,7 @@ def retained_execution_workspace(owner):
         path = Path(tempfile.mkdtemp(prefix=".nx-", dir=parent_path))
         root_stack = stack.enter_context(ExitStack())
         root = root_stack.enter_context(_access(path))
-        state = _Run(path, parent, root, guard, root_stack)
+        state = _Run(path, parent, root, guard, root_stack, _command_root)
         token = _CURRENT.set(state)
         yield state.path
     except BaseException as error:
@@ -326,7 +330,7 @@ def native_diagnostics_directory(root):
     if state is None:
         return None
     state.known()
-    if root != state.path / "source":
+    if root != state.command_root:
         _fail("diagnostics differ from original native execution")
     return state.path
 
@@ -349,3 +353,28 @@ def native_command_complete(process):
     state = _CURRENT.get()
     if state is not None:
         state.complete(process)
+
+
+def native_command_environment(environment):
+    state = _CURRENT.get()
+    if state is None:
+        return environment
+    state.current()
+    return {
+        **environment,
+        "TMPDIR": str(state.path),
+        "TEMP": str(state.path),
+        "TMP": str(state.path),
+    }
+
+
+def native_bounded_command_start(root):
+    state = _CURRENT.get()
+    if state is None:
+        return False
+    state.current()
+    if root != state.command_root:
+        # Toolchain metadata probes do not own compiler output postimages.
+        return False
+    native_command_start(root)
+    return True
