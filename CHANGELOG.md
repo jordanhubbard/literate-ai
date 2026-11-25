@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Retained-harness readmission preserves authored wrapper requirements, metadata,
+  interfaces and shim files. Reviewed plans expose the generated baseline-summary
+  change; uncertain ownership refuses before qualification, and referenced-authority
+  drift refuses publication without overwriting the owner's changed inputs (#496).
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way

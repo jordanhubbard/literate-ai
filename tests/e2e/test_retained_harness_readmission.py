@@ -68,6 +68,219 @@ class RetainedHarnessReadmissionTests(unittest.TestCase):
             *arguments,
         )
 
+    def test_readmission_preserves_authored_shim_authority(self) -> None:
+        interface_bytes = b"# Owned public interface\n"
+        component = self.root / "components/legacy-project-wrapper/component.md"
+        owned = (
+            "### Requirement: Preserve the owner's interface\n\n"
+            "Keep café and 雪 intact.\n\n"
+            "#### Scenario: Readmit the harness\n\n"
+            "- **WHEN** the harness is readmitted\n"
+            "- **THEN** owned authority remains intact\n"
+        )
+        content = component.read_text(encoding="utf-8").replace(
+            "# Legacy Project Pipeline Wrapper\n",
+            "# Legacy Project Pipeline Wrapper\n\n" + owned,
+        )
+        content = content.replace(
+            "display_name: Legacy Project Pipeline Wrapper",
+            "display_name: Owned pipeline",
+        )
+        content = content.replace(
+            "    version: 1.0.0\nrequires: []",
+            "    version: 1.0.0\n    interface:\n"
+            "      uri: interfaces/owned.md\n"
+            f"      pin: {readmission._identity(interface_bytes)}\n"
+            "requires: []",
+        )
+        component.write_text(content, encoding="utf-8")
+        interface = component.parent / "interfaces/owned.md"
+        interface.parent.mkdir()
+        interface.write_bytes(interface_bytes)
+        for relative in (
+            "flavors/legacy-project-shim/flavor.md",
+            "flavors/legacy-project-shim/openspec/spec.md",
+            "skills/specification-to-source/legacy-project-shim/SKILL.md",
+            "workflows/legacy-adoption/workflow.md",
+        ):
+            path = self.root / relative
+            path.write_bytes(
+                path.read_bytes() + b"\nOwned authoring must remain intact.\n"
+            )
+        routing = self.root / "routing/legacy-adoption.json"
+        data = json.loads(routing.read_bytes())
+        data["version"] = "1.0.1"
+        routing.write_text(json.dumps(data, indent=4) + "\n", encoding="utf-8")
+        # A genuinely changed retained scope needs readmission, independently of
+        # the authored additions that this operation must preserve.
+        (self.source / "added.py").write_text(
+            "VALUE = 'new source scope'\n", encoding="utf-8"
+        )
+        code, result = self.invoke()
+        self.assertEqual(code, 0, result)
+        plan = result["result"]
+        before = {
+            name: (self.root / name).read_bytes()
+            for name in plan["new_shim_identities"]
+        }
+        for name, raw in before.items():
+            self.assertEqual(
+                plan["new_shim_identities"][name], readmission._identity(raw)
+            )
+        self.assertTrue(
+            all(c["change"] == "preserved" for c in plan["shim_authority_changes"])
+        )
+        code, result = self.invoke(
+            "--apply",
+            "--acknowledge",
+            "--expected-plan-identity",
+            plan["plan_identity"],
+        )
+        self.assertEqual(code, 0, result)
+        self.assertTrue(result["result"]["applied"])
+        self.assertEqual(
+            {name: (self.root / name).read_bytes() for name in before}, before
+        )
+
+        self.assertEqual(interface.read_bytes(), interface_bytes)
+
+    def test_referenced_authority_drift_refuses_without_overwriting_owner(self) -> None:
+        component = self.root / "components/legacy-project-wrapper/component.md"
+        component.write_text(
+            component.read_text(encoding="utf-8").replace(
+                "    version: 1.0.0\nrequires: []",
+                "    version: 1.0.0\n    interface:\n"
+                "      uri: interfaces/owned.md\nrequires: []",
+            ),
+            encoding="utf-8",
+        )
+        interface = component.parent / "interfaces/owned.md"
+        interface.parent.mkdir()
+        interface.write_bytes(b"# Owned public interface\n")
+        (self.source / "added.py").write_bytes(b"VALUE = 1\n")
+        original_baseline = readmission._baseline_report
+        from literate_ai.adapters import component_lock_commands
+
+        original_lock = component_lock_commands._component_locks_from_args
+        for when in ("after-plan", "during-baseline", "during-lock"):
+            with self.subTest(when=when):
+                interface.write_bytes(b"# Owned public interface\n")
+                code, result = self.invoke()
+                self.assertEqual(code, 0, result)
+                plan = result["result"]
+                before = {
+                    p: (self.root / p).read_bytes() for p in plan["old_documents"]
+                }
+
+                def drift_baseline(*args, when=when, **kwargs):
+                    value = original_baseline(*args, **kwargs)
+                    if when == "during-baseline":
+                        interface.write_bytes(b"# Owner changed the interface\n")
+                    return value
+
+                def drift_lock(*args, when=when, **kwargs):
+                    value = original_lock(*args, **kwargs)
+                    if when == "during-lock":
+                        interface.write_bytes(b"# Owner changed the interface\n")
+                    return value
+
+                if when == "after-plan":
+                    interface.write_bytes(b"# Owner changed the interface\n")
+                with (
+                    mock.patch.object(readmission, "_baseline_report", drift_baseline),
+                    mock.patch.object(
+                        component_lock_commands,
+                        "_component_locks_from_args",
+                        drift_lock,
+                    ),
+                ):
+                    code, result = self.invoke(
+                        "--apply",
+                        "--acknowledge",
+                        "--expected-plan-identity",
+                        plan["plan_identity"],
+                    )
+                self.assertEqual(code, 2, result)
+                self.assertIn(
+                    result["error"]["code"],
+                    {
+                        "retained_harness.plan_stale",
+                        "inputs.closure_changed",
+                    },
+                )
+                self.assertEqual(
+                    interface.read_bytes(), b"# Owner changed the interface\n"
+                )
+                self.assertEqual(
+                    {p: (self.root / p).read_bytes() for p in before}, before
+                )
+                self.assertFalse(list((self.root / readmission.HISTORY).glob("*.json")))
+
+    def test_changed_baseline_summary_preserves_surrounding_owned_bytes(self) -> None:
+        component = self.root / "components/legacy-project-wrapper/component.md"
+        before = component.read_bytes() + b"\n### Requirement: Keep owned behavior\n"
+        component.write_bytes(before)
+        inventory = json.loads((self.root / readmission.INVENTORY).read_bytes())
+        inventory["commands"].pop("package", None)
+        baseline = {"phases": [{"phase": "build"}, {"phase": "test"}]}
+        shim, changes = readmission._readmitted_shim_authority(
+            self.root, inventory, baseline
+        )
+        change = next(c for c in changes if c["change"] == "baseline-summary")
+        self.assertIn("missing stages are\n`package`", change["after_summary"])
+        rebuilt = shim["components/legacy-project-wrapper/component.md"].replace(
+            change["after_summary"], change["before_summary"], 1
+        )
+        self.assertEqual(rebuilt.encode("utf-8"), before)
+
+    def test_unrecognized_or_ambiguous_summary_refuses_before_qualification(
+        self,
+    ) -> None:
+        component = self.root / "components/legacy-project-wrapper/component.md"
+        original = component.read_bytes()
+        summary = readmission._BASELINE_SUMMARY.search(original.decode("utf-8")).group()
+        for candidate in (
+            original.replace(b"This Component exposes", b"Owned wording replaces", 1),
+            original + b"\n" + summary.encode("utf-8"),
+            original.replace(summary.encode("utf-8"), b"Owned summary.")
+            + b"\n```markdown\n"
+            + summary.encode("utf-8")
+            + b"\n```\n",
+            original.replace(summary.encode("utf-8"), b"Owned summary.")
+            + b"\nQuoted inline: "
+            + summary.encode("utf-8")
+            + b"\n",
+        ):
+            with self.subTest(candidate=candidate[-30:]):
+                component.write_bytes(candidate)
+                with (
+                    mock.patch.object(readmission, "_baseline_report") as baseline,
+                    mock.patch.object(readmission, "_parity_report") as parity,
+                ):
+                    code, result = self.invoke()
+                self.assertEqual(code, 2, result)
+                self.assertEqual(
+                    result["error"]["code"], "retained_harness.shim_ownership_ambiguous"
+                )
+                baseline.assert_not_called()
+                parity.assert_not_called()
+                self.assertEqual(component.read_bytes(), candidate)
+
+    def test_crlf_and_unicode_authority_is_byte_preserved(self) -> None:
+        component = self.root / "components/legacy-project-wrapper/component.md"
+        raw = (
+            (component.read_text(encoding="utf-8") + "\nKeep café and 雪.\n")
+            .replace("\n", "\r\n")
+            .encode("utf-8")
+        )
+        component.write_bytes(raw)
+        inventory = json.loads((self.root / readmission.INVENTORY).read_bytes())
+        baseline = json.loads((self.root / readmission.BASELINE).read_bytes())
+        shim, _ = readmission._readmitted_shim_authority(self.root, inventory, baseline)
+        self.assertEqual(
+            shim["components/legacy-project-wrapper/component.md"].encode("utf-8"), raw
+        )
+
     def make_unqualified_false_bazel_state(self) -> None:
         (self.source / "BUILD.bazel").write_text("# packaging stub\n", encoding="utf-8")
         inventory = {

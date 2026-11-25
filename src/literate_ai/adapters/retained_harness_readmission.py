@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import tempfile
 from argparse import Namespace
@@ -11,10 +12,12 @@ from dataclasses import replace
 from pathlib import Path, PurePosixPath
 from typing import Any
 
+from literate_ai.adapters.component_markdown import parse_component_markdown
 from literate_ai.adapters.conversion_authority import (
     CONVERSION_AUTHORITY_FILE,
     FilesystemConversionAuthorityStore,
 )
+from literate_ai.adapters.flavor_markdown import parse_flavor_markdown
 from literate_ai.adapters.harness_inventory import (
     HARNESS_BASELINE_SCHEMA,
     HARNESS_DIAGNOSTIC_CHARS,
@@ -55,7 +58,11 @@ from literate_ai.contracts import (
     canonical_identity,
     canonical_json_bytes,
 )
-from literate_ai.projects import ProjectConfigurationStore, load_project
+from literate_ai.projects import (
+    PinnedInputClosure,
+    ProjectConfigurationStore,
+    load_project,
+)
 
 PLAN_SCHEMA = "literate-ai/retained-harness-readmission-plan@1"
 HISTORY = ".literate/retained-harness-readmission"
@@ -64,6 +71,22 @@ BASELINE = ".literate/legacy-harness-baseline.json"
 PARITY = ".literate/legacy-wrapper-parity.json"
 LIFT_SHIFT = ".literate/legacy-lift-shift.json"
 _PARITY_SOURCE_CAPTURE_ATTEMPTS = 2
+_PHASE_LIST = (
+    r"(?:none|`(?:build|test|package|ci)`(?:, `(?:build|test|package|ci)`){0,3})"
+)
+_BASELINE_SUMMARY = re.compile(
+    r"^This Component exposes the quarantined project's proven pipeline "
+    r"through the\r?\n"
+    r"top-level `litai\.harness\.mk` boundary\. "
+    r"Proven stages \(direct baseline ran\) are\r?\n"
+    + _PHASE_LIST
+    + r"; recorded but not executed are "
+    + _PHASE_LIST
+    + r"; missing stages are\r?\n"
+    + _PHASE_LIST
+    + r" and fail loudly rather than becoming silent no-ops\.(?=\r?$)",
+    re.MULTILINE,
+)
 
 
 class RetainedHarnessReadmissionError(RuntimeError):
@@ -85,6 +108,80 @@ def _identity(value: object) -> str:
     return canonical_identity(value).uri
 
 
+def _baseline_summaries(content: str) -> list[re.Match[str]]:
+    """Recognize prose facts without editing a quoted Markdown example."""
+    excluded: list[tuple[int, int]] = []
+    fence: str | None = None
+    start = offset = 0
+    for line in content.splitlines(keepends=True):
+        marker = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line.rstrip("\r\n"))
+        if marker:
+            token, rest = marker.groups()
+            if fence is None:
+                fence, start = token, offset
+            elif token[0] == fence[0] and len(token) >= len(fence) and not rest.strip():
+                excluded.append((start, offset + len(line)))
+                fence = None
+        offset += len(line)
+    if fence is not None:
+        excluded.append((start, len(content)))
+    return [
+        match
+        for match in _BASELINE_SUMMARY.finditer(content)
+        if not any(start <= match.start() < end for start, end in excluded)
+    ]
+
+
+def _readmitted_shim_authority(
+    root: Path, inventory: dict[str, Any], baseline: dict[str, Any]
+) -> tuple[dict[str, str], list[dict[str, Any]]]:
+    """Keep authored authority; update only the recognized generated facts."""
+    generated = legacy_shim_authority(inventory, baseline)
+    component = "components/legacy-project-wrapper/component.md"
+    preserved: dict[str, str] = {}
+    for relative in generated:
+        try:
+            preserved[relative] = (
+                _safe_path(root, relative).read_bytes().decode("utf-8")
+            )
+        except UnicodeError:
+            _fail(
+                "shim_authority_invalid", "Existing shim authority must be valid UTF-8"
+            )
+    before = dict(preserved)
+    old_matches = _baseline_summaries(before[component])
+    new_matches = _baseline_summaries(generated[component])
+    if len(old_matches) != 1 or len(new_matches) != 1:
+        _fail(
+            "shim_ownership_ambiguous",
+            "Readmission requires one recognized baseline summary; "
+            "authored authority was preserved",
+        )
+    old = old_matches[0]
+    old_summary = old.group()
+    new_summary = new_matches[0].group()
+    if "\r\n" in old_summary:
+        new_summary = new_summary.replace("\n", "\r\n")
+    preserved[component] = (
+        before[component][: old.start()] + new_summary + before[component][old.end() :]
+    )
+    changes = []
+    for relative, content in preserved.items():
+        changed = content != before[relative]
+        changes.append(
+            {
+                "path": relative,
+                "before_identity": _identity(before[relative].encode("utf-8")),
+                "after_identity": _identity(content.encode("utf-8")),
+                "change": "baseline-summary" if changed else "preserved",
+                # Only fixed framework text and closed phase labels enter the plan.
+                "before_summary": old_summary if changed else None,
+                "after_summary": new_summary if changed else None,
+            }
+        )
+    return preserved, changes
+
+
 def _safe_path(root: Path, relative: str, *, must_exist: bool = True) -> Path:
     raw = PurePosixPath(relative)
     if (
@@ -101,6 +198,63 @@ def _safe_path(root: Path, relative: str, *, must_exist: bool = True) -> Path:
     if must_exist and not path.is_file():
         _fail("metadata_missing", f"required metadata is unavailable: {relative}")
     return path
+
+
+def _preserved_authority_inputs(root: Path) -> PinnedInputClosure:
+    """Fence referenced authored files while the generated summary is replaced."""
+    project = load_project(root)
+    closure = PinnedInputClosure.for_project(project)
+    component = _safe_path(root, "components/legacy-project-wrapper/component.md")
+    authored = parse_component_markdown(
+        component, component.read_bytes().decode("utf-8"), project_root=root
+    )
+
+    def pin(path: Path, expected_identity: ContentIdentity | None = None) -> None:
+        # The Component itself is fenced by old_documents and intentionally may
+        # acquire new baseline facts. All other referenced bytes must survive.
+        if path == component:
+            return
+        closure.pin(
+            path,
+            boundary=root,
+            label="readmission:" + path.relative_to(root).as_posix(),
+            expected_identity=expected_identity,
+        )
+
+    for uri in authored.specification_roots:
+        pin(component.parent / uri)
+    global_kinds = {
+        "model-selection",
+        "routing-policy",
+        "specification-to-source-skill",
+        "toolchain-constraint",
+        "workflow",
+    }
+    selectors = (
+        authored.workflow_definition,
+        authored.routing_policy,
+        *authored.authoring_inputs,
+        *authored.acceptance_contracts,
+        *(item.interface for item in authored.provides if item.interface is not None),
+        *(
+            item.integration_contract
+            for item in authored.source_dependencies
+            if item.integration_contract is not None
+        ),
+    )
+    for selector in selectors:
+        base = root if selector.kind in global_kinds else component.parent
+        pin(base / selector.uri, selector.pin)
+    flavor_path = _safe_path(root, "flavors/legacy-project-shim/flavor.md")
+    flavor = parse_flavor_markdown(flavor_path.read_bytes(), source=str(flavor_path))
+    for uri in (
+        *flavor.specification_roots,
+        *(item.uri for item in flavor.authoring_inputs),
+        *(item.content.uri for item in flavor.contributions),
+    ):
+        pin(flavor_path.parent / uri)
+    closure.require_unchanged()
+    return closure
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -320,7 +474,8 @@ def plan_retained_harness_readmission(
         for stage in new_inventory["stages"]
         if stage["id"].split(".", 1)[0] in {"build", "test", "package", "ci"}
     ]
-    shim = legacy_shim_authority(
+    shim, shim_changes = _readmitted_shim_authority(
+        root,
         new_inventory,
         {
             "schema": HARNESS_BASELINE_SCHEMA,
@@ -328,7 +483,9 @@ def plan_retained_harness_readmission(
             "phases": expected_phases,
         },
     )
+    preserved_inputs = _preserved_authority_inputs(root)
     review = FilesystemProjectValidationAdapter().documentation_review(root)
+    preserved_inputs.require_unchanged()
     document = review.get("document")
     if review.get("state") not in {"current", "stale"} or not isinstance(document, str):
         _fail("authority_review_invalid", "project documentation authority is invalid")
@@ -343,8 +500,8 @@ def plan_retained_harness_readmission(
         LIFT_SHIFT: _identity(_safe_path(root, LIFT_SHIFT).read_bytes()),
         document: _identity(review_path.read_bytes()),
     }
-    for relative in shim:
-        old_documents[relative] = _identity(_safe_path(root, relative).read_bytes())
+    for change in shim_changes:
+        old_documents[change["path"]] = change["before_identity"]
     component_root = root / "components/legacy-project-wrapper"
     for path in (
         component_root / "component.lock.json",
@@ -368,6 +525,9 @@ def plan_retained_harness_readmission(
             relative: _identity(content.encode("utf-8"))
             for relative, content in shim.items()
         },
+        "shim_authority_changes": shim_changes,
+        "preserved_authority_inputs": preserved_inputs.to_dict(),
+        "old_authority_identity": review["authority_identity"],
         "new_policy": expected_policy.to_dict(),
         "new_default_flavor_selectors": list(selectors),
         "qualification": {
@@ -699,6 +859,9 @@ def apply_retained_harness_readmission(
         ).encode("utf-8")
         executor = remote_executor or RetainedHarnessSshExecutor()
         plan_identity = ContentIdentity.parse_uri(plan["plan_identity"])
+        preserved_inputs = _preserved_authority_inputs(root)
+        if preserved_inputs.to_dict() != plan["preserved_authority_inputs"]:
+            _fail("plan_stale", "referenced authority changed before qualification")
         baseline = _baseline_report(
             inventory,
             implementation=implementation,
@@ -721,7 +884,11 @@ def apply_retained_harness_readmission(
             project_id=project.definition.project_id,
             executor=executor,
         )
-        shim = legacy_shim_authority(inventory, baseline)
+        preserved_inputs.require_unchanged()
+        review = FilesystemProjectValidationAdapter().documentation_review(root)
+        if review["authority_identity"] != plan["old_authority_identity"]:
+            _fail("plan_stale", "project authority changed during qualification")
+        shim, _ = _readmitted_shim_authority(root, inventory, baseline)
         paths = {
             INVENTORY: _safe_path(root, INVENTORY),
             BASELINE: _safe_path(root, BASELINE),
@@ -832,6 +999,7 @@ def apply_retained_harness_readmission(
             )
             written[review_name] = review_content
             record_project_authority_review(root)
+            preserved_inputs.require_unchanged()
             current_inventory = inspect_harness(implementation)
             current_source_tree = observe_retained_tree(
                 implementation, current_inventory["source_scope"]
