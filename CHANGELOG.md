@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Retain contained external-driver diagnostics through original project and file custody, preserve private or substituted state and original failures, and resolve rebuild fixture authority through canonical project context.
+
 Keep contained POSIX source-admission test copies under their original project, preserve private or replaced files, bound original test processes, and reject scratch overlapping inspected source before allocation.
 
 Stream published README asset digests without a temporary download workspace; bound bytes and diagnostics, preserve exact size checks, and retire original owned process trees.

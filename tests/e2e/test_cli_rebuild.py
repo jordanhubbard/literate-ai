@@ -48,7 +48,7 @@ from literate_ai.contracts.executable_components import (
     LibraryCapabilityImport,
     LibraryImportSurface,
 )
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 
 
 def invoke(*arguments: str) -> tuple[int, dict[str, object]]:
@@ -321,7 +321,10 @@ class RebuildCliTests(unittest.TestCase):
             .replace("__PLANNING_BEHAVIOR__", repr(planning_behavior)),
             encoding="utf-8",
         )
-        manifest_path = project / "literate.project.json"
+        context = ProjectConfigurationStore.context(project)
+        self.assertEqual(context.framework_root, context.root / "litai")
+        self.assertFalse((project / "literate.project.json").exists())
+        manifest_path = context.manifest_path
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         runner_identity = {
             "schema": "urn:literate-ai:schema:v1:content-identity",
@@ -413,10 +416,10 @@ class RebuildCliTests(unittest.TestCase):
                 "timeout_seconds": 30,
             }
         manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-        return project
+        return context.root
 
     def _configure_standard_driver(self, project: Path) -> None:
-        manifest_path = project / "literate.project.json"
+        manifest_path = ProjectConfigurationStore.manifest_path(project)
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         manifest["lifecycle_driver"] = {
             "schema": "urn:literate-ai:schema:v2:project-lifecycle-driver",
@@ -434,7 +437,9 @@ class RebuildCliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             project = self._project(Path(directory))
             self._configure_standard_driver(project)
-            component = project / "samples" / "hello-component"
+            component = ProjectConfigurationStore.context(project).framework_path(
+                "samples/hello-component"
+            )
             with (
                 patch(
                     "literate_ai.cli.rebuild.resolve_standard_project_lifecycle_driver",
@@ -459,14 +464,17 @@ class RebuildCliTests(unittest.TestCase):
                             rebuild_one.call_args.args[3], component.resolve()
                         )
                         self.assertEqual(
-                            rebuild_one.call_args.args[4], "samples/hello-component"
+                            rebuild_one.call_args.args[4],
+                            component.relative_to(project).as_posix(),
                         )
 
     def test_standard_invalid_file_and_symlink_entries_refuse_before_generation(self):
         with tempfile.TemporaryDirectory() as directory:
             project = self._project(Path(directory))
             self._configure_standard_driver(project)
-            component = project / "samples" / "hello-component"
+            component = ProjectConfigurationStore.context(project).framework_path(
+                "samples/hello-component"
+            )
             other = component / "notes.txt"
             other.write_text("not Component authority", encoding="utf-8")
             link = component.parent / "indirect-component"
@@ -476,7 +484,7 @@ class RebuildCliTests(unittest.TestCase):
                     (link, "rebuild.path_unsafe"),
                     (link / "component.md", "rebuild.path_unsafe"),
                     (
-                        Path("samples/indirect-component/component.md"),
+                        (link / "component.md").relative_to(project),
                         "rebuild.path_unsafe",
                     ),
                 )
@@ -516,7 +524,9 @@ class RebuildCliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             project = self._project(Path(directory))
             self._configure_standard_driver(project)
-            component = project / "samples" / "empty-component"
+            component = ProjectConfigurationStore.context(project).framework_path(
+                "samples/empty-component"
+            )
             component.mkdir()
             with (
                 patch(
@@ -610,12 +620,12 @@ class RebuildCliTests(unittest.TestCase):
                     lambda distribution=distribution: distribution,
                     lambda policy=policy: policy,
                 )
-                manifest_path = project_root / "literate.project.json"
+                manifest_path = ProjectConfigurationStore.manifest_path(project_root)
                 manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
                 manifest["lifecycle_driver"] = driver.to_dict()
                 manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
                 project = load_project(project_root)
-                component = project_root / "samples" / "hello-component"
+                component = project.framework_root / "samples" / "hello-component"
                 # Result projection consumes a completed, already accepted graph.
                 revision = canonical_identity({"product": product})
                 entrypoints = tuple(

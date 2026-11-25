@@ -26585,6 +26585,35 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original external-driver diagnostic retention (source partial):** The
+  actual loaded receiving project, original framework/manifest and persistent build
+  parent are bound before driver launch. No lifecycle mutex crosses the external
+  driver. A fresh exclusive creator retains the complete selected diagnostic under
+  the contained build parent, outside disposable runtime output; actual descriptor
+  readback closes exact size/digest and native postimages before reporting. Existing
+  ledger metadata points to that original file using its observed size/digest
+  instead of creating another log copy. Unknown neighbors, competing exclusive
+  creators and substituted files/parents are preserved. Changed project authority,
+  partial writes and metadata/reporting failures remain best effort and keep the
+  original driver rejection and excerpt; unavailable contained custody never gains
+  a global-temp fallback. Capture handles are scope/process/thread bound; copied
+  or expired handles cannot supply another writer. The original real failing-driver
+  baseline consumed its complete log beyond runtime cleanup but reproduced host
+  scratch placement. Thirteen local configured-driver/file controls exercise
+  retention, physical faults, native substitutions, source drift, timeout, standalone
+  lock compatibility and ledger continuity. Fixture project/driver setup and local
+  process execution provide no installed/public full-lifecycle or supported-platform
+  qualification. Opaque/framework legacy routes remain explicit and unqualified.
+  Complete native Windows and every original producer/lifecycle/source-parent/
+  whole-project/migration/history/interruption/recovery/concurrency/installed/
+  supported-platform/full-source/independent-review and protected release acceptance
+  remain open. Existing rebuild CLI fixtures now select the actual framework
+  manifest/sample coordinates through the shared project context, assert contained
+  default authority without a duplicate root manifest, and keep application driver,
+  runtime and declared receipt paths rooted in the application. Their accepted
+  lifecycle/product results retain explicit supplied native/Standard fixture facts;
+  this compatibility cohort is not installed or full native lifecycle acceptance.
+
 - **Original source-admission verifier custody (source partial):** Admission
   now carries its actual receiving LoadedProject into the verifier before workspace
   allocation. On the contained POSIX path the original inspection/native owner
