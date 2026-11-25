@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Stage retained publisher upload files under their original contained project with exclusive copy-descriptor custody and sealed read-only handoff; preserve private/replaced state and original consumer failures.
+
 - Pin original atomic release file creators through verified replacement and exact cleanup, retain foreign or unverified state, and join file/rollback writes to isolated Git worktree custody. Correct unsupported automatic-advancement claims; publisher integration remains open.
 
 - Track original backport checkout and Git administration outputs at actual process completion; retain private, ignored or replaced state and original conflict errors when cleanup refuses, while retiring unchanged owned worktrees.

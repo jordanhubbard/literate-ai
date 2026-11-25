@@ -26585,6 +26585,28 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original retained publisher-file staging (source partial):** The active
+  strict tested-file publisher's `staged_release_file` capture now uses its actual
+  contained receiving project's inspection/evidence stage. Original exclusive
+  copy descriptors close read-only postimages before sealing and handoff. Bounded
+  source reads retain exact size/digest checks and close original source identity/
+  metadata observations before consumption. Unknown private state, equal-byte
+  replacement and original consumer rejection retain exact state and prevent
+  enclosing runtime cleanup; original copy failures preserve their exception and
+  retire only owned partial data. Standalone use freshly loads its actual receiver;
+  a foreign active runtime cannot supply the stage. The real baseline consumed
+  matching bytes but reproduced ambient upload-copy placement. Eight actual
+  file/native-reader controls cover the original copy, failures and retirement.
+  Existing artifact/release and local CI-selection/promotion fixtures preserve
+  caller contracts; provider and foreign-job facts remain explicit supplied data,
+  with no actual worker/provider action or platform qualification. Framework/
+  legacy host-scratch routes remain explicit and unqualified. Complete canonical
+  contained-publication/installed/native-platform/full-source/independent-review
+  and every original producer/lifecycle/source-parent/whole-project/migration/
+  history/interruption/recovery/concurrency/protected release requirement remain
+  open. Standalone SDK validators without a receiving context remain separately
+  classified; inspected read-only source never supplies implicit write ownership.
+
 - **Original atomic writer/default helper custody (source partial):** Actual
   release file replacement now pins the original exclusive creator through write
   closure, bounded full-payload verification, exact rename and postimage checks.
