@@ -26575,6 +26575,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Live Windows producer metadata (source/API-model partial):** The cleanup
+  census now uses only READ_ATTRIBUTES handles compatible with still-live writable
+  cache/runtime controls. Original ancestor pins, before/after metadata signatures,
+  a second named native-identity probe, checked metadata-handle closure and closing
+  census remain required. Payload readers and DELETE handles retain restrictive
+  sharing; the actual runtime owner still spans evidence publication. The existing
+  full contained receiver/archive/import/ACK journey now runs under a sharing-aware
+  Windows API model that observes its real writable descriptors. Its original
+  deny-write metadata reader reproduced the conflict during intent capture; the new
+  cursor admits stable metadata while actual mutation, native-name replacement and
+  close failure refuse. Producer capture failures retain original workspaces and a
+  structured diagnostic. These source/API-model controls use POSIX execution,
+  rename/locking and declared rebuild/probe ports; they supply no actual Windows
+  acceptance. Native Windows, installed supported-platform and complete transfer
+  qualification remain required with staging disposal, remaining containment,
+  complete project/source-parent ownership and every original release gate.
+
 - **Windows handle disposal (source/API-model partial):** Captured regular files,
   empty directories and the exact original cleanup ticket now retire through a
   reparse-aware native DELETE/READ_ATTRIBUTES handle under original parent custody.
@@ -26589,14 +26606,10 @@ implementation, policy weakening, qualification or issue closure is recorded her
   after a close failure. It uses POSIX rename/lock substrate and supplies no native
   Windows acceptance. Existing local receiver/import/ACK, POSIX recovery, archive
   and terminal lease controls remain green: 84 distinct source checks plus static
-  gates, with no skips/failures. Actual Windows and installed qualification remain
-  required. **Next required integration fix:** the full producer census can meet
-  still-live writable cache/runtime lock files; its current native metadata reader
-  denies write sharing. Add metadata-only READ_ATTRIBUTES observation compatible
-  with those original live writers, retaining closing native census checks and the
-  original owner through publication. Do not relax payload readers/deletion handles
-  or retire runtime ownership early to avoid the conflict. Then continue staging
-  disposal, remaining containment and the full original release acceptance.
+  gates, with no skips/failures. The producer-metadata increment above now covers
+  the live-writer join in its explicit API model. Actual Windows and installed
+  qualification remain required with staging disposal, remaining containment and
+  the full original release acceptance.
 
 - **Producer-bound native cleanup (POSIX source partial):** Deferred attempts now
   retain their actual creation observations in original live native root owners

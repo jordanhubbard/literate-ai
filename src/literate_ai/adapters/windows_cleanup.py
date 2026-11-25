@@ -8,8 +8,11 @@ from __future__ import annotations
 
 import ctypes
 import stat
+from contextlib import contextmanager
 
-from .evidence_files import _name, _WindowsAccess
+from literate_ai._filesystem import stat_is_link_or_reparse
+
+from .evidence_files import _name, _signature, _WindowsAccess
 
 _EPOCH = 116444736000000000
 _DELETE_READ_ATTRIBUTES = 0x00010080
@@ -21,6 +24,62 @@ _DISPOSITION = 0x17
 
 class WindowsCleanupError(ValueError):
     pass
+
+
+class _WindowsMetadataAccess(_WindowsAccess):
+    """Cleanup-only metadata; original payload opens remain deny-write readers.
+
+    Actual runtime/cache control writers stay live through publication. Attribute
+    queries share those existing handles without acquiring FILE_READ_DATA. Exact
+    native names/signatures and closing census still constrain the observation.
+    """
+
+    @contextmanager
+    def _metadata_handle(self, path):
+        handle = self.kernel._create_file(
+            str(path), 0x80, 7, None, 3, _OPEN_REPARSE_BACKUP, None
+        )
+        if not handle or handle == self.kernel._invalid_handle:
+            raise OSError(
+                self.kernel._ctypes.get_last_error(),
+                "native cleanup READ_ATTRIBUTES open refused",
+            )
+        primary = None
+        try:
+            yield handle
+        except BaseException as error:
+            primary = error
+            raise
+        finally:
+            if not self.kernel._close_handle(handle):
+                error = OSError(
+                    self.kernel._ctypes.get_last_error(),
+                    "native cleanup metadata handle close failed",
+                )
+                if primary is None:
+                    raise error
+                primary.add_note(str(error))
+
+    def metadata(self, parts):
+        parent = self.directory(parts[:-1])
+        path = parent / parts[-1]
+        before = path.lstat()
+        if stat_is_link_or_reparse(before) or not (
+            stat.S_ISDIR(before.st_mode) or stat.S_ISREG(before.st_mode)
+        ):
+            raise WindowsCleanupError("cleanup metadata entry is redirected or special")
+        with self._metadata_handle(path) as handle:
+            native = self.kernel.file_identity(handle)
+            node = path.lstat()
+            if stat_is_link_or_reparse(node) or _signature(node) != _signature(before):
+                raise WindowsCleanupError("cleanup metadata changed during observation")
+            # These queries permit existing writers/deleters; separately compare
+            # the current native name to the exact original held handle.
+            with self._metadata_handle(path) as named:
+                if self.kernel.file_identity(named) != native:
+                    raise WindowsCleanupError("cleanup metadata native name changed")
+            self.current(parts[:-1])
+            return node, native
 
 
 class _WindowsDeletion:

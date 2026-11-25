@@ -656,12 +656,19 @@ def _write_remote_evidence(
                     _file_identity(package),
                 )
             )
-        cleanup_intent = capture_cleanup_intent(
-            cleanup_roots,
-            request_identity=request.identity,
-            cleanup_token=cleanup_token,
-            ticket=cleanup_ticket,
-        )
+        try:
+            cleanup_intent = capture_cleanup_intent(
+                cleanup_roots,
+                request_identity=request.identity,
+                cleanup_token=cleanup_token,
+                ticket=cleanup_ticket,
+            )
+        except (ValueError, OSError, RuntimeError) as exc:
+            raise RemoteExecutionError(
+                "execution.remote_cleanup_custody_invalid",
+                "producer native cleanup capture refused; workspaces retained: "
+                + _redact_diagnostic(exc),
+            ) from exc
         cleanup_bytes = canonical_json_bytes(cleanup_intent)
         cleanup_path = staging.joinpath(*INTENT_PATH.split("/"))
         cleanup_path.write_bytes(cleanup_bytes)

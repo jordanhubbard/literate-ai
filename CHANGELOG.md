@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework cleanup metadata now coexists with original live Windows runtime/cache writers using attribute-only native queries. Payload reads and deletion remain restrictive; changed names/metadata and failed closes refuse. The original receiver/import/ACK API-model journey and producer-refusal controls pass; actual native Windows and release qualification remain open.
+
 - Framework captured-entry and cleanup-ticket disposal now has a Windows native-handle implementation with checked identity, extended disposition and handle closure. Readonly hardlink peers keep their attributes. Local API-model controls pass; producer live-lock metadata integration and actual native Windows qualification remain required.
 
 - Framework deferred evidence cleanup now binds POSIX retirement to the exact manifest, original native roots and a private recovery journal. Legacy path-only tickets and replaced/private entries refuse; interrupted cleanup resumes from empty original-directory anchors. Native Windows cleanup remains unavailable pending its native owner and qualification.

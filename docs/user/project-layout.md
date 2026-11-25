@@ -205,8 +205,9 @@ anchor. Added/replaced entries and legacy path-only tickets refuse. Repeated ACK
 revalidate original emptiness. Windows entry/ticket disposal now uses verified
 native handles and extended disposition without changing readonly hardlink peers.
 Unsupported operations preserve recovery state. This implementation has local API
-model coverage; the producer's live-lock metadata sharing still needs integration,
-and actual native Windows acceptance remains unproven. Staging disposal, immediate
+model coverage. Producer metadata queries coexist with original live control writers
+without granting payload reads; mutation and changed native identities refuse.
+Actual native Windows acceptance remains unproven. Staging disposal, immediate
 cleanup and full installed/supported-platform transfer qualification remain open.
 
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,

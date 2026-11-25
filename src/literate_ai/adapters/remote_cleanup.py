@@ -13,7 +13,7 @@ import os
 import stat
 import uuid
 import weakref
-from contextlib import contextmanager
+from contextlib import ExitStack, contextmanager
 from pathlib import Path
 
 from literate_ai._cache_lock import exclusive_cache_lock
@@ -28,12 +28,14 @@ from literate_ai.contracts import (
 from .evidence_archive import _ArchiveBytes, _link, _unlink_owned
 from .evidence_files import (
     _CHUNK,
-    _access,
     _descriptor_identity,
     _name,
     _PosixAccess,
     _signature,
     _WindowsAccess,
+)
+from .evidence_files import (
+    _access as _evidence_access,
 )
 from .exclusive_entry import layout_entry_node, move_layout_entry_exclusive
 
@@ -60,6 +62,21 @@ def _path(raw):
     if not path.is_absolute() or ".." in path.parts or str(path) != raw:
         _fail("direct absolute coordinate required")
     return path
+
+
+@contextmanager
+def _access(root):
+    root = _path(str(root))
+    if os.name != "nt":
+        with _evidence_access(root) as access:
+            yield access
+        return
+    from .windows_cleanup import _WindowsMetadataAccess
+
+    with ExitStack() as stack:
+        access = _WindowsMetadataAccess(root, stack)
+        yield access
+        access.current()
 
 
 def _facts(node, native):
