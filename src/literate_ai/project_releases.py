@@ -5206,21 +5206,59 @@ def _qualify_release_files(
     return result
 
 
+def _run_release_asset_download(root: Path, command: list[str]):
+    from .adapters.retained_execution_workspace import native_diagnostics_directory
+
+    if native_diagnostics_directory(root) is None:
+        subprocess.run(command, cwd=root, check=True, capture_output=True, timeout=300)
+        return
+    from .adapters.builders import run_bounded_process
+    from .adapters.builders.python import BuildError
+
+    try:
+        result = run_bounded_process(
+            command,
+            cwd=root,
+            environment=dict(os.environ),
+            timeout_seconds=300,
+            stdout_limit_bytes=4 * 1024 * 1024,
+            stderr_limit_bytes=4 * 1024 * 1024,
+            error_prefix="release.asset_download",
+        )
+    except BuildError as error:
+        raise ProjectReleaseError(
+            "release.published_artifact_mismatch",
+            "qualified asset download process failed",
+        ) from error
+    if result.returncode != 0:
+        raise ProjectReleaseError(
+            "release.published_artifact_mismatch",
+            f"qualified asset download exited with status {result.returncode}",
+        )
+
+
 def _verify_release_file_assets(
     root: Path,
     repository: str,
     tag: str,
     artifacts: dict[str, Any],
 ) -> None:
-    import tempfile
-
+    from literate_ai._filesystem import path_is_link_or_reparse
     from literate_ai.release_files import file_identity
+
+    from .adapters.retained_execution_workspace import native_diagnostics_directory
 
     for item in artifacts["files"]:
         name = Path(item["path"]).name
-        with tempfile.TemporaryDirectory(prefix="litai-asset-verify-") as directory:
+        with _release_native_workspace(
+            root,
+            _release_build_root(root),
+            prefix="litai-asset-verify-",
+            failure_code="release.asset_staging_unavailable",
+        ) as directory:
             try:
-                subprocess.run(
+                _run_release_asset_download(
+                    root,
                     [
                         "gh",
                         "release",
@@ -5231,22 +5269,23 @@ def _verify_release_file_assets(
                         "--pattern",
                         name,
                         "--dir",
-                        directory,
+                        str(directory),
                     ],
-                    cwd=root,
-                    check=True,
-                    capture_output=True,
-                    timeout=300,
                 )
-                downloaded = Path(directory) / name
+                # The actual process owner closes output before Python callbacks.
+                # Recheck those original postimages before reading any asset.
+                native_diagnostics_directory(root)
+                downloaded = directory / name
                 if (
-                    downloaded.is_symlink()
+                    path_is_link_or_reparse(downloaded)
+                    or not downloaded.is_file()
                     or downloaded.stat().st_size != item["size"]
                     or file_identity(downloaded) != item["identity"]
                 ):
                     raise ValueError(
                         "published release file differs from qualified bytes"
                     )
+                native_diagnostics_directory(root)
             except (OSError, ValueError, subprocess.SubprocessError) as exc:
                 raise ProjectReleaseError(
                     "release.published_artifact_mismatch",
@@ -5255,12 +5294,14 @@ def _verify_release_file_assets(
 
 
 @contextmanager
-def _wheel_build_workspace(root: Path, output_root: Path):
+def _release_native_workspace(
+    root: Path, output_root: Path, *, prefix: str, failure_code: str
+):
     import tempfile
 
     context = ProjectConfigurationStore.context(root)
     if context.framework_root == context.root:
-        with tempfile.TemporaryDirectory(prefix="litai-wheel-") as directory:
+        with tempfile.TemporaryDirectory(prefix=prefix) as directory:
             yield Path(directory)
         return
     from .adapters.project_runtime import (
@@ -5272,20 +5313,29 @@ def _wheel_build_workspace(root: Path, output_root: Path):
         selected = _project_for_artifact_store(output_root)
         if selected is None or selected.root != context.root:
             raise ProjectReleaseError(
-                "release.wheel_staging_unavailable",
-                "wheel workspace belongs to another original project",
+                failure_code,
+                "release workspace belongs to another original project",
             )
-        with project_compiler_workspace(
-            output_root, root, prefix="litai-wheel-"
-        ) as directory:
+        with project_compiler_workspace(output_root, root, prefix=prefix) as directory:
             yield directory
     except ProjectReleaseError:
         raise
     except (OSError, ValueError, RuntimeError) as error:
         raise ProjectReleaseError(
-            "release.wheel_staging_unavailable",
-            "original wheel staging custody refused; retained state may remain",
+            failure_code,
+            "original release staging custody refused; retained state may remain",
         ) from error
+
+
+@contextmanager
+def _wheel_build_workspace(root: Path, output_root: Path):
+    with _release_native_workspace(
+        root,
+        output_root,
+        prefix="litai-wheel-",
+        failure_code="release.wheel_staging_unavailable",
+    ) as directory:
+        yield directory
 
 
 def _run_wheel_packaging(root: Path, wheel_dir: Path):

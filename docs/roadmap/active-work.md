@@ -26585,6 +26585,27 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original release-asset readback (source partial):** Asset downloads and
+  wheel builds now share actual original contained native workspace admission,
+  with separate typed staging failures and unchanged wheel entry points. The
+  original bounded downloader process closes native output postimages and its
+  owned process group before caller callbacks. Verify original native namespace
+  before and after the retained size/SHA-256 readback checks; links/reparse or
+  non-file outputs refuse. Unknown private state and equal-byte replacements
+  survive closing refusal and parent runtime cleanup. Original process/mismatch
+  errors retain priority over conflicting disposal; deadline errors keep the
+  actual bounded-runner cause. Standalone use freshly loads the actual project;
+  foreign active runtimes refuse before launching any downloader. The baseline
+  ran a local downloader and verified its bytes but reproduced ambient scratch.
+  Native fixture controls now execute real local downloader children with real
+  files, failures, timeout, digest mismatch and private/replacement controls.
+  Only the transport is a supplied fixture; no HTTP, credentials or actual GitHub
+  service is involved. Shared wheel and existing local Git release controls stay
+  required. Framework/legacy/Windows native scratch routes remain explicit and
+  unqualified. Complete installed/provider/native-platform/producer/lifecycle/
+  migration/history/concurrency/full-source/independent review and protected
+  release acceptance remain open.
+
 - **Original release-note materialization (source partial):** Both original
   GitHub publication paths now materialize their actual UTF-8 notes through the
   original contained project's inspection/evidence stage. Exclusive native file

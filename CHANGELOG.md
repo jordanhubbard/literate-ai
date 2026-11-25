@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Contain release-asset readback in original project native staging with bounded downloader processes, retained size/digest verification and preservation of conflicting private or replaced output.
+
 - Stage both original GitHub release-note files under contained project custody, preserving UTF-8 bytes, original consumer errors and foreign state when disposal is refused.
 
 - Preserve unknown wheel outputs and prior builds with fresh contained artifact directories, verified creator-FD copies and atomic no-replace publication; retain failed partials and conflicting state.
