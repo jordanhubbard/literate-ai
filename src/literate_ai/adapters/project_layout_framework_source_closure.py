@@ -229,6 +229,9 @@ def close_component_source(root, journal, intent, component, lease, namespace):
         _fail("source closing needs qualified native rename-compatible control handles")
     from literate_ai.adapters import project_layout_framework_transaction as framework
 
+    source = component["source_root"] + "/component.md"
+    if intent["entries"][source]["owner"] == "recorded-converter-file":
+        _fail("retained application directory requires control-only source closure")
     record = _expected(root, journal, intent, component)
     source, archive, path = _paths(root, journal, record)
     if os.path.lexists(path):

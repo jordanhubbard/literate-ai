@@ -251,8 +251,12 @@ def _guard_intent(root, journal, intent):
         ):
             _fail("framework journal marker changed")
     from literate_ai.adapters import project_layout_framework_source_closure as closing
+    from literate_ai.adapters import (
+        project_layout_framework_source_controls as controls,
+    )
 
     source_locations = closing.locations(root, journal, intent)
+    control_locations = controls.locations(root, journal, intent)
     for coordinate, node in intent["original_directories"].items():
         if (
             list(directory_node(closing.resolve(root, coordinate, source_locations)))
@@ -281,7 +285,11 @@ def _guard_intent(root, journal, intent):
     native._coordination_states(root, journal, intent)
     for path, row in intent["source_coordination"].items():
         if not native._coord_matches(
-            native._coordination_view(closing.resolve(root, path, source_locations)),
+            native._coordination_view(
+                control_locations.get(
+                    path, closing.resolve(root, path, source_locations)
+                )
+            ),
             row,
         ):
             _fail("original source coordination inode changed")
@@ -693,7 +701,11 @@ def recover_framework_authority(root, expected):
         from literate_ai.adapters.project_layout_framework_source_closure import (
             restore_sources,
         )
+        from literate_ai.adapters.project_layout_framework_source_controls import (
+            restore_source_controls,
+        )
 
+        restore_source_controls(root, journal, intent, lease, namespace)
         restore_sources(root, journal, intent, lease, namespace)
         _current(root, journal, intent, lease, namespace)
         already_original = (

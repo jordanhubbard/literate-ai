@@ -26575,6 +26575,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Recorded wrapper source controls (partial):** Finalization archives only the
+  original control files in a separate versioned native journal. The application
+  directory and retained implementation stay in place, including private files
+  that the closer never opens. Original framework intent remains immutable;
+  recovery restores exact control inodes before normal Component fences. Separate
+  Root leases revalidate actual destination owners and original data custody.
+  Local POSIX source controls cover repeated finalization/recovery, old-store
+  refusal before a creating open, equal-byte foreign-inode refusal and a new
+  source Git boundary. Process-interruption, renewed-target composition and
+  supported-platform qualification remain separate acceptance work. Full project
+  containment and release qualification remain open.
+
 - **Recorded wrapper normal producers (partial):** Destination admission now
   accepts the genuine recorded-wrapper transition through the same original
   factory, prepared-target, catalog and native-history checks. A real normal

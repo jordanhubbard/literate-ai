@@ -14,6 +14,7 @@ from literate_ai.adapters import component_lock_operations as operations
 from literate_ai.adapters import project_layout_continuation as native
 from literate_ai.adapters import project_layout_framework_renewal as renewal
 from literate_ai.adapters import project_layout_framework_source_closure as closing
+from literate_ai.adapters import project_layout_framework_source_controls as controls
 from literate_ai.adapters import project_layout_framework_transaction as framework
 from literate_ai.adapters import project_layout_migration as filesystem
 from literate_ai.adapters.component_lock_planning import FilesystemComponentLockPlanner
@@ -37,6 +38,7 @@ def _bind_original_finalizer():
             "native",
             "renewal",
             "closing",
+            "controls",
             "framework",
             "filesystem",
             "FilesystemComponentLockPlanner",
@@ -71,6 +73,39 @@ def _bind_original_finalizer():
                     "_residual",
                     "_paths",
                     "_expected",
+                ),
+            ),
+            (
+                controls,
+                (
+                    "close_source_controls",
+                    "restore_source_controls",
+                    "is_recorded",
+                    "records",
+                    "locations",
+                    "_expected",
+                    "_path",
+                    "_stage",
+                    "_held",
+                    "_move",
+                    "_fail",
+                    "native",
+                    "filesystem",
+                    "physical",
+                    "os",
+                    "json",
+                    "tempfile",
+                    "Path",
+                    "directory_node",
+                    "require_layout_lease",
+                    "canonical_identity",
+                    "canonical_json_bytes",
+                    "move_file_between_owned_parents_exclusive",
+                    "publish_directory_between_owned_parents_exclusive",
+                    "_acquire",
+                    "_release",
+                    "_SCHEMA",
+                    "_CLOSED",
                 ),
             ),
             (
@@ -248,19 +283,35 @@ def _bind_original_finalizer():
             # takes separate original data-control handles and never unlinks them.
             for component in intent["components"]:
                 _normal_current(root, journal, intent, lease, namespace)
-                closing.close_component_source(
-                    root, journal, intent, component, lease, namespace
-                )
+                if controls.is_recorded(intent, component):
+                    controls.close_source_controls(
+                        root, journal, intent, component, lease, namespace
+                    )
+                else:
+                    closing.close_component_source(
+                        root, journal, intent, component, lease, namespace
+                    )
                 _views(root, journal, intent, lease, namespace)
             reports = _normal_current(root, journal, intent, lease, namespace)
             closed = closing.records(root, journal, intent)
-            if len(closed) != len(intent["components"]) or any(
-                not archived for _, _, archived in closed
+            control_records = controls.records(root, journal, intent)
+            closed_names = {record["source_root"] for record, _, _ in closed}
+            control_names = {record["source_root"] for record, _, _ in control_records}
+            if (
+                closed_names & control_names
+                or closed_names | control_names
+                != {row["source_root"] for row in intent["components"]}
+                or any(not archived for _, _, archived in closed)
+                or any(
+                    not archived
+                    for _, _, rows in control_records
+                    for _, _, archived in rows
+                )
             ):
                 _fail("original Component source namespace remains live")
             return {
                 "components_finalized": True,
-                "closed_components": [record["source_root"] for record, _, _ in closed],
+                "closed_components": sorted(closed_names | control_names),
                 "normal_producers": reports,
                 "full_containment": False,
                 "qualification": False,

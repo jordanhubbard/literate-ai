@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Archive original recorded-wrapper control files separately from retained application directories, preserving native inode custody and restoring controls before ordinary rollback fences.
+
 - Admit genuine recorded-wrapper targets through normal Component destination checks and renewal; exercise actual typed target capture, deliberate local Flavor renewal and exact history rollback.
 
 - Expose acknowledged framework-authority plan/apply/recovery through the public layout CLI, including exact-journal recovery while the manifest is backed up and refusal of mixed placement scopes.
