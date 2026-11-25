@@ -19,8 +19,8 @@ from pathlib import Path
 from literate_ai._filesystem import ensure_safe_directory
 from literate_ai.projects import ProjectConfigurationStore
 
-from .evidence_files import _native_access
-from .evidence_staging import _entry, _root
+from .evidence_files import _descriptor_identity, _native_access
+from .evidence_staging import _entry, _root, _value
 from .remote_cleanup import _access
 
 _CURRENT = ContextVar("release_worktree_custody", default=None)
@@ -82,12 +82,23 @@ def _census(path):
 class _Owner:
     @_custody_boundary
     def __init__(
-        self, root, parent, common, admin_parent, path, name, reference, run_git
+        self,
+        root,
+        parent,
+        common,
+        admin_parent,
+        path,
+        name,
+        reference,
+        run_git,
+        detached,
     ):
         self.root, self.parent, self.common = root, parent, common
         self.admin_parent, self.path = admin_parent, path
         self.worktree, self.admin = path / name, admin_parent.root / name
         self.reference, self.run_git = reference, run_git
+        self.detached = detached
+        self.writing = False
         self.process, self.thread = os.getpid(), threading.get_ident()
         self.root_node = _root(root)
         self.parent_node, self.common_node = _root(parent), _root(common)
@@ -150,7 +161,7 @@ class _Owner:
 
     def known(self):
         self.current()
-        if self.broken or self.running or self.snapshot() != self.nodes:
+        if self.broken or self.running or self.writing or self.snapshot() != self.nodes:
             _fail("unfinished or foreign native state; retained")
 
     def start(self, args):
@@ -160,12 +171,27 @@ class _Owner:
         selected = Path(args[2])
         if selected not in (self.root.root, self.worktree):
             _fail("command differs from original source/checkout")
-        if selected == self.root.root and tuple(args[3:]) not in (
-            ("worktree", "add", str(self.worktree), self.reference),
+        operation = tuple(args[3:])
+        # Keep the exact original argv; normalize only the finite read-safety
+        # prefix emitted by the release owner's strict observation scope.
+        while operation and operation[0] in (
+            "--no-optional-locks",
+            "--no-replace-objects",
+            "--no-lazy-fetch",
+        ):
+            operation = operation[1:]
+        if selected == self.root.root and operation not in (
+            (
+                "worktree",
+                "add",
+                *(("--detach",) if self.detached else ()),
+                str(self.worktree),
+                self.reference,
+            ),
             ("worktree", "remove", "--force", str(self.worktree)),
         ):
             _fail("unexpected source-repository mutation")
-        self.removing = selected == self.root.root and tuple(args[3:]) == (
+        self.removing = selected == self.root.root and operation == (
             "worktree",
             "remove",
             "--force",
@@ -231,6 +257,69 @@ class _Owner:
         self.running = False
 
 
+class _AtomicWrite:
+    def __init__(self, owner, path):
+        owner.known()
+        if (
+            not path.is_relative_to(owner.worktree)
+            or path.relative_to(owner.worktree).parts[0] == ".git"
+        ):
+            _fail("atomic writer differs from original checkout")
+        self.owner, self.path = owner, path
+        self.parts = path.relative_to(owner.path).parts
+        self.temporary = None
+        owner.writing = True
+
+    def before_publish(self, temporary, descriptor, access):
+        owner = self.owner
+        owner.current()
+        expected = (dict(owner.nodes[0]), owner.nodes[1])
+        self.temporary = temporary.relative_to(owner.path).parts
+        value = _value(os.fstat(descriptor), _descriptor_identity(access, descriptor))
+        if _entry(access, (temporary.name,)) != value:
+            _fail("original atomic creator changed")
+        expected[0][self.temporary] = value
+        if owner.snapshot() != expected:
+            _fail("foreign state during original atomic write; retained")
+
+    def published(self, descriptor, access):
+        owner = self.owner
+        owner.current()
+        if access.root != self.path.parent or self.temporary is None:
+            _fail("original atomic completion required")
+        value = _value(os.fstat(descriptor), _descriptor_identity(access, descriptor))
+        if _entry(access, (self.path.name,)) != value:
+            _fail("original atomic destination changed")
+        expected = (dict(owner.nodes[0]), owner.nodes[1])
+        expected[0][self.parts] = value
+        if owner.snapshot() != expected:
+            _fail("foreign state after original atomic publication; retained")
+        owner.nodes = expected
+
+
+@contextmanager
+def atomic_write_scope(path):
+    owner = _CURRENT.get()
+    if owner is None:
+        yield None
+        return
+    writer = _AtomicWrite(owner, path)
+    try:
+        yield writer
+    except BaseException as error:
+        try:
+            owner.current()
+            if owner.snapshot() != owner.nodes:
+                owner.broken = True
+        except BaseException as failure:
+            owner.broken = True
+            error.add_note("Original atomic scope refused; retained: " + str(failure))
+        raise
+    finally:
+        owner.writing = False
+    owner.known()
+
+
 def begin_command(args):
     owner = _CURRENT.get()
     if owner is not None:
@@ -239,7 +328,7 @@ def begin_command(args):
 
 
 @contextmanager
-def release_git_worktree(root, output_root, reference, run_git):
+def release_git_worktree(root, output_root, reference, run_git, *, detached=False):
     """Create/retire original checkout and finite fresh Git admin output."""
     if _CURRENT.get() is not None:
         _fail("nested release Git creator is unsupported")
@@ -269,11 +358,26 @@ def release_git_worktree(root, output_root, reference, run_git):
         else:
             os.mkdir(path, 0o700)
         owner = _Owner(
-            source, parent, git_common, admin_parent, path, name, reference, run_git
+            source,
+            parent,
+            git_common,
+            admin_parent,
+            path,
+            name,
+            reference,
+            run_git,
+            detached,
         )
         token = _CURRENT.set(owner)
         try:
-            run_git(root, "worktree", "add", str(owner.worktree), reference)
+            run_git(
+                root,
+                "worktree",
+                "add",
+                *(("--detach",) if detached else ()),
+                str(owner.worktree),
+                reference,
+            )
             owner.known()
             if (
                 not owner.commands

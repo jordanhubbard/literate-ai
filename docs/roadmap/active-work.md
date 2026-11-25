@@ -26585,6 +26585,31 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original atomic writer/default helper custody (source partial):** Actual
+  release file replacement now pins the original exclusive creator through write
+  closure, bounded full-payload verification, exact rename and postimage checks.
+  Original destination identity remains current before publication; cleanup only
+  unlinks the exact controlled temp postimage. Foreign temp/destination replacements
+  and unverified changed payloads remain intact, with original physical errors and
+  cleanup notes preserved. A live worktree accepts only the actual created file
+  at its original descriptor boundary; a whole-tree snapshot never adopts unknown
+  entries. Real transaction rollback remains usable inside that owner. The retained
+  isolated default-advancement helper now uses the same original detached Git
+  checkout/admin owner for version/documentation writes and normal cleanup. Real
+  local bare-repository controls advance version/mirrors, skip an ahead branch,
+  preserve the caller checkout and refuse push/cleanup after private state.
+  Strict Git read-safety prefixes remain in actual argv. The baseline reproduced
+  deletion of a foreign temp replacement on original publication failure.
+  Eleven controls exercise actual atomic faults, file consumption and Git effects;
+  source/policy fixture ports are explicit, with no installed or platform claim.
+  Source inspection found no in-repository publication call to the isolated helper,
+  despite older comments claiming automatic advancement. Those comments are corrected.
+  Publisher/default-advance integration and its protected ordering remain open;
+  the public explicit branch-advance command remains a separate actual consumer.
+  Full canonical documentation-authority, original interruption/recovery/concurrency,
+  migration/history/source-parent/whole-project/producer/installed/native-platform/
+  full-source/independent-review and protected release acceptance remain open.
+
 - **Original backport worktree cleanup custody (source partial):** Backports
   now allocate fresh short checkout namespaces below their original framework
   build root. The original Git Popen/process-tree owner closes both the actual
@@ -26609,8 +26634,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   Git/source/files/process ownership execute. No canonical converted-project,
   installed/Linux/Windows/full-source/current-review/release qualification is
   claimed. Windows Job observation is implemented but requires native proof.
-  Default-branch advancement remains open: its original Python version/docs
-  writers must join custody before sharing this actor. Complete original
+  The isolated default helper now joins original Python file creators through
+  this actor; publisher integration and complete acceptance remain open. Original
   producer/lifecycle/source-parent/whole-project/migration/history/concurrency/
   recovery/installed/native-platform/independent review and protected release
   acceptance remain open.

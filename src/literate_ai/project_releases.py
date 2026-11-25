@@ -327,11 +327,10 @@ class ReleasePolicy:
         # declared-scope commit as the version bump (see #55).
         documentation_authority_raw = data.pop("documentation_authority", None)
         # Optional: absent in existing/downstream policies, which stay valid
-        # unchanged (feature is opt-in). When present, publish_release()
-        # automatically advances this branch's version past whichever
-        # release it just published, whenever that release landed on a
-        # different branch -- see advance_default_branch_version()'s
-        # docstring for why this matters.
+        # unchanged. Names the default branch for release placement, ancestry
+        # and explicit version advancement. The retained isolated advancement
+        # helper has no in-repository publisher caller; automatic integration
+        # needs its own acceptance and must not be inferred from this field.
         default_branch_raw = data.pop("default_branch", None)
         contributions_raw = data.pop("contributions", None)
         collateral_raw = data.pop("collateral", None)
@@ -2240,7 +2239,7 @@ def _git_in(
 
 
 @contextmanager
-def _release_backport_worktree(root: Path, reference: str):
+def _release_backport_worktree(root: Path, reference: str, *, detached: bool = False):
     from .adapters.release_worktree_custody import (
         ReleaseWorktreeCustodyError,
         release_git_worktree,
@@ -2248,7 +2247,7 @@ def _release_backport_worktree(root: Path, reference: str):
 
     try:
         with release_git_worktree(
-            root, _release_build_root(root), reference, _git
+            root, _release_build_root(root), reference, _git, detached=detached
         ) as worktree:
             yield worktree
     except ReleaseWorktreeCustodyError as error:
@@ -2482,23 +2481,9 @@ def _render_binding(
 
 
 def _atomic_write_bytes(path: Path, content: bytes) -> None:
-    descriptor, temporary_name = tempfile.mkstemp(
-        prefix=f".{path.name}.release-", dir=path.parent
-    )
-    temporary = Path(temporary_name)
-    try:
-        mode = path.stat().st_mode & 0o777 if path.exists() else 0o644
-        with os.fdopen(descriptor, "wb") as output:
-            fchmod = getattr(os, "fchmod", None)
-            if fchmod is not None:
-                fchmod(output.fileno(), mode)
-            output.write(content)
-            output.flush()
-            os.fsync(output.fileno())
-        os.replace(temporary, path)
-    except Exception:
-        temporary.unlink(missing_ok=True)
-        raise
+    from .adapters.release_atomic_writes import write_release_file
+
+    write_release_file(path, content)
 
 
 def _atomic_write_text(path: Path, text: str) -> None:
@@ -5880,11 +5865,11 @@ def _advance_default_branch_after_publish(
 ) -> dict[str, object] | None:
     """Best-effort: keep the default branch's version ahead of what just shipped.
 
-    Runs automatically at the end of ``publish_release`` whenever the policy
-    declares a ``default_branch`` different from the branch that was just
-    published -- the exact gap that let this repository's own ``main`` sit
-    at an old version through two real releases before this existed (see
-    ``advance_default_branch_version``, the manual equivalent). Isolated in
+    This retained helper has no in-repository publication caller. Its isolated
+    local transition is distinct from the public explicit branch-advance command;
+    wiring it into protected publication requires separate acceptance. When
+    invoked after a release, it targets the policy's different default branch
+    (see ``advance_default_branch_version`` for version-lag context). Isolated in
     a throwaway worktree, never touching the caller's own checkout. Only
     acts when the default branch's own version has not already moved past
     what was just published; when it has, there is nothing to fix. Applies
@@ -5903,76 +5888,71 @@ def _advance_default_branch_after_publish(
     try:
         _git(root, "fetch", policy.remote, policy.default_branch)
         remote_ref = f"{policy.remote}/{policy.default_branch}"
-        with tempfile.TemporaryDirectory(prefix="litai-advance-default-") as tmp:
-            worktree = Path(tmp) / "worktree"
-            _git(root, "worktree", "add", "--detach", str(worktree), remote_ref)
-            try:
-                current_default = current_release_version(worktree, policy)
-                if not _version_at_most(
-                    current_default, published_version, scheme=policy.version_scheme
-                ):
-                    return {
-                        "branch": policy.default_branch,
-                        "action": "skipped",
-                        "reason": "already ahead of the published version",
-                        "previous_version": current_default,
-                    }
-                next_version = _next_version(
-                    published_version, "patch", None, scheme=policy.version_scheme
-                )
-                rendered = tuple(
-                    _render_binding(
-                        worktree,
-                        binding,
-                        current_default,
-                        next_version,
-                        version_scheme=policy.version_scheme,
-                    )
-                    for binding in (policy.version_authority, *policy.version_mirrors)
-                )
-                _write_transaction(rendered)
-                refreshed_documentation = (
-                    _refresh_documentation_authority(worktree, policy)
-                    if policy.documentation_authority_paths
-                    else ()
-                )
-                changed = sorted(
-                    {
-                        *_version_binding_paths(worktree, policy),
-                        *(
-                            str(path.relative_to(worktree))
-                            for path in refreshed_documentation
-                        ),
-                    }
-                )
-                _git_in(worktree, "add", *changed)
-                _git_in(
-                    worktree,
-                    "commit",
-                    "-m",
-                    f"Advance {policy.default_branch} version to {next_version}\n\n"
-                    f"{published_branch} just published {published_version}; "
-                    f"{policy.default_branch} was still at {current_default}. "
-                    "Automatic post-publish advancement -- see "
-                    "litai release advance-default-branch for a deliberate "
-                    "minor/major bump instead of this default patch step.",
-                )
-                _git_in(
-                    worktree,
-                    "push",
-                    policy.remote,
-                    f"HEAD:refs/heads/{policy.default_branch}",
-                )
-                pushed_revision = _git_in(worktree, "rev-parse", "HEAD").stdout.strip()
+        with _release_backport_worktree(root, remote_ref, detached=True) as worktree:
+            current_default = current_release_version(worktree, policy)
+            if not _version_at_most(
+                current_default, published_version, scheme=policy.version_scheme
+            ):
                 return {
                     "branch": policy.default_branch,
-                    "action": "advanced",
+                    "action": "skipped",
+                    "reason": "already ahead of the published version",
                     "previous_version": current_default,
-                    "next_version": next_version,
-                    "revision": pushed_revision,
                 }
-            finally:
-                _git(root, "worktree", "remove", "--force", str(worktree), check=False)
+            next_version = _next_version(
+                published_version, "patch", None, scheme=policy.version_scheme
+            )
+            rendered = tuple(
+                _render_binding(
+                    worktree,
+                    binding,
+                    current_default,
+                    next_version,
+                    version_scheme=policy.version_scheme,
+                )
+                for binding in (policy.version_authority, *policy.version_mirrors)
+            )
+            _write_transaction(rendered)
+            refreshed_documentation = (
+                _refresh_documentation_authority(worktree, policy)
+                if policy.documentation_authority_paths
+                else ()
+            )
+            changed = sorted(
+                {
+                    *_version_binding_paths(worktree, policy),
+                    *(
+                        str(path.relative_to(worktree))
+                        for path in refreshed_documentation
+                    ),
+                }
+            )
+            _git_in(worktree, "add", *changed)
+            _git_in(
+                worktree,
+                "commit",
+                "-m",
+                f"Advance {policy.default_branch} version to {next_version}\n\n"
+                f"{published_branch} just published {published_version}; "
+                f"{policy.default_branch} was still at {current_default}. "
+                "Automatic post-publish advancement -- see "
+                "litai release advance-default-branch for a deliberate "
+                "minor/major bump instead of this default patch step.",
+            )
+            _git_in(
+                worktree,
+                "push",
+                policy.remote,
+                f"HEAD:refs/heads/{policy.default_branch}",
+            )
+            pushed_revision = _git_in(worktree, "rev-parse", "HEAD").stdout.strip()
+            return {
+                "branch": policy.default_branch,
+                "action": "advanced",
+                "previous_version": current_default,
+                "next_version": next_version,
+                "revision": pushed_revision,
+            }
     except ProjectReleaseError as exc:
         return {
             "branch": policy.default_branch,
