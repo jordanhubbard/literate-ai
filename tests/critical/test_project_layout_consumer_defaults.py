@@ -8,6 +8,7 @@ import subprocess
 import tempfile
 import unittest
 from argparse import Namespace
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
@@ -30,6 +31,20 @@ class ProjectLayoutConsumerDefaultTests(unittest.TestCase):
         )
         self.environment.start()
         self.addCleanup(self.environment.stop)
+        # These tests model packaging/workspace effects only. Real pip and
+        # original native workspace lifetime run in test_contained_release_wheel.
+        workspace = patch.object(
+            release, "_wheel_build_workspace", self.wheel_workspace
+        )
+        workspace.start()
+        self.addCleanup(workspace.stop)
+
+    @staticmethod
+    @contextmanager
+    def wheel_workspace(root, output_root):
+        del root, output_root
+        with tempfile.TemporaryDirectory(prefix="modeled-wheel-") as directory:
+            yield Path(directory)
 
     def project(self, name, *, contained=True, log_dir=None):
         root = self.base / name

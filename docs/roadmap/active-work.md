@@ -26585,6 +26585,31 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original release wheel staging (source partial):** Contained POSIX wheel
+  packaging now uses its actual project's original inspection/native workspace,
+  with a real bounded pip process and original process-group closure before
+  subsequent Python callbacks. A foreign active project cannot supply that
+  workspace. Native backend temporary directories, pip cache and Python bytecode
+  prefix stay under the actual private object root, outside a disposable parent
+  runtime. Closing native postimages are checked before selecting/copying a wheel;
+  replacement links and unknown private state refuse before publication. Original
+  pip failures remain typed release failures and survive disposal conflicts.
+  Original project/framework context and completed-copy refusal behavior remain
+  guarded. The actual baseline built a valid wheel and imported its payload but
+  reproduced ambient backend staging. Eight controls run a real dependency-free
+  PEP517 backend/pip, full ZIP CRC/metadata and payload consumption, actual failed
+  builds, private/replaced state and wrong-project/context refusals. Their pip
+  environment disables index/version checks and user pip configuration; no
+  package dependency install or network is required. Existing consumer-default tests retain explicit
+  modeled packaging/workspace ports and are not native wheel qualification.
+  Framework/legacy and native Windows scratch routes remain explicit/unqualified.
+  Final destination copying retains its preceding contract: existing-output
+  ownership/collision, atomic original publication and recovery still require
+  separate original-publisher proof. No release, installed-platform or generated-
+  product qualification follows from this source fixture. Complete original
+  producer/source-parent/whole-project/migration/history/concurrency/full-source/
+  independent review and protected release acceptance remain open.
+
 - **Original local-adapter build inputs (source partial):** All six original
   Python/C++/Rust/Swift/JavaScript/composite local adapter build sites now issue
   fresh input creation through the actual contained project's inspection stage.

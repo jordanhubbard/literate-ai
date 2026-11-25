@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Stage contained POSIX release wheels through original project/native custody, with bounded pip process closure and contained backend/cache/bytecode paths. Refuse private or replaced staging before copy and preserve original pip/context errors.
+
 - Materialize all six local build adapters through original contained project input staging; preserve exact private or replaced input state, original compiler/materializer failures, and enclosing runtime retention on refused retirement.
 
 - Contain Rust, Go and composite backend compiler output through original project/native workspace custody; close actual process groups before callbacks, stop owned descendants on refusal, and preserve private output and original failures. Avoid repeated pure teardown-facts projection.

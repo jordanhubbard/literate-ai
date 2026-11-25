@@ -13,7 +13,7 @@ import time
 import tomllib
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from contextlib import ExitStack, nullcontext
+from contextlib import ExitStack, contextmanager, nullcontext
 from contextvars import ContextVar, copy_context
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -5254,6 +5254,87 @@ def _verify_release_file_assets(
                 ) from exc
 
 
+@contextmanager
+def _wheel_build_workspace(root: Path, output_root: Path):
+    import tempfile
+
+    context = ProjectConfigurationStore.context(root)
+    if context.framework_root == context.root:
+        with tempfile.TemporaryDirectory(prefix="litai-wheel-") as directory:
+            yield Path(directory)
+        return
+    from .adapters.project_runtime import (
+        _project_for_artifact_store,
+        project_compiler_workspace,
+    )
+
+    try:
+        selected = _project_for_artifact_store(output_root)
+        if selected is None or selected.root != context.root:
+            raise ProjectReleaseError(
+                "release.wheel_staging_unavailable",
+                "wheel workspace belongs to another original project",
+            )
+        with project_compiler_workspace(
+            output_root, root, prefix="litai-wheel-"
+        ) as directory:
+            yield directory
+    except ProjectReleaseError:
+        raise
+    except (OSError, ValueError, RuntimeError) as error:
+        raise ProjectReleaseError(
+            "release.wheel_staging_unavailable",
+            "original wheel staging custody refused; retained state may remain",
+        ) from error
+
+
+def _run_wheel_packaging(root: Path, wheel_dir: Path):
+    from .adapters.retained_execution_workspace import native_diagnostics_directory
+
+    command = [
+        sys.executable,
+        "-m",
+        "pip",
+        "wheel",
+        "--no-deps",
+        "--wheel-dir",
+        str(wheel_dir),
+        str(root),
+    ]
+    workspace = native_diagnostics_directory(root)
+    if workspace is None:
+        subprocess.run(
+            command, cwd=root, check=True, capture_output=True, text=True, timeout=300
+        )
+        return
+    from .adapters.builders import run_bounded_process
+    from .adapters.builders.python import BuildError
+
+    try:
+        result = run_bounded_process(
+            command,
+            cwd=root,
+            environment={
+                **os.environ,
+                "PIP_CACHE_DIR": str(workspace / "pip-cache"),
+                "PYTHONPYCACHEPREFIX": str(workspace / "pycache"),
+            },
+            timeout_seconds=300,
+            stdout_limit_bytes=4 * 1024 * 1024,
+            stderr_limit_bytes=4 * 1024 * 1024,
+            error_prefix="release.wheel_build",
+        )
+    except BuildError as error:
+        raise ProjectReleaseError(
+            "release.wheel_build_failed", "Distribution wheel process failed"
+        ) from error
+    if result.returncode != 0:
+        raise ProjectReleaseError(
+            "release.wheel_build_failed",
+            f"Distribution wheel build exited with status {result.returncode}",
+        )
+
+
 def _build_wheel(root: Path) -> Path | None:
     """Build a distribution wheel from the clean checkout.
 
@@ -5263,7 +5344,6 @@ def _build_wheel(root: Path) -> Path | None:
     a failed release.
     """
     import shutil
-    import tempfile
 
     if not ((root / "pyproject.toml").is_file() or (root / "setup.py").is_file()):
         return None
@@ -5302,30 +5382,18 @@ def _build_wheel(root: Path) -> Path | None:
             "wheel output requires the original safe framework context",
         ) from exc
 
-    with tempfile.TemporaryDirectory(prefix="litai-wheel-") as wheel_dir:
+    with _wheel_build_workspace(root, output_root) as wheel_dir:
         try:
-            subprocess.run(
-                [
-                    sys.executable,
-                    "-m",
-                    "pip",
-                    "wheel",
-                    "--no-deps",
-                    "--wheel-dir",
-                    wheel_dir,
-                    str(root),
-                ],
-                cwd=root,
-                check=True,
-                capture_output=True,
-                text=True,
-                timeout=300,
-            )
+            require_output_current()
+            _run_wheel_packaging(root, wheel_dir)
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as exc:
             raise ProjectReleaseError(
                 "release.wheel_build_failed",
                 f"Distribution wheel build failed: {exc}",
             ) from exc
+        from .adapters.retained_execution_workspace import native_diagnostics_directory
+
+        native_diagnostics_directory(root)
         wheels = list(Path(wheel_dir).glob("*.whl"))
         if len(wheels) != 1:
             raise ProjectReleaseError(
@@ -5333,6 +5401,11 @@ def _build_wheel(root: Path) -> Path | None:
                 f"Expected exactly one wheel, found {len(wheels)}",
             )
         wheel = wheels[0]
+        if path_is_link_or_reparse(wheel) or not wheel.is_file():
+            raise ProjectReleaseError(
+                "release.wheel_build_failed",
+                "wheel producer did not issue a regular file",
+            )
         final = output_root / wheel.name
         try:
             require_output_current()
