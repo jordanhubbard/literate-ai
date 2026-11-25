@@ -282,6 +282,16 @@ def component_mutation_gate(store):
         require_component_mutation_current(store)
 
 
+def original_component_namespace_identity(store):
+    """Return recorded original namespace data without I/O or currentness grants.
+
+    A consumer must join this data to its independently admitted project before
+    opening the physical owner. Planned metadata changes do not rebind a store.
+    """
+    state = _state(store)
+    return state.root, state.root_identity
+
+
 def original_component_physical_binding(store):
     """Live original physical witness for a distinct data-closing owner only."""
     require_component_physical_current(store)

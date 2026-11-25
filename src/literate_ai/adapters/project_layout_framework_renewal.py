@@ -17,7 +17,12 @@ from pathlib import Path
 
 from literate_ai import _atomic_publication as atomic
 from literate_ai.adapters import component_lock_operations as operations
-from literate_ai.adapters import component_locks, component_resolution_audits
+from literate_ai.adapters import (
+    component_locks,
+    component_namespace,
+    component_resolution_audits,
+    project_layout_component_transition,
+)
 from literate_ai.adapters import project_layout_component_destination as destination
 from literate_ai.adapters import project_layout_continuation as native
 from literate_ai.adapters import project_layout_framework_transaction as framework
@@ -34,6 +39,7 @@ from literate_ai.contracts import (
     canonical_json_bytes,
 )
 from literate_ai.contracts.paths import canonical_relative_posix_path
+from literate_ai.projects import ProjectConfigurationSnapshot
 
 _SCHEMA = "literate-ai/project-layout-framework-producer-renewal@1"
 _MARKERS = {
@@ -46,6 +52,9 @@ _CLASSIFY = destination.classify_framework_component_destination
 _OPERATE = operations.operate_component_lock
 _SCOPE = atomic.atomic_publication_scope
 _SCOPED = atomic._scoped_atomic_writer
+_TRANSITION = project_layout_component_transition.require_original_component_transition
+_SOURCE_IDENTITY = component_namespace.original_component_namespace_identity
+_SOURCE_PHYSICAL = component_namespace.original_component_physical_binding
 
 
 def _fail(message):
@@ -461,8 +470,18 @@ def renew_framework_component(
     move = _move
     check()
     planner, target, flavors, flavor_roots = _ADMIT(prepared)
+    _TRANSITION(transition)
+    if type(expected_snapshot) is not ProjectConfigurationSnapshot:
+        _fail("exact original destination snapshot required")
     root = expected_snapshot.root
     require_layout_lease(layout_lease, root)
+    source_namespace = _SOURCE_IDENTITY(transition.original_lock_store)
+    if source_namespace[0] != root / transition.source_root:
+        _fail("original normal Component belongs to a different project Root")
+    # Physical namespace data may span the intentional metadata transition.
+    # This does not invoke retired source/catalog/project-current guards.
+    if _SOURCE_PHYSICAL(transition.original_lock_store) != source_namespace:
+        _fail("original Component physical namespace changed")
     classified = _CLASSIFY(
         transition,
         expected_snapshot,
@@ -517,6 +536,11 @@ def renew_framework_component(
                 _fail("normal producer publication scope is closed")
             check()
             _ADMIT(prepared)
+            _TRANSITION(transition)
+            if _SOURCE_IDENTITY(transition.original_lock_store) != source_namespace:
+                _fail("original Component namespace binding changed")
+            if _SOURCE_PHYSICAL(transition.original_lock_store) != source_namespace:
+                _fail("original Component physical namespace changed")
             _guard(root, journal, record, frame_journal, frame, layout_lease, namespace)
             _ADMIT(prepared)
 
@@ -695,6 +719,21 @@ _ORIGINALS = tuple(
                 "publish_atomic_file_if_scoped",
             ),
         ),
+        (
+            component_namespace,
+            (
+                "original_component_namespace_identity",
+                "original_component_physical_binding",
+                "require_component_physical_current",
+                "_state",
+                "_pointers",
+                "_directory_identity",
+            ),
+        ),
+        (
+            project_layout_component_transition,
+            ("require_original_component_transition",),
+        ),
         (component_locks, ("publish_atomic_file_if_scoped",)),
         (component_resolution_audits, ("publish_atomic_file_if_scoped",)),
         (
@@ -730,6 +769,12 @@ def _bind_original_delegates():
         (name, namespace[name])
         for name in (
             "_ADMIT",
+            "_TRANSITION",
+            "_SOURCE_IDENTITY",
+            "_SOURCE_PHYSICAL",
+            "component_namespace",
+            "project_layout_component_transition",
+            "ProjectConfigurationSnapshot",
             "_CLASSIFY",
             "_OPERATE",
             "_SCOPE",

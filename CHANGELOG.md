@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Refuse cross-project Component renewal before filesystem probes by joining the genuine original store namespace to the acknowledged Root; retain physical custody across planned metadata changes.
+
 - Journal actual normal Component lock/audit publication before native replacement and restore the placed pair before framework rollback, including recovery after process exits at every pair-publication move.
 
 - Bind the scoped metadata publisher and project-read delegate once, preserving their original receiver and scope lifetime across callbacks.
