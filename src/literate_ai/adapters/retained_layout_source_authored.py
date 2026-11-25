@@ -17,6 +17,10 @@ from .conversion_authority import CONVERSION_AUTHORITY_FILE
 from .harness_inventory import HARNESS_WRAPPER_FILENAME
 from .repository_refresh import _file
 from .retained_layout import RETAINED_LAYOUT_PATH
+from .retained_scaffold_coordinates import (
+    retained_scaffold_coordinate,
+    retained_scaffold_path,
+)
 
 _KEY = object()
 _OWNERS = {}
@@ -35,15 +39,16 @@ def _endpoint_names(root, project, layout, lock_path):
     paths = (
         project.manifest.path,
         project.conversion.path,
-        root / _LIFT,
-        root / RETAINED_LAYOUT_PATH,
-        root / HARNESS_WRAPPER_FILENAME,
+        retained_scaffold_path(root, _LIFT),
+        retained_scaffold_path(root, RETAINED_LAYOUT_PATH),
+        retained_scaffold_path(root, HARNESS_WRAPPER_FILENAME),
         layout.wrapper_root / "component.md",
     ) + ((lock_path,) if lock_path.is_relative_to(root) else ())
     if (
         project.root != root
-        or project.manifest.path != root / PROJECT_FILENAME
-        or project.conversion.path != root / CONVERSION_AUTHORITY_FILE
+        or project.manifest.path != retained_scaffold_path(root, PROJECT_FILENAME)
+        or project.conversion.path
+        != retained_scaffold_path(root, CONVERSION_AUTHORITY_FILE)
         or layout.wrapper_root != root / layout.wrapper_component
         or len(set(paths)) != len(paths)
         or any(not path.is_relative_to(root) for path in paths)
@@ -131,8 +136,16 @@ class _Capture:
         }
         if (
             not set(names) <= values.keys()
-            or project.manifest != values[PROJECT_FILENAME]
-            or project.conversion != values[CONVERSION_AUTHORITY_FILE]
+            or project.manifest
+            != values[
+                retained_scaffold_coordinate(self.original.root, PROJECT_FILENAME)
+            ]
+            or project.conversion
+            != values[
+                retained_scaffold_coordinate(
+                    self.original.root, CONVERSION_AUTHORITY_FILE
+                )
+            ]
             or "adoption-shim" not in component.profiles
             or not any(
                 capability.name == "legacy.pipeline"

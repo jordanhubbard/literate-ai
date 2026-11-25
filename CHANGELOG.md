@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Support retained-source movement, metadata publication and fresh harness readmission in default contained projects.
+
 - Resolve retained-layout control files and writer locks through the actual framework directory in default contained projects.
 
 - Contain installed monorepo metadata staging and retain original writer and execution custody through publication and cleanup.

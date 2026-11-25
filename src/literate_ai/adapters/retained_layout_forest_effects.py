@@ -19,6 +19,7 @@ from .exclusive_entry import _from_stat, layout_entry_node
 from .repository_refresh_reservations import _custody_wire
 from .retained_layout_control_publication import _pinned_directory
 from .retained_layout_partition import _lineage
+from .retained_scaffold_coordinates import retained_scaffold_coordinate
 
 
 def _fail(message):
@@ -26,13 +27,10 @@ def _fail(message):
 
 
 def _metadata_allowance(root, private, prospective, inputs, namespace_count):
-    from .retained_layout_transaction import (
-        _LIFT,
-        HARNESS_WRAPPER_FILENAME,
-        RETAINED_LAYOUT_PATH,
-    )
 
-    names = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
+    from .retained_layout_transaction import _metadata_names
+
+    names = _metadata_names(root)
     original = {item.path: item for item in inputs}
     destinations = []
     for index, name in enumerate(names):
@@ -272,7 +270,10 @@ def _prepare(record, metadata_root, retirement_root, span, graph, parking):
         len(body) > ledger.budget.maximum_file_bytes for body in prospective.values()
     ):
         _fail("prospective metadata exceeds original per-file allowance")
-    for name in (_LIFT, RETAINED_LAYOUT_PATH):
+    for name in (
+        retained_scaffold_coordinate(phase.plan.root, _LIFT),
+        retained_scaffold_coordinate(phase.plan.root, RETAINED_LAYOUT_PATH),
+    ):
         reader.json_value(prospective[name], str(phase.plan.root / name))
     maximum_nodes = len(span.roots[0].native) + len(graph.create_directories) + 3
     records, payload, size, steps = _metadata_allowance(

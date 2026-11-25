@@ -29,7 +29,6 @@ from literate_ai.adapters.harness_inventory import (
     execute_harness_baseline,
     execute_harness_wrapper_parity,
     inspect_harness,
-    legacy_shim_authority,
     render_harness_wrapper,
     validate_harness_command_timeout,
 )
@@ -82,6 +81,11 @@ from literate_ai.projects import (
     load_project,
 )
 
+from .retained_scaffold_coordinates import (
+    retained_scaffold_path,
+    retained_shim_authority,
+)
+
 PLAN_SCHEMA = "literate-ai/retained-harness-readmission-plan@1"
 HISTORY = ".literate/retained-harness-readmission"
 INVENTORY = ".literate/harness-inventory.json"
@@ -119,6 +123,14 @@ def _safe_path(root: Path, relative: str, *, must_exist: bool = True) -> Path:
         or any(part in {"", ".", ".."} for part in raw.parts)
     ):
         _fail("unsafe_path", f"metadata path is unsafe: {relative}")
+    # Only these implicit producer coordinates are rebased. Declared document,
+    # shim and source paths retain their application-relative meaning.
+    if raw.parts[0] == ".literate" or relative in {
+        "literate.project.json",
+        HARNESS_WRAPPER_FILENAME,
+    }:
+        relative = retained_scaffold_path(root, relative).relative_to(root).as_posix()
+        raw = PurePosixPath(relative)
     path = root
     for part in raw.parts:
         path = path / part
@@ -450,7 +462,8 @@ def plan_retained_harness_readmission(
         for stage in new_inventory["stages"]
         if stage["id"].split(".", 1)[0] in {"build", "test", "package", "ci"}
     ]
-    shim = legacy_shim_authority(
+    shim = retained_shim_authority(
+        root,
         new_inventory,
         {
             "schema": HARNESS_BASELINE_SCHEMA,
@@ -488,7 +501,7 @@ def plan_retained_harness_readmission(
         relative = path.relative_to(root).as_posix()
         old_documents[relative] = _identity(_safe_path(root, relative).read_bytes())
     if command_renewal is not None:
-        metadata_paths = tuple(root / relative for relative in old_documents)
+        metadata_paths = tuple(_safe_path(root, relative) for relative in old_documents)
         renewal_nodes += tuple((path, _signature(path)) for path in metadata_paths)
         renewal_ancestry += tuple(
             (path, _lineage(path))
@@ -865,7 +878,9 @@ def _current_command_execution_plan(selected, *, command_selection, **options):
         and isinstance(owners[0], dict)
         and owners[0].get("name") == wrapper
     )
-    installed = snapshot.root / ".literate/monorepo-components/installation.json"
+    installed = retained_scaffold_path(
+        snapshot.root, ".literate/monorepo-components/installation.json"
+    )
     refined = not direct_wrapper and os.path.lexists(installed)
     current = (
         _refined_command_execution_plan(
@@ -997,10 +1012,11 @@ def plan_retained_command_renewal_execution(
 def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
     # Capture known native inputs before parsing any layout/history payloads.
     # The final pass below reads no payloads and never accepts resampled facts.
-    ancestry = _lineage(root / ".literate")
+    metadata_root = retained_scaffold_path(root, ".literate")
+    ancestry = _lineage(metadata_root)
     nodes = []
     for relative in (CONVERSION_AUTHORITY_FILE, LIFT_SHIFT, RETAINED_LAYOUT_PATH):
-        path = root / relative
+        path = retained_scaffold_path(root, relative)
         try:
             node = _signature(path)
         except FileNotFoundError:
@@ -1024,7 +1040,7 @@ def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
             != plan["old_documents"][relative]
         ):
             _fail("layout_changed", "retained layout inputs changed during readmission")
-    if _lineage(root / ".literate") != ancestry:
+    if _lineage(metadata_root) != ancestry:
         _fail("layout_changed", "retained layout ancestry changed during readmission")
     # Pending absence is observed after all payload reads, then original known
     # file facts close changes made during that observation. No payload follows.
@@ -1040,7 +1056,7 @@ def _require_layout_current(root: Path, plan: dict[str, Any]) -> None:
                 "layout_changed",
                 "retained layout native inputs changed during readmission",
             )
-    if _lineage(root / ".literate") != ancestry:
+    if _lineage(metadata_root) != ancestry:
         _fail("layout_changed", "retained layout ancestry changed during readmission")
 
 
@@ -1751,8 +1767,8 @@ def apply_retained_harness_readmission(
                     _fail("layout_unqualified", "fresh baseline and parity must pass")
                 baseline["layout_readmission"] = plan["layout_readmission"]
                 parity["layout_readmission"] = plan["layout_readmission"]
-            shim = legacy_shim_authority(
-                inventory, baseline, wrapper_component=plan["wrapper_component"]
+            shim = retained_shim_authority(
+                root, inventory, baseline, wrapper_component=plan["wrapper_component"]
             )
             paths = {
                 INVENTORY: _safe_path(root, INVENTORY),
@@ -1855,8 +1871,13 @@ def apply_retained_harness_readmission(
             )
             publication = ReadmissionPublication.create(
                 root,
-                before=before,
-                writable=tuple(paths),
+                before={
+                    _safe_path(root, name).relative_to(root).as_posix(): content
+                    for name, content in before.items()
+                },
+                writable=tuple(
+                    path.relative_to(root).as_posix() for path in paths.values()
+                ),
                 plan_identity=plan["plan_identity"],
                 maximum_total_bytes=(
                     limits.pinned_input_total_bytes

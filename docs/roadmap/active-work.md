@@ -26575,16 +26575,42 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — default contained transaction and renewal (in progress):** Join
-  retained-layout transaction inputs, prospective publication, authored witness and
-  ordinary source/receipt renewal to actual framework metadata coordinates. Control
-  role discovery now supports the real default converter; downstream consumers
-  still assume root metadata. Preserve application-relative retained-source paths
-  and original source/mode/link/native custody through real movement, publication,
-  finalization and renewal. Then join pre-bootstrap source/quarantine and native
-  execution scratch through their original owners. Complete all other source/cache/
-  runtime/whole-project/source-parent, migrated history and every original installed/
-  platform/native/full-source/review/protected release gate.
+- **Next action — original compatibility and bootstrap custody (in progress):**
+  Complete the current contained/legacy ownership, preparation, finalization and
+  readmission compatibility cohorts, including recovery alongside application-owned
+  metadata aliases. Qualify genuine converted-monorepo refresh and source/provider/
+  whole-project history cases. Then join pre-bootstrap source/quarantine and native
+  execution scratch through their original owners. Complete all remaining source/
+  cache/runtime/whole-project/source-parent, migrated history and original installed/
+  platform/native/full-source/review/protected release requirements.
+
+- **Default contained source movement and renewal (source partial):** Actual
+  retained-layout planning, ordered prospective metadata and canonical publication
+  now share physical framework coordinates. Original metadata readers distinguish
+  those implicit names from declared application-relative Component/source paths.
+  Source movement keeps original bytes, executable mode, hardlink inode topology
+  and symlink text. The full bounded original source owner joins its original
+  authored witnesses, native framework roles, journal allowance, movement,
+  publication, finalization and descriptor teardown without replacing its ledger.
+  Initializer ownership uses the real finite placement projection and original
+  manifest/checkpoint profile; it cannot adopt arbitrary directory contents.
+  The actual canonical contained manifest is the same authored project, while other
+  nested project candidates still require their registered owner. Shim rendering
+  uses original logical templates projected through that same finite producer.
+  Ordinary readmission executes real baseline/parity commands, publishes fresh
+  receipts, renews the current Component lock and becomes current at the new path;
+  no historical positive is rewritten. Native publication/history/active state and
+  manifest writer permissions use the selected framework directory. An interrupted
+  invalid contained manifest can be reopened without parsing it and rolled back
+  under its ordinary mutex to the exact original inode. Seven new default-converter
+  journeys, 18 original publication-owner controls and 15 layout controls pass
+  40 checks without failures/skips plus static gates. Initializer fixtures
+  retain their explicit root-parent/Standard-binding seams; commands are real
+  stdlib retained-harness execution, not generated product/compiler/model proof.
+  Broader current compatibility cohorts and application-alias recovery are next.
+  Public whole-project migration, pre-bootstrap/native execution scratch, installed
+  Linux/macOS/Windows, inherited/source-parent histories, independent review and
+  all original release acceptance remain open.
 
 - **Default contained control roles (source partial):** Actual default conversion
   now acquires retained-layout roles from its selected contained manifest, conversion

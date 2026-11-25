@@ -45,3 +45,27 @@ def retained_scaffold_coordinate(root: Path, relative: str) -> str:
 
 def retained_scaffold_path(root: Path, relative: str) -> Path:
     return Path(root) / retained_scaffold_coordinate(root, relative)
+
+
+def retained_shim_authority(root, inventory, baseline, *, wrapper_component):
+    """Render original shim authority at this project's declared producer paths.
+
+    The original renderer uses logical catalog coordinates. Projection is the
+    initializer's finite placement rule, not an ownership claim over a directory.
+    """
+    from .harness_inventory import legacy_shim_authority
+    from .project_scaffold_placement import project_scaffold_placement
+
+    logical = wrapper_component.removeprefix("litai/")
+    if logical == wrapper_component:
+        return legacy_shim_authority(inventory, baseline, wrapper_component=logical)
+    if retained_scaffold_coordinate(root, logical) != wrapper_component:
+        raise ValueError("retained shim differs from the current catalog coordinate")
+    original = legacy_shim_authority(inventory, baseline, wrapper_component=logical)
+    placement = project_scaffold_placement(root, original)
+    return {
+        row.coordinate: content.decode("utf-8")
+        for row, content in placement.project_templates(
+            {name: content.encode("utf-8") for name, content in original.items()}
+        )
+    }

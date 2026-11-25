@@ -361,6 +361,10 @@ class ProjectConfigurationStore:
             if stat.S_ISDIR(child_node.st_mode):
                 direct_directory(child)
                 contained = child / PROJECT_FILENAME
+                if direct_node is None and entry(contained) is not None:
+                    # An interrupted contained publication can leave invalid
+                    # manifest bytes. Report its pending owner before parsing.
+                    pending(child, owned=True)
                 if entry(contained) is not None and declared(contained):
                     if direct_node is not None:
                         raise ProjectError(

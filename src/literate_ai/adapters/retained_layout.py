@@ -57,8 +57,14 @@ class RetainedLayoutSelection:
             wrapper = canonical_relative_posix_path(
                 wrapper_component, label="retained wrapper Component"
             )
-            if len(wrapper.parts) != 2 or wrapper.parts[0] != "components":
-                raise ValueError("wrapper must be one Component under components/")
+            if not (
+                (len(wrapper.parts) == 2 and wrapper.parts[0] == "components")
+                or (
+                    len(wrapper.parts) == 3
+                    and wrapper.parts[:2] == ("litai", "components")
+                )
+            ):
+                raise ValueError("wrapper must be one Component in a canonical catalog")
             if implementation_directory != ".":
                 implementation = canonical_relative_posix_path(
                     implementation_directory, label="retained implementation"
@@ -452,7 +458,11 @@ def _layout_coordinates(
 def _require_declared_root_ownership(root, declaration, observation):
     from literate_ai.contracts import ProjectInitializationBaseline
 
-    baseline_path = root / ".literate/initialization-baseline.json"
+    from .retained_scaffold_coordinates import retained_scaffold_path
+
+    baseline_path = retained_scaffold_path(
+        root, ".literate/initialization-baseline.json"
+    )
     if path_is_link_or_reparse(baseline_path) or not baseline_path.is_file():
         raise ValueError("root ownership lacks initialization baseline")
     baseline_bytes = (
@@ -472,7 +482,7 @@ def _require_declared_root_ownership(root, declaration, observation):
     owned_paths = set(declaration.framework_owned_paths)
     if not {item.path for item in baseline.files}.issubset(owned_paths):
         raise ValueError("root ownership omits initialized framework files")
-    metadata_root = root / ".literate"
+    metadata_root = retained_scaffold_path(root, ".literate")
     metadata_paths = (
         metadata_root.rglob("*")
         if observation is None

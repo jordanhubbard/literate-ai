@@ -23,6 +23,10 @@ from .bounded_role_observation import (
 )
 from .repository_refresh import _file
 from .repository_refresh_reservations import _custody_wire
+from .retained_scaffold_coordinates import (
+    retained_scaffold_coordinate,
+    retained_scaffold_path,
+)
 
 _KEY = object()
 _OWNERS = {}
@@ -708,7 +712,7 @@ def _prospective_for_context(context, roles):
         )
         owned = tuple(
             sorted(
-                {RETAINED_LAYOUT_PATH}
+                {retained_scaffold_coordinate(context.root, RETAINED_LAYOUT_PATH)}
                 | {
                     name
                     for name, role in roles
@@ -737,7 +741,7 @@ def _require_original_root_claims(context, roles):
     raw = next(
         item.content
         for item in context.observed[2]
-        if item.path == context.root / RETAINED_LAYOUT_PATH
+        if item.path == retained_scaffold_path(context.root, RETAINED_LAYOUT_PATH)
     )
     declaration = _parse_layout_bytes(raw)
     if (

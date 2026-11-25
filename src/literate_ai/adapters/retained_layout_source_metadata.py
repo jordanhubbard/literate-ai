@@ -15,6 +15,7 @@ from pathlib import Path
 from .exclusive_entry import _from_stat, layout_entry_node
 from .repository_refresh import RefreshFileObservation, _file, _raw_file, _signature
 from .retained_layout_source_admission import _control_reads, _fail, _phase_record
+from .retained_scaffold_coordinates import retained_scaffold_path
 
 _METADATA = {}
 _AREAS = {}
@@ -95,11 +96,6 @@ def _require_metadata_authority(phase):
 def _run_metadata_publication(phase, private_root):
     from .retained_layout_partition import _lineage
     from .retained_layout_source_movement import _require_movement_current
-    from .retained_layout_transaction import (
-        _LIFT,
-        HARNESS_WRAPPER_FILENAME,
-        RETAINED_LAYOUT_PATH,
-    )
 
     phase._live()
     admission = _phase_record(phase)
@@ -112,7 +108,9 @@ def _run_metadata_publication(phase, private_root):
     if not root.is_absolute() or ".." in root.parts:
         _fail("direct absolute private metadata root required")
     ledger, reader = admission.original.ledger, admission.original.reader
-    names = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
+    from .retained_layout_transaction import _metadata_names
+
+    names = _metadata_names(phase.plan.root)
     prospective = dict(phase.plan.prospective)
     original = {item.path: item for item in phase.plan.inputs}
     steps = []
@@ -184,7 +182,7 @@ def _run_metadata_publication(phase, private_root):
                     is not None
                 ):
                     _fail("private metadata endpoint is occupied")
-            if name in (_LIFT, RETAINED_LAYOUT_PATH):
+            if name in names[1:]:
                 reader.json_value(prospective[name], str(phase.plan.root / name))
         value = _Metadata(
             admission, root, lineage, node, phase._current_inputs, tuple(steps)
@@ -355,13 +353,10 @@ def _stage_preflight(area, name, content, *, old_node=_UNSET):
             _fail("actual creating metadata area required for staging")
         return None
     value = _require_metadata_authority(phase)
-    from .retained_layout_transaction import (
-        _LIFT,
-        HARNESS_WRAPPER_FILENAME,
-        RETAINED_LAYOUT_PATH,
-    )
 
-    names = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
+    from .retained_layout_transaction import _metadata_names
+
+    names = _metadata_names(phase.plan.root)
     if (
         len(value.stages) >= 3
         or name != f"new-{len(value.stages)}"
@@ -397,15 +392,10 @@ def _read_staged_metadata(area, name, content, node, descriptor, created):
     if value is None:
         return _file(area.root / name)
     phase = _AREAS[area]
-    from .retained_layout_transaction import (
-        _LIFT,
-        HARNESS_WRAPPER_FILENAME,
-        RETAINED_LAYOUT_PATH,
-    )
 
-    public_name = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)[
-        len(value.stages)
-    ]
+    from .retained_layout_transaction import _metadata_names
+
+    public_name = _metadata_names(phase.plan.root)[len(value.stages)]
     template = dict(value.admission.movement.expected[1]).get(public_name)
     mode, gid = (
         (created.mode, created.gid)
@@ -758,11 +748,13 @@ def _published_layout(phase):
         import json
 
         return resolve_structural_layout(
-            phase.plan.root, json.loads(_file(phase.plan.root / _LIFT).content)
+            phase.plan.root,
+            json.loads(_file(retained_scaffold_path(phase.plan.root, _LIFT)).content),
         )
     reader = value.admission.original.reader
     lift = reader.json_value(
-        _file(phase.plan.root / _LIFT).content, str(phase.plan.root / _LIFT)
+        _file(retained_scaffold_path(phase.plan.root, _LIFT)).content,
+        str(retained_scaffold_path(phase.plan.root, _LIFT)),
     )
     if phase.plan.source_forest is not None:
         from .retained_layout import _layout_coordinates

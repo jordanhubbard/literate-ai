@@ -190,6 +190,13 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Retained-source relocation keeps source and Component coordinates relative to the
+application root while publishing its framework metadata under `litai/`. Moving
+source leaves prior acceptance stale: ordinary harness readmission must execute
+fresh baseline and parity commands and renew the current Component lock. Prior
+evidence remains history. These source journeys do not complete public migration
+or installed-platform release qualification.
+
 Retained-layout controls select the current manifest and conversion-state writer
 locks from the project's actual framework directory. In a contained project those
 locks stay under `litai/`. Role checks retain the original native framework

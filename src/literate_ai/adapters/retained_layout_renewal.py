@@ -10,13 +10,13 @@ from pathlib import Path
 
 from literate_ai.adapters.repository_refresh import _file, _signature
 from literate_ai.adapters.retained_layout import (
-    LEGACY_WRAPPER_COMPONENT,
     RETAINED_LAYOUT_PATH,
     RetainedLayoutError,
     read_retained_layout_declaration,
     resolve_structural_layout,
 )
 from literate_ai.adapters.retained_layout_partition import _lineage, _physical_wire
+from literate_ai.adapters.retained_scaffold_coordinates import retained_scaffold_path
 from literate_ai.contracts.identity import canonical_identity
 
 _LIFT = ".literate/legacy-lift-shift.json"
@@ -77,10 +77,15 @@ def observe_retained_layout_renewal(project_root) -> RetainedLayoutRenewalObserv
     if not root.is_absolute() or ".." in root.parts:
         _fail("direct absolute project root required")
     root_lineage = _lineage(root)
-    metadata_lineage = _lineage(root / ".literate")
+    metadata_root = retained_scaffold_path(root, ".literate")
+    metadata_lineage = _lineage(metadata_root)
     inputs = (
-        _file(root / _LIFT, maximum_bytes=16 * 1024**2),
-        _file(root / RETAINED_LAYOUT_PATH, optional=True, maximum_bytes=16 * 1024**2),
+        _file(retained_scaffold_path(root, _LIFT), maximum_bytes=16 * 1024**2),
+        _file(
+            retained_scaffold_path(root, RETAINED_LAYOUT_PATH),
+            optional=True,
+            maximum_bytes=16 * 1024**2,
+        ),
     )
     try:
         lift = json.loads(inputs[0].content)
@@ -90,9 +95,8 @@ def observe_retained_layout_renewal(project_root) -> RetainedLayoutRenewalObserv
             _fail("lift-and-shift is not structurally renewable")
         if declaration is not None and declaration.implementation_directory == ".":
             _fail("root renewal requires the complete partition owner")
-        wrapper = root / (
-            declaration.wrapper_component if declaration else LEGACY_WRAPPER_COMPONENT
-        )
+        layout = resolve_structural_layout(root, lift)
+        wrapper = layout.wrapper_root
         inputs += (
             _file(
                 wrapper / "component.md",
@@ -105,14 +109,13 @@ def observe_retained_layout_renewal(project_root) -> RetainedLayoutRenewalObserv
                 maximum_bytes=16 * 1024**2,
             ),
         )
-        layout = resolve_structural_layout(root, lift)
     except (UnicodeError, json.JSONDecodeError) as exc:
         raise RetainedLayoutError("layout.renewal: layout inputs are invalid") from exc
     lineages = tuple(
         dict.fromkeys(
             (
                 (root, root_lineage),
-                (root / ".literate", metadata_lineage),
+                (metadata_root, metadata_lineage),
                 (layout.wrapper_root, _lineage(layout.wrapper_root)),
                 (layout.implementation_root, _lineage(layout.implementation_root)),
             )

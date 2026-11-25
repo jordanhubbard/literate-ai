@@ -41,6 +41,7 @@ from literate_ai.contracts.identity import (
     canonical_json_bytes,
 )
 from literate_ai.contracts.paths import canonical_relative_posix_path
+from literate_ai.projects import ProjectConfigurationStore
 
 HISTORY = ".literate/retained-harness-readmission"
 ACTIVE = f"{HISTORY}/active.json"
@@ -355,6 +356,25 @@ def publish_readmission_evidence(
     return True
 
 
+def _pending_framework(root):
+    candidates = []
+    for framework in (root, root / "litai"):
+        try:
+            node = framework.lstat()
+        except FileNotFoundError:
+            continue
+        if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
+            continue
+        history = framework / HISTORY
+        require_safe_directory(history, allow_missing=True)
+        if os.path.lexists(framework / ACTIVE):
+            candidates.append(framework)
+    if len(candidates) > 1:
+        _refuse("activation_ambiguous")
+    # Preserve the legacy missing-activation diagnostic if neither exists.
+    return candidates[0] if candidates else root
+
+
 class ReadmissionPublication:
     """One finite writer. Only its actual retained nodes can be restored."""
 
@@ -373,9 +393,14 @@ class ReadmissionPublication:
         self.root = Path(root).absolute()
         require_safe_directory(self.root)
         self.root_node = _directory(self.root)
-        self.history = self.root / HISTORY
+        context = ProjectConfigurationStore.context(self.root)
+        if context.root != self.root:
+            _refuse("root_invalid")
+        self.framework_root = context.framework_root
+        self.history = self.framework_root / HISTORY
+        self.active = self.framework_root / ACTIVE
         require_safe_directory(self.history)
-        if os.path.lexists(self.root / ACTIVE):
+        if os.path.lexists(self.active):
             _refuse("recovery_required")
         if (
             not before
@@ -496,7 +521,7 @@ class ReadmissionPublication:
             os.close(activation_fd)
             activation_fd = -1
             _sync(self.attempt)
-            os.link(activation, self.root / ACTIVE, follow_symlinks=False)
+            os.link(activation, self.active, follow_symlinks=False)
             _sync(self.history)
             self.activation_identity = _identity(activation)
             for name, record in self.before.items():
@@ -519,8 +544,10 @@ class ReadmissionPublication:
         self = cls()
         self.root = Path(root).absolute()
         require_safe_directory(self.root)
-        self.history = self.root / HISTORY
-        self.activation = _json_file(self.root / ACTIVE, links=2)
+        self.framework_root = _pending_framework(self.root)
+        self.history = self.framework_root / HISTORY
+        self.active = self.framework_root / ACTIVE
+        self.activation = _json_file(self.active, links=2)
         _fields(self.activation, {"schema", "attempt", "header"})
         nonce = self.activation["attempt"]
         if (
@@ -708,9 +735,9 @@ class ReadmissionPublication:
         for path, node in self.parents.items():
             if _directory(path) != node:
                 _refuse("directory_changed")
-        active, _node = _read_file(self.root / ACTIVE, MAXIMUM_RECORD_BYTES, 2)
+        active, _node = _read_file(self.active, MAXIMUM_RECORD_BYTES, 2)
         if (
-            _identity(self.root / ACTIVE) != self.activation_identity
+            _identity(self.active) != self.activation_identity
             or _identity(self.attempt / "activation.json") != self.activation_identity
             or active != canonical_json_bytes(self.activation) + b"\n"
         ):
@@ -733,7 +760,10 @@ class ReadmissionPublication:
             )
 
     def permits_project_read(self, root):
-        if self.reopened or Path(root).absolute() != self.root:
+        if self.reopened or Path(root).absolute() not in {
+            self.root,
+            self.framework_root,
+        }:
             return False
         self._guard()
         return True
@@ -901,7 +931,7 @@ class ReadmissionPublication:
         else:
             _new_json(target, record)
         self._guard()
-        active = self.root / ACTIVE
+        active = self.active
         if _identity(active) != self.activation_identity:
             _refuse("activation_changed")
         active.unlink()
@@ -1070,8 +1100,9 @@ def recover_retained_readmission_publication(
     """Inspect pending metadata, or restore original nodes under the same lock.
 
     No project manifest is parsed: a crashed publication may have left it
-    invalid. Only the existing legacy root coordinate is supported. Recovery
-    cannot finish a saved apply or reuse its saved command qualification.
+    invalid. The exact legacy or contained pending producer is observed without
+    parsing that manifest. Recovery cannot finish a saved apply or reuse its
+    saved command qualification.
     """
     root = Path(selected).absolute()
     require_safe_directory(root)
@@ -1081,12 +1112,15 @@ def recover_retained_readmission_publication(
         return owner.recovery_plan()
     if acknowledge is not True or not expected_plan_identity:
         _refuse("acknowledgement_required")
-    # Legacy readmission's normal lifecycle lock is derived from this exact root.
-    # Calling its path helper would parse the pending manifest via context().
+    # Derive the ordinary lock from the actual pending producer without parsing
+    # an interrupted manifest. The reopened native graph must still be unchanged.
     identity = hashlib.sha256(str(root).encode("utf-8")).hexdigest()
-    lock = root / ".litai-locks" / identity / "lifecycle.lock"
+    framework = owner.framework_root
+    lock = framework / ".litai-locks" / identity / "lifecycle.lock"
     with exclusive_cache_lock(lock, timeout_seconds=0):
         owner = ReadmissionPublication.open_pending(root)
+        if owner.framework_root != framework:
+            _refuse("activation_changed")
         plan = owner.recovery_plan()
         owner.rollback(acknowledgement=expected_plan_identity)
         return {

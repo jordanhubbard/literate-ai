@@ -21,7 +21,11 @@ from literate_ai.contracts import (
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.contracts.native_sdk_trees import NativeSdkTree, _ResolutionBudget
 from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudget
-from literate_ai.projects import PROJECT_FILENAME, load_project
+from literate_ai.projects import (
+    PROJECT_FILENAME,
+    ProjectConfigurationStore,
+    load_project,
+)
 
 from .component_locks import ComponentLockStore
 from .component_resolution_audits import ComponentResolutionAuditStore
@@ -30,7 +34,6 @@ from .conversion_authority import (
     NATIVE_PROJECTS_FILE,
     _native_project_roots,
 )
-from .harness_inventory import legacy_shim_authority
 from .project_initialization import (
     _FLAVOR_DIRECTORY_BY_CANONICAL,
     _STARTER_DOCS,
@@ -46,6 +49,10 @@ from .retained_layout_partition import (
     capture_retained_layout_partition,
 )
 from .retained_layout_provider import original_initializer_roster
+from .retained_scaffold_coordinates import (
+    retained_scaffold_path,
+    retained_shim_authority,
+)
 from .update_merge import CHECKPOINT, UpdateBases
 
 _KEY = object()
@@ -146,20 +153,23 @@ def _initializer_role_inputs(
         cache[path] = item
         return item
 
+    context = ProjectConfigurationStore.context(root)
+    names = (
+        _ORIGIN,
+        _BASELINE,
+        _INVENTORY,
+        _REPORT,
+        NATIVE_PROJECTS_FILE,
+        RETAINED_LAYOUT_PATH,
+    )
     inputs = tuple(
         snapshot(
-            root / name, optional=name in {NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH}
+            retained_scaffold_path(root, name),
+            optional=name in {NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH},
         )
-        for name in (
-            _ORIGIN,
-            _BASELINE,
-            _INVENTORY,
-            _REPORT,
-            NATIVE_PROJECTS_FILE,
-            RETAINED_LAYOUT_PATH,
-        )
+        for name in names
     )
-    values = {item.path.relative_to(root).as_posix(): item for item in inputs}
+    values = dict(zip(names, inputs, strict=True))
     origin = ProjectInitializationOrigin.from_dict(
         parse(values[_ORIGIN].content, _ORIGIN)
     )
@@ -174,12 +184,13 @@ def _initializer_role_inputs(
     baseline_paths = {item.path for item in baseline.files}
     # Bind selection to the original initialized manifest, not today's mutable
     # selectors or every possible endpoint in the installed template catalog.
+    manifest_name = context.manifest_path.relative_to(root).as_posix()
     manifest = next(
-        (item for item in baseline.files if item.path == PROJECT_FILENAME), None
+        (item for item in baseline.files if item.path == manifest_name), None
     )
     if manifest is None:
         _fail("original initializer manifest is missing")
-    checkpoint = snapshot(root / CHECKPOINT)
+    checkpoint = snapshot(retained_scaffold_path(root, CHECKPOINT))
     if _source_admission is not None or _source_discovery is not None:
         parse(checkpoint.content, CHECKPOINT)
     limit = min(maximum_entries - len(cache), (metadata_limit - charged) // 4096)
@@ -205,6 +216,15 @@ def _initializer_role_inputs(
     ):
         _fail("original initializer manifest bytes disagree with their identity")
     definition = ProjectDefinition.from_dict(parse(original, "initializer-project"))
+    expected_framework = (
+        root / definition.framework_directory
+        if definition.framework_directory
+        else root
+    )
+    if context.framework_root != expected_framework:
+        _fail(
+            "original initializer profile differs from the current framework namespace"
+        )
     provider = None
     if provider_checkout is not None or origin != (
         discover_installed_initialization_origin()
@@ -277,12 +297,11 @@ def _initializer_role_inputs(
         allowed = set(provider.templates) | set(_STARTER_DOCS)
     # This owner requires real conversion inventory/baseline inputs. Conversion
     # never emits the hello starter, even when its caller requested one.
-    allowed.update(
-        legacy_shim_authority(
-            parse(values[_INVENTORY].content, _INVENTORY),
-            parse(values[_REPORT].content, _REPORT),
-            wrapper_component=wrapper_component,
-        )
+    shim = retained_shim_authority(
+        root,
+        parse(values[_INVENTORY].content, _INVENTORY),
+        parse(values[_REPORT].content, _REPORT),
+        wrapper_component=wrapper_component,
     )
     allowed.update(
         {
@@ -301,6 +320,14 @@ def _initializer_role_inputs(
             "litai.harness.mk",
         }
     )
+    if context.framework_root != root:
+        from .project_scaffold_placement import project_scaffold_placement
+
+        # Reuse the actual initializer's finite inert placement projection. This
+        # maps known producer files, not all files below a directory name.
+        placement = project_scaffold_placement(root, allowed)
+        allowed = {row.coordinate for row in placement.files if row.logical in allowed}
+    allowed.update(shim)
     # Canonical store endpoints are metadata roles even while their evidence is
     # stale. This does not qualify that lock or invent a selected Component.
     component_paths = {
@@ -328,12 +355,16 @@ def _initializer_role_inputs(
             allowed.add(audit_path.relative_to(root).as_posix())
     if not baseline_paths <= allowed:
         _fail("initialization record claims files outside actual initializer roles")
-    framework = (baseline_paths - set(retired)) | {_BASELINE, CONVERSION_AUTHORITY_FILE}
+    framework = (baseline_paths - set(retired)) | {
+        retained_scaffold_path(root, name).relative_to(root).as_posix()
+        for name in (_BASELINE, CONVERSION_AUTHORITY_FILE)
+    }
     # These endpoints have distinct actual owners; their contents cannot label
     # any additional files as framework-owned.
     for name in (CHECKPOINT, NATIVE_PROJECTS_FILE, RETAINED_LAYOUT_PATH):
-        if os.path.lexists(root / name):
-            framework.add(name)
+        path = retained_scaffold_path(root, name)
+        if os.path.lexists(path):
+            framework.add(path.relative_to(root).as_posix())
     if _source_admission is not None:
         from .retained_layout_source_authored import _initializer_framework
 
@@ -344,7 +375,9 @@ def _initializer_role_inputs(
         framework = _initializer_framework(_source_discovery, framework, cache)
     project = load_project(root)
     children = _native_project_roots(project)
-    child_inputs = tuple(snapshot(child / PROJECT_FILENAME) for child in children)
+    child_inputs = tuple(
+        snapshot(ProjectConfigurationStore.manifest_path(child)) for child in children
+    )
     framework_inputs = tuple(snapshot(root / name) for name in sorted(framework))
     return (
         framework,
@@ -435,9 +468,14 @@ def _classify_observed_roles(
             return "framework"
         return "source" if root_source or _beneath(name, source) else "unclaimed"
 
+    manifest_name = (
+        ProjectConfigurationStore.manifest_path(root).relative_to(root).as_posix()
+    )
     for name in _project_manifest_candidates(census.tree):
-        if Path(name).parent != Path(".") and not any(
-            _beneath(name, child) for child in child_roots
+        if (
+            Path(name).parent != Path(".")
+            and not (name == manifest_name and name in framework | authored)
+            and not any(_beneath(name, child) for child in child_roots)
         ):
             _fail("independent project candidate lacks its registered actual owner")
     roles = {name: role(name) for name in leaves}

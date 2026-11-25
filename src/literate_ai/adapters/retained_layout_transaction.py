@@ -56,11 +56,23 @@ from .retained_layout_control_roles import (
 from .retained_layout_git_controls import LayoutGitControls, observe_layout_git_controls
 from .retained_layout_partition import _lineage, _project_manifest_candidates
 from .retained_project_inputs import _directory_access, _inventory
+from .retained_scaffold_coordinates import (
+    retained_scaffold_coordinate,
+    retained_scaffold_path,
+)
 
 _KEY = object()
 _LIFT = ".literate/legacy-lift-shift.json"
 _ORIGIN = ".literate/initialization-origin.json"
 _BASELINE = ".literate/initialization-baseline.json"
+
+
+def _metadata_names(root):
+    """Exact ordered producer outputs, expressed in application coordinates."""
+    return tuple(
+        retained_scaffold_coordinate(root, name)
+        for name in (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
+    )
 
 
 def _input_limit(name):
@@ -94,8 +106,16 @@ class _SourceMetadataObservation:
         from .update_merge import safe_path
 
         self._live()
+        coordinate = relative
+        if relative.startswith(".literate/") or relative in {
+            PROJECT_FILENAME,
+            HARNESS_WRAPPER_FILENAME,
+        }:
+            coordinate = retained_scaffold_coordinate(self.root, relative)
+        # Component and declared source coordinates already name application-
+        # relative paths. The original bounded reader still owns their inputs.
         return self.owner.file(
-            safe_path(self.root, relative),
+            safe_path(self.root, coordinate),
             optional=optional,
             maximum_bytes=_input_limit(relative),
         ).content
@@ -146,31 +166,38 @@ def _inputs(
     project = _project_roles(root)
     lineages = [
         (root, _lineage(root)),
-        (root / ".literate", _lineage(root / ".literate")),
+        (
+            retained_scaffold_path(root, ".literate"),
+            _lineage(retained_scaffold_path(root, ".literate")),
+        ),
     ]
+    names = (
+        PROJECT_FILENAME,
+        CONVERSION_AUTHORITY_FILE,
+        _LIFT,
+        _ORIGIN,
+        _BASELINE,
+        RETAINED_LAYOUT_PATH,
+        HARNESS_WRAPPER_FILENAME,
+    )
     observations = tuple(
         _file(
-            root / name,
+            retained_scaffold_path(root, name),
             optional=name == RETAINED_LAYOUT_PATH,
             maximum_bytes=_input_limit(name),
         )
-        for name in (
-            PROJECT_FILENAME,
-            CONVERSION_AUTHORITY_FILE,
-            _LIFT,
-            _ORIGIN,
-            _BASELINE,
-            RETAINED_LAYOUT_PATH,
-            HARNESS_WRAPPER_FILENAME,
-        )
+        for name in names
     )
+    by_name = dict(zip(names, observations, strict=True))
     if maximum_checkpoint_bytes is not None:
         from .update_merge import CHECKPOINT
 
         observations += (
-            _file(root / CHECKPOINT, maximum_bytes=maximum_checkpoint_bytes),
+            _file(
+                retained_scaffold_path(root, CHECKPOINT),
+                maximum_bytes=maximum_checkpoint_bytes,
+            ),
         )
-    by_name = {item.path.relative_to(root).as_posix(): item for item in observations}
 
     def value(name):
         content = by_name[name].content
@@ -484,7 +511,12 @@ class _PreparedSourceMovePlan(_SourceMovePlan):
 def _prospective_metadata(
     root, layout, inputs, implementation_directory, *, framework_owned_paths=()
 ):
-    files = {item.path.relative_to(root).as_posix(): item for item in inputs}
+    observed = {item.path: item for item in inputs}
+    files = {
+        name: observed[retained_scaffold_path(root, name)]
+        for name in (RETAINED_LAYOUT_PATH, _LIFT, HARNESS_WRAPPER_FILENAME)
+    }
+    wrapper_name, lift_name, layout_name = _metadata_names(root)
     previous_content = files[RETAINED_LAYOUT_PATH].content
     previous = (
         None
@@ -522,10 +554,10 @@ def _prospective_metadata(
     if wrapper.splitlines(keepends=True).count(old_line) != 1:
         _fail("actual harness wrapper does not name the current layout exactly once")
     return (
-        (RETAINED_LAYOUT_PATH, canonical_json_bytes(declaration.to_dict()) + b"\n"),
-        (_LIFT, canonical_json_bytes(lift) + b"\n"),
+        (layout_name, canonical_json_bytes(declaration.to_dict()) + b"\n"),
+        (lift_name, canonical_json_bytes(lift) + b"\n"),
         (
-            HARNESS_WRAPPER_FILENAME,
+            wrapper_name,
             wrapper.replace(
                 old_line,
                 f"LITAI_LEGACY := {implementation_directory}\n".encode(),
@@ -578,7 +610,11 @@ def plan_retained_layout_source_move(
     checkpoint_limit = (
         None
         if framework_update is None
-        else len(framework_update._cache[root / ".literate/update-bases.json"].content)
+        else len(
+            framework_update._cache[
+                retained_scaffold_path(root, ".literate/update-bases.json")
+            ].content
+        )
     )
     layout, inputs, input_lineages = _inputs(
         root,
@@ -763,7 +799,7 @@ def _validate_plan_roles(plan):
         item = plan.catalog_provenance
         if (
             type(item) is not RefreshFileObservation
-            or item.path != plan.root / CatalogImportsFile.PATH
+            or item.path != retained_scaffold_path(plan.root, CatalogImportsFile.PATH)
             or item.content is None
             or item.signature is None
         ):
@@ -879,7 +915,8 @@ def _require_prepared(plan, reservations=None):
         else next(
             len(item.content)
             for item in plan.inputs
-            if item.path == plan.root / ".literate/update-bases.json"
+            if item.path
+            == retained_scaffold_path(plan.root, ".literate/update-bases.json")
         )
     )
     if _inputs(
@@ -1154,7 +1191,8 @@ class _SourcePhase:
             arguments = {"optional": item.signature is None}
             if (
                 self.plan.framework_update is not None
-                and item.path == self.plan.root / ".literate/update-bases.json"
+                and item.path
+                == retained_scaffold_path(self.plan.root, ".literate/update-bases.json")
             ):
                 arguments["maximum_bytes"] = len(item.content)
             if _file(item.path, **arguments) != item:
@@ -1246,7 +1284,7 @@ class _SourcePhase:
             _fail("private metadata root is not empty")
         self._metadata_area = area
         _bind_metadata_area(self, area)
-        ordered = (HARNESS_WRAPPER_FILENAME, _LIFT, RETAINED_LAYOUT_PATH)
+        ordered = _metadata_names(self.plan.root)
         prospective = dict(self.plan.prospective)
         prepared = []
         parents = {}
