@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 _TASKKILL_WAIT_SECONDS = 5
+_ORIGINAL_POPEN = subprocess.Popen
 
 
 def process_tree_termination_wait_seconds(*, platform_name: str | None = None) -> int:
@@ -439,7 +440,12 @@ def run_with_tree_kill(
     handling.
     """
 
+    from .release_worktree_custody import begin_command
+
+    custody = begin_command(args)
     ownership = create_process_tree_ownership()
+    process = None
+    primary = None
     try:
         process = subprocess.Popen(
             args,
@@ -462,8 +468,33 @@ def run_with_tree_kill(
                 # after pipe closure; POSIX already records raw partial bytes.
                 exc.stdout, exc.stderr = captured
             raise
+    except BaseException as error:
+        primary = error
+        raise
     finally:
-        ownership.release()
+        try:
+            if custody is not None:
+                try:
+                    if process is None:
+                        custody.not_started()
+                    elif type(process) is not _ORIGINAL_POPEN:
+                        raise ValueError("original Git Popen required")
+                    else:
+                        custody.complete(process, ownership)
+                except BaseException as error:
+                    custody.broken = True
+                    if process is not None:
+                        terminate_process_tree(
+                            process, environment=env, ownership=ownership
+                        )
+                        _await_termination_or_give_up(process)
+                    if primary is None:
+                        raise
+                    primary.add_note(
+                        "Original Git output closure refused: " + str(error)
+                    )
+        finally:
+            ownership.release()
     result: subprocess.CompletedProcess[Any] = subprocess.CompletedProcess(
         args, process.returncode, out, err
     )

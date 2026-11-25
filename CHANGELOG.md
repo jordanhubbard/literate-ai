@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Track original backport checkout and Git administration outputs at actual process completion; retain private, ignored or replaced state and original conflict errors when cleanup refuses, while retiring unchanged owned worktrees.
+
 - Terminate the original temporary-checkout Git process tree on timeout while preserving captured output and existing release errors, preventing Git helpers from surviving into cleanup.
 
 - Contain release-asset readback in original project native staging with bounded downloader processes, retained size/digest verification and preservation of conflicting private or replaced output.

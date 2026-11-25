@@ -2239,6 +2239,25 @@ def _git_in(
         ) from exc
 
 
+@contextmanager
+def _release_backport_worktree(root: Path, reference: str):
+    from .adapters.release_worktree_custody import (
+        ReleaseWorktreeCustodyError,
+        release_git_worktree,
+    )
+
+    try:
+        with release_git_worktree(
+            root, _release_build_root(root), reference, _git
+        ) as worktree:
+            yield worktree
+    except ReleaseWorktreeCustodyError as error:
+        raise ProjectReleaseError(
+            "release.worktree_custody_unavailable",
+            "release worktree custody refused; files and registration retained",
+        ) from error
+
+
 def backport_commits(
     project: Path,
     *,
@@ -2318,27 +2337,22 @@ def backport_commits(
         created = True
 
     picked: list[dict[str, object]] = []
-    with tempfile.TemporaryDirectory(prefix="litai-backport-") as tmp:
-        worktree = Path(tmp) / "worktree"
-        _git(root, "worktree", "add", str(worktree), to_branch)
-        try:
-            for original in resolved_commits:
-                completed = _git_in(
-                    worktree, "cherry-pick", "-x", original, check=False
+    with _release_backport_worktree(root, to_branch) as worktree:
+        for original in resolved_commits:
+            completed = _git_in(worktree, "cherry-pick", "-x", original, check=False)
+            if completed.returncode != 0:
+                failure = ProjectReleaseError(
+                    "release.backport_conflict",
+                    f"cherry-pick of {original} onto {to_branch} conflicts; "
+                    "resolve manually with git",
                 )
-                if completed.returncode != 0:
+                try:
                     _git_in(worktree, "cherry-pick", "--abort", check=False)
-                    raise ProjectReleaseError(
-                        "release.backport_conflict",
-                        f"cherry-pick of {original} onto {to_branch} conflicts; "
-                        "resolve manually with git",
-                    )
-                picked_sha = _git_in(worktree, "rev-parse", "HEAD").stdout.strip()
-                picked.append(
-                    {"source_commit": original, "backport_commit": picked_sha}
-                )
-        finally:
-            _git(root, "worktree", "remove", "--force", str(worktree), check=False)
+                except Exception as error:
+                    failure.add_note("Backport abort refused; retained: " + str(error))
+                raise failure
+            picked_sha = _git_in(worktree, "rev-parse", "HEAD").stdout.strip()
+            picked.append({"source_commit": original, "backport_commit": picked_sha})
 
     branch_head = (
         picked[-1]["backport_commit"] if picked else _resolve_revision(root, to_branch)

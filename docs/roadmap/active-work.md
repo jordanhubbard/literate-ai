@@ -26585,6 +26585,36 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original backport worktree cleanup custody (source partial):** Backports
+  now allocate fresh short checkout namespaces below their original framework
+  build root. The original Git Popen/process-tree owner closes both the actual
+  checkout namespace and its finite newly created common-Git administration
+  entry before caller callbacks. Original source/framework/Git parent bindings
+  and native postimages remain current before subsequent commands or disposal.
+  Unknown ordinary/ignored private files, equal-byte checkout/admin replacements
+  and private administration entries refuse cleanup and retain exact state plus
+  registration. Git status and saved location/reservation records grant no
+  deletion authority. Original native output ownership precedes forced Git
+  retirement; the wrapper has no recursive temporary-directory fallback. Normal
+  successful backports retire checkout and administration state. The exact Git
+  remove can retire its otherwise empty shared worktrees parent only when the
+  original entry was its sole child; a replacement parent remains foreign.
+  A successful Git parent with an active original group refuses admission and
+  is stopped through its actual process-tree owner. Original cherry-pick errors
+  retain priority when abort/disposal is refused. The real baseline deleted an
+  ignored private file after an actual cherry-pick. Local native controls now
+  cover clean retirement, ordinary/ignored state, equal-byte/admin state,
+  original errors and a real background descendant launched by a Git hook.
+  Project discovery is an explicit authoring-profile fixture port, while native
+  Git/source/files/process ownership execute. No canonical converted-project,
+  installed/Linux/Windows/full-source/current-review/release qualification is
+  claimed. Windows Job observation is implemented but requires native proof.
+  Default-branch advancement remains open: its original Python version/docs
+  writers must join custody before sharing this actor. Complete original
+  producer/lifecycle/source-parent/whole-project/migration/history/concurrency/
+  recovery/installed/native-platform/independent review and protected release
+  acceptance remain open.
+
 - **Original release Git process ownership (source prerequisite partial):**
   The original temporary-checkout Git caller now uses the established process-tree
   timeout owner already used by the main release Git caller. Preserve its 60-second
