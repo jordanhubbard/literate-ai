@@ -9,7 +9,8 @@ from __future__ import annotations
 import shutil
 import sys
 import tempfile
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from pathlib import Path
 from weakref import WeakKeyDictionary
@@ -32,6 +33,7 @@ from ._write_reservations import (
 
 _ISSUER = object()
 _LIVE = WeakKeyDictionary()
+_CURRENT = ContextVar("contained_project_runtime", default=None)
 
 
 class ProjectRuntimeError(ValueError):
@@ -71,6 +73,8 @@ class _RuntimeState:
     reservation: WriteReservationSet
     stack: ExitStack
     cache_stack: ExitStack
+    runtime_path: Path | None = None
+    runtime_node: tuple | None = None
 
 
 class ContainedProjectRuntime:
@@ -82,7 +86,22 @@ class ContainedProjectRuntime:
 
     @property
     def path(self):
-        return _state(self).path
+        state = _state(self)
+        return state.runtime_path or state.path
+
+    @property
+    def candidate_receipt(self):
+        state = _state(self)
+        if state.runtime_path is None:
+            raise ProjectRuntimeError("nested runtime output custody required")
+        return state.path / "candidate.json"
+
+    @property
+    def object_root(self):
+        state = _state(self)
+        if state.runtime_path is None:
+            raise ProjectRuntimeError("nested runtime output custody required")
+        return state.path / "objects"
 
     @property
     def identity(self):
@@ -93,6 +112,11 @@ class ContainedProjectRuntime:
                 "project": str(state.project.root),
                 "manifest": state.snapshot.content_identity.uri,
                 "path": str(state.path),
+                **(
+                    {"runtime_path": str(state.runtime_path)}
+                    if state.runtime_path is not None
+                    else {}
+                ),
                 "object_node": [stat_identity_value(x) for x in state.object_node],
                 "runtime_node": [stat_identity_value(x) for x in state.path_node],
             }
@@ -158,6 +182,11 @@ def _guard_inputs(state):
         or _node(state.path) != state.path_node
     ):
         raise ProjectRuntimeError("runtime native directory custody changed")
+    if (
+        state.runtime_path is not None
+        and _node(state.runtime_path) != state.runtime_node
+    ):
+        raise ProjectRuntimeError("nested runtime directory changed")
     WriteReservationSet.verify_all(state.reservation)
 
 
@@ -168,18 +197,20 @@ def require_project_runtime(owner, project, source_root=None):
         raise ProjectRuntimeError("runtime belongs to a different project")
     _guard(state)
     if source_root is not None:
-        if source_root != state.path / "sources":
+        if source_root != (state.runtime_path or state.path) / "sources":
             raise ProjectRuntimeError("runtime source coordinate differs")
         require_safe_directory(source_root, allow_missing=True)
     return owner
 
 
-def allocate_project_runtime(project):
+def allocate_project_runtime(project, *, nested=False):
     """Allocate only a new private namespace under actual contained object state.
 
     Existing object-directory contents are never adopted, inventoried or deleted.
     Its canonical cache owner independently refuses overlap with declared authority.
     """
+    if type(nested) is not bool:
+        raise TypeError("nested runtime selection must be boolean")
     if type(project) is not LoadedProject:
         raise TypeError("actual LoadedProject required")
     context = ProjectConfigurationStore.context(project.root)
@@ -211,6 +242,12 @@ def allocate_project_runtime(project):
                 (WriteReservationTarget(path / ".runtime.write", path, path_node[:3]),)
             )
         )
+        runtime_path = None
+        runtime_node = None
+        if nested:
+            runtime_path = path / "runtime"
+            runtime_path.mkdir()
+            runtime_node = _node(runtime_path)
         state = _RuntimeState(
             project,
             snapshot,
@@ -223,6 +260,8 @@ def allocate_project_runtime(project):
             reservation,
             stack,
             cache_stack,
+            runtime_path,
+            runtime_node,
         )
         _guard(state)
         owner = ContainedProjectRuntime(_ISSUER)
@@ -249,3 +288,59 @@ def close_project_runtime(owner, *, keep):
             "Contained runtime custody retired; conflicting runtime state preserved: "
             + str(cleanup_error)
         )
+        return False
+    return True
+
+
+def require_runtime_candidate(owner, project, path, *, absent=True):
+    require_project_runtime(owner, project)
+    if path != ContainedProjectRuntime.candidate_receipt.__get__(owner):
+        raise ProjectRuntimeError("candidate differs from original runtime custody")
+    try:
+        path.lstat()
+    except FileNotFoundError:
+        return path
+    if absent:
+        raise ProjectRuntimeError("runtime candidate destination is already occupied")
+    return path
+
+
+def current_project_runtime(project=None):
+    owner = _CURRENT.get()
+    if owner is not None:
+        state = _state(owner)
+        require_project_runtime(owner, state.project if project is None else project)
+    return owner
+
+
+def require_scoped_runtime_candidate(path):
+    owner = current_project_runtime()
+    if owner is not None:
+        require_runtime_candidate(owner, _state(owner).project, path)
+
+
+@contextmanager
+def project_runtime_scope(owner, project):
+    if owner is None:
+        token = _CURRENT.set(None)
+        try:
+            yield
+        finally:
+            _CURRENT.reset(token)
+        return
+    require_project_runtime(owner, project)
+    # Only separately nested runtime/candidate slots may enter CLI path admission.
+    ContainedProjectRuntime.candidate_receipt.__get__(owner)
+    token = _CURRENT.set(owner)
+    try:
+        yield
+    finally:
+        original_error = sys.exception()
+        try:
+            require_project_runtime(owner, project)
+        except Exception as error:
+            if original_error is None:
+                raise
+            original_error.add_note("Runtime custody changed: " + str(error))
+        finally:
+            _CURRENT.reset(token)

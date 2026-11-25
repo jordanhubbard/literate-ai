@@ -40,6 +40,10 @@ from literate_ai.adapters.project_lifecycle_driver import (
 from literate_ai.adapters.project_runtime import (
     allocate_project_runtime,
     close_project_runtime,
+    current_project_runtime,
+    require_project_runtime,
+    require_runtime_candidate,
+    require_scoped_runtime_candidate,
 )
 from literate_ai.adapters.project_validation import (
     ProjectValidationError,
@@ -347,8 +351,10 @@ def _write_standard_candidate(path: Path, finalized: object) -> None:
     """Write the finalized in-process Standard receipt to one new external path."""
 
     content = canonical_json_bytes(finalized.to_dict()) + b"\n"
+    require_scoped_runtime_candidate(path)
     descriptor = -1
     try:
+        require_scoped_runtime_candidate(path)
         descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         with os.fdopen(descriptor, "wb") as stream:
             descriptor = -1
@@ -852,7 +858,8 @@ def _standard_rebuild_one_component(
         if not write_candidate or getattr(args, "candidate_receipt", None) is None
         else _external_candidate(project, args.candidate_receipt)
     )
-    project_runtime = None
+    project_runtime = current_project_runtime(project)
+    owns_project_runtime = False
     if runtime_root_override is not None:
         owns_runtime = False
         runtime_root = runtime_root_override
@@ -866,12 +873,24 @@ def _standard_rebuild_one_component(
     else:
         configured_runtime = getattr(args, "runtime_root", None)
         owns_runtime = configured_runtime is None
-        if (
+        if project_runtime is not None:
+            if (
+                configured_runtime is not None
+                and Path(configured_runtime) != project_runtime.path
+            ):
+                raise CliFailure(
+                    "rebuild.runtime_root_changed",
+                    "runtime differs from original live custody",
+                )
+            runtime_root = _external_runtime_root(project, str(project_runtime.path))
+            owns_runtime = False
+        elif (
             owns_runtime
             and getattr(project.definition, "framework_directory", None) == "litai"
         ):
             try:
                 project_runtime = allocate_project_runtime(project)
+                owns_project_runtime = True
             except (ValueError, RuntimeError, OSError) as exc:
                 raise CliFailure("rebuild.runtime_root_unsafe", str(exc)) from exc
             runtime_root = project_runtime.path
@@ -1191,7 +1210,7 @@ def _standard_rebuild_one_component(
     except ProjectLifecycleLockError as exc:
         raise CliFailure(exc.code, exc.message) from exc
     finally:
-        if project_runtime is not None:
+        if owns_project_runtime:
             try:
                 close_project_runtime(
                     project_runtime, keep=getattr(args, "keep_runtime", False)
@@ -1276,6 +1295,19 @@ def _external_runtime_root(
     project: LoadedProject, configured: str, *, create: bool = True
 ) -> Path:
     candidate = Path(configured)
+    owner = current_project_runtime(project)
+    if owner is not None:
+        if candidate != owner.path:
+            raise CliFailure(
+                "rebuild.runtime_root_changed",
+                "runtime differs from original live custody",
+            )
+        require_project_runtime(owner, project)
+        if any(candidate.iterdir()):
+            raise CliFailure(
+                "rebuild.runtime_root_not_empty", "runtime root must be new or empty"
+            )
+        return candidate
     if candidate.is_symlink():
         raise CliFailure(
             "rebuild.runtime_root_unsafe", "runtime root cannot be a symbolic link"
@@ -1329,6 +1361,9 @@ def _external_runtime_root(
 
 def _external_candidate(project: LoadedProject, configured: str) -> Path:
     candidate = Path(configured)
+    owner = current_project_runtime(project)
+    if owner is not None:
+        return require_runtime_candidate(owner, project, candidate)
     if candidate.is_symlink() or candidate.exists():
         raise CliFailure(
             "rebuild.candidate_exists",
@@ -1382,6 +1417,7 @@ def _commit_candidate_receipt(
         source_cache_lifecycle_identity=source_cache_lifecycle_identity,
     )
     canonical = canonical_json_bytes(finalized.to_dict()) + b"\n"
+    require_scoped_runtime_candidate(destination)
     try:
         parent = destination.parent.resolve(strict=True)
         if (
@@ -1409,6 +1445,7 @@ def _commit_candidate_receipt(
         os.chmod(temporary, 0o600)
         temporary_stat = temporary.stat()
         committed_identity = (temporary_stat.st_dev, temporary_stat.st_ino)
+        require_scoped_runtime_candidate(destination)
         if (
             os.name == "nt"
         ):  # Windows rename fails rather than replacing an existing file.

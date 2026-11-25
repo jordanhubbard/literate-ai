@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Project layout: keep default contained receiver runtime, candidate and per-attempt object output under the framework directory. Carry original native custody through local rebuild and evidence publication, exclude live controls, and preserve conflicting runtime state and original failures.
+
 Project layout: keep implicit Standard rebuild scratch state under the contained framework object directory with live native custody and cleanup exclusion. Preserve retained attempts, unrelated session state, original rebuild failures and legacy request arguments; external-driver and receiver runtime/candidate containment remains pending.
 
 Project layout: select worker-receiver default generated/object caches from the transported project context, isolating ambient cache overrides and preserving explicit attempt custody. Separate runtime/candidate containment remains pending.

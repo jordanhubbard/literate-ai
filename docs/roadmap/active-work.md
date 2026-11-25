@@ -26575,6 +26575,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Receiver live runtime/candidate join (partial):** The default contained
+  build/test receiver allocates its nested runtime after exact source verification.
+  The original native owner spans the worker-local CLI scope, exact runtime and
+  candidate admission, publication and evidence collection. Per-attempt object,
+  runtime and candidate scopes are separate; native controls and unrelated retained
+  attempts are not object evidence. Descriptor retirement preserves original
+  failures and a conflicting runtime keeps the private extraction workspace.
+  A local actual archive/evidence import round trip and real worker-local callback
+  exercise these joins with explicit rebuild and hardware-probe fixture ports.
+  Absent nested scopes clear inherited admission; copied claims and wrong slots
+  refuse. No configured worker, model/compiler, installed or platform qualification
+  is inferred. Explicit short accepted-cache staging, general external-driver
+  containment, full cleanup/transfer recovery and native lifecycle acceptance
+  remain open with complete project/source ownership.
+
 - **Contained Standard runtime owner (partial):** The contained profile's
   implicit Standard runtime is now freshly allocated under canonical object
   state. The actual current manifest, direct directory identity and live native

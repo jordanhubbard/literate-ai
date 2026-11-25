@@ -102,7 +102,10 @@ class ProjectLayoutReceiverCacheTests(unittest.TestCase):
         directories = values["custody"].cache_directories
         self.assertEqual(directories.project_root, root)
         self.assertEqual(directories.build_dir, root / "litai/generated")
-        self.assertEqual(directories.obj_dir, root / "litai/_build")
+        self.assertEqual(
+            directories.obj_dir, values["custody"].runtime_root.parent / "objects"
+        )
+        self.assertTrue(directories.obj_dir.is_relative_to(root / "litai/_build"))
         self.assertEqual((root / "native.txt").read_bytes(), b"application source\n")
         self.assertFalse((root / "generated").exists())
         self.assertFalse((root / "_build").exists())
@@ -214,3 +217,34 @@ class ProjectLayoutReceiverCacheTests(unittest.TestCase):
             self.direct()
         self.assertEqual(self.observed, [])
         self.assertFalse((self.framework / "_build").exists())
+
+    def test_direct_runtime_and_candidate_join_live_contained_owner(self):
+        original = self.rebuild
+        observed = []
+
+        def current_rebuild(**values):
+            custody = values["custody"]
+            root = values["project_root"]
+            self.assertTrue(
+                custody.runtime_root.is_relative_to(root / "litai/_build"),
+                custody.runtime_root,
+            )
+            self.assertTrue(
+                custody.candidate_receipt.is_relative_to(root / "litai/_build")
+            )
+            from literate_ai.adapters.project_runtime import require_project_runtime
+            from literate_ai.projects import load_project
+
+            require_project_runtime(
+                custody.project_runtime,
+                load_project(root),
+                custody.runtime_root / "sources",
+            )
+            observed.append(custody)
+            return original(**values)
+
+        self.rebuild = current_rebuild
+        with self.assertRaises(RebuildReached):
+            self.direct()
+        self.assertEqual(len(observed), 1)
+        self.assertFalse(observed[0].runtime_root.exists())

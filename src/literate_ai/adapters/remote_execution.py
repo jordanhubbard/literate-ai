@@ -14,7 +14,8 @@ import tempfile
 import time
 import uuid
 import zipfile
-from dataclasses import dataclass, replace
+from contextlib import ExitStack
+from dataclasses import dataclass, field, replace
 from decimal import Decimal
 from pathlib import Path
 from typing import Any, Protocol
@@ -31,6 +32,13 @@ from literate_ai.adapters.directory_artifacts import (
     directory_export_bytes,
     require_library_package,
     require_transported_library_package,
+)
+from literate_ai.adapters.project_runtime import (
+    ContainedProjectRuntime,
+    allocate_project_runtime,
+    close_project_runtime,
+    require_project_runtime,
+    require_runtime_candidate,
 )
 from literate_ai.adapters.user_paths import prepare_user_directory, resolve_host_paths
 from literate_ai.adapters.worker_capabilities import probe_worker_capabilities
@@ -66,6 +74,7 @@ from literate_ai.contracts.library_products import (
     library_worker_manifest,
 )
 from literate_ai.diagnostics import inherited_verbose_environment, trace_subprocess
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from literate_ai.remote_source_guard import (
     SourceGuardError,
     extract_accepted_source_cache_archive,
@@ -103,8 +112,28 @@ class RemoteLifecycleCustody:
     cache_directories: CacheDirectories
     runtime_root: Path
     candidate_receipt: Path
+    project_runtime: ContainedProjectRuntime | None = field(
+        default=None, repr=False, compare=False
+    )
+    _runtime_identity: ContentIdentity | None = field(
+        default=None, init=False, repr=False
+    )
 
     def __post_init__(self) -> None:
+        if self.project_runtime is not None:
+            project = load_project(self.cache_directories.project_root)
+            require_project_runtime(self.project_runtime, project)
+            require_runtime_candidate(
+                self.project_runtime, project, self.candidate_receipt
+            )
+            if (
+                self.runtime_root != self.project_runtime.path
+                or self.cache_directories.obj_dir != self.project_runtime.object_root
+            ):
+                raise ValueError(
+                    "worker paths differ from original live runtime custody"
+                )
+            object.__setattr__(self, "_runtime_identity", self.project_runtime.identity)
         root = self.attempt_root.resolve(strict=True)
         paths = (
             self.cache_directories.build_dir,
@@ -128,8 +157,53 @@ class RemoteLifecycleCustody:
                 ),
                 "runtime_root": str(self.runtime_root),
                 "candidate_receipt": str(self.candidate_receipt),
+                **(
+                    {"project_runtime_custody_identity": self._runtime_identity.uri}
+                    if self._runtime_identity is not None
+                    else {}
+                ),
             }
         )
+
+
+class _RemoteRuntimeLifetime(ExitStack):
+    """Actual caller lifetime through evidence; never transport/deserialized data."""
+
+    def __init__(self):
+        super().__init__()
+        self.cleanup_safe = True
+
+    def retire(self, owner, keep):
+        try:
+            if close_project_runtime(owner, keep=keep) is False:
+                self.cleanup_safe = False
+        except BaseException:
+            self.cleanup_safe = False
+            raise
+
+
+def _default_remote_custody(root, attempt_root, lifetime, *, keep):
+    context = ProjectConfigurationStore.context(root)
+    require_safe_directory(context.framework_root / "_build", allow_missing=True)
+    directories = resolve_cache_directories(root, environment={})
+    if context.framework_root == root:
+        return RemoteLifecycleCustody(
+            attempt_root,
+            directories,
+            attempt_root / "lifecycle-runtime",
+            attempt_root / "candidate-receipt.json",
+        )
+    owner = allocate_project_runtime(load_project(root), nested=True)
+    lifetime.callback(lifetime.retire, owner, keep)
+    return RemoteLifecycleCustody(
+        attempt_root,
+        bind_cache_directories(
+            root, build_dir=directories.build_dir, obj_dir=owner.object_root
+        ),
+        owner.path,
+        owner.candidate_receipt,
+        owner,
+    )
 
 
 class RemoteLifecycleRebuilder(Protocol):
@@ -1067,6 +1141,7 @@ def execute_remote_request(
     accepted_source_entries: tuple[dict[str, Any], ...] | None = None,
     custody: RemoteLifecycleCustody | None = None,
     retain_lifecycle_custody: bool = False,
+    _runtime_lifetime: _RemoteRuntimeLifetime | None = None,
 ) -> ExecutionDispatchResult:
     """Execute after transport extraction, retaining only immutable worker artifacts."""
 
@@ -1106,94 +1181,111 @@ def execute_remote_request(
     coverage_gaps: dict[str, object] | None = None
     observed_toolchains: tuple[ContentIdentity, ...]
     if request.action in {LifecycleDispatchAction.BUILD, LifecycleDispatchAction.TEST}:
-        lifecycle_custody = custody or RemoteLifecycleCustody(
-            root.parent,
-            resolve_cache_directories(root, environment={}),
-            root.parent / "lifecycle-runtime",
-            root.parent / "candidate-receipt.json",
-        )
-        result = rebuild(
-            component_path=request.component_path,
-            project_root=root,
-            custody=lifecycle_custody,
-            flavor_selectors=request.flavor_selectors,
-            target_profile=request.target_profile,
-            model_selector=request.model_selector,
-            accepted_source_only=request.accepted_source_only,
-            jobs=request.jobs,
-            accepted_source_provider_id=request.accepted_source_provider_id,
-            accepted_source_provider_identity=(
-                request.accepted_source_provider_identity
-            ),
-            **(
-                {"source_cache_entry_identities": request.source_cache_entry_identities}
-                if request.source_cache_entry_identities
-                else {}
-            ),
-        )
+        own_lifetime = _runtime_lifetime is None
+        lifetime = _RemoteRuntimeLifetime() if own_lifetime else _runtime_lifetime
+        if type(lifetime) is not _RemoteRuntimeLifetime:
+            raise TypeError("original receiver runtime lifetime required")
         try:
-            observed_toolchains = tuple(
-                ContentIdentity.parse_uri(str(item))
-                for item in result["observed_toolchain_identities"]
+            lifecycle_custody = custody or _default_remote_custody(
+                root,
+                root.parent,
+                lifetime,
+                keep=retain_lifecycle_custody,
             )
-        except (KeyError, TypeError, ValueError) as exc:
-            raise RemoteExecutionError(
-                "execution.remote_toolchain_observation_missing",
-                "accepted lifecycle omitted its observed toolchain closure",
-            ) from exc
-        if not observed_toolchains:
-            raise RemoteExecutionError(
-                "execution.remote_toolchain_observation_missing",
-                "accepted lifecycle reported an empty toolchain closure",
-            )
-        try:
-            if "library_artifact" in result:
-                try:
-                    library_product = LibraryArtifactProduct.from_dict(
-                        result["library_artifact"]
-                    )
-                    if (
-                        result.get("passed") is not True
-                        or result.get("execution_command")
-                        or result.get("execution_entrypoints")
-                    ):
-                        raise ValueError(
-                            "library must be accepted without an execution command"
+            result = rebuild(
+                component_path=request.component_path,
+                project_root=root,
+                custody=lifecycle_custody,
+                flavor_selectors=request.flavor_selectors,
+                target_profile=request.target_profile,
+                model_selector=request.model_selector,
+                accepted_source_only=request.accepted_source_only,
+                jobs=request.jobs,
+                accepted_source_provider_id=request.accepted_source_provider_id,
+                accepted_source_provider_identity=(
+                    request.accepted_source_provider_identity
+                ),
+                **(
+                    {
+                        "source_cache_entry_identities": (
+                            request.source_cache_entry_identities
                         )
-                except (TypeError, ValueError) as exc:
-                    raise RemoteExecutionError(
-                        "execution.remote_library_invalid", str(exc)
-                    ) from exc
-                artifact_reference = _persist_library_artifact(
-                    Path(str(result["artifact"])),
-                    library_product,
-                    cas_root,
-                    observed_toolchains,
+                    }
+                    if request.source_cache_entry_identities
+                    else {}
+                ),
+            )
+            try:
+                observed_toolchains = tuple(
+                    ContentIdentity.parse_uri(str(item))
+                    for item in result["observed_toolchain_identities"]
                 )
-            else:
-                artifact_reference = _persist_artifact(
-                    Path(str(result["artifact"])),
-                    dict(result["execution_command"]),
-                    cas_root,
-                    observed_toolchains,
-                    tuple(
-                        dict(item) for item in result.get("execution_entrypoints", [])
-                    ),
+            except (KeyError, TypeError, ValueError) as exc:
+                raise RemoteExecutionError(
+                    "execution.remote_toolchain_observation_missing",
+                    "accepted lifecycle omitted its observed toolchain closure",
+                ) from exc
+            if not observed_toolchains:
+                raise RemoteExecutionError(
+                    "execution.remote_toolchain_observation_missing",
+                    "accepted lifecycle reported an empty toolchain closure",
                 )
-        finally:
-            runtime = result.get("runtime_root")
-            if runtime:
-                from literate_ai.adapters.coverage_gaps import (
-                    scan_runtime_coverage_gaps,
-                )
+            try:
+                if "library_artifact" in result:
+                    try:
+                        library_product = LibraryArtifactProduct.from_dict(
+                            result["library_artifact"]
+                        )
+                        if (
+                            result.get("passed") is not True
+                            or result.get("execution_command")
+                            or result.get("execution_entrypoints")
+                        ):
+                            raise ValueError(
+                                "library must be accepted without an execution command"
+                            )
+                    except (TypeError, ValueError) as exc:
+                        raise RemoteExecutionError(
+                            "execution.remote_library_invalid", str(exc)
+                        ) from exc
+                    artifact_reference = _persist_library_artifact(
+                        Path(str(result["artifact"])),
+                        library_product,
+                        cas_root,
+                        observed_toolchains,
+                    )
+                else:
+                    artifact_reference = _persist_artifact(
+                        Path(str(result["artifact"])),
+                        dict(result["execution_command"]),
+                        cas_root,
+                        observed_toolchains,
+                        tuple(
+                            dict(item)
+                            for item in result.get("execution_entrypoints", [])
+                        ),
+                    )
+            finally:
+                runtime = result.get("runtime_root")
+                if runtime:
+                    from literate_ai.adapters.coverage_gaps import (
+                        scan_runtime_coverage_gaps,
+                    )
 
-                report = scan_runtime_coverage_gaps(
-                    root, request.component_path, runtime
-                )
-                if report is not None:
-                    coverage_gaps = report.to_dict()
-                if not retain_lifecycle_custody:
-                    shutil.rmtree(str(runtime), ignore_errors=True)
+                    report = scan_runtime_coverage_gaps(
+                        root, request.component_path, runtime
+                    )
+                    if report is not None:
+                        coverage_gaps = report.to_dict()
+                    if (
+                        not retain_lifecycle_custody
+                        and lifecycle_custody.project_runtime is None
+                    ):
+                        shutil.rmtree(str(runtime), ignore_errors=True)
+        finally:
+            if own_lifetime:
+                lifetime.close()
+
     else:
         if request.artifact_reference is None:
             raise RemoteExecutionError(
@@ -1357,6 +1449,8 @@ def materialize_and_execute(
         archive, destination, materialization.source_tree_identity.uri
     )
     deferred_cleanup = evidence_output is not None
+    runtime_lifetime = _RemoteRuntimeLifetime()
+    workspace_node = destination.lstat()
     short_attempt: Path | None = None
     lifecycle_result: dict[str, object] | None = None
     lifecycle_custody: RemoteLifecycleCustody | None = None
@@ -1364,7 +1458,8 @@ def materialize_and_execute(
     cleanup_token = uuid.uuid4().hex
 
     def recording_rebuild(**values: Any) -> dict[str, object]:
-        nonlocal lifecycle_result, artifact
+        nonlocal lifecycle_result, artifact, lifecycle_custody
+        lifecycle_custody = values["custody"]
         lifecycle_result = rebuild(**values)
         candidate = lifecycle_result.get("artifact")
         artifact = None if candidate is None else Path(str(candidate))
@@ -1391,12 +1486,7 @@ def materialize_and_execute(
                 accepted_source_cache_archive,
             )
         else:
-            lifecycle_custody = RemoteLifecycleCustody(
-                destination,
-                resolve_cache_directories(project_root, environment={}),
-                destination / "lifecycle-runtime",
-                destination / "candidate-receipt.json",
-            )
+            lifecycle_custody = None  # Allocate only after exact source verification.
         try:
             result = execute_remote_request(
                 worker,
@@ -1408,6 +1498,7 @@ def materialize_and_execute(
                 accepted_source_entries=accepted_source_entries,
                 custody=lifecycle_custody,
                 retain_lifecycle_custody=deferred_cleanup,
+                _runtime_lifetime=runtime_lifetime,
             )
             failure = None
         except Exception as exc:
@@ -1493,9 +1584,20 @@ def materialize_and_execute(
             evidence_reference=reference,
         )
     finally:
-        if not deferred_cleanup:
+        runtime_lifetime.close()
+        if not deferred_cleanup and runtime_lifetime.cleanup_safe:
             if short_attempt is not None:
                 shutil.rmtree(short_attempt, ignore_errors=True)
+            require_safe_directory(destination)
+            current_node = destination.lstat()
+            if (current_node.st_dev, current_node.st_ino, current_node.st_mode) != (
+                workspace_node.st_dev,
+                workspace_node.st_ino,
+                workspace_node.st_mode,
+            ):
+                raise RemoteExecutionError(
+                    "execution.remote_workspace_changed", "foreign workspace preserved"
+                )
             shutil.rmtree(destination, ignore_errors=True)
 
 
