@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep native child promotion, rebind history and replacement recovery in the declared framework directory; refuse stale plans and preserve application metadata.
+
 - Keep repository locks beneath litai/ for contained projects, preserve application metadata, and reject stale framework bindings before publication.
 
 - Refuse remote accepted-source-cache restoration over existing files, directories or aliases, preserving private data and rejecting aliased build parents before extraction.

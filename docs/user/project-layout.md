@@ -190,6 +190,15 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Native-child promotion, registered lifecycle rebind and replacement retain their
+registry, locks and history under the declared framework directory. In a contained
+parent these live under `litai/.literate/`; application-root metadata stays with the
+application. Selecting the parent's `litai/` coordinate keeps child/source paths
+relative to the application root. Contained rebind/replacement review plans use
+version 2 and refuse changed native namespaces. Historical records remain evidence
+of the original transition and do not qualify the current child. Full migration,
+temporary-file cleanup and installed/platform qualification remain open.
+
 Repository orchestration locks follow the selected project context. Contained
 projects keep the repository lock and its writer marker under `litai/.literate/`;
 application-root `.literate/` content stays untouched. The application root and its

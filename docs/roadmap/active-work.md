@@ -26575,13 +26575,37 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — remaining producer containment (in progress):** Continue the
-  actual framework-owned producer inventory and native-child update paths through
-  the shared project context. Finish original source/cache extraction creator
-  custody and immediate disposal, RUN/legacy/explicit short-cache staging and
-  general external-driver containment. Complete whole-project/source-parent
-  ownership and every original installed/platform/release requirement. Repository
-  lock source controls below are partial evidence, not full layout acceptance.
+- **Next action — complete producer and source ownership (in progress):**
+  Continue the actual framework-owned path inventory and original source-parent/
+  whole-project ownership transitions. Finish source/cache extraction creator
+  custody and immediate disposal, metadata temporary/partial disposal,
+  RUN/legacy/explicit short-cache staging and general external-driver containment.
+  Qualify the full legacy-migration/history composition and every original
+  installed/platform/native/full-source/review/release gate. Current native-child
+  source controls below do not close full layout or release acceptance.
+
+- **Native-child update/replacement context (source partial):** The original
+  promotion caller selects the contained native-child destination, and original
+  registration, rebind, retained-history and replacement/recovery consumers use
+  their selected framework context. Declared framework coordinates preserve
+  application-relative child/source meanings. Original parent/child native
+  framework observations are rechecked across actual capture, rebind and creation
+  callbacks; original/new child directory identities are checked across intended
+  replacement moves and rollback. Contained review plans use version 2 and include
+  a local native-namespace observation identity; legacy version 1 behavior remains.
+  Saved observations do not reconstruct actors or grant cleanup permission.
+  Root application metadata/aliases and original signed promotion/history remain
+  intact. The original public journey reproduced a mismatched root destination
+  before registration; the contained rebind control reproduced a root registry
+  read. Corrected legacy/contained rebind, signed-public replacement/history,
+  rollback, source/review/qualification refusal, namespace replacement and existing
+  registration/publication cohorts pass 136 distinct source checks without
+  skips/failures, plus static gates. Rebind distribution/origin observers and the
+  tiny retained Make commands are fixture ports; these are source development
+  controls, not genuine compiler/model, installed or native-platform qualification.
+  Metadata temporary/partial cleanup, complete producer inventory, whole-project/
+  source-parent and migrated historical ownership, and all original release gates
+  remain open.
 
 - **Repository lock context (source partial):** The original lock store now
   follows the selected shared project context. Contained locks and writer markers

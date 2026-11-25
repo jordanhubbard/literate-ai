@@ -36,11 +36,18 @@ ROOT = Path(__file__).resolve().parents[2]
 
 
 class NativeProjectUpdateTests(unittest.TestCase):
+    framework_directory = None
+
     def setUp(self) -> None:
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         self.parent = Path(temporary.name).resolve() / "Adopted Project"
-        self.child = self.parent / ".literate/native-projects/tiny"
+        framework = (
+            self.parent / self.framework_directory
+            if self.framework_directory
+            else self.parent
+        )
+        self.child = framework / ".literate/native-projects/tiny"
         self.child.mkdir(parents=True)
         policy = load_current_standard_lifecycle_policy()
         driver = StandardProjectLifecycleDriver(
@@ -57,14 +64,25 @@ class NativeProjectUpdateTests(unittest.TestCase):
         ).to_dict()
         definition = ProjectDefinition.from_dict(value)
         ProjectConfigurationStore(self.parent).create(
-            replace(definition, project_id="adopted-parent")
+            replace(
+                definition,
+                project_id="adopted-parent",
+                framework_directory=self.framework_directory,
+            )
         )
         ProjectConfigurationStore(self.child).create(
-            replace(definition, project_id="tiny-native")
+            replace(
+                definition,
+                project_id="tiny-native",
+                framework_directory=self.framework_directory,
+            )
         )
         register_native_project(load_project(self.parent), self.child)
-        self.registry = self.parent / NATIVE_PROJECTS_FILE
-        self.manifest = self.child / "literate.project.json"
+        self.framework = ProjectConfigurationStore.context(self.parent).framework_root
+        self.registry = ProjectConfigurationStore.context(self.parent).framework_path(
+            NATIVE_PROJECTS_FILE
+        )
+        self.manifest = ProjectConfigurationStore.manifest_path(self.child)
         self.observers = {
             "distribution_observer": lambda: distribution("new"),
             "origin_observer": origin,
@@ -129,7 +147,7 @@ class NativeProjectUpdateTests(unittest.TestCase):
         plan = self.plan()
         before = self.registry.read_bytes(), self.manifest.read_bytes()
         record = (
-            self.parent
+            self.framework
             / ".literate/native-updates"
             / (plan["identity"][7:23] + ".json")
         )
@@ -149,7 +167,7 @@ class NativeProjectUpdateTests(unittest.TestCase):
         before = self.registry.read_bytes(), self.manifest.read_bytes()
         external = self.parent.parent / "external-recovery"
         external.mkdir()
-        location = self.parent / ".literate/native-updates"
+        location = self.framework / ".literate/native-updates"
         try:
             location.symlink_to(external, target_is_directory=True)
         except (OSError, NotImplementedError):
@@ -194,7 +212,10 @@ class NativeProjectUpdateTests(unittest.TestCase):
 
     @unittest.skipUnless(hasattr(os, "mkfifo"), "requires POSIX FIFOs")
     def test_special_parent_or_child_manifest_cannot_stall_an_update(self):
-        for manifest in (self.parent / "literate.project.json", self.manifest):
+        for manifest in (
+            ProjectConfigurationStore.manifest_path(self.parent),
+            self.manifest,
+        ):
             with self.subTest(manifest=str(manifest.relative_to(self.parent))):
                 original = manifest.read_bytes()
                 registration = self.registry.read_bytes()

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -13,7 +14,7 @@ from literate_ai.adapters.conversion_authority import (
     NATIVE_PROJECTS_FILE,
     _native_project_roots,
 )
-from literate_ai.projects import load_project
+from literate_ai.projects import ProjectConfigurationStore, load_project
 from tests.support.fixtures_test_cli_arbitrary_source import (
     KEY,
     invoke,
@@ -91,7 +92,9 @@ class NativeChildReplacementJourneyTests(unittest.TestCase):
         else:
             first = self.success(*self.arguments(bundle, review, "first"))
         self.child = Path(first["promoted_project"]["project_target"])
-        self.registry = self.parent / NATIVE_PROJECTS_FILE
+        self.registry = ProjectConfigurationStore.context(self.parent).framework_path(
+            NATIVE_PROJECTS_FILE
+        )
         self.success(
             "project",
             "convert-stage",
@@ -191,6 +194,15 @@ class NativeChildReplacementJourneyTests(unittest.TestCase):
         return args, path, plan
 
     def test_signed_replacement_retains_exact_old_promotion_and_current_registry(self):
+        context = ProjectConfigurationStore.context(self.parent)
+        self.assertEqual(
+            self.child.parent, context.framework_path(".literate/native-projects")
+        )
+        self.assertEqual(context.framework_root, self.parent / "litai")
+        private = self.parent / ".literate/native-updates/private.json"
+        private.parent.mkdir(parents=True, exist_ok=True)
+        private.write_bytes(b"private application history fixture")
+        private_inode = private.stat().st_ino
         before = replacement._tree(self.child)
         registry = self.registry.read_bytes()
         args, path, plan = self.planned()
@@ -209,6 +221,14 @@ class NativeChildReplacementJourneyTests(unittest.TestCase):
             _native_project_roots(load_project(self.parent)), (self.child,)
         )
         self.assertNotEqual(replacement._tree(self.child), before)
+        self.assertEqual(private.stat().st_ino, private_inode)
+        self.assertEqual(private.read_bytes(), b"private application history fixture")
+        self.assertTrue(
+            result["replacement"]["recovery_path"].startswith(
+                "litai/.literate/native-updates/"
+            )
+        )
+        self.assertEqual(plan["schema"], "literate-ai/native-child-replacement-plan@2")
         from literate_ai.adapters.component_markdown import parse_component_markdown
 
         component = self.child / result["component"]
@@ -343,7 +363,11 @@ class NativeChildReplacementJourneyTests(unittest.TestCase):
 
     def test_changed_child_content_is_never_silently_replaced(self):
         args, path, _plan = self.planned()
-        manifest = next(self.child.glob("components/*/component.md"))
+        manifest = next(
+            path
+            for relative in load_project(self.child).definition.component_roots
+            for path in (self.child / relative).glob("*/component.md")
+        )
         manifest.write_bytes(manifest.read_bytes() + b"\nConcurrent authored change.\n")
         before = self.registry.read_bytes(), replacement._tree(self.child)
         status, _output, _errors = invoke(*args, "--replace-native-child", str(path))
@@ -390,7 +414,9 @@ class NativeChildReplacementJourneyTests(unittest.TestCase):
         )
         self.assertEqual((self.child / "concurrent.txt").read_text(), "external edit")
         records = list(
-            (self.parent / ".literate/native-updates").glob("r-*/record.json")
+            ProjectConfigurationStore.context(self.parent)
+            .framework_path(".literate/native-updates")
+            .glob("r-*/record.json")
         )
         self.assertEqual(len(records), 1)
         self.assertEqual(json.loads(records[0].read_text())["plan"], plan)
@@ -424,3 +450,30 @@ class NativeChildReplacementJourneyTests(unittest.TestCase):
                 / "old"
             ).is_dir()
         )
+
+    def test_framework_replacement_during_creation_preserves_original_and_copy(self):
+        from literate_ai.cli import source_to_specification as source_cli
+
+        args, path, _plan = self.planned()
+        before = replacement._tree(self.child)
+        framework = ProjectConfigurationStore.context(self.parent).framework_root
+        relative_child = self.child.relative_to(framework)
+        retained = self.root / "original-framework"
+        original = source_cli._create_promoted_project
+        observed = []
+
+        def replace_framework(*args, **kwargs):
+            result = original(*args, **kwargs)
+            framework.rename(retained)
+            shutil.copytree(retained, framework, symlinks=True)
+            observed.append(True)
+            return result
+
+        with patch.object(source_cli, "_create_promoted_project", replace_framework):
+            status, _output, _errors = invoke(
+                *args, "--replace-native-child", str(path)
+            )
+        self.assertEqual(status, 2)
+        self.assertEqual(observed, [True])
+        self.assertEqual(replacement._tree(retained / relative_child), before)
+        self.assertEqual(replacement._tree(self.child), before)

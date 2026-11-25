@@ -3778,9 +3778,7 @@ def _spec_from_args(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             )
             namespace, name = _coordinate_parts(coordinate, "component")
             project_target = (
-                integration_project.root
-                / ".literate"
-                / "native-projects"
+                integration_project.context.framework_path(".literate/native-projects")
                 / f"{namespace}-{name}"
             )
             try:
