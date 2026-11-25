@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework deferred evidence cleanup now binds POSIX retirement to the exact manifest, original native roots and a private recovery journal. Legacy path-only tickets and replaced/private entries refuse; interrupted cleanup resumes from empty original-directory anchors. Native Windows cleanup remains unavailable pending its native owner and qualification.
+
 - Framework evidence archives now stream native verified files against the captured manifest ledger, verify compressed output bytes, and publish without replacing existing final or fixed partial files. Failed private partials remain for owned recovery; full transfer cleanup and supported-platform qualification remain pending.
 
 Project layout: census producer evidence without following links, stream exact native file descriptors within existing quotas, verify copied bytes, and preserve regular hardlink-path accounting. Native Windows and complete transfer/recovery qualification remain pending.

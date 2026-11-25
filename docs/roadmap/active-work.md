@@ -26575,6 +26575,28 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Producer-bound native cleanup (POSIX source partial):** Deferred attempts now
+  retain their actual creation observations in original live native root owners
+  through evidence publication. A bounded closing metadata census, exact original
+  root/parent identities and a private journal anchor are sealed in the existing
+  evidence file ledger; the portable manifest schema stays unchanged. New v2 tickets
+  carry that original manifest and intent. Acknowledgement validates their exact
+  coordinator identities, original native journal anchor and every root before
+  effects. Original no-replace movement places each root into its captured private
+  retirement slot; only captured entries can retire through native parent custody.
+  Empty original directories remain native recovery anchors. Actual process exits
+  after movement and partial deletion resume from those anchors; repeated ACKs
+  validate original emptiness and preserve new private data. Added/replaced entries,
+  copied/retired producer objects, replaced controls and path-only legacy tickets
+  refuse. Control reads are bounded/nonblocking; lock contention remains a scoped
+  cleanup refusal. Local contained runtime/archive/import/ACK and terminal lease
+  controls exercise the original flow, including current custody corruption gates.
+  This is cooperative POSIX source custody, not hostile same-user isolation or full
+  installed transfer qualification. Native Windows cleanup currently refuses before
+  moving an original root; implementing and qualifying that native owner remains
+  required. Existing evidence-staging disposal, immediate/short-cache cleanup,
+  complete project/source ownership and all original release gates remain open.
+
 - **Producer native archive stream/publication (partial):** The original tar/gzip
   producer now consumes bounded native source descriptors inside a closing namespace
   census. The original evidence manifest's exact path/size/hash/executable ledger

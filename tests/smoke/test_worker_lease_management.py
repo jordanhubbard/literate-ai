@@ -492,35 +492,49 @@ class WorkerLeaseTests(unittest.TestCase):
         request = self.record()["management"]["release_request"]
         store = Path(completion["store_path"])
         blobs = list((store / "blobs" / "sha256").glob("*/*"))
-        self.assertEqual(len(blobs), 1)
-        blob = blobs[0]
-        original = blob.read_bytes()
-        for damaged in (None, bytes([original[0] ^ 1]) + original[1:]):
-            with self.subTest(damage="missing" if damaged is None else "corrupt"):
-                if damaged is None:
-                    blob.unlink()
-                else:
-                    blob.write_bytes(damaged)
-                with self.assertRaises(ExecutionDispatchAdapterError) as raised:
-                    self.terminal_release.release()
-                self.assertEqual(
-                    raised.exception.code,
-                    "worker.provisioner_completion_custody_unavailable",
-                )
-                # The public recovery owner must preserve the custody gate too.
-                with self.assertRaises(ExecutionDispatchAdapterError) as recovery:
-                    self.manage("release")
-                self.assertEqual(
-                    recovery.exception.code,
-                    "worker.provisioner_completion_custody_unavailable",
-                )
-                self.assertFalse((self.root / "released").exists())
-                self.assertEqual(self.record()["dispatch"]["completion"], completion)
-                self.assertEqual(
-                    self.record()["management"]["release_request"], request
-                )
-                self.assertEqual((self.root / "application-runs").read_bytes(), b"x")
-                blob.write_bytes(original)
+        manifest_digest = ContentIdentity.parse_uri(
+            completion["manifest_identity"]
+        ).digest
+        manifest = json.loads(
+            (store / "manifests" / "sha256" / (manifest_digest + ".json")).read_bytes()
+        )
+        self.assertTrue(manifest["files"])
+        self.assertEqual(
+            {blob.name for blob in blobs},
+            {row["identity"]["digest"] for row in manifest["files"]},
+        )
+        for blob in blobs:
+            original = blob.read_bytes()
+            for damaged in (None, bytes([original[0] ^ 1]) + original[1:]):
+                with self.subTest(damage="missing" if damaged is None else "corrupt"):
+                    if damaged is None:
+                        blob.unlink()
+                    else:
+                        blob.write_bytes(damaged)
+                    with self.assertRaises(ExecutionDispatchAdapterError) as raised:
+                        self.terminal_release.release()
+                    self.assertEqual(
+                        raised.exception.code,
+                        "worker.provisioner_completion_custody_unavailable",
+                    )
+                    # The public recovery owner must preserve the custody gate too.
+                    with self.assertRaises(ExecutionDispatchAdapterError) as recovery:
+                        self.manage("release")
+                    self.assertEqual(
+                        recovery.exception.code,
+                        "worker.provisioner_completion_custody_unavailable",
+                    )
+                    self.assertFalse((self.root / "released").exists())
+                    self.assertEqual(
+                        self.record()["dispatch"]["completion"], completion
+                    )
+                    self.assertEqual(
+                        self.record()["management"]["release_request"], request
+                    )
+                    self.assertEqual(
+                        (self.root / "application-runs").read_bytes(), b"x"
+                    )
+                    blob.write_bytes(original)
         # Restoring current evidence permits the same pending release; no rebuild
         # or previous TEST artifact is present in this fresh coordinator store.
         self.terminal_release.release()

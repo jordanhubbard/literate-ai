@@ -198,8 +198,13 @@ bytes against the captured evidence ledger. Deterministic tar/gzip formatting is
 retained. Unique temporary outputs are verified before atomic publication that
 refuses existing final names; failed partials remain for owned recovery. Native
 hardlink support is required and unsupported publication fails closed. Deferred
-cleanup ticket/ACK recovery, staging disposal and installed/native Windows transfer
-qualification remain open.
+cleanup now joins the exact acknowledged manifest to an evidence-ledger intent and
+original native journal/root identities. POSIX source controls retire captured
+entries in a private slot and retain the empty original directory as a recovery
+anchor. Added/replaced entries and legacy path-only tickets refuse. Repeated ACKs
+revalidate original emptiness. Native Windows cleanup refuses before root movement
+until its native owner is implemented and qualified. Staging disposal, immediate
+cleanup and full installed/supported-platform transfer qualification remain open.
 
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned

@@ -66,7 +66,6 @@ from literate_ai.contracts import (
     canonical_identity,
     canonical_json_bytes,
     coordinator_evidence_import_identity,
-    remote_cleanup_acknowledgement_identity,
 )
 from literate_ai.contracts.library_products import (
     LibraryArtifactProduct,
@@ -85,6 +84,13 @@ from literate_ai.remote_source_guard import (
 from .artifact_exports import ArtifactEntrypointCommand, ArtifactExportError
 from .evidence_archive import write_evidence_archive
 from .evidence_files import EvidenceFileLimit, copy_evidence_files
+from .remote_cleanup import (
+    INTENT_PATH,
+    acknowledge_cleanup,
+    capture_cleanup_intent,
+    hold_cleanup_root,
+    write_cleanup_ticket,
+)
 
 _CAS_SCHEME = "litai-worker-cas"
 _EVIDENCE_URI = "staged:remote-evidence.tar.gz"
@@ -534,7 +540,9 @@ def _write_remote_evidence(
     artifact: Path | None,
     output: Path,
     cleanup_token: str,
-) -> tuple[RemoteLifecycleEvidenceManifest, ContentReference]:
+    cleanup_roots: tuple[object, ...],
+    cleanup_ticket: Path,
+) -> tuple[RemoteLifecycleEvidenceManifest, ContentReference, dict]:
     temporary_root = Path(resolve_host_paths().temporary_root)
     prepare_user_directory(temporary_root, temporary_root)
     staging = Path(
@@ -648,6 +656,31 @@ def _write_remote_evidence(
                     _file_identity(package),
                 )
             )
+        cleanup_intent = capture_cleanup_intent(
+            cleanup_roots,
+            request_identity=request.identity,
+            cleanup_token=cleanup_token,
+            ticket=cleanup_ticket,
+        )
+        cleanup_bytes = canonical_json_bytes(cleanup_intent)
+        cleanup_path = staging.joinpath(*INTENT_PATH.split("/"))
+        cleanup_path.write_bytes(cleanup_bytes)
+        totals[0] += len(cleanup_bytes)
+        if len(files) >= _MAX_EVIDENCE_FILES or totals[0] > _MAX_EVIDENCE_BYTES:
+            raise RemoteExecutionError(
+                "execution.remote_evidence_too_large",
+                "native cleanup intent exceeds evidence custody limits",
+            )
+        files.append(
+            RemoteEvidenceFile(
+                INTENT_PATH,
+                "manifest",
+                len(cleanup_bytes),
+                ContentIdentity(
+                    HashAlgorithm.SHA256, hashlib.sha256(cleanup_bytes).hexdigest()
+                ),
+            )
+        )
         files.sort(key=lambda item: item.path)
         manifest = RemoteLifecycleEvidenceManifest(
             request.identity,
@@ -689,8 +722,12 @@ def _write_remote_evidence(
         bundle_identity = _write_deterministic_tar_gz(
             staging, output, expected=expected
         )
-        return manifest, ContentReference(
-            "remote-lifecycle-evidence", _EVIDENCE_URI, bundle_identity
+        return (
+            manifest,
+            ContentReference(
+                "remote-lifecycle-evidence", _EVIDENCE_URI, bundle_identity
+            ),
+            cleanup_intent,
         )
     finally:
         shutil.rmtree(staging, ignore_errors=True)
@@ -1444,6 +1481,7 @@ def materialize_and_execute(
     lifecycle_custody: RemoteLifecycleCustody | None = None
     artifact: Path | None = None
     cleanup_token = uuid.uuid4().hex
+    cleanup_roots = []
 
     def recording_rebuild(**values: Any) -> dict[str, object]:
         nonlocal lifecycle_result, artifact, lifecycle_custody
@@ -1454,11 +1492,23 @@ def materialize_and_execute(
         return lifecycle_result
 
     try:
+        if deferred_cleanup:
+            cleanup_roots.append(
+                runtime_lifetime.enter_context(
+                    hold_cleanup_root(destination, workspace_node)
+                )
+            )
         project_root = destination / "literate-ai"
         if accepted_source_cache_archive is not None:
             short_attempt = Path(
                 tempfile.mkdtemp(prefix=f"litai-s-{cleanup_token[:8]}-")
             ).resolve(strict=True)
+            if deferred_cleanup:
+                cleanup_roots.append(
+                    runtime_lifetime.enter_context(
+                        hold_cleanup_root(short_attempt, short_attempt.lstat())
+                    )
+                )
             lifecycle_custody = RemoteLifecycleCustody(
                 short_attempt,
                 bind_cache_directories(
@@ -1541,7 +1591,7 @@ def materialize_and_execute(
             result = replace(result, diagnostic_digest=failure.identity.uri)
         if evidence_output is None or cleanup_ticket is None:
             return result
-        manifest, reference = _write_remote_evidence(
+        manifest, reference, cleanup_intent = _write_remote_evidence(
             worker=worker,
             request=request,
             materialization=materialization,
@@ -1552,20 +1602,12 @@ def materialize_and_execute(
             artifact=artifact,
             output=Path(evidence_output),
             cleanup_token=cleanup_token,
+            cleanup_roots=tuple(cleanup_roots),
+            cleanup_ticket=Path(cleanup_ticket),
         )
-        ticket_value = {
-            "schema": "literate-ai/remote-evidence-cleanup-ticket@1",
-            "cleanup_token": cleanup_token,
-            "request_identity": request.identity.uri,
-            "manifest_identity": manifest.identity.uri,
-            "bundle_identity": reference.identity.uri,
-            "roots": [
-                str(item) for item in (destination, short_attempt) if item is not None
-            ],
-        }
-        ticket_path = Path(cleanup_ticket)
-        ticket_path.parent.mkdir(parents=True, exist_ok=True)
-        ticket_path.write_bytes(canonical_json_bytes(ticket_value))
+        write_cleanup_ticket(
+            Path(cleanup_ticket), manifest, reference.identity, cleanup_intent
+        )
         return replace(
             result,
             evidence_manifest=manifest,
@@ -1991,112 +2033,21 @@ def acknowledge_remote_evidence_cleanup(
     acknowledgement_root: Path,
     retries: int = 3,
 ) -> ContentIdentity:
-    """Delete ticket-bound attempt roots after coordinator acknowledgement."""
-
-    ack_root = Path(acknowledgement_root).resolve()
-    ack_root.mkdir(parents=True, exist_ok=True)
-    ack_path = ack_root / f"{manifest_identity.digest}.json"
-    if ack_path.is_file():
-        try:
-            value = json.loads(ack_path.read_text(encoding="utf-8"))
-            acknowledgement = ContentIdentity.parse_uri(
-                str(value["acknowledgement_identity"])
-            )
-        except (
-            OSError,
-            UnicodeError,
-            json.JSONDecodeError,
-            KeyError,
-            ValueError,
-        ) as exc:
-            raise RemoteExecutionError(
-                "execution.remote_cleanup_acknowledgement_invalid",
-                "stored remote cleanup acknowledgement is invalid",
-            ) from exc
-        if (
-            value.get("schema")
-            != "literate-ai/remote-evidence-cleanup-acknowledgement@1"
-            or value.get("manifest_identity") != manifest_identity.uri
-            or value.get("bundle_identity") != bundle_identity.uri
-        ):
-            raise RemoteExecutionError(
-                "execution.remote_cleanup_acknowledgement_mismatch",
-                "stored cleanup acknowledgement binds different evidence custody",
-            )
-        return acknowledgement
+    """Join exact acknowledged evidence to fresh original native cleanup custody."""
     try:
-        value = json.loads(Path(ticket).read_text(encoding="utf-8"))
-    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return acknowledge_cleanup(
+            ticket,
+            manifest_identity=manifest_identity,
+            bundle_identity=bundle_identity,
+            acknowledgement_root=acknowledgement_root,
+            retries=retries,
+        )
+    except (ValueError, OSError, KeyError, TypeError, RuntimeError) as exc:
         raise RemoteExecutionError(
-            "execution.remote_cleanup_ticket_invalid",
-            "remote cleanup ticket is unavailable or invalid",
+            "execution.remote_cleanup_custody_invalid",
+            "native remote cleanup refused; original or conflicting state retained: "
+            + _redact_diagnostic(exc),
         ) from exc
-    if (
-        not isinstance(value, dict)
-        or value.get("schema") != "literate-ai/remote-evidence-cleanup-ticket@1"
-        or value.get("manifest_identity") != manifest_identity.uri
-        or value.get("bundle_identity") != bundle_identity.uri
-        or not isinstance(value.get("request_identity"), str)
-        or not isinstance(value.get("cleanup_token"), str)
-        or not re.fullmatch(r"[0-9a-f]{32}", value["cleanup_token"])
-        or not isinstance(value.get("roots"), list)
-    ):
-        raise RemoteExecutionError(
-            "execution.remote_cleanup_ticket_mismatch",
-            "remote cleanup ticket does not bind the acknowledged custody transfer",
-        )
-    request = ContentIdentity.parse_uri(value["request_identity"])
-    roots = tuple(Path(str(item)).resolve() for item in value["roots"])
-    if not roots or len(roots) > 2 or len(set(roots)) != len(roots):
-        raise RemoteExecutionError(
-            "execution.remote_cleanup_ticket_invalid",
-            "remote cleanup ticket names an invalid root set",
-        )
-    for root in roots:
-        safe_workspace = root.name.startswith(request.digest[:24] + "-")
-        safe_attempt = root.name.startswith(f"litai-s-{value['cleanup_token'][:8]}-")
-        if root == Path(root.anchor) or not (safe_workspace or safe_attempt):
-            raise RemoteExecutionError(
-                "execution.remote_cleanup_root_unsafe",
-                "remote cleanup ticket names a root outside attempt custody",
-            )
-    failures: list[str] = []
-    for root in roots:
-        for attempt in range(retries):
-            try:
-                shutil.rmtree(root)
-                break
-            except FileNotFoundError:
-                break
-            except OSError as exc:
-                if attempt + 1 == retries:
-                    failures.append(_redact_diagnostic(exc))
-                else:
-                    __import__("time").sleep(0.05 * (attempt + 1))
-    if failures:
-        raise RemoteExecutionError(
-            "execution.remote_cleanup_failed",
-            "acknowledged remote custody cleanup failed after bounded retries: "
-            + "; ".join(failures),
-        )
-    acknowledgement = remote_cleanup_acknowledgement_identity(
-        request_identity=request,
-        manifest_identity=manifest_identity,
-        bundle_identity=bundle_identity,
-        cleanup_token=value["cleanup_token"],
-    )
-    ack_path.write_bytes(
-        canonical_json_bytes(
-            {
-                "schema": "literate-ai/remote-evidence-cleanup-acknowledgement@1",
-                "manifest_identity": manifest_identity.uri,
-                "bundle_identity": bundle_identity.uri,
-                "acknowledgement_identity": acknowledgement.uri,
-            }
-        )
-    )
-    Path(ticket).unlink(missing_ok=True)
-    return acknowledgement
 
 
 def _restore_accepted_source_cache(build_dir: Path, archive: Path) -> None:

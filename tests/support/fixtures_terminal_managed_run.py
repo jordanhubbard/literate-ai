@@ -15,6 +15,12 @@ from dataclasses import replace
 from pathlib import Path
 
 from literate_ai.adapters.builders import run_bounded_process
+from literate_ai.adapters.remote_cleanup import (
+    INTENT_PATH,
+    capture_cleanup_intent,
+    hold_cleanup_root,
+    write_cleanup_ticket,
+)
 from literate_ai.adapters.remote_execution import (
     acknowledge_remote_evidence_cleanup,
     load_and_import_remote_evidence_bundle,
@@ -79,6 +85,19 @@ def imported_run_result(root, worker, request, result, *, exit_status=0):
     file_identity = ContentIdentity.parse_uri(
         "sha256:" + hashlib.sha256(payload).hexdigest()
     )
+    run_key = request.identity.digest[:24] + "-" + uuid.uuid4().hex[:12]
+    workspace = root / "simulated-worker" / run_key
+    workspace.mkdir(parents=True)
+    ticket = root / (run_key + ".json")
+    cleanup_token = uuid.uuid4().hex
+    with hold_cleanup_root(workspace, workspace.lstat()) as owner:
+        cleanup_intent = capture_cleanup_intent(
+            (owner,),
+            request_identity=request.identity,
+            cleanup_token=cleanup_token,
+            ticket=ticket,
+        )
+    cleanup_bytes = canonical_json_bytes(cleanup_intent)
     manifest = RemoteLifecycleEvidenceManifest(
         request_identity=request.identity,
         authority_identity=request.authority_identity,
@@ -101,11 +120,19 @@ def imported_run_result(root, worker, request, result, *, exit_status=0):
         stage_identities=(),
         files=(
             RemoteEvidenceFile("logs/result.json", "log", len(payload), file_identity),
+            RemoteEvidenceFile(
+                INTENT_PATH,
+                "manifest",
+                len(cleanup_bytes),
+                ContentIdentity.parse_uri(
+                    "sha256:" + hashlib.sha256(cleanup_bytes).hexdigest()
+                ),
+            ),
         ),
         failure=None
         if child.returncode == 0
         else RemoteFailureDiagnostic("fixture.failed", "Fixture app failed"),
-        cleanup_token=uuid.uuid4().hex,
+        cleanup_token=cleanup_token,
     )
     manifest_bytes = canonical_json_bytes(manifest.to_dict())
     bundle = root / ("evidence-" + uuid.uuid4().hex + ".tar.gz")
@@ -113,6 +140,7 @@ def imported_run_result(root, worker, request, result, *, exit_status=0):
         for name, data in [
             ("remote-evidence-manifest.json", manifest_bytes),
             ("logs/result.json", payload),
+            (INTENT_PATH, cleanup_bytes),
         ]:
             member = tarfile.TarInfo(name)
             member.size = len(data)
@@ -132,22 +160,7 @@ def imported_run_result(root, worker, request, result, *, exit_status=0):
         expected_bundle_size=bundle.stat().st_size,
         store_root=obj / "remote-evidence-cas",
     )
-    run_key = request.identity.digest[:24] + "-" + uuid.uuid4().hex[:12]
-    workspace = root / "simulated-worker" / run_key
-    workspace.mkdir(parents=True)
-    ticket = root / (run_key + ".json")
-    ticket.write_bytes(
-        canonical_json_bytes(
-            {
-                "schema": "literate-ai/remote-evidence-cleanup-ticket@1",
-                "cleanup_token": manifest.cleanup_token,
-                "request_identity": request.identity.uri,
-                "manifest_identity": manifest.identity.uri,
-                "bundle_identity": bundle_identity.uri,
-                "roots": [str(workspace)],
-            }
-        )
-    )
+    write_cleanup_ticket(ticket, manifest, bundle_identity, cleanup_intent)
     ack = acknowledge_remote_evidence_cleanup(
         ticket,
         manifest_identity=manifest.identity,

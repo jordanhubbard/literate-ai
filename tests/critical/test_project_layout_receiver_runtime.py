@@ -321,6 +321,23 @@ class ReceiverRuntimeTests(unittest.TestCase):
             store_root=self.f.base / "coordinator-cas",
         )
         self.assertIsNotNone(imported)
+        acknowledgement = remote.acknowledge_remote_evidence_cleanup(
+            ticket,
+            manifest_identity=result.evidence_manifest.identity,
+            bundle_identity=result.evidence_reference.identity,
+            acknowledgement_root=self.f.base / "acks",
+        )
+        self.assertFalse(workspace.exists())
+        self.assertFalse(ticket.exists())
+        self.assertEqual(
+            remote.acknowledge_remote_evidence_cleanup(
+                ticket,
+                manifest_identity=result.evidence_manifest.identity,
+                bundle_identity=result.evidence_reference.identity,
+                acknowledgement_root=self.f.base / "acks",
+            ),
+            acknowledgement,
+        )
         self.assertEqual(
             (self.project.root / "native.txt").read_bytes(), b"application source\n"
         )
