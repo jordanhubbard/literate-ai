@@ -202,8 +202,11 @@ cleanup now joins the exact acknowledged manifest to an evidence-ledger intent a
 original native journal/root identities. POSIX source controls retire captured
 entries in a private slot and retain the empty original directory as a recovery
 anchor. Added/replaced entries and legacy path-only tickets refuse. Repeated ACKs
-revalidate original emptiness. Native Windows cleanup refuses before root movement
-until its native owner is implemented and qualified. Staging disposal, immediate
+revalidate original emptiness. Windows entry/ticket disposal now uses verified
+native handles and extended disposition without changing readonly hardlink peers.
+Unsupported operations preserve recovery state. This implementation has local API
+model coverage; the producer's live-lock metadata sharing still needs integration,
+and actual native Windows acceptance remains unproven. Staging disposal, immediate
 cleanup and full installed/supported-platform transfer qualification remain open.
 
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,

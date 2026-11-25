@@ -31,7 +31,9 @@ from .evidence_files import (
     _access,
     _descriptor_identity,
     _name,
+    _PosixAccess,
     _signature,
+    _WindowsAccess,
 )
 from .exclusive_entry import layout_entry_node, move_layout_entry_exclusive
 
@@ -168,7 +170,7 @@ def _private_directory(parent):
     ensure_safe_directory(parent)
     with _access(parent) as access:
         name = ".c-" + uuid.uuid4().hex[:20]
-        if os.name == "posix":
+        if isinstance(access, _PosixAccess):
             os.mkdir(name, 0o700, dir_fd=access.directory(()))
         else:
             os.mkdir(parent / name, 0o700)
@@ -391,7 +393,7 @@ def _remove_entry(root, relative, expected, entries, guard):
         if current != expected:
             _fail("entry changed before retirement; preserved")
         directory = stat.S_ISDIR(int(expected["mode"]))
-        if os.name == "posix":
+        if isinstance(access, _PosixAccess):
             descriptor = access.directory(())
             if directory:
                 from .qualification_workspace_namespace import (
@@ -422,15 +424,19 @@ def _remove_entry(root, relative, expected, entries, guard):
                 if _entry(access, (parts[-1],)) != expected:
                     _fail("leaf changed before unlink; preserved")
                 os.unlink(parts[-1], dir_fd=descriptor)
+        elif isinstance(access, _WindowsAccess):
+            from .windows_cleanup import remove_windows_entry
+
+            remove_windows_entry(access, parts[-1], expected, guard)
         else:
-            _fail("native cleanup deletion for this platform is not yet qualified")
+            _fail("original native cleanup parent implementation required")
         access.current()
     _boundary("after-entry")
 
 
 def _retire_root(binding, journal, index, intent_digest, guard):
-    if os.name != "posix":
-        _fail("native cleanup deletion for this platform remains unqualified")
+    if os.name not in {"posix", "nt"}:
+        _fail("native cleanup deletion for this platform is unsupported")
     source = _path(binding["path"])
     container = binding["retirement"]
     _require_binding(container)
@@ -620,9 +626,40 @@ def acknowledge_cleanup(
             node, native = access.metadata((ticket.name,))
             if _facts(node, native) != original_ticket:
                 _fail("ticket replaced before retirement; preserved")
-            if os.name == "posix":
+            if isinstance(access, _PosixAccess):
                 os.unlink(ticket.name, dir_fd=access.directory(()))
+            elif isinstance(access, _WindowsAccess):
+                from .windows_cleanup import remove_windows_entry
+
+                # Bind fresh actual ACK/anchor controls while the ticket's own
+                # DELETE handle lives. Its deny-delete reader is already closed.
+                with (
+                    _control(ack_path, 3 * _LIMIT) as (stored, _ack_node, ack_guard),
+                    _control(journal / "anchor.json") as (
+                        saved_anchor,
+                        saved_node,
+                        saved_guard,
+                    ),
+                ):
+                    if (
+                        stored != ack
+                        or saved_anchor != anchor
+                        or saved_node != intent["anchor"]
+                    ):
+                        _fail("original ACK/anchor changed before ticket retirement")
+
+                    def retire_guard():
+                        ack_guard()
+                        saved_guard()
+                        _require_binding(intent["journal"])
+
+                    with exclusive_cache_lock(
+                        journal / "cleanup.lock", timeout_seconds=1
+                    ):
+                        remove_windows_entry(
+                            access, ticket.name, original_ticket, retire_guard
+                        )
             else:
-                os.unlink(ticket)
+                _fail("original native ticket parent implementation required")
             access.current()
     return acknowledgement

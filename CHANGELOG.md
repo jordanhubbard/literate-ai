@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework captured-entry and cleanup-ticket disposal now has a Windows native-handle implementation with checked identity, extended disposition and handle closure. Readonly hardlink peers keep their attributes. Local API-model controls pass; producer live-lock metadata integration and actual native Windows qualification remain required.
+
 - Framework deferred evidence cleanup now binds POSIX retirement to the exact manifest, original native roots and a private recovery journal. Legacy path-only tickets and replaced/private entries refuse; interrupted cleanup resumes from empty original-directory anchors. Native Windows cleanup remains unavailable pending its native owner and qualification.
 
 - Framework evidence archives now stream native verified files against the captured manifest ledger, verify compressed output bytes, and publish without replacing existing final or fixed partial files. Failed private partials remain for owned recovery; full transfer cleanup and supported-platform qualification remain pending.

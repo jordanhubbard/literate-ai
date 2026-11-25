@@ -26575,6 +26575,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Windows handle disposal (source/API-model partial):** Captured regular files,
+  empty directories and the exact original cleanup ticket now retire through a
+  reparse-aware native DELETE/READ_ATTRIBUTES handle under original parent custody.
+  Captured volume/file identity, type, size, native timestamp and readonly metadata
+  are checked before extended disposition; the actual handle close and named
+  postcondition must succeed. Readonly hardlink peers retain their attributes and
+  bytes. Unsupported APIs/filesystems, mapped-image refusal, substitutions, changed
+  controls and failed closes report a retained recovery state with no pathname or
+  attribute-changing deletion fallback. An explicit POSIX-backed Windows API model
+  exercises the original producer/journal/ACK join, native ABI/flags, exact handle
+  balance, readonly hardlinks, native metadata refusal and resumed original cleanup
+  after a close failure. It uses POSIX rename/lock substrate and supplies no native
+  Windows acceptance. Existing local receiver/import/ACK, POSIX recovery, archive
+  and terminal lease controls remain green: 84 distinct source checks plus static
+  gates, with no skips/failures. Actual Windows and installed qualification remain
+  required. **Next required integration fix:** the full producer census can meet
+  still-live writable cache/runtime lock files; its current native metadata reader
+  denies write sharing. Add metadata-only READ_ATTRIBUTES observation compatible
+  with those original live writers, retaining closing native census checks and the
+  original owner through publication. Do not relax payload readers/deletion handles
+  or retire runtime ownership early to avoid the conflict. Then continue staging
+  disposal, remaining containment and the full original release acceptance.
+
 - **Producer-bound native cleanup (POSIX source partial):** Deferred attempts now
   retain their actual creation observations in original live native root owners
   through evidence publication. A bounded closing metadata census, exact original
@@ -26592,9 +26615,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
   cleanup refusal. Local contained runtime/archive/import/ACK and terminal lease
   controls exercise the original flow, including current custody corruption gates.
   This is cooperative POSIX source custody, not hostile same-user isolation or full
-  installed transfer qualification. Native Windows cleanup currently refuses before
-  moving an original root; implementing and qualifying that native owner remains
-  required. Existing evidence-staging disposal, immediate/short-cache cleanup,
+  installed transfer qualification. The Windows handle-disposal increment above
+  still requires producer integration and native qualification. Existing
+  evidence-staging disposal, immediate/short-cache cleanup,
   complete project/source ownership and all original release gates remain open.
 
 - **Producer native archive stream/publication (partial):** The original tar/gzip
