@@ -135,3 +135,25 @@ class ContainedDeclaredSkillCatalogTests(unittest.TestCase):
                 reference_root_coordinates={"skills": "litai/unrelated"},
             )
         self.assertEqual(raised.exception.code, "agent_skill.path_conflict")
+
+    def test_contained_root_skill_and_unmoved_declared_catalog_keep_logical_join(self):
+        (self.root / "litai/skills").rename(self.root / "skills")
+        root = self.root / "litai/SKILL.md"
+        root.write_bytes(
+            skill("root", "Read `litai/SKILL.md` and `skills/agent/child/SKILL.md`.")
+        )
+        self.definition = replace(self.definition, skill_roots=("skills",))
+        self.configure()
+        catalog = project_skill_catalog(load_project(self.root))
+        self.assertEqual(
+            catalog.by_name("root").logical_manifest, PurePosixPath("SKILL.md")
+        )
+        self.assertEqual(catalog.by_name("root").manifest_path, root)
+        self.assertEqual(catalog.by_name("child").ancestors, ("root",))
+        self.assertEqual(catalog.unresolved_references(), ())
+        # Alias authority comes from the actual declared agent coordinate. It
+        # does not admit a competing old-root file, even when bytes match.
+        (self.root / "SKILL.md").write_bytes(root.read_bytes())
+        with self.assertRaises(ProjectError) as caught:
+            project_skill_catalog(load_project(self.root))
+        self.assertEqual(caught.exception.code, "project.skill_placement_conflict")

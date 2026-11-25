@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep a contained root Skill logically joined to an unchanged declared Skill catalog, while refusing competing root authority.
+
 - Register and validate bounded framework placement and rollback results without granting producer finalization or release qualification.
 
 - Recognize unchanged contained ignore files from original initialization or framework-base proofs during fresh migration planning, while preserving custom and application-owned ignore rules.

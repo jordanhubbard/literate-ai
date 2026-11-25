@@ -1778,7 +1778,11 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
         and "litai/skills" in project.definition.skill_roots
         and "skills" not in project.definition.skill_roots
     )
-    if contained_only and project.definition.agent_skill == "litai/SKILL.md":
+    contained_agent = (
+        project.definition.framework_directory == "litai"
+        and project.definition.agent_skill == "litai/SKILL.md"
+    )
+    if contained_agent:
         coordinates["SKILL.md"] = "litai/SKILL.md"
     try:
         catalog = AgentSkillCatalog.discover(
@@ -1794,7 +1798,7 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
                 else {}
             ),
         )
-        if contained_only:
+        if contained_only or contained_agent:
             from literate_ai.adapters.retained_layout import (
                 original_source_occupies_coordinate,
             )
@@ -1802,7 +1806,8 @@ def project_skill_catalog(project: LoadedProject) -> AgentSkillCatalog:
             for skill in catalog.skills:
                 for logical in skill.owned_paths:
                     if not (
-                        logical.parts[0] == "skills"
+                        contained_only
+                        and logical.parts[0] == "skills"
                         or str(logical) == "SKILL.md"
                         and coordinates.get("SKILL.md") == "litai/SKILL.md"
                     ):
