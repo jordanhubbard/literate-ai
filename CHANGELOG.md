@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Project layout: keep retained-child execution logs and receipts in the selected framework directory while preserving native child outputs. Bind reviewed lifecycle plans to the manifest and stop before a dependent child when it changes.
+
 Project layout: expose acknowledged catalog producer renewal and scoped source finalization through public commands, preserving original recovery. Full-project containment and platform qualification remain pending.
 
 - Finalize inherited Component source namespaces from fresh Root and normal producer checks while preserving native control inodes and original rollback history. Reject unknown residual names before payload reads; public/full-project and supported-platform qualification remain open.

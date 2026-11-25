@@ -26575,6 +26575,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Retained-child runtime containment (partial):** Repository lifecycle logs,
+  execution lock and receipts now use the declared framework directory, while
+  actual child commands and native products retain application coordinates.
+  Reviewed plans bind the selected manifest path and exact bytes; a layout move
+  invalidates the old plan, and a manifest change after the first actual child
+  stops execution before its dependent child. Real Git/subprocess source controls
+  cover contained build/resume, application output preservation, direct output
+  ancestry and dual-authority refusal, alongside the conventional root profile.
+  This scoped runtime owner does not establish remote dispatch, full framework
+  state containment or installed supported-platform lifecycle qualification.
+
 - **Public composed Component flow (partial):** Acknowledged catalog renewal now
   selects an original placed Component and recorded target before normal
   preparation, using `--place-imported-catalogs` and an explicit original

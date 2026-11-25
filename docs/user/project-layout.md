@@ -167,6 +167,12 @@ belong to that same framework directory. Contained release output defaults use
 `litai/_build/release/`. A project-relative application path still resolves from
 the application root; declaring a framework directory does not rebase it.
 
+Retained-child repository lifecycle execution keeps its logs, execution lock and
+receipts under `litai/_build/lifecycle/` for a contained project. Child command
+working directories and native products keep their original child coordinates.
+Reviewed lifecycle plans bind the exact selected project manifest; moving or
+changing that authority requires a new plan, including before resuming a run.
+
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned
 content delegates into the configured onboarding skill. Custom instructions and
