@@ -11,7 +11,7 @@ import json
 import os
 import tempfile
 from collections.abc import Callable
-from contextlib import suppress
+from contextlib import contextmanager, suppress
 from pathlib import Path
 from typing import Any
 
@@ -122,9 +122,76 @@ def _parse_document(content: bytes) -> dict[str, Any]:
     return value
 
 
-def _write_new(path: Path, content: bytes) -> tuple[int, int]:
+def _stage_coordinate(owner, path):
+    from .evidence_staging import EvidenceStage
+
+    root = EvidenceStage.path.__get__(owner)
+    try:
+        relative = Path(path).absolute().relative_to(root).as_posix()
+    except ValueError:
+        _fail("staging_scope", "metadata output differs from original staging owner")
+    return _relative(relative)
+
+
+@contextmanager
+def _refresh_staging(project):
+    from literate_ai._cache_lock import CacheLockError
+    from literate_ai.cache_directories import CacheDirectoryError
+    from literate_ai.projects import ProjectConfigurationStore, load_project
+
+    from .evidence_staging import EvidenceStagingError
+    from .project_runtime import ProjectRuntimeError, project_inspection_staging
+
+    context = ProjectConfigurationStore.context(project)
+    if context.framework_root == context.root:
+        with tempfile.TemporaryDirectory(
+            prefix="litai-monorepo-refresh-", dir=project.parent
+        ) as temporary:
+            yield Path(temporary), None
+        return
+    coordinate = None
+    body_error = None
+    try:
+        with project_inspection_staging(load_project(project), prefix=".mr-") as owner:
+            coordinate = owner.path.relative_to(context.root).as_posix()
+            try:
+                yield owner.path, owner
+            except BaseException as error:
+                body_error = error
+                raise
+    except (
+        EvidenceStagingError,
+        ProjectRuntimeError,
+        CacheLockError,
+        CacheDirectoryError,
+        UnsafeFilesystemPathError,
+    ) as error:
+        if body_error is not None and not isinstance(body_error, EvidenceStagingError):
+            if error is not body_error:
+                body_error.add_note(
+                    "Monorepo staging closure refused; preserve remaining state: "
+                    + str(error)
+                )
+                raise body_error from error
+            raise
+        message = "Monorepo staging conflict; preserve remaining state"
+        if coordinate is not None:
+            message += f" (original coordinate: {coordinate})"
+        _fail("staging_conflict", message)
+
+
+def _write_new(
+    path: Path, content: bytes, *, _output_owner=None
+) -> tuple[int, int] | None:
     if len(content) > _MAX_DOCUMENT:
         _fail("bundle_invalid", "component evidence document exceeds 16 MiB")
+    if _output_owner is not None:
+        from .evidence_staging import EvidenceStage
+
+        relative = _stage_coordinate(_output_owner, path)
+        EvidenceStage.write(_output_owner, relative, content, durable=True)
+        # The original stage actor owns disposal, not a returned native-ID claim.
+        return None
     require_safe_directory(path.parent)
     identity = None
     try:
@@ -422,11 +489,15 @@ def stage_monorepo_components(
     expected_plan_identity: str,
     acknowledged: bool,
     default_branch: str | None = None,
+    _output_owner=None,
 ) -> dict[str, Any]:
     """Publish a new source-free bundle, not an adopted project."""
     if not acknowledged:
         _fail("acknowledgement_required", "component staging requires acknowledgement")
     ContentIdentity.parse_uri(expected_plan_identity)
+    if _output_owner is not None:
+        _stage_coordinate(_output_owner, destination)
+    write_options = {} if _output_owner is None else {"_output_owner": _output_owner}
     source = _source_root(source_root)
     target = _external(source, destination)
     # Late import avoids making the converter depend on its staging consumer.
@@ -459,29 +530,41 @@ def stage_monorepo_components(
     created: list[tuple[Path, tuple[int, int], bytes]] = []
     directories: list[tuple[Path, tuple[int, int]]] = []
     try:
-        target.mkdir()
-        node = target.lstat()
-        directories.append((target, (node.st_dev, node.st_ino)))
+        if _output_owner is None:
+            target.mkdir()
+            node = target.lstat()
+            directories.append((target, (node.st_dev, node.st_ino)))
+        else:
+            _output_owner.prepare(
+                _stage_coordinate(_output_owner, target), directory=True
+            )
         for relative, content in payloads.items():
             path = target / relative
-            missing = []
-            parent = path.parent
-            while parent != target and not parent.exists():
-                missing.append(parent)
-                parent = parent.parent
-            for parent in reversed(missing):
-                require_safe_directory(parent.parent)
-                parent.mkdir()
-                node = parent.lstat()
-                directories.append((parent, (node.st_dev, node.st_ino)))
-            created.append((path, _write_new(path, content), content))
+            if _output_owner is None:
+                missing = []
+                parent = path.parent
+                while parent != target and not parent.exists():
+                    missing.append(parent)
+                    parent = parent.parent
+                for parent in reversed(missing):
+                    require_safe_directory(parent.parent)
+                    parent.mkdir()
+                    node = parent.lstat()
+                    directories.append((parent, (node.st_dev, node.st_ino)))
+            identity = _write_new(path, content, **write_options)
+            if identity is not None:
+                created.append((path, identity, content))
         if fresh_plan()["plan_identity"] != expected_plan_identity:
             _fail("plan_changed", "source or selection changed during staging")
         content = _json_bytes(manifest)
-        created.append(
-            (target / _MANIFEST, _write_new(target / _MANIFEST, content), content)
-        )
+        identity = _write_new(target / _MANIFEST, content, **write_options)
+        if identity is not None:
+            created.append((target / _MANIFEST, identity, content))
     except BaseException:
+        if _output_owner is not None:
+            # Original creator/native postimages, including partial writes, stay
+            # with the outer stage. Never invoke path/ID-based legacy disposal.
+            raise
         for path, node, content in reversed(created):
             _remove_owned(path, node, content)
         for directory, identity in reversed(directories):
@@ -823,6 +906,31 @@ def _receipt(
     )
 
 
+@contextmanager
+def _component_lifecycle(bundle, name, output_owner):
+    from literate_ai.projects import ProjectConfigurationStore
+
+    if output_owner is not None:
+        from .project_runtime import project_inspection_execution
+
+        with project_inspection_execution(output_owner):
+            yield
+        return
+    # A saved path into a contained transient runtime is not its live issuer.
+    snapshot = ProjectConfigurationStore.discover(bundle)
+    if snapshot is not None:
+        context = ProjectConfigurationStore.context(snapshot.root)
+        if context.framework_root != context.root and bundle.is_relative_to(
+            context.framework_root / "_build"
+        ):
+            _fail(
+                "staging_owner_required",
+                "contained runtime execution requires its original inspection owner",
+            )
+    with project_lifecycle_lock(bundle, operation=f"monorepo-retained:{name}"):
+        yield
+
+
 def run_component_retained_harness(
     source_root: Path,
     bundle_root: Path,
@@ -832,6 +940,7 @@ def run_component_retained_harness(
     acknowledged: bool,
     worker_id: str,
     timeout_seconds: int = 1800,
+    _output_owner=None,
 ) -> dict[str, Any]:
     """Earn one scoped receipt using real execution, never relabel a project receipt."""
     if not acknowledged:
@@ -839,6 +948,9 @@ def run_component_retained_harness(
             "execution_acknowledgement_required",
             "retained host execution requires acknowledgement",
         )
+    if _output_owner is not None:
+        _stage_coordinate(_output_owner, output)
+    write_options = {} if _output_owner is None else {"_output_owner": _output_owner}
     timeout = validate_harness_command_timeout(timeout_seconds)
     worker = retained_harness_worker_identity(worker_id)
     source = _source_root(source_root)
@@ -848,7 +960,7 @@ def run_component_retained_harness(
         _fail(
             "destination_invalid", "receipt output must be outside the immutable bundle"
         )
-    with project_lifecycle_lock(bundle, operation=f"monorepo-retained:{name}"):
+    with _component_lifecycle(bundle, name, _output_owner):
         before = component_retained_revision(source, bundle, name)
         binding, _ = _binding(bundle, name)
         inventory = binding["inventory"]
@@ -897,7 +1009,7 @@ def run_component_retained_harness(
             "receipt": receipt.to_dict(),
             "evidence": evidence,
         }
-        _write_new(destination, _json_bytes(envelope))
+        _write_new(destination, _json_bytes(envelope), **write_options)
         return envelope
 
 
@@ -1420,12 +1532,10 @@ def refresh_installed_monorepo_components(
         )
         for name in names
     }
-    with tempfile.TemporaryDirectory(
-        prefix="litai-monorepo-refresh-", dir=project.parent
-    ) as temporary_name:
-        temporary = Path(temporary_name)
+    with _refresh_staging(project) as (temporary, output_owner):
+        write_options = {} if output_owner is None else {"_output_owner": output_owner}
         selection = temporary / "selection.json"
-        _write_new(selection, _json_bytes(old_plan["selection"]))
+        _write_new(selection, _json_bytes(old_plan["selection"]), **write_options)
         from literate_ai.adapters.project_initialization import plan_convert
 
         refinement = plan_convert(
@@ -1439,9 +1549,15 @@ def refresh_installed_monorepo_components(
             expected_plan_identity=refinement["plan_identity"],
             acknowledged=True,
             default_branch=default_branch,
+            **write_options,
         )
         receipts_root = temporary / "receipts"
-        receipts_root.mkdir()
+        if output_owner is None:
+            receipts_root.mkdir()
+        else:
+            output_owner.prepare(
+                _stage_coordinate(output_owner, receipts_root), directory=True
+            )
         receipts: dict[str, Path] = {}
         reused: list[str] = []
         executed: list[str] = []
@@ -1464,10 +1580,11 @@ def refresh_installed_monorepo_components(
                     acknowledged=True,
                     worker_id=worker_id,
                     timeout_seconds=timeout_seconds,
+                    **write_options,
                 )
                 executed.append(name)
             else:
-                _write_new(receipt, _read(old_receipts[name]))
+                _write_new(receipt, _read(old_receipts[name]), **write_options)
                 reused.append(name)
             receipts[name] = receipt
         _project, payloads, _installation = _installation_payloads(
@@ -1504,6 +1621,8 @@ def refresh_installed_monorepo_components(
         def require_publication_current():
             require_layout_current()
             require_original_ancestry()
+            if output_owner is not None:
+                output_owner.verify()
 
         # Per-file facts evolve only under the replacement owner; the original
         # parent identities remain fixed through every publication and validation.

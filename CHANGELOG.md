@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Contain installed monorepo metadata staging and retain original writer and execution custody through publication and cleanup.
+
 - Report original audit scratch coordinates in bounded CLI failures while preserving the verifier error code and conflicting state.
 
 - Contain historical native-child audit views under their original project runtime and preserve foreign scratch state on cleanup conflicts.

@@ -190,6 +190,13 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Contained installed-Component refresh stages its source-free bundle and receipt
+metadata under `litai/_build/`. Original exclusive file creators and durable writes
+stay with the staging owner through publication and disposal. A staged native call
+uses its allocating scope's live project mutex; a saved runtime path cannot start
+that call without its original owner. Unknown or replaced staging entries are
+preserved on refusal.
+
 Historical native-child audits use a fresh private view for each recorded manifest
 candidate under the parent's contained object state. The original inspection owner
 checks project context and native manifest identity while retaining the runtime or

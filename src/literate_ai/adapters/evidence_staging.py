@@ -237,7 +237,9 @@ class EvidenceStage:
                             "Stage final read handle closure refused: " + str(error)
                         )
 
-    def write(self, relative, content):
+    def write(self, relative, content, *, durable=False):
+        if type(durable) is not bool:
+            raise TypeError("stage durability selection must be boolean")
         if type(content) is not bytes:
             raise TypeError("original stage byte payload required")
         state = _state(self)
@@ -252,9 +254,18 @@ class EvidenceStage:
                 if count <= 0:
                     _fail("stage writer made no progress")
                 remaining = remaining[count:]
+            if durable:
+                os.fsync(descriptor)
         return CopiedEvidenceFile(
             relative, len(content), hashlib.sha256(content).hexdigest(), False
         )
+
+    def verify(self):
+        """Observe all original closed postimages without sealing future writers."""
+        state = _state(self)
+        if state.active or state.broken:
+            _fail("unfinished original stage writer; preserved")
+        state.known()
 
     def seal(self):
         state = _state(self)

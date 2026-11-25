@@ -26575,16 +26575,46 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — remaining producer/runtime ownership (in progress):** Complete
-  the actual framework-owned path inventory and original source-parent/whole-project
-  ownership. Trace monorepo conversion staging before project bootstrap and the
-  remaining implicit fetch/observation roots through their original transaction
-  owners; do not manufacture initialized authority or cleanup permission from
-  saved paths. Finish metadata/source/cache original temporary creators and
-  partial/immediate disposal, remote RUN/legacy/explicit short-cache/general
-  external drivers, migrated history and every original installed/platform/native/
-  full-source/review/release requirement. Scoped audit/status/cache controls do not
-  close complete layout or provider acceptance.
+- **Next action — default contained control-role context (in progress):** Route
+  retained-layout role discovery and downstream transaction/renewal metadata through
+  the actual shared project context, with original native framework observations
+  and ordinary source/receipt renewal. The real default converter creates a
+  contained manifest, while the old role reader still looks at the application
+  root; this failure reproduces with original production code before the monorepo
+  writer change. The existing root-coordinate fixture now explicitly selects its
+  legacy profile. Its success does not qualify default contained role discovery,
+  migration or converted-monorepo refresh. Then join pre-bootstrap source/quarantine
+  and native execution scratch through their original owners. Complete all other
+  source/cache/runtime/whole-project/source-parent, migrated history and every
+  original installed/platform/native/full-source/review/protected release gate.
+
+- **Original monorepo metadata staging (source partial):** Contained installed
+  refresh now places its actual selection, source-free bundle and reused/executed
+  receipt files under the current project's object state. The native stage owns
+  exclusive creator descriptors and durable flushes through final postimages;
+  partial writes remain with that owner, and the legacy path/ID cleanup cannot
+  adopt them. Current registered postimages are checked before publication.
+  Native component runs borrow only the allocating scope's actual held project
+  cache mutex, with a single active execution and a real creator-descriptor marker
+  spanning the call. This avoids unregistered per-bundle mutex files in the stage.
+  Saved runtime paths cannot start unbound execution; nested scopes borrow the
+  original live lease, and closed/copy-context or foreign-receiver claims refuse.
+  Scope records are allocator-owned and process-bound, not reissued from data.
+  Unknown/private or equal-byte foreign entries retain their state and original
+  publication failures. Legacy external behavior stays explicit.
+  Thirteen new current metadata/execution controls, including actual original
+  stdlib harness execution and one modeled foreign-PID refusal, and existing stage,
+  runtime, index, audit and direct legacy role/transaction/finalization/renewal
+  cohorts pass 128 distinct checks without skips/failures, plus static gates.
+  The preceding subject passed 74 checks, including 18 legacy program-consumer and
+  five original monorepo cases; that is historical composition context rather than
+  current-subject requalification. Fixture initialization/distribution seams remain
+  explicit. New contained refresh controls use the ordinary store-created project
+  and original v1 installed-Component API; they do not qualify genuine default
+  conversion/current-layout movement. The actual default contained reader failure
+  is preserved as required follow-up, not converted into an accepted negative.
+  Pre-bootstrap staging, retained native execution copies and full installed/native/
+  platform/independent-review/release acceptance remain open.
 
 - **Native audit retention diagnostics (source partial):** The contained audit
   owner now prefixes a closing-conflict notice and original project-relative

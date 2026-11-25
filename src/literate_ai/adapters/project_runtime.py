@@ -6,9 +6,12 @@ Neither a saved path/identity nor a copied Python handle restores that ownership
 
 from __future__ import annotations
 
+import os
+import secrets
 import shutil
 import sys
 import tempfile
+import threading
 from contextlib import ExitStack, contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
@@ -35,6 +38,18 @@ from .evidence_staging import evidence_staging
 _ISSUER = object()
 _LIVE = WeakKeyDictionary()
 _CURRENT = ContextVar("contained_project_runtime", default=None)
+_CURRENT_INSPECTION = ContextVar("contained_project_inspection", default=None)
+
+
+@dataclass(frozen=True, slots=True)
+class _InspectionScope:
+    project: LoadedProject
+    stage: object
+    parent: Path
+    require_current: object
+    execution_lock: object
+    closed: object
+    receiver: int
 
 
 class ProjectRuntimeError(ValueError):
@@ -335,8 +350,13 @@ def project_inspection_staging(project, *, prefix):
     ):
         raise ProjectRuntimeError("current contained inspection project required")
     owner = current_project_runtime(project)
+    enclosing = _CURRENT_INSPECTION.get()
+    if enclosing is not None and enclosing.project.root != project.root:
+        enclosing = None
 
     def require_current():
+        if enclosing is not None:
+            _require_inspection_scope(enclosing)
         if ProjectConfigurationStore.context(project.root) != context:
             raise ProjectRuntimeError("inspection project context changed")
         current = ProjectConfigurationStore(project.root).read()
@@ -352,7 +372,12 @@ def project_inspection_staging(project, *, prefix):
     require_current()
     require_safe_directory(context.framework_root / "_build", allow_missing=True)
     with ExitStack() as locks:
-        if owner is not None:
+        if enclosing is not None:
+            if enclosing.closed.is_set() or enclosing.project != project:
+                raise ProjectRuntimeError("original enclosing inspection changed")
+            _require_inspection_scope(enclosing)
+            parent = enclosing.parent
+        elif owner is not None:
             parent = ContainedProjectRuntime.path.__get__(owner)
         else:
             directories = resolve_cache_directories(project.root, environment={})
@@ -365,9 +390,20 @@ def project_inspection_staging(project, *, prefix):
         require_current()
         with evidence_staging(parent, prefix=prefix) as stage:
             require_current()
+            scope = _InspectionScope(
+                project,
+                stage,
+                parent,
+                require_current,
+                threading.Lock(),
+                threading.Event(),
+                os.getpid(),
+            )
+            token = _CURRENT_INSPECTION.set(scope)
             try:
                 yield stage
             finally:
+                scope.closed.set()
                 original_error = sys.exception()
                 try:
                     require_current()
@@ -377,7 +413,68 @@ def project_inspection_staging(project, *, prefix):
                     original_error.add_note(
                         "Inspection project custody changed: " + str(error)
                     )
+                finally:
+                    _CURRENT_INSPECTION.reset(token)
         require_current()
+
+
+def _require_inspection_scope(scope):
+    from .evidence_staging import EvidenceStage, require_staging_output
+
+    if scope.receiver != os.getpid() or scope.closed.is_set():
+        raise ProjectRuntimeError(
+            "inspection scope ended or belongs to another process"
+        )
+    # The allocator captured this original guard; it is never read from a claim.
+    scope.require_current()
+    require_staging_output(scope.stage, EvidenceStage.path.__get__(scope.stage))
+
+
+@contextmanager
+def project_inspection_execution(owner):
+    """Borrow only the original allocating scope's held project mutex.
+
+    A real creator descriptor remains registered for the complete native call,
+    so closing the staging scope cannot silently dispose an active execution.
+    """
+    from .evidence_files import _access
+    from .evidence_staging import EvidenceStage
+
+    scope = _CURRENT_INSPECTION.get()
+    if scope is None or scope.stage is not owner:
+        raise ProjectRuntimeError(
+            "original current inspection execution owner required"
+        )
+    _require_inspection_scope(scope)
+    if not scope.execution_lock.acquire(blocking=False):
+        raise ProjectRuntimeError("inspection execution is already active")
+    try:
+        EvidenceStage.verify(owner)
+        root = EvidenceStage.path.__get__(owner)
+        relative = ".ex-" + secrets.token_hex(4)
+        parts = EvidenceStage.prepare(owner, relative)
+        try:
+            with _access(root) as access:
+                descriptor = access.open(
+                    parts,
+                    os.O_RDWR | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0),
+                )
+                with EvidenceStage.created(owner, relative, descriptor, access):
+                    _require_inspection_scope(scope)
+                    yield
+        finally:
+            original_error = sys.exception()
+            try:
+                _require_inspection_scope(scope)
+                EvidenceStage.verify(owner)
+            except Exception as error:
+                if original_error is None:
+                    raise
+                original_error.add_note(
+                    "Inspection execution closure refused; retained: " + str(error)
+                )
+    finally:
+        scope.execution_lock.release()
 
 
 def require_scoped_runtime_candidate(path):

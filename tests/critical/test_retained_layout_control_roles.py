@@ -23,6 +23,7 @@ from literate_ai.adapters.lifecycle_lock import (
     ProjectLifecycleLockError,
     project_lifecycle_lock,
 )
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.adapters.repository_orchestration import OrchestrationInventoryError
 from literate_ai.adapters.retained_layout_control_publication import (
     staged_layout_controls,
@@ -56,6 +57,9 @@ class RetainedLayoutControlRoleTests(unittest.TestCase):
             flavor_selectors=_selectors(cls.template),
             source_intelligence_provider="none",
             convert=True,
+            # This family asserts original root coordinates. Keep its legacy
+            # profile explicit; contained role/migration qualification stays open.
+            _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
         )
 
     def setUp(self):
