@@ -1,0 +1,8 @@
+{
+  "git_commit": "72d2c655f2f9271d88fb9ffd44ae0a26662d9cfb",
+  "git_blob": "6f98fac9a785cebdf476cb7065b84bf030c8848e",
+  "source_path": "src/literate_ai/project_template/scripts/bootstrap_litai.py",
+  "sha256": "162cca9100e404f462ca0db59e4e5094520212fff39b3091c88b727c55378393",
+  "size_bytes": 6919,
+  "purpose": "Pinned actual source preimage fixture. Initialization/update lineage and current origin lookup are modeled, not historical journey qualification; publication and rollback use real native operations."
+}

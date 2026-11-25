@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add source-tested backup and recovery for changed-byte framework placement and bootstrap creation; ordinary producer renewal and full containment qualification remain open.
+
 - Include original initialized Component lock/audit records in default containment planning, preserve coordination custody, and reject occupied or aliased destinations through no-follow absence checks.
 
 - Join all seven recorded conversion-wrapper inputs to their original initialization preimages, producer records and current source observation before migration projection.
