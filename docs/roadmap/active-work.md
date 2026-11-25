@@ -26575,6 +26575,19 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Receiver default cache context (partial):** Both worker-receiver entry
+  points now select default generated/object custody through the existing shared
+  context-aware resolver with an empty environment. Contained transported projects
+  bind `litai/generated` and `litai/_build`; explicit supplied custody and restored
+  accepted-source-cache short attempts retain their separate original ownership.
+  Local controls exercise direct build/test admission, actual archive capture and
+  extraction, environment isolation, explicit staging, legacy-root behavior and
+  dual-authority refusal. Rebuild ports are test seams, not native execution or
+  qualification. Full receiver runtime/candidate containment remains open: the
+  existing CLI explicitly requires those paths outside the project, so replacing
+  their literals without their original owner would break execution. Installed
+  platform lifecycle acceptance and configured dispatch remain separate.
+
 - **Retained-child runtime containment (partial):** Repository lifecycle logs,
   execution lock and receipts now use the declared framework directory, while
   actual child commands and native products retain application coordinates.

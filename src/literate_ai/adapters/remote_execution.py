@@ -34,7 +34,11 @@ from literate_ai.adapters.directory_artifacts import (
 )
 from literate_ai.adapters.user_paths import prepare_user_directory, resolve_host_paths
 from literate_ai.adapters.worker_capabilities import probe_worker_capabilities
-from literate_ai.cache_directories import CacheDirectories, bind_cache_directories
+from literate_ai.cache_directories import (
+    CacheDirectories,
+    bind_cache_directories,
+    resolve_cache_directories,
+)
 from literate_ai.contracts import (
     MAX_REMOTE_CONTROL_SUMMARY_BYTES,
     MAX_REMOTE_EVIDENCE_MANIFEST_BYTES,
@@ -1104,11 +1108,7 @@ def execute_remote_request(
     if request.action in {LifecycleDispatchAction.BUILD, LifecycleDispatchAction.TEST}:
         lifecycle_custody = custody or RemoteLifecycleCustody(
             root.parent,
-            bind_cache_directories(
-                root,
-                build_dir=root / "generated",
-                obj_dir=root / "_build",
-            ),
+            resolve_cache_directories(root, environment={}),
             root.parent / "lifecycle-runtime",
             root.parent / "candidate-receipt.json",
         )
@@ -1393,11 +1393,7 @@ def materialize_and_execute(
         else:
             lifecycle_custody = RemoteLifecycleCustody(
                 destination,
-                bind_cache_directories(
-                    project_root,
-                    build_dir=project_root / "generated",
-                    obj_dir=project_root / "_build",
-                ),
+                resolve_cache_directories(project_root, environment={}),
                 destination / "lifecycle-runtime",
                 destination / "candidate-receipt.json",
             )

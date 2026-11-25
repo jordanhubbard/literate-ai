@@ -173,6 +173,12 @@ working directories and native products keep their original child coordinates.
 Reviewed lifecycle plans bind the exact selected project manifest; moving or
 changing that authority requires a new plan, including before resuming a run.
 
+Worker-receiver default generated/object caches also use the transported project
+context, including `litai/generated/` and `litai/_build/` for contained projects.
+They ignore ambient coordinator cache overrides. Explicitly supplied attempt
+custody and accepted-source-cache staging keep their original bindings. Separate
+receiver runtime and candidate-receipt containment remains unfinished.
+
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned
 content delegates into the configured onboarding skill. Custom instructions and
