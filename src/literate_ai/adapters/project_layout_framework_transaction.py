@@ -31,6 +31,9 @@ from literate_ai.adapters.project_layout_framework_plan import (
     ACTION_GROUPS,
     decode_framework_authority_plan,
 )
+from literate_ai.adapters.project_layout_framework_result import (
+    decode_framework_authority_result,
+)
 from literate_ai.adapters.project_layout_lease import (
     current_layout_lease,
     require_layout_lease,
@@ -455,17 +458,19 @@ def apply_framework_authority(selection, expected):
                 _current(root, journal, intent, lease, namespace)
         finally:
             close_observed_framework_selection(selected)
-    return {
-        "schema": "literate-ai/project-layout-framework-authority-result@1",
-        "operation": "apply",
-        "plan": plan,
-        "journal": str(journal),
-        "writes": True,
-        "applied": True,
-        "full_containment": False,
-        "qualification": False,
-        "producer_state": "unclassified",
-    }
+    return decode_framework_authority_result(
+        {
+            "schema": "literate-ai/project-layout-framework-authority-result@1",
+            "operation": "apply",
+            "plan": plan,
+            "journal": str(journal),
+            "writes": True,
+            "applied": True,
+            "full_containment": False,
+            "qualification": False,
+            "producer_state": "unclassified",
+        }
+    )
 
 
 def _decode(root, expected):
@@ -730,17 +735,19 @@ def recover_framework_authority(root, expected):
             filesystem._write(journal / "rolled-back", _MARKERS["rolled-back"])
         filesystem._flush(journal)
         _current(root, journal, intent, lease, namespace)
-    return {
-        "schema": "literate-ai/project-layout-framework-authority-result@1",
-        "operation": "recover",
-        "plan": intent["plan"],
-        "journal": str(journal),
-        "writes": True,
-        "rolled_back": True,
-        "retained_scaffolding": retained,
-        "full_containment": False,
-        "qualification": False,
-    }
+    return decode_framework_authority_result(
+        {
+            "schema": "literate-ai/project-layout-framework-authority-result@1",
+            "operation": "recover",
+            "plan": intent["plan"],
+            "journal": str(journal),
+            "writes": True,
+            "rolled_back": True,
+            "retained_scaffolding": retained,
+            "full_containment": False,
+            "qualification": False,
+        }
+    )
 
 
 def _parent_node(root, journal, intent, path):

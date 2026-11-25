@@ -1311,6 +1311,13 @@
       "public_ids": [
         "literate-ai/project-layout-framework-authority@1"
       ]
+    },
+    {
+      "file": "project-layout-framework-authority-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-framework-authority-result",
+      "public_ids": [
+        "literate-ai/project-layout-framework-authority-result@1"
+      ]
     }
   ]
 }

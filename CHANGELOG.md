@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Register and validate bounded framework placement and rollback results without granting producer finalization or release qualification.
+
 - Recognize unchanged contained ignore files from original initialization or framework-base proofs during fresh migration planning, while preserving custom and application-owned ignore rules.
 
 - Add source-tested backup and recovery for changed-byte framework placement and bootstrap creation; ordinary producer renewal and full containment qualification remain open.
