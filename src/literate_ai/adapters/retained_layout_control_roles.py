@@ -18,7 +18,7 @@ from pathlib import Path
 from literate_ai.contracts.identity import canonical_identity
 from literate_ai.projects import (
     DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
-    PROJECT_FILENAME,
+    ProjectConfigurationStore,
     load_project,
 )
 
@@ -171,6 +171,7 @@ class _ProjectRoles:
     conversion: object
     conversion_identity: str
     lineage: tuple
+    framework_lineage: tuple = ()
 
     def targets(self):
         anchor = self.lineage[-1][1:4]
@@ -179,7 +180,7 @@ class _ProjectRoles:
             WriteReservationTarget(path, self.root, anchor, advisory=True)
             for path in (
                 project_lifecycle_lock_path(self.root),
-                self.root / f".{PROJECT_FILENAME}.write.lock",
+                ProjectConfigurationStore.lock_path(self.root),
                 store.lock_path,
             )
         )
@@ -201,6 +202,8 @@ class _ProjectRoles:
             or current.conversion != self.conversion
             or current.conversion_identity != self.conversion_identity
             or current.lineage != self.lineage
+            or current.framework_lineage != self.framework_lineage
+            or current.manifest.path != self.manifest.path
         ):
             _fail("actual project/conversion control roles changed")
         return current
@@ -210,26 +213,39 @@ class _ProjectRoles:
             _signature(self.manifest.path) != self.manifest.signature
             or _signature(self.conversion.path) != self.conversion.signature
             or _lineage(self.root) != self.lineage
+            or (
+                self.framework_lineage
+                and _lineage(self.manifest.path.parent) != self.framework_lineage
+            )
         ):
             _fail("project role inputs changed during final closure")
 
     def require_initial_inputs(self):
         current = self.require_roles_current()
-        if _file(self.root / PROJECT_FILENAME) != self.manifest:
+        if _file(self.manifest.path) != self.manifest:
             _fail("prepared project manifest changed")
         return current
 
 
 def _project_roles(root):
     lineage = _lineage(root)
+    context = ProjectConfigurationStore.context(root)
+    if context.root != root:
+        _fail("project context resolved a different root")
+    # Bind the actual framework namespace separately from replaceable manifest
+    # bytes. Legacy roles already bind this directory through root lineage.
+    framework_lineage = (
+        _lineage(context.framework_root) if context.framework_root != root else ()
+    )
     manifest = _file(
-        root / PROJECT_FILENAME,
+        context.manifest_path,
         maximum_bytes=DEFAULT_MAXIMUM_PROJECT_CONFIGURATION_BYTES,
     )
     project = load_project(root)
-    if project.root != root:
+    if project.root != root or project.framework_root != context.framework_root:
         _fail("project loader resolved a different root")
-    conversion = _file(root / CONVERSION_AUTHORITY_FILE, maximum_bytes=256 * 1024)
+    conversion_path = context.framework_path(CONVERSION_AUTHORITY_FILE)
+    conversion = _file(conversion_path, maximum_bytes=256 * 1024)
     state = FilesystemConversionAuthorityStore(root).load_optional()
     if (
         state is None
@@ -238,10 +254,11 @@ def _project_roles(root):
     ):
         _fail("current original-source conversion authority is required")
     if (
-        _file(root / PROJECT_FILENAME) != manifest
-        or _file(root / CONVERSION_AUTHORITY_FILE, maximum_bytes=256 * 1024)
-        != conversion
+        _file(context.manifest_path) != manifest
+        or _file(conversion_path, maximum_bytes=256 * 1024) != conversion
         or _lineage(root) != lineage
+        or ProjectConfigurationStore.context(root) != context
+        or (framework_lineage and _lineage(context.framework_root) != framework_lineage)
     ):
         _fail("project inputs changed during actual role discovery")
     return _ProjectRoles(
@@ -251,6 +268,7 @@ def _project_roles(root):
         conversion,
         state.identity.uri,
         lineage,
+        framework_lineage,
     )
 
 
@@ -275,10 +293,16 @@ class _ControlRolesLease:
     @property
     def identity(self):
         self.require_current()
+        project = _custody_wire(self._seed)
+        version = 2 if self._seed.framework_lineage else 1
+        if version == 1:
+            # Preserve the legacy role wire contract; contained namespace binding
+            # is a new identity version, not a retrofit of recorded legacy roles.
+            del project["framework_lineage"]
         return canonical_identity(
             {
-                "schema": "literate-ai/retained-layout-control-roles@1",
-                "project": _custody_wire(self._seed),
+                "schema": f"literate-ai/retained-layout-control-roles@{version}",
+                "project": project,
                 "git": self.git.identity.to_dict(),
             }
         )

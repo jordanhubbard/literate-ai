@@ -190,6 +190,12 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Retained-layout controls select the current manifest and conversion-state writer
+locks from the project's actual framework directory. In a contained project those
+locks stay under `litai/`. Role checks retain the original native framework
+directory while permitting separately authorized manifest replacement; initial
+input checks still detect changes to that manifest.
+
 Contained installed-Component refresh stages its source-free bundle and receipt
 metadata under `litai/_build/`. Original exclusive file creators and durable writes
 stay with the staging owner through publication and disposal. A staged native call

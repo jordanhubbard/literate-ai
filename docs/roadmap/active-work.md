@@ -26575,18 +26575,31 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — default contained control-role context (in progress):** Route
-  retained-layout role discovery and downstream transaction/renewal metadata through
-  the actual shared project context, with original native framework observations
-  and ordinary source/receipt renewal. The real default converter creates a
-  contained manifest, while the old role reader still looks at the application
-  root; this failure reproduces with original production code before the monorepo
-  writer change. The existing root-coordinate fixture now explicitly selects its
-  legacy profile. Its success does not qualify default contained role discovery,
-  migration or converted-monorepo refresh. Then join pre-bootstrap source/quarantine
-  and native execution scratch through their original owners. Complete all other
-  source/cache/runtime/whole-project/source-parent, migrated history and every
-  original installed/platform/native/full-source/review/protected release gate.
+- **Next action — default contained transaction and renewal (in progress):** Join
+  retained-layout transaction inputs, prospective publication, authored witness and
+  ordinary source/receipt renewal to actual framework metadata coordinates. Control
+  role discovery now supports the real default converter; downstream consumers
+  still assume root metadata. Preserve application-relative retained-source paths
+  and original source/mode/link/native custody through real movement, publication,
+  finalization and renewal. Then join pre-bootstrap source/quarantine and native
+  execution scratch through their original owners. Complete all other source/cache/
+  runtime/whole-project/source-parent, migrated history and every original installed/
+  platform/native/full-source/review/protected release gate.
+
+- **Default contained control roles (source partial):** Actual default conversion
+  now acquires retained-layout roles from its selected contained manifest, conversion
+  state and canonical writer mutexes. Native framework ancestry is retained through
+  discovery, reacquisition and final input closure; replacing the framework with an
+  equal-byte copy cannot stand in for that original namespace. Separately authorized
+  manifest replacement stays compatible with current roles while initial-input
+  validation still rejects changed manifest bytes. Legacy role identity version 1
+  keeps its original wire fields; contained roles use version 2. Eight new actual
+  default-conversion controls and the direct legacy role/transaction/finalization/
+  renewal cohorts pass 84 checks without skips/failures plus static checks.
+  Initialization test seams remain explicit; this is source control-role evidence,
+  not installed-wheel/native three-platform qualification. Default contained
+  transaction/publication/renewal is still open, as are all original layout and
+  release acceptance requirements.
 
 - **Original monorepo metadata staging (source partial):** Contained installed
   refresh now places its actual selection, source-free bundle and reused/executed
