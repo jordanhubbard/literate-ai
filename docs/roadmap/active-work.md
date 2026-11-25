@@ -26575,6 +26575,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Inherited catalog normal producer renewal (partial):** A fresh destination
+  owner joins the actual Root lease, genuine normal preparation and original
+  catalog journal. Unchanged pairs retain their native inodes without a renewal
+  journal. A changed local Flavor uses the same finite normal atomic publisher
+  as framework-owned producers, with separate catalog native before/after
+  custody. Original catalog intent and copied producer history remain immutable.
+  Recovery restores the exact placed pair before undoing catalog placement;
+  equal-byte foreign inodes refuse and ordinary replacement modes stay separate
+  from original modes. Fresh-process publication and recovery interruptions
+  retain recoverable ownership rather than reconstructing a retired source actor.
+  Historical origin declarations remain fixture data. This internal catalog
+  path does not yet provide public renewal, composed successor metadata ownership,
+  source namespace finalization, installed supported-platform or release
+  qualification. Those requirements and complete project containment remain open.
+
 - **Generated-project and mixed Component placement (partial):** The original
   catalog continuation now accepts an exact generated baseline with or without
   a converted application, while the native-adoption profile stays excluded.

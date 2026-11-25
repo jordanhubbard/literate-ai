@@ -1594,6 +1594,42 @@ def recover_catalog_continuation(root, expected):
             journal, intent = _load(root, expected)
             _current(root, journal, intent, namespace)
             entries = intent["entries"]
+            # The independent producer history restores exact placed inodes
+            # before original catalog recovery validates its own postimages.
+            # No import/lease work for original journals without renewal data.
+            identity = canonical_identity(intent).uri
+            renewals = (
+                root
+                / "litai/.literate"
+                / (
+                    "catalog-renewal-"
+                    + canonical_identity(
+                        {
+                            "catalog_intent": identity,
+                            "component": component["source_root"],
+                            "target": target,
+                        }
+                    ).digest
+                )
+                for component in intent["components"]
+                for target in component["target_names"]
+            )
+            if not os.path.lexists(journal / "rolled-back") and any(
+                os.path.lexists(path) for path in renewals
+            ):
+                from literate_ai.adapters.project_layout_catalog_renewal import (
+                    recover_catalog_renewals,
+                )
+
+                with _component_fences(
+                    root,
+                    intent["components"],
+                    namespace,
+                    destinations=True,
+                    intent=intent,
+                    journal=journal,
+                ):
+                    recover_catalog_renewals(root, journal, intent, namespace)
             for source, entry in entries.items():
                 _entry_state(root, journal, source, entry)
             with (

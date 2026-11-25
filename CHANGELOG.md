@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add internal native-history-backed renewal for inherited catalog producer pairs, sharing finite atomic publication with framework renewals and preserving exact rollback across process interruption. Full containment and release qualification remain open.
+
 - Allow imported Component placement in contained generated projects, preserving original lock/audit history separately from normal currentness; compose catalog then framework placement with exact reverse rollback.
 
 - Add acknowledged project layout renew for an original migrated Component/target, using fresh normal preparation and native journal custody, with registered inert result schema and exact public rollback support.

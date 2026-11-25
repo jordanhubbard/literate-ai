@@ -27,6 +27,7 @@ from literate_ai.adapters import project_layout_component_destination as destina
 from literate_ai.adapters import project_layout_continuation as native
 from literate_ai.adapters import project_layout_framework_transaction as framework
 from literate_ai.adapters import project_layout_migration as filesystem
+from literate_ai.adapters import project_layout_pair_publication as publication
 from literate_ai.adapters.exclusive_directory import (
     directory_node,
     publish_directory_between_owned_parents_exclusive,
@@ -558,7 +559,7 @@ def _renew_prepared_component(
     planner, target, flavors, flavor_roots = _ADMIT(prepared)
     require_layout_lease(layout_lease, root)
     require_owner()
-    live = True
+    publish, state = publication.publish_prepared_pair, _state
     with native._operation(root) as namespace, native._reserve(root, namespace):
         journal, record = _stage(
             root,
@@ -575,128 +576,28 @@ def _renew_prepared_component(
         )
 
         def guard():
-            if not live:
-                _fail("normal producer publication scope is closed")
             check()
             _ADMIT(prepared)
             require_owner()
             _guard(root, journal, record, frame_journal, frame, layout_lease, namespace)
             _ADMIT(prepared)
 
-        class Writer:
-            __slots__ = ()
-
-            def publish(self, path, content, *, require_current, preserve_mode):
-                guard()
-                if (
-                    _SCOPED() is not writer
-                    or type(content) is not bytes
-                    or preserve_mode is not False
-                ):
-                    _fail("original normal producer publication scope changed")
-                coordinate = path.relative_to(root).as_posix()
-                row = record["entries"].get(coordinate)
-                if row is None or require_current is None:
-                    _fail("normal producer wrote outside its original finite pair")
-                current = _state(root, journal, coordinate, row)
-                digest = filesystem._identity(content)
-                # The existing normal command may attempt its own rollback.
-                # Restore exact owned inodes, never mint a new old-byte file.
-                if digest == row["from"] and current == "published":
-                    require_current()
-                    guard()
-                    move(
-                        root,
-                        journal,
-                        record,
-                        root / coordinate,
-                        journal / "after" / row["slot"],
-                        row,
-                        after=True,
-                        namespace=namespace,
-                    )
-                    guard()
-                    move(
-                        root,
-                        journal,
-                        record,
-                        journal / "before" / row["slot"],
-                        root / coordinate,
-                        row,
-                        after=False,
-                        namespace=namespace,
-                    )
-                    guard()
-                    return
-                if digest != row["to"] or current != "original":
-                    _fail("normal replacement differs from original prepared bytes")
-                require_current()
-                guard()
-                move(
-                    root,
-                    journal,
-                    record,
-                    root / coordinate,
-                    journal / "before" / row["slot"],
-                    row,
-                    after=False,
-                    namespace=namespace,
-                )
-                guard()
-                move(
-                    root,
-                    journal,
-                    record,
-                    journal / "after" / row["slot"],
-                    root / coordinate,
-                    row,
-                    after=True,
-                    namespace=namespace,
-                )
-                guard()
-
-        writer = Writer()
-        try:
-            guard()
-            with _SCOPE(writer):
-                report, status = _OPERATE(
-                    prepared,
-                    target=target,
-                    flavors=flavors,
-                    flavor_roots=flavor_roots,
-                    planner=planner,
-                    check=False,
-                    difference=False,
-                )
-                guard()
-            if status != 0:
-                _fail("normal producer update did not finish successfully")
-            final, final_status = _OPERATE(
-                prepared,
-                target=target,
-                flavors=flavors,
-                flavor_roots=flavor_roots,
-                planner=planner,
-                check=True,
-                difference=False,
-            )
-            guard()
-            if final_status != 0 or final.get("current") is not True:
-                _fail("normal producer pair is not current after renewal")
+        def complete():
             filesystem._write(journal / "renewed", _MARKERS["renewed"])
             filesystem._flush(journal)
-            guard()
-            return {
-                "current": True,
-                "writes": True,
-                "journal": str(journal),
-                "command": report,
-                "finalized": False,
-                "full_containment": False,
-                "qualification": False,
-            }
-        finally:
-            live = False
+
+        return publish(
+            root,
+            journal,
+            record,
+            prepared,
+            guard=guard,
+            state=state,
+            move=move,
+            complete=complete,
+            fail=_fail,
+            namespace_owner=namespace,
+        )
 
 
 def renew_placed_framework_component(root, plan_identity, *, prepared, layout_lease):
@@ -927,6 +828,7 @@ _ORIGINALS = tuple(
     (module, name, vars(module)[name])
     for module, names in (
         (ProjectConfigurationStore, ("read",)),
+        (publication, ("publish_prepared_pair",)),
         (
             operations,
             ("require_original_prepared_component_lock", "operate_component_lock"),
@@ -1032,6 +934,7 @@ def _bind_original_delegates():
             "filesystem",
             "native",
             "atomic",
+            "publication",
         )
     )
     delegates = _ORIGINALS
