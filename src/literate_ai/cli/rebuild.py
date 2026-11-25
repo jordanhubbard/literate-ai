@@ -37,6 +37,10 @@ from literate_ai.adapters.project_lifecycle_driver import (
     ProjectLifecycleDriverAdapterError,
     bind_external_project_lifecycle_driver,
 )
+from literate_ai.adapters.project_runtime import (
+    allocate_project_runtime,
+    close_project_runtime,
+)
 from literate_ai.adapters.project_validation import (
     ProjectValidationError,
 )
@@ -843,6 +847,12 @@ def _standard_rebuild_one_component(
         from .execution_workers import validate_worker_platform_flavors
 
         validate_worker_platform_flavors(selected_worker, prepared.selected_flavors)
+    candidate = (
+        None
+        if not write_candidate or getattr(args, "candidate_receipt", None) is None
+        else _external_candidate(project, args.candidate_receipt)
+    )
+    project_runtime = None
     if runtime_root_override is not None:
         owns_runtime = False
         runtime_root = runtime_root_override
@@ -856,18 +866,23 @@ def _standard_rebuild_one_component(
     else:
         configured_runtime = getattr(args, "runtime_root", None)
         owns_runtime = configured_runtime is None
-        runtime_root = (
-            Path(tempfile.mkdtemp(prefix="litai-standard-rebuild-")).resolve(
-                strict=True
+        if (
+            owns_runtime
+            and getattr(project.definition, "framework_directory", None) == "litai"
+        ):
+            try:
+                project_runtime = allocate_project_runtime(project)
+            except (ValueError, RuntimeError, OSError) as exc:
+                raise CliFailure("rebuild.runtime_root_unsafe", str(exc)) from exc
+            runtime_root = project_runtime.path
+        else:
+            runtime_root = (
+                Path(tempfile.mkdtemp(prefix="litai-standard-rebuild-")).resolve(
+                    strict=True
+                )
+                if owns_runtime
+                else _external_runtime_root(project, configured_runtime)
             )
-            if owns_runtime
-            else _external_runtime_root(project, configured_runtime)
-        )
-    candidate = (
-        None
-        if not write_candidate or getattr(args, "candidate_receipt", None) is None
-        else _external_candidate(project, args.candidate_receipt)
-    )
     revisions = tuple(
         item.revision.identity
         for item in prepared.locked_authority_snapshot.authority.lock.nodes
@@ -930,6 +945,7 @@ def _standard_rebuild_one_component(
                         prepared,
                         runtime_root / "sources",
                         invalidation,
+                        project_runtime=project_runtime,
                         update_receipt=update_receipt,
                         max_parallelism=getattr(args, "jobs", None),
                         accepted_source_only=getattr(
@@ -1172,11 +1188,18 @@ def _standard_rebuild_one_component(
                     getattr(exc, "message", str(exc)),
                     message_limit=8192,
                 ) from exc
-            finally:
-                if owns_runtime and not getattr(args, "keep_runtime", False):
-                    shutil.rmtree(runtime_root)
     except ProjectLifecycleLockError as exc:
         raise CliFailure(exc.code, exc.message) from exc
+    finally:
+        if project_runtime is not None:
+            try:
+                close_project_runtime(
+                    project_runtime, keep=getattr(args, "keep_runtime", False)
+                )
+            except (ValueError, RuntimeError, OSError) as exc:
+                raise CliFailure("rebuild.runtime_root_changed", str(exc)) from exc
+        elif owns_runtime and not getattr(args, "keep_runtime", False):
+            shutil.rmtree(runtime_root)
 
 
 def _project(selected: str) -> LoadedProject:

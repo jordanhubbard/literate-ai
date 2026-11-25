@@ -179,6 +179,12 @@ They ignore ambient coordinator cache overrides. Explicitly supplied attempt
 custody and accepted-source-cache staging keep their original bindings. Separate
 receiver runtime and candidate-receipt containment remains unfinished.
 
+For a contained project, an implicit Standard rebuild runtime is a fresh private
+attempt beneath `litai/_build/`. Use `--keep-runtime` to retain that attempt for
+inspection. The live attempt excludes object-cache cleanup while it runs; its
+cleanup preserves unrelated session state and refuses a replaced directory.
+Explicit external-driver and receiver runtime/candidate containment remains open.
+
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned
 content delegates into the configured onboarding skill. Custom instructions and

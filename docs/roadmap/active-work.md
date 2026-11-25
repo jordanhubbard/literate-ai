@@ -26575,6 +26575,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Contained Standard runtime owner (partial):** The contained profile's
+  implicit Standard runtime is now freshly allocated under canonical object
+  state. The actual current manifest, direct directory identity and live native
+  write reservation remain bound to the original owner. The object-cache lock
+  excludes concurrent cleanup until retirement; cleanup preserves replacement
+  directories and unrelated session state. Only that original live owner admits
+  its exact generated-source coordinate to the original Standard adapter. Saved
+  data, copied handles, stale authority and wrong source paths refuse. Retained
+  runtimes retire live custody without deleting output, and cleanup conflicts
+  preserve the original rebuild rejection. Local physical/CLI/adapter controls
+  use explicit preparation, planning and execution fixture ports; they do not
+  establish actual generation, installed or supported-platform qualification.
+  Arbitrary project-internal runtime paths remain refused. External-driver and
+  receiver runtime/candidate containment, complete source ownership and full
+  lifecycle acceptance remain open.
+
 - **Receiver default cache context (partial):** Both worker-receiver entry
   points now select default generated/object custody through the existing shared
   context-aware resolver with an empty environment. Contained transported projects

@@ -57,6 +57,11 @@ from .lifecycle import (
     LocalSourceTreeRegistry,
     LocalStandardLifecycleError,
 )
+from .project_runtime import (
+    ContainedProjectRuntime,
+    ProjectRuntimeError,
+    require_project_runtime,
+)
 from .project_validation import validated_project_authority_identity
 from .retained_source import RetainedSourceInput
 from .shared_cache_config import BoundSharedCache, load_shared_cache
@@ -107,7 +112,14 @@ class FilesystemStandardRebuildRequest:
     # existing wire already binds the actual execution plan selected below.
     expected_execution_plan_identity: ContentIdentity | None = None
 
+    project_runtime: ContainedProjectRuntime | None = None
+
     def __post_init__(self) -> None:
+        if (
+            self.project_runtime is not None
+            and type(self.project_runtime) is not ContainedProjectRuntime
+        ):
+            raise TypeError("project_runtime must be the original contained runtime")
         if not isinstance(self.prepared, PreparedLockedGeneration):
             raise TypeError("prepared must be a PreparedLockedGeneration")
         if not isinstance(self.source_root, Path):
@@ -228,11 +240,23 @@ class FilesystemStandardRebuildAdapter:
             except ActionExecutionConfigurationError as exc:
                 raise FilesystemStandardRebuildError(exc.code, exc.message) from exc
 
+    def _require_project_runtime(self, request):
+        if request.project_runtime is not None:
+            try:
+                require_project_runtime(
+                    request.project_runtime, self.project, request.source_root
+                )
+            except (ProjectRuntimeError, OSError, RuntimeError) as exc:
+                raise FilesystemStandardRebuildError(
+                    "standard_rebuild.project_runtime_invalid", str(exc)
+                ) from exc
+
     def rebuild(
         self, request: FilesystemStandardRebuildRequest
     ) -> FilesystemStandardRebuildResult:
         if not isinstance(request, FilesystemStandardRebuildRequest):
             raise TypeError("request must be a FilesystemStandardRebuildRequest")
+        self._require_project_runtime(request)
         prepared = request.prepared
         snapshot = prepared.locked_authority_snapshot
         if prepared.boundary != self.project.root:
@@ -240,15 +264,21 @@ class FilesystemStandardRebuildAdapter:
                 "standard_rebuild.project_mismatch",
                 "prepared Component authority does not belong to this project",
             )
-        source_root = request.source_root.resolve()
-        if source_root == self.project.root or source_root.is_relative_to(
-            self.project.root
+        source_root = (
+            request.source_root
+            if request.project_runtime is not None
+            else request.source_root.resolve()
+        )
+        if request.project_runtime is None and (
+            source_root == self.project.root
+            or source_root.is_relative_to(self.project.root)
         ):
             raise FilesystemStandardRebuildError(
                 "standard_rebuild.source_root_inside_project",
                 "generated source runtime must remain outside project authority",
             )
         self.binding.require_unchanged()
+        self._require_project_runtime(request)
         if self.shared_cache is not None:
             self.shared_cache.require_unchanged()
         self._require_action_configuration()
@@ -273,6 +303,7 @@ class FilesystemStandardRebuildAdapter:
             (snapshot.authority.lock.identity,),
         )
         planned = self.runtime.plan(snapshot)
+        self._require_project_runtime(request)
         if (
             request.expected_execution_plan_identity is not None
             and planned.execution_plan.identity
@@ -348,6 +379,15 @@ class FilesystemStandardRebuildAdapter:
                 "accepted_source_only": request.accepted_source_only,
                 **(
                     {
+                        "project_runtime_custody_identity": (
+                            request.project_runtime.identity.uri
+                        )
+                    }
+                    if request.project_runtime is not None
+                    else {}
+                ),
+                **(
+                    {
                         "source_cache_entry_identities": [
                             item.uri for item in self.source_cache_entry_identities
                         ]
@@ -382,6 +422,7 @@ class FilesystemStandardRebuildAdapter:
             }
         )
         try:
+            self._require_project_runtime(request)
             execution = self.runtime.execute(
                 snapshot,
                 StandardProjectExecutionRequest(
@@ -420,6 +461,7 @@ class FilesystemStandardRebuildAdapter:
             # Project-level remote phases (PACKAGE, FINALIZE) run outside the
             # per-Component failure capture; keep their typed refusal.
             raise FilesystemStandardRebuildError(exc.code, str(exc)) from exc
+        self._require_project_runtime(request)
         if not execution.lifecycle.successful:
             failures = tuple(
                 item.failure_evidence
@@ -446,6 +488,7 @@ class FilesystemStandardRebuildAdapter:
             self.shared_cache.require_unchanged()
         self._require_action_configuration()
         self.binding.require_unchanged()
+        self._require_project_runtime(request)
         snapshot.require_unchanged()
         if self.authority_validator(self.project.root) != validated:
             raise FilesystemStandardRebuildError(
