@@ -85,6 +85,10 @@ def _safe_path(root: Path, relative: str) -> Path:
 
 
 def _metadata_coordinate(root: Path, relative: str) -> str:
+    if relative == "litai.harness.mk":
+        from .retained_scaffold_coordinates import retained_scaffold_coordinate
+
+        return retained_scaffold_coordinate(root, relative)
     if not relative.startswith(".literate/"):
         return relative
     return (
@@ -145,7 +149,10 @@ def plan_retained_scope_refresh(selected: Path) -> dict[str, Any]:
         _fail("project_missing", "no canonical project is discoverable")
     root = project.root
     monorepo_refresh_required = False
-    monorepo_path = root / ".literate" / "monorepo-components" / "installation.json"
+    monorepo_path = _safe_path(
+        root,
+        _metadata_coordinate(root, ".literate/monorepo-components/installation.json"),
+    )
     if monorepo_path.exists() or monorepo_path.is_symlink():
         from literate_ai.adapters.monorepo_adoption import MonorepoAdoptionError
         from literate_ai.adapters.monorepo_components import (

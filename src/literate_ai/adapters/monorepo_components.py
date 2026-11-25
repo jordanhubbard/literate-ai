@@ -1138,6 +1138,40 @@ def _publish_payloads(
     require_current: Callable[[], None] | None = None,
     validate: Callable[[], dict[str, Any]] | None = None,
 ) -> dict[str, Any] | None:
+    writer = _scoped_atomic_writer()
+    if writer is not None:
+        # The original installer owns its exact new payloads and source checks;
+        # their physical creation/rollback belongs to the live publication owner.
+        published = []
+        for relative, content in sorted(payloads.items()):
+            path = root.joinpath(*Path(_relative(relative)).parts)
+            require_safe_directory(path.parent, allow_missing=True)
+            if os.path.lexists(path):
+                _fail("destination_exists", "installed Component path must be new")
+            if require_current is not None:
+                require_current()
+            if (
+                _scoped_atomic_writer() is not writer
+                or not publish_atomic_file_if_scoped(
+                    path, content, require_current=require_current, preserve_mode=False
+                )
+            ):
+                _fail("publication_scope_changed", "original Component writer closed")
+            item = _file(path, maximum_bytes=_MAX_DOCUMENT)
+            if item.content != content:
+                _fail("installation_changed", "newly published payload changed")
+            published.append(item)
+        result = None if validate is None else validate()
+        if require_current is not None:
+            require_current()
+        if _scoped_atomic_writer() is not writer or any(
+            _signature(item.path) != item.signature for item in published
+        ):
+            _fail(
+                "installation_changed",
+                "published payload changed during final observations",
+            )
+        return result
     created: list[tuple[Path, tuple[int, int], bytes]] = []
     directories: list[tuple[Path, tuple[int, int]]] = []
     try:

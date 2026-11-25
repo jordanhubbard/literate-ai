@@ -147,6 +147,13 @@ from literate_ai.projects import (
 )
 from literate_ai.version import DISTRIBUTION_VERSION
 
+from .scaffold_custody import (
+    scaffold_mkdir,
+    scaffold_rmdir,
+    scaffold_write_bytes,
+    scaffold_write_text,
+)
+
 PROJECT_INITIALIZATION_SCHEMA = "literate-ai/project-initialization@6"
 PROJECT_INITIALIZATION_PREREQUISITES_SCHEMA = (
     "literate-ai/project-initialization-prerequisites@1"
@@ -1027,15 +1034,25 @@ def _rollback_converted_tree(target: Path, quarantine: dict[str, object]) -> Non
             "project.convert_rollback_conflict",
             "quarantine contains unexplained entries; preserve them for recovery",
         )
-    # Nothing except repository metadata and the quarantine survives rollback.
     legacy_root_name = Path(directory).parts[0]
-    for entry in sorted(target.iterdir(), key=lambda item: item.name):
-        if entry.name in {".git", legacy_root_name}:
-            continue
-        if entry.is_dir() and not entry.is_symlink():
-            shutil.rmtree(entry)
-        else:
-            entry.unlink()
+    from .scaffold_custody import (
+        ScaffoldCustodyError,
+        current_scaffold_custody,
+    )
+
+    try:
+        owner = current_scaffold_custody(target)
+        if owner is not None:
+            owner.rollback()
+        elif any(
+            entry.name not in {".git", legacy_root_name} for entry in target.iterdir()
+        ):
+            raise ScaffoldCustodyError("scaffold has no original creation owner")
+    except (ValueError, OSError) as error:
+        raise ProjectInitializationError(
+            "project.convert_rollback_conflict",
+            "scaffold custody changed; preserve scaffold and original quarantine",
+        ) from error
     for item in sorted(moved, key=lambda value: str(value.get("from", ""))):
         if not isinstance(item, dict):
             raise ProjectInitializationError(
@@ -1131,7 +1148,14 @@ def _restore_lift_shift_quarantine(
         )
     implementation = target / "components" / "legacy-project-wrapper" / "implementation"
     if implementation.exists():
-        implementation.rmdir()
+        try:
+            scaffold_rmdir(implementation)
+        except (ValueError, OSError) as error:
+            raise ProjectInitializationError(
+                "project.convert_rollback_conflict",
+                "implementation contains changed or unexplained state; "
+                "preserve implementation and original quarantine",
+            ) from error
 
 
 # Per-axis default selector applied when init caller declares no Flavor on that axis.
@@ -2870,7 +2894,15 @@ class FilesystemProjectInitializationAdapter:
             root_plan=root_plan,
         )
 
-    def _initialize_project_scaffold(
+    def _initialize_project_scaffold(self, target, **kwargs):
+        from contextlib import ExitStack
+
+        with ExitStack() as custody_stack:
+            return self._publish_project_scaffold(
+                target, _custody_stack=custody_stack, **kwargs
+            )
+
+    def _publish_project_scaffold(
         self,
         target: Path,
         *,
@@ -2892,6 +2924,7 @@ class FilesystemProjectInitializationAdapter:
         root_plan: Path | None = None,
         _placement=None,
         _bootstrap_inputs=None,
+        _custody_stack=None,
     ) -> dict[str, Any]:
         def coordinate(relative):
             return (
@@ -3259,6 +3292,9 @@ class FilesystemProjectInitializationAdapter:
             # byte-for-byte untouched. Resume an interrupted scaffold without
             # quarantining its partial literate-ai evidence a second time (INIT-003).
             quarantine = _quarantine_existing_tree(resolved_target)
+            from .scaffold_custody import scaffold_custody
+
+            _custody_stack.enter_context(scaffold_custody(resolved_target))
         directories = (
             "components",
             "samples",
@@ -3271,11 +3307,13 @@ class FilesystemProjectInitializationAdapter:
             "mcps",
             "docs",
         )
-        resolved_target.mkdir(parents=True, exist_ok=True)
+        scaffold_mkdir(resolved_target, parents=True, exist_ok=True)
         _mkdir_exist_ok = convert
         for relative in directories:
-            framework_path(relative).mkdir(parents=True, exist_ok=_mkdir_exist_ok)
-        framework_path("verification").mkdir(exist_ok=_mkdir_exist_ok)
+            scaffold_mkdir(
+                framework_path(relative), parents=True, exist_ok=_mkdir_exist_ok
+            )
+        scaffold_mkdir(framework_path("verification"), exist_ok=_mkdir_exist_ok)
         # Place .gitkeep in declared roots that may start empty so Git
         # preserves them across clone.  Only target roots that a converted
         # project declares but the init template may not populate. Components
@@ -3286,7 +3324,7 @@ class FilesystemProjectInitializationAdapter:
         for relative in _GITKEEP_CANDIDATES:
             path = framework_path(relative)
             if path.is_dir() and not any(path.iterdir()):
-                (path / ".gitkeep").write_text("", encoding="utf-8")
+                scaffold_write_text(path / ".gitkeep", "", encoding="utf-8")
         if _placement is not None:
             ProjectConfigurationStore(resolved_target).create(definition)
         harness_inventory_document: dict[str, object] | None = None
@@ -3359,10 +3397,10 @@ class FilesystemProjectInitializationAdapter:
                 ),
             )
             evidence_dir = framework_path(".literate")
-            evidence_dir.mkdir(exist_ok=True)
+            scaffold_mkdir(evidence_dir, exist_ok=True)
             inventory_path = evidence_dir / "harness-inventory.json"
-            inventory_path.write_bytes(
-                canonical_json_bytes(harness_inventory_document) + b"\n"
+            scaffold_write_bytes(
+                inventory_path, canonical_json_bytes(harness_inventory_document) + b"\n"
             )
             try:
                 to_run = stages_requiring_execution(
@@ -3406,8 +3444,9 @@ class FilesystemProjectInitializationAdapter:
                         run_baseline=run_baseline,
                     )
                 baseline_path = evidence_dir / "legacy-harness-baseline.json"
-                baseline_path.write_bytes(
-                    canonical_json_bytes(harness_baseline_document) + b"\n"
+                scaffold_write_bytes(
+                    baseline_path,
+                    canonical_json_bytes(harness_baseline_document) + b"\n",
                 )
                 wrapper_text = render_harness_wrapper(
                     harness_inventory_document,
@@ -3415,19 +3454,21 @@ class FilesystemProjectInitializationAdapter:
                     legacy_root=resolved_target / str(quarantine["directory"]),
                 )
                 wrapper_path = framework_path(HARNESS_WRAPPER_FILENAME)
-                wrapper_path.write_text(wrapper_text, encoding="utf-8", newline="\n")
+                scaffold_write_text(
+                    wrapper_path, wrapper_text, encoding="utf-8", newline="\n"
+                )
                 harness_wrapper_path = HARNESS_WRAPPER_FILENAME
                 shim_authority = legacy_shim_authority(
                     harness_inventory_document, harness_baseline_document
                 )
                 for relative, content in shim_authority.items():
                     path = framework_path(relative)
-                    path.parent.mkdir(parents=True, exist_ok=True)
+                    scaffold_mkdir(path.parent, parents=True, exist_ok=True)
                     if _placement is not None:
                         content = _placement.template_content(
                             relative, content.encode()
                         ).decode()
-                    path.write_text(content, encoding="utf-8", newline="\n")
+                    scaffold_write_text(path, content, encoding="utf-8", newline="\n")
                     shim_authority_paths.append(relative)
                 harness_parity_document = execute_harness_wrapper_parity(
                     harness_inventory_document,
@@ -3439,8 +3480,8 @@ class FilesystemProjectInitializationAdapter:
                     workspace_links=harness_workspace_links,
                 )
                 parity_path = evidence_dir / "legacy-wrapper-parity.json"
-                parity_path.write_bytes(
-                    canonical_json_bytes(harness_parity_document) + b"\n"
+                scaffold_write_bytes(
+                    parity_path, canonical_json_bytes(harness_parity_document) + b"\n"
                 )
             except (HarnessBaselineError, HarnessWorkspaceError) as exc:
                 # Restore project custody, retaining bounded private diagnostics
@@ -3489,7 +3530,7 @@ class FilesystemProjectInitializationAdapter:
             if not _include_template_file(destination, active_flavors):
                 continue
             path = framework_path(destination)
-            path.parent.mkdir(parents=True, exist_ok=True)
+            scaffold_mkdir(path.parent, parents=True, exist_ok=True)
             content = _template_text(resource).encode("utf-8")
             if _placement is not None:
                 row = _placement.entry(destination)
@@ -3513,7 +3554,7 @@ class FilesystemProjectInitializationAdapter:
                     content = edit.content
                 else:
                     content = _placement.template_content(destination, content)
-            path.write_bytes(content)
+            scaffold_write_bytes(path, content)
             created.append(destination)
         if (
             convert
@@ -3572,8 +3613,9 @@ class FilesystemProjectInitializationAdapter:
                     ),
                 ) from exc
             lift_shift_path = evidence_dir / "legacy-lift-shift.json"
-            lift_shift_path.write_bytes(
-                canonical_json_bytes(harness_lift_shift_document) + b"\n"
+            scaffold_write_bytes(
+                lift_shift_path,
+                canonical_json_bytes(harness_lift_shift_document) + b"\n",
             )
             adr_path = str(harness_lift_shift_document["adr"])
             created.extend((".literate/legacy-lift-shift.json", adr_path))
@@ -3638,6 +3680,7 @@ class FilesystemProjectInitializationAdapter:
                             f"components/{name}/binding.json",
                         )
                     )
+        _custody_stack.close()
         # In convert mode the project already has its own structure; never add the
         # starter hello Component regardless of the caller-supplied empty flag.
         effective_empty = empty or convert

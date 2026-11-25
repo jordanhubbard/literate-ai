@@ -26585,6 +26585,39 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original scaffold rollback and contained scope refresh (source partial):**
+  The original initializer now joins its actual directory births, exclusive file
+  creators and physical canonical publications in one process-bound finite owner.
+  Direct template/lift/rewrite producers and verified monorepo installation retain
+  their own planning and input checks while joining that actual creation custody.
+  Source/Git movement stays with its original owner. Rollback preflights exact
+  native postimages and owned-directory membership, removes only original owned
+  entries and uses native empty-directory retirement. Unknown/private entries,
+  equal-byte foreign replacements and changed parents refuse without recursive
+  tree deletion. Closed/copied/foreign-process writers cannot be replayed; writer
+  closure failures preserve the original rejection. Ordinary rejection before or
+  after real installation restores exact original bytes, modes, native inodes and
+  ignored-but-tracked Git index entries. Foreign framework or retained-source
+  recovery notes keep their original bytes/inodes and the original install error;
+  source stays in its known original quarantine when recovery is incomplete.
+  A completed scaffold cannot be adopted for later deletion from its saved paths.
+  The original retained-scope refresh reader now resolves the actual declared
+  wrapper and monorepo installation coordinates. Its real default refined journey
+  executes only the stale Component, reuses the other Component and becomes current
+  without rewriting historical conversion evidence. Existing default conversion,
+  native wrapper execution, source-scope policy/review/receipt renewal and Git
+  custody checks now use the declared contained metadata paths. Nine new creator
+  controls, five actual refined rollback controls, 16 Git custody controls, three
+  source-scope refresh controls, 12 original harness controls and ten original
+  stage-completion controls pass 55 checks without skips/failures plus static gates.
+  The harness cohort runs alongside pre-existing native-harness and Windows
+  recipe-assertion changes, preserved outside this commit. This is dirty-candidate
+  source evidence, not exact clean
+  commit, installed wheel or native three-platform release qualification. Refined
+  pre-bootstrap bundle/native execution scratch containment remains an explicit
+  pending test, and all original whole-project/source-parent/migration/history,
+  full-source, independent review and release requirements remain open.
+
 - **Original stage retirement observation (source partial):** The allocating
   stage now exposes process-bound completion only after its actual tracked native
   disposal and all handle-release stacks finish successfully. The observation

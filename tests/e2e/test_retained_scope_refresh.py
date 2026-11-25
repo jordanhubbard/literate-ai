@@ -11,6 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from literate_ai.adapters import retained_scope_refresh as refresh
+from literate_ai.projects import ProjectConfigurationStore
 from tests.support.fixtures_test_retained_harness_receipts import (
     _adapter,
     _invoke,
@@ -41,6 +42,7 @@ class RetainedScopeRefreshTests(unittest.TestCase):
         self.root = self.base / "project"
         shutil.copytree(self.template, self.root, symlinks=True)
         self.source = self.root / "components/legacy-project-wrapper/implementation"
+        self.framework = ProjectConfigurationStore.context(self.root).framework_root
 
     def invoke(self, *arguments):
         return _invoke(
@@ -101,7 +103,7 @@ class RetainedScopeRefreshTests(unittest.TestCase):
             "legacy-lift-shift.json",
         )
         history = {
-            name: (self.root / ".literate" / name).read_bytes()
+            name: (self.framework / ".literate" / name).read_bytes()
             for name in history_names
         }
         (self.source / "new.txt").write_text("new tracked-style source\n")
@@ -130,7 +132,9 @@ class RetainedScopeRefreshTests(unittest.TestCase):
             json.loads((self.root / result["result"]["history"]).read_bytes()), plan
         )
         for name, content in history.items():
-            self.assertEqual((self.root / ".literate" / name).read_bytes(), content)
+            self.assertEqual(
+                (self.framework / ".literate" / name).read_bytes(), content
+            )
         code, stale = _invoke(
             "project", "test-receipt", "require-current", "--project", str(self.root)
         )

@@ -56,6 +56,8 @@ from literate_ai.adapters.retained_layout import (
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.diagnostics import redact_secrets, trace_subprocess
 
+from .scaffold_custody import scaffold_mkdir, scaffold_rmdir, scaffold_write_text
+
 HARNESS_INVENTORY_SCHEMA = "urn:literate-ai:schema:v1:harness-inventory"
 HARNESS_BASELINE_SCHEMA = "literate-ai/legacy-harness-baseline@2"
 HARNESS_PARITY_SCHEMA = "literate-ai/legacy-wrapper-parity@2"
@@ -2464,7 +2466,8 @@ def prepare_native_rewrite_program(
     require_project_roadmap_acyclic(
         project_root, {queue_relative: proposed.encode("utf-8")}
     )
-    (project_root / adr_relative).write_text(
+    scaffold_write_text(
+        project_root / adr_relative,
         render_native_rewrite_adr(
             implementation_directory=implementation,
             lift_shift_identity=lift_shift_identity,
@@ -2472,13 +2475,14 @@ def prepare_native_rewrite_program(
         encoding="utf-8",
         newline="\n",
     )
-    (project_root / roadmap_relative).write_text(
+    scaffold_write_text(
+        project_root / roadmap_relative,
         render_native_rewrite_roadmap(implementation_directory=implementation),
         encoding="utf-8",
         newline="\n",
     )
     if proposed != active_text:
-        active.write_text(proposed, encoding="utf-8", newline="\n")
+        scaffold_write_text(active, proposed, encoding="utf-8", newline="\n")
     docs_readme = context.framework_path("docs/README.md")
     links = (
         "- [Native rewrite decision](decisions/0002-native-literate-ai-rewrite.md)\n"
@@ -2489,7 +2493,8 @@ def prepare_native_rewrite_program(
     else:
         readme = "# Project guide\n"
     if "decisions/0002-native-literate-ai-rewrite.md" not in readme:
-        docs_readme.write_text(
+        scaffold_write_text(
+            docs_readme,
             readme.rstrip("\n") + "\n" + links + "\n",
             encoding="utf-8",
             newline="\n",
@@ -2529,7 +2534,7 @@ def lift_shift_legacy_project(
     )
     if implementation.exists() or not legacy_root.is_dir():
         raise ValueError("lift-and-shift source or destination is unavailable")
-    implementation.mkdir(parents=True)
+    scaffold_mkdir(implementation, parents=True)
     move_records: list[dict[str, str]] = []
     try:
         for item in sorted(moved, key=lambda value: str(value.get("from", ""))):
@@ -2556,7 +2561,8 @@ def lift_shift_legacy_project(
         wrapper = retained_scaffold_path(project_root, HARNESS_WRAPPER_FILENAME)
         original_wrapper = wrapper.read_text(encoding="utf-8")
         implementation_relative = implementation.relative_to(project_root).as_posix()
-        wrapper.write_text(
+        scaffold_write_text(
+            wrapper,
             original_wrapper.replace(
                 f"LITAI_LEGACY := {directory}",
                 f"LITAI_LEGACY := {implementation_relative}",
@@ -2579,7 +2585,9 @@ def lift_shift_legacy_project(
     except Exception as original:
         try:
             if "original_wrapper" in locals():
-                wrapper.write_text(original_wrapper, encoding="utf-8", newline="\n")
+                scaffold_write_text(
+                    wrapper, original_wrapper, encoding="utf-8", newline="\n"
+                )
             for record in reversed(move_records):
                 source = project_root / record["to"]
                 destination = project_root / record["from"]
@@ -2589,7 +2597,7 @@ def lift_shift_legacy_project(
                     destination,
                     prefer_git=record["vcs"] == "git",
                 )
-            implementation.rmdir()
+            scaffold_rmdir(implementation)
         except Exception as recovery:
             raise HarnessBaselineError(
                 "project.convert_lift_shift_recovery_failed",
@@ -2622,8 +2630,9 @@ def lift_shift_legacy_project(
         .as_posix()
     )
     adr = project_root / adr_relative
-    adr.parent.mkdir(parents=True, exist_ok=True)
-    adr.write_text(
+    scaffold_mkdir(adr.parent, parents=True, exist_ok=True)
+    scaffold_write_text(
+        adr,
         render_lift_shift_adr(
             implementation_directory=implementation.relative_to(
                 project_root

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- PROJECT-LAYOUT-001: retire only original scaffold creations during conversion rollback, preserving foreign state and rejecting errors; restore exact source/Git custody on ordinary failure and resolve contained wrapper/Component metadata during real source-scope refresh.
+
 - PROJECT-LAYOUT-001: expose process-bound stage retirement completion after actual native disposal and handle release; retain incomplete state on foreign entries or failed cleanup. Conversion rollback integration remains open.
 
 - Verify retained Component source movement, fresh receipt renewal and subsequent reuse after default contained conversion.
