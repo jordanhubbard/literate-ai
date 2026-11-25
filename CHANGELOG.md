@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a versioned framework source archive that preserves Component control inodes, validates actual normal destination catalogs/producers after restart, and restores source namespaces before exact pair/file rollback; retain v1 recovery and refuse private residuals.
+
 - Keep genuine Component control paths outside authored reference maps and unknown-file classification so acquiring the first normal locks preserves an acknowledged no-target placement plan.
 
 - Exercise actual child-process exits at all four reverse lock/audit recovery moves, then complete exact framework rollback from the parent without restoring a child-side owner.

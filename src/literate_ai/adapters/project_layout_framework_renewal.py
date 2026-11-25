@@ -110,7 +110,7 @@ def _state(root, journal, coordinate, row):
     _fail("normal producer has an ambiguous or foreign native state")
 
 
-def _guard(root, journal, record, frame_journal, frame, lease, namespace):
+def _guard_journal(root, journal, record, frame_journal, frame, lease, namespace):
     _bindings()
     require_layout_lease(lease, root)
     framework._guard(root, frame["plan"], lease, namespace)
@@ -151,6 +151,10 @@ def _guard(root, journal, record, frame_journal, frame, lease, namespace):
         for row in record["entries"].values()
     )
     filesystem._require_worktree_members(root, members)
+
+
+def _guard(root, journal, record, frame_journal, frame, lease, namespace):
+    _guard_journal(root, journal, record, frame_journal, frame, lease, namespace)
     selected = {
         row["source"]: coordinate for coordinate, row in record["entries"].items()
     }
@@ -788,6 +792,7 @@ def _bind_original_delegates():
             "_path",
             "_state",
             "_guard",
+            "_guard_journal",
             "_decode",
             "_stage",
             "operations",

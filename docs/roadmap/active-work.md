@@ -26589,7 +26589,14 @@ implementation, policy weakening, qualification or issue closure is recorded her
   the original framework rollback without rebasing source history. Actual child
   exits at all four reverse pair-recovery moves also resume exact rollback. The
   renewal owner joins its original recorded Component namespace to the same
-  project Root before physical probes. Equal-byte
+  project Root before physical probes. The framework journal now has an explicit
+  second version with native source-directory archives; original first-version
+  rollback remains supported. Local current-pair and renewed-pair journeys close
+  original Component control namespaces, rederive actual normal destination
+  currentness after restart, and restore exact original files/control inodes.
+  The no-target case creates no invented target evidence. Private residuals
+  remain unopened and block closure. Full project finalization and installed
+  supported-platform qualification remain open. Equal-byte
   foreign producer inodes remain protected and original permission modes restore
   exactly. These checks exercise the real normal producer and filesystem writer.
   A contained root Skill keeps its logical ownership when the

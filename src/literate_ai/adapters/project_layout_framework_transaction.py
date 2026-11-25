@@ -41,8 +41,20 @@ from literate_ai.adapters.project_layout_lease import (
 from literate_ai.adapters.project_layout_planning import ProjectLayoutPlanError
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 
-_SCHEMA = "literate-ai/project-layout-framework-authority-journal@1"
-_DIRECTORIES = ("before", "after", "directories", "coordination")
+_JOURNAL_V1 = "literate-ai/project-layout-framework-authority-journal@1"
+_JOURNAL_V2 = "literate-ai/project-layout-framework-authority-journal@2"
+_SCHEMA = _JOURNAL_V2
+_DIRECTORIES = ("before", "after", "directories", "coordination", "retired-source")
+
+
+def _journal_directories(schema):
+    if schema == _JOURNAL_V1:
+        return ("before", "after", "directories", "coordination")
+    if schema == _JOURNAL_V2:
+        return ("before", "after", "directories", "coordination", "retired-source")
+    _fail("unsupported framework journal version")
+
+
 _MARKERS = {
     "placed": b"framework placement complete\n",
     "rolled-back": b"framework placement rolled back\n",
@@ -209,7 +221,11 @@ def _guard_intent(root, journal, intent):
         != canonical_json_bytes(document) + b"\n"
     ):
         _fail("original framework journal document changed")
-    if not native._names(journal) <= {"intent.json", *_DIRECTORIES, *_MARKERS}:
+    if not native._names(journal) <= {
+        "intent.json",
+        *_journal_directories(intent["schema"]),
+        *_MARKERS,
+    }:
         _fail("framework journal gained unknown data")
     for name, node in intent["journal_directories"].items():
         if list(directory_node(journal / name)) != node:
@@ -234,9 +250,12 @@ def _guard_intent(root, journal, intent):
             and filesystem._file(journal / marker)[1] != content
         ):
             _fail("framework journal marker changed")
+    from literate_ai.adapters import project_layout_framework_source_closure as closing
+
+    source_locations = closing.locations(root, journal, intent)
     for coordinate, node in intent["original_directories"].items():
         if (
-            list(directory_node(root if coordinate == "." else root / coordinate))
+            list(directory_node(closing.resolve(root, coordinate, source_locations)))
             != node
         ):
             _fail("original framework parent changed")
@@ -261,7 +280,10 @@ def _guard_intent(root, journal, intent):
             _fail("new framework directory gained unrelated data")
     native._coordination_states(root, journal, intent)
     for path, row in intent["source_coordination"].items():
-        if not native._coord_matches(native._coordination_view(root / path), row):
+        if not native._coord_matches(
+            native._coordination_view(closing.resolve(root, path, source_locations)),
+            row,
+        ):
             _fail("original source coordination inode changed")
 
 
@@ -495,7 +517,7 @@ def _decode(root, expected):
                 "journal_node",
                 "journal_directories",
             }
-            or intent["schema"] != _SCHEMA
+            or intent["schema"] not in (_JOURNAL_V1, _JOURNAL_V2)
             or canonical_identity(intent).uri != identity
         ):
             _fail("unsupported or changed original framework intent")
@@ -569,7 +591,9 @@ def _decode(root, expected):
             }:
                 _fail("framework original coordination has unknown fields")
             _validate_coordination(row)
-        if set(intent["journal_directories"]) != set(_DIRECTORIES):
+        if set(intent["journal_directories"]) != set(
+            _journal_directories(intent["schema"])
+        ):
             _fail("framework private namespace inventory changed")
         native._node(intent["journal_node"], directory=True)
         for row in intent["journal_directories"].values():
@@ -666,6 +690,12 @@ def recover_framework_authority(root, expected):
         journal, intent = _decode(root, expected)
         _current(root, journal, intent, lease, namespace)
         entries = intent["entries"]
+        from literate_ai.adapters.project_layout_framework_source_closure import (
+            restore_sources,
+        )
+
+        restore_sources(root, journal, intent, lease, namespace)
+        _current(root, journal, intent, lease, namespace)
         already_original = (
             all(
                 _state(root, journal, source, row) == "original"
