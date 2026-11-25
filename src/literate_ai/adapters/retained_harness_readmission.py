@@ -1007,6 +1007,7 @@ def apply_retained_harness_readmission(
                 },
             }
             for name, content in replacements.items():
+                _require_written_documents(root, {name: before[name]})
                 FilesystemConversionAuthorityStore._atomic_write(paths[name], content)
                 written[name] = content
             store = ProjectConfigurationStore(root)

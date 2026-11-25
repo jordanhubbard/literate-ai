@@ -224,12 +224,15 @@ class RetainedHarnessReadmissionTests(unittest.TestCase):
         )
 
         original_lock = component_lock_commands._component_locks_from_args
+        original_write = readmission.FilesystemConversionAuthorityStore._atomic_write
         original_review = readmission.record_project_authority_review
         original_record = (
             FilesystemProjectInitializationAdapter._record_authority_review
         )
         (self.source / "added.py").write_bytes(b"VALUE = 1\n")
         for selected, when in (
+            ("component", "publication"),
+            ("flavor", "publication"),
             ("component", "lock"),
             ("flavor", "lock"),
             ("review", "lock"),
@@ -256,6 +259,19 @@ class RetainedHarnessReadmissionTests(unittest.TestCase):
                 }[selected]
                 target = self.root / relative
                 changed = before[relative] + b"\nConcurrent owner edit.\n"
+                publication_edit_injected = False
+
+                def write(path, content, when=when, target=target, changed=changed):
+                    nonlocal publication_edit_injected
+                    value = original_write(path, content)
+                    if (
+                        when == "publication"
+                        and Path(path) == self.root / readmission.INVENTORY
+                        and not publication_edit_injected
+                    ):
+                        publication_edit_injected = True
+                        target.write_bytes(changed)
+                    return value
 
                 def lock(*args, when=when, target=target, changed=changed, **kwargs):
                     value = original_lock(*args, **kwargs)
@@ -279,6 +295,11 @@ class RetainedHarnessReadmissionTests(unittest.TestCase):
                     return original_record(instance, *args, **kwargs)
 
                 with (
+                    mock.patch.object(
+                        readmission.FilesystemConversionAuthorityStore,
+                        "_atomic_write",
+                        write,
+                    ),
                     mock.patch.object(
                         component_lock_commands, "_component_locks_from_args", lock
                     ),
