@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Allow imported Component placement in contained generated projects, preserving original lock/audit history separately from normal currentness; compose catalog then framework placement with exact reverse rollback.
+
 - Add acknowledged project layout renew for an original migrated Component/target, using fresh normal preparation and native journal custody, with registered inert result schema and exact public rollback support.
 
 - Verify fresh-process producer renewal after the original Component directory is archived, preserving its control inodes and newly authored local policy through exact rollback.

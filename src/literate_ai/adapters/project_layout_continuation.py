@@ -1160,9 +1160,14 @@ def _bind_transitions(selection):
             )
         _admit_transition(transition)
         raw_source = _raw_method(transition, "require_current")
-        raw_destination = _raw_method(transition, "verify_destination_current")
+        raw_current = _raw_method(transition, "verify_destination_current")
+        raw_placement = _raw_method(transition, "verify_destination_placement")
+        # A legacy owner exposing only its stricter currentness guard retains
+        # that guard. The actual factory now distinguishes finite placement.
+        raw_destination = raw_placement if raw_placement is not None else raw_current
         if (
             type(raw_source) is not types.FunctionType
+            or type(raw_current) is not types.FunctionType
             or type(raw_destination) is not types.FunctionType
         ):
             _fail(
@@ -1189,6 +1194,8 @@ def _bind_transitions(selection):
             transition.original_audit_store,
             getattr(transition, "_source_guard", None),
             getattr(transition, "_destination_guard", None),
+            raw_placement,
+            raw_current,
         )
         witnesses.append((endpoint, transition, raw_source, raw_destination, snapshots))
     return tuple(witnesses)
@@ -1200,14 +1207,24 @@ def _check_transition(witness):
     if (
         getattr(endpoint, "producer_transition", None) is not transition
         or _raw_method(transition, "require_current") is not source
-        or _raw_method(transition, "verify_destination_current") is not destination
+        or _raw_method(transition, "verify_destination_placement") is not snapshot[-2]
+        or _raw_method(transition, "verify_destination_current") is not snapshot[-1]
+        or destination
+        is not (snapshot[-2] if snapshot[-2] is not None else snapshot[-1])
     ):
         _fail("plan_stale", "original Component transition/guard changed")
     try:
         shadows = object.__getattribute__(transition, "__dict__")
     except AttributeError:
         shadows = {}
-    if "require_current" in shadows or "verify_destination_current" in shadows:
+    if any(
+        name in shadows
+        for name in (
+            "require_current",
+            "verify_destination_current",
+            "verify_destination_placement",
+        )
+    ):
         _fail("plan_stale", "original Component method shadowed")
     values = (
         endpoint.source_root,
@@ -1223,6 +1240,8 @@ def _check_transition(witness):
         transition.original_audit_store,
         getattr(transition, "_source_guard", None),
         getattr(transition, "_destination_guard", None),
+        _raw_method(transition, "verify_destination_placement"),
+        _raw_method(transition, "verify_destination_current"),
     )
     if any(now is not original for now, original in zip(values, snapshot, strict=True)):
         _fail("plan_stale", "original Component transition binding changed")

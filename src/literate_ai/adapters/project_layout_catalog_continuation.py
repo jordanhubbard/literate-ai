@@ -161,16 +161,15 @@ def select_contained_catalog_continuation(
         or snapshot.directory_binding != context.directory_binding
         or parse_project_configuration(snapshot.content) != snapshot.definition
         or snapshot.definition.framework_directory != "litai"
-        or baseline.profile == "native"
+        or baseline.profile != "generated"
         or inventory.get("inventory_scope") != "curated-contained-canonical"
         or inventory.get("project_id") != snapshot.definition.project_id
         or inventory.get("manifest") != manifest
-        or inventory.get("retained_implementation") is None
         or contents.get(manifest) != snapshot.content
     ):
         _fail(
             "catalog_continuation_profile",
-            "original contained converted-project observation required",
+            "original contained generated-project observation required",
         )
     comparable = {k: v for k, v in inventory.items() if k != "plan_identity"}
     if canonical_identity(comparable).uri != inventory.get("plan_identity"):

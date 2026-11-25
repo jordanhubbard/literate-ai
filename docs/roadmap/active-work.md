@@ -26575,6 +26575,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Generated-project and mixed Component placement (partial):** The original
+  catalog continuation now accepts an exact generated baseline with or without
+  a converted application, while the native-adoption profile stays excluded.
+  Its existing source/import/native/Git/alias checks remain. Real typed producer
+  pairs can finish byte placement using a distinct original placement guard;
+  strict destination currentness still rejects an old catalog audit and requires
+  ordinary renewal. Both original guard methods remain pinned around callbacks.
+  A two-Component source journey joins a genuine initialized factory owner and
+  a separately inherited factory owner, each with real normal lock/audit data.
+  It applies the existing catalog channel before the framework channel and
+  reverses both, restoring every captured original file byte and inode while
+  preserving application data. Neither channel adopts the other's provenance.
+  Historical origin declarations remain fixture data. Existing transition,
+  catalog, native journal and converted-project public controls pass. Composed
+  normal renewal/finalization across channels, complete project containment and
+  installed supported-platform lifecycle qualification remain open.
+
 - **Public normal producer renewal (partial):** The acknowledged
   `project layout renew --place-framework-authority` command joins an explicit
   original plan, contained Component and recorded target to the fresh native

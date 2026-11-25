@@ -278,6 +278,12 @@ class ComponentLayoutProducerTransition:
         """Fresh original destination proof; no update, execution, or grant."""
         return _invoke_admitted_transition(self, _DESTINATION_GUARD, expected_snapshot)
 
+    def verify_destination_placement(self, expected_snapshot):
+        """Validate exact placed authority/history; normal renewal stays separate."""
+        return _invoke_admitted_transition(
+            self, _DESTINATION_GUARD, expected_snapshot, False
+        )
+
 
 _NAMESPACES += (
     (
@@ -868,8 +874,10 @@ def _observe_component_layout_transition(
         source_owners_current()
         _require_original_source_namespace(snapshot, context, source_root, observations)
 
-    def destination_current(expected_snapshot):
+    def destination_current(expected_snapshot, producer_current=True):
         owners_current()
+        if type(producer_current) is not bool:
+            _fail("exact destination validation purpose required")
         _require_original_source_namespace(snapshot, context, "litai", observations)
         if os.environ.get("LITAI_MATRIX_CELL_ROOT"):
             _fail("destination matrix mapping requires its original owner")
@@ -903,32 +911,51 @@ def _observe_component_layout_transition(
             current_lock = _LOCK_READ(store, authorings=catalog.authorings)
             if current_lock.identity != lock.identity:
                 _fail("destination lock requires its ordinary reviewed renewal")
-            if any(
-                asset.selector.source.startswith(("http://", "https://"))
-                for node in current_lock.nodes
-                for asset in node.revision.assets
-            ):
-                _fail(
-                    "remote asset measurement requires its separately authorized "
-                    "original owner"
+            if not producer_current:
+                # Exact original bytes are relocation data, never a claim that
+                # the audit already reproduces the new catalog's identity.
+                if _LOCK_SNAPSHOT(store).content != original_lock:
+                    _fail("placed producer lock differs from original bytes")
+                target_audit = ComponentResolutionAuditStore(target, lock.target_name)
+                expected = (
+                    None
+                    if audit is None
+                    else canonical_json_bytes(audit.to_dict()) + b"\n"
                 )
-            closure = _CLOSURE(
-                catalog,
-                current_lock,
-                lock_path=store.path,
-                lock_boundary=store.storage_root,
-            )
-            closure.require_unchanged()
-            target_audit = ComponentResolutionAuditStore(target, lock.target_name)
-            current_audit = _AUDIT_READ(target_audit)
-            if (
-                current_audit.component_lock_identity != current_lock.identity
-                or current_audit.resolver_identity != current_lock.resolver_identity
-                or current_audit.catalog_identity != catalog.catalog_audit_identity
-                or _producer_names(target_bytes)
-                != {"component.lock.json", target_audit.path.name}
-            ):
-                _fail("destination audit requires ordinary producer renewal")
+                if _AUDIT_SNAPSHOT(target_audit).content != expected or _producer_names(
+                    target_bytes
+                ) != {
+                    "component.lock.json",
+                    *([target_audit.path.name] if audit is not None else []),
+                }:
+                    _fail("placed producer audit/inventory differs from original")
+            else:
+                if any(
+                    asset.selector.source.startswith(("http://", "https://"))
+                    for node in current_lock.nodes
+                    for asset in node.revision.assets
+                ):
+                    _fail(
+                        "remote asset measurement requires its separately authorized "
+                        "original owner"
+                    )
+                closure = _CLOSURE(
+                    catalog,
+                    current_lock,
+                    lock_path=store.path,
+                    lock_boundary=store.storage_root,
+                )
+                closure.require_unchanged()
+                target_audit = ComponentResolutionAuditStore(target, lock.target_name)
+                current_audit = _AUDIT_READ(target_audit)
+                if (
+                    current_audit.component_lock_identity != current_lock.identity
+                    or current_audit.resolver_identity != current_lock.resolver_identity
+                    or current_audit.catalog_identity != catalog.catalog_audit_identity
+                    or _producer_names(target_bytes)
+                    != {"component.lock.json", target_audit.path.name}
+                ):
+                    _fail("destination audit requires ordinary producer renewal")
         _CATALOG_CURRENT(catalog)
         _project_current(expected_snapshot)
         _classes_current()

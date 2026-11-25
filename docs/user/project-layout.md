@@ -190,13 +190,19 @@ plan with one `--rewrite-reference PATH` per authorized document. Apply with
 `project layout apply --acknowledge --plan-identity ID`, repeating the same scope
 and reference options. The ID must be copied from that exact reviewed plan.
 
-After metadata placement, an existing contained converted project can request
-its imported-catalog continuation with
+After metadata placement, an existing contained generated project, including a
+converted project, can request its imported-catalog continuation with
 `project layout plan --migration --place-imported-catalogs`. Apply that exact plan
 using `project layout apply --place-imported-catalogs` and the acknowledgement,
 identity and reviewed reference options. This phase preserves imported source
 identities, original application files, Git state and earlier migration journals.
 Unresolved ownership and unsupported reference transformations remain visible.
+
+Component placement preserves its original lock/audit bytes as history; ordinary
+producer currentness and any required renewal remain separate. When catalog
+placement is followed by framework-authority placement, undo the framework phase
+before recovering the earlier catalog phase so each journal sees its own exact
+metadata state.
 
 Catalog apply and recovery return
 `literate-ai/project-layout-catalog-continuation-result@1`. The original read-only
