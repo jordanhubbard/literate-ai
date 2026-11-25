@@ -16,6 +16,12 @@ from types import MappingProxyType
 from urllib.parse import unquote, urlsplit
 
 from literate_ai._filesystem import stat_identity_value
+from literate_ai.adapters import (
+    project_layout_recorded_wrapper_projection as wrapper_projector,
+)
+from literate_ai.adapters import (
+    project_layout_recorded_wrapper_source as wrapper_source,
+)
 from literate_ai.adapters import project_scaffold_references as references
 from literate_ai.adapters import project_scaffold_transitions as transitions
 from literate_ai.adapters.project_layout_component_transition import (
@@ -52,6 +58,16 @@ _TEMPLATE = vars(ProjectScaffoldPlacement)["template_content"]
 _DELEGATE = vars(ProjectScaffoldPlacement)["plan_delegate"]
 _BOOTSTRAP = transitions.reviewed_bootstrap_transition
 _FUNCTIONS = (
+    (
+        wrapper_source,
+        "require_original_recorded_wrapper_source",
+        wrapper_source.require_original_recorded_wrapper_source,
+    ),
+    (
+        wrapper_projector,
+        "project_recorded_legacy_wrapper_authority",
+        wrapper_projector.project_recorded_legacy_wrapper_authority,
+    ),
     (
         references,
         "validate_reference_coordinates",
@@ -112,6 +128,7 @@ class FrameworkAuthoritySelection:
     observation_owner: object | None = None
     creation_owners: tuple = ()
     component_endpoints: tuple = ()
+    recorded_wrapper_source: object | None = None
 
 
 def _plain_observation(contents, observations):
@@ -173,6 +190,7 @@ def select_existing_framework_authority(
     source_held=(),
     creation_owners=(),
     component_endpoints=(),
+    recorded_wrapper_source=None,
     _creation_coordinate_only=False,
     creation_blockers=(),
 ):
@@ -204,6 +222,36 @@ def select_existing_framework_authority(
         ):
             _fail("plain original held source rows required")
     _plain_observation(contents, observations)
+    wrapper = recorded_wrapper_source
+    wrapper_entries, wrapper_destinations = {}, {}
+    retained_paths = set()
+    if wrapper is not None:
+        wrapper_source.require_original_recorded_wrapper_source(wrapper)
+        if (
+            wrapper.snapshot is not snapshot
+            or wrapper.context is not context
+            or wrapper.resources is not resources
+        ):
+            _fail(
+                "SAME original recorded wrapper/project/resource observation required"
+            )
+        for entry in wrapper.projection.entries:
+            source = entry.original_coordinate
+            if (
+                source in protected_paths | imported_paths
+                or contents.get(source) != entry.original_bytes
+                or observations.get(source)
+                != dict(wrapper.entry_observations[entry.logical])
+            ):
+                _fail("original recorded wrapper preimage differs from source capture")
+            wrapper_entries[entry.logical] = entry
+            wrapper_destinations[entry.logical] = (
+                source if source.startswith("litai/") else "litai/" + source
+            )
+        prefix = wrapper.retained_source.layout.implementation_directory + "/"
+        retained_paths = {prefix + name for name in wrapper.retained_source.contents}
+        if not retained_paths <= protected_paths:
+            _fail("original retained application source boundary differs")
     proofs = {}
     for proof in source_proofs:
         require_original_initialized_framework_file_proof(proof)
@@ -259,15 +307,28 @@ def select_existing_framework_authority(
     for endpoint in component_endpoints:
         require_original_component_transition(endpoint)
         proof = endpoint.initialized_source
+        if endpoint.source_kind == "initialized":
+            if (
+                proof is None
+                or proofs.get(proof.logical) is not proof
+                or proof.source_path != endpoint.source_root + "/component.md"
+            ):
+                _fail("SAME original initialized Component/source proof required")
+        elif endpoint.source_kind == "recorded-wrapper":
+            if (
+                wrapper is None
+                or endpoint.recorded_source is not wrapper
+                or endpoint.source_root + "/component.md"
+                != wrapper.coordinates["components/legacy-project-wrapper/component.md"]
+            ):
+                _fail("SAME original recorded wrapper Component source required")
+        else:
+            _fail("original initialized or recorded Component source required")
         if (
-            endpoint.source_kind != "initialized"
-            or proof is None
-            or proofs.get(proof.logical) is not proof
-            or endpoint.source_root in components
-            or proof.source_path != endpoint.source_root + "/component.md"
+            endpoint.source_root in components
             or endpoint.destination_root != "litai/" + endpoint.source_root
         ):
-            _fail("SAME original initialized Component/source proof required")
+            _fail("original Component endpoint coordinate changed")
         for path, content in endpoint.original_contents.items():
             row = endpoint.records[path]
             if (
@@ -283,6 +344,23 @@ def select_existing_framework_authority(
             _fail("original Component producer overlaps application/import scope")
         coordination_paths.update(endpoint.coordination_paths)
         components[endpoint.source_root] = endpoint
+
+    def component_manifest(endpoint):
+        return (
+            endpoint.initialized_source.logical
+            if endpoint.source_kind == "initialized"
+            else "components/legacy-project-wrapper/component.md"
+        )
+
+    def component_selected(endpoint):
+        logical = component_manifest(endpoint)
+        mapping = (
+            destinations
+            if endpoint.source_kind == "initialized"
+            else wrapper_destinations
+        )
+        return mapping.get(logical) == endpoint.destination_root + "/component.md"
+
     destinations = {
         logical: proof.source_path
         if proof.role == "root-delegate"
@@ -392,6 +470,22 @@ def select_existing_framework_authority(
 
     for logical, destination in destinations.items():
         require_destination(proofs[logical].source_path, destination)
+    for logical, destination in wrapper_destinations.items():
+        require_destination(wrapper_entries[logical].original_coordinate, destination)
+    if wrapper is not None:
+        manifest = "components/legacy-project-wrapper/component.md"
+        original = wrapper_entries[manifest].original_coordinate
+        if (
+            original != wrapper_destinations[manifest]
+            and original.removesuffix("/component.md") not in components
+        ):
+            blockers.append(
+                {
+                    "path": original,
+                    "owner": "component-producer",
+                    "reason": "original recorded wrapper producer transition required",
+                }
+            )
 
     def reference_coordinates():
         coordinates = {
@@ -408,12 +502,13 @@ def select_existing_framework_authority(
             coordinates["scripts/_bootstrap_processes.py"] = (
                 "litai/scripts/_bootstrap_processes.py"
             )
+        for logical, destination in wrapper_destinations.items():
+            source = wrapper_entries[logical].original_coordinate
+            if source != logical:
+                coordinates.pop(source, None)
+            coordinates[logical] = destination
         for endpoint in component_endpoints:
-            manifest = endpoint.initialized_source.logical
-            if (
-                destinations.get(manifest)
-                == endpoint.destination_root + "/component.md"
-            ):
+            if component_selected(endpoint):
                 for path in endpoint.records:
                     coordinates[path] = "litai/" + path
         return coordinates
@@ -597,17 +692,46 @@ def select_existing_framework_authority(
         elif before != rewritten:
             (delegates if proof.role == "root-delegate" else resident)[source] = row
         after[destination] = rewritten
+    for logical, destination in sorted(wrapper_destinations.items()):
+        entry = wrapper_entries[logical]
+        source = entry.original_coordinate
+        if source != destination:
+            if source in placements or source in owned:
+                _fail("recorded wrapper overlaps initialized source custody")
+            placements[source] = {
+                "from": _identity(entry.original_bytes),
+                "to": _identity(entry.original_bytes),
+                "mode": observations[source]["mode"],
+                "logical": logical,
+                "source_proof": wrapper.identity,
+                "resource_identity": resources.identity,
+                "owner": "recorded-converter-file",
+                "projection": "original-bytes",
+                "projection_identity": canonical_identity(
+                    {
+                        "domain": "original-recorded-wrapper-placement-v1",
+                        "source": source,
+                        "destination": destination,
+                        "proof": wrapper.identity,
+                        "original_projection": wrapper.projection.input_identity,
+                    }
+                ).uri,
+                "destination": destination,
+            }
+        after[destination] = entry.original_bytes
     for endpoint in component_endpoints:
-        if destinations.get(endpoint.initialized_source.logical) != (
-            endpoint.destination_root + "/component.md"
-        ):
+        if not component_selected(endpoint):
             continue
         producer_input = canonical_identity(
             {
                 "domain": "original-initialized-component-producer-input-v1",
                 "source": endpoint.source_root,
                 "destination": endpoint.destination_root,
-                "manifest_proof": endpoint.initialized_source.identity,
+                "manifest_proof": (
+                    endpoint.initialized_source.identity
+                    if endpoint.source_kind == "initialized"
+                    else wrapper.identity
+                ),
                 "targets": list(endpoint.target_names),
                 "records": {path: dict(row) for path, row in endpoint.records.items()},
                 "coordination": list(endpoint.coordination_paths),
@@ -707,7 +831,9 @@ def select_existing_framework_authority(
             children = {
                 name
                 for name in contents
-                if name.startswith(root + "/") and name not in coordination_paths
+                if name.startswith(root + "/")
+                and name not in coordination_paths
+                and name not in retained_paths
             }
             selected = {name for name in children if moved.get(name) == "litai/" + name}
             opaque = any(
@@ -764,6 +890,40 @@ def select_existing_framework_authority(
             ).uri,
         }
         after[manifest] = rewritten_manifest
+    if wrapper is not None:
+        records = {
+            name: content
+            for name, content in wrapper.projection.record_bytes
+            if name not in {"initialization_origin", "initialization_baseline"}
+        }
+        projected_wrapper = wrapper_projector.project_recorded_legacy_wrapper_authority(
+            resources=resources,
+            before_definition_bytes=snapshot.content,
+            prospective_definition_bytes=serialize_project_configuration(
+                replace(definition, **updates)
+            )
+            if updates
+            else snapshot.content,
+            original_coordinates=dict(wrapper.coordinates),
+            prospective_coordinates=wrapper_destinations,
+            record_bytes=records,
+            additional_coordinates={
+                source: destination
+                for source, destination in moved.items()
+                if source not in wrapper.coordinates.values()
+            },
+            implementation_directory=wrapper.retained_source.layout.implementation_directory,
+            source_tree_identity=wrapper.projection.source_tree_identity,
+            original_entry_bytes={
+                logical: entry.original_bytes
+                for logical, entry in wrapper_entries.items()
+            },
+        )
+        if any(
+            after[entry.prospective_coordinate] != entry.prospective_bytes
+            for entry in projected_wrapper.entries
+        ):
+            _fail("original converter prospective output differs from selected payload")
     if moved or creations:
         _origin, baseline, _origin_bytes, baseline_bytes = (
             original_framework_initialization(resources)
@@ -935,6 +1095,7 @@ def select_existing_framework_authority(
         MappingProxyType(coordinates),
         creation_owners=creation_owners,
         component_endpoints=component_endpoints,
+        recorded_wrapper_source=wrapper,
     )
     return public, selection
 

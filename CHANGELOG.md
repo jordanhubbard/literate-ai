@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Compose all seven original conversion-wrapper outputs through default framework migration planning and recovery, preserve retained source at its native path, and keep independent catalog ownership blockers explicit.
+
 - Join original recorded conversion-wrapper source custody to normal Component producer readers, keeping retained implementation bounded and refusing unknown members and late membership changes.
 
 - Exercise actual process exits during Component source closure and restoration, preserving original journal recovery and control identities.

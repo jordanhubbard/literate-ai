@@ -100,7 +100,9 @@ def _coordinates(coordinates):
     return result
 
 
-def _definitions(before_bytes, prospective_bytes, before_map, prospective_map):
+def _definitions(
+    before_bytes, prospective_bytes, before_map, prospective_map, additional
+):
     before = parse_project_configuration(_bytes(before_bytes))
     after = parse_project_configuration(_bytes(prospective_bytes))
     old, new = before.to_dict(), after.to_dict()
@@ -130,6 +132,18 @@ def _definitions(before_bytes, prospective_bytes, before_map, prospective_map):
         for name in _LOGICAL
         if before_map[name] != prospective_map[name]
     }
+    if type(additional) is not dict or len(additional) > 8192:
+        raise ValueError("bounded additional original coordinate data required")
+    for source, destination in additional.items():
+        canonical_relative_posix_path(source, label="additional original source")
+        canonical_relative_posix_path(
+            destination, label="additional selected destination"
+        )
+        if source in before_map.values() or destination != "litai/" + source:
+            raise ValueError(
+                "additional coordinates overlap wrapper or change placement direction"
+            )
+    selected.update(additional)
     # Only original actual authored fields may advance. No new-project defaults,
     # driver/receipt/policy renewal, source-intelligence or product reconfiguration.
     for field in _ROOT_FIELDS:
@@ -236,6 +250,7 @@ def project_recorded_legacy_wrapper_authority(
     implementation_directory,
     source_tree_identity,
     original_entry_bytes,
+    additional_coordinates=None,
 ):
     """Reproduce seven ACTUAL converter outputs from exact admitted input data.
 
@@ -249,7 +264,11 @@ def project_recorded_legacy_wrapper_authority(
     before_map = _coordinates(original_coordinates)
     after_map = _coordinates(prospective_coordinates)
     before, _after = _definitions(
-        before_definition_bytes, prospective_definition_bytes, before_map, after_map
+        before_definition_bytes,
+        prospective_definition_bytes,
+        before_map,
+        after_map,
+        {} if additional_coordinates is None else additional_coordinates,
     )
     if before_definition_bytes != resources.snapshot.content:
         raise ValueError("original definition differs from admitted resource snapshot")
@@ -368,6 +387,11 @@ def project_recorded_legacy_wrapper_authority(
             },
             "original_coordinates": before_map,
             "prospective_coordinates": after_map,
+            **(
+                {"additional_coordinates": additional_coordinates}
+                if additional_coordinates
+                else {}
+            ),
             "implementation_directory": implementation_directory,
             "source_tree_identity": source_tree_identity,
             "workflow_resource": _digest(workflow),

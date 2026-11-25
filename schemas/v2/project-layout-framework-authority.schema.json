@@ -224,7 +224,8 @@
                   "current-project-definition",
                   "initialization-coordinate-transition",
                   "framework-base-coordinate-transition",
-                  "original-component-producer"
+                  "original-component-producer",
+                  "recorded-converter-file"
                 ]
               },
               "projection": {

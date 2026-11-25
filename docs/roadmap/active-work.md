@@ -26575,16 +26575,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Recorded converter producer custody (partial):** The existing Component
-  producer core now accepts the genuine same-observation seven-output wrapper
-  source owner through a separate recorded-wrapper provenance kind. Retained
-  implementation stays with its original bounded reader; the producer capture
-  selects exact producer/control endpoints. Directory membership and native
-  identities close on both sides of capture. Private residuals and late arrivals
-  refuse before opening the unknown member. Source controls cover actual normal
-  catalog/store joining, copied or stale owners, inherited-only refusal and a
-  reproduced late-arrival gap. All-seven default placement/recovery composition
-  and public migration acceptance remain open; source custody grants no movement.
+- **Recorded converter composition (partial):** The default framework observer
+  now joins the genuine same-observation seven-output wrapper owner and its
+  actual Component producer readers. Strict public plan/schema rows retain
+  separate converter provenance; all seven original-byte placements compose
+  the existing recoverable framework journal. A Git-backed source journey
+  applies placement and repeats original rollback while preserving the retained
+  implementation inode. Fresh destination catalog and retained-layout readers
+  select the contained wrapper and unchanged native implementation. A distinct
+  inherited Skill keeps its mixed-catalog blocker. Historical execution data in
+  these source fixtures remain modeled. Public CLI routing, recorded target
+  renewal, appropriate source finalization, full project containment and installed
+  supported-platform qualification remain open.
 
 - **Authority placement progress:** Original initialized-file and Component
   producer planning now has a separate recoverable framework-action journal.
@@ -26614,8 +26616,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   declared Skill catalog remains at its original location. Current distribution
   lookup and initialization lineage in these fixtures remain modeled; these are
   scoped source controls, not installed release qualification. Finalization,
-  source retirement, all-seven conversion-wrapper effect composition, genuine
-  legacy root profiles, public CLI integration and supported-platform lifecycle
+  remaining source retirement, genuine legacy root profiles, public CLI
+  integration and supported-platform lifecycle
   qualification remain open below.
 
 - **Discovery progress:** Direct framework ancestry is checked before target

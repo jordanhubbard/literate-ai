@@ -160,6 +160,25 @@ def decode_framework_authority_plan(value):
                     "reviewed-bootstrap",
                 }:
                     _fail("unknown initialized projection")
+            elif row["owner"] == "recorded-converter-file":
+                if (
+                    group != "placements"
+                    or row["logical"]
+                    not in {
+                        "components/legacy-project-wrapper/component.md",
+                        "skills/specification-to-source/legacy-project-shim/SKILL.md",
+                        "flavors/legacy-project-shim/flavor.md",
+                        "flavors/legacy-project-shim/openspec/spec.md",
+                        "workflows/legacy-adoption/workflow.md",
+                        "routing/legacy-adoption.json",
+                        "litai.harness.mk",
+                    }
+                    or coordinate != row["logical"]
+                    or row["destination"] != "litai/" + coordinate
+                    or row["resource_identity"] != value["resource_selection_identity"]
+                ):
+                    _fail("recorded converter cannot impersonate other actions")
+                identity(row["source_proof"])
             elif row["owner"] == "original-component-producer":
                 if (
                     group != "placements"

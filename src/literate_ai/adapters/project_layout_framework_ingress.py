@@ -56,6 +56,15 @@ from literate_ai.adapters.project_layout_planning import (
     _capture,
     _git_state,
 )
+from literate_ai.adapters.project_layout_recorded_component_capture import (
+    capture_recorded_wrapper_component_transitions,
+)
+from literate_ai.adapters.project_layout_recorded_wrapper_source import (
+    close_original_recorded_wrapper_source,
+    observe_original_recorded_wrapper_source,
+    require_current_recorded_wrapper_source,
+    require_original_recorded_wrapper_source,
+)
 from literate_ai.adapters.project_layout_retained_source_observation import (
     close_original_bounded_retained_source,
     observe_original_bounded_retained_source,
@@ -73,6 +82,21 @@ from literate_ai.projects import ProjectConfigurationStore
 
 def _bind_original_ingress(imported_originals):
     namespace = globals()
+    capture_recorded_wrapper_component_transitions = imported_originals[
+        "capture_recorded_wrapper_component_transitions"
+    ]
+    close_original_recorded_wrapper_source = imported_originals[
+        "close_original_recorded_wrapper_source"
+    ]
+    observe_original_recorded_wrapper_source = imported_originals[
+        "observe_original_recorded_wrapper_source"
+    ]
+    require_current_recorded_wrapper_source = imported_originals[
+        "require_current_recorded_wrapper_source"
+    ]
+    require_original_recorded_wrapper_source = imported_originals[
+        "require_original_recorded_wrapper_source"
+    ]
     close_original_finite_framework_creation = imported_originals[
         "close_original_finite_framework_creation"
     ]
@@ -290,6 +314,7 @@ def _bind_original_ingress(imported_originals):
         retained_source: object
         selection_ref: object
         owned_creation_owners: tuple
+        recorded_wrapper_source: object
         _guard: object
 
     _OWNER_FIELDS = tuple(
@@ -394,6 +419,8 @@ def _bind_original_ingress(imported_originals):
             _invoke(require_original_framework_resources, record[1][2])
             if record[1][3] is not None:
                 _invoke(require_original_bounded_retained_source, record[1][3])
+            if record[1][6] is not None:
+                _invoke(require_original_recorded_wrapper_source, record[1][6])
             for proof in selection.source_proofs:
                 _invoke(require_original_initialized_framework_file_proof, proof)
             for creation in selection.creation_owners:
@@ -429,6 +456,8 @@ def _bind_original_ingress(imported_originals):
                 if record[1][4]() is selection:
                     records.pop(key, None)
                     try:
+                        if record[1][6] is not None:
+                            close_original_recorded_wrapper_source(record[1][6])
                         if record[1][3] is not None:
                             _retained_cleanup(record[1][3])
                     finally:
@@ -484,6 +513,7 @@ def _bind_original_ingress(imported_originals):
             if creation.resources is not resources:
                 _fail("creation uses a foreign original resource observation")
         retained = None
+        wrapper = None
         acquired_creations = []
         try:
             if resources.converted:
@@ -492,6 +522,15 @@ def _bind_original_ingress(imported_originals):
                     _retained_cleanup,
                     observation,
                     resources,
+                )
+            if retained is not None:
+                wrapper = _acquire(
+                    observe_original_recorded_wrapper_source,
+                    close_original_recorded_wrapper_source,
+                    snapshot,
+                    context,
+                    resources=resources,
+                    retained_source=retained,
                 )
             paths = set(_metadata_paths(snapshot, context))
             # Exact finite targets; never infer absence from census exclusions.
@@ -643,6 +682,15 @@ def _bind_original_ingress(imported_originals):
                 protected_paths=protected,
                 imported_paths=frozenset(imported),
             )
+            if wrapper is not None:
+                component_endpoints += _invoke(
+                    capture_recorded_wrapper_component_transitions,
+                    snapshot,
+                    context,
+                    wrapper,
+                    contents=contents,
+                    observations=nodes,
+                )
             for creation in creation_owners:
                 attached = creation.bootstrap_proof
                 if attached is None:
@@ -739,6 +787,7 @@ def _bind_original_ingress(imported_originals):
                         source_held=held,
                         creation_owners=tuple(selected_creations.values()),
                         component_endpoints=component_endpoints,
+                        recorded_wrapper_source=wrapper,
                     )
                     acquired = _acquire(
                         observe_original_finite_framework_creation,
@@ -764,6 +813,7 @@ def _bind_original_ingress(imported_originals):
                 protected_paths=protected,
                 imported_paths=frozenset(imported),
                 source_held=held,
+                **({"recorded_wrapper_source": wrapper} if wrapper is not None else {}),
                 **({"creation_owners": creation_owners} if creation_owners else {}),
                 **(
                     {"component_endpoints": component_endpoints}
@@ -796,6 +846,8 @@ def _bind_original_ingress(imported_originals):
             git_pair = (inventory["git_state"], inventory["framework_git_state"])
 
             def current():
+                if wrapper is not None:
+                    _invoke(require_current_recorded_wrapper_source, wrapper)
                 _invoke(require_current_framework_resources, resources)
                 if retained is not None:
                     _invoke(require_current_bounded_retained_source, retained)
@@ -855,6 +907,7 @@ def _bind_original_ingress(imported_originals):
                 retained,
                 _invoke(weakref.ref, selection),
                 tuple(acquired_creations),
+                wrapper,
                 current,
             )
             owner = OriginalFrameworkAuthorityObservation(*values)
@@ -867,6 +920,8 @@ def _bind_original_ingress(imported_originals):
                 _cleanup(primary, close_observed_framework_selection, selection)
             for creation in acquired_creations:
                 _cleanup(primary, _creation_cleanup, creation)
+            if wrapper is not None:
+                _cleanup(primary, close_original_recorded_wrapper_source, wrapper)
             if retained is not None:
                 _cleanup(primary, _retained_cleanup, retained)
             raise
@@ -928,6 +983,11 @@ def _bind_original_ingress(imported_originals):
             "project_framework_creation_coordinates",
             "require_current_finite_framework_creation",
             "require_original_finite_framework_creation",
+            "capture_recorded_wrapper_component_transitions",
+            "close_original_recorded_wrapper_source",
+            "observe_original_recorded_wrapper_source",
+            "require_current_recorded_wrapper_source",
+            "require_original_recorded_wrapper_source",
             "capture_initialized_framework_component_transitions",
             "require_current_component_transition",
             "require_original_component_transition",
@@ -1015,6 +1075,11 @@ def _bind_original_ingress(imported_originals):
                 "project_framework_creation_coordinates",
                 "require_current_finite_framework_creation",
                 "require_original_finite_framework_creation",
+                "capture_recorded_wrapper_component_transitions",
+                "close_original_recorded_wrapper_source",
+                "observe_original_recorded_wrapper_source",
+                "require_current_recorded_wrapper_source",
+                "require_original_recorded_wrapper_source",
                 "capture_initialized_framework_component_transitions",
                 "require_current_component_transition",
                 "require_original_component_transition",
@@ -1129,6 +1194,11 @@ globals().update(
                     "project_framework_creation_coordinates",
                     "require_current_finite_framework_creation",
                     "require_original_finite_framework_creation",
+                    "capture_recorded_wrapper_component_transitions",
+                    "close_original_recorded_wrapper_source",
+                    "observe_original_recorded_wrapper_source",
+                    "require_current_recorded_wrapper_source",
+                    "require_original_recorded_wrapper_source",
                     "capture_initialized_framework_component_transitions",
                     "require_current_component_transition",
                     "require_original_component_transition",
@@ -1173,6 +1243,11 @@ globals().update(
                     project_framework_creation_coordinates,
                     require_current_finite_framework_creation,
                     require_original_finite_framework_creation,
+                    capture_recorded_wrapper_component_transitions,
+                    close_original_recorded_wrapper_source,
+                    observe_original_recorded_wrapper_source,
+                    require_current_recorded_wrapper_source,
+                    require_original_recorded_wrapper_source,
                     capture_initialized_framework_component_transitions,
                     require_current_component_transition,
                     require_original_component_transition,
