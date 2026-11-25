@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Stage locked remote assets under the receiving candidate CAS with original native creator custody; support contained promotion asset bindings and reject mixed layouts or duplicate asset owners while preserving exact source relations.
+
 - Preserve enclosing project runtimes when an original inspection child cannot retire; retain private child state and expire runtime execution handles, including nested and active-child cleanup conflicts.
 
 - PROJECT-LAYOUT-001: contain actual POSIX Component execution copies and diagnostics under the live inspection object root, close original native producer postimages and process groups before exact retirement, and preserve foreign state and original gate rejection through failed or enclosing runtime cleanup. Windows native and full layout/release qualification remain open.

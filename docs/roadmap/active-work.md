@@ -26585,6 +26585,28 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Locked remote asset stream staging (source partial):** Original locked
+  asset admission now stages its bounded download below the actual receiving CAS,
+  selected under the contained candidate build root by ordinary generation. The
+  fresh native stage joins the actual exclusive stream creator through flush,
+  fsync and descriptor closure before ordinary CAS admission. Pathname-only unlink
+  no longer retires a replaced file. Partial response, size-limit and unsafe-
+  redirect failures keep their original typed diagnostics and retire only actual
+  original temporary state. Unknown private files and equal-byte replacements
+  refuse disposal and retain their exact native state; cleanup conflict preserves
+  an original download rejection. The source baseline reproduced ambient host
+  scratch placement. The existing binary-asset public promotion also exposed a
+  legacy-only physical binding validator. Bindings now retain their exact legacy
+  coordinate or the finite contained `litai/components/...` form; one relation
+  cannot mix layouts or duplicate a Component/asset owner. Existing source/audit/
+  byte/digest/declaration checks remain required. The public fixture discovers its
+  actual declared framework root for Component and provenance reads. Five value
+  controls cover both wire forms and reject aliases, wrong owners, duplicate or
+  mixed layouts and malformed fields. Six streaming controls use inert HTTP
+  responses with real file/CAS/cleanup producers; they do not establish remote
+  HTTP or installed/native Windows acceptance. Full producer inventory, supported-platform native custody, installed
+  lifecycle, whole-project/source-parent and all release requirements remain open.
+
 - **Original runtime inspection-child retirement (source partial):** The
   original runtime registers each actual inspection child before allocation and
   clears its slot only after that original stage reports completed retirement.

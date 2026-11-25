@@ -6,7 +6,6 @@ import hashlib
 import json
 import os
 import stat
-import tempfile
 import urllib.error
 import urllib.request
 from collections import Counter
@@ -2025,44 +2024,54 @@ def _remote_asset_blob(uri: str, *, media_type: str) -> BlobRef:
 
 
 def _remote_asset_to_cas(uri: str, *, media_type: str, cas: FileSystemCAS) -> BlobRef:
+    from .evidence_staging import evidence_staging
+    from .remote_cleanup import _access
+
     request = urllib.request.Request(
         uri,
         headers={"User-Agent": "literate-ai-asset-resolver/1"},
         method="GET",
     )
-    descriptor, temporary_name = tempfile.mkstemp(prefix="litai-asset-")
-    temporary = Path(temporary_name)
-    size = 0
-    try:
-        with os.fdopen(descriptor, "wb") as output:
-            try:
-                with urllib.request.urlopen(request, timeout=30) as response:
-                    final = response.geturl()
-                    if not final.startswith(("http://", "https://")):
+    # The actual receiving CAS supplies placement; only the fresh original stage
+    # and exclusive stream creator can authorize temporary-file retirement.
+    with evidence_staging(cas.root, prefix=".asset-") as stage:
+        temporary = stage.path / "asset"
+        with _access(stage.path) as access:
+            descriptor = access.open(
+                ("asset",),
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0),
+            )
+            with stage.created("asset", descriptor, access):
+                with os.fdopen(descriptor, "wb", closefd=False) as output:
+                    size = 0
+                    try:
+                        with urllib.request.urlopen(request, timeout=30) as response:
+                            final = response.geturl()
+                            if not final.startswith(("http://", "https://")):
+                                raise ComponentLockPlanningError(
+                                    "component_lock.asset_unsafe",
+                                    "remote asset redirected to a non-HTTP(S) URI",
+                                )
+                            while chunk := response.read(_ASSET_READ_CHUNK):
+                                size += len(chunk)
+                                if size > _MAXIMUM_ASSET_BYTES:
+                                    raise ComponentLockPlanningError(
+                                        "component_lock.asset_limit",
+                                        "remote asset exceeds the four GiB limit",
+                                    )
+                                output.write(chunk)
+                        output.flush()
+                        os.fsync(output.fileno())
+                    except ComponentLockPlanningError:
+                        raise
+                    except (OSError, ValueError, urllib.error.URLError) as exc:
                         raise ComponentLockPlanningError(
-                            "component_lock.asset_unsafe",
-                            "remote asset redirected to a non-HTTP(S) URI",
-                        )
-                    while chunk := response.read(_ASSET_READ_CHUNK):
-                        size += len(chunk)
-                        if size > _MAXIMUM_ASSET_BYTES:
-                            raise ComponentLockPlanningError(
-                                "component_lock.asset_limit",
-                                "remote asset exceeds the four GiB limit",
-                            )
-                        output.write(chunk)
-                output.flush()
-                os.fsync(output.fileno())
-            except ComponentLockPlanningError:
-                raise
-            except (OSError, ValueError, urllib.error.URLError) as exc:
-                raise ComponentLockPlanningError(
-                    "component_lock.asset_unavailable",
-                    "remote asset is not reachable during Component compilation",
-                ) from exc
+                            "component_lock.asset_unavailable",
+                            "remote asset is not reachable during "
+                            "Component compilation",
+                        ) from exc
+        stage.verify()
         return cas.put_file(temporary, media_type=media_type)
-    finally:
-        temporary.unlink(missing_ok=True)
 
 
 def _require_inputs_unchanged(

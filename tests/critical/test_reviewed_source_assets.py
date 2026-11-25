@@ -17,6 +17,7 @@ from literate_ai.cli._wire import component_graph_from_wire, component_graph_to_
 from literate_ai.contracts import ContentIdentity
 from literate_ai.contracts.component_locking import ComponentLock
 from literate_ai.contracts.component_locking.authoring import ComponentAssetSelector
+from literate_ai.projects import ProjectConfigurationStore
 from literate_ai.source_to_specification import canonical_digest
 from literate_ai.source_to_specification.errors import SourceToSpecificationError
 from literate_ai.source_to_specification.inventory import (
@@ -356,7 +357,8 @@ class ReviewedSourceAssetTests(unittest.TestCase):
                     original.write_bytes(data)
             status, _, errors = invoke(*accept_args)
             self.assertEqual((status, errors), (0, ""))
-            component = next((project / "components").glob("*/component.md"))
+            framework = ProjectConfigurationStore.context(project).framework_root
+            component = next((framework / "components").glob("*/component.md"))
             self.assertEqual((component.parent / "assets/words").read_bytes(), data)
             self.assertIn("source/word_fixture/words.json", component.read_text())
             status, text, errors = invoke(
@@ -394,7 +396,7 @@ class ReviewedSourceAssetTests(unittest.TestCase):
             self.assertEqual(len(verified.authored_asset_bindings), 1)
             records = [
                 value
-                for path in (project / "provenance/source-promotion").rglob("*.json")
+                for path in (framework / "provenance/source-promotion").rglob("*.json")
                 for value in (json.loads(path.read_text()),)
                 if value.get("schema")
                 == "urn:literate-ai:schema:v4:source-promotion-provenance"

@@ -156,7 +156,7 @@ class ReviewedSourceAssetBinding:
             )
             validate_asset_selectors((selector,))
             expected = f"components/{name}/assets/{self.asset_id}"
-            if self.project_path != expected:
+            if self.project_path not in (expected, f"litai/{expected}"):
                 raise ValueError("asset binding must name its owning Component copy")
             canonical_relative_posix_path(self.project_path, label="asset binding copy")
             if type(self.byte_count) is not int or self.byte_count < 0:
@@ -208,7 +208,13 @@ def validate_asset_bindings(bindings: tuple[ReviewedSourceAssetBinding, ...]) ->
             "promotion.asset_binding_invalid", "asset bindings must be typed"
         )
     paths = tuple(item.project_path for item in bindings)
-    if paths != tuple(sorted(set(paths))):
+    owners = tuple((item.component_coordinate, item.asset_id) for item in bindings)
+    layouts = {item.project_path.startswith("litai/") for item in bindings}
+    if (
+        paths != tuple(sorted(set(paths)))
+        or len(set(owners)) != len(owners)
+        or len(layouts) > 1
+    ):
         raise SourceToSpecificationError(
             "promotion.asset_binding_invalid",
             "asset bindings must be canonical and unique",
