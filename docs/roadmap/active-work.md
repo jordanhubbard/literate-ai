@@ -26575,6 +26575,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Public framework-authority migration (partial):** The source CLI now routes
+  `layout plan --migration --place-framework-authority` and matching acknowledged
+  apply/recover commands to the original framework owners and journal. This scope
+  stays separate from the existing metadata, imported-catalog, forward-Skill,
+  release-policy and explicit reference-edit scopes. Source controls exercise the
+  actual parser and JSON envelopes, Root and descendant plan identity, native
+  placement/repeated rollback, stale source and missing acknowledgement refusal,
+  and fresh journal recovery after the actual manifest backup interrupts apply.
+  Implicit host update/configuration writers remain outside the scoped command.
+  These fixtures model historical conversion execution; installed-wheel and
+  supported-platform lifecycle qualification remain open.
+
 - **Recorded converter composition (partial):** The default framework observer
   now joins the genuine same-observation seven-output wrapper owner and its
   actual Component producer readers. Strict public plan/schema rows retain
@@ -26584,8 +26596,8 @@ implementation, policy weakening, qualification or issue closure is recorded her
   implementation inode. Fresh destination catalog and retained-layout readers
   select the contained wrapper and unchanged native implementation. A distinct
   inherited Skill keeps its mixed-catalog blocker. Historical execution data in
-  these source fixtures remain modeled. Public CLI routing, recorded target
-  renewal, appropriate source finalization, full project containment and installed
+  these source fixtures remain modeled. Recorded target renewal, appropriate
+  source finalization, full project containment and installed
   supported-platform qualification remain open.
 
 - **Authority placement progress:** Original initialized-file and Component

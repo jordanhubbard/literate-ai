@@ -206,6 +206,23 @@ transaction. `qualification` and `full_containment` remain false. Recovery uses
 states and preserves concurrent changes. `retained_scaffolding` identifies
 coordination directories deliberately retained after rollback.
 
+Existing contained generated projects can plan original framework-owned
+instructions and catalogs, including the seven conversion-wrapper outputs, with
+`project layout plan --migration --place-framework-authority`. Review
+`required_owners`; unresolved ownership keeps `applicable` false. This scope is
+separate from imported-catalog, forward-Skill, release-policy and explicit
+reference-edit scopes. It does not adopt imported or custom authority.
+
+Apply with `project layout apply --place-framework-authority --acknowledge
+--plan-identity ID --project PATH`. Recover the exact journal with
+`project layout recover --place-framework-authority --acknowledge
+--plan-identity ID --project ROOT`; recovery uses the original project root even
+if publication interrupted the manifest. Both return
+`literate-ai/project-layout-framework-authority-result@1`, with their original
+read-only plan under `plan`. Original normal producer currentness and required
+renewal remain separate; these transactions do not claim full containment or
+qualification. Retained application implementation stays at its native path.
+
 Path-bound evidence requires its ordinary producer's currentness check and any
 necessary renewal. Historical records remain historical. Fresh creation, complete
 existing-project placement and installed Linux/macOS/Windows acceptance remain

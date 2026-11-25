@@ -1168,6 +1168,70 @@ def project_layout_from_args(args) -> dict[str, Any]:
 
     try:
         project = Path(args.project)
+        if getattr(args, "place_framework_authority", False):
+            if getattr(args, "rewrite_reference", ()) or any(
+                getattr(args, field, False)
+                for field in (
+                    "place_forward_skills",
+                    "place_imported_catalogs",
+                    "place_release_policy",
+                )
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "framework authority scope cannot mix other placements",
+                )
+            from literate_ai._filesystem import require_safe_directory
+            from literate_ai.adapters.project_layout_framework_ingress import (
+                close_observed_framework_selection,
+                read_existing_framework_authority,
+            )
+            from literate_ai.adapters.project_layout_framework_transaction import (
+                apply_framework_authority,
+                journal_path,
+                recover_framework_authority,
+            )
+            from literate_ai.projects import ProjectConfigurationStore
+
+            if args.layout_command == "plan":
+                if not args.migration:
+                    raise ProjectLayoutPlanError(
+                        "framework_scope_conflict",
+                        "framework authority placement requires --migration",
+                    )
+                plan, selected = read_existing_framework_authority(project)
+                try:
+                    return plan
+                finally:
+                    close_observed_framework_selection(selected)
+            if not args.acknowledge:
+                raise ProjectLayoutPlanError(
+                    "acknowledgement_required",
+                    "acknowledge the exact framework authority migration plan",
+                )
+            if args.layout_command == "recover":
+                # Recovery owns exact original native facts, even while the
+                # manifest is backed up. Do not reconstruct a live source owner.
+                root = project.absolute()
+                require_safe_directory(journal_path(root, args.plan_identity))
+                with ProjectConfigurationStore.layout_lock(root):
+                    return recover_framework_authority(root, args.plan_identity)
+            snapshot = ProjectConfigurationStore.discover(project)
+            if (
+                snapshot is None
+                or ProjectConfigurationStore.context(snapshot.root).framework_root
+                != snapshot.root / "litai"
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_migration_profile",
+                    "framework authority requires existing contained project metadata",
+                )
+            with ProjectConfigurationStore.layout_lock(snapshot.root):
+                plan, selected = read_existing_framework_authority(snapshot.root)
+                try:
+                    return apply_framework_authority(selected, args.plan_identity)
+                finally:
+                    close_observed_framework_selection(selected)
         if args.layout_command == "apply":
             return apply_legacy_layout_migration(
                 project,

@@ -2154,6 +2154,11 @@ def _parser() -> JsonArgumentParser:
     layout_plan = layout_commands.add_parser("plan")
     layout_plan.add_argument("--project", default=".")
     layout_plan.add_argument("--migration", action="store_true")
+    layout_plan.add_argument(
+        "--place-framework-authority",
+        action="store_true",
+        help="plan original framework authority placement under litai/",
+    )
     layout_plan.add_argument("--place-forward-skills", action="store_true")
     layout_plan.add_argument("--place-imported-catalogs", action="store_true")
     layout_plan.add_argument("--place-release-policy", action="store_true")
@@ -2163,6 +2168,11 @@ def _parser() -> JsonArgumentParser:
         layout_action.add_argument("--project", default=".")
         layout_action.add_argument("--plan-identity", required=True)
         layout_action.add_argument("--acknowledge", action="store_true")
+        layout_action.add_argument(
+            "--place-framework-authority",
+            action="store_true",
+            help="use the reviewed framework authority plan and journal",
+        )
         if operation == "apply":
             layout_action.add_argument("--place-forward-skills", action="store_true")
             layout_action.add_argument("--place-imported-catalogs", action="store_true")
