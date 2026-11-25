@@ -8,6 +8,7 @@ import unittest
 from unittest import mock
 
 from literate_ai._atomic_publication import atomic_publication_scope
+from literate_ai.adapters import monorepo_components as monorepo
 from literate_ai.adapters import project_initialization
 from literate_ai.adapters import retained_harness_readmission as readmission
 from literate_ai.adapters import retained_layout_source_preparation as preparation
@@ -21,6 +22,7 @@ from literate_ai.contracts.retained_cargo_custody import RetainedCargoInputBudge
 from literate_ai.projects import ProjectConfigurationStore, ProjectError
 from tests.critical import test_contained_layout_control_roles as contained
 from tests.critical import test_retained_layout_finalization as legacy
+from tests.critical import test_retained_layout_program_consumers as consumers
 from tests.critical import test_retained_layout_source_admission as bounded
 from tests.support import fixtures_test_retained_harness_receipts as initializer
 
@@ -261,3 +263,62 @@ class ContainedLayoutTransactionTests(unittest.TestCase):
         self.assertFalse(self.source.exists())
         self.assertFalse((self.project / "litai/layout.pending").exists())
         self.assertFalse((self.project / ".literate").exists())
+
+    def test_default_conversion_then_real_monorepo_move_and_refresh_renews_receipts(
+        self,
+    ):
+        # Ordinary default conversion plus the original actual Component install
+        # API. This does not qualify refined pre-bootstrap initialization.
+        installed = consumers.RetainedLayoutProgramConsumerTests.install_components(
+            self
+        )
+        self.assertEqual(installed["schema"], monorepo.INSTALLATION_SCHEMA)
+        self.assertTrue((self.framework / "components/app/component.md").is_file())
+        self.assertFalse((self.project / "components/app").exists())
+        self.relocate()
+        with self.assertRaisesRegex(
+            monorepo.MonorepoAdoptionError, "current-layout refresh"
+        ):
+            monorepo.check_installed_monorepo_components(self.project)
+        original = {
+            p.relative_to(self.destination).as_posix(): p.read_bytes()
+            for p in self.destination.rglob("*")
+            if p.is_file()
+        }
+        refreshed = monorepo.refresh_installed_monorepo_components(
+            self.project,
+            acknowledged=True,
+            timeout_seconds=60,
+            default_branch="main",
+        )
+        self.assertEqual(refreshed["source_root"], "retained")
+        self.assertEqual(refreshed["schema"], monorepo.INSTALLATION_LAYOUT_SCHEMA)
+        self.assertEqual(refreshed["executed_components"], ["app"])
+        self.assertEqual(refreshed["reused_components"], [])
+        current = monorepo.check_installed_monorepo_components(self.project)
+        self.assertEqual(
+            current["retained_layout_identity"], refreshed["retained_layout_identity"]
+        )
+        reused = monorepo.refresh_installed_monorepo_components(
+            self.project,
+            acknowledged=True,
+            timeout_seconds=60,
+            default_branch="main",
+        )
+        self.assertEqual(reused["executed_components"], [])
+        self.assertEqual(reused["reused_components"], ["app"])
+        self.assertEqual(
+            original,
+            {
+                p.relative_to(self.destination).as_posix(): p.read_bytes()
+                for p in self.destination.rglob("*")
+                if p.is_file()
+            },
+        )
+        self.assertTrue(
+            (
+                self.framework / ".literate/monorepo-components/receipts/app.json"
+            ).is_file()
+        )
+        self.assertFalse((self.project / ".literate").exists())
+        self.assertFalse((self.project / "components/app").exists())

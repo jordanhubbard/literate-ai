@@ -208,6 +208,12 @@ locks stay under `litai/`. Role checks retain the original native framework
 directory while permitting separately authorized manifest replacement; initial
 input checks still detect changes to that manifest.
 
+Installed retained Components follow the current retained-source layout. After a
+source move, refresh executes stale Components and earns current receipts; a later
+refresh reuses only receipts whose current source, layout and runner inputs match.
+The installed Component and receipt metadata remain under the framework directory.
+This does not qualify refined pre-bootstrap conversion or native execution scratch.
+
 Contained installed-Component refresh stages its source-free bundle and receipt
 metadata under `litai/_build/`. Original exclusive file creators and durable writes
 stay with the staging owner through publication and disposal. A staged native call

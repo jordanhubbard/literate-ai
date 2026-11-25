@@ -26575,14 +26575,33 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — default converted-monorepo and bootstrap custody (in progress):**
-  Exercise ordinary default conversion followed by actual refined-Component install,
-  source movement and refresh, including fresh and reused real receipts. This is
-  separate from refined pre-bootstrap conversion. Then join pre-bootstrap staging,
-  source/quarantine transfer and native execution scratch through actual original
-  owners, preserving original conversion-failure recovery. Complete remaining
-  source/cache/runtime/whole-project/source-parent, migrated history and every
-  original installed/platform/native/full-source/review/protected release gate.
+- **Next action — original pre-bootstrap and execution custody (in progress):**
+  Join actual refined-conversion bundle/native staging, original source/quarantine
+  transfer and native execution scratch through their original owners. Preserve
+  strict source/output separation and exact original conversion-failure recovery,
+  including private/foreign-state refusal. Trace actual plan/Git/source-policy
+  continuity before changing ordering; do not fabricate a future initialized project
+  or infer disposal from names, paths or content identities. Complete every original
+  source/cache/runtime/whole-project/source-parent, migration/history and installed/
+  platform/native/full-source/independent-review/protected release requirement.
+
+- **Default conversion and installed monorepo renewal (source partial):** Ordinary
+  actual default conversion followed by the original real refined-Component install
+  API now has a composed source journey through original source movement, stale
+  installed-binding refusal, actual fresh Component execution/receipt renewal,
+  current-layout checking and reuse of that current receipt on the next refresh.
+  The source bytes stay unchanged. The Component and installed receipt are beneath
+  the declared framework directory; no application-root Component metadata or root
+  metadata directory is added. Eight default converted-project journeys, 13 original
+  contained metadata/execution-scope controls and 18 direct legacy program-consumer
+  cases pass 39 checks without skips/failures plus static gates. This composes
+  the actual default converter and original v1 install API; it is not refined
+  pre-bootstrap initialization or a hand-authored project/installation fixture.
+  Original root-parent/Standard-binding fixture seams stay explicit. Commands are
+  real stdlib retained execution, not generated product/compiler/model acceptance.
+  Native execution copies still use host scratch, and pre-bootstrap source/staging,
+  installed three-platform, source-parent/whole-project, review and full release
+  qualification remain open.
 
 - **Contained recovery and compatibility (source partial):** Pending recovery
   considers only direct native producer coordinates. An indirect application-owned

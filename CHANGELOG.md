@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Verify retained Component source movement, fresh receipt renewal and subsequent reuse after default contained conversion.
+
 - Preserve application-owned metadata aliases when recovering contained readmission transactions.
 
 - Support retained-source movement, metadata publication and fresh harness readmission in default contained projects.
