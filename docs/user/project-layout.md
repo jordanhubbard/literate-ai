@@ -195,7 +195,11 @@ candidate under the parent's contained object state. The original inspection own
 checks project context and native manifest identity while retaining the runtime or
 cache lock. Audit views use private file/directory modes and leave the live child's
 bytes and modes untouched. Unknown files or replaced postimages are preserved;
-cleanup refusal cannot advance to another historical candidate.
+cleanup refusal cannot advance to another historical candidate. On a closing
+conflict, CLI errors retain the original code and show the original project-relative
+scratch coordinate before the verifier message. The coordinate is diagnostic;
+directory movement or replacement may invalidate it, and it grants no cleanup
+permission.
 
 Contained CodeGraph status checks place their source and SQLite snapshots under
 `litai/_build/`. They reuse the current project runtime when one is active;

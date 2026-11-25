@@ -222,8 +222,12 @@ def _contained_audit_attempt(captured, tree, projections, candidate):
         captured.child
     ).as_posix()
     primary = None
+    coordinate = None
     try:
         with project_inspection_staging(captured.parent, prefix=".na-") as stage:
+            # Diagnostic only: names can move or be replaced. This does not
+            # establish current existence or restore native cleanup authority.
+            coordinate = stage.path.relative_to(captured.parent.root).as_posix()
             captured.require_current()
             stage.prepare("old", directory=True)
             for relative, entry in tree.items():
@@ -251,7 +255,15 @@ def _contained_audit_attempt(captured, tree, projections, candidate):
             captured.require_current()
         captured.require_current()
     except Exception as error:
+        notice = "Audit scratch conflict; preserve remaining state"
+        if coordinate is not None:
+            notice += f" (original coordinate: {coordinate})"
+        notice += ". "
         if primary is not None:
+            # The CLI intentionally emits a bounded .message, not causes/notes.
+            # Prefix the location so a long original failure cannot hide it.
+            primary.message = notice + primary.message
+            primary.args = (primary.message,)
             primary.add_note(
                 "Original audit scratch disposal refused; retained: " + str(error)
             )
@@ -268,7 +280,7 @@ def _contained_audit_attempt(captured, tree, projections, candidate):
         ):
             raise NativeChildReplacementError(
                 "audit_custody",
-                "original audit scratch custody changed; conflicting state retained",
+                notice + "Original native scratch custody changed.",
             ) from error
         raise
     return primary

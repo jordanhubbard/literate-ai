@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Report original audit scratch coordinates in bounded CLI failures while preserving the verifier error code and conflicting state.
+
 - Contain historical native-child audit views under their original project runtime and preserve foreign scratch state on cleanup conflicts.
 
 - Contain derived-project source-index status snapshots under litai and preserve unknown or replaced scratch files during cleanup.

@@ -26576,9 +26576,7 @@ implementation, policy weakening, qualification or issue closure is recorded her
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
 - **Next action — remaining producer/runtime ownership (in progress):** Complete
-  the public audit-retention diagnostic relay while preserving the original error
-  code: exception notes currently do not reach the CLI message. Then complete the
-  actual framework-owned path inventory and original source-parent/whole-project
+  the actual framework-owned path inventory and original source-parent/whole-project
   ownership. Trace monorepo conversion staging before project bootstrap and the
   remaining implicit fetch/observation roots through their original transaction
   owners; do not manufacture initialized authority or cleanup permission from
@@ -26587,6 +26585,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
   external drivers, migrated history and every original installed/platform/native/
   full-source/review/release requirement. Scoped audit/status/cache controls do not
   close complete layout or provider acceptance.
+
+- **Native audit retention diagnostics (source partial):** The contained audit
+  owner now prefixes a closing-conflict notice and original project-relative
+  scratch coordinate into the existing error message. The original exception
+  object, code and verifier message are preserved; normal verification rejection
+  with successful cleanup remains byte-for-byte unchanged. The notice comes before
+  a long original failure so the existing bounded CLI output cannot truncate it
+  away. Raw causes/exception notes are not copied into public text. A coordinate
+  is diagnostic only: it neither asserts current existence after a namespace move
+  or successful stage disposal nor restores cleanup authority. The baseline actual
+  private scratch refusal reached CLI JSON with only its original verifier message.
+  Five corrected actual CLI serialization controls and eleven existing physical
+  audit/custody/history controls pass 16 distinct source checks without skips or
+  failures, plus static gates. Host self-update, MCP discovery, performance writers
+  and external event publication are excluded; handler and verifier fixture ports
+  are explicit. This reporting-only correction does not rerun or requalify the
+  preceding signed public journey at `5515449ad`, installed/platform acceptance or
+  the complete release. All original producer/runtime/source-parent/migration and
+  release requirements remain open.
 
 - **Native-child historical audit scratch (source partial):** The original
   contained replacement planner now places inert historical child views under
@@ -26600,9 +26617,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
   owner. Inspection files/directories use private `0600`/`0700` modes; the live
   child's original bytes and modes remain untouched. Unknown/private or equal-byte
   foreign entries refuse cleanup and preserve the original verifier rejection;
-  a disposal conflict cannot select another historical fallback. Retention details
-  currently live in exception notes; public CLI message relay remains open. Legacy
-  audit placement/behavior is unchanged. The baseline actual registry/copy control
+  a disposal conflict cannot select another historical fallback. The scoped CLI
+  message relay above exposes the original coordinate; raw cleanup notes remain
+  internal. Legacy audit placement/behavior is unchanged. The baseline actual registry/copy control
   reproduced the host-temporary view. Eleven new registry/history/physical scratch
   controls and existing status, runtime-owner, stage, contained-index and signed
   public replacement/history cohorts pass 59 distinct checks without skips or
