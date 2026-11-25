@@ -246,6 +246,32 @@ pair from actual lock/audit renewal. The journal retains original native history
 for exact rollback. `finalized`, `full_containment` and `qualification` remain
 false. Other path-bound evidence still requires its own normal producer.
 
+For an inherited Component placed by the catalog scope, use
+`litai project layout renew --place-imported-catalogs --acknowledge
+--plan-identity CATALOG_ID --project PATH --component litai/components/NAME
+--target TARGET`. If framework-authority placement followed catalog placement,
+include `--successor-plan-identity FRAMEWORK_ID` from that exact original plan.
+Ordinary `--flavor` and project-relative `--flavor-root` options select policy.
+The result is `literate-ai/project-layout-catalog-producer-result@1`; the retained
+catalog intent identity describes native history and does not grant ownership.
+
+After normal producers are current, close their old source namespaces with
+`litai project layout finalize --place-framework-authority --acknowledge
+--plan-identity FRAMEWORK_ID --project PATH`, followed by
+`litai project layout finalize --place-imported-catalogs --acknowledge
+--plan-identity CATALOG_ID --successor-plan-identity FRAMEWORK_ID --project PATH`.
+Omit the successor option when no framework successor was applied. Root and
+existing descendant paths discover the same project. Each scope remains separate;
+finalization preserves retained application implementation and concurrent files.
+Unknown source residuals block retirement without authorizing their removal.
+
+Both commands return `literate-ai/project-layout-source-finalization-result@1`.
+`components_finalized` describes only the original selected Components;
+`full_containment` and `qualification` remain false. Repeat finalization is
+idempotent. Original recovery still runs in reverse placement order and restores
+only still-owned exact native states. Source finalization currently refuses on
+Windows; supported-platform acceptance remains open for this in-progress work.
+
 Path-bound evidence requires its ordinary producer's currentness check and any
 necessary renewal. Historical records remain historical. Fresh creation, complete
 existing-project placement and installed Linux/macOS/Windows acceptance remain

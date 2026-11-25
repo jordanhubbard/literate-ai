@@ -2146,7 +2146,7 @@ def _parser() -> JsonArgumentParser:
     project_validate = project_commands.add_parser("validate")
     project_validate.add_argument("path", nargs="?", default=".")
     project_layout = project_commands.add_parser(
-        "layout", help="plan, apply, renew or recover framework placement"
+        "layout", help="plan, apply, renew, finalize or recover framework placement"
     )
     layout_commands = project_layout.add_subparsers(
         dest="layout_command", required=True, parser_class=JsonArgumentParser
@@ -2163,7 +2163,7 @@ def _parser() -> JsonArgumentParser:
     layout_plan.add_argument("--place-imported-catalogs", action="store_true")
     layout_plan.add_argument("--place-release-policy", action="store_true")
     layout_plan.add_argument("--rewrite-reference", action="append", default=[])
-    for operation in ("apply", "recover", "renew"):
+    for operation in ("apply", "recover", "renew", "finalize"):
         layout_action = layout_commands.add_parser(operation)
         layout_action.add_argument("--project", default=".")
         layout_action.add_argument("--plan-identity", required=True)
@@ -2173,6 +2173,9 @@ def _parser() -> JsonArgumentParser:
             action="store_true",
             help="use the reviewed framework authority plan and journal",
         )
+        if operation in {"renew", "finalize"}:
+            layout_action.add_argument("--place-imported-catalogs", action="store_true")
+            layout_action.add_argument("--successor-plan-identity")
         if operation == "renew":
             layout_action.add_argument("--component", required=True)
             layout_action.add_argument("--target", required=True)

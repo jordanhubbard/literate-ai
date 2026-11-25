@@ -26575,6 +26575,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Public composed Component flow (partial):** Acknowledged catalog renewal now
+  selects an original placed Component and recorded target before normal
+  preparation, using `--place-imported-catalogs` and an explicit original
+  `--successor-plan-identity` when framework metadata has advanced. The new
+  `layout finalize` operation delegates either catalog or framework source
+  retirement to its actual current Root/native/normal owner. Scope combinations,
+  missing acknowledgement and unsupported selections refuse before effects.
+  Cold source CLI processes exercise real changes to both producer pairs,
+  repeated source finalization and ordered public recovery from Root and
+  descendant requests while preserving original bytes/inodes and new policy.
+  Versioned registered inert results retain false full-containment and release
+  qualification flags. Original framework producer result compatibility remains.
+  POSIX source coverage does not establish Windows finalization, whole-project
+  ownership/conformance or installed supported-platform lifecycle acceptance;
+  those remain open with the complete original requirement.
+
 - **Fresh inherited source namespace closure (partial):** The current Root lease,
   original catalog journal and freshly prepared ordinary destination producers
   now issue source retirement after process restart. An explicitly selected

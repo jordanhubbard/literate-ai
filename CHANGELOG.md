@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Project layout: expose acknowledged catalog producer renewal and scoped source finalization through public commands, preserving original recovery. Full-project containment and platform qualification remain pending.
+
 - Finalize inherited Component source namespaces from fresh Root and normal producer checks while preserving native control inodes and original rollback history. Reject unknown residual names before payload reads; public/full-project and supported-platform qualification remain open.
 
 - Join inherited-catalog producer renewal to an explicitly selected framework metadata successor using exact native beforeimages. Preserve ordered recovery, original v1 pair journals and newly authored policy; full containment and installed-platform qualification remain open.

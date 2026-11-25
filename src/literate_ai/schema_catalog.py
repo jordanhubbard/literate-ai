@@ -44,6 +44,8 @@ _COMPATIBILITY_WRITE_CONTRACT_ALLOWLIST = frozenset(
         "literate-ai/project-layout-framework-authority@1",
         "literate-ai/project-layout-framework-authority-result@1",
         "literate-ai/project-layout-framework-producer-result@1",
+        "literate-ai/project-layout-catalog-producer-result@1",
+        "literate-ai/project-layout-source-finalization-result@1",
         "literate-ai/project-layout-catalog-continuation-result@1",
         "literate-ai/authored-retained-cargo-admission-receipt@1",
         "literate-ai/authored-retained-cargo-provisioning@1",

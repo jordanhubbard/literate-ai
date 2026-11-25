@@ -1168,13 +1168,34 @@ def project_layout_from_args(args) -> dict[str, Any]:
 
     try:
         project = Path(args.project)
-        if args.layout_command == "renew" and not getattr(
-            args, "place_framework_authority", False
-        ):
-            raise ProjectLayoutPlanError(
-                "framework_scope_conflict",
-                "producer renewal requires --place-framework-authority",
-            )
+        if args.layout_command in {"renew", "finalize"}:
+            framework_scope = bool(getattr(args, "place_framework_authority", False))
+            catalog_scope = bool(getattr(args, "place_imported_catalogs", False))
+            if framework_scope == catalog_scope or any(
+                getattr(args, name, False)
+                for name in (
+                    "rewrite_reference",
+                    "place_forward_skills",
+                    "place_release_policy",
+                )
+            ):
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "select exactly one original Component placement scope",
+                )
+            if framework_scope and getattr(args, "successor_plan_identity", None):
+                raise ProjectLayoutPlanError(
+                    "framework_scope_conflict",
+                    "successor identity belongs to the catalog Component scope",
+                )
+            if args.layout_command == "finalize":
+                from .layout_component_commands import finalize_layout_from_args
+
+                return finalize_layout_from_args(args)
+            if catalog_scope:
+                from .layout_component_commands import renew_catalog_from_args
+
+                return renew_catalog_from_args(args)
         if getattr(args, "place_framework_authority", False):
             if getattr(args, "rewrite_reference", ()) or any(
                 getattr(args, field, False)

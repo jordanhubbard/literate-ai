@@ -1325,6 +1325,20 @@
       "public_ids": [
         "literate-ai/project-layout-framework-producer-result@1"
       ]
+    },
+    {
+      "file": "project-layout-catalog-producer-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-catalog-producer-result",
+      "public_ids": [
+        "literate-ai/project-layout-catalog-producer-result@1"
+      ]
+    },
+    {
+      "file": "project-layout-source-finalization-result.schema.json",
+      "root_id": "urn:literate-ai:schema:v2:project-layout-source-finalization-result",
+      "public_ids": [
+        "literate-ai/project-layout-source-finalization-result@1"
+      ]
     }
   ]
 }
