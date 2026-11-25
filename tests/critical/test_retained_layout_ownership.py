@@ -428,7 +428,7 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
 
     def test_registered_independent_child_remains_its_own_nonmoving_role(self):
         from literate_ai.adapters.conversion_authority import register_native_project
-        from literate_ai.projects import load_project
+        from literate_ai.projects import ProjectConfigurationStore, load_project
         from tests.support.fixtures_test_retained_harness_receipts import (
             _adapter,
             _selectors,
@@ -443,12 +443,15 @@ class RetainedLayoutOwnershipTests(unittest.TestCase):
             source_intelligence_provider="none",
         )
         register_native_project(load_project(self.project), child)
+        context = ProjectConfigurationStore.context(child)
+        self.assertEqual(context.root, child)
+        self.assertEqual(context.framework_root, child / "litai")
+        manifest = context.manifest_path.relative_to(self.project).as_posix()
+        self.assertTrue(context.manifest_path.is_file())
         with self.inspecting() as phase:
             with self.observe(phase) as owner:
                 self.assertEqual(
-                    dict(owner.roles)[
-                        ".literate/native-projects/child/literate.project.json"
-                    ],
+                    dict(owner.roles)[manifest],
                     "independent:.literate/native-projects/child",
                 )
                 self.assertEqual(

@@ -26575,14 +26575,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — original compatibility and bootstrap custody (in progress):**
-  Complete the current contained/legacy ownership, preparation, finalization and
-  readmission compatibility cohorts, including recovery alongside application-owned
-  metadata aliases. Qualify genuine converted-monorepo refresh and source/provider/
-  whole-project history cases. Then join pre-bootstrap source/quarantine and native
-  execution scratch through their original owners. Complete all remaining source/
-  cache/runtime/whole-project/source-parent, migrated history and original installed/
-  platform/native/full-source/review/protected release requirements.
+- **Next action — default converted-monorepo and bootstrap custody (in progress):**
+  Exercise ordinary default conversion followed by actual refined-Component install,
+  source movement and refresh, including fresh and reused real receipts. This is
+  separate from refined pre-bootstrap conversion. Then join pre-bootstrap staging,
+  source/quarantine transfer and native execution scratch through actual original
+  owners, preserving original conversion-failure recovery. Complete remaining
+  source/cache/runtime/whole-project/source-parent, migrated history and every
+  original installed/platform/native/full-source/review/protected release gate.
+
+- **Contained recovery and compatibility (source partial):** Pending recovery
+  considers only direct native producer coordinates. An indirect application-owned
+  root metadata lookalike cannot redirect or hide the actual contained transaction;
+  its target stays unread and preserved. The real interrupted-manifest case restores
+  the exact original inode under its ordinary lock while preserving that application
+  link and payload. Registered independent children now prove their actual default
+  contained manifest and nonmoving independent role, without forcing a legacy root.
+  177 distinct current-production checks pass without skips/failures across
+  default source transaction/readmission, native publication ownership, layout,
+  original ownership/preparation/finalization/transaction/renewal, configuration/
+  no-follow and end-to-end readmission/publication cohorts, plus static gates.
+  The runs share exact production bytes; only the independent-child test expectation
+  changed between them. Original source/fixture seams and full installed/native/
+  platform/review/release limitations remain explicit and unqualified.
 
 - **Default contained source movement and renewal (source partial):** Actual
   retained-layout planning, ordered prospective metadata and canonical publication

@@ -190,6 +190,11 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Contained readmission recovery preserves an application-owned root `.literate`
+link or directory. It reads the direct pending framework transaction and restores
+only its still-owned original metadata; it does not follow an application alias to
+search for framework recovery state.
+
 Retained-source relocation keeps source and Component coordinates relative to the
 application root while publishing its framework metadata under `litai/`. Moving
 source leaves prior acceptance stale: ordinary harness readmission must execute

@@ -176,6 +176,13 @@ class ContainedLayoutTransactionTests(unittest.TestCase):
         self.assertEqual(path.read_bytes(), content + b" ")
 
     def test_native_pending_recovery_keeps_contained_original_manifest_inode(self):
+        application_metadata = self.state / "operator-metadata"
+        application_metadata.mkdir()
+        sentinel = application_metadata / "operator.txt"
+        sentinel.write_bytes(b"private application metadata\n")
+        (self.project / ".literate").symlink_to(
+            application_metadata, target_is_directory=True
+        )
         path = self.framework / "literate.project.json"
         before, inode = path.read_bytes(), path.stat().st_ino
         (self.framework / publication.HISTORY).mkdir(parents=True, exist_ok=True)
@@ -214,7 +221,8 @@ class ContainedLayoutTransactionTests(unittest.TestCase):
         self.assertEqual(path.read_bytes(), before)
         self.assertEqual(path.stat().st_ino, inode)
         self.assertFalse((self.framework / publication.ACTIVE).exists())
-        self.assertFalse((self.project / ".literate").exists())
+        self.assertTrue((self.project / ".literate").is_symlink())
+        self.assertEqual(sentinel.read_bytes(), b"private application metadata\n")
         self.assertFalse((self.project / ".litai-locks").exists())
 
     def test_bounded_original_source_owner_publishes_and_finalizes_default_layout(self):

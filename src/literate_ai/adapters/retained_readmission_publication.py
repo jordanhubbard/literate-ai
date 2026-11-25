@@ -19,6 +19,7 @@ from pathlib import Path
 
 from literate_ai._cache_lock import _default_windows_kernel32, exclusive_cache_lock
 from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
     is_stat_identity_value,
     require_safe_directory,
     stat_identity_value,
@@ -366,7 +367,12 @@ def _pending_framework(root):
         if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
             continue
         history = framework / HISTORY
-        require_safe_directory(history, allow_missing=True)
+        try:
+            require_safe_directory(history, allow_missing=True)
+        except UnsafeFilesystemPathError:
+            # Indirect application-owned lookalikes cannot be this direct native
+            # producer. Do not descend into their targets to find pending state.
+            continue
         if os.path.lexists(framework / ACTIVE):
             candidates.append(framework)
     if len(candidates) > 1:
