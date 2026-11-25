@@ -49,6 +49,15 @@ from literate_ai.adapters.project_layout_planning import (
     ProjectLayoutPlanError,
     _capture,
 )
+from literate_ai.adapters.project_layout_recorded_wrapper_source import (
+    OriginalRecordedWrapperSource,
+)
+from literate_ai.adapters.project_layout_recorded_wrapper_source import (
+    require_current_recorded_wrapper_source as _recorded_source_current,
+)
+from literate_ai.adapters.project_layout_recorded_wrapper_source import (
+    require_original_recorded_wrapper_source as _admit_recorded_source,
+)
 from literate_ai.contracts import ProjectDefinition, canonical_json_bytes
 from literate_ai.contracts.catalog_imports import (
     CatalogImport,
@@ -259,6 +268,7 @@ class ComponentLayoutProducerTransition:
     _destination_guard: Callable[[ProjectConfigurationSnapshot], None]
     source_kind: str = "inherited"
     initialized_source: object = None
+    recorded_source: object = None
 
     def require_current(self):
         """Original source selection, valid ONLY before intentional moves."""
@@ -358,6 +368,7 @@ def require_original_inherited_component_transition(transition):
     if (
         transition.source_kind != "inherited"
         or transition.initialized_source is not None
+        or transition.recorded_source is not None
     ):
         _fail("inherited catalog protocol requires original inherited provenance")
 
@@ -458,6 +469,39 @@ def observe_initialized_component_layout_transition(
     )
 
 
+@_original_owner_boundary
+def observe_recorded_wrapper_component_layout_transition(
+    snapshot,
+    context,
+    recorded_source,
+    *,
+    source_root,
+    contents,
+    observations,
+    original_catalog,
+    original_lock_store,
+    original_audit_store=None,
+):
+    """Join the actual seven-output converter owner to normal producer custody.
+
+    Retained application implementation stays with its original bounded source
+    reader. Neither initialization nor imported provenance is synthesized.
+    This issues source custody only, never a placement or source-retirement grant.
+    """
+    _admit_recorded_source(recorded_source)
+    return _observe_component_layout_transition(
+        snapshot,
+        context,
+        recorded_source,
+        source_root=source_root,
+        contents=contents,
+        observations=observations,
+        original_catalog=original_catalog,
+        original_lock_store=original_lock_store,
+        original_audit_store=original_audit_store,
+    )
+
+
 def _observe_component_layout_transition(
     snapshot,
     context,
@@ -485,6 +529,7 @@ def _observe_component_layout_transition(
         _fail("actual original Component/catalog/store selection required")
     manifest = source_root + "/component.md"
     initialized_source = None
+    recorded_source = None
     imported_source = None
     if type(source_provenance) is CatalogImport:
         imported = source_provenance
@@ -548,8 +593,39 @@ def _observe_component_layout_transition(
             _initialized_resources_current(proof.resources)
             _admit_initialized_source(proof)
 
+    elif type(source_provenance) is OriginalRecordedWrapperSource:
+        _admit_recorded_source(source_provenance)
+        wrapper = source_provenance
+        logical = "components/legacy-project-wrapper/component.md"
+        entry = next(
+            row for row in wrapper.projection.entries if row.logical == logical
+        )
+        if (
+            wrapper.snapshot is not snapshot
+            or wrapper.context is not context
+            or wrapper.coordinates[logical] != manifest
+            or source_root.startswith("litai/")
+            or wrapper.source_root != snapshot.root / source_root / "implementation"
+            or not any(
+                source_root.startswith(root + "/")
+                for root in snapshot.definition.component_roots
+            )
+            or contents.get(manifest) != entry.original_bytes
+            or observations.get(manifest) != dict(wrapper.entry_observations[logical])
+        ):
+            _fail("original recorded converter Component/source pairing differs")
+        manifest_identity = wrapper.entry_observations[logical]["identity"]
+        source_kind, recorded_source = "recorded-wrapper", wrapper
+        provenance_members = (wrapper,)
+
+        def provenance_admit():
+            _admit_recorded_source(wrapper)
+
+        def provenance_current():
+            _recorded_source_current(wrapper)
+
     else:
-        _fail("original imported or initialized Component source required")
+        _fail("original imported, initialized or recorded Component source required")
     if os.environ.get("LITAI_MATRIX_CELL_ROOT"):
         _fail("matrix producer mapping requires a separately admitted original owner")
     observations = _freeze_original_observations(observations)
@@ -622,7 +698,55 @@ def _observe_component_layout_transition(
         or observations[manifest]["identity"] != manifest_identity
     ):
         _fail("original Component provenance/current catalog source differs")
-    before_nodes, before_bytes = _capture(source)
+
+    def capture_source():
+        if recorded_source is None:
+            return _capture(source)
+        # The general producer capture is intentionally broad for its original
+        # callers. A converter Component has a separately owned application
+        # implementation: refuse unknown siblings before any payload opens and
+        # select ONLY the exact original producer/control endpoints here.
+        selected = {
+            "component.md",
+            "component.lock.json",
+            ".component.operation.write.lock",
+            ".component.lock.write.lock",
+        }
+        if original_audit_store is not None:
+            selected.update(
+                (
+                    original_audit_store.path.name,
+                    original_audit_store.write_lock_path.name,
+                )
+            )
+
+        def census():
+            observed = {}
+            with os.scandir(source) as children:
+                for index, child in enumerate(children):
+                    if index >= len(selected) + 1 or child.name not in selected | {
+                        "implementation"
+                    }:
+                        _fail(
+                            "recorded Component has unrelated unopened source members"
+                        )
+                    named = child.stat(follow_symlinks=False)
+                    observed[child.name] = (
+                        named.st_dev,
+                        named.st_ino,
+                        named.st_mode,
+                        named.st_nlink,
+                    )
+            return observed
+
+        before = census()
+        provenance_current()
+        result = _capture(source, selected_scopes=tuple(sorted(selected)))
+        if census() != before:
+            _fail("original recorded Component membership changed during capture")
+        return result
+
+    before_nodes, before_bytes = capture_source()
     source_owners_current()
     for path, content in before_bytes.items():
         if contents.get(source_root + "/" + path) != content:
@@ -727,7 +851,7 @@ def _observe_component_layout_transition(
             _fail("original source Component directory replaced")
         _CATALOG_CURRENT(original_catalog)
         source_owners_current()
-        nodes, _bytes = _capture(source)
+        nodes, _bytes = capture_source()
         if {
             path: row for path, row in nodes.items() if path not in local_coordination
         } != expected_nodes:
@@ -826,6 +950,7 @@ def _observe_component_layout_transition(
         destination_current,
         source_kind,
         initialized_source,
+        recorded_source,
     )
     result = ComponentLayoutProducerTransition(*original_values)
     try:

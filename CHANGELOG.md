@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Join original recorded conversion-wrapper source custody to normal Component producer readers, keeping retained implementation bounded and refusing unknown members and late membership changes.
+
 - Exercise actual process exits during Component source closure and restoration, preserving original journal recovery and control identities.
 
 - Add a versioned framework source archive that preserves Component control inodes, validates actual normal destination catalogs/producers after restart, and restores source namespaces before exact pair/file rollback; retain v1 recovery and refuse private residuals.

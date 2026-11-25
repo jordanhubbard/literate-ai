@@ -26575,6 +26575,17 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Recorded converter producer custody (partial):** The existing Component
+  producer core now accepts the genuine same-observation seven-output wrapper
+  source owner through a separate recorded-wrapper provenance kind. Retained
+  implementation stays with its original bounded reader; the producer capture
+  selects exact producer/control endpoints. Directory membership and native
+  identities close on both sides of capture. Private residuals and late arrivals
+  refuse before opening the unknown member. Source controls cover actual normal
+  catalog/store joining, copied or stale owners, inherited-only refusal and a
+  reproduced late-arrival gap. All-seven default placement/recovery composition
+  and public migration acceptance remain open; source custody grants no movement.
+
 - **Authority placement progress:** Original initialized-file and Component
   producer planning now has a separate recoverable framework-action journal.
   Local controls exercise transformed bootstrap/helper publication, finite
