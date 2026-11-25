@@ -13,6 +13,7 @@ import tempfile
 from pathlib import Path
 
 from literate_ai.adapters import component_lock_operations as operations
+from literate_ai.adapters import project_layout_catalog_successor as successor_owner
 from literate_ai.adapters import project_layout_continuation as native
 from literate_ai.adapters import project_layout_migration as filesystem
 from literate_ai.adapters import project_layout_pair_publication as publication
@@ -34,7 +35,8 @@ from literate_ai.contracts import (
 from literate_ai.contracts.paths import canonical_relative_posix_path
 from literate_ai.projects import ProjectConfigurationStore
 
-_SCHEMA = "literate-ai/catalog-producer-renewal@1"
+_SCHEMA_V1 = "literate-ai/catalog-producer-renewal@1"
+_SCHEMA = "literate-ai/catalog-producer-renewal@2"
 _MARKERS = {
     "renewed": b"normal catalog producer renewed\n",
     "rolled-back": b"normal catalog producer restored\n",
@@ -162,7 +164,9 @@ def _decode(root, intent, component, target):
     record = json.loads(
         filesystem._file(path / "intent.json")[1], object_pairs_hook=native._unique
     )
-    if type(record) is not dict or set(record) != {
+    if type(record) is not dict:
+        _fail("invalid original catalog renewal intent")
+    fields = {
         "schema",
         "project",
         "plan_identity",
@@ -173,17 +177,22 @@ def _decode(root, intent, component, target):
         "journal_node",
         "journal_directories",
         "identity",
-    }:
+    }
+    if record.get("schema") == _SCHEMA:
+        fields.add("successor")
+    if set(record) != fields:
         _fail("invalid original catalog renewal intent fields")
     identity = record.pop("identity")
     if (
-        record["schema"] != _SCHEMA
+        record["schema"] not in (_SCHEMA_V1, _SCHEMA)
         or record["project"] != str(root)
         or record["plan_identity"] != intent["plan"]["plan_identity"]
         or record["catalog_intent_identity"] != canonical_identity(intent).uri
         or canonical_identity(record).uri != identity
     ):
         _fail("catalog renewal intent differs from its actual parent")
+    if record.get("successor") is not None:
+        successor_owner.validate_successor_binding(record["successor"])
     selection = record["selection"]
     if (
         type(selection) is not dict
@@ -323,17 +332,30 @@ def _journal_current(root, journal, record):
             _fail("normal catalog original parent changed")
 
 
-def _guard(root, parent, intent, lease, namespace, *, active=None, recovering=False):
+def _guard(
+    root,
+    parent,
+    intent,
+    lease,
+    namespace,
+    *,
+    active=None,
+    recovering=False,
+    successor=None,
+):
     _bindings()
     require_layout_lease(lease, root)
     native._current(root, parent, intent, namespace)
     outputs = {}
+    observed_successors = []
     for component, target in _pairs(intent):
         path = _path(root, intent, component, target)
         if not os.path.lexists(path):
             continue
         path, record = _decode(root, intent, component, target)
         _journal_current(root, path, record)
+        if record.get("successor") is not None:
+            observed_successors.append(record["successor"])
         if (
             path != active
             and not recovering
@@ -351,6 +373,22 @@ def _guard(root, parent, intent, lease, namespace, *, active=None, recovering=Fa
             if path != active and not recovering and state != expected:
                 _fail("other normal catalog pair is not at its completed postimage")
             outputs[row["source"]] = row
+    if observed_successors:
+        if successor is None:
+            if not recovering:
+                _fail(
+                    "explicit original successor identity required for normal renewal"
+                )
+            successor = observed_successors[0]
+        if any(binding != successor for binding in observed_successors):
+            _fail("normal catalog histories name different successor epochs")
+    shadowed = (
+        successor_owner.require_catalog_successor(
+            root, parent, intent, lease, namespace, successor, recovering=recovering
+        )
+        if successor is not None
+        else set()
+    )
     for source, row in intent["entries"].items():
         if source in outputs:
             if (
@@ -361,14 +399,19 @@ def _guard(root, parent, intent, lease, namespace, *, active=None, recovering=Fa
                 or os.path.lexists(root / source)
             ):
                 _fail("original catalog source history changed")
-        elif native._entry_state(root, parent, source, row) != "published":
+        elif (
+            source not in shadowed
+            and native._entry_state(root, parent, source, row) != "published"
+        ):
             _fail("original nonrenewed catalog postimage changed")
     _bindings()
 
 
-def _stage(root, parent, intent, component, prepared, lease, namespace):
+def _stage(
+    root, parent, intent, component, prepared, lease, namespace, *, successor=None
+):
     planner, target, flavors, roots = _ADMIT(prepared)
-    _guard(root, parent, intent, lease, namespace)
+    _guard(root, parent, intent, lease, namespace, successor=successor)
     path = _path(root, intent, component, target)
     if os.path.lexists(path):
         _fail("catalog producer already retains original renewal intent")
@@ -420,6 +463,7 @@ def _stage(root, parent, intent, component, prepared, lease, namespace):
         }
     record = {
         "schema": _SCHEMA,
+        "successor": successor,
         "project": str(root),
         "plan_identity": intent["plan"]["plan_identity"],
         "catalog_intent_identity": canonical_identity(intent).uri,
@@ -449,7 +493,7 @@ def _stage(root, parent, intent, component, prepared, lease, namespace):
     )
     for directory in (incoming / "before", incoming / "after", incoming):
         filesystem._flush(directory)
-    _guard(root, parent, intent, lease, namespace)
+    _guard(root, parent, intent, lease, namespace, successor=successor)
     with native._parent_scope(namespace, path.parent):
         publish_directory_between_owned_parents_exclusive(
             incoming,
@@ -462,7 +506,9 @@ def _stage(root, parent, intent, component, prepared, lease, namespace):
     return path, record
 
 
-def renew_placed_catalog_component(root, plan_identity, *, prepared, layout_lease):
+def renew_placed_catalog_component(
+    root, plan_identity, *, prepared, layout_lease, successor_plan_identity=None
+):
     check, move, state, publish = (
         _bindings,
         _move,
@@ -474,7 +520,14 @@ def renew_placed_catalog_component(root, plan_identity, *, prepared, layout_leas
     root = Path(root).absolute()
     require_layout_lease(layout_lease, root)
     parent, intent = native._decode_intent(root, plan_identity)
-    _guard(root, parent, intent, layout_lease, None)
+    successor = (
+        successor_owner.observe_catalog_successor(
+            root, parent, intent, layout_lease, None, successor_plan_identity
+        )
+        if successor_plan_identity is not None
+        else None
+    )
+    _guard(root, parent, intent, layout_lease, None, successor=successor)
     if not os.path.lexists(parent / "completed") or os.path.lexists(
         parent / "rolled-back"
     ):
@@ -553,7 +606,7 @@ def renew_placed_catalog_component(root, plan_identity, *, prepared, layout_leas
         difference=False,
     )
     owner_current()
-    _guard(root, parent, intent, layout_lease, None)
+    _guard(root, parent, intent, layout_lease, None, successor=successor)
     if (
         type(status) is not int
         or status not in (0, 1)
@@ -580,12 +633,27 @@ def renew_placed_catalog_component(root, plan_identity, *, prepared, layout_leas
         }
     with native._operation(root) as namespace, native._reserve(root, namespace):
         journal, record = _stage(
-            root, parent, intent, component, prepared, layout_lease, namespace
+            root,
+            parent,
+            intent,
+            component,
+            prepared,
+            layout_lease,
+            namespace,
+            successor=successor,
         )
 
         def guard():
             owner_current()
-            _guard(root, parent, intent, layout_lease, namespace, active=journal)
+            _guard(
+                root,
+                parent,
+                intent,
+                layout_lease,
+                namespace,
+                active=journal,
+                successor=successor,
+            )
 
         def complete():
             filesystem._write(journal / "renewed", _MARKERS["renewed"])
@@ -671,6 +739,7 @@ def _bind():
             "_ADMIT",
             "_OPERATE",
             "_SCHEMA",
+            "_SCHEMA_V1",
             "_MARKERS",
             "_fail",
             "_path",
@@ -688,6 +757,7 @@ def _bind():
             "native",
             "filesystem",
             "publication",
+            "successor_owner",
             "Path",
             "json",
             "os",
@@ -713,6 +783,14 @@ def _bind():
             ),
             (ProjectConfigurationStore, ("read",)),
             (publication, ("publish_prepared_pair",)),
+            (
+                successor_owner,
+                (
+                    "validate_successor_binding",
+                    "observe_catalog_successor",
+                    "require_catalog_successor",
+                ),
+            ),
             (
                 native,
                 (

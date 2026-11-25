@@ -26575,6 +26575,25 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Explicit successor metadata ownership (partial):** The fresh inherited-catalog
+  producer can join an explicitly selected original framework placement journal.
+  A successor must hold the catalog's exact metadata postimage inode, bytes and
+  mode in its native before slot, with both original Root identities and current
+  native journal states checked. The original catalog owner still refuses the
+  changed metadata without this join. A versioned private renewal record retains
+  the two original intent identities; original v1 pair journals remain readable.
+  A genuine mixed initialized/inherited fixture uses a newly authored local
+  Flavor to force both real normal producer pairs to change in separate Python
+  processes. Original intents and copied history stay immutable; ordered reverse
+  recovery restores original bytes and inodes and preserves the new local policy.
+  Wrong rollback order refuses before pair restoration, an equal-byte foreign
+  successor beforeimage stays intact, and a replaced successor guard is never
+  invoked. An actual child exit after the catalog's native producer backup remains
+  recoverable after framework rollback. Historical origin declarations are fixture
+  data, while normal preparations and native effects are real. Public catalog
+  renewal, source namespace finalization across these owners, general normal
+  accumulation and complete project/installed-platform qualification remain open.
+
 - **Inherited catalog normal producer renewal (partial):** A fresh destination
   owner joins the actual Root lease, genuine normal preparation and original
   catalog journal. Unchanged pairs retain their native inodes without a renewal

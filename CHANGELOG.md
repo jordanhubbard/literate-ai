@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Join inherited-catalog producer renewal to an explicitly selected framework metadata successor using exact native beforeimages. Preserve ordered recovery, original v1 pair journals and newly authored policy; full containment and installed-platform qualification remain open.
+
 - Add internal native-history-backed renewal for inherited catalog producer pairs, sharing finite atomic publication with framework renewals and preserving exact rollback across process interruption. Full containment and release qualification remain open.
 
 - Allow imported Component placement in contained generated projects, preserving original lock/audit history separately from normal currentness; compose catalog then framework placement with exact reverse rollback.
