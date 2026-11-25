@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep genuine Component control paths outside authored reference maps and unknown-file classification so acquiring the first normal locks preserves an acknowledged no-target placement plan.
+
 - Exercise actual child-process exits at all four reverse lock/audit recovery moves, then complete exact framework rollback from the parent without restoring a child-side owner.
 
 - Refuse cross-project Component renewal before filesystem probes by joining the genuine original store namespace to the acknowledged Root; retain physical custody across planned metadata changes.

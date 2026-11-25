@@ -394,7 +394,9 @@ def select_existing_framework_authority(
         require_destination(proofs[logical].source_path, destination)
 
     def reference_coordinates():
-        coordinates = {path: path for path in contents}
+        coordinates = {
+            path: path for path in contents if path not in coordination_paths
+        }
         for logical, destination in destinations.items():
             if destination != logical and destination == proofs[logical].source_path:
                 coordinates.pop(destination, None)
@@ -466,13 +468,19 @@ def select_existing_framework_authority(
             for name in contents
             if name.startswith(path + "/") and name not in coordination_paths
         }
-        unknown = {
-            name
-            for name, value in observations.items()
-            if name.startswith(path + "/") and value["kind"] == "file"
-        } - children
+        unknown = (
+            {
+                name
+                for name, value in observations.items()
+                if name.startswith(path + "/") and value["kind"] == "file"
+            }
+            - children
+            - coordination_paths
+        )
         opaque = any(
-            row.get("source") is not False and row["path"].startswith(path + "/")
+            row.get("source") is not False
+            and row["path"] not in coordination_paths
+            and row["path"].startswith(path + "/")
             for row in source_held
         )
         if (
@@ -703,13 +711,16 @@ def select_existing_framework_authority(
             }
             selected = {name for name in children if moved.get(name) == "litai/" + name}
             opaque = any(
-                row.get("source") is not False and row["path"].startswith(root + "/")
+                row.get("source") is not False
+                and row["path"] not in coordination_paths
+                and row["path"].startswith(root + "/")
                 for row in source_held
             )
             unknown = any(
                 name.startswith(root + "/")
                 and row["kind"] == "file"
                 and name not in contents
+                and name not in coordination_paths
                 for name, row in observations.items()
             )
             if children and children == selected and not opaque and not unknown:

@@ -23,10 +23,10 @@ from tests.support.fixtures_test_component_lock_planning import _flavor_variant
 
 
 class FrameworkComponentJourneyTests(unittest.TestCase):
-    def fixture(self, *, alternate=False):
+    def fixture(self, *, alternate=False, with_lock=True):
         helper = support.InitializedComponentCaptureTests("runTest")
         self.addCleanup(helper.doCleanups)
-        project, _owner, _proof = helper.fixture(with_lock=True)
+        project, _owner, _proof = helper.fixture(with_lock=with_lock)
         if alternate:
             # A real separately authored local Flavor selects a genuinely new
             # normal producer result; no stale record or check result is forged.
