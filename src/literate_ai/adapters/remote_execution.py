@@ -2040,10 +2040,23 @@ def acknowledge_remote_evidence_cleanup(
 
 
 def _restore_accepted_source_cache(build_dir: Path, archive: Path) -> None:
-    build_dir.mkdir(parents=True, exist_ok=True)
     cache_root = build_dir / "accepted-source-cache"
-    if cache_root.exists() or cache_root.is_symlink():
-        shutil.rmtree(cache_root, ignore_errors=True)
+    try:
+        ensure_safe_directory(build_dir)
+        try:
+            cache_root.lstat()
+        except FileNotFoundError:
+            pass
+        else:
+            raise RemoteExecutionError(
+                "execution.remote_accepted_source_cache_exists",
+                "accepted-source-cache destination must not already exist",
+            )
+    except (UnsafeFilesystemPathError, OSError) as exc:
+        raise RemoteExecutionError(
+            "execution.remote_accepted_source_cache_destination_invalid",
+            "accepted-source-cache destination parent is not a safe directory",
+        ) from exc
     try:
         extract_accepted_source_cache_archive(archive, cache_root)
     except SourceGuardError as exc:

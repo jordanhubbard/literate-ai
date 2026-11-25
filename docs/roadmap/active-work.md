@@ -26583,6 +26583,18 @@ implementation, policy weakening, qualification or issue closure is recorded her
   general external-driver and full installed/platform qualification open. No saved
   receipt, prefix, CID or fresh teardown snapshot can mint disposal authority.
 
+- **Short-cache destination preservation (source partial):** Remote restoration
+  now requires a fresh accepted-source-cache destination. Existing directories,
+  regular files and live/dangling aliases refuse before archive extraction, with
+  exact private bytes/inodes retained. Native safe-directory creation rejects an
+  aliased build parent before writing through it. A real archive still restores
+  into an absent destination; invalid archives keep their scoped diagnostic. The
+  original regression reproduced silent replacement of a pre-existing directory.
+  Six new controls and existing remote, receiver and terminal-lease cohorts pass
+  52 distinct source checks without skips/failures, plus static gates. This is
+  destination preservation, not complete accepted-cache creator/disposal custody,
+  containment or installed/native/full release qualification.
+
 - **Original evidence staging custody (source/API-model partial):** The actual
   stage creator retains native parent/root custody and records files through their
   original creator descriptors. Writer closure hands off to read-only postimages;
