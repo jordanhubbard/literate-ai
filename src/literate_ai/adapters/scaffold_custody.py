@@ -44,6 +44,7 @@ class _ScaffoldState:
         self.root_access, self.write_stack, self.actor = root_access, write_stack, actor
         self.root_node = _root(access)
         self.nodes = {}
+        self.controls = set()
         self.pid = os.getpid()
         self.closed = self.broken = self.retiring = False
 
@@ -189,6 +190,16 @@ class _ScaffoldState:
         del self.nodes[temporary]
         self.nodes[parts] = published
         self.current()
+
+    def prepare_control(self, path):
+        parts = self.parts(path)
+        if parts in self.controls:
+            self.require_node(parts)
+            return
+        if parts in self.nodes:
+            _fail("another scaffold producer owns the control coordinate")
+        self.write(path, b"\0", preserve_mode=False, mode=0o600)
+        self.controls.add(parts)
 
     def publish(self, path, content, *, require_current, preserve_mode):
         self.write(
@@ -345,3 +356,24 @@ def scaffold_rmdir(path):
         path.rmdir()
     else:
         _state(owner).remove_empty_directory(path)
+
+
+def prepare_scaffold_inspection_control(root, parent, lock_path):
+    """Join this actual inspection allocator before ordinary lock-file opening.
+
+    Outside fresh conversion this leaves the original lock allocator unchanged.
+    Within it, the original scaffold creator owns the directories and placeholder
+    inode before the cache mutex opens it. No existing file is adopted by bytes.
+    """
+    owner = current_scaffold_custody(root)
+    if owner is None:
+        return
+    state = _state(owner)
+    try:
+        state.mkdir(parent, parents=True, exist_ok=True)
+        state.mkdir(lock_path.parent, parents=True, exist_ok=True)
+        state.prepare_control(lock_path)
+    except (OSError, ValueError) as error:
+        raise ScaffoldCustodyError(
+            "original inspection control allocation refused"
+        ) from error

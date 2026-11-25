@@ -1108,6 +1108,65 @@ def _rollback_converted_tree(target: Path, quarantine: dict[str, object]) -> Non
         ) from exc
 
 
+def _stage_refined_conversion_components(
+    source,
+    selection,
+    staging_root,
+    *,
+    expected_plan_identity,
+    default_branch,
+    timeout_seconds,
+    output_owner,
+):
+    from .monorepo_components import (
+        check_monorepo_retained_receipts,
+        run_component_retained_harness,
+        stage_monorepo_components,
+    )
+
+    options = {"_output_owner": output_owner}
+    bundle = staging_root / "bundle"
+    manifest = stage_monorepo_components(
+        source,
+        selection,
+        bundle,
+        expected_plan_identity=expected_plan_identity,
+        acknowledged=True,
+        default_branch=default_branch,
+        **options,
+    )
+    components = manifest.get("components")
+    if not isinstance(components, list) or not all(
+        isinstance(name, str) for name in components
+    ):
+        raise ProjectInitializationError(
+            "project.convert_monorepo_bundle_invalid",
+            "refined monorepo staging omitted its Component inventory",
+        )
+    output_owner.prepare("receipts", directory=True)
+    receipts = {}
+    for name in components:
+        receipt = staging_root / "receipts" / f"{name}.json"
+        run_component_retained_harness(
+            source,
+            bundle,
+            name,
+            receipt,
+            acknowledged=True,
+            worker_id="conversion-local",
+            timeout_seconds=timeout_seconds,
+            **options,
+        )
+        receipts[name] = receipt
+    check_monorepo_retained_receipts(
+        source,
+        bundle,
+        receipts,
+        expected_bundle_identity=str(manifest["bundle_identity"]),
+    )
+    return bundle, manifest, receipts
+
+
 def _restore_lift_shift_quarantine(
     target: Path,
     quarantine: dict[str, object],
@@ -3220,7 +3279,16 @@ class FilesystemProjectInitializationAdapter:
             )
         except RoadmapDependencyError as exc:
             raise ProjectInitializationError(exc.code, exc.message) from exc
-        if root_plan is not None:
+        if root_plan is not None and _placement is not None:
+            refinement = (convert_readiness or {}).get("root_refinement")
+            if not isinstance(refinement, dict) or not isinstance(
+                refinement.get("plan_identity"), str
+            ):
+                raise ProjectInitializationError(
+                    "project.convert_monorepo_plan_invalid",
+                    "refined monorepo conversion omitted its reviewed plan identity",
+                )
+        if root_plan is not None and _placement is None:
             from literate_ai.adapters.monorepo_components import (
                 check_monorepo_retained_receipts,
                 run_component_retained_harness,
@@ -3628,6 +3696,87 @@ class FilesystemProjectInitializationAdapter:
                     str(native_rewrite_program["roadmap"]),
                 )
             )
+            if root_plan is not None and _placement is not None:
+                from literate_ai.adapters.monorepo_components import (
+                    _refresh_staging,
+                    install_monorepo_components,
+                )
+
+                refinement = (convert_readiness or {}).get("root_refinement")
+                if not isinstance(refinement, dict) or not isinstance(
+                    refinement.get("plan_identity"), str
+                ):
+                    raise ProjectInitializationError(
+                        "project.convert_monorepo_plan_invalid",
+                        "refined monorepo conversion omitted its "
+                        "reviewed plan identity",
+                    )
+                retained_root = resolved_target / str(
+                    harness_lift_shift_document["implementation_directory"]
+                )
+                component_selection_path = Path(root_plan).absolute()
+                if component_selection_path.is_relative_to(resolved_target):
+                    component_selection_path = (
+                        retained_root
+                        / component_selection_path.relative_to(resolved_target)
+                    )
+                staging_owner = None
+                try:
+                    with _refresh_staging(resolved_target) as (
+                        staging_root,
+                        staging_owner,
+                    ):
+                        monorepo_bundle, monorepo_manifest, monorepo_receipts = (
+                            _stage_refined_conversion_components(
+                                retained_root,
+                                component_selection_path,
+                                staging_root,
+                                expected_plan_identity=str(refinement["plan_identity"]),
+                                default_branch=default_branch,
+                                timeout_seconds=baseline_timeout_seconds,
+                                output_owner=staging_owner,
+                            )
+                        )
+                        monorepo_components_document = install_monorepo_components(
+                            retained_root,
+                            monorepo_bundle,
+                            resolved_target,
+                            monorepo_receipts,
+                            expected_bundle_identity=str(
+                                monorepo_manifest["bundle_identity"]
+                            ),
+                        )
+                except (MonorepoAdoptionError, HarnessBaselineError) as exc:
+                    if staging_owner is None or not staging_owner.retired:
+                        raise ProjectInitializationError(
+                            exc.code,
+                            f"{exc.message}; original staging retirement is unproven; "
+                            "source, scaffold and runtime retained for recovery",
+                        ) from exc
+                    try:
+                        _restore_lift_shift_quarantine(
+                            resolved_target, quarantine, harness_lift_shift_document
+                        )
+                        _rollback_converted_tree(resolved_target, quarantine)
+                    except ProjectInitializationError as rollback_error:
+                        raise ProjectInitializationError(
+                            "project.convert_rollback_failed",
+                            f"{exc.message}; rollback also failed: {rollback_error}",
+                        ) from rollback_error
+                    raise ProjectInitializationError(
+                        exc.code,
+                        f"{exc.message}; literate-ai conversion was rolled back",
+                    ) from exc
+                for path in framework_path(".literate/monorepo-components").rglob("*"):
+                    if path.is_file():
+                        created.append(path.relative_to(resolved_target).as_posix())
+                for name in monorepo_components_document["components"]:
+                    created.extend(
+                        (
+                            f"components/{name}/component.md",
+                            f"components/{name}/binding.json",
+                        )
+                    )
             if (
                 monorepo_bundle is not None
                 and monorepo_manifest is not None

@@ -26575,15 +26575,46 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — original pre-bootstrap and execution custody (in progress):**
-  Join actual refined-conversion bundle/native staging, original source/quarantine
-  transfer and native execution scratch through their original owners. Preserve
+- **Next action — original native execution custody (in progress):**
+  Join actual retained Component execution copies/diagnostics, original native
+  process/output custody and source recovery through their original owners. Preserve
   strict source/output separation and exact original conversion-failure recovery,
   including private/foreign-state refusal. Trace actual plan/Git/source-policy
   continuity before changing ordering; do not fabricate a future initialized project
   or infer disposal from names, paths or content identities. Complete every original
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
+
+- **Refined conversion metadata staging (source partial):** Contained refined
+  conversion keeps original observation-only preflight, then stages its actual
+  Component bundle and receipts only after original source transfer and real
+  contained manifest publication. The original planner reconsumes the actual
+  relocated source/selection under the existing reviewed identity and strict
+  source/output separation. It uses the original initialized-project inspection
+  owner beneath `litai/_build/`, not a prospective project or an adopted directory.
+  The original scaffold creator joins inspection control-directory births and the
+  actual placeholder inode before the ordinary canonical cache mutex opens it;
+  equal-byte foreign locks cannot be adopted. The original stage's process-bound
+  retirement observation is required before source rollback. Foreign staging state
+  retains original source/scaffold/runtime and the rejecting error rather than
+  entering broad cleanup. Successful metadata staging retires its exact original
+  outputs; ordinary late installation, changed-selection and actual native
+  Component-command failures restore exact original source/Git custody. A source-
+  local selection retains original bytes and inode at its transferred coordinate;
+  an external selection is re-read rather than silently replaced by cached data.
+  The native failure regression ran a real selected failing Make command after the
+  aggregate baseline/parity passed, exposed the missing typed failure branch and
+  now proves exact restoration. Five actual metadata/selection/failure journeys,
+  five original refined rollback cases, twelve creator/control cases, thirteen
+  original monorepo staging controls, ten runtime-owner cases and twelve original
+  harness cases pass 57 checks without skips/failures plus static gates. Original
+  root-parent/Standard-binding fixture seams remain explicit; pre-existing native
+  harness/Windows assertion WIP stays outside this commit. This is dirty-candidate
+  source evidence, not exact clean commit, installed wheel or native three-platform
+  qualification. Native Component execution copies/diagnostics still require their
+  actual execution owner and contained placement; the full original namespace test
+  stays pending. All original whole-project/source-parent, migration/history,
+  full-source, independent-review and release requirements remain open.
 
 - **Original scaffold rollback and contained scope refresh (source partial):**
   The original initializer now joins its actual directory births, exclusive file

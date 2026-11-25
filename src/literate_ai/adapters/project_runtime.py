@@ -381,11 +381,15 @@ def project_inspection_staging(project, *, prefix):
             parent = ContainedProjectRuntime.path.__get__(owner)
         else:
             directories = resolve_cache_directories(project.root, environment={})
-            locks.enter_context(
-                exclusive_cache_lock(
-                    cache_lock_path(project.root, directories.obj_dir, "lifecycle.lock")
-                )
+            from .scaffold_custody import prepare_scaffold_inspection_control
+
+            lock_path = cache_lock_path(
+                project.root, directories.obj_dir, "lifecycle.lock"
             )
+            prepare_scaffold_inspection_control(
+                project.root, directories.obj_dir, lock_path
+            )
+            locks.enter_context(exclusive_cache_lock(lock_path))
             parent = directories.obj_dir
         require_current()
         with evidence_staging(parent, prefix=prefix) as stage:

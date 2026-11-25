@@ -157,3 +157,41 @@ class ScaffoldCustodyTests(unittest.TestCase):
             file = self.root / "litai/manifest.json"
             self.assertTrue(publish_atomic_file_if_scoped(file, b"{}"))
             self.assertEqual(file.stat().st_mode & 0o777, 0o600)
+
+    def test_original_inspection_control_owns_placeholder_before_mutex_open(self):
+        from literate_ai._cache_lock import exclusive_cache_lock
+
+        parent = self.root / "litai/_build"
+        lock = self.root / "litai/.litai-cache-locks/fixture/lifecycle.lock"
+        with custody.scaffold_custody(self.root) as owner:
+            custody.prepare_scaffold_inspection_control(self.root, parent, lock)
+            inode = lock.stat().st_ino
+            self.assertEqual(lock.read_bytes(), b"\0")
+            with exclusive_cache_lock(lock):
+                self.assertEqual(lock.stat().st_ino, inode)
+            custody.prepare_scaffold_inspection_control(self.root, parent, lock)
+            self.assertEqual(lock.stat().st_ino, inode)
+            owner.rollback()
+        self.assertEqual(list(self.root.iterdir()), [])
+
+    def test_equal_byte_unowned_lock_is_not_adopted_by_control_preparation(self):
+        parent = self.root / "litai/_build"
+        lock = self.root / "litai/.litai-cache-locks/fixture/lifecycle.lock"
+        with custody.scaffold_custody(self.root) as owner:
+            custody.scaffold_mkdir(lock.parent, parents=True)
+            lock.write_bytes(b"\0")
+            inode = lock.stat().st_ino
+            with self.assertRaises(custody.ScaffoldCustodyError):
+                custody.prepare_scaffold_inspection_control(self.root, parent, lock)
+            with self.assertRaises(custody.ScaffoldCustodyError):
+                owner.rollback()
+        self.assertEqual(lock.stat().st_ino, inode)
+        self.assertEqual(lock.read_bytes(), b"\0")
+
+    def test_control_bridge_outside_creation_scope_leaves_original_allocator_alone(
+        self,
+    ):
+        parent = self.root / "litai/_build"
+        lock = self.root / "litai/.litai-cache-locks/fixture/lifecycle.lock"
+        custody.prepare_scaffold_inspection_control(self.root, parent, lock)
+        self.assertEqual(list(self.root.iterdir()), [])

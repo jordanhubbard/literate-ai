@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- PROJECT-LAYOUT-001: stage actual refined-conversion bundles and receipts under the initialized contained project after source transfer; preserve selection identity and require original stage retirement before exact source rollback, including real Component command failures. Native execution scratch containment remains open.
+
 - PROJECT-LAYOUT-001: retire only original scaffold creations during conversion rollback, preserving foreign state and rejecting errors; restore exact source/Git custody on ordinary failure and resolve contained wrapper/Component metadata during real source-scope refresh.
 
 - PROJECT-LAYOUT-001: expose process-bound stage retirement completion after actual native disposal and handle release; retain incomplete state on foreign entries or failed cleanup. Conversion rollback integration remains open.
