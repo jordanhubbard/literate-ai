@@ -2,7 +2,6 @@
 
 import json
 import os
-import shutil
 import subprocess
 import sys
 import unittest
@@ -95,7 +94,8 @@ class ContainedReleaseWheelTests(unittest.TestCase):
 
     def test_actual_pip_backend_staging_is_contained(self):
         result = self.build()
-        self.assertEqual(result, release._release_build_root(self.root) / NAME)
+        self.assertEqual(result.name, NAME)
+        self.assertEqual(result.parent.parent, release._release_build_root(self.root))
         with zipfile.ZipFile(result) as wheel:
             self.assertIsNone(wheel.testzip())
             source = json.loads(wheel.read("fixture_pkg-1.0.0.dist-info/staging.json"))[
@@ -224,23 +224,103 @@ class ContainedReleaseWheelTests(unittest.TestCase):
         self.assertFalse((other / "litai/_build").exists())
 
     def test_actual_completed_copy_is_retained_when_original_context_changes(self):
-        copy = shutil.copy2
-        final = release._release_build_root(self.root) / NAME
+        publish = release._publish_wheel
+        seen = {}
 
-        def original_copy(source, destination):
-            result = copy(source, destination)
-            if Path(destination) == final:
-                store = ProjectConfigurationStore(self.root)
-                current = store.read()
-                store.update(current, replace(current.definition, version="99.0.0"))
+        def original_publish(source, output_root, require_current):
+            result = publish(source, output_root, require_current)
+            seen["final"] = result
+            store = ProjectConfigurationStore(self.root)
+            current = store.read()
+            store.update(current, replace(current.definition, version="99.0.0"))
+            require_current()
             return result
 
-        with patch("shutil.copy2", side_effect=original_copy):
+        with patch.object(release, "_publish_wheel", side_effect=original_publish):
             with self.assertRaises(release.ProjectReleaseError) as caught:
                 self.build()
+        final = seen["final"]
         self.assertEqual(caught.exception.code, "release.wheel_output_unavailable")
         self.assertTrue(final.is_file())
         with zipfile.ZipFile(final) as wheel:
             self.assertIsNone(wheel.testzip())
         with self.assertRaises(ProjectRuntimeError):
             self.close()
+
+    def test_00_existing_unknown_wheel_name_survives_fresh_native_build(self):
+        existing = release._release_build_root(self.root) / NAME
+        existing.write_bytes(b"operator-owned original wheel-path data")
+        inode = existing.stat().st_ino
+        result = self.build()
+        self.assertEqual(
+            existing.read_bytes(), b"operator-owned original wheel-path data"
+        )
+        self.assertEqual(existing.stat().st_ino, inode)
+        self.assertNotEqual(result, existing)
+        with zipfile.ZipFile(result) as wheel:
+            self.assertIsNone(wheel.testzip())
+
+    def test_repeated_native_builds_keep_both_original_artifacts(self):
+        first = self.build()
+        original, inode = first.read_bytes(), first.stat().st_ino
+        second = self.build()
+        self.assertNotEqual(first, second)
+        self.assertEqual(first.read_bytes(), original)
+        self.assertEqual(first.stat().st_ino, inode)
+        for path in (first, second):
+            with zipfile.ZipFile(path) as wheel:
+                self.assertIsNone(wheel.testzip())
+            self.assertEqual(list(path.parent.iterdir()), [path])
+
+    def test_partial_real_copy_refusal_preserves_original_creator_bytes(self):
+        from literate_ai.adapters.evidence_archive import _ArchiveBytes
+
+        original = _ArchiveBytes.write
+        seen = {}
+
+        def fail(writer, value):
+            original(writer, value[:11])
+            seen["bytes"] = bytes(value[:11])
+            seen["inode"] = os.fstat(writer.descriptor).st_ino
+            raise OSError("fixture physical wheel copy failure")
+
+        with patch.object(_ArchiveBytes, "write", fail):
+            with self.assertRaises(release.ProjectReleaseError) as caught:
+                self.build()
+        self.assertEqual(caught.exception.code, "release.wheel_output_unavailable")
+        output = release._release_build_root(self.root)
+        parts = list(output.glob("w-*/.wheel-part"))
+        self.assertEqual(len(parts), 1)
+        self.assertEqual(parts[0].stat().st_ino, seen["inode"])
+        self.assertEqual(parts[0].read_bytes(), seen["bytes"])
+        self.assertEqual(list(output.glob("w-*/*.whl")), [])
+
+    def test_atomic_name_collision_preserves_foreign_final_and_owned_partial(self):
+        from literate_ai.adapters import evidence_archive
+
+        link = evidence_archive._link
+        seen = {}
+
+        def conflict(access, source, destination):
+            final = access.root / destination
+            final.write_bytes(b"operator private publication collision")
+            partial = access.root / source
+            seen.update(
+                final=final,
+                inode=final.stat().st_ino,
+                partial=partial,
+                original=partial.read_bytes(),
+                partial_inode=partial.stat().st_ino,
+            )
+            link(access, source, destination)
+
+        with patch.object(evidence_archive, "_link", side_effect=conflict):
+            with self.assertRaises(release.ProjectReleaseError) as caught:
+                self.build()
+        self.assertEqual(caught.exception.code, "release.wheel_output_unavailable")
+        self.assertEqual(seen["final"].stat().st_ino, seen["inode"])
+        self.assertEqual(
+            seen["final"].read_bytes(), b"operator private publication collision"
+        )
+        self.assertEqual(seen["partial"].stat().st_ino, seen["partial_inode"])
+        self.assertEqual(seen["partial"].read_bytes(), seen["original"])

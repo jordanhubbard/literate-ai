@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve unknown wheel outputs and prior builds with fresh contained artifact directories, verified creator-FD copies and atomic no-replace publication; retain failed partials and conflicting state.
+
 - Stage contained POSIX release wheels through original project/native custody, with bounded pip process closure and contained backend/cache/bytecode paths. Refuse private or replaced staging before copy and preserve original pip/context errors.
 
 - Materialize all six local build adapters through original contained project input staging; preserve exact private or replaced input state, original compiler/materializer failures, and enclosing runtime retention on refused retirement.

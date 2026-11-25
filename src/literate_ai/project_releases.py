@@ -5335,6 +5335,138 @@ def _run_wheel_packaging(root: Path, wheel_dir: Path):
         )
 
 
+def _publish_wheel(wheel: Path, output_root: Path, require_current) -> Path:
+    """Publish a fresh artifact, preserving unknown files and failed partials.
+
+    Original creator descriptors and pinned native parents span copy/verification.
+    The final wheel name appears only through an atomic no-replace hardlink on
+    the same filesystem. Unsupported publication leaves the private partial;
+    neither retries nor a content digest grant recovery/deletion authority.
+    """
+    import hashlib
+    import stat
+    import uuid
+
+    from ._filesystem import ensure_safe_directory
+    from .adapters.evidence_archive import (
+        _ArchiveBytes,
+        _content_signature,
+        _link,
+        _unlink_owned,
+    )
+    from .adapters.evidence_files import (
+        _CHUNK,
+        _access,
+        _descriptor_identity,
+        _name,
+        _PosixAccess,
+        _signature,
+    )
+
+    _name(wheel.name)
+    require_current()
+    ensure_safe_directory(output_root)
+    with ExitStack() as stack:
+        parent = stack.enter_context(_access(output_root))
+        require_current()
+        for _ in range(16):
+            name = "w-" + uuid.uuid4().hex[:16]
+            try:
+                if isinstance(parent, _PosixAccess):
+                    os.mkdir(name, 0o700, dir_fd=parent.directory(()))
+                else:
+                    os.mkdir(output_root / name, 0o700)
+            except FileExistsError:
+                continue
+            break
+        else:
+            raise ValueError("wheel artifact directory allocation exhausted")
+        born, identity = parent.metadata((name,))
+        access = stack.enter_context(_access(output_root / name))
+        if not stat.S_ISDIR(born.st_mode) or access.root_identity()[1] != identity:
+            raise ValueError("wheel artifact directory changed during creation")
+
+        def current():
+            require_current()
+            parent.current()
+            access.current()
+            if parent.metadata((name,))[1] != identity:
+                raise ValueError("original wheel artifact directory changed")
+
+        current()
+        source = stack.enter_context(_access(wheel.parent))
+        before, source_identity = source.metadata((wheel.name,))
+        if not stat.S_ISREG(before.st_mode):
+            raise ValueError("wheel source is not a regular file")
+        flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NONBLOCK", 0)
+        with ExitStack() as inputs:
+            reader = source.open((wheel.name,), flags)
+            inputs.callback(os.close, reader)
+            if (_descriptor_identity(source, reader), _signature(os.fstat(reader))) != (
+                source_identity,
+                _signature(before),
+            ):
+                raise ValueError("original wheel input changed during open")
+            partial = ".wheel-part"
+            writer = access.open(
+                (partial,),
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0),
+            )
+            with ExitStack() as outputs:
+                outputs.callback(os.close, writer)
+                created = _descriptor_identity(access, writer)
+                raw = _ArchiveBytes(writer)
+                while chunk := os.read(
+                    reader, min(_CHUNK, before.st_size - raw.size + 1)
+                ):
+                    if raw.size + len(chunk) > before.st_size:
+                        raise ValueError("original wheel input grew during copy")
+                    raw.write(chunk)
+                if raw.size != before.st_size or _signature(
+                    os.fstat(reader)
+                ) != _signature(before):
+                    raise ValueError("original wheel input changed during copy")
+                os.fsync(writer)
+                written = os.fstat(writer)
+            current()
+            source.current()
+            after, native = source.metadata((wheel.name,))
+            if (native, _signature(after)) != (source_identity, _signature(before)):
+                raise ValueError("original wheel input changed after copy")
+        check = access.open((partial,), flags)
+        with os.fdopen(check, "rb") as verified:
+            opened = os.fstat(verified.fileno())
+            if (
+                _descriptor_identity(access, verified.fileno()),
+                _signature(opened),
+            ) != (created, _signature(written)):
+                raise ValueError("original wheel copy changed before verification")
+            digest, count = hashlib.sha256(), 0
+            while chunk := verified.read(min(_CHUNK, raw.size - count + 1)):
+                count += len(chunk)
+                if count > raw.size:
+                    raise ValueError("wheel copy grew during verification")
+                digest.update(chunk)
+            if (
+                count != raw.size
+                or digest.digest() != raw.digest.digest()
+                or _signature(os.fstat(verified.fileno())) != _signature(written)
+            ):
+                raise ValueError("original wheel copy failed verification")
+        current()
+        if access.entries((), 3) != [partial]:
+            raise ValueError("private wheel artifact namespace changed; preserved")
+        _link(access, partial, wheel.name)
+        _unlink_owned(access, partial, created, written)
+        final, native = access.metadata((wheel.name,))
+        if native != created or _content_signature(final) != _content_signature(
+            written
+        ):
+            raise ValueError("published wheel changed; preserved")
+        current()
+        return output_root / name / wheel.name
+
+
 def _build_wheel(root: Path) -> Path | None:
     """Build a distribution wheel from the clean checkout.
 
@@ -5343,8 +5475,6 @@ def _build_wheel(root: Path) -> Path | None:
     non-Python project or test fixture simply gets no wheel asset rather than
     a failed release.
     """
-    import shutil
-
     if not ((root / "pyproject.toml").is_file() or (root / "setup.py").is_file()):
         return None
 
@@ -5406,31 +5536,22 @@ def _build_wheel(root: Path) -> Path | None:
                 "release.wheel_build_failed",
                 "wheel producer did not issue a regular file",
             )
-        final = output_root / wheel.name
+
+        def require_publication_current():
+            require_output_current()
+            native_diagnostics_directory(root)
+
         try:
-            require_output_current()
-            final.parent.mkdir(parents=True, exist_ok=True)
-            require_output_current()
-            if path_is_link_or_reparse(final) or (
-                final.exists() and not final.is_file()
-            ):
-                raise ValueError("wheel destination is not an ordinary file")
+            return _publish_wheel(wheel, output_root, require_publication_current)
+        except ProjectReleaseError:
+            raise
         except (ProjectError, OSError, ValueError, UnsafeFilesystemPathError) as exc:
+            # Completed artifacts and failed partials stay for inspection. No
+            # unknown or changed path is deleted on failure or a later retry.
             raise ProjectReleaseError(
                 "release.wheel_output_unavailable",
-                "wheel output original framework context changed or became unsafe",
+                "wheel original publication refused; retained state may remain",
             ) from exc
-        shutil.copy2(str(wheel), str(final))
-        try:
-            require_output_current()
-        except (ProjectError, OSError, ValueError, UnsafeFilesystemPathError) as exc:
-            # Copy completion is not authority to accept a changed context. Keep
-            # the artifact for inspection; never remove a concurrent user's file.
-            raise ProjectReleaseError(
-                "release.wheel_output_unavailable",
-                "wheel output original framework context changed during copy",
-            ) from exc
-        return final
 
 
 def _upload_wheel_asset(root: Path, repository: str, tag: str, wheel: Path) -> None:

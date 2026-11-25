@@ -26585,6 +26585,23 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original release wheel publication (source partial):** Fresh wheel artifacts
+  now publish in independently created short directories beneath the original
+  framework build root. Native parent custody spans exclusive creator-FD copy,
+  bounded source reads, original source postimages, fsync and full copied-byte
+  verification. The final wheel name appears through an atomic no-replace
+  same-filesystem link; only the exact original partial is retired on success.
+  Existing ordinary wheel files, prior successful artifacts, failed partials and
+  foreign collision/replacement state remain intact. Unsupported atomic links
+  refuse with the partial retained; a fresh retry needs no manual deletion.
+  The real pip baseline reproduced an ordinary-file overwrite. Native PEP517
+  controls now preserve that file and its inode, build repeatedly, retain real
+  partial writes and final-name collisions, and preserve completed artifacts on
+  closing project drift. Focused publisher controls exercise actual native copy,
+  replacement and link operations with explicit opaque input, not a qualified
+  wheel. Original publisher recovery, concurrent lifecycle/platform/installed
+  acceptance, full source review and protected release requirements remain open.
+
 - **Original release wheel staging (source partial):** Contained POSIX wheel
   packaging now uses its actual project's original inspection/native workspace,
   with a real bounded pip process and original process-group closure before
@@ -26603,9 +26620,9 @@ implementation, policy weakening, qualification or issue closure is recorded her
   package dependency install or network is required. Existing consumer-default tests retain explicit
   modeled packaging/workspace ports and are not native wheel qualification.
   Framework/legacy and native Windows scratch routes remain explicit/unqualified.
-  Final destination copying retains its preceding contract: existing-output
-  ownership/collision, atomic original publication and recovery still require
-  separate original-publisher proof. No release, installed-platform or generated-
+  Final destination publication now has the separate original-publisher source
+  controls above; complete recovery and platform acceptance remain open.
+  No release, installed-platform or generated-
   product qualification follows from this source fixture. Complete original
   producer/source-parent/whole-project/migration/history/concurrency/full-source/
   independent review and protected release acceptance remain open.

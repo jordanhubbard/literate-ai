@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import tempfile
 import unittest
@@ -244,10 +243,8 @@ class ProjectLayoutConsumerDefaultTests(unittest.TestCase):
                 ),
             ):
                 result = release._build_wheel(root)
-            self.assertEqual(
-                result,
-                release._release_build_root(root) / "fixture-1.0-py3-none-any.whl",
-            )
+            self.assertEqual(result.name, "fixture-1.0-py3-none-any.whl")
+            self.assertEqual(result.parent.parent, release._release_build_root(root))
             self.assertTrue(result.is_file())
             if contained:
                 self.assertFalse((root / "_build").exists())
@@ -300,21 +297,24 @@ class ProjectLayoutConsumerDefaultTests(unittest.TestCase):
     ):
         root = self.project("wheel-close")
         (root / "pyproject.toml").write_bytes(b"# native source\n")
-        original_copy = shutil.copy2
+        original_copy = release._publish_wheel
+        seen = {}
 
-        def copy_then_drift(source, destination):
-            result = original_copy(source, destination)
+        def copy_then_drift(source, destination, require_current):
+            result = original_copy(source, destination, require_current)
+            seen["final"] = result
             store = ProjectConfigurationStore(root)
             current = store.read()
             store.update(current, replace(current.definition, version="99.0.0"))
+            require_current()
             return result
 
         with (
             patch.object(
                 release.subprocess, "run", side_effect=self.wheel_runner(root)
             ),
-            patch("shutil.copy2", side_effect=copy_then_drift),
+            patch.object(release, "_publish_wheel", side_effect=copy_then_drift),
         ):
             with self.assertRaises(release.ProjectReleaseError):
                 release._build_wheel(root)
-        self.assertTrue((root / "litai/_build/fixture-1.0-py3-none-any.whl").is_file())
+        self.assertTrue(seen["final"].is_file())
