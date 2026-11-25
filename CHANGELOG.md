@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Cover process exits during wrapper control-file archive and restore, renewed-target revalidation after closure, and exact original rollback alongside initialized-Component compatibility.
+
 - Archive original recorded-wrapper control files separately from retained application directories, preserving native inode custody and restoring controls before ordinary rollback fences.
 
 - Admit genuine recorded-wrapper targets through normal Component destination checks and renewal; exercise actual typed target capture, deliberate local Flavor renewal and exact history rollback.

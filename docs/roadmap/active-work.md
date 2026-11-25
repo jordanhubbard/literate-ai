@@ -26583,9 +26583,14 @@ implementation, policy weakening, qualification or issue closure is recorded her
   Root leases revalidate actual destination owners and original data custody.
   Local POSIX source controls cover repeated finalization/recovery, old-store
   refusal before a creating open, equal-byte foreign-inode refusal and a new
-  source Git boundary. Process-interruption, renewed-target composition and
-  supported-platform qualification remain separate acceptance work. Full project
-  containment and release qualification remain open.
+  source Git boundary. Actual child exits after partial archive and partial
+  restore leave exact original inodes recoverable under a fresh Root lease.
+  A genuinely renewed typed target remains current through repeated closure and
+  fresh normal preparation; original rollback preserves the newly authored local
+  Flavor. Existing initialized-Component current/renewed-pair, legacy-v1,
+  no-target, private-residual and callback-boundary controls also pass.
+  Supported-platform qualification, full project containment and release
+  qualification remain open.
 
 - **Recorded wrapper normal producers (partial):** Destination admission now
   accepts the genuine recorded-wrapper transition through the same original
