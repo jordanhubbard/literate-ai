@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import gzip
 import hashlib
 import json
 import math
@@ -84,6 +83,7 @@ from literate_ai.remote_source_guard import (
 )
 
 from .artifact_exports import ArtifactEntrypointCommand, ArtifactExportError
+from .evidence_archive import write_evidence_archive
 from .evidence_files import EvidenceFileLimit, copy_evidence_files
 
 _CAS_SCHEME = "litai-worker-cas"
@@ -507,28 +507,19 @@ def _copy_evidence_tree(
         totals[0] += row.size
 
 
-def _write_deterministic_tar_gz(source: Path, destination: Path) -> ContentIdentity:
-    temporary = destination.with_name(destination.name + ".partial")
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    with (
-        temporary.open("wb") as raw,
-        gzip.GzipFile(fileobj=raw, mode="wb", mtime=0, filename="") as compressed,
-        tarfile.open(fileobj=compressed, mode="w") as archive,
-    ):
-        for item in sorted(source.rglob("*")):
-            if not item.is_file() or item.is_symlink():
-                continue
-            info = tarfile.TarInfo(item.relative_to(source).as_posix())
-            info.size = item.stat().st_size
-            info.mode = 0o755 if item.stat().st_mode & 0o111 else 0o644
-            info.mtime = 0
-            info.uid = info.gid = 0
-            info.uname = info.gname = ""
-            with item.open("rb") as stream:
-                archive.addfile(info, stream)
-    identity = _file_identity(temporary)
-    os.replace(temporary, destination)
-    return identity
+def _write_deterministic_tar_gz(
+    source: Path, destination: Path, *, expected=None
+) -> ContentIdentity:
+    return ContentIdentity(
+        HashAlgorithm.SHA256,
+        write_evidence_archive(
+            source,
+            destination,
+            maximum_files=_MAX_EVIDENCE_FILES + 1,
+            maximum_bytes=_MAX_EVIDENCE_BYTES + MAX_REMOTE_EVIDENCE_MANIFEST_BYTES,
+            expected=expected,
+        ),
+    )
 
 
 def _write_remote_evidence(
@@ -685,10 +676,19 @@ def _write_remote_evidence(
             cleanup_token,
             library_product=result.library_product,
         )
-        (staging / "remote-evidence-manifest.json").write_bytes(
-            canonical_json_bytes(manifest.to_dict())
+        manifest_bytes = canonical_json_bytes(manifest.to_dict())
+        (staging / "remote-evidence-manifest.json").write_bytes(manifest_bytes)
+        expected = {
+            row.path: (row.size, row.identity.digest, row.executable) for row in files
+        }
+        expected["remote-evidence-manifest.json"] = (
+            len(manifest_bytes),
+            hashlib.sha256(manifest_bytes).hexdigest(),
+            False,
         )
-        bundle_identity = _write_deterministic_tar_gz(staging, output)
+        bundle_identity = _write_deterministic_tar_gz(
+            staging, output, expected=expected
+        )
         return manifest, ContentReference(
             "remote-lifecycle-evidence", _EVIDENCE_URI, bundle_identity
         )

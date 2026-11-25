@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework evidence archives now stream native verified files against the captured manifest ledger, verify compressed output bytes, and publish without replacing existing final or fixed partial files. Failed private partials remain for owned recovery; full transfer cleanup and supported-platform qualification remain pending.
+
 Project layout: census producer evidence without following links, stream exact native file descriptors within existing quotas, verify copied bytes, and preserve regular hardlink-path accounting. Native Windows and complete transfer/recovery qualification remain pending.
 
 Project layout: keep default contained receiver runtime, candidate and per-attempt object output under the framework directory. Carry original native custody through local rebuild and evidence publication, exclude live controls, and preserve conflicting runtime state and original failures.

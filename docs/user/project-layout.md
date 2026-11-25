@@ -193,7 +193,13 @@ external-driver containment and full transfer/recovery qualification remain open
 Evidence copying checks names and native file identities before payload reads,
 streams within the existing file/byte quotas, and verifies the copied bytes.
 Aliases and portable-name collisions refuse; hardlink paths are charged separately.
-Archive writing and transfer cleanup still require further qualification.
+Archive writing consumes the same native namespace controls and checks streamed
+bytes against the captured evidence ledger. Deterministic tar/gzip formatting is
+retained. Unique temporary outputs are verified before atomic publication that
+refuses existing final names; failed partials remain for owned recovery. Native
+hardlink support is required and unsupported publication fails closed. Deferred
+cleanup ticket/ACK recovery, staging disposal and installed/native Windows transfer
+qualification remain open.
 
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned

@@ -26575,6 +26575,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Producer native archive stream/publication (partial):** The original tar/gzip
+  producer now consumes bounded native source descriptors inside a closing namespace
+  census. The original evidence manifest's exact path/size/hash/executable ledger
+  also constrains actual streamed bytes, including the manifest payload. Stable
+  archive order and deterministic headers remain; source quotas allow only the
+  separately bounded manifest envelope. Each output starts in an exclusively
+  created, unique temporary file under original native parent custody. Its actual
+  compressed bytes and identity are verified before atomic no-replace hardlink
+  publication; an existing or concurrent final destination refuses. Successful
+  temporary retirement checks the original native identity; failures preserve
+  partials and foreign replacements. Unsupported native link operations fail
+  closed. Local controls reproduce the original fixed-partial loss and exercise
+  source/output substitution, byte integrity, deterministic real consumer reads,
+  budgets and native descriptor closure, alongside the existing receiver/import
+  path. These are local source controls, not installed/native Windows or complete
+  transfer qualification. Deferred cleanup ticket/ACK native recovery, staging
+  disposal, whole-project ownership and full release acceptance remain open.
+
 - **Producer evidence native reads (partial):** Evidence copying now performs
   a no-follow metadata census before payload IO and streams verified regular file
   descriptors in bounded chunks. Original POSIX directory custody and existing

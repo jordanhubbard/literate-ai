@@ -418,3 +418,113 @@ def copy_evidence_files(source, destination, prefix, *, maximum_files, maximum_b
         if _census(access, selected, maximum_files) != before:
             raise EvidenceFileError("evidence namespace changed during copy")
         return tuple(result)
+
+
+class _EvidenceStream:
+    """Single descriptor, bounded reads, exact consumption and captured digest."""
+
+    def __init__(self, descriptor, size):
+        self.descriptor, self.size = descriptor, size
+        self.count, self.digest = 0, hashlib.sha256()
+
+    def read(self, size):
+        if type(size) is not int or not 0 <= size <= _CHUNK:
+            raise EvidenceFileError("bounded evidence reads required")
+        if size == 0:
+            return b""
+        chunk = os.read(self.descriptor, min(size, self.size - self.count + 1))
+        self.count += len(chunk)
+        if self.count > self.size:
+            raise EvidenceFileLimit("evidence grew during consumption")
+        self.digest.update(chunk)
+        return chunk
+
+
+def visit_evidence_files(
+    source, visitor, *, maximum_files, maximum_bytes, expected=None
+):
+    """Consume exact native files inside their original, closing namespace census.
+
+    The optional hash ledger constrains the stream; it never supplies filesystem
+    authority. The actual native access and descriptor remain local to this call.
+    Consumers must read each file completely in bounded chunks before returning.
+    """
+    if any(
+        type(value) is not int or value < 0 for value in (maximum_files, maximum_bytes)
+    ):
+        raise EvidenceFileError("nonnegative integer evidence limits required")
+    source = Path(source)
+    if not source.is_absolute() or source == source.parent:
+        raise EvidenceFileError("absolute non-root evidence source required")
+    _name(source.name)
+    with ExitStack() as stack:
+        parent = stack.enter_context(_access(source.parent))
+        node, native = parent.metadata((source.name,))
+        if stat_is_link_or_reparse(node) or not stat.S_ISDIR(node.st_mode):
+            raise EvidenceFileError(
+                "evidence archive source must be a direct directory"
+            )
+        access = stack.enter_context(_access(source))
+        if access.root_identity()[1] != native:
+            raise EvidenceFileError("evidence source changed before census")
+        before = _census(access, (), maximum_files)
+        if sum(row[1][3] for row in before if row[3]) > maximum_bytes:
+            raise EvidenceFileLimit("evidence exceeds byte budget")
+        files = tuple(row for row in before if row[3])
+        metadata = {
+            "/".join(parts): (signature[3], bool(signature[0] & 0o111))
+            for parts, signature, _native, _ in files
+        }
+        if expected is not None and (
+            set(metadata) != set(expected)
+            or any(metadata[name] != (row[0], row[2]) for name, row in expected.items())
+        ):
+            raise EvidenceFileError("evidence archive differs from captured ledger")
+        directories = {row[0]: row[2] for row in before if not row[3]}
+        for parts, signature, expected_native, _ in files:
+            access.current(parts[:-1])
+            for depth in range(len(parts)):
+                ancestor = parts[:depth]
+                current, native = (
+                    access.root_identity()
+                    if not ancestor
+                    else access.metadata(ancestor)
+                )
+                if native != directories[ancestor]:
+                    raise EvidenceFileError("evidence parent lineage changed")
+            node, native = access.metadata(parts)
+            if (_signature(node), native) != (signature, expected_native):
+                raise EvidenceFileError("evidence changed before consumption")
+            descriptor = access.open(parts, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0))
+            try:
+                opened = os.fstat(descriptor)
+                if (
+                    not stat.S_ISREG(opened.st_mode)
+                    or _descriptor_identity(access, descriptor) != expected_native
+                    or _signature(opened) != signature
+                ):
+                    raise EvidenceFileError("evidence changed during native open")
+                stream = _EvidenceStream(descriptor, opened.st_size)
+                name = "/".join(parts)
+                visitor(name, opened.st_size, bool(opened.st_mode & 0o111), stream)
+                if stream.count != opened.st_size or stream.read(1):
+                    raise EvidenceFileError(
+                        "evidence consumer did not close exact bytes"
+                    )
+                if _signature(os.fstat(descriptor)) != signature:
+                    raise EvidenceFileError("evidence changed during consumption")
+                if (
+                    expected is not None
+                    and stream.digest.hexdigest() != expected[name][1]
+                ):
+                    raise EvidenceFileError(
+                        "evidence content differs from captured ledger"
+                    )
+            finally:
+                os.close(descriptor)
+            node, native = access.metadata(parts)
+            if (_signature(node), native) != (signature, expected_native):
+                raise EvidenceFileError("evidence changed after consumption")
+        access.current()
+        if _census(access, (), maximum_files) != before:
+            raise EvidenceFileError("evidence namespace changed during consumption")
