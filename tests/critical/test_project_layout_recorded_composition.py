@@ -10,6 +10,7 @@ import copy
 import json
 import subprocess
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -38,7 +39,10 @@ from literate_ai.adapters.project_layout_planning import (
 )
 from literate_ai.adapters.retained_layout import resolve_structural_layout
 from literate_ai.contracts import CatalogImportsFile, canonical_json_bytes
-from literate_ai.projects import ProjectConfigurationStore
+from literate_ai.projects import (
+    ProjectConfigurationStore,
+    serialize_project_configuration,
+)
 from tests.critical import test_project_layout_recorded_wrapper_source as support
 
 
@@ -53,6 +57,15 @@ class RecordedCompositionTests(unittest.TestCase):
             # neither this setup nor wrapper ownership adopts that Skill.
             (project.root / "skills/demo/SKILL.md").unlink()
             (project.root / "skills/demo").rmdir()
+            # The import-free project chooses an ACTUAL retained wrapper Skill;
+            # it must not keep pointing at the removed sample imported Skill.
+            project.definition = replace(
+                project.definition,
+                agent_skill="skills/specification-to-source/legacy-project-shim/SKILL.md",
+            )
+            project.write(
+                project.manifest, serialize_project_configuration(project.definition)
+            )
             project.imports = CatalogImportsFile(())
             project.write(
                 "litai/.literate/imports.json",

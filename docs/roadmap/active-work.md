@@ -26575,6 +26575,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Recorded wrapper normal producers (partial):** Destination admission now
+  accepts the genuine recorded-wrapper transition through the same original
+  factory, prepared-target, catalog and native-history checks. A real normal
+  producer creates the wrapper's `legacy-shim` lock/audit pair before migration;
+  its actual target inventory and typed records then move with the seven outputs.
+  A deliberately authored alternate local Flavor drives ordinary pair renewal
+  through the existing publisher and private journal. Repeated original rollback
+  restores exact source bytes while preserving the newly authored policy files.
+  The old store refuses mutation before a creating lock open even though the
+  original directory remains for application implementation. The import-free
+  fixture now selects its real wrapper Skill rather than the removed sample
+  imported Skill. Historical execution/origin seams remain explicit. Fresh-process
+  public renewal, appropriate control-only source closure and installed/platform
+  qualification remain open; no original transition is reconstructed from data.
+
 - **Public framework-authority migration (partial):** The source CLI now routes
   `layout plan --migration --place-framework-authority` and matching acknowledged
   apply/recover commands to the original framework owners and journal. This scope

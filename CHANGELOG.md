@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Admit genuine recorded-wrapper targets through normal Component destination checks and renewal; exercise actual typed target capture, deliberate local Flavor renewal and exact history rollback.
+
 - Expose acknowledged framework-authority plan/apply/recovery through the public layout CLI, including exact-journal recovery while the manifest is backed up and refusal of mixed placement scopes.
 
 - Compose all seven original conversion-wrapper outputs through default framework migration planning and recovery, preserve retained source at its native path, and keep independent catalog ownership blockers explicit.

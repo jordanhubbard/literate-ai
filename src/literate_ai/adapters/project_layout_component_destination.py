@@ -235,7 +235,8 @@ def _build_classifier(*, framework=False):
         planner, target, flavors, flavor_roots = admit_prepared(prepared)
         target_root = root / transition.destination_root
         if (
-            transition.source_kind not in ("inherited", "initialized")
+            transition.source_kind
+            not in ("inherited", "initialized", "recorded-wrapper")
             or prepared.component_root != target_root
             or prepared.catalog_snapshot is None
             or prepared.catalog_snapshot.project is None
