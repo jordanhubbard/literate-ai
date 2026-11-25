@@ -13,6 +13,9 @@ from literate_ai.adapters import component_lock_operations as operations
 from literate_ai.adapters import exclusive_directory as exclusive
 from literate_ai.adapters import project_layout_continuation as writer
 from literate_ai.adapters import project_layout_filesystem as leaf
+from literate_ai.adapters import (
+    project_layout_framework_transaction as framework_writer,
+)
 from literate_ai.adapters import project_layout_lease as lease_module
 from literate_ai.adapters import project_layout_migration as migration
 from literate_ai.adapters import project_layout_planning as planning
@@ -34,13 +37,22 @@ def _fail(message):
     raise ProjectLayoutPlanError("component_destination_unavailable", message)
 
 
-def _build_classifier():
+def _build_classifier(*, framework=False):
     """Origin-bound closure; no module checker lookup after foreign callbacks.
 
     Rebuilding under explicit test seams produces a modeled classifier only.
     Production dispatch uses only the three values issued at module origin below.
     """
     error_type = ProjectLayoutPlanError
+    dispatch = (
+        (
+            "_framework_callbacks_current",
+            "_framework_call",
+            "classify_framework_component_destination",
+        )
+        if framework
+        else ("_callbacks_current", "_call", "classify_component_destination")
+    )
 
     def fail(message):
         raise error_type("component_destination_unavailable", message)
@@ -62,6 +74,7 @@ def _build_classifier():
             "canonical_json_bytes",
             "operations",
             "writer",
+            "framework_writer",
             "migration",
             "leaf",
             "filesystem",
@@ -91,6 +104,18 @@ def _build_classifier():
                     "_source_location",
                     "_names",
                     "directory_node",
+                    "_matches",
+                ),
+            ),
+            (
+                framework_writer,
+                (
+                    "_decode",
+                    "_guard",
+                    "_guard_intent",
+                    "_state",
+                    "_entries",
+                    "journal_path",
                 ),
             ),
             (
@@ -157,10 +182,9 @@ def _build_classifier():
     def _callbacks_current():
         if (
             any(globals().get(name) is not original for name, original in aliases)
-            or globals().get("_callbacks_current") is not _callbacks_current
-            or globals().get("_call") is not _call
-            or globals().get("classify_component_destination")
-            is not classify_component_destination
+            or globals().get(dispatch[0]) is not _callbacks_current
+            or globals().get(dispatch[1]) is not _call
+            or globals().get(dispatch[2]) is not classify_component_destination
             or any(
                 vars(module).get(name) is not original
                 for module, members in modules
@@ -271,7 +295,16 @@ def _build_classifier():
             ):
                 fail("expected original destination project changed")
             if intent is not None:
-                _call(writer._guard, root, intent["plan"])
+                if framework:
+                    _call(
+                        framework_writer._guard,
+                        root,
+                        intent["plan"],
+                        layout_lease,
+                        None,
+                    )
+                else:
+                    _call(writer._guard, root, intent["plan"])
             lease_current(layout_lease, root)
             admit_transition(transition)
             admit_prepared(original_prepared)
@@ -293,7 +326,11 @@ def _build_classifier():
                 fail("original expected snapshot changed during closing guard")
 
         require_original()
-        journal, intent = _call(writer._decode_intent, root, plan_identity)
+        journal, intent = _call(
+            framework_writer._decode if framework else writer._decode_intent,
+            root,
+            plan_identity,
+        )
         matching = [
             row
             for row in intent["components"]
@@ -340,26 +377,64 @@ def _build_classifier():
 
         def require_data():
             require_original()
-            _call(writer._guard_journal, root, journal, intent)
+            _call(
+                framework_writer._guard_intent if framework else writer._guard_journal,
+                root,
+                journal,
+                intent,
+            )
             for coordinate, record in transition.records.items():
-                archived = intent["history"].get(coordinate)
-                if (
-                    archived is None
-                    or archived["identity"] != record["identity"]
-                    or archived["mode"] != record["mode"]
-                    or archived["kind"] != record["kind"]
-                    or archived["typed_identity"] != record.get("typed_identity")
-                ):
-                    fail("original producer history binding differs")
-                archived_bytes = writer._owner()._file(
-                    journal / "history" / archived["slot"]
-                )[1]
+                if framework:
+                    try:
+                        _call(leaf.os.lstat, root / coordinate)
+                    except FileNotFoundError:
+                        pass
+                    else:
+                        fail("original framework producer coordinate became occupied")
+                    archived = intent["entries"].get(coordinate)
+                    if (
+                        archived is None
+                        or archived["from"] != record["identity"]
+                        or archived["mode"] != record["mode"]
+                        or archived["owner"] != "original-component-producer"
+                        or archived["destination"]
+                        != transition.destination_root
+                        + coordinate[len(transition.source_root) :]
+                    ):
+                        fail("original framework producer history binding differs")
+                    saved = journal / "before" / archived["slot"]
+                    if not writer._matches(
+                        writer._view(saved), archived, original=True
+                    ):
+                        fail("original framework producer backup custody changed")
+                    archived_bytes = writer._owner()._file(saved)[1]
+                else:
+                    archived = intent["history"].get(coordinate)
+                    if (
+                        archived is None
+                        or archived["identity"] != record["identity"]
+                        or archived["mode"] != record["mode"]
+                        or archived["kind"] != record["kind"]
+                        or archived["typed_identity"] != record.get("typed_identity")
+                    ):
+                        fail("original producer history binding differs")
+                    archived_bytes = writer._owner()._file(
+                        journal / "history" / archived["slot"]
+                    )[1]
                 if archived_bytes != transition.original_contents[coordinate]:
                     fail("original producer beforebytes changed")
             for source, entry in intent["entries"].items():
                 if entry["destination"] not in producer_postimages:
                     if (
-                        _call(writer._entry_state, root, journal, source, entry)
+                        _call(
+                            framework_writer._state
+                            if framework
+                            else writer._entry_state,
+                            root,
+                            journal,
+                            source,
+                            entry,
+                        )
                         != "published"
                     ):
                         fail("nonproducer original postimage is not exactly published")
@@ -429,3 +504,12 @@ def _build_classifier():
 
 
 _callbacks_current, _call, classify_component_destination = _build_classifier()
+
+
+# Separate original exports select the exact journal protocol at module origin.
+# A serialized plan or caller boolean is never used as transition admission.
+(
+    _framework_callbacks_current,
+    _framework_call,
+    classify_framework_component_destination,
+) = _build_classifier(framework=True)

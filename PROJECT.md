@@ -225,9 +225,12 @@ packages and fail native lock resolution. The owning queue records the versioned
 shared-export layout and complete receiving work; no source retirement is claimed.
 
 PROJECT-LAYOUT-001 extends Goals 1, 4, 6 and 8 as a blocking 1.4.0 requirement.
-[ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is proposed;
-canonical `litai/` containment, supported migration and installed cross-platform
-qualification remain unimplemented and unchecked in the
+[ADR 0071](docs/decisions/0071-derived-project-litai-directory.md) is accepted under
+[ADR 0074](docs/decisions/0074-existing-repository-delivery.md). Scoped local source
+controls now cover recoverable framework file placement, initialized Component
+producer records and normal destination currentness/renewal. Public migration,
+complete lifecycle containment and installed supported-platform qualification
+remain open and unchecked in the
 [owning queue item](docs/roadmap/active-work.md#project-layout-001-contain-derived-project-literate-ai-files-under-litai).
 
 [WORKER-CPU-001](docs/roadmap/active-work.md#worker-cpu-001) qualifies bounded native Windows CPU observations for the existing worker-health goal; unavailable or incomplete processor-group evidence remains a hold under required-metric policy.

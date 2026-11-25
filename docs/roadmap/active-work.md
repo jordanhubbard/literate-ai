@@ -26575,15 +26575,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Authority placement progress:** Original initialized-file selection, Component
-  producer ingress, bounded retained-source read custody and reconstruction of
-  the seven recorded conversion-wrapper outputs now have focused source coverage.
-  Private recovery journals use an explicit second version while retaining the
-  original five-directory recovery format. Finite creation inputs cover only a
-  contained framework ignore file and an original bootstrap helper, with fresh
-  absence and resource checks; custom files remain outside that inventory.
-  Full migration effects, ordinary producer renewal/finalization, lifecycle and
-  installed supported-platform qualification remain open below.
+- **Authority placement progress:** Original initialized-file and Component
+  producer planning now has a separate recoverable framework-action journal.
+  Local controls exercise transformed bootstrap/helper publication, finite
+  creations, every payload-move interruption and exact rollback. A real
+  initialized Component and its normal typed lock/audit pair round-trip through
+  placement and recovery. Destination classification uses that exact journal,
+  preserves an already-current pair without writing, and requires ordinary
+  renewal for an explicitly changed local Flavor selection; original beforebytes
+  remain retained. A contained root Skill keeps its logical ownership when the
+  declared Skill catalog remains at its original location. Current distribution
+  lookup and initialization lineage in these fixtures remain modeled; these are
+  scoped source controls, not installed release qualification. Finalization,
+  source retirement, all-seven conversion-wrapper effect composition, genuine
+  legacy root profiles, public CLI integration and supported-platform lifecycle
+  qualification remain open below.
 
 - **Discovery progress:** Direct framework ancestry is checked before target
   probes. Nine new no-follow controls and 22 existing configuration, readmission,
