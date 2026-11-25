@@ -588,10 +588,15 @@ def _bind_original_ingress(imported_originals):
             initial = {row.path: row.identity.uri for row in baseline.files}
             proofs = []
             for logical, role in resources.roles.items():
-                if role in {"application-seed", "framework-ignore"}:
+                if role == "application-seed":
                     continue
+                # Root ignore rules remain application-owned. A contained ignore
+                # is already resident only with an actual initialization/base
+                # proof; equal current resource bytes alone never adopt it.
                 candidates = (
-                    (logical,)
+                    ("litai/.gitignore",)
+                    if role == "framework-ignore"
+                    else (logical,)
                     if role == "root-delegate"
                     else (logical, "litai/" + logical)
                 )
@@ -674,7 +679,11 @@ def _bind_original_ingress(imported_originals):
                     )
                     acquired_creations.append(acquired)
                     selected_creations[acquired.logical] = acquired
-                else:
+                elif not any(
+                    proof.logical == ".gitignore"
+                    and proof.source_path == "litai/.gitignore"
+                    for proof in proofs
+                ):
                     creation_blockers.append(
                         {
                             "path": "litai/.gitignore",

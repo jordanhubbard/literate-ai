@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Recognize unchanged contained ignore files from original initialization or framework-base proofs during fresh migration planning, while preserving custom and application-owned ignore rules.
+
 - Add source-tested backup and recovery for changed-byte framework placement and bootstrap creation; ordinary producer renewal and full containment qualification remain open.
 
 - Include original initialized Component lock/audit records in default containment planning, preserve coordination custody, and reject occupied or aliased destinations through no-follow absence checks.
