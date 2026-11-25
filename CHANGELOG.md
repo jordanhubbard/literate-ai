@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Project layout: census producer evidence without following links, stream exact native file descriptors within existing quotas, verify copied bytes, and preserve regular hardlink-path accounting. Native Windows and complete transfer/recovery qualification remain pending.
+
 Project layout: keep default contained receiver runtime, candidate and per-attempt object output under the framework directory. Carry original native custody through local rebuild and evidence publication, exclude live controls, and preserve conflicting runtime state and original failures.
 
 Project layout: keep implicit Standard rebuild scratch state under the contained framework object directory with live native custody and cleanup exclusion. Preserve retained attempts, unrelated session state, original rebuild failures and legacy request arguments; external-driver and receiver runtime/candidate containment remains pending.

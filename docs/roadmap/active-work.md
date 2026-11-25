@@ -26575,6 +26575,20 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Producer evidence native reads (partial):** Evidence copying now performs
+  a no-follow metadata census before payload IO and streams verified regular file
+  descriptors in bounded chunks. Original POSIX directory custody and existing
+  Windows reparse-aware handles protect native names; aliases and nonportable
+  names refuse before target-following probes. Source identities are closed after
+  streaming, copied bytes are verified, hardlink paths retain regular-file
+  semantics and each path is charged. File/byte ceilings remain; a separate finite
+  metadata-node bound prevents an unbounded directory census. Local controls cover
+  alias roots/children, leaf substitution, source replacement, corrupted output,
+  resource ceilings, descriptor closure and Windows API composition through an
+  explicit POSIX-backed model. Actual receiver archive/evidence import controls
+  remain green. The model is not native Windows qualification. Archive-writer IO,
+  cleanup/ACK ownership and full native/installed transfer acceptance remain open.
+
 - **Receiver live runtime/candidate join (partial):** The default contained
   build/test receiver allocates its nested runtime after exact source verification.
   The original native owner spans the worker-local CLI scope, exact runtime and

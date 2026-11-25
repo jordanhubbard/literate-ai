@@ -84,6 +84,7 @@ from literate_ai.remote_source_guard import (
 )
 
 from .artifact_exports import ArtifactEntrypointCommand, ArtifactExportError
+from .evidence_files import EvidenceFileLimit, copy_evidence_files
 
 _CAS_SCHEME = "litai-worker-cas"
 _EVIDENCE_URI = "staged:remote-evidence.tar.gz"
@@ -477,46 +478,33 @@ def _copy_evidence_tree(
     files: list[RemoteEvidenceFile],
     totals: list[int],
 ) -> None:
-    if not source.exists():
-        return
-    candidates = (source,) if source.is_file() else tuple(sorted(source.rglob("*")))
-    for item in candidates:
-        if item.is_dir():
-            continue
-        if item.is_symlink() or not item.is_file():
-            raise RemoteExecutionError(
-                "execution.remote_evidence_entry_invalid",
-                "remote lifecycle evidence contains an unsupported entry",
-            )
-        suffix = item.name if source.is_file() else item.relative_to(source).as_posix()
-        relative = f"{prefix}/{suffix}"
-        if len(files) >= _MAX_EVIDENCE_FILES:
-            raise RemoteExecutionError(
-                "execution.remote_evidence_too_large",
-                "remote lifecycle evidence contains too many files",
-            )
-        size = item.stat().st_size
-        totals[0] += size
-        if totals[0] > _MAX_EVIDENCE_BYTES:
-            raise RemoteExecutionError(
-                "execution.remote_evidence_too_large",
-                "remote lifecycle evidence exceeds the eight GiB custody limit",
-            )
-        target = destination.joinpath(*relative.split("/"))
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(item, target)
-        executable = bool(item.stat().st_mode & 0o111)
-        if executable:
-            target.chmod(target.stat().st_mode | 0o111)
+    try:
+        copied = copy_evidence_files(
+            source,
+            destination,
+            prefix,
+            maximum_files=_MAX_EVIDENCE_FILES - len(files),
+            maximum_bytes=_MAX_EVIDENCE_BYTES - totals[0],
+        )
+    except EvidenceFileLimit as exc:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_too_large", str(exc)
+        ) from exc
+    except (ValueError, OSError, RuntimeError) as exc:
+        raise RemoteExecutionError(
+            "execution.remote_evidence_entry_invalid", str(exc)
+        ) from exc
+    for row in copied:
         files.append(
             RemoteEvidenceFile(
-                relative,
-                _evidence_kind(relative),
-                size,
-                _file_identity(target),
-                executable,
+                row.relative,
+                _evidence_kind(row.relative),
+                row.size,
+                ContentIdentity(HashAlgorithm.SHA256, row.digest),
+                row.executable,
             )
         )
+        totals[0] += row.size
 
 
 def _write_deterministic_tar_gz(source: Path, destination: Path) -> ContentIdentity:

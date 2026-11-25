@@ -190,6 +190,11 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Evidence copying checks names and native file identities before payload reads,
+streams within the existing file/byte quotas, and verifies the copied bytes.
+Aliases and portable-name collisions refuse; hardlink paths are charged separately.
+Archive writing and transfer cleanup still require further qualification.
+
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned
 content delegates into the configured onboarding skill. Custom instructions and
