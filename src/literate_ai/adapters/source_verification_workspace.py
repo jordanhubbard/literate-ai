@@ -21,7 +21,11 @@ from literate_ai._filesystem import (
 from literate_ai.adapters.exclusive_directory import directory_node
 from literate_ai.contracts import ContentIdentity
 from literate_ai.contracts.source_index import generated_source_tree_identity
-from literate_ai.projects import PinnedInputClosure, PinnedInputClosureError
+from literate_ai.projects import (
+    LoadedProject,
+    PinnedInputClosure,
+    PinnedInputClosureError,
+)
 
 # Match the filesystem source cache's accepted source limits. Count directories
 # separately so a file-count bound also bounds the initial tree traversal.
@@ -81,6 +85,7 @@ class SourceVerificationWorkspace:
     modes: dict[str, int]
     original_directories: dict
     copied_directories: dict
+    native: bool = False
 
     def require_unchanged(self):
         try:
@@ -115,7 +120,7 @@ class SourceVerificationWorkspace:
 
 
 @contextmanager
-def source_verification_workspace(root: Path, expected_tree: ContentIdentity):
+def _verification_copy(root: Path, expected_tree: ContentIdentity, *, native=None):
     """Run relative test commands on a copy; never publish their output files."""
     stage = None
     owned = None
@@ -137,25 +142,49 @@ def source_verification_workspace(root: Path, expected_tree: ContentIdentity):
         original_closure.require_unchanged()
         if _members(original) != (modes, directories):
             raise SourceVerificationWorkspaceError("candidate changed during capture")
-        stage = Path(tempfile.mkdtemp(prefix="litai-source-test-")).resolve(strict=True)
-        owned = directory_node(stage)
-        # Preserve empty directories and original executable permissions as well
-        # as bytes. Never copy symlinks or borrow source hardlinks.
-        for relative in sorted(directories):
-            (stage / relative).mkdir(parents=True, exist_ok=True)
+        if native is None:
+            stage = Path(tempfile.mkdtemp(prefix="litai-source-test-")).resolve(
+                strict=True
+            )
+            owned = directory_node(stage)
+            # Explicit standalone/framework/unsupported-native legacy route.
+            for relative in sorted(directories):
+                (stage / relative).mkdir(parents=True, exist_ok=True)
+            for relative, payload in content.items():
+                destination = stage / relative
+                destination.write_bytes(payload)
+                destination.chmod(modes[relative])
+        else:
+            from .harness_tree import SOURCE_SCOPE_SCHEMA, _identity
+            from .retained_execution_workspace import copy_into_native_workspace
+
+            stage = native
+            paths = sorted(content)
+            scope = {
+                "schema": SOURCE_SCOPE_SCHEMA,
+                "paths": paths,
+                "paths_identity": _identity(paths),
+                "excluded_roots": [],
+            }
+            if not copy_into_native_workspace(
+                original,
+                stage,
+                scope,
+                directories=tuple(sorted(p for p in directories if p != ".")),
+            ):
+                raise SourceVerificationWorkspaceError(
+                    "original native copy owner required"
+                )
         copied_closure = _closure()
         for relative, payload in content.items():
-            destination = stage / relative
-            destination.write_bytes(payload)
-            destination.chmod(modes[relative])
             copied_closure.pin(
-                destination,
+                stage / relative,
                 boundary=stage,
                 label=relative,
                 expected_content=payload,
             )
         copied_modes, copied_directories = _members(stage)
-        if copied_modes != modes:
+        if copied_modes != modes or set(copied_directories) != set(directories):
             raise SourceVerificationWorkspaceError("source copy mode mismatch")
         workspace = SourceVerificationWorkspace(
             stage,
@@ -165,6 +194,7 @@ def source_verification_workspace(root: Path, expected_tree: ContentIdentity):
             modes,
             directories,
             copied_directories,
+            native is not None,
         )
         workspace.require_unchanged()
         try:
@@ -219,3 +249,40 @@ def source_verification_workspace(root: Path, expected_tree: ContentIdentity):
                     function(path)
 
                 shutil.rmtree(stage, onerror=writable_cleanup)
+
+
+@contextmanager
+def source_verification_workspace(
+    root: Path, expected_tree: ContentIdentity, *, project: LoadedProject | None = None
+):
+    """Borrow the original receiver, never writable authority from inspected source."""
+    if project is not None and type(project) is not LoadedProject:
+        raise TypeError("actual receiving LoadedProject required")
+    if project is None or project.framework_root == project.root or os.name != "posix":
+        with _verification_copy(root, expected_tree) as workspace:
+            yield workspace
+        return
+    from .project_runtime import (
+        ProjectRuntimeError,
+        project_inspection_execution,
+        project_inspection_staging,
+    )
+    from .retained_execution_workspace import (
+        RetainedExecutionWorkspaceError,
+        retained_execution_workspace,
+    )
+
+    try:
+        with project_inspection_staging(
+            project, prefix=".sv-", read_only_root=root
+        ) as inspection:
+            with project_inspection_execution(inspection):
+                with retained_execution_workspace(inspection) as directory:
+                    with _verification_copy(
+                        root, expected_tree, native=directory / "source"
+                    ) as workspace:
+                        yield workspace
+    except (ProjectRuntimeError, RetainedExecutionWorkspaceError) as error:
+        raise SourceVerificationWorkspaceError(
+            "original source-test workspace custody refused; retained state may remain"
+        ) from error

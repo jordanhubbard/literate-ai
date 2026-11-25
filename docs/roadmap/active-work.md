@@ -26585,6 +26585,34 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original source-admission verifier custody (source partial):** Admission
+  now carries its actual receiving LoadedProject into the verifier before workspace
+  allocation. On the contained POSIX path the original inspection/native owner
+  creates the source copy and tracks actual exclusive copy descriptors, preserving
+  empty directories, file modes, exact bytes and original-source postimages.
+  Original bounded test processes close native output postimages before returning
+  to caller callbacks, enforce byte limits during reads, and terminate their owned
+  descendants. Test-created outputs are admitted by original production; later
+  private entries and equal-byte source/output replacements refuse disposal and
+  retain their original bytes/inodes beyond runtime cleanup. Original command and
+  callback failures keep priority. Original allocator parents are checked against
+  inspected read-only source before staging or standalone lock-control creation;
+  overlapping source cannot supply implicit scratch ownership. Actual baseline
+  commands reproduced ambient
+  placement and deletion of post-process private state. Fifteen local process/file
+  controls cover those failures, normal outputs, candidate drift, source/output
+  substitution, original errors, bounds, timeout, standalone declared receivers
+  and foreign runtime refusal, preserved missing/aliased-source CLI refusals,
+  plus refusal of source/scratch overlap before any
+  original allocator/control call. A real background counter stops before the
+  original successful test returns to its consumer. Candidate/model preparation remains supplied fixture
+  data; this is no installed/public admission or supported-platform qualification.
+  Framework/standalone-without-receiver and unsupported-native legacy routes remain
+  explicit and unqualified. Complete native Windows and supported-platform execution,
+  every original producer/lifecycle/source-parent/whole-project/migration/history/
+  interruption/recovery/concurrency/installed/full-source/independent-review and
+  protected release obligation remain open.
+
 - **Original README asset verification stream (source partial):** The active
   published-README verifier now hashes original API stdout through the existing
   bounded process sink instead of allocating an ambient download workspace. It

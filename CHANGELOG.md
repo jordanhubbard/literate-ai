@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Keep contained POSIX source-admission test copies under their original project, preserve private or replaced files, bound original test processes, and reject scratch overlapping inspected source before allocation.
+
 Stream published README asset digests without a temporary download workspace; bound bytes and diagnostics, preserve exact size checks, and retire original owned process trees.
 
 - Stage retained publisher upload files under their original contained project with exclusive copy-descriptor custody and sealed read-only handoff; preserve private/replaced state and original consumer failures.

@@ -20,6 +20,7 @@ from weakref import WeakKeyDictionary
 
 from literate_ai._cache_lock import cache_lock_path, exclusive_cache_lock
 from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
     ensure_safe_directory,
     require_safe_directory,
     stat_identity_value,
@@ -344,7 +345,7 @@ def current_project_runtime(project=None):
 
 
 @contextmanager
-def project_inspection_staging(project, *, prefix):
+def project_inspection_staging(project, *, prefix, read_only_root=None):
     """Fresh native scratch custody under the original contained project owner.
 
     A live rebuild runtime supplies its already-held lock and namespace; standalone
@@ -353,6 +354,24 @@ def project_inspection_staging(project, *, prefix):
     """
     if type(project) is not LoadedProject:
         raise TypeError("actual LoadedProject required")
+    inspected = None
+    if read_only_root is not None:
+        from .exclusive_directory import directory_node
+
+        inspected = Path(read_only_root).absolute()
+        try:
+            directory_node(inspected)
+        except (OSError, ValueError, UnsafeFilesystemPathError) as error:
+            raise ProjectRuntimeError(
+                "read-only inspection source is unsafe"
+            ) from error
+
+    def require_separate_parent(parent):
+        if inspected is not None and (
+            parent == inspected or parent.is_relative_to(inspected)
+        ):
+            raise ProjectRuntimeError("inspection scratch overlaps read-only source")
+
     context = ProjectConfigurationStore.context(project.root)
     snapshot = ProjectConfigurationStore(project.root).read()
     manifest_node = _manifest_node(snapshot.manifest_path)
@@ -393,12 +412,17 @@ def project_inspection_staging(project, *, prefix):
             parent = enclosing.parent
             native_parent = enclosing.native_parent
             runtime_owner = enclosing.runtime_owner
+            require_separate_parent(parent)
+            require_separate_parent(native_parent)
         elif owner is not None:
             parent = ContainedProjectRuntime.path.__get__(owner)
             native_parent = _state(owner).object_root
             runtime_owner = owner
+            require_separate_parent(parent)
+            require_separate_parent(native_parent)
         else:
             directories = resolve_cache_directories(project.root, environment={})
+            require_separate_parent(directories.obj_dir)
             from .scaffold_custody import prepare_scaffold_inspection_control
 
             lock_path = cache_lock_path(

@@ -89,15 +89,29 @@ class _Run:
             if _entry(access, selected) != self.nodes[selected]:
                 _fail("original copied directory changed")
 
-    def copy_source(self, source, destination, scope):
-        from .harness_tree import _validated_scope
+    def copy_source(self, source, destination, scope, *, directories=()):
+        from .harness_tree import _safe_relative_path, _validated_scope
 
         self.known()
         if destination != self.path / "source":
             _fail("copy differs from original execution destination")
         paths, _ = _validated_scope(scope)
+        if type(directories) is not tuple or directories != tuple(
+            sorted(set(directories))
+        ):
+            _fail("original copied directories must be canonical")
+        directory_parts = tuple(
+            tuple(_safe_relative_path(p).parts) for p in directories
+        )
         with _access(source) as inputs, _access(self.path) as outputs:
             self.directory(outputs, ("source",))
+            for parts in directory_parts:
+                before = _entry(inputs, parts)
+                if not stat.S_ISDIR(before[1][0]):
+                    _fail("original copied directory is not a native directory")
+                self.directory(outputs, ("source",) + parts)
+                if _entry(inputs, parts) != before:
+                    _fail("original copied directory changed during creation")
             for relative in paths:
                 parts = tuple(Path(relative).parts)
                 target = ("source",) + parts
@@ -293,11 +307,11 @@ def retained_execution_workspace(owner, *, _command_root=None):
                 )
 
 
-def copy_into_native_workspace(source, destination, scope):
+def copy_into_native_workspace(source, destination, scope, *, directories=()):
     state = _CURRENT.get()
     if state is None:
         return False
-    state.copy_source(source, destination, scope)
+    state.copy_source(source, destination, scope, directories=directories)
     return True
 
 

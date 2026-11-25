@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 
 from literate_ai.adapters._processes import run_with_tree_kill
+from literate_ai.adapters.builders import run_bounded_process
+from literate_ai.adapters.builders.python import BuildError
 from literate_ai.adapters.cache import FilesystemStandardSourceAdmissionPublisher
 from literate_ai.adapters.generation_preparation import (
     FilesystemLockedGenerationApplicationAdapter,
@@ -78,6 +80,7 @@ from literate_ai.project_source_index import (
     require_lifecycle_project_index,
 )
 from literate_ai.projects import (
+    LoadedProject,
     PinnedInputClosure,
     PinnedInputClosureError,
     discover_project,
@@ -472,11 +475,14 @@ class _CommandSourceVerifier:
     source_root: Path
     candidate_manifest_identity: ContentIdentity
     commands: tuple[tuple[str, ...], ...]
+    project: LoadedProject | None = None
 
     def verify(self, generation) -> StandardSourceVerification:
         try:
             with source_verification_workspace(
-                self.source_root, generation.output.candidate.tree_identity
+                self.source_root,
+                generation.output.candidate.tree_identity,
+                project=self.project,
             ) as workspace:
                 return self._verify_in_workspace(generation, workspace)
         except SourceVerificationWorkspaceError as exc:
@@ -512,12 +518,25 @@ class _CommandSourceVerifier:
         for command in self.commands:
             workspace.require_unchanged()
             try:
-                completed = run_with_tree_kill(
-                    command,
-                    cwd=workspace.root,
-                    timeout=900,
-                )
-            except (OSError, subprocess.TimeoutExpired) as exc:
+                if workspace.native:
+                    completed = run_bounded_process(
+                        command,
+                        cwd=workspace.root,
+                        environment=os.environ,
+                        timeout_seconds=900,
+                        stdout_limit_bytes=1024 * 1024,
+                        stderr_limit_bytes=1024 * 1024,
+                        error_prefix="source_admission.tests",
+                        terminate_descendants=True,
+                        trace=False,
+                    )
+                else:
+                    completed = run_with_tree_kill(
+                        command,
+                        cwd=workspace.root,
+                        timeout=900,
+                    )
+            except (OSError, subprocess.TimeoutExpired, BuildError) as exc:
                 raise CliFailure(
                     "source_admission.tests_failed",
                     f"{component_revision}: source verifier command failed to "
@@ -701,6 +720,7 @@ def _admit_generated_source(args, generated, project, directories):
                 item.source_root,
                 candidate.source_manifest_identity,
                 commands,
+                project=project,
             ),
             publisher,
         ).admit(
