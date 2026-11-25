@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Stream published README asset digests without a temporary download workspace; bound bytes and diagnostics, preserve exact size checks, and retire original owned process trees.
+
 - Stage retained publisher upload files under their original contained project with exclusive copy-descriptor custody and sealed read-only handoff; preserve private/replaced state and original consumer failures.
 
 - Pin original atomic release file creators through verified replacement and exact cleanup, retain foreign or unverified state, and join file/rollback writes to isolated Git worktree custody. Correct unsupported automatic-advancement claims; publisher integration remains open.

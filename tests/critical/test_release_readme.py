@@ -185,10 +185,10 @@ class ReleaseReadmeTests(unittest.TestCase):
         def download(arguments, **kwargs):
             self.assertIn("repos/owner/project/releases/assets/42", arguments)
             self.assertIn("Accept: application/octet-stream", arguments)
-            kwargs["stdout"].write(b"abc")
+            kwargs["stdout_sink"].write(b"abc")
             return subprocess.CompletedProcess(arguments, 0, stderr=b"")
 
-        with patch.object(readme, "run_with_tree_kill", side_effect=download):
+        with patch.object(readme, "run_bounded_process", side_effect=download):
             self.assertEqual(
                 readme._asset_digest(Path.cwd(), REPOSITORY, asset),
                 "sha256:" + hashlib.sha256(b"abc").hexdigest(),

@@ -6,15 +6,15 @@ import base64
 import hashlib
 import html
 import json
+import os
 import re
-import shutil
 import subprocess
-import tempfile
 from dataclasses import dataclass
-from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit
 
 from literate_ai.adapters._processes import run_with_tree_kill
+from literate_ai.adapters.builders import run_bounded_process
+from literate_ai.adapters.builders.python import BuildError
 
 _POLICY_SCHEMA = "literate-ai/readme-latest-release-policy@1"
 _MAX_BYTES = 2 * 1024 * 1024
@@ -117,6 +117,22 @@ def _github_json(root, endpoint, *, missing_ok=False):
         ) from exc
 
 
+class _AssetDigest:
+    """Consume original provider stdout without retaining a downloaded asset."""
+
+    def __init__(self):
+        self.hasher = hashlib.sha256()
+        self.size = 0
+
+    def writable(self):
+        return True
+
+    def write(self, data):
+        self.hasher.update(data)
+        self.size += len(data)
+        return len(data)
+
+
 def _asset_digest(root, repository, asset):
     digest = asset.get("digest")
     if digest is not None:
@@ -135,44 +151,47 @@ def _asset_digest(root, repository, asset):
             "release.readme_provider_invalid",
             "published asset without digest requires a provider asset ID",
         )
+    output = _AssetDigest()
     try:
-        with tempfile.TemporaryDirectory(prefix="litai-readme-asset-") as directory:
-            if shutil.disk_usage(directory).free < asset["size"] + 1024 * 1024 * 1024:
-                raise ReleaseReadmeError(
-                    "release.readme_asset_unavailable",
-                    "insufficient space to verify the published asset digest",
-                )
-            path = Path(directory) / "asset"
-            with path.open("wb") as output:
-                result = run_with_tree_kill(
-                    [
-                        "gh",
-                        "api",
-                        f"repos/{repository}/releases/assets/{identity}",
-                        "--header",
-                        "Accept: application/octet-stream",
-                    ],
-                    cwd=root,
-                    stdout=output,
-                    stderr=subprocess.PIPE,
-                    timeout=300,
-                    check=False,
-                )
-            if result.returncode or path.stat().st_size != asset["size"]:
-                raise ReleaseReadmeError(
-                    "release.readme_asset_mismatch",
-                    "downloaded asset size differs from the published provider asset",
-                )
-            hasher = hashlib.sha256()
-            with path.open("rb") as source:
-                for chunk in iter(lambda: source.read(1024 * 1024), b""):
-                    hasher.update(chunk)
-            return "sha256:" + hasher.hexdigest()
+        result = run_bounded_process(
+            [
+                "gh",
+                "api",
+                f"repos/{repository}/releases/assets/{identity}",
+                "--header",
+                "Accept: application/octet-stream",
+            ],
+            cwd=root,
+            environment=os.environ,
+            timeout_seconds=300,
+            stdout_limit_bytes=max(1, asset["size"]),
+            stderr_limit_bytes=64 * 1024,
+            error_prefix="release.readme_asset",
+            terminate_descendants=True,
+            stdout_sink=output,
+            trace=False,
+        )
+    except BuildError as exc:
+        if exc.code == "release.readme_asset_output_limit":
+            raise ReleaseReadmeError(
+                "release.readme_asset_mismatch",
+                "published asset stream exceeds its byte budget",
+            ) from exc
+        raise ReleaseReadmeError(
+            "release.readme_asset_unavailable",
+            "cannot stream published bytes for README digest verification",
+        ) from exc
     except (OSError, subprocess.SubprocessError) as exc:
         raise ReleaseReadmeError(
             "release.readme_asset_unavailable",
-            "cannot download published bytes for README digest verification",
+            "cannot stream published bytes for README digest verification",
         ) from exc
+    if result.returncode or output.size != asset["size"]:
+        raise ReleaseReadmeError(
+            "release.readme_asset_mismatch",
+            "downloaded asset size differs from the published provider asset",
+        )
+    return "sha256:" + output.hasher.hexdigest()
 
 
 def published_readme_release(root, repository, *, tag, prerelease, policy):

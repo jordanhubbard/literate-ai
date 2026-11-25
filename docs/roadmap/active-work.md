@@ -26585,6 +26585,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original README asset verification stream (source partial):** The active
+  published-README verifier now hashes original API stdout through the existing
+  bounded process sink instead of allocating an ambient download workspace. It
+  retains exact provider asset-ID selection and byte-count acceptance, including
+  empty assets, with bounded stdout/diagnostics and the original five-minute
+  deadline. Truncation, excess bytes, nonzero exit, diagnostic overflow, sink
+  failure and timeout refuse a digest. The original owned process-tree runner
+  stops a successful child's background writer before returning. Nine actual local
+  process controls include multi-chunk bytes, physical timeout and descendant
+  counter observations; existing README/release fixtures preserve caller behavior.
+  Provider transport is supplied locally, with no HTTP/configured-worker action,
+  installed or native-platform qualification. This removes one actual temporary
+  producer; complete producer/lifecycle/source-parent/whole-project/migration/
+  history/interruption/recovery/concurrency/installed/native-platform/full-source/
+  independent-review and protected release acceptance remain open.
+
 - **Original retained publisher-file staging (source partial):** The active
   strict tested-file publisher's `staged_release_file` capture now uses its actual
   contained receiving project's inspection/evidence stage. Original exclusive
