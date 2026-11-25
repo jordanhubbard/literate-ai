@@ -26585,6 +26585,24 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original release-note materialization (source partial):** Both original
+  GitHub publication paths now materialize their actual UTF-8 notes through the
+  original contained project's inspection/evidence stage. Exclusive native file
+  writers close postimages before provider consumption; stage verification spans
+  the consumer and refuses private additions or equal-byte foreign replacements.
+  A foreign runtime cannot issue a stage, while standalone use freshly loads its
+  actual declared project. Refused retirement retains exact state and prevents
+  enclosing runtime cleanup. Original typed provider and physical-consumer errors
+  keep their identity and disposal notes, including framework-root compatibility.
+  The baseline consumed real notes but reproduced ambient placement. Actual UTF-8
+  files/local isolated-process readers now prove contained placement and normal
+  retirement. The original tested-provider caller executes with external provider
+  observation/write and note-content fixture seams. Direct stage controls exercise
+  real private/replaced state, standalone use and original errors. Existing local
+  Git release controls remain required. Framework-root scratch remains explicitly
+  unqualified; full original public/installed/native-platform/lifecycle producer
+  acceptance, independent review and protected release remain open.
+
 - **Original release wheel publication (source partial):** Fresh wheel artifacts
   now publish in independently created short directories beneath the original
   framework build root. Native parent custody spans exclusive creator-FD copy,

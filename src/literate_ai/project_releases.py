@@ -6165,6 +6165,57 @@ def _require_tested_github_readback(
     return evidence
 
 
+@contextmanager
+def _release_notes_file(root: Path, content: str):
+    """Materialize original UTF-8 notes through actual contained stage custody."""
+    primary = None
+    try:
+        context = ProjectConfigurationStore.context(root)
+        if context.framework_root == context.root:
+            with tempfile.TemporaryDirectory(
+                prefix="litai-release-notes-"
+            ) as directory:
+                notes = Path(directory) / "release.md"
+                notes.write_text(content, encoding="utf-8")
+                try:
+                    yield notes
+                except BaseException as error:
+                    primary = error
+                    raise
+            return
+        from .adapters.project_runtime import (
+            _project_for_artifact_store,
+            project_inspection_staging,
+        )
+
+        project = _project_for_artifact_store(_release_build_root(root))
+        if project is None or project.root != context.root:
+            raise ProjectReleaseError(
+                "release.notes_staging_unavailable",
+                "release notes require the original receiving project",
+            )
+        with project_inspection_staging(project, prefix=".rn-") as stage:
+            stage.write("release.md", content.encode("utf-8"))
+            stage.verify()
+            try:
+                yield stage.path / "release.md"
+            except BaseException as error:
+                # Provider failures retain their exact original identity. The
+                # stage records any disposal conflict as a note on that error.
+                primary = error
+                raise
+            stage.verify()
+    except ProjectReleaseError:
+        raise
+    except (ProjectError, OSError, ValueError, RuntimeError) as error:
+        if error is primary:
+            raise
+        raise ProjectReleaseError(
+            "release.notes_staging_unavailable",
+            "original release note custody refused; retained state may remain",
+        ) from error
+
+
 def _publish_tested_github_release(
     root: Path,
     policy: ReleasePolicy,
@@ -6185,12 +6236,9 @@ def _publish_tested_github_release(
     repo_args = ["--repo", f"github.com/{repository}"]
     before = _read_tested_github_release(root, policy, prepared, artifacts)
     if before is None:
-        with tempfile.TemporaryDirectory(prefix="litai-release-notes-") as directory:
-            notes = Path(directory) / "release.md"
-            notes.write_text(
-                _tested_release_notes(root, policy, prepared["version"]),
-                encoding="utf-8",
-            )
+        with _release_notes_file(
+            root, _tested_release_notes(root, policy, prepared["version"])
+        ) as notes:
             revalidate()
             _strict_github_write(
                 root,
@@ -6783,12 +6831,7 @@ def _publish_release(
         try:
             completed = None
             if provider_url is None:
-                with tempfile.NamedTemporaryFile(
-                    "w", suffix=".md", delete=False
-                ) as notes_file:
-                    notes_file.write(release_notes)
-                    notes_path = notes_file.name
-                try:
+                with _release_notes_file(root, release_notes) as notes_path:
                     completed = subprocess.run(
                         (
                             "gh",
@@ -6800,7 +6843,7 @@ def _publish_release(
                             "--title",
                             tag,
                             "--notes-file",
-                            notes_path,
+                            str(notes_path),
                             "--verify-tag",
                             *(("--prerelease",) if prerelease else ()),
                         ),
@@ -6810,8 +6853,6 @@ def _publish_release(
                         text=True,
                         timeout=120,
                     )
-                finally:
-                    os.unlink(notes_path)
         except (OSError, subprocess.TimeoutExpired) as exc:
             raise ProjectReleaseError(
                 "release.provider_unavailable",

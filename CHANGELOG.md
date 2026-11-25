@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Stage both original GitHub release-note files under contained project custody, preserving UTF-8 bytes, original consumer errors and foreign state when disposal is refused.
+
 - Preserve unknown wheel outputs and prior builds with fresh contained artifact directories, verified creator-FD copies and atomic no-replace publication; retain failed partials and conflicting state.
 
 - Stage contained POSIX release wheels through original project/native custody, with bounded pip process closure and contained backend/cache/bytecode paths. Refuse private or replaced staging before copy and preserve original pip/context errors.
