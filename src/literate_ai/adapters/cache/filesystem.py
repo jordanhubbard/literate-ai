@@ -15,6 +15,7 @@ from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
+from literate_ai._filesystem import stat_is_link_or_reparse
 from literate_ai.adapters.dependencies import (
     CycloneDxBomError,
     validate_cyclonedx_bom,
@@ -1592,6 +1593,24 @@ def project_source_cache_protected_paths(project: LoadedProject) -> tuple[Path, 
         project.root / ".codegraph",
         project.root / ".git",
     ]
+    intelligence = project.definition.source_intelligence
+    if intelligence.artifact_path is not None:
+        artifact = project.root.joinpath(
+            *PurePosixPath(intelligence.artifact_path).parts
+        )
+        protected.append(artifact)
+        if intelligence.provider_id == "codegraph-cli":
+            protected.extend(
+                artifact.parent / name
+                for name in (
+                    artifact.name + "-wal",
+                    artifact.name + "-shm",
+                    "codegraph.lock",
+                    "errors.log",
+                    "daemon.pid",
+                    "daemon.sock",
+                )
+            )
     for catalog in (
         "component",
         "flavor",
@@ -1792,19 +1811,37 @@ def _read_regular_file(path: Path, *, maximum_bytes: int, code: str) -> bytes:
         os.close(descriptor)
 
 
+def _require_authority_separation(
+    candidate: Path, protected_paths: Iterable[Path]
+) -> None:
+    protected = tuple(_absolute_lexical(path) for path in protected_paths)
+    candidate_parts = _portable_path_parts(candidate)
+    # Check every declared coordinate before querying any physical namespace.
+    # A later lexical refusal must not first follow an unrelated protected alias.
+    if any(
+        _parts_overlap(candidate_parts, _portable_path_parts(path))
+        for path in protected
+    ):
+        raise SourceCacheError(
+            "source-cache.authority-overlap",
+            "cache destination overlaps authority or metadata",
+        )
+    for path in protected:
+        if _physical_existing_ancestor_overlap(candidate, path):
+            raise SourceCacheError(
+                "source-cache.authority-overlap",
+                "cache destination overlaps authority or metadata",
+            )
+
+
 def _candidate_root(root: Path, *, protected_paths: Iterable[Path]) -> Path:
     candidate = _absolute_lexical(root)
     if candidate == Path(candidate.anchor):
         raise SourceCacheError(
             "source-cache.root-unsafe", "cache target cannot be a filesystem root"
         )
+    _require_authority_separation(candidate, protected_paths)
     _reject_symlink_components(candidate)
-    for protected in protected_paths:
-        if _paths_overlap(candidate, _absolute_lexical(protected)):
-            raise SourceCacheError(
-                "source-cache.authority-overlap",
-                "cache target overlaps project authority or metadata",
-            )
     if candidate.exists() and not candidate.is_dir():
         raise SourceCacheError(
             "source-cache.root-unsafe", "cache target root must be a directory"
@@ -1863,11 +1900,17 @@ def _candidate_destination(
         raise SourceCacheError(
             "source-cache.destination-unsafe", "materialization destination is unsafe"
         )
-    if final.exists() or final.is_symlink():
+    _require_authority_separation(final, protected_paths)
+    _reject_symlink_components(final.parent)
+    try:
+        existing = final.lstat()
+    except FileNotFoundError:
+        existing = None
+    if existing is not None:
         if (
             not allow_existing_empty
-            or final.is_symlink()
-            or not final.is_dir()
+            or stat_is_link_or_reparse(existing)
+            or not stat.S_ISDIR(existing.st_mode)
             or final.resolve(strict=True) != final
             or any(final.iterdir())
         ):
@@ -1875,12 +1918,6 @@ def _candidate_destination(
                 "source-cache.destination-exists",
                 "materialization requires a new or explicitly allocated empty "
                 "directory",
-            )
-    for protected in protected_paths:
-        if _paths_overlap(final, _absolute_lexical(protected)):
-            raise SourceCacheError(
-                "source-cache.authority-overlap",
-                "materialization destination overlaps authority or cache state",
             )
     parent = final.parent
     _reject_symlink_components(parent)
@@ -1902,19 +1939,8 @@ def _absolute_lexical(path: Path) -> Path:
 
 
 def _reject_symlink_components(path: Path) -> None:
-    absolute = _absolute_lexical(path)
-    current = Path(absolute.anchor)
-    for part in absolute.parts[1:]:
-        current = current / part
-        if current.is_symlink():
-            raise SourceCacheError(
-                "source-cache.path-unsafe", "configured path crosses a symbolic link"
-            )
-        if current.exists() and current != absolute and not current.is_dir():
-            raise SourceCacheError(
-                "source-cache.path-unsafe",
-                "configured path crosses a non-directory component",
-            )
+    # One names-first observation also rejects Windows junction/reparse nodes.
+    _existing_ancestor_chain(path)
 
 
 def _paths_overlap(left: Path, right: Path) -> bool:
@@ -1939,33 +1965,46 @@ def _parts_overlap(left: tuple[str, ...], right: tuple[str, ...]) -> bool:
 
 def _existing_ancestor_chain(
     path: Path,
-) -> tuple[tuple[Path, tuple[str, ...]], ...]:
-    current = _absolute_lexical(path)
-    missing: tuple[str, ...] = ()
-    while not current.exists() and current != Path(current.anchor):
-        missing = (current.name, *missing)
-        current = current.parent
-    result: list[tuple[Path, tuple[str, ...]]] = []
-    relative = missing
-    while True:
-        result.append((current, relative))
-        if current == Path(current.anchor):
-            break
-        relative = (current.name, *relative)
-        current = current.parent
-    return tuple(result)
+) -> tuple[tuple[Path, tuple[str, ...], tuple[int, int]], ...]:
+    absolute = _absolute_lexical(path)
+    parts = absolute.parts[1:]
+    current = Path(absolute.anchor)
+    rows = []
+    try:
+        node = current.lstat()
+        if stat_is_link_or_reparse(node):
+            raise SourceCacheError(
+                "source-cache.path-unsafe", "cache path is redirected"
+            )
+        rows.append((current, parts, (node.st_dev, node.st_ino)))
+        for index, part in enumerate(parts):
+            if not stat.S_ISDIR(node.st_mode):
+                raise SourceCacheError(
+                    "source-cache.path-unsafe", "cache ancestor is not a directory"
+                )
+            current = current / part
+            try:
+                node = current.lstat()
+            except FileNotFoundError:
+                break
+            if stat_is_link_or_reparse(node):
+                raise SourceCacheError(
+                    "source-cache.path-unsafe", "cache path is redirected"
+                )
+            rows.append((current, parts[index + 1 :], (node.st_dev, node.st_ino)))
+    except OSError as error:
+        raise SourceCacheError(
+            "source-cache.path-unsafe", "cache namespace cannot be observed directly"
+        ) from error
+    return tuple(reversed(rows))
 
 
 def _physical_existing_ancestor_overlap(left: Path, right: Path) -> bool:
     left_chain = _existing_ancestor_chain(left)
     right_chain = _existing_ancestor_chain(right)
-    for left_ancestor, left_relative in left_chain:
-        for right_ancestor, right_relative in right_chain:
-            try:
-                same = left_ancestor.samefile(right_ancestor)
-            except OSError:
-                continue
-            if not same:
+    for _left, left_relative, left_native in left_chain:
+        for _right, right_relative, right_native in right_chain:
+            if left_native != right_native:
                 continue
             left_alias = tuple(
                 unicodedata.normalize("NFC", part.casefold()) for part in left_relative
@@ -1973,7 +2012,8 @@ def _physical_existing_ancestor_overlap(left: Path, right: Path) -> bool:
             right_alias = tuple(
                 unicodedata.normalize("NFC", part.casefold()) for part in right_relative
             )
-            return _parts_overlap(left_alias, right_alias)
+            if _parts_overlap(left_alias, right_alias):
+                return True
     return False
 
 

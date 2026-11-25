@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Protect declared source intelligence state from cache outputs and reject unsafe path aliases before following their targets.
+
 - Keep native child promotion, rebind history and replacement recovery in the declared framework directory; refuse stale plans and preserve application metadata.
 
 - Keep repository locks beneath litai/ for contained projects, preserve application metadata, and reject stale framework bindings before publication.

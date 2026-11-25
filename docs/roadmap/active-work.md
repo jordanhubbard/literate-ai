@@ -26575,14 +26575,34 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — complete producer and source ownership (in progress):**
-  Continue the actual framework-owned path inventory and original source-parent/
-  whole-project ownership transitions. Finish source/cache extraction creator
-  custody and immediate disposal, metadata temporary/partial disposal,
-  RUN/legacy/explicit short-cache staging and general external-driver containment.
-  Qualify the full legacy-migration/history composition and every original
-  installed/platform/native/full-source/review/release gate. Current native-child
-  source controls below do not close full layout or release acceptance.
+- **Next action — remaining producer/runtime ownership (in progress):** Continue
+  the actual framework-owned path inventory and original source-parent/whole-project
+  ownership. Contain remaining implicit status/audit/fetch scratch roots through
+  their original project/runtime owners; directory-name changes alone do not grant
+  disposal authority. Finish metadata/source/cache original temporary creators and
+  partial/immediate disposal, remote RUN/legacy/explicit short-cache/general external
+  drivers, migrated history and all original installed/platform/native/full-source/
+  review/release requirements. Scoped cache/index controls below do not close full
+  layout or provider acceptance.
+
+- **Source-cache/index context (source partial):** Original project-aware cache
+  protection now includes the declared intelligence artifact. CodeGraph's finite
+  database, SQLite sidecars, lock/log and daemon-control names are reserved in the
+  selected directory; unrelated generated destinations remain usable. Both actual
+  target resolution and source materialization check every declared portable path
+  overlap before physical probes. Ancestor observation walks names without
+  following links or reparse nodes and compares captured native IDs for physical
+  overlaps, rather than issuing later target-following `samefile` probes. The
+  original materializer regression accepted `litai/codegraph.db` as a source
+  directory. Corrected real cache materialization/configuration controls, alias
+  preservation, one explicit reparse-metadata model and existing cache/index
+  cohorts pass 63 distinct source checks without skips/failures, plus static
+  gates. The ordinary contained generated destination still materializes while
+  cache output remains untrusted for current acceptance. Intelligence verifier and
+  command-engine fixture ports are explicit; no actual CodeGraph executable/index,
+  compiler/model, configured-worker, installed or native-platform qualification is
+  claimed. Complete producer inventory, original temporary/runtime disposal,
+  whole-project/source-parent and every original release gate remain open.
 
 - **Native-child update/replacement context (source partial):** The original
   promotion caller selects the contained native-child destination, and original

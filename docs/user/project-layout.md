@@ -190,6 +190,14 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Project-aware source caches reserve the configured intelligence database and its
+finite provider controls. For contained CodeGraph projects this includes
+`litai/codegraph.db`, its SQLite sidecars and lock/log/control files. Cache targets
+and materialized source cannot occupy these names or portable aliases. Unsafe
+ancestor aliases refuse without following their targets; ordinary generated
+sources under `litai/generated/` remain supported. Materialization does not renew
+current acceptance or qualify the intelligence provider.
+
 Native-child promotion, registered lifecycle rebind and replacement retain their
 registry, locks and history under the declared framework directory. In a contained
 parent these live under `litai/.literate/`; application-root metadata stays with the
