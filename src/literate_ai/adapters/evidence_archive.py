@@ -82,7 +82,13 @@ def _unlink_owned(access, name, expected, before):
 
 
 def write_evidence_archive(
-    source, destination, *, maximum_files, maximum_bytes, expected=None
+    source,
+    destination,
+    *,
+    maximum_files,
+    maximum_bytes,
+    expected=None,
+    _source_owner=None,
 ):
     """Never replace an existing final name; preserve failed private partials.
 
@@ -156,6 +162,7 @@ def write_evidence_archive(
             maximum_files=maximum_files,
             maximum_bytes=maximum_bytes,
             expected=expected,
+            _source_owner=_source_owner,
         )
         open_archive()  # Empty source still produces a valid deterministic archive.
         access, name, original, raw = (

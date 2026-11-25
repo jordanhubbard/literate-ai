@@ -84,6 +84,7 @@ from literate_ai.remote_source_guard import (
 from .artifact_exports import ArtifactEntrypointCommand, ArtifactExportError
 from .evidence_archive import write_evidence_archive
 from .evidence_files import EvidenceFileLimit, copy_evidence_files
+from .evidence_staging import EvidenceStagingError, evidence_staging
 from .remote_cleanup import (
     INTENT_PATH,
     acknowledge_cleanup,
@@ -483,6 +484,7 @@ def _copy_evidence_tree(
     *,
     files: list[RemoteEvidenceFile],
     totals: list[int],
+    _output_owner=None,
 ) -> None:
     try:
         copied = copy_evidence_files(
@@ -491,6 +493,7 @@ def _copy_evidence_tree(
             prefix,
             maximum_files=_MAX_EVIDENCE_FILES - len(files),
             maximum_bytes=_MAX_EVIDENCE_BYTES - totals[0],
+            _output_owner=_output_owner,
         )
     except EvidenceFileLimit as exc:
         raise RemoteExecutionError(
@@ -514,7 +517,7 @@ def _copy_evidence_tree(
 
 
 def _write_deterministic_tar_gz(
-    source: Path, destination: Path, *, expected=None
+    source: Path, destination: Path, *, expected=None, _source_owner=None
 ) -> ContentIdentity:
     return ContentIdentity(
         HashAlgorithm.SHA256,
@@ -524,7 +527,18 @@ def _write_deterministic_tar_gz(
             maximum_files=_MAX_EVIDENCE_FILES + 1,
             maximum_bytes=_MAX_EVIDENCE_BYTES + MAX_REMOTE_EVIDENCE_MANIFEST_BYTES,
             expected=expected,
+            _source_owner=_source_owner,
         ),
+    )
+
+
+def _staged_evidence_file(row, kind):
+    return RemoteEvidenceFile(
+        row.relative,
+        kind,
+        row.size,
+        ContentIdentity(HashAlgorithm.SHA256, row.digest),
+        row.executable,
     )
 
 
@@ -543,59 +557,35 @@ def _write_remote_evidence(
     cleanup_roots: tuple[object, ...],
     cleanup_ticket: Path,
 ) -> tuple[RemoteLifecycleEvidenceManifest, ContentReference, dict]:
-    temporary_root = Path(resolve_host_paths().temporary_root)
-    prepare_user_directory(temporary_root, temporary_root)
-    staging = Path(
-        tempfile.mkdtemp(
-            prefix=f".litai-e-{cleanup_token[:8]}-",
-            dir=temporary_root,
-        )
-    )
+    if custody is not None and custody.project_runtime is not None:
+        project = load_project(custody.cache_directories.project_root)
+        require_project_runtime(custody.project_runtime, project)
+        staging_parent = custody.project_runtime.candidate_receipt.parent
+    else:
+        staging_parent = Path(resolve_host_paths().temporary_root)
+        prepare_user_directory(staging_parent, staging_parent)
     files: list[RemoteEvidenceFile] = []
     totals = [0]
-    try:
+    with evidence_staging(staging_parent, prefix=".e-") as stage:
+        staging = stage.path
         portable_result = _portable_result(lifecycle_result or {})
-        result_path = staging / "manifest" / "lifecycle-result.json"
-        result_path.parent.mkdir(parents=True)
-        result_path.write_bytes(canonical_json_bytes(portable_result))
-        files.append(
-            RemoteEvidenceFile(
-                "manifest/lifecycle-result.json",
-                "manifest",
-                result_path.stat().st_size,
-                _file_identity(result_path),
-            )
+        row = stage.write(
+            "manifest/lifecycle-result.json", canonical_json_bytes(portable_result)
         )
+        files.append(_staged_evidence_file(row, "manifest"))
         if failure is not None:
-            diagnostic_path = staging / "diagnostic" / "failure.json"
-            diagnostic_path.parent.mkdir(parents=True)
-            diagnostic_path.write_bytes(canonical_json_bytes(failure.to_dict()))
-            files.append(
-                RemoteEvidenceFile(
-                    "diagnostic/failure.json",
-                    "diagnostic",
-                    diagnostic_path.stat().st_size,
-                    _file_identity(diagnostic_path),
-                )
+            row = stage.write(
+                "diagnostic/failure.json", canonical_json_bytes(failure.to_dict())
             )
+            files.append(_staged_evidence_file(row, "diagnostic"))
         for name, value in (("stdout", result.stdout), ("stderr", result.stderr)):
             if not value:
                 continue
-            log_path = staging / "log" / f"{name}.txt"
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            log_path.write_text(
-                _redact_diagnostic(value, limit=65536),
-                encoding="utf-8",
-                newline="\n",
+            row = stage.write(
+                f"log/{name}.txt",
+                _redact_diagnostic(value, limit=65536).encode("utf-8"),
             )
-            files.append(
-                RemoteEvidenceFile(
-                    f"log/{name}.txt",
-                    "log",
-                    log_path.stat().st_size,
-                    _file_identity(log_path),
-                )
-            )
+            files.append(_staged_evidence_file(row, "log"))
         if custody is not None:
             _copy_evidence_tree(
                 custody.candidate_receipt,
@@ -603,6 +593,7 @@ def _write_remote_evidence(
                 "receipt",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
             _copy_evidence_tree(
                 custody.runtime_root,
@@ -610,6 +601,7 @@ def _write_remote_evidence(
                 "source/runtime",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
             _copy_evidence_tree(
                 custody.cache_directories.obj_dir,
@@ -617,6 +609,7 @@ def _write_remote_evidence(
                 "object/cache",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
             _copy_evidence_tree(
                 custody.cache_directories.build_dir,
@@ -624,6 +617,7 @@ def _write_remote_evidence(
                 "source/cache",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
         if artifact is not None:
             _copy_evidence_tree(
@@ -632,6 +626,7 @@ def _write_remote_evidence(
                 "artifact",
                 files=files,
                 totals=totals,
+                _output_owner=stage,
             )
         if result.library_product is not None:
             if artifact is None:
@@ -639,23 +634,14 @@ def _write_remote_evidence(
                     "execution.remote_library_invalid", "library package is missing"
                 )
             require_library_package(result.library_product, artifact)
-            package = staging / "package" / "library.zip"
-            package.parent.mkdir()
-            package.write_bytes(directory_export_bytes(artifact))
-            totals[0] += package.stat().st_size
+            row = stage.write("package/library.zip", directory_export_bytes(artifact))
+            totals[0] += row.size
             if len(files) >= _MAX_EVIDENCE_FILES or totals[0] > _MAX_EVIDENCE_BYTES:
                 raise RemoteExecutionError(
                     "execution.remote_evidence_too_large",
                     "sealed library package exceeds evidence custody limits",
                 )
-            files.append(
-                RemoteEvidenceFile(
-                    "package/library.zip",
-                    "package",
-                    package.stat().st_size,
-                    _file_identity(package),
-                )
-            )
+            files.append(_staged_evidence_file(row, "package"))
         try:
             cleanup_intent = capture_cleanup_intent(
                 cleanup_roots,
@@ -670,24 +656,14 @@ def _write_remote_evidence(
                 + _redact_diagnostic(exc),
             ) from exc
         cleanup_bytes = canonical_json_bytes(cleanup_intent)
-        cleanup_path = staging.joinpath(*INTENT_PATH.split("/"))
-        cleanup_path.write_bytes(cleanup_bytes)
+        row = stage.write(INTENT_PATH, cleanup_bytes)
         totals[0] += len(cleanup_bytes)
         if len(files) >= _MAX_EVIDENCE_FILES or totals[0] > _MAX_EVIDENCE_BYTES:
             raise RemoteExecutionError(
                 "execution.remote_evidence_too_large",
                 "native cleanup intent exceeds evidence custody limits",
             )
-        files.append(
-            RemoteEvidenceFile(
-                INTENT_PATH,
-                "manifest",
-                len(cleanup_bytes),
-                ContentIdentity(
-                    HashAlgorithm.SHA256, hashlib.sha256(cleanup_bytes).hexdigest()
-                ),
-            )
-        )
+        files.append(_staged_evidence_file(row, "manifest"))
         files.sort(key=lambda item: item.path)
         manifest = RemoteLifecycleEvidenceManifest(
             request.identity,
@@ -717,7 +693,7 @@ def _write_remote_evidence(
             library_product=result.library_product,
         )
         manifest_bytes = canonical_json_bytes(manifest.to_dict())
-        (staging / "remote-evidence-manifest.json").write_bytes(manifest_bytes)
+        stage.write("remote-evidence-manifest.json", manifest_bytes)
         expected = {
             row.path: (row.size, row.identity.digest, row.executable) for row in files
         }
@@ -726,8 +702,9 @@ def _write_remote_evidence(
             hashlib.sha256(manifest_bytes).hexdigest(),
             False,
         )
+        stage.seal()
         bundle_identity = _write_deterministic_tar_gz(
-            staging, output, expected=expected
+            staging, output, expected=expected, _source_owner=stage
         )
         return (
             manifest,
@@ -736,8 +713,6 @@ def _write_remote_evidence(
             ),
             cleanup_intent,
         )
-    finally:
-        shutil.rmtree(staging, ignore_errors=True)
 
 
 def _persist_library_artifact(
@@ -1598,20 +1573,27 @@ def materialize_and_execute(
             result = replace(result, diagnostic_digest=failure.identity.uri)
         if evidence_output is None or cleanup_ticket is None:
             return result
-        manifest, reference, cleanup_intent = _write_remote_evidence(
-            worker=worker,
-            request=request,
-            materialization=materialization,
-            result=result,
-            lifecycle_result=lifecycle_result,
-            failure=failure,
-            custody=lifecycle_custody,
-            artifact=artifact,
-            output=Path(evidence_output),
-            cleanup_token=cleanup_token,
-            cleanup_roots=tuple(cleanup_roots),
-            cleanup_ticket=Path(cleanup_ticket),
-        )
+        try:
+            manifest, reference, cleanup_intent = _write_remote_evidence(
+                worker=worker,
+                request=request,
+                materialization=materialization,
+                result=result,
+                lifecycle_result=lifecycle_result,
+                failure=failure,
+                custody=lifecycle_custody,
+                artifact=artifact,
+                output=Path(evidence_output),
+                cleanup_token=cleanup_token,
+                cleanup_roots=tuple(cleanup_roots),
+                cleanup_ticket=Path(cleanup_ticket),
+            )
+        except (EvidenceStagingError, OSError) as exc:
+            raise RemoteExecutionError(
+                "execution.remote_evidence_staging_changed",
+                "original evidence staging refused; retained state: "
+                + _redact_diagnostic(exc),
+            ) from exc
         write_cleanup_ticket(
             Path(cleanup_ticket), manifest, reference.identity, cleanup_intent
         )

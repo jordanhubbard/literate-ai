@@ -268,7 +268,9 @@ def _census(access, selected, max_files):
     return tuple(rows)
 
 
-def copy_evidence_files(source, destination, prefix, *, maximum_files, maximum_bytes):
+def copy_evidence_files(
+    source, destination, prefix, *, maximum_files, maximum_bytes, _output_owner=None
+):
     """Census without payload reads, then copy exact regular descriptors in chunks.
 
     Source absence remains optional. Closed censuses catch new/removed/replaced
@@ -276,6 +278,10 @@ def copy_evidence_files(source, destination, prefix, *, maximum_files, maximum_b
     apply before payload IO and during every read. Existing hardlink paths retain
     their regular-file semantics and are charged separately, as before.
     """
+    if _output_owner is not None:
+        from .evidence_staging import require_staging_output
+
+        require_staging_output(_output_owner, Path(destination))
     if any(
         type(value) is not int or value < 0 for value in (maximum_files, maximum_bytes)
     ):
@@ -303,8 +309,11 @@ def copy_evidence_files(source, destination, prefix, *, maximum_files, maximum_b
         before = _census(access, selected, maximum_files)
         if sum(row[1][3] for row in before if row[3]) > maximum_bytes:
             raise EvidenceFileLimit("evidence exceeds byte budget")
-        ensure_safe_directory(destination)
+        if _output_owner is None:
+            ensure_safe_directory(destination)
         target_access = stack.enter_context(_access(destination))
+        if _output_owner is not None:
+            require_staging_output(_output_owner, destination, target_access)
         original_directories = {row[0]: row[2] for row in before if not row[3]}
         result, total = [], 0
         for parts, signature, expected, is_file in before:
@@ -327,7 +336,10 @@ def copy_evidence_files(source, destination, prefix, *, maximum_files, maximum_b
             relative = prefix + "/" + ("/".join(parts) if directory else source.name)
             canonical_relative_posix_path(relative, label="evidence output")
             target = destination.joinpath(*relative.split("/"))
-            ensure_safe_directory(target.parent)
+            if _output_owner is None:
+                ensure_safe_directory(target.parent)
+            else:
+                _output_owner.prepare(relative)
             flags = (
                 os.O_RDONLY | getattr(os, "O_NONBLOCK", 0) | getattr(os, "O_BINARY", 0)
             )
@@ -345,7 +357,12 @@ def copy_evidence_files(source, destination, prefix, *, maximum_files, maximum_b
                     tuple(relative.split("/")),
                     os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_BINARY", 0),
                 )
-                files.callback(os.close, output)
+                if _output_owner is None:
+                    files.callback(os.close, output)
+                else:
+                    files.enter_context(
+                        _output_owner.created(relative, output, target_access)
+                    )
                 digest, size = hashlib.sha256(), 0
                 while True:
                     chunk = os.read(descriptor, min(_CHUNK, maximum_bytes - total + 1))
@@ -441,7 +458,7 @@ class _EvidenceStream:
 
 
 def visit_evidence_files(
-    source, visitor, *, maximum_files, maximum_bytes, expected=None
+    source, visitor, *, maximum_files, maximum_bytes, expected=None, _source_owner=None
 ):
     """Consume exact native files inside their original, closing namespace census.
 
@@ -467,7 +484,13 @@ def visit_evidence_files(
         access = stack.enter_context(_access(source))
         if access.root_identity()[1] != native:
             raise EvidenceFileError("evidence source changed before census")
+        if _source_owner is not None:
+            from .evidence_staging import require_staging_source
+
+            require_staging_source(_source_owner, source, access)
         before = _census(access, (), maximum_files)
+        if _source_owner is not None:
+            require_staging_source(_source_owner, source, access, before)
         if sum(row[1][3] for row in before if row[3]) > maximum_bytes:
             raise EvidenceFileLimit("evidence exceeds byte budget")
         files = tuple(row for row in before if row[3])

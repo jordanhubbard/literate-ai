@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Preserve original evidence staging ownership through copying, archiving and disposal; retain unexpected files and preserve the primary failure when cleanup refuses.
+
 - Framework cleanup metadata now coexists with original live Windows runtime/cache writers using attribute-only native queries. Payload reads and deletion remain restrictive; changed names/metadata and failed closes refuse. The original receiver/import/ACK API-model journey and producer-refusal controls pass; actual native Windows and release qualification remain open.
 
 - Framework captured-entry and cleanup-ticket disposal now has a Windows native-handle implementation with checked identity, extended disposition and handle closure. Readonly hardlink peers keep their attributes. Local API-model controls pass; producer live-lock metadata integration and actual native Windows qualification remain required.

@@ -26575,6 +26575,32 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Next action — immediate cleanup and remaining containment (in progress):**
+  Trace actual source extraction, short accepted-cache creation and immediate
+  receiver disposal. Bind removal to original native creation/runtime custody,
+  preserve private or replaced entries and the primary rejection, and verify
+  original-path consumers. Keep RUN, legacy/opaque, explicit short-cache staging,
+  general external-driver and full installed/platform qualification open. No saved
+  receipt, prefix, CID or fresh teardown snapshot can mint disposal authority.
+
+- **Original evidence staging custody (source/API-model partial):** The actual
+  stage creator retains native parent/root custody and records files through their
+  original creator descriptors. Writer closure hands off to read-only postimages;
+  actual copy/archive consumers join this live owner. Names-first metadata checks
+  reject unknown entries, native substitutions and equal-byte replacements before
+  payload reads or disposal. Disposal removes only original recorded nodes and
+  observes native root retirement; disposal and final read-handle close refusals
+  preserve the primary error and retain state for inspection.
+  Contained default receivers stage beneath their original reserved `litai/_build`
+  parent, outside copied runtime/object trees. The original receiver regression
+  reproduced the previous broad cleanup deleting a newly added private entry.
+  The corrected local source/API-model cohort passes 109 distinct checks with no
+  skips/failures, plus repository lint/format/layout/export gates. This includes
+  actual copy/archive/import/ACK joins and a POSIX-backed Windows API model, not
+  native Windows execution. Legacy/opaque, RUN and explicit short-cache placement,
+  immediate cleanup, complete project/source-parent ownership and all original
+  installed/native/exact-clean/release gates remain open.
+
 - **Live Windows producer metadata (source/API-model partial):** The cleanup
   census now uses only READ_ATTRIBUTES handles compatible with still-live writable
   cache/runtime controls. Original ancestor pins, before/after metadata signatures,

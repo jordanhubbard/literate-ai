@@ -207,8 +207,16 @@ native handles and extended disposition without changing readonly hardlink peers
 Unsupported operations preserve recovery state. This implementation has local API
 model coverage. Producer metadata queries coexist with original live control writers
 without granting payload reads; mutation and changed native identities refuse.
-Actual native Windows acceptance remains unproven. Staging disposal, immediate
-cleanup and full installed/supported-platform transfer qualification remain open.
+Actual native Windows acceptance remains unproven.
+
+Evidence staging now retains the original native parent/root and creator-file
+custody through copy, archive publication and disposal. Unknown entries or changed
+native identities preserve the stage instead of sweeping its pathname. A secondary
+disposal refusal does not replace the original failure. Default contained receivers
+place staging beneath the original reserved `litai/_build/` parent, separate from
+copied runtime and object outputs. Local source and Windows API-model controls
+exercise these joins. RUN, legacy/opaque and explicit short-cache placement,
+immediate cleanup and full installed/supported-platform qualification remain open.
 
 Eligible root agent integrations are the finite `AGENTS.md`, `CLAUDE.md`,
 `.cursor/rules/literate-ai.mdc` and `agents/openai.yaml` inventory. Their owned

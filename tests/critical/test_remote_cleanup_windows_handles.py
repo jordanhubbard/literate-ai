@@ -608,10 +608,10 @@ class WindowsCleanupHandleTests(unittest.TestCase):
 
         def capture(owners, **values):
             roots.extend(Path(cleanup._producer(owner)["path"]) for owner in owners)
+            model.metadata_close_failure = True
             return original(owners, **values)
 
         model = WindowsFacade(self)
-        model.metadata_close_failure = True
         with model.installed():
             with patch.object(journeys.remote, "capture_cleanup_intent", capture):
                 with self.assertRaises(journeys.remote.RemoteExecutionError) as raised:
