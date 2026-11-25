@@ -39,6 +39,7 @@ from literate_ai.adapters.harness_tree import (
 from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
 from literate_ai.adapters.project_initialization import (
     KNOWN_FLAVOR_SELECTORS,
+    ProjectInitializationError,
     record_project_authority_review,
 )
 from literate_ai.adapters.project_validation import FilesystemProjectValidationAdapter
@@ -70,6 +71,18 @@ INVENTORY = ".literate/harness-inventory.json"
 BASELINE = ".literate/legacy-harness-baseline.json"
 PARITY = ".literate/legacy-wrapper-parity.json"
 LIFT_SHIFT = ".literate/legacy-lift-shift.json"
+_AUTHORITY_OUTPUTS = frozenset(
+    {
+        INVENTORY,
+        BASELINE,
+        PARITY,
+        HARNESS_WRAPPER_FILENAME,
+        "literate.project.json",
+        "components/legacy-project-wrapper/component.md",
+        "components/legacy-project-wrapper/component.lock.json",
+        "components/legacy-project-wrapper/component.resolution-audit.host.json",
+    }
+)
 _PARITY_SOURCE_CAPTURE_ATTEMPTS = 2
 _PHASE_LIST = (
     r"(?:none|`(?:build|test|package|ci)`(?:, `(?:build|test|package|ci)`){0,3})"
@@ -198,6 +211,45 @@ def _safe_path(root: Path, relative: str, *, must_exist: bool = True) -> Path:
     if must_exist and not path.is_file():
         _fail("metadata_missing", f"required metadata is unavailable: {relative}")
     return path
+
+
+def _require_written_documents(root: Path, expected: dict[str, bytes]) -> None:
+    """Refuse late metadata edits without adopting them as readmission output."""
+    for relative, content in expected.items():
+        try:
+            unchanged = _safe_path(root, relative).read_bytes() == content
+        except (OSError, RetainedHarnessReadmissionError):
+            unchanged = False
+        if not unchanged:
+            _fail("metadata_changed", "Project metadata changed during readmission")
+
+
+def _stable_authority_identity(
+    root: Path, review: dict[str, Any], *, project_definition: str | None = None
+) -> str:
+    """Bind all review inputs outside the exact authority this operation replaces."""
+    component = _safe_path(root, "components/legacy-project-wrapper/component.md")
+    coordinate = parse_component_markdown(
+        component, component.read_bytes().decode("utf-8"), project_root=root
+    ).coordinate.uri
+    inputs = review["inputs"]
+    if sum(item["coordinate"] == coordinate for item in inputs["components"]) != 1:
+        _fail("authority_review_invalid", "Wrapper authority is ambiguous")
+    stable = {
+        **inputs,
+        "components": [
+            item for item in inputs["components"] if item["coordinate"] != coordinate
+        ],
+        **{
+            key: [
+                item for item in inputs[key] if item["path"] not in _AUTHORITY_OUTPUTS
+            ]
+            for key in ("documentation", "documentation_assets")
+        },
+    }
+    if project_definition is not None:
+        stable["project_definition"] = project_definition
+    return _identity(stable)
 
 
 def _preserved_authority_inputs(root: Path) -> PinnedInputClosure:
@@ -484,12 +536,19 @@ def plan_retained_harness_readmission(
         },
     )
     preserved_inputs = _preserved_authority_inputs(root)
-    review = FilesystemProjectValidationAdapter().documentation_review(root)
+    review = FilesystemProjectValidationAdapter().documentation_review(
+        root, include_inputs=True
+    )
     preserved_inputs.require_unchanged()
     document = review.get("document")
     if review.get("state") not in {"current", "stale"} or not isinstance(document, str):
         _fail("authority_review_invalid", "project documentation authority is invalid")
     review_path = _safe_path(root, document)
+    new_project_definition = replace(
+        project.definition,
+        test_receipt_policy=expected_policy,
+        default_flavor_selectors=selectors,
+    ).identity.uri
     old_documents = {
         INVENTORY: _identity(inventory_path.read_bytes()),
         BASELINE: _identity(baseline_path.read_bytes()),
@@ -528,6 +587,9 @@ def plan_retained_harness_readmission(
         "shim_authority_changes": shim_changes,
         "preserved_authority_inputs": preserved_inputs.to_dict(),
         "old_authority_identity": review["authority_identity"],
+        "stable_authority_identity": _stable_authority_identity(
+            root, review, project_definition=new_project_definition
+        ),
         "new_policy": expected_policy.to_dict(),
         "new_default_flavor_selectors": list(selectors),
         "qualification": {
@@ -949,6 +1011,8 @@ def apply_retained_harness_readmission(
                 written[name] = content
             store = ProjectConfigurationStore(root)
             snapshot = store.read()
+            if snapshot.content != before["literate.project.json"]:
+                _fail("metadata_changed", "Project manifest changed before publication")
             updated = store.update(
                 snapshot,
                 replace(
@@ -990,15 +1054,37 @@ def apply_retained_harness_readmission(
                     "lock_reconciliation_failed",
                     f"component lock reconciliation failed: {lock_result}",
                 )
-            review = FilesystemProjectValidationAdapter().documentation_review(root)
             review_name = plan["authority_review"]
+            _require_written_documents(
+                root, {**written, review_name: before[review_name]}
+            )
+            preserved_inputs.require_unchanged()
+            review = FilesystemProjectValidationAdapter().documentation_review(
+                root, include_inputs=True
+            )
+            if (
+                _stable_authority_identity(root, review)
+                != plan["stable_authority_identity"]
+            ):
+                _fail(
+                    "metadata_changed", "Project authority changed during readmission"
+                )
             review_content = AUTHORITY_REVIEW_MARKER.sub(
                 review["expected_marker"].encode("utf-8"),
                 before[review_name],
                 count=1,
             )
             written[review_name] = review_content
-            record_project_authority_review(root)
+            try:
+                record_project_authority_review(
+                    root,
+                    expected_authority_identity=review["authority_identity"],
+                    expected_document_content=before[review_name],
+                )
+            except ProjectInitializationError as exc:
+                if exc.code != "project.documentation_authority_review_changed":
+                    raise
+                _fail("metadata_changed", "Project metadata changed during readmission")
             preserved_inputs.require_unchanged()
             current_inventory = inspect_harness(implementation)
             current_source_tree = observe_retained_tree(
@@ -1018,9 +1104,30 @@ def apply_retained_harness_readmission(
                         "historical_evidence_changed",
                         "conversion authority or lift-and-shift evidence changed",
                     )
+            preserved_inputs.require_unchanged()
+            _require_written_documents(root, written)
+            final_review = FilesystemProjectValidationAdapter().documentation_review(
+                root, include_inputs=True
+            )
+            if (
+                final_review["state"] != "current"
+                or _stable_authority_identity(root, final_review)
+                != plan["stable_authority_identity"]
+            ):
+                _fail(
+                    "metadata_changed", "Project authority changed during readmission"
+                )
+            preserved_inputs.require_unchanged()
+            _require_written_documents(root, written)
         except BaseException:
             for name, content in reversed(tuple(written.items())):
-                if paths[name].read_bytes() == content:
+                try:
+                    current = _safe_path(root, name).read_bytes()
+                except (OSError, RetainedHarnessReadmissionError):
+                    # An owner removed or replaced this path. Keep their state
+                    # while rolling back the remaining writes that we still own.
+                    continue
+                if current == content:
                     FilesystemConversionAuthorityStore._atomic_write(
                         paths[name], before[name]
                     )

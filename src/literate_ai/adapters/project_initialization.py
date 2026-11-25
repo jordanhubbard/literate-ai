@@ -3811,19 +3811,36 @@ class FilesystemProjectInitializationAdapter:
         selected: Path,
         *,
         document: str | Path | None = None,
+        expected_authority_identity: str | None = None,
+        expected_document_content: bytes | None = None,
     ) -> dict[str, object]:
         """Record the caller's explicit review of current project authority.
 
         Calling this method is the review acknowledgement. It replaces one existing
         stale/current marker, or one placeholder in an explicitly selected declared
         Markdown document, and then requires the complete authority graph to validate.
+        Transactional callers may pin the reviewed authority and document bytes
+        instead of acknowledging changes that arrived after their own review.
         """
 
         try:
             review = self._validation.documentation_review(Path(selected))
         except ProjectValidationError as exc:
             _initialization_error(exc)
-        return self._record_authority_review(Path(selected), review, document=document)
+        if (
+            expected_authority_identity is not None
+            and review.get("authority_identity") != expected_authority_identity
+        ):
+            raise ProjectInitializationError(
+                "project.documentation_authority_review_changed",
+                "project authority changed after the caller's review",
+            )
+        return self._record_authority_review(
+            Path(selected),
+            review,
+            document=document,
+            expected_document_content=expected_document_content,
+        )
 
     def _record_authority_review(
         self,
@@ -3831,6 +3848,7 @@ class FilesystemProjectInitializationAdapter:
         review: dict[str, object],
         *,
         document: str | Path | None,
+        expected_document_content: bytes | None = None,
     ) -> dict[str, object]:
         state = review.get("state")
         expected_marker = review.get("expected_marker")
@@ -3927,6 +3945,14 @@ class FilesystemProjectInitializationAdapter:
                 "project.documentation_authority_review_write_failed",
                 "authority review document is unreadable",
             ) from exc
+        if (
+            expected_document_content is not None
+            and content != expected_document_content
+        ):
+            raise ProjectInitializationError(
+                "project.documentation_authority_review_changed",
+                "authority review document changed after the caller's review",
+            )
         marker_matches = tuple(AUTHORITY_REVIEW_MARKER.finditer(content))
         placeholder_count = content.count(placeholder)
         if state == "missing":
@@ -3953,6 +3979,14 @@ class FilesystemProjectInitializationAdapter:
             try:
                 if path.is_symlink() or not path.is_file():
                     raise OSError("review document changed before replacement")
+                if (
+                    expected_document_content is not None
+                    and path.read_bytes() != expected_document_content
+                ):
+                    raise ProjectInitializationError(
+                        "project.documentation_authority_review_changed",
+                        "authority review document changed before replacement",
+                    )
                 _atomic_replace(path, updated)
             except OSError as exc:
                 raise ProjectInitializationError(
@@ -4019,11 +4053,16 @@ def record_project_authority_review(
     selected: Path,
     *,
     document: str | Path | None = None,
+    expected_authority_identity: str | None = None,
+    expected_document_content: bytes | None = None,
 ) -> dict[str, object]:
     """Record an explicit authority review after a caller layers project catalogs."""
 
     return FilesystemProjectInitializationAdapter().record_authority_review(
-        selected, document=document
+        selected,
+        document=document,
+        expected_authority_identity=expected_authority_identity,
+        expected_document_content=expected_document_content,
     )
 
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import tarfile
 import tempfile
@@ -215,6 +216,255 @@ class RetainedHarnessReadmissionTests(unittest.TestCase):
                     {p: (self.root / p).read_bytes() for p in before}, before
                 )
                 self.assertFalse(list((self.root / readmission.HISTORY).glob("*.json")))
+
+    def test_late_authored_metadata_edits_refuse_and_preserve_owner(self) -> None:
+        from literate_ai.adapters import component_lock_commands
+        from literate_ai.adapters.project_initialization import (
+            FilesystemProjectInitializationAdapter,
+        )
+
+        original_lock = component_lock_commands._component_locks_from_args
+        original_review = readmission.record_project_authority_review
+        original_record = (
+            FilesystemProjectInitializationAdapter._record_authority_review
+        )
+        (self.source / "added.py").write_bytes(b"VALUE = 1\n")
+        for selected, when in (
+            ("component", "lock"),
+            ("flavor", "lock"),
+            ("review", "lock"),
+            ("component", "review"),
+            ("component", "before-review"),
+            ("review", "before-review"),
+            ("review", "inside-review"),
+            ("onboarding", "lock"),
+            ("onboarding", "review"),
+        ):
+            with self.subTest(selected=selected, when=when):
+                code, result = self.invoke()
+                self.assertEqual(code, 0, result)
+                plan = result["result"]
+                before = {
+                    p: (self.root / p).read_bytes() for p in plan["old_documents"]
+                }
+                before["SKILL.md"] = (self.root / "SKILL.md").read_bytes()
+                relative = {
+                    "component": "components/legacy-project-wrapper/component.md",
+                    "flavor": "flavors/legacy-project-shim/flavor.md",
+                    "review": plan["authority_review"],
+                    "onboarding": "SKILL.md",
+                }[selected]
+                target = self.root / relative
+                changed = before[relative] + b"\nConcurrent owner edit.\n"
+
+                def lock(*args, when=when, target=target, changed=changed, **kwargs):
+                    value = original_lock(*args, **kwargs)
+                    if when == "lock":
+                        target.write_bytes(changed)
+                    return value
+
+                def review(*args, when=when, target=target, changed=changed, **kwargs):
+                    if when == "before-review":
+                        target.write_bytes(changed)
+                    value = original_review(*args, **kwargs)
+                    if when == "review":
+                        target.write_bytes(changed)
+                    return value
+
+                def record(
+                    instance, *args, when=when, target=target, changed=changed, **kwargs
+                ):
+                    if when == "inside-review":
+                        target.write_bytes(changed)
+                    return original_record(instance, *args, **kwargs)
+
+                with (
+                    mock.patch.object(
+                        component_lock_commands, "_component_locks_from_args", lock
+                    ),
+                    mock.patch.object(
+                        readmission, "record_project_authority_review", review
+                    ),
+                    mock.patch.object(
+                        FilesystemProjectInitializationAdapter,
+                        "_record_authority_review",
+                        record,
+                    ),
+                ):
+                    code, result = self.invoke(
+                        "--apply",
+                        "--acknowledge",
+                        "--expected-plan-identity",
+                        plan["plan_identity"],
+                    )
+                self.assertEqual(code, 2, result)
+                self.assertEqual(
+                    result["error"]["code"], "retained_harness.metadata_changed"
+                )
+                self.assertEqual(target.read_bytes(), changed)
+                self.assertEqual(
+                    {p: (self.root / p).read_bytes() for p in before if p != relative},
+                    {p: raw for p, raw in before.items() if p != relative},
+                )
+                self.assertFalse(list((self.root / readmission.HISTORY).glob("*.json")))
+                target.write_bytes(before[relative])
+
+    def test_late_authority_deletion_rolls_back_other_writes(self) -> None:
+        from literate_ai.adapters import component_lock_commands
+
+        original_lock = component_lock_commands._component_locks_from_args
+        (self.source / "added.py").write_bytes(b"VALUE = 1\n")
+        code, result = self.invoke()
+        self.assertEqual(code, 0, result)
+        plan = result["result"]
+        relative = "components/legacy-project-wrapper/component.md"
+        before = {p: (self.root / p).read_bytes() for p in plan["old_documents"]}
+        target = self.root / relative
+
+        def remove(*args, **kwargs):
+            value = original_lock(*args, **kwargs)
+            target.unlink()
+            return value
+
+        with mock.patch.object(
+            component_lock_commands, "_component_locks_from_args", remove
+        ):
+            code, result = self.invoke(
+                "--apply",
+                "--acknowledge",
+                "--expected-plan-identity",
+                plan["plan_identity"],
+            )
+        self.assertEqual(code, 2, result)
+        self.assertEqual(result["error"]["code"], "retained_harness.metadata_changed")
+        self.assertFalse(target.exists())
+        self.assertEqual(
+            {p: (self.root / p).read_bytes() for p in before if p != relative},
+            {p: raw for p, raw in before.items() if p != relative},
+        )
+        self.assertFalse(list((self.root / readmission.HISTORY).glob("*.json")))
+
+    def test_late_directory_replacement_preserves_owner_and_rollback(self) -> None:
+        from literate_ai.adapters import component_lock_commands
+
+        original_lock = component_lock_commands._component_locks_from_args
+        (self.source / "added.py").write_bytes(b"VALUE = 1\n")
+        code, result = self.invoke()
+        self.assertEqual(code, 0, result)
+        plan = result["result"]
+        relative = "components/legacy-project-wrapper/component.md"
+        before = {p: (self.root / p).read_bytes() for p in plan["old_documents"]}
+        target = self.root / relative
+
+        def remove(*args, **kwargs):
+            value = original_lock(*args, **kwargs)
+            target.unlink()
+            target.mkdir()
+            return value
+
+        with mock.patch.object(
+            component_lock_commands, "_component_locks_from_args", remove
+        ):
+            code, result = self.invoke(
+                "--apply",
+                "--acknowledge",
+                "--expected-plan-identity",
+                plan["plan_identity"],
+            )
+        self.assertEqual(code, 2, result)
+        self.assertEqual(result["error"]["code"], "retained_harness.metadata_changed")
+        self.assertTrue(target.is_dir())
+        self.assertEqual(
+            {p: (self.root / p).read_bytes() for p in before if p != relative},
+            {p: raw for p, raw in before.items() if p != relative},
+        )
+        self.assertFalse(list((self.root / readmission.HISTORY).glob("*.json")))
+
+    @unittest.skipIf(os.name == "nt", "requires POSIX symlink replacement")
+    def test_late_link_replacement_preserves_owner_and_rollback(self) -> None:
+        from literate_ai.adapters import component_lock_commands
+
+        original_lock = component_lock_commands._component_locks_from_args
+        (self.source / "added.py").write_bytes(b"VALUE = 1\n")
+        code, result = self.invoke()
+        self.assertEqual(code, 0, result)
+        plan = result["result"]
+        relative = "components/legacy-project-wrapper/component.md"
+        before = {p: (self.root / p).read_bytes() for p in plan["old_documents"]}
+        target = self.root / relative
+        owner = self.base / "owner.md"
+        owner.write_bytes(b"Owner file unchanged.\n")
+
+        def remove(*args, **kwargs):
+            value = original_lock(*args, **kwargs)
+            target.unlink()
+            target.symlink_to(owner)
+            return value
+
+        with mock.patch.object(
+            component_lock_commands, "_component_locks_from_args", remove
+        ):
+            code, result = self.invoke(
+                "--apply",
+                "--acknowledge",
+                "--expected-plan-identity",
+                plan["plan_identity"],
+            )
+        self.assertEqual(code, 2, result)
+        self.assertEqual(result["error"]["code"], "retained_harness.metadata_changed")
+        self.assertTrue(target.is_symlink())
+        self.assertEqual(owner.read_bytes(), b"Owner file unchanged.\n")
+        self.assertEqual(
+            {p: (self.root / p).read_bytes() for p in before if p != relative},
+            {p: raw for p, raw in before.items() if p != relative},
+        )
+        self.assertFalse(list((self.root / readmission.HISTORY).glob("*.json")))
+
+    def test_changed_phase_facts_apply_without_replacing_authored_authority(
+        self,
+    ) -> None:
+        component = self.root / "components/legacy-project-wrapper/component.md"
+        component.write_bytes(
+            component.read_bytes()
+            + (
+                b"\n### Requirement: Keep owner intent\n\n"
+                b"Owner intent SHALL remain active.\n\n"
+                b"#### Scenario: Correct the retained phases\n\n"
+                b"- **WHEN** the retained pipeline changes\n"
+                b"- **THEN** only generated phase facts change\n"
+            )
+        )
+        makefile = self.source / "Makefile"
+        makefile.write_text(
+            makefile.read_text(encoding="utf-8").split("package:", 1)[0],
+            encoding="utf-8",
+        )
+        code, result = self.invoke()
+        self.assertEqual(code, 0, result)
+        plan = result["result"]
+        before = {p: (self.root / p).read_bytes() for p in plan["new_shim_identities"]}
+        change = next(
+            c
+            for c in plan["shim_authority_changes"]
+            if c["change"] == "baseline-summary"
+        )
+        expected = before[change["path"]].replace(
+            change["before_summary"].encode(), change["after_summary"].encode(), 1
+        )
+        self.assertIn(b"missing stages are\n`package`", expected)
+        code, result = self.invoke(
+            "--apply",
+            "--acknowledge",
+            "--expected-plan-identity",
+            plan["plan_identity"],
+        )
+        self.assertEqual(code, 0, result)
+        self.assertTrue(result["result"]["applied"])
+        self.assertEqual(component.read_bytes(), expected)
+        self.assertEqual(
+            {p: (self.root / p).read_bytes() for p in before if p != change["path"]},
+            {p: raw for p, raw in before.items() if p != change["path"]},
+        )
 
     def test_changed_baseline_summary_preserves_surrounding_owned_bytes(self) -> None:
         component = self.root / "components/legacy-project-wrapper/component.md"

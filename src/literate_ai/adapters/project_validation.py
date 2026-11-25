@@ -637,6 +637,7 @@ def _authority_review(
     workflows: tuple[dict[str, object], ...],
     routing: tuple[dict[str, object], ...],
     required: bool,
+    capture_inputs: dict[str, object] | None = None,
 ) -> ProjectAuthorityReview:
     raw_documents = documentation["document_contents"]
     raw_assets = documentation["asset_contents"]
@@ -699,6 +700,8 @@ def _authority_review(
             if not documentation_path_is_execution_queue(str(path))
         ),
     )
+    if capture_inputs is not None:
+        capture_inputs.update(inventory.to_canonical_value())
     try:
         return review_project_authority(inventory, required=required)
     except ProjectAuthorityError as exc:
@@ -751,6 +754,7 @@ class FilesystemProjectValidationAdapter:
             SourceIntelligenceStage.PROJECT_MAINTENANCE
         ),
         require_monorepo_current: bool = True,
+        include_authority_inputs: bool = False,
     ) -> dict[str, Any]:
         try:
             project = discover_project(selected)
@@ -855,6 +859,9 @@ class FilesystemProjectValidationAdapter:
             authority_graph = project_authority_graph(project.root)
         except AuthorityGraphError as exc:
             raise ProjectValidationError(exc.code, exc.message) from exc
+        authority_inputs: dict[str, object] | None = (
+            {} if include_authority_inputs else None
+        )
         authority_review = _authority_review(
             project=project,
             repository_lineage=repository_lineage.identity,
@@ -867,6 +874,7 @@ class FilesystemProjectValidationAdapter:
             workflows=workflows,
             routing=routing,
             required=require_authority_review,
+            capture_inputs=authority_inputs,
         )
         project_revision_identity = authority_review.authority_identity
         policy = project.definition.source_intelligence
@@ -955,6 +963,8 @@ class FilesystemProjectValidationAdapter:
             "authority_review": authority_review.to_dict(),
             "monorepo_components": monorepo_components,
         }
+        if authority_inputs is not None:
+            result["authority_review_inputs"] = authority_inputs
         doc_advisories = _doc_identity_advisories(project)
         if doc_advisories:
             result["advisories"] = doc_advisories
@@ -980,16 +990,21 @@ class FilesystemProjectValidationAdapter:
         assert isinstance(review, dict)
         return ContentIdentity.parse_uri(str(review["authority_identity"]))
 
-    def documentation_review(self, selected: Path) -> dict[str, object]:
+    def documentation_review(
+        self, selected: Path, *, include_inputs: bool = False
+    ) -> dict[str, object]:
         result = self.validate(
             selected,
             require_authority_review=False,
             synchronize_source_intelligence=False,
             source_intelligence_stage=SourceIntelligenceStage.STRUCTURAL_REVIEW,
             require_monorepo_current=False,
+            include_authority_inputs=include_inputs,
         )
         review = result["authority_review"]
         assert isinstance(review, dict)
+        if include_inputs:
+            return {**review, "inputs": result["authority_review_inputs"]}
         return review
 
 
