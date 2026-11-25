@@ -26586,7 +26586,10 @@ implementation, policy weakening, qualification or issue closure is recorded her
   remain retained. Normal producer renewal uses the existing scoped atomic
   publication port with durable native before/after custody for its lock/audit
   pair. Local child-process exits at all four publication moves recover through
-  the original framework rollback without rebasing source history. Equal-byte
+  the original framework rollback without rebasing source history. Actual child
+  exits at all four reverse pair-recovery moves also resume exact rollback. The
+  renewal owner joins its original recorded Component namespace to the same
+  project Root before physical probes. Equal-byte
   foreign producer inodes remain protected and original permission modes restore
   exactly. These checks exercise the real normal producer and filesystem writer.
   A contained root Skill keeps its logical ownership when the

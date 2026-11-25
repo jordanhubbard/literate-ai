@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Exercise actual child-process exits at all four reverse lock/audit recovery moves, then complete exact framework rollback from the parent without restoring a child-side owner.
+
 - Refuse cross-project Component renewal before filesystem probes by joining the genuine original store namespace to the acknowledged Root; retain physical custody across planned metadata changes.
 
 - Journal actual normal Component lock/audit publication before native replacement and restore the placed pair before framework rollback, including recovery after process exits at every pair-publication move.
