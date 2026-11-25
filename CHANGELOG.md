@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Journal actual normal Component lock/audit publication before native replacement and restore the placed pair before framework rollback, including recovery after process exits at every pair-publication move.
+
 - Bind the scoped metadata publisher and project-read delegate once, preserving their original receiver and scope lifetime across callbacks.
 
 - Join original initialized Component records to the framework journal and ordinary destination checks; retain exact history through current-pair preservation, genuine Flavor renewal and rollback coverage.

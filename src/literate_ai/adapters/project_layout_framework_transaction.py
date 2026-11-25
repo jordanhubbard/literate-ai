@@ -666,8 +666,14 @@ def recover_framework_authority(root, expected):
         journal, intent = _decode(root, expected)
         _current(root, journal, intent, lease, namespace)
         entries = intent["entries"]
-        for source, row in entries.items():
-            _state(root, journal, source, row)
+        already_original = (
+            all(
+                _state(root, journal, source, row) == "original"
+                for source, row in entries.items()
+            )
+            if os.path.lexists(journal / "rolled-back")
+            else False
+        )
         with (
             native._component_fences(root, intent["components"], namespace),
             native._component_fences(
@@ -679,6 +685,16 @@ def recover_framework_authority(root, expected):
                 journal=journal,
             ),
         ):
+            if not already_original:
+                from literate_ai.adapters.project_layout_framework_renewal import (
+                    recover_framework_renewals,
+                )
+
+                recover_framework_renewals(
+                    root, expected, journal, intent, lease, namespace
+                )
+            for source, row in entries.items():
+                _state(root, journal, source, row)
             for source, row in sorted(
                 entries.items(), key=lambda item: item[1]["slot"], reverse=True
             ):

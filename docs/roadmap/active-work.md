@@ -26583,7 +26583,13 @@ implementation, policy weakening, qualification or issue closure is recorded her
   placement and recovery. Destination classification uses that exact journal,
   preserves an already-current pair without writing, and requires ordinary
   renewal for an explicitly changed local Flavor selection; original beforebytes
-  remain retained. A contained root Skill keeps its logical ownership when the
+  remain retained. Normal producer renewal uses the existing scoped atomic
+  publication port with durable native before/after custody for its lock/audit
+  pair. Local child-process exits at all four publication moves recover through
+  the original framework rollback without rebasing source history. Equal-byte
+  foreign producer inodes remain protected and original permission modes restore
+  exactly. These checks exercise the real normal producer and filesystem writer.
+  A contained root Skill keeps its logical ownership when the
   declared Skill catalog remains at its original location. Current distribution
   lookup and initialization lineage in these fixtures remain modeled; these are
   scoped source controls, not installed release qualification. Finalization,
