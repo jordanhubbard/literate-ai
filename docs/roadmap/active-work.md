@@ -26585,6 +26585,29 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original local-adapter build inputs (source partial):** All six original
+  Python/C++/Rust/Swift/JavaScript/composite local adapter build sites now issue
+  fresh input creation through the actual contained project's inspection stage.
+  Original validated file mappings write through exclusive native stage creators,
+  closing exact postimages before the real guarded builder consumes them. Current
+  runtime/project selection is shared with compiler output custody; a standalone
+  call freshly loads its actual declared project. Nested compiler staging borrows
+  the original held lock without polluting the input namespace with execution
+  controls. Unknown private input or equal-byte foreign replacement refuses
+  retirement, preserves exact native state and prevents enclosing runtime cleanup.
+  Source disposition conflicts receive the typed input-custody error; original
+  compiler or physical materializer failures retain their original exception and
+  disposal notes. Existing non-build materialization and explicit external/root-
+  authoring paths retain their original producer. The actual Rust adapter baseline
+  built and executed successfully but reproduced host-scratch input placement.
+  Eleven controls now use real guarded Python, C++, Rust, Swift, JavaScript and
+  composite builders with runnable outputs, original error/partial/private/native-
+  replacement controls and fresh standalone admission. These small authored
+  fixtures have explicit policy/project/origin seams; no model-generated product,
+  installed three-platform or complete lifecycle acceptance follows from them.
+  Remaining producers, source-parent/whole-project, migration/history, concurrency,
+  full-source, independent review and all protected release gates remain open.
+
 - **Original contained compiler output custody (source partial):** Guarded
   Rust, Go and Rust/JavaScript backend compilation now obtains its fresh native
   output workspace through the actual contained project inspection/execution

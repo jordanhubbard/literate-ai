@@ -7,6 +7,7 @@ import json
 import os
 import tempfile
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -303,9 +304,9 @@ class PythonBuildAdapter:
             raise ValueError("concrete builder requires the generated artifact")
         files = _files(artifact)
         self.artifact_store.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(prefix="literate-source-") as directory:
-            root = Path(directory)
-            _materialize_files(root, files)
+        with _build_inputs(
+            self.artifact_store, files, prefix="literate-source-"
+        ) as root:
             built = GuardedPythonBuilder(
                 self.authorization_verifier, toolchain=self.toolchain
             ).build(
@@ -347,9 +348,9 @@ class CppBuildAdapter:
             raise ValueError("concrete builder requires the generated artifact")
         files = _files(artifact)
         self.artifact_store.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(prefix="literate-cpp-source-") as directory:
-            root = Path(directory)
-            _materialize_files(root, files)
+        with _build_inputs(
+            self.artifact_store, files, prefix="literate-cpp-source-"
+        ) as root:
             built = GuardedCppBuilder(
                 self.toolchain, self.authorization_verifier
             ).build(
@@ -411,9 +412,9 @@ class RustBuildAdapter:
             raise ValueError("concrete builder requires the generated artifact")
         files = _files(artifact)
         self.artifact_store.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(prefix="literate-rust-source-") as directory:
-            root = Path(directory)
-            _materialize_files(root, files)
+        with _build_inputs(
+            self.artifact_store, files, prefix="literate-rust-source-"
+        ) as root:
             built = GuardedRustBuilder(
                 self.toolchain, self.authorization_verifier
             ).build(
@@ -464,9 +465,9 @@ class SwiftBuildAdapter:
             raise ValueError("concrete builder requires the generated artifact")
         files = _files(artifact)
         self.artifact_store.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(prefix="literate-swift-source-") as directory:
-            root = Path(directory)
-            _materialize_files(root, files)
+        with _build_inputs(
+            self.artifact_store, files, prefix="literate-swift-source-"
+        ) as root:
             built = GuardedSwiftBuilder(
                 self.toolchain, self.authorization_verifier
             ).build(
@@ -509,11 +510,9 @@ class JavaScriptBuildAdapter:
             raise ValueError("concrete builder requires the generated artifact")
         files = _files(artifact)
         self.artifact_store.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(
-            prefix="literate-javascript-source-"
-        ) as directory:
-            root = Path(directory)
-            _materialize_files(root, files)
+        with _build_inputs(
+            self.artifact_store, files, prefix="literate-javascript-source-"
+        ) as root:
             built = GuardedJavaScriptBuilder(
                 self.toolchain, self.authorization_verifier
             ).build(
@@ -579,11 +578,9 @@ class RustJavaScriptBuildAdapter:
             raise ValueError("concrete builder requires the generated artifact")
         files = _files(artifact)
         self.artifact_store.mkdir(parents=True, exist_ok=True)
-        with tempfile.TemporaryDirectory(
-            prefix="literate-rust-javascript-source-"
-        ) as directory:
-            root = Path(directory)
-            _materialize_files(root, files)
+        with _build_inputs(
+            self.artifact_store, files, prefix="literate-rust-javascript-source-"
+        ) as root:
             built = GuardedRustJavaScriptBuilder(
                 self.toolchain, self.authorization_verifier
             ).build(
@@ -615,6 +612,34 @@ class RustJavaScriptBuildAdapter:
                 built.build_input_consumption_identity
             ),
         }
+
+
+@contextmanager
+def _build_inputs(artifact_store, files, *, prefix):
+    from ..builders.python import BuildError
+    from ..evidence_staging import EvidenceStagingError
+    from ..project_runtime import project_build_input_staging
+
+    try:
+        with project_build_input_staging(artifact_store) as stage:
+            if stage is None:
+                with tempfile.TemporaryDirectory(prefix=prefix) as temporary:
+                    root = Path(temporary)
+                    _materialize_files(root, files)
+                    yield root
+                return
+            for name, content in files.items():
+                relative = canonical_relative_posix_path(
+                    name, label="lifecycle file path"
+                )
+                stage.write(relative.as_posix(), content)
+            stage.verify()
+            yield stage.path
+            stage.verify()
+    except EvidenceStagingError as error:
+        raise BuildError(
+            "builder.input_custody", "original build input custody refused"
+        ) from error
 
 
 def _materialize_files(root: Path, files: Mapping[str, bytes]) -> None:

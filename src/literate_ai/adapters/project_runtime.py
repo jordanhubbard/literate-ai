@@ -581,22 +581,36 @@ def project_runtime_scope(owner, project):
             _CURRENT.reset(token)
 
 
+def _project_for_artifact_store(artifact_store):
+    from literate_ai.projects import load_project
+
+    owner = current_project_runtime()
+    if owner is not None:
+        return _state(owner).project
+    snapshot = ProjectConfigurationStore.discover(artifact_store)
+    return None if snapshot is None else load_project(snapshot.root)
+
+
+@contextmanager
+def project_build_input_staging(artifact_store):
+    """Issue actual fresh input creation custody, never recover an old actor."""
+    project = _project_for_artifact_store(artifact_store)
+    if project is None or project.framework_root == project.root:
+        yield None
+        return
+    with project_inspection_staging(project, prefix=".bi-") as stage:
+        yield stage
+
+
 @contextmanager
 def project_compiler_workspace(artifact_store, source_root, *, prefix):
     """Issue a fresh native compiler namespace through actual project custody."""
-    from literate_ai.projects import load_project
-
     from .retained_execution_workspace import (
         RetainedExecutionWorkspaceError,
         retained_execution_workspace,
     )
 
-    owner = current_project_runtime()
-    if owner is not None:
-        project = _state(owner).project
-    else:
-        snapshot = ProjectConfigurationStore.discover(artifact_store)
-        project = None if snapshot is None else load_project(snapshot.root)
+    project = _project_for_artifact_store(artifact_store)
     if os.name != "posix" or project is None or project.framework_root == project.root:
         with tempfile.TemporaryDirectory(prefix=prefix) as temporary:
             yield Path(temporary).resolve()

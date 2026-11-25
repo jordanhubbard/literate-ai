@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Materialize all six local build adapters through original contained project input staging; preserve exact private or replaced input state, original compiler/materializer failures, and enclosing runtime retention on refused retirement.
+
 - Contain Rust, Go and composite backend compiler output through original project/native workspace custody; close actual process groups before callbacks, stop owned descendants on refusal, and preserve private output and original failures. Avoid repeated pure teardown-facts projection.
 
 - Stage locked remote assets under the receiving candidate CAS with original native creator custody; support contained promotion asset bindings and reject mixed layouts or duplicate asset owners while preserving exact source relations.
