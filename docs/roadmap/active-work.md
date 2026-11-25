@@ -26587,8 +26587,12 @@ implementation, policy weakening, qualification or issue closure is recorded her
   authored policy remains intact. Copied preparation, replaced project read and
   late Git boundaries refuse. Existing four-move process-exit, mode, foreign-inode,
   callback and Root-binding controls pass with the shared publisher. Historical
-  conversion/initialization origin seams remain explicit. Public command wiring,
-  renewal after physical source closure, multi-owner composition and installed
+  conversion/initialization origin seams remain explicit. A further fresh
+  Python process renews after the original initialized Component directory is
+  physically archived: a newly authored local Flavor changes the real normal
+  selection, the old source stays absent, finalization reproduces currentness,
+  and repeated rollback restores original control inodes while preserving the
+  new policy. Public command wiring, multi-owner composition and installed
   supported-platform qualification remain open.
 
 - **Recorded wrapper source controls (partial):** Finalization archives only the

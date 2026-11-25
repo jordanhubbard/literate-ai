@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Verify fresh-process producer renewal after the original Component directory is archived, preserving its control inodes and newly authored local policy through exact rollback.
+
 - Renew migrated Component producers from a fresh destination owner bound to the current Root, actual normal preparation and original native journal, using the existing atomic publisher without reviving the retired source actor.
 
 - Cover process exits during wrapper control-file archive and restore, renewed-target revalidation after closure, and exact original rollback alongside initialized-Component compatibility.
