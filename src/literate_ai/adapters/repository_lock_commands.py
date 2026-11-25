@@ -40,7 +40,7 @@ def _errors():
 
 
 def repository_root(selected: Path) -> Path | None:
-    """Classify only the selected directory, never infer an ancestor or child scope."""
+    """Classify the selected project coordinate, never an independent child scope."""
     root = Path(selected).absolute()
     manifest = ProjectConfigurationStore.manifest_path(root)
     if not os.path.lexists(manifest):
@@ -48,7 +48,9 @@ def repository_root(selected: Path) -> Path | None:
     with _errors():
         snapshot = ProjectConfigurationStore(root).read()
         return (
-            root if snapshot.definition.repository_orchestration is not None else None
+            snapshot.root
+            if snapshot.definition.repository_orchestration is not None
+            else None
         )
 
 

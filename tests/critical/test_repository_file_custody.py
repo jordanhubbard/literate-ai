@@ -82,3 +82,15 @@ class RepositoryFileCustodyTests(unittest.TestCase):
             "changed", lambda: custody.require_worktree_changes_unchanged(prepared)
         )
         self.assertEqual(foreign.read_bytes(), b"foreign")
+
+    def test_contained_repository_controls_are_reserved_from_refresh(self):
+        for path in (
+            "litai/.literate/repository.lock.json",
+            "litai/.literate/.repository-lock.write",
+        ):
+            with self.subTest(path=path):
+                self.refuses(
+                    "reserved",
+                    lambda path=path: self.prepare({}, {path: ("100644", b"foreign")}),
+                )
+        self.assertEqual(list(self.root.iterdir()), [])

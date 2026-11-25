@@ -190,6 +190,14 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Repository orchestration locks follow the selected project context. Contained
+projects keep the repository lock and its writer marker under `litai/.literate/`;
+application-root `.literate/` content stays untouched. The application root and its
+declared `litai/` coordinate select the same repository. Lock checks report the
+contained path using `repository-lock-check@2`; legacy projects retain version 1.
+A changed layout, replaced framework directory or dual authority requires a fresh
+observation rather than reusing the existing lock store.
+
 Remote accepted-source-cache restoration requires a fresh destination. Existing
 files, directories and aliases are preserved; an aliased build parent refuses
 before extraction. Complete short-cache placement and disposal qualification

@@ -34,6 +34,8 @@ _RESERVED = (
     ".literate.project.json.write.lock",
     ".literate/.repository-lock.write",
     REPOSITORY_LOCK_PATH,
+    "litai/.literate/.repository-lock.write",
+    "litai/" + REPOSITORY_LOCK_PATH,
 )
 
 

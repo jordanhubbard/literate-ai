@@ -26575,13 +26575,35 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — immediate cleanup and remaining containment (in progress):**
-  Trace actual source extraction, short accepted-cache creation and immediate
-  receiver disposal. Bind removal to original native creation/runtime custody,
-  preserve private or replaced entries and the primary rejection, and verify
-  original-path consumers. Keep RUN, legacy/opaque, explicit short-cache staging,
-  general external-driver and full installed/platform qualification open. No saved
-  receipt, prefix, CID or fresh teardown snapshot can mint disposal authority.
+- **Next action — remaining producer containment (in progress):** Continue the
+  actual framework-owned producer inventory and native-child update paths through
+  the shared project context. Finish original source/cache extraction creator
+  custody and immediate disposal, RUN/legacy/explicit short-cache staging and
+  general external-driver containment. Complete whole-project/source-parent
+  ownership and every original installed/platform/release requirement. Repository
+  lock source controls below are partial evidence, not full layout acceptance.
+
+- **Repository lock context (source partial):** The original lock store now
+  follows the selected shared project context. Contained locks and writer markers
+  remain under `litai/.literate/`; application-root metadata and its aliases remain
+  untouched. Application and declared framework coordinates select the same
+  repository. A live store rejects a changed layout, equal-byte replacement of the
+  framework directory and new dual authority before lock observation or writes.
+  Original preparation binds the same native framework context locally, without
+  changing portable lock/plan content; equal-byte replacement cannot reuse an old
+  prepared observation through a fresh store. Existing exact-byte publication,
+  concurrent-writer and
+  no-clobber checks remain in force. Contained lock checks use version 2 with the
+  exact contained path; legacy checks retain version 1 and their original path.
+  The schema rejects mixed version/path pairs. Repository refresh also protects
+  the contained lock and writer control. The original public CLI regression first
+  reproduced contained initialization followed by `orchestration.lock_path_unsafe`.
+  The corrected public lock/plan/check journey and scoped store/planning/refresh
+  controls pass 29 distinct source checks without skips/failures, with schema
+  and static gates. This is source execution with declared side-effect exclusions,
+  not installed or supported-platform acceptance. Full producer inventory,
+  native-child updates, original source/cache creator and disposal custody,
+  project/source-parent ownership and all original release gates remain open.
 
 - **Short-cache destination preservation (source partial):** Remote restoration
   now requires a fresh accepted-source-cache destination. Existing directories,

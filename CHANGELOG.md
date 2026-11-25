@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Keep repository locks beneath litai/ for contained projects, preserve application metadata, and reject stale framework bindings before publication.
+
 - Refuse remote accepted-source-cache restoration over existing files, directories or aliases, preserving private data and rejecting aliased build parents before extraction.
 
 - Preserve original evidence staging ownership through copying, archiving and disposal; retain unexpected files and preserve the primary failure when cleanup refuses.
