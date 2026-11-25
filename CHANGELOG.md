@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Validate contained roadmap lifecycle and dependency authority under `litai/`
+  while preserving canonical-root and separately declared application plans.
+  Refuse cross-namespace queue substitution and retain lifecycle/evidence checks.
+
 - Existing repositories default to a contained native adoption profile under
   `litai/`, preserving source, build tools, CI and custom instructions. Explicit
   `--profile convert` retains conversion. Native policy updates use three-way

@@ -147,13 +147,18 @@ def _documentation_catalog(project: Any) -> dict[str, object]:
 
         from .roadmap_dependencies import require_project_roadmap_acyclic
 
-        require_project_roadmap_acyclic(project.root, captured)
+        require_project_roadmap_acyclic(
+            project.root,
+            captured,
+            framework_directory=project.definition.framework_directory,
+        )
         graph = validate_documentation_graph(
             project_root=project.root,
             agent_skill=project.agent_skill,
             agent_skill_content=skill_content,
             documents=documents,
             assets=assets,
+            framework_directory=project.definition.framework_directory,
         )
         closure.require_unchanged()
     except (DocumentationError, PinnedInputClosureError, RoadmapDependencyError) as exc:
