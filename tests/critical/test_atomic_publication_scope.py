@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import unittest
 from contextvars import copy_context
+from dataclasses import FrozenInstanceError
 from pathlib import Path
 from unittest import mock
 
@@ -72,3 +73,47 @@ class AtomicPublicationScopeTests(unittest.TestCase):
             with self.assertRaises(TypeError):
                 publication.publish_atomic_file_if_scoped(self.path, bytearray(b"{}"))
         self.writer.publish.assert_not_called()
+
+    def test_scope_uses_original_bound_publisher_after_class_slot_changes(self):
+        original, foreign = [], []
+
+        class Writer:
+            def publish(self, *args, **kwargs):
+                original.append((args, kwargs))
+
+        writer = Writer()
+        with publication.atomic_publication_scope(writer):
+            with mock.patch.object(
+                Writer, "publish", lambda *_a, **_k: foreign.append(True)
+            ):
+                self.assertTrue(self.publish())
+        self.assertEqual(len(original), 1)
+        self.assertEqual(foreign, [])
+
+    def test_receiver_and_bound_delegate_cannot_be_reassigned_in_live_scope(self):
+        with publication.atomic_publication_scope(self.writer):
+            scope = publication._ACTIVE.get()
+            for name, value in (
+                ("writer", mock.Mock()),
+                ("publisher", mock.Mock()),
+                ("pid", 0),
+            ):
+                with self.assertRaises(FrozenInstanceError):
+                    setattr(scope, name, value)
+            self.assertTrue(self.publish())
+        self.writer.publish.assert_called_once()
+
+    def test_original_reader_delegate_cannot_expand_after_scope_entry(self):
+        class Writer:
+            def publish(self, *args, **kwargs):
+                pass
+
+            def permits_project_read(self, root):
+                return False
+
+        writer = Writer()
+        with publication.atomic_publication_scope(writer):
+            with mock.patch.object(Writer, "permits_project_read", lambda *_a: True):
+                self.assertFalse(
+                    publication.scoped_writer_permits_project_read(Path("."))
+                )

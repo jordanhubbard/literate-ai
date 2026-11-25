@@ -32,10 +32,12 @@ class AtomicPublicationScopeError(RuntimeError):
     """An expired, copied or nested publication scope cannot become a fallback."""
 
 
-@dataclass(slots=True)
+@dataclass(frozen=True, slots=True)
 class _Scope:
     writer: ScopedAtomicWriter
     pid: int
+    publisher: Callable
+    reader: Callable | None
     active: bool = True
 
 
@@ -50,14 +52,16 @@ def atomic_publication_scope(writer: ScopedAtomicWriter) -> Iterator[None]:
         raise AtomicPublicationScopeError(
             "an atomic publication scope is already bound"
         )
-    if not callable(getattr(writer, "publish", None)):
+    publisher = getattr(writer, "publish", None)
+    if not callable(publisher):
         raise TypeError("an actual scoped atomic writer is required")
-    scope = _Scope(writer, os.getpid())
+    reader = getattr(writer, "permits_project_read", None)
+    scope = _Scope(writer, os.getpid(), publisher, reader if callable(reader) else None)
     token = _ACTIVE.set(scope)
     try:
         yield
     finally:
-        scope.active = False
+        object.__setattr__(scope, "active", False)
         _ACTIVE.reset(token)
 
 
@@ -85,7 +89,7 @@ def publish_atomic_file_if_scoped(
         or (require_current is not None and not callable(require_current))
     ):
         raise TypeError("scoped atomic publication inputs are invalid")
-    scope.writer.publish(
+    scope.publisher(
         path,
         content,
         require_current=require_current,
@@ -101,7 +105,7 @@ def scoped_writer_permits_project_read(root: Path) -> bool:
         return False
     if not scope.active or scope.pid != os.getpid():
         raise AtomicPublicationScopeError("the original atomic writer scope is closed")
-    permit = getattr(scope.writer, "permits_project_read", None)
+    permit = scope.reader
     return callable(permit) and permit(root) is True
 
 

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Bind the scoped metadata publisher and project-read delegate once, preserving their original receiver and scope lifetime across callbacks.
+
 - Join original initialized Component records to the framework journal and ordinary destination checks; retain exact history through current-pair preservation, genuine Flavor renewal and rollback coverage.
 
 - Keep a contained root Skill logically joined to an unchanged declared Skill catalog, while refusing competing root authority.
