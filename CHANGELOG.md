@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Framework layout: installed-project smoke checks now follow contained manifests, catalogs, Component selectors and release staging, while preserving application files and root agent delegates and using each project’s cache defaults. Source regressions pass; installed-wheel and platform qualification remain pending.
+
 Retain contained external-driver diagnostics through original project and file custody, preserve private or substituted state and original failures, and resolve rebuild fixture authority through canonical project context.
 
 Keep contained POSIX source-admission test copies under their original project, preserve private or replaced files, bound original test processes, and reject scratch overlapping inspected source before allocation.

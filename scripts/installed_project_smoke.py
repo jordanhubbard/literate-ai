@@ -25,6 +25,7 @@ from literate_ai.evidence_ledger import (
     attach_run,
     retained_directory,
 )
+from literate_ai.projects import ProjectConfigurationStore, ProjectContext
 
 _SYNTHETIC_DISPATCHER = r"""from __future__ import annotations
 
@@ -165,7 +166,8 @@ def _assert_installed_release_protocol(
         cwd=root,
         environment=environment,
     )
-    policy_path = project / "literate.release.json"
+    context = _contained_context(project)
+    policy_path = context.framework_path("literate.release.json")
     policy = json.loads(policy_path.read_text(encoding="utf-8"))
     policy["gate"] = {
         "argv": ["git", "diff", "--check", "HEAD^", "HEAD"],
@@ -205,7 +207,7 @@ def _assert_installed_release_protocol(
     _git(project, "remote", "add", "origin", str(remote))
     _git(project, "push", "-u", "origin", "main")
 
-    release_root = project / "_build" / "release"
+    release_root = context.framework_path("_build/release")
     release_root.mkdir(parents=True, exist_ok=True)
     # The release-state machine (RELEASE-012) gates planning behind an explicit
     # pre-release declaration: main_state must be pre-release targeting the exact
@@ -238,7 +240,7 @@ def _assert_installed_release_protocol(
         cwd=project,
         environment=environment,
     )
-    _git(project, "add", "literate.project.json")
+    _git(project, "add", context.manifest_path.relative_to(context.root).as_posix())
     _git(project, "commit", "-m", f"Declare pre-release state for {major_minor}")
     _git(project, "push", "origin", "main")
     plan = _run(
@@ -270,7 +272,12 @@ def _assert_installed_release_protocol(
         cwd=project,
         environment=environment,
     )
-    _git(project, "add", "literate.project.json", "CHANGELOG.md")
+    _git(
+        project,
+        "add",
+        context.manifest_path.relative_to(context.root).as_posix(),
+        "CHANGELOG.md",
+    )
     _git(project, "commit", "-m", f"Prepare {plan_result['next_version']}")
     checked = _run(
         str(launcher),
@@ -427,7 +434,7 @@ def _prove_repository_dag(
         str(launcher),
         "--json",
         "plan",
-        "samples/hello-component",
+        _starter_coordinate(derived),
         cwd=derived,
         environment=environment,
     )
@@ -456,7 +463,12 @@ def _prove_repository_dag(
         ".literate/repository-lineage.json",
         ".literate/imports.json",
     )
-    missing = [relative for relative in required if not (derived / relative).is_file()]
+    context = _contained_context(derived)
+    missing = [
+        relative
+        for relative in required
+        if not context.framework_path(relative).is_file()
+    ]
     if missing:
         raise RuntimeError(
             "installed repository-DAG init omitted inherited authority: "
@@ -482,7 +494,7 @@ def _assert_installed_model_scope_plan(
         str(launcher),
         "--json",
         "plan",
-        "samples/hello-component",
+        _starter_coordinate(project),
         "--model",
         selector,
         cwd=project,
@@ -603,6 +615,61 @@ def _assert_installed_parent_readme(
         )
 
 
+def _contained_context(project: Path) -> ProjectContext:
+    """Require the canonical derived layout independently of fixture expectations."""
+    context = ProjectConfigurationStore.context(project)
+    if context.framework_root != context.root / "litai":
+        raise RuntimeError("installed init did not select contained litai/ authority")
+    return context
+
+
+def _starter_coordinate(project: Path) -> str:
+    context = _contained_context(project)
+    return (
+        context.framework_path("samples/hello-component")
+        .relative_to(context.root)
+        .as_posix()
+    )
+
+
+def _assert_installed_scaffold(project: Path) -> None:
+    context = _contained_context(project)
+    required_scaffold = (
+        "literate.project.json",
+        "literate.release.json",
+        "SKILL.md",
+        "docs/roadmap/active-work.md",
+        "docs/user/test-matrix.md",
+        "literate.test.example.json",
+        "literate.workers.example.json",
+        "samples/hello-component/component.md",
+        "samples/hello-component/component.lock.json",
+        "skills/specification-to-source/portable-application/SKILL.md",
+        "skills/agent/SKILL.md",
+        "skills/agent/record-user-directed-work/SKILL.md",
+        "skills/agent/release-project/SKILL.md",
+        "skills/agent/develop-in-production-workflow/SKILL.md",
+        "workflows/production/staging/dev/workflow.md",
+        "routing/production/staging/dev/routing.json",
+        ".literate/initialization-origin.json",
+        ".literate/initialization-baseline.json",
+    )
+    missing_scaffold = [
+        relative
+        for relative in required_scaffold
+        if not context.framework_path(relative).is_file()
+    ]
+    missing_scaffold.extend(
+        relative
+        for relative in ("AGENTS.md", "CHANGELOG.md")
+        if not (context.root / relative).is_file()
+    )
+    if missing_scaffold:
+        raise RuntimeError(
+            "installed init omitted required scaffold: " + ", ".join(missing_scaffold)
+        )
+
+
 def _main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repository", type=Path, required=True)
@@ -661,11 +728,11 @@ def _main() -> int:
         environment["PATH"] = os.pathsep.join(
             (str(launcher.parent), environment.get("PATH", ""))
         )
-        # The outer release gate may place this temporary project beneath its own
-        # OBJ_DIR. Give the installed project sibling caches so neither cache is an
-        # ancestor of project authority.
-        environment["BUILD_DIR"] = str(root / "generated")
-        environment["OBJ_DIR"] = str(root / "objects")
+        # Each initialized project selects its own contained caches. Do not inherit
+        # the outer Make runner's object root or share sibling caches across the
+        # independently initialized main, release and lineage fixtures.
+        environment.pop("BUILD_DIR", None)
+        environment.pop("OBJ_DIR", None)
         if arguments.isolated_tool_bootstrap:
             environment["LITAI_TOOL_DIR"] = str(root / "managed-tools")
             environment["PATH"] = _path_without_source_graph(environment["PATH"])
@@ -700,7 +767,7 @@ def _main() -> int:
             str(launcher),
             "--json",
             "lock",
-            "samples/hello-component",
+            _starter_coordinate(project),
             "--check",
             cwd=project,
             environment=environment,
@@ -709,7 +776,7 @@ def _main() -> int:
             str(launcher),
             "--json",
             "plan",
-            "samples/hello-component",
+            _starter_coordinate(project),
             cwd=project,
             environment=environment,
         )
@@ -752,38 +819,7 @@ def _main() -> int:
                 "installed init omitted selected Flavor definitions: "
                 + ", ".join(missing_selected_flavors)
             )
-        required_scaffold = (
-            "literate.project.json",
-            "literate.release.json",
-            "SKILL.md",
-            "AGENTS.md",
-            "CHANGELOG.md",
-            "docs/roadmap/active-work.md",
-            "docs/user/test-matrix.md",
-            "literate.test.example.json",
-            "literate.workers.example.json",
-            "samples/hello-component/component.md",
-            "samples/hello-component/component.lock.json",
-            "skills/specification-to-source/portable-application/SKILL.md",
-            "skills/agent/SKILL.md",
-            "skills/agent/record-user-directed-work/SKILL.md",
-            "skills/agent/release-project/SKILL.md",
-            "skills/agent/develop-in-production-workflow/SKILL.md",
-            "workflows/production/staging/dev/workflow.md",
-            "routing/production/staging/dev/routing.json",
-            ".literate/initialization-origin.json",
-            ".literate/initialization-baseline.json",
-        )
-        missing_scaffold = [
-            relative
-            for relative in required_scaffold
-            if not (project / relative).is_file()
-        ]
-        if missing_scaffold:
-            raise RuntimeError(
-                "installed init omitted required scaffold: "
-                + ", ".join(missing_scaffold)
-            )
+        _assert_installed_scaffold(project)
         release_publication = _assert_installed_release_protocol(
             root=root,
             launcher=launcher,
@@ -806,7 +842,11 @@ def _main() -> int:
                     f"isolated init reported tool_bootstrap={tool_bootstrap!r}; "
                     "expected a mapping with state='disabled'"
                 )
-            if (project / ".codegraph" / "codegraph.db").is_file():
+            if (
+                _contained_context(project)
+                .framework_path(".codegraph/codegraph.db")
+                .is_file()
+            ):
                 raise RuntimeError(
                     "isolated init created a source-graph database without opting in"
                 )
@@ -873,7 +913,7 @@ def _main() -> int:
             "synthetic",
             "--worker-config",
             str(worker_config),
-            "samples/hello-component",
+            _starter_coordinate(project),
             cwd=project,
             environment=environment,
         )
@@ -887,7 +927,7 @@ def _main() -> int:
             "synthetic",
             "--worker-config",
             str(worker_config),
-            "samples/hello-component",
+            _starter_coordinate(project),
             cwd=project,
             environment=environment,
         )
@@ -901,7 +941,7 @@ def _main() -> int:
             "synthetic",
             "--worker-config",
             str(worker_config),
-            "samples/hello-component",
+            _starter_coordinate(project),
             json.dumps([{"name": "LitAI", "messages": ["Build portable software"]}]),
             cwd=project,
             environment=environment,
@@ -933,7 +973,7 @@ def _main() -> int:
                 str(launcher),
                 "--json",
                 "rebuild",
-                "samples/hello-component",
+                _starter_coordinate(project),
                 "--project",
                 ".",
                 "--allow-host-execution",
@@ -1018,7 +1058,7 @@ def _main() -> int:
                 ".",
                 "--model",
                 selection.model,
-                "samples/hello-component",
+                _starter_coordinate(project),
                 cwd=project,
                 environment=environment,
             )
@@ -1037,7 +1077,7 @@ def _main() -> int:
                 ".",
                 "--model",
                 selection.model,
-                "samples/hello-component",
+                _starter_coordinate(project),
                 cwd=project,
                 environment=environment,
             )
@@ -1049,7 +1089,7 @@ def _main() -> int:
                 str(launcher),
                 "--json",
                 "run",
-                "samples/hello-component",
+                _starter_coordinate(project),
                 json.dumps(
                     [{"name": "LitAI", "messages": ["Build portable software"]}]
                 ),
