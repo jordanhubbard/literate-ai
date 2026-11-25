@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- PROJECT-LAYOUT-001: expose process-bound stage retirement completion after actual native disposal and handle release; retain incomplete state on foreign entries or failed cleanup. Conversion rollback integration remains open.
+
 - Verify retained Component source movement, fresh receipt renewal and subsequent reuse after default contained conversion.
 
 - Preserve application-owned metadata aliases when recovering contained readmission transactions.

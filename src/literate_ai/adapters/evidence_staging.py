@@ -24,6 +24,7 @@ from .remote_cleanup import _access, _remove_entry
 
 _ISSUER = object()
 _LIVE = weakref.WeakKeyDictionary()
+_RETIREMENTS = weakref.WeakKeyDictionary()
 
 
 class EvidenceStagingError(ValueError):
@@ -123,6 +124,18 @@ class EvidenceStage:
     def __init__(self, issuer):
         if issuer is not _ISSUER:
             raise TypeError("stage must be freshly created")
+
+    @property
+    def retired(self):
+        """Observe this allocator's completed disposal and native-handle release.
+
+        This survives scope closure only as a process-bound observation. It does
+        not reopen the stage, authorize deletion, or infer completion from paths.
+        """
+        result = _RETIREMENTS.get(self) if type(self) is EvidenceStage else None
+        if result is None or result[0] != os.getpid():
+            _fail("original process-bound stage retirement observation required")
+        return result[1]
 
     @property
     def path(self):
@@ -353,6 +366,7 @@ def evidence_staging(parent, *, prefix):
     parent_stack, root_stack = ExitStack(), ExitStack()
     state = owner = primary = None
     cleanup_error = None
+    disposed, released = False, True
     try:
         parent_access = parent_stack.enter_context(_access(parent))
         path = type(parent)(tempfile.mkdtemp(prefix=prefix, dir=parent))
@@ -361,6 +375,7 @@ def evidence_staging(parent, *, prefix):
         owner = EvidenceStage(_ISSUER)
         state = _State(parent, path, parent_access, root_access, root_stack)
         _LIVE[owner] = state
+        _RETIREMENTS[owner] = (os.getpid(), False)
         yield owner
     except BaseException as error:
         primary = error
@@ -369,6 +384,7 @@ def evidence_staging(parent, *, prefix):
         try:
             if owner in _LIVE:
                 _dispose(owner)
+                disposed = True
         except BaseException as error:
             if primary is not None:
                 primary.add_note("Stage disposal refused; retained: " + str(error))
@@ -383,6 +399,7 @@ def evidence_staging(parent, *, prefix):
                 try:
                     stack.close()
                 except BaseException as error:
+                    released = False
                     original = primary if primary is not None else cleanup_error
                     if original is not None:
                         original.add_note("Stage native release refused: " + str(error))
@@ -390,6 +407,7 @@ def evidence_staging(parent, *, prefix):
                         cleanup_error = error
             if owner is not None:
                 _LIVE.pop(owner, None)
+                _RETIREMENTS[owner] = (os.getpid(), disposed and released)
         if primary is None and cleanup_error is not None:
             raise EvidenceStagingError(
                 "original disposal refused; stage retained: " + str(cleanup_error)

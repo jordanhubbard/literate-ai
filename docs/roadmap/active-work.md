@@ -26585,6 +26585,21 @@ implementation, policy weakening, qualification or issue closure is recorded her
   source/cache/runtime/whole-project/source-parent, migration/history and installed/
   platform/native/full-source/independent-review/protected release requirement.
 
+- **Original stage retirement observation (source partial):** The allocating
+  stage now exposes process-bound completion only after its actual tracked native
+  disposal and all handle-release stacks finish successfully. The observation
+  survives closure without reopening writes or supplying deletion authority.
+  Original body rejection can coexist with completed retirement; unknown/private
+  entries, equal-byte foreign replacements, partial disposal and failed teardown
+  remain incomplete. Copied/forged or foreign-process observers refuse. Ten new
+  controls, nine original stage-owner controls and 13 actual contained-monorepo
+  controls pass 32 checks without skips/failures plus static gates. The Windows
+  handle model is explicit and is not native Windows qualification. This closes
+  the missing original completion-observation port; conversion rollback has not
+  yet consumed it. The actual foreign-scaffold deletion regression, creator-owned
+  scaffold rollback, contained pre-bootstrap/native execution scratch and all
+  original installed/platform/full-source/review/release requirements remain open.
+
 - **Default conversion and installed monorepo renewal (source partial):** Ordinary
   actual default conversion followed by the original real refined-Component install
   API now has a composed source journey through original source movement, stale
