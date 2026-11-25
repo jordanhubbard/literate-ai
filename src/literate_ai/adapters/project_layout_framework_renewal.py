@@ -39,7 +39,7 @@ from literate_ai.contracts import (
     canonical_json_bytes,
 )
 from literate_ai.contracts.paths import canonical_relative_posix_path
-from literate_ai.projects import ProjectConfigurationSnapshot
+from literate_ai.projects import ProjectConfigurationSnapshot, ProjectConfigurationStore
 
 _SCHEMA = "literate-ai/project-layout-framework-producer-renewal@1"
 _MARKERS = {
@@ -470,8 +470,7 @@ def renew_framework_component(
     transition, expected_snapshot, *, prepared, layout_lease, plan_identity
 ):
     """Use actual normal stores outside generic Component fences, same Root lease."""
-    check = _bindings
-    move = _move
+    check, move = _bindings, _move
     check()
     planner, target, flavors, flavor_roots = _ADMIT(prepared)
     _TRANSITION(transition)
@@ -519,6 +518,46 @@ def renew_framework_component(
         for row in frame["components"]
         if row["source_root"] == transition.source_root
     )
+
+    def require_source():
+        check()
+        _TRANSITION(transition)
+        if _SOURCE_IDENTITY(transition.original_lock_store) != source_namespace:
+            _fail("original Component namespace binding changed")
+        if _SOURCE_PHYSICAL(transition.original_lock_store) != source_namespace:
+            _fail("original Component physical namespace changed")
+
+    return _renew_prepared_component(
+        root,
+        plan_identity,
+        component,
+        prepared,
+        layout_lease,
+        frame_journal,
+        frame,
+        require_owner=require_source,
+        move=move,
+    )
+
+
+def _renew_prepared_component(
+    root,
+    plan_identity,
+    component,
+    prepared,
+    layout_lease,
+    frame_journal,
+    frame,
+    *,
+    require_owner,
+    move,
+):
+    """Common finite publisher; live origin checks add restrictions, never grants."""
+    check = _bindings
+    check()
+    planner, target, flavors, flavor_roots = _ADMIT(prepared)
+    require_layout_lease(layout_lease, root)
+    require_owner()
     live = True
     with native._operation(root) as namespace, native._reserve(root, namespace):
         journal, record = _stage(
@@ -540,11 +579,7 @@ def renew_framework_component(
                 _fail("normal producer publication scope is closed")
             check()
             _ADMIT(prepared)
-            _TRANSITION(transition)
-            if _SOURCE_IDENTITY(transition.original_lock_store) != source_namespace:
-                _fail("original Component namespace binding changed")
-            if _SOURCE_PHYSICAL(transition.original_lock_store) != source_namespace:
-                _fail("original Component physical namespace changed")
+            require_owner()
             _guard(root, journal, record, frame_journal, frame, layout_lease, namespace)
             _ADMIT(prepared)
 
@@ -664,6 +699,187 @@ def renew_framework_component(
             live = False
 
 
+def renew_placed_framework_component(root, plan_identity, *, prepared, layout_lease):
+    """Issue this call's new destination owner; never restore a source actor.
+
+    A real current Root lease, actual normal preparation and exact native
+    placement/history provide independent authority. Journal data supplies only
+    finite coordinates and immutable provenance. The owner is a live closing
+    guard, local to this call, and is never serialized or returned.
+    """
+    check, move = _bindings, _move
+    check()
+    planner, target, flavors, flavor_roots = _ADMIT(prepared)
+    root = Path(root).absolute()
+    require_layout_lease(layout_lease, root)
+    frame_journal, frame = framework._decode(root, plan_identity)
+    framework._current(root, frame_journal, frame, layout_lease, None)
+    if not os.path.lexists(frame_journal / "placed") or os.path.lexists(
+        frame_journal / "rolled-back"
+    ):
+        _fail("fresh destination owner requires completed original placement")
+    matches = [
+        row
+        for row in frame["components"]
+        if root / row["destination_root"] == prepared.component_root
+    ]
+    if len(matches) != 1:
+        _fail("normal preparation does not select one original placed Component")
+    component = matches[0]
+    if target not in component["target_names"]:
+        _fail("normal preparation target is outside original producer inventory")
+    if os.path.lexists(_path(root, plan_identity, component["source_root"], target)):
+        _fail("normal renewal intent already exists; recover it first")
+    snapshot = ProjectConfigurationStore(root).read()
+    check()
+    _ADMIT(prepared)
+    fields = tuple(
+        object.__getattribute__(snapshot, name)
+        for name in (
+            "root",
+            "manifest_path",
+            "definition",
+            "content",
+            "directory_binding",
+        )
+    )
+    if (
+        prepared.catalog_snapshot is None
+        or prepared.catalog_snapshot.project is None
+        or prepared.catalog_snapshot.project.root != root
+        or prepared.catalog_snapshot.project.definition != snapshot.definition
+        or prepared.plan.target_name != target
+        or prepared.result.lock.target_name != target
+        or prepared.plan.root_authoring_identity
+        != prepared.catalog_snapshot.root_authoring.identity
+        or prepared.result.catalog_audit.component_lock_identity
+        != prepared.result.lock.identity
+        or prepared.result.catalog_audit.resolver_identity
+        != prepared.result.lock.resolver_identity
+        or frame["plan"]["project_id"] != snapshot.definition.project_id
+    ):
+        _fail("fresh normal preparation/catalog/project join differs")
+    lock = operations.ComponentLockStore(prepared.component_root)
+    audit = operations.ComponentResolutionAuditStore(prepared.component_root, target)
+    if (
+        lock.storage_root != prepared.component_root
+        or audit.storage_root != prepared.component_root
+    ):
+        _fail("normal producer storage is not the original placed Component")
+    coordinates = {
+        path.relative_to(root).as_posix() for path in (lock.path, audit.path)
+    }
+    original_coordinates = {
+        row["destination"]
+        for source, row in frame["entries"].items()
+        if row["owner"] == "original-component-producer"
+        and source.startswith(component["source_root"] + "/")
+    }
+    if coordinates != original_coordinates:
+        _fail("fresh normal finite pair differs from original producer inventory")
+
+    def require_destination():
+        check()
+        _ADMIT(prepared)
+        require_layout_lease(layout_lease, root)
+        if any(
+            object.__getattribute__(snapshot, name) is not value
+            for name, value in zip(
+                ("root", "manifest_path", "definition", "content", "directory_binding"),
+                fields,
+                strict=True,
+            )
+        ):
+            _fail("fresh owner's original project snapshot changed")
+        actual = ProjectConfigurationStore(root).read()
+        check()
+        _ADMIT(prepared)
+        if (
+            actual.root != root
+            or actual.content != snapshot.content
+            or actual.manifest_path != snapshot.manifest_path
+            or actual.definition != snapshot.definition
+            or actual.directory_binding != snapshot.directory_binding
+        ):
+            _fail("fresh destination project changed")
+        prepared.catalog_snapshot.require_unchanged()
+        check()
+        _ADMIT(prepared)
+        framework._guard(root, frame["plan"], layout_lease, None)
+        framework._guard_intent(root, frame_journal, frame)
+        require_layout_lease(layout_lease, root)
+        check()
+        _ADMIT(prepared)
+        if any(
+            object.__getattribute__(snapshot, name) is not value
+            for name, value in zip(
+                ("root", "manifest_path", "definition", "content", "directory_binding"),
+                fields,
+                strict=True,
+            )
+        ):
+            _fail("fresh owner's snapshot changed during closing guard")
+
+    require_destination()
+
+    # Native preimages must be exact before the normal checker can take its
+    # creating operation locks, and again after its callbacks return.
+    def require_original_placement():
+        require_destination()
+        if any(
+            framework._state(root, frame_journal, source, row) != "published"
+            for source, row in frame["entries"].items()
+        ):
+            _fail("fresh normal renewal requires exact original placement custody")
+
+    require_original_placement()
+    report, status = _OPERATE(
+        prepared,
+        target=target,
+        flavors=flavors,
+        flavor_roots=flavor_roots,
+        planner=planner,
+        check=True,
+        difference=False,
+    )
+    require_original_placement()
+    if (
+        type(status) is not int
+        or status not in (0, 1)
+        or type(report) is not dict
+        or report.get("schema") != "literate-ai/component-lock-command@1"
+        or report.get("mode") != "check"
+        or report.get("component") != str(prepared.component_root)
+        or report.get("target") != target
+        or report.get("resolution_plan_identity") != prepared.plan.identity.uri
+        or report.get("component_lock_identity") != prepared.result.lock.identity.uri
+        or report.get("catalog_audit_identity")
+        != prepared.result.catalog_audit.identity.uri
+        or report.get("current") is not (status == 0)
+    ):
+        _fail("fresh normal producer check contradicts its actual preparation")
+    if status == 0:
+        return {
+            "current": True,
+            "writes": False,
+            "journal": None,
+            "finalized": False,
+            "full_containment": False,
+            "qualification": False,
+        }
+    return _renew_prepared_component(
+        root,
+        plan_identity,
+        component,
+        prepared,
+        layout_lease,
+        frame_journal,
+        frame,
+        require_owner=require_destination,
+        move=move,
+    )
+
+
 def recover_framework_renewals(root, expected, frame_journal, frame, lease, namespace):
     """Internal original-framework recovery phase, inside its physical fences."""
     check = _bindings
@@ -710,6 +926,7 @@ def recover_framework_renewals(root, expected, frame_journal, frame, lease, name
 _ORIGINALS = tuple(
     (module, name, vars(module)[name])
     for module, names in (
+        (ProjectConfigurationStore, ("read",)),
         (
             operations,
             ("require_original_prepared_component_lock", "operate_component_lock"),
@@ -742,7 +959,15 @@ _ORIGINALS = tuple(
         (component_resolution_audits, ("publish_atomic_file_if_scoped",)),
         (
             framework,
-            ("_decode", "_guard", "_guard_intent", "_state", "_move", "_parent_node"),
+            (
+                "_decode",
+                "_guard",
+                "_guard_intent",
+                "_state",
+                "_move",
+                "_parent_node",
+                "_current",
+            ),
         ),
         (
             filesystem,
@@ -779,6 +1004,12 @@ def _bind_original_delegates():
             "component_namespace",
             "project_layout_component_transition",
             "ProjectConfigurationSnapshot",
+            "ProjectConfigurationStore",
+            "Path",
+            "os",
+            "renew_placed_framework_component",
+            "renew_framework_component",
+            "_renew_prepared_component",
             "_CLASSIFY",
             "_OPERATE",
             "_SCOPE",

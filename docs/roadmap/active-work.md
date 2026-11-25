@@ -26575,6 +26575,22 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
+- **Fresh destination producer owner (partial):** Renewal can now issue a new
+  call-local guard from the actual current Root lease, normal prepared producer,
+  destination project/catalog and original native framework journal. It neither
+  restores nor deserializes the retired source actor. Both live-transition and
+  fresh-destination entry points share the original finite atomic pair publisher
+  and native before/after custody. Separate Python processes exercise an already
+  current initialized pair without inode changes or a renewal journal, and a
+  genuinely changed wrapper selection followed by finalization and exact original
+  rollback. Original framework intent and source history remain unchanged; newly
+  authored policy remains intact. Copied preparation, replaced project read and
+  late Git boundaries refuse. Existing four-move process-exit, mode, foreign-inode,
+  callback and Root-binding controls pass with the shared publisher. Historical
+  conversion/initialization origin seams remain explicit. Public command wiring,
+  renewal after physical source closure, multi-owner composition and installed
+  supported-platform qualification remain open.
+
 - **Recorded wrapper source controls (partial):** Finalization archives only the
   original control files in a separate versioned native journal. The application
   directory and retained implementation stay in place, including private files

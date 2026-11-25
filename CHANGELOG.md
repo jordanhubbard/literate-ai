@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Renew migrated Component producers from a fresh destination owner bound to the current Root, actual normal preparation and original native journal, using the existing atomic publisher without reviving the retired source actor.
+
 - Cover process exits during wrapper control-file archive and restore, renewed-target revalidation after closure, and exact original rollback alongside initialized-Component compatibility.
 
 - Archive original recorded-wrapper control files separately from retained application directories, preserving native inode custody and restoring controls before ordinary rollback fences.
