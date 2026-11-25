@@ -134,11 +134,13 @@ class EvidenceStage:
         if destination != state.path or state.sealed or state.broken:
             _fail("original writable output scope required")
 
-    def prepare(self, relative):
+    def prepare(self, relative, *, directory=False):
+        if type(directory) is not bool:
+            raise TypeError("stage directory selection must be boolean")
         state = _state(self)
         self.require_output(state.path)
         parts = _parts(relative)
-        for depth in range(1, len(parts)):
+        for depth in range(1, len(parts) + int(directory)):
             current = parts[:depth]
             if current not in state.nodes:
                 try:

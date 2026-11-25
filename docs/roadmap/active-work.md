@@ -26575,15 +26575,43 @@ implementation, policy weakening, qualification or issue closure is recorded her
 
 ### [ ] PROJECT-LAYOUT-001 — Contain derived-project Literate AI files under litai/
 
-- **Next action — remaining producer/runtime ownership (in progress):** Continue
-  the actual framework-owned path inventory and original source-parent/whole-project
-  ownership. Contain remaining implicit audit/fetch scratch roots through their
-  original owners; directory-name changes alone do not grant disposal authority.
-  Finish metadata/source/cache original temporary creators and partial/immediate
-  disposal, remote RUN/legacy/explicit short-cache/general external drivers,
-  migrated history and all original installed/platform/native/full-source/review/
-  release requirements. Scoped status/cache/index controls do not close full
-  layout or provider acceptance.
+- **Next action — remaining producer/runtime ownership (in progress):** Complete
+  the public audit-retention diagnostic relay while preserving the original error
+  code: exception notes currently do not reach the CLI message. Then complete the
+  actual framework-owned path inventory and original source-parent/whole-project
+  ownership. Trace monorepo conversion staging before project bootstrap and the
+  remaining implicit fetch/observation roots through their original transaction
+  owners; do not manufacture initialized authority or cleanup permission from
+  saved paths. Finish metadata/source/cache original temporary creators and
+  partial/immediate disposal, remote RUN/legacy/explicit short-cache/general
+  external drivers, migrated history and every original installed/platform/native/
+  full-source/review/release requirement. Scoped audit/status/cache controls do not
+  close complete layout or provider acceptance.
+
+- **Native-child historical audit scratch (source partial):** The original
+  contained replacement planner now places inert historical child views under
+  the parent's `litai/_build/` through the shared original project inspection
+  owner. The owner reuses an actual live runtime or holds the standalone canonical
+  lifecycle lock, and checks original manifest bytes/native identity and project
+  context through disposal. Source-index status uses the same allocator. Each
+  historical manifest candidate is written once into a fresh view; retained rebind
+  records do not authorize rewriting or adopting a scratch file. Empty directories
+  and actual exclusive file creator postimages are recorded by the native stage
+  owner. Inspection files/directories use private `0600`/`0700` modes; the live
+  child's original bytes and modes remain untouched. Unknown/private or equal-byte
+  foreign entries refuse cleanup and preserve the original verifier rejection;
+  a disposal conflict cannot select another historical fallback. Retention details
+  currently live in exception notes; public CLI message relay remains open. Legacy
+  audit placement/behavior is unchanged. The baseline actual registry/copy control
+  reproduced the host-temporary view. Eleven new registry/history/physical scratch
+  controls and existing status, runtime-owner, stage, contained-index and signed
+  public replacement/history cohorts pass 59 distinct checks without skips or
+  failures, plus static gates. The new narrow verifier port is explicit; the
+  original signed journey uses the real promotion verifier with its original
+  distribution/origin observers and tiny retained Make fixture commands. No real
+  product compiler/model, installed or supported-platform release qualification is
+  claimed. Complete original source-parent/whole-project/migrated history,
+  remaining producer inventory and all original release requirements remain open.
 
 - **Source-index status scratch (source partial):** The original contained
   command engine now creates its actual source and SQLite status snapshots under

@@ -16,20 +16,20 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Protocol
 
-from literate_ai._cache_lock import cache_lock_path, exclusive_cache_lock
-from literate_ai._filesystem import UnsafeFilesystemPathError, require_safe_directory
+from literate_ai._cache_lock import CacheLockError
+from literate_ai._filesystem import UnsafeFilesystemPathError
 from literate_ai.adapters._processes import (
     ProcessTreeOwnership,
     create_process_tree_ownership,
     terminate_process_tree,
 )
 from literate_ai.adapters.evidence_files import _access
-from literate_ai.adapters.evidence_staging import EvidenceStagingError, evidence_staging
+from literate_ai.adapters.evidence_staging import EvidenceStagingError
 from literate_ai.adapters.project_runtime import (
-    current_project_runtime,
-    require_project_runtime,
+    ProjectRuntimeError,
+    project_inspection_staging,
 )
-from literate_ai.cache_directories import resolve_cache_directories
+from literate_ai.cache_directories import CacheDirectoryError
 from literate_ai.contracts import (
     ProjectSourceIntelligencePolicy,
     SemanticVersion,
@@ -280,41 +280,29 @@ class _CodeGraphCommandEngine:
                 (shadow / self.metadata_directory).mkdir()
                 yield shadow, None
             return
-        # Resolve only the declared project's defaults, never ambient cache overrides.
-        # Reject redirected ancestry before the resolver can follow it.
         require_current()
         try:
-            require_safe_directory(root / "litai" / "_build", allow_missing=True)
+            with project_inspection_staging(load_project(root), prefix=".cg-") as stage:
+                require_current()
+                stage.prepare("project/litai/codegraph.db")
+                yield stage.path / "project", stage
+                require_current()
         except UnsafeFilesystemPathError as error:
             raise ProjectSourceIntelligenceError(
                 "project.source_intelligence_path_unsafe",
                 "source-index scratch ancestry must be a direct directory",
             ) from error
-        project = load_project(root)
-        with ExitStack() as locks:
-            owner = current_project_runtime(project)
-            if owner is not None:
-                require_project_runtime(owner, project)
-                parent = owner.path
-            else:
-                directories = resolve_cache_directories(root, environment={})
-                lock = cache_lock_path(root, directories.obj_dir, "lifecycle.lock")
-                locks.enter_context(exclusive_cache_lock(lock))
-                parent = directories.obj_dir
-            require_current()
-            try:
-                with evidence_staging(parent, prefix=".cg-") as stage:
-                    stage.prepare("project/litai/codegraph.db")
-                    yield stage.path / "project", stage
-                    if owner is not None:
-                        require_project_runtime(owner, project)
-                    require_current()
-            except EvidenceStagingError as error:
-                raise ProjectSourceIntelligenceError(
-                    "project.source_intelligence_snapshot_unsafe",
-                    "original source-index scratch custody changed; "
-                    "conflicting state retained",
-                ) from error
+        except (
+            CacheLockError,
+            CacheDirectoryError,
+            ProjectRuntimeError,
+            EvidenceStagingError,
+        ) as error:
+            raise ProjectSourceIntelligenceError(
+                "project.source_intelligence_snapshot_unsafe",
+                "original source-index scratch custody changed; "
+                "conflicting state retained",
+            ) from error
 
     @staticmethod
     def _safe_root(project_root: Path) -> Path:

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Contain historical native-child audit views under their original project runtime and preserve foreign scratch state on cleanup conflicts.
+
 - Contain derived-project source-index status snapshots under litai and preserve unknown or replaced scratch files during cleanup.
 
 - Protect declared source intelligence state from cache outputs and reject unsafe path aliases before following their targets.

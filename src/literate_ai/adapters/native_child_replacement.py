@@ -11,7 +11,11 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 
 from literate_ai._cache_lock import CacheLockError, exclusive_cache_lock
-from literate_ai._filesystem import ensure_safe_directory, stat_is_link_or_reparse
+from literate_ai._filesystem import (
+    UnsafeFilesystemPathError,
+    ensure_safe_directory,
+    stat_is_link_or_reparse,
+)
 from literate_ai.adapters.authority import (
     AuthorityProjectionStoreError,
     FileAuthorityProjectionStore,
@@ -24,6 +28,7 @@ from literate_ai.adapters.conversion_authority import (
     _native_project_roots,
     require_native_project_path,
 )
+from literate_ai.adapters.evidence_staging import EvidenceStagingError
 from literate_ai.adapters.native_project_updates import (
     _capture,
     _digest,
@@ -31,6 +36,11 @@ from literate_ai.adapters.native_project_updates import (
     _RegisteredChild,
     _replace_metadata,
 )
+from literate_ai.adapters.project_runtime import (
+    ProjectRuntimeError,
+    project_inspection_staging,
+)
+from literate_ai.cache_directories import CacheDirectoryError
 from literate_ai.contracts import canonical_identity, canonical_json_bytes
 from literate_ai.contracts.authority import (
     ComponentAuthorityProjection,
@@ -205,6 +215,85 @@ def _historical_manifest(
     return None
 
 
+def _contained_audit_attempt(captured, tree, projections, candidate):
+    """Return only a disposed verification rejection; custody failures propagate."""
+    captured.require_current()
+    manifest = captured.child_context.manifest_path.relative_to(
+        captured.child
+    ).as_posix()
+    primary = None
+    try:
+        with project_inspection_staging(captured.parent, prefix=".na-") as stage:
+            captured.require_current()
+            stage.prepare("old", directory=True)
+            for relative, entry in tree.items():
+                target = "old/" + relative
+                if entry["kind"] == "directory":
+                    stage.prepare(target, directory=True)
+                else:
+                    content = _read(
+                        captured.child / relative, maximum_bytes=_MAXIMUM_FILE_BYTES
+                    )
+                    if _digest(content) != entry["identity"]:
+                        _refuse(
+                            "changed",
+                            "child changed while copying historical audit view",
+                        )
+                    # The audit consumes bytes, not executable permissions. Keep
+                    # every copied file private/inert; live modes remain untouched.
+                    stage.write(target, candidate if relative == manifest else content)
+            captured.require_current()
+            try:
+                for projection in projections:
+                    verify_source_promotion_evidence(stage.path / "old", projection)
+            except SourcePromotionError as error:
+                primary = error
+            captured.require_current()
+        captured.require_current()
+    except Exception as error:
+        if primary is not None:
+            primary.add_note(
+                "Original audit scratch disposal refused; retained: " + str(error)
+            )
+            raise primary from error
+        if isinstance(
+            error,
+            (
+                EvidenceStagingError,
+                ProjectRuntimeError,
+                CacheLockError,
+                CacheDirectoryError,
+                UnsafeFilesystemPathError,
+            ),
+        ):
+            raise NativeChildReplacementError(
+                "audit_custody",
+                "original audit scratch custody changed; conflicting state retained",
+            ) from error
+        raise
+    return primary
+
+
+def _contained_promotion_custody(captured, tree, projections, records):
+    candidate = captured.manifest
+    seen = set()
+    transitions = []
+    while True:
+        # Every historical candidate gets a fresh original creator. A saved
+        # manifest/history record never authorizes rewriting or adopting a file.
+        rejection = _contained_audit_attempt(captured, tree, projections, candidate)
+        if rejection is None:
+            return transitions
+        if _digest(candidate) in seen:
+            raise rejection
+        seen.add(_digest(candidate))
+        previous = _historical_manifest(captured, candidate, records)
+        if previous is None:
+            raise rejection
+        candidate, identity = previous
+        transitions.append(identity)
+
+
 def _promotion_custody(captured: _RegisteredChild, tree: dict) -> dict[str, object]:
     captured.require_current()
     projections = _unqualified(captured.child)
@@ -216,6 +305,13 @@ def _promotion_custody(captured: _RegisteredChild, tree: dict) -> dict[str, obje
             _refuse("history_limit", "too many retained rebind records")
         raw = _read(path, maximum_bytes=8 * 1024 * 1024)
         records.append((_digest(raw), json.loads(raw)))
+    if captured.parent_context.framework_root != captured.parent.root:
+        transitions = _contained_promotion_custody(captured, tree, projections, records)
+        captured.require_current()
+        return {
+            "projections": [p.identity.uri for p in projections],
+            "historical_rebind_records": transitions,
+        }
     transitions: list[str] = []
     # Audit verification occurs in an inert retained copy. Never rewrite the live
     # manifest or grant current qualification from a historical promotion audit.

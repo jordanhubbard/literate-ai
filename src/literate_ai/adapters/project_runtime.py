@@ -30,6 +30,7 @@ from ._write_reservations import (
     WriteReservationTarget,
     acquire_write_reservations,
 )
+from .evidence_staging import evidence_staging
 
 _ISSUER = object()
 _LIVE = WeakKeyDictionary()
@@ -311,6 +312,72 @@ def current_project_runtime(project=None):
         state = _state(owner)
         require_project_runtime(owner, state.project if project is None else project)
     return owner
+
+
+@contextmanager
+def project_inspection_staging(project, *, prefix):
+    """Fresh native scratch custody under the original contained project owner.
+
+    A live rebuild runtime supplies its already-held lock and namespace; standalone
+    inspection holds the default object lifecycle lock through stage disposal.
+    Neither retained metadata nor an ambient path can issue the staging actor.
+    """
+    if type(project) is not LoadedProject:
+        raise TypeError("actual LoadedProject required")
+    context = ProjectConfigurationStore.context(project.root)
+    snapshot = ProjectConfigurationStore(project.root).read()
+    manifest_node = _manifest_node(snapshot.manifest_path)
+    if (
+        snapshot.definition != project.definition
+        or snapshot.definition.framework_directory != "litai"
+        or context.root != project.root
+        or context.framework_root != project.framework_root
+    ):
+        raise ProjectRuntimeError("current contained inspection project required")
+    owner = current_project_runtime(project)
+
+    def require_current():
+        if ProjectConfigurationStore.context(project.root) != context:
+            raise ProjectRuntimeError("inspection project context changed")
+        current = ProjectConfigurationStore(project.root).read()
+        if (
+            current.content != snapshot.content
+            or current.manifest_path != snapshot.manifest_path
+            or _manifest_node(current.manifest_path) != manifest_node
+        ):
+            raise ProjectRuntimeError("inspection project authority changed")
+        if owner is not None:
+            require_project_runtime(owner, project)
+
+    require_current()
+    require_safe_directory(context.framework_root / "_build", allow_missing=True)
+    with ExitStack() as locks:
+        if owner is not None:
+            parent = ContainedProjectRuntime.path.__get__(owner)
+        else:
+            directories = resolve_cache_directories(project.root, environment={})
+            locks.enter_context(
+                exclusive_cache_lock(
+                    cache_lock_path(project.root, directories.obj_dir, "lifecycle.lock")
+                )
+            )
+            parent = directories.obj_dir
+        require_current()
+        with evidence_staging(parent, prefix=prefix) as stage:
+            require_current()
+            try:
+                yield stage
+            finally:
+                original_error = sys.exception()
+                try:
+                    require_current()
+                except Exception as error:
+                    if original_error is None:
+                        raise
+                    original_error.add_note(
+                        "Inspection project custody changed: " + str(error)
+                    )
+        require_current()
 
 
 def require_scoped_runtime_candidate(path):

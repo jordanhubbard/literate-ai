@@ -190,6 +190,13 @@ write controls are excluded from transported evidence. A conflicting runtime is
 preserved for inspection. Explicit short accepted-cache staging, general
 external-driver containment and full transfer/recovery qualification remain open.
 
+Historical native-child audits use a fresh private view for each recorded manifest
+candidate under the parent's contained object state. The original inspection owner
+checks project context and native manifest identity while retaining the runtime or
+cache lock. Audit views use private file/directory modes and leave the live child's
+bytes and modes untouched. Unknown files or replaced postimages are preserved;
+cleanup refusal cannot advance to another historical candidate.
+
 Contained CodeGraph status checks place their source and SQLite snapshots under
 `litai/_build/`. They reuse the current project runtime when one is active;
 standalone checks hold the project cache lifecycle lock. The original staging
