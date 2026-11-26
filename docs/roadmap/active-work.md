@@ -33793,3 +33793,34 @@ resolve the three confirmed findings or qualify the accepted design. No complete
 implementation, policy weakening, qualification or issue closure is recorded here.
 
 - **Combined source preparation (pending independent review and gate):** The current integration retains qualified HCI `f146a2d69da2cc3d6e96194ee8a98c6b7f905f69`, GPI `d597f77ad0bba0ab5aa2e18680da1c726bdd0bf0`, root Python/Git-readiness commit `dcd33ba4a31518c4508ef352770072d1869f9976`, current main `70cf6b20a152953fa01764086ef90b12e3147d94`, the complete published receipt-promotion base `09bb4ff9c59798b43360c162d1e98329a4934be0` plus its independently reviewed correction, and the exact reviewed Rust-harness delta from ancestor `072d66e81eff85f58515a09d93d19528499a5ec1`. Both installed tree and Rust journeys remain in the wheel driver. The root branch's source gate passed 2,559 tests with 131 declared skips and no failures; the direct Rust profile passed six native development cases; receipt promotion passed its real public planning and critical journey with complete source custody unchanged. These are separate exact-snapshot results, not qualification of this new union. Preserve all 47 current release-goal IDs, including the existing receipt-promotion queue item missing from its previous manifest. Canonical pin renewal, one fresh complete source gate, exact-head full platform CI, fresh installed qualification and all remaining native/consumer/browser acceptance remain required. Proposed ADR 0061 still requires directing-user design acceptance before implementation.
+
+### [ ] WHEEL-RUNTIME-ENV-001 — Isolate wheel runtime creation and installation from Python startup policy
+
+- **Priority:** P0
+- **Release target:** 1.4.0
+- **Owner:** scripts/wheel_smoke.py installed-wheel qualification
+- **Direction:** Repair the exact 1.4 core CI installed-wheel failure while retaining strict RECORD containment and genuine noneditable provenance.
+- **Conclusion:** Ambient Python bytecode and startup selectors must not cross the isolated runtime seeding, wheel build or pip installation boundaries. Use the canonical copied-runtime builder in a sanitized child, preserve package-index/proxy policy and verify real pip plus framework RECORD custody; do not weaken canonical bootstrap validation.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Current action:** Freeze the isolated seeding/build/install correction and its
+  real same-wheel safe/unsafe-cache regression for independent review before
+  runtime qualification. Keep strict canonical RECORD containment unchanged.
+- **Failure evidence:** Exact core commit `426b71ec` CI run
+  [41943200622](https://github.com/jordanhubbard/literate-ai/actions/runs/41943200622)
+  rejects recorded framework bytecode under the invoking checkout's `_build/pycache`
+  instead of the temporary installed prefix. Ubuntu 3.11/3.14 and macOS 3.11 expose
+  the same containment refusal. These failures remain unqualified.
+- **Seeding boundary:** CPython 3.14.10's
+  [venv child launcher](https://github.com/python/cpython/blob/v3.14.10/Lib/venv/__init__.py#L411-L428)
+  forwards most caller environment; its
+  [ensurepip subprocess](https://github.com/python/cpython/blob/v3.14.10/Lib/ensurepip/__init__.py#L59-L81)
+  keeps isolation only when already selected. Invoke the unchanged canonical copied
+  runtime builder in a sanitized child instead of mutating process-global state.
+- **Implementation:**
+  - [ ] Sanitize isolated child Python startup selectors consistently without process-global environment mutation.
+  - [ ] Seed copied runtimes through the existing canonical builder under the same sanitized environment.
+  - [ ] Exercise actual candidate wheel install and canonical record reopening with positive and escaping-private-cache controls.
+- **Evidence:**
+  - [ ] Preserve exact 426 CI failure, raw logs, artifact hashes and all remaining original matrix outcomes.
+  - [ ] Independent source review, meaningful actual install/reopen regression and fresh exact-head full qualification must pass before completion.
