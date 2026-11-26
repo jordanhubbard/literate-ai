@@ -213,6 +213,9 @@
       },
       {
         "id": "WORKER-TELEMETRY-001"
+      },
+      {
+        "id": "RUST-HARNESS-DEPS-001"
       }
     ]
   }

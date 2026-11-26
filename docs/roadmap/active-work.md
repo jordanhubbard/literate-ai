@@ -33465,3 +33465,26 @@ independent review and the complete combined gate from test one.
 - **Evidence:**
   - [ ] Real live-worker action/stage/state and network/disk/cpu/memory observations with declared unsupported values, not invented measurements.
   - [ ] Authentication, secret/command/environment/path redaction, no-listener/no-job-mutation, volume/coalescing/cancellation controls, independent review and integrated native qualification.
+
+### [ ] RUST-HARNESS-DEPS-001 — Execute reviewed offline Rust library verifier dependencies
+
+- **Release target:** 1.4.0
+- **GitHub issue:** [#217](https://github.com/jordanhubbard/literate-ai/issues/217)
+- **Accepted design:** [ADR 0056](../decisions/0056-reviewed-rust-library-harness-dependencies.md), explicitly accepted on 2026-11-03.
+- **Next action:** Run the complete source gate and fresh noneditable installed qualification after the reviewed native six-case development gate passed; verify ordinary Rustup-shim tool selection separately. FreeBSD SDK work retains execution priority.
+
+- **Priority:** P1
+- **Owner:** Framework library acceptance, native Cargo source custody and qualification capture; PROJECT goals 1, 4 and 5
+- **Direction:** Implement accepted ADR 0056 and included issue #217 without weakening independent acceptance or changing v1 behavior.
+- **Conclusion:** Add an explicit Rust-only oracle v2 binding exact reviewed registry declarations, sibling lock bytes, complete provisioned source/configuration custody, native tools and finite budgets; run offline locked resolution and actual cases, then reopen the same versioned evidence. FreeBSD SDK and Daemonarchy execution remain higher priority.
+- **Depends on:** none
+- **Completion prerequisites:** none
+- **Native development evidence:** All six selected native Linux ARM64 cases passed with zero skips and zero failures in the canonical Make gate (246.817 seconds). The actual public lifecycle, offline locked Cargo inputs, own-Cargo path/fixed-Git controls and declared dependency/feature boundaries were exercised. Complete source and native Cargo/rustc identities remained unchanged. The first attempt refused an ambient ancestor Cargo configuration; the successful attempt used a new private temporary directory without changing that configuration or relaxing the production refusal. This is source development evidence, not a complete source, installed-package or release qualification. The durable private dispatch record has SHA-256 `c5a323688d7d4276bf30f2d423a6c5054b60c8cd8b774c6d00d480b80234fe2b`.
+- **Implementation:**
+  - [ ] Add typed reviewed dependency declarations and exact bounded v2 oracle loading while preserving the closed v1 field set and identities.
+  - [ ] Compose the temporary manifest from closed values and exact qualified library; reuse canonical streaming Cargo input owners and config/tool custody, observe exact resolution/features/source identities, and run offline locked native Cargo under current execution policy.
+  - [ ] Capture and reopen the versioned oracle, harness, lock, dependency/source/configuration closure, generated manifest, native tools and actual command/case results.
+- **Evidence:**
+  - [ ] Exercise the public lifecycle with a real serde_json-using verifier and provisioned offline crates, including unchanged v1 positive/refusal behavior and actual incorrect-result refusal.
+  - [ ] Refuse changed source/lock/manifest/features/registry/configuration, missing or unexpected dependencies, alias collisions, extracted-source/checksum disagreement and exact/over-budget inputs; retain actual command and output failures.
+  - [ ] Obtain independent source review, canonical driver/documentation records, complete local and exact integrated CI gates, and fresh noneditable installed/native qualification before completion.
