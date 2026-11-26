@@ -2,7 +2,7 @@
   "record_version": 1,
   "scope": "Transfer and consolidate repository custody; remaining source reconciliation and release acceptance stay open.",
   "upstream_subject": "ebf88985be10f733dd64f469b7cd4aa685ce9083",
-  "continued_subject": "31e48ed6d68e279860cc582bb89873dfe7323d58",
+  "continued_subject": "055fbc3262def1886dd999bd65da911f71c4b298",
   "continuation_branch": "work/puck-takeover",
   "inventory": {
     "registered_worktrees": 269,
@@ -30,7 +30,16 @@
       "candidates": 0,
       "rejected": 76
     },
-    "authorization": "Operator explicitly approved preservation, integration and redundant-checkout cleanup; no branch was declared merged merely by removing its checkout."
+    "authorization": "Operator explicitly approved preservation, integration and redundant-checkout cleanup; no branch was declared merged merely by removing its checkout.",
+    "continuation_scratch_checkout": {
+      "path": ".worktrees/gcgit",
+      "removed": true,
+      "tracked_state_clean": true,
+      "head_ancestor_of_continuation": true,
+      "preserved_generated_files": 15,
+      "archive_sha256": "3b85bd463b26012c3fbf362c7e0bfd80914f335067ec2840171fcd459c39976d",
+      "editable_runtime_restored": "Verified from an external cwd: /home/jkh/Src/literate-ai/src/literate_ai/__init__.py"
+    }
   },
   "reconciliation": {
     "counts": {
@@ -944,7 +953,7 @@
       "artcust1": "All eighteen original selection/artifact test methods identical before the additional ambient no-fetch override control. Preserve descriptor/path closure, sealed receiving-owner stage verification and original exact bytes. Normal merge unchanged.",
       "artpub1": "Seventeen of eighteen original methods identical before the added ambient no-fetch override control. Publication test retains original checks and adds concurrent annotated-tag identity and independent fresh-checkout recovery. Normal merge unchanged.",
       "pf14": "All eight original current-lock methods identical and pass. Original complete closure/error checks remain in canonical lock-binding readers; parsed observations remain request scoped and isolated frames restore ambient state. Preserve live registration/attempt custody and guarded return-CAS delivery. Normal merge unchanged.",
-      "ad14": "The single-root baseline inventory helper is byte-identical, with original source-membership guards in planning and post-quarantine conversion. Original real Cargo test differs only by selecting the explicit convert profile. Normal merge unchanged. Current onboarding suite then reports a genuine native hardlink retirement failure; this history is integrated but not behaviorally qualified."
+      "ad14": "The single-root baseline inventory helper is byte-identical, with original source-membership guards in planning and post-quarantine conversion. Original real Cargo test differs only by selecting the explicit convert profile. Normal merge unchanged. Current onboarding suite then reports a genuine native hardlink retirement failure; this history is integrated but not behaviorally qualified. Original native retirement now repaired at 055fbc3262def1886dd999bd65da911f71c4b298; nine onboarding controls pass in 22.182 seconds. Stale metadata-only assertions use the declared framework context, retaining exact source-byte and selected-command checks."
     }
   },
   "checks": {
@@ -1291,12 +1300,37 @@
       "first_retained_fixture_sha256": "13370d8aa48a58b13574e450e18c016bcaebf0d4f20e2d86c51d7ca951e34fac",
       "second_retained_fixture_sha256": "dbe4ca457324adc486fdd6778ed904716c1199af0638a5abfd0e72be94014b5d",
       "observed": "Same device/inode, mode, uid, gid, size and mtime; st_nlink 2 to 1 and ctime changes after an original native hardlink unlink. No weakening of metadata guards or adoption of retained outputs performed.",
-      "scope": "Local actual Cargo build/test conversion. Existing failed cases and retained source/native namespaces are not relabeled as passes or reconstructed."
+      "scope": "Local actual Cargo build/test conversion. Existing failed cases and retained source/native namespaces are not relabeled as passes or reconstructed.",
+      "retained_fixture_binding_sha256": "32b6cd14c6dbeaec65feddca5cb0307ac44aeba8163a268ce3533492ae3175da"
+    },
+    "native_hardlink_retirement": {
+      "status": "passed",
+      "subject": "055fbc3262def1886dd999bd65da911f71c4b298",
+      "methods": 12,
+      "seconds": 69.898,
+      "log_sha256": "20aa39b7c346303904b45d66744a8f38e3ccbe9a5162475d2d4764f22ba5cb77",
+      "report_sha256": "01ec535d49b7cf0667d8ffe47bd6bdf99a5100a08e7de02db9d1e4b7da271e35",
+      "scope": "Original POSIX native custody controls plus actual hardlink producer cleanup, changed same-size/restored-mtime peer preservation and external-peer refusal. Local Linux ARM64; no macOS/FreeBSD/native Windows acceptance inferred.",
+      "before_repair": "The added real hardlink producer test failed in 2.023 seconds with the same custody/rollback refusal before the production change.",
+      "before_log_sha256": "55591aba09d250fe537db7fb96a4cf0f9180e06df63b3e6d23606815e05c9c23",
+      "byte_custody": "Complete original group, original descriptor, exact link count, unchanged original identity/mode/ownership/size/mtime, streaming byte identity and exact named-peer stamps. Only owned unlink ctime/nlink changes are accounted for; external peers and changed bytes refuse.",
+      "production_sha256": "31417115f2d34a90ada00aa42eae98a2b8531567b290870429c9f66eeeb1986a"
+    },
+    "reviewed_cargo_onboarding": {
+      "status": "passed",
+      "subject": "055fbc3262def1886dd999bd65da911f71c4b298",
+      "methods": 9,
+      "seconds": 22.182,
+      "log_sha256": "99a985e767d196497f44fc823b449a90aff85d158de28653910ff195fa0c0398",
+      "report_sha256": "2b8dbfdc3caec4fc2bbac0f34ae650ec79a7ae3c705efbf3f535d6aa7e2a6b2c",
+      "scope": "Full local onboarding control module, including actual Cargo selected baseline, exact original retained source bytes and exact selected phase commands. Only stale metadata assertions follow the declared framework context. Not full containment or release acceptance.",
+      "intermediate_failure": "With native retirement fixed, the same actual conversion passes and then the legacy test asserts a root manifest (30.045 seconds). The test now reads manifest/baseline/lift-shift metadata via declared ProjectContext; all source and phase-command assertions retained.",
+      "intermediate_log_sha256": "5cf1d209b72d60591cd50ca682effdb67c9b5c0ae04b19748d172102de9b0e08"
     }
   },
   "remaining_requirements": [
     "Reconcile the 41 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
-    "Repair original native hardlink-group retirement without dropping byte/metadata checks or adopting external peers, then resume the failed onboarding qualification and full composed Cargo source qualification. Preserve both failed native fixtures and their source/quarantine state.",
+    "Complete composed Cargo source qualification after the layout-aware mutation control and actual native hardlink repair. Both original failed native fixtures and their exact source/quarantine/native inventories remain preserved; no saved fixture grants fresh execution or cleanup authority.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

@@ -29149,7 +29149,7 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Repair original native hardlink retirement and reconcile the remaining 41 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining 41 snapshots and complete composed Cargo source qualification. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
   - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 49 of 90 recovery snapshots merged; 41 remain preserved.
@@ -29287,3 +29287,16 @@ size and mtime while its link count changes from two to one and its change time
 advances. Repair must account only for original owned retirement, preserve exact
 byte/metadata guards and refuse external peers; do not adopt post-failure state.
 The original rollback refusal and source/quarantine state remain preserved.
+
+**Original native hardlink repair.** Actual native groups now retire through a
+held original descriptor. Exact bytes and unchanged identity/mode/ownership/size/
+mtime bracket the cleanup's own link-count/change-time updates; named peers must
+retain that exact postimage, and external links refuse. The new real producer case
+first reproduces the custody failure (2.023 seconds). All 12 original/new custody
+controls then pass (69.898 seconds), including same-size peer tampering with
+restored mtime and preservation of external peers. The actual reviewed Cargo
+baseline now completes. Its old root metadata assertions follow declared project
+context while exact retained source bytes and selected commands remain asserted;
+all nine onboarding controls pass (22.182 seconds). Earlier failed fixtures and
+their 978-entry byte/native inventories remain preserved. No saved runtime is
+readmitted and no platform, parent-transition or release gate is renewed.
