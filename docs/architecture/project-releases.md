@@ -377,6 +377,57 @@ release-file custody still owns deliverable bytes. A missing, stale or invalid
 strict proof never falls back to aggregate workflow success. Policies without the
 binding retain their existing serialization and aggregate behavior.
 
+### Tested file handoff to release check
+
+A project with a version 2 release policy can opt into a single staged release file by using
+`literate-ai/github-ci-coverage-binding@2` for `qualification.ci.coverage` and
+adding a `tested_file` object. The object declares the release `role`, a stage
+`path` beneath the project's ignored `_build/` directory, the mandatory CI
+`platform`, and the `action` that consumes the exact file. This binding owns
+release-file selection, so it cannot be combined with a local `artifact_gate`.
+
+The reviewed producer runs the declared test on the actual artifact and exports
+`literate-ai/release-ci-coverage@2`. Its `tested_artifacts` object includes the
+declared role and path, byte size, SHA-256 identity, supporting test job ID, and
+an environment identity observed during execution. The pilot derives that
+environment identity from its Python executable, interpreter and platform
+versions, and hosted image version when available. Build and test facts must
+agree before the pilot exports. The supporting job must have executed in this
+attempt and finished before export. A copied test job can supply version 1 action
+coverage. It cannot supply tested-file custody for a newer attempt.
+
+Stage the file from the tested job at the declared path before running
+`litai release check`. Use a staging directory separate from native build output
+when local qualification also runs. The check derives the existing qualified release-file
+manifest from the live proof, compares the staged size and digest, reobserves the
+selected run and archive, and checks the staged bytes again before recording.
+The effective repository policy and committed release policy and workflow must
+agree with the release plan's base. A missing file, incomplete export, older job,
+or coverage-only report blocks preparation under the version 2 binding.
+
+The single-file binding supports stable publication when the live CI proof covers the
+complete declared platform and action matrix. Use the same prepared checkout and
+supply the staged file on every publish attempt. The existing release-engineer
+authorization applies. The publisher compares the entire retained proof with fresh
+provider evidence, checks the prepared source and its base authority, and copies
+the qualified bytes into a private file before changing Git or GitHub.
+
+Publication checks the expected remote refs and pushes the exact commit and
+annotated tag with Git's atomic, ref-lease protections. It verifies both refs in
+the configured GitHub repository. The provider release stays in draft while the
+publisher uploads to its recorded release ID and reads back the exact bytes.
+Publication then updates that ID and reobserves the public release and file.
+Provider operations are separate requests. An unsuccessful or interrupted reply
+can leave a tag or draft, so rerun publication with the same prepared record and
+staged file to inspect and recover. An existing matching asset can be reused.
+An incompatible draft or asset must be resolved independently. The publisher
+never deletes, replaces, or overwrites it.
+
+For this profile, read-only `litai release verify-published` requires the prepared
+checkout and current CI evidence, along with the matching remote refs and downloaded
+asset. Local staged bytes are optional for readback. Coverage-only strict policies
+and the strict RC and release-line merge commands retain their promotion refusals.
+
 ## Versioned release lines
 
 Every release belongs on `release/<major>.<minor>.x`, including releases using
