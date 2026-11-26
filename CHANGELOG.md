@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: exercise noneditable installed native adoption while checking the complete application tree and Git state remain unchanged; record scoped macOS creation and discovery results.
+
 - Framework layout: read-only planning reuses bounded, private copies of parsed provenance while retaining native reads and currentness checks. Copy or storage limits preserve original parsing behavior. Source regressions and real-catalog admission checks pass; installed timing and complete platform qualification remain pending.
 
 - Framework runtime: ship the original live-run context provider required by bounded subprocess adapters. Add an isolated installed-wheel layout journey that checks exact distribution origin and public CLI discovery; repaired-wheel qualification remains pending.
