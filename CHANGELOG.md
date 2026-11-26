@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Include neutral retained-product test modules in existing Linux and macOS
+  partitions, preserving exactly-once coverage, shard counts and deadlines.
+
 - Resolve inherited project and parent authority from declared root or `litai/`
   locations in immutable Git snapshots; reject duplicate, misplaced and linked
   metadata while preserving exact manifest identities and catalog coordinates.

@@ -1044,7 +1044,7 @@ jobs:
             python: "3.11"
             group: 7
             gates: "tests"
-            test_patterns: "test_authored_retained_cargo_[!n]*.py"
+            test_patterns: "test_authored_retained_cargo_[!n]*.py test_authored_retained_[!c]*.py"
           - name: "macos-latest / Python 3.11 (authored 4 of 4)"
             python: "3.11"
             group: 8
@@ -1066,7 +1066,7 @@ jobs:
             python: "3.14"
             group: 7
             gates: "tests"
-            test_patterns: "test_authored_retained_cargo_[!n]*.py"
+            test_patterns: "test_authored_retained_cargo_[!n]*.py test_authored_retained_[!c]*.py"
           - name: "macos-latest / Python 3.14 (authored 4 of 4)"
             python: "3.14"
             group: 8

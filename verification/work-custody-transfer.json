@@ -34,8 +34,8 @@
   },
   "reconciliation": {
     "counts": {
-      "merged": 31,
-      "preserved-for-reconciliation": 59
+      "merged": 34,
+      "preserved-for-reconciliation": 56
     },
     "snapshots": [
       {
@@ -52,18 +52,18 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "b7a7bcf24d2d4fe4deb7c6e3249cd88b92daa3fc",
         "branch": "recovery/puck-20261126/actionsel1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 6,
-        "remaining_paths": 4
+        "remaining_paths": 0
       },
       {
         "label": "actsel2",
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "c98e172a0b2a27353edc24dfcce0285b119c04ca",
         "branch": "recovery/puck-20261126/actsel2",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 6,
-        "remaining_paths": 4
+        "remaining_paths": 0
       },
       {
         "label": "actsel3",
@@ -596,9 +596,9 @@
         "base": "8ba81d598051d67db1f1997dd25639000907df40",
         "commit": "c198191df9a04579d9da242aad3ec9e0ac0bf837",
         "branch": "recovery/puck-20261126/schpre1",
-        "disposition": "preserved-for-reconciliation",
+        "disposition": "merged",
         "changed_paths": 5,
-        "remaining_paths": 3
+        "remaining_paths": 0
       },
       {
         "label": "sdlcn2",
@@ -885,7 +885,10 @@
         "sdsk1",
         "sdsq1",
         "goalguard1",
-        "labpin1"
+        "labpin1",
+        "actionsel1",
+        "actsel2",
+        "schpre1"
       ],
       "roadmap_delta_test_methods_identical": 4,
       "roadmap_delta_added_prose_lines_retained": 17,
@@ -900,7 +903,10 @@
       "sdsk1": "All seven patched Python symbols and full changelog/delivery additions already present. Preserve current review/driver pins. Normal merge tree unchanged.",
       "sdsq1": "Both patched Python symbols and full changelog/delivery additions already present. Preserve default/module/serial/failure boundaries and simulation limitations. Normal merge tree unchanged.",
       "goalguard1": "23 patched symbols match current ASTs. Preserve later comment-span/wrapped-checkbox parser, all predecessor and additional summary controls, original intake and native-worker holds. Merge tree unchanged.",
-      "labpin1": "All six rendered configs differ only in embedded renderer source; 90 current embedded contents/digests match actual tracked files. Preserve corrected provider/consumer lock-edge fields and current renderer pins. Merge tree unchanged."
+      "labpin1": "All six rendered configs differ only in embedded renderer source; 90 current embedded contents/digests match actual tracked files. Preserve corrected provider/consumer lock-edge fields and current renderer pins. Merge tree unchanged.",
+      "actionsel1": "All 23 original test methods AST-identical; final actsel4 supersedes initial routing with detected-task preservation, all-row unknown fallback and shared/unknown SDK selection. Normal merge unchanged.",
+      "actsel2": "All 25 original test methods AST-identical; final actsel4 supersedes intermediate fallback/SDK behavior. Normal merge unchanged.",
+      "schpre1": "Schema preflight and prerequisites present. Fifteen original test methods identical; endpoint and unknown-workflow controls superseded by explicit PR merge-base and broad routing regressions. Normal merge unchanged."
     }
   },
   "checks": {
@@ -1127,10 +1133,18 @@
       "continuation_receipt_sha256": "03e4780e9803e05a9ab496530ea3694a75dc2745d980659d0a4a340b3057eb63",
       "failure": "repository_update.provenance_missing: inherited catalog provenance is missing; update cannot classify local authority safely",
       "resulting_state": "Successful actual parent transition retained and independently bound to its typed selection/lineage identities. Do not restore old root lineage, reconstruct the fixture or fabricate provenance."
+    },
+    "reconciled_ci_policy": {
+      "status": "passed",
+      "methods": 35,
+      "seconds": 4.837,
+      "predecessor": "Original exactly-once coverage test failed after 13 methods: two neutral retained-product modules lacked shard ownership.",
+      "repair": "Add non-Cargo retained-module family to the existing non-native Cargo partitions on both Linux and macOS Python 3.11/3.14, preserving shard counts, deadlines and every original test assertion.",
+      "scope": "Local CI policy/source coverage controls; no hosted/native matrix success inferred."
     }
   },
   "remaining_requirements": [
-    "Reconcile the 59 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
+    "Reconcile the 56 preserved source snapshots and remaining committed branch differences, retaining obsolete/superseded dispositions with evidence.",
     "Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper acknowledged transition/initialization owner before inherited update. Preserve the existing refusal and do not invent inherited ownership. Complete migrated-parent and full-containment qualification separately.",
     "Complete independent review, original platform/source/installed gates and exact-head/resulting-main CI before release acceptance."
   ],

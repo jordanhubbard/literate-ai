@@ -29149,10 +29149,10 @@ qualification, admission and cache reuse remain open.
 - **Direction:** Take over all active framework work, preserve and integrate unique changes, and consolidate redundant checkouts and worktrees.
 - **Conclusion:** Preserve every branch, detached revision, stash, dirty source state and unique local evidence before removal. Continue PROJECT-LAYOUT-001; recovery snapshots remain unqualified until reviewed and verified.
 - **Depends on:** none
-- **Next action:** Reconcile the remaining 59 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
+- **Next action:** Reconcile the remaining 56 snapshots. Continue the retained changed-parent fixture from its actual successful transition: establish catalog provenance through the proper transition/initialization owner before inherited update, retaining the current refusal until ownership is established. Do not restore its old root lineage, reconstruct it, or manufacture inherited provenance.
 - **Implementation:**
   - [x] Inventory worktrees, sibling clones, refs, stashes, working changes and ignored evidence; verify transferred custody before removal.
-  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 31 of 90 recovery snapshots merged; 59 remain preserved.
+  - [ ] Integrate every unique source state with deliberate conflict resolution. Git ancestry currently proves 34 of 90 recovery snapshots merged; 56 remain preserved.
   - [x] Remove redundant checkouts and verify one clean remaining checkout on the source host.
   - [x] Resume actual installed update and unchanged-parent application on the original migrated/finalized fixture, retaining source/Git/intent custody.
   - [ ] Complete changed-parent/inherited-update application, full containment and the original independent/platform/installed/review gates.
@@ -29225,3 +29225,11 @@ documentation authority review, prior source-timeout hold and storage-cutover ho
 remain intact; no driver, authority marker or release receipt is silently repinned.
 [Earlier detailed handoff checkpoints](https://github.com/jordanhubbard/literate-ai/blob/93c6766fb4e49e41072a510c629abf0ffa6ad074/docs/roadmap/active-work.md)
 remain immutable history alongside the individual failed receipts.
+
+**CI reconciliation.** Three predecessor action/schema histories reconcile with
+unchanged trees, preserving the final fail-closed routing and native gates. The
+actual policy suite then exposes two transferred neutral retained-product modules
+without shard ownership. Their family now belongs to the existing non-native
+retained partitions on Linux/macOS 3.11 and 3.14. All 35 policy methods pass in
+4.837 seconds; exactly-once coverage assertions, shard counts and deadlines are
+unchanged. The original 13-method failing run remains retained.

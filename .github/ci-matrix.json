@@ -153,7 +153,7 @@
     "group": 6,
     "pr": true,
     "gates": "tests",
-    "test_patterns": "test_authored_retained_cargo_[!n]*.py"
+    "test_patterns": "test_authored_retained_cargo_[!n]*.py test_authored_retained_[!c]*.py"
   },
   {
     "task": "conformance",
@@ -233,7 +233,7 @@
     "group": 6,
     "pr": false,
     "gates": "tests",
-    "test_patterns": "test_authored_retained_cargo_[!n]*.py"
+    "test_patterns": "test_authored_retained_cargo_[!n]*.py test_authored_retained_[!c]*.py"
   },
   {
     "task": "conformance",
