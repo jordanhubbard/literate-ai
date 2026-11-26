@@ -611,11 +611,18 @@ def _attach_update_conflict_evidence(
 
 def _update_native_project(args, project) -> dict[str, Any]:
     """Use the ordinary three-way update owner for the minimal native profile."""
-    from literate_ai.adapters.lifecycle_lock import project_lifecycle_lock
+    from literate_ai.adapters.lifecycle_lock import (
+        project_lifecycle_lock,
+        project_lifecycle_lock_path,
+    )
     from literate_ai.adapters.project_initialization import INITIALIZATION_BASELINE_FILE
-    from literate_ai.adapters.project_update_apply import apply_project_update
+    from literate_ai.adapters.project_update_apply import (
+        _require_native_update_git_boundary,
+        _selected_update_paths,
+        apply_project_update,
+    )
     from literate_ai.adapters.project_updates import _read_contract
-    from literate_ai.adapters.update_merge import load_resolutions
+    from literate_ai.adapters.update_merge import CHECKPOINT, load_resolutions
     from literate_ai.contracts import ProjectInitializationBaseline, canonical_identity
     from literate_ai.projects import ProjectConfigurationStore
 
@@ -645,6 +652,22 @@ def _update_native_project(args, project) -> dict[str, Any]:
             )
         adapter = FilesystemProjectUpdateAdapter()
         plan = adapter.plan(project.root)
+        apply = bool(getattr(args, "apply", False))
+        adopt_added = bool(getattr(args, "adopt_added", False))
+        resolutions = (
+            load_resolutions(getattr(args, "resolutions", None), plan.files)
+            if apply
+            else {}
+        )
+        lifecycle_path = project_lifecycle_lock_path(project.root)
+        paths = (
+            *_selected_update_paths(
+                plan, adopt_added=adopt_added, resolutions=resolutions
+            ),
+            project.framework_root / CHECKPOINT,
+            lifecycle_path,
+        )
+        _require_native_update_git_boundary(project.root, paths)
         identity = canonical_identity(plan.to_dict()).uri
         value: dict[str, Any] = {
             "schema": "literate-ai/native-project-update@1",
@@ -655,30 +678,37 @@ def _update_native_project(args, project) -> dict[str, Any]:
             "source_moved": False,
             "authority_review_required": False,
         }
-        if not getattr(args, "apply", False):
+        if not apply:
             return value
-        resolutions = load_resolutions(getattr(args, "resolutions", None), plan.files)
-        with (
-            ProjectConfigurationStore.layout_lock(project.root),
-            project_lifecycle_lock(project.root, operation="native-update"),
-        ):
-            current = adapter.plan(project.root)
-            if canonical_identity(current.to_dict()).uri != identity:
-                raise ProjectUpdateError(
-                    "project.update_plan_changed",
-                    "Native update inputs changed before apply",
+
+        def require_lock_path(path):
+            _require_native_update_git_boundary(project.root, (path,))
+
+        with ProjectConfigurationStore.layout_lock(project.root):
+            _require_native_update_git_boundary(project.root, paths)
+            with project_lifecycle_lock(
+                project.root, operation="native-update", require_path=require_lock_path
+            ):
+                current = adapter.plan(project.root)
+                if canonical_identity(current.to_dict()).uri != identity:
+                    raise ProjectUpdateError(
+                        "project.update_plan_changed",
+                        "Native update inputs changed before apply",
+                    )
+                applied = apply_project_update(
+                    plan,
+                    project.root,
+                    adopt_added=adopt_added,
+                    resolutions=resolutions,
+                    native_lock=lifecycle_path,
+                    validator=lambda root: (
+                        FilesystemProjectValidationAdapter().validate(
+                            root,
+                            require_authority_review=False,
+                            include_test_receipt=False,
+                        )
+                    ),
                 )
-            applied = apply_project_update(
-                plan,
-                project.root,
-                adopt_added=bool(getattr(args, "adopt_added", False)),
-                resolutions=resolutions,
-                validator=lambda root: FilesystemProjectValidationAdapter().validate(
-                    root,
-                    require_authority_review=False,
-                    include_test_receipt=False,
-                ),
-            )
         value.update(
             mode="applied",
             application=applied.to_dict(),
@@ -1122,6 +1152,47 @@ def project_source_intelligence_from_args(args) -> dict[str, Any]:
         }
     except (ProjectError, ProjectSourceIntelligenceError) as exc:
         raise CliFailure(exc.code, exc.message) from exc
+
+
+def project_layout_from_args(args) -> dict[str, Any]:
+    """Dispatch read-only inspection and explicitly acknowledged placement."""
+    from literate_ai.adapters.project_layout_migration import (
+        apply_legacy_layout_migration,
+        plan_legacy_layout_migration,
+        recover_legacy_layout_migration,
+    )
+    from literate_ai.adapters.project_layout_planning import (
+        ProjectLayoutPlanError,
+        plan_project_layout,
+    )
+
+    try:
+        project = Path(args.project)
+        if args.layout_command == "apply":
+            return apply_legacy_layout_migration(
+                project,
+                args.plan_identity,
+                acknowledge=args.acknowledge,
+                references=tuple(args.rewrite_reference),
+            )
+        if args.layout_command == "recover":
+            return recover_legacy_layout_migration(
+                project, args.plan_identity, acknowledge=args.acknowledge
+            )
+        if args.migration:
+            return plan_legacy_layout_migration(project, tuple(args.rewrite_reference))
+        if args.rewrite_reference:
+            raise ProjectLayoutPlanError(
+                "reference_authority", "--rewrite-reference requires --migration"
+            )
+        return plan_project_layout(project)
+    except (ProjectLayoutPlanError, ProjectError, ProjectUpdateError) as exc:
+        raise CliFailure(exc.code, str(exc)) from exc
+    except (OSError, ValueError, RuntimeError) as exc:
+        raise CliFailure(
+            "project.layout.invalid",
+            "project containment inputs could not be inspected safely",
+        ) from exc
 
 
 def agent_entrypoints_from_args(args) -> dict[str, Any]:
@@ -1673,6 +1744,7 @@ __all__ = [
     "project_ci_plan_from_args",
     "project_ci_verify_from_args",
     "project_guidance_from_args",
+    "project_layout_from_args",
     "project_peer_work_from_args",
     "project_source_intelligence_from_args",
     "project_test_receipt_from_args",

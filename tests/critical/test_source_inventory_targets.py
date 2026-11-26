@@ -73,6 +73,12 @@ class SourceInventoryTargetTests(unittest.TestCase):
                 "<!--\nSPDX-License-Identifier: LicenseRef-CUDA\n-->\n"
                 "<p>portable</p>\n",
             ),
+            (
+                "portable.cpp",
+                "/* SPDX-FileContributor: CUDAToolkit team\n"
+                " * cudaStream_t and cuModuleLoadDataEx() contributors\n */\n"
+                "int portable();\n",
+            ),
         )
         for name, text in cases:
             with (
@@ -223,6 +229,14 @@ class SourceInventoryTargetTests(unittest.TestCase):
             ("host.cpp", "void allocate() { cudaMalloc(&buffer, 64); }\n"),
             ("host.cpp", "void initialize() { cuInit(0); }\n"),
             ("Cargo.toml", "[features]\ncuda = []\n"),
+            ("CMakeLists.txt", "find_package(CUDAToolkit REQUIRED)\n"),
+            ("host.cpp", "cudaError_t status;\n"),
+            (
+                "host.cpp",
+                "/* SPDX-FileCopyrightText: 2026 NVIDIA */ cudaStream_t stream;\n",
+            ),
+            ("host.cpp", "cuModuleLoadData(&module, image);\n"),
+            ("host.cpp", "cuModuleLoadDataEx(&module, image, 0, 0, 0);\n"),
         )
         for name, text in cases:
             with (
@@ -232,15 +246,39 @@ class SourceInventoryTargetTests(unittest.TestCase):
                 path = Path(tmp) / name
                 payload = text.encode()
                 path.write_bytes(payload)
-                inventory = inventory_source(path)
+                entry = inventory_source(path).entries[0]
                 self.assertIn(
-                    "cuda",
-                    {
-                        signal.flavor_id
-                        for signal in inventory.entries[0].flavor_signals
-                    },
+                    "cuda", {signal.flavor_id for signal in entry.flavor_signals}
+                )
+                self.assertEqual(
+                    entry.content_digest,
+                    "sha256:" + hashlib.sha256(payload).hexdigest(),
                 )
                 self.assertEqual(path.read_bytes(), payload)
+
+    def test_similar_identifiers_and_bytes_beyond_cuda_window_are_portable(self):
+        cases = (
+            "int cube(int value) { return value * value * value; }\n",
+            "int cuda_counter = 2;\n",
+            "int cudaStream_temporary = 2;\n",
+            "int cuModuleLoadData = 2;\n",
+            "void cuModuleLoadDataExtra();\n",
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "portable.cpp"
+            for text in (*cases, " " * 131072 + "cudaStream_t stream;\n"):
+                with self.subTest(text=text.strip()):
+                    payload = text.encode()
+                    source.write_bytes(payload)
+                    entry = inventory_source(source).entries[0]
+                    self.assertNotIn(
+                        "cuda", {signal.flavor_id for signal in entry.flavor_signals}
+                    )
+                    self.assertEqual(
+                        entry.content_digest,
+                        "sha256:" + hashlib.sha256(payload).hexdigest(),
+                    )
+                    self.assertEqual(source.read_bytes(), payload)
 
 
 if __name__ == "__main__":
