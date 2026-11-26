@@ -922,6 +922,68 @@
       "elapsed_seconds": 1.215,
       "log_sha256": "47fd4f7483d79a2257ba35d0e104dbeddfa4b12e03187f38b143e91343d64fa8",
       "scope": "Original roadmap cycle/refusal/byte-preservation controls, selecting the declared canonical queue; rollback checks assert both legacy and contained output absence."
+    },
+    "installed_maintenance_application": {
+      "subject": "de87bad35ec08e3d2884dfc868d9ccc7fe688c87",
+      "distribution": "sha256:77d3027a67cbac1584da97660f0a588e118c0ccc3ba0419f9222a03986b5502f",
+      "status": "failed",
+      "commands_completed": 25,
+      "elapsed_seconds": 104.615,
+      "failed_phase": "maintenance-update-apply",
+      "error": "cli.invalid_input: documentation link target unavailable in litai/docs/README.md",
+      "receipt_sha256": "35ceefc42eb7785b76f6855033b1304647e0ad4e8ee9a7300252e820ae02c259",
+      "preservation": {
+        "source_preserved": true,
+        "index_preserved": true,
+        "intent_preserved": true,
+        "head_preserved": true,
+        "distribution_preserved": true
+      },
+      "diagnosis": {
+        "upstream_link": "decisions/0001-legacy-project-lift-and-shift.md",
+        "upstream_target_exists": false,
+        "recorded_decision_paths": [
+          "docs/decisions/0001-legacy-project-lift-and-shift.md"
+        ],
+        "original_decision_exists": true
+      },
+      "scope": "Real installed migration/finalization and root/descendant update planning pass; actual update application refuses a future-coordinate documentation link. Reparent application is not reached.",
+      "executed_harness_sha256": "1d56619a41e51233f91354c086b033769300caaf76deed480b9d4a51cf699187",
+      "harness": "tests/support/installed_framework_maintenance_apply_journey.py",
+      "execution_note": "This exact apply-cell body was loaded before relocation from the preexisting maintenance journey filename. Original planning journey restored byte-for-byte; use the new apply filename for any subsequent execution.",
+      "repair_status": "Source projection repaired and 22 focused controls pass; exact original installed-fixture verification pending."
+    },
+    "native_root_source": {
+      "summary": {
+        "executed": 631,
+        "failed": 0,
+        "known_failed": 0,
+        "passed": 631,
+        "selected": 631,
+        "skipped": 0
+      },
+      "pin_identity": {
+        "algorithm": "sha256",
+        "digest": "23c11f2d12bc108b0b3e750d65e0cb3c3e73e91f1287d2111edf7f76084a9f8a",
+        "schema": "urn:literate-ai:schema:v1:content-identity"
+      },
+      "elapsed_seconds": 2248.97,
+      "report_sha256": "49bf413c3d342892852a942311ac6d3686643f7f23bcb5826c77b4b078178b0e",
+      "log_sha256": "2e731c8ab4c6d6c61be9dbbb0559411fc9b4f79987caf32e5a7b7d8ce44ed39b",
+      "scope": "Resumed native-root cohort after the harness-custody fix. Began before the update-reference repair; not evidence for later template changes, installed/platform acceptance or release qualification."
+    },
+    "update_reference_source": {
+      "new_reference_controls": 5,
+      "canonical_update_controls": 7,
+      "legacy_merge_controls": 10,
+      "failures": 0,
+      "production_sha256": "c131bca98c011c994a7e87aa53c30ea86a099550eb59347b7fabdeff47528108",
+      "logs": {
+        "update-reference-source.log": "6f78ddbdc0ba1035d8f551582f6000f0d9c7ae799b938e0fa48bd6684012299d",
+        "core-update-reference-regression.log": "3815a13692100d33e8b4aef5b4013ebd5ecee62253c2e5fe7d5943c4acc08987",
+        "update-merge-reference-fixed2.log": "9b6e03c4a6fcea83c1040a4d849a703d4504802593f094326c08af6cba6693bf"
+      },
+      "scope": "Source regression only; installed verification against original failed fixture is pending."
     }
   },
   "remaining_requirements": [

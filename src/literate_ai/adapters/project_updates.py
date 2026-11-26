@@ -416,6 +416,7 @@ def _upstream_template(
         from .native_project_bootstrap import native_template_files
 
         return native_template_files()
+    recorded_paths = baseline_paths
     if placement is not None:
         baseline_paths = {path.removeprefix("litai/") for path in baseline_paths}
     converted = LEGACY_LIFT_SHIFT_ADR in baseline_paths
@@ -441,6 +442,37 @@ def _upstream_template(
         }
     )
     if placement is not None:
+        # Static templates have current canonical destinations. Other recorded
+        # scaffold resources are reference targets, not permission to move them:
+        # a partially migrated project may still own its dynamic decision at root.
+        # Metadata coordinates instead follow the declared current project context;
+        # historical metadata rows must not redirect those current producers.
+        reference_names = {
+            row.logical
+            for row in placement.files
+            if row.logical not in content
+            and row.logical not in {PROJECT_FILENAME, "verification/current.json"}
+            and not row.logical.startswith(".literate/")
+        }
+        recorded = {}
+        for path in recorded_paths:
+            logical = path.removeprefix("litai/")
+            if logical in reference_names:
+                recorded.setdefault(logical, set()).add(path)
+        if any(len(paths) != 1 for paths in recorded.values()):
+            raise ProjectUpdateError(
+                "project.update_reference_ambiguous",
+                "recorded scaffold resource has ambiguous current coordinates",
+            )
+        placement = replace(
+            placement,
+            files=tuple(
+                replace(row, coordinate=next(iter(recorded[row.logical])))
+                if row.logical in recorded
+                else row
+                for row in placement.files
+            ),
+        )
         return {
             row.coordinate: value for row, value in placement.project_templates(content)
         }

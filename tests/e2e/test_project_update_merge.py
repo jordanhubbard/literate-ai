@@ -10,6 +10,7 @@ from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
+from literate_ai.adapters.project_scaffold_placement import ScaffoldLayout
 from literate_ai.adapters.project_update_apply import apply_project_update
 from literate_ai.adapters.project_updates import (
     FilesystemProjectUpdateAdapter,
@@ -174,7 +175,12 @@ class FrameworkMergeTests(unittest.TestCase):
         RootParentProjectInitializationAdapter(
             standard_binding_provider=lambda: None,
             initialization_origin_provider=lambda: self.origin,
-        ).initialize(self.root, empty=True, source_intelligence_provider="none")
+        ).initialize(
+            self.root,
+            empty=True,
+            source_intelligence_provider="none",
+            _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
+        )
         self.target = self.root / ".gitignore"
         self.target.write_bytes(OURS)
         bases = UpdateBases(self.root)
@@ -182,13 +188,19 @@ class FrameworkMergeTests(unittest.TestCase):
         bases.write()
         self.upstream = {".gitignore": THEIRS}
         self.addCleanup(patch.stopall)
+
+        def upstream(_paths, *, profile="generated", observation=None):
+            self.assertEqual(profile, "generated")
+            self.assertIsNone(observation)
+            return self.upstream
+
         patch(
             "literate_ai.adapters.project_updates._upstream_template",
-            side_effect=lambda _: self.upstream,
+            side_effect=upstream,
         ).start()
         patch(
             "literate_ai.adapters.project_update_apply._upstream_template",
-            side_effect=lambda _: self.upstream,
+            side_effect=upstream,
         ).start()
         self.adapter = FilesystemProjectUpdateAdapter(
             origin_provider=lambda: self.origin
@@ -307,6 +319,7 @@ class CatalogMergeTests(unittest.TestCase):
             source_intelligence_provider="none",
             parent_selection=selection,
             flavor_selectors=("+python", "+macos"),
+            _layout=ScaffoldLayout.LEGACY_ROOT_FIXTURE,
         )
         self.adapter = FilesystemRepositoryUpdateAdapter(
             lineage_resolver=lambda _: self.catalogs.lineage,

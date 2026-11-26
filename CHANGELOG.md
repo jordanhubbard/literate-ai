@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Project layout: keep update-template references bound to recorded dynamic resources in mixed layouts, and reject ambiguous locations without moving those resources.
+
 - Project layout: resolve retained Cargo consumer harness custody through the declared scaffold coordinates for legacy, mixed and contained projects.
 
 - Project layout: qualify installed root and descendant update/reparent planning on the original finalized migration fixture, preserving application source, Git and original authority/history.

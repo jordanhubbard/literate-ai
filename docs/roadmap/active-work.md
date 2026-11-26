@@ -29182,10 +29182,36 @@ leaves its genuine resulting fixture available for inspection. Changed-parent
 application and complete supported-platform acceptance remain separate required
 steps; unchanged-parent success cannot substitute for them.
 
-**Next action (in progress).** Reconcile the remaining 69 snapshots while observing
-the original 160-case native-root run, which remains live under its original
-deadline. Do not restart a live run. Then continue actual installed update/reparent
-application and changed-parent cases under PROJECT-LAYOUT-001. Source/installed
+**Installed application defect.** The new cell completes 25 commands in 104.615
+seconds and fails at actual update application: the updated contained README links
+to a future contained conversion decision although the exact baseline still records
+that unwritten dynamic decision at its original root path. Original source, Git
+HEAD/index, migration intent and installed distribution remain unchanged after
+rollback. The failed fixture and all phase evidence remain retained. Repair the
+shared template-reference projection using finite recorded current coordinates for
+unwritten resources; preserve declared current metadata coordinates, reject
+ambiguous resource mappings, and retain the graph validator and normal updater
+ownership/rollback boundaries. Do not move a dynamic decision or weaken validation
+to make the update pass. Requalify against the exact failed fixture with a new
+immutable installed subject, then continue unchanged and changed-parent application.
+
+**Update-reference source controls.** The new mixed/contained/legacy reference,
+ambiguous-resource and historical-metadata controls pass all five methods, and the
+seven existing canonical root-update controls also pass. The end-to-end legacy
+merge cohort stops during fixture initialization before the updater: it still
+constructs root-relative catalog declarations with the new contained default.
+Select the existing explicit legacy fixture mode for those original root-layout
+scenarios, retaining every original merge/rollback assertion and the separate
+canonical controls. Their original template doubles also need the current explicit
+profile/observation arguments; verify generated legacy profile and absence of a role
+observation rather than accepting arbitrary new arguments.
+
+**Next action (in progress).** Reconcile the remaining 69 snapshots and verify the reference
+repair against the exact retained failed installed fixture. The repaired native-root
+run completed all 631 selected cases in 2,248.970 seconds, without failures or skips;
+the earlier failing run had stopped after executing 160 cases. Its source pin and
+scope remain distinct from the later update-reference change. Continue actual
+installed update/reparent application and changed-parent cases under PROJECT-LAYOUT-001. Source/installed
 results at earlier immutable subjects do not qualify a later composed candidate.
 Full containment, original platform/source/installed/review gates and release
 acceptance remain open. The stale documentation authority review, prior
