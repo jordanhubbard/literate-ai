@@ -22406,6 +22406,24 @@ GitHub CI failure without relaxing identity checks.
   deferral. Implementing read-only discovery first under accepted ADR 0046; do not
   remove or relocate any existing checkout as part of that observation. Explicit
   user placement overrides remain authoritative for this session's task worktrees.
+- **Windows qualification repair, 2026-11-01:** Exact-main CI run `41361838494`
+  completed with four worktree fixture failures in Windows/Python 3.12 shard 2.
+  In-place Git control-file mutations now use an existing read/write descriptor
+  and explicit truncation, preserving Git for Windows hidden attributes and the
+  inode required by custody-drift tests. Symlink audit expectations use actual
+  native link text, including Windows extended-path prefixes, without reading
+  the target. Both real-Git fixture runners disable automatic maintenance/GC;
+  failures remain visible without retries or missing-file masking. All 39 focused
+  worktree checks pass on macOS (46.403 seconds). Independent reviewer
+  `review_pr239` approved the three-file fixture manifest
+  `74ec8b968055813942f0b21df834573788e71b68c9593480472ac931da24bbbf`.
+  The fresh complete local gate failed after 369 tests (29 skips, 1091.416
+  seconds): the isolated second-generation self-host replay exceeded its unchanged
+  300-second process deadline. The failure log and report remain retained; this
+  is not a full-suite pass. Contemporaneous host contention is being investigated,
+  without attributing causality or extending the deadline. Native Windows evidence,
+  a complete successful local gate and exact-head CI remain required. This repairs
+  qualification fixtures and grants no retirement authority.
 - **Discovery development evidence:** Twenty-three real-Git placement, discovery and
   orchestration checks pass with 21 subtests. Coverage includes independent and
   bare repositories, external/locked/detached registrations, dirty/staged/ignored
